@@ -516,7 +516,7 @@ list<xmlNode*> FindLocal( xmlXPathContext* ctxt,
 list<xmlNode*> FindNodes( xmlNode* node,
 			  const string& xpath ){
   xmlXPathContext* ctxt = xmlXPathNewContext( node->doc );
-  ctxt->node = xmlDocGetRootElement( node->doc );
+  ctxt->node = node;
   ctxt->namespaces = xmlGetNsList( node->doc, ctxt->node );
   ctxt->nsNr = 0;
   if (ctxt->namespaces != 0 ) {

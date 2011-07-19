@@ -20,6 +20,7 @@ class Correction;
 class Pattern;
 
 class Document {
+  friend bool operator==( const Document&, const Document& );
  public:
   Document();
   Document( const std::string& );
@@ -115,6 +116,11 @@ class Document {
   std::string filename;
 };
 
+bool operator==( const Document&, const Document& );
+inline bool operator!=( const Document& d1, const Document& d2 ){ 
+  return !( d1==d2 );
+};
+
 inline std::ostream& operator<<( std::ostream& os, const Document::at_t& at ){
   os << "<" << at.a << "," << at.t << ">";
   return os;
@@ -155,6 +161,7 @@ inline std::ostream& operator<<( std::ostream& os, const Pattern& p ){
 class AbstractElement {
   friend std::ostream& operator<<( std::ostream&, const AbstractElement& );
   friend std::ostream& operator<<( std::ostream&, const AbstractElement* );
+  friend bool operator==( const AbstractElement&, const AbstractElement& );
   friend class Document;
   friend class Correction;
  public:
@@ -354,6 +361,11 @@ class AbstractElement {
   double _confidence;
   int refcount;
 };
+
+bool operator==( const AbstractElement&, const AbstractElement& );
+inline bool operator!=( const AbstractElement& e1, const AbstractElement& e2 ){
+  return !( e1 == e2 );
+}
 
 inline size_t len( const AbstractElement *e ) { 
   return e->size(); }

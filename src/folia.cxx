@@ -14,6 +14,7 @@ using namespace std;
 
 const string NSFOLIA = "http://ilk.uvt.nl/folia";
 const string NSDCOI = "http://lands.let.ru.nl/projects/d-coi/ns/1.0";
+const string NSIMDI = "http://www.mpi.nl/IMDI/Schema/IMDI";
 
 std::ostream& operator<<( std::ostream& os, const AbstractElement& ae ){
   os << " <" << ae.classname();
@@ -1315,6 +1316,38 @@ Document::~Document(){
   }
 }
 
+bool operator==( const Document& d1, const Document& d2 ){
+  if ( d1.data.size() != d2.data.size() )
+    return false;
+  for ( size_t i = 0; i < d1.data.size(); ++i ){
+    if ( *d1.data[i] != *d2.data[i] )
+      return false;
+  }
+  return true;
+}
+
+bool operator==( const AbstractElement& a1, const AbstractElement& a2){
+  if ( a1._element_id != a2._element_id )
+    return false;
+  if ( a1._id != a2._id )
+    return false;
+  if ( a1._set != a2._set )
+    return false;
+  if ( a1._cls != a2._cls )
+    return false;
+  if ( a1._annotator != a2._annotator )
+    return false;
+  if ( a1._annotator_type != a2._annotator_type )
+    return false;
+  if ( a1.data.size() == a2.data.size() ) {
+    for ( size_t i = 0; i < a1.data.size(); ++i ){
+      if ( *a1.data[i] != *a2.data[i] )
+	return false;
+    }
+  }
+  return true;
+}
+
 void Document::setAttributes( const KWargs& kwargs ){
   bool happy = false;
   map<string,string>::const_iterator it = kwargs.find( "debug" );
@@ -1701,6 +1734,8 @@ AbstractElement* Document::parseFoliaDoc( xmlNode *root ){
 	xmlNode *m = p->children;
 	while ( m ){
 	  if ( Name(m)  == "METATRANSCRIPT" ){
+	    if ( !checkNS( m, NSIMDI ) )
+	      throw runtime_error( "imdi != imdi " );
 	    if ( debug > 1 )
 	      cerr << "found IMDI" << endl;
 	    metadatatype = IMDI;
