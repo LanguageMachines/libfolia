@@ -220,6 +220,7 @@ class AbstractElement {
 					bool = TRUE);
   KWargs collectAttributes() const;  
   //XML (de)serialisation
+  std::string xmlstring() const; // serialize to a string (XML fragment)
   virtual xmlNode *xml( Document *, bool ) const; //serialize to XML  
   virtual AbstractElement* parseXml( xmlNode * );
   UnicodeString unicode() const { return text(); };
@@ -292,7 +293,7 @@ class AbstractElement {
     throw NotImplementedError("sentence() for " + _xmltag );
   };
   virtual std::string description() const;
-  Sentence *addSentence( const std::string& s ){
+  Sentence *addSentence( const std::string& s ="" ){
     return addSentence( getArgs(s) );
   };
   Sentence *addSentence( const KWargs& );

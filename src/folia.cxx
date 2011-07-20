@@ -1172,8 +1172,10 @@ xmlNode *newTextNode( xmlDoc *doc, xmlNs *ns,
 
 KWargs AbstractElement::collectAttributes() const {
   KWargs attribs;
+  bool isDefaultSet = true;
   if ( !_set.empty() &&
        _set != mydoc->defaultset( _annotation_type ) ){
+    isDefaultSet = false;
     attribs["set"] = _set;
   }
   if ( !_cls.empty() )
@@ -1200,6 +1202,29 @@ KWargs AbstractElement::collectAttributes() const {
     attribs["n"] = _n;
 
   return attribs;
+}
+
+string AbstractElement::xmlstring() const{
+  // serialize to a string (XML fragment)
+  if ( !mydoc ){
+    throw runtime_error( "xmlstring() on a node without a doc" );
+  }
+  xmlNode *n = xml( mydoc, true );
+  xmlDoc *doc = xmlNewDoc( (const xmlChar*)"1.0" );
+  xmlNode *e = xmlNewDocNode( doc, 0, (const xmlChar*)"root", 0 );
+  xmlDocSetRootElement( doc, e );
+  xmlSetNs( n, xmlNewNs( n, (const xmlChar *)NSFOLIA.c_str(), 0 ) );
+  xmlAddChild( e, n );
+  xmlChar *buf; 
+  int size;
+  xmlDocDumpFormatMemory( doc, &buf, &size, 0 );
+  string result = string( (const char *)buf, size );
+  xmlFree( buf );
+  xmlFreeDoc( doc );
+  string::size_type s_pos = result.find( "<root>" );
+  string::size_type e_pos = result.find( "</root>" );
+  result = result.substr( s_pos+6, e_pos-s_pos-6 );
+  return result;
 }
 
 xmlNode *AbstractElement::xml( Document *doc, bool recursive ) const {
@@ -2044,7 +2069,6 @@ string Document::toXml() {
     if ( !id.empty() ){
       xmlNewNsProp( e, 0, XML_XML_ID,  (const xmlChar *)id.c_str() );
     }
-    xmlDocSetRootElement( outDoc, e );
     xmlNode *md = xmlAddChild( e,  newXMLNode( _foliaNs, "metadata" ) );  
     xmlNode *an = xmlAddChild( md,  newXMLNode( _foliaNs, "annotations" ) );
     setannotations( an );
@@ -2522,7 +2546,7 @@ void Sentence::init(){
 				 Description_t };
   _accepted_data = std::set<ElementType>(accept, accept+5); 
   _required_attributes = ID;
-  _optional_attributes = ANNOTATOR;
+  _optional_attributes = N;
 }
 
 void Text::init(){
