@@ -1187,7 +1187,7 @@ KWargs AbstractElement::collectAttributes() const {
   }
   
   if ( _annotator_type != UNDEFINED ){
-    if ( mydoc->isDefaultAnn( _annotation_type ) ){
+    if ( !isDefaultSet || !mydoc->isDefaultAnn( _annotation_type ) ){
       if ( _annotator_type == AUTO )
 	attribs["annotatortype"] = "auto";
       else if ( _annotator_type == MANUAL )
@@ -1995,9 +1995,9 @@ std::string Document::defaultannotatortype( AnnotationType::AnnotationType type,
 bool Document::isDefaultAnn( AnnotationType::AnnotationType ann ) const {
   map<AnnotationType::AnnotationType,map<string,at_t> >::const_iterator mit1 = annotationdefaults.find(ann);
   if ( mit1 != annotationdefaults.end() ){
-    return false;
+    return true;
   }
-  return true;
+  return false;
 }
 
 void Document::setannotations( xmlNode *node ){
