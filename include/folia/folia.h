@@ -57,6 +57,8 @@ class Document {
   bool isDefaultAnn( AnnotationType::AnnotationType ) const;
   std::string defaultset( AnnotationType::AnnotationType,
 			  bool = false ) const;
+  std::string uniqdefaultset( AnnotationType::AnnotationType,
+			      bool = false ) const;
   std::string defaultannotator( AnnotationType::AnnotationType, 
 				const std::string& ="", bool = false ) const;
   std::string defaultannotatortype( AnnotationType::AnnotationType, 
@@ -70,7 +72,7 @@ class Document {
   void setimdi( xmlNode * );
   void declare( AnnotationType::AnnotationType, 
 		const std::string&,
-		const std::string& );
+		const std::string& = "" );
   void parseannotations( xmlNode * );
   void setannotations( xmlNode *);
   void setmetadata( xmlNode * );
@@ -92,6 +94,7 @@ class Document {
     AnnotationType::AnnotationType t;
     std::string s;
   };
+  std::map<AnnotationType::AnnotationType,std::map<std::string,at_t> > annotationdefaults;
 
  private:
   void setAttributes( const KWargs&  );
@@ -99,7 +102,6 @@ class Document {
   std::vector<AbstractElement* > iindex;
   std::vector<AbstractElement*> data;
   std::string _id;
-  std::map<AnnotationType::AnnotationType,std::map<std::string,at_t> > annotationdefaults;
   std::list<ts_t> annotations;
   std::set<AbstractElement *> delSet;
   AbstractElement *foliadoc;

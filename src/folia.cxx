@@ -178,7 +178,7 @@ Correction *AbstractStructureElement::correct( vector<AbstractElement*> original
   // cerr << "current = " << current << endl;
   // cerr << "new     = " << _new << endl;
   // cerr << "suggestions     = " << suggestions << endl;
-  // cerr << "args in     = " << args_in << endl;
+  //  cerr << "args in     = " << args_in << endl;
   // Apply a correction
   Correction *c = 0;
   bool suggestionsonly = false;
@@ -529,7 +529,7 @@ string AbstractStructureElement::generateId( const string& tag,
 
 void AbstractElement::setAttributes( const KWargs& kwargs ){
   Attrib supported = _required_attributes | _optional_attributes;
-  // if ( _element_id == Pos_t ){
+  // if ( _element_id == Correction_t ){
   //   cerr << "set attributes: " << kwargs << " on " << toString(_element_id) << endl;
   //   cerr << "required = " <<  _required_attributes << endl;
   //   cerr << "optional = " <<  _optional_attributes << endl;
@@ -1173,21 +1173,24 @@ xmlNode *newTextNode( xmlDoc *doc, xmlNs *ns,
 KWargs AbstractElement::collectAttributes() const {
   KWargs attribs;
   bool isDefaultSet = true;
+  bool isDefaultAnn = true;
   if ( !_set.empty() &&
-       _set != mydoc->defaultset( _annotation_type ) ){
+       _set != mydoc->uniqdefaultset( _annotation_type ) ){
     isDefaultSet = false;
     attribs["set"] = _set;
   }
   if ( !_cls.empty() )
     attribs["class"] = _cls;
-  
+
   if ( !_annotator.empty() &&
-       _annotator != mydoc->defaultannotator( _annotation_type, "", true ) ){
+       _annotator != mydoc->defaultannotator( _annotation_type, _set, true ) ){
+    isDefaultAnn = false;
     attribs["annotator"] = _annotator;
   }
   
   if ( _annotator_type != UNDEFINED ){
-    if ( !isDefaultSet || !mydoc->isDefaultAnn( _annotation_type ) ){
+    AnnotatorType at = stringToANT( mydoc->defaultannotatortype( _annotation_type, _set, true ) );
+    if ( (!isDefaultSet || !isDefaultAnn) && _annotator_type != at ){
       if ( _annotator_type == AUTO )
 	attribs["annotatortype"] = "auto";
       else if ( _annotator_type == MANUAL )
@@ -1723,7 +1726,7 @@ void Document::parseannotations( xmlNode *node ){
 	  t = it->second;
       }
       annotationdefaults[type].insert( make_pair(s,at_t( a, t )));
-      //      cerr << "inserted [" << s << "](" << a << "," << t << ")" << endl;
+      //      cerr << "inserted [" << toString(type) << "][" << s << "](" << a << "," << t << ")" << endl;
     }
     n = n->next;
   }
@@ -1950,6 +1953,18 @@ std::string Document::defaultset( AnnotationType::AnnotationType type,
   return result;
 }
 
+std::string Document::uniqdefaultset( AnnotationType::AnnotationType type,
+				      bool noThrow ) const {
+  map<AnnotationType::AnnotationType,map<string,at_t> >::const_iterator mit1 = annotationdefaults.find(type);
+  string result;
+  if ( mit1 != annotationdefaults.end() ){
+    if ( mit1->second.size() == 1 )
+      result = mit1->second.begin()->first;
+  }
+  //  cerr << "get defaultset ==> " << result << endl;
+  return result;
+}
+
 std::string Document::defaultannotator( AnnotationType::AnnotationType type,
 					const string& st,
 					bool noThrow ) const {
@@ -1988,7 +2003,7 @@ std::string Document::defaultannotatortype( AnnotationType::AnnotationType type,
   }
   //  cerr << "get default ==> " << result << endl;
   if ( !noThrow && result.empty() )
-    throw NoDefaultError( "defaultannotator" );
+    throw NoDefaultError( "defaultannotationtype" );
   return result;
 }
 
