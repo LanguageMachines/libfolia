@@ -436,7 +436,7 @@ Alternative *AbstractElement::addAlternative( ElementType et,
 					      const KWargs& args ){
   Alternative *res = new Alternative( mydoc );
   KWargs kw;
-  string id = generateId( "w" );
+  string id = generateId( "alt" );
   kw["id"] = id;
   res->setAttributes( kw );
   if ( et == Pos_t )
@@ -2702,8 +2702,9 @@ void Correction::init(){
   _required_attributes = ID;
   _optional_attributes = CLASS|ANNOTATOR|CONFIDENCE;
   _annotation_type = AnnotationType::CORRECTION;
-  const ElementType accept[] = { New_t, Original_t, Suggestion_t, Current_t };
-  _accepted_data = std::set<ElementType>(accept, accept+4);
+  const ElementType accept[] = { New_t, Original_t, Suggestion_t, Current_t,
+				 Description_t };
+  _accepted_data = std::set<ElementType>(accept, accept+5);
 }
 
 void Description::init(){
