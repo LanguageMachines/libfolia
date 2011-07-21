@@ -1,6 +1,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <string>
 #include <set>
 #include <list>
@@ -677,6 +678,22 @@ void AbstractElement::setAttributes( const KWargs& kwargs ){
   else
     _n = "";
   
+  it = kwargs.find( "datetime" );
+  if ( it != kwargs.end() ) {
+    if ( !(DATETIME & supported) )
+      throw ValueError("datetime is not supported for " + classname() );
+    else {
+      cerr << "try to read a date-time " << it->second << endl;
+      stringstream ss( it->second );
+      ss >> _datetime;
+      cerr << "read _date time = " << _datetime << endl;
+    }
+  }
+  else if ( DATETIME & _required_attributes )
+    throw ValueError("datetime is required");
+  else
+    _datetime;
+  
   if ( mydoc && !_id.empty() )
     mydoc->addDocIndex( this, _id );  
 }
@@ -1204,6 +1221,9 @@ KWargs AbstractElement::collectAttributes() const {
   
   if ( !_n.empty() )
     attribs["n"] = _n;
+
+  if ( _datetime != boost::posix_time::ptime() )
+    attribs["datetime"] = to_iso_extended_string(_datetime);
 
   return attribs;
 }
@@ -2577,7 +2597,7 @@ void PosAnnotation::init(){
   _element_id = Pos_t;
   _annotation_type = AnnotationType::POS;
   _required_attributes = CLASS;
-  _optional_attributes = ANNOTATOR|CONFIDENCE;
+  _optional_attributes = ANNOTATOR|CONFIDENCE|DATETIME;
   const ElementType accept[] = { Feature_t, Description_t };
   _accepted_data = std::set<ElementType>(accept, accept+2);
 }
@@ -2587,7 +2607,7 @@ void LemmaAnnotation::init(){
   _element_id = Lemma_t;
   _annotation_type = AnnotationType::LEMMA;
   _required_attributes = CLASS;
-  _optional_attributes = ANNOTATOR|CONFIDENCE;
+  _optional_attributes = ANNOTATOR|CONFIDENCE|DATETIME;
   const ElementType accept[] = { Feature_t, Description_t };
   _accepted_data = std::set<ElementType>(accept, accept+2);
 }
@@ -2596,6 +2616,8 @@ void SenseAnnotation::init(){
   _xmltag="sense";
   _element_id = Sense_t;
   _annotation_type = AnnotationType::SENSE;
+  _required_attributes = CLASS;
+  _optional_attributes = ANNOTATOR|CONFIDENCE|DATETIME;
 }
 
 void WordReference::init(){
@@ -2607,7 +2629,7 @@ void WordReference::init(){
 
 void SyntacticUnit::init(){
   _required_attributes = NO_ATT;
-  _optional_attributes = ID|CLASS|ANNOTATOR|CONFIDENCE;
+  _optional_attributes = ID|CLASS|ANNOTATOR|CONFIDENCE|DATETIME;
   _xmltag = "su";
   _element_id = SyntacticUnit_t;
   _annotation_type = AnnotationType::SYNTAX;
@@ -2698,7 +2720,7 @@ void Suggestion::init(){
   _element_id = Suggestion_t;
   const ElementType accept[] = { Pos_t, Lemma_t, TextContent_t, Word_t };
   _accepted_data = std::set<ElementType>(accept, accept+4);
-  _optional_attributes = ANNOTATOR|CONFIDENCE;
+  _optional_attributes = ANNOTATOR|CONFIDENCE|DATETIME;
   MINTEXTCORRECTIONLEVEL = CORRECTED;
 }
 
@@ -2706,7 +2728,7 @@ void Correction::init(){
   _xmltag = "correction";
   _element_id = Correction_t;
   _required_attributes = ID;
-  _optional_attributes = CLASS|ANNOTATOR|CONFIDENCE;
+  _optional_attributes = CLASS|ANNOTATOR|CONFIDENCE|DATETIME;
   _annotation_type = AnnotationType::CORRECTION;
   const ElementType accept[] = { New_t, Original_t, Suggestion_t, Current_t,
 				 Description_t };
@@ -2820,7 +2842,7 @@ void ErrorDetection::setAttributes( const KWargs& kwargs ){
 void ErrorDetection::init(){
   _xmltag = "errordetection";
   _element_id = ErrorDetection_t;
-  _optional_attributes = CLASS|ANNOTATOR|CONFIDENCE;
+  _optional_attributes = CLASS|ANNOTATOR|CONFIDENCE|DATETIME;
   _annotation_type = AnnotationType::ERRORDETECTION;
   error = true;
 }
@@ -2868,7 +2890,7 @@ void Morpheme::init(){
   _element_id = Morpheme_t;
   _xmltag = "morpheme";
   _required_attributes = NO_ATT;
-  _optional_attributes = ID|CLASS|ANNOTATOR|CONFIDENCE;
+  _optional_attributes = ID|CLASS|ANNOTATOR|CONFIDENCE|DATETIME;
   const ElementType accept[] = { Feature_t, TextContent_t };
   _accepted_data = std::set<ElementType>(accept, accept+2);
   _annotation_type = AnnotationType::MORPHOLOGICAL;

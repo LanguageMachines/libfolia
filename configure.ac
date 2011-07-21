@@ -63,6 +63,13 @@ else
   AC_MSG_ERROR("ICU support is required")
 fi
 
+AX_BOOST_BASE( [1.4],,
+	       [AC_MSG_FAILURE( "No BOOST development environment found." )] )
+
+AX_BOOST_DATE_TIME
+CXXFLAGS="$CXXFLAGS $BOOST_CPPFLAGS"
+LIBS="$BOOST_LDFLAGS $BOOST_DATE_TIME_LIB $LIBS"
+
 # Checks for library functions.
 
 AC_OUTPUT([

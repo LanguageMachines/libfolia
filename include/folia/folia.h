@@ -5,6 +5,7 @@
 #include "unicode/regex.h"
 #include "libxml/tree.h"
 #include "libxml/xpath.h"
+#include "boost/date_time/posix_time/posix_time.hpp"
 #include "foliautils.h"
 
 extern const std::string NSFOLIA;
@@ -357,6 +358,7 @@ class AbstractElement {
   std::string _cls;
   std::string _annotator;
   std::string _n;
+  boost::posix_time::ptime _datetime;
   AnnotatorType _annotator_type;
   double _confidence;
   int refcount;

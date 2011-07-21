@@ -6,7 +6,7 @@
 #include <set>
 #include <list>
 #include <stdexcept>
-#include <algorithm>
+#include <algorithm> 
 #include "folia/folia.h"
 
 using namespace std;
@@ -59,7 +59,7 @@ string toString( const AnnotationType::AnnotationType& at ){
   case AnnotationType::LEMMA:
     result = "lemma";
     break; 
-  case AnnotationType::DOMAIN:
+  case AnnotationType::DOMEIN:
     result = "domain";
     break; 
   case AnnotationType::SENSE: 
@@ -169,7 +169,7 @@ AnnotationType::AnnotationType stringToAT( const string& at ){
   if ( at == "lemma" )
     return AnnotationType::LEMMA;
   if ( at == "domain" )
-    return AnnotationType::DOMAIN;
+    return AnnotationType::DOMEIN;
   if ( at == "sense" )
     return AnnotationType::SENSE;
   if ( at == "syntax" )
