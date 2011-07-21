@@ -683,10 +683,10 @@ void AbstractElement::setAttributes( const KWargs& kwargs ){
     if ( !(DATETIME & supported) )
       throw ValueError("datetime is not supported for " + classname() );
     else {
-      cerr << "try to read a date-time " << it->second << endl;
+      //      cerr << "try to read a date-time " << it->second << endl;
       stringstream ss( it->second );
       ss >> _datetime;
-      cerr << "read _date time = " << _datetime << endl;
+      //      cerr << "read _date time = " << _datetime << endl;
     }
   }
   else if ( DATETIME & _required_attributes )
@@ -696,6 +696,16 @@ void AbstractElement::setAttributes( const KWargs& kwargs ){
   
   if ( mydoc && !_id.empty() )
     mydoc->addDocIndex( this, _id );  
+}
+
+void AbstractElement::setDateTime( const std::string& s ){
+  Attrib supported = _required_attributes | _optional_attributes;
+  if ( !(DATETIME & supported) )
+    throw ValueError("datetime is not supported for " + classname() );
+  else {
+    stringstream ss( s );
+    ss >> _datetime;
+  }
 }
 
 void Word::setAttributes( const KWargs& kwargs ){
