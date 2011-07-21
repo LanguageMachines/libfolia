@@ -576,8 +576,9 @@ void AbstractElement::setAttributes( const KWargs& kwargs ){
       _set = it->second;
     }
     if ( mydoc &&
-	 mydoc->defaultset( _annotation_type, true ) == "" )
-      throw ValueError( "Set " + _set + " is used but has no declaration!" );
+	 !mydoc->isDeclared( _set , _annotation_type ) )
+      throw ValueError( "Set " + _set + " is used but has no declaration " +
+			"for " + toString( _annotation_type ) + "-annotation" );
   }
   else if ( mydoc && ( def = mydoc->defaultset( _annotation_type, true )) != "" ){
     _set = def;
@@ -1175,7 +1176,7 @@ KWargs AbstractElement::collectAttributes() const {
   bool isDefaultSet = true;
   bool isDefaultAnn = true;
   if ( !_set.empty() &&
-       _set != mydoc->uniqdefaultset( _annotation_type ) ){
+       _set != mydoc->defaultset( _annotation_type ) ){
     isDefaultSet = false;
     attribs["set"] = _set;
   }
@@ -1940,28 +1941,26 @@ AbstractElement* Document::addNode( ElementType et, const KWargs& kwargs ){
   return res;
 }
 
-std::string Document::defaultset( AnnotationType::AnnotationType type,
-				  bool noThrow ) const {
+bool Document::isDeclared( const string& s, 
+			   AnnotationType::AnnotationType type ){
   map<AnnotationType::AnnotationType,map<string,at_t> >::const_iterator mit1 = annotationdefaults.find(type);
-  string result;
   if ( mit1 != annotationdefaults.end() ){
-    result = mit1->second.begin()->first;
+    map<string,at_t>::const_iterator mit2 = mit1->second.find(s);
+    return mit2 != mit1->second.end();
   }
-  //  cerr << "get defaultset ==> " << result << endl;
-  if ( !noThrow && result.empty() )
-    throw NoDefaultError( "defaultset" );
-  return result;
+  return false;
 }
 
-std::string Document::uniqdefaultset( AnnotationType::AnnotationType type,
-				      bool noThrow ) const {
+string Document::defaultset( AnnotationType::AnnotationType type,
+			     bool noThrow ) const {
+  // search a set. it must be unique. Otherwise return ""
   map<AnnotationType::AnnotationType,map<string,at_t> >::const_iterator mit1 = annotationdefaults.find(type);
   string result;
   if ( mit1 != annotationdefaults.end() ){
     if ( mit1->second.size() == 1 )
       result = mit1->second.begin()->first;
   }
-  //  cerr << "get defaultset ==> " << result << endl;
+  //  cerr << "defaultset ==> " << result << endl;
   return result;
 }
 
@@ -2007,19 +2006,11 @@ std::string Document::defaultannotatortype( AnnotationType::AnnotationType type,
   return result;
 }
 
-bool Document::isDefaultAnn( AnnotationType::AnnotationType ann ) const {
-  map<AnnotationType::AnnotationType,map<string,at_t> >::const_iterator mit1 = annotationdefaults.find(ann);
-  if ( mit1 != annotationdefaults.end() ){
-    return true;
-  }
-  return false;
-}
-
 void Document::setannotations( xmlNode *node ){
   list<ts_t>::const_iterator it = annotations.begin();
   while ( it != annotations.end() ){
     // Find the 'label' 
-    string label = lowercase(toString( it->t ) );
+    string label = toString( it->t );
     label += "-annotation";
     xmlNode *n = xmlAddChild( node, newXMLNode( _foliaNs, label ) );
     KWargs args;

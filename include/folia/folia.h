@@ -53,12 +53,9 @@ class Document {
   
   AbstractElement *index( const std::string& ) const; //retrieve element with specified ID 
   AbstractElement* operator []( const std::string& ) const ; //index as operator 
-
-  bool isDefaultAnn( AnnotationType::AnnotationType ) const;
+  bool isDeclared( const std::string&, AnnotationType::AnnotationType );
   std::string defaultset( AnnotationType::AnnotationType,
 			  bool = false ) const;
-  std::string uniqdefaultset( AnnotationType::AnnotationType,
-			      bool = false ) const;
   std::string defaultannotator( AnnotationType::AnnotationType, 
 				const std::string& ="", bool = false ) const;
   std::string defaultannotatortype( AnnotationType::AnnotationType, 

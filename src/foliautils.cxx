@@ -45,52 +45,52 @@ string toString( const AnnotationType::AnnotationType& at ){
   string result;
   switch ( at ) {
   case AnnotationType::NO_ANN:
-    result = "None";
+    result = "NoNe";
     break; 
   case AnnotationType::TOKEN:
-    result = "TOKEN";
+    result = "token";
     break; 
   case AnnotationType::DIVISION:
-    result = "DIVISION";
+    result = "division";
     break; 
   case AnnotationType::POS: 
-    result = "POS";
+    result = "pos";
     break; 
   case AnnotationType::LEMMA:
-    result = "LEMMA";
+    result = "lemma";
     break; 
   case AnnotationType::DOMAIN:
-    result = "DOMAIN";
+    result = "domain";
     break; 
   case AnnotationType::SENSE: 
-    result = "SENSE";
+    result = "sense";
     break; 
   case AnnotationType::SYNTAX: 
-    result = "SYNTAX";
+    result = "syntax";
     break;
   case AnnotationType::CHUNKING: 
-    result = "CHUNKING";
+    result = "chunking";
     break; 
   case AnnotationType::ENTITY: 
-    result = "ENTITY";
+    result = "entity";
     break;
   case AnnotationType::CORRECTION: 
-    result = "CORRECTION";
+    result = "correction";
     break;
   case AnnotationType::ERRORDETECTION: 
-    result = "ERRORDETECTION";
+    result = "errordetection";
     break;
   case AnnotationType::ALTERNATIVE: 
-    result = "ALTERNATIVE";
+    result = "alternative";
     break; 
   case AnnotationType::PHON:
-    result = "PHON";
+    result = "phon";
     break;
   case AnnotationType::SUBJECTIVITY:
-    result = "SUBJECTIVITY";
+    result = "subjectivity";
     break;
   case AnnotationType::MORPHOLOGICAL:
-    result = "MORPHOLOGICAL";
+    result = "morphological";
     break;
   default:
     throw ValueError( " unknown translation for annotation" + toString(int(at)) );
@@ -159,37 +159,36 @@ AnnotatorType stringToANT( const string& s ){
     return UNDEFINED;
 }
 
-AnnotationType::AnnotationType stringToAT( const string& s ){
-  string at = uppercase( s );
-  if ( at == "TOKEN" )
+AnnotationType::AnnotationType stringToAT( const string& at ){
+  if ( at == "token" )
     return AnnotationType::TOKEN;
-  if ( at == "DIVISION" )
+  if ( at == "division" )
     return AnnotationType::DIVISION;
-  if ( at == "POS" )
+  if ( at == "pos" )
     return AnnotationType::POS;
-  if ( at == "LEMMA" )
+  if ( at == "lemma" )
     return AnnotationType::LEMMA;
-  if ( at == "DOMAIN" )
+  if ( at == "domain" )
     return AnnotationType::DOMAIN;
-  if ( at == "SENSE" )
+  if ( at == "sense" )
     return AnnotationType::SENSE;
-  if ( at == "SYNTAX" )
+  if ( at == "syntax" )
     return AnnotationType::SYNTAX;
-  if ( at == "CHUNKING" )
+  if ( at == "chunking" )
     return AnnotationType::CHUNKING;
-  if ( at == "ENTITY" )
+  if ( at == "entity" )
     return AnnotationType::ENTITY;
-  if ( at == "CORRECTION" )
+  if ( at == "correction" )
     return AnnotationType::CORRECTION; 
-  if ( at == "ERRORDETECTION" )
+  if ( at == "errordetection" )
     return AnnotationType::ERRORDETECTION; 
-  if ( at == "ALTERNATIVE" )
+  if ( at == "alternative" )
     return AnnotationType::ALTERNATIVE;
-  if ( at == "PHON" )
+  if ( at == "phon" )
     return AnnotationType::PHON;
-  if ( at == "SUBJECTIVITY" )
+  if ( at == "subjectivity" )
     return AnnotationType::SUBJECTIVITY;
-  if ( at == "MORPHOLOGICAL" )
+  if ( at == "morphological" )
     return AnnotationType::MORPHOLOGICAL;
   throw ValueError( " unknown translation for attribute: " + at );
 }
