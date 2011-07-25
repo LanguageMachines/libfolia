@@ -187,7 +187,8 @@ class AbstractElement {
   virtual size_t size() const { return data.size(); };
   
   virtual AbstractElement *append( AbstractElement* );
-  virtual std::vector<AbstractElement*> findreplacables( AbstractElement * );
+  virtual std::vector<AbstractElement*> findreplacables( AbstractElement *,
+							 const std::string& ="" );
   void remove( AbstractElement *, bool = true );
 
   void replace( AbstractElement * );
@@ -207,17 +208,17 @@ class AbstractElement {
   virtual bool contains( const AbstractElement * ) const;
   
   std::vector<AbstractElement*> select( ElementType elementtype,
-					bool = TRUE);
+					bool = true );
   std::vector<AbstractElement*> select( ElementType elementtype,
 					std::set<ElementType>& ,
-					bool = TRUE);
+					bool = true );
   std::vector<AbstractElement*> select( ElementType elementtype,
 					const std::string&,
-					bool = TRUE);
+					bool = true );
   std::vector<AbstractElement*> select( ElementType elementtype,
 					const std::string&,
 					std::set<ElementType>& ,
-					bool = TRUE);
+					bool = true );
   KWargs collectAttributes() const;  
   //XML (de)serialisation
   std::string xmlstring() const; // serialize to a string (XML fragment)
@@ -429,7 +430,8 @@ class TextContent: public AbstractElement {
   std::string str() const;
   UnicodeString text( TextCorrectionLevel ) const;
   AbstractElement *append( AbstractElement* ){ throw NotImplementedError("TextContent::append()"); };
-  std::vector<AbstractElement*> findreplacables( AbstractElement * );
+  std::vector<AbstractElement*> findreplacables( AbstractElement *,
+						 const std::string& = "" );
   TextCorrectionLevel corrected() const { return _corrected; };
  private:
   void init();

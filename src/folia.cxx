@@ -309,7 +309,7 @@ Correction *AbstractStructureElement::correct( vector<AbstractElement*> original
       if ( p->isinstance( TextContent_t ) )
 	args2["corrected"] = p->corrected();
       string set = p->st();
-      vector<AbstractElement*> v = p->findreplacables(this);
+      vector<AbstractElement*> v = p->findreplacables( this, set );
       vector<AbstractElement*>::iterator vit=v.begin();      
       while ( vit != v.end() ){
 	orig.push_back( *vit );
@@ -774,9 +774,12 @@ bool AbstractElement::contains( const AbstractElement *child ) const {
   return false;
 }
 
-vector<AbstractElement *>AbstractElement::findreplacables( AbstractElement *par ){
-  set<ElementType> st;
-  return par->select( element_id(), st, false );
+vector<AbstractElement *>AbstractElement::findreplacables( AbstractElement *par,
+							   const string& set ){
+  if ( set.empty() )
+    return par->select( element_id(), false );
+  else
+    return par->select( element_id(), set, false );
 }
 
 void AbstractElement::replace( AbstractElement *child ){
@@ -799,9 +802,13 @@ void AbstractElement::replace( AbstractElement *child ){
 }                
 
             
-vector<AbstractElement *>TextContent::findreplacables( AbstractElement *par ){
-  set<ElementType> st;
-  vector<AbstractElement*> v = par->select( TextContent_t, st, false );
+vector<AbstractElement *>TextContent::findreplacables( AbstractElement *par,
+						       const string& set ){
+  vector<AbstractElement*> v;
+  if ( set.empty() )
+    v = par->select( TextContent_t, false );
+  else
+    v = par->select( TextContent_t, set, false );
   // cerr << "TextContent::findreplacable found " << v << endl;
   // cerr << "looking for " << toString( _corrected) << endl;
   vector<AbstractElement *>::iterator it = v.begin();
@@ -1642,21 +1649,35 @@ AbstractElement* AbstractElement::rwords( size_t index ) const {
     throw range_error( "word reverse index out of range" );
 }
 
+vector<AbstractElement*> AbstractElement::select( ElementType et,
+						  const string& val,
+						  set<ElementType>& exclude,
+						  bool recurse ) {
+  vector<AbstractElement*> res;
+  for ( size_t i = 0; i < data.size(); ++i ){
+    if ( data[i]->_element_id == et  && data[i]->_set == val ){
+      res.push_back( data[i] );
+    }
+    if ( recurse ){
+      if ( exclude.find( data[i]->_element_id ) == exclude.end() ){
+	vector<AbstractElement*> tmp = data[i]->select( et, val, exclude, recurse );
+	res.insert( res.end(), tmp.begin(), tmp.end() );
+      }
+    }
+  }
+  return res;
+}
 
 vector<AbstractElement*> AbstractElement::select( ElementType et,
 						  const string& val,
 						  bool recurse ) {
-  vector<AbstractElement*> res;
-  for ( size_t i = 0; i < data.size(); ++i ){
-    if ( data[i]->_element_id == et && data[i]->_set == val ){
-      res.push_back( data[i] );
-    }
-    if ( recurse ){
-      vector<AbstractElement*> tmp = data[i]->select( et, val, recurse );
-      res.insert( res.end(), tmp.begin(), tmp.end() );
-    }
+  static set<ElementType> selectSet;
+  if ( selectSet.empty() ){
+    selectSet.insert( Original_t );
+    selectSet.insert( Suggestion_t );
+    selectSet.insert( Alternative_t );
   }
-  return res;
+  return select( et, val, selectSet, recurse );
 }
 
 vector<AbstractElement*> AbstractElement::select( ElementType et,
@@ -1678,37 +1699,14 @@ vector<AbstractElement*> AbstractElement::select( ElementType et,
 }
 
 vector<AbstractElement*> AbstractElement::select( ElementType et,
-						  const string& val,
-						  set<ElementType>& exclude,
 						  bool recurse ) {
-  vector<AbstractElement*> res;
-  for ( size_t i = 0; i < data.size(); ++i ){
-    if ( data[i]->_element_id == et  && data[i]->_set == val ){
-      res.push_back( data[i] );
-    }
-    if ( recurse ){
-      if ( exclude.find( data[i]->_element_id ) == exclude.end() ){
-	vector<AbstractElement*> tmp = data[i]->select( et, val, exclude, recurse );
-	res.insert( res.end(), tmp.begin(), tmp.end() );
-      }
-    }
+  static set<ElementType> selectSet;
+  if ( selectSet.empty() ){
+    selectSet.insert( Original_t );
+    selectSet.insert( Suggestion_t );
+    selectSet.insert( Alternative_t );
   }
-  return res;
-}
-
-vector<AbstractElement*> AbstractElement::select( ElementType et,
-						  bool recurse ) {
-  vector<AbstractElement*> res;
-  for ( size_t i = 0; i < data.size(); ++i ){
-    if ( data[i]->_element_id == et ){
-      res.push_back( data[i] );
-    }
-    if ( recurse ){
-      vector<AbstractElement*> tmp = data[i]->select( et, recurse );
-      res.insert( res.end(), tmp.begin(), tmp.end() );
-    }
-  }
-  return res;
+  return select( et, selectSet, recurse );
 }
 
 map<string,string> getAtt( xmlNode *node ){
@@ -2155,12 +2153,6 @@ string Document::toXml() {
 
 vector<vector<AbstractElement*> > Document::findwords( const Pattern& pat,
 						       const string& args ) const {
-  static set<ElementType> selectSet;
-  if ( selectSet.empty() ){
-    selectSet.insert( Original_t );
-    selectSet.insert( Suggestion_t );
-    selectSet.insert( Alternative_t );
-  }
   size_t leftcontext = 0;
   size_t rightcontext = 0;
   KWargs kw = getArgs( args );
@@ -2187,9 +2179,7 @@ vector<vector<AbstractElement*> > Document::findwords( const Pattern& pat,
       if ( pat.matchannotation == BASE )
 	value = mywords[i]->text();
       else {
-	vector<AbstractElement *> v = mywords[i]->select( pat.matchannotation, 
-							  selectSet,
-							  true );
+	vector<AbstractElement *> v = mywords[i]->select( pat.matchannotation );
 	if ( v.size() != 1 )
 	  throw ValueError( "findwords(): more then 1 annotation matched" );
 	value = UTF8ToUnicode(v[0]->cls());
@@ -2444,13 +2434,7 @@ AbstractElement *AbstractStructureElement::annotation( ElementType et ){
 }
 
 vector<AbstractElement *>AbstractElement::annotations( ElementType et ){
-  static set<ElementType> selectSet;
-  if ( selectSet.empty() ){
-    selectSet.insert( Original_t );
-    selectSet.insert( Suggestion_t );
-    selectSet.insert( Alternative_t );
-  }
-  vector<AbstractElement *>v = select( et, selectSet, true ); //non-recursive
+  vector<AbstractElement *>v = select( et );
   if ( v.size() >= 1 )
     return v;
   else
@@ -2461,13 +2445,7 @@ AbstractElement *AbstractStructureElement::annotation( ElementType et,
 						       const string& val ){
   // Will return a SINGLE annotation (even if there are multiple). 
   // Raises a NoSuchAnnotation exception if none was found
-  static set<ElementType> selectSet;
-  if ( selectSet.empty() ){
-    selectSet.insert( Original_t );
-    selectSet.insert( Suggestion_t );
-    selectSet.insert( Alternative_t );
-  }
-  vector<AbstractElement *>v = select( et, val, selectSet, true ); //non-recursive
+  vector<AbstractElement *>v = select( et, val );
   if ( v.size() >= 1 )
     return v[0];
   else
