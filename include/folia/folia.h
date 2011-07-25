@@ -8,9 +8,6 @@
 #include "boost/date_time/posix_time/posix_time.hpp"
 #include "foliautils.h"
 
-extern const std::string NSFOLIA;
-extern const std::string NSDCOI;
-
 class AbstractElement;
 class AbstractTokenAnnotation;
 class Sentence;
@@ -114,6 +111,7 @@ class Document {
   std::string _license;
   bool loadall;
   std::string filename;
+  std::string version;
 };
 
 bool operator==( const Document&, const Document& );

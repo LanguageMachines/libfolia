@@ -10,9 +10,12 @@
 #include <algorithm>
 #include <stdexcept>
 #include "folia/folia.h"
+#include "config.h"
 
 using namespace std;
 
+const string FOLIAVERSION = "0.5"; // the FoLiA version we implement
+const string LIBVERSION = FOLIAVERSION + VERSION;
 const string NSFOLIA = "http://ilk.uvt.nl/folia";
 const string NSDCOI = "http://lands.let.ru.nl/projects/d-coi/ns/1.0";
 const string NSIMDI = "http://www.mpi.nl/IMDI/Schema/IMDI";
@@ -528,6 +531,19 @@ string AbstractStructureElement::generateId( const string& tag,
   return id;
 }
 
+bool parseDate( const string& s, boost::posix_time::ptime& time ){
+  //  cerr << "try to read a date-time " << s << endl;
+  try {
+    stringstream ss( s );
+    ss >> time;
+  }
+  catch( exception& e ){
+    return false;
+  }
+  //  cerr << "read _date time = " << time << endl;
+  return true;
+}
+
 void AbstractElement::setAttributes( const KWargs& kwargs ){
   Attrib supported = _required_attributes | _optional_attributes;
   // if ( _element_id == Correction_t ){
@@ -683,10 +699,8 @@ void AbstractElement::setAttributes( const KWargs& kwargs ){
     if ( !(DATETIME & supported) )
       throw ValueError("datetime is not supported for " + classname() );
     else {
-      //      cerr << "try to read a date-time " << it->second << endl;
-      stringstream ss( it->second );
-      ss >> _datetime;
-      //      cerr << "read _date time = " << _datetime << endl;
+      if ( !parseDate( it->second, _datetime ) )
+	throw ValueError( "invalid datetime string:" + it->second );
     }
   }
   else if ( DATETIME & _required_attributes )
@@ -1363,6 +1377,7 @@ void Document::init(){
   foliadoc = 0;
   _foliaNs = 0;
   debug = 0;
+  version = FOLIAVERSION;
 }
 
 Document::~Document(){
@@ -1419,6 +1434,12 @@ void Document::setAttributes( const KWargs& kwargs ){
     loadall = stringTo<bool>( it->second );
   else
     loadall = true;
+  it = kwargs.find( "version" );
+  if ( it != kwargs.end() )
+    version = it->second;
+  else
+    version.clear();
+
   it = kwargs.find( "id" );
   if ( it != kwargs.end() ){
     _id = it->second;
@@ -2092,26 +2113,32 @@ string Document::toXml() {
   string result;
   if ( foliadoc ){
     xmlDoc *outDoc = xmlNewDoc( (const xmlChar*)"1.0" );
-    xmlNode *e = xmlNewDocNode( outDoc, 0, (const xmlChar*)"FoLiA", 0 );
-    xmlDocSetRootElement( outDoc, e );
-    xmlNs *xl = xmlNewNs( e, (const xmlChar *)"http://www.w3.org/1999/xlink", 
+    xmlNode *root = xmlNewDocNode( outDoc, 0, (const xmlChar*)"FoLiA", 0 );
+    xmlDocSetRootElement( outDoc, root );
+    xmlNs *xl = xmlNewNs( root, (const xmlChar *)"http://www.w3.org/1999/xlink", 
 			  (const xmlChar *)"xlink" );
-    xmlSetNs( e, xl );
+    xmlSetNs( root, xl );
     if ( !_foliaNs ){
-      _foliaNs = xmlNewNs( e, (const xmlChar *)NSFOLIA.c_str(), 0 );
+      _foliaNs = xmlNewNs( root, (const xmlChar *)NSFOLIA.c_str(), 0 );
     }
-    xmlSetNs( e, _foliaNs );
+    xmlSetNs( root, _foliaNs );
     string id = foliadoc->id();
     if ( !id.empty() ){
-      xmlNewNsProp( e, 0, XML_XML_ID,  (const xmlChar *)id.c_str() );
+      xmlNewNsProp( root, 0, XML_XML_ID,  (const xmlChar *)id.c_str() );
     }
-    xmlNode *md = xmlAddChild( e,  newXMLNode( _foliaNs, "metadata" ) );  
+    KWargs attribs;
+    attribs["generator"] = string("libfolia-v") + VERSION;
+    if ( !version.empty() )
+      attribs["version"] = version;
+    setAtt( root, attribs );
+
+    xmlNode *md = xmlAddChild( root,  newXMLNode( _foliaNs, "metadata" ) );  
     xmlNode *an = xmlAddChild( md,  newXMLNode( _foliaNs, "annotations" ) );
     setannotations( an );
     setmetadata( md );
     vector<AbstractElement*>::const_iterator it= foliadoc->data.begin();
     while ( it != foliadoc->data.end() ){
-      xmlAddChild( e, (*it)->xml( this, true ) );
+      xmlAddChild( root, (*it)->xml( this, true ) );
       ++it;
     }
     xmlChar *buf; int size;
