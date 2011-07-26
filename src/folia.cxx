@@ -465,14 +465,26 @@ AbstractTokenAnnotation *AbstractElement::addAnnotation( ElementType et,
 
 AbstractTokenAnnotation *AbstractElement::addPosAnnotation( const KWargs& args ){
   PosAnnotation *res = new PosAnnotation( mydoc );
-  res->setAttributes( args );
+  try {
+    res->setAttributes( args );
+  }
+  catch( exception& ){
+    delete res;
+    throw;
+  }
   append( res );
   return res;
 }
 
 AbstractTokenAnnotation *AbstractElement::addLemmaAnnotation( const KWargs& args ){
   LemmaAnnotation *res = new LemmaAnnotation( mydoc );
-  res->setAttributes( args );
+  try {
+    res->setAttributes( args );
+  }
+  catch( exception& ){
+    delete res;
+    throw;
+  }
   append( res );
   return res;
 }
@@ -597,7 +609,7 @@ void AbstractElement::setAttributes( const KWargs& kwargs ){
       throw ValueError( "Set " + _set + " is used but has no declaration " +
 			"for " + toString( _annotation_type ) + "-annotation" );
   }
-  else if ( mydoc && ( def = mydoc->defaultset( _annotation_type, true )) != "" ){
+  else if ( mydoc && ( def = mydoc->defaultset( _annotation_type )) != "" ){
     _set = def;
   }
   else if ( CLASS & _required_attributes )
@@ -706,8 +718,7 @@ void AbstractElement::setAttributes( const KWargs& kwargs ){
   else if ( DATETIME & _required_attributes )
     throw ValueError("datetime is required");
   else
-    _datetime;
-  
+    _datetime = boost::posix_time::ptime();
   if ( mydoc && !_id.empty() )
     mydoc->addDocIndex( this, _id );  
 }
@@ -1152,7 +1163,6 @@ bool AbstractElement::addable( const AbstractElement *c,
     selectSet.insert( Alternative_t );
   }
   if ( !acceptable( c->_element_id ) ){
-    throw ValueError( "type " + c->classname() + " is inaccaptable for " + classname() );
     return false;
   }
   if ( c->occurrences > 0 ){
@@ -1184,6 +1194,7 @@ AbstractElement *AbstractElement::append( AbstractElement *child ){
       child->_parent = this;
   }
   else {
+    delete child;
     throw ValueError( "Unable to append object of type " + child->classname()
 		      + " to a " + classname() );
   }
@@ -2000,8 +2011,7 @@ bool Document::isDeclared( const string& s,
   return false;
 }
 
-string Document::defaultset( AnnotationType::AnnotationType type,
-			     bool noThrow ) const {
+string Document::defaultset( AnnotationType::AnnotationType type ) const {
   // search a set. it must be unique. Otherwise return ""
   map<AnnotationType::AnnotationType,map<string,at_t> >::const_iterator mit1 = annotationdefaults.find(type);
   string result;
@@ -2069,7 +2079,7 @@ void Document::setannotations( xmlNode *node ){
     s = defaultannotatortype( it->t, "", true );
     if ( !s.empty() )
       args["annotatortype"] = s;
-    s = defaultset( it->t, true );
+    s = defaultset( it->t );
     if ( !s.empty() )
       args["set"] = s;
     setAtt( n, args );
