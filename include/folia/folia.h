@@ -182,6 +182,7 @@ class AbstractElement {
   virtual void setAttributes( const KWargs& );
 
   void setDateTime( const std::string& );
+  std::string getDateTime() const;
 
   //functions regarding contained data
   virtual size_t size() const { return data.size(); };

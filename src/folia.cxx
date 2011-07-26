@@ -546,8 +546,7 @@ string AbstractStructureElement::generateId( const string& tag,
 bool parseDate( const string& s, boost::posix_time::ptime& time ){
   //  cerr << "try to read a date-time " << s << endl;
   try {
-    stringstream ss( s );
-    ss >> time;
+    time = boost::posix_time::time_from_string( s );
   }
   catch( exception& e ){
     return false;
@@ -731,6 +730,11 @@ void AbstractElement::setDateTime( const std::string& s ){
     stringstream ss( s );
     ss >> _datetime;
   }
+}
+
+string AbstractElement::getDateTime() const {
+  //  return to_iso_extended_string( _datetime );
+  return to_simple_string( _datetime );
 }
 
 void Word::setAttributes( const KWargs& kwargs ){
@@ -1199,8 +1203,9 @@ AbstractElement *AbstractElement::append( AbstractElement *child ){
     }
     if ( !child->_parent ) // Only for WordRef i hope
       child->_parent = this;
+    return child;
   }
-  return child;
+  return 0;
 }
 
 
@@ -1267,7 +1272,8 @@ KWargs AbstractElement::collectAttributes() const {
     attribs["n"] = _n;
 
   if ( _datetime != boost::posix_time::ptime() )
-    attribs["datetime"] = to_iso_extended_string(_datetime);
+    //    attribs["datetime"] = to_iso_extended_string(_datetime);
+    attribs["datetime"] = to_simple_string(_datetime);
 
   return attribs;
 }
@@ -1635,13 +1641,7 @@ AbstractElement* AbstractElement::rindex( size_t i ) const {
 }
 
 vector<AbstractElement*> AbstractElement::words() const {
-  static set<ElementType> selectSet;
-  if ( selectSet.empty() ){
-    selectSet.insert( Original_t );
-    selectSet.insert( Suggestion_t );
-    selectSet.insert( Alternative_t );
-  }
-  return const_cast<AbstractElement*>(this)->select( Word_t, selectSet );
+  return const_cast<AbstractElement*>(this)->select( Word_t );
 }
 
 AbstractElement* AbstractElement::words( size_t index ) const {
@@ -1684,13 +1684,13 @@ vector<AbstractElement*> AbstractElement::select( ElementType et,
 vector<AbstractElement*> AbstractElement::select( ElementType et,
 						  const string& val,
 						  bool recurse ) {
-  static set<ElementType> selectSet;
-  if ( selectSet.empty() ){
-    selectSet.insert( Original_t );
-    selectSet.insert( Suggestion_t );
-    selectSet.insert( Alternative_t );
+  static set<ElementType> excludeSet;
+  if ( excludeSet.empty() ){
+    excludeSet.insert( Original_t );
+    excludeSet.insert( Suggestion_t );
+    excludeSet.insert( Alternative_t );
   }
-  return select( et, val, selectSet, recurse );
+  return select( et, val, excludeSet, recurse );
 }
 
 vector<AbstractElement*> AbstractElement::select( ElementType et,
@@ -1713,13 +1713,13 @@ vector<AbstractElement*> AbstractElement::select( ElementType et,
 
 vector<AbstractElement*> AbstractElement::select( ElementType et,
 						  bool recurse ) {
-  static set<ElementType> selectSet;
-  if ( selectSet.empty() ){
-    selectSet.insert( Original_t );
-    selectSet.insert( Suggestion_t );
-    selectSet.insert( Alternative_t );
+  static set<ElementType> excludeSet;
+  if ( excludeSet.empty() ){
+    excludeSet.insert( Original_t );
+    excludeSet.insert( Suggestion_t );
+    excludeSet.insert( Alternative_t );
   }
-  return select( et, selectSet, recurse );
+  return select( et, excludeSet, recurse );
 }
 
 map<string,string> getAtt( xmlNode *node ){
