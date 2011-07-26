@@ -1157,32 +1157,39 @@ bool AbstractElement::acceptable( ElementType t ) const {
 bool AbstractElement::addable( const AbstractElement *c,
 			       const string& setname ) const {
   static set<ElementType> selectSet;
-  if ( selectSet.empty() ){
-    selectSet.insert( Original_t );
-    selectSet.insert( Suggestion_t );
-    selectSet.insert( Alternative_t );
-  }
   if ( !acceptable( c->_element_id ) ){
+    throw ValueError( "Unable to append object of type " + c->classname()
+		      + " to a " + classname() );
     return false;
   }
   if ( c->occurrences > 0 ){
-    vector<AbstractElement*> v = const_cast<AbstractElement*>(this)->select( c->_element_id, selectSet );
+    vector<AbstractElement*> v = const_cast<AbstractElement*>(this)->select( c->_element_id );
     size_t count = v.size();
     if ( count > c->occurrences )
       throw DuplicateAnnotationError( "Unable to add another object of type " + c->classname() + " to " + classname() + ". There are already " + toString(count) + " instances of this class, which is the maximum." );
+    return false;
   }
   if ( c->occurrences_per_set > 0 && !setname.empty() &&
        ( CLASS & c->_required_attributes ) ){
-    vector<AbstractElement*> v = const_cast<AbstractElement*>(this)->select( c->_element_id, setname, selectSet );
+    vector<AbstractElement*> v = const_cast<AbstractElement*>(this)->select( c->_element_id, setname );
     size_t count = v.size();
     if ( count > c->occurrences_per_set )
       throw DuplicateAnnotationError( "Unable to add another object of type " + c->classname() + " to " + classname() + ". There are already " + toString(count) + " instances of this class, which is the maximum." );
+    return false;
   }
   return true;
 }
  
 AbstractElement *AbstractElement::append( AbstractElement *child ){
-  if ( addable( child ) ){
+  bool ok = false;
+  try {
+    ok = addable( child );
+  }
+  catch ( exception& ){
+    delete child;
+    throw;
+  }
+  if ( ok ){
     data.push_back(child);
     if ( !child->mydoc ){
       child->mydoc = mydoc;
@@ -1192,11 +1199,6 @@ AbstractElement *AbstractElement::append( AbstractElement *child ){
     }
     if ( !child->_parent ) // Only for WordRef i hope
       child->_parent = this;
-  }
-  else {
-    delete child;
-    throw ValueError( "Unable to append object of type " + child->classname()
-		      + " to a " + classname() );
   }
   return child;
 }
