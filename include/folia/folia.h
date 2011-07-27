@@ -426,6 +426,21 @@ class AbstractSubTokenAnnotation: public AbstractAnnotation {
  AbstractSubTokenAnnotation( Document *d=0 ):  AbstractAnnotation( d ){};
 };
 
+class Feature: public AbstractElement {
+ public:
+ Feature( const std::string& s=""): AbstractElement( ){ classInit( s ); }
+ Feature( Document *d, const std::string& s=""): AbstractElement( d ){ classInit( s ); }
+  void setAttributes( const KWargs& );
+  xmlNode* xml(Document*, bool) const;
+  std::string subset() const { return _subset; };
+
+ protected:
+  std::string _subset;
+  
+ private:
+  void init();
+};
+
 class AbstractSpanAnnotation: public AbstractAnnotation {
  public:
  AbstractSpanAnnotation( Document *d=0 ):  AbstractAnnotation( d ){};
@@ -601,10 +616,42 @@ class LemmaAnnotation: public AbstractTokenAnnotation {
   void init();
 };
 
+class PhonAnnotation: public AbstractTokenAnnotation {
+ public:
+ PhonAnnotation(  const std::string& s=""): AbstractTokenAnnotation(){ classInit( s ); };
+ PhonAnnotation( Document *d=0, const std::string& s=""): AbstractTokenAnnotation( d ){ classInit( s ); };
+ private:
+  void init();
+};
+
+class DomainAnnotation: public AbstractTokenAnnotation {
+ public:
+ DomainAnnotation(  const std::string& s=""): AbstractTokenAnnotation(){ classInit( s ); };
+ DomainAnnotation( Document *d=0, const std::string& s=""): AbstractTokenAnnotation( d ){ classInit( s ); };
+ private:
+  void init();
+};
+
 class SenseAnnotation: public AbstractTokenAnnotation {
  public:
  SenseAnnotation( const std::string& s="" ): AbstractTokenAnnotation(){ classInit( s ); };
  SenseAnnotation( Document *d=0, const std::string& s="" ): AbstractTokenAnnotation( d ){ classInit( s ); };
+ private:
+  void init();
+};
+
+class SubjectivityAnnotation: public AbstractTokenAnnotation {
+ public:
+ SubjectivityAnnotation( const std::string& s="" ): AbstractTokenAnnotation(){ classInit( s ); };
+ SubjectivityAnnotation( Document *d=0, const std::string& s="" ): AbstractTokenAnnotation( d ){ classInit( s ); };
+ private:
+  void init();
+};
+
+class SynsetFeature: public Feature {
+ public:
+ SynsetFeature( const std::string& s ): Feature( ){ classInit( s ); }
+ SynsetFeature( Document *d=0, const std::string& s="" ): Feature( d ){ classInit( s ); }
  private:
   void init();
 };
@@ -797,16 +844,5 @@ class SubentitiesLayer: public AbstractSubtokenAnnotationLayer {
   void init();
 };
 
-class Feature: public AbstractElement {
- public:
- Feature( const std::string& s=""): AbstractElement( ){ classInit( s ); }
- Feature( Document *d=0, const std::string& s=""): AbstractElement( d ){ classInit( s ); }
-  void setAttributes( const KWargs& );
-  xmlNode* xml(Document*, bool) const;
-  std::string subset() const { return _subset; };
- private:
-  void init();
-  std::string _subset;
-};
 
 #endif

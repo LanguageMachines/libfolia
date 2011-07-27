@@ -24,24 +24,24 @@ inline Attrib& operator|=( Attrib& a1, Attrib& a2 ){
 
 enum ElementType  {
   BASE=0, TextContent_t,
-    Text_t, Word_t,
-    WordReference_t, Sentence_t, Paragraph_t,
-    Division_t, Head_t,
-    List_t, ListItem_t, Figure_t, Quote_t, //structure annotation elements
-    Pos_t, Lemma_t, Domain_t, Sense_t,
-    Correction_t, //token annotation elements
-    Annolay_t, SyntacticUnit_t, SyntaxLayer_t, 
-    Chunk_t, Chunking_t, 
-    Entity_t, Entities_t, 
-    Subentity_t, Subentities_t, //annotation layers
-    Morphology_t, Morpheme_t, 
-    ErrorDetection_t, New_t, 
-    Original_t, Current_t, 
-    Suggestion_t, 
-    Alternative_t, AltLayers_t, //alternatives
-    Description_t, Gap_t, 
-    Content_t, Feature_t, //features
-    PlaceHolder_t
+  Text_t, Word_t,
+  WordReference_t, Sentence_t, Paragraph_t,
+  Division_t, Head_t,
+  List_t, ListItem_t, Figure_t, Quote_t, //structure annotation elements
+  Pos_t, Lemma_t, Phon_t, Domain_t, Sense_t, Subjectivity_t,
+  Correction_t, //token annotation elements
+  Annolay_t, SyntacticUnit_t, SyntaxLayer_t, 
+  Chunk_t, Chunking_t, 
+  Entity_t, Entities_t, 
+  Subentity_t, Subentities_t, //annotation layers
+  Morphology_t, Morpheme_t, 
+  ErrorDetection_t, New_t, 
+  Original_t, Current_t, 
+  Suggestion_t, 
+  Alternative_t, AltLayers_t, //alternatives
+  Description_t, Gap_t, 
+  Content_t, Feature_t, SynsetFeature_t, //features
+  PlaceHolder_t
 };
 
 inline ElementType operator|( ElementType a1, ElementType a2 ){

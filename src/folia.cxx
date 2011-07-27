@@ -2621,33 +2621,6 @@ void Paragraph::init(){
   _required_attributes = ID;
 }
 
-void PosAnnotation::init(){
-  _xmltag="pos";
-  _element_id = Pos_t;
-  _annotation_type = AnnotationType::POS;
-  _required_attributes = CLASS;
-  _optional_attributes = ANNOTATOR|CONFIDENCE|DATETIME;
-  const ElementType accept[] = { Feature_t, Description_t };
-  _accepted_data = std::set<ElementType>(accept, accept+2);
-}
-
-void LemmaAnnotation::init(){
-  _xmltag="lemma";
-  _element_id = Lemma_t;
-  _annotation_type = AnnotationType::LEMMA;
-  _required_attributes = CLASS;
-  _optional_attributes = ANNOTATOR|CONFIDENCE|DATETIME;
-  const ElementType accept[] = { Feature_t, Description_t };
-  _accepted_data = std::set<ElementType>(accept, accept+2);
-}
-
-void SenseAnnotation::init(){
-  _xmltag="sense";
-  _element_id = Sense_t;
-  _annotation_type = AnnotationType::SENSE;
-  _required_attributes = CLASS;
-  _optional_attributes = ANNOTATOR|CONFIDENCE|DATETIME;
-}
 
 void WordReference::init(){
   _required_attributes = ID;
@@ -2978,6 +2951,73 @@ void SubentitiesLayer::init(){
   _xmltag = "subentities";
   const ElementType accept[] = { Subentity_t };
   _accepted_data = std::set<ElementType>(accept, accept+1);
+}
+
+void PosAnnotation::init(){
+  _xmltag="pos";
+  _element_id = Pos_t;
+  _annotation_type = AnnotationType::POS;
+  _required_attributes = CLASS;
+  _optional_attributes = ANNOTATOR|CONFIDENCE|DATETIME;
+  const ElementType accept[] = { Feature_t, Description_t };
+  _accepted_data = std::set<ElementType>(accept, accept+2);
+}
+
+void LemmaAnnotation::init(){
+  _xmltag="lemma";
+  _element_id = Lemma_t;
+  _annotation_type = AnnotationType::LEMMA;
+  _required_attributes = CLASS;
+  _optional_attributes = ANNOTATOR|CONFIDENCE|DATETIME;
+  const ElementType accept[] = { Feature_t, Description_t };
+  _accepted_data = std::set<ElementType>(accept, accept+2);
+}
+
+void PhonAnnotation::init(){
+  _xmltag="phon";
+  _element_id = Phon_t;
+  _annotation_type = AnnotationType::PHON;
+  _required_attributes = CLASS;
+  _optional_attributes = ANNOTATOR|CONFIDENCE|DATETIME;
+  const ElementType accept[] = { Feature_t, Description_t };
+  _accepted_data = std::set<ElementType>(accept, accept+2);
+}
+
+void DomainAnnotation::init(){
+  _xmltag="domain";
+  _element_id = Domain_t;
+  _annotation_type = AnnotationType::DOMEIN;
+  _required_attributes = CLASS;
+  _optional_attributes = ANNOTATOR|CONFIDENCE|DATETIME;
+  const ElementType accept[] = { Feature_t, Description_t };
+  _accepted_data = std::set<ElementType>(accept, accept+2);
+}
+
+void SenseAnnotation::init(){
+  _xmltag="sense";
+  _element_id = Sense_t;
+  _annotation_type = AnnotationType::SENSE;
+  _required_attributes = CLASS;
+  _optional_attributes = ANNOTATOR|CONFIDENCE|DATETIME;
+  const ElementType accept[] = { Feature_t, SynsetFeature_t, Description_t };
+  _accepted_data = std::set<ElementType>(accept, accept+3);
+}
+
+void SubjectivityAnnotation::init(){
+  _xmltag="subjectivity";
+  _element_id = Subjectivity_t;
+  _annotation_type = AnnotationType::SUBJECTIVITY;
+  _required_attributes = CLASS;
+  _optional_attributes = ANNOTATOR|CONFIDENCE|DATETIME;
+  const ElementType accept[] = { Feature_t, Description_t };
+  _accepted_data = std::set<ElementType>(accept, accept+2);
+}
+
+void SynsetFeature::init(){
+  _xmltag="synset";
+  _element_id = Domain_t;
+  _annotation_type = AnnotationType::SENSE;
+  _subset = "synset";
 }
 
 void AbstractSubtokenAnnotation::init() {

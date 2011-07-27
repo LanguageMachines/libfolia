@@ -223,13 +223,14 @@ string toString( const ElementType& et ) {
   case Original_t: result = "original"; break;
   case Suggestion_t: result = "suggestion"; break;
   case Lemma_t: result = "lemma"; break;
-  case Domain_t: result = "DOMAIN"; break; 
-  case Sense_t: result = "SENSE"; break; 
-  case Morphology_t: result = "MORPHOLOGY"; break;
-  case Morpheme_t: result = "MORPHEME"; break;
-  case Correction_t: result = "CORRECTION"; break;
-  case ErrorDetection_t: result = "ERRORDETECTION"; break;
-  case Annolay_t: result = "ANNOTATIONLAYER"; break; 
+  case Phon_t: result = "phon"; break; 
+  case Domain_t: result = "domain"; break; 
+  case Sense_t: result = "sense"; break; 
+  case Morphology_t: result = "morphology"; break;
+  case Morpheme_t: result = "morpheme"; break;
+  case Correction_t: result = "correction"; break;
+  case ErrorDetection_t: result = "errordetection"; break;
+  case Annolay_t: result = "annotationlayer"; break; 
   case SyntaxLayer_t: result = "syntax"; break; 
   case SyntacticUnit_t: result = "su"; break; 
   case WordReference_t: result = "wref"; break; 
@@ -239,9 +240,9 @@ string toString( const ElementType& et ) {
   case Entities_t: result = "entities"; break;
   case Subentity_t: result = "subentity"; break;
   case Subentities_t: result = "subentities"; break;
-  case Alternative_t: result = "ALTERNATIVE"; break; 
-  case AltLayers_t: result = "ALTLAYERS"; break;
-  case Feature_t: result = "FEATURE"; break;
+  case Alternative_t: result = "alternative"; break; 
+  case AltLayers_t: result = "altlayers"; break;
+  case Feature_t: result = "feature"; break;
   default:
     result = "Unknown Elementtype " + toString( int(et) );
   }
@@ -296,14 +297,26 @@ AbstractElement *AbstractElement::createElement( Document *doc,
   if ( tag == "div" ){
     return new Division( doc );
   }
-  if ( tag == "lemma" ){
-    return new LemmaAnnotation( doc );
-  }
   if ( tag == "pos" ){
     return new PosAnnotation( doc );
   }
+  if ( tag == "lemma" ){
+    return new LemmaAnnotation( doc );
+  }
+  if ( tag == "phon" ){
+    return new PhonAnnotation( doc );
+  }
+  if ( tag == "domain" ){
+    return new DomainAnnotation( doc );
+  }
+  if ( tag == "sense" ){
+    return new SenseAnnotation( doc );
+  }
   if ( tag == "syntax" ){
     return new SyntaxLayer( doc );
+  }
+  if ( tag == "subjectivity" ){
+    return new SubjectivityAnnotation( doc );
   }
   if ( tag == "chunk" ){
     return new Chunk( doc );
@@ -343,6 +356,9 @@ AbstractElement *AbstractElement::createElement( Document *doc,
   }
   if ( tag == "feat" ){
     return new Feature( doc );
+  }
+  if ( tag == "synset" ){
+    return new SynsetFeature( doc );
   }
   else {
     //    throw runtime_error( "unknown tag <" + tag + ">" );
