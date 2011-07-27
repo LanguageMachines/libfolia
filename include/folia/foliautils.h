@@ -10,7 +10,7 @@
 
 enum AnnotatorType{ UNDEFINED = -1, AUTO = 0, MANUAL = 1 };
 
-enum Attrib { NO_ATT, ID=1, CLASS=2, ANNOTATOR=4, CONFIDENCE=8, 
+enum Attrib { NO_ATT=0, ID=1, CLASS=2, ANNOTATOR=4, CONFIDENCE=8, 
 	      N=16, DATETIME=32 };
 
 inline Attrib operator|( Attrib a1, Attrib a2 ){
@@ -22,17 +22,32 @@ inline Attrib& operator|=( Attrib& a1, Attrib& a2 ){
   return a1;
 }
 
-enum ElementType { BASE, TextContent_t,
-		   Text_t, Word_t, Sentence_t, Paragraph_t, Division_t, Head_t,
-		   List_t, ListItem_t, Figure_t, Quote_t, //structure annotation elements
-		   Pos_t, Lemma_t, Domain_t, Sense_t, Correction_t, //token annotation elements
-		   Annolay_t, Syntax_t, SyntacticUnit_t, WordReference_t, Chunking_t, Entities_t, //annotation layers
-		   Morphology_t, Morpheme_t,
-		   ErrorDetection_t, New_t, Original_t, Current_t, 
-		   Suggestion_t, Alternative_t, AltLayers_t, //alternatives
-		   Description_t, Gap_t, Content_t, Feature_t, //features
-		   PlaceHolder_t,
+enum ElementType  {
+  BASE=0, TextContent_t,
+    Text_t, Word_t,
+    WordReference_t, Sentence_t, Paragraph_t,
+    Division_t, Head_t,
+    List_t, ListItem_t, Figure_t, Quote_t, //structure annotation elements
+    Pos_t, Lemma_t, Domain_t, Sense_t,
+    Correction_t, //token annotation elements
+    Annolay_t, SyntacticUnit_t, SyntaxLayer_t, 
+    Chunk_t, Chunking_t, 
+    Entity_t, Entities_t, 
+    Subentity_t, Subentities_t, //annotation layers
+    Morphology_t, Morpheme_t, 
+    ErrorDetection_t, New_t, 
+    Original_t, Current_t, 
+    Suggestion_t, 
+    Alternative_t, AltLayers_t, //alternatives
+    Description_t, Gap_t, 
+    Content_t, Feature_t, //features
+    PlaceHolder_t
 };
+
+inline ElementType operator|( ElementType a1, ElementType a2 ){
+  return (ElementType) ((long int)a1|(long int)a2) ;
+}
+
 
 /*
  * Annotation types tie FoLiA elements to a particular kind of annotation.
@@ -41,7 +56,7 @@ enum ElementType { BASE, TextContent_t,
  */
 namespace AnnotationType {
   enum AnnotationType { NO_ANN, TOKEN, DIVISION, POS, LEMMA, 
-			DOMEIN, SENSE, SYNTAX, CHUNKING,
+			DOMEIN, SENSE, SYNTAX, CHUNKING, SUBENTITY,
 			ENTITY, ERRORDETECTION, CORRECTION, ALTERNATIVE, PHON,
 			SUBJECTIVITY, MORPHOLOGICAL 
   };

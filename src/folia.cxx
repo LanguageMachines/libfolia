@@ -1349,7 +1349,7 @@ xmlNode *Content::xml( Document *doc, bool ) const {
   return e;
 }
 
-xmlNode *SyntacticUnit::xml( Document *doc, bool recursive ) const {
+xmlNode *AbstractSpanAnnotation::xml( Document *doc, bool recursive ) const {
   xmlNode *e = AbstractElement::xml( doc, false );
   // append Word children:
   vector<AbstractElement*>::const_iterator it=data.begin();
@@ -1371,7 +1371,7 @@ xmlNode *SyntacticUnit::xml( Document *doc, bool recursive ) const {
   return e;
 }
 
-AbstractElement *SyntacticUnit::append( AbstractElement *child ){
+AbstractElement *AbstractSpanAnnotation::append( AbstractElement *child ){
   if ( child->isinstance(Word_t) and acceptable( WordReference_t ) )
     child->increfcount();
   AbstractElement::append( child );
@@ -2596,7 +2596,8 @@ void Content::init(){
 void Sentence::init(){
   _xmltag="s";
   _element_id = Sentence_t;
-  const ElementType accept[] = { Word_t, TextContent_t, Annolay_t, Correction_t,
+  const ElementType accept[] = { Word_t, TextContent_t, Annolay_t, SyntaxLayer_t,
+				 Correction_t,
 				 Description_t };
   _accepted_data = std::set<ElementType>(accept, accept+5); 
   _required_attributes = ID;
@@ -2661,20 +2662,37 @@ void SyntacticUnit::init(){
   _xmltag = "su";
   _element_id = SyntacticUnit_t;
   _annotation_type = AnnotationType::SYNTAX;
-  const ElementType accept[] = { SyntacticUnit_t, Word_t, WordReference_t };
-  _accepted_data = std::set<ElementType>(accept, accept+3);
+  const ElementType accept[] = { SyntacticUnit_t, Word_t, WordReference_t,
+				 Feature_t };
+  _accepted_data = std::set<ElementType>(accept, accept+4);
+}
+
+void Chunk::init(){
+  _required_attributes = NO_ATT;
+  _optional_attributes = ID|CLASS|ANNOTATOR|CONFIDENCE|DATETIME;
+  _xmltag = "chunk";
+  _element_id = Chunk_t;
+  _annotation_type = AnnotationType::CHUNKING;
+  const ElementType accept[] = { Word_t, WordReference_t, 
+				 Description_t, Feature_t };
+  _accepted_data = std::set<ElementType>(accept, accept+4);
+}
+
+void Entity::init(){
+  _required_attributes = NO_ATT;
+  _optional_attributes = ID|CLASS|ANNOTATOR|CONFIDENCE|DATETIME;
+  _xmltag = "entity";
+  _element_id = Entity_t;
+  _annotation_type = AnnotationType::ENTITY;
+  const ElementType accept[] = { Word_t, WordReference_t, 
+				 Description_t, Feature_t };
+  _accepted_data = std::set<ElementType>(accept, accept+4);
 }
 
 void AbstractAnnotationLayer::init(){
   _optional_attributes = CLASS;
   _element_id = Annolay_t;
   PRINTABLE=false;
-}
-
-void SyntaxLayer::init(){
-  _xmltag = "syntax";
-  const ElementType accept[] = { SyntacticUnit_t };
-  _accepted_data = std::set<ElementType>(accept, accept+1);
 }
 
 void Alternative::init(){
@@ -2907,13 +2925,6 @@ void AbstractSubtokenAnnotationLayer::init(){
 
 }
 
-void MorphologyLayer::init(){
-  _element_id = Morphology_t;
-  _xmltag = "morphology";
-  const ElementType accept[] = { Morpheme_t };
-  _accepted_data = std::set<ElementType>(accept, accept+1);
-}
-
 void Morpheme::init(){
   _element_id = Morpheme_t;
   _xmltag = "morpheme";
@@ -2922,6 +2933,51 @@ void Morpheme::init(){
   const ElementType accept[] = { Feature_t, TextContent_t };
   _accepted_data = std::set<ElementType>(accept, accept+2);
   _annotation_type = AnnotationType::MORPHOLOGICAL;
+}
+
+void Subentity::init(){
+  _element_id = Subentity_t;
+  _xmltag = "subentity";
+  _required_attributes = CLASS;
+  _optional_attributes = ID|ANNOTATOR|CONFIDENCE|DATETIME;
+  const ElementType accept[] = { Feature_t, TextContent_t };
+  _accepted_data = std::set<ElementType>(accept, accept+2);
+  _annotation_type = AnnotationType::SUBENTITY;
+}
+
+void SyntaxLayer::init(){
+  //  _element_id = SyntaxLayer_t;
+  _xmltag = "syntax";
+  const ElementType accept[] = { SyntacticUnit_t, Description_t };
+  _accepted_data = std::set<ElementType>(accept, accept+2);
+}
+
+void ChunkingLayer::init(){
+  //  _element_id = Chunking_t;
+  _xmltag = "chunking";
+  const ElementType accept[] = { Chunk_t, Description_t };
+  _accepted_data = std::set<ElementType>(accept, accept+2);
+}
+
+void EntitiesLayer::init(){
+  //  _element_id = Entities_t;
+  _xmltag = "chunking";
+  const ElementType accept[] = { Entity_t, Description_t };
+  _accepted_data = std::set<ElementType>(accept, accept+2);
+}
+
+void MorphologyLayer::init(){
+  _element_id = Morphology_t;
+  _xmltag = "morphology";
+  const ElementType accept[] = { Morpheme_t };
+  _accepted_data = std::set<ElementType>(accept, accept+1);
+}
+
+void SubentitiesLayer::init(){
+  _element_id = Subentities_t;
+  _xmltag = "subentities";
+  const ElementType accept[] = { Subentity_t };
+  _accepted_data = std::set<ElementType>(accept, accept+1);
 }
 
 void AbstractSubtokenAnnotation::init() {

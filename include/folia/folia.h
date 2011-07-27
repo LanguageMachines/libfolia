@@ -421,6 +421,18 @@ class AbstractTokenAnnotation: public AbstractAnnotation {
  AbstractTokenAnnotation( Document *d=0 ):  AbstractAnnotation( d ){};
 };
 
+class AbstractSubTokenAnnotation: public AbstractAnnotation {
+ public:
+ AbstractSubTokenAnnotation( Document *d=0 ):  AbstractAnnotation( d ){};
+};
+
+class AbstractSpanAnnotation: public AbstractAnnotation {
+ public:
+ AbstractSpanAnnotation( Document *d=0 ):  AbstractAnnotation( d ){};
+  xmlNode *xml( Document *, bool ) const;
+  AbstractElement *append( AbstractElement* );
+};
+
 class TextContent: public AbstractElement {
  public:
  TextContent( const std::string& s="" ):  AbstractElement( ){ classInit( s ); }
@@ -606,12 +618,26 @@ class WordReference: public AbstractElement {
   AbstractElement* parseXml( xmlNode *node );
 };  
 
-class SyntacticUnit: public AbstractElement {
+class SyntacticUnit: public AbstractSpanAnnotation {
  public:
- SyntacticUnit( const std::string& s ): AbstractElement( ){ classInit( s ); }
- SyntacticUnit( Document *d=0, const std::string& s="" ): AbstractElement( d ){ classInit( s ); }
-  xmlNode *xml( Document *, bool ) const;
-  AbstractElement *append( AbstractElement* );
+ SyntacticUnit( const std::string& s ): AbstractSpanAnnotation( ){ classInit( s ); }
+ SyntacticUnit( Document *d=0, const std::string& s="" ): AbstractSpanAnnotation( d ){ classInit( s ); }
+ private:
+  void init();
+};
+
+class Chunk: public AbstractSpanAnnotation {
+ public:
+ Chunk( const std::string& s ): AbstractSpanAnnotation( ){ classInit( s ); }
+ Chunk( Document *d=0, const std::string& s="" ): AbstractSpanAnnotation( d ){ classInit( s ); }
+ private:
+  void init();
+};
+
+class Entity: public AbstractSpanAnnotation {
+ public:
+ Entity( const std::string& s ): AbstractSpanAnnotation( ){ classInit( s ); }
+ Entity( Document *d=0, const std::string& s="" ): AbstractSpanAnnotation( d ){ classInit( s ); }
  private:
   void init();
 };
@@ -620,14 +646,6 @@ class AbstractAnnotationLayer: public AbstractElement {
  public:
  AbstractAnnotationLayer( const std::string& s=""): AbstractElement( ) { classInit( s ); };
  AbstractAnnotationLayer( Document *d=0, const std::string& s=""): AbstractElement( d ) { classInit( s ); };
- private:
-  void init();
-};
-
-class SyntaxLayer: public AbstractAnnotationLayer {
- public:
- SyntaxLayer( const std::string& s=""): AbstractAnnotationLayer( s ){ classInit( s ); }
- SyntaxLayer( Document *d=0, const std::string& s=""): AbstractAnnotationLayer( d ){ classInit( s ); }
  private:
   void init();
 };
@@ -715,14 +733,6 @@ class AbstractSubtokenAnnotationLayer: public AbstractElement {
   void init();
 };
 
-class MorphologyLayer: public AbstractSubtokenAnnotationLayer {
- public:
- MorphologyLayer( const std::string& s="" ): AbstractSubtokenAnnotationLayer( s ){ classInit( s ); }
- MorphologyLayer( Document *d=0, const std::string& s="" ): AbstractSubtokenAnnotationLayer( d ){ classInit( s ); }
- private:
-  void init();
-};
-
 class AbstractSubtokenAnnotation: public AbstractAnnotation {
  public:
  AbstractSubtokenAnnotation( const std::string& s="" ): AbstractAnnotation( ){ classInit( s ); }
@@ -735,6 +745,54 @@ class Morpheme: public AbstractSubtokenAnnotation {
  public:
  Morpheme( const std::string& s="" ): AbstractSubtokenAnnotation( s ){ classInit( s ); }
  Morpheme( Document *d=0, const std::string& s="" ): AbstractSubtokenAnnotation( d ){ classInit( s ); }
+ private:
+  void init();
+};
+
+class Subentity: public AbstractSubtokenAnnotation {
+ public:
+ Subentity( const std::string& s="" ): AbstractSubtokenAnnotation( s ){ classInit( s ); }
+ Subentity( Document *d=0, const std::string& s="" ): AbstractSubtokenAnnotation( d ){ classInit( s ); }
+ private:
+  void init();
+};
+
+class SyntaxLayer: public AbstractAnnotationLayer {
+ public:
+ SyntaxLayer( const std::string& s=""): AbstractAnnotationLayer( s ){ classInit( s ); }
+ SyntaxLayer( Document *d=0, const std::string& s=""): AbstractAnnotationLayer( d ){ classInit( s ); }
+ private:
+  void init();
+};
+
+class ChunkingLayer: public AbstractAnnotationLayer {
+ public:
+ ChunkingLayer( const std::string& s=""): AbstractAnnotationLayer( s ){ classInit( s ); }
+ ChunkingLayer( Document *d=0, const std::string& s=""): AbstractAnnotationLayer( d ){ classInit( s ); }
+ private:
+  void init();
+};
+
+class EntitiesLayer: public AbstractAnnotationLayer {
+ public:
+ EntitiesLayer( const std::string& s=""): AbstractAnnotationLayer( s ){ classInit( s ); }
+ EntitiesLayer( Document *d=0, const std::string& s=""): AbstractAnnotationLayer( d ){ classInit( s ); }
+ private:
+  void init();
+};
+
+class MorphologyLayer: public AbstractSubtokenAnnotationLayer {
+ public:
+ MorphologyLayer( const std::string& s="" ): AbstractSubtokenAnnotationLayer( s ){ classInit( s ); }
+ MorphologyLayer( Document *d=0, const std::string& s="" ): AbstractSubtokenAnnotationLayer( d ){ classInit( s ); }
+ private:
+  void init();
+};
+
+class SubentitiesLayer: public AbstractSubtokenAnnotationLayer {
+ public:
+ SubentitiesLayer( const std::string& s="" ): AbstractSubtokenAnnotationLayer( s ){ classInit( s ); }
+ SubentitiesLayer( Document *d=0, const std::string& s="" ): AbstractSubtokenAnnotationLayer( d ){ classInit( s ); }
  private:
   void init();
 };

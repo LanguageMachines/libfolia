@@ -74,6 +74,9 @@ string toString( const AnnotationType::AnnotationType& at ){
   case AnnotationType::ENTITY: 
     result = "entity";
     break;
+  case AnnotationType::SUBENTITY: 
+    result = "subentity";
+    break;
   case AnnotationType::CORRECTION: 
     result = "correction";
     break;
@@ -178,6 +181,8 @@ AnnotationType::AnnotationType stringToAT( const string& at ){
     return AnnotationType::CHUNKING;
   if ( at == "entity" )
     return AnnotationType::ENTITY;
+  if ( at == "subentity" )
+    return AnnotationType::SUBENTITY;
   if ( at == "correction" )
     return AnnotationType::CORRECTION; 
   if ( at == "errordetection" )
@@ -225,11 +230,15 @@ string toString( const ElementType& et ) {
   case Correction_t: result = "CORRECTION"; break;
   case ErrorDetection_t: result = "ERRORDETECTION"; break;
   case Annolay_t: result = "ANNOTATIONLAYER"; break; 
-  case Syntax_t: result = "SYNTAX"; break; 
+  case SyntaxLayer_t: result = "syntax"; break; 
   case SyntacticUnit_t: result = "su"; break; 
   case WordReference_t: result = "wref"; break; 
-  case Chunking_t: result = "CHUNKING"; break; 
-  case Entities_t: result = "ENTITIES"; break;
+  case Chunk_t: result = "chunk"; break; 
+  case Chunking_t: result = "chunking"; break; 
+  case Entity_t: result = "entity"; break;
+  case Entities_t: result = "entities"; break;
+  case Subentity_t: result = "subentity"; break;
+  case Subentities_t: result = "subentities"; break;
   case Alternative_t: result = "ALTERNATIVE"; break; 
   case AltLayers_t: result = "ALTLAYERS"; break;
   case Feature_t: result = "FEATURE"; break;
@@ -295,6 +304,24 @@ AbstractElement *AbstractElement::createElement( Document *doc,
   }
   if ( tag == "syntax" ){
     return new SyntaxLayer( doc );
+  }
+  if ( tag == "chunk" ){
+    return new Chunk( doc );
+  }
+  if ( tag == "chunking" ){
+    return new ChunkingLayer( doc );
+  }
+  if ( tag == "entity" ){
+    return new Entity( doc );
+  }
+  if ( tag == "entities" ){
+    return new EntitiesLayer( doc );
+  }
+  if ( tag == "subentity" ){
+    return new Subentity( doc );
+  }
+  if ( tag == "subentities" ){
+    return new SubentitiesLayer( doc );
   }
   if ( tag == "su" ){
     return new SyntacticUnit( doc );
