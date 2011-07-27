@@ -1326,8 +1326,9 @@ xmlNode *TextContent::xml( Document *doc, bool ) const {
     xmlNewNsProp( e, 0, XML_XML_ID,  (const xmlChar *)_id.c_str() );
   }
   KWargs attribs = collectAttributes();
-  if ( offset >= 0 )
+  if ( offset >= 0 ){
     attribs["offset"] = toString( offset );
+  }
   setAtt( e, attribs );
   return e;
 }

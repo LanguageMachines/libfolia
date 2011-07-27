@@ -375,8 +375,8 @@ KWargs getArgs( const std::string& s ){
   //  cerr << "getArgs \\" << s << "\\" << endl;
 
   for ( size_t i=0; i < s.size(); ++i ){
-    //    cerr << "bekijk " << s[i] << endl;
-    //    cerr << "quoted = " << (quoted?"YES":"NO") << " parseatt = " << (parseatt?"YES":"NO") << endl;
+    //       cerr << "bekijk " << s[i] << endl;
+    //       cerr << "quoted = " << (quoted?"YES":"NO") << " parseatt = " << (parseatt?"YES":"NO") << endl;
     if ( s[i] == '\'' ){
       if ( quoted ){
 	if ( att.empty() || val.empty() )
@@ -415,10 +415,12 @@ KWargs getArgs( const std::string& s ){
     }
     else if ( parseatt )
       att += s[i];
-    else
+    else if ( quoted )
       val += s[i];
-    // cerr << "att = '" << att << "'" << endl;
-    // cerr << "val = '" << val << "'" << endl;
+    else
+      throw ArgsError( s + ", unquoted value?" );
+    //    cerr << "att = '" << att << "'" << endl;
+    //    cerr << "val = '" << val << "'" << endl;
   }
   if ( quoted )
     throw ArgsError( s + ", unbalanced '?" );
