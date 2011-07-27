@@ -360,6 +360,9 @@ AbstractElement *AbstractElement::createElement( Document *doc,
   if ( tag == "synset" ){
     return new SynsetFeature( doc );
   }
+  if ( tag == "quote" ){
+    return new Quote( doc );
+  }
   else {
     //    throw runtime_error( "unknown tag <" + tag + ">" );
     cerr << "unknown tag <" << tag << ">" << endl;

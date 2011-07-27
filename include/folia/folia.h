@@ -201,6 +201,8 @@ class AbstractElement {
   AbstractElement* words( size_t ) const;
   AbstractElement* rwords( size_t ) const;
 
+  virtual const AbstractElement* resolveword( const std::string& ) const { return 0; };
+
   bool isinstance( ElementType et ) const {
     return et == _element_id;
   }
@@ -406,6 +408,7 @@ class AbstractStructureElement: public AbstractElement {
 		       std::vector<AbstractElement*>,
 		       std::vector<AbstractElement*>,
 		       const KWargs& );
+  const AbstractElement* resolveword( const std::string& ) const;
  private:
   std::map<std::string, int> maxid;
 };
@@ -543,6 +546,7 @@ class Word: public AbstractStructureElement {
   std::vector<AbstractElement *> rightcontext( size_t, 
 					  const std::string& ="" ) const;
   AbstractElement *append( AbstractElement *);
+  const AbstractElement* resolveword( const std::string& ) const;
  private:
   void init();
 };
@@ -644,6 +648,14 @@ class SubjectivityAnnotation: public AbstractTokenAnnotation {
  public:
  SubjectivityAnnotation( const std::string& s="" ): AbstractTokenAnnotation(){ classInit( s ); };
  SubjectivityAnnotation( Document *d=0, const std::string& s="" ): AbstractTokenAnnotation( d ){ classInit( s ); };
+ private:
+  void init();
+};
+
+class Quote: public AbstractStructureElement {
+ public:
+ Quote( const std::string& s="" ): AbstractStructureElement(){ classInit( s ); };
+ Quote( Document *d=0, const std::string& s="" ): AbstractStructureElement( d ){ classInit( s ); };
  private:
   void init();
 };

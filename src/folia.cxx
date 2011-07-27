@@ -1103,6 +1103,22 @@ vector<AbstractElement *> Word::rightcontext( size_t size,
   return result;
 }
 
+const AbstractElement* AbstractStructureElement::resolveword( const string& id ) const{
+  const AbstractElement *result = 0;
+  for ( size_t i=0; i < data.size(); ++i ){
+    result = data[i]->resolveword( id );
+    if ( result )
+      return result;
+  }
+  return result;
+};
+
+const AbstractElement* Word::resolveword( const string& id ) const{
+  if ( _id == id )
+    return this;
+  return 0;
+};
+
 string AbstractElement::description() const {
   vector<AbstractElement *> v =  const_cast<AbstractElement *>(this)->select( Description_t, false );
   if ( v.size() == 0 )
@@ -3012,6 +3028,14 @@ void SubjectivityAnnotation::init(){
   const ElementType accept[] = { Feature_t, Description_t };
   _accepted_data = std::set<ElementType>(accept, accept+2);
 }
+
+void Quote::init(){
+  _xmltag="quote";
+  _element_id = Quote_t;
+  _required_attributes = NO_ATT;
+  _optional_attributes = ID;
+}
+
 
 void SynsetFeature::init(){
   _xmltag="synset";
