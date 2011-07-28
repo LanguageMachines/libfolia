@@ -188,6 +188,7 @@ class AbstractElement {
   virtual size_t size() const { return data.size(); };
   
   virtual AbstractElement *append( AbstractElement* );
+  virtual AbstractElement *postappend( ) { return this; };
   virtual std::vector<AbstractElement*> findreplacables( AbstractElement *,
 							 const std::string& ="" );
   void remove( AbstractElement *, bool = true );
@@ -269,16 +270,21 @@ class AbstractElement {
     throw NotImplementedError("contect()"); };
   virtual std::vector<AbstractElement *> leftcontext( size_t, 
 						      const std::string& ="" ) const {
-    throw NotImplementedError("leftcontect()"); };
+    throw NotImplementedError("leftcontect()"); 
+  };
   virtual std::vector<AbstractElement *> rightcontext( size_t, 
 						       const std::string& ="" ) const {
-    throw NotImplementedError("rightcontext()"); };
+    throw NotImplementedError("rightcontext()"); 
+  };
   virtual AbstractElement *annotation( ElementType );
   virtual AbstractElement *annotation( ElementType, const std::string& );
   virtual std::string generateId( const std::string&, const std::string& = "" );
   std::string pos();
   std::string lemma();
   virtual TextCorrectionLevel corrected() const { return NOCORR; };
+  virtual void setCorrected( TextCorrectionLevel& ) { 
+    throw NotImplementedError("setCorrected()"); 
+  };    
   std::string cls() const { return _cls; };
   std::string st() const { return _set; };
   std::string annotator() const { return _annotator; };
@@ -305,7 +311,7 @@ class AbstractElement {
     return addWord( getArgs(s) );
   }
   Word *addWord( const KWargs& );
-  TextContent *addText( const std::string&, TextCorrectionLevel );
+  TextContent *settext( const std::string&, TextCorrectionLevel=NOCORR );
   Alternative *addAlternative( ElementType, const KWargs& );
   AbstractTokenAnnotation *addAnnotation( ElementType, const KWargs& );
   AbstractTokenAnnotation *addPosAnnotation( const KWargs& );
@@ -334,6 +340,8 @@ class AbstractElement {
 
   void increfcount() { ++refcount; };
   AbstractElement *parent() const { return _parent; };
+  TextCorrectionLevel getMinCorrectionLevel() const { 
+    return MINTEXTCORRECTIONLEVEL;};
   void setParent( AbstractElement *p ) { _parent = p ; };
  protected:
   virtual void init()=0;
@@ -461,13 +469,17 @@ class TextContent: public AbstractElement {
   std::string str() const;
   UnicodeString text( TextCorrectionLevel ) const;
   AbstractElement *append( AbstractElement* ){ throw NotImplementedError("TextContent::append()"); };
+  AbstractElement *postappend();
   std::vector<AbstractElement*> findreplacables( AbstractElement *,
 						 const std::string& = "" );
   TextCorrectionLevel corrected() const { return _corrected; };
+  void setCorrected( TextCorrectionLevel& tc ) { _corrected = tc; };
  private:
   void init();
   TextCorrectionLevel _corrected;
-  int offset;
+  int _offset;
+  int _newoffset;
+  int _length;
 };
 
 class FoLiA: public AbstractElement {
@@ -529,7 +541,6 @@ class Word: public AbstractStructureElement {
  public:
  Word( const std::string& s=""):  AbstractStructureElement(){ classInit( s ); };
  Word( Document *d=0,  const std::string& s=""):  AbstractStructureElement( d ){ classInit( s ); };
-  void setAttributes( const KWargs& );
   Correction *correct( const std::string& = "" );
   Correction *correct( AbstractElement*,
 		       AbstractElement*,
@@ -713,7 +724,6 @@ class NewElement: public AbstractElement {
  public:
  NewElement( const std::string& s=""): AbstractElement( ) { classInit( s ); };
  NewElement( Document *d=0, const std::string& s=""): AbstractElement( d ) { classInit( s ); };
-  void setAttributes( const KWargs& );
  private:
   void init();
 };
@@ -730,7 +740,6 @@ class Original: public AbstractElement {
  public:
  Original( const std::string& s=""): AbstractElement( ) { classInit( s ); };
  Original( Document *d=0, const std::string& s=""): AbstractElement( d ) { classInit( s ); };
-  void setAttributes( const KWargs& );
  private:
   void init();
 };
@@ -747,12 +756,13 @@ class Description: public AbstractElement {
  public:
  Description( const std::string& s=""): AbstractElement( ) { classInit( s ); };
  Description( Document *d=0, const std::string& s="" ): AbstractElement( d ) { classInit( s ); };
-  std::string description() const { return value; };
+  std::string description() const { return _value; };
+  void setAttributes( const KWargs& kwargs );
   AbstractElement* parseXml( xmlNode * );
   xmlNode *xml( Document *, bool ) const;
  private:
   void init();
-  std::string value;
+  std::string _value;
 };
 
 class Correction: public AbstractElement {

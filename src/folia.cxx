@@ -503,28 +503,37 @@ AbstractElement *Word::append( AbstractElement *child ) {
     delete child;
     throw DuplicateAnnotationError( "Word::append" );
   }
-  if ( child->element_id() == TextContent_t ){
-    // sanity check, there may be no other TextContent child with the same 
-    // correction level
-    vector<AbstractElement *> v = select( TextContent_t, false );
-    if ( v.size() > 0 ){
-      vector<AbstractElement*>::iterator it = v.begin();
-      while ( it != v.end() ){
-	if ( (*it)->corrected() > child->corrected() ){
-	  delete child;
+  return AbstractElement::append( child );
+}
+
+AbstractElement *TextContent::postappend(){
+  if ( corrected() == NOCORR ){
+    _corrected = _parent->getMinCorrectionLevel();
+  }
+  if ( _corrected < _parent->getMinCorrectionLevel() )
+    throw ValueError( "wrong textcorrectionlevel" );
+  // sanity check, there may be no other TextContent child with the same 
+  // correction level
+  vector<AbstractElement *> v = _parent->select( TextContent_t, false );
+  if ( v.size() > 0 ){
+    vector<AbstractElement*>::iterator it = v.begin();
+    while ( it != v.end() ){
+      if ( *it != this ){
+	if ( (*it)->corrected() > _corrected ){
+	  delete this;
 	  throw ValueError( "'corrected' value must be < " + 
 			    toString((*it)->corrected()) );
 	}
-	else if ( (*it)->corrected() == child->corrected() ){
-	  delete child;
+	else if ( (*it)->corrected() == _corrected ){
+	  //	delete this;
 	  throw DuplicateAnnotationError( "A TextContent with 'corrected' value of " +  toString((*it)->corrected()) + " already exists." );
 	}
-	++it;
       }
-      // no conflict found
+      ++it;
     }
+    // no conflict found
   }
-  return AbstractElement::append( child );
+  return this;
 }
 
 string AbstractElement::generateId( const string&, const string& ){
@@ -568,7 +577,7 @@ void AbstractElement::setAttributes( const KWargs& kwargs ){
   if ( mydoc && mydoc->debug > 2 )
     cerr << "set attributes: " << kwargs << " on " << toString(_element_id) << endl;
   
-  map<string,string>::const_iterator it = kwargs.find( "generate_id" );
+  KWargs::const_iterator it = kwargs.find( "generate_id" );
   if ( it != kwargs.end() ) {
     if ( !mydoc ){
       throw runtime_error( "can't generate an ID without a doc" );
@@ -718,6 +727,19 @@ void AbstractElement::setAttributes( const KWargs& kwargs ){
     throw ValueError("datetime is required");
   else
     _datetime = boost::posix_time::ptime();
+
+  it = kwargs.find( "text" );
+  if ( it != kwargs.end() ) {
+    settext( it->second );
+  }
+  it = kwargs.find( "correctedtext" );
+  if ( it != kwargs.end() ) {
+    settext( it->second, CORRECTED );
+  }
+  it = kwargs.find( "uncorrectedtext" );
+  if ( it != kwargs.end() ) {
+    settext( it->second, UNCORRECTED );
+  }
   if ( mydoc && !_id.empty() )
     mydoc->addDocIndex( this, _id );  
 }
@@ -737,16 +759,8 @@ string AbstractElement::getDateTime() const {
   return to_simple_string( _datetime );
 }
 
-void Word::setAttributes( const KWargs& kwargs ){
-  map<string,string>::const_iterator it = kwargs.find( "text" );
-  if ( it != kwargs.end() ) {
-    addText( it->second, MINTEXTCORRECTIONLEVEL );
-  }
-  AbstractElement::setAttributes(kwargs);
-}
-
 void Feature::setAttributes( const KWargs& kwargs ){
-  map<string,string>::const_iterator it;
+  KWargs::const_iterator it;
   if ( _subset.empty() ){
     it = kwargs.find( "subset" );
     if ( it == kwargs.end() ) {
@@ -763,20 +777,56 @@ void Feature::setAttributes( const KWargs& kwargs ){
   _cls = it->second;
 }
 
-void TextContent::setAttributes( const KWargs& kwargs ){
-  map<string,string>::const_iterator it = kwargs.find( "text" );
+void TextContent::setAttributes( const KWargs& args ){
+  KWargs kwargs = args; // need to copy
+  KWargs::const_iterator it = kwargs.find( "text" );
   if ( it != kwargs.end() ) {
     _text = UTF8ToUnicode(it->second);
+    kwargs.erase("text");
   }
+   else
+     throw ValueError("TextContent expects text= parameter");
   it = kwargs.find( "corrected" );
   if ( it != kwargs.end() ) {
     _corrected = stringToTCL(it->second);
+    kwargs.erase("corrected");
   }
   it = kwargs.find( "offset" );
   if ( it != kwargs.end() ) {
-    offset = stringTo<int>(it->second);
+    _offset = stringTo<int>(it->second);
+    kwargs.erase("offset");
   }
+  else
+    _offset = -1;
+  it = kwargs.find( "newoffset" );
+  if ( it != kwargs.end() ) {
+    _newoffset = stringTo<int>(it->second);
+    kwargs.erase("newoffset");
+  }
+  else
+    _newoffset = -1;
+  it = kwargs.find( "ref" );
+  if ( it != kwargs.end() ) {
+    throw NotImplementedError( "ref attribute in TextContent" );
+  }
+  it = kwargs.find( "length" );
+  if ( it != kwargs.end() ) {
+    _length = stringTo<int>(it->second);
+    kwargs.erase("length");
+  }
+  else
+    _length = _text.length();
+
   AbstractElement::setAttributes(kwargs);
+}
+
+void Description::setAttributes( const KWargs& kwargs ){
+  KWargs::const_iterator it;
+  it = kwargs.find( "value" );
+  if ( it == kwargs.end() ) {
+    throw ValueError("value attribute is required for " + classname() );
+  }
+  _value = it->second;
 }
 
 bool AbstractElement::contains( const AbstractElement *child ) const {
@@ -943,7 +993,7 @@ UnicodeString Correction::text( TextCorrectionLevel corr ) const {
   return result;
 }
 
-TextContent *AbstractElement::addText( const string& txt, 
+TextContent *AbstractElement::settext( const string& txt, 
 				       TextCorrectionLevel lv ){
   TextCorrectionLevel myl = lv;
   if ( lv == NOCORR )
@@ -1219,7 +1269,7 @@ AbstractElement *AbstractElement::append( AbstractElement *child ){
     }
     if ( !child->_parent ) // Only for WordRef i hope
       child->_parent = this;
-    return child;
+    return child->postappend();
   }
   return 0;
 }
@@ -1233,7 +1283,7 @@ void AbstractElement::remove( AbstractElement *child, bool del ){
 }
 
 void setAtt( xmlNode *node, const KWargs& attribs ){
-  map<string,string>::const_iterator it = attribs.begin();
+  KWargs::const_iterator it = attribs.begin();
   while ( it != attribs.end() ){
     xmlNewNsProp( node, 0, 
 		  (const xmlChar*)it->first.c_str(), 
@@ -1342,8 +1392,21 @@ xmlNode *TextContent::xml( Document *doc, bool ) const {
     xmlNewNsProp( e, 0, XML_XML_ID,  (const xmlChar *)_id.c_str() );
   }
   KWargs attribs = collectAttributes();
-  if ( offset >= 0 ){
-    attribs["offset"] = toString( offset );
+  if ( _offset >= 0 ){
+    attribs["offset"] = toString( _offset );
+  }
+  if ( _newoffset >= 0 ){
+    attribs["newoffset"] = toString( _newoffset );
+  }
+  if ( _length != _text.length() ){
+    attribs["length"] = toString( _length );
+  }
+  if ( _corrected == INLINE ){
+    attribs["corrected"] = "inline";
+  }
+  else if ( _corrected == CORRECTED && 
+	    _parent && _parent->getMinCorrectionLevel() < CORRECTED ){
+    attribs["corrected"] = "yes";
   }
   setAtt( e, attribs );
   return e;
@@ -1351,7 +1414,7 @@ xmlNode *TextContent::xml( Document *doc, bool ) const {
 
 xmlNode *Description::xml( Document *doc, bool ) const {
   xmlNode *e = newXMLNode( doc->foliaNs(), _xmltag );
-  xmlAddChild( e, xmlNewText( (const xmlChar*)value.c_str()) );
+  xmlAddChild( e, xmlNewText( (const xmlChar*)_value.c_str()) );
   KWargs attribs = collectAttributes();
   setAtt( e, attribs );
   return e;
@@ -1467,7 +1530,7 @@ bool operator==( const AbstractElement& a1, const AbstractElement& a2){
 
 void Document::setAttributes( const KWargs& kwargs ){
   bool happy = false;
-  map<string,string>::const_iterator it = kwargs.find( "debug" );
+  KWargs::const_iterator it = kwargs.find( "debug" );
   if ( it != kwargs.end() )
     debug = stringTo<int>( it->second );
   else
@@ -1739,8 +1802,8 @@ vector<AbstractElement*> AbstractElement::select( ElementType et,
   return select( et, excludeSet, recurse );
 }
 
-map<string,string> getAtt( xmlNode *node ){
-  map<string,string> atts;
+KWargs getAtt( xmlNode *node ){
+  KWargs atts;
   if ( node ){
     xmlAttr *a = node->properties;
     while ( a ){
@@ -1784,8 +1847,8 @@ void Document::parseannotations( xmlNode *node ){
       AnnotationType::AnnotationType type = stringToAT( prefix );
       annotations.push_back( ts_t( type, "" ) );
       annotationdefaults[type].clear();
-      map<string,string> att = getAtt( n );
-      map<string,string>::const_iterator it = att.find("set" );
+      KWargs att = getAtt( n );
+      KWargs::const_iterator it = att.find("set" );
       string s;
       string a;
       string t;
@@ -1823,7 +1886,7 @@ bool checkNS( xmlNode *n, const string& ns ){
 }
 
 AbstractElement* Document::parseFoliaDoc( xmlNode *root ){
-  map<string,string> att = getAtt( root );
+  KWargs att = getAtt( root );
   if ( att["id"] == "" ){
     throw XmlError("FoLiA Document has no ID!");
     return 0;
@@ -1921,23 +1984,26 @@ UnicodeString extractText( xmlNode *node ){
 }
 
 AbstractElement* TextContent::parseXml( xmlNode *node ){
-  map<string,string> att = getAtt( node );
+  KWargs att = getAtt( node );
+  att["text"] = XmlContent( node );
   setAttributes( att );
-  _text = extractText( node );
   if ( mydoc->debug > 2 )
     cerr << "set textcontent to " << _text << endl;
   return this;
 }
 
 AbstractElement* Description::parseXml( xmlNode *node ){
-  map<string,string> att = getAtt( node );
+  KWargs att = getAtt( node );
+  KWargs::const_iterator it = att.find("value" );
+  if ( it == att.end() ){
+    att["value"] = XmlContent( node );
+  }
   setAttributes( att );
-  value = XmlContent( node );
   return this;
 }
 
 AbstractElement* Content::parseXml( xmlNode *node ){
-  map<string,string> att = getAtt( node );
+  KWargs att = getAtt( node );
   setAttributes( att );
   xmlNode *p = node->children;
   while ( p ){
@@ -1953,7 +2019,7 @@ AbstractElement* Content::parseXml( xmlNode *node ){
 
 
 AbstractElement* AbstractElement::parseXml( xmlNode *node ){
-  map<string,string> att = getAtt( node );
+  KWargs att = getAtt( node );
   setAttributes( att );
   xmlNode *p = node->children;
   while ( p ){
@@ -1977,7 +2043,7 @@ AbstractElement* AbstractElement::parseXml( xmlNode *node ){
 }
 
 AbstractElement* WordReference::parseXml( xmlNode *node ){
-  map<string,string> att = getAtt( node );
+  KWargs att = getAtt( node );
   string id = att["id"];
   if ( id.empty() )
     throw XmlError( "empty id in WordReference" );
@@ -2107,7 +2173,7 @@ void Document::setannotations( xmlNode *node ){
 }
 
 void Document::setmetadata( xmlNode *node ){
-  map<string,string> atts;
+  KWargs atts;
   if ( metadatatype == NATIVE )
     atts["type"] = "native";
   else if ( metadatatype == IMDI )
@@ -2562,7 +2628,9 @@ void TextContent::init(){
   _element_id = TextContent_t;
   _xmltag="t";
   _corrected = CORRECTED;
-  offset = -1;
+  _offset = -1;
+  _newoffset = -1;
+  _length = 0;
 }
 
 void Head::init() {
@@ -2709,45 +2777,12 @@ void Current::init(){
   _accepted_data = std::set<ElementType>(accept, accept+4);
 }
 
-void NewElement::setAttributes( const KWargs& args ){
-  KWargs::const_iterator it = args.find( "cls" );
-  if ( it != args.end() ) {
-    LemmaAnnotation *res = new LemmaAnnotation( mydoc );
-    res->setAttributes( args );
-    append( res );
-  }
-  else {
-    it = args.find( "text" );
-    if ( it != args.end() ) {
-      TextContent *res = new TextContent( mydoc );
-      res->setAttributes( args );
-      append( res );
-    }
-  }
-}
-
-void Original::setAttributes( const KWargs& args ){
-  KWargs::const_iterator it = args.find( "cls" );
-  if ( it != args.end() ) {
-    LemmaAnnotation *res = new LemmaAnnotation( mydoc );
-    res->setAttributes( args );
-    append( res );
-  }
-  else {
-    it = args.find( "text" );
-    if ( it != args.end() ) {
-      TextContent *res = new TextContent( mydoc );
-      res->setAttributes( args );
-      append( res );
-    }
-  }
-}
-
 void Original::init(){
   _xmltag = "original";
   _element_id = Original_t;
   const ElementType accept[] = { Pos_t, Lemma_t, TextContent_t, Word_t };
   _accepted_data = std::set<ElementType>(accept, accept+4);
+  MINTEXTCORRECTIONLEVEL = CORRECTED;
 }
 
 void Suggestion::init(){
@@ -2863,7 +2898,7 @@ Correction *Word::correct( AbstractElement *old,
 }
 
 void ErrorDetection::setAttributes( const KWargs& kwargs ){
-  map<string,string>::const_iterator it = kwargs.find( "error" );
+  KWargs::const_iterator it = kwargs.find( "error" );
   if ( it != kwargs.end() ) {
     string tmp = lowercase( it->second );
     if ( tmp == "no" || tmp == "false" )
@@ -2922,6 +2957,7 @@ void Morpheme::init(){
   const ElementType accept[] = { Feature_t, TextContent_t };
   _accepted_data = std::set<ElementType>(accept, accept+2);
   _annotation_type = AnnotationType::MORPHOLOGICAL;
+  MINTEXTCORRECTIONLEVEL = CORRECTED;
 }
 
 void Subentity::init(){
