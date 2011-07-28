@@ -507,32 +507,25 @@ AbstractElement *Word::append( AbstractElement *child ) {
 }
 
 AbstractElement *TextContent::postappend(){
-  if ( corrected() == NOCORR ){
-    _corrected = _parent->getMinCorrectionLevel();
+  TextCorrectionLevel pl = _parent->getMinCorrectionLevel();
+  if ( _corrected == NOCORR ){
+    _corrected = pl;
   }
-  if ( _corrected < _parent->getMinCorrectionLevel() )
-    throw ValueError( "wrong textcorrectionlevel" );
-  // sanity check, there may be no other TextContent child with the same 
-  // correction level
-  vector<AbstractElement *> v = _parent->select( TextContent_t, false );
-  if ( v.size() > 0 ){
-    vector<AbstractElement*>::iterator it = v.begin();
-    while ( it != v.end() ){
-      if ( *it != this ){
-	if ( (*it)->corrected() > _corrected ){
-	  delete this;
-	  throw ValueError( "'corrected' value must be < " + 
-			    toString((*it)->corrected()) );
-	}
-	else if ( (*it)->corrected() == _corrected ){
-	  //	delete this;
-	  throw DuplicateAnnotationError( "A TextContent with 'corrected' value of " +  toString((*it)->corrected()) + " already exists." );
-	}
+  if ( _corrected < pl ) {
+    throw ValueError( "TextContent(" + toString( _corrected ) + ") must be of higher level than its parents minimum (" + toString(pl) + ")" );
+  }
+  if ( _corrected == UNCORRECTED || _corrected == CORRECTED ){
+    // sanity check, there may be no other TextContent child with the same 
+    // correction level
+    for ( size_t i=0; i < _parent->size(); ++i ){
+      AbstractElement *child = _parent->index(i);
+      if ( child != this && child->element_id() == TextContent_t &&
+	   child->corrected() == _corrected ){
+	throw DuplicateAnnotationError( "A TextContent with 'corrected' value of " +  toString(_corrected) + " already exists." );
       }
-      ++it;
     }
-    // no conflict found
   }
+  // no conflict found
   return this;
 }
 
