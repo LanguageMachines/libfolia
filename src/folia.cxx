@@ -1360,7 +1360,7 @@ string AbstractElement::xmlstring() const{
   return result;
 }
 
-xmlNode *AbstractElement::xml( Document *doc, bool recursive ) const {
+xmlNode *AbstractElement::xml( const Document *doc, bool recursive ) const {
   xmlNode *e = newXMLNode( doc->foliaNs(), _xmltag );
   if ( !_id.empty() ){
     xmlNewNsProp( e, 0, XML_XML_ID,  (const xmlChar *)_id.c_str() );
@@ -1378,7 +1378,7 @@ xmlNode *AbstractElement::xml( Document *doc, bool recursive ) const {
   return e;
 }
 
-xmlNode *TextContent::xml( Document *doc, bool ) const {
+xmlNode *TextContent::xml( const Document *doc, bool ) const {
   xmlNode *e = newXMLNode( doc->foliaNs(), _xmltag );
   xmlAddChild( e, xmlNewText( (const xmlChar*)str().c_str()) );
   if ( !_id.empty() ){
@@ -1405,7 +1405,7 @@ xmlNode *TextContent::xml( Document *doc, bool ) const {
   return e;
 }
 
-xmlNode *Description::xml( Document *doc, bool ) const {
+xmlNode *Description::xml( const Document *doc, bool ) const {
   xmlNode *e = newXMLNode( doc->foliaNs(), _xmltag );
   xmlAddChild( e, xmlNewText( (const xmlChar*)_value.c_str()) );
   KWargs attribs = collectAttributes();
@@ -1413,7 +1413,7 @@ xmlNode *Description::xml( Document *doc, bool ) const {
   return e;
 }
 
-xmlNode *Content::xml( Document *doc, bool ) const {
+xmlNode *Content::xml( const Document *doc, bool ) const {
   xmlNode *e = newXMLNode( doc->foliaNs(), _xmltag );
   xmlAddChild( e, xmlNewCDataBlock( doc->XmlDoc(), (const xmlChar*)value.c_str() , value.length() ) );
   KWargs attribs = collectAttributes();
@@ -1421,7 +1421,7 @@ xmlNode *Content::xml( Document *doc, bool ) const {
   return e;
 }
 
-xmlNode *AbstractSpanAnnotation::xml( Document *doc, bool recursive ) const {
+xmlNode *AbstractSpanAnnotation::xml( const Document *doc, bool recursive ) const {
   xmlNode *e = AbstractElement::xml( doc, false );
   // append Word children:
   vector<AbstractElement*>::const_iterator it=data.begin();
@@ -1603,11 +1603,16 @@ bool Document::readFromString( const string& s ){
   return readFromFile( buffer );
 }
 
+ostream& operator<<( ostream& os, const Document& d ){
+  string s = d.toXml();
+  os << s << endl;
+  return os;
+}
+
 bool Document::save( const string& fn ) {
-  string out = toXml();
   ofstream os( fn.c_str() );
   if ( os.good() ) {
-    os << out << endl;
+    os << *this << endl;
     return true;
   }
   throw runtime_error( "saving to file " + fn + " failed" );
@@ -2143,7 +2148,7 @@ std::string Document::defaultannotatortype( AnnotationType::AnnotationType type,
   return result;
 }
 
-void Document::setannotations( xmlNode *node ){
+void Document::setannotations( xmlNode *node ) const{
   list<ts_t>::const_iterator it = annotations.begin();
   while ( it != annotations.end() ){
     // Find the 'label' 
@@ -2165,7 +2170,7 @@ void Document::setannotations( xmlNode *node ){
   } 
 }
 
-void Document::setmetadata( xmlNode *node ){
+void Document::setmetadata( xmlNode *node ) const{
   KWargs atts;
   if ( metadatatype == NATIVE )
     atts["type"] = "native";
@@ -2195,7 +2200,7 @@ void Document::setmetadata( xmlNode *node ){
   setAtt( node, atts );
 }
 
-string Document::toXml() {
+string Document::toXml() const {
   string result;
   if ( foliadoc ){
     xmlDoc *outDoc = xmlNewDoc( (const xmlChar*)"1.0" );
@@ -2910,7 +2915,7 @@ void ErrorDetection::init(){
   error = true;
 }
 
-xmlNode *ErrorDetection::xml( Document *doc, bool ) const {
+xmlNode *ErrorDetection::xml( const Document *doc, bool ) const {
   xmlNode *e = newXMLNode( doc->foliaNs(), _xmltag );
   KWargs attribs = collectAttributes();
   if ( error )
@@ -2919,7 +2924,7 @@ xmlNode *ErrorDetection::xml( Document *doc, bool ) const {
   return e;
 }
 
-xmlNode *Feature::xml( Document *doc, bool ) const {
+xmlNode *Feature::xml( const Document *doc, bool ) const {
   xmlNode *e = newXMLNode( doc->foliaNs(), _xmltag );
   KWargs attribs = collectAttributes();
   attribs["subset"] = _subset;

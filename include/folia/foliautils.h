@@ -2,6 +2,8 @@
 #define FOLIAUTILS_H
 
 #include <sstream>
+#include <set>
+#include <vector>
 #include "unicode/unistr.h"
 #include "unicode/unistr.h"
 #include <unicode/ustream.h>

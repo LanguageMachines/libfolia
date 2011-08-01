@@ -1,6 +1,7 @@
 #ifndef FOLIA_H
 #define FOLIA_H
 
+#include <list>
 #include "unicode/unistr.h"
 #include "unicode/regex.h"
 #include "libxml/tree.h"
@@ -19,6 +20,7 @@ class Pattern;
 
 class Document {
   friend bool operator==( const Document&, const Document& );
+  friend std::ostream& operator<<( std::ostream&, const Document& );
  public:
   Document();
   Document( const std::string& );
@@ -41,7 +43,7 @@ class Document {
   AbstractElement* rwords( size_t ) const;
   AbstractElement* rparagraphs( size_t ) const;
   AbstractElement* sentences( size_t ) const;
-  std::string toXml();
+  std::string toXml() const;
 
   AbstractElement *append( AbstractElement* );
         
@@ -63,14 +65,14 @@ class Document {
   AbstractElement* parseFoliaDoc( xmlNode * );
 
   std::string id() const { return _id; };
-  xmlNs *foliaNs() { return _foliaNs; };
+  xmlNs *foliaNs() const { return _foliaNs; };
   void setimdi( xmlNode * );
   void declare( AnnotationType::AnnotationType, 
 		const std::string&,
 		const std::string& = "" );
   void parseannotations( xmlNode * );
-  void setannotations( xmlNode *);
-  void setmetadata( xmlNode * );
+  void setannotations( xmlNode *) const;
+  void setmetadata( xmlNode * ) const;
   xmlDoc *XmlDoc() const { return xmldoc; };
   void keepForDeletion( AbstractElement *p ) { delSet.insert( p ); };
   int debug;
@@ -101,7 +103,7 @@ class Document {
   std::set<AbstractElement *> delSet;
   AbstractElement *foliadoc;
   xmlDoc *xmldoc;
-  xmlNs *_foliaNs;
+  mutable xmlNs *_foliaNs;
   MetaDataType metadatatype;
   xmlNode *metadata;
   std::string _title;
@@ -226,7 +228,7 @@ class AbstractElement {
   KWargs collectAttributes() const;  
   //XML (de)serialisation
   std::string xmlstring() const; // serialize to a string (XML fragment)
-  virtual xmlNode *xml( Document *, bool ) const; //serialize to XML  
+  virtual xmlNode *xml( const Document *, bool ) const; //serialize to XML  
   virtual AbstractElement* parseXml( xmlNode * );
   UnicodeString unicode() const { return text(); };
   virtual std::string str() const;
@@ -442,7 +444,7 @@ class Feature: public AbstractElement {
  Feature( const std::string& s=""): AbstractElement( ){ classInit( s ); }
  Feature( Document *d, const std::string& s=""): AbstractElement( d ){ classInit( s ); }
   void setAttributes( const KWargs& );
-  xmlNode* xml(Document*, bool) const;
+  xmlNode* xml( const Document*, bool) const;
   std::string subset() const { return _subset; };
 
  protected:
@@ -455,7 +457,7 @@ class Feature: public AbstractElement {
 class AbstractSpanAnnotation: public AbstractAnnotation {
  public:
  AbstractSpanAnnotation( Document *d=0 ):  AbstractAnnotation( d ){};
-  xmlNode *xml( Document *, bool ) const;
+  xmlNode *xml( const Document *, bool ) const;
   AbstractElement *append( AbstractElement* );
 };
 
@@ -464,7 +466,7 @@ class TextContent: public AbstractElement {
  TextContent( const std::string& s="" ):  AbstractElement( ){ classInit( s ); }
  TextContent( Document *d=0, const std::string& s="" ):  AbstractElement( d ){ classInit( s ); }
   AbstractElement* parseXml( xmlNode * );
-  xmlNode *xml( Document *, bool ) const;
+  xmlNode *xml( const Document *, bool ) const;
   void setAttributes( const KWargs& );
   std::string str() const;
   UnicodeString text( TextCorrectionLevel ) const;
@@ -520,7 +522,7 @@ class Content: public AbstractElement {
  Content( const std::string& s=""): AbstractElement( ) { classInit( s ); };
  Content( Document *d=0, const std::string& s=""): AbstractElement( d ) { classInit( s ); };
   AbstractElement* parseXml( xmlNode * );
-  xmlNode *xml( Document *, bool ) const;
+  xmlNode *xml( const Document *, bool ) const;
   std::string content();
  private:
   void init();
@@ -759,7 +761,7 @@ class Description: public AbstractElement {
   std::string description() const { return _value; };
   void setAttributes( const KWargs& kwargs );
   AbstractElement* parseXml( xmlNode * );
-  xmlNode *xml( Document *, bool ) const;
+  xmlNode *xml( const Document *, bool ) const;
  private:
   void init();
   std::string _value;
@@ -788,7 +790,7 @@ class ErrorDetection: public AbstractTokenAnnotation  {
  ErrorDetection( const std::string& s=""): AbstractTokenAnnotation(){ classInit( s ); }
  ErrorDetection( Document *d=0, const std::string& s=""): AbstractTokenAnnotation( d ){ classInit( s ); }
  void setAttributes( const KWargs& );
-  xmlNode* xml(Document*, bool) const;
+  xmlNode* xml( const Document*, bool) const;
  private:
   void init();
   bool error;
