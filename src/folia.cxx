@@ -942,8 +942,9 @@ UnicodeString AbstractElement::text( TextCorrectionLevel corr ) const {
       try {
 	UnicodeString tmp = data[i]->text();
 	result += tmp;
-	if ( !tmp.isEmpty() )
-	  result += UTF8ToUnicode(TEXTDELIMITER);
+	if ( !tmp.isEmpty() ){
+	  result += UTF8ToUnicode( data[i]->getTextDelimiter() );
+	}
       }
       catch ( NoSuchText& e ){
 	//	cerr << "hmm: " << e.what() << endl;
@@ -1278,6 +1279,7 @@ void AbstractElement::remove( AbstractElement *child, bool del ){
 void setAtt( xmlNode *node, const KWargs& attribs ){
   KWargs::const_iterator it = attribs.begin();
   while ( it != attribs.end() ){
+    //    cerr << "setAtt(" << it->first << ", " << it->second << ")" << endl;
     xmlNewNsProp( node, 0, 
 		  (const xmlChar*)it->first.c_str(), 
 		  (const xmlChar*)it->second.c_str() );
@@ -2660,6 +2662,7 @@ void Word::init(){
   _optional_attributes = CLASS|ANNOTATOR|CONFIDENCE;
   MINTEXTCORRECTIONLEVEL = CORRECTED;
   TEXTDELIMITER = " ";
+  space = true;
 }
 
 void Gap::init(){
@@ -2678,7 +2681,9 @@ void Content::init(){
 void Sentence::init(){
   _xmltag="s";
   _element_id = Sentence_t;
-  const ElementType accept[] = { Word_t, TextContent_t, Annolay_t, SyntaxLayer_t,
+  const ElementType accept[] = { Word_t, TextContent_t, Annolay_t, 
+				 SyntaxLayer_t,
+				 Quote_t,
 				 Correction_t,
 				 Description_t };
   _accepted_data = std::set<ElementType>(accept, accept+5); 
@@ -2870,6 +2875,37 @@ AbstractElement *Correction::getSuggestion( int index ) {
     return v[0];
   else
     return v[0]->index(index);
+}
+
+void Word::setAttributes( const KWargs& args ){
+  KWargs::const_iterator it = args.find( "space" );
+  if ( it != args.end() ){
+    if ( it->second == "no" ){
+      space = false;
+    }
+  }
+  AbstractStructureElement::setAttributes( args );
+}
+
+xmlNode *Word::xml( const Document *doc, bool recursive ) const {
+  xmlNode *e = newXMLNode( doc->foliaNs(), _xmltag );
+  if ( !_id.empty() ){
+    xmlNewNsProp( e, 0, XML_XML_ID,  (const xmlChar *)_id.c_str() );
+  }
+  KWargs attribs = collectAttributes();
+  if ( !space ){
+    attribs["space"] = "no";
+  }
+  setAtt( e, attribs );
+  if ( recursive ){
+    // append children:
+    vector<AbstractElement*>::const_iterator it=data.begin();
+    while ( it != data.end() ){
+      xmlAddChild( e, (*it)->xml( doc, recursive ) );
+      ++it;
+    }
+  }
+  return e;
 }
 
 Correction *Word::correct( const std::string& s ){
@@ -3068,6 +3104,9 @@ void Quote::init(){
   _element_id = Quote_t;
   _required_attributes = NO_ATT;
   _optional_attributes = ID;
+  const ElementType accept[] = { Word_t, Sentence_t, Quote_t, 
+				 TextContent_t, Description_t };
+  _accepted_data = std::set<ElementType>(accept, accept+5);
 }
 
 

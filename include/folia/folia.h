@@ -228,6 +228,7 @@ class AbstractElement {
   KWargs collectAttributes() const;  
   //XML (de)serialisation
   std::string xmlstring() const; // serialize to a string (XML fragment)
+  virtual std::string getTextDelimiter() const { return TEXTDELIMITER; }
   virtual xmlNode *xml( const Document *, bool ) const; //serialize to XML  
   virtual AbstractElement* parseXml( xmlNode * );
   UnicodeString unicode() const { return text(); };
@@ -560,8 +561,18 @@ class Word: public AbstractStructureElement {
 					  const std::string& ="" ) const;
   AbstractElement *append( AbstractElement *);
   const AbstractElement* resolveword( const std::string& ) const;
+  void setAttributes( const KWargs& );
+  std::string getTextDelimiter() const { 
+    if ( space )
+      return TEXTDELIMITER;
+    else {
+      return "";
+    }
+  }
+  xmlNode *xml( const Document *, bool ) const;
  private:
   void init();
+  bool space;
 };
 
 class PlaceHolder: public Word {
