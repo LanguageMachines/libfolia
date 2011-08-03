@@ -741,12 +741,16 @@ string AbstractElement::getDateTime() const {
 }
 
 void Feature::setAttributes( const KWargs& kwargs ){
-  KWargs::const_iterator it;
-  if ( _subset.empty() ){
-    it = kwargs.find( "subset" );
-    if ( it == kwargs.end() ) {
+  //
+  // Feature is special. So DON'T call ::setAttributes
+  //
+  KWargs::const_iterator it = kwargs.find( "subset" );
+  if ( it == kwargs.end() ){
+    if ( _subset.empty() ) {
       throw ValueError("subset attribute is required for " + classname() );
     }
+  }
+  else {
     _subset = it->second;
   }
   it = kwargs.find( "cls" );
