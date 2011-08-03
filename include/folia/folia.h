@@ -225,7 +225,7 @@ class AbstractElement {
 					const std::string&,
 					std::set<ElementType>& ,
 					bool = true );
-  KWargs collectAttributes() const;  
+  virtual KWargs collectAttributes() const;  
   //XML (de)serialisation
   std::string xmlstring() const; // serialize to a string (XML fragment)
   virtual std::string getTextDelimiter() const { return TEXTDELIMITER; }
@@ -445,7 +445,7 @@ class Feature: public AbstractElement {
  Feature( const std::string& s=""): AbstractElement( ){ classInit( s ); }
  Feature( Document *d, const std::string& s=""): AbstractElement( d ){ classInit( s ); }
   void setAttributes( const KWargs& );
-  xmlNode* xml( const Document*, bool) const;
+  KWargs collectAttributes() const;  
   std::string subset() const { return _subset; };
 
  protected:
@@ -469,6 +469,7 @@ class TextContent: public AbstractElement {
   AbstractElement* parseXml( xmlNode * );
   xmlNode *xml( const Document *, bool ) const;
   void setAttributes( const KWargs& );
+  KWargs collectAttributes() const;  
   std::string str() const;
   UnicodeString text( TextCorrectionLevel ) const;
   AbstractElement *append( AbstractElement* ){ throw NotImplementedError("TextContent::append()"); };
@@ -562,6 +563,7 @@ class Word: public AbstractStructureElement {
   AbstractElement *append( AbstractElement *);
   const AbstractElement* resolveword( const std::string& ) const;
   void setAttributes( const KWargs& );
+  KWargs collectAttributes() const;  
   std::string getTextDelimiter() const { 
     if ( space )
       return TEXTDELIMITER;
@@ -569,7 +571,6 @@ class Word: public AbstractStructureElement {
       return "";
     }
   }
-  xmlNode *xml( const Document *, bool ) const;
  private:
   void init();
   bool space;
@@ -800,8 +801,8 @@ class ErrorDetection: public AbstractTokenAnnotation  {
  public: 
  ErrorDetection( const std::string& s=""): AbstractTokenAnnotation(){ classInit( s ); }
  ErrorDetection( Document *d=0, const std::string& s=""): AbstractTokenAnnotation( d ){ classInit( s ); }
- void setAttributes( const KWargs& );
-  xmlNode* xml( const Document*, bool) const;
+  void setAttributes( const KWargs& );
+  KWargs collectAttributes() const;  
  private:
   void init();
   bool error;

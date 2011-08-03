@@ -1280,9 +1280,14 @@ void setAtt( xmlNode *node, const KWargs& attribs ){
   KWargs::const_iterator it = attribs.begin();
   while ( it != attribs.end() ){
     //    cerr << "setAtt(" << it->first << ", " << it->second << ")" << endl;
-    xmlNewNsProp( node, 0, 
-		  (const xmlChar*)it->first.c_str(), 
-		  (const xmlChar*)it->second.c_str() );
+    if ( it->first == "_id" ){ // id is special
+      xmlNewNsProp( node, 0, XML_XML_ID,  (const xmlChar *)it->second.c_str() );
+    }
+    else {
+      xmlNewNsProp( node, 0, 
+		    (const xmlChar*)it->first.c_str(), 
+		    (const xmlChar*)it->second.c_str() );
+    }
     ++it;
   }
 }
@@ -1302,6 +1307,9 @@ KWargs AbstractElement::collectAttributes() const {
   KWargs attribs;
   bool isDefaultSet = true;
   bool isDefaultAnn = true;
+  if ( !_id.empty() ){
+    attribs["_id"] = _id; // sort "id" as first!
+  }
   if ( !_set.empty() &&
        _set != mydoc->defaultset( _annotation_type ) ){
     isDefaultSet = false;
@@ -1364,9 +1372,6 @@ string AbstractElement::xmlstring() const{
 
 xmlNode *AbstractElement::xml( const Document *doc, bool recursive ) const {
   xmlNode *e = newXMLNode( doc->foliaNs(), _xmltag );
-  if ( !_id.empty() ){
-    xmlNewNsProp( e, 0, XML_XML_ID,  (const xmlChar *)_id.c_str() );
-  }
   KWargs attribs = collectAttributes();
   setAtt( e, attribs );
   if ( recursive ){
@@ -1380,13 +1385,8 @@ xmlNode *AbstractElement::xml( const Document *doc, bool recursive ) const {
   return e;
 }
 
-xmlNode *TextContent::xml( const Document *doc, bool ) const {
-  xmlNode *e = newXMLNode( doc->foliaNs(), _xmltag );
-  xmlAddChild( e, xmlNewText( (const xmlChar*)str().c_str()) );
-  if ( !_id.empty() ){
-    xmlNewNsProp( e, 0, XML_XML_ID,  (const xmlChar *)_id.c_str() );
-  }
-  KWargs attribs = collectAttributes();
+KWargs TextContent::collectAttributes() const {
+  KWargs attribs = AbstractElement::collectAttributes();
   if ( _offset >= 0 ){
     attribs["offset"] = toString( _offset );
   }
@@ -1403,6 +1403,13 @@ xmlNode *TextContent::xml( const Document *doc, bool ) const {
 	    _parent && _parent->getMinCorrectionLevel() < CORRECTED ){
     attribs["corrected"] = "yes";
   }
+  return attribs;
+}
+
+xmlNode *TextContent::xml( const Document *doc, bool ) const {
+  xmlNode *e = newXMLNode( doc->foliaNs(), _xmltag );
+  xmlAddChild( e, xmlNewText( (const xmlChar*)str().c_str()) );
+  KWargs attribs = collectAttributes();
   setAtt( e, attribs );
   return e;
 }
@@ -2215,11 +2222,8 @@ string Document::toXml() const {
       _foliaNs = xmlNewNs( root, (const xmlChar *)NSFOLIA.c_str(), 0 );
     }
     xmlSetNs( root, _foliaNs );
-    string id = foliadoc->id();
-    if ( !id.empty() ){
-      xmlNewNsProp( root, 0, XML_XML_ID,  (const xmlChar *)id.c_str() );
-    }
     KWargs attribs;
+    attribs["_id"] = foliadoc->id(); // sort "id" in front!
     attribs["generator"] = string("libfolia-v") + VERSION;
     if ( !version.empty() )
       attribs["version"] = version;
@@ -2887,25 +2891,12 @@ void Word::setAttributes( const KWargs& args ){
   AbstractStructureElement::setAttributes( args );
 }
 
-xmlNode *Word::xml( const Document *doc, bool recursive ) const {
-  xmlNode *e = newXMLNode( doc->foliaNs(), _xmltag );
-  if ( !_id.empty() ){
-    xmlNewNsProp( e, 0, XML_XML_ID,  (const xmlChar *)_id.c_str() );
-  }
-  KWargs attribs = collectAttributes();
+KWargs Word::collectAttributes() const {
+  KWargs atts = AbstractElement::collectAttributes();
   if ( !space ){
-    attribs["space"] = "no";
+    atts["space"] = "no";
   }
-  setAtt( e, attribs );
-  if ( recursive ){
-    // append children:
-    vector<AbstractElement*>::const_iterator it=data.begin();
-    while ( it != data.end() ){
-      xmlAddChild( e, (*it)->xml( doc, recursive ) );
-      ++it;
-    }
-  }
-  return e;
+  return atts;
 }
 
 Correction *Word::correct( const std::string& s ){
@@ -2951,21 +2942,17 @@ void ErrorDetection::init(){
   error = true;
 }
 
-xmlNode *ErrorDetection::xml( const Document *doc, bool ) const {
-  xmlNode *e = newXMLNode( doc->foliaNs(), _xmltag );
-  KWargs attribs = collectAttributes();
+KWargs ErrorDetection::collectAttributes() const {
+  KWargs attribs = AbstractElement::collectAttributes();
   if ( error )
     attribs["error"] = "yes";
-  setAtt( e, attribs );
-  return e;
+  return attribs;
 }
 
-xmlNode *Feature::xml( const Document *doc, bool ) const {
-  xmlNode *e = newXMLNode( doc->foliaNs(), _xmltag );
-  KWargs attribs = collectAttributes();
+KWargs Feature::collectAttributes() const {
+  KWargs attribs = AbstractElement::collectAttributes();
   attribs["subset"] = _subset;
-  setAtt( e, attribs );
-  return e;
+  return attribs;
 }
 
 std::string AbstractAnnotation::feat( const std::string& s ) const {
