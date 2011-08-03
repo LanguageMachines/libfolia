@@ -191,13 +191,13 @@ Correction *AbstractStructureElement::correct( vector<AbstractElement*> original
   KWargs args = args_in;
   KWargs::const_iterator it = args.find("new");
   if ( it != args.end() ){
-    TextContent *t = new TextContent( mydoc, "text='" +  it->second + "'" );
+    TextContent *t = new TextContent( mydoc, "value='" +  it->second + "'" );
     _new.push_back( t );
     args.erase("new");
   }
   it = args.find("suggestion");
   if ( it != args.end() ){
-    TextContent *t = new TextContent( mydoc, "text='" +  it->second + "'" );
+    TextContent *t = new TextContent( mydoc, "value='" +  it->second + "'" );
     suggestions.push_back( t );
     args.erase("suggestion");
   }
@@ -721,18 +721,6 @@ void AbstractElement::setAttributes( const KWargs& kwargs ){
   else
     _datetime = boost::posix_time::ptime();
 
-  it = kwargs.find( "text" );
-  if ( it != kwargs.end() ) {
-    settext( it->second );
-  }
-  it = kwargs.find( "correctedtext" );
-  if ( it != kwargs.end() ) {
-    settext( it->second, CORRECTED );
-  }
-  it = kwargs.find( "uncorrectedtext" );
-  if ( it != kwargs.end() ) {
-    settext( it->second, UNCORRECTED );
-  }
   if ( mydoc && !_id.empty() )
     mydoc->addDocIndex( this, _id );  
 }
@@ -772,13 +760,13 @@ void Feature::setAttributes( const KWargs& kwargs ){
 
 void TextContent::setAttributes( const KWargs& args ){
   KWargs kwargs = args; // need to copy
-  KWargs::const_iterator it = kwargs.find( "text" );
+  KWargs::const_iterator it = kwargs.find( "value" );
   if ( it != kwargs.end() ) {
     _text = UTF8ToUnicode(it->second);
-    kwargs.erase("text");
+    kwargs.erase("value");
   }
    else
-     throw ValueError("TextContent expects text= parameter");
+     throw ValueError("TextContent expects value= parameter");
   it = kwargs.find( "corrected" );
   if ( it != kwargs.end() ) {
     _corrected = stringToTCL(it->second);
@@ -993,7 +981,7 @@ TextContent *AbstractElement::settext( const string& txt,
   if ( lv == NOCORR )
     myl = MINTEXTCORRECTIONLEVEL;
   KWargs args;
-  args["text"] = txt;
+  args["value"] = txt;
   args["corrected"] = toString( lv );
   TextContent *node = new TextContent( mydoc );
   node->setAttributes( args );
@@ -1276,10 +1264,10 @@ void AbstractElement::remove( AbstractElement *child, bool del ){
     delete child;
 }
 
-void setAtt( xmlNode *node, const KWargs& attribs ){
+void addAttributes( xmlNode *node, const KWargs& attribs ){
   KWargs::const_iterator it = attribs.begin();
   while ( it != attribs.end() ){
-    //    cerr << "setAtt(" << it->first << ", " << it->second << ")" << endl;
+    //    cerr << "addAttributes(" << it->first << ", " << it->second << ")" << endl;
     if ( it->first == "_id" ){ // id is special
       xmlNewNsProp( node, 0, XML_XML_ID,  (const xmlChar *)it->second.c_str() );
     }
@@ -1373,7 +1361,7 @@ string AbstractElement::xmlstring() const{
 xmlNode *AbstractElement::xml( const Document *doc, bool recursive ) const {
   xmlNode *e = newXMLNode( doc->foliaNs(), _xmltag );
   KWargs attribs = collectAttributes();
-  setAtt( e, attribs );
+  addAttributes( e, attribs );
   if ( recursive ){
     // append children:
     vector<AbstractElement*>::const_iterator it=data.begin();
@@ -1438,7 +1426,7 @@ xmlNode *AbstractSpanAnnotation::xml( const Document *doc, bool recursive ) cons
       string txt = (*it)->str();
       if ( !txt.empty() )
 	attribs["t"] = txt;
-      setAtt( t, attribs );
+      addAttributes( t, attribs );
       xmlAddChild( e, t );
     }
     else
@@ -1988,7 +1976,7 @@ UnicodeString extractText( xmlNode *node ){
 
 AbstractElement* TextContent::parseXml( xmlNode *node ){
   KWargs att = getAtt( node );
-  att["text"] = XmlContent( node );
+  att["value"] = XmlContent( node );
   setAttributes( att );
   if ( mydoc->debug > 2 )
     cerr << "set textcontent to " << _text << endl;
@@ -2170,7 +2158,7 @@ void Document::setannotations( xmlNode *node ) const{
     s = defaultset( it->t );
     if ( !s.empty() )
       args["set"] = s;
-    setAtt( n, args );
+    addAttributes( n, args );
     ++it;
   } 
 }
@@ -2202,7 +2190,7 @@ void Document::setmetadata( xmlNode *node ) const{
   else if ( metadatatype == CMDI ){
     // ????
   }
-  setAtt( node, atts );
+  addAttributes( node, atts );
 }
 
 string Document::toXml() const {
@@ -2223,7 +2211,7 @@ string Document::toXml() const {
     attribs["generator"] = string("libfolia-v") + VERSION;
     if ( !version.empty() )
       attribs["version"] = version;
-    setAtt( root, attribs );
+    addAttributes( root, attribs );
 
     xmlNode *md = xmlAddChild( root,  newXMLNode( _foliaNs, "metadata" ) );  
     xmlNode *an = xmlAddChild( md,  newXMLNode( _foliaNs, "annotations" ) );
@@ -2884,7 +2872,19 @@ void Word::setAttributes( const KWargs& args ){
       space = false;
     }
   }
-  AbstractStructureElement::setAttributes( args );
+  it = args.find( "text" );
+  if ( it != args.end() ) {
+    settext( it->second );
+  }
+  it = args.find( "correctedtext" );
+  if ( it != args.end() ) {
+    settext( it->second, CORRECTED );
+  }
+  it = args.find( "uncorrectedtext" );
+  if ( it != args.end() ) {
+    settext( it->second, UNCORRECTED );
+  }
+  AbstractElement::setAttributes( args );
 }
 
 KWargs Word::collectAttributes() const {
