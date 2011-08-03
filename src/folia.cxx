@@ -1407,26 +1407,22 @@ KWargs TextContent::collectAttributes() const {
 }
 
 xmlNode *TextContent::xml( const Document *doc, bool ) const {
-  xmlNode *e = newXMLNode( doc->foliaNs(), _xmltag );
+  xmlNode *e = AbstractElement::xml( doc, false );
   xmlAddChild( e, xmlNewText( (const xmlChar*)str().c_str()) );
-  KWargs attribs = collectAttributes();
-  setAtt( e, attribs );
   return e;
 }
 
 xmlNode *Description::xml( const Document *doc, bool ) const {
-  xmlNode *e = newXMLNode( doc->foliaNs(), _xmltag );
+  xmlNode *e = AbstractElement::xml( doc, false );
   xmlAddChild( e, xmlNewText( (const xmlChar*)_value.c_str()) );
-  KWargs attribs = collectAttributes();
-  setAtt( e, attribs );
   return e;
 }
 
 xmlNode *Content::xml( const Document *doc, bool ) const {
-  xmlNode *e = newXMLNode( doc->foliaNs(), _xmltag );
-  xmlAddChild( e, xmlNewCDataBlock( doc->XmlDoc(), (const xmlChar*)value.c_str() , value.length() ) );
-  KWargs attribs = collectAttributes();
-  setAtt( e, attribs );
+  xmlNode *e = AbstractElement::xml( doc, false );
+  xmlAddChild( e, xmlNewCDataBlock( doc->XmlDoc(), 
+				    (const xmlChar*)value.c_str() ,
+				    value.length() ) );
   return e;
 }
 
