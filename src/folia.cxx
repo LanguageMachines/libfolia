@@ -54,6 +54,7 @@ AbstractElement::AbstractElement( Document *d ){
   _annotation_type = AnnotationType::NO_ANN;
   _annotator_type = UNDEFINED;
   refcount = 0;
+  _datetime = 0;
   _parent = 0;
   _required_attributes = NO_ATT;
   _optional_attributes = NO_ATT;
@@ -545,18 +546,6 @@ string AbstractStructureElement::generateId( const string& tag,
   return id;
 }
 
-bool parseDate( const string& s, boost::posix_time::ptime& time ){
-  //  cerr << "try to read a date-time " << s << endl;
-  try {
-    time = boost::posix_time::time_from_string( s );
-  }
-  catch( exception& e ){
-    return false;
-  }
-  //  cerr << "read _date time = " << time << endl;
-  return true;
-}
-
 void AbstractElement::setAttributes( const KWargs& kwargs ){
   Attrib supported = _required_attributes | _optional_attributes;
   // if ( _element_id == Correction_t ){
@@ -712,14 +701,15 @@ void AbstractElement::setAttributes( const KWargs& kwargs ){
     if ( !(DATETIME & supported) )
       throw ValueError("datetime is not supported for " + classname() );
     else {
-      if ( !parseDate( it->second, _datetime ) )
+      _datetime = parseDate( it->second );
+      if ( _datetime == 0 )
 	throw ValueError( "invalid datetime string:" + it->second );
     }
   }
   else if ( DATETIME & _required_attributes )
     throw ValueError("datetime is required");
   else
-    _datetime = boost::posix_time::ptime();
+    _datetime = 0;
 
   if ( mydoc && !_id.empty() )
     mydoc->addDocIndex( this, _id );  
@@ -730,14 +720,16 @@ void AbstractElement::setDateTime( const std::string& s ){
   if ( !(DATETIME & supported) )
     throw ValueError("datetime is not supported for " + classname() );
   else {
-    stringstream ss( s );
-    ss >> _datetime;
+    _datetime = parseDate( s );
+    if ( _datetime == 0 )
+      throw ValueError( "invalid datetime string:" + s );
   }
 }
 
 string AbstractElement::getDateTime() const {
-  //  return to_iso_extended_string( _datetime );
-  return to_simple_string( _datetime );
+  char buf[100];
+  strftime( buf, 100, "%Y-%m-%dT%X", _datetime );
+  return buf;
 }
 
 void Feature::setAttributes( const KWargs& kwargs ){
@@ -1332,9 +1324,8 @@ KWargs AbstractElement::collectAttributes() const {
   if ( !_n.empty() )
     attribs["n"] = _n;
 
-  if ( _datetime != boost::posix_time::ptime() )
-    //    attribs["datetime"] = to_iso_extended_string(_datetime);
-    attribs["datetime"] = to_simple_string(_datetime);
+  if ( _datetime != 0 )
+    attribs["datetime"] = getDateTime();
 
   return attribs;
 }

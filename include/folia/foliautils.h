@@ -235,4 +235,6 @@ std::map<std::string,std::string> getNSlist( xmlNode * );
 
 xmlNode *xPath( xmlNode *, const std::string& );
 
+std::tm *parseDate( const std::string& );
+
 #endif // FOLIAUTILS

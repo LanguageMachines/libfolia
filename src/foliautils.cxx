@@ -590,3 +590,108 @@ xmlNode *xPath( xmlNode *node, const string& xpath ){
   return result;
 }
 
+int toMonth( const string& ms ){
+  int result = 0;
+  try {
+    result = stringTo<int>( ms );
+    return result - 1;
+  }
+  catch( exception ){
+    string m = lowercase( ms );
+    if ( m == "jan" )
+      return 0;
+    else if ( m == "feb" )
+      return 1;
+    else if ( m == "mar" )
+      return 2;
+    else if ( m == "apr" )
+      return 3;
+    else if ( m == "may" )
+      return 4;
+    else if ( m == "jun" )
+      return 5;
+    else if ( m == "jul" )
+      return 6;
+    else if ( m == "aug" )
+      return 7;
+    else if ( m == "sep" )
+      return 8;
+    else if ( m == "oct" )
+      return 9;
+    else if ( m == "nov" )
+      return 10;
+    else if ( m == "dec" )
+      return 11;
+    else
+      throw runtime_error( "invalid month: " + m );
+  }
+}
+
+tm *parseDate( const string& s ){
+  //  cerr << "try to read a date-time " << s << endl;
+  vector<string> date_time;
+  size_t num = split_at( s, date_time, "T");
+  if ( num == 0 ){
+    num = split_at( s, date_time, " ");
+    if ( num == 0 ){
+      cerr << "failed to read a date-time " << s << endl;
+      return 0;
+    }
+  }
+  //  cerr << "found " << num << " parts" << endl;
+  tm *time = new tm();
+  if ( num == 1 || num == 2 ){
+    //    cerr << "parse date " << date_time[0] << endl;
+    vector<string> date_parts;
+    size_t dnum = split_at( date_time[0], date_parts, "-" );
+    switch ( dnum ){
+    case 3: {
+      int year = stringTo<int>( date_parts[0] );
+      time->tm_year = year-1900;
+    }
+    case 2: {
+      int mon = toMonth( date_parts[1] );
+      time->tm_mon = mon;
+    }
+    case 1: {
+      int mday = stringTo<int>( date_parts[2] );
+      time->tm_mday = mday;
+    }
+      break;
+    default:
+      cerr << "failed to read a date from " << date_time[0] << endl;
+      return 0;
+    }
+  }
+  if ( num == 2 ){
+    //    cerr << "parse time " << date_time[1] << endl;
+    vector<string> date_parts;
+    num = split_at( date_time[1], date_parts, ":" );
+    switch ( num ){
+    case 4:
+      // ignore
+    case 3: {
+      int hour = stringTo<int>( date_parts[0] );
+      time->tm_hour = hour;
+    }
+    case 2: {
+      int min = stringTo<int>( date_parts[1] );
+      time->tm_min = min;
+    }
+    case 1: {
+      int sec = stringTo<int>( date_parts[2] );
+      time->tm_sec = sec;
+    }
+      break;
+    default:
+      cerr << "failed to read a time from " << date_time[1] << endl;
+      return 0;
+    }
+  }
+  //  cerr << "read _date time = ";
+  // char buf[100];
+  // strftime( buf, 100, "%Y-%b-%d %X", time );
+  // cerr << buf << endl;
+  return time;
+}
+
