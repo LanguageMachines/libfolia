@@ -1438,15 +1438,6 @@ AbstractElement *AbstractSpanAnnotation::append( AbstractElement *child ){
   return child;
 }
 
-xmlDoc *readXmlDoc( const string& s ){
-  xmlParserCtxt *ctxt = xmlNewParserCtxt();
-  xmlInitParserCtxt( ctxt );
-  xmlDoc *doc = xmlCtxtReadFile( ctxt, s.c_str(), 0, 0 );
-  xmlFreeParserCtxt( ctxt );
-  return doc;
-}
-
-
 Document::Document(){
   init();
 }
@@ -1564,7 +1555,7 @@ bool Document::readFromFile( const string& s ){
     throw runtime_error( "Document is aready initialized" );
     return false;
   }
-  xmldoc = readXmlDoc( s );
+  xmldoc = xmlReadFile( s.c_str(), 0, 0 );
   if ( xmldoc ){
     if ( debug )
       cout << "read a doc from " << s << endl;
@@ -1584,14 +1575,27 @@ bool Document::readFromFile( const string& s ){
 }
 
 bool Document::readFromString( const string& s ){
-  char buffer[L_tmpnam];
-  if ( tmpnam( buffer ) != 0 ){
-    ofstream os( buffer );
-    os << s << endl;
-    return readFromFile( buffer );
+  if ( xmldoc ){
+    throw runtime_error( "Document is aready initialized" );
+    return false;
   }
-  else 
-    throw runtime_error( "unable to create a temporary file to store the data" );
+  xmldoc = xmlReadMemory( s.c_str(), s.length(), 0, 0, 0 );
+  if ( xmldoc ){
+    if ( debug )
+      cout << "read a doc from string" << endl;
+    foliadoc = parseXml();
+    if ( debug ){
+      if ( foliadoc ){
+	cout << "succesful parsed the doc" << endl;
+      }
+      else
+	cout << "failed to parse the doc" << endl;
+    }
+    return foliadoc != 0;
+  }
+  if ( debug )
+    cout << "Failed to read a doc from a string" << endl;
+  return false;
 }
 
 ostream& operator<<( ostream& os, const Document& d ){
