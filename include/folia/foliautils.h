@@ -4,6 +4,7 @@
 #include <sstream>
 #include <set>
 #include <vector>
+#include <stdexcept>
 #include "unicode/unistr.h"
 #include "unicode/unistr.h"
 #include <unicode/ustream.h>

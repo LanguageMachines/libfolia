@@ -1585,10 +1585,13 @@ bool Document::readFromFile( const string& s ){
 
 bool Document::readFromString( const string& s ){
   char buffer[L_tmpnam];
-  tmpnam( buffer );
-  ofstream os( buffer );
-  os << s << endl;
-  return readFromFile( buffer );
+  if ( tmpnam( buffer ) != 0 ){
+    ofstream os( buffer );
+    os << s << endl;
+    return readFromFile( buffer );
+  }
+  else 
+    throw runtime_error( "unable to create a temporary file to store the data" );
 }
 
 ostream& operator<<( ostream& os, const Document& d ){
