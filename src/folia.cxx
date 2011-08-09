@@ -306,11 +306,7 @@ Correction *AbstractStructureElement::correct( vector<AbstractElement*> original
     for ( size_t i=0; i < len(addnew); ++ i ){
       AbstractElement *p = addnew->index(i);
       //      cerr << "bekijk " << p << endl;
-      KWargs args2;
-      if ( p->isinstance( TextContent_t ) )
-	args2["corrected"] = p->corrected();
-      string set = p->st();
-      vector<AbstractElement*> v = p->findreplacables( this, set );
+      vector<AbstractElement*> v = p->findreplacables( this );
       vector<AbstractElement*>::iterator vit=v.begin();      
       while ( vit != v.end() ){
 	orig.push_back( *vit );
@@ -816,12 +812,8 @@ bool AbstractElement::contains( const AbstractElement *child ) const {
   return false;
 }
 
-vector<AbstractElement *>AbstractElement::findreplacables( AbstractElement *par,
-							   const string& set ){
-  if ( set.empty() )
-    return par->select( element_id(), false );
-  else
-    return par->select( element_id(), set, false );
+vector<AbstractElement *>AbstractElement::findreplacables( AbstractElement *par ){
+  return par->select( element_id(), _set, false );
 }
 
 void AbstractElement::replace( AbstractElement *child ){
@@ -844,13 +836,8 @@ void AbstractElement::replace( AbstractElement *child ){
 }                
 
             
-vector<AbstractElement *>TextContent::findreplacables( AbstractElement *par,
-						       const string& set ){
-  vector<AbstractElement*> v;
-  if ( set.empty() )
-    v = par->select( TextContent_t, false );
-  else
-    v = par->select( TextContent_t, set, false );
+vector<AbstractElement *>TextContent::findreplacables( AbstractElement *par ){
+  vector<AbstractElement*> v = par->select( TextContent_t, _set, false );
   // cerr << "TextContent::findreplacable found " << v << endl;
   // cerr << "looking for " << toString( _corrected) << endl;
   vector<AbstractElement *>::iterator it = v.begin();
@@ -1937,7 +1924,18 @@ AbstractElement* Document::parseFoliaDoc( xmlNode *root ){
   return result;
 }
 
+void Document::getstyles(){
+  xmlNode *pnt = xmldoc->children;
+  while ( pnt ){
+    if ( pnt->type == XML_PI_NODE && Name(pnt) == "xml-stylesheet" ){
+      addStyle( (const char*)pnt->content );
+    }
+    pnt = pnt->next;
+  }
+}
+
 AbstractElement* Document::parseXml( ){
+  getstyles();
   xmlNode *root = xmlDocGetRootElement( xmldoc );
   if ( debug > 2 ){
     string dum;
@@ -2195,10 +2193,20 @@ void Document::setmetadata( xmlNode *node ) const{
   addAttributes( node, atts );
 }
 
+void Document::setstyles( xmlDoc* doc ) const {
+  for ( size_t i=0; i < styles.size(); ++i ){
+    xmlAddChild( (xmlNode*)doc,
+		 xmlNewDocPI( doc,
+			      (const xmlChar*)"xml-stylesheet", 
+			      (const xmlChar*)styles[i].c_str() ) );
+  }
+}
+
 string Document::toXml() const {
   string result;
   if ( foliadoc ){
     xmlDoc *outDoc = xmlNewDoc( (const xmlChar*)"1.0" );
+    setstyles( outDoc );
     xmlNode *root = xmlNewDocNode( outDoc, 0, (const xmlChar*)"FoLiA", 0 );
     xmlDocSetRootElement( outDoc, root );
     xmlNs *xl = xmlNewNs( root, (const xmlChar *)"http://www.w3.org/1999/xlink", 

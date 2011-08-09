@@ -32,6 +32,9 @@ class Document {
   int size() const;
   AbstractElement* doc() const { return foliadoc; }
   AbstractElement* addNode( ElementType, const KWargs& );
+  void addStyle( const std::string& st ){
+    styles.push_back( st );
+  };
   std::vector<AbstractElement*> paragraphs() const;
   std::vector<AbstractElement*> sentences() const;
   std::vector<AbstractElement*> words() const;
@@ -71,8 +74,10 @@ class Document {
 		const std::string&,
 		const std::string& = "" );
   void parseannotations( xmlNode * );
+  void getstyles();
   void setannotations( xmlNode *) const;
   void setmetadata( xmlNode * ) const;
+  void setstyles( xmlDoc* ) const;
   xmlDoc *XmlDoc() const { return xmldoc; };
   void keepForDeletion( AbstractElement *p ) { delSet.insert( p ); };
   int debug;
@@ -111,6 +116,7 @@ class Document {
   std::string _language;
   std::string _publisher;
   std::string _license;
+  std::vector<std::string> styles;
   bool loadall;
   std::string filename;
   std::string version;
@@ -191,8 +197,7 @@ class AbstractElement {
   
   virtual AbstractElement *append( AbstractElement* );
   virtual AbstractElement *postappend( ) { return this; };
-  virtual std::vector<AbstractElement*> findreplacables( AbstractElement *,
-							 const std::string& ="" );
+  virtual std::vector<AbstractElement*> findreplacables( AbstractElement * );
   void remove( AbstractElement *, bool = true );
 
   void replace( AbstractElement * );
@@ -474,8 +479,7 @@ class TextContent: public AbstractElement {
   UnicodeString text( TextCorrectionLevel ) const;
   AbstractElement *append( AbstractElement* ){ throw NotImplementedError("TextContent::append()"); };
   AbstractElement *postappend();
-  std::vector<AbstractElement*> findreplacables( AbstractElement *,
-						 const std::string& = "" );
+  std::vector<AbstractElement*> findreplacables( AbstractElement * );
   TextCorrectionLevel corrected() const { return _corrected; };
   void setCorrected( TextCorrectionLevel& tc ) { _corrected = tc; };
  private:
