@@ -31,7 +31,7 @@ std::ostream& operator<<( std::ostream& os, const AbstractElement& ae ){
     os << " " << it->first << "=" << it->second;
     ++it;
   }
-  os << " > " << ae._text << " {";
+  os << " > {";
   for( size_t i=0; i < ae.data.size(); ++i ){
     os << "<" << ae.data[i]->classname() << ">,";
   }

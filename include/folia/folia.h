@@ -49,9 +49,9 @@ class Document {
   std::string toXml() const;
 
   AbstractElement *append( AbstractElement* );
-        
+
   void addDocIndex( AbstractElement* el, const std::string& );
-  
+
   AbstractElement* operator []( size_t ) const; //select i'th element from data
   
   AbstractElement *index( const std::string& ) const; //retrieve element with specified ID 
@@ -65,20 +65,13 @@ class Document {
 				    const std::string& ="", bool = false ) const;
 
   AbstractElement* parseXml( );
-  AbstractElement* parseFoliaDoc( xmlNode * );
 
   std::string id() const { return _id; };
-  xmlNs *foliaNs() const { return _foliaNs; };
-  void setimdi( xmlNode * );
   void declare( AnnotationType::AnnotationType, 
 		const std::string&,
 		const std::string& = "" );
-  void parseannotations( xmlNode * );
-  void getstyles();
-  void setannotations( xmlNode *) const;
-  void setmetadata( xmlNode * ) const;
-  void setstyles( xmlDoc* ) const;
   xmlDoc *XmlDoc() const { return xmldoc; };
+  xmlNs *foliaNs() const { return _foliaNs; };
   void keepForDeletion( AbstractElement *p ) { delSet.insert( p ); };
   int debug;
 
@@ -96,10 +89,18 @@ class Document {
     AnnotationType::AnnotationType t;
     std::string s;
   };
-  std::map<AnnotationType::AnnotationType,std::map<std::string,at_t> > annotationdefaults;
 
  private:
+  std::map<AnnotationType::AnnotationType,std::map<std::string,at_t> > annotationdefaults;
+
+  AbstractElement* parseFoliaDoc( xmlNode * );
+  void setimdi( xmlNode * );
   void setAttributes( const KWargs&  );
+  void parseannotations( xmlNode * );
+  void getstyles();
+  void setannotations( xmlNode *) const;
+  void setmetadata( xmlNode * ) const;
+  void setstyles( xmlDoc* ) const;
   std::map<std::string, AbstractElement* > sindex;
   std::vector<AbstractElement* > iindex;
   std::vector<AbstractElement*> data;
@@ -199,9 +200,8 @@ class AbstractElement {
   virtual AbstractElement *postappend( ) { return this; };
   virtual std::vector<AbstractElement*> findreplacables( AbstractElement * );
   void remove( AbstractElement *, bool = true );
-
   void replace( AbstractElement * );
-  
+
   AbstractElement* index( size_t ) const;
   AbstractElement* rindex( size_t ) const;
 
@@ -230,10 +230,8 @@ class AbstractElement {
 					const std::string&,
 					std::set<ElementType>& ,
 					bool = true );
-  virtual KWargs collectAttributes() const;  
   //XML (de)serialisation
   std::string xmlstring() const; // serialize to a string (XML fragment)
-  virtual std::string getTextDelimiter() const { return TEXTDELIMITER; }
   virtual xmlNode *xml( const Document *, bool ) const; //serialize to XML  
   virtual AbstractElement* parseXml( xmlNode * );
   UnicodeString unicode() const { return text(); };
@@ -286,7 +284,6 @@ class AbstractElement {
   };
   virtual AbstractElement *annotation( ElementType );
   virtual AbstractElement *annotation( ElementType, const std::string& );
-  virtual std::string generateId( const std::string&, const std::string& = "" );
   std::string pos();
   std::string lemma();
   virtual TextCorrectionLevel corrected() const { return NOCORR; };
@@ -353,9 +350,12 @@ class AbstractElement {
   void setParent( AbstractElement *p ) { _parent = p ; };
  protected:
   virtual void init()=0;
+  virtual KWargs collectAttributes() const;
+  virtual std::string getTextDelimiter() const { return TEXTDELIMITER; }
+  virtual std::string generateId( const std::string&, const std::string& = "" );
   std::vector<AbstractElement*> data;
   AbstractElement *_parent;
-  UnicodeString _text;
+  //  UnicodeString _text;
   Document *mydoc;
   std::string _xmltag;
   ElementType _element_id;
@@ -487,6 +487,7 @@ class TextContent: public AbstractElement {
   TextCorrectionLevel _corrected;
   int _offset;
   int _newoffset;
+  UnicodeString _text;
   int _length;
 };
 
