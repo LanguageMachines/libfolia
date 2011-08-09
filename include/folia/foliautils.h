@@ -225,6 +225,10 @@ inline std::ostream& operator<< ( std::ostream& os, const std::map<S,T>& s ){
   return os;
 }
 
+xmlNode *newXMLNode( xmlNs *,  const std::string& );
+void addAttributes( xmlNode *, const KWargs& );
+KWargs getAtt( const xmlNode * );
+
 std::string Name( xmlNode * );
 std::string XmlContent( xmlNode * );
 std::string getNS( xmlNode *, std::string& );

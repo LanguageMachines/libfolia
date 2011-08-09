@@ -7,6 +7,7 @@
 #include <list>
 #include <stdexcept>
 #include <algorithm> 
+#include "folia/document.h"
 #include "folia/folia.h"
 
 using namespace std;
@@ -483,8 +484,40 @@ std::string toString( const KWargs& args ){
       result += ",";
   }
   return result;
-
 }
+
+xmlNode *newXMLNode( xmlNs *ns,  const string& elem ){
+  return xmlNewNode( ns, (const xmlChar*)elem.c_str() );
+}
+
+KWargs getAtt( const xmlNode *node ){
+  KWargs atts;
+  if ( node ){
+    xmlAttr *a = node->properties;
+    while ( a ){
+      atts[(char*)a->name] = (char *)a->children->content;
+      a = a->next;
+    }
+  }
+  return atts;
+}
+
+void addAttributes( xmlNode *node, const KWargs& attribs ){
+  KWargs::const_iterator it = attribs.begin();
+  while ( it != attribs.end() ){
+    //    cerr << "addAttributes(" << it->first << ", " << it->second << ")" << endl;
+    if ( it->first == "_id" ){ // id is special
+      xmlNewNsProp( node, 0, XML_XML_ID,  (const xmlChar *)it->second.c_str() );
+    }
+    else {
+      xmlNewNsProp( node, 0, 
+		    (const xmlChar*)it->first.c_str(), 
+		    (const xmlChar*)it->second.c_str() );
+    }
+    ++it;
+  }
+}
+
 string Name( xmlNode *node ){
   string result;
   if ( node ){
