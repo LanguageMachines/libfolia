@@ -1494,7 +1494,7 @@ vector<AbstractElement*> AbstractElement::select( ElementType et,
 }
 
 AbstractElement* TextContent::parseXml( xmlNode *node ){
-  KWargs att = getAtt( node );
+  KWargs att = getAttributes( node );
   att["value"] = XmlContent( node );
   setAttributes( att );
   if ( mydoc->debug > 2 )
@@ -1503,7 +1503,7 @@ AbstractElement* TextContent::parseXml( xmlNode *node ){
 }
 
 AbstractElement* Description::parseXml( xmlNode *node ){
-  KWargs att = getAtt( node );
+  KWargs att = getAttributes( node );
   KWargs::const_iterator it = att.find("value" );
   if ( it == att.end() ){
     att["value"] = XmlContent( node );
@@ -1513,7 +1513,7 @@ AbstractElement* Description::parseXml( xmlNode *node ){
 }
 
 AbstractElement* Content::parseXml( xmlNode *node ){
-  KWargs att = getAtt( node );
+  KWargs att = getAttributes( node );
   setAttributes( att );
   xmlNode *p = node->children;
   while ( p ){
@@ -1529,7 +1529,7 @@ AbstractElement* Content::parseXml( xmlNode *node ){
 
 
 AbstractElement* AbstractElement::parseXml( xmlNode *node ){
-  KWargs att = getAtt( node );
+  KWargs att = getAttributes( node );
   setAttributes( att );
   xmlNode *p = node->children;
   while ( p ){
@@ -1553,7 +1553,7 @@ AbstractElement* AbstractElement::parseXml( xmlNode *node ){
 }
 
 AbstractElement* WordReference::parseXml( xmlNode *node ){
-  KWargs att = getAtt( node );
+  KWargs att = getAttributes( node );
   string id = att["id"];
   if ( id.empty() )
     throw XmlError( "empty id in WordReference" );

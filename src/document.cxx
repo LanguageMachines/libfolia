@@ -281,18 +281,6 @@ AbstractElement *Document::append( AbstractElement *txt ){
   }
 }
 
-KWargs getAtt( xmlNode *node ){
-  KWargs atts;
-  if ( node ){
-    xmlAttr *a = node->properties;
-    while ( a ){
-      atts[(char*)a->name] = (char *)a->children->content;
-      a = a->next;
-    }
-  }
-  return atts;
-}
-
 void Document::setimdi( xmlNode *node ){
   xmlNode *n = xPath( node, "//imdi:Session/imdi:Title" );
   if ( n ){
@@ -326,7 +314,7 @@ void Document::parseannotations( xmlNode *node ){
       AnnotationType::AnnotationType type = stringToAT( prefix );
       annotations.push_back( ts_t( type, "" ) );
       annotationdefaults[type].clear();
-      KWargs att = getAtt( n );
+      KWargs att = getAttributes( n );
       KWargs::const_iterator it = att.find("set" );
       string s;
       string a;
@@ -365,7 +353,7 @@ bool checkNS( xmlNode *n, const string& ns ){
 }
 
 AbstractElement* Document::parseFoliaDoc( xmlNode *root ){
-  KWargs att = getAtt( root );
+  KWargs att = getAttributes( root );
   if ( att["id"] == "" ){
     throw XmlError("FoLiA Document has no ID!");
     return 0;

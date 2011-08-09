@@ -490,7 +490,7 @@ xmlNode *newXMLNode( xmlNs *ns,  const string& elem ){
   return xmlNewNode( ns, (const xmlChar*)elem.c_str() );
 }
 
-KWargs getAtt( const xmlNode *node ){
+KWargs getAttributes( const xmlNode *node ){
   KWargs atts;
   if ( node ){
     xmlAttr *a = node->properties;
@@ -518,7 +518,7 @@ void addAttributes( xmlNode *node, const KWargs& attribs ){
   }
 }
 
-string Name( xmlNode *node ){
+string Name( const xmlNode *node ){
   string result;
   if ( node ){
     result = (char *)node->name;
@@ -526,7 +526,7 @@ string Name( xmlNode *node ){
   return result;
 }
 
-string XmlContent( xmlNode *node ){
+string XmlContent( const xmlNode *node ){
   string result;
   if ( node ){
     xmlChar *tmp = xmlNodeListGetString( node->doc, node->children, 1 );
@@ -538,7 +538,7 @@ string XmlContent( xmlNode *node ){
   return result;
 }
 
-string getNS( xmlNode *node, string& prefix ){
+string getNS( const xmlNode *node, string& prefix ){
   string result;
   prefix = "";
   xmlNs *p = node->ns;
@@ -551,7 +551,7 @@ string getNS( xmlNode *node, string& prefix ){
   return result;
 }
 
-map<string,string> getNSlist( xmlNode *node ){
+map<string,string> getNSlist( const xmlNode *node ){
   map<string,string> result;
   xmlNs *p = node->ns;
   while ( p ){

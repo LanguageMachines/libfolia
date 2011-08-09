@@ -227,16 +227,16 @@ inline std::ostream& operator<< ( std::ostream& os, const std::map<S,T>& s ){
 
 xmlNode *newXMLNode( xmlNs *,  const std::string& );
 void addAttributes( xmlNode *, const KWargs& );
-KWargs getAtt( const xmlNode * );
+KWargs getAttributes( const xmlNode * );
 
-std::string Name( xmlNode * );
-std::string XmlContent( xmlNode * );
-std::string getNS( xmlNode *, std::string& );
-inline std::string getNS( xmlNode *n ) {
+std::string Name( const xmlNode * );
+std::string XmlContent( const xmlNode * );
+std::string getNS( const xmlNode *, std::string& );
+inline std::string getNS( const xmlNode *n ) {
   std::string s;
   return getNS( n, s);
 };
-std::map<std::string,std::string> getNSlist( xmlNode * );
+std::map<std::string,std::string> getNSlist( const xmlNode * );
 
 xmlNode *xPath( xmlNode *, const std::string& );
 
