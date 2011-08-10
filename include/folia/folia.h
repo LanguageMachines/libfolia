@@ -37,7 +37,6 @@ class AbstractElement {
     if ( !s.empty() )
       setAttributes(  getArgs( s ) );
   };
-  std::vector<AbstractElement *>annotations( ElementType );
 
   virtual void setAttributes( const KWargs& );
 
@@ -49,7 +48,7 @@ class AbstractElement {
   
   virtual AbstractElement *append( AbstractElement* );
   virtual AbstractElement *postappend( ) { return this; };
-  virtual std::vector<AbstractElement*> findreplacables( AbstractElement * );
+  virtual std::vector<AbstractElement*> findreplacables( AbstractElement * ) const;
   void remove( AbstractElement *, bool = true );
   void replace( AbstractElement * );
 
@@ -67,24 +66,23 @@ class AbstractElement {
   }
   bool acceptable( ElementType ) const;
   bool addable( const AbstractElement *, const std::string& = "" ) const;
-  virtual bool contains( const AbstractElement * ) const;
   
   std::vector<AbstractElement*> select( ElementType elementtype,
-					bool = true );
+					bool = true ) const;
   std::vector<AbstractElement*> select( ElementType elementtype,
-					std::set<ElementType>& ,
-					bool = true );
-  std::vector<AbstractElement*> select( ElementType elementtype,
-					const std::string&,
-					bool = true );
+					const std::set<ElementType>& ,
+					bool = true ) const;
   std::vector<AbstractElement*> select( ElementType elementtype,
 					const std::string&,
-					std::set<ElementType>& ,
-					bool = true );
+					bool = true ) const;
+  std::vector<AbstractElement*> select( ElementType elementtype,
+					const std::string&,
+					const std::set<ElementType>& ,
+					bool = true ) const;
   //XML (de)serialisation
   std::string xmlstring() const; // serialize to a string (XML fragment)
   virtual xmlNode *xml( bool ) const; //serialize to XML  
-  virtual AbstractElement* parseXml( xmlNode * );
+  virtual AbstractElement* parseXml( const xmlNode * );
   UnicodeString unicode() const { return text(); };
   virtual std::string str() const;
   bool hastext( TextCorrectionLevel ) const ;
@@ -93,12 +91,12 @@ class AbstractElement {
     throw NotImplementedError("head()"); }; 
   virtual std::string feat( const std::string& ) const {
     throw NotImplementedError("feat()"); }; 
-  virtual AbstractElement *getNew( int = -1 ){
+  virtual AbstractElement *getNew( int = -1 ) const {
     throw NotImplementedError("getNew()"); };
-  virtual AbstractElement *getOriginal( int = -1)
-  { throw NotImplementedError("getOriginal()"); };
-  virtual AbstractElement *getCurrent()
-  { throw NotImplementedError("getCurrent()"); };
+  virtual AbstractElement *getOriginal( int = -1) const {
+    throw NotImplementedError("getOriginal()"); };
+  virtual AbstractElement *getCurrent() const {
+    throw NotImplementedError("getCurrent()"); };
   virtual AbstractElement *getSuggestion( int = -1 )
   { throw NotImplementedError("getSuggestion() for " + _xmltag ); };
   virtual AbstractElement *split( AbstractElement *, AbstractElement *, 
@@ -114,7 +112,7 @@ class AbstractElement {
   virtual Correction *insertword( AbstractElement *, AbstractElement *,
 				  const std::string& = "" ){
     throw NotImplementedError("insertword()"); };
-  virtual std::vector<AbstractElement *> suggestions()
+  virtual std::vector<AbstractElement *> suggestions() const
     { throw NotImplementedError("suggestions()"); };    
   virtual std::string subset() const 
     { throw NotImplementedError("subset()"); };
@@ -133,15 +131,17 @@ class AbstractElement {
 						       const std::string& ="" ) const {
     throw NotImplementedError("rightcontext()"); 
   };
-  virtual AbstractElement *annotation( ElementType ){
+
+  std::vector<AbstractElement *>annotations( ElementType ) const;
+  virtual AbstractElement *annotation( ElementType ) const {
     throw NotImplementedError( "annotation() not allowed on " + classname() );
   }
-  virtual AbstractElement *annotation( ElementType, const std::string& ){
+  virtual AbstractElement *annotation( ElementType, const std::string& ) const {
     throw NotImplementedError( "annotation() not allowed on " + classname() );
   }
   
-  std::string pos(){ return annotation( Pos_t )->cls(); };
-  std::string lemma(){ return annotation( Lemma_t )->cls(); };
+  std::string pos() const { return annotation( Pos_t )->cls(); };
+  std::string lemma() const { return annotation( Lemma_t )->cls(); };
 
   virtual TextCorrectionLevel corrected() const { return NOCORR; };
   virtual void setCorrected( TextCorrectionLevel& ) { 
@@ -160,7 +160,13 @@ class AbstractElement {
   std::string id() const { return _id; };
   ElementType element_id() const { return _element_id; };
   std::string xmltag() const { return _xmltag; };
-  Document *doc() { return mydoc; };
+  Document *doc() const { return mydoc; };
+  xmlNs *foliaNs() const {
+    if ( mydoc )
+      return mydoc->foliaNs();
+    else
+      return 0;
+  }
   virtual Sentence *sentence() const {
     throw NotImplementedError("sentence() for " + _xmltag );
   };
@@ -179,10 +185,10 @@ class AbstractElement {
   AbstractTokenAnnotation *addPosAnnotation( const KWargs& );
   AbstractTokenAnnotation *addLemmaAnnotation( const KWargs& );
   virtual std::vector<AbstractElement *> alternatives( const std::string& = "",
-						       AnnotationType::AnnotationType=AnnotationType::NO_ANN ) { 
+						       AnnotationType::AnnotationType=AnnotationType::NO_ANN ) const { 
     throw NotImplementedError("alternatives()"); 
   }
-  virtual std::string content(){
+  virtual std::string content() const {
     throw NoSuchAnnotation( "content" );
   }
   virtual Correction *correct( std::vector<AbstractElement*>,
@@ -271,10 +277,10 @@ class AbstractStructureElement: public AbstractElement {
  AbstractStructureElement( Document *d=0 ): AbstractElement( d ) {};
   std::string str() const;
   size_t hasannotation( ElementType, std::set<ElementType>& );
-  AbstractElement *annotation( ElementType );
-  AbstractElement *annotation( ElementType, const std::string& );
+  AbstractElement *annotation( ElementType ) const;
+  AbstractElement *annotation( ElementType, const std::string& ) const ;
   std::vector<AbstractElement *> alternatives( const std::string& = "",
-					       AnnotationType::AnnotationType=AnnotationType::NO_ANN );
+					       AnnotationType::AnnotationType=AnnotationType::NO_ANN ) const;
   AbstractElement *append( AbstractElement* );
   void setMaxId( AbstractElement * );
   int getMaxId( const std::string& );
@@ -331,7 +337,7 @@ class TextContent: public AbstractElement {
  public:
  TextContent( const std::string& s="" ):  AbstractElement( ){ classInit( s ); }
  TextContent( Document *d=0, const std::string& s="" ):  AbstractElement( d ){ classInit( s ); }
-  AbstractElement* parseXml( xmlNode * );
+  AbstractElement* parseXml( const xmlNode * );
   xmlNode *xml( bool ) const;
   void setAttributes( const KWargs& );
   KWargs collectAttributes() const;  
@@ -379,7 +385,7 @@ class Gap: public AbstractElement {
  public:
  Gap( const std::string& s=""): AbstractElement( ) { classInit( s ); };
  Gap( Document *d=0, const std::string& s=""): AbstractElement( d ) { classInit( s ); };
-  std::string content();
+  std::string content() const;
  private:
   void init();
 };
@@ -388,9 +394,9 @@ class Content: public AbstractElement {
  public:
  Content( const std::string& s=""): AbstractElement( ) { classInit( s ); };
  Content( Document *d=0, const std::string& s=""): AbstractElement( d ) { classInit( s ); };
-  AbstractElement* parseXml( xmlNode * );
+  AbstractElement* parseXml( const xmlNode * );
   xmlNode *xml( bool ) const;
-  std::string content() { return value; };
+  std::string content() const { return value; };
  private:
   void init();
   std::string value;
@@ -564,7 +570,7 @@ class WordReference: public AbstractElement {
  WordReference( Document *d=0, const std::string& s="" ): AbstractElement( d ){ classInit( s ); };
  private:
   void init();
-  AbstractElement* parseXml( xmlNode *node );
+  AbstractElement* parseXml( const xmlNode *node );
 };  
 
 class SyntacticUnit: public AbstractSpanAnnotation {
@@ -637,7 +643,7 @@ class Description: public AbstractElement {
  Description( Document *d=0, const std::string& s="" ): AbstractElement( d ) { classInit( s ); };
   std::string description() const { return _value; };
   void setAttributes( const KWargs& kwargs );
-  AbstractElement* parseXml( xmlNode * );
+  AbstractElement* parseXml( const xmlNode * );
   xmlNode *xml( bool ) const;
  private:
   void init();
@@ -648,15 +654,15 @@ class Correction: public AbstractElement {
  public:
  Correction( const std::string& s=""): AbstractElement( ){ classInit( s ); }
  Correction( Document *d=0, const std::string& s=""): AbstractElement( d ){ classInit( s ); }
-  bool hasNew();
-  bool hasOriginal();
-  bool hasCurrent();
-  bool hasSuggestions();
-  AbstractElement *getNew( int = -1 );
-  AbstractElement *getOriginal( int = -1 );
-  AbstractElement *getCurrent( int = -1 );
-  AbstractElement *getSuggestion( int = -1 );
-  std::vector<AbstractElement *> suggestions();
+  bool hasNew() const;
+  bool hasOriginal() const;
+  bool hasCurrent() const;
+  bool hasSuggestions() const;
+  AbstractElement *getNew( int = -1 ) const;
+  AbstractElement *getOriginal( int = -1 ) const;
+  AbstractElement *getCurrent( int = -1 ) const;
+  AbstractElement *getSuggestion( int = -1 ) const;
+  std::vector<AbstractElement *> suggestions() const;
   UnicodeString text( TextCorrectionLevel=NOCORR) const;
  private:
   void init();

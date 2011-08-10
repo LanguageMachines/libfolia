@@ -298,11 +298,7 @@ string AbstractElement::xmlstring() const{
 }
 
 xmlNode *AbstractElement::xml( bool recursive ) const {
-  xmlNode *e;
-  if ( mydoc )
-    e = newXMLNode( mydoc->foliaNs(), _xmltag );
-  else
-    e = newXMLNode( 0, _xmltag );
+  xmlNode *e = newXMLNode( foliaNs(), _xmltag );
   KWargs attribs = collectAttributes();
   addAttributes( e, attribs );
   if ( recursive ){
@@ -323,7 +319,7 @@ string AbstractElement::str() const {
 bool AbstractElement::hastext( TextCorrectionLevel corr ) const {
   //  cerr << _xmltag << "::hastext()" << endl;
   // Does this element have text?
-  vector<AbstractElement*> v = const_cast<AbstractElement *>(this)->select(TextContent_t,false);
+  vector<AbstractElement*> v = select(TextContent_t,false);
   if ( corr == NOCORR ){
     // regardless of correctionlevel:
     return v.size() > 0;
@@ -398,17 +394,7 @@ UnicodeString AbstractElement::text( TextCorrectionLevel corr ) const {
   }
 }
 
-bool AbstractElement::contains( const AbstractElement *child ) const {
-  vector<AbstractElement*>::const_iterator it = data.begin();
-  while ( it != data.end() ){
-    if ( *it == child )
-      return true;
-    ++it;
-  }
-  return false;
-}
-
-vector<AbstractElement *>AbstractElement::findreplacables( AbstractElement *par ){
+vector<AbstractElement *>AbstractElement::findreplacables( AbstractElement *par ) const {
   return par->select( element_id(), _set, false );
 }
 
@@ -446,7 +432,7 @@ TextContent *AbstractElement::settext( const string& txt,
 }
 
 string AbstractElement::description() const {
-  vector<AbstractElement *> v =  const_cast<AbstractElement *>(this)->select( Description_t, false );
+  vector<AbstractElement *> v =  select( Description_t, false );
   if ( v.size() == 0 )
     throw NoDescription();
   else
@@ -469,7 +455,7 @@ bool AbstractElement::addable( const AbstractElement *c,
     return false;
   }
   if ( c->occurrences > 0 ){
-    vector<AbstractElement*> v = const_cast<AbstractElement*>(this)->select( c->_element_id );
+    vector<AbstractElement*> v = select( c->_element_id );
     size_t count = v.size();
     if ( count > c->occurrences )
       throw DuplicateAnnotationError( "Unable to add another object of type " + c->classname() + " to " + classname() + ". There are already " + toString(count) + " instances of this class, which is the maximum." );
@@ -477,7 +463,7 @@ bool AbstractElement::addable( const AbstractElement *c,
   }
   if ( c->occurrences_per_set > 0 && !setname.empty() &&
        ( CLASS & c->_required_attributes ) ){
-    vector<AbstractElement*> v = const_cast<AbstractElement*>(this)->select( c->_element_id, setname );
+    vector<AbstractElement*> v = select( c->_element_id, setname );
     size_t count = v.size();
     if ( count > c->occurrences_per_set )
       throw DuplicateAnnotationError( "Unable to add another object of type " + c->classname() + " to " + classname() + ". There are already " + toString(count) + " instances of this class, which is the maximum." );
@@ -533,7 +519,7 @@ AbstractElement* AbstractElement::rindex( size_t i ) const {
 }
 
 vector<AbstractElement*> AbstractElement::words() const {
-  return const_cast<AbstractElement*>(this)->select( Word_t );
+  return select( Word_t );
 }
 
 AbstractElement* AbstractElement::words( size_t index ) const {
@@ -554,7 +540,7 @@ AbstractElement* AbstractElement::rwords( size_t index ) const {
     throw range_error( "word reverse index out of range" );
 }
 
-vector<AbstractElement *>AbstractElement::annotations( ElementType et ){
+vector<AbstractElement *>AbstractElement::annotations( ElementType et ) const {
   vector<AbstractElement *>v = select( et );
   if ( v.size() >= 1 )
     return v;
@@ -564,8 +550,8 @@ vector<AbstractElement *>AbstractElement::annotations( ElementType et ){
 
 vector<AbstractElement*> AbstractElement::select( ElementType et,
 						  const string& val,
-						  set<ElementType>& exclude,
-						  bool recurse ) {
+						  const set<ElementType>& exclude,
+						  bool recurse ) const {
   vector<AbstractElement*> res;
   for ( size_t i = 0; i < data.size(); ++i ){
     if ( data[i]->_element_id == et  && data[i]->_set == val ){
@@ -583,7 +569,7 @@ vector<AbstractElement*> AbstractElement::select( ElementType et,
 
 vector<AbstractElement*> AbstractElement::select( ElementType et,
 						  const string& val,
-						  bool recurse ) {
+						  bool recurse ) const {
   static set<ElementType> excludeSet;
   if ( excludeSet.empty() ){
     excludeSet.insert( Original_t );
@@ -594,8 +580,8 @@ vector<AbstractElement*> AbstractElement::select( ElementType et,
 }
 
 vector<AbstractElement*> AbstractElement::select( ElementType et,
-						  set<ElementType>& exclude,
-						  bool recurse ) {
+						  const set<ElementType>& exclude,
+						  bool recurse ) const {
   vector<AbstractElement*> res;
   for ( size_t i = 0; i < data.size(); ++i ){
     if ( data[i]->_element_id == et ){
@@ -612,7 +598,7 @@ vector<AbstractElement*> AbstractElement::select( ElementType et,
 }
 
 vector<AbstractElement*> AbstractElement::select( ElementType et,
-						  bool recurse ) {
+						  bool recurse ) const {
   static set<ElementType> excludeSet;
   if ( excludeSet.empty() ){
     excludeSet.insert( Original_t );
@@ -622,7 +608,7 @@ vector<AbstractElement*> AbstractElement::select( ElementType et,
   return select( et, excludeSet, recurse );
 }
 
-AbstractElement* AbstractElement::parseXml( xmlNode *node ){
+AbstractElement* AbstractElement::parseXml( const xmlNode *node ){
   KWargs att = getAttributes( node );
   setAttributes( att );
   xmlNode *p = node->children;
@@ -890,7 +876,7 @@ void TextContent::setAttributes( const KWargs& args ){
   AbstractElement::setAttributes(kwargs);
 }
 
-AbstractElement* TextContent::parseXml( xmlNode *node ){
+AbstractElement* TextContent::parseXml( const xmlNode *node ){
   KWargs att = getAttributes( node );
   att["value"] = XmlContent( node );
   setAttributes( att );
@@ -1046,7 +1032,7 @@ Correction *AbstractStructureElement::correct( vector<AbstractElement*> original
       throw ValueError("reuse= must point to an existing correction id!");
     }
     hooked = true;
-    suggestionsonly = (!c->hasNew() && !c->hasOriginal() && !c->hasSuggestions() );
+    suggestionsonly = (!c->hasNew() && !c->hasOriginal() && c->hasSuggestions() );
     if ( !_new.empty() && c->hasCurrent() ){
       // can't add new if there's current, so first set original to current, and then delete current
       
@@ -1200,7 +1186,7 @@ Correction *AbstractStructureElement::correct( vector<AbstractElement*> original
   
   it = args.find("reuse");
   if ( it != args.end() ){
-    if ( addnew  ){
+    if ( addnew && suggestionsonly ){
       vector<AbstractElement *> sv = c->suggestions();
       for ( size_t i=0; i < sv.size(); ++i ){
 	if ( !c->annotator().empty() && sv[i]->annotator().empty() )
@@ -1235,13 +1221,13 @@ const AbstractElement* AbstractStructureElement::resolveword( const string& id )
   return result;
 };
 
-AbstractElement *AbstractStructureElement::annotation( ElementType et ){
+AbstractElement *AbstractStructureElement::annotation( ElementType et ) const {
   vector<AbstractElement *>v = annotations( et );
   return v[0]; // always exist, otherwise annotations would throw()
 }
 
 AbstractElement *AbstractStructureElement::annotation( ElementType et,
-						       const string& val ){
+						       const string& val ) const {
   // Will return a SINGLE annotation (even if there are multiple). 
   // Raises a NoSuchAnnotation exception if none was found
   vector<AbstractElement *>v = select( et, val );
@@ -1253,7 +1239,7 @@ AbstractElement *AbstractStructureElement::annotation( ElementType et,
 }
 
 vector<AbstractElement *> AbstractStructureElement::alternatives( const string& set,
-								  AnnotationType::AnnotationType type ){
+								  AnnotationType::AnnotationType type ) const{
   // Return a list of alternatives, either all or only of a specific type, restrained by set
   vector<AbstractElement*> alts = select( Alternative_t );
   if ( type == AnnotationType::NO_ANN ){
@@ -1503,7 +1489,7 @@ const AbstractElement* Word::resolveword( const string& id ) const{
   return 0;
 };
 
-AbstractElement* WordReference::parseXml( xmlNode *node ){
+AbstractElement* WordReference::parseXml( const xmlNode *node ){
   KWargs att = getAttributes( node );
   string id = att["id"];
   if ( id.empty() )
@@ -1571,7 +1557,7 @@ xmlNode *Description::xml( bool ) const {
   return e;
 }
 
-AbstractElement* Description::parseXml( xmlNode *node ){
+AbstractElement* Description::parseXml( const xmlNode *node ){
   KWargs att = getAttributes( node );
   KWargs::const_iterator it = att.find("value" );
   if ( it == att.end() ){
@@ -1582,7 +1568,7 @@ AbstractElement* Description::parseXml( xmlNode *node ){
 }
 
 AbstractElement *AbstractSpanAnnotation::append( AbstractElement *child ){
-  if ( child->isinstance(Word_t) and acceptable( WordReference_t ) )
+  if ( child->isinstance(Word_t) && acceptable( WordReference_t ) )
     child->increfcount();
   AbstractElement::append( child );
   return child;
@@ -1594,11 +1580,7 @@ xmlNode *AbstractSpanAnnotation::xml( bool recursive ) const {
   vector<AbstractElement*>::const_iterator it=data.begin();
   while ( it != data.end() ){
     if ( (*it)->element_id() == Word_t ){
-      xmlNode *t;
-      if ( mydoc )
-	t = newXMLNode( mydoc->foliaNs(), "wref" );
-      else
-	t = newXMLNode( 0, "wref" );
+      xmlNode *t = newXMLNode( foliaNs(), "wref" );
       KWargs attribs;
       attribs["id"] = (*it)->id();
       string txt = (*it)->str();
@@ -1622,7 +1604,7 @@ xmlNode *Content::xml( bool ) const {
   return e;
 }
 
-AbstractElement* Content::parseXml( xmlNode *node ){
+AbstractElement* Content::parseXml( const xmlNode *node ){
   KWargs att = getAttributes( node );
   setAttributes( att );
   xmlNode *p = node->children;
@@ -1647,12 +1629,12 @@ UnicodeString Correction::text( TextCorrectionLevel corr ) const {
   return result;
 }
 
-bool Correction::hasNew( ) {
+bool Correction::hasNew( ) const {
   vector<AbstractElement*> v = select( New_t, false );
   return !v.empty();
 }
 
-AbstractElement *Correction::getNew( int index ) {
+AbstractElement *Correction::getNew( int index ) const {
   vector<AbstractElement*> v = select( New_t, false );
   if ( v.empty() )
     throw NoSuchAnnotation("new");
@@ -1662,12 +1644,12 @@ AbstractElement *Correction::getNew( int index ) {
     return v[0]->index(index);
 }
 
-bool Correction::hasOriginal() { 
+bool Correction::hasOriginal() const { 
   vector<AbstractElement*> v = select( Original_t, false );
   return !v.empty();
 }
 
-AbstractElement *Correction::getOriginal( int index ) { 
+AbstractElement *Correction::getOriginal( int index ) const { 
   vector<AbstractElement*> v = select( Original_t, false );
   if ( v.empty() )
     throw NoSuchAnnotation("original");
@@ -1677,12 +1659,12 @@ AbstractElement *Correction::getOriginal( int index ) {
     return v[0]->index(index);
 }
 
-bool Correction::hasCurrent( ) { 
+bool Correction::hasCurrent( ) const { 
   vector<AbstractElement*> v = select( Current_t, false );
   return !v.empty();
 }
 
-AbstractElement *Correction::getCurrent( int index ) { 
+AbstractElement *Correction::getCurrent( int index ) const { 
   vector<AbstractElement*> v = select( Current_t, false );
   if ( v.empty() )
     throw NoSuchAnnotation("current");
@@ -1692,16 +1674,16 @@ AbstractElement *Correction::getCurrent( int index ) {
     return v[0]->index(index);
 }
 
-bool Correction::hasSuggestions( ) { 
+bool Correction::hasSuggestions( ) const { 
   vector<AbstractElement*> v = suggestions();
   return !v.empty();
 }
 
-vector<AbstractElement*> Correction::suggestions( ) { 
+vector<AbstractElement*> Correction::suggestions( ) const {
   return select( Suggestion_t, false );
 }
 
-AbstractElement *Correction::getSuggestion( int index ) { 
+AbstractElement *Correction::getSuggestion( int index ) const { 
   vector<AbstractElement*> v = suggestions();
   if ( v.empty() )
     throw NoSuchAnnotation("suggestion");
@@ -1721,7 +1703,7 @@ AbstractElement *Division::head() const {
   return 0;
 }
   
-string Gap::content() {
+string Gap::content() const {
   vector<AbstractElement*> cv = select( Content_t );  
   if ( cv.size() < 1 )
     throw NoSuchAnnotation( "content" );
@@ -1992,7 +1974,7 @@ KWargs Feature::collectAttributes() const {
 }
 
 std::string AbstractAnnotation::feat( const std::string& s ) const {
-  vector<AbstractElement*> v = const_cast<AbstractAnnotation *>(this)->select( Feature_t, false );
+  vector<AbstractElement*> v = select( Feature_t, false );
   vector<AbstractElement*>::const_iterator it = v.begin();
   while ( it != v.end() ){
     if ( (*it)->subset() == s )
