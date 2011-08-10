@@ -46,13 +46,13 @@ AbstractElement::AbstractElement( Document *d ){
   mydoc = d;
   _confidence = -1;
   _element_id = BASE;
-  _annotation_type = AnnotationType::NO_ANN;
-  _annotator_type = UNDEFINED;
   refcount = 0;
   _datetime = 0;
   _parent = 0;
   _required_attributes = NO_ATT;
   _optional_attributes = NO_ATT;
+  _annotation_type = AnnotationType::NO_ANN;
+  _annotator_type = UNDEFINED;
   _xmltag = "ThIsIsSoWrOnG";
   occurrences = 0;  //#Number of times this element may occur in its parent (0=unlimited, default=0)
   occurrences_per_set = 1; // #Number of times this element may occur per set (0=unlimited, default=1)
@@ -70,6 +70,647 @@ AbstractElement::~AbstractElement( ){
       mydoc->keepForDeletion( data[i] );
     }
   }
+}
+
+void AbstractElement::setAttributes( const KWargs& kwargs ){
+  Attrib supported = _required_attributes | _optional_attributes;
+  // if ( _element_id == Correction_t ){
+  //   cerr << "set attributes: " << kwargs << " on " << toString(_element_id) << endl;
+  //   cerr << "required = " <<  _required_attributes << endl;
+  //   cerr << "optional = " <<  _optional_attributes << endl;
+  //   cerr << "supported = " << supported << endl;
+  //   cerr << "ID & supported = " << (ID & supported) << endl;
+  //   cerr << "ID & _required = " << (ID & _required_attributes ) << endl;
+  // }
+  if ( mydoc && mydoc->debug > 2 )
+    cerr << "set attributes: " << kwargs << " on " << toString(_element_id) << endl;
+  
+  KWargs::const_iterator it = kwargs.find( "generate_id" );
+  if ( it != kwargs.end() ) {
+    if ( !mydoc ){
+      throw runtime_error( "can't generate an ID without a doc" );
+    }
+    AbstractElement * e = (*mydoc)[it->second];
+    if ( e ){
+      _id = e->generateId( _xmltag );
+    }
+    else
+      throw ValueError("Unable to genarate and if from ID= " + it->second );
+  }
+  else {
+    it = kwargs.find( "id" );
+    if ( it != kwargs.end() ) {
+      if ( !ID & supported )
+	throw ValueError("ID is not supported");
+      else {
+	_id = it->second;
+      }
+    }
+    else if ( ID & _required_attributes )
+      throw ValueError("ID is required for " + classname() );
+    else
+      _id = "";
+  }
+
+  it = kwargs.find( "set" );
+  string def;
+  if ( it != kwargs.end() ) {
+    if ( !(CLASS & supported) )
+      throw ValueError("Set is not supported");
+    else {
+      _set = it->second;
+    }
+    if ( mydoc &&
+	 !mydoc->isDeclared( _set , _annotation_type ) )
+      throw ValueError( "Set " + _set + " is used but has no declaration " +
+			"for " + toString( _annotation_type ) + "-annotation" );
+  }
+  else if ( mydoc && ( def = mydoc->defaultset( _annotation_type )) != "" ){
+    _set = def;
+  }
+  else if ( CLASS & _required_attributes )
+    throw ValueError("Set is required for " + classname() );
+  else
+    _set = "";
+
+  it = kwargs.find( "class" );
+  if ( it == kwargs.end() )
+    it = kwargs.find( "cls" );
+  if ( it != kwargs.end() ) {
+    if ( !( CLASS & supported ) )
+      throw ValueError("Class is not supported for " + classname() );
+    else {
+      _cls = it->second;
+    }
+  }
+  else if ( CLASS & _required_attributes )
+    throw ValueError("Class is required for " + classname() );
+  else
+    _cls = "";
+
+      
+  it = kwargs.find( "annotator" );    
+  if ( it != kwargs.end() ) {
+    if ( !(ANNOTATOR & supported) )
+      throw ValueError("Annotator is not supported for " + classname() );
+    else {
+      _annotator = it->second;
+    }
+  }
+  else if ( mydoc &&
+	    (def = mydoc->defaultannotator( _annotation_type, "", true )) != "" ){
+    _annotator = def;
+  }
+  else if ( ANNOTATOR & _required_attributes )
+    throw ValueError("Annotator is required for " + classname() );
+  else
+    _annotator = "";
+  
+  it = kwargs.find( "annotatortype" );    
+  if ( it != kwargs.end() ) {
+    if ( ! (ANNOTATOR & supported) )
+      throw ValueError("Annotatortype is not supported for " + classname() );
+    else {
+      if ( it->second == "auto" )
+	_annotator_type = AUTO;
+      else if ( it->second == "manual" )
+	_annotator_type = MANUAL;
+      else
+	throw ValueError("annotatortype must be 'auto' or 'manual'");
+    }
+  }
+  else if ( mydoc &&
+	    (def = mydoc->defaultannotatortype( _annotation_type, "", true ) ) != ""  ){
+    if ( def == "auto" )
+      _annotator_type = AUTO;
+    else if ( def == "manual" )
+      _annotator_type = MANUAL;
+    else
+      throw ValueError("annotatortype must be 'auto' or 'manual'");
+  }
+  else if ( ANNOTATOR & _required_attributes )
+    throw ValueError("Annotatortype is required for " + classname() );
+  else
+    _annotator_type = UNDEFINED;
+
+        
+  it = kwargs.find( "confidence" );
+  if ( it != kwargs.end() ) {
+    if ( !(CONFIDENCE & supported) )
+      throw ValueError("Confidence is not supported for " + classname() );
+    else {
+      _confidence = toDouble(it->second);
+      if ( ( _confidence < 0.0 || _confidence > 1.0 ) )
+	throw ValueError("Confidence must be a floating point number between 0 and 1");
+    }
+  }
+  else if ( CONFIDENCE & _required_attributes )
+    throw ValueError("Confidence is required for " + classname() );
+  else
+    _confidence = -1;
+
+  it = kwargs.find( "n" );
+  if ( it != kwargs.end() ) {
+    if ( !(N & supported) )
+      throw ValueError("N is not supported for " + classname() );
+    else {
+      _n = it->second;
+    }
+  }
+  else if ( N & _required_attributes )
+    throw ValueError("N is required");
+  else
+    _n = "";
+  
+  it = kwargs.find( "datetime" );
+  if ( it != kwargs.end() ) {
+    if ( !(DATETIME & supported) )
+      throw ValueError("datetime is not supported for " + classname() );
+    else {
+      _datetime = parseDate( it->second );
+      if ( _datetime == 0 )
+	throw ValueError( "invalid datetime string:" + it->second );
+    }
+  }
+  else if ( DATETIME & _required_attributes )
+    throw ValueError("datetime is required");
+  else
+    _datetime = 0;
+
+  if ( mydoc && !_id.empty() )
+    mydoc->addDocIndex( this, _id );  
+}
+
+KWargs AbstractElement::collectAttributes() const {
+  KWargs attribs;
+  bool isDefaultSet = true;
+  bool isDefaultAnn = true;
+  if ( !_id.empty() ){
+    attribs["_id"] = _id; // sort "id" as first!
+  }
+  if ( !_set.empty() &&
+       _set != mydoc->defaultset( _annotation_type ) ){
+    isDefaultSet = false;
+    attribs["set"] = _set;
+  }
+  if ( !_cls.empty() )
+    attribs["class"] = _cls;
+
+  if ( !_annotator.empty() &&
+       _annotator != mydoc->defaultannotator( _annotation_type, _set, true ) ){
+    isDefaultAnn = false;
+    attribs["annotator"] = _annotator;
+  }
+  
+  if ( _annotator_type != UNDEFINED ){
+    AnnotatorType at = stringToANT( mydoc->defaultannotatortype( _annotation_type, _set, true ) );
+    if ( (!isDefaultSet || !isDefaultAnn) && _annotator_type != at ){
+      if ( _annotator_type == AUTO )
+	attribs["annotatortype"] = "auto";
+      else if ( _annotator_type == MANUAL )
+	attribs["annotatortype"] = "manual";
+    }
+  }
+  
+  if ( _confidence >= 0 )
+    attribs["confidence"] = toString(_confidence);
+  
+  if ( !_n.empty() )
+    attribs["n"] = _n;
+
+  if ( _datetime != 0 )
+    attribs["datetime"] = getDateTime();
+
+  return attribs;
+}
+
+string AbstractElement::xmlstring() const{
+  // serialize to a string (XML fragment)
+  if ( !mydoc ){
+    throw runtime_error( "xmlstring() on a node without a doc" );
+  }
+  xmlNode *n = xml( mydoc, true );
+  xmlSetNs( n, xmlNewNs( n, (const xmlChar *)NSFOLIA.c_str(), 0 ) );
+  xmlBuffer *buf = xmlBufferCreate();
+  xmlNodeDump( buf, 0, n, 0, 0 );
+  string result = (const char*)xmlBufferContent( buf );
+  xmlBufferFree( buf );
+  return result;
+}
+
+xmlNode *AbstractElement::xml( const Document *doc, bool recursive ) const {
+  xmlNode *e = newXMLNode( doc->foliaNs(), _xmltag );
+  KWargs attribs = collectAttributes();
+  addAttributes( e, attribs );
+  if ( recursive ){
+    // append children:
+    vector<AbstractElement*>::const_iterator it=data.begin();
+    while ( it != data.end() ){
+      xmlAddChild( e, (*it)->xml( doc, recursive ) );
+      ++it;
+    }
+  }
+  return e;
+}
+
+string AbstractElement::str() const {
+  return _xmltag;
+}
+
+bool AbstractElement::hastext( TextCorrectionLevel corr ) const {
+  //  cerr << _xmltag << "::hastext()" << endl;
+  // Does this element have text?
+  vector<AbstractElement*> v = const_cast<AbstractElement *>(this)->select(TextContent_t,false);
+  if ( corr == NOCORR ){
+    // regardless of correctionlevel:
+    return v.size() > 0;
+  }
+  else {
+    vector<AbstractElement*>::const_iterator it = v.begin();
+    while ( it != v.end() ){
+      if ( (*it)->corrected() == corr )
+	return true;
+      ++it;
+    }
+  }
+  return false;
+}
+
+UnicodeString AbstractElement::text( TextCorrectionLevel corr ) const {
+  if ( !PRINTABLE )
+    throw NoSuchText( _xmltag );
+  //  cerr << "text() for " << _xmltag << " step 1 " << endl;
+  if ( corr != NOCORR ){
+    if ( MINTEXTCORRECTIONLEVEL > corr ){
+      throw  NotImplementedError( "text() for " + _xmltag );
+    }
+    AbstractElement *t = 0;
+    for( size_t i=0; i < data.size(); ++i ){
+      if ( data[i]->element_id() == TextContent_t 
+	   && data[i]->corrected() == corr ){
+	t = data[i];
+	break;
+      }
+    }
+    //    cerr << "text() for " << _xmltag << " step 2 >> " << endl;
+    if ( t ){
+      return t->text();
+    }
+    else
+      throw NoSuchText( "inside " + _xmltag );
+  }
+  else if ( hastext( CORRECTED )  ){
+    //    cerr << "text() for " << _xmltag << " step 3 " << endl;
+    return text( CORRECTED );
+  }
+  else {
+    // try to get text from children.
+    //    cerr << "text() for " << _xmltag << " step 4 " << endl;
+
+    UnicodeString result;
+    for( size_t i=0; i < data.size(); ++i ){
+      try {
+	UnicodeString tmp = data[i]->text();
+	result += tmp;
+	if ( !tmp.isEmpty() ){
+	  result += UTF8ToUnicode( data[i]->getTextDelimiter() );
+	}
+      }
+      catch ( NoSuchText& e ){
+	//	cerr << "hmm: " << e.what() << endl;
+      }
+    }
+    //    cerr << "text() for " << _xmltag << " step 5, result= " << result << endl;
+    result.trim();
+    if ( !result.isEmpty() ){
+      //      cerr << "text() for " << _xmltag << " step 6, result= " << result << endl;
+      return result;
+    }
+    else if ( MINTEXTCORRECTIONLEVEL <= UNCORRECTED ){
+      //      cerr << "text() for " << _xmltag << " step 7"<< endl;
+      return text( UNCORRECTED );
+    }
+    else
+      throw NoSuchText( ":{" );
+  }
+}
+
+bool AbstractElement::contains( const AbstractElement *child ) const {
+  vector<AbstractElement*>::const_iterator it = data.begin();
+  while ( it != data.end() ){
+    if ( *it == child )
+      return true;
+    ++it;
+  }
+  return false;
+}
+
+vector<AbstractElement *>AbstractElement::findreplacables( AbstractElement *par ){
+  return par->select( element_id(), _set, false );
+}
+
+void AbstractElement::replace( AbstractElement *child ){
+  // Appends a child element like append(), but replaces any existing child 
+  // element of the same type and set. 
+  // If no such child element exists, this will act the same as append()
+  
+  vector<AbstractElement*> replace = child->findreplacables( this );
+  if ( replace.empty() ){
+    // nothing to replace, simply call append
+    append( child );
+  }
+  else if ( replace.size() > 1 ){
+    throw runtime_error( "Unable to replace. Multiple candidates found, unable to choose." );
+  }
+  else {
+    remove( replace[0], true );
+    append( child );
+  }
+}                
+
+TextContent *AbstractElement::settext( const string& txt, 
+				       TextCorrectionLevel lv ){
+  TextCorrectionLevel myl = lv;
+  if ( lv == NOCORR )
+    myl = MINTEXTCORRECTIONLEVEL;
+  KWargs args;
+  args["value"] = txt;
+  args["corrected"] = toString( lv );
+  TextContent *node = new TextContent( mydoc );
+  node->setAttributes( args );
+  append( node );
+  return node;
+}
+
+string AbstractElement::description() const {
+  vector<AbstractElement *> v =  const_cast<AbstractElement *>(this)->select( Description_t, false );
+  if ( v.size() == 0 )
+    throw NoDescription();
+  else
+    return v[0]->description();
+}
+
+bool AbstractElement::acceptable( ElementType t ) const {
+  set<ElementType>::const_iterator it = _accepted_data.find( t );
+  if ( it == _accepted_data.end() )
+    return false;
+  return true;
+}
+ 
+bool AbstractElement::addable( const AbstractElement *c,
+			       const string& setname ) const {
+  static set<ElementType> selectSet;
+  if ( !acceptable( c->_element_id ) ){
+    throw ValueError( "Unable to append object of type " + c->classname()
+		      + " to a " + classname() );
+    return false;
+  }
+  if ( c->occurrences > 0 ){
+    vector<AbstractElement*> v = const_cast<AbstractElement*>(this)->select( c->_element_id );
+    size_t count = v.size();
+    if ( count > c->occurrences )
+      throw DuplicateAnnotationError( "Unable to add another object of type " + c->classname() + " to " + classname() + ". There are already " + toString(count) + " instances of this class, which is the maximum." );
+    return false;
+  }
+  if ( c->occurrences_per_set > 0 && !setname.empty() &&
+       ( CLASS & c->_required_attributes ) ){
+    vector<AbstractElement*> v = const_cast<AbstractElement*>(this)->select( c->_element_id, setname );
+    size_t count = v.size();
+    if ( count > c->occurrences_per_set )
+      throw DuplicateAnnotationError( "Unable to add another object of type " + c->classname() + " to " + classname() + ". There are already " + toString(count) + " instances of this class, which is the maximum." );
+    return false;
+  }
+  return true;
+}
+ 
+AbstractElement *AbstractElement::append( AbstractElement *child ){
+  bool ok = false;
+  try {
+    ok = addable( child );
+  }
+  catch ( exception& ){
+    delete child;
+    throw;
+  }
+  if ( ok ){
+    data.push_back(child);
+    if ( !child->mydoc ){
+      child->mydoc = mydoc;
+      string id = child->id();
+      if ( !id.empty() )
+	mydoc->addDocIndex( child, id );  
+    }
+    if ( !child->_parent ) // Only for WordRef i hope
+      child->_parent = this;
+    return child->postappend();
+  }
+  return 0;
+}
+
+
+void AbstractElement::remove( AbstractElement *child, bool del ){
+  vector<AbstractElement*>::iterator it = std::remove( data.begin(), data.end(), child );
+  data.erase( it, data.end() );
+  if ( del )
+    delete child;
+}
+
+AbstractElement* AbstractElement::index( size_t i ) const {
+  if ( i < data.size() )
+    return data[i];
+  else
+    throw range_error( "[] index out of range" );
+}
+
+AbstractElement* AbstractElement::rindex( size_t i ) const {
+  if ( i < data.size() )
+    return data[data.size()-1-i];
+  else
+    throw range_error( "[] rindex out of range" );
+}
+
+vector<AbstractElement*> AbstractElement::words() const {
+  return const_cast<AbstractElement*>(this)->select( Word_t );
+}
+
+AbstractElement* AbstractElement::words( size_t index ) const {
+  vector<AbstractElement*> v = words();
+  if ( index < v.size() ){
+    return v[index];
+  }
+  else
+    throw range_error( "word index out of range" );
+}
+
+AbstractElement* AbstractElement::rwords( size_t index ) const {
+  vector<AbstractElement*> v = words();
+  if ( index < v.size() ){
+    return v[v.size()-1-index];
+  }
+  else
+    throw range_error( "word reverse index out of range" );
+}
+
+vector<AbstractElement *>AbstractElement::annotations( ElementType et ){
+  vector<AbstractElement *>v = select( et );
+  if ( v.size() >= 1 )
+    return v;
+  else
+    throw NoSuchAnnotation( toString(et) );
+}
+
+vector<AbstractElement*> AbstractElement::select( ElementType et,
+						  const string& val,
+						  set<ElementType>& exclude,
+						  bool recurse ) {
+  vector<AbstractElement*> res;
+  for ( size_t i = 0; i < data.size(); ++i ){
+    if ( data[i]->_element_id == et  && data[i]->_set == val ){
+      res.push_back( data[i] );
+    }
+    if ( recurse ){
+      if ( exclude.find( data[i]->_element_id ) == exclude.end() ){
+	vector<AbstractElement*> tmp = data[i]->select( et, val, exclude, recurse );
+	res.insert( res.end(), tmp.begin(), tmp.end() );
+      }
+    }
+  }
+  return res;
+}
+
+vector<AbstractElement*> AbstractElement::select( ElementType et,
+						  const string& val,
+						  bool recurse ) {
+  static set<ElementType> excludeSet;
+  if ( excludeSet.empty() ){
+    excludeSet.insert( Original_t );
+    excludeSet.insert( Suggestion_t );
+    excludeSet.insert( Alternative_t );
+  }
+  return select( et, val, excludeSet, recurse );
+}
+
+vector<AbstractElement*> AbstractElement::select( ElementType et,
+						  set<ElementType>& exclude,
+						  bool recurse ) {
+  vector<AbstractElement*> res;
+  for ( size_t i = 0; i < data.size(); ++i ){
+    if ( data[i]->_element_id == et ){
+      res.push_back( data[i] );
+    }
+    if ( recurse ){
+      if ( exclude.find( data[i]->_element_id ) == exclude.end() ){
+	vector<AbstractElement*> tmp = data[i]->select( et, exclude, recurse );
+	res.insert( res.end(), tmp.begin(), tmp.end() );
+      }
+    }
+  }
+  return res;
+}
+
+vector<AbstractElement*> AbstractElement::select( ElementType et,
+						  bool recurse ) {
+  static set<ElementType> excludeSet;
+  if ( excludeSet.empty() ){
+    excludeSet.insert( Original_t );
+    excludeSet.insert( Suggestion_t );
+    excludeSet.insert( Alternative_t );
+  }
+  return select( et, excludeSet, recurse );
+}
+
+AbstractElement* AbstractElement::parseXml( xmlNode *node ){
+  KWargs att = getAttributes( node );
+  setAttributes( att );
+  xmlNode *p = node->children;
+  while ( p ){
+    if ( p->type == XML_ELEMENT_NODE ){
+      string tag = Name( p );
+      AbstractElement *t = createElement( mydoc, tag );
+      if ( t ){
+	if ( mydoc->debug > 2 )
+	  cerr << "created " << t << endl;
+	t = t->parseXml( p );
+	if ( t ){
+	  if ( mydoc->debug > 2 )
+	    cerr << "extend " << this << " met " << tag << endl;
+	  append( t );
+	}
+      }
+    }
+    p = p->next;
+  }
+  return this;
+}
+
+void AbstractElement::setDateTime( const std::string& s ){
+  Attrib supported = _required_attributes | _optional_attributes;
+  if ( !(DATETIME & supported) )
+    throw ValueError("datetime is not supported for " + classname() );
+  else {
+    _datetime = parseDate( s );
+    if ( _datetime == 0 )
+      throw ValueError( "invalid datetime string:" + s );
+  }
+}
+
+string AbstractElement::getDateTime() const {
+  char buf[100];
+  strftime( buf, 100, "%Y-%m-%dT%X", _datetime );
+  return buf;
+}
+
+Alternative *AbstractElement::addAlternative( ElementType et,
+					      const KWargs& args ){
+  Alternative *res = new Alternative( mydoc );
+  KWargs kw;
+  string id = generateId( "alt" );
+  kw["id"] = id;
+  res->setAttributes( kw );
+  if ( et == Pos_t )
+    res->addPosAnnotation( args );
+  else if ( et == Lemma_t )
+    res->addLemmaAnnotation( args );
+  else
+    throw runtime_error( "addAlternative not implemenentd for " + toString(et) );
+  append( res );
+  return res;
+}
+
+AbstractTokenAnnotation *AbstractElement::addAnnotation( ElementType et,
+							 const KWargs& args ){
+  if ( et == Pos_t )
+    return addPosAnnotation( args );
+  else if ( et == Lemma_t )
+    return addLemmaAnnotation( args );
+  else
+    throw runtime_error( "addAnnotation not implemenentd for " + toString(et) );
+}
+
+AbstractTokenAnnotation *AbstractElement::addPosAnnotation( const KWargs& args ){
+  PosAnnotation *res = new PosAnnotation( mydoc );
+  try {
+    res->setAttributes( args );
+  }
+  catch( exception& ){
+    delete res;
+    throw;
+  }
+  append( res );
+  return res;
+}
+
+AbstractTokenAnnotation *AbstractElement::addLemmaAnnotation( const KWargs& args ){
+  LemmaAnnotation *res = new LemmaAnnotation( mydoc );
+  try {
+    res->setAttributes( args );
+  }
+  catch( exception& ){
+    delete res;
+    throw;
+  }
+  append( res );
+  return res;
 }
 
 Sentence *AbstractElement::addSentence( const KWargs& args ){
@@ -106,11 +747,6 @@ Word *AbstractElement::addWord( const KWargs& args ){
   }
   append( res );
   return res;
-}
-
-AbstractElement *Word::split( AbstractElement *part1, AbstractElement *part2,
-			      const std::string& args ){
-  return sentence()->splitWord( this, part1, part2, getArgs(args) );
 }
 
 Correction *Sentence::splitWord( AbstractElement *orig, AbstractElement *p1, AbstractElement *p2, const KWargs& args ){
@@ -166,6 +802,203 @@ Correction *Sentence::insertword( AbstractElement *w,
   nv.push_back( w );
   vector<AbstractElement*> nil;
   return correctWords( ov, nv, nil, getArgs(args) );  
+}
+
+Correction *Sentence::correctWords( vector<AbstractElement *>& orig,
+				    vector<AbstractElement *>& _new,
+				    vector<AbstractElement *>& current, 
+				    const KWargs& args ){
+  // Generic correction method for words. You most likely want to use the helper functions
+  //      splitword() , mergewords(), deleteword(), insertword() instead
+  
+  // sanity check:
+  vector<AbstractElement *>::const_iterator it = orig.begin();
+  while ( it != orig.end() ){
+    if ( !(*it) || !(*it)->isinstance( Word_t) )
+      throw runtime_error("Original word is not a Word instance" );
+    else if ( (*it)->sentence() != this )
+      throw runtime_error( "Original not found as member of sentence!");
+    ++it;
+  }
+  it = _new.begin();
+  while ( it != _new.end() ){
+    if ( ! (*it)->isinstance( Word_t) )
+      throw runtime_error("new word is not a Word instance" );
+    ++it;
+  }
+  it = current.begin();
+  while ( it != current.end() ){
+    if ( ! (*it)->isinstance( Word_t) )
+      throw runtime_error("current word is not a Word instance" );
+    ++it;
+  }
+  KWargs::const_iterator ait = args.find("suggest");
+  if ( ait != args.end() && ait->second == "true" ){
+    vector<AbstractElement *> nil;
+    return correct( nil, orig, nil, _new, args );
+  }
+  else {
+    vector<AbstractElement *> nil;
+    return correct( orig, nil, _new, nil, args );
+  }
+}
+
+
+void TextContent::setAttributes( const KWargs& args ){
+  KWargs kwargs = args; // need to copy
+  KWargs::const_iterator it = kwargs.find( "value" );
+  if ( it != kwargs.end() ) {
+    _text = UTF8ToUnicode(it->second);
+    kwargs.erase("value");
+  }
+   else
+     throw ValueError("TextContent expects value= parameter");
+  it = kwargs.find( "corrected" );
+  if ( it != kwargs.end() ) {
+    _corrected = stringToTCL(it->second);
+    kwargs.erase("corrected");
+  }
+  it = kwargs.find( "offset" );
+  if ( it != kwargs.end() ) {
+    _offset = stringTo<int>(it->second);
+    kwargs.erase("offset");
+  }
+  else
+    _offset = -1;
+  it = kwargs.find( "newoffset" );
+  if ( it != kwargs.end() ) {
+    _newoffset = stringTo<int>(it->second);
+    kwargs.erase("newoffset");
+  }
+  else
+    _newoffset = -1;
+  it = kwargs.find( "ref" );
+  if ( it != kwargs.end() ) {
+    throw NotImplementedError( "ref attribute in TextContent" );
+  }
+  it = kwargs.find( "length" );
+  if ( it != kwargs.end() ) {
+    _length = stringTo<int>(it->second);
+    kwargs.erase("length");
+  }
+  else
+    _length = _text.length();
+
+  AbstractElement::setAttributes(kwargs);
+}
+
+AbstractElement* TextContent::parseXml( xmlNode *node ){
+  KWargs att = getAttributes( node );
+  att["value"] = XmlContent( node );
+  setAttributes( att );
+  if ( mydoc->debug > 2 )
+    cerr << "set textcontent to " << _text << endl;
+  return this;
+}
+
+AbstractElement *TextContent::postappend(){
+  TextCorrectionLevel pl = _parent->getMinCorrectionLevel();
+  if ( _corrected == NOCORR ){
+    _corrected = pl;
+  }
+  if ( _corrected < pl ) {
+    throw ValueError( "TextContent(" + toString( _corrected ) + ") must be of higher level than its parents minimum (" + toString(pl) + ")" );
+  }
+  if ( _corrected == UNCORRECTED || _corrected == CORRECTED ){
+    // sanity check, there may be no other TextContent child with the same 
+    // correction level
+    for ( size_t i=0; i < _parent->size(); ++i ){
+      AbstractElement *child = _parent->index(i);
+      if ( child != this && child->element_id() == TextContent_t &&
+	   child->corrected() == _corrected ){
+	throw DuplicateAnnotationError( "A TextContent with 'corrected' value of " +  toString(_corrected) + " already exists." );
+      }
+    }
+  }
+  // no conflict found
+  return this;
+}
+
+vector<AbstractElement *>TextContent::findreplacables( AbstractElement *par ){
+  vector<AbstractElement*> v = par->select( TextContent_t, _set, false );
+  // cerr << "TextContent::findreplacable found " << v << endl;
+  // cerr << "looking for " << toString( _corrected) << endl;
+  vector<AbstractElement *>::iterator it = v.begin();
+  while ( it != v.end() ){
+    // cerr << "TextContent::findreplacable bekijkt " << *it << " (" 
+    // 	 << toString( dynamic_cast<TextContent*>(*it)->_corrected ) << ")" << endl;
+    if ( dynamic_cast<TextContent*>(*it)->_corrected != _corrected )
+      it = v.erase(it);
+    else
+      ++it;
+  }
+  //  cerr << "TextContent::findreplacable resultaat " << v << endl;
+  return v;
+}
+
+
+string TextContent::str() const{
+  return UnicodeToUTF8(_text);
+}
+
+UnicodeString TextContent::text( TextCorrectionLevel l ) const{
+  //  cerr << "TextContent::text()  step 1 " << endl;
+  if ( l == NOCORR || l == _corrected )
+    return _text;
+  else
+    throw NoSuchText( _xmltag );
+}
+
+string AbstractStructureElement::generateId( const string& tag, 
+					     const string& id_in  ){
+  //  cerr << "generateId," << _xmltag << " maxids=" << maxid << endl;
+  int max = getMaxId(tag);
+  //  cerr << "MAX = " << max << endl;
+  string id = id_in;
+  if ( id.empty() )
+    id = _id;
+  id += '.' + tag + '.' +  toString( max + 1 );
+  return id;
+}
+
+string AbstractStructureElement::str() const{
+  UnicodeString result = text();
+  return UnicodeToUTF8(result);
+}
+  
+void AbstractStructureElement::setMaxId( AbstractElement *child ) {
+  if ( !child->id().empty() && !child->xmltag().empty() ){
+    vector<string> parts;
+    size_t num = split_at( child->id(), parts, "." );
+    if ( num > 0 ){
+      string val = parts[num-1];
+      int i = stringTo<int>( val );
+      map<string,int>::iterator it = maxid.find( child->xmltag() );
+      if ( it == maxid.end() ){
+	maxid[child->xmltag()] = i;
+      }
+      else {
+	if ( it->second < i ){
+	  it->second = i;
+	}
+      }
+    }
+  }
+}
+
+int AbstractStructureElement::getMaxId( const string& xmltag ) {
+  int res = 0;
+  if ( !xmltag.empty() ){
+    res = maxid[xmltag];
+    ++maxid[xmltag];
+  }
+  return res;
+}
+
+AbstractElement *AbstractStructureElement::append( AbstractElement *child ){
+  AbstractElement::append( child );
+  setMaxId( child );
+  return child;
 }
 
 Correction *AbstractStructureElement::correct( vector<AbstractElement*> original,
@@ -389,96 +1222,113 @@ Correction *AbstractStructureElement::correct( vector<AbstractElement*> original
   return c;
 }
 
-Correction *Sentence::correctWords( vector<AbstractElement *>& orig,
-				    vector<AbstractElement *>& _new,
-				    vector<AbstractElement *>& current, 
-				    const KWargs& args ){
-  // Generic correction method for words. You most likely want to use the helper functions
-  //      splitword() , mergewords(), deleteword(), insertword() instead
-  
-  // sanity check:
-  vector<AbstractElement *>::const_iterator it = orig.begin();
-  while ( it != orig.end() ){
-    if ( !(*it) || !(*it)->isinstance( Word_t) )
-      throw runtime_error("Original word is not a Word instance" );
-    else if ( (*it)->sentence() != this )
-      throw runtime_error( "Original not found as member of sentence!");
-    ++it;
+const AbstractElement* AbstractStructureElement::resolveword( const string& id ) const{
+  const AbstractElement *result = 0;
+  for ( size_t i=0; i < data.size(); ++i ){
+    result = data[i]->resolveword( id );
+    if ( result )
+      return result;
   }
-  it = _new.begin();
-  while ( it != _new.end() ){
-    if ( ! (*it)->isinstance( Word_t) )
-      throw runtime_error("new word is not a Word instance" );
-    ++it;
-  }
-  it = current.begin();
-  while ( it != current.end() ){
-    if ( ! (*it)->isinstance( Word_t) )
-      throw runtime_error("current word is not a Word instance" );
-    ++it;
-  }
-  KWargs::const_iterator ait = args.find("suggest");
-  if ( ait != args.end() && ait->second == "true" ){
-    vector<AbstractElement *> nil;
-    return correct( nil, orig, nil, _new, args );
+  return result;
+};
+
+AbstractElement *AbstractStructureElement::annotation( ElementType et ){
+  vector<AbstractElement *>v = annotations( et );
+  return v[0]; // always exist, otherwise annotations would throw()
+}
+
+AbstractElement *AbstractStructureElement::annotation( ElementType et,
+						       const string& val ){
+  // Will return a SINGLE annotation (even if there are multiple). 
+  // Raises a NoSuchAnnotation exception if none was found
+  vector<AbstractElement *>v = select( et, val );
+  if ( v.size() >= 1 )
+    return v[0];
+  else
+    throw NoSuchAnnotation( toString(et) );
+  return 0;
+}
+
+vector<AbstractElement *> AbstractStructureElement::alternatives( const string& set,
+								  AnnotationType::AnnotationType type ){
+  // Return a list of alternatives, either all or only of a specific type, restrained by set
+  vector<AbstractElement*> alts = select( Alternative_t );
+  if ( type == AnnotationType::NO_ANN ){
+    return alts;
   }
   else {
-    vector<AbstractElement *> nil;
-    return correct( orig, nil, _new, nil, args );
+    vector<AbstractElement*> res;
+    for ( size_t i=0; i < alts.size(); ++i ){
+      if ( alts[i]->size() > 0 ) { // child elements?
+	for ( size_t j =0; j < alts[i]->size(); ++j ){
+	  if ( alts[i]->index(j)->annotation_type() == type &&
+	       ( alts[i]->st().empty() || alts[i]->st() == set ) ){
+	    res.push_back( alts[i] ); // not the child!
+	    break; // yield an alternative only once (in case there are multiple matches)
+	  }
+	}
+      }
+    }
+    return res;
   }
+};
+
+void Word::setAttributes( const KWargs& args ){
+  KWargs::const_iterator it = args.find( "space" );
+  if ( it != args.end() ){
+    if ( it->second == "no" ){
+      space = false;
+    }
+  }
+  it = args.find( "text" );
+  if ( it != args.end() ) {
+    settext( it->second );
+  }
+  it = args.find( "correctedtext" );
+  if ( it != args.end() ) {
+    settext( it->second, CORRECTED );
+  }
+  it = args.find( "uncorrectedtext" );
+  if ( it != args.end() ) {
+    settext( it->second, UNCORRECTED );
+  }
+  AbstractElement::setAttributes( args );
 }
 
-Alternative *AbstractElement::addAlternative( ElementType et,
-					      const KWargs& args ){
-  Alternative *res = new Alternative( mydoc );
-  KWargs kw;
-  string id = generateId( "alt" );
-  kw["id"] = id;
-  res->setAttributes( kw );
-  if ( et == Pos_t )
-    res->addPosAnnotation( args );
-  else if ( et == Lemma_t )
-    res->addLemmaAnnotation( args );
-  else
-    throw runtime_error( "addAlternative not implemenentd for " + toString(et) );
-  append( res );
-  return res;
+KWargs Word::collectAttributes() const {
+  KWargs atts = AbstractElement::collectAttributes();
+  if ( !space ){
+    atts["space"] = "no";
+  }
+  return atts;
 }
 
-AbstractTokenAnnotation *AbstractElement::addAnnotation( ElementType et,
-							 const KWargs& args ){
-  if ( et == Pos_t )
-    return addPosAnnotation( args );
-  else if ( et == Lemma_t )
-    return addLemmaAnnotation( args );
-  else
-    throw runtime_error( "addAnnotation not implemenentd for " + toString(et) );
+Correction *Word::correct( const std::string& s ){
+  vector<AbstractElement*> nil;
+  KWargs args = getArgs( s );
+  //  cerr << "word::correct() <== " << this << endl;
+  Correction *tmp = AbstractStructureElement::correct( nil, nil, nil, nil, args );
+  //  cerr << "word::correct() ==> " << this << endl;
+  return tmp;
 }
 
-AbstractTokenAnnotation *AbstractElement::addPosAnnotation( const KWargs& args ){
-  PosAnnotation *res = new PosAnnotation( mydoc );
-  try {
-    res->setAttributes( args );
-  }
-  catch( exception& ){
-    delete res;
-    throw;
-  }
-  append( res );
-  return res;
+Correction *Word::correct( AbstractElement *old,
+			   AbstractElement *_new,
+			   const KWargs& args ){
+  vector<AbstractElement *> nv;
+  nv.push_back( _new );
+  vector<AbstractElement *> ov;
+  ov.push_back( old );
+  vector<AbstractElement *> nil;
+  //  cerr << "correct() <== " << this;
+  Correction *tmp =AbstractStructureElement::correct( ov, nil, nv, nil, args );
+  //  cerr << "correct() ==> " << this;
+  return tmp;
 }
 
-AbstractTokenAnnotation *AbstractElement::addLemmaAnnotation( const KWargs& args ){
-  LemmaAnnotation *res = new LemmaAnnotation( mydoc );
-  try {
-    res->setAttributes( args );
-  }
-  catch( exception& ){
-    delete res;
-    throw;
-  }
-  append( res );
-  return res;
+AbstractElement *Word::split( AbstractElement *part1, AbstractElement *part2,
+			      const std::string& args ){
+  return sentence()->splitWord( this, part1, part2, getArgs(args) );
 }
 
 AbstractElement *Word::append( AbstractElement *child ) {
@@ -496,471 +1346,6 @@ AbstractElement *Word::append( AbstractElement *child ) {
     throw DuplicateAnnotationError( "Word::append" );
   }
   return AbstractElement::append( child );
-}
-
-AbstractElement *TextContent::postappend(){
-  TextCorrectionLevel pl = _parent->getMinCorrectionLevel();
-  if ( _corrected == NOCORR ){
-    _corrected = pl;
-  }
-  if ( _corrected < pl ) {
-    throw ValueError( "TextContent(" + toString( _corrected ) + ") must be of higher level than its parents minimum (" + toString(pl) + ")" );
-  }
-  if ( _corrected == UNCORRECTED || _corrected == CORRECTED ){
-    // sanity check, there may be no other TextContent child with the same 
-    // correction level
-    for ( size_t i=0; i < _parent->size(); ++i ){
-      AbstractElement *child = _parent->index(i);
-      if ( child != this && child->element_id() == TextContent_t &&
-	   child->corrected() == _corrected ){
-	throw DuplicateAnnotationError( "A TextContent with 'corrected' value of " +  toString(_corrected) + " already exists." );
-      }
-    }
-  }
-  // no conflict found
-  return this;
-}
-
-string AbstractStructureElement::generateId( const string& tag, 
-					     const string& id_in  ){
-  //  cerr << "generateId," << _xmltag << " maxids=" << maxid << endl;
-  int max = getMaxId(tag);
-  //  cerr << "MAX = " << max << endl;
-  string id = id_in;
-  if ( id.empty() )
-    id = _id;
-  id += '.' + tag + '.' +  toString( max + 1 );
-  return id;
-}
-
-void AbstractElement::setAttributes( const KWargs& kwargs ){
-  Attrib supported = _required_attributes | _optional_attributes;
-  // if ( _element_id == Correction_t ){
-  //   cerr << "set attributes: " << kwargs << " on " << toString(_element_id) << endl;
-  //   cerr << "required = " <<  _required_attributes << endl;
-  //   cerr << "optional = " <<  _optional_attributes << endl;
-  //   cerr << "supported = " << supported << endl;
-  //   cerr << "ID & supported = " << (ID & supported) << endl;
-  //   cerr << "ID & _required = " << (ID & _required_attributes ) << endl;
-  // }
-  if ( mydoc && mydoc->debug > 2 )
-    cerr << "set attributes: " << kwargs << " on " << toString(_element_id) << endl;
-  
-  KWargs::const_iterator it = kwargs.find( "generate_id" );
-  if ( it != kwargs.end() ) {
-    if ( !mydoc ){
-      throw runtime_error( "can't generate an ID without a doc" );
-    }
-    AbstractElement * e = (*mydoc)[it->second];
-    if ( e ){
-      _id = e->generateId( _xmltag );
-    }
-    else
-      throw ValueError("Unable to genarate and if from ID= " + it->second );
-  }
-  else {
-    it = kwargs.find( "id" );
-    if ( it != kwargs.end() ) {
-      if ( !ID & supported )
-	throw ValueError("ID is not supported");
-      else {
-	_id = it->second;
-      }
-    }
-    else if ( ID & _required_attributes )
-      throw ValueError("ID is required for " + classname() );
-    else
-      _id = "";
-  }
-
-  it = kwargs.find( "set" );
-  string def;
-  if ( it != kwargs.end() ) {
-    if ( !(CLASS & supported) )
-      throw ValueError("Set is not supported");
-    else {
-      _set = it->second;
-    }
-    if ( mydoc &&
-	 !mydoc->isDeclared( _set , _annotation_type ) )
-      throw ValueError( "Set " + _set + " is used but has no declaration " +
-			"for " + toString( _annotation_type ) + "-annotation" );
-  }
-  else if ( mydoc && ( def = mydoc->defaultset( _annotation_type )) != "" ){
-    _set = def;
-  }
-  else if ( CLASS & _required_attributes )
-    throw ValueError("Set is required for " + classname() );
-  else
-    _set = "";
-
-  it = kwargs.find( "class" );
-  if ( it == kwargs.end() )
-    it = kwargs.find( "cls" );
-  if ( it != kwargs.end() ) {
-    if ( !( CLASS & supported ) )
-      throw ValueError("Class is not supported for " + classname() );
-    else {
-      _cls = it->second;
-    }
-  }
-  else if ( CLASS & _required_attributes )
-    throw ValueError("Class is required for " + classname() );
-  else
-    _cls = "";
-
-      
-  it = kwargs.find( "annotator" );    
-  if ( it != kwargs.end() ) {
-    if ( !(ANNOTATOR & supported) )
-      throw ValueError("Annotator is not supported for " + classname() );
-    else {
-      _annotator = it->second;
-    }
-  }
-  else if ( mydoc &&
-	    (def = mydoc->defaultannotator( _annotation_type, "", true )) != "" ){
-    _annotator = def;
-  }
-  else if ( ANNOTATOR & _required_attributes )
-    throw ValueError("Annotator is required for " + classname() );
-  else
-    _annotator = "";
-  
-  it = kwargs.find( "annotatortype" );    
-  if ( it != kwargs.end() ) {
-    if ( ! (ANNOTATOR & supported) )
-      throw ValueError("Annotatortype is not supported for " + classname() );
-    else {
-      if ( it->second == "auto" )
-	_annotator_type = AUTO;
-      else if ( it->second == "manual" )
-	_annotator_type = MANUAL;
-      else
-	throw ValueError("annotatortype must be 'auto' or 'manual'");
-    }
-  }
-  else if ( mydoc &&
-	    (def = mydoc->defaultannotatortype( _annotation_type, "", true ) ) != ""  ){
-    if ( def == "auto" )
-      _annotator_type = AUTO;
-    else if ( def == "manual" )
-      _annotator_type = MANUAL;
-    else
-      throw ValueError("annotatortype must be 'auto' or 'manual'");
-  }
-  else if ( ANNOTATOR & _required_attributes )
-    throw ValueError("Annotatortype is required for " + classname() );
-  else
-    _annotator_type = UNDEFINED;
-
-        
-  it = kwargs.find( "confidence" );
-  if ( it != kwargs.end() ) {
-    if ( !(CONFIDENCE & supported) )
-      throw ValueError("Confidence is not supported for " + classname() );
-    else {
-      _confidence = toDouble(it->second);
-      if ( ( _confidence < 0.0 || _confidence > 1.0 ) )
-	throw ValueError("Confidence must be a floating point number between 0 and 1");
-    }
-  }
-  else if ( CONFIDENCE & _required_attributes )
-    throw ValueError("Confidence is required for " + classname() );
-  else
-    _confidence = -1;
-
-  it = kwargs.find( "n" );
-  if ( it != kwargs.end() ) {
-    if ( !(N & supported) )
-      throw ValueError("N is not supported for " + classname() );
-    else {
-      _n = it->second;
-    }
-  }
-  else if ( N & _required_attributes )
-    throw ValueError("N is required");
-  else
-    _n = "";
-  
-  it = kwargs.find( "datetime" );
-  if ( it != kwargs.end() ) {
-    if ( !(DATETIME & supported) )
-      throw ValueError("datetime is not supported for " + classname() );
-    else {
-      _datetime = parseDate( it->second );
-      if ( _datetime == 0 )
-	throw ValueError( "invalid datetime string:" + it->second );
-    }
-  }
-  else if ( DATETIME & _required_attributes )
-    throw ValueError("datetime is required");
-  else
-    _datetime = 0;
-
-  if ( mydoc && !_id.empty() )
-    mydoc->addDocIndex( this, _id );  
-}
-
-void AbstractElement::setDateTime( const std::string& s ){
-  Attrib supported = _required_attributes | _optional_attributes;
-  if ( !(DATETIME & supported) )
-    throw ValueError("datetime is not supported for " + classname() );
-  else {
-    _datetime = parseDate( s );
-    if ( _datetime == 0 )
-      throw ValueError( "invalid datetime string:" + s );
-  }
-}
-
-string AbstractElement::getDateTime() const {
-  char buf[100];
-  strftime( buf, 100, "%Y-%m-%dT%X", _datetime );
-  return buf;
-}
-
-void Feature::setAttributes( const KWargs& kwargs ){
-  //
-  // Feature is special. So DON'T call ::setAttributes
-  //
-  KWargs::const_iterator it = kwargs.find( "subset" );
-  if ( it == kwargs.end() ){
-    if ( _subset.empty() ) {
-      throw ValueError("subset attribute is required for " + classname() );
-    }
-  }
-  else {
-    _subset = it->second;
-  }
-  it = kwargs.find( "cls" );
-  if ( it == kwargs.end() )
-    it = kwargs.find( "class" );
-  if ( it == kwargs.end() ) {
-    throw ValueError("class attribute is required for " + classname() );
-  }
-  _cls = it->second;
-}
-
-void TextContent::setAttributes( const KWargs& args ){
-  KWargs kwargs = args; // need to copy
-  KWargs::const_iterator it = kwargs.find( "value" );
-  if ( it != kwargs.end() ) {
-    _text = UTF8ToUnicode(it->second);
-    kwargs.erase("value");
-  }
-   else
-     throw ValueError("TextContent expects value= parameter");
-  it = kwargs.find( "corrected" );
-  if ( it != kwargs.end() ) {
-    _corrected = stringToTCL(it->second);
-    kwargs.erase("corrected");
-  }
-  it = kwargs.find( "offset" );
-  if ( it != kwargs.end() ) {
-    _offset = stringTo<int>(it->second);
-    kwargs.erase("offset");
-  }
-  else
-    _offset = -1;
-  it = kwargs.find( "newoffset" );
-  if ( it != kwargs.end() ) {
-    _newoffset = stringTo<int>(it->second);
-    kwargs.erase("newoffset");
-  }
-  else
-    _newoffset = -1;
-  it = kwargs.find( "ref" );
-  if ( it != kwargs.end() ) {
-    throw NotImplementedError( "ref attribute in TextContent" );
-  }
-  it = kwargs.find( "length" );
-  if ( it != kwargs.end() ) {
-    _length = stringTo<int>(it->second);
-    kwargs.erase("length");
-  }
-  else
-    _length = _text.length();
-
-  AbstractElement::setAttributes(kwargs);
-}
-
-void Description::setAttributes( const KWargs& kwargs ){
-  KWargs::const_iterator it;
-  it = kwargs.find( "value" );
-  if ( it == kwargs.end() ) {
-    throw ValueError("value attribute is required for " + classname() );
-  }
-  _value = it->second;
-}
-
-bool AbstractElement::contains( const AbstractElement *child ) const {
-  vector<AbstractElement*>::const_iterator it = data.begin();
-  while ( it != data.end() ){
-    if ( *it == child )
-      return true;
-    ++it;
-  }
-  return false;
-}
-
-vector<AbstractElement *>AbstractElement::findreplacables( AbstractElement *par ){
-  return par->select( element_id(), _set, false );
-}
-
-void AbstractElement::replace( AbstractElement *child ){
-  // Appends a child element like append(), but replaces any existing child 
-  // element of the same type and set. 
-  // If no such child element exists, this will act the same as append()
-  
-  vector<AbstractElement*> replace = child->findreplacables( this );
-  if ( replace.empty() ){
-    // nothing to replace, simply call append
-    append( child );
-  }
-  else if ( replace.size() > 1 ){
-    throw runtime_error( "Unable to replace. Multiple candidates found, unable to choose." );
-  }
-  else {
-    remove( replace[0], true );
-    append( child );
-  }
-}                
-
-            
-vector<AbstractElement *>TextContent::findreplacables( AbstractElement *par ){
-  vector<AbstractElement*> v = par->select( TextContent_t, _set, false );
-  // cerr << "TextContent::findreplacable found " << v << endl;
-  // cerr << "looking for " << toString( _corrected) << endl;
-  vector<AbstractElement *>::iterator it = v.begin();
-  while ( it != v.end() ){
-    // cerr << "TextContent::findreplacable bekijkt " << *it << " (" 
-    // 	 << toString( dynamic_cast<TextContent*>(*it)->_corrected ) << ")" << endl;
-    if ( dynamic_cast<TextContent*>(*it)->_corrected != _corrected )
-      it = v.erase(it);
-    else
-      ++it;
-  }
-  //  cerr << "TextContent::findreplacable resultaat " << v << endl;
-  return v;
-}
-
-
-string AbstractElement::str() const {
-  return _xmltag;
-}
-
-bool AbstractElement::hastext( TextCorrectionLevel corr ) const {
-  //  cerr << _xmltag << "::hastext()" << endl;
-  // Does this element have text?
-  vector<AbstractElement*> v = const_cast<AbstractElement *>(this)->select(TextContent_t,false);
-  if ( corr == NOCORR ){
-    // regardless of correctionlevel:
-    return v.size() > 0;
-  }
-  else {
-    vector<AbstractElement*>::const_iterator it = v.begin();
-    while ( it != v.end() ){
-      if ( (*it)->corrected() == corr )
-	return true;
-      ++it;
-    }
-  }
-  return false;
-}
-
-UnicodeString AbstractElement::text( TextCorrectionLevel corr ) const {
-  if ( !PRINTABLE )
-    throw NoSuchText( _xmltag );
-  //  cerr << "text() for " << _xmltag << " step 1 " << endl;
-  if ( corr != NOCORR ){
-    if ( MINTEXTCORRECTIONLEVEL > corr ){
-      throw  NotImplementedError( "text() for " + _xmltag );
-    }
-    AbstractElement *t = 0;
-    for( size_t i=0; i < data.size(); ++i ){
-      if ( data[i]->element_id() == TextContent_t 
-	   && data[i]->corrected() == corr ){
-	t = data[i];
-	break;
-      }
-    }
-    //    cerr << "text() for " << _xmltag << " step 2 >> " << endl;
-    if ( t ){
-      return t->text();
-    }
-    else
-      throw NoSuchText( "inside " + _xmltag );
-  }
-  else if ( hastext( CORRECTED )  ){
-    //    cerr << "text() for " << _xmltag << " step 3 " << endl;
-    return text( CORRECTED );
-  }
-  else {
-    // try to get text from children.
-    //    cerr << "text() for " << _xmltag << " step 4 " << endl;
-
-    UnicodeString result;
-    for( size_t i=0; i < data.size(); ++i ){
-      try {
-	UnicodeString tmp = data[i]->text();
-	result += tmp;
-	if ( !tmp.isEmpty() ){
-	  result += UTF8ToUnicode( data[i]->getTextDelimiter() );
-	}
-      }
-      catch ( NoSuchText& e ){
-	//	cerr << "hmm: " << e.what() << endl;
-      }
-    }
-    //    cerr << "text() for " << _xmltag << " step 5, result= " << result << endl;
-    result.trim();
-    if ( !result.isEmpty() ){
-      //      cerr << "text() for " << _xmltag << " step 6, result= " << result << endl;
-      return result;
-    }
-    else if ( MINTEXTCORRECTIONLEVEL <= UNCORRECTED ){
-      //      cerr << "text() for " << _xmltag << " step 7"<< endl;
-      return text( UNCORRECTED );
-    }
-    else
-      throw NoSuchText( ":{" );
-  }
-}
-
-string TextContent::str() const{
-  return UnicodeToUTF8(_text);
-}
-
-UnicodeString TextContent::text( TextCorrectionLevel l ) const{
-  //  cerr << "TextContent::text()  step 1 " << endl;
-  if ( l == NOCORR || l == _corrected )
-    return _text;
-  else
-    throw NoSuchText( _xmltag );
-}
-
-UnicodeString Correction::text( TextCorrectionLevel corr ) const {
-  UnicodeString result;
-  for( size_t i=0; i < data.size(); ++i ){
-    //    cerr << "data[" << i << "]=" << data[i] << endl;
-    if ( data[i]->isinstance( New_t ) || data[i]->isinstance( Current_t ) )
-      result += data[i]->text( corr );
-  }
-  return result;
-}
-
-TextContent *AbstractElement::settext( const string& txt, 
-				       TextCorrectionLevel lv ){
-  TextCorrectionLevel myl = lv;
-  if ( lv == NOCORR )
-    myl = MINTEXTCORRECTIONLEVEL;
-  KWargs args;
-  args["value"] = txt;
-  args["corrected"] = toString( lv );
-  TextContent *node = new TextContent( mydoc );
-  node->setAttributes( args );
-  append( node );
-  return node;
 }
 
 Sentence *Word::sentence( ) const {
@@ -1109,222 +1494,36 @@ vector<AbstractElement *> Word::rightcontext( size_t size,
   return result;
 }
 
-const AbstractElement* AbstractStructureElement::resolveword( const string& id ) const{
-  const AbstractElement *result = 0;
-  for ( size_t i=0; i < data.size(); ++i ){
-    result = data[i]->resolveword( id );
-    if ( result )
-      return result;
-  }
-  return result;
-};
-
 const AbstractElement* Word::resolveword( const string& id ) const{
   if ( _id == id )
     return this;
   return 0;
 };
 
-string AbstractElement::description() const {
-  vector<AbstractElement *> v =  const_cast<AbstractElement *>(this)->select( Description_t, false );
-  if ( v.size() == 0 )
-    throw NoDescription();
-  else
-    return v[0]->description();
-}
-
-string AbstractStructureElement::str() const{
-  UnicodeString result = text();
-  return UnicodeToUTF8(result);
-}
-  
-void AbstractStructureElement::setMaxId( AbstractElement *child ) {
-  if ( !child->id().empty() && !child->xmltag().empty() ){
-    vector<string> parts;
-    size_t num = split_at( child->id(), parts, "." );
-    if ( num > 0 ){
-      string val = parts[num-1];
-      int i = stringTo<int>( val );
-      map<string,int>::iterator it = maxid.find( child->xmltag() );
-      if ( it == maxid.end() ){
-	maxid[child->xmltag()] = i;
-      }
-      else {
-	if ( it->second < i ){
-	  it->second = i;
-	}
-      }
-    }
+AbstractElement* WordReference::parseXml( xmlNode *node ){
+  KWargs att = getAttributes( node );
+  string id = att["id"];
+  if ( id.empty() )
+    throw XmlError( "empty id in WordReference" );
+  if ( mydoc->debug ) 
+    cerr << "Found word reference" << id << endl;
+  AbstractElement *res = (*mydoc)[id];
+  if ( res ){
+    res->increfcount();
   }
-}
-
-int AbstractStructureElement::getMaxId( const string& xmltag ) {
-  int res = 0;
-  if ( !xmltag.empty() ){
-    res = maxid[xmltag];
-    ++maxid[xmltag];
+  else {
+    if ( mydoc->debug )
+      cerr << "...Unresolvable!" << endl;
+    res = this;
   }
+  delete this;
   return res;
 }
 
-AbstractElement *AbstractStructureElement::append( AbstractElement *child ){
-  AbstractElement::append( child );
-  setMaxId( child );
-  return child;
-}
-
-bool AbstractElement::acceptable( ElementType t ) const {
-  set<ElementType>::const_iterator it = _accepted_data.find( t );
-  if ( it == _accepted_data.end() )
-    return false;
-  return true;
-}
- 
-bool AbstractElement::addable( const AbstractElement *c,
-			       const string& setname ) const {
-  static set<ElementType> selectSet;
-  if ( !acceptable( c->_element_id ) ){
-    throw ValueError( "Unable to append object of type " + c->classname()
-		      + " to a " + classname() );
-    return false;
-  }
-  if ( c->occurrences > 0 ){
-    vector<AbstractElement*> v = const_cast<AbstractElement*>(this)->select( c->_element_id );
-    size_t count = v.size();
-    if ( count > c->occurrences )
-      throw DuplicateAnnotationError( "Unable to add another object of type " + c->classname() + " to " + classname() + ". There are already " + toString(count) + " instances of this class, which is the maximum." );
-    return false;
-  }
-  if ( c->occurrences_per_set > 0 && !setname.empty() &&
-       ( CLASS & c->_required_attributes ) ){
-    vector<AbstractElement*> v = const_cast<AbstractElement*>(this)->select( c->_element_id, setname );
-    size_t count = v.size();
-    if ( count > c->occurrences_per_set )
-      throw DuplicateAnnotationError( "Unable to add another object of type " + c->classname() + " to " + classname() + ". There are already " + toString(count) + " instances of this class, which is the maximum." );
-    return false;
-  }
-  return true;
-}
- 
-AbstractElement *AbstractElement::append( AbstractElement *child ){
-  bool ok = false;
-  try {
-    ok = addable( child );
-  }
-  catch ( exception& ){
-    delete child;
-    throw;
-  }
-  if ( ok ){
-    data.push_back(child);
-    if ( !child->mydoc ){
-      child->mydoc = mydoc;
-      string id = child->id();
-      if ( !id.empty() )
-	mydoc->addDocIndex( child, id );  
-    }
-    if ( !child->_parent ) // Only for WordRef i hope
-      child->_parent = this;
-    return child->postappend();
-  }
-  return 0;
-}
-
-
-void AbstractElement::remove( AbstractElement *child, bool del ){
-  vector<AbstractElement*>::iterator it = std::remove( data.begin(), data.end(), child );
-  data.erase( it, data.end() );
-  if ( del )
-    delete child;
-}
-
-
-xmlNode *newTextNode( xmlDoc *doc, xmlNs *ns,  
-		      const string& elem, const string& val ){
-  return xmlNewDocNode( doc, ns,
-			(const xmlChar*)elem.c_str(), 
-			(const xmlChar*)val.c_str() );
-}
-
-KWargs AbstractElement::collectAttributes() const {
-  KWargs attribs;
-  bool isDefaultSet = true;
-  bool isDefaultAnn = true;
-  if ( !_id.empty() ){
-    attribs["_id"] = _id; // sort "id" as first!
-  }
-  if ( !_set.empty() &&
-       _set != mydoc->defaultset( _annotation_type ) ){
-    isDefaultSet = false;
-    attribs["set"] = _set;
-  }
-  if ( !_cls.empty() )
-    attribs["class"] = _cls;
-
-  if ( !_annotator.empty() &&
-       _annotator != mydoc->defaultannotator( _annotation_type, _set, true ) ){
-    isDefaultAnn = false;
-    attribs["annotator"] = _annotator;
-  }
-  
-  if ( _annotator_type != UNDEFINED ){
-    AnnotatorType at = stringToANT( mydoc->defaultannotatortype( _annotation_type, _set, true ) );
-    if ( (!isDefaultSet || !isDefaultAnn) && _annotator_type != at ){
-      if ( _annotator_type == AUTO )
-	attribs["annotatortype"] = "auto";
-      else if ( _annotator_type == MANUAL )
-	attribs["annotatortype"] = "manual";
-    }
-  }
-  
-  if ( _confidence >= 0 )
-    attribs["confidence"] = toString(_confidence);
-  
-  if ( !_n.empty() )
-    attribs["n"] = _n;
-
-  if ( _datetime != 0 )
-    attribs["datetime"] = getDateTime();
-
-  return attribs;
-}
-
-string AbstractElement::xmlstring() const{
-  // serialize to a string (XML fragment)
-  if ( !mydoc ){
-    throw runtime_error( "xmlstring() on a node without a doc" );
-  }
-  xmlNode *n = xml( mydoc, true );
-  xmlDoc *doc = xmlNewDoc( (const xmlChar*)"1.0" );
-  xmlNode *e = xmlNewDocNode( doc, 0, (const xmlChar*)"root", 0 );
-  xmlDocSetRootElement( doc, e );
-  xmlSetNs( n, xmlNewNs( n, (const xmlChar *)NSFOLIA.c_str(), 0 ) );
-  xmlAddChild( e, n );
-  xmlChar *buf; 
-  int size;
-  xmlDocDumpFormatMemory( doc, &buf, &size, 0 );
-  string result = string( (const char *)buf, size );
-  xmlFree( buf );
-  xmlFreeDoc( doc );
-  string::size_type s_pos = result.find( "<root>" );
-  string::size_type e_pos = result.find( "</root>" );
-  result = result.substr( s_pos+6, e_pos-s_pos-6 );
-  return result;
-}
-
-xmlNode *AbstractElement::xml( const Document *doc, bool recursive ) const {
-  xmlNode *e = newXMLNode( doc->foliaNs(), _xmltag );
-  KWargs attribs = collectAttributes();
-  addAttributes( e, attribs );
-  if ( recursive ){
-    // append children:
-    vector<AbstractElement*>::const_iterator it=data.begin();
-    while ( it != data.end() ){
-      xmlAddChild( e, (*it)->xml( doc, recursive ) );
-      ++it;
-    }
-  }
-  return e;
+void PlaceHolder::setAttributes( const string&s ){
+  KWargs args;
+  args["text"] = s;
+  Word::setAttributes( args );
 }
 
 KWargs TextContent::collectAttributes() const {
@@ -1354,18 +1553,36 @@ xmlNode *TextContent::xml( const Document *doc, bool ) const {
   return e;
 }
 
+void Description::setAttributes( const KWargs& kwargs ){
+  KWargs::const_iterator it;
+  it = kwargs.find( "value" );
+  if ( it == kwargs.end() ) {
+    throw ValueError("value attribute is required for " + classname() );
+  }
+  _value = it->second;
+}
+
 xmlNode *Description::xml( const Document *doc, bool ) const {
   xmlNode *e = AbstractElement::xml( doc, false );
   xmlAddChild( e, xmlNewText( (const xmlChar*)_value.c_str()) );
   return e;
 }
 
-xmlNode *Content::xml( const Document *doc, bool ) const {
-  xmlNode *e = AbstractElement::xml( doc, false );
-  xmlAddChild( e, xmlNewCDataBlock( doc->XmlDoc(), 
-				    (const xmlChar*)value.c_str() ,
-				    value.length() ) );
-  return e;
+AbstractElement* Description::parseXml( xmlNode *node ){
+  KWargs att = getAttributes( node );
+  KWargs::const_iterator it = att.find("value" );
+  if ( it == att.end() ){
+    att["value"] = XmlContent( node );
+  }
+  setAttributes( att );
+  return this;
+}
+
+AbstractElement *AbstractSpanAnnotation::append( AbstractElement *child ){
+  if ( child->isinstance(Word_t) and acceptable( WordReference_t ) )
+    child->increfcount();
+  AbstractElement::append( child );
+  return child;
 }
 
 xmlNode *AbstractSpanAnnotation::xml( const Document *doc, bool recursive ) const {
@@ -1390,126 +1607,12 @@ xmlNode *AbstractSpanAnnotation::xml( const Document *doc, bool recursive ) cons
   return e;
 }
 
-AbstractElement *AbstractSpanAnnotation::append( AbstractElement *child ){
-  if ( child->isinstance(Word_t) and acceptable( WordReference_t ) )
-    child->increfcount();
-  AbstractElement::append( child );
-  return child;
-}
-
-AbstractElement* AbstractElement::index( size_t i ) const {
-  if ( i < data.size() )
-    return data[i];
-  else
-    throw range_error( "[] index out of range" );
-}
-
-AbstractElement* AbstractElement::rindex( size_t i ) const {
-  if ( i < data.size() )
-    return data[data.size()-1-i];
-  else
-    throw range_error( "[] rindex out of range" );
-}
-
-vector<AbstractElement*> AbstractElement::words() const {
-  return const_cast<AbstractElement*>(this)->select( Word_t );
-}
-
-AbstractElement* AbstractElement::words( size_t index ) const {
-  vector<AbstractElement*> v = words();
-  if ( index < v.size() ){
-    return v[index];
-  }
-  else
-    throw range_error( "word index out of range" );
-}
-
-AbstractElement* AbstractElement::rwords( size_t index ) const {
-  vector<AbstractElement*> v = words();
-  if ( index < v.size() ){
-    return v[v.size()-1-index];
-  }
-  else
-    throw range_error( "word reverse index out of range" );
-}
-
-vector<AbstractElement*> AbstractElement::select( ElementType et,
-						  const string& val,
-						  set<ElementType>& exclude,
-						  bool recurse ) {
-  vector<AbstractElement*> res;
-  for ( size_t i = 0; i < data.size(); ++i ){
-    if ( data[i]->_element_id == et  && data[i]->_set == val ){
-      res.push_back( data[i] );
-    }
-    if ( recurse ){
-      if ( exclude.find( data[i]->_element_id ) == exclude.end() ){
-	vector<AbstractElement*> tmp = data[i]->select( et, val, exclude, recurse );
-	res.insert( res.end(), tmp.begin(), tmp.end() );
-      }
-    }
-  }
-  return res;
-}
-
-vector<AbstractElement*> AbstractElement::select( ElementType et,
-						  const string& val,
-						  bool recurse ) {
-  static set<ElementType> excludeSet;
-  if ( excludeSet.empty() ){
-    excludeSet.insert( Original_t );
-    excludeSet.insert( Suggestion_t );
-    excludeSet.insert( Alternative_t );
-  }
-  return select( et, val, excludeSet, recurse );
-}
-
-vector<AbstractElement*> AbstractElement::select( ElementType et,
-						  set<ElementType>& exclude,
-						  bool recurse ) {
-  vector<AbstractElement*> res;
-  for ( size_t i = 0; i < data.size(); ++i ){
-    if ( data[i]->_element_id == et ){
-      res.push_back( data[i] );
-    }
-    if ( recurse ){
-      if ( exclude.find( data[i]->_element_id ) == exclude.end() ){
-	vector<AbstractElement*> tmp = data[i]->select( et, exclude, recurse );
-	res.insert( res.end(), tmp.begin(), tmp.end() );
-      }
-    }
-  }
-  return res;
-}
-
-vector<AbstractElement*> AbstractElement::select( ElementType et,
-						  bool recurse ) {
-  static set<ElementType> excludeSet;
-  if ( excludeSet.empty() ){
-    excludeSet.insert( Original_t );
-    excludeSet.insert( Suggestion_t );
-    excludeSet.insert( Alternative_t );
-  }
-  return select( et, excludeSet, recurse );
-}
-
-AbstractElement* TextContent::parseXml( xmlNode *node ){
-  KWargs att = getAttributes( node );
-  att["value"] = XmlContent( node );
-  setAttributes( att );
-  if ( mydoc->debug > 2 )
-    cerr << "set textcontent to " << _text << endl;
-  return this;
-}
-
-AbstractElement* Description::parseXml( xmlNode *node ){
-  KWargs att = getAttributes( node );
-  KWargs::const_iterator it = att.find("value" );
-  if ( it == att.end() ){
-    att["value"] = XmlContent( node );
-  }
-  setAttributes( att );
-  return this;
+xmlNode *Content::xml( const Document *doc, bool ) const {
+  xmlNode *e = AbstractElement::xml( doc, false );
+  xmlAddChild( e, xmlNewCDataBlock( doc->XmlDoc(), 
+				    (const xmlChar*)value.c_str() ,
+				    value.length() ) );
+  return e;
 }
 
 AbstractElement* Content::parseXml( xmlNode *node ){
@@ -1527,49 +1630,78 @@ AbstractElement* Content::parseXml( xmlNode *node ){
   return this;
 }
 
-
-AbstractElement* AbstractElement::parseXml( xmlNode *node ){
-  KWargs att = getAttributes( node );
-  setAttributes( att );
-  xmlNode *p = node->children;
-  while ( p ){
-    if ( p->type == XML_ELEMENT_NODE ){
-      string tag = Name( p );
-      AbstractElement *t = createElement( mydoc, tag );
-      if ( t ){
-	if ( mydoc->debug > 2 )
-	  cerr << "created " << t << endl;
-	t = t->parseXml( p );
-	if ( t ){
-	  if ( mydoc->debug > 2 )
-	    cerr << "extend " << this << " met " << tag << endl;
-	  append( t );
-	}
-      }
-    }
-    p = p->next;
+UnicodeString Correction::text( TextCorrectionLevel corr ) const {
+  UnicodeString result;
+  for( size_t i=0; i < data.size(); ++i ){
+    //    cerr << "data[" << i << "]=" << data[i] << endl;
+    if ( data[i]->isinstance( New_t ) || data[i]->isinstance( Current_t ) )
+      result += data[i]->text( corr );
   }
-  return this;
+  return result;
 }
 
-AbstractElement* WordReference::parseXml( xmlNode *node ){
-  KWargs att = getAttributes( node );
-  string id = att["id"];
-  if ( id.empty() )
-    throw XmlError( "empty id in WordReference" );
-  if ( mydoc->debug ) 
-    cerr << "Found word reference" << id << endl;
-  AbstractElement *res = (*mydoc)[id];
-  if ( res ){
-    res->increfcount();
-  }
-  else {
-    if ( mydoc->debug )
-      cerr << "...Unresolvable!" << endl;
-    res = this;
-  }
-  delete this;
-  return res;
+bool Correction::hasNew( ) {
+  vector<AbstractElement*> v = select( New_t, false );
+  return !v.empty();
+}
+
+AbstractElement *Correction::getNew( int index ) {
+  vector<AbstractElement*> v = select( New_t, false );
+  if ( v.empty() )
+    throw NoSuchAnnotation("new");
+  if ( index < 0 )
+    return v[0];
+  else
+    return v[0]->index(index);
+}
+
+bool Correction::hasOriginal() { 
+  vector<AbstractElement*> v = select( Original_t, false );
+  return !v.empty();
+}
+
+AbstractElement *Correction::getOriginal( int index ) { 
+  vector<AbstractElement*> v = select( Original_t, false );
+  if ( v.empty() )
+    throw NoSuchAnnotation("original");
+  if ( index < 0 )
+    return v[0];
+  else 
+    return v[0]->index(index);
+}
+
+bool Correction::hasCurrent( ) { 
+  vector<AbstractElement*> v = select( Current_t, false );
+  return !v.empty();
+}
+
+AbstractElement *Correction::getCurrent( int index ) { 
+  vector<AbstractElement*> v = select( Current_t, false );
+  if ( v.empty() )
+    throw NoSuchAnnotation("current");
+  if ( index < 0 )
+    return v[0];
+  else 
+    return v[0]->index(index);
+}
+
+bool Correction::hasSuggestions( ) { 
+  vector<AbstractElement*> v = suggestions();
+  return !v.empty();
+}
+
+vector<AbstractElement*> Correction::suggestions( ) { 
+  return select( Suggestion_t, false );
+}
+
+AbstractElement *Correction::getSuggestion( int index ) { 
+  vector<AbstractElement*> v = suggestions();
+  if ( v.empty() )
+    throw NoSuchAnnotation("suggestion");
+  if ( index < 0 )
+    return v[0];
+  else
+    return v[0]->index(index);
 }
 
 AbstractElement *Division::head() const {
@@ -1582,71 +1714,6 @@ AbstractElement *Division::head() const {
   return 0;
 }
   
-AbstractElement *AbstractElement::annotation( ElementType ){
-  throw runtime_error( "annotation not allowed on " + classname() );
-}
-
-AbstractElement *AbstractElement::annotation( ElementType, const string& ){
-  throw runtime_error( "annotation not allowed on " + classname() );
-}
-
-AbstractElement *AbstractStructureElement::annotation( ElementType et ){
-  vector<AbstractElement *>v = annotations( et );
-  return v[0]; // always exist, otherwise annotations would throw()
-}
-
-vector<AbstractElement *>AbstractElement::annotations( ElementType et ){
-  vector<AbstractElement *>v = select( et );
-  if ( v.size() >= 1 )
-    return v;
-  else
-    throw NoSuchAnnotation( toString(et) );
-}
-
-AbstractElement *AbstractStructureElement::annotation( ElementType et,
-						       const string& val ){
-  // Will return a SINGLE annotation (even if there are multiple). 
-  // Raises a NoSuchAnnotation exception if none was found
-  vector<AbstractElement *>v = select( et, val );
-  if ( v.size() >= 1 )
-    return v[0];
-  else
-    throw NoSuchAnnotation( toString(et) );
-  return 0;
-}
-
-vector<AbstractElement *> AbstractStructureElement::alternatives( const string& set,
-								  AnnotationType::AnnotationType type ){
-  // Return a list of alternatives, either all or only of a specific type, restrained by set
-  vector<AbstractElement*> alts = select( Alternative_t );
-  if ( type == AnnotationType::NO_ANN ){
-    return alts;
-  }
-  else {
-    vector<AbstractElement*> res;
-    for ( size_t i=0; i < alts.size(); ++i ){
-      if ( alts[i]->size() > 0 ) { // child elements?
-	for ( size_t j =0; j < alts[i]->size(); ++j ){
-	  if ( alts[i]->index(j)->annotation_type() == type &&
-	       ( alts[i]->st().empty() || alts[i]->st() == set ) ){
-	    res.push_back( alts[i] ); // not the child!
-	    break; // yield an alternative only once (in case there are multiple matches)
-	  }
-	}
-      }
-    }
-    return res;
-  }
-};
-
-string AbstractElement::pos(){
-  return annotation( Pos_t )->cls();
-}
-
-string AbstractElement::lemma(){
-  return annotation( Lemma_t )->cls();
-}
-
 string Gap::content() {
   vector<AbstractElement*> cv = select( Content_t );  
   if ( cv.size() < 1 )
@@ -1654,27 +1721,6 @@ string Gap::content() {
   else {
     return cv[0]->content();
   }
-}
-
-string Content::content() {
-  return value; 
-};
-
-void PlaceHolder::init(){
-  _xmltag="placeholder";
-  _element_id = PlaceHolder_t;
-  const ElementType accept[] = { TextContent_t };
-  _accepted_data = std::set<ElementType>(accept, accept+1);
-  _annotation_type = AnnotationType::TOKEN;
-  _required_attributes = NO_ATT;
-  MINTEXTCORRECTIONLEVEL = CORRECTED;
-  TEXTDELIMITER = " ";
-}
-
-void PlaceHolder::setAttributes( const string&s ){
-  KWargs args;
-  args["text"] = s;
-  Word::setAttributes( args );
 }
 
 void FoLiA::init(){
@@ -1732,6 +1778,25 @@ void Word::init(){
   space = true;
 }
 
+void WordReference::init(){
+  _required_attributes = ID;
+  _xmltag = "wref";
+  _element_id = WordReference_t;
+  //      ANNOTATIONTYPE = AnnotationType.TOKEN
+}
+
+void PlaceHolder::init(){
+  _xmltag="placeholder";
+  _element_id = PlaceHolder_t;
+  const ElementType accept[] = { TextContent_t };
+  _accepted_data = std::set<ElementType>(accept, accept+1);
+  _annotation_type = AnnotationType::TOKEN;
+  _required_attributes = NO_ATT;
+  MINTEXTCORRECTIONLEVEL = CORRECTED;
+  TEXTDELIMITER = " ";
+}
+
+
 void Gap::init(){
   _xmltag = "gap";
   _element_id = Gap_t;
@@ -1773,14 +1838,6 @@ void Paragraph::init(){
   const ElementType accept[] = { Sentence_t, Head_t };
   _accepted_data = std::set<ElementType>(accept, accept+2);
   _required_attributes = ID;
-}
-
-
-void WordReference::init(){
-  _required_attributes = ID;
-  _xmltag = "wref";
-  _element_id = WordReference_t;
-  //      ANNOTATIONTYPE = AnnotationType.TOKEN
 }
 
 void SyntacticUnit::init(){
@@ -1880,123 +1937,6 @@ void Description::init(){
   _element_id = Description_t;
 }
 
-bool Correction::hasNew( ) {
-  vector<AbstractElement*> v = select( New_t, false );
-  return !v.empty();
-}
-
-AbstractElement *Correction::getNew( int index ) {
-  vector<AbstractElement*> v = select( New_t, false );
-  if ( v.empty() )
-    throw NoSuchAnnotation("new");
-  if ( index < 0 )
-    return v[0];
-  else
-    return v[0]->index(index);
-}
-
-bool Correction::hasOriginal() { 
-  vector<AbstractElement*> v = select( Original_t, false );
-  return !v.empty();
-}
-
-AbstractElement *Correction::getOriginal( int index ) { 
-  vector<AbstractElement*> v = select( Original_t, false );
-  if ( v.empty() )
-    throw NoSuchAnnotation("original");
-  if ( index < 0 )
-    return v[0];
-  else 
-    return v[0]->index(index);
-}
-
-bool Correction::hasCurrent( ) { 
-  vector<AbstractElement*> v = select( Current_t, false );
-  return !v.empty();
-}
-
-AbstractElement *Correction::getCurrent( int index ) { 
-  vector<AbstractElement*> v = select( Current_t, false );
-  if ( v.empty() )
-    throw NoSuchAnnotation("current");
-  if ( index < 0 )
-    return v[0];
-  else 
-    return v[0]->index(index);
-}
-
-bool Correction::hasSuggestions( ) { 
-  vector<AbstractElement*> v = suggestions();
-  return !v.empty();
-}
-
-vector<AbstractElement*> Correction::suggestions( ) { 
-  return select( Suggestion_t, false );
-}
-
-AbstractElement *Correction::getSuggestion( int index ) { 
-  vector<AbstractElement*> v = suggestions();
-  if ( v.empty() )
-    throw NoSuchAnnotation("suggestion");
-  if ( index < 0 )
-    return v[0];
-  else
-    return v[0]->index(index);
-}
-
-void Word::setAttributes( const KWargs& args ){
-  KWargs::const_iterator it = args.find( "space" );
-  if ( it != args.end() ){
-    if ( it->second == "no" ){
-      space = false;
-    }
-  }
-  it = args.find( "text" );
-  if ( it != args.end() ) {
-    settext( it->second );
-  }
-  it = args.find( "correctedtext" );
-  if ( it != args.end() ) {
-    settext( it->second, CORRECTED );
-  }
-  it = args.find( "uncorrectedtext" );
-  if ( it != args.end() ) {
-    settext( it->second, UNCORRECTED );
-  }
-  AbstractElement::setAttributes( args );
-}
-
-KWargs Word::collectAttributes() const {
-  KWargs atts = AbstractElement::collectAttributes();
-  if ( !space ){
-    atts["space"] = "no";
-  }
-  return atts;
-}
-
-Correction *Word::correct( const std::string& s ){
-  vector<AbstractElement*> nil;
-  KWargs args = getArgs( s );
-  //  cerr << "word::correct() <== " << this << endl;
-  Correction *tmp = AbstractStructureElement::correct( nil, nil, nil, nil, args );
-  //  cerr << "word::correct() ==> " << this << endl;
-  return tmp;
-}
-
-Correction *Word::correct( AbstractElement *old,
-			   AbstractElement *_new,
-			   const KWargs& args ){
-  vector<AbstractElement *> nv;
-  nv.push_back( _new );
-  vector<AbstractElement *> ov;
-  ov.push_back( old );
-  vector<AbstractElement *> nil;
-  //  cerr << "correct() <== " << this;
-  Correction *tmp =AbstractStructureElement::correct( ov, nil, nv, nil, args );
-  //  cerr << "correct() ==> " << this;
-  return tmp;
-}
-
 void ErrorDetection::setAttributes( const KWargs& kwargs ){
   KWargs::const_iterator it = kwargs.find( "error" );
   if ( it != kwargs.end() ) {
@@ -2009,19 +1949,33 @@ void ErrorDetection::setAttributes( const KWargs& kwargs ){
   AbstractElement::setAttributes(kwargs);
 }
 
-void ErrorDetection::init(){
-  _xmltag = "errordetection";
-  _element_id = ErrorDetection_t;
-  _optional_attributes = CLASS|ANNOTATOR|CONFIDENCE|DATETIME;
-  _annotation_type = AnnotationType::ERRORDETECTION;
-  error = true;
-}
-
 KWargs ErrorDetection::collectAttributes() const {
   KWargs attribs = AbstractElement::collectAttributes();
   if ( error )
     attribs["error"] = "yes";
   return attribs;
+}
+
+void Feature::setAttributes( const KWargs& kwargs ){
+  //
+  // Feature is special. So DON'T call ::setAttributes
+  //
+  KWargs::const_iterator it = kwargs.find( "subset" );
+  if ( it == kwargs.end() ){
+    if ( _subset.empty() ) {
+      throw ValueError("subset attribute is required for " + classname() );
+    }
+  }
+  else {
+    _subset = it->second;
+  }
+  it = kwargs.find( "cls" );
+  if ( it == kwargs.end() )
+    it = kwargs.find( "class" );
+  if ( it == kwargs.end() ) {
+    throw ValueError("class attribute is required for " + classname() );
+  }
+  _cls = it->second;
 }
 
 KWargs Feature::collectAttributes() const {
@@ -2187,5 +2141,13 @@ void Feature::init() {
   _xmltag = "feat";
   _element_id = Feature_t;
   _required_attributes = CLASS;
+}
+
+void ErrorDetection::init(){
+  _xmltag = "errordetection";
+  _element_id = ErrorDetection_t;
+  _optional_attributes = CLASS|ANNOTATOR|CONFIDENCE|DATETIME;
+  _annotation_type = AnnotationType::ERRORDETECTION;
+  error = true;
 }
 

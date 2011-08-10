@@ -133,10 +133,16 @@ class AbstractElement {
 						       const std::string& ="" ) const {
     throw NotImplementedError("rightcontext()"); 
   };
-  virtual AbstractElement *annotation( ElementType );
-  virtual AbstractElement *annotation( ElementType, const std::string& );
-  std::string pos();
-  std::string lemma();
+  virtual AbstractElement *annotation( ElementType ){
+    throw NotImplementedError( "annotation() not allowed on " + classname() );
+  }
+  virtual AbstractElement *annotation( ElementType, const std::string& ){
+    throw NotImplementedError( "annotation() not allowed on " + classname() );
+  }
+  
+  std::string pos(){ return annotation( Pos_t )->cls(); };
+  std::string lemma(){ return annotation( Lemma_t )->cls(); };
+
   virtual TextCorrectionLevel corrected() const { return NOCORR; };
   virtual void setCorrected( TextCorrectionLevel& ) { 
     throw NotImplementedError("setCorrected()"); 
@@ -204,7 +210,7 @@ class AbstractElement {
   virtual KWargs collectAttributes() const;
   virtual std::string getTextDelimiter() const { return TEXTDELIMITER; }
   virtual std::string generateId( const std::string&, const std::string& = "" ){
-    throw NotImplementedError( "generateId() not allowed for " + _element_id );
+    throw NotImplementedError( "generateId() not allowed for " + classname() );
   };
 
   std::vector<AbstractElement*> data;
@@ -384,7 +390,7 @@ class Content: public AbstractElement {
  Content( Document *d=0, const std::string& s=""): AbstractElement( d ) { classInit( s ); };
   AbstractElement* parseXml( xmlNode * );
   xmlNode *xml( const Document *, bool ) const;
-  std::string content();
+  std::string content() { return value; };
  private:
   void init();
   std::string value;
