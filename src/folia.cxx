@@ -70,6 +70,7 @@ AbstractElement::~AbstractElement( ){
       mydoc->keepForDeletion( data[i] );
     }
   }
+  delete _datetime;
 }
 
 void AbstractElement::setAttributes( const KWargs& kwargs ){
@@ -295,6 +296,7 @@ string AbstractElement::xmlstring() const{
   xmlNodeDump( buf, 0, n, 0, 0 );
   string result = (const char*)xmlBufferContent( buf );
   xmlBufferFree( buf );
+  xmlFreeNode( n );
   return result;
 }
 
