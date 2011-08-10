@@ -97,13 +97,13 @@ class AbstractElement {
     throw NotImplementedError("getOriginal()"); };
   virtual AbstractElement *getCurrent() const {
     throw NotImplementedError("getCurrent()"); };
-  virtual AbstractElement *getSuggestion( int = -1 )
+  virtual AbstractElement *getSuggestion( int = -1 ) const
   { throw NotImplementedError("getSuggestion() for " + _xmltag ); };
   virtual AbstractElement *split( AbstractElement *, AbstractElement *, 
 				  const std::string& = "" ){
     throw NotImplementedError("split()"); };
   virtual Correction *mergewords( AbstractElement *, 
-				  std::vector<AbstractElement *>&,
+				  const std::vector<AbstractElement *>&,
 				  const std::string& = "" ){
     throw NotImplementedError("mergewords()"); };
   virtual Correction *deleteword( AbstractElement *, 
@@ -144,7 +144,7 @@ class AbstractElement {
   std::string lemma() const { return annotation( Lemma_t )->cls(); };
 
   virtual TextCorrectionLevel corrected() const { return NOCORR; };
-  virtual void setCorrected( TextCorrectionLevel& ) { 
+  virtual void setCorrected( const TextCorrectionLevel ) { 
     throw NotImplementedError("setCorrected()"); 
   };    
   std::string cls() const { return _cls; };
@@ -191,10 +191,10 @@ class AbstractElement {
   virtual std::string content() const {
     throw NoSuchAnnotation( "content" );
   }
-  virtual Correction *correct( std::vector<AbstractElement*>,
-			       std::vector<AbstractElement*>,
-			       std::vector<AbstractElement*>,
-			       std::vector<AbstractElement*>,
+  virtual Correction *correct( const std::vector<AbstractElement*>,
+			       const std::vector<AbstractElement*>,
+			       const std::vector<AbstractElement*>,
+			       const std::vector<AbstractElement*>,
 			       const KWargs& ){
     throw NotImplementedError("correct() for " + _xmltag );
   }
@@ -347,7 +347,7 @@ class TextContent: public AbstractElement {
   AbstractElement *postappend();
   std::vector<AbstractElement*> findreplacables( AbstractElement * );
   TextCorrectionLevel corrected() const { return _corrected; };
-  void setCorrected( TextCorrectionLevel& tc ) { _corrected = tc; };
+  void setCorrected( const TextCorrectionLevel tc ) { _corrected = tc; };
  private:
   void init();
   TextCorrectionLevel _corrected;
@@ -461,15 +461,16 @@ class Sentence: public AbstractStructureElement {
  Sentence( Document *d=0, const std::string& s=""):  AbstractStructureElement( d ){ classInit( s ); }
   Correction *splitWord( AbstractElement *, AbstractElement *, 
 			 AbstractElement *, const KWargs& );
-  Correction *mergewords( AbstractElement *, std::vector<AbstractElement *>&,
+  Correction *mergewords( AbstractElement *, 
+			  const std::vector<AbstractElement *>&,
 			  const std::string& = "" );
   Correction *deleteword( AbstractElement *, const std::string& args );
   Correction *insertword( AbstractElement *, AbstractElement *,
 			  const std::string& args );
  private:
-  Correction *correctWords( std::vector<AbstractElement *>&,
-			    std::vector<AbstractElement *>&,
-			    std::vector<AbstractElement *>&, 
+  Correction *correctWords( const std::vector<AbstractElement *>&,
+			    const std::vector<AbstractElement *>&,
+			    const std::vector<AbstractElement *>&, 
 			    const KWargs& );
   void init();
 };

@@ -749,7 +749,7 @@ Correction *Sentence::splitWord( AbstractElement *orig, AbstractElement *p1, Abs
 }
 
 Correction *Sentence::mergewords( AbstractElement *nw, 
-				  vector<AbstractElement *>& orig,
+				  const vector<AbstractElement *>& orig,
 				  const string& args ){
   vector<AbstractElement*> nv;
   nv.push_back( nw );
@@ -793,9 +793,9 @@ Correction *Sentence::insertword( AbstractElement *w,
   return correctWords( ov, nv, nil, getArgs(args) );  
 }
 
-Correction *Sentence::correctWords( vector<AbstractElement *>& orig,
-				    vector<AbstractElement *>& _new,
-				    vector<AbstractElement *>& current, 
+Correction *Sentence::correctWords( const vector<AbstractElement *>& orig,
+				    const vector<AbstractElement *>& _new,
+				    const vector<AbstractElement *>& current, 
 				    const KWargs& args ){
   // Generic correction method for words. You most likely want to use the helper functions
   //      splitword() , mergewords(), deleteword(), insertword() instead
