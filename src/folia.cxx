@@ -287,10 +287,7 @@ KWargs AbstractElement::collectAttributes() const {
 
 string AbstractElement::xmlstring() const{
   // serialize to a string (XML fragment)
-  if ( !mydoc ){
-    throw runtime_error( "xmlstring() on a node without a doc" );
-  }
-  xmlNode *n = xml( mydoc, true );
+  xmlNode *n = xml( true );
   xmlSetNs( n, xmlNewNs( n, (const xmlChar *)NSFOLIA.c_str(), 0 ) );
   xmlBuffer *buf = xmlBufferCreate();
   xmlNodeDump( buf, 0, n, 0, 0 );
@@ -300,15 +297,19 @@ string AbstractElement::xmlstring() const{
   return result;
 }
 
-xmlNode *AbstractElement::xml( const Document *doc, bool recursive ) const {
-  xmlNode *e = newXMLNode( doc->foliaNs(), _xmltag );
+xmlNode *AbstractElement::xml( bool recursive ) const {
+  xmlNode *e;
+  if ( mydoc )
+    e = newXMLNode( mydoc->foliaNs(), _xmltag );
+  else
+    e = newXMLNode( 0, _xmltag );
   KWargs attribs = collectAttributes();
   addAttributes( e, attribs );
   if ( recursive ){
     // append children:
     vector<AbstractElement*>::const_iterator it=data.begin();
     while ( it != data.end() ){
-      xmlAddChild( e, (*it)->xml( doc, recursive ) );
+      xmlAddChild( e, (*it)->xml( recursive ) );
       ++it;
     }
   }
@@ -1549,8 +1550,8 @@ KWargs TextContent::collectAttributes() const {
   return attribs;
 }
 
-xmlNode *TextContent::xml( const Document *doc, bool ) const {
-  xmlNode *e = AbstractElement::xml( doc, false );
+xmlNode *TextContent::xml( bool ) const {
+  xmlNode *e = AbstractElement::xml( false );
   xmlAddChild( e, xmlNewText( (const xmlChar*)str().c_str()) );
   return e;
 }
@@ -1564,8 +1565,8 @@ void Description::setAttributes( const KWargs& kwargs ){
   _value = it->second;
 }
 
-xmlNode *Description::xml( const Document *doc, bool ) const {
-  xmlNode *e = AbstractElement::xml( doc, false );
+xmlNode *Description::xml( bool ) const {
+  xmlNode *e = AbstractElement::xml( false );
   xmlAddChild( e, xmlNewText( (const xmlChar*)_value.c_str()) );
   return e;
 }
@@ -1587,13 +1588,17 @@ AbstractElement *AbstractSpanAnnotation::append( AbstractElement *child ){
   return child;
 }
 
-xmlNode *AbstractSpanAnnotation::xml( const Document *doc, bool recursive ) const {
-  xmlNode *e = AbstractElement::xml( doc, false );
+xmlNode *AbstractSpanAnnotation::xml( bool recursive ) const {
+  xmlNode *e = AbstractElement::xml( false );
   // append Word children:
   vector<AbstractElement*>::const_iterator it=data.begin();
   while ( it != data.end() ){
     if ( (*it)->element_id() == Word_t ){
-      xmlNode *t = newXMLNode( doc->foliaNs(), "wref" );
+      xmlNode *t;
+      if ( mydoc )
+	t = newXMLNode( mydoc->foliaNs(), "wref" );
+      else
+	t = newXMLNode( 0, "wref" );
       KWargs attribs;
       attribs["id"] = (*it)->id();
       string txt = (*it)->str();
@@ -1603,15 +1608,15 @@ xmlNode *AbstractSpanAnnotation::xml( const Document *doc, bool recursive ) cons
       xmlAddChild( e, t );
     }
     else
-      xmlAddChild( e, (*it)->xml( doc, recursive ) );
+      xmlAddChild( e, (*it)->xml( recursive ) );
     ++it;
   }
   return e;
 }
 
-xmlNode *Content::xml( const Document *doc, bool ) const {
-  xmlNode *e = AbstractElement::xml( doc, false );
-  xmlAddChild( e, xmlNewCDataBlock( doc->XmlDoc(), 
+xmlNode *Content::xml( bool ) const {
+  xmlNode *e = AbstractElement::xml( false );
+  xmlAddChild( e, xmlNewCDataBlock( 0,
 				    (const xmlChar*)value.c_str() ,
 				    value.length() ) );
   return e;

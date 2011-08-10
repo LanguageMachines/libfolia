@@ -83,7 +83,7 @@ class AbstractElement {
 					bool = true );
   //XML (de)serialisation
   std::string xmlstring() const; // serialize to a string (XML fragment)
-  virtual xmlNode *xml( const Document *, bool ) const; //serialize to XML  
+  virtual xmlNode *xml( bool ) const; //serialize to XML  
   virtual AbstractElement* parseXml( xmlNode * );
   UnicodeString unicode() const { return text(); };
   virtual std::string str() const;
@@ -323,7 +323,7 @@ class Feature: public AbstractElement {
 class AbstractSpanAnnotation: public AbstractAnnotation {
  public:
  AbstractSpanAnnotation( Document *d=0 ):  AbstractAnnotation( d ){};
-  xmlNode *xml( const Document *, bool ) const;
+  xmlNode *xml( bool ) const;
   AbstractElement *append( AbstractElement* );
 };
 
@@ -332,7 +332,7 @@ class TextContent: public AbstractElement {
  TextContent( const std::string& s="" ):  AbstractElement( ){ classInit( s ); }
  TextContent( Document *d=0, const std::string& s="" ):  AbstractElement( d ){ classInit( s ); }
   AbstractElement* parseXml( xmlNode * );
-  xmlNode *xml( const Document *, bool ) const;
+  xmlNode *xml( bool ) const;
   void setAttributes( const KWargs& );
   KWargs collectAttributes() const;  
   std::string str() const;
@@ -389,7 +389,7 @@ class Content: public AbstractElement {
  Content( const std::string& s=""): AbstractElement( ) { classInit( s ); };
  Content( Document *d=0, const std::string& s=""): AbstractElement( d ) { classInit( s ); };
   AbstractElement* parseXml( xmlNode * );
-  xmlNode *xml( const Document *, bool ) const;
+  xmlNode *xml( bool ) const;
   std::string content() { return value; };
  private:
   void init();
@@ -638,7 +638,7 @@ class Description: public AbstractElement {
   std::string description() const { return _value; };
   void setAttributes( const KWargs& kwargs );
   AbstractElement* parseXml( xmlNode * );
-  xmlNode *xml( const Document *, bool ) const;
+  xmlNode *xml( bool ) const;
  private:
   void init();
   std::string _value;

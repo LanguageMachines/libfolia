@@ -629,7 +629,7 @@ string Document::toXml() const {
     setmetadata( md );
     vector<AbstractElement*>::const_iterator it= foliadoc->data.begin();
     while ( it != foliadoc->data.end() ){
-      xmlAddChild( root, (*it)->xml( this, true ) );
+      xmlAddChild( root, (*it)->xml( true ) );
       ++it;
     }
     xmlChar *buf; int size;
