@@ -358,7 +358,7 @@ class TextContent: public AbstractElement {
   UnicodeString text( TextCorrectionLevel ) const;
   AbstractElement *append( AbstractElement* ){ throw NotImplementedError("TextContent::append()"); };
   AbstractElement *postappend();
-  std::vector<AbstractElement*> findreplacables( AbstractElement * );
+  std::vector<AbstractElement*> findreplacables( AbstractElement * ) const;
   TextCorrectionLevel corrected() const { return _corrected; };
   void setCorrected( const TextCorrectionLevel tc ) { _corrected = tc; };
  private:

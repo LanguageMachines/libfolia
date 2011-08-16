@@ -908,14 +908,14 @@ AbstractElement *TextContent::postappend(){
   return this;
 }
 
-vector<AbstractElement *>TextContent::findreplacables( AbstractElement *par ){
+vector<AbstractElement *>TextContent::findreplacables( AbstractElement *par ) const {
   vector<AbstractElement*> v = par->select( TextContent_t, _set, false );
   // cerr << "TextContent::findreplacable found " << v << endl;
   // cerr << "looking for " << toString( _corrected) << endl;
   vector<AbstractElement *>::iterator it = v.begin();
   while ( it != v.end() ){
     // cerr << "TextContent::findreplacable bekijkt " << *it << " (" 
-    // 	 << toString( dynamic_cast<TextContent*>(*it)->_corrected ) << ")" << endl;
+    //  	 << toString( dynamic_cast<TextContent*>(*it)->_corrected ) << ")" << endl;
     if ( dynamic_cast<TextContent*>(*it)->_corrected != _corrected )
       it = v.erase(it);
     else
