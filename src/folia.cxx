@@ -1852,11 +1852,11 @@ void Sentence::init(){
   _xmltag="s";
   _element_id = Sentence_t;
   const ElementType accept[] = { Word_t, TextContent_t, Annolay_t, 
-				 SyntaxLayer_t,
+				 SyntaxLayer_t, Chunking_t,
 				 Quote_t,
 				 Correction_t,
 				 Description_t };
-  _accepted_data = std::set<ElementType>(accept, accept+7); 
+  _accepted_data = std::set<ElementType>(accept, accept+8); 
   _required_attributes = ID;
   _optional_attributes = N;
 }
@@ -2065,7 +2065,7 @@ void SyntaxLayer::init(){
 }
 
 void ChunkingLayer::init(){
-  //  _element_id = Chunking_t;
+  _element_id = Chunking_t;
   _xmltag = "chunking";
   const ElementType accept[] = { Chunk_t, Description_t };
   _accepted_data = std::set<ElementType>(accept, accept+2);

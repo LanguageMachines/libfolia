@@ -242,9 +242,13 @@ AbstractElement* Document::sentences( size_t index ) const {
 
 
 vector<AbstractElement*> Document::words() const {
-  set<ElementType> st;
-  st.insert( SyntacticUnit_t );
-  return foliadoc->select( Word_t, st );
+  static set<ElementType> excludeSet;
+  if ( excludeSet.empty() ){
+    excludeSet.insert( Chunk_t );
+    excludeSet.insert( SyntacticUnit_t );
+    excludeSet.insert( Entity_t );
+  }
+  return foliadoc->select( Word_t, excludeSet );
 }
 
 AbstractElement* Document::words( size_t index ) const {
