@@ -56,7 +56,7 @@ AbstractElement::AbstractElement( Document *d ){
   _xmltag = "ThIsIsSoWrOnG";
   occurrences = 0;  //#Number of times this element may occur in its parent (0=unlimited, default=0)
   occurrences_per_set = 1; // #Number of times this element may occur per set (0=unlimited, default=1)
-  MINTEXTCORRECTIONLEVEL = UNCORRECTED;
+  MINTEXTCORRECTIONLEVEL = ORIGINAL;
   TEXTDELIMITER = " " ;
   PRINTABLE = true;
 }
@@ -75,7 +75,7 @@ AbstractElement::~AbstractElement( ){
 
 void AbstractElement::setAttributes( const KWargs& kwargs ){
   Attrib supported = _required_attributes | _optional_attributes;
-  // if ( _element_id == Correction_t ){
+  // if ( _element_id == Quote_t ){
   //   cerr << "set attributes: " << kwargs << " on " << toString(_element_id) << endl;
   //   cerr << "required = " <<  _required_attributes << endl;
   //   cerr << "optional = " <<  _optional_attributes << endl;
@@ -298,7 +298,7 @@ string AbstractElement::xmlstring() const{
 }
 
 xmlNode *AbstractElement::xml( bool recursive ) const {
-  xmlNode *e = newXMLNode( foliaNs(), _xmltag );
+ xmlNode *e = newXMLNode( foliaNs(), _xmltag );
   KWargs attribs = collectAttributes();
   addAttributes( e, attribs );
   if ( recursive ){
@@ -335,18 +335,18 @@ bool AbstractElement::hastext( TextCorrectionLevel corr ) const {
   return false;
 }
 
-UnicodeString AbstractElement::text( TextCorrectionLevel corr ) const {
+UnicodeString AbstractElement::text( TextCorrectionLevel corrlevel ) const {
   if ( !PRINTABLE )
     throw NoSuchText( _xmltag );
   //  cerr << "text() for " << _xmltag << " step 1 " << endl;
-  if ( corr != NOCORR ){
-    if ( MINTEXTCORRECTIONLEVEL > corr ){
-      throw  NotImplementedError( "text() for " + _xmltag );
+  if ( corrlevel != NOCORR ){
+    if ( MINTEXTCORRECTIONLEVEL > corrlevel ){
+      throw  NoSuchText( "no text() for " + _xmltag + " (" + toString( corrlevel ) + ")" );
     }
     AbstractElement *t = 0;
     for( size_t i=0; i < data.size(); ++i ){
       if ( data[i]->element_id() == TextContent_t 
-	   && data[i]->corrected() == corr ){
+	   && data[i]->corrected() == corrlevel ){
 	t = data[i];
 	break;
       }
@@ -358,9 +358,9 @@ UnicodeString AbstractElement::text( TextCorrectionLevel corr ) const {
     else
       throw NoSuchText( "inside " + _xmltag );
   }
-  else if ( hastext( CORRECTED )  ){
+  else if ( hastext( PROCESSED )  ){
     //    cerr << "text() for " << _xmltag << " step 3 " << endl;
-    return text( CORRECTED );
+    return text( PROCESSED );
   }
   else {
     // try to get text from children.
@@ -368,15 +368,18 @@ UnicodeString AbstractElement::text( TextCorrectionLevel corr ) const {
 
     UnicodeString result;
     for( size_t i=0; i < data.size(); ++i ){
-      try {
-	UnicodeString tmp = data[i]->text();
-	result += tmp;
-	if ( !tmp.isEmpty() ){
-	  result += UTF8ToUnicode( data[i]->getTextDelimiter() );
+      // try to get text dynamically from children
+      // skip TextContent elements
+      if ( !data[i]->isinstance( TextContent_t ) ){
+	try {
+	  UnicodeString tmp = data[i]->text();
+	  result += tmp;
+	  if ( !tmp.isEmpty() ){
+	    result += UTF8ToUnicode( data[i]->getTextDelimiter() );
+	  }
 	}
-      }
-      catch ( NoSuchText& e ){
-	//	cerr << "hmm: " << e.what() << endl;
+	catch ( NoSuchText& e ){
+	}
       }
     }
     //    cerr << "text() for " << _xmltag << " step 5, result= " << result << endl;
@@ -385,9 +388,9 @@ UnicodeString AbstractElement::text( TextCorrectionLevel corr ) const {
       //      cerr << "text() for " << _xmltag << " step 6, result= " << result << endl;
       return result;
     }
-    else if ( MINTEXTCORRECTIONLEVEL <= UNCORRECTED ){
+    else if ( MINTEXTCORRECTIONLEVEL <= ORIGINAL ){
       //      cerr << "text() for " << _xmltag << " step 7"<< endl;
-      return text( UNCORRECTED );
+      return text( ORIGINAL );
     }
     else
       throw NoSuchText( ":{" );
@@ -419,15 +422,12 @@ void AbstractElement::replace( AbstractElement *child ){
 
 TextContent *AbstractElement::settext( const string& txt, 
 				       TextCorrectionLevel lv ){
-  TextCorrectionLevel myl = lv;
-  if ( lv == NOCORR )
-    myl = MINTEXTCORRECTIONLEVEL;
   KWargs args;
   args["value"] = txt;
   args["corrected"] = toString( lv );
   TextContent *node = new TextContent( mydoc );
   node->setAttributes( args );
-  append( node );
+  replace( node );
   return node;
 }
 
@@ -893,7 +893,7 @@ AbstractElement *TextContent::postappend(){
   if ( _corrected < pl ) {
     throw ValueError( "TextContent(" + toString( _corrected ) + ") must be of higher level than its parents minimum (" + toString(pl) + ")" );
   }
-  if ( _corrected == UNCORRECTED || _corrected == CORRECTED ){
+  if ( _corrected != INLINE ){
     // sanity check, there may be no other TextContent child with the same 
     // correction level
     for ( size_t i=0; i < _parent->size(); ++i ){
@@ -1273,13 +1273,21 @@ void Word::setAttributes( const KWargs& args ){
   if ( it != args.end() ) {
     settext( it->second );
   }
-  it = args.find( "correctedtext" );
+  it = args.find( "processedtext" );
   if ( it != args.end() ) {
-    settext( it->second, CORRECTED );
+    settext( it->second, PROCESSED );
   }
-  it = args.find( "uncorrectedtext" );
+  it = args.find( "correctedtext" ); // Backward compatible
   if ( it != args.end() ) {
-    settext( it->second, UNCORRECTED );
+    settext( it->second, PROCESSED );
+  }
+  it = args.find( "originaltext" );
+  if ( it != args.end() ) {
+    settext( it->second, ORIGINAL );
+  }
+  it = args.find( "uncorrectedtext" ); // Backward compatible
+  if ( it != args.end() ) {
+    settext( it->second, ORIGINAL );
   }
   AbstractElement::setAttributes( args );
 }
@@ -1343,6 +1351,41 @@ Sentence *Word::sentence( ) const {
   while( p ){
     if ( p->isinstance( Sentence_t ) )
       return dynamic_cast<Sentence*>(p);
+    p = p->parent();
+  }
+  return 0;
+}
+
+Paragraph *Word::paragraph( ) const {
+  // return the sentence this word is a part of, otherwise return null
+  AbstractElement *p = _parent; 
+  while( p ){
+    if ( p->isinstance( Paragraph_t ) )
+      return dynamic_cast<Paragraph*>(p);
+    p = p->parent();
+  }
+  return 0;
+}
+
+Division *Word::division() const {
+  // return the sentence this word is a part of, otherwise return null
+  AbstractElement *p = _parent; 
+  while( p ){
+    if ( p->isinstance( Division_t ) )
+      return dynamic_cast<Division*>(p);
+    p = p->parent();
+  }
+  return 0;
+}
+
+Correction *Word::incorrection( ) const {
+  // Is the Word part of a correction? If it is, it returns the Correction element, otherwise it returns 0;
+  AbstractElement *p = _parent; 
+  while( p ){
+    if ( p->isinstance( Correction_t ) )
+      return dynamic_cast<Correction*>(p);
+    else if ( p->isinstance( Sentence_t ) )
+      break;
     p = p->parent();
   }
   return 0;
@@ -1529,8 +1572,14 @@ KWargs TextContent::collectAttributes() const {
   if ( _corrected == INLINE ){
     attribs["corrected"] = "inline";
   }
-  else if ( _corrected == CORRECTED && 
-	    _parent && _parent->getMinCorrectionLevel() < CORRECTED ){
+  if ( _corrected == OCR ){
+    attribs["corrected"] = "ocr";
+  }
+  if ( _corrected == SPEECHTOTEXT ){
+    attribs["corrected"] = "speechtotext";
+  }
+  else if ( _corrected == PROCESSED && 
+	    _parent && _parent->getMinCorrectionLevel() < PROCESSED ){
     attribs["corrected"] = "yes";
   }
   return attribs;
@@ -1729,7 +1778,7 @@ void DCOI::init(){
 void TextContent::init(){
   _element_id = TextContent_t;
   _xmltag="t";
-  _corrected = CORRECTED;
+  _corrected = NOCORR;
   _offset = -1;
   _newoffset = -1;
   _length = 0;
@@ -1762,7 +1811,7 @@ void Word::init(){
   _annotation_type = AnnotationType::TOKEN;
   _required_attributes = ID;
   _optional_attributes = CLASS|ANNOTATOR|CONFIDENCE;
-  MINTEXTCORRECTIONLEVEL = CORRECTED;
+  MINTEXTCORRECTIONLEVEL = PROCESSED;
   TEXTDELIMITER = " ";
   space = true;
 }
@@ -1781,7 +1830,7 @@ void PlaceHolder::init(){
   _accepted_data = std::set<ElementType>(accept, accept+1);
   _annotation_type = AnnotationType::TOKEN;
   _required_attributes = NO_ATT;
-  MINTEXTCORRECTIONLEVEL = CORRECTED;
+  MINTEXTCORRECTIONLEVEL = PROCESSED;
   TEXTDELIMITER = " ";
 }
 
@@ -1807,7 +1856,7 @@ void Sentence::init(){
 				 Quote_t,
 				 Correction_t,
 				 Description_t };
-  _accepted_data = std::set<ElementType>(accept, accept+5); 
+  _accepted_data = std::set<ElementType>(accept, accept+7); 
   _required_attributes = ID;
   _optional_attributes = N;
 }
@@ -1883,7 +1932,7 @@ void NewElement::init(){
   _element_id = New_t;
   const ElementType accept[] = { Pos_t, Lemma_t, Word_t, TextContent_t };
   _accepted_data = std::set<ElementType>(accept, accept+4);
-  MINTEXTCORRECTIONLEVEL = CORRECTED;
+  MINTEXTCORRECTIONLEVEL = PROCESSED;
 }
 
 void Current::init(){
@@ -1898,7 +1947,6 @@ void Original::init(){
   _element_id = Original_t;
   const ElementType accept[] = { Pos_t, Lemma_t, TextContent_t, Word_t };
   _accepted_data = std::set<ElementType>(accept, accept+4);
-  MINTEXTCORRECTIONLEVEL = CORRECTED;
 }
 
 void Suggestion::init(){
@@ -1907,7 +1955,7 @@ void Suggestion::init(){
   const ElementType accept[] = { Pos_t, Lemma_t, TextContent_t, Word_t };
   _accepted_data = std::set<ElementType>(accept, accept+4);
   _optional_attributes = ANNOTATOR|CONFIDENCE|DATETIME;
-  MINTEXTCORRECTIONLEVEL = CORRECTED;
+  MINTEXTCORRECTIONLEVEL = PROCESSED;
 }
 
 void Correction::init(){
@@ -1996,7 +2044,7 @@ void Morpheme::init(){
   const ElementType accept[] = { Feature_t, TextContent_t };
   _accepted_data = std::set<ElementType>(accept, accept+2);
   _annotation_type = AnnotationType::MORPHOLOGICAL;
-  MINTEXTCORRECTIONLEVEL = CORRECTED;
+  MINTEXTCORRECTIONLEVEL = PROCESSED;
 }
 
 void Subentity::init(){

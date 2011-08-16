@@ -65,7 +65,7 @@ namespace AnnotationType {
   };
 }
 
-enum TextCorrectionLevel { NOCORR, UNCORRECTED, INLINE, CORRECTED };
+enum TextCorrectionLevel { NOCORR, OCR, SPEECHTOTEXT, ORIGINAL, INLINE, PROCESSED };
 
 enum MetaDataType { NATIVE, CMDI, IMDI };
 

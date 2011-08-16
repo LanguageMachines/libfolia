@@ -16,6 +16,9 @@ class Word;
 class TextContent;
 class Alternative;
 class Correction;
+class Division;
+class Paragraph;
+
 class AbstractElement {
   friend std::ostream& operator<<( std::ostream&, const AbstractElement& );
   friend std::ostream& operator<<( std::ostream&, const AbstractElement* );
@@ -170,6 +173,16 @@ class AbstractElement {
   virtual Sentence *sentence() const {
     throw NotImplementedError("sentence() for " + _xmltag );
   };
+  virtual Paragraph *paragraph() const {
+    throw NotImplementedError("paragraph() for " + _xmltag );
+  };
+  virtual Division *division() const {
+    throw NotImplementedError("division() for " + _xmltag );
+  };
+  virtual Correction *incorrection() const {
+    throw NotImplementedError("incorrection() for " + _xmltag );
+  };
+
   virtual std::string description() const;
   Sentence *addSentence( const std::string& s ="" ){
     return addSentence( getArgs(s) );
@@ -179,7 +192,7 @@ class AbstractElement {
     return addWord( getArgs(s) );
   }
   Word *addWord( const KWargs& );
-  TextContent *settext( const std::string&, TextCorrectionLevel=NOCORR );
+  TextContent *settext( const std::string&, TextCorrectionLevel=PROCESSED );
   Alternative *addAlternative( ElementType, const KWargs& );
   AbstractTokenAnnotation *addAnnotation( ElementType, const KWargs& );
   AbstractTokenAnnotation *addPosAnnotation( const KWargs& );
@@ -423,6 +436,9 @@ class Word: public AbstractStructureElement {
   AbstractElement *split( AbstractElement *, AbstractElement *,
 			  const std::string& = "" );
   Sentence *sentence() const;
+  Paragraph *paragraph() const;
+  Division *division() const;
+  Correction *incorrection() const;
   AbstractElement *previous() const;
   AbstractElement *next() const;
   std::vector<AbstractElement *> context( size_t, 
