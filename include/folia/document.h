@@ -50,7 +50,7 @@ class Document {
   void init();
   bool readFromFile( const std::string& );
   bool readFromString( const std::string& );
-  bool save( const std::string& );
+  bool save( const std::string&, const std::string& = "" );
   int size() const;
   AbstractElement* doc() const { return foliadoc; }
   AbstractElement* addNode( ElementType, const KWargs& );
@@ -68,7 +68,7 @@ class Document {
   AbstractElement* rwords( size_t ) const;
   AbstractElement* rparagraphs( size_t ) const;
   AbstractElement* sentences( size_t ) const;
-  std::string toXml() const;
+  std::string toXml( const std::string& ="" ) const;
 
   AbstractElement *append( AbstractElement* );
 

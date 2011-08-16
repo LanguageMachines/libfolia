@@ -186,10 +186,11 @@ ostream& operator<<( ostream& os, const Document& d ){
   return os;
 }
 
-bool Document::save( const string& fn ) {
+bool Document::save( const string& fn, const string& nsLabel ) {
   ofstream os( fn.c_str() );
   if ( os.good() ) {
-    os << *this << endl;
+    string s = toXml( nsLabel );
+    os << s << endl;
     return true;
   }
   throw runtime_error( "saving to file " + fn + " failed" );
@@ -602,7 +603,7 @@ void Document::setstyles( xmlDoc* doc ) const {
   }
 }
 
-string Document::toXml() const {
+string Document::toXml( const string& nsLabel ) const {
   string result;
   if ( foliadoc ){
     xmlDoc *outDoc = xmlNewDoc( (const xmlChar*)"1.0" );
@@ -613,7 +614,12 @@ string Document::toXml() const {
 			  (const xmlChar *)"xlink" );
     xmlSetNs( root, xl );
     if ( !_foliaNs ){
-      _foliaNs = xmlNewNs( root, (const xmlChar *)NSFOLIA.c_str(), 0 );
+      if ( nsLabel.empty() )
+	_foliaNs = xmlNewNs( root, (const xmlChar *)NSFOLIA.c_str(), 0 );
+      else
+	_foliaNs = xmlNewNs( root,
+			     (const xmlChar *)NSFOLIA.c_str(),
+			     (const xmlChar*)nsLabel.c_str() );
     }
     xmlSetNs( root, _foliaNs );
     KWargs attribs;
