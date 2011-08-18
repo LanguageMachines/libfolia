@@ -73,6 +73,13 @@ AbstractElement::~AbstractElement( ){
   delete _datetime;
 }
 
+xmlNs *AbstractElement::foliaNs() const {
+  if ( mydoc )
+    return mydoc->foliaNs();
+  else
+    return 0;
+}
+
 void AbstractElement::setAttributes( const KWargs& kwargs ){
   Attrib supported = _required_attributes | _optional_attributes;
   // if ( _element_id == Quote_t ){
@@ -1283,11 +1290,11 @@ AbstractElement *AbstractStructureElement::annotation( ElementType et,
   return 0;
 }
 
-vector<AbstractElement *> AbstractStructureElement::alternatives( const string& set,
-								  AnnotationType::AnnotationType type ) const{
+vector<AbstractElement *> AbstractStructureElement::alternatives( ElementType elt,
+								  const string& set ) const {
   // Return a list of alternatives, either all or only of a specific type, restrained by set
   vector<AbstractElement*> alts = select( Alternative_t );
-  if ( type == AnnotationType::NO_ANN ){
+  if ( elt == BASE ){
     return alts;
   }
   else {
@@ -1295,7 +1302,7 @@ vector<AbstractElement *> AbstractStructureElement::alternatives( const string& 
     for ( size_t i=0; i < alts.size(); ++i ){
       if ( alts[i]->size() > 0 ) { // child elements?
 	for ( size_t j =0; j < alts[i]->size(); ++j ){
-	  if ( alts[i]->index(j)->annotation_type() == type &&
+	  if ( alts[i]->index(j)->element_id() == elt &&
 	       ( alts[i]->st().empty() || alts[i]->st() == set ) ){
 	    res.push_back( alts[i] ); // not the child!
 	    break; // yield an alternative only once (in case there are multiple matches)
@@ -1832,18 +1839,10 @@ void TextContent::init(){
 void Head::init() {
   _element_id = Head_t;
   _xmltag="head";
-  const ElementType accept[] = { Sentence_t };
-  _accepted_data = std::set<ElementType>(accept, accept+1); 
-  _annotation_type = AnnotationType::TOKEN;
-  TEXTDELIMITER = " ";
-}
-
-void Division::init(){
-  _xmltag="div";
-  _element_id = Division_t;
-  const ElementType accept[] = { Head_t, Paragraph_t };
+  const ElementType accept[] = { Sentence_t, Description_t };
   _accepted_data = std::set<ElementType>(accept, accept+2); 
   _annotation_type = AnnotationType::TOKEN;
+  TEXTDELIMITER = " ";
 }
 
 void LineBreak::init(){
@@ -1859,10 +1858,11 @@ void WhiteSpace::init(){
 void Word::init(){
   _xmltag="w";
   _element_id = Word_t;
-  const ElementType accept[] = { Text_t, TextContent_t, Pos_t, Lemma_t, Alternative_t, 
+  const ElementType accept[] = { TextContent_t, Pos_t, Lemma_t, 
+				 Alternative_t, 
 				 Correction_t, ErrorDetection_t, Description_t,
 				 Morphology_t };
-  _accepted_data = std::set<ElementType>(accept, accept+9);
+  _accepted_data = std::set<ElementType>(accept, accept+8);
   _annotation_type = AnnotationType::TOKEN;
   _required_attributes = ID;
   _optional_attributes = CLASS|ANNOTATOR|CONFIDENCE;
@@ -1917,11 +1917,23 @@ void Sentence::init(){
   _optional_attributes = N;
 }
 
+void Division::init(){
+  _xmltag="div";
+  _element_id = Division_t;
+  const ElementType accept[] = { Division_t, Gap_t, Head_t, Paragraph_t,
+				 Sentence_t, List_t, Figure_t,
+				 Description_t, LineBreak_t,
+				 WhiteSpace_t };
+  _accepted_data = std::set<ElementType>(accept, accept+10); 
+  _annotation_type = AnnotationType::DIVISION;
+}
+
 void Text::init(){
   _xmltag="text";
   _element_id = Text_t;
-  const ElementType accept[] = { Division_t, Paragraph_t, Sentence_t, Gap_t };
-  _accepted_data = std::set<ElementType>(accept, accept+4); 
+  const ElementType accept[] = { Gap_t, Division_t, Paragraph_t, Sentence_t, 
+				 List_t, Figure_t, Description_t };
+  _accepted_data = std::set<ElementType>(accept, accept+7); 
   _required_attributes = ID;
   TEXTDELIMITER = "\n\n";
 }
@@ -1941,8 +1953,8 @@ void SyntacticUnit::init(){
   _element_id = SyntacticUnit_t;
   _annotation_type = AnnotationType::SYNTAX;
   const ElementType accept[] = { SyntacticUnit_t, Word_t, WordReference_t,
-				 Feature_t };
-  _accepted_data = std::set<ElementType>(accept, accept+4);
+				 Description_t, Feature_t };
+  _accepted_data = std::set<ElementType>(accept, accept+5);
 }
 
 void Chunk::init(){
@@ -2001,8 +2013,9 @@ void Current::init(){
 void Original::init(){
   _xmltag = "original";
   _element_id = Original_t;
-  const ElementType accept[] = { Pos_t, Lemma_t, TextContent_t, Word_t };
-  _accepted_data = std::set<ElementType>(accept, accept+4);
+  const ElementType accept[] = { Pos_t, Lemma_t, Word_t, TextContent_t,
+				 Correction_t, Description_t };
+  _accepted_data = std::set<ElementType>(accept, accept+6);
 }
 
 void Suggestion::init(){

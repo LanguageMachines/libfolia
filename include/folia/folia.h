@@ -9,6 +9,7 @@
 #include <ctime>
 #include "foliautils.h"
 
+class Document;
 class AbstractElement;
 class AbstractTokenAnnotation;
 class Sentence;
@@ -160,12 +161,7 @@ class AbstractElement {
   ElementType element_id() const { return _element_id; };
   std::string xmltag() const { return _xmltag; };
   Document *doc() const { return mydoc; };
-  xmlNs *foliaNs() const {
-    if ( mydoc )
-      return mydoc->foliaNs();
-    else
-      return 0;
-  }
+  xmlNs *foliaNs() const;
   virtual Sentence *sentence() const {
     throw NotImplementedError("sentence() for " + _xmltag );
   };
@@ -220,8 +216,12 @@ class AbstractElement {
   AbstractTokenAnnotation *addAnnotation( ElementType, const KWargs& );
   AbstractTokenAnnotation *addPosAnnotation( const KWargs& );
   AbstractTokenAnnotation *addLemmaAnnotation( const KWargs& );
-  virtual std::vector<AbstractElement *> alternatives( const std::string& = "",
-						       AnnotationType::AnnotationType=AnnotationType::NO_ANN ) const { 
+  std::vector<AbstractElement *> alternatives( const std::string& s = "" ) const { 
+    return alternatives( BASE, s );
+  }
+  virtual std::vector<AbstractElement *> alternatives( ElementType,
+						       const std::string& = ""
+						       ) const { 
     throw NotImplementedError("alternatives()"); 
   }
   virtual std::string content() const {
@@ -315,8 +315,9 @@ class AbstractStructureElement: public AbstractElement {
   size_t hasannotation( ElementType, std::set<ElementType>& );
   AbstractElement *annotation( ElementType ) const;
   AbstractElement *annotation( ElementType, const std::string& ) const ;
-  std::vector<AbstractElement *> alternatives( const std::string& = "",
-					       AnnotationType::AnnotationType=AnnotationType::NO_ANN ) const;
+  std::vector<AbstractElement *> alternatives( ElementType = BASE,
+					       const std::string& = "" ) const;
+  
   AbstractElement *append( AbstractElement* );
   void setMaxId( AbstractElement * );
   int getMaxId( const std::string& );
