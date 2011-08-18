@@ -424,6 +424,21 @@ class Division: public AbstractStructureElement {
   void init();
 };
 
+class LineBreak: public AbstractStructureElement {
+ public:
+ LineBreak( const std::string& s=""):  AbstractStructureElement(){ classInit( s ); };
+ LineBreak( Document *d=0,  const std::string& s=""):  AbstractStructureElement( d ){ classInit( s ); };
+ private:
+  void init();
+};
+
+class WhiteSpace: public AbstractStructureElement {
+ public:
+ WhiteSpace( const std::string& s=""):  AbstractStructureElement(){ classInit( s ); };
+ WhiteSpace( Document *d=0,  const std::string& s=""):  AbstractStructureElement( d ){ classInit( s ); };
+ private:
+  void init();
+};
 
 class Word: public AbstractStructureElement {
  public:

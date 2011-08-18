@@ -1801,6 +1801,16 @@ void Division::init(){
   _annotation_type = AnnotationType::TOKEN;
 }
 
+void LineBreak::init(){
+  _xmltag = "br";
+  _element_id = LineBreak_t;
+}
+
+void WhiteSpace::init(){
+  _xmltag = "whitespace";
+  _element_id = WhiteSpace_t;
+}
+
 void Word::init(){
   _xmltag="w";
   _element_id = Word_t;
@@ -1851,12 +1861,13 @@ void Content::init(){
 void Sentence::init(){
   _xmltag="s";
   _element_id = Sentence_t;
-  const ElementType accept[] = { Word_t, TextContent_t, Annolay_t, 
+  const ElementType accept[] = { LineBreak_t, WhiteSpace_t, Word_t, 
+				 TextContent_t, Annolay_t, 
 				 SyntaxLayer_t, Chunking_t,
 				 Quote_t,
 				 Correction_t,
 				 Description_t };
-  _accepted_data = std::set<ElementType>(accept, accept+8); 
+  _accepted_data = std::set<ElementType>(accept, accept+10); 
   _required_attributes = ID;
   _optional_attributes = N;
 }

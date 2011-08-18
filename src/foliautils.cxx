@@ -215,6 +215,8 @@ string toString( const ElementType& et ) {
   case BASE: result = "BASE"; break;
   case Text_t: result = "text"; break;
   case TextContent_t: result = "t"; break;
+  case LineBreak_t: result = "br"; break;
+  case WhiteSpace_t: result = "whitespace"; break;
   case Word_t: result = "word"; break;
   case PlaceHolder_t: result = "placeholder"; break;
   case Sentence_t: result = "s"; break;
@@ -277,6 +279,12 @@ AbstractElement *AbstractElement::createElement( Document *doc,
   }
   if ( tag == "t" ){
     return new TextContent( doc );
+  }
+  if ( tag == "br" ){
+    return new LineBreak( doc );
+  }
+  if ( tag == "whitespace" ){
+    return new WhiteSpace( doc );
   }
   if ( tag == "w" ){
     return new Word( doc );
