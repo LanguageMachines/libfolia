@@ -518,28 +518,6 @@ AbstractElement* AbstractElement::rindex( size_t i ) const {
     throw range_error( "[] rindex out of range" );
 }
 
-vector<AbstractElement*> AbstractElement::words() const {
-  return select( Word_t );
-}
-
-AbstractElement* AbstractElement::words( size_t index ) const {
-  vector<AbstractElement*> v = words();
-  if ( index < v.size() ){
-    return v[index];
-  }
-  else
-    throw range_error( "word index out of range" );
-}
-
-AbstractElement* AbstractElement::rwords( size_t index ) const {
-  vector<AbstractElement*> v = words();
-  if ( index < v.size() ){
-    return v[v.size()-1-index];
-  }
-  else
-    throw range_error( "word reverse index out of range" );
-}
-
 vector<AbstractElement *>AbstractElement::annotations( ElementType et ) const {
   vector<AbstractElement *>v = select( et );
   if ( v.size() >= 1 )
@@ -1209,6 +1187,73 @@ Correction *AbstractStructureElement::correct( vector<AbstractElement*> original
   }
 
   return c;
+}
+
+vector<AbstractElement*> AbstractStructureElement::paragraphs() const{
+  return select( Paragraph_t );
+}
+
+vector<AbstractElement*> AbstractStructureElement::sentences() const{
+  static set<ElementType> excludeSet;
+  if ( excludeSet.empty() ){
+    excludeSet.insert( Quote_t );
+    excludeSet.insert( Original_t );
+    excludeSet.insert( Suggestion_t );
+    excludeSet.insert( Alternative_t );
+  }
+  return select( Sentence_t, excludeSet );
+}
+
+vector<AbstractElement*> AbstractStructureElement::words() const{
+  return select( Word_t );
+}
+
+Sentence *AbstractStructureElement::sentences( size_t index ) const {
+  vector<AbstractElement*> v = sentences();
+  if ( index < v.size() )
+    return dynamic_cast<Sentence*>(v[index]);
+  else
+    throw range_error( "sentences(): index out of range" );
+}
+
+Sentence *AbstractStructureElement::rsentences( size_t index ) const {
+  vector<AbstractElement*> v = sentences();
+  if ( index < v.size() )
+    return dynamic_cast<Sentence*>(v[v.size()-1-index]);
+  else
+    throw range_error( "rsentences(): index out of range" );
+}
+
+Paragraph *AbstractStructureElement::paragraphs( size_t index ) const {
+  vector<AbstractElement*> v = paragraphs();
+  if ( index < v.size() )
+    return dynamic_cast<Paragraph *>(v[index]);
+  else
+    throw range_error( "paragraphs(): index out of range" );
+}
+
+Paragraph *AbstractStructureElement::rparagraphs( size_t index ) const {
+  vector<AbstractElement*> v = paragraphs();
+  if ( index < v.size() )
+    return dynamic_cast<Paragraph *>(v[v.size()-1-index]);
+  else
+    throw range_error( "rparagraphs(): index out of range" );
+}
+
+Word *AbstractStructureElement::words( size_t index ) const {
+  vector<AbstractElement*> v = words();
+  if ( index < v.size() )
+    return dynamic_cast<Word*>( v[index]);
+  else
+    throw range_error( "words(): index out of range" );
+}
+
+Word *AbstractStructureElement::rwords( size_t index ) const {
+  vector<AbstractElement*> v = words();
+  if ( index < v.size() )
+    return dynamic_cast<Word*>( v[v.size()-1-index]);
+  else
+    throw range_error( "rwords(): index out of range" );
 }
 
 const AbstractElement* AbstractStructureElement::resolveword( const string& id ) const{
@@ -1884,8 +1929,8 @@ void Text::init(){
 void Paragraph::init(){
   _xmltag="p";
   _element_id = Paragraph_t;
-  const ElementType accept[] = { Sentence_t, Head_t };
-  _accepted_data = std::set<ElementType>(accept, accept+2);
+  const ElementType accept[] = { Sentence_t, Correction_t, TextContent_t, Description_t, LineBreak_t, WhiteSpace_t };
+  _accepted_data = std::set<ElementType>(accept, accept+6);
   _required_attributes = ID;
 }
 

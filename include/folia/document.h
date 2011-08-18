@@ -39,6 +39,9 @@ inline std::ostream& operator<<( std::ostream& os, const Pattern& p ){
 }
 
 class AbstractElement;
+class Word;
+class Sentence;
+class Paragraph;
 
 class Document {
   friend bool operator==( const Document&, const Document& );
@@ -64,10 +67,12 @@ class Document {
 							 const std::string& ="" ) const;
   std::vector<std::vector<AbstractElement*> > findwords( std::list<Pattern>&,
 							 const std::string& = "" ) const;
-  AbstractElement* words( size_t ) const;
-  AbstractElement* rwords( size_t ) const;
-  AbstractElement* rparagraphs( size_t ) const;
-  AbstractElement* sentences( size_t ) const;
+  Word *words( size_t ) const;
+  Word *rwords( size_t ) const;
+  Paragraph *paragraphs( size_t ) const;
+  Paragraph *rparagraphs( size_t ) const;
+  Sentence *sentences( size_t ) const;
+  Sentence *rsentences( size_t ) const;
   std::string toXml( const std::string& ="" ) const;
 
   AbstractElement *append( AbstractElement* );

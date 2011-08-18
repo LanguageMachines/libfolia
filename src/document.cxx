@@ -228,18 +228,30 @@ vector<AbstractElement*> Document::paragraphs() const {
 }
 
 vector<AbstractElement*> Document::sentences() const {
-  return foliadoc->select( Sentence_t );
+  static set<ElementType> excludeSet;
+  if ( excludeSet.empty() ){
+    excludeSet.insert( Quote_t );
+  }
+  return foliadoc->select( Sentence_t, excludeSet );
 }
 
-AbstractElement* Document::sentences( size_t index ) const {
+Sentence *Document::sentences( size_t index ) const {
   vector<AbstractElement*> v = sentences();
   if ( index < v.size() ){
-    return v[index];
+    return dynamic_cast<Sentence*>(v[index]);
   }
   else
-    throw range_error( "word index out of range" );
+    throw range_error( "sentences() index out of range" );
 }
 
+Sentence *Document::rsentences( size_t index ) const {
+  vector<AbstractElement*> v = sentences();
+  if ( index < v.size() ){
+    return dynamic_cast<Sentence*>(v[v.size()-1-index]);
+  }
+  else
+    throw range_error( "rsentences() index out of range" );
+}
 
 vector<AbstractElement*> Document::words() const {
   static set<ElementType> excludeSet;
@@ -251,31 +263,40 @@ vector<AbstractElement*> Document::words() const {
   return foliadoc->select( Word_t, excludeSet );
 }
 
-AbstractElement* Document::words( size_t index ) const {
+Word *Document::words( size_t index ) const {
   vector<AbstractElement*> v = words();
   if ( index < v.size() ){
-    return v[index];
+    return dynamic_cast<Word*>(v[index]);
   }
   else
-    throw range_error( "word index out of range" );
+    throw range_error( "words() index out of range" );
 }
 
-AbstractElement* Document::rwords( size_t index ) const {
+Word *Document::rwords( size_t index ) const {
   vector<AbstractElement*> v = words();
   if ( index < v.size() ){
-    return v[v.size()-1-index];
+    return dynamic_cast<Word*>(v[v.size()-1-index]);
   }
   else
-    throw range_error( "word reverse index out of range" );
+    throw range_error( "rwords() index out of range" );
 }
 
-AbstractElement* Document::rparagraphs( size_t index ) const {
+Paragraph *Document::paragraphs( size_t index ) const {
   vector<AbstractElement*> v = paragraphs();
   if ( index < v.size() ){
-    return v[v.size()-1-index];
+    return dynamic_cast<Paragraph*>(v[index]);
   }
   else
-    throw range_error( "paragraph reverse index out of range" );
+    throw range_error( "paragraphs() index out of range" );
+}
+
+Paragraph *Document::rparagraphs( size_t index ) const {
+  vector<AbstractElement*> v = paragraphs();
+  if ( index < v.size() ){
+    return dynamic_cast<Paragraph*>(v[v.size()-1-index]);
+  }
+  else
+    throw range_error( "rparagraphs() index out of range" );
 }
 
 AbstractElement *Document::append( AbstractElement *txt ){

@@ -58,10 +58,6 @@ class AbstractElement {
   AbstractElement* index( size_t ) const;
   AbstractElement* rindex( size_t ) const;
 
-  std::vector<AbstractElement*> words() const;
-  AbstractElement* words( size_t ) const;
-  AbstractElement* rwords( size_t ) const;
-
   virtual const AbstractElement* resolveword( const std::string& ) const { return 0; };
 
   bool isinstance( ElementType et ) const {
@@ -181,6 +177,33 @@ class AbstractElement {
   };
   virtual Correction *incorrection() const {
     throw NotImplementedError("incorrection() for " + _xmltag );
+  };
+  virtual std::vector<AbstractElement*> paragraphs() const {
+    throw NotImplementedError("paragraphs() for " + _xmltag );
+  };
+  virtual std::vector<AbstractElement*> sentences() const {
+    throw NotImplementedError("sentences() for " + _xmltag );
+  };
+  virtual std::vector<AbstractElement*> words() const {
+    throw NotImplementedError("words() for " + _xmltag );
+  };
+  virtual Sentence *sentences( size_t ) const {
+    throw NotImplementedError("sentences() for " + _xmltag );
+  };
+  virtual Sentence *rsentences( size_t ) const {
+    throw NotImplementedError("rsentences() for " + _xmltag );
+  };
+  virtual Paragraph *paragraphs( size_t ) const {
+    throw NotImplementedError("paragraphs() for " + _xmltag );
+  };
+  virtual Paragraph *rparagraphs( size_t ) const {
+    throw NotImplementedError("rparagraphs() for " + _xmltag );
+  };
+  virtual Word *words( size_t ) const {
+    throw NotImplementedError("words() for " + _xmltag );
+  };
+  virtual Word *rwords( size_t ) const {
+    throw NotImplementedError("rwords() for " + _xmltag );
   };
 
   virtual std::string description() const;
@@ -303,6 +326,15 @@ class AbstractStructureElement: public AbstractElement {
 		       std::vector<AbstractElement*>,
 		       std::vector<AbstractElement*>,
 		       const KWargs& );
+  std::vector<AbstractElement*> paragraphs() const;
+  std::vector<AbstractElement*> sentences() const;
+  std::vector<AbstractElement*> words() const;
+  Sentence *sentences( size_t ) const;
+  Sentence *rsentences( size_t ) const;
+  Paragraph *paragraphs( size_t ) const;
+  Paragraph *rparagraphs( size_t ) const;
+  Word *words( size_t ) const;
+  Word *rwords( size_t ) const;
   const AbstractElement* resolveword( const std::string& ) const;
  private:
   std::map<std::string, int> maxid;
