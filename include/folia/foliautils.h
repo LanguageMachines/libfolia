@@ -58,7 +58,7 @@ inline ElementType operator|( ElementType a1, ElementType a2 ){
  *  static const annotation_type = {AnnotationType}
  */
 namespace AnnotationType {
-  enum AnnotationType { NO_ANN, TOKEN, DIVISION, POS, LEMMA, 
+  enum AnnotationType { NO_ANN, TOKEN, DIVISION, POS, LEMMA, SUGGESTION,
 			DOMEIN, SENSE, SYNTAX, CHUNKING, SUBENTITY,
 			ENTITY, ERRORDETECTION, CORRECTION, ALTERNATIVE, PHON,
 			SUBJECTIVITY, MORPHOLOGICAL 
