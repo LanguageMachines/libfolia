@@ -15,7 +15,7 @@
 
 using namespace std;
 
-const string FOLIAVERSION = "0.5"; // the FoLiA version we implement
+const string FOLIAVERSION = "0.6"; // the FoLiA version we implement
 const string NSFOLIA = "http://ilk.uvt.nl/folia";
 const string NSDCOI = "http://lands.let.ru.nl/projects/d-coi/ns/1.0";
 const string NSIMDI = "http://www.mpi.nl/IMDI/Schema/IMDI";
@@ -698,14 +698,15 @@ vector<vector<AbstractElement*> > Document::findwords( const Pattern& pat,
     int gap = 0;
     bool goon = true;
     for ( size_t i = startpos; i < mywords.size() && goon ; ++i ){
-      // cerr << "inner LOOP I = " << i << endl;
+      //      cerr << "inner LOOP I = " << i << " myword=" << mywords[i] << endl;
       UnicodeString value;
       if ( pat.matchannotation == BASE )
 	value = mywords[i]->text();
       else {
 	vector<AbstractElement *> v = mywords[i]->select( pat.matchannotation );
-	if ( v.size() != 1 )
-	  throw ValueError( "findwords(): more then 1 annotation matched" );
+	if ( v.size() != 1 ){
+	  continue;
+	}
 	value = UTF8ToUnicode(v[0]->cls());
       }
       bool done = false;

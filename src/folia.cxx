@@ -323,85 +323,53 @@ string AbstractElement::str() const {
   return _xmltag;
 }
 
-bool AbstractElement::hastext( TextCorrectionLevel corr ) const {
+bool AbstractElement::hastext( const string& cls ) const {
   //  cerr << _xmltag << "::hastext()" << endl;
   // Does this element have text?
-  vector<AbstractElement*> v = select(TextContent_t,false);
-  if ( corr == NOCORR ){
-    // regardless of correctionlevel:
-    return v.size() > 0;
-  }
-  else {
-    vector<AbstractElement*>::const_iterator it = v.begin();
-    while ( it != v.end() ){
-      if ( (*it)->corrected() == corr )
-	return true;
-      ++it;
-    }
-  }
-  return false;
+  vector<AbstractElement*> v = select(TextContent_t, cls, false);
+  return v.size() > 0;
 }
 
-UnicodeString AbstractElement::text( TextCorrectionLevel corrlevel ) const {
+UnicodeString AbstractElement::text( const string& cls ) const {
   if ( !PRINTABLE )
     throw NoSuchText( _xmltag );
-  //  cerr << "text() for " << _xmltag << " step 1 " << endl;
-  if ( corrlevel != NOCORR ){
-    if ( MINTEXTCORRECTIONLEVEL > corrlevel ){
-      throw  NoSuchText( "no text() for " + _xmltag + " (" + toString( corrlevel ) + ")" );
+  //  cerr << (void*)this << ":text() for " << _xmltag << " and class= " << cls << " step 1 " << endl;
+  for( size_t i=0; i < data.size(); ++i ){
+    if ( data[i]->element_id() == TextContent_t 
+	 && data[i]->_cls == cls ){
+      
+      return data[i]->text();
     }
-    AbstractElement *t = 0;
-    for( size_t i=0; i < data.size(); ++i ){
-      if ( data[i]->element_id() == TextContent_t 
-	   && data[i]->corrected() == corrlevel ){
-	t = data[i];
-	break;
-      }
-    }
-    //    cerr << "text() for " << _xmltag << " step 2 >> " << endl;
-    if ( t ){
-      return t->text();
-    }
-    else
-      throw NoSuchText( "inside " + _xmltag );
   }
-  else if ( hastext( PROCESSED )  ){
-    //    cerr << "text() for " << _xmltag << " step 3 " << endl;
-    return text( PROCESSED );
-  }
-  else {
-    // try to get text from children.
-    //    cerr << "text() for " << _xmltag << " step 4 " << endl;
+  //  cerr << "text() for " << _xmltag << " step 2 >> " << endl;
 
-    UnicodeString result;
-    for( size_t i=0; i < data.size(); ++i ){
-      // try to get text dynamically from children
-      // skip TextContent elements
-      if ( !data[i]->isinstance( TextContent_t ) ){
-	try {
-	  UnicodeString tmp = data[i]->text();
-	  result += tmp;
-	  if ( !tmp.isEmpty() ){
-	    result += UTF8ToUnicode( data[i]->getTextDelimiter() );
-	  }
-	}
-	catch ( NoSuchText& e ){
+  // try to get text from children.
+
+  UnicodeString result;
+  for( size_t i=0; i < data.size(); ++i ){
+    // try to get text dynamically from children
+    // skip TextContent elements
+    if ( data[i]->PRINTABLE && !data[i]->isinstance( TextContent_t ) ){
+      try {
+	UnicodeString tmp = data[i]->text( cls );
+	//	cerr << "text() for " << _xmltag << " step 4, tmp= " << tmp << endl;
+	result += tmp;
+	if ( !tmp.isEmpty() ){
+	  result += UTF8ToUnicode( data[i]->getTextDelimiter() );
 	}
       }
+      catch ( NoSuchText& e ){
+      }
     }
-    //    cerr << "text() for " << _xmltag << " step 5, result= " << result << endl;
-    result.trim();
-    if ( !result.isEmpty() ){
-      //      cerr << "text() for " << _xmltag << " step 6, result= " << result << endl;
-      return result;
-    }
-    else if ( MINTEXTCORRECTIONLEVEL <= ORIGINAL ){
-      //      cerr << "text() for " << _xmltag << " step 7"<< endl;
-      return text( ORIGINAL );
-    }
-    else
-      throw NoSuchText( ":{" );
   }
+  //  cerr << "text() for " << _xmltag << " step 5, result= " << result << endl;
+  result.trim();
+  if ( !result.isEmpty() ){
+    //    cerr << "text() for " << _xmltag << " step 6, result= " << result << endl;
+    return result;
+  }
+  else
+    throw NoSuchText( ":{" );
 }
 
 vector<AbstractElement *>AbstractElement::findreplacables( AbstractElement *par ) const {
@@ -428,10 +396,10 @@ void AbstractElement::replace( AbstractElement *child ){
 }                
 
 TextContent *AbstractElement::settext( const string& txt, 
-				       TextCorrectionLevel lv ){
+				       const string& cls ){
   KWargs args;
   args["value"] = txt;
-  args["corrected"] = toString( lv );
+  args["cls"] = cls;
   TextContent *node = new TextContent( mydoc );
   node->setAttributes( args );
   replace( node );
@@ -827,11 +795,6 @@ void TextContent::setAttributes( const KWargs& args ){
   }
    else
      throw ValueError("TextContent expects value= parameter");
-  it = kwargs.find( "corrected" );
-  if ( it != kwargs.end() ) {
-    _corrected = stringToTCL(it->second);
-    kwargs.erase("corrected");
-  }
   it = kwargs.find( "offset" );
   if ( it != kwargs.end() ) {
     _offset = stringTo<int>(it->second);
@@ -839,25 +802,16 @@ void TextContent::setAttributes( const KWargs& args ){
   }
   else
     _offset = -1;
-  it = kwargs.find( "newoffset" );
-  if ( it != kwargs.end() ) {
-    _newoffset = stringTo<int>(it->second);
-    kwargs.erase("newoffset");
-  }
-  else
-    _newoffset = -1;
   it = kwargs.find( "ref" );
   if ( it != kwargs.end() ) {
     throw NotImplementedError( "ref attribute in TextContent" );
   }
-  it = kwargs.find( "length" );
-  if ( it != kwargs.end() ) {
-    _length = stringTo<int>(it->second);
-    kwargs.erase("length");
+  it = kwargs.find( "cls" );
+  if ( it == kwargs.end() ) 
+    it = kwargs.find( "class" );
+  if ( it == kwargs.end() ) {
+    kwargs["cls"] = "current";
   }
-  else
-    _length = _text.length();
-
   AbstractElement::setAttributes(kwargs);
 }
 
@@ -871,26 +825,11 @@ AbstractElement* TextContent::parseXml( const xmlNode *node ){
 }
 
 AbstractElement *TextContent::postappend(){
-  TextCorrectionLevel pl = _parent->getMinCorrectionLevel();
-  if ( _corrected == NOCORR ){
-    _corrected = pl;
+  if ( _parent->isinstance( Original_t ) ){
+    if ( _cls == "current" )
+      _cls = "original";
   }
-  if ( _corrected < pl ) {
-    throw ValueError( "TextContent(" + toString( _corrected ) + ") must be of higher level than its parents minimum (" + toString(pl) + ")" );
-  }
-  if ( _corrected != INLINE ){
-    // sanity check, there may be no other TextContent child with the same 
-    // correction level
-    for ( size_t i=0; i < _parent->size(); ++i ){
-      AbstractElement *child = _parent->index(i);
-      if ( child != this && child->element_id() == TextContent_t &&
-	   child->corrected() == _corrected ){
-	throw DuplicateAnnotationError( "A TextContent with 'corrected' value of " +  toString(_corrected) + " already exists." );
-      }
-    }
-  }
-  // no conflict found
-  return this;
+  return AbstractElement::postappend();
 }
 
 vector<AbstractElement *>TextContent::findreplacables( AbstractElement *par ) const {
@@ -901,7 +840,7 @@ vector<AbstractElement *>TextContent::findreplacables( AbstractElement *par ) co
   while ( it != v.end() ){
     // cerr << "TextContent::findreplacable bekijkt " << *it << " (" 
     //  	 << toString( dynamic_cast<TextContent*>(*it)->_corrected ) << ")" << endl;
-    if ( dynamic_cast<TextContent*>(*it)->_corrected != _corrected )
+    if ( (*it)->cls() != _cls )
       it = v.erase(it);
     else
       ++it;
@@ -915,12 +854,8 @@ string TextContent::str() const{
   return UnicodeToUTF8(_text);
 }
 
-UnicodeString TextContent::text( TextCorrectionLevel l ) const{
-  //  cerr << "TextContent::text()  step 1 " << endl;
-  if ( l == NOCORR || l == _corrected )
-    return _text;
-  else
-    throw NoSuchText( _xmltag );
+UnicodeString TextContent::text( const string& ) const{
+  return _text;
 }
 
 string AbstractStructureElement::generateId( const string& tag, 
@@ -946,7 +881,14 @@ void AbstractStructureElement::setMaxId( AbstractElement *child ) {
     size_t num = split_at( child->id(), parts, "." );
     if ( num > 0 ){
       string val = parts[num-1];
-      int i = stringTo<int>( val );
+      int i;
+      try {
+	i = stringTo<int>( val );
+      }
+      catch ( exception ){
+	// no number, so assume so user defined id
+	return;
+      }
       map<string,int>::iterator it = maxid.find( child->xmltag() );
       if ( it == maxid.end() ){
 	maxid[child->xmltag()] = i;
@@ -1325,22 +1267,22 @@ void Word::setAttributes( const KWargs& args ){
   if ( it != args.end() ) {
     settext( it->second );
   }
-  it = args.find( "processedtext" );
-  if ( it != args.end() ) {
-    settext( it->second, PROCESSED );
-  }
-  it = args.find( "correctedtext" ); // Backward compatible
-  if ( it != args.end() ) {
-    settext( it->second, PROCESSED );
-  }
-  it = args.find( "originaltext" );
-  if ( it != args.end() ) {
-    settext( it->second, ORIGINAL );
-  }
-  it = args.find( "uncorrectedtext" ); // Backward compatible
-  if ( it != args.end() ) {
-    settext( it->second, ORIGINAL );
-  }
+  // it = args.find( "processedtext" );
+  // if ( it != args.end() ) {
+  //   settext( it->second, PROCESSED );
+  // }
+  // it = args.find( "correctedtext" ); // Backward compatible
+  // if ( it != args.end() ) {
+  //   settext( it->second, PROCESSED );
+  // }
+  // it = args.find( "originaltext" );
+  // if ( it != args.end() ) {
+  //   settext( it->second, ORIGINAL );
+  // }
+  // it = args.find( "uncorrectedtext" ); // Backward compatible
+  // if ( it != args.end() ) {
+  //   settext( it->second, ORIGINAL );
+  // }
   AbstractElement::setAttributes( args );
 }
 
@@ -1612,14 +1554,13 @@ void PlaceHolder::setAttributes( const string&s ){
 
 KWargs TextContent::collectAttributes() const {
   KWargs attribs = AbstractElement::collectAttributes();
+  if ( _cls == "current" )
+    attribs.erase( "class" );
+  else if ( _cls == "original" && parent()->isinstance( Original_t ) )
+    attribs.erase( "class" );    
+      
   if ( _offset >= 0 ){
     attribs["offset"] = toString( _offset );
-  }
-  if ( _newoffset >= 0 ){
-    attribs["newoffset"] = toString( _newoffset );
-  }
-  if ( _length != _text.length() ){
-    attribs["length"] = toString( _length );
   }
   if ( _corrected == INLINE ){
     attribs["corrected"] = "inline";
@@ -1641,6 +1582,30 @@ xmlNode *TextContent::xml( bool ) const {
   xmlNode *e = AbstractElement::xml( false );
   xmlAddChild( e, xmlNewText( (const xmlChar*)str().c_str()) );
   return e;
+}
+
+KWargs Figure::collectAttributes() const {
+  KWargs atts = AbstractElement::collectAttributes();
+  if ( !_src.empty() ){
+    atts["src"] = _src;
+  }
+  return atts;
+}
+
+void Figure::setAttributes( const KWargs& kwargsin ){
+  KWargs kwargs = kwargsin;
+  KWargs::const_iterator it;
+  it = kwargs.find( "url" );
+  if ( it != kwargs.end() ) {
+    _url = it->second;
+    kwargs.erase( "url" );
+  }
+  it = kwargs.find( "src" );
+  if ( it != kwargs.end() ) {
+    _src = it->second;
+    kwargs.erase( "url" );
+  }
+  AbstractElement::setAttributes(kwargs);
 }
 
 void Description::setAttributes( const KWargs& kwargs ){
@@ -1720,14 +1685,22 @@ AbstractElement* Content::parseXml( const xmlNode *node ){
   return this;
 }
 
-UnicodeString Correction::text( TextCorrectionLevel corr ) const {
-  UnicodeString result;
-  for( size_t i=0; i < data.size(); ++i ){
-    //    cerr << "data[" << i << "]=" << data[i] << endl;
-    if ( data[i]->isinstance( New_t ) || data[i]->isinstance( Current_t ) )
-      result += data[i]->text( corr );
+UnicodeString Correction::text( const string& cls ) const {
+  if ( cls == "current" ){
+    for( size_t i=0; i < data.size(); ++i ){
+      //    cerr << "data[" << i << "]=" << data[i] << endl;
+      if ( data[i]->isinstance( New_t ) || data[i]->isinstance( Current_t ) )
+	return data[i]->text( cls );
+    }
   }
-  return result;
+  else if ( cls == "original" ){
+    for( size_t i=0; i < data.size(); ++i ){
+      //    cerr << "data[" << i << "]=" << data[i] << endl;
+      if ( data[i]->isinstance( Original_t ) )
+	return data[i]->text( cls );
+    }
+  }
+  throw NoSuchText("wrong cls");
 }
 
 bool Correction::hasNew( ) const {
@@ -1831,9 +1804,9 @@ void TextContent::init(){
   _element_id = TextContent_t;
   _xmltag="t";
   _corrected = NOCORR;
+  _optional_attributes = CLASS|ANNOTATOR|CONFIDENCE;
+  _annotation_type =  AnnotationType::TEXT;
   _offset = -1;
-  _newoffset = -1;
-  _length = 0;
 }
 
 void Head::init() {
@@ -1936,6 +1909,46 @@ void Text::init(){
   _accepted_data = std::set<ElementType>(accept, accept+7); 
   _required_attributes = ID;
   TEXTDELIMITER = "\n\n";
+}
+
+void Caption::init(){
+  _xmltag="caption";
+  _element_id = Caption_t;
+  const ElementType accept[] = { Sentence_t, Description_t };
+  _accepted_data = std::set<ElementType>(accept, accept+2);
+  _optional_attributes = ID;
+}
+
+void Label::init(){
+  _xmltag="label";
+  _element_id = Label_t;
+  const ElementType accept[] = { Word_t, Description_t };
+  _accepted_data = std::set<ElementType>(accept, accept+2);
+  _optional_attributes = ID;
+}
+
+void ListItem::init(){
+  _xmltag="listitem";
+  _element_id = ListItem_t;
+  const ElementType accept[] = { List_t, Sentence_t, Description_t, Label_t };
+  _accepted_data = std::set<ElementType>(accept, accept+4);
+  _optional_attributes = ID|N;
+}
+
+void List::init(){
+  _xmltag="list";
+  _element_id = List_t;
+  const ElementType accept[] = { ListItem_t, Description_t, Caption_t };
+  _accepted_data = std::set<ElementType>(accept, accept+3);
+  _optional_attributes = ID|N;
+}
+
+void Figure::init(){
+  _xmltag="figure";
+  _element_id = Figure_t;
+  const ElementType accept[] = { Sentence_t, Description_t, Caption_t };
+  _accepted_data = std::set<ElementType>(accept, accept+3);
+  _optional_attributes = ID|N;
 }
 
 void Paragraph::init(){

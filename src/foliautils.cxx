@@ -229,6 +229,7 @@ string toString( const ElementType& et ) {
   case List_t: result = "list"; break;
   case ListItem_t: result = "listitem"; break;
   case Figure_t: result = "figure"; break;
+  case Caption_t: result = "caption"; break;
   case Quote_t: result = "quote"; break;
   case Pos_t: result = "pos"; break;
   case Current_t: result = "current"; break;
@@ -288,6 +289,18 @@ AbstractElement *AbstractElement::createElement( Document *doc,
   }
   if ( tag == "w" ){
     return new Word( doc );
+  }
+  if ( tag == "figure" ){
+    return new Figure( doc );
+  }
+  if ( tag == "caption" ){
+    return new Caption( doc );
+  }
+  if ( tag == "listitem" ){
+    return new ListItem( doc );
+  }
+  if ( tag == "list" ){
+    return new List( doc );
   }
   if ( tag == "p" ){
     return new Paragraph( doc );

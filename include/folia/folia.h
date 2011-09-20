@@ -85,8 +85,8 @@ class AbstractElement {
   virtual AbstractElement* parseXml( const xmlNode * );
   UnicodeString unicode() const { return text(); };
   virtual std::string str() const;
-  bool hastext( TextCorrectionLevel ) const ;
-  virtual UnicodeString text( TextCorrectionLevel=NOCORR ) const;
+  bool hastext( const std::string& = "" ) const ;
+  virtual UnicodeString text( const std::string& = "current" ) const;
   virtual AbstractElement *head() const {
     throw NotImplementedError("head()"); }; 
   virtual std::string feat( const std::string& ) const {
@@ -211,7 +211,7 @@ class AbstractElement {
     return addWord( getArgs(s) );
   }
   Word *addWord( const KWargs& );
-  TextContent *settext( const std::string&, TextCorrectionLevel=PROCESSED );
+  TextContent *settext( const std::string&, const std::string& = "current" );
   Alternative *addAlternative( ElementType, const KWargs& );
   AbstractTokenAnnotation *addAnnotation( ElementType, const KWargs& );
   AbstractTokenAnnotation *addPosAnnotation( const KWargs& );
@@ -388,7 +388,7 @@ class TextContent: public AbstractElement {
   void setAttributes( const KWargs& );
   KWargs collectAttributes() const;  
   std::string str() const;
-  UnicodeString text( TextCorrectionLevel ) const;
+  UnicodeString text( const std::string& = "current" ) const;
   AbstractElement *append( AbstractElement* ){ throw NotImplementedError("TextContent::append()"); };
   AbstractElement *postappend();
   std::vector<AbstractElement*> findreplacables( AbstractElement * ) const;
@@ -398,9 +398,7 @@ class TextContent: public AbstractElement {
   void init();
   TextCorrectionLevel _corrected;
   int _offset;
-  int _newoffset;
   UnicodeString _text;
-  int _length;
 };
 
 class FoLiA: public AbstractElement {
@@ -547,6 +545,49 @@ class Text: public AbstractStructureElement {
   void init();
 };
 
+class Caption: public AbstractStructureElement {
+ public:
+ Caption( const std::string& s=""):  AbstractStructureElement(){ classInit( s ); };
+ Caption( Document *d=0, const std::string& s=""):  AbstractStructureElement( d ){ classInit( s ); };
+ private:
+  void init();
+};
+
+class Label: public AbstractStructureElement {
+ public:
+ Label( const std::string& s=""):  AbstractStructureElement(){ classInit( s ); };
+ Label( Document *d=0, const std::string& s=""):  AbstractStructureElement( d ){ classInit( s ); };
+ private:
+  void init();
+};
+
+class ListItem: public AbstractStructureElement {
+ public:
+ ListItem( const std::string& s=""):  AbstractStructureElement(){ classInit( s ); };
+ ListItem( Document *d=0, const std::string& s=""):  AbstractStructureElement( d ){ classInit( s ); };
+ private:
+  void init();
+};
+
+class List: public AbstractStructureElement {
+ public:
+ List( const std::string& s=""):  AbstractStructureElement(){ classInit( s ); };
+ List( Document *d=0, const std::string& s=""):  AbstractStructureElement( d ){ classInit( s ); };
+ private:
+  void init();
+};
+
+class Figure: public AbstractStructureElement {
+ public:
+ Figure( const std::string& s=""):  AbstractStructureElement(){ classInit( s ); };
+ Figure( Document *d=0, const std::string& s=""):  AbstractStructureElement( d ){ classInit( s ); };
+  void setAttributes( const KWargs& );
+  KWargs collectAttributes() const;  
+ private:
+  void init();
+  std::string _url;
+  std::string _src;
+};
 
 class Paragraph: public AbstractStructureElement {
  public:
@@ -728,7 +769,7 @@ class Correction: public AbstractElement {
   AbstractElement *getCurrent( int = -1 ) const;
   AbstractElement *getSuggestion( int = -1 ) const;
   std::vector<AbstractElement *> suggestions() const;
-  UnicodeString text( TextCorrectionLevel=NOCORR) const;
+  UnicodeString text( const std::string& = "current" ) const;
  private:
   void init();
 };
