@@ -309,10 +309,27 @@ xmlNode *AbstractElement::xml( bool recursive ) const {
   addAttributes( e, attribs );
   if ( recursive ){
     // append children:
+    // we want make sure that text elements are in the right order, 
+    // in front and the 'current' class first
+    list<AbstractElement *> textelements;
+    list<AbstractElement *> otherelements;
     vector<AbstractElement*>::const_iterator it=data.begin();
     while ( it != data.end() ){
-      xmlAddChild( e, (*it)->xml( recursive ) );
+      if ( (*it)->isinstance(TextContent_t) ){
+	if ( (*it)->_cls == "current" )
+	  textelements.push_front( *it );
+	else
+	  textelements.push_back( *it );
+      }
+      else
+	otherelements.push_back( *it );
       ++it;
+    }
+    textelements.splice( textelements.end(), otherelements );
+    list<AbstractElement*>::const_iterator lit=textelements.begin();
+    while ( lit != textelements.end() ){
+      xmlAddChild( e, (*lit)->xml( recursive ) );
+      ++lit;
     }
   }
   return e;
@@ -323,10 +340,14 @@ string AbstractElement::str() const {
 }
 
 bool AbstractElement::hastext( const string& cls ) const {
-  //  cerr << _xmltag << "::hastext()" << endl;
   // Does this element have text?
-  vector<AbstractElement*> v = select(TextContent_t, cls, false);
-  return v.size() > 0;
+  vector<AbstractElement*> v = select(TextContent_t, false);
+  for( size_t i=0; i < v.size(); ++i ){
+    // look for right class
+    if ( v[i]->_cls == cls )
+      return true;
+  }
+  return false;
 }
 
 UnicodeString AbstractElement::text( const string& cls ) const {
@@ -336,7 +357,6 @@ UnicodeString AbstractElement::text( const string& cls ) const {
   for( size_t i=0; i < data.size(); ++i ){
     if ( data[i]->element_id() == TextContent_t 
 	 && data[i]->_cls == cls ){
-      
       return data[i]->text();
     }
   }
@@ -1876,6 +1896,17 @@ void Text::init(){
   TEXTDELIMITER = "\n\n";
 }
 
+void Event::init(){
+  _xmltag="event";
+  _element_id = Event_t;
+  const ElementType accept[] = { Gap_t, Division_t, Paragraph_t, Sentence_t, 
+				 List_t, Figure_t, Description_t };
+  _accepted_data = std::set<ElementType>(accept, accept+7); 
+  _required_attributes = CLASS;
+  _optional_attributes = ID|ANNOTATOR|N;
+  TEXTDELIMITER = "\n\n";
+}
+
 void Caption::init(){
   _xmltag="caption";
   _element_id = Caption_t;
@@ -2209,9 +2240,16 @@ void Quote::init(){
 
 void SynsetFeature::init(){
   _xmltag="synset";
-  _element_id = Domain_t;
+  _element_id = SynsetFeature_t;
   _annotation_type = AnnotationType::SENSE;
   _subset = "synset";
+}
+
+void ActorFeature::init(){
+  _xmltag = "actor";
+  _element_id = ActorFeature_t;
+  _annotation_type = AnnotationType::SENSE;
+  _subset = "actor";
 }
 
 void AbstractSubtokenAnnotation::init() {

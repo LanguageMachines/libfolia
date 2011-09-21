@@ -168,6 +168,7 @@ string toString( const ElementType& et ) {
   switch( et ){
   case BASE: result = "BASE"; break;
   case Text_t: result = "text"; break;
+  case Event_t: result = "event"; break;
   case TextContent_t: result = "t"; break;
   case LineBreak_t: result = "br"; break;
   case WhiteSpace_t: result = "whitespace"; break;
@@ -211,6 +212,8 @@ string toString( const ElementType& et ) {
   case Alternative_t: result = "alternative"; break; 
   case AltLayers_t: result = "altlayers"; break;
   case Feature_t: result = "feature"; break;
+  case SynsetFeature_t: result = "synset"; break;
+  case ActorFeature_t: result = "actor"; break;
   default:
     result = "Unknown Elementtype " + toString( int(et) );
   }
@@ -228,6 +231,9 @@ AbstractElement *AbstractElement::createElement( Document *doc,
   }
   if ( tag == "text" ){
     return new Text( doc );
+  }
+  if ( tag == "event" ){
+    return new Event( doc );
   }
   if ( tag == "s" ){
     return new Sentence( doc );
@@ -345,6 +351,9 @@ AbstractElement *AbstractElement::createElement( Document *doc,
   }
   if ( tag == "synset" ){
     return new SynsetFeature( doc );
+  }
+  if ( tag == "actor" ){
+    return new ActorFeature( doc );
   }
   if ( tag == "quote" ){
     return new Quote( doc );

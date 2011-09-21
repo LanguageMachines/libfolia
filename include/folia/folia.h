@@ -85,7 +85,7 @@ class AbstractElement {
   virtual AbstractElement* parseXml( const xmlNode * );
   UnicodeString unicode() const { return text(); };
   virtual std::string str() const;
-  bool hastext( const std::string& = "" ) const ;
+  bool hastext( const std::string& = "current" ) const ;
   virtual UnicodeString text( const std::string& = "current" ) const;
   virtual AbstractElement *head() const {
     throw NotImplementedError("head()"); }; 
@@ -535,6 +535,14 @@ class Text: public AbstractStructureElement {
   void init();
 };
 
+class Event: public AbstractStructureElement {
+ public:
+ Event( const std::string& s=""):  AbstractStructureElement(){ classInit( s ); };
+ Event( Document *d=0, const std::string& s=""):  AbstractStructureElement( d ){ classInit( s ); };
+ private:
+  void init();
+};
+
 class Caption: public AbstractStructureElement {
  public:
  Caption( const std::string& s=""):  AbstractStructureElement(){ classInit( s ); };
@@ -656,6 +664,14 @@ class SynsetFeature: public Feature {
  public:
  SynsetFeature( const std::string& s ): Feature( ){ classInit( s ); }
  SynsetFeature( Document *d=0, const std::string& s="" ): Feature( d ){ classInit( s ); }
+ private:
+  void init();
+};
+
+class ActorFeature: public Feature {
+ public:
+ ActorFeature( const std::string& s ): Feature( ){ classInit( s ); }
+ ActorFeature( Document *d=0, const std::string& s="" ): Feature( d ){ classInit( s ); }
  private:
   void init();
 };

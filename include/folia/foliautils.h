@@ -27,7 +27,8 @@ inline Attrib& operator|=( Attrib& a1, Attrib& a2 ){
 
 enum ElementType  {
   BASE=0, TextContent_t,
-  Text_t, LineBreak_t, WhiteSpace_t, Word_t,
+  Text_t, Event_t,
+  LineBreak_t, WhiteSpace_t, Word_t,
   WordReference_t, Sentence_t, Paragraph_t,
   Division_t, Head_t, Caption_t, Label_t,
   List_t, ListItem_t, Figure_t, Quote_t, //structure annotation elements
@@ -43,7 +44,7 @@ enum ElementType  {
   Suggestion_t, 
   Alternative_t, AltLayers_t, //alternatives
   Description_t, Gap_t, 
-  Content_t, Feature_t, SynsetFeature_t, //features
+  Content_t, Feature_t, SynsetFeature_t, ActorFeature_t, //features
   PlaceHolder_t
 };
 
