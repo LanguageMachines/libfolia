@@ -143,10 +143,6 @@ class AbstractElement {
   std::string pos() const { return annotation( Pos_t )->cls(); };
   std::string lemma() const { return annotation( Lemma_t )->cls(); };
 
-  virtual TextCorrectionLevel corrected() const { return NOCORR; };
-  virtual void setCorrected( const TextCorrectionLevel ) { 
-    throw NotImplementedError("setCorrected()"); 
-  };    
   std::string cls() const { return _cls; };
   std::string st() const { return _set; };
   std::string annotator() const { return _annotator; };
@@ -244,8 +240,6 @@ class AbstractElement {
 
   void increfcount() { ++refcount; };
   AbstractElement *parent() const { return _parent; };
-  TextCorrectionLevel getMinCorrectionLevel() const { 
-    return MINTEXTCORRECTIONLEVEL;};
   void setParent( AbstractElement *p ) { _parent = p ; };
  protected:
   virtual void init()=0;
@@ -268,7 +262,6 @@ class AbstractElement {
   Attrib _optional_attributes;
   size_t occurrences;
   size_t occurrences_per_set;
-  TextCorrectionLevel MINTEXTCORRECTIONLEVEL;
   std::string TEXTDELIMITER;
   bool PRINTABLE;
 
@@ -392,11 +385,8 @@ class TextContent: public AbstractElement {
   AbstractElement *append( AbstractElement* ){ throw NotImplementedError("TextContent::append()"); };
   AbstractElement *postappend();
   std::vector<AbstractElement*> findreplacables( AbstractElement * ) const;
-  TextCorrectionLevel corrected() const { return _corrected; };
-  void setCorrected( const TextCorrectionLevel tc ) { _corrected = tc; };
  private:
   void init();
-  TextCorrectionLevel _corrected;
   int _offset;
   UnicodeString _text;
 };

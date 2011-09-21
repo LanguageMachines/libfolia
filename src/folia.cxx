@@ -56,7 +56,6 @@ AbstractElement::AbstractElement( Document *d ){
   _xmltag = "ThIsIsSoWrOnG";
   occurrences = 0;  //#Number of times this element may occur in its parent (0=unlimited, default=0)
   occurrences_per_set = 1; // #Number of times this element may occur per set (0=unlimited, default=1)
-  MINTEXTCORRECTIONLEVEL = ORIGINAL;
   TEXTDELIMITER = " " ;
   PRINTABLE = true;
 }
@@ -835,11 +834,9 @@ AbstractElement *TextContent::postappend(){
 vector<AbstractElement *>TextContent::findreplacables( AbstractElement *par ) const {
   vector<AbstractElement*> v = par->select( TextContent_t, _set, false );
   // cerr << "TextContent::findreplacable found " << v << endl;
-  // cerr << "looking for " << toString( _corrected) << endl;
   vector<AbstractElement *>::iterator it = v.begin();
   while ( it != v.end() ){
     // cerr << "TextContent::findreplacable bekijkt " << *it << " (" 
-    //  	 << toString( dynamic_cast<TextContent*>(*it)->_corrected ) << ")" << endl;
     if ( (*it)->cls() != _cls )
       it = v.erase(it);
     else
@@ -1267,22 +1264,6 @@ void Word::setAttributes( const KWargs& args ){
   if ( it != args.end() ) {
     settext( it->second );
   }
-  // it = args.find( "processedtext" );
-  // if ( it != args.end() ) {
-  //   settext( it->second, PROCESSED );
-  // }
-  // it = args.find( "correctedtext" ); // Backward compatible
-  // if ( it != args.end() ) {
-  //   settext( it->second, PROCESSED );
-  // }
-  // it = args.find( "originaltext" );
-  // if ( it != args.end() ) {
-  //   settext( it->second, ORIGINAL );
-  // }
-  // it = args.find( "uncorrectedtext" ); // Backward compatible
-  // if ( it != args.end() ) {
-  //   settext( it->second, ORIGINAL );
-  // }
   AbstractElement::setAttributes( args );
 }
 
@@ -1562,19 +1543,6 @@ KWargs TextContent::collectAttributes() const {
   if ( _offset >= 0 ){
     attribs["offset"] = toString( _offset );
   }
-  if ( _corrected == INLINE ){
-    attribs["corrected"] = "inline";
-  }
-  if ( _corrected == OCR ){
-    attribs["corrected"] = "ocr";
-  }
-  if ( _corrected == SPEECHTOTEXT ){
-    attribs["corrected"] = "speechtotext";
-  }
-  else if ( _corrected == PROCESSED && 
-	    _parent && _parent->getMinCorrectionLevel() < PROCESSED ){
-    attribs["corrected"] = "yes";
-  }
   return attribs;
 }
 
@@ -1803,7 +1771,6 @@ void DCOI::init(){
 void TextContent::init(){
   _element_id = TextContent_t;
   _xmltag="t";
-  _corrected = NOCORR;
   _optional_attributes = CLASS|ANNOTATOR|CONFIDENCE;
   _annotation_type =  AnnotationType::TEXT;
   _offset = -1;
@@ -1839,7 +1806,6 @@ void Word::init(){
   _annotation_type = AnnotationType::TOKEN;
   _required_attributes = ID;
   _optional_attributes = CLASS|ANNOTATOR|CONFIDENCE;
-  MINTEXTCORRECTIONLEVEL = PROCESSED;
   TEXTDELIMITER = " ";
   space = true;
 }
@@ -1858,7 +1824,6 @@ void PlaceHolder::init(){
   _accepted_data = std::set<ElementType>(accept, accept+1);
   _annotation_type = AnnotationType::TOKEN;
   _required_attributes = NO_ATT;
-  MINTEXTCORRECTIONLEVEL = PROCESSED;
   TEXTDELIMITER = " ";
 }
 
@@ -2013,7 +1978,6 @@ void NewElement::init(){
   _element_id = New_t;
   const ElementType accept[] = { Pos_t, Lemma_t, Word_t, TextContent_t };
   _accepted_data = std::set<ElementType>(accept, accept+4);
-  MINTEXTCORRECTIONLEVEL = PROCESSED;
 }
 
 void Current::init(){
@@ -2037,7 +2001,6 @@ void Suggestion::init(){
   const ElementType accept[] = { Pos_t, Lemma_t, TextContent_t, Word_t };
   _accepted_data = std::set<ElementType>(accept, accept+4);
   _optional_attributes = ANNOTATOR|CONFIDENCE|DATETIME;
-  MINTEXTCORRECTIONLEVEL = PROCESSED;
 }
 
 void Correction::init(){
@@ -2126,7 +2089,6 @@ void Morpheme::init(){
   const ElementType accept[] = { Feature_t, TextContent_t };
   _accepted_data = std::set<ElementType>(accept, accept+2);
   _annotation_type = AnnotationType::MORPHOLOGICAL;
-  MINTEXTCORRECTIONLEVEL = PROCESSED;
 }
 
 void Subentity::init(){

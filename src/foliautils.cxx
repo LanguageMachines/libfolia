@@ -102,52 +102,6 @@ string toString( const AnnotationType::AnnotationType& at ){
   return result;
 }
 
-string toString( const TextCorrectionLevel l ){
-  string result;
-  switch ( l ) {
-  case NOCORR:
-    result = "NONE";
-    break; 
-  case OCR:
-    result = "OCR";
-    break; 
-  case SPEECHTOTEXT:
-    result = "SPEECHTOTEXT";
-    break; 
-  case PROCESSED:
-    result = "PROCESSED";
-    break; 
-  case ORIGINAL:
-    result = "ORIGINAL";
-    break; 
-  case INLINE:
-    result = "INLINE";
-    break; 
-  default:
-    throw ValueError( " unknown translation for TextCorrectionLevel " + toString(int(l)) );
-  }
-  return result;
-}
-
-TextCorrectionLevel stringToTCL( const string& lev ){
-  TextCorrectionLevel result;
-  if ( lev == "NONE" )
-    result = NOCORR;
-  else if ( lev == "PROCESSED" || lev == "yes" )
-    result = PROCESSED;
-  else if ( lev == "ORIGINAL" || lev == "no" )
-    result = ORIGINAL;
-  else if ( lev == "INLINE" || lev == "inline" )
-    result = INLINE;
-  else if ( lev == "OCR" || lev == "ocr" )
-    result = OCR;
-  else if ( lev == "SPEECHTOTEXT" || lev == "speechtotext" )
-    result = SPEECHTOTEXT;
-  else
-    throw ValueError( " unknown TextCorrectionLevel " + lev );
-  return result;
-}
-
 int to_lower( const int& i ){ return tolower(i); }
 int to_upper( const int& i ){ return toupper(i); }
 

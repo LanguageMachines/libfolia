@@ -65,8 +65,6 @@ namespace AnnotationType {
   };
 }
 
-enum TextCorrectionLevel { NOCORR, OCR, SPEECHTOTEXT, ORIGINAL, INLINE, PROCESSED };
-
 enum MetaDataType { NATIVE, CMDI, IMDI };
 
 class ArgsError: public std::runtime_error {
@@ -133,7 +131,6 @@ std::string UnicodeToUTF8( const UnicodeString& );
 double toDouble( const std::string& );
 
 std::string toString( const double );
-std::string toString( TextCorrectionLevel );
 
 std::string toString( const AnnotationType::AnnotationType& );
 AnnotatorType stringToANT( const std::string& );
@@ -142,7 +139,6 @@ std::string lowercase( const std::string& );
 std::string uppercase( const std::string& );
 
 AnnotationType::AnnotationType stringToAT( const std::string& );
-TextCorrectionLevel stringToTCL( const std::string& );
 
 std::string toString( const ElementType& );
 
