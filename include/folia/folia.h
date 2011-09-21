@@ -301,6 +301,35 @@ inline UnicodeString unicode( const AbstractElement *e ) {
 inline bool isinstance( const AbstractElement *e, ElementType t ) { 
   return e->isinstance( t ); }
 
+//
+// The following code is happily copied form:
+// Modern C++ Design
+// Andrei Alexandrescu
+//
+// it allows us to check if an class is a subclass of another
+//
+template <class T, class U>
+  class Conversion {
+  typedef char Small;
+  class Big { char dummy[2]; };
+  static Small Test(U);
+  static Big Test(...);
+  static T MakeT();
+ public:
+  enum { sameType = false };
+  enum { exists = sizeof(Test(MakeT())) == sizeof(Small) };
+};
+
+template<class T>
+class Conversion<T,T> {
+ public:
+  enum { exists = 1, sameType = 1 };
+};
+
+#define issubclass(U,T)				\
+  (Conversion<const U*, const T*>::exists &&		\
+   !Conversion<const T*, const void*>::sameType)
+
 class AbstractStructureElement: public AbstractElement {
  public:  
  AbstractStructureElement( Document *d=0 ): AbstractElement( d ) {};
