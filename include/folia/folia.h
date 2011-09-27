@@ -153,6 +153,7 @@ class AbstractElement {
   void confidence( double d ) { _confidence = d; };
   AnnotationType::AnnotationType annotation_type() const { return _annotation_type; };
   std::string classname() const { return toString(_element_id); };
+  std::string n() const { return _n; };
   std::string id() const { return _id; };
   ElementType element_id() const { return _element_id; };
   std::string xmltag() const { return _xmltag; };
@@ -237,6 +238,12 @@ class AbstractElement {
   }
   virtual Correction *correct( const std::string& = "" ){
     throw NotImplementedError("correct()"); };
+
+  virtual std::string src() const {
+    throw NotImplementedError("src()"); };
+
+  virtual UnicodeString caption() const {
+    throw NotImplementedError("caption()"); };
 
   void increfcount() { ++refcount; };
   AbstractElement *parent() const { return _parent; };
@@ -610,9 +617,10 @@ class Figure: public AbstractStructureElement {
  Figure( Document *d=0, const std::string& s=""):  AbstractStructureElement( d ){ classInit( s ); };
   void setAttributes( const KWargs& );
   KWargs collectAttributes() const;  
+  std::string src() const { return _src; };
+  UnicodeString caption() const;
  private:
   void init();
-  std::string _url;
   std::string _src;
 };
 

@@ -1583,17 +1583,20 @@ KWargs Figure::collectAttributes() const {
 void Figure::setAttributes( const KWargs& kwargsin ){
   KWargs kwargs = kwargsin;
   KWargs::const_iterator it;
-  it = kwargs.find( "url" );
-  if ( it != kwargs.end() ) {
-    _url = it->second;
-    kwargs.erase( "url" );
-  }
   it = kwargs.find( "src" );
   if ( it != kwargs.end() ) {
     _src = it->second;
-    kwargs.erase( "url" );
+    kwargs.erase( "src" );
   }
   AbstractElement::setAttributes(kwargs);
+}
+
+UnicodeString Figure::caption() const {
+  vector<AbstractElement *> v = select(Caption_t);
+  if ( v.empty() )
+    throw NoSuchText("caption");
+  else
+    return v[0]->text();
 }
 
 void Description::setAttributes( const KWargs& kwargs ){
@@ -1818,11 +1821,11 @@ void WhiteSpace::init(){
 void Word::init(){
   _xmltag="w";
   _element_id = Word_t;
-  const ElementType accept[] = { TextContent_t, Pos_t, Lemma_t, 
-				 Alternative_t, 
+  const ElementType accept[] = { TextContent_t, Pos_t, Lemma_t,
+				 SenseAnnotation_t, Alternative_t, 
 				 Correction_t, ErrorDetection_t, Description_t,
 				 Morphology_t };
-  _accepted_data = std::set<ElementType>(accept, accept+8);
+  _accepted_data = std::set<ElementType>(accept, accept+9);
   _annotation_type = AnnotationType::TOKEN;
   _required_attributes = ID;
   _optional_attributes = CLASS|ANNOTATOR|CONFIDENCE;
@@ -1867,10 +1870,10 @@ void Sentence::init(){
   const ElementType accept[] = { LineBreak_t, WhiteSpace_t, Word_t, 
 				 TextContent_t, Annolay_t, 
 				 SyntaxLayer_t, Chunking_t,
-				 Quote_t,
+				 Quote_t, Event_t,
 				 Correction_t,
 				 Description_t };
-  _accepted_data = std::set<ElementType>(accept, accept+10); 
+  _accepted_data = std::set<ElementType>(accept, accept+11); 
   _required_attributes = ID;
   _optional_attributes = N;
 }
@@ -1904,6 +1907,7 @@ void Event::init(){
   _accepted_data = std::set<ElementType>(accept, accept+7); 
   _required_attributes = CLASS;
   _optional_attributes = ID|ANNOTATOR|N;
+  _annotation_type = AnnotationType::EVENT;
   TEXTDELIMITER = "\n\n";
 }
 
@@ -1926,17 +1930,19 @@ void Label::init(){
 void ListItem::init(){
   _xmltag="listitem";
   _element_id = ListItem_t;
-  const ElementType accept[] = { List_t, Sentence_t, Description_t, Label_t };
-  _accepted_data = std::set<ElementType>(accept, accept+4);
+  const ElementType accept[] = { List_t, Sentence_t, Description_t, Label_t,
+				 Event_t };
+  _accepted_data = std::set<ElementType>(accept, accept+5);
   _optional_attributes = ID|N;
 }
 
 void List::init(){
   _xmltag="list";
   _element_id = List_t;
-  const ElementType accept[] = { ListItem_t, Description_t, Caption_t };
-  _accepted_data = std::set<ElementType>(accept, accept+3);
+  const ElementType accept[] = { ListItem_t, Description_t, Caption_t, Event_t };
+  _accepted_data = std::set<ElementType>(accept, accept+4);
   _optional_attributes = ID|N;
+  TEXTDELIMITER="\n";
 }
 
 void Figure::init(){
@@ -2209,7 +2215,7 @@ void DomainAnnotation::init(){
 
 void SenseAnnotation::init(){
   _xmltag="sense";
-  _element_id = Sense_t;
+  _element_id = SenseAnnotation_t;
   _annotation_type = AnnotationType::SENSE;
   _required_attributes = CLASS;
   _optional_attributes = ANNOTATOR|CONFIDENCE|DATETIME;

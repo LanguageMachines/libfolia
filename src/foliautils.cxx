@@ -60,6 +60,9 @@ string toString( const AnnotationType::AnnotationType& at ){
   case AnnotationType::LEMMA:
     result = "lemma";
     break; 
+  case AnnotationType::EVENT:
+    result = "event";
+    break; 
   case AnnotationType::DOMEIN:
     result = "domain";
     break; 
@@ -136,6 +139,8 @@ AnnotationType::AnnotationType stringToAT( const string& at ){
     return AnnotationType::POS;
   if ( at == "lemma" )
     return AnnotationType::LEMMA;
+  if ( at == "event" )
+    return AnnotationType::EVENT;
   if ( at == "domain" )
     return AnnotationType::DOMEIN;
   if ( at == "sense" )
@@ -194,7 +199,7 @@ string toString( const ElementType& et ) {
   case Lemma_t: result = "lemma"; break;
   case Phon_t: result = "phon"; break; 
   case Domain_t: result = "domain"; break; 
-  case Sense_t: result = "sense"; break; 
+  case SenseAnnotation_t: result = "sense"; break; 
   case Morphology_t: result = "morphology"; break;
   case Morpheme_t: result = "morpheme"; break;
   case Correction_t: result = "correction"; break;

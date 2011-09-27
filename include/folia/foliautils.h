@@ -32,7 +32,7 @@ enum ElementType  {
   WordReference_t, Sentence_t, Paragraph_t,
   Division_t, Head_t, Caption_t, Label_t,
   List_t, ListItem_t, Figure_t, Quote_t, //structure annotation elements
-  Pos_t, Lemma_t, Phon_t, Domain_t, Sense_t, Subjectivity_t,
+  Pos_t, Lemma_t, Phon_t, Domain_t, SenseAnnotation_t, Subjectivity_t,
   Correction_t, //token annotation elements
   Annolay_t, SyntacticUnit_t, SyntaxLayer_t, 
   Chunk_t, Chunking_t, 
@@ -59,7 +59,8 @@ inline ElementType operator|( ElementType a1, ElementType a2 ){
  *  static const annotation_type = {AnnotationType}
  */
 namespace AnnotationType {
-  enum AnnotationType { NO_ANN, TEXT, TOKEN, DIVISION, POS, LEMMA, SUGGESTION,
+  enum AnnotationType { NO_ANN, TEXT, TOKEN, DIVISION, POS, LEMMA, EVENT,
+			SUGGESTION, 
 			DOMEIN, SENSE, SYNTAX, CHUNKING, SUBENTITY,
 			ENTITY, ERRORDETECTION, CORRECTION, ALTERNATIVE, PHON,
 			SUBJECTIVITY, MORPHOLOGICAL 
