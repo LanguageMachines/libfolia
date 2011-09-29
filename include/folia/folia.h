@@ -79,6 +79,7 @@ class AbstractElement {
 					const std::string&,
 					const std::set<ElementType>& ,
 					bool = true ) const;
+  std::string feat( const std::string& ) const;
   //XML (de)serialisation
   std::string xmlstring() const; // serialize to a string (XML fragment)
   virtual xmlNode *xml( bool ) const; //serialize to XML  
@@ -89,8 +90,6 @@ class AbstractElement {
   virtual UnicodeString text( const std::string& = "current" ) const;
   virtual AbstractElement *head() const {
     throw NotImplementedError("head()"); }; 
-  virtual std::string feat( const std::string& ) const {
-    throw NotImplementedError("feat()"); }; 
   virtual AbstractElement *getNew( int = -1 ) const {
     throw NotImplementedError("getNew()"); };
   virtual AbstractElement *getOriginal( int = -1) const {
@@ -308,35 +307,6 @@ inline UnicodeString unicode( const AbstractElement *e ) {
 inline bool isinstance( const AbstractElement *e, ElementType t ) { 
   return e->isinstance( t ); }
 
-//
-// The following code is happily copied form:
-// Modern C++ Design
-// Andrei Alexandrescu
-//
-// it allows us to check if an class is a subclass of another
-//
-template <class T, class U>
-  class Conversion {
-  typedef char Small;
-  class Big { char dummy[2]; };
-  static Small Test(U);
-  static Big Test(...);
-  static T MakeT();
- public:
-  enum { sameType = false };
-  enum { exists = sizeof(Test(MakeT())) == sizeof(Small) };
-};
-
-template<class T>
-class Conversion<T,T> {
- public:
-  enum { exists = 1, sameType = 1 };
-};
-
-#define issubclass(U,T)				\
-  (Conversion<const U*, const T*>::exists &&		\
-   !Conversion<const T*, const void*>::sameType)
-
 class AbstractStructureElement: public AbstractElement {
  public:  
  AbstractStructureElement( Document *d=0 ): AbstractElement( d ) {};
@@ -373,7 +343,6 @@ class AbstractStructureElement: public AbstractElement {
 class AbstractAnnotation: public AbstractElement {
  public:
  AbstractAnnotation( Document *d=0 ):  AbstractElement( d ){};
-  std::string feat( const std::string& ) const;
 };
 
 class AbstractTokenAnnotation: public AbstractAnnotation {

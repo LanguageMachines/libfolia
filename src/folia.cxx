@@ -245,7 +245,19 @@ void AbstractElement::setAttributes( const KWargs& kwargs ){
     _datetime = 0;
 
   if ( mydoc && !_id.empty() )
-    mydoc->addDocIndex( this, _id );  
+    mydoc->addDocIndex( this, _id );
+
+  it = kwargs.find( "actor" );
+  if ( it != kwargs.end() ){
+    AbstractElement *tmp = new ActorFeature( "cls='" + it->second + "'" );
+    append( tmp );
+  }
+  it = kwargs.find( "synset" );
+  if ( it != kwargs.end() ){
+    AbstractElement *tmp = new SynsetFeature( "cls='" + it->second + "'" );
+    append( tmp );
+  }
+  
 }
 
 KWargs AbstractElement::collectAttributes() const {
@@ -306,6 +318,19 @@ string AbstractElement::xmlstring() const{
 xmlNode *AbstractElement::xml( bool recursive ) const {
  xmlNode *e = newXMLNode( foliaNs(), _xmltag );
   KWargs attribs = collectAttributes();
+  set<AbstractElement *> skipelements;
+  vector<AbstractElement*>::const_iterator it=data.begin();
+  while ( it != data.end() ){
+    if ( (*it)->isinstance(SynsetFeature_t) ){
+      attribs["synset"] = (*it)->cls();
+      skipelements.insert( *it );
+    }
+    else if ( (*it)->isinstance(ActorFeature_t) ){
+      attribs["actor"] = (*it)->cls();
+      skipelements.insert( *it );
+    }
+    ++it;
+  }
   addAttributes( e, attribs );
   if ( recursive ){
     // append children:
@@ -315,14 +340,16 @@ xmlNode *AbstractElement::xml( bool recursive ) const {
     list<AbstractElement *> otherelements;
     vector<AbstractElement*>::const_iterator it=data.begin();
     while ( it != data.end() ){
-      if ( (*it)->isinstance(TextContent_t) ){
-	if ( (*it)->_cls == "current" )
-	  textelements.push_front( *it );
+      if ( skipelements.find(*it) == skipelements.end() ){
+	if ( (*it)->isinstance(TextContent_t) ){
+	  if ( (*it)->_cls == "current" )
+	    textelements.push_front( *it );
+	  else
+	    textelements.push_back( *it );
+	}
 	else
-	  textelements.push_back( *it );
+	  otherelements.push_back( *it );
       }
-      else
-	otherelements.push_back( *it );
       ++it;
     }
     textelements.splice( textelements.end(), otherelements );
@@ -1903,8 +1930,9 @@ void Event::init(){
   _xmltag="event";
   _element_id = Event_t;
   const ElementType accept[] = { Gap_t, Division_t, Paragraph_t, Sentence_t, 
-				 List_t, Figure_t, Description_t };
-  _accepted_data = std::set<ElementType>(accept, accept+7); 
+				 List_t, Figure_t, Description_t, 
+				 ActorFeature_t };
+  _accepted_data = std::set<ElementType>(accept, accept+8); 
   _required_attributes = CLASS;
   _optional_attributes = ID|ANNOTATOR|N;
   _annotation_type = AnnotationType::EVENT;
@@ -2103,13 +2131,13 @@ KWargs Feature::collectAttributes() const {
   return attribs;
 }
 
-std::string AbstractAnnotation::feat( const std::string& s ) const {
-  vector<AbstractElement*> v = select( Feature_t, false );
-  vector<AbstractElement*>::const_iterator it = v.begin();
-  while ( it != v.end() ){
-    if ( (*it)->subset() == s )
-      return (*it)->cls();
-    ++it;
+std::string AbstractElement::feat( const std::string& s ) const {
+  for ( size_t i=0; i < data.size(); ++i ){
+    if ( ( data[i]->isinstance( Feature_t ) ||
+	   data[i]->isinstance( SynsetFeature_t ) ||
+	   data[i]->isinstance( ActorFeature_t ) ) &&
+	 data[i]->subset() == s )
+      return data[i]->cls();
   }
   return "";
 }
