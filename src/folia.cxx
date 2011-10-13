@@ -1984,8 +1984,8 @@ void Figure::init(){
 void Paragraph::init(){
   _xmltag="p";
   _element_id = Paragraph_t;
-  const ElementType accept[] = { Sentence_t, Correction_t, TextContent_t, Description_t, LineBreak_t, WhiteSpace_t };
-  _accepted_data = std::set<ElementType>(accept, accept+6);
+  const ElementType accept[] = { Sentence_t, Correction_t, TextContent_t, Description_t, LineBreak_t, WhiteSpace_t, List_t, Figure_t };
+  _accepted_data = std::set<ElementType>(accept, accept+8);
   _required_attributes = ID;
 }
 
