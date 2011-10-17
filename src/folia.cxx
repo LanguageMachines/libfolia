@@ -2167,7 +2167,7 @@ void Subentity::init(){
 }
 
 void SyntaxLayer::init(){
-  //  _element_id = SyntaxLayer_t;
+  _element_id = SyntaxLayer_t;
   _xmltag = "syntax";
   const ElementType accept[] = { SyntacticUnit_t, Description_t };
   _accepted_data = std::set<ElementType>(accept, accept+2);
