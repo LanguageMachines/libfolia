@@ -82,6 +82,7 @@ class AbstractElement {
   std::string feat( const std::string& ) const;
   //XML (de)serialisation
   std::string xmlstring() const; // serialize to a string (XML fragment)
+  AbstractElement *textcontent( const std::string& = "current" ) const;
   virtual xmlNode *xml( bool ) const; //serialize to XML  
   virtual AbstractElement* parseXml( const xmlNode * );
   UnicodeString unicode() const { return text(); };
@@ -130,7 +131,9 @@ class AbstractElement {
 						       const std::string& ="" ) const {
     throw NotImplementedError("rightcontext()"); 
   };
-
+  virtual int offset() const {
+    throw NotImplementedError("offset()"); 
+  };
   std::vector<AbstractElement *>annotations( ElementType ) const;
   virtual AbstractElement *annotation( ElementType ) const {
     throw NotImplementedError( "annotation() not allowed on " + classname() );
@@ -387,6 +390,7 @@ class TextContent: public AbstractElement {
   KWargs collectAttributes() const;  
   std::string str() const;
   UnicodeString text( const std::string& = "current" ) const;
+  int offset() const { return _offset; };
   AbstractElement *append( AbstractElement* ){ throw NotImplementedError("TextContent::append()"); };
   AbstractElement *postappend();
   std::vector<AbstractElement*> findreplacables( AbstractElement * ) const;

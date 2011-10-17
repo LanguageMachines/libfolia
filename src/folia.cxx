@@ -418,6 +418,22 @@ UnicodeString AbstractElement::text( const string& cls ) const {
     throw NoSuchText( ":{" );
 }
 
+AbstractElement *AbstractElement::textcontent( const string& cls ) const {
+  // Get the text explicitly associated with this element (of the specified class).
+  // Returns the TextContent instance rather than the actual text.
+  // Raises NoSuchText exception if not found. 
+        
+  if ( !PRINTABLE )
+    throw NoSuchText( _xmltag );
+  for( size_t i=0; i < data.size(); ++i ){
+    if ( data[i]->element_id() == TextContent_t 
+	 && data[i]->_cls == cls ){
+      return data[i];
+    }
+  }
+  throw NoSuchText( "textcontent()" );
+}
+
 vector<AbstractElement *>AbstractElement::findreplacables( AbstractElement *par ) const {
   return par->select( element_id(), _set, false );
 }
