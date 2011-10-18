@@ -17,6 +17,8 @@ class Pattern {
   Pattern( const std::vector<std::string>&, 
 	   const ElementType = BASE,
 	   const std::string& = "" );
+  Pattern( const std::vector<std::string>&, 
+	   const std::string& );
   ~Pattern();
   bool match( const UnicodeString& , size_t&, int&, bool&, bool& ) const;
   size_t size() const { return sequence.size(); };

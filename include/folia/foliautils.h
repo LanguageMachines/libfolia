@@ -32,7 +32,7 @@ enum ElementType  {
   WordReference_t, Sentence_t, Paragraph_t,
   Division_t, Head_t, Caption_t, Label_t,
   List_t, ListItem_t, Figure_t, Quote_t, //structure annotation elements
-  Pos_t, Lemma_t, Phon_t, Domain_t, SenseAnnotation_t, Subjectivity_t,
+  Pos_t, Lemma_t, Phon_t, Domain_t, Sense_t, Subjectivity_t,
   Correction_t, //token annotation elements
   Annolay_t, SyntacticUnit_t, SyntaxLayer_t, 
   Chunk_t, Chunking_t, 
@@ -167,6 +167,17 @@ inline T stringTo( const std::string& str ) {
   return result;
 }  
 
+template<>
+inline AnnotatorType stringTo( const std::string& str ) {
+  std::string at = uppercase( str );
+  if ( at == "AUTO" )
+    return AUTO;
+  else if ( at == "MANUAL" )
+    return MANUAL;
+  else
+    return UNDEFINED;
+}
+
 template< typename T >
 inline std::ostream& operator<<( std::ostream& os, const std::set<T>& s ){
   os << "{";
@@ -236,6 +247,7 @@ inline std::string getNS( const xmlNode *n ) {
 };
 std::map<std::string,std::string> getNSlist( const xmlNode * );
 
+std::list<xmlNode*> FindNodes( xmlNode *, const std::string& );
 xmlNode *xPath( xmlNode *, const std::string& );
 
 std::tm *parseDate( const std::string& );

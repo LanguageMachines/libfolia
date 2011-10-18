@@ -852,6 +852,47 @@ Pattern::Pattern( const std::vector<std::string>&v,
   }
 }
 
+Pattern::Pattern( const std::vector<std::string>&v, 
+		  const string& args ):matchannotation(BASE) {
+
+  // code duplication 
+  // BAD BAD BAD
+  //
+  regexp = false;
+  case_sensitive = false;
+  KWargs kw = getArgs( args );
+  matchannotationset = kw["matchannotationset"];
+  if (kw["regexp"] != "" )
+    regexp = stringTo<bool>( kw["regexp"] );
+  if (kw["maxgapsize"] != "" )
+    maxgapsize = stringTo<int>( kw["maxgapsize"] );
+  else
+    maxgapsize = 10;
+  if ( kw["casesensitive"] != "" )
+    case_sensitive = stringTo<bool>( kw["casesensitive"] );
+  for ( size_t i=0; i < v.size(); ++i ){
+    if ( v[i].find( "regexp('" ) == 0 &&
+	 v[i].rfind( "')" ) == v[i].length()-2 ){
+      string tmp = v[i].substr( 8, v[i].length() - 10 );
+      UnicodeString us = UTF8ToUnicode( tmp );
+      UErrorCode u_stat = U_ZERO_ERROR;
+      RegexMatcher *mat = new RegexMatcher(us, 0, u_stat);
+      if ( U_FAILURE(u_stat) ){
+	throw runtime_error( "failed to create a regexp matcher with '" + tmp + "'" );
+      }
+      matchers.push_back( mat );
+      sequence.push_back( "" );
+    }
+    else {
+      sequence.push_back( UTF8ToUnicode(v[i]) );
+      matchers.push_back( 0 );
+      if ( !case_sensitive ){
+	sequence[i].toLower();
+      }
+    }
+  }
+}
+
 Pattern::~Pattern(){
   for ( size_t i=0; i < matchers.size(); ++i ){  
     delete matchers[i];

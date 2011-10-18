@@ -178,21 +178,15 @@ void AbstractElement::setAttributes( const KWargs& kwargs ){
     if ( ! (ANNOTATOR & supported) )
       throw ValueError("Annotatortype is not supported for " + classname() );
     else {
-      if ( it->second == "auto" )
-	_annotator_type = AUTO;
-      else if ( it->second == "manual" )
-	_annotator_type = MANUAL;
-      else
+      _annotator_type = stringTo<AnnotatorType>( it->second );
+      if ( _annotator_type == UNDEFINED )
 	throw ValueError("annotatortype must be 'auto' or 'manual'");
     }
   }
   else if ( mydoc &&
 	    (def = mydoc->defaultannotatortype( _annotation_type, "", true ) ) != ""  ){
-    if ( def == "auto" )
-      _annotator_type = AUTO;
-    else if ( def == "manual" )
-      _annotator_type = MANUAL;
-    else
+    _annotator_type = stringTo<AnnotatorType>( def );
+    if ( _annotator_type == UNDEFINED )
       throw ValueError("annotatortype must be 'auto' or 'manual'");
   }
   else if ( ANNOTATOR & _required_attributes )
@@ -282,7 +276,7 @@ KWargs AbstractElement::collectAttributes() const {
   }
   
   if ( _annotator_type != UNDEFINED ){
-    AnnotatorType at = stringToANT( mydoc->defaultannotatortype( _annotation_type, _set, true ) );
+    AnnotatorType at = stringTo<AnnotatorType>( mydoc->defaultannotatortype( _annotation_type, _set, true ) );
     if ( (!isDefaultSet || !isDefaultAnn) && _annotator_type != at ){
       if ( _annotator_type == AUTO )
 	attribs["annotatortype"] = "auto";
@@ -632,11 +626,11 @@ AbstractElement* AbstractElement::parseXml( const xmlNode *node ){
       string tag = Name( p );
       AbstractElement *t = createElement( mydoc, tag );
       if ( t ){
-	if ( mydoc->debug > 2 )
+	if ( mydoc && mydoc->debug > 2 )
 	  cerr << "created " << t << endl;
 	t = t->parseXml( p );
 	if ( t ){
-	  if ( mydoc->debug > 2 )
+	  if ( mydoc && mydoc->debug > 2 )
 	    cerr << "extend " << this << " met " << tag << endl;
 	  append( t );
 	}
@@ -881,7 +875,7 @@ AbstractElement* TextContent::parseXml( const xmlNode *node ){
   KWargs att = getAttributes( node );
   att["value"] = XmlContent( node );
   setAttributes( att );
-  if ( mydoc->debug > 2 )
+  if ( mydoc && mydoc->debug > 2 )
     cerr << "set textcontent to " << _text << endl;
   return this;
 }
@@ -1188,7 +1182,7 @@ Correction *AbstractStructureElement::correct( vector<AbstractElement*> original
       c->annotator( it->second );
     it = args.find("annotatortype");
     if ( it != args.end() )
-      c->annotatortype( stringToANT(it->second) );
+      c->annotatortype( stringTo<AnnotatorType>(it->second) );
     it = args.find("confidence");
     if ( it != args.end() )
       c->confidence( stringTo<double>(it->second) );
@@ -1865,7 +1859,7 @@ void Word::init(){
   _xmltag="w";
   _element_id = Word_t;
   const ElementType accept[] = { TextContent_t, Pos_t, Lemma_t,
-				 SenseAnnotation_t, Alternative_t, 
+				 Sense_t, Alternative_t, 
 				 Correction_t, ErrorDetection_t, Description_t,
 				 Morphology_t };
   _accepted_data = std::set<ElementType>(accept, accept+9);
@@ -2259,7 +2253,7 @@ void DomainAnnotation::init(){
 
 void SenseAnnotation::init(){
   _xmltag="sense";
-  _element_id = SenseAnnotation_t;
+  _element_id = Sense_t;
   _annotation_type = AnnotationType::SENSE;
   _required_attributes = CLASS;
   _optional_attributes = ANNOTATOR|CONFIDENCE|DATETIME;

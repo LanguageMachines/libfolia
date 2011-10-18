@@ -120,16 +120,6 @@ string uppercase( const string& in ){
   return s;
 }
 
-AnnotatorType stringToANT( const string& s ){
-  string at = uppercase( s );
-  if ( at == "AUTO" )
-    return AUTO;
-  else if ( at == "MANUAL" )
-    return MANUAL;
-  else
-    return UNDEFINED;
-}
-
 AnnotationType::AnnotationType stringToAT( const string& at ){
   if ( at == "token" )
     return AnnotationType::TOKEN;
@@ -199,7 +189,7 @@ string toString( const ElementType& et ) {
   case Lemma_t: result = "lemma"; break;
   case Phon_t: result = "phon"; break; 
   case Domain_t: result = "domain"; break; 
-  case SenseAnnotation_t: result = "sense"; break; 
+  case Sense_t: result = "sense"; break; 
   case Morphology_t: result = "morphology"; break;
   case Morpheme_t: result = "morpheme"; break;
   case Correction_t: result = "correction"; break;
