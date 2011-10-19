@@ -250,6 +250,7 @@ class AbstractElement {
   void increfcount() { ++refcount; };
   AbstractElement *parent() const { return _parent; };
   void setParent( AbstractElement *p ) { _parent = p ; };
+  void setAuth( bool b ){ _auth = b; };
  protected:
   virtual void init()=0;
   virtual KWargs collectAttributes() const;
@@ -260,6 +261,7 @@ class AbstractElement {
 
   std::vector<AbstractElement*> data;
   AbstractElement *_parent;
+  bool _auth;
   //  UnicodeString _text;
   Document *mydoc;
   std::string _xmltag;
@@ -273,6 +275,7 @@ class AbstractElement {
   size_t occurrences_per_set;
   std::string TEXTDELIMITER;
   bool PRINTABLE;
+  bool AUTH;
 
   //common FoLiA attributes
   //not applicable to all subtypes, but taking this slight extra memory 
@@ -666,6 +669,7 @@ class Quote: public AbstractStructureElement {
  public:
  Quote( const std::string& s="" ): AbstractStructureElement(){ classInit( s ); };
  Quote( Document *d=0, const std::string& s="" ): AbstractStructureElement( d ){ classInit( s ); };
+  AbstractElement *append( AbstractElement *);
  private:
   void init();
 };

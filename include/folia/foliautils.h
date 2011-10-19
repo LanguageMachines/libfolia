@@ -178,6 +178,18 @@ inline AnnotatorType stringTo( const std::string& str ) {
     return UNDEFINED;
 }
 
+template<>
+inline bool stringTo( const std::string& str ) {
+  std::string b = uppercase( str );
+  if ( b == "YES" || b == "TRUE" || b == "1" )
+    return true;
+  else if ( b == "FALSE" || b == "NO" || b == "0" )
+    return false;
+  else
+    throw( std::runtime_error( "conversion from string '"
+			       + str + "' to bool failed" ) );
+}
+
 template< typename T >
 inline std::ostream& operator<<( std::ostream& os, const std::set<T>& s ){
   os << "{";

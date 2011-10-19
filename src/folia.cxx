@@ -49,6 +49,7 @@ AbstractElement::AbstractElement( Document *d ){
   refcount = 0;
   _datetime = 0;
   _parent = 0;
+  _auth = true;
   _required_attributes = NO_ATT;
   _optional_attributes = NO_ATT;
   _annotation_type = AnnotationType::NO_ANN;
@@ -58,6 +59,7 @@ AbstractElement::AbstractElement( Document *d ){
   occurrences_per_set = 1; // #Number of times this element may occur per set (0=unlimited, default=1)
   TEXTDELIMITER = " " ;
   PRINTABLE = true;
+  AUTH = true;
 }
 
 AbstractElement::~AbstractElement( ){
@@ -238,6 +240,11 @@ void AbstractElement::setAttributes( const KWargs& kwargs ){
   else
     _datetime = 0;
 
+  it = kwargs.find( "auth" );
+  if ( it != kwargs.end() ){
+    _auth = stringTo<bool>( it->second );
+  }
+
   if ( mydoc && !_id.empty() )
     mydoc->addDocIndex( this, _id );
 
@@ -293,6 +300,9 @@ KWargs AbstractElement::collectAttributes() const {
 
   if ( _datetime != 0 )
     attribs["datetime"] = getDateTime();
+
+  if ( !AUTH || !_auth )
+    attribs["auth"] = "no";
 
   return attribs;
 }
@@ -1690,6 +1700,14 @@ xmlNode *AbstractSpanAnnotation::xml( bool recursive ) const {
   return e;
 }
 
+AbstractElement *Quote::append( AbstractElement *child ){
+  if ( child->isinstance(Sentence_t) )
+    child->setAuth( false ); // Sentences under quotes are non-authoritative
+  AbstractElement::append( child );
+  return child;
+}
+
+
 xmlNode *Content::xml( bool ) const {
   xmlNode *e = AbstractElement::xml( false );
   xmlAddChild( e, xmlNewCDataBlock( 0,
@@ -1874,7 +1892,7 @@ void WordReference::init(){
   _required_attributes = ID;
   _xmltag = "wref";
   _element_id = WordReference_t;
-  //      ANNOTATIONTYPE = AnnotationType.TOKEN
+  _auth = false;
 }
 
 void PlaceHolder::init(){
@@ -2046,6 +2064,7 @@ void Alternative::init(){
   _accepted_data = std::set<ElementType>(accept, accept+3);
   _annotation_type = AnnotationType::ALTERNATIVE;
   PRINTABLE = false;
+  AUTH = false;
 }
 
 void NewElement::init(){
@@ -2068,6 +2087,7 @@ void Original::init(){
   const ElementType accept[] = { Pos_t, Lemma_t, Word_t, TextContent_t,
 				 Correction_t, Description_t };
   _accepted_data = std::set<ElementType>(accept, accept+6);
+  AUTH = false;
 }
 
 void Suggestion::init(){
@@ -2076,6 +2096,7 @@ void Suggestion::init(){
   const ElementType accept[] = { Pos_t, Lemma_t, TextContent_t, Word_t };
   _accepted_data = std::set<ElementType>(accept, accept+4);
   _optional_attributes = ANNOTATOR|CONFIDENCE|DATETIME;
+  AUTH = false;
 }
 
 void Correction::init(){
