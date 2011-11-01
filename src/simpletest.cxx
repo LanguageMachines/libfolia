@@ -5,6 +5,7 @@
 #include "folia/folia.h"
 
 using namespace std;
+using namespace folia;
 
 int main() {
   cout << " Creating a document from scratch: ";

@@ -3,8 +3,10 @@
 
 #include <sstream>
 #include <set>
+#include <list>
 #include <vector>
 #include <stdexcept>
+#include <ctime>
 #include "unicode/unistr.h"
 #include "unicode/unistr.h"
 #include <unicode/ustream.h>
