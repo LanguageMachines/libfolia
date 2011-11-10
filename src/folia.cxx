@@ -2215,7 +2215,7 @@ namespace folia {
 
   void EntitiesLayer::init(){
     //  _element_id = Entities_t;
-    _xmltag = "chunking";
+    _xmltag = "entities";
     const ElementType accept[] = { Entity_t, Description_t };
     _accepted_data = std::set<ElementType>(accept, accept+2);
   }

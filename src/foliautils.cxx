@@ -408,23 +408,44 @@ namespace folia {
     KWargs result;
     bool quoted = false;
     bool parseatt = true;
+    bool escaped = false;
     vector<string> parts;
     string att;
     string val;
-    //  cerr << "getArgs \\" << s << "\\" << endl;
+    //    cerr << "getArgs \\" << s << "\\" << endl;
 
     for ( size_t i=0; i < s.size(); ++i ){
-      //       cerr << "bekijk " << s[i] << endl;
-      //       cerr << "quoted = " << (quoted?"YES":"NO") << " parseatt = " << (parseatt?"YES":"NO") << endl;
+      //      cerr << "bekijk " << s[i] << endl;
+      //      cerr << "quoted = " << (quoted?"YES":"NO") << " parseatt = " << (parseatt?"YES":"NO") << endl;
+      if ( s[i] == '\\' ){
+	//	cerr << "found a \\" << endl;
+	if ( i < s.size()-1 ){
+	  if ( s[i+1] == '\\' ){
+	    // escaped backslash
+	    continue;
+	  }
+	  if ( s[i+1] == '\'' ){
+	    // escaped '
+	    escaped = true;
+	    continue;
+	  }
+	}
+      }
       if ( s[i] == '\'' ){
 	if ( quoted ){
-	  if ( att.empty() || val.empty() )
-	    throw ArgsError( s + ", (''?)" );
-	  result[att] = val;
-	  //	cerr << "added " << att << "='" << val << "'" << endl;
-	  att.clear();
-	  val.clear();
-	  quoted = false;
+	  if ( escaped ){
+	    val += s[i];
+	    escaped = false;
+	  }
+	  else {
+	    if ( att.empty() || val.empty() )
+	      throw ArgsError( s + ", (''?)" );
+	    result[att] = val;
+	    //	    cerr << "added " << att << "='" << val << "'" << endl;
+	    att.clear();
+	    val.clear();
+	    quoted = false;
+	  }
 	}
 	else {
 	  quoted = true;
@@ -458,8 +479,8 @@ namespace folia {
 	val += s[i];
       else
 	throw ArgsError( s + ", unquoted value?" );
-      //    cerr << "att = '" << att << "'" << endl;
-      //    cerr << "val = '" << val << "'" << endl;
+      //      cerr << "att = '" << att << "'" << endl;
+      //      cerr << "val = '" << val << "'" << endl;
     }
     if ( quoted )
       throw ArgsError( s + ", unbalanced '?" );
