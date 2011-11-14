@@ -258,6 +258,9 @@ namespace folia {
   vector<AbstractElement*> Document::words() const {
     static set<ElementType> excludeSet;
     if ( excludeSet.empty() ){
+      excludeSet.insert( Original_t );
+      excludeSet.insert( Suggestion_t );
+      excludeSet.insert( Alternative_t );
       excludeSet.insert( Chunk_t );
       excludeSet.insert( SyntacticUnit_t );
       excludeSet.insert( Entity_t );

@@ -622,9 +622,13 @@ namespace folia {
 						    bool recurse ) const {
     static set<ElementType> excludeSet;
     if ( excludeSet.empty() ){
+      excludeSet.insert( Quote_t );
       excludeSet.insert( Original_t );
       excludeSet.insert( Suggestion_t );
       excludeSet.insert( Alternative_t );
+      excludeSet.insert( Chunk_t );
+      excludeSet.insert( SyntacticUnit_t );
+      excludeSet.insert( Entity_t );
     }
     return select( et, excludeSet, recurse );
   }
@@ -1205,7 +1209,16 @@ namespace folia {
   }
 
   vector<AbstractElement*> AbstractStructureElement::paragraphs() const{
-    return select( Paragraph_t );
+    static set<ElementType> excludeSet;
+    if ( excludeSet.empty() ){
+      excludeSet.insert( Original_t );
+      excludeSet.insert( Suggestion_t );
+      excludeSet.insert( Alternative_t );
+      excludeSet.insert( Chunk_t );
+      excludeSet.insert( SyntacticUnit_t );
+      excludeSet.insert( Entity_t );
+    }
+    return select( Paragraph_t, excludeSet );
   }
 
   vector<AbstractElement*> AbstractStructureElement::sentences() const{
@@ -1215,12 +1228,24 @@ namespace folia {
       excludeSet.insert( Original_t );
       excludeSet.insert( Suggestion_t );
       excludeSet.insert( Alternative_t );
+      excludeSet.insert( Chunk_t );
+      excludeSet.insert( SyntacticUnit_t );
+      excludeSet.insert( Entity_t );
     }
     return select( Sentence_t, excludeSet );
   }
 
   vector<AbstractElement*> AbstractStructureElement::words() const{
-    return select( Word_t );
+    static set<ElementType> excludeSet;
+    if ( excludeSet.empty() ){
+      excludeSet.insert( Original_t );
+      excludeSet.insert( Suggestion_t );
+      excludeSet.insert( Alternative_t );
+      excludeSet.insert( Chunk_t );
+      excludeSet.insert( SyntacticUnit_t );
+      excludeSet.insert( Entity_t );
+    }
+    return select( Word_t, excludeSet );
   }
 
   Sentence *AbstractStructureElement::sentences( size_t index ) const {
@@ -1299,9 +1324,14 @@ namespace folia {
   }
 
   vector<AbstractElement *> AbstractStructureElement::alternatives( ElementType elt,
-								    const string& set ) const {
+								    const string& st ) const {
     // Return a list of alternatives, either all or only of a specific type, restrained by set
-    vector<AbstractElement*> alts = select( Alternative_t );
+    static set<ElementType> excludeSet;
+    if ( excludeSet.empty() ){
+      excludeSet.insert( Original_t );
+      excludeSet.insert( Suggestion_t );
+    }
+    vector<AbstractElement*> alts = select( Alternative_t, excludeSet );
     if ( elt == BASE ){
       return alts;
     }
@@ -1311,7 +1341,7 @@ namespace folia {
 	if ( alts[i]->size() > 0 ) { // child elements?
 	  for ( size_t j =0; j < alts[i]->size(); ++j ){
 	    if ( alts[i]->index(j)->element_id() == elt &&
-		 ( alts[i]->st().empty() || alts[i]->st() == set ) ){
+		 ( alts[i]->st().empty() || alts[i]->st() == st ) ){
 	      res.push_back( alts[i] ); // not the child!
 	      break; // yield an alternative only once (in case there are multiple matches)
 	    }
@@ -1964,7 +1994,7 @@ namespace folia {
 				   ActorFeature_t };
     _accepted_data = std::set<ElementType>(accept, accept+8); 
     _required_attributes = CLASS;
-    _optional_attributes = ID|ANNOTATOR|N;
+    _optional_attributes = ID|ANNOTATOR|N|DATETIME;
     _annotation_type = AnnotationType::EVENT;
     TEXTDELIMITER = "\n\n";
   }
@@ -2315,7 +2345,7 @@ namespace folia {
   void ActorFeature::init(){
     _xmltag = "actor";
     _element_id = ActorFeature_t;
-    _annotation_type = AnnotationType::SENSE;
+    _annotation_type = AnnotationType::EVENT;
     _subset = "actor";
   }
 
