@@ -101,6 +101,12 @@ namespace folia {
     case AnnotationType::MORPHOLOGICAL:
       result = "morphological";
       break;
+    case AnnotationType::DEPENDENCY:
+      result = "dependency";
+      break;
+    case AnnotationType::TIMEDEVENT:
+      result = "timedevent";
+      break;
     default:
       throw ValueError( " unknown translation for annotation" + 
 			folia::toString(int(at)) );
@@ -158,6 +164,10 @@ namespace folia {
       return AnnotationType::SUBJECTIVITY;
     if ( at == "morphological" )
       return AnnotationType::MORPHOLOGICAL;
+    if ( at == "dependency" )
+      return AnnotationType::DEPENDENCY;
+    if ( at == "timedevent" )
+      return AnnotationType::TIMEDEVENT;
     throw ValueError( " unknown translation for attribute: " + at );
   }
 
@@ -167,6 +177,7 @@ namespace folia {
     case BASE: result = "BASE"; break;
     case Text_t: result = "text"; break;
     case Event_t: result = "event"; break;
+    case TimedEvent_t: result = "timedevent"; break;
     case TextContent_t: result = "t"; break;
     case LineBreak_t: result = "br"; break;
     case WhiteSpace_t: result = "whitespace"; break;
@@ -210,8 +221,14 @@ namespace folia {
     case Alternative_t: result = "alternative"; break; 
     case AltLayers_t: result = "altlayers"; break;
     case Feature_t: result = "feature"; break;
+    case BegindatetimeFeature_t: result = "begindatetime"; break;
+    case EnddatetimeFeature_t: result = "enddatetime"; break;
     case SynsetFeature_t: result = "synset"; break;
     case ActorFeature_t: result = "actor"; break;
+    case Dependencies_t: result = "dependencies"; break;
+    case Dependency_t: result = "dependency"; break;
+    case DependencyDependent_t: result = "dep"; break;
+    case DependencyHead_t: result = "hd"; break;
     default:
       result = "Unknown Elementtype " + folia::toString( int(et) );
     }
@@ -232,6 +249,9 @@ namespace folia {
     }
     if ( tag == "event" ){
       return new Event( doc );
+    }
+    if ( tag == "timedevent" ){
+      return new TimedEvent( doc );
     }
     if ( tag == "s" ){
       return new Sentence( doc );
@@ -347,6 +367,12 @@ namespace folia {
     if ( tag == "feat" ){
       return new Feature( doc );
     }
+    if ( tag == "begindatetime" ){
+      return new BegindatetimeFeature( doc );
+    }
+    if ( tag == "enddatetime" ){
+      return new EnddatetimeFeature( doc );
+    }
     if ( tag == "synset" ){
       return new SynsetFeature( doc );
     }
@@ -355,6 +381,18 @@ namespace folia {
     }
     if ( tag == "quote" ){
       return new Quote( doc );
+    }
+    if ( tag == "dependencies" ){
+      return new DependenciesLayer( doc );
+    }
+    if ( tag == "dependency" ){
+      return new Dependency( doc );
+    }
+    if ( tag == "dep" ){
+      return new DependencyDependent( doc );
+    }
+    if ( tag == "hd" ){
+      return new DependencyHead( doc );
     }
     else {
       //    throw runtime_error( "unknown tag <" + tag + ">" );

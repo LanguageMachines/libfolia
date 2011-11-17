@@ -260,6 +260,16 @@ namespace folia {
       AbstractElement *tmp = new SynsetFeature( "cls='" + it->second + "'" );
       append( tmp );
     }
+    it = kwargs.find( "begindatetime" );
+    if ( it != kwargs.end() ){
+      AbstractElement *tmp = new BegindatetimeFeature( "cls='" + it->second + "'" );
+      append( tmp );
+    }
+    it = kwargs.find( "enddatetime" );
+    if ( it != kwargs.end() ){
+      AbstractElement *tmp = new EnddatetimeFeature( "cls='" + it->second + "'" );
+      append( tmp );
+    }
   
   }
 
@@ -333,6 +343,14 @@ namespace folia {
       }
       else if ( (*it)->isinstance(ActorFeature_t) ){
 	attribs["actor"] = (*it)->cls();
+	skipelements.insert( *it );
+      }
+      else if ( (*it)->isinstance(BegindatetimeFeature_t) ){
+	attribs["begindatetime"] = (*it)->cls();
+	skipelements.insert( *it );
+      }
+      else if ( (*it)->isinstance(EnddatetimeFeature_t) ){
+	attribs["enddatetime"] = (*it)->cls();
 	skipelements.insert( *it );
       }
       ++it;
@@ -629,6 +647,8 @@ namespace folia {
       excludeSet.insert( Chunk_t );
       excludeSet.insert( SyntacticUnit_t );
       excludeSet.insert( Entity_t );
+      excludeSet.insert( DependencyHead_t );
+      excludeSet.insert( DependencyDependent_t );
     }
     return select( et, excludeSet, recurse );
   }
@@ -1217,6 +1237,8 @@ namespace folia {
       excludeSet.insert( Chunk_t );
       excludeSet.insert( SyntacticUnit_t );
       excludeSet.insert( Entity_t );
+      excludeSet.insert( DependencyHead_t );
+      excludeSet.insert( DependencyDependent_t );
     }
     return select( Paragraph_t, excludeSet );
   }
@@ -1231,6 +1253,8 @@ namespace folia {
       excludeSet.insert( Chunk_t );
       excludeSet.insert( SyntacticUnit_t );
       excludeSet.insert( Entity_t );
+      excludeSet.insert( DependencyHead_t );
+      excludeSet.insert( DependencyDependent_t );
     }
     return select( Sentence_t, excludeSet );
   }
@@ -1244,6 +1268,8 @@ namespace folia {
       excludeSet.insert( Chunk_t );
       excludeSet.insert( SyntacticUnit_t );
       excludeSet.insert( Entity_t );
+      excludeSet.insert( DependencyHead_t );
+      excludeSet.insert( DependencyDependent_t );
     }
     return select( Word_t, excludeSet );
   }
@@ -1864,6 +1890,24 @@ namespace folia {
     }
   }
 
+  AbstractElement *Dependency::head() const {
+    vector<AbstractElement *> v = select( DependencyHead_t );
+    if ( v.size() < 1 )
+      throw NoSuchAnnotation( "head" );
+    else {
+      return v[0];
+    }
+  } 
+    
+  AbstractElement *Dependency::dependent() const {
+    vector<AbstractElement *> v = select( DependencyDependent_t );
+    if ( v.size() < 1 )
+      throw NoSuchAnnotation( "dependent" );
+    else {
+      return v[0];
+    }
+  }
+
   void FoLiA::init(){
     _xmltag="FoLiA";
     _element_id = BASE;
@@ -1956,7 +2000,8 @@ namespace folia {
     _element_id = Sentence_t;
     const ElementType accept[] = { LineBreak_t, WhiteSpace_t, Word_t, 
 				   TextContent_t, Annolay_t, 
-				   SyntaxLayer_t, Chunking_t,
+				   SyntaxLayer_t, Chunking_t, Dependencies_t,
+				   Entities_t,
 				   Quote_t, Event_t,
 				   Correction_t,
 				   Description_t };
@@ -1969,10 +2014,10 @@ namespace folia {
     _xmltag="div";
     _element_id = Division_t;
     const ElementType accept[] = { Division_t, Gap_t, Head_t, Paragraph_t,
-				   Sentence_t, List_t, Figure_t,
+				   Sentence_t, List_t, Figure_t, Event_t,
 				   Description_t, LineBreak_t,
 				   WhiteSpace_t };
-    _accepted_data = std::set<ElementType>(accept, accept+10); 
+    _accepted_data = std::set<ElementType>(accept, accept+11); 
     _annotation_type = AnnotationType::DIVISION;
   }
 
@@ -1991,12 +2036,23 @@ namespace folia {
     _element_id = Event_t;
     const ElementType accept[] = { Gap_t, Division_t, Paragraph_t, Sentence_t, 
 				   List_t, Figure_t, Description_t, 
-				   ActorFeature_t };
-    _accepted_data = std::set<ElementType>(accept, accept+8); 
+				   ActorFeature_t, 
+				   BegindatetimeFeature_t, EnddatetimeFeature_t };
+    _accepted_data = std::set<ElementType>(accept, accept+10); 
     _required_attributes = CLASS;
     _optional_attributes = ID|ANNOTATOR|N|DATETIME;
     _annotation_type = AnnotationType::EVENT;
     TEXTDELIMITER = "\n\n";
+  }
+
+  void TimedEvent::init(){
+    _xmltag="timedevent";
+    _element_id = TimedEvent_t;
+    const ElementType accept[] = { Description_t, Feature_t };
+    _accepted_data = std::set<ElementType>(accept, accept+2); 
+    _required_attributes = CLASS;
+    _optional_attributes = ID|ANNOTATOR|CONFIDENCE|DATETIME;
+    _annotation_type = AnnotationType::TIMEDEVENT;
   }
 
   void Caption::init(){
@@ -2050,8 +2106,8 @@ namespace folia {
   }
 
   void SyntacticUnit::init(){
-    _required_attributes = NO_ATT;
-    _optional_attributes = ID|CLASS|ANNOTATOR|CONFIDENCE|DATETIME;
+    _required_attributes = CLASS;
+    _optional_attributes = ID|ANNOTATOR|CONFIDENCE|DATETIME;
     _xmltag = "su";
     _element_id = SyntacticUnit_t;
     _annotation_type = AnnotationType::SYNTAX;
@@ -2198,6 +2254,8 @@ namespace folia {
     for ( size_t i=0; i < data.size(); ++i ){
       if ( ( data[i]->isinstance( Feature_t ) ||
 	     data[i]->isinstance( SynsetFeature_t ) ||
+	     data[i]->isinstance( BegindatetimeFeature_t ) ||
+	     data[i]->isinstance( EnddatetimeFeature_t ) ||
 	     data[i]->isinstance( ActorFeature_t ) ) &&
 	   data[i]->subset() == s )
 	return data[i]->cls();
@@ -2244,9 +2302,16 @@ namespace folia {
   }
 
   void EntitiesLayer::init(){
-    //  _element_id = Entities_t;
+    _element_id = Entities_t;
     _xmltag = "entities";
     const ElementType accept[] = { Entity_t, Description_t };
+    _accepted_data = std::set<ElementType>(accept, accept+2);
+  }
+
+  void TimingLayer::init(){
+    _element_id = Timings_t;
+    _xmltag = "timing";
+    const ElementType accept[] = { TimedEvent_t, Description_t };
     _accepted_data = std::set<ElementType>(accept, accept+2);
   }
 
@@ -2262,6 +2327,43 @@ namespace folia {
     _xmltag = "subentities";
     const ElementType accept[] = { Subentity_t };
     _accepted_data = std::set<ElementType>(accept, accept+1);
+  }
+
+  void DependenciesLayer::init(){
+    _element_id = Dependencies_t;
+    _xmltag = "dependencies";
+    const ElementType accept[] = { Dependency_t, Description_t };
+    _accepted_data = std::set<ElementType>(accept, accept+2);
+  }
+
+  void Dependency::init(){
+    _element_id = Dependency_t;
+    _xmltag = "dependency";
+    _required_attributes = CLASS;
+    _optional_attributes = ID|ANNOTATOR|DATETIME|CONFIDENCE;
+    _annotation_type = AnnotationType::DEPENDENCY;
+    const ElementType accept[] = { DependencyDependent_t, DependencyHead_t, Description_t };
+    _accepted_data = std::set<ElementType>(accept, accept+3);
+  }
+
+  void DependencyDependent::init(){
+    _element_id = DependencyDependent_t;
+    _xmltag = "dep";
+    _required_attributes = NO_ATT;
+    _optional_attributes = NO_ATT;
+    _annotation_type = AnnotationType::DEPENDENCY;
+    const ElementType accept[] = { Word_t, WordReference_t, Description_t, Feature_t };
+    _accepted_data = std::set<ElementType>(accept, accept+4);
+  }
+
+  void DependencyHead::init(){
+    _element_id = DependencyHead_t;
+    _xmltag = "hd";
+    _required_attributes = NO_ATT;
+    _optional_attributes = NO_ATT;
+    _annotation_type = AnnotationType::DEPENDENCY;
+    const ElementType accept[] = { Word_t, WordReference_t, Description_t, Feature_t };
+    _accepted_data = std::set<ElementType>(accept, accept+4);
   }
 
   void PosAnnotation::init(){
@@ -2335,6 +2437,18 @@ namespace folia {
   }
 
 
+  void BegindatetimeFeature::init(){
+    _xmltag="begindatetime";
+    _element_id = BegindatetimeFeature_t;
+    _subset = "begindatetime";
+  }
+
+  void EnddatetimeFeature::init(){
+    _xmltag="enddatetime";
+    _element_id = EnddatetimeFeature_t;
+    _subset = "enddatetime";
+  }
+
   void SynsetFeature::init(){
     _xmltag="synset";
     _element_id = SynsetFeature_t;
@@ -2345,7 +2459,6 @@ namespace folia {
   void ActorFeature::init(){
     _xmltag = "actor";
     _element_id = ActorFeature_t;
-    _annotation_type = AnnotationType::EVENT;
     _subset = "actor";
   }
 
@@ -2357,6 +2470,7 @@ namespace folia {
     _xmltag = "feat";
     _element_id = Feature_t;
     _required_attributes = CLASS;
+    occurrences_per_set = 0; // Allow duplicates within the same set
   }
 
   void ErrorDetection::init(){

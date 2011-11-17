@@ -30,7 +30,7 @@ namespace folia {
   
   enum ElementType  {
     BASE=0, TextContent_t,
-    Text_t, Event_t,
+    Text_t, Event_t, TimedEvent_t, Timings_t,
     LineBreak_t, WhiteSpace_t, Word_t,
     WordReference_t, Sentence_t, Paragraph_t,
     Division_t, Head_t, Caption_t, Label_t,
@@ -47,8 +47,10 @@ namespace folia {
     Suggestion_t, 
     Alternative_t, AltLayers_t, //alternatives
     Description_t, Gap_t, 
-    Content_t, Feature_t, SynsetFeature_t, ActorFeature_t, //features
-    PlaceHolder_t
+    Content_t, Feature_t, SynsetFeature_t, ActorFeature_t, 
+    BegindatetimeFeature_t, EnddatetimeFeature_t, //features
+    PlaceHolder_t,
+    Dependencies_t, Dependency_t, DependencyHead_t, DependencyDependent_t
   };
   
   inline ElementType operator|( ElementType a1, ElementType a2 ){
@@ -66,7 +68,7 @@ namespace folia {
 			  SUGGESTION, 
 			  DOMEIN, SENSE, SYNTAX, CHUNKING, SUBENTITY,
 			  ENTITY, ERRORDETECTION, CORRECTION, ALTERNATIVE, PHON,
-			  SUBJECTIVITY, MORPHOLOGICAL 
+			  SUBJECTIVITY, MORPHOLOGICAL, DEPENDENCY, TIMEDEVENT
     };
   }
   

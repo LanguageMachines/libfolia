@@ -91,15 +91,16 @@ namespace folia {
     bool hastext( const std::string& = "current" ) const ;
     virtual UnicodeString text( const std::string& = "current" ) const;
     virtual AbstractElement *head() const {
-      throw NotImplementedError("head()"); }; 
+      throw NotImplementedError("head() for " + _xmltag );
+    }
     virtual AbstractElement *getNew( int = -1 ) const {
       throw NotImplementedError("getNew()"); };
     virtual AbstractElement *getOriginal( int = -1) const {
       throw NotImplementedError("getOriginal()"); };
     virtual AbstractElement *getCurrent() const {
       throw NotImplementedError("getCurrent()"); };
-    virtual AbstractElement *getSuggestion( int = -1 ) const
-    { throw NotImplementedError("getSuggestion() for " + _xmltag ); };
+    virtual AbstractElement *getSuggestion( int = -1 ) const {
+      throw NotImplementedError("getSuggestion() for " + _xmltag ); };
     virtual AbstractElement *split( AbstractElement *, AbstractElement *, 
 				    const std::string& = "" ){
       throw NotImplementedError("split()"); };
@@ -200,6 +201,9 @@ namespace folia {
     };
     virtual Word *rwords( size_t ) const {
       throw NotImplementedError("rwords() for " + _xmltag );
+    };
+    virtual AbstractElement *dependent() const {
+      throw NotImplementedError("dependent() for " + _xmltag );
     };
 
     virtual std::string description() const;
@@ -675,6 +679,22 @@ namespace folia {
     void init();
   };
 
+  class BegindatetimeFeature: public Feature {
+  public:
+  BegindatetimeFeature( const std::string& s ): Feature( ){ classInit( s ); }
+  BegindatetimeFeature( Document *d=0, const std::string& s="" ): Feature( d ){ classInit( s ); }
+  private:
+    void init();
+  };
+
+  class EnddatetimeFeature: public Feature {
+  public:
+  EnddatetimeFeature( const std::string& s ): Feature( ){ classInit( s ); }
+  EnddatetimeFeature( Document *d=0, const std::string& s="" ): Feature( d ){ classInit( s ); }
+  private:
+    void init();
+  };
+
   class SynsetFeature: public Feature {
   public:
   SynsetFeature( const std::string& s ): Feature( ){ classInit( s ); }
@@ -720,6 +740,32 @@ namespace folia {
   public:
   Entity( const std::string& s ): AbstractSpanAnnotation( ){ classInit( s ); }
   Entity( Document *d=0, const std::string& s="" ): AbstractSpanAnnotation( d ){ classInit( s ); }
+  private:
+    void init();
+  };
+
+  class Dependency: public AbstractSpanAnnotation {
+  public:
+  Dependency( const std::string& s ): AbstractSpanAnnotation( ){ classInit( s ); }
+  Dependency( Document *d=0, const std::string& s="" ): AbstractSpanAnnotation( d ){ classInit( s ); }
+    AbstractElement *head() const;
+    AbstractElement *dependent() const;
+  private:
+    void init();
+  };
+
+  class DependencyHead: public AbstractSpanAnnotation {
+  public:
+  DependencyHead( const std::string& s ): AbstractSpanAnnotation( ){ classInit( s ); }
+  DependencyHead( Document *d=0, const std::string& s="" ): AbstractSpanAnnotation( d ){ classInit( s ); }
+  private:
+    void init();
+  };
+
+  class DependencyDependent: public AbstractSpanAnnotation {
+  public:
+  DependencyDependent( const std::string& s ): AbstractSpanAnnotation( ){ classInit( s ); }
+  DependencyDependent( Document *d=0, const std::string& s="" ): AbstractSpanAnnotation( d ){ classInit( s ); }
   private:
     void init();
   };
@@ -822,6 +868,14 @@ namespace folia {
     void init();
   };
 
+  class TimedEvent: public AbstractSpanAnnotation {
+  public:
+  TimedEvent( const std::string& s="" ): AbstractSpanAnnotation(){ classInit( s ); }
+  TimedEvent( Document *d=0, const std::string& s="" ): AbstractSpanAnnotation( d ){ classInit( s ); }
+  private:
+    void init();
+  };
+
   class Morpheme: public AbstractSubtokenAnnotation {
   public:
   Morpheme( const std::string& s="" ): AbstractSubtokenAnnotation( s ){ classInit( s ); }
@@ -862,6 +916,14 @@ namespace folia {
     void init();
   };
 
+  class TimingLayer: public AbstractAnnotationLayer {
+  public:
+  TimingLayer( const std::string& s=""): AbstractAnnotationLayer( s ){ classInit( s ); }
+  TimingLayer( Document *d=0, const std::string& s=""): AbstractAnnotationLayer( d ){ classInit( s ); }
+  private:
+    void init();
+  };
+
   class MorphologyLayer: public AbstractSubtokenAnnotationLayer {
   public:
   MorphologyLayer( const std::string& s="" ): AbstractSubtokenAnnotationLayer( s ){ classInit( s ); }
@@ -874,6 +936,14 @@ namespace folia {
   public:
   SubentitiesLayer( const std::string& s="" ): AbstractSubtokenAnnotationLayer( s ){ classInit( s ); }
   SubentitiesLayer( Document *d=0, const std::string& s="" ): AbstractSubtokenAnnotationLayer( d ){ classInit( s ); }
+  private:
+    void init();
+  };
+
+  class DependenciesLayer: public AbstractAnnotationLayer {
+  public:
+  DependenciesLayer( const std::string& s=""): AbstractAnnotationLayer( s ){ classInit( s ); }
+  DependenciesLayer( Document *d=0, const std::string& s=""): AbstractAnnotationLayer( d ){ classInit( s ); }
   private:
     void init();
   };
