@@ -106,7 +106,7 @@ namespace folia {
 	_id = e->generateId( _xmltag );
       }
       else
-	throw ValueError("Unable to genarate and if from ID= " + it->second );
+	throw ValueError("Unable to generate an id from ID= " + it->second );
     }
     else {
       it = kwargs.find( "id" );
