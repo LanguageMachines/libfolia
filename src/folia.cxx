@@ -139,7 +139,7 @@ namespace folia {
     else if ( mydoc && ( def = mydoc->defaultset( _annotation_type )) != "" ){
       _set = def;
     }
-    else if ( CLASS & _required_attributes )
+    else if ( mydoc && (CLASS & _required_attributes ) )
       throw ValueError("Set is required for " + classname() );
     else
       _set = "";
@@ -533,6 +533,24 @@ namespace folia {
     return true;
   }
  
+  void AbstractElement::fixupDoc( Document* doc ) {
+    if ( !mydoc ){
+      mydoc = doc;
+      string myid = id();
+      if ( !_set.empty() 
+	   && (CLASS & _required_attributes )
+	   && !mydoc->isDeclared( _set , _annotation_type ) )
+	throw ValueError( "Set " + _set + " is used in " + _xmltag 
+			  + "element: " + myid + " but has no declaration " +
+			  "for " + toString( _annotation_type ) + "-annotation" );
+      if ( !myid.empty() )
+	doc->addDocIndex( this, myid );
+      // assume that children also might be doc-less
+      for( size_t i=0; i < data.size(); ++i )
+	data[i]->fixupDoc( doc );
+    }
+  }
+  
   AbstractElement *AbstractElement::append( AbstractElement *child ){
     bool ok = false;
     try {
@@ -543,13 +561,8 @@ namespace folia {
       throw;
     }
     if ( ok ){
+      child->fixupDoc( mydoc );
       data.push_back(child);
-      if ( !child->mydoc ){
-	child->mydoc = mydoc;
-	string id = child->id();
-	if ( !id.empty() )
-	  mydoc->addDocIndex( child, id );  
-      }
       if ( !child->_parent ) // Only for WordRef i hope
 	child->_parent = this;
       return child->postappend();

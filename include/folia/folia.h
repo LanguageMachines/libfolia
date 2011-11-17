@@ -51,6 +51,7 @@ namespace folia {
     //functions regarding contained data
     virtual size_t size() const { return data.size(); };
   
+    void fixupDoc( Document* );
     virtual AbstractElement *append( AbstractElement* );
     virtual AbstractElement *postappend( ) { return this; };
     virtual std::vector<AbstractElement*> findreplacables( AbstractElement * ) const;
