@@ -251,7 +251,7 @@ namespace folia {
       throw NotImplementedError("src()"); };
 
     virtual UnicodeString caption() const {
-      throw NotImplementedError("caption()"); };
+      throw NotImplementedError("caption() for " + classname()); };
 
     void increfcount() { ++refcount; };
     AbstractElement *parent() const { return _parent; };

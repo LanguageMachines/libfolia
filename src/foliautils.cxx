@@ -175,56 +175,59 @@ namespace folia {
     string result;
     switch( et ){
     case BASE: result = "BASE"; break;
+    case TextContent_t: result = "t"; break;
     case Text_t: result = "text"; break;
     case Event_t: result = "event"; break;
     case TimedEvent_t: result = "timedevent"; break;
-    case TextContent_t: result = "t"; break;
+    case Timings_t: result = "timings"; break;
     case LineBreak_t: result = "br"; break;
     case WhiteSpace_t: result = "whitespace"; break;
     case Word_t: result = "word"; break;
-    case PlaceHolder_t: result = "placeholder"; break;
+    case WordReference_t: result = "wref"; break; 
     case Sentence_t: result = "s"; break;
     case Paragraph_t: result = "p"; break;
     case Division_t: result = "div"; break;
     case Head_t: result = "head"; break;
-    case Description_t: result = "desc"; break;
-    case Gap_t: result = "gap"; break;
-    case Content_t: result = "content"; break;
+    case Caption_t: result = "caption"; break;
+    case Label_t: result = "label"; break;
     case List_t: result = "list"; break;
     case ListItem_t: result = "listitem"; break;
     case Figure_t: result = "figure"; break;
-    case Caption_t: result = "caption"; break;
     case Quote_t: result = "quote"; break;
     case Pos_t: result = "pos"; break;
-    case Current_t: result = "current"; break;
-    case New_t: result = "new"; break;
-    case Original_t: result = "original"; break;
-    case Suggestion_t: result = "suggestion"; break;
     case Lemma_t: result = "lemma"; break;
     case Phon_t: result = "phon"; break; 
     case Domain_t: result = "domain"; break; 
     case Sense_t: result = "sense"; break; 
-    case Morphology_t: result = "morphology"; break;
-    case Morpheme_t: result = "morpheme"; break;
+    case Subjectivity_t: result = "subjectivity"; break; 
     case Correction_t: result = "correction"; break;
-    case ErrorDetection_t: result = "errordetection"; break;
     case Annolay_t: result = "annotationlayer"; break; 
-    case SyntaxLayer_t: result = "syntax"; break; 
     case SyntacticUnit_t: result = "su"; break; 
-    case WordReference_t: result = "wref"; break; 
+    case SyntaxLayer_t: result = "syntax"; break; 
     case Chunk_t: result = "chunk"; break; 
     case Chunking_t: result = "chunking"; break; 
     case Entity_t: result = "entity"; break;
     case Entities_t: result = "entities"; break;
     case Subentity_t: result = "subentity"; break;
     case Subentities_t: result = "subentities"; break;
+    case Morphology_t: result = "morphology"; break;
+    case Morpheme_t: result = "morpheme"; break;
+    case ErrorDetection_t: result = "errordetection"; break;
+    case New_t: result = "new"; break;
+    case Original_t: result = "original"; break;
+    case Current_t: result = "current"; break;
+    case Suggestion_t: result = "suggestion"; break;
     case Alternative_t: result = "alternative"; break; 
     case AltLayers_t: result = "altlayers"; break;
+    case Description_t: result = "desc"; break;
+    case Gap_t: result = "gap"; break;
+    case Content_t: result = "content"; break;
     case Feature_t: result = "feature"; break;
-    case BegindatetimeFeature_t: result = "begindatetime"; break;
-    case EnddatetimeFeature_t: result = "enddatetime"; break;
     case SynsetFeature_t: result = "synset"; break;
     case ActorFeature_t: result = "actor"; break;
+    case BegindatetimeFeature_t: result = "begindatetime"; break;
+    case EnddatetimeFeature_t: result = "enddatetime"; break;
+    case PlaceHolder_t: result = "placeholder"; break;
     case Dependencies_t: result = "dependencies"; break;
     case Dependency_t: result = "dependency"; break;
     case DependencyDependent_t: result = "dep"; break;
@@ -253,6 +256,9 @@ namespace folia {
     if ( tag == "timedevent" ){
       return new TimedEvent( doc );
     }
+    if ( tag == "timings" ){
+      return new TimingLayer( doc );
+    }
     if ( tag == "s" ){
       return new Sentence( doc );
     }
@@ -274,11 +280,14 @@ namespace folia {
     if ( tag == "caption" ){
       return new Caption( doc );
     }
-    if ( tag == "listitem" ){
-      return new ListItem( doc );
+    if ( tag == "label" ){
+      return new Label( doc );
     }
     if ( tag == "list" ){
       return new List( doc );
+    }
+    if ( tag == "listitem" ){
+      return new ListItem( doc );
     }
     if ( tag == "p" ){
       return new Paragraph( doc );
