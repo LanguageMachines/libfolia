@@ -2065,8 +2065,8 @@ namespace folia {
     _xmltag="text";
     _element_id = Text_t;
     const ElementType accept[] = { Gap_t, Division_t, Paragraph_t, Sentence_t, 
-				   List_t, Figure_t, Description_t };
-    _accepted_data = std::set<ElementType>(accept, accept+7); 
+				   List_t, Figure_t, Description_t, Event_t };
+    _accepted_data = std::set<ElementType>(accept, accept+8); 
     _required_attributes = ID;
     TEXTDELIMITER = "\n\n";
   }
