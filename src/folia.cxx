@@ -391,47 +391,43 @@ namespace folia {
   }
 
   bool AbstractElement::hastext( const string& cls ) const {
-    // Does this element have text?
-    vector<AbstractElement*> v = select(TextContent_t, false);
-    for( size_t i=0; i < v.size(); ++i ){
-      // look for right class
-      if ( v[i]->_cls == cls )
+    try {
+	AbstractElement * e = this->textcontent(cls);
 	return true;
+    } catch (NoSuchText& e ) {
+	return false;
     }
-    return false;
   }
 
   UnicodeString AbstractElement::text( const string& cls ) const {
     if ( !PRINTABLE )
       throw NoSuchText( _xmltag );
     //  cerr << (void*)this << ":text() for " << _xmltag << " and class= " << cls << " step 1 " << endl;
-    for( size_t i=0; i < data.size(); ++i ){
-      if ( data[i]->element_id() == TextContent_t 
-	   && data[i]->_cls == cls ){
-	return data[i]->text();
-      }
-    }
-    //  cerr << "text() for " << _xmltag << " step 2 >> " << endl;
 
-    // try to get text from children.
-
-    UnicodeString result;
-    for( size_t i=0; i < data.size(); ++i ){
-      // try to get text dynamically from children
-      // skip TextContent elements
-      if ( data[i]->PRINTABLE && !data[i]->isinstance( TextContent_t ) ){
-	try {
-	  UnicodeString tmp = data[i]->text( cls );
-	  //	cerr << "text() for " << _xmltag << " step 4, tmp= " << tmp << endl;
-	  result += tmp;
-	  if ( !tmp.isEmpty() ){
-	    result += UTF8ToUnicode( data[i]->getTextDelimiter() );
+    UnicodeString result;    
+    try {
+       result = this->textcontent(cls)->text(cls);
+    } catch (NoSuchText& e ) {
+	for( size_t i=0; i < data.size(); ++i ){
+	  // try to get text dynamically from children
+	  // skip TextContent elements
+	  if ( data[i]->PRINTABLE && !data[i]->isinstance( TextContent_t ) ){
+	    try {
+	      UnicodeString tmp = data[i]->text( cls );
+	      //	cerr << "text() for " << _xmltag << " step 4, tmp= " << tmp << endl;
+	      result += tmp;
+	      if ( !tmp.isEmpty() ){
+		result += UTF8ToUnicode( data[i]->getTextDelimiter() );
+	      }
+	    } catch ( NoSuchText& e ){
+	    }
 	  }
 	}
-	catch ( NoSuchText& e ){
-	}
-      }
     }
+    
+    //  cerr << "text() for " << _xmltag << " step 2 >> " << endl;
+
+    // try to get text from children. 
     //  cerr << "text() for " << _xmltag << " step 5, result= " << result << endl;
     result.trim();
     if ( !result.isEmpty() ){
@@ -442,19 +438,29 @@ namespace folia {
       throw NoSuchText( ":{" );
   }
 
+  UnicodeString AbstractElement::stricttext( const string& cls ) const {
+      return this->textcontent(cls)->text(cls);
+  }
+
   AbstractElement *AbstractElement::textcontent( const string& cls ) const {
     // Get the text explicitly associated with this element (of the specified class).
-    // Returns the TextContent instance rather than the actual text.
+    // Returns the TextContent instance rather than the actual text. Does not recurse into children
+    // with sole exception of Correction
     // Raises NoSuchText exception if not found. 
         
     if ( !PRINTABLE )
       throw NoSuchText( _xmltag );
+      
     for( size_t i=0; i < data.size(); ++i ){
-      if ( data[i]->element_id() == TextContent_t 
-	   && data[i]->_cls == cls ){
+      if ( (data[i]->element_id() == TextContent_t) && (data[i]->_cls == cls) ) {
 	return data[i];
+      } else if ( data[i]->element_id() == Correction_t) {
+	try {	    
+	    return data[i]->textcontent(cls);
+	} catch ( NoSuchText& e ){	    
+	}	    
       }
-    }
+    }    
     throw NoSuchText( "textcontent()" );
   }
 
@@ -1819,6 +1825,27 @@ namespace folia {
     }
     throw NoSuchText("wrong cls");
   }
+
+ /* went wrong (proycon)
+  AbstractElement * Correction::textcontent( const string& cls ) const {
+    if ( cls == "current" ){
+      for( size_t i=0; i < data.size(); ++i ){
+	//    cerr << "data[" << i << "]=" << data[i] << endl;
+	if ( data[i]->isinstance( New_t ) || data[i]->isinstance( Current_t ) )
+	  return data[i];;
+      }
+    }
+    else if ( cls == "original" ){
+      for( size_t i=0; i < data.size(); ++i ){
+	//    cerr << "data[" << i << "]=" << data[i] << endl;
+	if ( data[i]->isinstance( Original_t ) )
+	  return data[i];
+      }
+    }
+    throw NoSuchText("wrong cls");
+   }    
+  */
+
 
   bool Correction::hasNew( ) const {
     vector<AbstractElement*> v = select( New_t, false );

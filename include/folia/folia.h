@@ -84,13 +84,14 @@ namespace folia {
     std::string feat( const std::string& ) const;
     //XML (de)serialisation
     std::string xmlstring() const; // serialize to a string (XML fragment)
-    AbstractElement *textcontent( const std::string& = "current" ) const;
+    virtual AbstractElement *textcontent( const std::string& = "current" ) const;
     virtual xmlNode *xml( bool ) const; //serialize to XML  
     virtual AbstractElement* parseXml( const xmlNode * );
     UnicodeString unicode() const { return text(); };
     virtual std::string str() const;
     bool hastext( const std::string& = "current" ) const ;
     virtual UnicodeString text( const std::string& = "current" ) const;
+    virtual UnicodeString stricttext( const std::string& = "current" ) const;
     virtual AbstractElement *head() const {
       throw NotImplementedError("head() for " + _xmltag );
     }
@@ -838,6 +839,7 @@ namespace folia {
     AbstractElement *getSuggestion( int = -1 ) const;
     std::vector<AbstractElement *> suggestions() const;
     UnicodeString text( const std::string& = "current" ) const;
+    //AbstractElement *textcontent( const std::string& = "current" ) const;
   private:
     void init();
   };
