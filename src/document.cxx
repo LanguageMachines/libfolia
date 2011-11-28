@@ -469,6 +469,9 @@ namespace folia {
 	if ( Name( root ) == "FoLiA" &&
 	     checkNS( root, NSFOLIA ) ){
 	  result = parseFoliaDoc( root );
+	  if ( result ){
+	    _id = result->id();
+	  }
 	}
 	else if ( Name( root ) == "DCOI" &&
 		  checkNS( root, NSDCOI ) ){

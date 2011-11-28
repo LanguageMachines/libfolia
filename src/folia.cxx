@@ -2052,9 +2052,9 @@ namespace folia {
     _element_id = Division_t;
     const ElementType accept[] = { Division_t, Gap_t, Head_t, Paragraph_t,
 				   Sentence_t, List_t, Figure_t, Event_t,
-				   Description_t, LineBreak_t,
+				   Description_t, LineBreak_t, TextContent_t,
 				   WhiteSpace_t };
-    _accepted_data = std::set<ElementType>(accept, accept+11); 
+    _accepted_data = std::set<ElementType>(accept, accept+12); 
     _annotation_type = AnnotationType::DIVISION;
   }
 
