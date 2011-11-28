@@ -1826,27 +1826,24 @@ namespace folia {
     throw NoSuchText("wrong cls");
   }
 
- /* went wrong (proycon)
-  AbstractElement * Correction::textcontent( const string& cls ) const {
+  AbstractElement *Correction::textcontent( const string& cls ) const {
     if ( cls == "current" ){
       for( size_t i=0; i < data.size(); ++i ){
 	//    cerr << "data[" << i << "]=" << data[i] << endl;
 	if ( data[i]->isinstance( New_t ) || data[i]->isinstance( Current_t ) )
-	  return data[i];;
+	  return data[i]->textcontent( cls );
       }
     }
     else if ( cls == "original" ){
       for( size_t i=0; i < data.size(); ++i ){
 	//    cerr << "data[" << i << "]=" << data[i] << endl;
 	if ( data[i]->isinstance( Original_t ) )
-	  return data[i];
+	  return data[i]->textcontent( cls );;
       }
     }
     throw NoSuchText("wrong cls");
-   }    
-  */
-
-
+  }    
+  
   bool Correction::hasNew( ) const {
     vector<AbstractElement*> v = select( New_t, false );
     return !v.empty();

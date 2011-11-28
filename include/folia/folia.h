@@ -839,7 +839,7 @@ namespace folia {
     AbstractElement *getSuggestion( int = -1 ) const;
     std::vector<AbstractElement *> suggestions() const;
     UnicodeString text( const std::string& = "current" ) const;
-    //AbstractElement *textcontent( const std::string& = "current" ) const;
+    AbstractElement *textcontent( const std::string& = "current" ) const;
   private:
     void init();
   };
