@@ -392,10 +392,10 @@ namespace folia {
 
   bool AbstractElement::hastext( const string& cls ) const {
     try {
-	AbstractElement * e = this->textcontent(cls);
-	return true;
+      this->textcontent(cls);
+      return true;
     } catch (NoSuchText& e ) {
-	return false;
+      return false;
     }
   }
 
