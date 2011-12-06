@@ -1247,7 +1247,7 @@ namespace folia {
     return c;
   }
 
-  vector<FoliaElement*> AbstractStructureElement::paragraphs() const{
+  vector<Paragraph*> AbstractStructureElement::paragraphs() const{
     static set<ElementType> excludeSet;
     if ( excludeSet.empty() ){
       excludeSet.insert( Original_t );
@@ -1259,10 +1259,10 @@ namespace folia {
       excludeSet.insert( DependencyHead_t );
       excludeSet.insert( DependencyDependent_t );
     }
-    return select( Paragraph_t, excludeSet );
+    return select<Paragraph>( excludeSet );
   }
 
-  vector<FoliaElement*> AbstractStructureElement::sentences() const{
+  vector<Sentence*> AbstractStructureElement::sentences() const{
     static set<ElementType> excludeSet;
     if ( excludeSet.empty() ){
       excludeSet.insert( Quote_t );
@@ -1275,10 +1275,10 @@ namespace folia {
       excludeSet.insert( DependencyHead_t );
       excludeSet.insert( DependencyDependent_t );
     }
-    return select( Sentence_t, excludeSet );
+    return select<Sentence>( excludeSet );
   }
 
-  vector<FoliaElement*> AbstractStructureElement::words() const{
+  vector<Word*> AbstractStructureElement::words() const{
     static set<ElementType> excludeSet;
     if ( excludeSet.empty() ){
       excludeSet.insert( Original_t );
@@ -1290,53 +1290,53 @@ namespace folia {
       excludeSet.insert( DependencyHead_t );
       excludeSet.insert( DependencyDependent_t );
     }
-    return select( Word_t, excludeSet );
+    return select<Word>( excludeSet );
   }
 
   Sentence *AbstractStructureElement::sentences( size_t index ) const {
-    vector<FoliaElement*> v = sentences();
+    vector<Sentence*> v = sentences();
     if ( index < v.size() )
-      return dynamic_cast<Sentence*>(v[index]);
+      return v[index];
     else
       throw range_error( "sentences(): index out of range" );
   }
 
   Sentence *AbstractStructureElement::rsentences( size_t index ) const {
-    vector<FoliaElement*> v = sentences();
+    vector<Sentence*> v = sentences();
     if ( index < v.size() )
-      return dynamic_cast<Sentence*>(v[v.size()-1-index]);
+      return v[v.size()-1-index];
     else
       throw range_error( "rsentences(): index out of range" );
   }
 
   Paragraph *AbstractStructureElement::paragraphs( size_t index ) const {
-    vector<FoliaElement*> v = paragraphs();
+    vector<Paragraph*> v = paragraphs();
     if ( index < v.size() )
-      return dynamic_cast<Paragraph *>(v[index]);
+      return v[index];
     else
       throw range_error( "paragraphs(): index out of range" );
   }
 
   Paragraph *AbstractStructureElement::rparagraphs( size_t index ) const {
-    vector<FoliaElement*> v = paragraphs();
+    vector<Paragraph*> v = paragraphs();
     if ( index < v.size() )
-      return dynamic_cast<Paragraph *>(v[v.size()-1-index]);
+      return v[v.size()-1-index];
     else
       throw range_error( "rparagraphs(): index out of range" );
   }
 
   Word *AbstractStructureElement::words( size_t index ) const {
-    vector<FoliaElement*> v = words();
+    vector<Word*> v = words();
     if ( index < v.size() )
-      return dynamic_cast<Word*>( v[index]);
+      return v[index];
     else
       throw range_error( "words(): index out of range" );
   }
 
   Word *AbstractStructureElement::rwords( size_t index ) const {
-    vector<FoliaElement*> v = words();
+    vector<Word*> v = words();
     if ( index < v.size() )
-      return dynamic_cast<Word*>( v[v.size()-1-index]);
+      return v[v.size()-1-index];
     else
       throw range_error( "rwords(): index out of range" );
   }
@@ -1368,20 +1368,20 @@ namespace folia {
     return 0;
   }
 
-  vector<FoliaElement *> AbstractStructureElement::alternatives( ElementType elt,
-								    const string& st ) const {
+  vector<Alternative *> AbstractStructureElement::alternatives( ElementType elt,
+								 const string& st ) const {
     // Return a list of alternatives, either all or only of a specific type, restrained by set
     static set<ElementType> excludeSet;
     if ( excludeSet.empty() ){
       excludeSet.insert( Original_t );
       excludeSet.insert( Suggestion_t );
     }
-    vector<FoliaElement*> alts = select( Alternative_t, excludeSet );
+    vector<Alternative *> alts = select<Alternative>( excludeSet );
     if ( elt == BASE ){
       return alts;
     }
     else {
-      vector<FoliaElement*> res;
+      vector<Alternative*> res;
       for ( size_t i=0; i < alts.size(); ++i ){
 	if ( alts[i]->size() > 0 ) { // child elements?
 	  for ( size_t j =0; j < alts[i]->size(); ++j ){
@@ -1510,9 +1510,9 @@ namespace folia {
     return 0;
   }
 
-  FoliaElement *Word::previous() const{
+  Word *Word::previous() const{
     Sentence *s = sentence();
-    vector<FoliaElement*> words = s->words();
+    vector<Word*> words = s->words();
     for( size_t i=0; i < words.size(); ++i ){
       if ( words[i] == this ){
 	if ( i > 0 )
@@ -1524,10 +1524,10 @@ namespace folia {
     }
     return 0;
   }
-
-  FoliaElement *Word::next() const{
+  
+  Word *Word::next() const{
     Sentence *s = sentence();
-    vector<FoliaElement*> words = s->words();
+    vector<Word*> words = s->words();
     for( size_t i=0; i < words.size(); ++i ){
       if ( words[i] == this ){
 	if ( i+1 < words.size() )
@@ -1541,10 +1541,10 @@ namespace folia {
   }
 
   vector<FoliaElement *> Word::context( size_t size, 
-					   const string& val ) const {
+					const string& val ) const {
     vector<FoliaElement *> result;
     if ( size > 0 ){
-      vector<FoliaElement*> words = mydoc->words();
+      vector<Word*> words = mydoc->words();
       for( size_t i=0; i < words.size(); ++i ){
 	if ( words[i] == this ){
 	  size_t miss = 0;
@@ -1587,7 +1587,7 @@ namespace folia {
     //  cerr << "leftcontext : " << size << endl;
     vector<FoliaElement *> result;
     if ( size > 0 ){
-      vector<FoliaElement*> words = mydoc->words();
+      vector<Word*> words = mydoc->words();
       for( size_t i=0; i < words.size(); ++i ){
 	if ( words[i] == this ){
 	  size_t miss = 0;
@@ -1618,7 +1618,7 @@ namespace folia {
     vector<FoliaElement *> result;
     //  cerr << "rightcontext : " << size << endl;
     if ( size > 0 ){
-      vector<FoliaElement*> words = mydoc->words();
+      vector<Word*> words = mydoc->words();
       size_t begin;
       size_t end;
       for( size_t i=0; i < words.size(); ++i ){

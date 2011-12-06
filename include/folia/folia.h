@@ -70,17 +70,53 @@ namespace folia {
     bool addable( const FoliaElement *, const std::string& = "" ) const;
   
     std::vector<FoliaElement*> select( ElementType elementtype,
-					  bool = true ) const;
+				       bool = true ) const;
     std::vector<FoliaElement*> select( ElementType elementtype,
-					  const std::set<ElementType>& ,
-					  bool = true ) const;
+				       const std::set<ElementType>& ,
+				       bool = true ) const;
     std::vector<FoliaElement*> select( ElementType elementtype,
-					  const std::string&,
-					  bool = true ) const;
+				       const std::string&,
+				       bool = true ) const;
     std::vector<FoliaElement*> select( ElementType elementtype,
-					  const std::string&,
-					  const std::set<ElementType>& ,
-					  bool = true ) const;
+				       const std::string&,
+				       const std::set<ElementType>& ,
+				       bool = true ) const;
+    
+    template <typename F>
+      std::vector<F*> select( const std::set<ElementType>& exclude, 
+			      bool recurse = true ) const {
+      F obj("");
+      std::vector<F*> res;
+      for ( size_t i = 0; i < data.size(); ++i ){
+	if ( data[i]->_element_id == obj._element_id ){
+	  res.push_back( dynamic_cast<F*>(data[i]) );
+	}
+	if ( recurse ){
+	  if ( exclude.find( data[i]->_element_id ) == exclude.end() ){
+	    std::vector<F*> tmp = data[i]->select<F>( exclude, recurse );
+	    res.insert( res.end(), tmp.begin(), tmp.end() );
+	  }
+	}
+      }
+      return res;
+    }
+    
+    template <typename F>
+      std::vector<F*> select( bool recurse = true ) const {
+      F obj("");
+      std::vector<F*> res;
+      for ( size_t i = 0; i < data.size(); ++i ){
+	if ( data[i]->_element_id == obj._element_id ){
+	  res.push_back( dynamic_cast<F*>(data[i]) );
+	}
+	if ( recurse ){
+	  std::vector<F*> tmp = data[i]->select<F>( recurse );
+	  res.insert( res.end(), tmp.begin(), tmp.end() );
+	}
+      }
+      return res;
+    }
+    
     std::string feat( const std::string& ) const;
     //XML (de)serialisation
     std::string xmlstring() const; // serialize to a string (XML fragment)
@@ -177,13 +213,13 @@ namespace folia {
     virtual Correction *incorrection() const {
       throw NotImplementedError("incorrection() for " + _xmltag );
     };
-    virtual std::vector<FoliaElement*> paragraphs() const {
+    virtual std::vector<Paragraph*> paragraphs() const {
       throw NotImplementedError("paragraphs() for " + _xmltag );
     };
-    virtual std::vector<FoliaElement*> sentences() const {
+    virtual std::vector<Sentence*> sentences() const {
       throw NotImplementedError("sentences() for " + _xmltag );
     };
-    virtual std::vector<FoliaElement*> words() const {
+    virtual std::vector<Word*> words() const {
       throw NotImplementedError("words() for " + _xmltag );
     };
     virtual Sentence *sentences( size_t ) const {
@@ -222,12 +258,12 @@ namespace folia {
     AbstractTokenAnnotation *addAnnotation( ElementType, const KWargs& );
     AbstractTokenAnnotation *addPosAnnotation( const KWargs& );
     AbstractTokenAnnotation *addLemmaAnnotation( const KWargs& );
-    std::vector<FoliaElement *> alternatives( const std::string& s = "" ) const { 
+    std::vector<Alternative*> alternatives( const std::string& s = "" ) const { 
       return alternatives( BASE, s );
     }
-    virtual std::vector<FoliaElement *> alternatives( ElementType,
-							 const std::string& = ""
-							 ) const { 
+    virtual std::vector<Alternative *> alternatives( ElementType,
+						     const std::string& = ""
+						     ) const { 
       throw NotImplementedError("alternatives()"); 
     }
     virtual std::string content() const {
@@ -305,7 +341,9 @@ namespace folia {
 
   inline size_t len( const FoliaElement *e ) { 
     return e->size(); }
-  inline size_t len( const std::vector<FoliaElement*>& v ) {
+
+  template <typename T>
+    inline size_t len( const std::vector<T>& v ) {
     return v.size(); }
   inline std::string str( const FoliaElement *e ) { 
     return e->str(); }
@@ -327,8 +365,8 @@ namespace folia {
     size_t hasannotation( ElementType, std::set<ElementType>& );
     FoliaElement *annotation( ElementType ) const;
     FoliaElement *annotation( ElementType, const std::string& ) const ;
-    std::vector<FoliaElement *> alternatives( ElementType = BASE,
-						 const std::string& = "" ) const;
+    std::vector<Alternative *> alternatives( ElementType = BASE,
+					     const std::string& = "" ) const;
   
     FoliaElement *append( FoliaElement* );
     void setMaxId( FoliaElement * );
@@ -339,9 +377,9 @@ namespace folia {
 			 std::vector<FoliaElement*>,
 			 std::vector<FoliaElement*>,
 			 const KWargs& );
-    std::vector<FoliaElement*> paragraphs() const;
-    std::vector<FoliaElement*> sentences() const;
-    std::vector<FoliaElement*> words() const;
+    std::vector<Paragraph*> paragraphs() const;
+    std::vector<Sentence*> sentences() const;
+    std::vector<Word*> words() const;
     Sentence *sentences( size_t ) const;
     Sentence *rsentences( size_t ) const;
     Paragraph *paragraphs( size_t ) const;
@@ -489,13 +527,13 @@ namespace folia {
 			 FoliaElement*,
 			 const KWargs& );
     FoliaElement *split( FoliaElement *, FoliaElement *,
-			    const std::string& = "" );
+			 const std::string& = "" );
     Sentence *sentence() const;
     Paragraph *paragraph() const;
     Division *division() const;
     Correction *incorrection() const;
-    FoliaElement *previous() const;
-    FoliaElement *next() const;
+    Word *previous() const;
+    Word *next() const;
     std::vector<FoliaElement *> context( size_t, 
 					    const std::string& ="" ) const;
     std::vector<FoliaElement *> leftcontext( size_t, 

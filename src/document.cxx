@@ -225,37 +225,37 @@ namespace folia {
       throw range_error( "Document index out of range" );
   }
 
-  vector<FoliaElement*> Document::paragraphs() const {
-    return foliadoc->select( Paragraph_t );
+  vector<Paragraph*> Document::paragraphs() const {
+    return foliadoc->select<Paragraph>();
   }
 
-  vector<FoliaElement*> Document::sentences() const {
+  vector<Sentence*> Document::sentences() const {
     static set<ElementType> excludeSet;
     if ( excludeSet.empty() ){
       excludeSet.insert( Quote_t );
     }
-    return foliadoc->select( Sentence_t, excludeSet );
+    return foliadoc->select<Sentence>( excludeSet );
   }
-
+  
   Sentence *Document::sentences( size_t index ) const {
-    vector<FoliaElement*> v = sentences();
+    vector<Sentence*> v = sentences();
     if ( index < v.size() ){
-      return dynamic_cast<Sentence*>(v[index]);
+      return v[index];
     }
     else
       throw range_error( "sentences() index out of range" );
   }
 
   Sentence *Document::rsentences( size_t index ) const {
-    vector<FoliaElement*> v = sentences();
+    vector<Sentence*> v = sentences();
     if ( index < v.size() ){
-      return dynamic_cast<Sentence*>(v[v.size()-1-index]);
+      return v[v.size()-1-index];
     }
     else
       throw range_error( "rsentences() index out of range" );
   }
 
-  vector<FoliaElement*> Document::words() const {
+  vector<Word*> Document::words() const {
     static set<ElementType> excludeSet;
     if ( excludeSet.empty() ){
       excludeSet.insert( Original_t );
@@ -267,40 +267,40 @@ namespace folia {
       excludeSet.insert( DependencyHead_t );
       excludeSet.insert( DependencyDependent_t );
     }
-    return foliadoc->select( Word_t, excludeSet );
+    return foliadoc->select<Word>( excludeSet );
   }
-
+  
   Word *Document::words( size_t index ) const {
-    vector<FoliaElement*> v = words();
+    vector<Word*> v = words();
     if ( index < v.size() ){
-      return dynamic_cast<Word*>(v[index]);
+      return v[index];
     }
     else
       throw range_error( "words() index out of range" );
   }
 
   Word *Document::rwords( size_t index ) const {
-    vector<FoliaElement*> v = words();
+    vector<Word*> v = words();
     if ( index < v.size() ){
-      return dynamic_cast<Word*>(v[v.size()-1-index]);
+      return v[v.size()-1-index];
     }
     else
       throw range_error( "rwords() index out of range" );
   }
 
   Paragraph *Document::paragraphs( size_t index ) const {
-    vector<FoliaElement*> v = paragraphs();
+    vector<Paragraph*> v = paragraphs();
     if ( index < v.size() ){
-      return dynamic_cast<Paragraph*>(v[index]);
+      return v[index];
     }
     else
       throw range_error( "paragraphs() index out of range" );
   }
 
   Paragraph *Document::rparagraphs( size_t index ) const {
-    vector<FoliaElement*> v = paragraphs();
+    vector<Paragraph*> v = paragraphs();
     if ( index < v.size() ){
-      return dynamic_cast<Paragraph*>(v[v.size()-1-index]);
+      return v[v.size()-1-index];
     }
     else
       throw range_error( "rparagraphs() index out of range" );
@@ -686,7 +686,7 @@ namespace folia {
   }
 
   vector<vector<FoliaElement*> > Document::findwords( const Pattern& pat,
-							 const string& args ) const {
+						      const string& args ) const {
     size_t leftcontext = 0;
     size_t rightcontext = 0;
     KWargs kw = getArgs( args );
@@ -700,7 +700,7 @@ namespace folia {
     vector<FoliaElement*> matched;
     if ( pat.regexp )
       throw runtime_error( "regexp not supported yet in patterns" );
-    vector<FoliaElement*> mywords = words();
+    vector<Word*> mywords = words();
     for ( size_t startpos =0; startpos < mywords.size(); ++startpos ){
       // loop over all words
       //    cerr << "outer loop STARTPOS = " << startpos << endl;

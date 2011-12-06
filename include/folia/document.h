@@ -63,13 +63,13 @@ namespace folia {
     void addStyle( const std::string& st ){
       styles.push_back( st );
     };
-    std::vector<FoliaElement*> paragraphs() const;
-    std::vector<FoliaElement*> sentences() const;
-    std::vector<FoliaElement*> words() const;
+    std::vector<Paragraph*> paragraphs() const;
+    std::vector<Sentence*> sentences() const;
+    std::vector<Word*> words() const;
     std::vector<std::vector<FoliaElement*> > findwords( const Pattern&,
-							   const std::string& ="" ) const;
+							const std::string& ="" ) const;
     std::vector<std::vector<FoliaElement*> > findwords( std::list<Pattern>&,
-							   const std::string& = "" ) const;
+							const std::string& = "" ) const;
     Word *words( size_t ) const;
     Word *rwords( size_t ) const;
     Paragraph *paragraphs( size_t ) const;
