@@ -45,7 +45,7 @@ namespace folia {
   Document::~Document(){
     xmlFreeDoc( xmldoc );
     delete foliadoc;
-    set<AbstractElement*>::const_iterator it = delSet.begin();
+    set<FoliaElement*>::const_iterator it = delSet.begin();
     while ( it != delSet.end() ){
       delete *it;
       ++it;
@@ -62,7 +62,7 @@ namespace folia {
     return true;
   }
   
-  bool operator==( const AbstractElement& a1, const AbstractElement& a2){
+  bool operator==( const FoliaElement& a1, const FoliaElement& a2){
     if ( a1._element_id != a2._element_id )
       return false;
     if ( a1._id != a2._id )
@@ -125,7 +125,7 @@ namespace folia {
       throw runtime_error( "No ID, valid filename or string specified" );
   }
 
-  void Document::addDocIndex( AbstractElement* el, const string& s ){
+  void Document::addDocIndex( FoliaElement* el, const string& s ){
     if ( sindex.find( s ) == sindex.end() ){
       sindex[s] = el;
       iindex.push_back( el );
@@ -206,30 +206,30 @@ namespace folia {
       return 0;
   }
 
-  AbstractElement* Document::index( const string& s ) const {
-    map<string,AbstractElement*>::const_iterator it = sindex.find( s );
+  FoliaElement* Document::index( const string& s ) const {
+    map<string,FoliaElement*>::const_iterator it = sindex.find( s );
     if ( it == sindex.end() )
       return 0;
     else
       return it->second;
   }
 
-  AbstractElement* Document::operator []( const string& s ) const {
+  FoliaElement* Document::operator []( const string& s ) const {
     return index(s);
   }
 
-  AbstractElement* Document::operator []( size_t i ) const {
+  FoliaElement* Document::operator []( size_t i ) const {
     if ( i < iindex.size()-1 )
       return iindex[i+1];
     else
       throw range_error( "Document index out of range" );
   }
 
-  vector<AbstractElement*> Document::paragraphs() const {
+  vector<FoliaElement*> Document::paragraphs() const {
     return foliadoc->select( Paragraph_t );
   }
 
-  vector<AbstractElement*> Document::sentences() const {
+  vector<FoliaElement*> Document::sentences() const {
     static set<ElementType> excludeSet;
     if ( excludeSet.empty() ){
       excludeSet.insert( Quote_t );
@@ -238,7 +238,7 @@ namespace folia {
   }
 
   Sentence *Document::sentences( size_t index ) const {
-    vector<AbstractElement*> v = sentences();
+    vector<FoliaElement*> v = sentences();
     if ( index < v.size() ){
       return dynamic_cast<Sentence*>(v[index]);
     }
@@ -247,7 +247,7 @@ namespace folia {
   }
 
   Sentence *Document::rsentences( size_t index ) const {
-    vector<AbstractElement*> v = sentences();
+    vector<FoliaElement*> v = sentences();
     if ( index < v.size() ){
       return dynamic_cast<Sentence*>(v[v.size()-1-index]);
     }
@@ -255,7 +255,7 @@ namespace folia {
       throw range_error( "rsentences() index out of range" );
   }
 
-  vector<AbstractElement*> Document::words() const {
+  vector<FoliaElement*> Document::words() const {
     static set<ElementType> excludeSet;
     if ( excludeSet.empty() ){
       excludeSet.insert( Original_t );
@@ -271,7 +271,7 @@ namespace folia {
   }
 
   Word *Document::words( size_t index ) const {
-    vector<AbstractElement*> v = words();
+    vector<FoliaElement*> v = words();
     if ( index < v.size() ){
       return dynamic_cast<Word*>(v[index]);
     }
@@ -280,7 +280,7 @@ namespace folia {
   }
 
   Word *Document::rwords( size_t index ) const {
-    vector<AbstractElement*> v = words();
+    vector<FoliaElement*> v = words();
     if ( index < v.size() ){
       return dynamic_cast<Word*>(v[v.size()-1-index]);
     }
@@ -289,7 +289,7 @@ namespace folia {
   }
 
   Paragraph *Document::paragraphs( size_t index ) const {
-    vector<AbstractElement*> v = paragraphs();
+    vector<FoliaElement*> v = paragraphs();
     if ( index < v.size() ){
       return dynamic_cast<Paragraph*>(v[index]);
     }
@@ -298,7 +298,7 @@ namespace folia {
   }
 
   Paragraph *Document::rparagraphs( size_t index ) const {
-    vector<AbstractElement*> v = paragraphs();
+    vector<FoliaElement*> v = paragraphs();
     if ( index < v.size() ){
       return dynamic_cast<Paragraph*>(v[v.size()-1-index]);
     }
@@ -306,7 +306,7 @@ namespace folia {
       throw range_error( "rparagraphs() index out of range" );
   }
 
-  AbstractElement *Document::append( AbstractElement *txt ){
+  FoliaElement *Document::append( FoliaElement *txt ){
     if ( !isinstance( txt, Text_t ) )
       throw runtime_error( "can only append() a Text_t element to a Document" );
     else {
@@ -385,13 +385,13 @@ namespace folia {
     return false;
   }
 
-  AbstractElement* Document::parseFoliaDoc( xmlNode *root ){
+  FoliaElement* Document::parseFoliaDoc( xmlNode *root ){
     KWargs att = getAttributes( root );
     if ( att["id"] == "" ){
       throw XmlError("FoLiA Document has no ID!");
       return 0;
     }
-    AbstractElement *result = AbstractElement::createElement( this, Name(root) );
+    FoliaElement *result = FoliaElement::createElement( this, Name(root) );
     if ( debug > 2 )
       cerr << "created " << root << endl;
     result->setAttributes( att );
@@ -425,7 +425,7 @@ namespace folia {
 	else {
 	  if ( p && getNS(p) == NSFOLIA ){
 	    string tag = Name( p );
-	    AbstractElement *t = AbstractElement::createElement( this, tag );
+	    FoliaElement *t = FoliaElement::createElement( this, tag );
 	    if ( t ){
 	      if ( debug > 2 )
 		cerr << "created " << t << endl;
@@ -454,7 +454,7 @@ namespace folia {
     }
   }
 
-  AbstractElement* Document::parseXml( ){
+  FoliaElement* Document::parseXml( ){
     getstyles();
     xmlNode *root = xmlDocGetRootElement( xmldoc );
     if ( debug > 2 ){
@@ -463,7 +463,7 @@ namespace folia {
       cerr << "in namespace " << getNS( root, dum ) << endl;
       cerr << "namespace list" << getNSlist( root ) << endl;
     }
-    AbstractElement *result = 0;
+    FoliaElement *result = 0;
     if ( root  ){
       try {
 	if ( Name( root ) == "FoLiA" &&
@@ -506,8 +506,8 @@ namespace folia {
     annotationdefaults[type].insert( make_pair(st, at_t(a,t) ) );
   }
 
-  AbstractElement* Document::addNode( ElementType et, const KWargs& kwargs ){
-    AbstractElement *res = AbstractElement::createElement( this, toString(et) );
+  FoliaElement* Document::addNode( ElementType et, const KWargs& kwargs ){
+    FoliaElement *res = FoliaElement::createElement( this, toString(et) );
     res->setAttributes( kwargs );
     foliadoc->append( res );
     return res;
@@ -668,7 +668,7 @@ namespace folia {
       xmlNode *an = xmlAddChild( md,  newXMLNode( _foliaNs, "annotations" ) );
       setannotations( an );
       setmetadata( md );
-      vector<AbstractElement*>::const_iterator it= foliadoc->data.begin();
+      vector<FoliaElement*>::const_iterator it= foliadoc->data.begin();
       while ( it != foliadoc->data.end() ){
 	xmlAddChild( root, (*it)->xml( true ) );
 	++it;
@@ -685,7 +685,7 @@ namespace folia {
     return result;
   }
 
-  vector<vector<AbstractElement*> > Document::findwords( const Pattern& pat,
+  vector<vector<FoliaElement*> > Document::findwords( const Pattern& pat,
 							 const string& args ) const {
     size_t leftcontext = 0;
     size_t rightcontext = 0;
@@ -696,11 +696,11 @@ namespace folia {
     val = kw["rightcontext"];
     if ( !val.empty() )
       rightcontext = stringTo<size_t>(val);
-    vector<vector<AbstractElement*> > result;
-    vector<AbstractElement*> matched;
+    vector<vector<FoliaElement*> > result;
+    vector<FoliaElement*> matched;
     if ( pat.regexp )
       throw runtime_error( "regexp not supported yet in patterns" );
-    vector<AbstractElement*> mywords = words();
+    vector<FoliaElement*> mywords = words();
     for ( size_t startpos =0; startpos < mywords.size(); ++startpos ){
       // loop over all words
       //    cerr << "outer loop STARTPOS = " << startpos << endl;
@@ -713,7 +713,7 @@ namespace folia {
 	if ( pat.matchannotation == BASE )
 	  value = mywords[i]->text();
 	else {
-	  vector<AbstractElement *> v = mywords[i]->select( pat.matchannotation );
+	  vector<FoliaElement *> v = mywords[i]->select( pat.matchannotation );
 	  if ( v.size() != 1 ){
 	    continue;
 	  }
@@ -728,9 +728,9 @@ namespace folia {
 	  if ( cursor == 0 )
 	    startpos = i; // restart search here
 	  if ( done ){
-	    vector<AbstractElement *> keep = matched;
+	    vector<FoliaElement *> keep = matched;
 	    //	  cerr << "findnodes() tussenresultaat ==> " << matched << endl;
-	    vector<AbstractElement *> tmp1;
+	    vector<FoliaElement *> tmp1;
 	    if ( leftcontext > 0 ){
 	      tmp1 = matched[0]->leftcontext(leftcontext);
 	      //	    cerr << "findnodes() tmp1 ==> " << tmp1 << endl;
@@ -739,7 +739,7 @@ namespace folia {
 	    }
 	    else
 	      tmp1 = matched;
-	    vector<AbstractElement *> tmp2;
+	    vector<FoliaElement *> tmp2;
 	    if ( rightcontext > 0 ){
 	      tmp2 = matched[matched.size()-1]->rightcontext(rightcontext);
 	      //	    cerr << "findnodes() tmp2 ==> " << tmp2 << endl;
@@ -769,7 +769,7 @@ namespace folia {
     return result;
   }
 
-  vector<vector<AbstractElement*> > Document::findwords( list<Pattern>& pats,
+  vector<vector<FoliaElement*> > Document::findwords( list<Pattern>& pats,
 							 const string& args ) const {
     size_t prevsize = 0;
     bool start = true;
@@ -809,10 +809,10 @@ namespace folia {
 	++it1;
       }
     }
-    vector<vector<AbstractElement*> > result;
+    vector<vector<FoliaElement*> > result;
     it = pats.begin();
     while ( it != pats.end() ){
-      vector<vector<AbstractElement*> > res = findwords( *it, args );
+      vector<vector<FoliaElement*> > res = findwords( *it, args );
       if ( result.empty() )
 	result = res;
       else if ( res != result ){

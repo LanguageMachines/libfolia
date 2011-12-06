@@ -17,7 +17,7 @@ using namespace std;
 
 namespace folia {
 
-  ostream& operator<<( ostream& os, const AbstractElement& ae ){
+  ostream& operator<<( ostream& os, const FoliaElement& ae ){
     os << " <" << ae.classname();
     KWargs ats = ae.collectAttributes();
     if ( !ae._id.empty() )
@@ -36,7 +36,7 @@ namespace folia {
     return os;
   }
 
-  ostream& operator<<( ostream&os, const AbstractElement *ae ){
+  ostream& operator<<( ostream&os, const FoliaElement *ae ){
     if ( !ae )
       os << "nil";
     else
@@ -44,7 +44,7 @@ namespace folia {
     return os;
   }
 
-  AbstractElement::AbstractElement( Document *d ){
+  FoliaElement::FoliaElement( Document *d ){
     mydoc = d;
     _confidence = -1;
     _element_id = BASE;
@@ -64,7 +64,7 @@ namespace folia {
     AUTH = true;
   }
 
-  AbstractElement::~AbstractElement( ){
+  FoliaElement::~FoliaElement( ){
     //  cerr << "delete element " << _xmltag << " *= " << (void*)this << endl;
     for ( size_t i=0; i < data.size(); ++i ){
       if ( data[i]->refcount == 0 ) // probably only for words
@@ -76,14 +76,14 @@ namespace folia {
     delete _datetime;
   }
 
-  xmlNs *AbstractElement::foliaNs() const {
+  xmlNs *FoliaElement::foliaNs() const {
     if ( mydoc )
       return mydoc->foliaNs();
     else
       return 0;
   }
 
-  void AbstractElement::setAttributes( const KWargs& kwargs ){
+  void FoliaElement::setAttributes( const KWargs& kwargs ){
     Attrib supported = _required_attributes | _optional_attributes;
     // if ( _element_id == Quote_t ){
     //   cerr << "set attributes: " << kwargs << " on " << toString(_element_id) << endl;
@@ -101,7 +101,7 @@ namespace folia {
       if ( !mydoc ){
 	throw runtime_error( "can't generate an ID without a doc" );
       }
-      AbstractElement * e = (*mydoc)[it->second];
+      FoliaElement * e = (*mydoc)[it->second];
       if ( e ){
 	_id = e->generateId( _xmltag );
       }
@@ -252,28 +252,28 @@ namespace folia {
 
     it = kwargs.find( "actor" );
     if ( it != kwargs.end() ){
-      AbstractElement *tmp = new ActorFeature( "cls='" + it->second + "'" );
+      FoliaElement *tmp = new ActorFeature( "cls='" + it->second + "'" );
       append( tmp );
     }
     it = kwargs.find( "synset" );
     if ( it != kwargs.end() ){
-      AbstractElement *tmp = new SynsetFeature( "cls='" + it->second + "'" );
+      FoliaElement *tmp = new SynsetFeature( "cls='" + it->second + "'" );
       append( tmp );
     }
     it = kwargs.find( "begindatetime" );
     if ( it != kwargs.end() ){
-      AbstractElement *tmp = new BegindatetimeFeature( "cls='" + it->second + "'" );
+      FoliaElement *tmp = new BegindatetimeFeature( "cls='" + it->second + "'" );
       append( tmp );
     }
     it = kwargs.find( "enddatetime" );
     if ( it != kwargs.end() ){
-      AbstractElement *tmp = new EnddatetimeFeature( "cls='" + it->second + "'" );
+      FoliaElement *tmp = new EnddatetimeFeature( "cls='" + it->second + "'" );
       append( tmp );
     }
   
   }
 
-  KWargs AbstractElement::collectAttributes() const {
+  KWargs FoliaElement::collectAttributes() const {
     KWargs attribs;
     bool isDefaultSet = true;
     bool isDefaultAnn = true;
@@ -319,7 +319,7 @@ namespace folia {
     return attribs;
   }
 
-  string AbstractElement::xmlstring() const{
+  string FoliaElement::xmlstring() const{
     // serialize to a string (XML fragment)
     xmlNode *n = xml( true );
     xmlSetNs( n, xmlNewNs( n, (const xmlChar *)NSFOLIA.c_str(), 0 ) );
@@ -331,11 +331,11 @@ namespace folia {
     return result;
   }
 
-  xmlNode *AbstractElement::xml( bool recursive ) const {
+  xmlNode *FoliaElement::xml( bool recursive ) const {
     xmlNode *e = newXMLNode( foliaNs(), _xmltag );
     KWargs attribs = collectAttributes();
-    set<AbstractElement *> skipelements;
-    vector<AbstractElement*>::const_iterator it=data.begin();
+    set<FoliaElement *> skipelements;
+    vector<FoliaElement*>::const_iterator it=data.begin();
     while ( it != data.end() ){
       if ( (*it)->isinstance(SynsetFeature_t) ){
 	attribs["synset"] = (*it)->cls();
@@ -360,9 +360,9 @@ namespace folia {
       // append children:
       // we want make sure that text elements are in the right order, 
       // in front and the 'current' class first
-      list<AbstractElement *> textelements;
-      list<AbstractElement *> otherelements;
-      vector<AbstractElement*>::const_iterator it=data.begin();
+      list<FoliaElement *> textelements;
+      list<FoliaElement *> otherelements;
+      vector<FoliaElement*>::const_iterator it=data.begin();
       while ( it != data.end() ){
 	if ( skipelements.find(*it) == skipelements.end() ){
 	  if ( (*it)->isinstance(TextContent_t) ){
@@ -377,7 +377,7 @@ namespace folia {
 	++it;
       }
       textelements.splice( textelements.end(), otherelements );
-      list<AbstractElement*>::const_iterator lit=textelements.begin();
+      list<FoliaElement*>::const_iterator lit=textelements.begin();
       while ( lit != textelements.end() ){
 	xmlAddChild( e, (*lit)->xml( recursive ) );
 	++lit;
@@ -386,11 +386,11 @@ namespace folia {
     return e;
   }
 
-  string AbstractElement::str() const {
+  string FoliaElement::str() const {
     return _xmltag;
   }
 
-  bool AbstractElement::hastext( const string& cls ) const {
+  bool FoliaElement::hastext( const string& cls ) const {
     try {
       this->textcontent(cls);
       return true;
@@ -399,7 +399,7 @@ namespace folia {
     }
   }
 
-  UnicodeString AbstractElement::text( const string& cls ) const {
+  UnicodeString FoliaElement::text( const string& cls ) const {
     if ( !PRINTABLE )
       throw NoSuchText( _xmltag );
     //  cerr << (void*)this << ":text() for " << _xmltag << " and class= " << cls << " step 1 " << endl;
@@ -438,11 +438,11 @@ namespace folia {
       throw NoSuchText( ":{" );
   }
 
-  UnicodeString AbstractElement::stricttext( const string& cls ) const {
+  UnicodeString FoliaElement::stricttext( const string& cls ) const {
       return this->textcontent(cls)->text(cls);
   }
 
-  AbstractElement *AbstractElement::textcontent( const string& cls ) const {
+  FoliaElement *FoliaElement::textcontent( const string& cls ) const {
     // Get the text explicitly associated with this element (of the specified class).
     // Returns the TextContent instance rather than the actual text. Does not recurse into children
     // with sole exception of Correction
@@ -464,16 +464,16 @@ namespace folia {
     throw NoSuchText( "textcontent()" );
   }
 
-  vector<AbstractElement *>AbstractElement::findreplacables( AbstractElement *par ) const {
+  vector<FoliaElement *>FoliaElement::findreplacables( FoliaElement *par ) const {
     return par->select( element_id(), _set, false );
   }
 
-  void AbstractElement::replace( AbstractElement *child ){
+  void FoliaElement::replace( FoliaElement *child ){
     // Appends a child element like append(), but replaces any existing child 
     // element of the same type and set. 
     // If no such child element exists, this will act the same as append()
   
-    vector<AbstractElement*> replace = child->findreplacables( this );
+    vector<FoliaElement*> replace = child->findreplacables( this );
     if ( replace.empty() ){
       // nothing to replace, simply call append
       append( child );
@@ -487,7 +487,7 @@ namespace folia {
     }
   }                
 
-  TextContent *AbstractElement::settext( const string& txt, 
+  TextContent *FoliaElement::settext( const string& txt, 
 					 const string& cls ){
     KWargs args;
     args["value"] = txt;
@@ -498,22 +498,22 @@ namespace folia {
     return node;
   }
 
-  string AbstractElement::description() const {
-    vector<AbstractElement *> v =  select( Description_t, false );
+  string FoliaElement::description() const {
+    vector<FoliaElement *> v =  select( Description_t, false );
     if ( v.size() == 0 )
       throw NoDescription();
     else
       return v[0]->description();
   }
 
-  bool AbstractElement::acceptable( ElementType t ) const {
+  bool FoliaElement::acceptable( ElementType t ) const {
     set<ElementType>::const_iterator it = _accepted_data.find( t );
     if ( it == _accepted_data.end() )
       return false;
     return true;
   }
  
-  bool AbstractElement::addable( const AbstractElement *c,
+  bool FoliaElement::addable( const FoliaElement *c,
 				 const string& setname ) const {
     static set<ElementType> selectSet;
     if ( !acceptable( c->_element_id ) ){
@@ -522,7 +522,7 @@ namespace folia {
       return false;
     }
     if ( c->occurrences > 0 ){
-      vector<AbstractElement*> v = select( c->_element_id );
+      vector<FoliaElement*> v = select( c->_element_id );
       size_t count = v.size();
       if ( count > c->occurrences )
 	throw DuplicateAnnotationError( "Unable to add another object of type " + c->classname() + " to " + classname() + ". There are already " + toString(count) + " instances of this class, which is the maximum." );
@@ -530,7 +530,7 @@ namespace folia {
     }
     if ( c->occurrences_per_set > 0 && !setname.empty() &&
 	 ( CLASS & c->_required_attributes ) ){
-      vector<AbstractElement*> v = select( c->_element_id, setname );
+      vector<FoliaElement*> v = select( c->_element_id, setname );
       size_t count = v.size();
       if ( count > c->occurrences_per_set )
 	throw DuplicateAnnotationError( "Unable to add another object of type " + c->classname() + " to " + classname() + ". There are already " + toString(count) + " instances of this class, which is the maximum." );
@@ -539,7 +539,7 @@ namespace folia {
     return true;
   }
  
-  void AbstractElement::fixupDoc( Document* doc ) {
+  void FoliaElement::fixupDoc( Document* doc ) {
     if ( !mydoc ){
       mydoc = doc;
       string myid = id();
@@ -557,7 +557,7 @@ namespace folia {
     }
   }
   
-  AbstractElement *AbstractElement::append( AbstractElement *child ){
+  FoliaElement *FoliaElement::append( FoliaElement *child ){
     bool ok = false;
     try {
       ok = addable( child );
@@ -577,47 +577,47 @@ namespace folia {
   }
 
 
-  void AbstractElement::remove( AbstractElement *child, bool del ){
-    vector<AbstractElement*>::iterator it = std::remove( data.begin(), data.end(), child );
+  void FoliaElement::remove( FoliaElement *child, bool del ){
+    vector<FoliaElement*>::iterator it = std::remove( data.begin(), data.end(), child );
     data.erase( it, data.end() );
     if ( del )
       delete child;
   }
 
-  AbstractElement* AbstractElement::index( size_t i ) const {
+  FoliaElement* FoliaElement::index( size_t i ) const {
     if ( i < data.size() )
       return data[i];
     else
       throw range_error( "[] index out of range" );
   }
 
-  AbstractElement* AbstractElement::rindex( size_t i ) const {
+  FoliaElement* FoliaElement::rindex( size_t i ) const {
     if ( i < data.size() )
       return data[data.size()-1-i];
     else
       throw range_error( "[] rindex out of range" );
   }
 
-  vector<AbstractElement *>AbstractElement::annotations( ElementType et ) const {
-    vector<AbstractElement *>v = select( et );
+  vector<FoliaElement *>FoliaElement::annotations( ElementType et ) const {
+    vector<FoliaElement *>v = select( et );
     if ( v.size() >= 1 )
       return v;
     else
       throw NoSuchAnnotation( toString(et) );
   }
 
-  vector<AbstractElement*> AbstractElement::select( ElementType et,
+  vector<FoliaElement*> FoliaElement::select( ElementType et,
 						    const string& val,
 						    const set<ElementType>& exclude,
 						    bool recurse ) const {
-    vector<AbstractElement*> res;
+    vector<FoliaElement*> res;
     for ( size_t i = 0; i < data.size(); ++i ){
       if ( data[i]->_element_id == et  && data[i]->_set == val ){
 	res.push_back( data[i] );
       }
       if ( recurse ){
 	if ( exclude.find( data[i]->_element_id ) == exclude.end() ){
-	  vector<AbstractElement*> tmp = data[i]->select( et, val, exclude, recurse );
+	  vector<FoliaElement*> tmp = data[i]->select( et, val, exclude, recurse );
 	  res.insert( res.end(), tmp.begin(), tmp.end() );
 	}
       }
@@ -625,7 +625,7 @@ namespace folia {
     return res;
   }
 
-  vector<AbstractElement*> AbstractElement::select( ElementType et,
+  vector<FoliaElement*> FoliaElement::select( ElementType et,
 						    const string& val,
 						    bool recurse ) const {
     static set<ElementType> excludeSet;
@@ -637,17 +637,17 @@ namespace folia {
     return select( et, val, excludeSet, recurse );
   }
 
-  vector<AbstractElement*> AbstractElement::select( ElementType et,
+  vector<FoliaElement*> FoliaElement::select( ElementType et,
 						    const set<ElementType>& exclude,
 						    bool recurse ) const {
-    vector<AbstractElement*> res;
+    vector<FoliaElement*> res;
     for ( size_t i = 0; i < data.size(); ++i ){
       if ( data[i]->_element_id == et ){
 	res.push_back( data[i] );
       }
       if ( recurse ){
 	if ( exclude.find( data[i]->_element_id ) == exclude.end() ){
-	  vector<AbstractElement*> tmp = data[i]->select( et, exclude, recurse );
+	  vector<FoliaElement*> tmp = data[i]->select( et, exclude, recurse );
 	  res.insert( res.end(), tmp.begin(), tmp.end() );
 	}
       }
@@ -655,7 +655,7 @@ namespace folia {
     return res;
   }
 
-  vector<AbstractElement*> AbstractElement::select( ElementType et,
+  vector<FoliaElement*> FoliaElement::select( ElementType et,
 						    bool recurse ) const {
     static set<ElementType> excludeSet;
     if ( excludeSet.empty() ){
@@ -672,14 +672,14 @@ namespace folia {
     return select( et, excludeSet, recurse );
   }
 
-  AbstractElement* AbstractElement::parseXml( const xmlNode *node ){
+  FoliaElement* FoliaElement::parseXml( const xmlNode *node ){
     KWargs att = getAttributes( node );
     setAttributes( att );
     xmlNode *p = node->children;
     while ( p ){
       if ( p->type == XML_ELEMENT_NODE ){
 	string tag = Name( p );
-	AbstractElement *t = createElement( mydoc, tag );
+	FoliaElement *t = createElement( mydoc, tag );
 	if ( t ){
 	  if ( mydoc && mydoc->debug > 2 )
 	    cerr << "created " << t << endl;
@@ -696,7 +696,7 @@ namespace folia {
     return this;
   }
 
-  void AbstractElement::setDateTime( const string& s ){
+  void FoliaElement::setDateTime( const string& s ){
     Attrib supported = _required_attributes | _optional_attributes;
     if ( !(DATETIME & supported) )
       throw ValueError("datetime is not supported for " + classname() );
@@ -707,13 +707,13 @@ namespace folia {
     }
   }
 
-  string AbstractElement::getDateTime() const {
+  string FoliaElement::getDateTime() const {
     char buf[100];
     strftime( buf, 100, "%Y-%m-%dT%X", _datetime );
     return buf;
   }
 
-  Alternative *AbstractElement::addAlternative( ElementType et,
+  Alternative *FoliaElement::addAlternative( ElementType et,
 						const KWargs& args ){
     Alternative *res = new Alternative( mydoc );
     KWargs kw;
@@ -730,7 +730,7 @@ namespace folia {
     return res;
   }
 
-  AbstractTokenAnnotation *AbstractElement::addAnnotation( ElementType et,
+  AbstractTokenAnnotation *FoliaElement::addAnnotation( ElementType et,
 							   const KWargs& args ){
     if ( et == Pos_t )
       return addPosAnnotation( args );
@@ -740,7 +740,7 @@ namespace folia {
       throw runtime_error( "addAnnotation not implemenentd for " + toString(et) );
   }
 
-  AbstractTokenAnnotation *AbstractElement::addPosAnnotation( const KWargs& args ){
+  AbstractTokenAnnotation *FoliaElement::addPosAnnotation( const KWargs& args ){
     PosAnnotation *res = new PosAnnotation( mydoc );
     try {
       res->setAttributes( args );
@@ -753,7 +753,7 @@ namespace folia {
     return res;
   }
 
-  AbstractTokenAnnotation *AbstractElement::addLemmaAnnotation( const KWargs& args ){
+  AbstractTokenAnnotation *FoliaElement::addLemmaAnnotation( const KWargs& args ){
     LemmaAnnotation *res = new LemmaAnnotation( mydoc );
     try {
       res->setAttributes( args );
@@ -766,7 +766,7 @@ namespace folia {
     return res;
   }
 
-  Sentence *AbstractElement::addSentence( const KWargs& args ){
+  Sentence *FoliaElement::addSentence( const KWargs& args ){
     Sentence *res = new Sentence( mydoc );
     KWargs kw = args;
     if ( kw["id"].empty() ){
@@ -784,7 +784,7 @@ namespace folia {
     return res;
   }
 
-  Word *AbstractElement::addWord( const KWargs& args ){
+  Word *FoliaElement::addWord( const KWargs& args ){
     Word *res = new Word( mydoc );
     KWargs kw = args;
     if ( kw["id"].empty() ){
@@ -802,35 +802,35 @@ namespace folia {
     return res;
   }
 
-  Correction *Sentence::splitWord( AbstractElement *orig, AbstractElement *p1, AbstractElement *p2, const KWargs& args ){
-    vector<AbstractElement*> ov;
+  Correction *Sentence::splitWord( FoliaElement *orig, FoliaElement *p1, FoliaElement *p2, const KWargs& args ){
+    vector<FoliaElement*> ov;
     ov.push_back( orig );
-    vector<AbstractElement*> nv;
+    vector<FoliaElement*> nv;
     nv.push_back( p1 );
     nv.push_back( p2 );
-    vector<AbstractElement*> nil;
+    vector<FoliaElement*> nil;
     return correctWords( ov, nv, nil, args );
   }
 
-  Correction *Sentence::mergewords( AbstractElement *nw, 
-				    const vector<AbstractElement *>& orig,
+  Correction *Sentence::mergewords( FoliaElement *nw, 
+				    const vector<FoliaElement *>& orig,
 				    const string& args ){
-    vector<AbstractElement*> nv;
+    vector<FoliaElement*> nv;
     nv.push_back( nw );
-    vector<AbstractElement*> nil;
+    vector<FoliaElement*> nil;
     return correctWords( orig, nv, nil, getArgs(args) );
   }
 
-  Correction *Sentence::deleteword( AbstractElement *w, 
+  Correction *Sentence::deleteword( FoliaElement *w, 
 				    const string& args ){
-    vector<AbstractElement*> ov;
+    vector<FoliaElement*> ov;
     ov.push_back( w );
-    vector<AbstractElement*> nil;
+    vector<FoliaElement*> nil;
     return correctWords( ov, nil, nil, getArgs(args) );
   }
 
-  Correction *Sentence::insertword( AbstractElement *w, 
-				    AbstractElement *p,
+  Correction *Sentence::insertword( FoliaElement *w, 
+				    FoliaElement *p,
 				    const string& args ){
     if ( !p || !p->isinstance( Word_t ) )
       throw runtime_error( "insertword(): previous is not a Word " );
@@ -839,7 +839,7 @@ namespace folia {
     Word *tmp = new Word( "text='dummy', id='dummy'" );
     tmp->setParent( this ); // we create a dummy Word as member of the
     // Sentence. This makes correct() happy
-    vector<AbstractElement *>::iterator it = data.begin();
+    vector<FoliaElement *>::iterator it = data.begin();
     while ( it != data.end() ){
       if ( *it == p ){
 	it = data.insert( ++it, tmp );
@@ -849,23 +849,23 @@ namespace folia {
     }
     if ( it == data.end() )
       throw runtime_error( "insertword(): previous not found" );
-    vector<AbstractElement *> ov;
+    vector<FoliaElement *> ov;
     ov.push_back( *it );
-    vector<AbstractElement *> nv;
+    vector<FoliaElement *> nv;
     nv.push_back( w );
-    vector<AbstractElement*> nil;
+    vector<FoliaElement*> nil;
     return correctWords( ov, nv, nil, getArgs(args) );  
   }
 
-  Correction *Sentence::correctWords( const vector<AbstractElement *>& orig,
-				      const vector<AbstractElement *>& _new,
-				      const vector<AbstractElement *>& current, 
+  Correction *Sentence::correctWords( const vector<FoliaElement *>& orig,
+				      const vector<FoliaElement *>& _new,
+				      const vector<FoliaElement *>& current, 
 				      const KWargs& args ){
     // Generic correction method for words. You most likely want to use the helper functions
     //      splitword() , mergewords(), deleteword(), insertword() instead
   
     // sanity check:
-    vector<AbstractElement *>::const_iterator it = orig.begin();
+    vector<FoliaElement *>::const_iterator it = orig.begin();
     while ( it != orig.end() ){
       if ( !(*it) || !(*it)->isinstance( Word_t) )
 	throw runtime_error("Original word is not a Word instance" );
@@ -887,11 +887,11 @@ namespace folia {
     }
     KWargs::const_iterator ait = args.find("suggest");
     if ( ait != args.end() && ait->second == "true" ){
-      vector<AbstractElement *> nil;
+      vector<FoliaElement *> nil;
       return correct( nil, orig, nil, _new, args );
     }
     else {
-      vector<AbstractElement *> nil;
+      vector<FoliaElement *> nil;
       return correct( orig, nil, _new, nil, args );
     }
   }
@@ -923,10 +923,10 @@ namespace folia {
     if ( it == kwargs.end() ) {
       kwargs["cls"] = "current";
     }
-    AbstractElement::setAttributes(kwargs);
+    FoliaElement::setAttributes(kwargs);
   }
 
-  AbstractElement* TextContent::parseXml( const xmlNode *node ){
+  FoliaElement* TextContent::parseXml( const xmlNode *node ){
     KWargs att = getAttributes( node );
     att["value"] = XmlContent( node );
     setAttributes( att );
@@ -935,18 +935,18 @@ namespace folia {
     return this;
   }
 
-  AbstractElement *TextContent::postappend(){
+  FoliaElement *TextContent::postappend(){
     if ( _parent->isinstance( Original_t ) ){
       if ( _cls == "current" )
 	_cls = "original";
     }
-    return AbstractElement::postappend();
+    return FoliaElement::postappend();
   }
 
-  vector<AbstractElement *>TextContent::findreplacables( AbstractElement *par ) const {
-    vector<AbstractElement*> v = par->select( TextContent_t, _set, false );
+  vector<FoliaElement *>TextContent::findreplacables( FoliaElement *par ) const {
+    vector<FoliaElement*> v = par->select( TextContent_t, _set, false );
     // cerr << "TextContent::findreplacable found " << v << endl;
-    vector<AbstractElement *>::iterator it = v.begin();
+    vector<FoliaElement *>::iterator it = v.begin();
     while ( it != v.end() ){
       // cerr << "TextContent::findreplacable bekijkt " << *it << " (" 
       if ( (*it)->cls() != _cls )
@@ -984,7 +984,7 @@ namespace folia {
     return UnicodeToUTF8(result);
   }
   
-  void AbstractStructureElement::setMaxId( AbstractElement *child ) {
+  void AbstractStructureElement::setMaxId( FoliaElement *child ) {
     if ( !child->id().empty() && !child->xmltag().empty() ){
       vector<string> parts;
       size_t num = split_at( child->id(), parts, "." );
@@ -1020,16 +1020,16 @@ namespace folia {
     return res;
   }
 
-  AbstractElement *AbstractStructureElement::append( AbstractElement *child ){
-    AbstractElement::append( child );
+  FoliaElement *AbstractStructureElement::append( FoliaElement *child ){
+    FoliaElement::append( child );
     setMaxId( child );
     return child;
   }
 
-  Correction *AbstractStructureElement::correct( vector<AbstractElement*> original,
-						 vector<AbstractElement*> current,
-						 vector<AbstractElement*> _new,
-						 vector<AbstractElement*> suggestions,
+  Correction *AbstractStructureElement::correct( vector<FoliaElement*> original,
+						 vector<FoliaElement*> current,
+						 vector<FoliaElement*> _new,
+						 vector<FoliaElement*> suggestions,
 						 const KWargs& args_in ){
     // cerr << "correct " << this << endl;
     // cerr << "original= " << original << endl;
@@ -1041,7 +1041,7 @@ namespace folia {
     Correction *c = 0;
     bool suggestionsonly = false;
     bool hooked = false;
-    AbstractElement * addnew = 0;
+    FoliaElement * addnew = 0;
     KWargs args = args_in;
     KWargs::const_iterator it = args.find("new");
     if ( it != args.end() ){
@@ -1075,7 +1075,7 @@ namespace folia {
 	if ( !current.empty() )
 	  throw runtime_error( "Can't set both new= and current= !");
 	if ( original.empty() ){
-	  AbstractElement *cur = c->getCurrent();
+	  FoliaElement *cur = c->getCurrent();
 	  original.push_back( cur );
 	  c->remove( cur, false );
 	}
@@ -1094,9 +1094,9 @@ namespace folia {
     if ( !current.empty() ){
       if ( !original.empty() || !_new.empty() )
 	throw runtime_error("When setting current=, original= and new= can not be set!");
-      vector<AbstractElement *>::iterator cit = current.begin();
+      vector<FoliaElement *>::iterator cit = current.begin();
       while ( cit != current.end() ){
-	AbstractElement *add = new Current( mydoc );
+	FoliaElement *add = new Current( mydoc );
 	add->append( *cit );
 	c->replace( add );
 	if ( !hooked ) {
@@ -1115,13 +1115,13 @@ namespace folia {
       //    cerr << "there is new! " << endl;
       addnew = new NewElement( mydoc );
       c->append(addnew);
-      vector<AbstractElement *>::iterator nit = _new.begin();    
+      vector<FoliaElement *>::iterator nit = _new.begin();    
       while ( nit != _new.end() ){
 	addnew->append( *nit );
 	++nit;
       }
       //    cerr << "after adding " << c << endl;
-      vector<AbstractElement*> v = c->select(Current_t);
+      vector<FoliaElement*> v = c->select(Current_t);
       //delete current if present
       nit = v.begin();        
       while ( nit != v.end() ){
@@ -1130,9 +1130,9 @@ namespace folia {
       }
     }
     if ( !original.empty() ){
-      AbstractElement *add = new Original( mydoc );
+      FoliaElement *add = new Original( mydoc );
       c->replace(add);
-      vector<AbstractElement *>::iterator nit = original.begin();
+      vector<FoliaElement *>::iterator nit = original.begin();
       while ( nit != original.end() ){
 	bool dummyNode = ( (*nit)->id() == "dummy" );
 	if ( !dummyNode )
@@ -1154,13 +1154,13 @@ namespace folia {
     }
     else if ( addnew ){
       // original not specified, find automagically:
-      vector<AbstractElement *> orig;
+      vector<FoliaElement *> orig;
       //    cerr << "start to look for original " << endl;
       for ( size_t i=0; i < len(addnew); ++ i ){
-	AbstractElement *p = addnew->index(i);
+	FoliaElement *p = addnew->index(i);
 	//      cerr << "bekijk " << p << endl;
-	vector<AbstractElement*> v = p->findreplacables( this );
-	vector<AbstractElement*>::iterator vit=v.begin();      
+	vector<FoliaElement*> v = p->findreplacables( this );
+	vector<FoliaElement*>::iterator vit=v.begin();      
 	while ( vit != v.end() ){
 	  orig.push_back( *vit );
 	  ++vit;
@@ -1171,9 +1171,9 @@ namespace folia {
       }
       else {
 	//      cerr << "we seem to have some originals! " << endl;
-	AbstractElement *add = new Original( mydoc );
+	FoliaElement *add = new Original( mydoc );
 	c->replace(add);
-	vector<AbstractElement *>::iterator oit = orig.begin();
+	vector<FoliaElement *>::iterator oit = orig.begin();
 	while ( oit != orig.end() ){
 	  //	cerr << " an original is : " << *oit << endl;
 	  add->append( *oit );
@@ -1190,7 +1190,7 @@ namespace folia {
 	  }
 	  ++oit;
 	}
-	vector<AbstractElement*> v = c->select(Current_t);
+	vector<FoliaElement*> v = c->select(Current_t);
 	//delete current if present
 	oit = v.begin();        
 	while ( oit != v.end() ){
@@ -1201,7 +1201,7 @@ namespace folia {
     }
   
     if ( addnew ){
-      vector<AbstractElement*>::iterator oit = original.begin();
+      vector<FoliaElement*>::iterator oit = original.begin();
       while ( oit != original.end() ){
 	c->remove( *oit, false );
 	++oit;
@@ -1209,11 +1209,11 @@ namespace folia {
     }
 
     if ( !suggestions.empty() ){
-      AbstractElement *add = new Suggestion( mydoc );
+      FoliaElement *add = new Suggestion( mydoc );
       c->append(add);
       if ( !hooked )
 	append(c);
-      vector<AbstractElement *>::iterator nit = suggestions.begin();
+      vector<FoliaElement *>::iterator nit = suggestions.begin();
       while ( nit != suggestions.end() ){
 	add->append( *nit );
 	++nit;
@@ -1223,7 +1223,7 @@ namespace folia {
     it = args.find("reuse");
     if ( it != args.end() ){
       if ( addnew && suggestionsonly ){
-	vector<AbstractElement *> sv = c->suggestions();
+	vector<FoliaElement *> sv = c->suggestions();
 	for ( size_t i=0; i < sv.size(); ++i ){
 	  if ( !c->annotator().empty() && sv[i]->annotator().empty() )
 	    sv[i]->annotator( c->annotator() );
@@ -1247,7 +1247,7 @@ namespace folia {
     return c;
   }
 
-  vector<AbstractElement*> AbstractStructureElement::paragraphs() const{
+  vector<FoliaElement*> AbstractStructureElement::paragraphs() const{
     static set<ElementType> excludeSet;
     if ( excludeSet.empty() ){
       excludeSet.insert( Original_t );
@@ -1262,7 +1262,7 @@ namespace folia {
     return select( Paragraph_t, excludeSet );
   }
 
-  vector<AbstractElement*> AbstractStructureElement::sentences() const{
+  vector<FoliaElement*> AbstractStructureElement::sentences() const{
     static set<ElementType> excludeSet;
     if ( excludeSet.empty() ){
       excludeSet.insert( Quote_t );
@@ -1278,7 +1278,7 @@ namespace folia {
     return select( Sentence_t, excludeSet );
   }
 
-  vector<AbstractElement*> AbstractStructureElement::words() const{
+  vector<FoliaElement*> AbstractStructureElement::words() const{
     static set<ElementType> excludeSet;
     if ( excludeSet.empty() ){
       excludeSet.insert( Original_t );
@@ -1294,7 +1294,7 @@ namespace folia {
   }
 
   Sentence *AbstractStructureElement::sentences( size_t index ) const {
-    vector<AbstractElement*> v = sentences();
+    vector<FoliaElement*> v = sentences();
     if ( index < v.size() )
       return dynamic_cast<Sentence*>(v[index]);
     else
@@ -1302,7 +1302,7 @@ namespace folia {
   }
 
   Sentence *AbstractStructureElement::rsentences( size_t index ) const {
-    vector<AbstractElement*> v = sentences();
+    vector<FoliaElement*> v = sentences();
     if ( index < v.size() )
       return dynamic_cast<Sentence*>(v[v.size()-1-index]);
     else
@@ -1310,7 +1310,7 @@ namespace folia {
   }
 
   Paragraph *AbstractStructureElement::paragraphs( size_t index ) const {
-    vector<AbstractElement*> v = paragraphs();
+    vector<FoliaElement*> v = paragraphs();
     if ( index < v.size() )
       return dynamic_cast<Paragraph *>(v[index]);
     else
@@ -1318,7 +1318,7 @@ namespace folia {
   }
 
   Paragraph *AbstractStructureElement::rparagraphs( size_t index ) const {
-    vector<AbstractElement*> v = paragraphs();
+    vector<FoliaElement*> v = paragraphs();
     if ( index < v.size() )
       return dynamic_cast<Paragraph *>(v[v.size()-1-index]);
     else
@@ -1326,7 +1326,7 @@ namespace folia {
   }
 
   Word *AbstractStructureElement::words( size_t index ) const {
-    vector<AbstractElement*> v = words();
+    vector<FoliaElement*> v = words();
     if ( index < v.size() )
       return dynamic_cast<Word*>( v[index]);
     else
@@ -1334,15 +1334,15 @@ namespace folia {
   }
 
   Word *AbstractStructureElement::rwords( size_t index ) const {
-    vector<AbstractElement*> v = words();
+    vector<FoliaElement*> v = words();
     if ( index < v.size() )
       return dynamic_cast<Word*>( v[v.size()-1-index]);
     else
       throw range_error( "rwords(): index out of range" );
   }
 
-  const AbstractElement* AbstractStructureElement::resolveword( const string& id ) const{
-    const AbstractElement *result = 0;
+  const FoliaElement* AbstractStructureElement::resolveword( const string& id ) const{
+    const FoliaElement *result = 0;
     for ( size_t i=0; i < data.size(); ++i ){
       result = data[i]->resolveword( id );
       if ( result )
@@ -1351,16 +1351,16 @@ namespace folia {
     return result;
   }
 
-  AbstractElement *AbstractStructureElement::annotation( ElementType et ) const {
-    vector<AbstractElement *>v = annotations( et );
+  FoliaElement *AbstractStructureElement::annotation( ElementType et ) const {
+    vector<FoliaElement *>v = annotations( et );
     return v[0]; // always exist, otherwise annotations would throw()
   }
 
-  AbstractElement *AbstractStructureElement::annotation( ElementType et,
+  FoliaElement *AbstractStructureElement::annotation( ElementType et,
 							 const string& val ) const {
     // Will return a SINGLE annotation (even if there are multiple). 
     // Raises a NoSuchAnnotation exception if none was found
-    vector<AbstractElement *>v = select( et, val );
+    vector<FoliaElement *>v = select( et, val );
     if ( v.size() >= 1 )
       return v[0];
     else
@@ -1368,7 +1368,7 @@ namespace folia {
     return 0;
   }
 
-  vector<AbstractElement *> AbstractStructureElement::alternatives( ElementType elt,
+  vector<FoliaElement *> AbstractStructureElement::alternatives( ElementType elt,
 								    const string& st ) const {
     // Return a list of alternatives, either all or only of a specific type, restrained by set
     static set<ElementType> excludeSet;
@@ -1376,12 +1376,12 @@ namespace folia {
       excludeSet.insert( Original_t );
       excludeSet.insert( Suggestion_t );
     }
-    vector<AbstractElement*> alts = select( Alternative_t, excludeSet );
+    vector<FoliaElement*> alts = select( Alternative_t, excludeSet );
     if ( elt == BASE ){
       return alts;
     }
     else {
-      vector<AbstractElement*> res;
+      vector<FoliaElement*> res;
       for ( size_t i=0; i < alts.size(); ++i ){
 	if ( alts[i]->size() > 0 ) { // child elements?
 	  for ( size_t j =0; j < alts[i]->size(); ++j ){
@@ -1408,11 +1408,11 @@ namespace folia {
     if ( it != args.end() ) {
       settext( it->second );
     }
-    AbstractElement::setAttributes( args );
+    FoliaElement::setAttributes( args );
   }
 
   KWargs Word::collectAttributes() const {
-    KWargs atts = AbstractElement::collectAttributes();
+    KWargs atts = FoliaElement::collectAttributes();
     if ( !space ){
       atts["space"] = "no";
     }
@@ -1420,7 +1420,7 @@ namespace folia {
   }
 
   Correction *Word::correct( const string& s ){
-    vector<AbstractElement*> nil;
+    vector<FoliaElement*> nil;
     KWargs args = getArgs( s );
     //  cerr << "word::correct() <== " << this << endl;
     Correction *tmp = AbstractStructureElement::correct( nil, nil, nil, nil, args );
@@ -1428,26 +1428,26 @@ namespace folia {
     return tmp;
   }
 
-  Correction *Word::correct( AbstractElement *old,
-			     AbstractElement *_new,
+  Correction *Word::correct( FoliaElement *old,
+			     FoliaElement *_new,
 			     const KWargs& args ){
-    vector<AbstractElement *> nv;
+    vector<FoliaElement *> nv;
     nv.push_back( _new );
-    vector<AbstractElement *> ov;
+    vector<FoliaElement *> ov;
     ov.push_back( old );
-    vector<AbstractElement *> nil;
+    vector<FoliaElement *> nil;
     //  cerr << "correct() <== " << this;
     Correction *tmp =AbstractStructureElement::correct( ov, nil, nv, nil, args );
     //  cerr << "correct() ==> " << this;
     return tmp;
   }
 
-  AbstractElement *Word::split( AbstractElement *part1, AbstractElement *part2,
+  FoliaElement *Word::split( FoliaElement *part1, FoliaElement *part2,
 				const string& args ){
     return sentence()->splitWord( this, part1, part2, getArgs(args) );
   }
 
-  AbstractElement *Word::append( AbstractElement *child ) {
+  FoliaElement *Word::append( FoliaElement *child ) {
     if ( child->element_id() == Pos_t ||
 	 child->element_id() == Lemma_t ){
       // sanity check, there may be no other child within the same set
@@ -1456,17 +1456,17 @@ namespace folia {
       }
       catch ( NoSuchAnnotation &e ){
 	// OK!
-	return AbstractElement::append( child );
+	return FoliaElement::append( child );
       }
       delete child;
       throw DuplicateAnnotationError( "Word::append" );
     }
-    return AbstractElement::append( child );
+    return FoliaElement::append( child );
   }
 
   Sentence *Word::sentence( ) const {
     // return the sentence this word is a part of, otherwise return null
-    AbstractElement *p = _parent; 
+    FoliaElement *p = _parent; 
     while( p ){
       if ( p->isinstance( Sentence_t ) )
 	return dynamic_cast<Sentence*>(p);
@@ -1477,7 +1477,7 @@ namespace folia {
 
   Paragraph *Word::paragraph( ) const {
     // return the sentence this word is a part of, otherwise return null
-    AbstractElement *p = _parent; 
+    FoliaElement *p = _parent; 
     while( p ){
       if ( p->isinstance( Paragraph_t ) )
 	return dynamic_cast<Paragraph*>(p);
@@ -1488,7 +1488,7 @@ namespace folia {
 
   Division *Word::division() const {
     // return the sentence this word is a part of, otherwise return null
-    AbstractElement *p = _parent; 
+    FoliaElement *p = _parent; 
     while( p ){
       if ( p->isinstance( Division_t ) )
 	return dynamic_cast<Division*>(p);
@@ -1499,7 +1499,7 @@ namespace folia {
 
   Correction *Word::incorrection( ) const {
     // Is the Word part of a correction? If it is, it returns the Correction element, otherwise it returns 0;
-    AbstractElement *p = _parent; 
+    FoliaElement *p = _parent; 
     while( p ){
       if ( p->isinstance( Correction_t ) )
 	return dynamic_cast<Correction*>(p);
@@ -1510,9 +1510,9 @@ namespace folia {
     return 0;
   }
 
-  AbstractElement *Word::previous() const{
+  FoliaElement *Word::previous() const{
     Sentence *s = sentence();
-    vector<AbstractElement*> words = s->words();
+    vector<FoliaElement*> words = s->words();
     for( size_t i=0; i < words.size(); ++i ){
       if ( words[i] == this ){
 	if ( i > 0 )
@@ -1525,9 +1525,9 @@ namespace folia {
     return 0;
   }
 
-  AbstractElement *Word::next() const{
+  FoliaElement *Word::next() const{
     Sentence *s = sentence();
-    vector<AbstractElement*> words = s->words();
+    vector<FoliaElement*> words = s->words();
     for( size_t i=0; i < words.size(); ++i ){
       if ( words[i] == this ){
 	if ( i+1 < words.size() )
@@ -1540,11 +1540,11 @@ namespace folia {
     return 0;
   }
 
-  vector<AbstractElement *> Word::context( size_t size, 
+  vector<FoliaElement *> Word::context( size_t size, 
 					   const string& val ) const {
-    vector<AbstractElement *> result;
+    vector<FoliaElement *> result;
     if ( size > 0 ){
-      vector<AbstractElement*> words = mydoc->words();
+      vector<FoliaElement*> words = mydoc->words();
       for( size_t i=0; i < words.size(); ++i ){
 	if ( words[i] == this ){
 	  size_t miss = 0;
@@ -1582,12 +1582,12 @@ namespace folia {
   }
 
 
-  vector<AbstractElement *> Word::leftcontext( size_t size, 
+  vector<FoliaElement *> Word::leftcontext( size_t size, 
 					       const string& val ) const {
     //  cerr << "leftcontext : " << size << endl;
-    vector<AbstractElement *> result;
+    vector<FoliaElement *> result;
     if ( size > 0 ){
-      vector<AbstractElement*> words = mydoc->words();
+      vector<FoliaElement*> words = mydoc->words();
       for( size_t i=0; i < words.size(); ++i ){
 	if ( words[i] == this ){
 	  size_t miss = 0;
@@ -1613,12 +1613,12 @@ namespace folia {
     return result;
   }
 
-  vector<AbstractElement *> Word::rightcontext( size_t size, 
+  vector<FoliaElement *> Word::rightcontext( size_t size, 
 						const string& val ) const {
-    vector<AbstractElement *> result;
+    vector<FoliaElement *> result;
     //  cerr << "rightcontext : " << size << endl;
     if ( size > 0 ){
-      vector<AbstractElement*> words = mydoc->words();
+      vector<FoliaElement*> words = mydoc->words();
       size_t begin;
       size_t end;
       for( size_t i=0; i < words.size(); ++i ){
@@ -1645,20 +1645,20 @@ namespace folia {
     return result;
   }
 
-  const AbstractElement* Word::resolveword( const string& id ) const{
+  const FoliaElement* Word::resolveword( const string& id ) const{
     if ( _id == id )
       return this;
     return 0;
   }
 
-  AbstractElement* WordReference::parseXml( const xmlNode *node ){
+  FoliaElement* WordReference::parseXml( const xmlNode *node ){
     KWargs att = getAttributes( node );
     string id = att["id"];
     if ( id.empty() )
       throw XmlError( "empty id in WordReference" );
     if ( mydoc->debug ) 
       cerr << "Found word reference" << id << endl;
-    AbstractElement *res = (*mydoc)[id];
+    FoliaElement *res = (*mydoc)[id];
     if ( res ){
       res->increfcount();
     }
@@ -1678,7 +1678,7 @@ namespace folia {
   }
 
   KWargs TextContent::collectAttributes() const {
-    KWargs attribs = AbstractElement::collectAttributes();
+    KWargs attribs = FoliaElement::collectAttributes();
     if ( _cls == "current" )
       attribs.erase( "class" );
     else if ( _cls == "original" && parent()->isinstance( Original_t ) )
@@ -1691,13 +1691,13 @@ namespace folia {
   }
 
   xmlNode *TextContent::xml( bool ) const {
-    xmlNode *e = AbstractElement::xml( false );
+    xmlNode *e = FoliaElement::xml( false );
     xmlAddChild( e, xmlNewText( (const xmlChar*)str().c_str()) );
     return e;
   }
 
   KWargs Figure::collectAttributes() const {
-    KWargs atts = AbstractElement::collectAttributes();
+    KWargs atts = FoliaElement::collectAttributes();
     if ( !_src.empty() ){
       atts["src"] = _src;
     }
@@ -1712,11 +1712,11 @@ namespace folia {
       _src = it->second;
       kwargs.erase( "src" );
     }
-    AbstractElement::setAttributes(kwargs);
+    FoliaElement::setAttributes(kwargs);
   }
 
   UnicodeString Figure::caption() const {
-    vector<AbstractElement *> v = select(Caption_t);
+    vector<FoliaElement *> v = select(Caption_t);
     if ( v.empty() )
       throw NoSuchText("caption");
     else
@@ -1733,12 +1733,12 @@ namespace folia {
   }
 
   xmlNode *Description::xml( bool ) const {
-    xmlNode *e = AbstractElement::xml( false );
+    xmlNode *e = FoliaElement::xml( false );
     xmlAddChild( e, xmlNewText( (const xmlChar*)_value.c_str()) );
     return e;
   }
 
-  AbstractElement* Description::parseXml( const xmlNode *node ){
+  FoliaElement* Description::parseXml( const xmlNode *node ){
     KWargs att = getAttributes( node );
     KWargs::const_iterator it = att.find("value" );
     if ( it == att.end() ){
@@ -1748,17 +1748,17 @@ namespace folia {
     return this;
   }
 
-  AbstractElement *AbstractSpanAnnotation::append( AbstractElement *child ){
+  FoliaElement *AbstractSpanAnnotation::append( FoliaElement *child ){
     if ( child->isinstance(Word_t) && acceptable( WordReference_t ) )
       child->increfcount();
-    AbstractElement::append( child );
+    FoliaElement::append( child );
     return child;
   }
 
   xmlNode *AbstractSpanAnnotation::xml( bool recursive ) const {
-    xmlNode *e = AbstractElement::xml( false );
+    xmlNode *e = FoliaElement::xml( false );
     // append Word children:
-    vector<AbstractElement*>::const_iterator it=data.begin();
+    vector<FoliaElement*>::const_iterator it=data.begin();
     while ( it != data.end() ){
       if ( (*it)->element_id() == Word_t ){
 	xmlNode *t = newXMLNode( foliaNs(), "wref" );
@@ -1777,23 +1777,23 @@ namespace folia {
     return e;
   }
 
-  AbstractElement *Quote::append( AbstractElement *child ){
+  FoliaElement *Quote::append( FoliaElement *child ){
     if ( child->isinstance(Sentence_t) )
       child->setAuth( false ); // Sentences under quotes are non-authoritative
-    AbstractElement::append( child );
+    FoliaElement::append( child );
     return child;
   }
 
 
   xmlNode *Content::xml( bool ) const {
-    xmlNode *e = AbstractElement::xml( false );
+    xmlNode *e = FoliaElement::xml( false );
     xmlAddChild( e, xmlNewCDataBlock( 0,
 				      (const xmlChar*)value.c_str() ,
 				      value.length() ) );
     return e;
   }
 
-  AbstractElement* Content::parseXml( const xmlNode *node ){
+  FoliaElement* Content::parseXml( const xmlNode *node ){
     KWargs att = getAttributes( node );
     setAttributes( att );
     xmlNode *p = node->children;
@@ -1826,7 +1826,7 @@ namespace folia {
     throw NoSuchText("wrong cls");
   }
 
-  AbstractElement *Correction::textcontent( const string& cls ) const {
+  FoliaElement *Correction::textcontent( const string& cls ) const {
     if ( cls == "current" ){
       for( size_t i=0; i < data.size(); ++i ){
 	//    cerr << "data[" << i << "]=" << data[i] << endl;
@@ -1845,12 +1845,12 @@ namespace folia {
   }    
   
   bool Correction::hasNew( ) const {
-    vector<AbstractElement*> v = select( New_t, false );
+    vector<FoliaElement*> v = select( New_t, false );
     return !v.empty();
   }
 
-  AbstractElement *Correction::getNew( int index ) const {
-    vector<AbstractElement*> v = select( New_t, false );
+  FoliaElement *Correction::getNew( int index ) const {
+    vector<FoliaElement*> v = select( New_t, false );
     if ( v.empty() )
       throw NoSuchAnnotation("new");
     if ( index < 0 )
@@ -1860,12 +1860,12 @@ namespace folia {
   }
 
   bool Correction::hasOriginal() const { 
-    vector<AbstractElement*> v = select( Original_t, false );
+    vector<FoliaElement*> v = select( Original_t, false );
     return !v.empty();
   }
 
-  AbstractElement *Correction::getOriginal( int index ) const { 
-    vector<AbstractElement*> v = select( Original_t, false );
+  FoliaElement *Correction::getOriginal( int index ) const { 
+    vector<FoliaElement*> v = select( Original_t, false );
     if ( v.empty() )
       throw NoSuchAnnotation("original");
     if ( index < 0 )
@@ -1875,12 +1875,12 @@ namespace folia {
   }
 
   bool Correction::hasCurrent( ) const { 
-    vector<AbstractElement*> v = select( Current_t, false );
+    vector<FoliaElement*> v = select( Current_t, false );
     return !v.empty();
   }
 
-  AbstractElement *Correction::getCurrent( int index ) const { 
-    vector<AbstractElement*> v = select( Current_t, false );
+  FoliaElement *Correction::getCurrent( int index ) const { 
+    vector<FoliaElement*> v = select( Current_t, false );
     if ( v.empty() )
       throw NoSuchAnnotation("current");
     if ( index < 0 )
@@ -1890,16 +1890,16 @@ namespace folia {
   }
 
   bool Correction::hasSuggestions( ) const { 
-    vector<AbstractElement*> v = suggestions();
+    vector<FoliaElement*> v = suggestions();
     return !v.empty();
   }
 
-  vector<AbstractElement*> Correction::suggestions( ) const {
+  vector<FoliaElement*> Correction::suggestions( ) const {
     return select( Suggestion_t, false );
   }
 
-  AbstractElement *Correction::getSuggestion( int index ) const { 
-    vector<AbstractElement*> v = suggestions();
+  FoliaElement *Correction::getSuggestion( int index ) const { 
+    vector<FoliaElement*> v = suggestions();
     if ( v.empty() )
       throw NoSuchAnnotation("suggestion");
     if ( index < 0 )
@@ -1908,7 +1908,7 @@ namespace folia {
       return v[0]->index(index);
   }
 
-  AbstractElement *Division::head() const {
+  FoliaElement *Division::head() const {
     if ( data.size() > 0 ||
 	 data[0]->element_id() == Head_t ){
       return data[0];
@@ -1919,7 +1919,7 @@ namespace folia {
   }
   
   string Gap::content() const {
-    vector<AbstractElement*> cv = select( Content_t );  
+    vector<FoliaElement*> cv = select( Content_t );  
     if ( cv.size() < 1 )
       throw NoSuchAnnotation( "content" );
     else {
@@ -1927,8 +1927,8 @@ namespace folia {
     }
   }
 
-  AbstractElement *Dependency::head() const {
-    vector<AbstractElement *> v = select( DependencyHead_t );
+  FoliaElement *Dependency::head() const {
+    vector<FoliaElement *> v = select( DependencyHead_t );
     if ( v.size() < 1 )
       throw NoSuchAnnotation( "head" );
     else {
@@ -1936,8 +1936,8 @@ namespace folia {
     }
   } 
     
-  AbstractElement *Dependency::dependent() const {
-    vector<AbstractElement *> v = select( DependencyDependent_t );
+  FoliaElement *Dependency::dependent() const {
+    vector<FoliaElement *> v = select( DependencyDependent_t );
     if ( v.size() < 1 )
       throw NoSuchAnnotation( "dependent" );
     else {
@@ -2249,11 +2249,11 @@ namespace folia {
       else
 	error = true;
     }
-    AbstractElement::setAttributes(kwargs);
+    FoliaElement::setAttributes(kwargs);
   }
 
   KWargs ErrorDetection::collectAttributes() const {
-    KWargs attribs = AbstractElement::collectAttributes();
+    KWargs attribs = FoliaElement::collectAttributes();
     if ( error )
       attribs["error"] = "yes";
     return attribs;
@@ -2282,12 +2282,12 @@ namespace folia {
   }
 
   KWargs Feature::collectAttributes() const {
-    KWargs attribs = AbstractElement::collectAttributes();
+    KWargs attribs = FoliaElement::collectAttributes();
     attribs["subset"] = _subset;
     return attribs;
   }
 
-  std::string AbstractElement::feat( const std::string& s ) const {
+  std::string FoliaElement::feat( const std::string& s ) const {
     for ( size_t i=0; i < data.size(); ++i ){
       if ( ( data[i]->isinstance( Feature_t ) ||
 	     data[i]->isinstance( SynsetFeature_t ) ||

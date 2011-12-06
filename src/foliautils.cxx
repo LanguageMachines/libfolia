@@ -238,8 +238,8 @@ namespace folia {
     return result;
   }
 
-  AbstractElement *AbstractElement::createElement( Document *doc, 
-						   const string& tag ){
+  FoliaElement *FoliaElement::createElement( Document *doc, 
+					     const string& tag ){
     //factory;
     if ( tag == "FoLiA" ){
       return new FoLiA( doc );

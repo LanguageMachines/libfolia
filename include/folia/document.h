@@ -41,7 +41,7 @@ namespace folia {
     return os;
   }
 
-  class AbstractElement;
+  class FoliaElement;
   class Word;
   class Sentence;
   class Paragraph;
@@ -58,17 +58,17 @@ namespace folia {
     bool readFromString( const std::string& );
     bool save( const std::string&, const std::string& = "" );
     int size() const;
-    AbstractElement* doc() const { return foliadoc; }
-    AbstractElement* addNode( ElementType, const KWargs& );
+    FoliaElement* doc() const { return foliadoc; }
+    FoliaElement* addNode( ElementType, const KWargs& );
     void addStyle( const std::string& st ){
       styles.push_back( st );
     };
-    std::vector<AbstractElement*> paragraphs() const;
-    std::vector<AbstractElement*> sentences() const;
-    std::vector<AbstractElement*> words() const;
-    std::vector<std::vector<AbstractElement*> > findwords( const Pattern&,
+    std::vector<FoliaElement*> paragraphs() const;
+    std::vector<FoliaElement*> sentences() const;
+    std::vector<FoliaElement*> words() const;
+    std::vector<std::vector<FoliaElement*> > findwords( const Pattern&,
 							   const std::string& ="" ) const;
-    std::vector<std::vector<AbstractElement*> > findwords( std::list<Pattern>&,
+    std::vector<std::vector<FoliaElement*> > findwords( std::list<Pattern>&,
 							   const std::string& = "" ) const;
     Word *words( size_t ) const;
     Word *rwords( size_t ) const;
@@ -78,14 +78,14 @@ namespace folia {
     Sentence *rsentences( size_t ) const;
     std::string toXml( const std::string& ="" ) const;
 
-    AbstractElement *append( AbstractElement* );
+    FoliaElement *append( FoliaElement* );
 
-    void addDocIndex( AbstractElement* el, const std::string& );
+    void addDocIndex( FoliaElement* el, const std::string& );
 
-    AbstractElement* operator []( size_t ) const; //select i'th element from data
+    FoliaElement* operator []( size_t ) const; //select i'th element from data
   
-    AbstractElement *index( const std::string& ) const; //retrieve element with specified ID 
-    AbstractElement* operator []( const std::string& ) const ; //index as operator 
+    FoliaElement *index( const std::string& ) const; //retrieve element with specified ID 
+    FoliaElement* operator []( const std::string& ) const ; //index as operator 
     bool isDeclared( const std::string&, AnnotationType::AnnotationType );
     std::string defaultset( AnnotationType::AnnotationType ) const;
 
@@ -94,7 +94,7 @@ namespace folia {
     std::string defaultannotatortype( AnnotationType::AnnotationType, 
 				      const std::string& ="", bool = false ) const;
 
-    AbstractElement* parseXml( );
+    FoliaElement* parseXml( );
 
     std::string id() const { return _id; };
     void declare( AnnotationType::AnnotationType, 
@@ -102,7 +102,7 @@ namespace folia {
 		  const std::string& = "" );
     xmlDoc *XmlDoc() const { return xmldoc; };
     xmlNs *foliaNs() const { return _foliaNs; };
-    void keepForDeletion( AbstractElement *p ) { delSet.insert( p ); };
+    void keepForDeletion( FoliaElement *p ) { delSet.insert( p ); };
     int debug;
 
     class at_t {
@@ -123,7 +123,7 @@ namespace folia {
   private:
     std::map<AnnotationType::AnnotationType,std::map<std::string,at_t> > annotationdefaults;
 
-    AbstractElement* parseFoliaDoc( xmlNode * );
+    FoliaElement* parseFoliaDoc( xmlNode * );
     void setimdi( xmlNode * );
     void setAttributes( const KWargs&  );
     void parseannotations( xmlNode * );
@@ -131,13 +131,13 @@ namespace folia {
     void setannotations( xmlNode *) const;
     void setmetadata( xmlNode * ) const;
     void setstyles( xmlDoc* ) const;
-    std::map<std::string, AbstractElement* > sindex;
-    std::vector<AbstractElement* > iindex;
-    std::vector<AbstractElement*> data;
+    std::map<std::string, FoliaElement* > sindex;
+    std::vector<FoliaElement* > iindex;
+    std::vector<FoliaElement*> data;
     std::string _id;
     std::list<ts_t> annotations;
-    std::set<AbstractElement *> delSet;
-    AbstractElement *foliadoc;
+    std::set<FoliaElement *> delSet;
+    FoliaElement *foliadoc;
     xmlDoc *xmldoc;
     mutable xmlNs *_foliaNs;
     MetaDataType metadatatype;
