@@ -1223,7 +1223,7 @@ namespace folia {
     it = args.find("reuse");
     if ( it != args.end() ){
       if ( addnew && suggestionsonly ){
-	vector<FoliaElement *> sv = c->suggestions();
+	vector<Suggestion*> sv = c->suggestions();
 	for ( size_t i=0; i < sv.size(); ++i ){
 	  if ( !c->annotator().empty() && sv[i]->annotator().empty() )
 	    sv[i]->annotator( c->annotator() );
@@ -1890,22 +1890,19 @@ namespace folia {
   }
 
   bool Correction::hasSuggestions( ) const { 
-    vector<FoliaElement*> v = suggestions();
+    vector<Suggestion*> v = suggestions();
     return !v.empty();
   }
-
-  vector<FoliaElement*> Correction::suggestions( ) const {
-    return select( Suggestion_t, false );
+  
+  vector<Suggestion*> Correction::suggestions( ) const {
+    return select<Suggestion>( false );
   }
 
-  FoliaElement *Correction::getSuggestion( int index ) const { 
-    vector<FoliaElement*> v = suggestions();
-    if ( v.empty() )
+  Suggestion *Correction::suggestions( size_t index ) const { 
+    vector<Suggestion*> v = suggestions();
+    if ( v.empty() || index >= v.size() )
       throw NoSuchAnnotation("suggestion");
-    if ( index < 0 )
-      return v[0];
-    else
-      return v[0]->index(index);
+    return v[index];
   }
 
   FoliaElement *Division::head() const {

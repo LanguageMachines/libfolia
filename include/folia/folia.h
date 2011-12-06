@@ -18,6 +18,7 @@ namespace folia {
   class TextContent;
   class Alternative;
   class Correction;
+  class Suggestion;
   class Division;
   class Paragraph;
 
@@ -83,20 +84,45 @@ namespace folia {
 				       bool = true ) const;
     
     template <typename F>
+      std::vector<F*> select( const std::string& set,
+			      const std::set<ElementType>& exclude, 
+			      bool recurse = true ) const {
+      F obj("");
+      std::vector<F*> res;
+      std::vector<FoliaElement*> tmp = select( obj._element_id, 
+					       set,
+					       exclude,
+					       recurse );
+      for ( size_t i = 0; i < tmp.size(); ++i ){
+	res.push_back( dynamic_cast<F*>( tmp[i]) );
+      }
+      return res;
+    }
+    
+    template <typename F>
+      std::vector<F*> select( const std::string& set,
+			      bool recurse = true ) const {
+      F obj("");
+      std::vector<F*> res;
+      std::vector<FoliaElement*> tmp = select( obj._element_id, 
+					       set,
+					       recurse );
+      for ( size_t i = 0; i < tmp.size(); ++i ){
+	res.push_back( dynamic_cast<F*>( tmp[i]) );
+      }
+      return res;
+    }
+    
+    template <typename F>
       std::vector<F*> select( const std::set<ElementType>& exclude, 
 			      bool recurse = true ) const {
       F obj("");
       std::vector<F*> res;
-      for ( size_t i = 0; i < data.size(); ++i ){
-	if ( data[i]->_element_id == obj._element_id ){
-	  res.push_back( dynamic_cast<F*>(data[i]) );
-	}
-	if ( recurse ){
-	  if ( exclude.find( data[i]->_element_id ) == exclude.end() ){
-	    std::vector<F*> tmp = data[i]->select<F>( exclude, recurse );
-	    res.insert( res.end(), tmp.begin(), tmp.end() );
-	  }
-	}
+      std::vector<FoliaElement*> tmp = select( obj._element_id, 
+					       exclude,
+					       recurse );
+      for ( size_t i = 0; i < tmp.size(); ++i ){
+	res.push_back( dynamic_cast<F*>( tmp[i]) );
       }
       return res;
     }
@@ -105,14 +131,10 @@ namespace folia {
       std::vector<F*> select( bool recurse = true ) const {
       F obj("");
       std::vector<F*> res;
-      for ( size_t i = 0; i < data.size(); ++i ){
-	if ( data[i]->_element_id == obj._element_id ){
-	  res.push_back( dynamic_cast<F*>(data[i]) );
-	}
-	if ( recurse ){
-	  std::vector<F*> tmp = data[i]->select<F>( recurse );
-	  res.insert( res.end(), tmp.begin(), tmp.end() );
-	}
+      std::vector<FoliaElement*> tmp = select( obj._element_id,
+					       recurse );
+      for ( size_t i = 0; i < tmp.size(); ++i ){
+	res.push_back( dynamic_cast<F*>( tmp[i]) );
       }
       return res;
     }
@@ -152,7 +174,9 @@ namespace folia {
     virtual Correction *insertword( FoliaElement *, FoliaElement *,
 				    const std::string& = "" ){
       throw NotImplementedError("insertword()"); };
-    virtual std::vector<FoliaElement *> suggestions() const
+    virtual std::vector<Suggestion*> suggestions() const
+      { throw NotImplementedError("suggestions()"); };    
+    virtual Suggestion *suggestions( size_t ) const
       { throw NotImplementedError("suggestions()"); };    
     virtual std::string subset() const 
       { throw NotImplementedError("subset()"); };
@@ -161,14 +185,14 @@ namespace folia {
     virtual FoliaElement *next() const {
       throw NotImplementedError("next()"); };
     virtual std::vector<FoliaElement *> context( size_t, 
-						    const std::string& ="" ) const {
+						 const std::string& ="" ) const {
       throw NotImplementedError("contect()"); };
     virtual std::vector<FoliaElement *> leftcontext( size_t, 
-							const std::string& ="" ) const {
+						     const std::string& ="" ) const {
       throw NotImplementedError("leftcontect()"); 
     };
     virtual std::vector<FoliaElement *> rightcontext( size_t, 
-							 const std::string& ="" ) const {
+						      const std::string& ="" ) const {
       throw NotImplementedError("rightcontext()"); 
     };
     virtual int offset() const {
@@ -874,8 +898,8 @@ namespace folia {
     FoliaElement *getNew( int = -1 ) const;
     FoliaElement *getOriginal( int = -1 ) const;
     FoliaElement *getCurrent( int = -1 ) const;
-    FoliaElement *getSuggestion( int = -1 ) const;
-    std::vector<FoliaElement *> suggestions() const;
+    std::vector<Suggestion*> suggestions() const;
+    Suggestion *suggestions( size_t ) const;
     UnicodeString text( const std::string& = "current" ) const;
     FoliaElement *textcontent( const std::string& = "current" ) const;
   private:
