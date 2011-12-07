@@ -685,8 +685,8 @@ namespace folia {
     return result;
   }
 
-  vector<vector<FoliaElement*> > Document::findwords( const Pattern& pat,
-						      const string& args ) const {
+  vector<vector<Word*> > Document::findwords( const Pattern& pat,
+					      const string& args ) const {
     size_t leftcontext = 0;
     size_t rightcontext = 0;
     KWargs kw = getArgs( args );
@@ -696,8 +696,8 @@ namespace folia {
     val = kw["rightcontext"];
     if ( !val.empty() )
       rightcontext = stringTo<size_t>(val);
-    vector<vector<FoliaElement*> > result;
-    vector<FoliaElement*> matched;
+    vector<vector<Word*> > result;
+    vector<Word*> matched;
     if ( pat.regexp )
       throw runtime_error( "regexp not supported yet in patterns" );
     vector<Word*> mywords = words();
@@ -728,9 +728,9 @@ namespace folia {
 	  if ( cursor == 0 )
 	    startpos = i; // restart search here
 	  if ( done ){
-	    vector<FoliaElement *> keep = matched;
+	    vector<Word*> keep = matched;
 	    //	  cerr << "findnodes() tussenresultaat ==> " << matched << endl;
-	    vector<FoliaElement *> tmp1;
+	    vector<Word*> tmp1;
 	    if ( leftcontext > 0 ){
 	      tmp1 = matched[0]->leftcontext(leftcontext);
 	      //	    cerr << "findnodes() tmp1 ==> " << tmp1 << endl;
@@ -739,7 +739,7 @@ namespace folia {
 	    }
 	    else
 	      tmp1 = matched;
-	    vector<FoliaElement *> tmp2;
+	    vector<Word*> tmp2;
 	    if ( rightcontext > 0 ){
 	      tmp2 = matched[matched.size()-1]->rightcontext(rightcontext);
 	      //	    cerr << "findnodes() tmp2 ==> " << tmp2 << endl;
@@ -769,8 +769,8 @@ namespace folia {
     return result;
   }
 
-  vector<vector<FoliaElement*> > Document::findwords( list<Pattern>& pats,
-							 const string& args ) const {
+  vector<vector<Word*> > Document::findwords( list<Pattern>& pats,
+						      const string& args ) const {
     size_t prevsize = 0;
     bool start = true;
     bool unsetwildcards = false;
@@ -809,10 +809,10 @@ namespace folia {
 	++it1;
       }
     }
-    vector<vector<FoliaElement*> > result;
+    vector<vector<Word*> > result;
     it = pats.begin();
     while ( it != pats.end() ){
-      vector<vector<FoliaElement*> > res = findwords( *it, args );
+      vector<vector<Word*> > res = findwords( *it, args );
       if ( result.empty() )
 	result = res;
       else if ( res != result ){

@@ -66,10 +66,10 @@ namespace folia {
     std::vector<Paragraph*> paragraphs() const;
     std::vector<Sentence*> sentences() const;
     std::vector<Word*> words() const;
-    std::vector<std::vector<FoliaElement*> > findwords( const Pattern&,
-							const std::string& ="" ) const;
-    std::vector<std::vector<FoliaElement*> > findwords( std::list<Pattern>&,
-							const std::string& = "" ) const;
+    std::vector<std::vector<Word*> > findwords( const Pattern&,
+						const std::string& ="" ) const;
+    std::vector<std::vector<Word*> > findwords( std::list<Pattern>&,
+						const std::string& = "" ) const;
     Word *words( size_t ) const;
     Word *rwords( size_t ) const;
     Paragraph *paragraphs( size_t ) const;

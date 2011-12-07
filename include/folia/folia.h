@@ -184,15 +184,15 @@ namespace folia {
       throw NotImplementedError("previous()"); };
     virtual FoliaElement *next() const {
       throw NotImplementedError("next()"); };
-    virtual std::vector<FoliaElement *> context( size_t, 
-						 const std::string& ="" ) const {
+    virtual std::vector<Word*> context( size_t, 
+					const std::string& ="" ) const {
       throw NotImplementedError("contect()"); };
-    virtual std::vector<FoliaElement *> leftcontext( size_t, 
-						     const std::string& ="" ) const {
+    virtual std::vector<Word*> leftcontext( size_t, 
+					    const std::string& ="" ) const {
       throw NotImplementedError("leftcontect()"); 
     };
-    virtual std::vector<FoliaElement *> rightcontext( size_t, 
-						      const std::string& ="" ) const {
+    virtual std::vector<Word*> rightcontext( size_t, 
+					     const std::string& ="" ) const {
       throw NotImplementedError("rightcontext()"); 
     };
     virtual int offset() const {
@@ -558,12 +558,12 @@ namespace folia {
     Correction *incorrection() const;
     Word *previous() const;
     Word *next() const;
-    std::vector<FoliaElement *> context( size_t, 
-					    const std::string& ="" ) const;
-    std::vector<FoliaElement *> leftcontext( size_t, 
-						const std::string& = "" ) const;
-    std::vector<FoliaElement *> rightcontext( size_t, 
-						 const std::string& ="" ) const;
+    std::vector<Word*> context( size_t, 
+				const std::string& ="" ) const;
+    std::vector<Word*> leftcontext( size_t, 
+				    const std::string& = "" ) const;
+    std::vector<Word*> rightcontext( size_t, 
+				     const std::string& ="" ) const;
     FoliaElement *append( FoliaElement *);
     const FoliaElement* resolveword( const std::string& ) const;
     void setAttributes( const KWargs& );

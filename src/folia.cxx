@@ -1540,9 +1540,9 @@ namespace folia {
     return 0;
   }
 
-  vector<FoliaElement *> Word::context( size_t size, 
-					const string& val ) const {
-    vector<FoliaElement *> result;
+  vector<Word*> Word::context( size_t size, 
+			       const string& val ) const {
+    vector<Word*> result;
     if ( size > 0 ){
       vector<Word*> words = mydoc->words();
       for( size_t i=0; i < words.size(); ++i ){
@@ -1582,10 +1582,10 @@ namespace folia {
   }
 
 
-  vector<FoliaElement *> Word::leftcontext( size_t size, 
-					       const string& val ) const {
+  vector<Word*> Word::leftcontext( size_t size, 
+				   const string& val ) const {
     //  cerr << "leftcontext : " << size << endl;
-    vector<FoliaElement *> result;
+    vector<Word*> result;
     if ( size > 0 ){
       vector<Word*> words = mydoc->words();
       for( size_t i=0; i < words.size(); ++i ){
@@ -1613,9 +1613,9 @@ namespace folia {
     return result;
   }
 
-  vector<FoliaElement *> Word::rightcontext( size_t size, 
-						const string& val ) const {
-    vector<FoliaElement *> result;
+  vector<Word*> Word::rightcontext( size_t size, 
+				    const string& val ) const {
+    vector<Word*> result;
     //  cerr << "rightcontext : " << size << endl;
     if ( size > 0 ){
       vector<Word*> words = mydoc->words();
