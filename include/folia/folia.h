@@ -71,20 +71,7 @@ namespace folia {
     }
     bool acceptable( ElementType ) const;
     bool addable( const FoliaElement *, const std::string& = "" ) const;
-  
-    std::vector<FoliaElement*> select( ElementType elementtype,
-				       bool = true ) const;
-    std::vector<FoliaElement*> select( ElementType elementtype,
-				       const std::set<ElementType>& ,
-				       bool = true ) const;
-    std::vector<FoliaElement*> select( ElementType elementtype,
-				       const std::string&,
-				       bool = true ) const;
-    std::vector<FoliaElement*> select( ElementType elementtype,
-				       const std::string&,
-				       const std::set<ElementType>& ,
-				       bool = true ) const;
-    
+      
     template <typename F>
       std::vector<F*> select( const std::string& set,
 			      const std::set<ElementType>& exclude, 
@@ -349,6 +336,19 @@ namespace folia {
     virtual std::string generateId( const std::string&, const std::string& = "" ){
       throw NotImplementedError( "generateId() not allowed for " + classname() );
     };
+
+    std::vector<FoliaElement*> select( ElementType elementtype,
+				       bool = true ) const;
+    std::vector<FoliaElement*> select( ElementType elementtype,
+				       const std::set<ElementType>& ,
+				       bool = true ) const;
+    std::vector<FoliaElement*> select( ElementType elementtype,
+				       const std::string&,
+				       bool = true ) const;
+    std::vector<FoliaElement*> select( ElementType elementtype,
+				       const std::string&,
+				       const std::set<ElementType>& ,
+				       bool = true ) const;
 
     std::vector<FoliaElement*> data;
     FoliaElement *_parent;

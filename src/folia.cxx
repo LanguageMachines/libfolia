@@ -944,18 +944,18 @@ namespace folia {
   }
 
   vector<FoliaElement *>TextContent::findreplacables( FoliaElement *par ) const {
-    vector<FoliaElement*> v = par->select( TextContent_t, _set, false );
+    vector<FoliaElement *> result;
+    vector<TextContent*> v = par->select<TextContent>( _set, false );
     // cerr << "TextContent::findreplacable found " << v << endl;
-    vector<FoliaElement *>::iterator it = v.begin();
+    vector<TextContent*>::iterator it = v.begin();
     while ( it != v.end() ){
       // cerr << "TextContent::findreplacable bekijkt " << *it << " (" 
-      if ( (*it)->cls() != _cls )
-	it = v.erase(it);
-      else
-	++it;
+      if ( (*it)->cls() == _cls )
+	result.push_back( *it );
+      ++it;
     }
     //  cerr << "TextContent::findreplacable resultaat " << v << endl;
-    return v;
+    return result;
   }
 
 
@@ -1121,12 +1121,12 @@ namespace folia {
 	++nit;
       }
       //    cerr << "after adding " << c << endl;
-      vector<FoliaElement*> v = c->select(Current_t);
+      vector<Current*> v = c->select<Current>();
       //delete current if present
-      nit = v.begin();        
-      while ( nit != v.end() ){
-	c->remove( *nit, false );
-	++nit;
+      vector<Current*>::iterator cit = v.begin();    
+      while ( cit != v.end() ){
+	c->remove( *cit, false );
+	++cit;
       }
     }
     if ( !original.empty() ){
@@ -1190,12 +1190,12 @@ namespace folia {
 	  }
 	  ++oit;
 	}
-	vector<FoliaElement*> v = c->select(Current_t);
+	vector<Current*> v = c->select<Current>();
+	vector<Current*>::iterator cit = v.begin();
 	//delete current if present
-	oit = v.begin();        
-	while ( oit != v.end() ){
-	  remove( *oit, false );
-	  ++oit;
+	while ( cit != v.end() ){
+	  remove( *cit, false );
+	  ++cit;
 	}
       }
     }
