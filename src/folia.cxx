@@ -598,18 +598,10 @@ namespace folia {
       throw range_error( "[] rindex out of range" );
   }
 
-  vector<FoliaElement *>FoliaElement::annotations( ElementType et ) const {
-    vector<FoliaElement *>v = select( et );
-    if ( v.size() >= 1 )
-      return v;
-    else
-      throw NoSuchAnnotation( toString(et) );
-  }
-
   vector<FoliaElement*> FoliaElement::select( ElementType et,
-						    const string& val,
-						    const set<ElementType>& exclude,
-						    bool recurse ) const {
+					      const string& val,
+					      const set<ElementType>& exclude,
+					      bool recurse ) const {
     vector<FoliaElement*> res;
     for ( size_t i = 0; i < data.size(); ++i ){
       if ( data[i]->_element_id == et  && data[i]->_set == val ){
@@ -728,6 +720,14 @@ namespace folia {
       throw runtime_error( "addAlternative not implemenentd for " + toString(et) );
     append( res );
     return res;
+  }
+
+  string FoliaElement::pos() const { 
+    return annotation<PosAnnotation>()->cls(); 
+  }
+  
+  string FoliaElement::lemma() const { 
+    return annotation<LemmaAnnotation>()->cls(); 
   }
 
   AbstractTokenAnnotation *FoliaElement::addAnnotation( ElementType et,
@@ -1351,22 +1351,22 @@ namespace folia {
     return result;
   }
 
-  FoliaElement *AbstractStructureElement::annotation( ElementType et ) const {
-    vector<FoliaElement *>v = annotations( et );
-    return v[0]; // always exist, otherwise annotations would throw()
-  }
+  // FoliaElement *AbstractStructureElement::annotation( ElementType et ) const {
+  //   vector<FoliaElement *>v = annotations( et );
+  //   return v[0]; // always exist, otherwise annotations would throw()
+  // }
 
-  FoliaElement *AbstractStructureElement::annotation( ElementType et,
-							 const string& val ) const {
-    // Will return a SINGLE annotation (even if there are multiple). 
-    // Raises a NoSuchAnnotation exception if none was found
-    vector<FoliaElement *>v = select( et, val );
-    if ( v.size() >= 1 )
-      return v[0];
-    else
-      throw NoSuchAnnotation( toString(et) );
-    return 0;
-  }
+  // FoliaElement *AbstractStructureElement::annotation( ElementType et,
+  // 						      const string& val ) const {
+  //   // Will return a SINGLE annotation (even if there are multiple). 
+  //   // Raises a NoSuchAnnotation exception if none was found
+  //   vector<FoliaElement *>v = select( et, val );
+  //   if ( v.size() >= 1 )
+  //     return v[0];
+  //   else
+  //     throw NoSuchAnnotation( toString(et) );
+  //   return 0;
+  // }
 
   vector<Alternative *> AbstractStructureElement::alternatives( ElementType elt,
 								 const string& st ) const {
@@ -1451,10 +1451,8 @@ namespace folia {
     if ( child->element_id() == Pos_t ||
 	 child->element_id() == Lemma_t ){
       // sanity check, there may be no other child within the same set
-      try {
-	annotation( child->element_id(), child->st() );
-      }
-      catch ( NoSuchAnnotation &e ){
+      vector<FoliaElement*> v = select( child->element_id(), child->st() );
+      if ( v.empty() ) {
 	// OK!
 	return FoliaElement::append( child );
       }

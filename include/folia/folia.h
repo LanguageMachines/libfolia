@@ -13,6 +13,8 @@ namespace folia {
   class Document;
   class FoliaElement;
   class AbstractTokenAnnotation;
+  class PosAnnotation;
+  class LemmaAnnotation;
   class Sentence;
   class Word;
   class TextContent;
@@ -139,6 +141,36 @@ namespace folia {
       return res;
     }
     
+    template <typename F> 
+      std::vector<F*> annotations( ) const {
+    std::vector<F*> v = select<F>();
+    if ( v.size() >= 1 )
+      return v;
+    else {
+      F obj("");
+      throw NoSuchAnnotation( obj.classname() );
+    }
+  }
+
+    template <typename F> 
+      F *annotation() const {
+      std::vector<F*>v = annotations<F>();
+      return v[0]; // always exist, otherwise annotations would throw()
+    }
+
+    template <typename F>
+      F *annotation( const std::string& val ) const {
+      // Will return a SINGLE annotation (even if there are multiple). 
+      // Raises a NoSuchAnnotation exception if none was found
+      std::vector<F*>v = select<F>( val );
+      if ( v.size() >= 1 )
+	return v[0];
+      else {
+	F obj("");
+	throw NoSuchAnnotation( obj.classname() );
+      }
+    }
+
     std::string feat( const std::string& ) const;
     //XML (de)serialisation
     std::string xmlstring() const; // serialize to a string (XML fragment)
@@ -198,17 +230,9 @@ namespace folia {
     virtual int offset() const {
       throw NotImplementedError("offset()"); 
     };
-    std::vector<FoliaElement *>annotations( ElementType ) const;
-    virtual FoliaElement *annotation( ElementType ) const {
-      throw NotImplementedError( "annotation() not allowed on " + classname() );
-    }
-    virtual FoliaElement *annotation( ElementType, const std::string& ) const {
-      throw NotImplementedError( "annotation() not allowed on " + classname() );
-    }
-  
-    std::string pos() const { return annotation( Pos_t )->cls(); };
-    std::string lemma() const { return annotation( Lemma_t )->cls(); };
 
+    std::string pos() const;
+    std::string lemma() const;
     std::string cls() const { return _cls; };
     std::string st() const { return _set; };
     std::string annotator() const { return _annotator; };
@@ -387,8 +411,6 @@ namespace folia {
   AbstractStructureElement( Document *d=0 ): FoliaElement( d ) {};
     std::string str() const;
     size_t hasannotation( ElementType, std::set<ElementType>& );
-    FoliaElement *annotation( ElementType ) const;
-    FoliaElement *annotation( ElementType, const std::string& ) const ;
     std::vector<Alternative *> alternatives( ElementType = BASE,
 					     const std::string& = "" ) const;
   
@@ -887,10 +909,10 @@ namespace folia {
     std::string _value;
   };
 
-  class Correction: public FoliaElement {
+  class Correction: public AbstractTokenAnnotation {
   public:
-  Correction( const std::string& s=""): FoliaElement( ){ classInit( s ); }
-  Correction( Document *d=0, const std::string& s=""): FoliaElement( d ){ classInit( s ); }
+  Correction( const std::string& s=""): AbstractTokenAnnotation( ){ classInit( s ); }
+  Correction( Document *d=0, const std::string& s=""): AbstractTokenAnnotation( d ){ classInit( s ); }
     bool hasNew() const;
     bool hasOriginal() const;
     bool hasCurrent() const;
