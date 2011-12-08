@@ -442,23 +442,25 @@ namespace folia {
       return this->textcontent(cls)->text(cls);
   }
 
-  FoliaElement *FoliaElement::textcontent( const string& cls ) const {
+  TextContent *FoliaElement::textcontent( const string& cls ) const {
     // Get the text explicitly associated with this element (of the specified class).
     // Returns the TextContent instance rather than the actual text. Does not recurse into children
     // with sole exception of Correction
     // Raises NoSuchText exception if not found. 
-        
+    
     if ( !PRINTABLE )
       throw NoSuchText( _xmltag );
-      
+    
     for( size_t i=0; i < data.size(); ++i ){
-      if ( (data[i]->element_id() == TextContent_t) && (data[i]->_cls == cls) ) {
-	return data[i];
-      } else if ( data[i]->element_id() == Correction_t) {
+      if ( data[i]->isinstance(TextContent_t) && (data[i]->_cls == cls) ){
+	return dynamic_cast<TextContent*>(data[i]);
+      }
+      else if ( data[i]->element_id() == Correction_t) {
 	try {	    
-	    return data[i]->textcontent(cls);
-	} catch ( NoSuchText& e ){	    
-	}	    
+	  return data[i]->textcontent(cls);
+	} catch ( NoSuchText& e ){
+	  // continue search for other Corrections or a TextContent
+	}
       }
     }    
     throw NoSuchText( "textcontent()" );
@@ -514,8 +516,7 @@ namespace folia {
   }
  
   bool FoliaElement::addable( const FoliaElement *c,
-				 const string& setname ) const {
-    static set<ElementType> selectSet;
+			      const string& setname ) const {
     if ( !acceptable( c->_element_id ) ){
       throw ValueError( "Unable to append object of type " + c->classname()
 			+ " to a " + classname() );
@@ -1341,8 +1342,8 @@ namespace folia {
       throw range_error( "rwords(): index out of range" );
   }
 
-  const FoliaElement* AbstractStructureElement::resolveword( const string& id ) const{
-    const FoliaElement *result = 0;
+  const Word* AbstractStructureElement::resolveword( const string& id ) const{
+    const Word *result = 0;
     for ( size_t i=0; i < data.size(); ++i ){
       result = data[i]->resolveword( id );
       if ( result )
@@ -1643,7 +1644,7 @@ namespace folia {
     return result;
   }
 
-  const FoliaElement* Word::resolveword( const string& id ) const{
+  const Word* Word::resolveword( const string& id ) const{
     if ( _id == id )
       return this;
     return 0;
@@ -1824,7 +1825,7 @@ namespace folia {
     throw NoSuchText("wrong cls");
   }
 
-  FoliaElement *Correction::textcontent( const string& cls ) const {
+  TextContent *Correction::textcontent( const string& cls ) const {
     if ( cls == "current" ){
       for( size_t i=0; i < data.size(); ++i ){
 	//    cerr << "data[" << i << "]=" << data[i] << endl;
@@ -1847,14 +1848,12 @@ namespace folia {
     return !v.empty();
   }
 
-  FoliaElement *Correction::getNew( int index ) const {
-    vector<FoliaElement*> v = select( New_t, false );
+  NewElement *Correction::getNew() const {
+    vector<NewElement*> v = select<NewElement>( false );
     if ( v.empty() )
       throw NoSuchAnnotation("new");
-    if ( index < 0 )
-      return v[0];
     else
-      return v[0]->index(index);
+      return v[0];
   }
 
   bool Correction::hasOriginal() const { 
@@ -1862,14 +1861,12 @@ namespace folia {
     return !v.empty();
   }
 
-  FoliaElement *Correction::getOriginal( int index ) const { 
-    vector<FoliaElement*> v = select( Original_t, false );
+  Original *Correction::getOriginal() const { 
+    vector<Original*> v = select<Original>( false );
     if ( v.empty() )
       throw NoSuchAnnotation("original");
-    if ( index < 0 )
+    else
       return v[0];
-    else 
-      return v[0]->index(index);
   }
 
   bool Correction::hasCurrent( ) const { 
@@ -1877,14 +1874,12 @@ namespace folia {
     return !v.empty();
   }
 
-  FoliaElement *Correction::getCurrent( int index ) const { 
-    vector<FoliaElement*> v = select( Current_t, false );
+  Current *Correction::getCurrent( ) const { 
+    vector<Current*> v = select<Current>( false );
     if ( v.empty() )
       throw NoSuchAnnotation("current");
-    if ( index < 0 )
+    else
       return v[0];
-    else 
-      return v[0]->index(index);
   }
 
   bool Correction::hasSuggestions( ) const { 
@@ -1903,10 +1898,10 @@ namespace folia {
     return v[index];
   }
 
-  FoliaElement *Division::head() const {
+  Head *Division::head() const {
     if ( data.size() > 0 ||
 	 data[0]->element_id() == Head_t ){
-      return data[0];
+      return dynamic_cast<Head*>(data[0]);
     }
     else
       throw runtime_error( "No head" );
@@ -1922,8 +1917,8 @@ namespace folia {
     }
   }
 
-  FoliaElement *Dependency::head() const {
-    vector<FoliaElement *> v = select( DependencyHead_t );
+  DependencyHead *Dependency::head() const {
+    vector<DependencyHead*> v = select<DependencyHead>();
     if ( v.size() < 1 )
       throw NoSuchAnnotation( "head" );
     else {
@@ -1931,8 +1926,8 @@ namespace folia {
     }
   } 
     
-  FoliaElement *Dependency::dependent() const {
-    vector<FoliaElement *> v = select( DependencyDependent_t );
+  DependencyDependent *Dependency::dependent() const {
+    vector<DependencyDependent *> v = select<DependencyDependent>();
     if ( v.size() < 1 )
       throw NoSuchAnnotation( "dependent" );
     else {
@@ -1965,8 +1960,8 @@ namespace folia {
   void Head::init() {
     _element_id = Head_t;
     _xmltag="head";
-    const ElementType accept[] = { Sentence_t, Description_t };
-    _accepted_data = set<ElementType>(accept, accept+2); 
+    const ElementType accept[] = { Sentence_t, Description_t, TextContent_t };
+    _accepted_data = set<ElementType>(accept, accept+3); 
     _annotation_type = AnnotationType::TOKEN;
     TEXTDELIMITER = " ";
   }
@@ -2068,9 +2063,9 @@ namespace folia {
     _element_id = Event_t;
     const ElementType accept[] = { Gap_t, Division_t, Paragraph_t, Sentence_t, 
 				   List_t, Figure_t, Description_t, 
-				   ActorFeature_t, 
+				   ActorFeature_t, TextContent_t,
 				   BegindatetimeFeature_t, EnddatetimeFeature_t };
-    _accepted_data = std::set<ElementType>(accept, accept+10); 
+    _accepted_data = std::set<ElementType>(accept, accept+11); 
     _required_attributes = CLASS;
     _optional_attributes = ID|ANNOTATOR|N|DATETIME;
     _annotation_type = AnnotationType::EVENT;
@@ -2090,16 +2085,16 @@ namespace folia {
   void Caption::init(){
     _xmltag="caption";
     _element_id = Caption_t;
-    const ElementType accept[] = { Sentence_t, Description_t };
-    _accepted_data = std::set<ElementType>(accept, accept+2);
+    const ElementType accept[] = { Sentence_t, Description_t, TextContent_t };
+    _accepted_data = std::set<ElementType>(accept, accept+3);
     _optional_attributes = ID;
   }
 
   void Label::init(){
     _xmltag="label";
     _element_id = Label_t;
-    const ElementType accept[] = { Word_t, Description_t };
-    _accepted_data = std::set<ElementType>(accept, accept+2);
+    const ElementType accept[] = { Word_t, Description_t, TextContent_t };
+    _accepted_data = std::set<ElementType>(accept, accept+3);
     _optional_attributes = ID;
   }
 
@@ -2107,16 +2102,18 @@ namespace folia {
     _xmltag="listitem";
     _element_id = ListItem_t;
     const ElementType accept[] = { List_t, Sentence_t, Description_t, Label_t,
-				   Event_t };
-    _accepted_data = std::set<ElementType>(accept, accept+5);
+				   Event_t, TextContent_t };
+    _accepted_data = std::set<ElementType>(accept, accept+6);
     _optional_attributes = ID|N;
   }
 
   void List::init(){
     _xmltag="list";
     _element_id = List_t;
-    const ElementType accept[] = { ListItem_t, Description_t, Caption_t, Event_t };
-    _accepted_data = std::set<ElementType>(accept, accept+4);
+    const ElementType accept[] = { ListItem_t, Description_t, 
+				   Caption_t, Event_t,
+				   TextContent_t };
+    _accepted_data = std::set<ElementType>(accept, accept+5);
     _optional_attributes = ID|N;
     TEXTDELIMITER="\n";
   }
@@ -2124,8 +2121,9 @@ namespace folia {
   void Figure::init(){
     _xmltag="figure";
     _element_id = Figure_t;
-    const ElementType accept[] = { Sentence_t, Description_t, Caption_t };
-    _accepted_data = std::set<ElementType>(accept, accept+3);
+    const ElementType accept[] = { Sentence_t, Description_t, 
+				   Caption_t, TextContent_t };
+    _accepted_data = std::set<ElementType>(accept, accept+4);
     _optional_attributes = ID|N;
   }
 

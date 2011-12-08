@@ -22,6 +22,7 @@ namespace folia {
   class Correction;
   class Suggestion;
   class Division;
+  class DependencyDependent;
   class Paragraph;
 
   class FoliaElement {
@@ -62,15 +63,24 @@ namespace folia {
     void replace( FoliaElement * );
 
     FoliaElement* index( size_t ) const;
+
+    FoliaElement* operator[]( size_t i ) const {
+      return index(i);
+    }
+
     FoliaElement* rindex( size_t ) const;
 
-    virtual const FoliaElement* resolveword( const std::string& ) const { return 0; };
+    virtual const Word* resolveword( const std::string& ) const { return 0; };
 
     bool isinstance( ElementType et ) const {
       return et == _element_id;
     }
-    bool acceptable( ElementType ) const;
-    bool addable( const FoliaElement *, const std::string& = "" ) const;
+
+    template <typename F>
+      bool isinstance() const {
+      F obj("");
+      return _element_id == obj._element_id;
+    }
       
     template <typename F>
       std::vector<F*> select( const std::string& set,
@@ -161,7 +171,7 @@ namespace folia {
     std::string feat( const std::string& ) const;
     //XML (de)serialisation
     std::string xmlstring() const; // serialize to a string (XML fragment)
-    virtual FoliaElement *textcontent( const std::string& = "current" ) const;
+    virtual TextContent *textcontent( const std::string& = "current" ) const;
     virtual xmlNode *xml( bool ) const; //serialize to XML  
     virtual FoliaElement* parseXml( const xmlNode * );
     UnicodeString unicode() const { return text(); };
@@ -172,14 +182,12 @@ namespace folia {
     virtual FoliaElement *head() const {
       throw NotImplementedError("head() for " + _xmltag );
     }
-    virtual FoliaElement *getNew( int = -1 ) const {
+    virtual FoliaElement *getNew() const {
       throw NotImplementedError("getNew()"); };
-    virtual FoliaElement *getOriginal( int = -1) const {
+    virtual FoliaElement *getOriginal() const {
       throw NotImplementedError("getOriginal()"); };
     virtual FoliaElement *getCurrent() const {
       throw NotImplementedError("getCurrent()"); };
-    virtual FoliaElement *getSuggestion( int = -1 ) const {
-      throw NotImplementedError("getSuggestion() for " + _xmltag ); };
     virtual FoliaElement *split( FoliaElement *, FoliaElement *, 
 				    const std::string& = "" ){
       throw NotImplementedError("split()"); };
@@ -275,7 +283,7 @@ namespace folia {
     virtual Word *rwords( size_t ) const {
       throw NotImplementedError("rwords() for " + _xmltag );
     };
-    virtual FoliaElement *dependent() const {
+    virtual DependencyDependent *dependent() const {
       throw NotImplementedError("dependent() for " + _xmltag );
     };
 
@@ -349,6 +357,8 @@ namespace folia {
 				       const std::string&,
 				       const std::set<ElementType>& ,
 				       bool = true ) const;
+    bool acceptable( ElementType ) const;
+    bool addable( const FoliaElement *, const std::string& = "" ) const;
 
     std::vector<FoliaElement*> data;
     FoliaElement *_parent;
@@ -432,7 +442,7 @@ namespace folia {
     Paragraph *rparagraphs( size_t ) const;
     Word *words( size_t ) const;
     Word *rwords( size_t ) const;
-    const FoliaElement* resolveword( const std::string& ) const;
+    const Word* resolveword( const std::string& ) const;
   private:
     std::map<std::string, int> maxid;
   };
@@ -543,7 +553,7 @@ namespace folia {
   public:
   Division( const std::string& s=""):  AbstractStructureElement() { classInit( s ); };
   Division( Document *d=0, const std::string& s=""):  AbstractStructureElement( d ) { classInit( s ); };
-    FoliaElement *head() const;
+    Head *head() const;
   private:
     void init();
   };
@@ -587,7 +597,7 @@ namespace folia {
     std::vector<Word*> rightcontext( size_t, 
 				     const std::string& ="" ) const;
     FoliaElement *append( FoliaElement *);
-    const FoliaElement* resolveword( const std::string& ) const;
+    const Word* resolveword( const std::string& ) const;
     void setAttributes( const KWargs& );
     KWargs collectAttributes() const;  
     std::string getTextDelimiter() const { 
@@ -830,16 +840,6 @@ namespace folia {
     void init();
   };
 
-  class Dependency: public AbstractSpanAnnotation {
-  public:
-  Dependency( const std::string& s ): AbstractSpanAnnotation( ){ classInit( s ); }
-  Dependency( Document *d=0, const std::string& s="" ): AbstractSpanAnnotation( d ){ classInit( s ); }
-    FoliaElement *head() const;
-    FoliaElement *dependent() const;
-  private:
-    void init();
-  };
-
   class DependencyHead: public AbstractSpanAnnotation {
   public:
   DependencyHead( const std::string& s ): AbstractSpanAnnotation( ){ classInit( s ); }
@@ -852,6 +852,17 @@ namespace folia {
   public:
   DependencyDependent( const std::string& s ): AbstractSpanAnnotation( ){ classInit( s ); }
   DependencyDependent( Document *d=0, const std::string& s="" ): AbstractSpanAnnotation( d ){ classInit( s ); }
+  private:
+    void init();
+  };
+
+  class Dependency: public AbstractSpanAnnotation {
+  public:
+  Dependency( const std::string& s ): AbstractSpanAnnotation( ){ classInit( s ); }
+
+  Dependency( Document *d=0, const std::string& s="" ): AbstractSpanAnnotation( d ){ classInit( s ); }
+    DependencyHead *head() const;
+    DependencyDependent *dependent() const;
   private:
     void init();
   };
@@ -917,13 +928,13 @@ namespace folia {
     bool hasOriginal() const;
     bool hasCurrent() const;
     bool hasSuggestions() const;
-    FoliaElement *getNew( int = -1 ) const;
-    FoliaElement *getOriginal( int = -1 ) const;
-    FoliaElement *getCurrent( int = -1 ) const;
+    NewElement *getNew() const;
+    Original *getOriginal() const;
+    Current *getCurrent() const;
     std::vector<Suggestion*> suggestions() const;
     Suggestion *suggestions( size_t ) const;
     UnicodeString text( const std::string& = "current" ) const;
-    FoliaElement *textcontent( const std::string& = "current" ) const;
+    TextContent *textcontent( const std::string& = "current" ) const;
   private:
     void init();
   };
