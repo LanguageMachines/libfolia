@@ -140,15 +140,20 @@ namespace folia {
     
     template <typename F> 
       std::vector<F*> annotations( ) const {
-    std::vector<F*> v = select<F>();
-    if ( v.size() >= 1 )
-      return v;
-    else {
-      F obj("");
-      throw NoSuchAnnotation( obj.classname() );
+      if ( allowannotations() ){
+	std::vector<F*> v = select<F>();
+	if ( v.size() >= 1 )
+	  return v;
+	else {
+	  F obj("");
+	  throw NoSuchAnnotation( obj.classname() );
+	}
+      }
+      else {
+	throw NotImplementedError( "annotations() for " + _xmltag ); 
+      };
     }
-  }
-
+    
     template <typename F> 
       F *annotation() const {
       std::vector<F*>v = annotations<F>();
@@ -157,14 +162,19 @@ namespace folia {
 
     template <typename F>
       F *annotation( const std::string& val ) const {
-      // Will return a SINGLE annotation (even if there are multiple). 
-      // Raises a NoSuchAnnotation exception if none was found
-      std::vector<F*>v = select<F>( val );
-      if ( v.size() >= 1 )
-	return v[0];
+      if ( allowannotations() ){
+	// Will return a SINGLE annotation (even if there are multiple). 
+	// Raises a NoSuchAnnotation exception if none was found
+	std::vector<F*>v = select<F>( val );
+	if ( v.size() >= 1 )
+	  return v[0];
+	else {
+	  F obj("");
+	  throw NoSuchAnnotation( obj.classname() );
+	}
+      }
       else {
-	F obj("");
-	throw NoSuchAnnotation( obj.classname() );
+	throw NotImplementedError( "annotation() for " + _xmltag ); 
       }
     }
 
@@ -344,7 +354,8 @@ namespace folia {
     virtual std::string generateId( const std::string&, const std::string& = "" ){
       throw NotImplementedError( "generateId() not allowed for " + classname() );
     };
-
+    virtual bool allowannotations() const { return false; };
+    
     std::vector<FoliaElement*> select( ElementType elementtype,
 				       bool = true ) const;
     std::vector<FoliaElement*> select( ElementType elementtype,
@@ -420,6 +431,7 @@ namespace folia {
   public:  
   AbstractStructureElement( Document *d=0 ): FoliaElement( d ) {};
     std::string str() const;
+    bool allowannotations() const { return true; };
     size_t hasannotation( ElementType, std::set<ElementType>& );
     std::vector<Alternative *> alternatives( ElementType = BASE,
 					     const std::string& = "" ) const;
