@@ -966,6 +966,7 @@ namespace folia {
   public:
   AbstractSubtokenAnnotationLayer( const std::string& s="" ): FoliaElement( ){ classInit( s ); }
   AbstractSubtokenAnnotationLayer( Document *d=0, const std::string& s="" ): FoliaElement( d ){ classInit( s ); }
+    bool allowannotations() const { return true; };
   private:
     void init();
   };
