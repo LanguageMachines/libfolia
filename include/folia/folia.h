@@ -471,9 +471,12 @@ namespace folia {
   AbstractAnnotation( Document *d=0 ):  FoliaElement( d ){};
   };
 
-  class AbstractTokenAnnotation: public AbstractAnnotation {
+  class AbstractTokenAnnotation: public AbstractAnnotation, AllowGenerateID {
   public:
   AbstractTokenAnnotation( Document *d=0 ):  AbstractAnnotation( d ){};
+    std::string generateId( const std::string& tag ){
+      return IGgen( tag, _id ); 
+    }
   };
 
   class AbstractSubTokenAnnotation: public AbstractAnnotation {
@@ -496,11 +499,14 @@ namespace folia {
     void init();
   };
 
-  class AbstractSpanAnnotation: public AbstractAnnotation {
+  class AbstractSpanAnnotation: public AbstractAnnotation, AllowGenerateID {
   public:
   AbstractSpanAnnotation( Document *d=0 ):  AbstractAnnotation( d ){};
     xmlNode *xml( bool ) const;
     FoliaElement *append( FoliaElement* );
+    std::string generateId( const std::string& tag ){
+      return IGgen( tag, _id ); 
+    }
   };
 
   class TextContent: public FoliaElement {
@@ -732,6 +738,7 @@ namespace folia {
   public:
   Alternative( const std::string& s=""):  AbstractStructureElement(){ classInit( s ); };
   Alternative( Document *d=0, const std::string& s=""):  AbstractStructureElement( d ){ classInit( s ); };
+    bool allowannotations() const { return true; };
   private:
     void init();
   };
@@ -886,10 +893,13 @@ namespace folia {
     void init();
   };
 
-  class AbstractAnnotationLayer: public FoliaElement {
+  class AbstractAnnotationLayer: public FoliaElement, AllowGenerateID {
   public:
   AbstractAnnotationLayer( const std::string& s=""): FoliaElement( ) { classInit( s ); };
   AbstractAnnotationLayer( Document *d=0, const std::string& s=""): FoliaElement( d ) { classInit( s ); };
+    std::string generateId( const std::string& tag ){
+      return IGgen( tag, _id ); 
+    }
   private:
     void init();
   };
@@ -969,19 +979,26 @@ namespace folia {
     bool error;
   };
 
-  class AbstractSubtokenAnnotationLayer: public FoliaElement {
+  class AbstractSubtokenAnnotationLayer: public FoliaElement, AllowGenerateID {
   public:
   AbstractSubtokenAnnotationLayer( const std::string& s="" ): FoliaElement( ){ classInit( s ); }
   AbstractSubtokenAnnotationLayer( Document *d=0, const std::string& s="" ): FoliaElement( d ){ classInit( s ); }
-    bool allowannotations() const { return true; };
+    std::string generateId( const std::string& tag ){
+      return IGgen( tag, _id ); 
+    }
+
   private:
     void init();
   };
 
-  class AbstractSubtokenAnnotation: public AbstractAnnotation {
+  class AbstractSubtokenAnnotation: public AbstractAnnotation, AllowGenerateID {
   public:
   AbstractSubtokenAnnotation( const std::string& s="" ): AbstractAnnotation( ){ classInit( s ); }
   AbstractSubtokenAnnotation( Document *d=0, const std::string& s="" ): AbstractAnnotation( d ){ classInit( s ); }
+    std::string generateId( const std::string& tag ){
+      return IGgen( tag, _id ); 
+    }
+
   private:
     void init();
   };
