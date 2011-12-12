@@ -707,7 +707,7 @@ namespace folia {
   }
 
   Alternative *FoliaElement::addAlternative( ElementType et,
-						const KWargs& args ){
+					     const KWargs& args ){
     Alternative *res = new Alternative( mydoc );
     KWargs kw;
     string id = generateId( "alt" );
@@ -968,15 +968,13 @@ namespace folia {
     return _text;
   }
 
-  string AbstractStructureElement::generateId( const string& tag, 
-					       const string& id_in  ){
-    //  cerr << "generateId," << _xmltag << " maxids=" << maxid << endl;
+  string AllowGenerateID::IGgen( const string& tag, 
+				 const string& nodeId ){
+    //    cerr << "generateId," << tag << " nodeId = " << nodeId << endl;
     int max = getMaxId(tag);
-    //  cerr << "MAX = " << max << endl;
-    string id = id_in;
-    if ( id.empty() )
-      id = _id;
-    id += '.' + tag + '.' +  toString( max + 1 );
+    //    cerr << "MAX = " << max << endl;
+    string id = nodeId + '.' + tag + '.' +  toString( max + 1 );
+    //    cerr << "new id = " << id << endl;
     return id;
   }
 
@@ -985,7 +983,7 @@ namespace folia {
     return UnicodeToUTF8(result);
   }
   
-  void AbstractStructureElement::setMaxId( FoliaElement *child ) {
+  void AllowGenerateID::setMaxId( FoliaElement *child ) {
     if ( !child->id().empty() && !child->xmltag().empty() ){
       vector<string> parts;
       size_t num = split_at( child->id(), parts, "." );
@@ -1012,7 +1010,7 @@ namespace folia {
     }
   }
 
-  int AbstractStructureElement::getMaxId( const string& xmltag ) {
+  int AllowGenerateID::getMaxId( const string& xmltag ) {
     int res = 0;
     if ( !xmltag.empty() ){
       res = maxid[xmltag];

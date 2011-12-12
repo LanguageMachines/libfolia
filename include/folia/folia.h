@@ -351,7 +351,7 @@ namespace folia {
     virtual void init()=0;
     virtual KWargs collectAttributes() const;
     virtual std::string getTextDelimiter() const { return TEXTDELIMITER; }
-    virtual std::string generateId( const std::string&, const std::string& = "" ){
+    virtual std::string generateId( const std::string& ){
       throw NotImplementedError( "generateId() not allowed for " + classname() );
     };
     virtual bool allowannotations() const { return false; };
@@ -427,7 +427,16 @@ namespace folia {
   inline bool isinstance( const FoliaElement *e, ElementType t ) { 
     return e->isinstance( t ); }
 
-  class AbstractStructureElement: public FoliaElement {
+  class AllowGenerateID {
+  public:
+    void setMaxId( FoliaElement * );
+    int getMaxId( const std::string& );
+    std::string IGgen( const std::string&, const std::string& );
+  private:
+    std::map<std::string, int> maxid;
+  };
+
+  class AbstractStructureElement: public FoliaElement, AllowGenerateID {
   public:  
   AbstractStructureElement( Document *d=0 ): FoliaElement( d ) {};
     std::string str() const;
@@ -437,9 +446,6 @@ namespace folia {
 					     const std::string& = "" ) const;
   
     FoliaElement *append( FoliaElement* );
-    void setMaxId( FoliaElement * );
-    int getMaxId( const std::string& );
-    std::string generateId( const std::string&, const std::string& = "" );
     Correction *correct( std::vector<FoliaElement*>,
 			 std::vector<FoliaElement*>,
 			 std::vector<FoliaElement*>,
@@ -455,8 +461,9 @@ namespace folia {
     Word *words( size_t ) const;
     Word *rwords( size_t ) const;
     const Word* resolveword( const std::string& ) const;
-  private:
-    std::map<std::string, int> maxid;
+    std::string generateId( const std::string& tag ){
+      return IGgen( tag, _id ); 
+    }
   };
 
   class AbstractAnnotation: public FoliaElement {
