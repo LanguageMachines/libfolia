@@ -833,6 +833,14 @@ namespace folia {
     void init();
   };
 
+  class HeadFeature: public Feature {
+  public:
+  HeadFeature( const std::string& s ): Feature( ){ classInit( s ); }
+  HeadFeature( Document *d=0, const std::string& s="" ): Feature( d ){ classInit( s ); }
+  private:
+    void init();
+  };
+
   class WordReference: public FoliaElement {
   public:
   WordReference( const std::string& s="" ): FoliaElement( ){ classInit( s ); };

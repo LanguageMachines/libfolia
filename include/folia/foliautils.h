@@ -47,7 +47,7 @@ namespace folia {
     Suggestion_t, 
     Alternative_t, AltLayers_t, //alternatives
     Description_t, Gap_t, 
-    Content_t, Feature_t, SynsetFeature_t, ActorFeature_t, 
+    Content_t, Feature_t, SynsetFeature_t, ActorFeature_t, HeadFeature_t,
     BegindatetimeFeature_t, EnddatetimeFeature_t, //features
     PlaceHolder_t,
     Dependencies_t, Dependency_t, DependencyHead_t, DependencyDependent_t

@@ -255,6 +255,11 @@ namespace folia {
       FoliaElement *tmp = new ActorFeature( "cls='" + it->second + "'" );
       append( tmp );
     }
+    it = kwargs.find( "head" );
+    if ( it != kwargs.end() ){
+      FoliaElement *tmp = new HeadFeature( "cls='" + it->second + "'" );
+      append( tmp );
+    }
     it = kwargs.find( "synset" );
     if ( it != kwargs.end() ){
       FoliaElement *tmp = new SynsetFeature( "cls='" + it->second + "'" );
@@ -343,6 +348,10 @@ namespace folia {
       }
       else if ( (*it)->isinstance(ActorFeature_t) ){
 	attribs["actor"] = (*it)->cls();
+	skipelements.insert( *it );
+      }
+      else if ( (*it)->isinstance(HeadFeature_t) ){
+	attribs["head"] = (*it)->cls();
 	skipelements.insert( *it );
       }
       else if ( (*it)->isinstance(BegindatetimeFeature_t) ){
@@ -2284,6 +2293,7 @@ namespace folia {
 	     data[i]->isinstance( SynsetFeature_t ) ||
 	     data[i]->isinstance( BegindatetimeFeature_t ) ||
 	     data[i]->isinstance( EnddatetimeFeature_t ) ||
+	     data[i]->isinstance( HeadFeature_t ) ||
 	     data[i]->isinstance( ActorFeature_t ) ) &&
 	   data[i]->subset() == s )
 	return data[i]->cls();
@@ -2400,8 +2410,8 @@ namespace folia {
     _annotation_type = AnnotationType::POS;
     _required_attributes = CLASS;
     _optional_attributes = ANNOTATOR|CONFIDENCE|DATETIME;
-    const ElementType accept[] = { Feature_t, Description_t };
-    _accepted_data = std::set<ElementType>(accept, accept+2);
+    const ElementType accept[] = { Feature_t, HeadFeature_t, Description_t };
+    _accepted_data = std::set<ElementType>(accept, accept+3);
   }
 
   void LemmaAnnotation::init(){
@@ -2488,6 +2498,12 @@ namespace folia {
     _xmltag = "actor";
     _element_id = ActorFeature_t;
     _subset = "actor";
+  }
+
+  void HeadFeature::init(){
+    _xmltag = "headfeat";
+    _element_id = HeadFeature_t;
+    _subset = "head";
   }
 
   void AbstractSubtokenAnnotation::init() {
