@@ -17,6 +17,8 @@ using namespace std;
 
 namespace folia {
 
+  string VersionName() { return PACKAGE_STRING; }
+
   ostream& operator<<( ostream& os, const FoliaElement& ae ){
     os << " <" << ae.classname();
     KWargs ats = ae.collectAttributes();

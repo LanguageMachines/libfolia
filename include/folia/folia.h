@@ -1091,6 +1091,8 @@ namespace folia {
     void init();
   };
 
+  std::string VersionName();
+
 } // namespace folia
 
 #endif
