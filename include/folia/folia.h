@@ -1092,6 +1092,7 @@ namespace folia {
   };
 
   std::string VersionName();
+  std::string Version();
 
 } // namespace folia
 

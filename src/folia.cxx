@@ -18,6 +18,7 @@ using namespace std;
 namespace folia {
 
   string VersionName() { return PACKAGE_STRING; }
+  string Version() { return VERSION; }
 
   ostream& operator<<( ostream& os, const FoliaElement& ae ){
     os << " <" << ae.classname();
