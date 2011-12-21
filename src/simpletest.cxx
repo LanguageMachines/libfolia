@@ -18,9 +18,9 @@ int main() {
   }
   string id = d.id() + ".text.1";
   KWargs kw = getArgs( "id='" + id + "'" );
-  AbstractElement *text = d.addNode( Text_t, kw );
+  FoliaElement *text = d.addNode( Text_t, kw );
   kw.clear();
-  AbstractElement *s = new Sentence( &d, "generate_id='" + text->id() + "'" );
+  FoliaElement *s = new Sentence( &d, "generate_id='" + text->id() + "'" );
   text->append( s );
   kw.clear();
   kw["text"] = "De";
