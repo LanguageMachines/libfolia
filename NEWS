@@ -1,5 +1,8 @@
-0.4 2011-xx-xx
-  * 
+0.5 2011-12-21
+  * 0.4 is lost in space
+  * rather extensive rework. API and ABI changed.
+    More to do, but releasing now is desirable
+ 
 0.3 2011-11-02
 [Ko van der Sloot]
   * Get ready for first (beta) release as a package
