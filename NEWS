@@ -1,3 +1,5 @@
+0.6 2011-01-09
+  * fixed a problem with escaping in arguments, "att='\\'" failed
 0.5 2011-12-21
   * 0.4 is lost in space
   * rather extensive rework. API and ABI changed.

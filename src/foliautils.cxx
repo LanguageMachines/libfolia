@@ -496,22 +496,26 @@ namespace folia {
 
     for ( size_t i=0; i < s.size(); ++i ){
       //      cerr << "bekijk " << s[i] << endl;
-      //      cerr << "quoted = " << (quoted?"YES":"NO") << " parseatt = " << (parseatt?"YES":"NO") << endl;
+      //      cerr << "quoted = " << (quoted?"YES":"NO") 
+      // 	   << " parseatt = " << (parseatt?"YES":"NO")
+      // 	   << " escaped = " << (escaped?"YES":"NO") << endl;
       if ( s[i] == '\\' ){
-	//	cerr << "found a \\" << endl;
-	if ( i < s.size()-1 ){
-	  if ( s[i+1] == '\\' ){
-	    // escaped backslash
-	    continue;
+	//	cerr << "handle backslash " << endl;
+	if ( quoted ){
+	  if ( escaped ){
+	    val += s[i];
+	    escaped = false;
 	  }
-	  if ( s[i+1] == '\'' ){
-	    // escaped '
+	  else {
 	    escaped = true;
 	    continue;
 	  }
 	}
+	else
+	  throw ArgsError( s + ", stray \\" );	  
       }
-      if ( s[i] == '\'' ){
+      else if ( s[i] == '\'' ){
+	//	cerr << "handle single quote " << endl;
 	if ( quoted ){
 	  if ( escaped ){
 	    val += s[i];
@@ -555,12 +559,17 @@ namespace folia {
       }
       else if ( parseatt )
 	att += s[i];
-      else if ( quoted )
+      else if ( quoted ){
+	if ( escaped ){
+	  val += "\\";
+	  escaped = false;
+	}
 	val += s[i];
+      }
       else
-	throw ArgsError( s + ", unquoted value?" );
-      //      cerr << "att = '" << att << "'" << endl;
-      //      cerr << "val = '" << val << "'" << endl;
+	throw ArgsError( s + ", unquoted value or missing , ?" );
+      // cerr << "att = '" << att << "'" << endl;
+      // cerr << "val = '" << val << "'" << endl;
     }
     if ( quoted )
       throw ArgsError( s + ", unbalanced '?" );
