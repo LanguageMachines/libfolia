@@ -59,12 +59,6 @@ namespace folia {
     return result;
   }
 
-  double toDouble( const string& s ){
-    char *end;
-    double res = strtod( s.c_str(), &end );
-    return res;
-  }
-
   string toString( const double d ){
     stringstream dummy;
     if ( !( dummy << d ) ) {

@@ -32,12 +32,21 @@ AC_SUBST([LIBTOOL_DEPS])
 # when running tests, use CXX
 AC_LANG([C++])
 
+# Checks for libraries.
+
+# Checks for header files.
+
+# Checks for typedefs, structures, and compiler characteristics.
+AC_HEADER_STDBOOL
+AC_C_INLINE
+AC_TYPE_SIZE_T
+
+# Checks for library functions.
+
 PKG_PROG_PKG_CONFIG
 PKG_CHECK_MODULES([XML2], [libxml-2.0 >= 2.6.16] )
 CXXFLAGS="$CXXFLAGS $XML2_CFLAGS"
 LIBS="$LIBS $XML2_LIBS"
-
-# Checks for libraries.
 
 if test $prefix = "NONE"; then
    prefix="$ac_default_prefix"
@@ -62,8 +71,6 @@ if test "$useICU" = "1"; then
 else
   AC_MSG_ERROR("ICU support is required")
 fi
-
-# Checks for library functions.
 
 AC_OUTPUT([
   Makefile

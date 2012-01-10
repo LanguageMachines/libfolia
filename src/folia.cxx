@@ -236,9 +236,14 @@ namespace folia {
       if ( !(CONFIDENCE & supported) )
 	throw ValueError("Confidence is not supported for " + classname() );
       else {
-	_confidence = toDouble(it->second);
-	if ( ( _confidence < 0.0 || _confidence > 1.0 ) )
-	  throw ValueError("Confidence must be a floating point number between 0 and 1");
+	try {
+	  _confidence = stringTo<double>(it->second);
+	  if ( _confidence < 0 || _confidence > 1.0 )
+	    throw ValueError("Confidence must be a floating point number between 0 and 1");	    
+	}
+	catch (...){
+	  throw ValueError("invalid Confidence value, (not a number?)");
+	}
       }
     }
     else if ( CONFIDENCE & _required_attributes )
