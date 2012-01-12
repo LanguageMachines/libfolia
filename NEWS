@@ -1,4 +1,8 @@
-0.6 2011-01-09
+0.7 2012-**-**
+  * some bugs fixed in annotation declaration handling
+  * added GAP annotation to gap
+
+0.6 2012-01-09
   * fixed a problem with escaping in arguments, "att='\\'" failed
 0.5 2011-12-21
   * 0.4 is lost in space
