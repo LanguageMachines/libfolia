@@ -46,7 +46,7 @@ AC_TYPE_SIZE_T
 PKG_PROG_PKG_CONFIG
 PKG_CHECK_MODULES([XML2], [libxml-2.0 >= 2.6.16] )
 CXXFLAGS="$CXXFLAGS $XML2_CFLAGS"
-LIBS="$LIBS $XML2_LIBS"
+LIBS="$XML2_LIBS $LIBS"
 
 if test $prefix = "NONE"; then
    prefix="$ac_default_prefix"

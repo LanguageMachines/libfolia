@@ -76,8 +76,11 @@ namespace folia {
     case AnnotationType::TOKEN:
       result = "token";
       break; 
+    case AnnotationType::GAP:
+      result = "gap";
+      break; 
     case AnnotationType::DIVISION:
-      result = "division";
+      result = "div";
       break; 
     case AnnotationType::POS: 
       result = "pos";
@@ -155,8 +158,10 @@ namespace folia {
   AnnotationType::AnnotationType stringToAT( const string& at ){
     if ( at == "token" )
       return AnnotationType::TOKEN;
-    if ( at == "division" )
+    if ( at == "div" )
       return AnnotationType::DIVISION;
+    if ( at == "gap" )
+      return AnnotationType::GAP;
     if ( at == "pos" )
       return AnnotationType::POS;
     if ( at == "lemma" )

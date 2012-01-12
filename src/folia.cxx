@@ -444,35 +444,35 @@ namespace folia {
       return false;
     }
   }
-
+  
   UnicodeString FoliaElement::text( const string& cls ) const {
     if ( !PRINTABLE )
       throw NoSuchText( _xmltag );
     //  cerr << (void*)this << ":text() for " << _xmltag << " and class= " << cls << " step 1 " << endl;
-
+    
     UnicodeString result;    
     try {
-       result = this->textcontent(cls)->text(cls);
+      result = this->textcontent(cls)->text(cls);
     } catch (NoSuchText& e ) {
-	for( size_t i=0; i < data.size(); ++i ){
-	  // try to get text dynamically from children
-	  // skip TextContent elements
-	  if ( data[i]->PRINTABLE && !data[i]->isinstance( TextContent_t ) ){
-	    try {
-	      UnicodeString tmp = data[i]->text( cls );
-	      //	cerr << "text() for " << _xmltag << " step 4, tmp= " << tmp << endl;
-	      result += tmp;
-	      if ( !tmp.isEmpty() ){
-		result += UTF8ToUnicode( data[i]->getTextDelimiter() );
-	      }
-	    } catch ( NoSuchText& e ){
+      for( size_t i=0; i < data.size(); ++i ){
+	// try to get text dynamically from children
+	// skip TextContent elements
+	if ( data[i]->PRINTABLE && !data[i]->isinstance( TextContent_t ) ){
+	  try {
+	    UnicodeString tmp = data[i]->text( cls );
+	    //	cerr << "text() for " << _xmltag << " step 4, tmp= " << tmp << endl;
+	    result += tmp;
+	    if ( !tmp.isEmpty() ){
+	      result += UTF8ToUnicode( data[i]->getTextDelimiter() );
 	    }
+	  } catch ( NoSuchText& e ){
 	  }
 	}
+      }
     }
     
     //  cerr << "text() for " << _xmltag << " step 2 >> " << endl;
-
+    
     // try to get text from children. 
     //  cerr << "text() for " << _xmltag << " step 5, result= " << result << endl;
     result.trim();
@@ -481,11 +481,11 @@ namespace folia {
       return result;
     }
     else
-      throw NoSuchText( ":{" );
+      throw NoSuchText( ": empty!" );
   }
-
+  
   UnicodeString FoliaElement::stricttext( const string& cls ) const {
-      return this->textcontent(cls)->text(cls);
+    return this->textcontent(cls)->text(cls);
   }
 
   TextContent *FoliaElement::textcontent( const string& cls ) const {
@@ -2056,9 +2056,11 @@ namespace folia {
   void Gap::init(){
     _xmltag = "gap";
     _element_id = Gap_t;
+    _annotation_type = AnnotationType::GAP;
     const ElementType accept[] = { Content_t, Description_t };
     _accepted_data = std::set<ElementType>(accept, accept+2); 
-    _optional_attributes = ID|CLASS|ANNOTATOR|CONFIDENCE|N;
+    _required_attributes = CLASS;
+    _optional_attributes = ID|ANNOTATOR|CONFIDENCE|N;
   }
 
   void Content::init(){
@@ -2084,6 +2086,7 @@ namespace folia {
   void Division::init(){
     _xmltag="div";
     _element_id = Division_t;
+    _required_attributes = CLASS;
     const ElementType accept[] = { Division_t, Gap_t, Head_t, Paragraph_t,
 				   Sentence_t, List_t, Figure_t, Event_t,
 				   Description_t, LineBreak_t, TextContent_t,

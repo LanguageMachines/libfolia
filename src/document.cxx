@@ -376,14 +376,16 @@ namespace folia {
 	annotations.push_back( ts_t( type, "" ) );
 	annotationdefaults[type].clear();
 	KWargs att = getAttributes( n );
-	KWargs::const_iterator it = att.find("set" );
 	string s;
 	string a;
 	string t;
-	if ( it != att.end() )
+	KWargs::const_iterator it = att.find("set" );
+	if ( it != att.end() ){
 	  s = it->second;
-	else
-	  runtime_error( "what if no set? " );
+	}
+	else {
+	  throw runtime_error( "missing 'set' attribute for " + tag );
+	}
 	it = att.find( "annotator" );
 	if ( it != att.end() )
 	  a = it->second;
@@ -397,7 +399,7 @@ namespace folia {
 	    t = it->second;
 	}
 	annotationdefaults[type].insert( make_pair(s,at_t( a, t )));
-	//      cerr << "inserted [" << toString(type) << "][" << s << "](" << a << "," << t << ")" << endl;
+	//	cerr << "inserted [" << type << "][" << s << "](" << a << "," << t << ")" << endl;
       }
       n = n->next;
     }

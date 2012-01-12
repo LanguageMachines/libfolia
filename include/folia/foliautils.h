@@ -94,10 +94,10 @@ namespace folia {
    */
   namespace AnnotationType {
     enum AnnotationType { NO_ANN, TEXT, TOKEN, DIVISION, POS, LEMMA, EVENT,
-			  SUGGESTION, 
-			  DOMEIN, SENSE, SYNTAX, CHUNKING, SUBENTITY,
-			  ENTITY, ERRORDETECTION, CORRECTION, ALTERNATIVE, PHON,
-			  SUBJECTIVITY, MORPHOLOGICAL, DEPENDENCY, TIMEDEVENT
+			  SUGGESTION, DOMEIN, SENSE, SYNTAX, CHUNKING, 
+			  SUBENTITY, ENTITY, ERRORDETECTION, CORRECTION,
+			  ALTERNATIVE, PHON, SUBJECTIVITY, MORPHOLOGICAL, 
+			  DEPENDENCY, TIMEDEVENT, GAP
     };
   }
   
@@ -189,6 +189,12 @@ namespace folia {
   
   KWargs getArgs( const std::string& );
   std::string toString( const KWargs& );
+  
+  inline std::ostream& operator<<( std::ostream& os, 
+				   const AnnotationType::AnnotationType& at ){
+    os << toString( at );
+    return os;
+  }
   
   template< typename T >
     inline T stringTo( const std::string& str ) {
