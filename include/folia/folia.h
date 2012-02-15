@@ -112,13 +112,13 @@ namespace folia {
     }
       
     template <typename F>
-      std::vector<F*> select( const std::string& set,
+      std::vector<F*> select( const std::string& st,
 			      const std::set<ElementType>& exclude, 
 			      bool recurse = true ) const {
       F obj("");
       std::vector<F*> res;
       std::vector<FoliaElement*> tmp = select( obj._element_id, 
-					       set,
+					       st,
 					       exclude,
 					       recurse );
       for ( size_t i = 0; i < tmp.size(); ++i ){
@@ -128,12 +128,26 @@ namespace folia {
     }
     
     template <typename F>
-      std::vector<F*> select( const std::string& set,
+      std::vector<F*> select( const std::string& st,
 			      bool recurse = true ) const {
       F obj("");
       std::vector<F*> res;
       std::vector<FoliaElement*> tmp = select( obj._element_id, 
-					       set,
+					       st,
+					       recurse );
+      for ( size_t i = 0; i < tmp.size(); ++i ){
+	res.push_back( dynamic_cast<F*>( tmp[i]) );
+      }
+      return res;
+    }
+
+    template <typename F>
+      std::vector<F*> select( const char* st,
+			      bool recurse = true ) const {
+      F obj("");
+      std::vector<F*> res;
+      std::vector<FoliaElement*> tmp = select( obj._element_id, 
+					       std::string(st),
 					       recurse );
       for ( size_t i = 0; i < tmp.size(); ++i ){
 	res.push_back( dynamic_cast<F*>( tmp[i]) );

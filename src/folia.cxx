@@ -665,8 +665,8 @@ namespace folia {
   }
 
   vector<FoliaElement*> FoliaElement::select( ElementType et,
-						    const string& val,
-						    bool recurse ) const {
+					      const string& val,
+					      bool recurse ) const {
     static set<ElementType> excludeSet;
     if ( excludeSet.empty() ){
       excludeSet.insert( Original_t );
@@ -677,8 +677,8 @@ namespace folia {
   }
 
   vector<FoliaElement*> FoliaElement::select( ElementType et,
-						    const set<ElementType>& exclude,
-						    bool recurse ) const {
+					      const set<ElementType>& exclude,
+					      bool recurse ) const {
     vector<FoliaElement*> res;
     for ( size_t i = 0; i < data.size(); ++i ){
       if ( data[i]->_element_id == et ){
@@ -695,7 +695,7 @@ namespace folia {
   }
 
   vector<FoliaElement*> FoliaElement::select( ElementType et,
-						    bool recurse ) const {
+					      bool recurse ) const {
     static set<ElementType> excludeSet;
     if ( excludeSet.empty() ){
       excludeSet.insert( Quote_t );
