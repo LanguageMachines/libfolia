@@ -778,7 +778,7 @@ namespace folia {
   }
 
   AbstractTokenAnnotation *FoliaElement::addAnnotation( ElementType et,
-							   const KWargs& args ){
+							const KWargs& args ){
     if ( et == Pos_t )
       return addPosAnnotation( args );
     else if ( et == Lemma_t )

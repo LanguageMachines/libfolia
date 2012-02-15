@@ -534,6 +534,8 @@ namespace folia {
     string a = kw["annotator"];
     string t = kw["annotatortype"];
     annotationdefaults[type].insert( make_pair(st, at_t(a,t) ) );
+    //    cerr << "inserted [" << type << "][" << st << "](" << a << "," << t << ")" << endl;
+    //    cerr << "annotation defaults now: " <<  annotationdefaults << endl;
   }
 
   FoliaElement* Document::addNode( ElementType et, const KWargs& kwargs ){
@@ -571,8 +573,11 @@ namespace folia {
     map<AnnotationType::AnnotationType,map<string,at_t> >::const_iterator mit1 = annotationdefaults.find(type);
     string result;
     if ( mit1 != annotationdefaults.end() ){
-      if ( st.empty() )
-	result = mit1->second.begin()->second.a;
+      if ( st.empty() ){
+	if ( mit1->second.size() == 1 )
+	  result = mit1->second.begin()->second.a;
+	return result;
+      }
       else {
 	map<string,at_t>::const_iterator mit2 = mit1->second.find( st );
 	if ( mit2 != mit1->second.end() ){
@@ -592,8 +597,11 @@ namespace folia {
     map<AnnotationType::AnnotationType,map<string,at_t> >::const_iterator mit1 = annotationdefaults.find(type);
     string result;
     if ( mit1 != annotationdefaults.end() ){
-      if ( st.empty() )
-	result = mit1->second.begin()->second.t;
+      if ( st.empty() ){
+	if ( mit1->second.size() == 1 )
+	  result = mit1->second.begin()->second.t;
+	return result;
+      }
       else {
 	map<string,at_t>::const_iterator mit2 = mit1->second.find( st );
 	if ( mit2 != mit1->second.end() ){
@@ -607,26 +615,30 @@ namespace folia {
     return result;
   }
 
-  void Document::setannotations( xmlNode *node ) const{
-    list<ts_t>::const_iterator it = annotations.begin();
-    while ( it != annotations.end() ){
-      // Find the 'label' 
-      string label = toString( it->t );
-      label += "-annotation";
-      xmlNode *n = xmlAddChild( node, newXMLNode( _foliaNs, label ) );
-      KWargs args;
-      string s = defaultannotator( it->t, "", true );
-      if ( !s.empty() )
-	args["annotator"] = s;
-      s = defaultannotatortype( it->t, "", true );
-      if ( !s.empty() )
-	args["annotatortype"] = s;
-      s = defaultset( it->t );
-      if ( !s.empty() )
-	args["set"] = s;
-      addAttributes( n, args );
-      ++it;
-    } 
+  void Document::setannotations( xmlNode *node ) const {
+    map<AnnotationType::AnnotationType,map<string,at_t> >::const_iterator mit = annotationdefaults.begin();
+    while ( mit != annotationdefaults.end() ){
+      map<string,at_t>::const_iterator it = mit->second.begin();
+      while ( it != mit->second.end() ){
+	// Find the 'label' 
+	string label = toString( mit->first );
+	label += "-annotation";
+	xmlNode *n = xmlAddChild( node, newXMLNode( _foliaNs, label ) );
+	KWargs args;
+	string s = it->second.a;
+	if ( !s.empty() )
+	  args["annotator"] = s;
+	s = it->second.t;
+	if ( !s.empty() )
+	  args["annotatortype"] = s;
+	s = it->first;
+	if ( !s.empty() )
+	  args["set"] = s;
+	addAttributes( n, args );
+	++it;
+      }
+      ++mit;
+    }
   }
 
   void Document::setmetadata( xmlNode *node ) const{
