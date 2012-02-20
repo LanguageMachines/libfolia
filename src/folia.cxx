@@ -183,13 +183,13 @@ namespace folia {
       if ( !( CLASS & supported ) )
 	throw ValueError("Class is not supported for " + classname() );
       else {
-	_cls = it->second;
+	_class = it->second;
       }
     }
     else if ( CLASS & _required_attributes )
       throw ValueError("Class is required for " + classname() );
     else
-      _cls = "";
+      _class = "";
 
       
     it = kwargs.find( "annotator" );    
@@ -327,8 +327,8 @@ namespace folia {
       isDefaultSet = false;
       attribs["set"] = _set;
     }
-    if ( !_cls.empty() )
-      attribs["class"] = _cls;
+    if ( !_class.empty() )
+      attribs["class"] = _class;
 
     if ( !_annotator.empty() &&
 	 _annotator != mydoc->defaultannotator( _annotation_type, _set, true ) ){
@@ -412,7 +412,7 @@ namespace folia {
       while ( it != data.end() ){
 	if ( skipelements.find(*it) == skipelements.end() ){
 	  if ( (*it)->isinstance(TextContent_t) ){
-	    if ( (*it)->_cls == "current" )
+	    if ( (*it)->_class == "current" )
 	      textelements.push_front( *it );
 	    else
 	      textelements.push_back( *it );
@@ -498,7 +498,7 @@ namespace folia {
       throw NoSuchText( _xmltag );
     
     for( size_t i=0; i < data.size(); ++i ){
-      if ( data[i]->isinstance(TextContent_t) && (data[i]->_cls == cls) ){
+      if ( data[i]->isinstance(TextContent_t) && (data[i]->_class == cls) ){
 	return dynamic_cast<TextContent*>(data[i]);
       }
       else if ( data[i]->element_id() == Correction_t) {
@@ -984,8 +984,8 @@ namespace folia {
 
   FoliaElement *TextContent::postappend(){
     if ( _parent->isinstance( Original_t ) ){
-      if ( _cls == "current" )
-	_cls = "original";
+      if ( _class == "current" )
+	_class = "original";
     }
     return FoliaElement::postappend();
   }
@@ -997,7 +997,7 @@ namespace folia {
     vector<TextContent*>::iterator it = v.begin();
     while ( it != v.end() ){
       // cerr << "TextContent::findreplacable bekijkt " << *it << " (" 
-      if ( (*it)->cls() == _cls )
+      if ( (*it)->cls() == _class )
 	result.push_back( *it );
       ++it;
     }
@@ -1396,23 +1396,6 @@ namespace folia {
     return result;
   }
 
-  // FoliaElement *AbstractStructureElement::annotation( ElementType et ) const {
-  //   vector<FoliaElement *>v = annotations( et );
-  //   return v[0]; // always exist, otherwise annotations would throw()
-  // }
-
-  // FoliaElement *AbstractStructureElement::annotation( ElementType et,
-  // 						      const string& val ) const {
-  //   // Will return a SINGLE annotation (even if there are multiple). 
-  //   // Raises a NoSuchAnnotation exception if none was found
-  //   vector<FoliaElement *>v = select( et, val );
-  //   if ( v.size() >= 1 )
-  //     return v[0];
-  //   else
-  //     throw NoSuchAnnotation( toString(et) );
-  //   return 0;
-  // }
-
   vector<Alternative *> AbstractStructureElement::alternatives( ElementType elt,
 								 const string& st ) const {
     // Return a list of alternatives, either all or only of a specific type, restrained by set
@@ -1431,7 +1414,7 @@ namespace folia {
 	if ( alts[i]->size() > 0 ) { // child elements?
 	  for ( size_t j =0; j < alts[i]->size(); ++j ){
 	    if ( alts[i]->index(j)->element_id() == elt &&
-		 ( alts[i]->st().empty() || alts[i]->st() == st ) ){
+		 ( alts[i]->sett().empty() || alts[i]->sett() == st ) ){
 	      res.push_back( alts[i] ); // not the child!
 	      break; // yield an alternative only once (in case there are multiple matches)
 	    }
@@ -1496,7 +1479,7 @@ namespace folia {
     if ( child->element_id() == Pos_t ||
 	 child->element_id() == Lemma_t ){
       // sanity check, there may be no other child within the same set
-      vector<FoliaElement*> v = select( child->element_id(), child->st() );
+      vector<FoliaElement*> v = select( child->element_id(), child->sett() );
       if ( v.empty() ) {
 	// OK!
 	return FoliaElement::append( child );
@@ -1530,7 +1513,7 @@ namespace folia {
   }
 
   Division *Word::division() const {
-    // return the sentence this word is a part of, otherwise return null
+    // return the <div> this word is a part of, otherwise return null
     FoliaElement *p = _parent; 
     while( p ){
       if ( p->isinstance( Division_t ) )
@@ -1598,7 +1581,7 @@ namespace folia {
 	    if ( val.empty() )
 	      result.push_back( 0 );
 	    else {
-	      PlaceHolder *p = new PlaceHolder( val );
+	      PlaceHolder *p = new PlaceHolder( "text='" + val + "'" );
 	      mydoc->keepForDeletion( p );
 	      result.push_back( p );
 	    }
@@ -1611,7 +1594,7 @@ namespace folia {
 	      if ( val.empty() )
 		result.push_back( 0 );
 	      else {
-		PlaceHolder *p = new PlaceHolder( val );
+		PlaceHolder *p = new PlaceHolder( "text='" + val + "'" );
 		mydoc->keepForDeletion( p );
 		result.push_back( p );
 	      }
@@ -1641,7 +1624,7 @@ namespace folia {
 	    if ( val.empty() )
 	      result.push_back( 0 );
 	    else {
-	      PlaceHolder *p = new PlaceHolder( val );
+	      PlaceHolder *p = new PlaceHolder( "text='" + val + "'" );
 	      mydoc->keepForDeletion( p );
 	      result.push_back( p );
 	    }
@@ -1673,7 +1656,7 @@ namespace folia {
 	      if ( val.empty() )
 		result.push_back( 0 );
 	      else {
-		PlaceHolder *p = new PlaceHolder( val );
+		PlaceHolder *p = new PlaceHolder( "text='" + val + "'" );
 		mydoc->keepForDeletion( p );
 		result.push_back( p );
 	      }
@@ -1714,17 +1697,22 @@ namespace folia {
     return res;
   }
 
-  void PlaceHolder::setAttributes( const string&s ){
-    KWargs args;
-    args["text"] = s;
+  void PlaceHolder::setAttributes( const KWargs& args ){
+    KWargs::const_iterator it = args.find( "text" );
+    if ( it == args.end() ){
+      throw ValueError("text attribute is required for " + classname() );
+    }
+    else if ( args.size() != 1 ){
+      throw ValueError("only the text attribute is supported for " + classname() );
+    }
     Word::setAttributes( args );
   }
 
   KWargs TextContent::collectAttributes() const {
     KWargs attribs = FoliaElement::collectAttributes();
-    if ( _cls == "current" )
+    if ( _class == "current" )
       attribs.erase( "class" );
-    else if ( _cls == "original" && parent()->isinstance( Original_t ) )
+    else if ( _class == "original" && parent()->isinstance( Original_t ) )
       attribs.erase( "class" );    
       
     if ( _offset >= 0 ){
@@ -2318,7 +2306,7 @@ namespace folia {
     if ( it == kwargs.end() ) {
       throw ValueError("class attribute is required for " + classname() );
     }
-    _cls = it->second;
+    _class = it->second;
   }
 
   KWargs Feature::collectAttributes() const {

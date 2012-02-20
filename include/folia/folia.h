@@ -71,11 +71,17 @@ namespace folia {
       init(); // virtual init
       setAttributes( s );
     }
-    virtual void setAttributes( const std::string& s ){
+
+    void classInit( const KWargs& a ){
+      init(); // virtual init
+      setAttributes( a );
+    }
+
+    void setAttributes( const std::string& s ){
       if ( !s.empty() )
 	setAttributes(  getArgs( s ) );
     };
-
+    
     virtual void setAttributes( const KWargs& );
 
     void setDateTime( const std::string& );
@@ -281,8 +287,8 @@ namespace folia {
 
     std::string pos() const;
     std::string lemma() const;
-    std::string cls() const { return _cls; };
-    std::string st() const { return _set; };
+    std::string cls() const { return _class; };
+    std::string sett() const { return _set; };
     std::string annotator() const { return _annotator; };
     void annotator( const std::string& a ) { _annotator = a; };
     AnnotatorType annotatortype() const { return _annotator_type; };
@@ -437,7 +443,7 @@ namespace folia {
     //loss for granted. (Perhaps make them into pointers?)
     std::string _id;
     std::string _set;
-    std::string _cls;
+    std::string _class;
     std::string _annotator;
     std::string _n;
     std::tm *_datetime;
@@ -474,6 +480,7 @@ namespace folia {
   public:
     void setMaxId( FoliaElement * );
     int getMaxId( const std::string& );
+  protected:
     std::string IGgen( const std::string&, const std::string& );
   private:
     std::map<std::string, int> maxid;
@@ -683,7 +690,7 @@ namespace folia {
   class PlaceHolder: public Word {
   public:
   PlaceHolder( const std::string& s=""): Word(""){ classInit( s ); };
-    void setAttributes( const std::string& );
+    void setAttributes( const KWargs& );
   private:
     void init();
   };

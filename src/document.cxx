@@ -97,7 +97,7 @@ namespace folia {
       return false;
     if ( a1._set != a2._set )
       return false;
-    if ( a1._cls != a2._cls )
+    if ( a1._class != a2._class )
       return false;
     if ( a1._annotator != a2._annotator )
       return false;
