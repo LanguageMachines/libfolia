@@ -2096,7 +2096,7 @@ namespace folia {
     _element_id = Event_t;
     const ElementType accept[] = { Gap_t, Division_t, Paragraph_t, Sentence_t, 
 				   List_t, Figure_t, Description_t, 
-				   ActorFeature_t, TextContent_t,
+				   ActorFeature_t, TextContent_t, Feature_t,
 				   BegindatetimeFeature_t, EnddatetimeFeature_t };
     _accepted_data = std::set<ElementType>(accept, accept+11); 
     _required_attributes = CLASS;
