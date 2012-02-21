@@ -106,6 +106,8 @@ namespace folia {
     Sentence *sentences( size_t ) const;
     Sentence *rsentences( size_t ) const;
     std::string toXml( const std::string& ="" ) const;
+    MetaDataType metadatatype() const { return _metadatatype; };
+    std::string metadatafile() const { return _metadatafile; };
 
     FoliaElement *append( FoliaElement* );
 
@@ -169,9 +171,9 @@ namespace folia {
     FoliaElement *foliadoc;
     xmlDoc *xmldoc;
     mutable xmlNs *_foliaNs;
-    MetaDataType metadatatype;
+    MetaDataType _metadatatype;
     xmlNode *metadata;
-    std::string metadatafile;
+    std::string _metadatafile;
     std::string _title;
     std::string _date;
     std::string _language;

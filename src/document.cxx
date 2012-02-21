@@ -61,7 +61,7 @@ namespace folia {
   }
 
   void Document::init(){
-    metadatatype = NATIVE;
+    _metadatatype = NATIVE;
     metadata = 0;
     xmldoc = 0;
     foliadoc = 0;
@@ -436,21 +436,21 @@ namespace folia {
 	  string val = lowercase(atts["type"]);
 	  if ( !val.empty() ){
 	    if ( val == "native" ){
-	      metadatatype = NATIVE;
+	      _metadatatype = NATIVE;
 	    }
 	    else if ( val == "imdi" ){
-	      metadatatype = IMDI;
-	      metadatafile = atts["src"];
+	      _metadatatype = IMDI;
+	      _metadatafile = atts["src"];
 	    }
 	    else if ( val == "cmdi" ){
-	      metadatatype = CMDI;
-	      metadatafile = atts["src"];
+	      _metadatatype = CMDI;
+	      _metadatafile = atts["src"];
 	    }
 	  }
 	  xmlNode *m = p->children;
 	  while ( m ){
 	    if ( Name(m)  == "METATRANSCRIPT" ){
-	      if ( !checkNS( m, NSIMDI ) || metadatatype != IMDI )
+	      if ( !checkNS( m, NSIMDI ) || _metadatatype != IMDI )
 		throw runtime_error( "imdi != imdi " );
 	      if ( debug > 1 )
 		cerr << "found IMDI" << endl;
@@ -657,14 +657,14 @@ namespace folia {
 
   void Document::setmetadata( xmlNode *node ) const{
     KWargs atts;
-    if ( metadatatype == NATIVE )
+    if ( _metadatatype == NATIVE )
       atts["type"] = "native";
-    else if ( metadatatype == IMDI )
+    else if ( _metadatatype == IMDI )
       atts["type"] = "imdi";
-    else if ( metadatatype == CMDI )
+    else if ( _metadatatype == CMDI )
       atts["type"] = "cmdi";
 
-    if ( metadatatype == NATIVE ){
+    if ( _metadatatype == NATIVE ){
       if ( !_title.empty() )
 	atts["title"] = _title;
       if ( !_date.empty() )
@@ -676,11 +676,11 @@ namespace folia {
       if ( !_publisher.empty() )
 	atts["publisher"] = _publisher;
     }
-    else if ( metadatatype == IMDI  ||
-	      metadatatype == CMDI ){
+    else if ( _metadatatype == IMDI  ||
+	      _metadatatype == CMDI ){
       xmlAddChild( node, xmlCopyNodeList(metadata) );
-      if ( !metadatafile.empty() )
-	atts["src"] = metadatafile;
+      if ( !_metadatafile.empty() )
+	atts["src"] = _metadatafile;
     }
     addAttributes( node, atts );
   }
