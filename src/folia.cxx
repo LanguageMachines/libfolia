@@ -2098,7 +2098,7 @@ namespace folia {
 				   List_t, Figure_t, Description_t, 
 				   ActorFeature_t, TextContent_t, Feature_t,
 				   BegindatetimeFeature_t, EnddatetimeFeature_t };
-    _accepted_data = std::set<ElementType>(accept, accept+11); 
+    _accepted_data = std::set<ElementType>(accept, accept+12); 
     _required_attributes = CLASS;
     _optional_attributes = ID|ANNOTATOR|N|DATETIME;
     _annotation_type = AnnotationType::EVENT;
