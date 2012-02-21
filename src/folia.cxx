@@ -460,7 +460,7 @@ namespace folia {
 	if ( data[i]->PRINTABLE && !data[i]->isinstance( TextContent_t ) ){
 	  try {
 	    UnicodeString tmp = data[i]->text( cls );
-	    //	cerr << "text() for " << _xmltag << " step 4, tmp= " << tmp << endl;
+	    //	cerr << "text() for " << _xmltag << " step 2, tmp= " << tmp << endl;
 	    result += tmp;
 	    if ( !tmp.isEmpty() ){
 	      result += UTF8ToUnicode( data[i]->getTextDelimiter() );
@@ -471,13 +471,11 @@ namespace folia {
       }
     }
     
-    //  cerr << "text() for " << _xmltag << " step 2 >> " << endl;
+    //  cerr << "text() for " << _xmltag << " step 3 >> " << endl;
     
-    // try to get text from children. 
-    //  cerr << "text() for " << _xmltag << " step 5, result= " << result << endl;
     result.trim();
     if ( !result.isEmpty() ){
-      //    cerr << "text() for " << _xmltag << " step 6, result= " << result << endl;
+      //    cerr << "text() for " << _xmltag << " result= " << result << endl;
       return result;
     }
     else
@@ -536,7 +534,7 @@ namespace folia {
   }                
 
   TextContent *FoliaElement::settext( const string& txt, 
-					 const string& cls ){
+				      const string& cls ){
     KWargs args;
     args["value"] = txt;
     args["cls"] = cls;
@@ -982,12 +980,12 @@ namespace folia {
     return this;
   }
 
-  FoliaElement *TextContent::postappend(){
+  TextContent *TextContent::postappend(){
     if ( _parent->isinstance( Original_t ) ){
       if ( _class == "current" )
 	_class = "original";
     }
-    return FoliaElement::postappend();
+    return this;
   }
 
   vector<FoliaElement *>TextContent::findreplacables( FoliaElement *par ) const {

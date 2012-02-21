@@ -432,14 +432,28 @@ namespace folia {
 	     checkNS( p, NSFOLIA ) ){
 	  if ( debug > 1 )
 	    cerr << "Found metadata" << endl;
+	  KWargs atts = getAttributes( p );
+	  string val = lowercase(atts["type"]);
+	  if ( !val.empty() ){
+	    if ( val == "native" ){
+	      metadatatype = NATIVE;
+	    }
+	    else if ( val == "imdi" ){
+	      metadatatype = IMDI;
+	      metadatafile = atts["src"];
+	    }
+	    else if ( val == "cmdi" ){
+	      metadatatype = CMDI;
+	      metadatafile = atts["src"];
+	    }
+	  }
 	  xmlNode *m = p->children;
 	  while ( m ){
 	    if ( Name(m)  == "METATRANSCRIPT" ){
-	      if ( !checkNS( m, NSIMDI ) )
+	      if ( !checkNS( m, NSIMDI ) || metadatatype != IMDI )
 		throw runtime_error( "imdi != imdi " );
 	      if ( debug > 1 )
 		cerr << "found IMDI" << endl;
-	      metadatatype = IMDI;
 	      metadata = m;
 	      setimdi(m);
 	    }
@@ -662,11 +676,11 @@ namespace folia {
       if ( !_publisher.empty() )
 	atts["publisher"] = _publisher;
     }
-    else if ( metadatatype == IMDI ){
+    else if ( metadatatype == IMDI  ||
+	      metadatatype == CMDI ){
       xmlAddChild( node, xmlCopyNodeList(metadata) );
-    }
-    else if ( metadatatype == CMDI ){
-      // ????
+      if ( !metadatafile.empty() )
+	atts["src"] = metadatafile;
     }
     addAttributes( node, atts );
   }

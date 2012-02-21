@@ -571,7 +571,7 @@ namespace folia {
     UnicodeString text( const std::string& = "current" ) const;
     int offset() const { return _offset; };
     FoliaElement *append( FoliaElement* ){ throw NotImplementedError("TextContent::append()"); };
-    FoliaElement *postappend();
+    TextContent *postappend();
     std::vector<FoliaElement*> findreplacables( FoliaElement * ) const;
   private:
     void init();

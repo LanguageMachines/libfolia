@@ -171,6 +171,7 @@ namespace folia {
     mutable xmlNs *_foliaNs;
     MetaDataType metadatatype;
     xmlNode *metadata;
+    std::string metadatafile;
     std::string _title;
     std::string _date;
     std::string _language;
