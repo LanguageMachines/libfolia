@@ -2064,7 +2064,7 @@ namespace folia {
 				   Quote_t, Event_t,
 				   Correction_t,
 				   Description_t };
-    _accepted_data = std::set<ElementType>(accept, accept+11); 
+    _accepted_data = std::set<ElementType>(accept, accept+13); 
     _required_attributes = ID;
     _optional_attributes = N;
   }
