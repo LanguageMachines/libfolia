@@ -283,33 +283,48 @@ namespace folia {
     if ( it != kwargs.end() ){
       _auth = stringTo<bool>( it->second );
     }
-
+    
     if ( mydoc && !_id.empty() )
       mydoc->addDocIndex( this, _id );
-
+    
     it = kwargs.find( "actor" );
     if ( it != kwargs.end() ){
-      FoliaElement *tmp = new ActorFeature( "cls='" + it->second + "'" );
+      KWargs newa;
+      newa["cls"] = it->second;
+      FoliaElement *tmp = new ActorFeature();
+      tmp->setAttributes( newa );
       append( tmp );
     }
     it = kwargs.find( "head" );
     if ( it != kwargs.end() ){
-      FoliaElement *tmp = new HeadFeature( "cls='" + it->second + "'" );
+      KWargs newa;
+      newa["cls"] = it->second;
+      FoliaElement *tmp = new HeadFeature();
+      tmp->setAttributes( newa );
       append( tmp );
     }
     it = kwargs.find( "synset" );
     if ( it != kwargs.end() ){
-      FoliaElement *tmp = new SynsetFeature( "cls='" + it->second + "'" );
+      KWargs newa;
+      newa["cls"] = it->second;
+      FoliaElement *tmp = new SynsetFeature();
+      tmp->setAttributes( newa );
       append( tmp );
     }
     it = kwargs.find( "begindatetime" );
     if ( it != kwargs.end() ){
-      FoliaElement *tmp = new BegindatetimeFeature( "cls='" + it->second + "'" );
+      KWargs newa;
+      newa["cls"] = it->second;
+      FoliaElement *tmp = new BegindatetimeFeature();
+      tmp->setAttributes( newa );
       append( tmp );
     }
     it = kwargs.find( "enddatetime" );
     if ( it != kwargs.end() ){
-      FoliaElement *tmp = new EnddatetimeFeature( "cls='" + it->second + "'" );
+      KWargs newa;
+      newa["cls"] = it->second;
+      FoliaElement *tmp = new EnddatetimeFeature();
+      tmp->setAttributes( newa );
       append( tmp );
     }
   
