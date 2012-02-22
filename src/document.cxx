@@ -374,7 +374,6 @@ namespace folia {
 	string prefix = tag.substr( 0,  tag.length() - 11 );
 	AnnotationType::AnnotationType type = stringToAT( prefix );
 	annotations.push_back( ts_t( type, "" ) );
-	annotationdefaults[type].clear();
 	KWargs att = getAttributes( n );
 	string s;
 	string a;
@@ -403,6 +402,7 @@ namespace folia {
       }
       n = n->next;
     }
+    //    cerr << "annotation-defaults " << annotationdefaults << endl;
   }
 
   bool checkNS( xmlNode *n, const string& ns ){
