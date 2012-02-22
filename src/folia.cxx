@@ -2060,8 +2060,7 @@ namespace folia {
     _annotation_type = AnnotationType::GAP;
     const ElementType accept[] = { Content_t, Description_t };
     _accepted_data = std::set<ElementType>(accept, accept+2); 
-    _required_attributes = CLASS;
-    _optional_attributes = ID|ANNOTATOR|CONFIDENCE|N;
+    _optional_attributes = CLASS|ID|ANNOTATOR|CONFIDENCE|N;
   }
 
   void Content::init(){
@@ -2087,7 +2086,7 @@ namespace folia {
   void Division::init(){
     _xmltag="div";
     _element_id = Division_t;
-    _required_attributes = CLASS;
+    _optional_attributes = CLASS;
     const ElementType accept[] = { Division_t, Gap_t, Head_t, Paragraph_t,
 				   Sentence_t, List_t, Figure_t, Event_t,
 				   Description_t, LineBreak_t, TextContent_t,
