@@ -164,7 +164,7 @@ namespace folia {
 	_set = it->second;
       }
       if ( mydoc &&
-	   !mydoc->isDeclared( _set , _annotation_type ) )
+	   !mydoc->isDeclared( _annotation_type, _set ) )
 	throw ValueError( "Set " + _set + " is used but has no declaration " +
 			  "for " + toString( _annotation_type ) + "-annotation" );
     }
@@ -182,9 +182,14 @@ namespace folia {
     if ( it != kwargs.end() ) {
       if ( !( CLASS & supported ) )
 	throw ValueError("Class is not supported for " + classname() );
-      else {
-	_class = it->second;
+      else if ( _set == "" && 
+		mydoc && ( mydoc->defaultset( _annotation_type ) == "" && 
+			   mydoc->isDeclared( _annotation_type ) ) ){
+	throw ValueError( "Class " + it->second + " is used but has no default declaration " +
+			  "for " + toString( _annotation_type ) + "-annotation" );
       }
+      else
+	_class = it->second;
     }
     else if ( CLASS & _required_attributes )
       throw ValueError("Class is required for " + classname() );
@@ -605,7 +610,7 @@ namespace folia {
       string myid = id();
       if ( !_set.empty() 
 	   && (CLASS & _required_attributes )
-	   && !mydoc->isDeclared( _set , _annotation_type ) )
+	   && !mydoc->isDeclared( _annotation_type, _set ) )
 	throw ValueError( "Set " + _set + " is used in " + _xmltag 
 			  + "element: " + myid + " but has no declaration " +
 			  "for " + toString( _annotation_type ) + "-annotation" );

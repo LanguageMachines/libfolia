@@ -73,6 +73,9 @@ namespace folia {
     case AnnotationType::NO_ANN:
       result = "NoNe";
       break; 
+    case AnnotationType::TEXT:
+      result = "text";
+      break; 
     case AnnotationType::TOKEN:
       result = "token";
       break; 
@@ -134,7 +137,7 @@ namespace folia {
       result = "timedevent";
       break;
     default:
-      throw ValueError( " unknown translation for annotation" + 
+      throw ValueError( " unknown translation for annotation: " + 
 			folia::toString(int(at)) );
     };
     return result;
@@ -156,6 +159,8 @@ namespace folia {
   }
 
   AnnotationType::AnnotationType stringToAT( const string& at ){
+    if ( at == "text" )
+      return AnnotationType::TEXT;
     if ( at == "token" )
       return AnnotationType::TOKEN;
     if ( at == "div" )

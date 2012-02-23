@@ -559,10 +559,12 @@ namespace folia {
     return res;
   }
 
-  bool Document::isDeclared( const string& s, 
-			     AnnotationType::AnnotationType type ){
+  bool Document::isDeclared( AnnotationType::AnnotationType type,
+			     const string& s ){
     map<AnnotationType::AnnotationType,map<string,at_t> >::const_iterator mit1 = annotationdefaults.find(type);
     if ( mit1 != annotationdefaults.end() ){
+      if ( s.empty() )
+	return true;
       map<string,at_t>::const_iterator mit2 = mit1->second.find(s);
       return mit2 != mit1->second.end();
     }
