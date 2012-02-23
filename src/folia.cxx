@@ -196,7 +196,11 @@ namespace folia {
     else
       _class = "";
 
-      
+    if ( _element_id != TextContent_t ){
+      if ( !_class.empty() && _set.empty() )
+	throw ValueError("Set is required for " + classname() + 
+			 " class=\"" + _class + "\" assigned without set."  );
+    }
     it = kwargs.find( "annotator" );    
     if ( it != kwargs.end() ) {
       if ( !(ANNOTATOR & supported) )
@@ -295,7 +299,7 @@ namespace folia {
     it = kwargs.find( "actor" );
     if ( it != kwargs.end() ){
       KWargs newa;
-      newa["cls"] = it->second;
+      newa["class"] = it->second;
       FoliaElement *tmp = new ActorFeature();
       tmp->setAttributes( newa );
       append( tmp );
@@ -303,7 +307,7 @@ namespace folia {
     it = kwargs.find( "head" );
     if ( it != kwargs.end() ){
       KWargs newa;
-      newa["cls"] = it->second;
+      newa["class"] = it->second;
       FoliaElement *tmp = new HeadFeature();
       tmp->setAttributes( newa );
       append( tmp );
@@ -311,7 +315,7 @@ namespace folia {
     it = kwargs.find( "synset" );
     if ( it != kwargs.end() ){
       KWargs newa;
-      newa["cls"] = it->second;
+      newa["class"] = it->second;
       FoliaElement *tmp = new SynsetFeature();
       tmp->setAttributes( newa );
       append( tmp );
@@ -319,7 +323,7 @@ namespace folia {
     it = kwargs.find( "begindatetime" );
     if ( it != kwargs.end() ){
       KWargs newa;
-      newa["cls"] = it->second;
+      newa["class"] = it->second;
       FoliaElement *tmp = new BegindatetimeFeature();
       tmp->setAttributes( newa );
       append( tmp );
@@ -327,7 +331,7 @@ namespace folia {
     it = kwargs.find( "enddatetime" );
     if ( it != kwargs.end() ){
       KWargs newa;
-      newa["cls"] = it->second;
+      newa["class"] = it->second;
       FoliaElement *tmp = new EnddatetimeFeature();
       tmp->setAttributes( newa );
       append( tmp );
@@ -557,7 +561,7 @@ namespace folia {
 				      const string& cls ){
     KWargs args;
     args["value"] = txt;
-    args["cls"] = cls;
+    args["class"] = cls;
     TextContent *node = new TextContent( mydoc );
     node->setAttributes( args );
     replace( node );
@@ -986,7 +990,7 @@ namespace folia {
     if ( it == kwargs.end() ) 
       it = kwargs.find( "class" );
     if ( it == kwargs.end() ) {
-      kwargs["cls"] = "current";
+      kwargs["class"] = "current";
     }
     FoliaElement::setAttributes(kwargs);
   }
