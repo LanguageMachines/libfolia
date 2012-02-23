@@ -383,19 +383,14 @@ namespace folia {
 	  s = it->second;
 	}
 	else {
-	  throw runtime_error( "missing 'set' attribute for " + tag );
+	  s = "undefined"; // default value
 	}
 	it = att.find( "annotator" );
 	if ( it != att.end() )
 	  a = it->second;
 	it = att.find( "annotatortype" );
 	if ( it != att.end() ){
-	  if ( it->second == "auto" )
-	    t = "auto";
-	  else if ( it->second == "manual" )
-	    t = "manual";
-	  else
-	    t = it->second;
+	  t = it->second;
 	}
 	annotationdefaults[type].insert( make_pair(s,at_t( a, t )));
 	//	cerr << "inserted [" << type << "][" << s << "](" << a << "," << t << ")" << endl;
