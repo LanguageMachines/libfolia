@@ -534,7 +534,10 @@ namespace folia {
   }
 
   void Document::declare( AnnotationType::AnnotationType type, 
-			  const string& st, const string& args ){
+			  const string& setname, const string& args ){
+    string st = setname;
+    if ( st.empty() )
+      st = "undefined";
     bool found = false;
     list<ts_t>::const_iterator it = annotations.begin();
     while( it != annotations.end() && !found ){
@@ -648,7 +651,7 @@ namespace folia {
 	if ( !s.empty() )
 	  args["annotatortype"] = s;
 	s = it->first;
-	if ( !s.empty() )
+	if ( s != "undefined" ) // the default
 	  args["set"] = s;
 	addAttributes( n, args );
 	++it;
