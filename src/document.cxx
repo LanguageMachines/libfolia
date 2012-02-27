@@ -57,7 +57,8 @@ namespace folia {
   Document::Document( const string& args ){
     init();
     setAttributes( getArgs( args ) );
-    foliadoc = new FoLiA( this, args );
+    if ( ! foliadoc )
+      foliadoc = new FoLiA( this, args );
   }
 
   void Document::init(){
@@ -514,7 +515,6 @@ namespace folia {
 	}
 	else if ( Name( root ) == "DCOI" &&
 		  checkNS( root, NSDCOI ) ){
-	  cerr << " D-coi is not directly supported";
 	  throw runtime_error( "DCOI format not supported" );
 	}
 	else {
