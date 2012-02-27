@@ -163,8 +163,10 @@ namespace folia {
       else {
 	_set = it->second;
       }
-      if ( mydoc &&
-	   !mydoc->isDeclared( _annotation_type, _set ) )
+      if ( !mydoc ){
+	throw ValueError( "Set=" + _set + " is used on a node without a document." );
+      }
+      if ( !mydoc->isDeclared( _annotation_type, _set ) )
 	throw ValueError( "Set " + _set + " is used but has no declaration " +
 			  "for " + toString( _annotation_type ) + "-annotation" );
     }
@@ -175,21 +177,25 @@ namespace folia {
       throw ValueError("Set is required for " + classname() );
     else
       _set = "";
-
+    
     it = kwargs.find( "class" );
     if ( it == kwargs.end() )
       it = kwargs.find( "cls" );
     if ( it != kwargs.end() ) {
       if ( !( CLASS & supported ) )
 	throw ValueError("Class is not supported for " + classname() );
-      else if ( _set == "" && 
-		mydoc && ( mydoc->defaultset( _annotation_type ) == "" && 
-			   mydoc->isDeclared( _annotation_type ) ) ){
-	throw ValueError( "Class " + it->second + " is used but has no default declaration " +
-			  "for " + toString( _annotation_type ) + "-annotation" );
+      _class = it->second;
+      if ( _element_id != TextContent_t ){
+	if ( !mydoc ){
+	  throw ValueError( "Class=" + _class + " is used on a node without a document." );
+	}
+	else if ( _set == "" && 
+		  mydoc->defaultset( _annotation_type ) == "" && 
+		  mydoc->isDeclared( _annotation_type ) ){
+	  throw ValueError( "Class " + _class + " is used but has no default declaration " +
+			    "for " + toString( _annotation_type ) + "-annotation" );
+	}
       }
-      else
-	_class = it->second;
     }
     else if ( CLASS & _required_attributes )
       throw ValueError("Class is required for " + classname() );
