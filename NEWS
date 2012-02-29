@@ -1,7 +1,7 @@
 0.8 2012-02-27
   * reworked and improved handling of (default) annotation sets.
     We are more strict now.
-  * some refacoring to get a more uniform handling of folia::classes
+  * some refactoring to get a more uniform handling of folia::classes
 
 0.7 2012-02-13
   * some bugs fixed in annotation declaration handling
