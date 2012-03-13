@@ -286,6 +286,20 @@ namespace folia {
     return os;
   }
 
+  template< typename S, typename T >
+    inline std::ostream& operator<< ( std::ostream& os, const std::multimap<S,T>& s ){
+    os << "{";
+    typename std::multimap<S,T>::const_iterator it = s.begin();
+    while ( it != s.end() ){
+      os << "<" << it->first << "," << it->second << ">";
+      ++it;
+      if ( it != s.end() )
+	os << ",";
+    }
+    os << "}";
+    return os;
+  }
+
   xmlNode *newXMLNode( xmlNs *,  const std::string& );
   void addAttributes( xmlNode *, const KWargs& );
   KWargs getAttributes( const xmlNode * );

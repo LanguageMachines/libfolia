@@ -152,7 +152,7 @@ namespace folia {
     };
 
   private:
-    std::map<AnnotationType::AnnotationType,std::map<std::string,at_t> > annotationdefaults;
+    std::map<AnnotationType::AnnotationType,std::multimap<std::string,at_t> > annotationdefaults;
 
     FoliaElement* parseFoliaDoc( xmlNode * );
     void setimdi( xmlNode * );

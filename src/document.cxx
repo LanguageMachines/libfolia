@@ -559,11 +559,11 @@ namespace folia {
 
   bool Document::isDeclared( AnnotationType::AnnotationType type,
 			     const string& s ){
-    map<AnnotationType::AnnotationType,map<string,at_t> >::const_iterator mit1 = annotationdefaults.find(type);
+    map<AnnotationType::AnnotationType,multimap<string,at_t> >::const_iterator mit1 = annotationdefaults.find(type);
     if ( mit1 != annotationdefaults.end() ){
       if ( s.empty() )
 	return true;
-      map<string,at_t>::const_iterator mit2 = mit1->second.find(s);
+      multimap<string,at_t>::const_iterator mit2 = mit1->second.find(s);
       return mit2 != mit1->second.end();
     }
     return false;
@@ -571,44 +571,49 @@ namespace folia {
 
   string Document::defaultset( AnnotationType::AnnotationType type ) const {
     // search a set. it must be unique. Otherwise return ""
-    map<AnnotationType::AnnotationType,map<string,at_t> >::const_iterator mit1 = annotationdefaults.find(type);
+    //    cerr << "zoek '" << type << "' default set " <<  annotationdefaults << endl;
+    map<AnnotationType::AnnotationType,multimap<string,at_t> >::const_iterator mit1 = annotationdefaults.find(type);
     string result;
     if ( mit1 != annotationdefaults.end() ){
+      //      cerr << "vind tussen " <<  mit1->second << endl;
       if ( mit1->second.size() == 1 )
 	result = mit1->second.begin()->first;
     }
-    //  cerr << "defaultset ==> " << result << endl;
+    //    cerr << "defaultset ==> " << result << endl;
     return result;
   }
 
   std::string Document::defaultannotator( AnnotationType::AnnotationType type,
 					  const string& st,
-					  bool noThrow ) const {
-    map<AnnotationType::AnnotationType,map<string,at_t> >::const_iterator mit1 = annotationdefaults.find(type);
+					  bool ) const {
+    // if ( !st.empty() ){
+    //   cerr << "zoek '" << st << "' default annotator " <<  annotationdefaults << endl;
+    // }
+    map<AnnotationType::AnnotationType,multimap<string,at_t> >::const_iterator mit1 = annotationdefaults.find(type);
     string result;
     if ( mit1 != annotationdefaults.end() ){
+      //      cerr << "vind tussen " <<  mit1->second << endl;
       if ( st.empty() ){
-	if ( mit1->second.size() == 1 )
+	if ( mit1->second.size() == 1 ){
 	  result = mit1->second.begin()->second.a;
-	return result;
+	  return result;
+	}
       }
       else {
-	map<string,at_t>::const_iterator mit2 = mit1->second.find( st );
-	if ( mit2 != mit1->second.end() ){
+	if ( mit1->second.count( st ) == 1 ){
+	  map<string,at_t>::const_iterator mit2 = mit1->second.find( st );
 	  result = mit2->second.a;
 	}
       }
     }
-    //  cerr << "get default ==> " << result << endl;
-    if ( !noThrow && result.empty() )
-      throw NoDefaultError( "defaultannotator" );
+    //    cerr << "get default ==> " << result << endl;
     return result;
   }
 
   std::string Document::defaultannotatortype( AnnotationType::AnnotationType type,
 					      const string& st,
-					      bool noThrow ) const {
-    map<AnnotationType::AnnotationType,map<string,at_t> >::const_iterator mit1 = annotationdefaults.find(type);
+					      bool ) const {
+    map<AnnotationType::AnnotationType,multimap<string,at_t> >::const_iterator mit1 = annotationdefaults.find(type);
     string result;
     if ( mit1 != annotationdefaults.end() ){
       if ( st.empty() ){
@@ -624,13 +629,11 @@ namespace folia {
       }
     }
     //  cerr << "get default ==> " << result << endl;
-    if ( !noThrow && result.empty() )
-      throw NoDefaultError( "defaultannotationtype" );
     return result;
   }
 
   void Document::setannotations( xmlNode *node ) const {
-    map<AnnotationType::AnnotationType,map<string,at_t> >::const_iterator mit = annotationdefaults.begin();
+    map<AnnotationType::AnnotationType,multimap<string,at_t> >::const_iterator mit = annotationdefaults.begin();
     while ( mit != annotationdefaults.end() ){
       map<string,at_t>::const_iterator it = mit->second.begin();
       while ( it != mit->second.end() ){

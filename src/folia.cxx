@@ -117,7 +117,7 @@ namespace folia {
 
   void FoliaElement::setAttributes( const KWargs& kwargs ){
     Attrib supported = _required_attributes | _optional_attributes;
-    // if ( _element_id == Quote_t ){
+    // if ( _element_id == Gap_t ){
     //   cerr << "set attributes: " << kwargs << " on " << toString(_element_id) << endl;
     //   cerr << "required = " <<  _required_attributes << endl;
     //   cerr << "optional = " <<  _optional_attributes << endl;
@@ -216,7 +216,7 @@ namespace folia {
       }
     }
     else if ( mydoc &&
-	      (def = mydoc->defaultannotator( _annotation_type, "", true )) != "" ){
+	      (def = mydoc->defaultannotator( _annotation_type, _set, true )) != "" ){
       _annotator = def;
     }
     else if ( ANNOTATOR & _required_attributes )
@@ -235,7 +235,7 @@ namespace folia {
       }
     }
     else if ( mydoc &&
-	      (def = mydoc->defaultannotatortype( _annotation_type, "", true ) ) != ""  ){
+	      (def = mydoc->defaultannotatortype( _annotation_type, _set, true ) ) != ""  ){
       _annotator_type = stringTo<AnnotatorType>( def );
       if ( _annotator_type == UNDEFINED )
 	throw ValueError("annotatortype must be 'auto' or 'manual'");
@@ -349,6 +349,10 @@ namespace folia {
     KWargs attribs;
     bool isDefaultSet = true;
     bool isDefaultAnn = true;
+
+    if ( _element_id == Gap_t ){
+      cerr << "collect attributes " << _set << " " << _annotator << endl;
+    }
     if ( !_id.empty() ){
       attribs["_id"] = _id; // sort "id" as first!
     }
