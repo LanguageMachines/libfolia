@@ -584,8 +584,7 @@ namespace folia {
   }
 
   std::string Document::defaultannotator( AnnotationType::AnnotationType type,
-					  const string& st,
-					  bool ) const {
+					  const string& st ) const {
     // if ( !st.empty() ){
     //   cerr << "zoek '" << st << "' default annotator " <<  annotationdefaults << endl;
     // }
@@ -611,8 +610,7 @@ namespace folia {
   }
 
   std::string Document::defaultannotatortype( AnnotationType::AnnotationType type,
-					      const string& st,
-					      bool ) const {
+					      const string& st ) const {
     map<AnnotationType::AnnotationType,multimap<string,at_t> >::const_iterator mit1 = annotationdefaults.find(type);
     string result;
     if ( mit1 != annotationdefaults.end() ){

@@ -216,7 +216,7 @@ namespace folia {
       }
     }
     else if ( mydoc &&
-	      (def = mydoc->defaultannotator( _annotation_type, _set, true )) != "" ){
+	      (def = mydoc->defaultannotator( _annotation_type, _set )) != "" ){
       _annotator = def;
     }
     else if ( ANNOTATOR & _required_attributes )
@@ -235,7 +235,7 @@ namespace folia {
       }
     }
     else if ( mydoc &&
-	      (def = mydoc->defaultannotatortype( _annotation_type, _set, true ) ) != ""  ){
+	      (def = mydoc->defaultannotatortype( _annotation_type, _set ) ) != ""  ){
       _annotator_type = stringTo<AnnotatorType>( def );
       if ( _annotator_type == UNDEFINED )
 	throw ValueError("annotatortype must be 'auto' or 'manual'");
@@ -350,9 +350,6 @@ namespace folia {
     bool isDefaultSet = true;
     bool isDefaultAnn = true;
 
-    if ( _element_id == Gap_t ){
-      cerr << "collect attributes " << _set << " " << _annotator << endl;
-    }
     if ( !_id.empty() ){
       attribs["_id"] = _id; // sort "id" as first!
     }
@@ -365,13 +362,13 @@ namespace folia {
       attribs["class"] = _class;
 
     if ( !_annotator.empty() &&
-	 _annotator != mydoc->defaultannotator( _annotation_type, _set, true ) ){
+	 _annotator != mydoc->defaultannotator( _annotation_type, _set ) ){
       isDefaultAnn = false;
       attribs["annotator"] = _annotator;
     }
   
     if ( _annotator_type != UNDEFINED ){
-      AnnotatorType at = stringTo<AnnotatorType>( mydoc->defaultannotatortype( _annotation_type, _set, true ) );
+      AnnotatorType at = stringTo<AnnotatorType>( mydoc->defaultannotatortype( _annotation_type, _set ) );
       if ( (!isDefaultSet || !isDefaultAnn) && _annotator_type != at ){
 	if ( _annotator_type == AUTO )
 	  attribs["annotatortype"] = "auto";

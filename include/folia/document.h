@@ -121,9 +121,9 @@ namespace folia {
     std::string defaultset( AnnotationType::AnnotationType ) const;
 
     std::string defaultannotator( AnnotationType::AnnotationType, 
-				  const std::string& ="", bool = false ) const;
+				  const std::string& ="" ) const;
     std::string defaultannotatortype( AnnotationType::AnnotationType, 
-				      const std::string& ="", bool = false ) const;
+				      const std::string& ="" ) const;
 
     FoliaElement* parseXml( );
 
