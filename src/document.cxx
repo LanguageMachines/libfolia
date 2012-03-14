@@ -620,8 +620,8 @@ namespace folia {
 	return result;
       }
       else {
-	map<string,at_t>::const_iterator mit2 = mit1->second.find( st );
-	if ( mit2 != mit1->second.end() ){
+	if ( mit1->second.count( st ) == 1 ){
+	  map<string,at_t>::const_iterator mit2 = mit1->second.find( st );
 	  result = mit2->second.t;
 	}
       }
