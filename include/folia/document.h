@@ -143,14 +143,6 @@ namespace folia {
       std::string a;
       std::string t;
     };
-    class ts_t {
-      friend std::ostream& operator<<( std::ostream&, const ts_t& );
-    public:
-    ts_t( AnnotationType::AnnotationType _t, const std::string& _s): t(_t),s(_s){};
-      AnnotationType::AnnotationType t;
-      std::string s;
-    };
-
   private:
     std::map<AnnotationType::AnnotationType,std::multimap<std::string,at_t> > annotationdefaults;
 
@@ -166,7 +158,6 @@ namespace folia {
     std::vector<FoliaElement* > iindex;
     std::vector<FoliaElement*> data;
     std::string _id;
-    std::list<ts_t> annotations;
     std::set<FoliaElement *> delSet;
     FoliaElement *foliadoc;
     xmlDoc *xmldoc;
@@ -192,11 +183,6 @@ namespace folia {
 
   inline std::ostream& operator<<( std::ostream& os, const Document::at_t& at ){
     os << "<" << at.a << "," << at.t << ">";
-    return os;
-  }
-
-  inline std::ostream& operator<<( std::ostream& os, const Document::ts_t& ts ){
-    os << "<" << ts.t << "," << ts.s << ">";
     return os;
   }
 

@@ -374,7 +374,6 @@ namespace folia {
       if ( tag.length() > 11 && tag.substr( tag.length() - 11 ) == "-annotation" ){
 	string prefix = tag.substr( 0,  tag.length() - 11 );
 	AnnotationType::AnnotationType type = stringToAT( prefix );
-	annotations.push_back( ts_t( type, "" ) );
 	KWargs att = getAttributes( n );
 	string s;
 	string a;
@@ -533,18 +532,14 @@ namespace folia {
     string st = setname;
     if ( st.empty() )
       st = "undefined";
-    bool found = false;
-    list<ts_t>::const_iterator it = annotations.begin();
-    while( it != annotations.end() && !found ){
-      found = ( it->t == type && it->s == st );
-      ++it;
-    }
-    if ( !found ){
-      annotations.push_back( ts_t(type,st) );
-    }
     KWargs kw = getArgs( args );
     string a = kw["annotator"];
     string t = kw["annotatortype"];
+    kw.erase("annotator");
+    kw.erase("annotatortype");
+    if ( kw.size() != 0 ){
+      throw XmlError( "declaration: expected 'annotator' of 'annotatortype', got '" + kw.begin()->first + "'" );
+    }
     annotationdefaults[type].insert( make_pair(st, at_t(a,t) ) );
     //    cerr << "inserted [" << type << "][" << st << "](" << a << "," << t << ")" << endl;
     //    cerr << "annotation defaults now: " <<  annotationdefaults << endl;
