@@ -42,6 +42,7 @@ namespace folia {
   class Document;
   class FoliaElement;
   class AbstractTokenAnnotation;
+  class Alternative;
   class PosAnnotation;
   class LemmaAnnotation;
   class Sentence;
@@ -356,10 +357,24 @@ namespace folia {
     }
     Word *addWord( const KWargs& );
     TextContent *settext( const std::string&, const std::string& = "current" );
-    Alternative *addAlternative( ElementType, const KWargs& );
-    AbstractTokenAnnotation *addAnnotation( ElementType, const KWargs& );
-    AbstractTokenAnnotation *addPosAnnotation( const KWargs& );
-    AbstractTokenAnnotation *addLemmaAnnotation( const KWargs& );
+
+    template <typename F>
+      Alternative *addAlternative( const KWargs& );
+    template <typename F>
+      F *addAnnotation( const KWargs& args ) {
+      F *res = 0;
+      try {
+	res = new F( mydoc, args);
+      }
+      catch( std::exception& ){
+	delete res;
+	throw;
+      }
+      append( res );
+      return res;
+    }
+    PosAnnotation *addPosAnnotation( const KWargs& );
+    LemmaAnnotation *addLemmaAnnotation( const KWargs& );
     std::vector<Alternative*> alternatives( const std::string& s = "" ) const { 
       return alternatives( BASE, s );
     }
@@ -491,7 +506,6 @@ namespace folia {
   AbstractStructureElement( Document *d=0 ): FoliaElement( d ) {};
     std::string str() const;
     bool allowannotations() const { return true; };
-    size_t hasannotation( ElementType, std::set<ElementType>& );
     std::vector<Alternative *> alternatives( ElementType = BASE,
 					     const std::string& = "" ) const;
   
@@ -836,6 +850,23 @@ namespace folia {
     void init();
   };
 
+  template <typename F>
+    Alternative *FoliaElement::addAlternative( const KWargs& args ){
+    KWargs kw;
+    std::string id = generateId( "alt" );
+    kw["id"] = id;
+    Alternative *res = 0;
+    try {
+      res = new Alternative( mydoc, kw );
+      res->addAnnotation<F>( args );
+    }
+    catch( std::exception& ){
+      delete res;
+      throw;
+    }
+    append( res );
+    return res;
+  }
 
   class PosAnnotation: public AbstractTokenAnnotation {
   public:

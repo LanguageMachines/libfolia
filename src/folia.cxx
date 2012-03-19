@@ -781,23 +781,6 @@ namespace folia {
     return buf;
   }
 
-  Alternative *FoliaElement::addAlternative( ElementType et,
-					     const KWargs& args ){
-    Alternative *res = new Alternative( mydoc );
-    KWargs kw;
-    string id = generateId( "alt" );
-    kw["id"] = id;
-    res->setAttributes( kw );
-    if ( et == Pos_t )
-      res->addPosAnnotation( args );
-    else if ( et == Lemma_t )
-      res->addLemmaAnnotation( args );
-    else
-      throw runtime_error( "addAlternative not implemenentd for " + toString(et) );
-    append( res );
-    return res;
-  }
-
   string FoliaElement::pos() const { 
     return annotation<PosAnnotation>()->cls(); 
   }
@@ -806,40 +789,12 @@ namespace folia {
     return annotation<LemmaAnnotation>()->cls(); 
   }
 
-  AbstractTokenAnnotation *FoliaElement::addAnnotation( ElementType et,
-							const KWargs& args ){
-    if ( et == Pos_t )
-      return addPosAnnotation( args );
-    else if ( et == Lemma_t )
-      return addLemmaAnnotation( args );
-    else
-      throw runtime_error( "addAnnotation not implemenentd for " + toString(et) );
+  PosAnnotation *FoliaElement::addPosAnnotation( const KWargs& args ){
+    return addAnnotation<PosAnnotation>( args );
   }
 
-  AbstractTokenAnnotation *FoliaElement::addPosAnnotation( const KWargs& args ){
-    PosAnnotation *res = new PosAnnotation( mydoc );
-    try {
-      res->setAttributes( args );
-    }
-    catch( exception& ){
-      delete res;
-      throw;
-    }
-    append( res );
-    return res;
-  }
-
-  AbstractTokenAnnotation *FoliaElement::addLemmaAnnotation( const KWargs& args ){
-    LemmaAnnotation *res = new LemmaAnnotation( mydoc );
-    try {
-      res->setAttributes( args );
-    }
-    catch( exception& ){
-      delete res;
-      throw;
-    }
-    append( res );
-    return res;
+  LemmaAnnotation *FoliaElement::addLemmaAnnotation( const KWargs& args ){
+    return addAnnotation<LemmaAnnotation>( args );
   }
 
   Sentence *FoliaElement::addSentence( const KWargs& args ){
@@ -1426,7 +1381,7 @@ namespace folia {
   }
 
   vector<Alternative *> AbstractStructureElement::alternatives( ElementType elt,
-								 const string& st ) const {
+								const string& st ) const {
     // Return a list of alternatives, either all or only of a specific type, restrained by set
     static set<ElementType> excludeSet;
     if ( excludeSet.empty() ){
