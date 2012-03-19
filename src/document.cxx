@@ -392,12 +392,10 @@ namespace folia {
 	if ( it != att.end() ){
 	  t = it->second;
 	}
-	annotationdefaults[type].insert( make_pair(s,at_t( a, t )));
-	//	cerr << "inserted [" << type << "][" << s << "](" << a << "," << t << ")" << endl;
+	declare( type, s, a, t );
       }
       n = n->next;
     }
-    //    cerr << "annotation-defaults " << annotationdefaults << endl;
   }
 
   bool checkNS( xmlNode *n, const string& ns ){
@@ -540,9 +538,17 @@ namespace folia {
     if ( kw.size() != 0 ){
       throw XmlError( "declaration: expected 'annotator' of 'annotatortype', got '" + kw.begin()->first + "'" );
     }
-    annotationdefaults[type].insert( make_pair(st, at_t(a,t) ) );
-    //    cerr << "inserted [" << type << "][" << st << "](" << a << "," << t << ")" << endl;
-    //    cerr << "annotation defaults now: " <<  annotationdefaults << endl;
+    declare( type, st, a, t );
+  }
+
+  void Document::declare( AnnotationType::AnnotationType type, 
+			  const string& s, const string& a, const string& t ){
+    if ( !isDeclared( type, s, a, t ) ){
+      annotationdefaults[type].insert( make_pair(s, at_t(a,t) ) );
+      //    cerr << "inserted [" << type << "][" << st << "](" << a << "," << t << ")" << endl;
+      //    cerr << "annotation defaults now: " <<  annotationdefaults << endl;
+      
+    }
   }
 
   FoliaElement* Document::addNode( ElementType et, const KWargs& kwargs ){
@@ -550,6 +556,24 @@ namespace folia {
     res->setAttributes( kwargs );
     foliadoc->append( res );
     return res;
+  }
+
+  bool Document::isDeclared( AnnotationType::AnnotationType type,
+			     const string& s, 
+			     const string& a,
+			     const string& t ){
+    map<AnnotationType::AnnotationType,multimap<string,at_t> >::const_iterator mit1 = annotationdefaults.find(type);
+    if ( mit1 != annotationdefaults.end() ){
+      if ( s.empty() )
+	throw runtime_error("isDeclared with empty set.");
+      multimap<string,at_t>::const_iterator mit2 = mit1->second.lower_bound(s);
+      while ( mit2 != mit1->second.upper_bound(s) ){
+	if ( mit2->second.a == a && mit2->second.t == t )
+	  return true;
+	++mit2;
+      }
+    }
+    return false;
   }
 
   bool Document::isDeclared( AnnotationType::AnnotationType type,

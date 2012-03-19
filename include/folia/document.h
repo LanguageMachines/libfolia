@@ -117,6 +117,8 @@ namespace folia {
   
     FoliaElement *index( const std::string& ) const; //retrieve element with specified ID 
     FoliaElement* operator []( const std::string& ) const ; //index as operator 
+    bool isDeclared( AnnotationType::AnnotationType, const std::string&, 
+		     const std::string&, const std::string& );
     bool isDeclared( AnnotationType::AnnotationType, const std::string& = "" );
     std::string defaultset( AnnotationType::AnnotationType ) const;
 
@@ -131,6 +133,8 @@ namespace folia {
     void declare( AnnotationType::AnnotationType, 
 		  const std::string&,
 		  const std::string& = "" );
+    void declare( AnnotationType::AnnotationType, 
+		  const std::string&, const std::string&, const std::string& );
     xmlDoc *XmlDoc() const { return xmldoc; };
     xmlNs *foliaNs() const { return _foliaNs; };
     void keepForDeletion( FoliaElement *p ) { delSet.insert( p ); };
