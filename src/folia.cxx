@@ -2043,7 +2043,7 @@ namespace folia {
     _xmltag="s";
     _element_id = Sentence_t;
     const ElementType accept[] = { LineBreak_t, WhiteSpace_t, Word_t, 
-				   TextContent_t, Annolay_t, 
+				   TextContent_t, AnnotationLayer_t, 
 				   SyntaxLayer_t, Chunking_t, Dependencies_t,
 				   Entities_t,
 				   Quote_t, Event_t,
@@ -2188,7 +2188,8 @@ namespace folia {
 
   void AbstractAnnotationLayer::init(){
     _optional_attributes = CLASS;
-    _element_id = Annolay_t;
+    _xmltag = "annotationlayer";
+    _element_id = AnnotationLayer_t;
     PRINTABLE=false;
   }
 
@@ -2199,6 +2200,16 @@ namespace folia {
     const ElementType accept[] = { Pos_t, Lemma_t, Correction_t };
     _accepted_data = std::set<ElementType>(accept, accept+3);
     _annotation_type = AnnotationType::ALTERNATIVE;
+    PRINTABLE = false;
+    AUTH = false;
+  }
+
+  void AlternativeLayers::init(){
+    _required_attributes = ID;
+    _xmltag = "altlayers";
+    _element_id = AlternativeLayer_t;
+    const ElementType accept[] = { AnnotationLayer_t };
+    _accepted_data = std::set<ElementType>(accept, accept+1);
     PRINTABLE = false;
     AUTH = false;
   }
@@ -2358,7 +2369,7 @@ namespace folia {
   }
 
   void TimingLayer::init(){
-    _element_id = Timings_t;
+    _element_id = TimingLayer_t;
     _xmltag = "timing";
     const ElementType accept[] = { TimedEvent_t, Description_t };
     _accepted_data = std::set<ElementType>(accept, accept+2);
@@ -2448,7 +2459,7 @@ namespace folia {
   void DomainAnnotation::init(){
     _xmltag="domain";
     _element_id = Domain_t;
-    _annotation_type = AnnotationType::DOMEIN;
+    _annotation_type = AnnotationType::DOMAIN;
     _required_attributes = CLASS;
     _optional_attributes = ANNOTATOR|CONFIDENCE|DATETIME;
     const ElementType accept[] = { Feature_t, Description_t };

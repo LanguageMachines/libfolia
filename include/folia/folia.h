@@ -48,7 +48,6 @@ namespace folia {
   class Sentence;
   class Word;
   class TextContent;
-  class Alternative;
   class Correction;
   class Suggestion;
   class Division;
@@ -849,6 +848,18 @@ namespace folia {
   private:
     void init();
   };
+
+  
+  class AlternativeLayers: public FoliaElement{
+  public:
+  AlternativeLayers( const std::string& s=""): FoliaElement(){ classInit( s ); };
+  AlternativeLayers( const KWargs& a ): FoliaElement(){ classInit( a ); };
+  AlternativeLayers( Document *d, const std::string& s=""): FoliaElement( d ){ classInit( s ); };
+  AlternativeLayers( Document *d, const KWargs& a ): FoliaElement( d ){ classInit( a ); };
+  private:
+    void init();
+  };
+
 
   template <typename F>
     Alternative *FoliaElement::addAlternative( const KWargs& args ){

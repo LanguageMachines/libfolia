@@ -79,11 +79,26 @@ namespace folia {
     case AnnotationType::TOKEN:
       result = "token";
       break; 
-    case AnnotationType::GAP:
-      result = "gap";
-      break; 
     case AnnotationType::DIVISION:
       result = "div";
+      break; 
+    case AnnotationType::PARAGRAPH: 
+      result = "paragraph";
+      break; 
+    case AnnotationType::LIST: 
+      result = "list";
+      break; 
+    case AnnotationType::FIGURE: 
+      result = "figure";
+      break; 
+    case AnnotationType::WHITESPACE: 
+      result = "whitespace";
+      break; 
+    case AnnotationType::LINEBREAK: 
+      result = "linebreak";
+      break; 
+    case AnnotationType::SENTENCE: 
+      result = "sentence";
       break; 
     case AnnotationType::POS: 
       result = "pos";
@@ -91,10 +106,7 @@ namespace folia {
     case AnnotationType::LEMMA:
       result = "lemma";
       break; 
-    case AnnotationType::EVENT:
-      result = "event";
-      break; 
-    case AnnotationType::DOMEIN:
+    case AnnotationType::DOMAIN:
       result = "domain";
       break; 
     case AnnotationType::SENSE: 
@@ -109,11 +121,11 @@ namespace folia {
     case AnnotationType::ENTITY: 
       result = "entity";
       break;
-    case AnnotationType::SUBENTITY: 
-      result = "subentity";
-      break;
     case AnnotationType::CORRECTION: 
       result = "correction";
+      break;
+    case AnnotationType::SUGGESTION: 
+      result = "suggestion";
       break;
     case AnnotationType::ERRORDETECTION: 
       result = "errordetection";
@@ -130,18 +142,44 @@ namespace folia {
     case AnnotationType::MORPHOLOGICAL:
       result = "morphological";
       break;
+    case AnnotationType::SUBENTITY: 
+      result = "subentity";
+      break;
+    case AnnotationType::EVENT:
+      result = "event";
+      break; 
     case AnnotationType::DEPENDENCY:
       result = "dependency";
       break;
     case AnnotationType::TIMEDEVENT:
       result = "timedevent";
       break;
-    default:
-      throw ValueError( " unknown translation for annotation: " + 
-			folia::toString(int(at)) );
+    case AnnotationType::GAP:
+      result = "gap";
+      break; 
     };
     return result;
   }
+
+  bool AT_sanity_check(){
+    bool sane = true;
+    AnnotationType::AnnotationType at = AnnotationType::NO_ANN;
+    while ( ++at != AnnotationType::LAST_ANN ){
+      string s = toString( at );
+      if ( s.empty() ){
+	cerr << "no string translation for AnnotationType(" << at << ")" << endl;
+	sane = false;
+      }
+      try {
+	stringToAT( s );
+      }
+      catch ( ValueError& e ){
+	cerr << "no AnnotationType found for string '" << s << "'" << endl;	
+	sane = false;
+      }
+    }
+    return sane;
+  };
 
   int to_lower( const int& i ){ return tolower(i); }
   int to_upper( const int& i ){ return toupper(i); }
@@ -165,16 +203,24 @@ namespace folia {
       return AnnotationType::TOKEN;
     if ( at == "div" )
       return AnnotationType::DIVISION;
-    if ( at == "gap" )
-      return AnnotationType::GAP;
+    if ( at == "paragraph" )
+      return AnnotationType::PARAGRAPH;
+    if ( at == "list" )
+      return AnnotationType::LIST;
+    if ( at == "figure" )
+      return AnnotationType::FIGURE;
+    if ( at == "whitespace" )
+      return AnnotationType::WHITESPACE;
+    if ( at == "linebreak" )
+      return AnnotationType::LINEBREAK;
+    if ( at == "sentence" )
+      return AnnotationType::SENTENCE;
     if ( at == "pos" )
       return AnnotationType::POS;
     if ( at == "lemma" )
       return AnnotationType::LEMMA;
-    if ( at == "event" )
-      return AnnotationType::EVENT;
     if ( at == "domain" )
-      return AnnotationType::DOMEIN;
+      return AnnotationType::DOMAIN;
     if ( at == "sense" )
       return AnnotationType::SENSE;
     if ( at == "syntax" )
@@ -183,10 +229,10 @@ namespace folia {
       return AnnotationType::CHUNKING;
     if ( at == "entity" )
       return AnnotationType::ENTITY;
-    if ( at == "subentity" )
-      return AnnotationType::SUBENTITY;
     if ( at == "correction" )
       return AnnotationType::CORRECTION; 
+    if ( at == "suggestion" )
+      return AnnotationType::SUGGESTION; 
     if ( at == "errordetection" )
       return AnnotationType::ERRORDETECTION; 
     if ( at == "alternative" )
@@ -197,10 +243,16 @@ namespace folia {
       return AnnotationType::SUBJECTIVITY;
     if ( at == "morphological" )
       return AnnotationType::MORPHOLOGICAL;
+    if ( at == "subentity" )
+      return AnnotationType::SUBENTITY;
+    if ( at == "event" )
+      return AnnotationType::EVENT;
     if ( at == "dependency" )
       return AnnotationType::DEPENDENCY;
     if ( at == "timedevent" )
       return AnnotationType::TIMEDEVENT;
+    if ( at == "gap" )
+      return AnnotationType::GAP;
     throw ValueError( " unknown translation for attribute: " + at );
   }
 
@@ -212,10 +264,10 @@ namespace folia {
     case Text_t: result = "text"; break;
     case Event_t: result = "event"; break;
     case TimedEvent_t: result = "timedevent"; break;
-    case Timings_t: result = "timings"; break;
+    case TimingLayer_t: result = "timing"; break;
     case LineBreak_t: result = "br"; break;
     case WhiteSpace_t: result = "whitespace"; break;
-    case Word_t: result = "word"; break;
+    case Word_t: result = "w"; break;
     case WordReference_t: result = "wref"; break; 
     case Sentence_t: result = "s"; break;
     case Paragraph_t: result = "p"; break;
@@ -234,7 +286,7 @@ namespace folia {
     case Sense_t: result = "sense"; break; 
     case Subjectivity_t: result = "subjectivity"; break; 
     case Correction_t: result = "correction"; break;
-    case Annolay_t: result = "annotationlayer"; break; 
+    case AnnotationLayer_t: result = "annotationlayer"; break; 
     case SyntacticUnit_t: result = "su"; break; 
     case SyntaxLayer_t: result = "syntax"; break; 
     case Chunk_t: result = "chunk"; break; 
@@ -250,12 +302,12 @@ namespace folia {
     case Original_t: result = "original"; break;
     case Current_t: result = "current"; break;
     case Suggestion_t: result = "suggestion"; break;
-    case Alternative_t: result = "alternative"; break; 
-    case AltLayers_t: result = "altlayers"; break;
+    case Alternative_t: result = "alt"; break; 
+    case AlternativeLayer_t: result = "altlayers"; break;
     case Description_t: result = "desc"; break;
     case Gap_t: result = "gap"; break;
     case Content_t: result = "content"; break;
-    case Feature_t: result = "feature"; break;
+    case Feature_t: result = "feat"; break;
     case SynsetFeature_t: result = "synset"; break;
     case ActorFeature_t: result = "actor"; break;
     case HeadFeature_t: result = "headfeat"; break;
@@ -272,6 +324,35 @@ namespace folia {
     return result;
   }
 
+  bool ET_sanity_check(){
+    bool sane = true;
+    ElementType et = BASE;
+    while ( ++et != LastElement ){
+      string s = toString( et );
+      if ( s.empty() ){
+	cerr << "no string translation for ElementType(" << et << ")" << endl;
+	sane = false;
+      }
+      FoliaElement *tmp = FoliaElement::createElement( 0, s );
+      if ( tmp == 0 ) {
+	cerr << "no ElementType found for string '" << s << "'" << endl;	
+	sane = false;
+      }
+      else {
+	if ( et != tmp->element_id() ){
+	  cerr << "the element type of " << tmp << " != " << et << endl;
+	  sane = false;
+	}
+	if ( s != tmp->xmltag() ){
+	  cerr << "the xmltag " << tmp->xmltag() << " != " << s << endl;
+	  sane = false;
+	}
+      }
+    }
+    return sane;
+  };
+
+
   FoliaElement *FoliaElement::createElement( Document *doc, 
 					     const string& tag ){
     //factory;
@@ -284,13 +365,16 @@ namespace folia {
     if ( tag == "text" ){
       return new Text( doc );
     }
+    if ( tag == "w" ){
+      return new Word( doc );
+    }
     if ( tag == "event" ){
       return new Event( doc );
     }
     if ( tag == "timedevent" ){
       return new TimedEvent( doc );
     }
-    if ( tag == "timings" ){
+    if ( tag == "timing" ){
       return new TimingLayer( doc );
     }
     if ( tag == "s" ){
@@ -332,6 +416,9 @@ namespace folia {
     if ( tag == "original" ){
       return new Original( doc );
     }
+    if ( tag == "current" ){
+      return new Current( doc );
+    }
     if ( tag == "suggestion" ){
       return new Suggestion( doc );
     }
@@ -349,6 +436,9 @@ namespace folia {
     }
     if ( tag == "div" ){
       return new Division( doc );
+    }
+    if ( tag == "annotationlayer" ){
+      return new AbstractAnnotationLayer( doc );
     }
     if ( tag == "pos" ){
       return new PosAnnotation( doc );
@@ -388,6 +478,15 @@ namespace folia {
     }
     if ( tag == "subentities" ){
       return new SubentitiesLayer( doc );
+    }
+    if ( tag == "alt" ){
+      return new Alternative( doc );
+    }
+    if ( tag == "placeholder" ){
+      return new PlaceHolder( );
+    }
+    if ( tag == "altlayers" ){
+      return new AlternativeLayers( doc );
     }
     if ( tag == "su" ){
       return new SyntacticUnit( doc );

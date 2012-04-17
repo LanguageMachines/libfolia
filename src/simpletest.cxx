@@ -32,11 +32,23 @@
 #include <map>
 #include "folia/document.h"
 #include "folia/folia.h"
+#include "folia/foliautils.h"
 
 using namespace std;
 using namespace folia;
 
 int main() {
+  cout << "checking sanity" << endl;
+  cout << "AnnotationType sanity" << endl;
+  if ( ! AT_sanity_check() ){
+    cout << "to bad. no use to continue" << endl;
+    return EXIT_FAILURE;
+  }
+  cout << "ElementType sanity" << endl;
+  if ( ! ET_sanity_check() ){
+    cout << "to bad. no use to continue" << endl;
+    return EXIT_FAILURE;
+  }
   cout << " Creating a document from scratch: ";
   Document d( "id='example'" );
   d.declare( AnnotationType::TOKEN, "adhocset", "annotator='proycon'" );

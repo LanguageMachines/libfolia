@@ -45,7 +45,7 @@ using namespace std;
 
 namespace folia {
 
-  const string FOLIAVERSION = "0.8"; // the FoLiA version we implement
+  const string FOLIAVERSION = "0.8.1"; // the FoLiA version we implement
   const string NSFOLIA = "http://ilk.uvt.nl/folia";
   const string NSDCOI = "http://lands.let.ru.nl/projects/d-coi/ns/1.0";
   const string NSIMDI = "http://www.mpi.nl/IMDI/Schema/IMDI";
@@ -126,8 +126,9 @@ namespace folia {
     else
       loadall = true;
     it = kwargs.find( "version" );
-    if ( it != kwargs.end() )
+    if ( it != kwargs.end() ){
       version = it->second;
+    }
     else
       version.clear();
 
@@ -414,6 +415,7 @@ namespace folia {
       throw XmlError("FoLiA Document has no ID!");
       return 0;
     }
+    setAttributes( att );
     FoliaElement *result = FoliaElement::createElement( this, Name(root) );
     if ( debug > 2 )
       cerr << "created " << root << endl;

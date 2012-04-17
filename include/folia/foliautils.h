@@ -59,14 +59,14 @@ namespace folia {
   
   enum ElementType  {
     BASE=0, TextContent_t,
-    Text_t, Event_t, TimedEvent_t, Timings_t,
+    Text_t, Event_t, TimedEvent_t, TimingLayer_t,
     LineBreak_t, WhiteSpace_t, Word_t,
     WordReference_t, Sentence_t, Paragraph_t,
     Division_t, Head_t, Caption_t, Label_t,
     List_t, ListItem_t, Figure_t, Quote_t, //structure annotation elements
     Pos_t, Lemma_t, Phon_t, Domain_t, Sense_t, Subjectivity_t,
     Correction_t, //token annotation elements
-    Annolay_t, SyntacticUnit_t, SyntaxLayer_t, 
+    AnnotationLayer_t, SyntacticUnit_t, SyntaxLayer_t, 
     Chunk_t, Chunking_t, 
     Entity_t, Entities_t, 
     Subentity_t, Subentities_t, //annotation layers
@@ -74,13 +74,20 @@ namespace folia {
     ErrorDetection_t, New_t, 
     Original_t, Current_t, 
     Suggestion_t, 
-    Alternative_t, AltLayers_t, //alternatives
+    Alternative_t, AlternativeLayer_t, //alternatives
     Description_t, Gap_t, 
     Content_t, Feature_t, SynsetFeature_t, ActorFeature_t, HeadFeature_t,
     BegindatetimeFeature_t, EnddatetimeFeature_t, //features
     PlaceHolder_t,
-    Dependencies_t, Dependency_t, DependencyHead_t, DependencyDependent_t
+    Dependencies_t, Dependency_t, DependencyHead_t, DependencyDependent_t,
+    LastElement
   };
+  
+  inline ElementType& operator++( ElementType &et ){
+    return et = ( LastElement == et ) 
+      ? BASE 
+      : ElementType(et+1);
+  }
   
   inline ElementType operator|( ElementType a1, ElementType a2 ){
     return (ElementType) ((long int)a1|(long int)a2) ;
@@ -93,14 +100,20 @@ namespace folia {
    *  static const annotation_type = {AnnotationType}
    */
   namespace AnnotationType {
-    enum AnnotationType { NO_ANN, TEXT, TOKEN, DIVISION, POS, LEMMA, EVENT,
-			  SUGGESTION, DOMEIN, SENSE, SYNTAX, CHUNKING, 
-			  SUBENTITY, ENTITY, ERRORDETECTION, CORRECTION,
-			  ALTERNATIVE, PHON, SUBJECTIVITY, MORPHOLOGICAL, 
-			  DEPENDENCY, TIMEDEVENT, GAP
+    enum AnnotationType { NO_ANN,  TEXT, TOKEN, DIVISION, PARAGRAPH, 
+			  LIST, FIGURE, WHITESPACE, LINEBREAK, SENTENCE, 
+			  POS, LEMMA, DOMAIN, SENSE, SYNTAX, CHUNKING, ENTITY,
+			  CORRECTION, SUGGESTION, ERRORDETECTION, ALTERNATIVE, 
+			  PHON, SUBJECTIVITY, MORPHOLOGICAL, SUBENTITY,EVENT, 
+			  DEPENDENCY, TIMEDEVENT, GAP, LAST_ANN
     };
+    inline AnnotationType& operator++( AnnotationType &at ){
+      return at = ( LAST_ANN == at ) 
+	? NO_ANN 
+	: AnnotationType(at+1);
+    }
   }
-  
+
   enum MetaDataType { NATIVE, CMDI, IMDI };
   
   class ArgsError: public std::runtime_error {
@@ -318,6 +331,9 @@ namespace folia {
   xmlNode *xPath( xmlNode *, const std::string& );
 
   std::tm *parseDate( const std::string& );
+
+  bool AT_sanity_check();
+  bool ET_sanity_check();
 
 } // namespace folia
 
