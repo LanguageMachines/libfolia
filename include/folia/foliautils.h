@@ -46,8 +46,14 @@ namespace folia {
   enum AnnotatorType{ UNDEFINED = -1, AUTO = 0, MANUAL = 1 };
   
   enum Attrib { NO_ATT=0, ID=1, CLASS=2, ANNOTATOR=4, CONFIDENCE=8, 
-		N=16, DATETIME=32 };
+		N=16, DATETIME=32, ALL=63 };
   
+  inline Attrib& operator++( Attrib & a ){
+    return a = ( DATETIME == a ) 
+      ? NO_ATT
+      : ( NO_ATT == a ? ID : Attrib(a<<1) );
+  }
+
   inline Attrib operator|( Attrib a1, Attrib a2 ){
     return (Attrib) ((int)a1|(int)a2) ;
   }
@@ -74,10 +80,10 @@ namespace folia {
     ErrorDetection_t, New_t, 
     Original_t, Current_t, 
     Suggestion_t, 
-    Alternative_t, AlternativeLayer_t, //alternatives
+    Alternative_t, Alternatives_t, //alternatives
     Description_t, Gap_t, 
     Content_t, Feature_t, SynsetFeature_t, ActorFeature_t, HeadFeature_t,
-    BegindatetimeFeature_t, EnddatetimeFeature_t, //features
+    BeginDateTimeFeature_t, EndDateTimeFeature_t, //features
     PlaceHolder_t,
     Dependencies_t, Dependency_t, DependencyHead_t, DependencyDependent_t,
     LastElement
@@ -88,12 +94,7 @@ namespace folia {
       ? BASE 
       : ElementType(et+1);
   }
-  
-  inline ElementType operator|( ElementType a1, ElementType a2 ){
-    return (ElementType) ((long int)a1|(long int)a2) ;
-  }
-  
-  
+    
   /*
    * Annotation types tie FoLiA elements to a particular kind of annotation.
    * Especially declarations make use of this.
@@ -221,6 +222,16 @@ namespace folia {
   }  
   
   template<>
+    inline AnnotationType::AnnotationType stringTo( const std::string& str ) {
+    return stringToAT( str );
+  }
+
+  /* template<> */
+  /*   inline ElementType stringTo( const std::string& str ) { */
+  /*   return stringToET( str ); */
+  /* } */
+
+  template<>
     inline AnnotatorType stringTo( const std::string& str ) {
     std::string at = uppercase( str );
     if ( at == "AUTO" )
@@ -333,6 +344,7 @@ namespace folia {
   std::tm *parseDate( const std::string& );
 
   bool AT_sanity_check();
+  bool Attrib_sanity_check();
   bool ET_sanity_check();
 
 } // namespace folia

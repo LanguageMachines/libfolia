@@ -950,22 +950,22 @@ namespace folia {
     void init();
   };
 
-  class BegindatetimeFeature: public Feature {
+  class BeginDateTimeFeature: public Feature {
   public:
-  BegindatetimeFeature( const std::string& s="" ): Feature( ){ classInit( s ); }
-  BegindatetimeFeature( const KWargs& a ): Feature( ){ classInit( a ); }
-  BegindatetimeFeature( Document *d, const std::string& s="" ): Feature( d ){ classInit( s ); }
-  BegindatetimeFeature( Document *d, const KWargs& a ): Feature( d ){ classInit( a ); }
+  BeginDateTimeFeature( const std::string& s="" ): Feature( ){ classInit( s ); }
+  BeginDateTimeFeature( const KWargs& a ): Feature( ){ classInit( a ); }
+  BeginDateTimeFeature( Document *d, const std::string& s="" ): Feature( d ){ classInit( s ); }
+  BeginDateTimeFeature( Document *d, const KWargs& a ): Feature( d ){ classInit( a ); }
   private:
     void init();
   };
 
-  class EnddatetimeFeature: public Feature {
+  class EndDateTimeFeature: public Feature {
   public:
-  EnddatetimeFeature( const std::string& s="" ): Feature( ){ classInit( s ); }
-  EnddatetimeFeature( const KWargs& a ): Feature( ){ classInit( a ); }
-  EnddatetimeFeature( Document *d, const std::string& s="" ): Feature( d ){ classInit( s ); }
-  EnddatetimeFeature( Document *d, const KWargs& a ): Feature( d ){ classInit( a ); }
+  EndDateTimeFeature( const std::string& s="" ): Feature( ){ classInit( s ); }
+  EndDateTimeFeature( const KWargs& a ): Feature( ){ classInit( a ); }
+  EndDateTimeFeature( Document *d, const std::string& s="" ): Feature( d ){ classInit( s ); }
+  EndDateTimeFeature( Document *d, const KWargs& a ): Feature( d ){ classInit( a ); }
   private:
     void init();
   };

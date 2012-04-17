@@ -161,26 +161,6 @@ namespace folia {
     return result;
   }
 
-  bool AT_sanity_check(){
-    bool sane = true;
-    AnnotationType::AnnotationType at = AnnotationType::NO_ANN;
-    while ( ++at != AnnotationType::LAST_ANN ){
-      string s = toString( at );
-      if ( s.empty() ){
-	cerr << "no string translation for AnnotationType(" << at << ")" << endl;
-	sane = false;
-      }
-      try {
-	stringToAT( s );
-      }
-      catch ( ValueError& e ){
-	cerr << "no AnnotationType found for string '" << s << "'" << endl;	
-	sane = false;
-      }
-    }
-    return sane;
-  };
-
   int to_lower( const int& i ){ return tolower(i); }
   int to_upper( const int& i ){ return toupper(i); }
 
@@ -303,7 +283,7 @@ namespace folia {
     case Current_t: result = "current"; break;
     case Suggestion_t: result = "suggestion"; break;
     case Alternative_t: result = "alt"; break; 
-    case AlternativeLayer_t: result = "altlayers"; break;
+    case Alternatives_t: result = "altlayers"; break;
     case Description_t: result = "desc"; break;
     case Gap_t: result = "gap"; break;
     case Content_t: result = "content"; break;
@@ -311,8 +291,8 @@ namespace folia {
     case SynsetFeature_t: result = "synset"; break;
     case ActorFeature_t: result = "actor"; break;
     case HeadFeature_t: result = "headfeat"; break;
-    case BegindatetimeFeature_t: result = "begindatetime"; break;
-    case EnddatetimeFeature_t: result = "enddatetime"; break;
+    case BeginDateTimeFeature_t: result = "begindatetime"; break;
+    case EndDateTimeFeature_t: result = "enddatetime"; break;
     case PlaceHolder_t: result = "placeholder"; break;
     case Dependencies_t: result = "dependencies"; break;
     case Dependency_t: result = "dependency"; break;
@@ -324,228 +304,325 @@ namespace folia {
     return result;
   }
 
-  bool ET_sanity_check(){
-    bool sane = true;
-    ElementType et = BASE;
-    while ( ++et != LastElement ){
-      string s = toString( et );
-      if ( s.empty() ){
-	cerr << "no string translation for ElementType(" << et << ")" << endl;
-	sane = false;
-      }
-      FoliaElement *tmp = FoliaElement::createElement( 0, s );
-      if ( tmp == 0 ) {
-	cerr << "no ElementType found for string '" << s << "'" << endl;	
-	sane = false;
-      }
-      else {
-	if ( et != tmp->element_id() ){
-	  cerr << "the element type of " << tmp << " != " << et << endl;
-	  sane = false;
-	}
-	if ( s != tmp->xmltag() ){
-	  cerr << "the xmltag " << tmp->xmltag() << " != " << s << endl;
-	  sane = false;
-	}
-      }
+  ElementType stringToET( const string& tag ){
+    if ( tag == "FoLiA" ){
+      return BASE;
     }
-    return sane;
-  };
-
+    if ( tag == "text" ){
+      return Text_t;
+    }
+    if ( tag == "w" ){
+      return Word_t;
+    }
+    if ( tag == "event" ){
+      return Event_t;
+    }
+    if ( tag == "timedevent" ){
+      return TimedEvent_t;
+    }
+    if ( tag == "timing" ){
+      return TimingLayer_t;
+    }
+    if ( tag == "s" ){
+      return Sentence_t;
+    }
+    if ( tag == "t" ){
+      return TextContent_t;
+    }
+    if ( tag == "br" ){
+      return LineBreak_t;
+    }
+    if ( tag == "whitespace" ){
+      return WhiteSpace_t;
+    }
+    if ( tag == "figure" ){
+      return Figure_t;
+    }
+    if ( tag == "caption" ){
+      return Caption_t;
+    }
+    if ( tag == "label" ){
+      return Label_t;
+    }
+    if ( tag == "list" ){
+      return List_t;
+    }
+    if ( tag == "listitem" ){
+      return ListItem_t;
+    }
+    if ( tag == "p" ){
+      return Paragraph_t;
+    }
+    if ( tag == "new" ){
+      return New_t;
+    }
+    if ( tag == "original" ){
+      return Original_t;
+    }
+    if ( tag == "current" ){
+      return Current_t;
+    }
+    if ( tag == "suggestion" ){
+      return Suggestion_t;
+    }
+    if ( tag == "head" ){
+      return Head_t;
+    }
+    if ( tag == "desc" ){
+      return Description_t;
+    }
+    if ( tag == "gap" ){
+      return Gap_t;
+    }
+    if ( tag == "content" ){
+      return Content_t;
+    }
+    if ( tag == "div" ){
+      return Division_t;
+    }
+    if ( tag == "annotationlayer" ){
+      return AnnotationLayer_t;
+    }
+    if ( tag == "pos" ){
+      return Pos_t;
+    }
+    if ( tag == "lemma" ){
+      return Lemma_t;
+    }
+    if ( tag == "phon" ){
+      return Phon_t;
+    }
+    if ( tag == "domain" ){
+      return Domain_t;
+    }
+    if ( tag == "sense" ){
+      return Sense_t;
+    }
+    if ( tag == "syntax" ){
+      return SyntaxLayer_t;
+    }
+    if ( tag == "subjectivity" ){
+      return Subjectivity_t;
+    }
+    if ( tag == "chunk" ){
+      return Chunk_t;
+    }
+    if ( tag == "chunking" ){
+      return Chunking_t;
+    }
+    if ( tag == "entity" ){
+      return Entity_t;
+    }
+    if ( tag == "entities" ){
+      return Entities_t;
+    }
+    if ( tag == "subentity" ){
+      return Subentity_t;
+    }
+    if ( tag == "subentities" ){
+      return Subentities_t;
+    }
+    if ( tag == "alt" ){
+      return Alternative_t;
+    }
+    if ( tag == "placeholder" ){
+      return PlaceHolder_t;
+    }
+    if ( tag == "altlayers" ){
+      return Alternatives_t;
+    }
+    if ( tag == "su" ){
+      return SyntacticUnit_t;
+    }
+    if ( tag == "wref" ){
+      return WordReference_t;
+    }
+    if ( tag == "correction" ){
+      return Correction_t;
+    }
+    if ( tag == "errordetection" ){
+      return ErrorDetection_t;
+    }
+    if ( tag == "morphology" ){
+      return Morphology_t;
+    }
+    if ( tag == "morpheme" ){
+      return Morpheme_t;
+    }
+    if ( tag == "feat" ){
+      return Feature_t;
+    }
+    if ( tag == "begindatetime" ){
+      return BeginDateTimeFeature_t;
+    }
+    if ( tag == "enddatetime" ){
+      return EndDateTimeFeature_t;
+    }
+    if ( tag == "synset" ){
+      return SynsetFeature_t;
+    }
+    if ( tag == "actor" ){
+      return ActorFeature_t;
+    }
+    if ( tag == "headfeat" ){
+      return HeadFeature_t;
+    }
+    if ( tag == "quote" ){
+      return Quote_t;
+    }
+    if ( tag == "dependencies" ){
+      return Dependencies_t;
+    }
+    if ( tag == "dependency" ){
+      return Dependency_t;
+    }
+    if ( tag == "dep" ){
+      return DependencyDependent_t;
+    }
+    if ( tag == "hd" ){
+      return DependencyHead_t;
+    }
+    else {
+      throw ValueError( "unknown tag <" + tag + ">" );
+    }
+    return BASE;
+  }
 
   FoliaElement *FoliaElement::createElement( Document *doc, 
 					     const string& tag ){
-    //factory;
-    if ( tag == "FoLiA" ){
+    
+    ElementType et = BASE;
+    try {
+      et = stringToET( tag );
+    }
+    catch ( ValueError& e ){
+      cerr << e.what() << endl;
+      return 0;
+    }
+    switch ( et ){
+    case BASE:
       return new FoLiA( doc );
-    }
-    if ( tag == "DCOI" ){
-      return new DCOI( doc );
-    }
-    if ( tag == "text" ){
+    case Text_t:
       return new Text( doc );
-    }
-    if ( tag == "w" ){
+    case Word_t:
       return new Word( doc );
-    }
-    if ( tag == "event" ){
+    case Event_t:
       return new Event( doc );
-    }
-    if ( tag == "timedevent" ){
+    case TimedEvent_t:
       return new TimedEvent( doc );
-    }
-    if ( tag == "timing" ){
+    case TimingLayer_t:
       return new TimingLayer( doc );
-    }
-    if ( tag == "s" ){
+    case Sentence_t:
       return new Sentence( doc );
-    }
-    if ( tag == "t" ){
+    case TextContent_t:
       return new TextContent( doc );
-    }
-    if ( tag == "br" ){
+    case LineBreak_t:
       return new LineBreak( doc );
-    }
-    if ( tag == "whitespace" ){
+    case WhiteSpace_t:
       return new WhiteSpace( doc );
-    }
-    if ( tag == "w" ){
-      return new Word( doc );
-    }
-    if ( tag == "figure" ){
+    case Figure_t:
       return new Figure( doc );
-    }
-    if ( tag == "caption" ){
+    case Caption_t:
       return new Caption( doc );
-    }
-    if ( tag == "label" ){
+    case Label_t:
       return new Label( doc );
-    }
-    if ( tag == "list" ){
+    case List_t:
       return new List( doc );
-    }
-    if ( tag == "listitem" ){
+    case ListItem_t:
       return new ListItem( doc );
-    }
-    if ( tag == "p" ){
+    case Paragraph_t:
       return new Paragraph( doc );
-    }
-    if ( tag == "new" ){
+    case New_t:
       return new NewElement( doc );
-    }
-    if ( tag == "original" ){
+    case Original_t:
       return new Original( doc );
-    }
-    if ( tag == "current" ){
+    case Current_t:
       return new Current( doc );
-    }
-    if ( tag == "suggestion" ){
+    case Suggestion_t:
       return new Suggestion( doc );
-    }
-    if ( tag == "head" ){
+    case Head_t:
       return new Head( doc );
-    }
-    if ( tag == "desc" ){
+    case Description_t:
       return new Description( doc );
-    }
-    if ( tag == "gap" ){
+    case Gap_t:
       return new Gap( doc );
-    }
-    if ( tag == "content" ){
+    case Content_t:
       return new Content( doc );
-    }
-    if ( tag == "div" ){
+    case Division_t:
       return new Division( doc );
-    }
-    if ( tag == "annotationlayer" ){
+    case AnnotationLayer_t:
       return new AbstractAnnotationLayer( doc );
-    }
-    if ( tag == "pos" ){
+    case Pos_t:
       return new PosAnnotation( doc );
-    }
-    if ( tag == "lemma" ){
+    case Lemma_t:
       return new LemmaAnnotation( doc );
-    }
-    if ( tag == "phon" ){
+    case Phon_t:
       return new PhonAnnotation( doc );
-    }
-    if ( tag == "domain" ){
+    case Domain_t:
       return new DomainAnnotation( doc );
-    }
-    if ( tag == "sense" ){
+    case Sense_t:
       return new SenseAnnotation( doc );
-    }
-    if ( tag == "syntax" ){
+    case SyntaxLayer_t:
       return new SyntaxLayer( doc );
-    }
-    if ( tag == "subjectivity" ){
+    case Subjectivity_t:
       return new SubjectivityAnnotation( doc );
-    }
-    if ( tag == "chunk" ){
+    case Chunk_t:
       return new Chunk( doc );
-    }
-    if ( tag == "chunking" ){
+    case Chunking_t:
       return new ChunkingLayer( doc );
-    }
-    if ( tag == "entity" ){
+    case Entity_t:
       return new Entity( doc );
-    }
-    if ( tag == "entities" ){
+    case Entities_t:
       return new EntitiesLayer( doc );
-    }
-    if ( tag == "subentity" ){
+    case Subentity_t:
       return new Subentity( doc );
-    }
-    if ( tag == "subentities" ){
+    case Subentities_t:
       return new SubentitiesLayer( doc );
-    }
-    if ( tag == "alt" ){
+    case Alternative_t:
       return new Alternative( doc );
-    }
-    if ( tag == "placeholder" ){
-      return new PlaceHolder( );
-    }
-    if ( tag == "altlayers" ){
+    case PlaceHolder_t:
+      return new PlaceHolder();
+    case Alternatives_t:
       return new AlternativeLayers( doc );
-    }
-    if ( tag == "su" ){
+    case SyntacticUnit_t:
       return new SyntacticUnit( doc );
-    }
-    if ( tag == "wref" ){
+    case WordReference_t:
       return new WordReference( doc );
-    }
-    if ( tag == "correction" ){
+    case Correction_t:
       return new Correction( doc );
-    }
-    if ( tag == "errordetection" ){
+    case ErrorDetection_t:
       return new ErrorDetection( doc );
-    }
-    if ( tag == "morphology" ){
+    case Morphology_t:
       return new MorphologyLayer( doc );
-    }
-    if ( tag == "morpheme" ){
+    case Morpheme_t:
       return new Morpheme( doc );
-    }
-    if ( tag == "feat" ){
+    case Feature_t:
       return new Feature( doc );
-    }
-    if ( tag == "begindatetime" ){
-      return new BegindatetimeFeature( doc );
-    }
-    if ( tag == "enddatetime" ){
-      return new EnddatetimeFeature( doc );
-    }
-    if ( tag == "synset" ){
+    case BeginDateTimeFeature_t:
+      return new BeginDateTimeFeature( doc );
+    case EndDateTimeFeature_t:
+      return new EndDateTimeFeature( doc );
+    case SynsetFeature_t:
       return new SynsetFeature( doc );
-    }
-    if ( tag == "actor" ){
+    case ActorFeature_t:
       return new ActorFeature( doc );
-    }
-    if ( tag == "headfeat" ){
+    case HeadFeature_t:
       return new HeadFeature( doc );
-    }
-    if ( tag == "quote" ){
+    case Quote_t:
       return new Quote( doc );
-    }
-    if ( tag == "dependencies" ){
+    case Dependencies_t:
       return new DependenciesLayer( doc );
-    }
-    if ( tag == "dependency" ){
+    case Dependency_t:
       return new Dependency( doc );
-    }
-    if ( tag == "dep" ){
+    case DependencyDependent_t:
       return new DependencyDependent( doc );
-    }
-    if ( tag == "hd" ){
+    case DependencyHead_t:
       return new DependencyHead( doc );
-    }
-    else {
-      //    throw runtime_error( "unknown tag <" + tag + ">" );
-      cerr << "unknown tag <" << tag << ">" << endl;
+    default:
+      throw runtime_error( "unknown element Type for <" + tag + ">" );
     }
     return 0;
   }
-
 
   string compress( const string& s ){
     // remove leading and trailing spaces from a string
@@ -932,5 +1009,72 @@ namespace folia {
     // cerr << buf << endl;
     return time;
   }
+
+  bool AT_sanity_check(){
+    bool sane = true;
+    AnnotationType::AnnotationType at = AnnotationType::NO_ANN;
+    while ( ++at != AnnotationType::LAST_ANN ){
+      string s = toString( at );
+      if ( s.empty() ){
+	cerr << "no string translation for AnnotationType(" << at << ")" << endl;
+	sane = false;
+      }
+      else {
+	try {
+	  stringTo<AnnotationType::AnnotationType>( s );
+	}
+	catch ( ValueError& e ){
+	  cerr << "no AnnotationType found for string '" << s << "'" << endl;	
+	  sane = false;
+	}
+      }
+    }
+    return sane;
+  };
+
+  bool ET_sanity_check(){
+    bool sane = true;
+    ElementType et = BASE;
+    while ( ++et != LastElement ){
+      string s = toString( et );
+      if ( s.empty() ){
+	cerr << "no string translation for ElementType(" << et << ")" << endl;
+	sane = false;
+      }
+      else {
+	ElementType et2;
+	try {
+	  et2 = stringToET( s );
+	}
+	catch ( ValueError& e ){
+	  cerr << "no element type found for string '" << s << "'" << endl;
+	  sane = false;
+	  continue;
+	}
+	if ( et != et2 ){
+	  cerr << "Argl: toString(ET) doesn't match original:" << s 
+	       << " vs " << toString(et2) << endl;
+	  sane = false;
+	  continue;
+	}
+	FoliaElement *tmp = FoliaElement::createElement( 0, s );
+	if ( tmp == 0 ) {
+	  cerr << "no Element created found for string '" << s << "'" << endl;	
+	  sane = false;
+	}
+	else {
+	  if ( et != tmp->element_id() ){
+	    cerr << "the element type of " << tmp << " != " << et << endl;
+	    sane = false;
+	  }
+	  if ( s != tmp->xmltag() ){
+	    cerr << "the xmltag " << tmp->xmltag() << " != " << s << endl;
+	    sane = false;
+	  }
+	}
+      }
+    }
+    return sane;
+  };
 
 } //namespace folia

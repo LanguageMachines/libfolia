@@ -330,7 +330,7 @@ namespace folia {
     if ( it != kwargs.end() ){
       KWargs newa;
       newa["class"] = it->second;
-      FoliaElement *tmp = new BegindatetimeFeature();
+      FoliaElement *tmp = new BeginDateTimeFeature();
       tmp->setAttributes( newa );
       append( tmp );
     }
@@ -338,7 +338,7 @@ namespace folia {
     if ( it != kwargs.end() ){
       KWargs newa;
       newa["class"] = it->second;
-      FoliaElement *tmp = new EnddatetimeFeature();
+      FoliaElement *tmp = new EndDateTimeFeature();
       tmp->setAttributes( newa );
       append( tmp );
     }
@@ -422,11 +422,11 @@ namespace folia {
 	attribs["head"] = (*it)->cls();
 	skipelements.insert( *it );
       }
-      else if ( (*it)->isinstance(BegindatetimeFeature_t) ){
+      else if ( (*it)->isinstance(BeginDateTimeFeature_t) ){
 	attribs["begindatetime"] = (*it)->cls();
 	skipelements.insert( *it );
       }
-      else if ( (*it)->isinstance(EnddatetimeFeature_t) ){
+      else if ( (*it)->isinstance(EndDateTimeFeature_t) ){
 	attribs["enddatetime"] = (*it)->cls();
 	skipelements.insert( *it );
       }
@@ -2082,7 +2082,7 @@ namespace folia {
     const ElementType accept[] = { Gap_t, Division_t, Paragraph_t, Sentence_t, 
 				   List_t, Figure_t, Description_t, 
 				   ActorFeature_t, TextContent_t, Feature_t,
-				   BegindatetimeFeature_t, EnddatetimeFeature_t };
+				   BeginDateTimeFeature_t, EndDateTimeFeature_t };
     _accepted_data = std::set<ElementType>(accept, accept+12); 
     _required_attributes = CLASS;
     _optional_attributes = ID|ANNOTATOR|N|DATETIME;
@@ -2207,7 +2207,7 @@ namespace folia {
   void AlternativeLayers::init(){
     _required_attributes = ID;
     _xmltag = "altlayers";
-    _element_id = AlternativeLayer_t;
+    _element_id = Alternatives_t;
     const ElementType accept[] = { AnnotationLayer_t };
     _accepted_data = std::set<ElementType>(accept, accept+1);
     PRINTABLE = false;
@@ -2313,8 +2313,8 @@ namespace folia {
     for ( size_t i=0; i < data.size(); ++i ){
       if ( ( data[i]->isinstance( Feature_t ) ||
 	     data[i]->isinstance( SynsetFeature_t ) ||
-	     data[i]->isinstance( BegindatetimeFeature_t ) ||
-	     data[i]->isinstance( EnddatetimeFeature_t ) ||
+	     data[i]->isinstance( BeginDateTimeFeature_t ) ||
+	     data[i]->isinstance( EndDateTimeFeature_t ) ||
 	     data[i]->isinstance( HeadFeature_t ) ||
 	     data[i]->isinstance( ActorFeature_t ) ) &&
 	   data[i]->subset() == s )
@@ -2497,15 +2497,15 @@ namespace folia {
   }
 
 
-  void BegindatetimeFeature::init(){
+  void BeginDateTimeFeature::init(){
     _xmltag="begindatetime";
-    _element_id = BegindatetimeFeature_t;
+    _element_id = BeginDateTimeFeature_t;
     _subset = "begindatetime";
   }
 
-  void EnddatetimeFeature::init(){
+  void EndDateTimeFeature::init(){
     _xmltag="enddatetime";
-    _element_id = EnddatetimeFeature_t;
+    _element_id = EndDateTimeFeature_t;
     _subset = "enddatetime";
   }
 
