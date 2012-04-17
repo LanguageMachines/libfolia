@@ -65,6 +65,7 @@ namespace folia {
     FoliaElement( Document* =0 );
     virtual ~FoliaElement();
 
+    static FoliaElement *createElement( Document *, const ElementType  );
     static FoliaElement *createElement( Document *, const std::string&  );
 
     void classInit( const std::string& s ){

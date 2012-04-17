@@ -191,6 +191,7 @@ namespace folia {
   AnnotationType::AnnotationType stringToAT( const std::string& );
   
   std::string toString( const ElementType& );
+  ElementType stringToET( const std::string& );
   
   std::string compress( const std::string& );
   
@@ -226,10 +227,10 @@ namespace folia {
     return stringToAT( str );
   }
 
-  /* template<> */
-  /*   inline ElementType stringTo( const std::string& str ) { */
-  /*   return stringToET( str ); */
-  /* } */
+  template<>
+    inline ElementType stringTo( const std::string& str ) {
+    return stringToET( str );
+  }
 
   template<>
     inline AnnotatorType stringTo( const std::string& str ) {

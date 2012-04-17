@@ -554,7 +554,7 @@ namespace folia {
   }
 
   FoliaElement* Document::addNode( ElementType et, const KWargs& kwargs ){
-    FoliaElement *res = FoliaElement::createElement( this, toString(et) );
+    FoliaElement *res = FoliaElement::createElement( this, et );
     res->setAttributes( kwargs );
     foliadoc->append( res );
     return res;

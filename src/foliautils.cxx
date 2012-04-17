@@ -489,16 +489,7 @@ namespace folia {
   }
 
   FoliaElement *FoliaElement::createElement( Document *doc, 
-					     const string& tag ){
-    
-    ElementType et = BASE;
-    try {
-      et = stringToET( tag );
-    }
-    catch ( ValueError& e ){
-      cerr << e.what() << endl;
-      return 0;
-    }
+					     ElementType et ){
     switch ( et ){
     case BASE:
       return new FoLiA( doc );
@@ -619,9 +610,23 @@ namespace folia {
     case DependencyHead_t:
       return new DependencyHead( doc );
     default:
-      throw runtime_error( "unknown element Type for <" + tag + ">" );
+      throw ValueError( "unknown elementtype(" + toString(int(et)) + ")" );
     }
     return 0;
+  }
+
+  FoliaElement *FoliaElement::createElement( Document *doc, 
+					     const string& tag ){
+    
+    ElementType et = BASE;
+    try {
+      et = stringToET( tag );
+    }
+    catch ( ValueError& e ){
+      cerr << e.what() << endl;
+      return 0;
+    }
+    return createElement( doc, et );
   }
 
   string compress( const string& s ){
