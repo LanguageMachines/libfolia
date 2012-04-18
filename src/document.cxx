@@ -66,7 +66,8 @@ namespace folia {
     metadata = 0;
     xmldoc = 0;
     foliadoc = 0;
-    _foliaNs = 0;
+    _foliaNsIn = 0;
+    _foliaNsOut = 0;
     debug = 0;
     version = FOLIAVERSION;
   }
@@ -502,6 +503,7 @@ namespace folia {
   FoliaElement* Document::parseXml( ){
     getstyles();
     xmlNode *root = xmlDocGetRootElement( xmldoc );
+    _foliaNsIn = root->ns;
     if ( debug > 2 ){
       string dum;
       cerr << "root = " << Name( root ) << endl;
@@ -665,7 +667,7 @@ namespace folia {
 	// Find the 'label' 
 	string label = toString( mit->first );
 	label += "-annotation";
-	xmlNode *n = newXMLNode( _foliaNs, label );
+	xmlNode *n = newXMLNode( foliaNs(), label );
 	KWargs args;
 	string s = it->second.a;
 	if ( !s.empty() )
@@ -734,15 +736,18 @@ namespace folia {
       xmlNs *xl = xmlNewNs( root, (const xmlChar *)"http://www.w3.org/1999/xlink", 
 			    (const xmlChar *)"xlink" );
       xmlSetNs( root, xl );
-      if ( !_foliaNs ){
+      if ( !_foliaNsIn ){
 	if ( nsLabel.empty() )
-	  _foliaNs = xmlNewNs( root, (const xmlChar *)NSFOLIA.c_str(), 0 );
+	  _foliaNsOut = xmlNewNs( root, (const xmlChar *)NSFOLIA.c_str(), 0 );
 	else
-	  _foliaNs = xmlNewNs( root,
-			       (const xmlChar *)NSFOLIA.c_str(),
-			       (const xmlChar*)nsLabel.c_str() );
+	  _foliaNsOut = xmlNewNs( root,
+				  (const xmlChar *)NSFOLIA.c_str(),
+				  (const xmlChar*)nsLabel.c_str() );
       }
-      xmlSetNs( root, _foliaNs );
+      else {
+	_foliaNsOut = xmlNewNs( root, _foliaNsIn->href, _foliaNsIn->prefix );
+      }
+      xmlSetNs( root, _foliaNsOut );
       KWargs attribs;
       attribs["_id"] = foliadoc->id(); // sort "id" in front!
       attribs["generator"] = string("libfolia-v") + VERSION;
@@ -750,8 +755,8 @@ namespace folia {
 	attribs["version"] = version;
       addAttributes( root, attribs );
 
-      xmlNode *md = xmlAddChild( root,  newXMLNode( _foliaNs, "metadata" ) );  
-      xmlNode *an = xmlAddChild( md,  newXMLNode( _foliaNs, "annotations" ) );
+      xmlNode *md = xmlAddChild( root,  newXMLNode( foliaNs(), "metadata" ) );  
+      xmlNode *an = xmlAddChild( md,  newXMLNode( foliaNs(), "annotations" ) );
       setannotations( an );
       setmetadata( md );
       vector<FoliaElement*>::const_iterator it= foliadoc->data.begin();
@@ -764,7 +769,7 @@ namespace folia {
       result = string( (const char *)buf, size );
       xmlFree( buf );
       xmlFreeDoc( outDoc );
-      _foliaNs = 0;
+      _foliaNsOut = 0;
     }
     else
       throw runtime_error( "can't save, no doc" );

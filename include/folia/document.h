@@ -137,7 +137,7 @@ namespace folia {
     void declare( AnnotationType::AnnotationType, 
 		  const std::string&, const std::string&, const std::string& );
     xmlDoc *XmlDoc() const { return xmldoc; };
-    xmlNs *foliaNs() const { return _foliaNs; };
+    xmlNs *foliaNs() const { return _foliaNsOut; };
     void keepForDeletion( FoliaElement *p ) { delSet.insert( p ); };
     int debug;
 
@@ -166,7 +166,8 @@ namespace folia {
     std::set<FoliaElement *> delSet;
     FoliaElement *foliadoc;
     xmlDoc *xmldoc;
-    mutable xmlNs *_foliaNs;
+    xmlNs *_foliaNsIn;
+    mutable xmlNs *_foliaNsOut;
     MetaDataType _metadatatype;
     xmlNode *metadata;
     std::string _metadatafile;
