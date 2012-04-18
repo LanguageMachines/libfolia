@@ -68,10 +68,9 @@ namespace folia {
     static FoliaElement *createElement( Document *, const ElementType  );
     static FoliaElement *createElement( Document *, const std::string&  );
 
-    void classInit( const std::string& s ){
+    void classInit( const std::string& s="" ){
       init(); // virtual init
       if ( !s.empty() ){
-	// virtual is only called when s != ""
 	// this enables the init of empty classes, which hopefully get their
 	// attributes in a later state
 	setAttributes(  getArgs( s ) );
@@ -503,7 +502,8 @@ namespace folia {
 
   class AbstractStructureElement: public FoliaElement, AllowGenerateID {
   public:  
-  AbstractStructureElement( Document *d=0 ): FoliaElement( d ) {};
+  AbstractStructureElement( Document *d=0 ): FoliaElement( d ) { classInit(); };
+    
     std::string str() const;
     bool allowannotations() const { return true; };
     std::vector<Alternative *> alternatives( ElementType = BASE,
@@ -528,6 +528,8 @@ namespace folia {
     std::string generateId( const std::string& tag ){
       return IGgen( tag, _id ); 
     }
+  private:
+    void init();
   };
 
   class AbstractAnnotation: public FoliaElement {
@@ -537,15 +539,19 @@ namespace folia {
 
   class AbstractTokenAnnotation: public AbstractAnnotation, AllowGenerateID {
   public:
-  AbstractTokenAnnotation( Document *d=0 ):  AbstractAnnotation( d ){};
+  AbstractTokenAnnotation( Document *d=0 ):  AbstractAnnotation( d ){ classInit(); };
     std::string generateId( const std::string& tag ){
       return IGgen( tag, _id ); 
     }
+  private:
+    void init();
   };
 
   class AbstractSubTokenAnnotation: public AbstractAnnotation {
   public:
-  AbstractSubTokenAnnotation( Document *d=0 ):  AbstractAnnotation( d ){};
+  AbstractSubTokenAnnotation( Document *d=0 ):  AbstractAnnotation( d ){ classInit(); };
+  private:
+    void init();
   };
 
   class Feature: public FoliaElement {
@@ -567,12 +573,14 @@ namespace folia {
 
   class AbstractSpanAnnotation: public AbstractAnnotation, AllowGenerateID {
   public:
-  AbstractSpanAnnotation( Document *d=0 ):  AbstractAnnotation( d ){};
+  AbstractSpanAnnotation( Document *d=0 ):  AbstractAnnotation( d ){ classInit(); };
     xmlNode *xml( bool ) const;
     FoliaElement *append( FoliaElement* );
     std::string generateId( const std::string& tag ){
       return IGgen( tag, _id ); 
     }
+  private:
+    void init();
   };
 
   class TextContent: public FoliaElement {

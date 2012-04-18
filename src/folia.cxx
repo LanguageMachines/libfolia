@@ -595,14 +595,12 @@ namespace folia {
     if ( !acceptable( c->_element_id ) ){
       throw ValueError( "Unable to append object of type " + c->classname()
 			+ " to a " + classname() );
-      return false;
     }
     if ( c->occurrences > 0 ){
       vector<FoliaElement*> v = select( c->_element_id );
       size_t count = v.size();
       if ( count > c->occurrences )
 	throw DuplicateAnnotationError( "Unable to add another object of type " + c->classname() + " to " + classname() + ". There are already " + toString(count) + " instances of this class, which is the maximum." );
-      return false;
     }
     if ( c->occurrences_per_set > 0 && !setname.empty() &&
 	 ( CLASS & c->_required_attributes ) ){
@@ -610,7 +608,6 @@ namespace folia {
       size_t count = v.size();
       if ( count > c->occurrences_per_set )
 	throw DuplicateAnnotationError( "Unable to add another object of type " + c->classname() + " to " + classname() + ". There are already " + toString(count) + " instances of this class, which is the maximum." );
-      return false;
     }
     return true;
   }
@@ -1965,31 +1962,46 @@ namespace folia {
     _accepted_data = set<ElementType>(accept, accept+1); 
   }
 
+  void AbstractStructureElement::init(){
+    _required_attributes = ID;
+    _optional_attributes = ALL;
+  }
+
+  void AbstractTokenAnnotation::init(){
+    _required_attributes = CLASS;
+    _optional_attributes = ALL;
+  }
+
   void TextContent::init(){
     _element_id = TextContent_t;
     _xmltag="t";
     _optional_attributes = CLASS|ANNOTATOR|CONFIDENCE;
-    _annotation_type =  AnnotationType::TEXT;
+    _annotation_type = AnnotationType::TEXT;
     _offset = -1;
   }
 
   void Head::init() {
     _element_id = Head_t;
     _xmltag="head";
-    const ElementType accept[] = { Sentence_t, Description_t, TextContent_t };
-    _accepted_data = set<ElementType>(accept, accept+3); 
-    _annotation_type = AnnotationType::TOKEN;
+    const ElementType accept[] = { Sentence_t, Description_t, Event_t, 
+				   TextContent_t };
+    _accepted_data = set<ElementType>(accept, accept+4); 
+    occurrences=1;
     TEXTDELIMITER = " ";
   }
 
   void LineBreak::init(){
     _xmltag = "br";
     _element_id = LineBreak_t;
+    _required_attributes = NO_ATT;
+    _annotation_type = AnnotationType::LINEBREAK;
   }
 
   void WhiteSpace::init(){
     _xmltag = "whitespace";
     _element_id = WhiteSpace_t;
+    _required_attributes = NO_ATT;
+    _annotation_type = AnnotationType::WHITESPACE;
   }
 
   void Word::init(){
@@ -1997,12 +2009,10 @@ namespace folia {
     _element_id = Word_t;
     const ElementType accept[] = { TextContent_t, Pos_t, Lemma_t,
 				   Sense_t, Alternative_t, 
-				   Correction_t, ErrorDetection_t, Description_t,
-				   Morphology_t };
+				   Correction_t, ErrorDetection_t, 
+				   Description_t, Morphology_t };
     _accepted_data = set<ElementType>(accept, accept+9);
     _annotation_type = AnnotationType::TOKEN;
-    _required_attributes = ID;
-    _optional_attributes = CLASS|ANNOTATOR|CONFIDENCE;
     TEXTDELIMITER = " ";
     space = true;
   }
@@ -2050,8 +2060,7 @@ namespace folia {
 				   Correction_t,
 				   Description_t };
     _accepted_data = std::set<ElementType>(accept, accept+13); 
-    _required_attributes = ID;
-    _optional_attributes = N;
+    _annotation_type = AnnotationType::SENTENCE;
   }
 
   void Division::init(){
@@ -2084,8 +2093,6 @@ namespace folia {
 				   ActorFeature_t, TextContent_t, Feature_t,
 				   BeginDateTimeFeature_t, EndDateTimeFeature_t };
     _accepted_data = std::set<ElementType>(accept, accept+12); 
-    _required_attributes = CLASS;
-    _optional_attributes = ID|ANNOTATOR|N|DATETIME;
     _annotation_type = AnnotationType::EVENT;
     TEXTDELIMITER = "\n\n";
   }
@@ -2095,8 +2102,6 @@ namespace folia {
     _element_id = TimedEvent_t;
     const ElementType accept[] = { Description_t, Feature_t };
     _accepted_data = std::set<ElementType>(accept, accept+2); 
-    _required_attributes = CLASS;
-    _optional_attributes = ID|ANNOTATOR|CONFIDENCE|DATETIME;
     _annotation_type = AnnotationType::TIMEDEVENT;
   }
 
@@ -2105,7 +2110,6 @@ namespace folia {
     _element_id = Caption_t;
     const ElementType accept[] = { Sentence_t, Description_t, TextContent_t };
     _accepted_data = std::set<ElementType>(accept, accept+3);
-    _optional_attributes = ID;
   }
 
   void Label::init(){
@@ -2113,7 +2117,6 @@ namespace folia {
     _element_id = Label_t;
     const ElementType accept[] = { Word_t, Description_t, TextContent_t };
     _accepted_data = std::set<ElementType>(accept, accept+3);
-    _optional_attributes = ID;
   }
 
   void ListItem::init(){
@@ -2122,7 +2125,7 @@ namespace folia {
     const ElementType accept[] = { List_t, Sentence_t, Description_t, Label_t,
 				   Event_t, TextContent_t };
     _accepted_data = std::set<ElementType>(accept, accept+6);
-    _optional_attributes = ID|N;
+    _annotation_type = AnnotationType::LIST;
   }
 
   void List::init(){
@@ -2132,7 +2135,7 @@ namespace folia {
 				   Caption_t, Event_t,
 				   TextContent_t };
     _accepted_data = std::set<ElementType>(accept, accept+5);
-    _optional_attributes = ID|N;
+    _annotation_type = AnnotationType::LIST;
     TEXTDELIMITER="\n";
   }
 
@@ -2142,7 +2145,7 @@ namespace folia {
     const ElementType accept[] = { Sentence_t, Description_t, 
 				   Caption_t, TextContent_t };
     _accepted_data = std::set<ElementType>(accept, accept+4);
-    _optional_attributes = ID|N;
+    _annotation_type = AnnotationType::FIGURE;
   }
 
   void Paragraph::init(){
@@ -2150,14 +2153,13 @@ namespace folia {
     _element_id = Paragraph_t;
     const ElementType accept[] = { Sentence_t, Correction_t, TextContent_t, Description_t, LineBreak_t, WhiteSpace_t, List_t, Figure_t };
     _accepted_data = std::set<ElementType>(accept, accept+8);
-    _required_attributes = ID;
+    _annotation_type = AnnotationType::PARAGRAPH;
   }
 
   void SyntacticUnit::init(){
-    _required_attributes = CLASS;
-    _optional_attributes = ID|ANNOTATOR|CONFIDENCE|DATETIME;
     _xmltag = "su";
     _element_id = SyntacticUnit_t;
+    _required_attributes = NO_ATT;
     _annotation_type = AnnotationType::SYNTAX;
     const ElementType accept[] = { SyntacticUnit_t, Word_t, WordReference_t,
 				   Description_t, Feature_t };
@@ -2166,7 +2168,6 @@ namespace folia {
 
   void Chunk::init(){
     _required_attributes = NO_ATT;
-    _optional_attributes = ID|CLASS|ANNOTATOR|CONFIDENCE|DATETIME;
     _xmltag = "chunk";
     _element_id = Chunk_t;
     _annotation_type = AnnotationType::CHUNKING;
@@ -2187,16 +2188,17 @@ namespace folia {
   }
 
   void AbstractAnnotationLayer::init(){
-    _optional_attributes = CLASS;
     _xmltag = "annotationlayer";
     _element_id = AnnotationLayer_t;
+    _optional_attributes = NO_ATT;
     PRINTABLE=false;
   }
 
   void Alternative::init(){
-    _required_attributes = ID;
     _xmltag = "alt";
     _element_id = Alternative_t;
+    _required_attributes = ID;
+    _optional_attributes = ALL;
     const ElementType accept[] = { Pos_t, Lemma_t, Correction_t };
     _accepted_data = std::set<ElementType>(accept, accept+3);
     _annotation_type = AnnotationType::ALTERNATIVE;
@@ -2205,9 +2207,10 @@ namespace folia {
   }
 
   void AlternativeLayers::init(){
-    _required_attributes = ID;
     _xmltag = "altlayers";
     _element_id = Alternatives_t;
+    _required_attributes = ID;
+    _optional_attributes = ALL;
     const ElementType accept[] = { AnnotationLayer_t };
     _accepted_data = std::set<ElementType>(accept, accept+1);
     PRINTABLE = false;
@@ -2242,15 +2245,16 @@ namespace folia {
     _element_id = Suggestion_t;
     const ElementType accept[] = { Pos_t, Lemma_t, TextContent_t, Word_t };
     _accepted_data = std::set<ElementType>(accept, accept+4);
-    _optional_attributes = ANNOTATOR|CONFIDENCE|DATETIME;
+    _annotation_type = AnnotationType::SUGGESTION;    
+    occurrences=0;
+    occurrences_per_set=0;
     AUTH = false;
   }
 
   void Correction::init(){
     _xmltag = "correction";
     _element_id = Correction_t;
-    _required_attributes = ID;
-    _optional_attributes = CLASS|ANNOTATOR|CONFIDENCE|DATETIME;
+    _required_attributes = NO_ATT;
     _annotation_type = AnnotationType::CORRECTION;
     const ElementType accept[] = { New_t, Original_t, Suggestion_t, Current_t,
 				   Description_t };
@@ -2324,14 +2328,13 @@ namespace folia {
   }
 
   void AbstractSubtokenAnnotationLayer::init(){
-
+    _optional_attributes = NO_ATT;
+    PRINTABLE=false;
   }
 
   void Morpheme::init(){
     _element_id = Morpheme_t;
     _xmltag = "morpheme";
-    _required_attributes = NO_ATT;
-    _optional_attributes = ID|CLASS|ANNOTATOR|CONFIDENCE|DATETIME;
     const ElementType accept[] = { Feature_t, TextContent_t };
     _accepted_data = std::set<ElementType>(accept, accept+2);
     _annotation_type = AnnotationType::MORPHOLOGICAL;
@@ -2340,8 +2343,6 @@ namespace folia {
   void Subentity::init(){
     _element_id = Subentity_t;
     _xmltag = "subentity";
-    _required_attributes = CLASS;
-    _optional_attributes = ID|ANNOTATOR|CONFIDENCE|DATETIME;
     const ElementType accept[] = { Feature_t, TextContent_t };
     _accepted_data = std::set<ElementType>(accept, accept+2);
     _annotation_type = AnnotationType::SUBENTITY;
@@ -2399,8 +2400,7 @@ namespace folia {
   void Dependency::init(){
     _element_id = Dependency_t;
     _xmltag = "dependency";
-    _required_attributes = CLASS;
-    _optional_attributes = ID|ANNOTATOR|DATETIME|CONFIDENCE;
+    _required_attributes = NO_ATT;
     _annotation_type = AnnotationType::DEPENDENCY;
     const ElementType accept[] = { DependencyDependent_t, DependencyHead_t, Description_t };
     _accepted_data = std::set<ElementType>(accept, accept+3);
@@ -2430,8 +2430,6 @@ namespace folia {
     _xmltag="pos";
     _element_id = Pos_t;
     _annotation_type = AnnotationType::POS;
-    _required_attributes = CLASS;
-    _optional_attributes = ANNOTATOR|CONFIDENCE|DATETIME;
     const ElementType accept[] = { Feature_t, HeadFeature_t, Description_t };
     _accepted_data = std::set<ElementType>(accept, accept+3);
   }
@@ -2440,8 +2438,6 @@ namespace folia {
     _xmltag="lemma";
     _element_id = Lemma_t;
     _annotation_type = AnnotationType::LEMMA;
-    _required_attributes = CLASS;
-    _optional_attributes = ANNOTATOR|CONFIDENCE|DATETIME;
     const ElementType accept[] = { Feature_t, Description_t };
     _accepted_data = std::set<ElementType>(accept, accept+2);
   }
@@ -2450,8 +2446,6 @@ namespace folia {
     _xmltag="phon";
     _element_id = Phon_t;
     _annotation_type = AnnotationType::PHON;
-    _required_attributes = CLASS;
-    _optional_attributes = ANNOTATOR|CONFIDENCE|DATETIME;
     const ElementType accept[] = { Feature_t, Description_t };
     _accepted_data = std::set<ElementType>(accept, accept+2);
   }
@@ -2460,8 +2454,6 @@ namespace folia {
     _xmltag="domain";
     _element_id = Domain_t;
     _annotation_type = AnnotationType::DOMAIN;
-    _required_attributes = CLASS;
-    _optional_attributes = ANNOTATOR|CONFIDENCE|DATETIME;
     const ElementType accept[] = { Feature_t, Description_t };
     _accepted_data = std::set<ElementType>(accept, accept+2);
   }
@@ -2470,8 +2462,6 @@ namespace folia {
     _xmltag="sense";
     _element_id = Sense_t;
     _annotation_type = AnnotationType::SENSE;
-    _required_attributes = CLASS;
-    _optional_attributes = ANNOTATOR|CONFIDENCE|DATETIME;
     const ElementType accept[] = { Feature_t, SynsetFeature_t, Description_t };
     _accepted_data = std::set<ElementType>(accept, accept+3);
   }
@@ -2480,8 +2470,6 @@ namespace folia {
     _xmltag="subjectivity";
     _element_id = Subjectivity_t;
     _annotation_type = AnnotationType::SUBJECTIVITY;
-    _required_attributes = CLASS;
-    _optional_attributes = ANNOTATOR|CONFIDENCE|DATETIME;
     const ElementType accept[] = { Feature_t, Description_t };
     _accepted_data = std::set<ElementType>(accept, accept+2);
   }
@@ -2489,8 +2477,6 @@ namespace folia {
   void Quote::init(){
     _xmltag="quote";
     _element_id = Quote_t;
-    _required_attributes = NO_ATT;
-    _optional_attributes = ID;
     const ElementType accept[] = { Word_t, Sentence_t, Quote_t, 
 				   TextContent_t, Description_t };
     _accepted_data = std::set<ElementType>(accept, accept+5);
@@ -2529,6 +2515,14 @@ namespace folia {
   }
 
   void AbstractSubtokenAnnotation::init() {
+    _required_attributes = NO_ATT;
+    _optional_attributes = ALL;
+    occurrences_per_set = 0; // Allow duplicates within the same set    
+  }
+
+  void AbstractSpanAnnotation::init() {
+    _required_attributes = NO_ATT;
+    _optional_attributes = ALL;
     occurrences_per_set = 0; // Allow duplicates within the same set
   }
 
@@ -2542,8 +2536,8 @@ namespace folia {
   void ErrorDetection::init(){
     _xmltag = "errordetection";
     _element_id = ErrorDetection_t;
-    _optional_attributes = CLASS|ANNOTATOR|CONFIDENCE|DATETIME;
     _annotation_type = AnnotationType::ERRORDETECTION;
+    occurrences_per_set = 0; // Allow duplicates within the same set
     error = true;
   }
 
