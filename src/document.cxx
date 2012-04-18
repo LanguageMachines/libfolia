@@ -169,7 +169,7 @@ namespace folia {
       throw runtime_error( "Document is aready initialized" );
       return false;
     }
-    xmldoc = xmlReadFile( s.c_str(), 0, 0 );
+    xmldoc = xmlReadFile( s.c_str(), 0, XML_PARSE_NOBLANKS );
     if ( xmldoc ){
       if ( debug )
 	cout << "read a doc from " << s << endl;
@@ -193,7 +193,7 @@ namespace folia {
       throw runtime_error( "Document is aready initialized" );
       return false;
     }
-    xmldoc = xmlReadMemory( s.c_str(), s.length(), 0, 0, 0 );
+    xmldoc = xmlReadMemory( s.c_str(), s.length(), 0, 0, XML_PARSE_NOBLANKS );
     if ( xmldoc ){
       if ( debug )
 	cout << "read a doc from string" << endl;
