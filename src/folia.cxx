@@ -2453,7 +2453,7 @@ namespace folia {
   void DomainAnnotation::init(){
     _xmltag="domain";
     _element_id = Domain_t;
-    _annotation_type = AnnotationType::DOMAIN;
+    _annotation_type = AnnotationType::DOMEIN;
     const ElementType accept[] = { Feature_t, Description_t };
     _accepted_data = std::set<ElementType>(accept, accept+2);
   }

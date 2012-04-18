@@ -106,7 +106,7 @@ namespace folia {
     case AnnotationType::LEMMA:
       result = "lemma";
       break; 
-    case AnnotationType::DOMAIN:
+    case AnnotationType::DOMEIN:
       result = "domain";
       break; 
     case AnnotationType::SENSE: 
@@ -200,7 +200,7 @@ namespace folia {
     if ( at == "lemma" )
       return AnnotationType::LEMMA;
     if ( at == "domain" )
-      return AnnotationType::DOMAIN;
+      return AnnotationType::DOMEIN;
     if ( at == "sense" )
       return AnnotationType::SENSE;
     if ( at == "syntax" )
