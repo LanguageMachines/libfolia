@@ -2,8 +2,8 @@
 #include <fstream>
 #include <string>
 #include <map>
-#include "libfolia/folia.h"
-#include "libfolia/document.h"
+#include "folia/folia.h"
+#include "folia/document.h"
 
 using namespace std;
 
