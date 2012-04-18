@@ -218,6 +218,12 @@ namespace folia {
     return os;
   }
 
+  bool Document::save( ostream& os, const string& nsLabel ) {
+    string s = toXml( nsLabel );
+    os << s << endl;
+    return os;
+  }
+
   bool Document::save( const string& fn, const string& nsLabel ) {
     ofstream os( fn.c_str() );
     if ( os.good() ) {
@@ -659,7 +665,7 @@ namespace folia {
 	// Find the 'label' 
 	string label = toString( mit->first );
 	label += "-annotation";
-	xmlNode *n = xmlAddChild( node, newXMLNode( _foliaNs, label ) );
+	xmlNode *n = newXMLNode( _foliaNs, label );
 	KWargs args;
 	string s = it->second.a;
 	if ( !s.empty() )
@@ -671,6 +677,7 @@ namespace folia {
 	if ( s != "undefined" ) // the default
 	  args["set"] = s;
 	addAttributes( n, args );
+	xmlAddChild( node, n );
 	++it;
       }
       ++mit;

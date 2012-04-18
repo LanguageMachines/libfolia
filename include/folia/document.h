@@ -85,6 +85,7 @@ namespace folia {
     void init();
     bool readFromFile( const std::string& );
     bool readFromString( const std::string& );
+    bool save( std::ostream&, const std::string& = "" );
     bool save( const std::string&, const std::string& = "" );
     int size() const;
     FoliaElement* doc() const { return foliadoc; }

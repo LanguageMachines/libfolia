@@ -12,7 +12,7 @@ void usage(){
 }
 
 int main( int argc, char* argv[] ){
-  string outName = "/tmp/folialint.tmp";
+  string outName;
   if ( argc < 2 ){
     usage();
     exit( EXIT_FAILURE);
@@ -23,8 +23,10 @@ int main( int argc, char* argv[] ){
   try {
     folia::Document d;
     d.readFromFile( argv[1] );
-    //    d.save( cout );
-    d.save( outName );
+    if ( !outName.empty() )
+      d.save( outName );
+    else
+      cout << d;
   }
   catch( exception& e ){
     cerr << "FAIL: " << e.what() << endl;
