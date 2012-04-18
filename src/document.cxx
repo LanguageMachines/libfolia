@@ -704,14 +704,15 @@ namespace folia {
 	atts["license"] = _license;
       if ( !_publisher.empty() )
 	atts["publisher"] = _publisher;
+      addAttributes( node, atts );
     }
     else if ( _metadatatype == IMDI  ||
 	      _metadatatype == CMDI ){
-      xmlAddChild( node, xmlCopyNodeList(metadata) );
       if ( !_metadatafile.empty() )
 	atts["src"] = _metadatafile;
+      addAttributes( node, atts );
+      xmlAddChild( node, xmlCopyNodeList(metadata) );
     }
-    addAttributes( node, atts );
   }
 
   void Document::setstyles( xmlDoc* doc ) const {

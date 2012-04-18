@@ -1965,11 +1965,14 @@ namespace folia {
   void AbstractStructureElement::init(){
     _required_attributes = ID;
     _optional_attributes = ALL;
+    occurrences_per_set=0;
+    TEXTDELIMITER = "\n\n";
   }
 
   void AbstractTokenAnnotation::init(){
     _required_attributes = CLASS;
     _optional_attributes = ALL;
+    occurrences_per_set=1;
   }
 
   void TextContent::init(){
@@ -1977,6 +1980,8 @@ namespace folia {
     _xmltag="t";
     _optional_attributes = CLASS|ANNOTATOR|CONFIDENCE;
     _annotation_type = AnnotationType::TEXT;
+    occurrences = 0;
+    occurrences_per_set=0;
     _offset = -1;
   }
 
@@ -2094,7 +2099,7 @@ namespace folia {
 				   BeginDateTimeFeature_t, EndDateTimeFeature_t };
     _accepted_data = std::set<ElementType>(accept, accept+12); 
     _annotation_type = AnnotationType::EVENT;
-    TEXTDELIMITER = "\n\n";
+    occurrences_per_set=0;
   }
 
   void TimedEvent::init(){
@@ -2103,6 +2108,7 @@ namespace folia {
     const ElementType accept[] = { Description_t, Feature_t };
     _accepted_data = std::set<ElementType>(accept, accept+2); 
     _annotation_type = AnnotationType::TIMEDEVENT;
+    occurrences_per_set=0;
   }
 
   void Caption::init(){
@@ -2110,6 +2116,7 @@ namespace folia {
     _element_id = Caption_t;
     const ElementType accept[] = { Sentence_t, Description_t, TextContent_t };
     _accepted_data = std::set<ElementType>(accept, accept+3);
+    occurrences = 1;
   }
 
   void Label::init(){
@@ -2222,6 +2229,7 @@ namespace folia {
     _element_id = New_t;
     const ElementType accept[] = { Pos_t, Lemma_t, Word_t, TextContent_t };
     _accepted_data = std::set<ElementType>(accept, accept+4);
+    occurrences = 1;
   }
 
   void Current::init(){
@@ -2229,6 +2237,7 @@ namespace folia {
     _element_id = Current_t;
     const ElementType accept[] = { Pos_t, Lemma_t, Word_t, TextContent_t };
     _accepted_data = std::set<ElementType>(accept, accept+4);
+    occurrences = 1;
   }
 
   void Original::init(){
@@ -2238,6 +2247,7 @@ namespace folia {
 				   Correction_t, Description_t };
     _accepted_data = std::set<ElementType>(accept, accept+6);
     AUTH = false;
+    occurrences = 1;
   }
 
   void Suggestion::init(){
@@ -2259,11 +2269,13 @@ namespace folia {
     const ElementType accept[] = { New_t, Original_t, Suggestion_t, Current_t,
 				   Description_t };
     _accepted_data = std::set<ElementType>(accept, accept+5);
+    occurrences_per_set=0;
   }
 
   void Description::init(){
     _xmltag = "desc";
     _element_id = Description_t;
+    occurrences = 1;
   }
 
   void ErrorDetection::setAttributes( const KWargs& kwargs ){
@@ -2480,6 +2492,7 @@ namespace folia {
     const ElementType accept[] = { Word_t, Sentence_t, Quote_t, 
 				   TextContent_t, Description_t };
     _accepted_data = std::set<ElementType>(accept, accept+5);
+    TEXTDELIMITER = " ";
   }
 
 
