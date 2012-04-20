@@ -631,6 +631,11 @@ namespace folia {
   }
   
   FoliaElement *FoliaElement::append( FoliaElement *child ){
+    if ( child->_id.empty() && (ID & child->_required_attributes ) ){
+      string msg = "ID is required for " + child->classname();
+      delete child;
+      throw ValueError( msg );
+    }
     bool ok = false;
     try {
       ok = addable( child );
