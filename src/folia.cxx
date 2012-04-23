@@ -2534,7 +2534,7 @@ namespace folia {
   }
 
   void HeadFeature::init(){
-    _xmltag = "headfeat";
+    _xmltag = "headfeature";
     _element_id = HeadFeature_t;
     _subset = "head";
   }

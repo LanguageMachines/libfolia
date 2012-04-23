@@ -290,7 +290,7 @@ namespace folia {
     case Feature_t: result = "feat"; break;
     case SynsetFeature_t: result = "synset"; break;
     case ActorFeature_t: result = "actor"; break;
-    case HeadFeature_t: result = "headfeat"; break;
+    case HeadFeature_t: result = "headfeature"; break;
     case BeginDateTimeFeature_t: result = "begindatetime"; break;
     case EndDateTimeFeature_t: result = "enddatetime"; break;
     case PlaceHolder_t: result = "placeholder"; break;
@@ -464,7 +464,7 @@ namespace folia {
     if ( tag == "actor" ){
       return ActorFeature_t;
     }
-    if ( tag == "headfeat" ){
+    if ( tag == "headfeature" ){
       return HeadFeature_t;
     }
     if ( tag == "quote" ){
