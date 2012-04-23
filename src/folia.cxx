@@ -2209,8 +2209,7 @@ namespace folia {
   void Alternative::init(){
     _xmltag = "alt";
     _element_id = Alternative_t;
-    _required_attributes = ID;
-    _optional_attributes = ALL;
+    _required_attributes = NO_ATT;
     const ElementType accept[] = { Pos_t, Lemma_t, Correction_t };
     _accepted_data = std::set<ElementType>(accept, accept+3);
     _annotation_type = AnnotationType::ALTERNATIVE;
@@ -2221,7 +2220,7 @@ namespace folia {
   void AlternativeLayers::init(){
     _xmltag = "altlayers";
     _element_id = Alternatives_t;
-    _required_attributes = ID;
+    _required_attributes = NO_ATT;
     _optional_attributes = ALL;
     const ElementType accept[] = { AnnotationLayer_t };
     _accepted_data = std::set<ElementType>(accept, accept+1);
