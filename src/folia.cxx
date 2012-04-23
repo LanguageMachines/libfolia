@@ -117,7 +117,7 @@ namespace folia {
 
   void FoliaElement::setAttributes( const KWargs& kwargs ){
     Attrib supported = _required_attributes | _optional_attributes;
-    // if ( _element_id == Gap_t ){
+    // if ( _element_id == Feature_t ){
     //   cerr << "set attributes: " << kwargs << " on " << toString(_element_id) << endl;
     //   cerr << "required = " <<  _required_attributes << endl;
     //   cerr << "optional = " <<  _optional_attributes << endl;
@@ -144,13 +144,11 @@ namespace folia {
       it = kwargs.find( "id" );
       if ( it != kwargs.end() ) {
 	if ( !ID & supported )
-	  throw ValueError("ID is not supported");
+	  throw ValueError("ID is not supported for " + classname() );
 	else {
 	  _id = it->second;
 	}
       }
-      else if ( ID & _required_attributes )
-	throw ValueError("ID is required for " + classname() );
       else
 	_id = "";
     }
@@ -159,7 +157,7 @@ namespace folia {
     string def;
     if ( it != kwargs.end() ) {
       if ( !(CLASS & supported) )
-	throw ValueError("Set is not supported");
+	throw ValueError("Set is not supported for " + classname());
       else {
 	_set = it->second;
       }
@@ -173,8 +171,6 @@ namespace folia {
     else if ( mydoc && ( def = mydoc->defaultset( _annotation_type )) != "" ){
       _set = def;
     }
-    else if ( mydoc && (CLASS & _required_attributes ) )
-      throw ValueError("Set is required for " + classname() );
     else
       _set = "";
     
@@ -197,8 +193,6 @@ namespace folia {
 	}
       }
     }
-    else if ( CLASS & _required_attributes )
-      throw ValueError("Class is required for " + classname() );
     else
       _class = "";
 
@@ -219,8 +213,6 @@ namespace folia {
 	      (def = mydoc->defaultannotator( _annotation_type, _set )) != "" ){
       _annotator = def;
     }
-    else if ( ANNOTATOR & _required_attributes )
-      throw ValueError("Annotator is required for " + classname() );
     else
       _annotator = "";
   
@@ -240,8 +232,6 @@ namespace folia {
       if ( _annotator_type == UNDEFINED )
 	throw ValueError("annotatortype must be 'auto' or 'manual'");
     }
-    else if ( ANNOTATOR & _required_attributes )
-      throw ValueError("Annotatortype is required for " + classname() );
     else
       _annotator_type = UNDEFINED;
 
@@ -261,8 +251,6 @@ namespace folia {
 	}
       }
     }
-    else if ( CONFIDENCE & _required_attributes )
-      throw ValueError("Confidence is required for " + classname() );
     else
       _confidence = -1;
 
@@ -274,8 +262,6 @@ namespace folia {
 	_n = it->second;
       }
     }
-    else if ( N & _required_attributes )
-      throw ValueError("N is required");
     else
       _n = "";
   
@@ -289,8 +275,6 @@ namespace folia {
 	  throw ValueError( "invalid datetime string:" + it->second );
       }
     }
-    else if ( DATETIME & _required_attributes )
-      throw ValueError("datetime is required");
     else
       _datetime = 0;
 
@@ -630,14 +614,37 @@ namespace folia {
     }
   }
   
-  FoliaElement *FoliaElement::append( FoliaElement *child ){
-    if ( child->_id.empty() && (ID & child->_required_attributes ) ){
-      string msg = "ID is required for " + child->classname();
-      delete child;
-      throw ValueError( msg );
+  bool FoliaElement::checkAtts(){
+    if ( _id.empty() && (ID & _required_attributes ) ){
+      throw ValueError( "ID is required for " + classname() );
     }
+    if ( _set.empty() && (CLASS & _required_attributes ) ){
+      throw ValueError( "Set is required for " + classname() );
+    }
+    if ( _class.empty() && ( CLASS & _required_attributes ) ){
+      throw ValueError( "Class is required for " + classname() );
+    }
+    if ( _annotator.empty() && ( ANNOTATOR & _required_attributes ) ){
+      throw ValueError( "Annotator is required for " + classname() );
+    }
+    if ( _annotator_type == UNDEFINED && ( ANNOTATOR & _required_attributes ) ){
+      throw ValueError( "Annotatortype is required for " + classname() );
+    }
+    if ( _confidence == -1 && ( CONFIDENCE & _required_attributes ) ){
+      throw ValueError( "Confidence is required for " + classname() );
+    }
+    if ( _n.empty() && ( N & _required_attributes ) ){
+      throw ValueError( "N is required for " + classname() );
+    }
+    if ( DATETIME & _required_attributes ){
+      throw ValueError( "datetime is required for " + classname() );
+    }
+  }
+
+  FoliaElement *FoliaElement::append( FoliaElement *child ){
     bool ok = false;
     try {
+      ok = child->checkAtts();
       ok = addable( child );
     }
     catch ( exception& ){
@@ -744,6 +751,7 @@ namespace folia {
 
   FoliaElement* FoliaElement::parseXml( const xmlNode *node ){
     KWargs att = getAttributes( node );
+    //    cerr << "got attributes " << att << endl;
     setAttributes( att );
     xmlNode *p = node->children;
     while ( p ){
@@ -2546,7 +2554,6 @@ namespace folia {
   void Feature::init() {
     _xmltag = "feat";
     _element_id = Feature_t;
-    _required_attributes = CLASS;
     occurrences_per_set = 0; // Allow duplicates within the same set
   }
 

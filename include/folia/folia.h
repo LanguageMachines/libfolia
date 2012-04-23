@@ -432,6 +432,7 @@ namespace folia {
 				       const std::set<ElementType>& ,
 				       bool = true ) const;
     bool acceptable( ElementType ) const;
+    bool checkAtts();
     bool addable( const FoliaElement *, const std::string& = "" ) const;
 
     std::vector<FoliaElement*> data;
@@ -847,7 +848,7 @@ namespace folia {
     void init();
   };
 
-  class Alternative: public AbstractStructureElement{
+  class Alternative: public AbstractStructureElement {
   public:
   Alternative( const std::string& s=""):  AbstractStructureElement(){ classInit( s ); };
   Alternative( const KWargs& a ):  AbstractStructureElement(){ classInit( a ); };
@@ -859,7 +860,7 @@ namespace folia {
   };
 
   
-  class AlternativeLayers: public FoliaElement{
+  class AlternativeLayers: public FoliaElement {
   public:
   AlternativeLayers( const std::string& s=""): FoliaElement(){ classInit( s ); };
   AlternativeLayers( const KWargs& a ): FoliaElement(){ classInit( a ); };
