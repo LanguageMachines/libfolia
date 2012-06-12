@@ -1447,9 +1447,24 @@ namespace folia {
     atts["type"] = _type;
     if ( !_t.empty() )
       atts["t"] = _t;
+    return atts;
+  }
+
+  KWargs Alignment::collectAttributes() const {
+    KWargs atts = FoliaElement::collectAttributes();
     if ( !_href.empty() )
       atts["href"] = _href;
+    if ( !_type.empty() )
+      atts["type"] = _type;
     return atts;
+  }
+
+  void Alignment::setAttributes( const KWargs& args ){
+    KWargs::const_iterator it = args.find( "href" );
+    if ( it != args.end() ){
+      _href = it->second;
+    }
+    FoliaElement::setAttributes( args );
   }
 
   Correction *Word::correct( const string& s ){
@@ -1723,10 +1738,6 @@ namespace folia {
     val = att["t"];
     if ( !val.empty() ){
       _t = val;
-    }
-    val = att["href"];
-    if ( !val.empty() ){
-      _href = val;
     }
     return this;
   }

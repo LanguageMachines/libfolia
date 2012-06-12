@@ -1035,9 +1035,12 @@ namespace folia {
   Alignment( Document *d, const KWargs& a ): FoliaElement( d ){ classInit( a ); };
     std::string href() const { return _href; };
     std::vector<FoliaElement *>resolve() const;
+    KWargs collectAttributes() const;  
+    void setAttributes( const KWargs& );
   private:
     void init();
     std::string _href;
+    std::string _type;
   };  
 
   class AlignReference: public FoliaElement {
@@ -1055,7 +1058,6 @@ namespace folia {
     std::string refId;
     std::string _type;
     std::string _t;
-    std::string _href;    
   };  
 
   class SyntacticUnit: public AbstractSpanAnnotation {
