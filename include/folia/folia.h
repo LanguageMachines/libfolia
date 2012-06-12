@@ -1178,11 +1178,8 @@ namespace folia {
   ErrorDetection( const KWargs& a ): AbstractTokenAnnotation(){ classInit( a ); }
   ErrorDetection( Document *d, const std::string& s=""): AbstractTokenAnnotation( d ){ classInit( s ); }
   ErrorDetection( Document *d, const KWargs& a ): AbstractTokenAnnotation( d ){ classInit( a ); }
-    void setAttributes( const KWargs& );
-    KWargs collectAttributes() const;  
   private:
     void init();
-    bool error;
   };
 
   class AbstractSubtokenAnnotationLayer: public FoliaElement, AllowGenerateID {

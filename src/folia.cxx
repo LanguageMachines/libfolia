@@ -2290,25 +2290,6 @@ namespace folia {
     occurrences = 1;
   }
 
-  void ErrorDetection::setAttributes( const KWargs& kwargs ){
-    KWargs::const_iterator it = kwargs.find( "error" );
-    if ( it != kwargs.end() ) {
-      string tmp = lowercase( it->second );
-      if ( tmp == "no" || tmp == "false" )
-	error = false;
-      else
-	error = true;
-    }
-    FoliaElement::setAttributes(kwargs);
-  }
-
-  KWargs ErrorDetection::collectAttributes() const {
-    KWargs attribs = FoliaElement::collectAttributes();
-    if ( error )
-      attribs["error"] = "yes";
-    return attribs;
-  }
-
   void Feature::setAttributes( const KWargs& kwargs ){
     //
     // Feature is special. So DON'T call ::setAttributes
@@ -2562,7 +2543,6 @@ namespace folia {
     _element_id = ErrorDetection_t;
     _annotation_type = AnnotationType::ERRORDETECTION;
     occurrences_per_set = 0; // Allow duplicates within the same set
-    error = true;
   }
 
 } // namespace folia
