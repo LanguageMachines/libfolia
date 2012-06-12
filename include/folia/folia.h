@@ -413,6 +413,10 @@ namespace folia {
     FoliaElement *parent() const { return _parent; };
     void setParent( FoliaElement *p ) { _parent = p ; };
     void setAuth( bool b ){ _auth = b; };
+    virtual std::vector<FoliaElement *> resolve() const {
+      throw NotImplementedError("resolve() for " + _xmltag );
+    };
+
   protected:
     virtual void init()=0;
     virtual KWargs collectAttributes() const;
@@ -1021,6 +1025,37 @@ namespace folia {
   private:
     void init();
     FoliaElement* parseXml( const xmlNode *node );
+  };  
+
+  class Alignment: public FoliaElement {
+  public:
+  Alignment( const std::string& s="" ): FoliaElement( ){ classInit( s ); };
+  Alignment( const KWargs& a ): FoliaElement( ){ classInit( a ); };
+  Alignment( Document *d, const std::string& s="" ): FoliaElement( d ){ classInit( s ); };
+  Alignment( Document *d, const KWargs& a ): FoliaElement( d ){ classInit( a ); };
+    std::string href() const { return _href; };
+    std::vector<FoliaElement *>resolve() const;
+  private:
+    void init();
+    std::string _href;
+  };  
+
+  class AlignReference: public FoliaElement {
+    friend class Alignment;
+  public:
+  AlignReference( const std::string& s="" ): FoliaElement( ){ classInit( s ); };
+  AlignReference( const KWargs& a ): FoliaElement( ){ classInit( a ); };
+  AlignReference( Document *d, const std::string& s="" ): FoliaElement( d ){ classInit( s ); };
+  AlignReference( Document *d, const KWargs& a ): FoliaElement( d ){ classInit( a ); };
+    KWargs collectAttributes() const;  
+  private:
+    void init();
+    FoliaElement* parseXml( const xmlNode *node );
+    FoliaElement *resolve( const Alignment *ref ) const;
+    std::string refId;
+    std::string _type;
+    std::string _t;
+    std::string _href;    
   };  
 
   class SyntacticUnit: public AbstractSpanAnnotation {

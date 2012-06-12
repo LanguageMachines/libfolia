@@ -157,6 +157,9 @@ namespace folia {
     case AnnotationType::GAP:
       result = "gap";
       break; 
+    case AnnotationType::ALIGNMENT:
+      result = "alignment";
+      break; 
     };
     return result;
   }
@@ -233,6 +236,8 @@ namespace folia {
       return AnnotationType::TIMEDEVENT;
     if ( at == "gap" )
       return AnnotationType::GAP;
+    if ( at == "alignment" )
+      return AnnotationType::ALIGNMENT;
     throw ValueError( " unknown translation for attribute: " + at );
   }
 
@@ -298,6 +303,8 @@ namespace folia {
     case Dependency_t: result = "dependency"; break;
     case DependencyDependent_t: result = "dep"; break;
     case DependencyHead_t: result = "hd"; break;
+    case Alignment_t: result = "alignment"; break;
+    case AlignReference_t: result = "aref"; break; 
     default:
       result = "Unknown Elementtype " + folia::toString( int(et) );
     }
@@ -482,6 +489,12 @@ namespace folia {
     if ( tag == "hd" ){
       return DependencyHead_t;
     }
+    if ( tag == "alignment" ){
+      return Alignment_t;
+    }
+    if ( tag == "aref" ){
+      return AlignReference_t;
+    }
     else {
       throw ValueError( "unknown tag <" + tag + ">" );
     }
@@ -609,6 +622,10 @@ namespace folia {
       return new DependencyDependent( doc );
     case DependencyHead_t:
       return new DependencyHead( doc );
+    case Alignment_t:
+      return new Alignment( doc );
+    case AlignReference_t:
+      return new AlignReference( doc );
     default:
       throw ValueError( "unknown elementtype(" + toString(int(et)) + ")" );
     }

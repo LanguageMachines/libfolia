@@ -1441,6 +1441,17 @@ namespace folia {
     return atts;
   }
 
+  KWargs AlignReference::collectAttributes() const {
+    KWargs atts;
+    atts["id"] = refId;
+    atts["type"] = _type;
+    if ( !_t.empty() )
+      atts["t"] = _t;
+    if ( !_href.empty() )
+      atts["href"] = _href;
+    return atts;
+  }
+
   Correction *Word::correct( const string& s ){
     vector<FoliaElement*> nil;
     KWargs args = getArgs( s );
@@ -1689,6 +1700,51 @@ namespace folia {
     }
     delete this;
     return res;
+  }
+
+  FoliaElement* AlignReference::parseXml( const xmlNode *node ){
+    KWargs att = getAttributes( node );
+    string val = att["id"];
+    if ( val.empty() )
+      throw XmlError( "ID required for AlignReference" );
+    refId = val;
+    if ( mydoc->debug ) 
+      cerr << "Found AlignReference ID " << refId << endl;
+    val = att["type"];
+    if ( val.empty() )
+      throw XmlError( "type required for AlignReference" );
+    try {
+      ElementType e = stringTo<ElementType>( val );
+    }
+    catch (...){
+      throw XmlError( "type must be an Element Type" );
+    }
+    _type = val;
+    val = att["t"];
+    if ( !val.empty() ){
+      _t = val;
+    }
+    val = att["href"];
+    if ( !val.empty() ){
+      _href = val;
+    }
+    return this;
+  }
+
+  FoliaElement *AlignReference::resolve( const Alignment *ref ) const {
+    if ( ref->href().empty() )
+      return (*mydoc)[refId]; 
+    else
+      throw NotImplementedError( "resolve for external doc" );
+  }
+
+  vector<FoliaElement *> Alignment::resolve() const {
+    vector<AlignReference*> v = select<AlignReference>();
+    vector<FoliaElement*> result;
+    for ( size_t i=0; i < v.size(); ++i ){
+      result.push_back( v[i]->resolve( this ) );
+    }
+    return result;
   }
 
   void PlaceHolder::setAttributes( const KWargs& args ){
@@ -2028,8 +2084,9 @@ namespace folia {
     const ElementType accept[] = { TextContent_t, Pos_t, Lemma_t,
 				   Sense_t, Alternative_t, 
 				   Correction_t, ErrorDetection_t, 
-				   Description_t, Morphology_t };
-    _accepted_data = set<ElementType>(accept, accept+9);
+				   Description_t, Morphology_t,
+				   Alignment_t };
+    _accepted_data = set<ElementType>(accept, accept+10);
     _annotation_type = AnnotationType::TOKEN;
     TEXTDELIMITER = " ";
     space = true;
@@ -2040,6 +2097,22 @@ namespace folia {
     _xmltag = "wref";
     _element_id = WordReference_t;
     _auth = false;
+  }
+
+  void Alignment::init(){
+    _optional_attributes = ALL;
+    _xmltag = "alignment";
+    _element_id = Alignment_t;
+    const ElementType accept[] = { AlignReference_t, Description_t };
+    _accepted_data = set<ElementType>(accept, accept+2);
+    occurrences_per_set=0;
+    _annotation_type = AnnotationType::ALIGNMENT;
+    PRINTABLE = false;
+  }
+
+  void AlignReference::init(){
+    _xmltag = "aref";
+    _element_id = AlignReference_t;
   }
 
   void PlaceHolder::init(){

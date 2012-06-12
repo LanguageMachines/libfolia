@@ -86,6 +86,7 @@ namespace folia {
     BeginDateTimeFeature_t, EndDateTimeFeature_t, //features
     PlaceHolder_t,
     Dependencies_t, Dependency_t, DependencyHead_t, DependencyDependent_t,
+    Alignment_t, AlignReference_t,
     LastElement
   };
   
@@ -101,14 +102,15 @@ namespace folia {
    *  static const annotation_type = {AnnotationType}
    */
   namespace AnnotationType {
-    enum AnnotationType { NO_ANN,  TEXT, TOKEN, DIVISION, PARAGRAPH, 
+    enum AnnotationType { NO_ANN, TEXT, TOKEN, DIVISION, PARAGRAPH, 
 			  LIST, FIGURE, WHITESPACE, LINEBREAK, SENTENCE, 
 			  POS, LEMMA, DOMEIN, SENSE, SYNTAX, CHUNKING, ENTITY,
 			  // Attention DOMAIN seems to be a defined constant
-			  // where how?
+			  // where/how/why?
 			  CORRECTION, SUGGESTION, ERRORDETECTION, ALTERNATIVE, 
-			  PHON, SUBJECTIVITY, MORPHOLOGICAL, SUBENTITY,EVENT, 
-			  DEPENDENCY, TIMEDEVENT, GAP, LAST_ANN
+			  PHON, SUBJECTIVITY, MORPHOLOGICAL, SUBENTITY, EVENT, 
+			  DEPENDENCY, TIMEDEVENT, GAP, ALIGNMENT, 
+			  LAST_ANN
     };
     inline AnnotationType& operator++( AnnotationType &at ){
       return at = ( LAST_ANN == at ) 
