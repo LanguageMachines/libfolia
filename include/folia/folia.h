@@ -234,7 +234,10 @@ namespace folia {
     virtual FoliaElement* parseXml( const xmlNode * );
     virtual std::string str() const;
     UnicodeString unicode() const { return text(); };
-    virtual UnicodeString text( const std::string& = "current" ) const;
+    UnicodeString toktext( const std::string& cls = "current" ) const {
+      return text( cls, true );
+    }
+    virtual UnicodeString text( const std::string& = "current", bool = false ) const;
     virtual TextContent *textcontent( const std::string& = "current" ) const;
     virtual UnicodeString stricttext( const std::string& = "current" ) const;
     bool hastext( const std::string& = "current" ) const ;
@@ -413,7 +416,7 @@ namespace folia {
   protected:
     virtual void init()=0;
     virtual KWargs collectAttributes() const;
-    virtual std::string getTextDelimiter() const { return TEXTDELIMITER; }
+    virtual std::string getTextDelimiter( bool=false ) const { return TEXTDELIMITER; }
     virtual std::string generateId( const std::string& ){
       throw NotImplementedError( "generateId() not allowed for " + classname() );
     };
@@ -438,7 +441,6 @@ namespace folia {
     std::vector<FoliaElement*> data;
     FoliaElement *_parent;
     bool _auth;
-    //  UnicodeString _text;
     Document *mydoc;
     std::string _xmltag;
     ElementType _element_id;
@@ -595,7 +597,7 @@ namespace folia {
     void setAttributes( const KWargs& );
     KWargs collectAttributes() const;  
     std::string str() const;
-    UnicodeString text( const std::string& = "current" ) const;
+    UnicodeString text( const std::string& = "current", bool = false ) const;
     int offset() const { return _offset; };
     FoliaElement *append( FoliaElement* ){ throw NotImplementedError("TextContent::append()"); };
     TextContent *postappend();
@@ -720,8 +722,8 @@ namespace folia {
     const Word* resolveword( const std::string& ) const;
     void setAttributes( const KWargs& );
     KWargs collectAttributes() const;  
-    std::string getTextDelimiter() const { 
-      if ( space )
+    std::string getTextDelimiter( bool retaintok=false) const { 
+      if ( space || retaintok )
 	return TEXTDELIMITER;
       else {
 	return "";
@@ -1166,7 +1168,7 @@ namespace folia {
     Current *getCurrent() const;
     std::vector<Suggestion*> suggestions() const;
     Suggestion *suggestions( size_t ) const;
-    UnicodeString text( const std::string& = "current" ) const;
+    UnicodeString text( const std::string& = "current", bool = false ) const;
     TextContent *textcontent( const std::string& = "current" ) const;
   private:
     void init();

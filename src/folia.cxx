@@ -460,25 +460,25 @@ namespace folia {
     }
   }
   
-  UnicodeString FoliaElement::text( const string& cls ) const {
+  UnicodeString FoliaElement::text( const string& cls, bool retaintok ) const {
     if ( !PRINTABLE )
       throw NoSuchText( _xmltag );
     //  cerr << (void*)this << ":text() for " << _xmltag << " and class= " << cls << " step 1 " << endl;
     
     UnicodeString result;    
     try {
-      result = this->textcontent(cls)->text(cls);
+      result = this->textcontent(cls)->text(cls, retaintok );
     } catch (NoSuchText& e ) {
       for( size_t i=0; i < data.size(); ++i ){
 	// try to get text dynamically from children
 	// skip TextContent elements
 	if ( data[i]->PRINTABLE && !data[i]->isinstance( TextContent_t ) ){
 	  try {
-	    UnicodeString tmp = data[i]->text( cls );
+	    UnicodeString tmp = data[i]->text( cls, retaintok );
 	    //	cerr << "text() for " << _xmltag << " step 2, tmp= " << tmp << endl;
 	    result += tmp;
 	    if ( !tmp.isEmpty() ){
-	      result += UTF8ToUnicode( data[i]->getTextDelimiter() );
+	      result += UTF8ToUnicode( data[i]->getTextDelimiter( retaintok ) );
 	    }
 	  } catch ( NoSuchText& e ){
 	  }
@@ -1004,7 +1004,7 @@ namespace folia {
     return UnicodeToUTF8(_text);
   }
 
-  UnicodeString TextContent::text( const string& ) const{
+  UnicodeString TextContent::text( const string&, bool ) const{
     return _text;
   }
 
@@ -1833,19 +1833,19 @@ namespace folia {
     return this;
   }
 
-  UnicodeString Correction::text( const string& cls ) const {
+  UnicodeString Correction::text( const string& cls, bool retaintok ) const {
     if ( cls == "current" ){
       for( size_t i=0; i < data.size(); ++i ){
 	//    cerr << "data[" << i << "]=" << data[i] << endl;
 	if ( data[i]->isinstance( New_t ) || data[i]->isinstance( Current_t ) )
-	  return data[i]->text( cls );
+	  return data[i]->text( cls, retaintok );
       }
     }
     else if ( cls == "original" ){
       for( size_t i=0; i < data.size(); ++i ){
 	//    cerr << "data[" << i << "]=" << data[i] << endl;
 	if ( data[i]->isinstance( Original_t ) )
-	  return data[i]->text( cls );
+	  return data[i]->text( cls, retaintok );
       }
     }
     throw NoSuchText("wrong cls");
