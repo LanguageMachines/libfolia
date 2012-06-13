@@ -227,6 +227,7 @@ namespace folia {
       }
     }
 
+    std::vector<std::string> feats( const std::string& ) const;
     std::string feat( const std::string& ) const;
     //XML (de)serialisation
     std::string xmlstring() const; // serialize to a string (XML fragment)

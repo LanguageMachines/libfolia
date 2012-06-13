@@ -2062,7 +2062,7 @@ namespace folia {
   void TextContent::init(){
     _element_id = TextContent_t;
     _xmltag="t";
-    _optional_attributes = CLASS|ANNOTATOR|CONFIDENCE;
+    _optional_attributes = CLASS|ANNOTATOR|CONFIDENCE|DATETIME;
     _annotation_type = AnnotationType::TEXT;
     occurrences = 0;
     occurrences_per_set=0;
@@ -2073,8 +2073,8 @@ namespace folia {
     _element_id = Head_t;
     _xmltag="head";
     const ElementType accept[] = { Sentence_t, Description_t, Event_t, 
-				   TextContent_t };
-    _accepted_data = set<ElementType>(accept, accept+4); 
+				   TextContent_t, Alignment_t };
+    _accepted_data = set<ElementType>(accept, accept+5); 
     occurrences=1;
     TEXTDELIMITER = " ";
   }
@@ -2164,8 +2164,8 @@ namespace folia {
 				   Entities_t,
 				   Quote_t, Event_t, TimingLayer_t,
 				   Correction_t,
-				   Description_t };
-    _accepted_data = std::set<ElementType>(accept, accept+14); 
+				   Description_t, Alignment_t };
+    _accepted_data = std::set<ElementType>(accept, accept+15); 
     _annotation_type = AnnotationType::SENTENCE;
   }
 
@@ -2225,16 +2225,17 @@ namespace folia {
   void Label::init(){
     _xmltag="label";
     _element_id = Label_t;
-    const ElementType accept[] = { Word_t, Description_t, TextContent_t };
-    _accepted_data = std::set<ElementType>(accept, accept+3);
+    const ElementType accept[] = { Word_t, Description_t, TextContent_t,
+				   Alignment_t };
+    _accepted_data = std::set<ElementType>(accept, accept+4);
   }
 
   void ListItem::init(){
     _xmltag="listitem";
     _element_id = ListItem_t;
     const ElementType accept[] = { List_t, Sentence_t, Description_t, Label_t,
-				   Event_t, TextContent_t };
-    _accepted_data = std::set<ElementType>(accept, accept+6);
+				   Event_t, TextContent_t, Alignment_t };
+    _accepted_data = std::set<ElementType>(accept, accept+7);
     _annotation_type = AnnotationType::LIST;
   }
 
@@ -2243,8 +2244,8 @@ namespace folia {
     _element_id = List_t;
     const ElementType accept[] = { ListItem_t, Description_t, 
 				   Caption_t, Event_t,
-				   TextContent_t };
-    _accepted_data = std::set<ElementType>(accept, accept+5);
+				   TextContent_t, Alignment_t };
+    _accepted_data = std::set<ElementType>(accept, accept+6);
     _annotation_type = AnnotationType::LIST;
     TEXTDELIMITER="\n";
   }
@@ -2261,8 +2262,10 @@ namespace folia {
   void Paragraph::init(){
     _xmltag="p";
     _element_id = Paragraph_t;
-    const ElementType accept[] = { Sentence_t, Correction_t, TextContent_t, Description_t, LineBreak_t, WhiteSpace_t, List_t, Figure_t };
-    _accepted_data = std::set<ElementType>(accept, accept+8);
+    const ElementType accept[] = { Sentence_t, Correction_t, TextContent_t, 
+				   Description_t, LineBreak_t, WhiteSpace_t, 
+				   List_t, Figure_t, Alignment_t };
+    _accepted_data = std::set<ElementType>(accept, accept+9);
     _annotation_type = AnnotationType::PARAGRAPH;
   }
 
@@ -2307,7 +2310,7 @@ namespace folia {
   void Alternative::init(){
     _xmltag = "alt";
     _element_id = Alternative_t;
-    _required_attributes = NO_ATT;
+    _optional_attributes = ALL;
     const ElementType accept[] = { Pos_t, Lemma_t, Correction_t };
     _accepted_data = std::set<ElementType>(accept, accept+3);
     _annotation_type = AnnotationType::ALTERNATIVE;
@@ -2318,7 +2321,6 @@ namespace folia {
   void AlternativeLayers::init(){
     _xmltag = "altlayers";
     _element_id = Alternatives_t;
-    _required_attributes = NO_ATT;
     _optional_attributes = ALL;
     const ElementType accept[] = { AnnotationLayer_t };
     _accepted_data = std::set<ElementType>(accept, accept+1);
@@ -2408,7 +2410,24 @@ namespace folia {
     return attribs;
   }
 
-  std::string FoliaElement::feat( const std::string& s ) const {
+  vector<string> FoliaElement::feats( const std::string& s ) const {
+    //    return all classes of the given subset
+    vector<string> result;
+    for ( size_t i=0; i < data.size(); ++i ){
+      if ( ( data[i]->isinstance( Feature_t ) ||
+	     data[i]->isinstance( SynsetFeature_t ) ||
+	     data[i]->isinstance( BeginDateTimeFeature_t ) ||
+	     data[i]->isinstance( EndDateTimeFeature_t ) ||
+	     data[i]->isinstance( HeadFeature_t ) ||
+	     data[i]->isinstance( ActorFeature_t ) ) &&
+	   data[i]->subset() == s )
+	result.push_back( data[i]->cls() );
+    }
+    return result;
+  }
+  
+  string FoliaElement::feat( const std::string& s ) const {
+    //    return the fist class of the given subset
     for ( size_t i=0; i < data.size(); ++i ){
       if ( ( data[i]->isinstance( Feature_t ) ||
 	     data[i]->isinstance( SynsetFeature_t ) ||
@@ -2421,7 +2440,7 @@ namespace folia {
     }
     return "";
   }
-
+  
   void AbstractSubtokenAnnotationLayer::init(){
     _optional_attributes = NO_ATT;
     PRINTABLE=false;
@@ -2497,8 +2516,9 @@ namespace folia {
     _xmltag = "dependency";
     _required_attributes = NO_ATT;
     _annotation_type = AnnotationType::DEPENDENCY;
-    const ElementType accept[] = { DependencyDependent_t, DependencyHead_t, Description_t };
-    _accepted_data = std::set<ElementType>(accept, accept+3);
+    const ElementType accept[] = { DependencyDependent_t, DependencyHead_t, 
+				   Feature_t, Description_t, Alignment_t };
+    _accepted_data = std::set<ElementType>(accept, accept+5);
   }
 
   void DependencyDependent::init(){
@@ -2507,8 +2527,9 @@ namespace folia {
     _required_attributes = NO_ATT;
     _optional_attributes = NO_ATT;
     _annotation_type = AnnotationType::DEPENDENCY;
-    const ElementType accept[] = { Word_t, WordReference_t, Description_t, Feature_t };
-    _accepted_data = std::set<ElementType>(accept, accept+4);
+    const ElementType accept[] = { Word_t, WordReference_t, 
+				   Description_t, Feature_t, Alignment_t };
+    _accepted_data = std::set<ElementType>(accept, accept+5);
   }
 
   void DependencyHead::init(){
@@ -2517,8 +2538,9 @@ namespace folia {
     _required_attributes = NO_ATT;
     _optional_attributes = NO_ATT;
     _annotation_type = AnnotationType::DEPENDENCY;
-    const ElementType accept[] = { Word_t, WordReference_t, Description_t, Feature_t };
-    _accepted_data = std::set<ElementType>(accept, accept+4);
+    const ElementType accept[] = { Word_t, WordReference_t, 
+				   Description_t, Feature_t, Alignment_t };
+    _accepted_data = std::set<ElementType>(accept, accept+5);
   }
 
   void PosAnnotation::init(){
@@ -2572,9 +2594,10 @@ namespace folia {
   void Quote::init(){
     _xmltag="quote";
     _element_id = Quote_t;
+    _required_attributes = NO_ATT;
     const ElementType accept[] = { Word_t, Sentence_t, Quote_t, 
-				   TextContent_t, Description_t };
-    _accepted_data = std::set<ElementType>(accept, accept+5);
+				   TextContent_t, Description_t, Alignment_t };
+    _accepted_data = std::set<ElementType>(accept, accept+6);
     TEXTDELIMITER = " ";
   }
 
