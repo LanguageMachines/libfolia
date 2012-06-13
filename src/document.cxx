@@ -301,6 +301,7 @@ namespace folia {
       excludeSet.insert( Chunk_t );
       excludeSet.insert( SyntacticUnit_t );
       excludeSet.insert( Entity_t );
+      excludeSet.insert( TimedEvent_t );
       excludeSet.insert( DependencyHead_t );
       excludeSet.insert( DependencyDependent_t );
     }

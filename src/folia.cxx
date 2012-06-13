@@ -388,30 +388,29 @@ namespace folia {
     return result;
   }
 
+  string tagToAtt( const FoliaElement* c ){
+    if ( c->isinstance(SynsetFeature_t) )
+      return "synset";
+    else if ( c->isinstance(ActorFeature_t) )
+      return "actor";
+    else if ( c->isinstance(HeadFeature_t) )
+      return "head";
+    else if ( c->isinstance(BeginDateTimeFeature_t) )
+      return "begindatetime";
+    else if ( c->isinstance(EndDateTimeFeature_t) )
+      return "enddatetime";
+    return "";
+  }
+
   xmlNode *FoliaElement::xml( bool recursive ) const {
     xmlNode *e = newXMLNode( foliaNs(), _xmltag );
     KWargs attribs = collectAttributes();
     set<FoliaElement *> skipelements;
     vector<FoliaElement*>::const_iterator it=data.begin();
     while ( it != data.end() ){
-      if ( (*it)->isinstance(SynsetFeature_t) ){
-	attribs["synset"] = (*it)->cls();
-	skipelements.insert( *it );
-      }
-      else if ( (*it)->isinstance(ActorFeature_t) ){
-	attribs["actor"] = (*it)->cls();
-	skipelements.insert( *it );
-      }
-      else if ( (*it)->isinstance(HeadFeature_t) ){
-	attribs["head"] = (*it)->cls();
-	skipelements.insert( *it );
-      }
-      else if ( (*it)->isinstance(BeginDateTimeFeature_t) ){
-	attribs["begindatetime"] = (*it)->cls();
-	skipelements.insert( *it );
-      }
-      else if ( (*it)->isinstance(EndDateTimeFeature_t) ){
-	attribs["enddatetime"] = (*it)->cls();
+      string at = tagToAtt( *it );
+      if ( !at.empty() ){
+	attribs[at] = (*it)->cls();
 	skipelements.insert( *it );
       }
       ++it;
@@ -1849,7 +1848,7 @@ namespace folia {
 
   xmlNode *AbstractSpanAnnotation::xml( bool recursive ) const {
     xmlNode *e = FoliaElement::xml( false );
-    // append Word children:
+    // append Word children as WREFS
     vector<FoliaElement*>::const_iterator it=data.begin();
     while ( it != data.end() ){
       if ( (*it)->element_id() == Word_t ){
@@ -1862,8 +1861,13 @@ namespace folia {
 	addAttributes( t, attribs );
 	xmlAddChild( e, t );
       }
-      else
-	xmlAddChild( e, (*it)->xml( recursive ) );
+      else {
+	string at = tagToAtt( *it );
+	if ( at.empty() ){
+	  // otherwise handled by FoliaElement::xml() above
+	  xmlAddChild( e, (*it)->xml( recursive ) );
+	}
+      }
       ++it;
     }
     return e;
@@ -2158,10 +2162,10 @@ namespace folia {
 				   TextContent_t, AnnotationLayer_t, 
 				   SyntaxLayer_t, Chunking_t, Dependencies_t,
 				   Entities_t,
-				   Quote_t, Event_t,
+				   Quote_t, Event_t, TimingLayer_t,
 				   Correction_t,
 				   Description_t };
-    _accepted_data = std::set<ElementType>(accept, accept+13); 
+    _accepted_data = std::set<ElementType>(accept, accept+14); 
     _annotation_type = AnnotationType::SENTENCE;
   }
 
@@ -2202,8 +2206,10 @@ namespace folia {
   void TimedEvent::init(){
     _xmltag="timedevent";
     _element_id = TimedEvent_t;
-    const ElementType accept[] = { Description_t, Feature_t };
-    _accepted_data = std::set<ElementType>(accept, accept+2); 
+    const ElementType accept[] = { Description_t, Feature_t, ActorFeature_t,
+				   Word_t,
+				   BeginDateTimeFeature_t, EndDateTimeFeature_t };
+    _accepted_data = std::set<ElementType>(accept, accept+6); 
     _annotation_type = AnnotationType::TIMEDEVENT;
     occurrences_per_set=0;
   }
