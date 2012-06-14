@@ -85,8 +85,14 @@ namespace folia {
     void init();
     bool readFromFile( const std::string& );
     bool readFromString( const std::string& );
-    bool save( std::ostream&, const std::string& = "" );
-    bool save( const std::string&, const std::string& = "" );
+    bool save( std::ostream&, const std::string&, bool = false );
+    bool save( std::ostream& os, bool kanon = false ){
+      return save( os, "", kanon );
+    }
+    bool save( const std::string&, const std::string&, bool = false );
+    bool save( const std::string& s, bool kanon = false ){
+      return save( s, "", kanon );
+    }
     int size() const;
     FoliaElement* doc() const { return foliadoc; }
     FoliaElement* addNode( ElementType, const KWargs& );
@@ -106,7 +112,7 @@ namespace folia {
     Paragraph *rparagraphs( size_t ) const;
     Sentence *sentences( size_t ) const;
     Sentence *rsentences( size_t ) const;
-    std::string toXml( const std::string& ="" ) const;
+    std::string toXml( const std::string& ="", bool = false ) const;
     MetaDataType metadatatype() const { return _metadatatype; };
     std::string metadatafile() const { return _metadatafile; };
 

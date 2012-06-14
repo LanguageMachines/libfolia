@@ -160,6 +160,8 @@ namespace folia {
     case AnnotationType::ALIGNMENT:
       result = "alignment";
       break; 
+    case AnnotationType::LAST_ANN:
+      throw logic_error("LAST_ANN");
     };
     return result;
   }

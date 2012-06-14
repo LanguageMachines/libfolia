@@ -219,18 +219,16 @@ namespace folia {
     return os;
   }
 
-  bool Document::save( ostream& os, const string& nsLabel ) {
-    string s = toXml( nsLabel );
+  bool Document::save( ostream& os, const string& nsLabel, bool kanon ) {
+    string s = toXml( nsLabel, kanon );
     os << s << endl;
     return os;
   }
 
-  bool Document::save( const string& fn, const string& nsLabel ) {
+  bool Document::save( const string& fn, const string& nsLabel, bool kanon ) {
     ofstream os( fn.c_str() );
     if ( os.good() ) {
-      string s = toXml( nsLabel );
-      os << s << endl;
-      return true;
+      return save( os, nsLabel, kanon );
     }
     throw runtime_error( "saving to file " + fn + " failed" );
     return false;
@@ -727,7 +725,7 @@ namespace folia {
     }
   }
 
-  string Document::toXml( const string& nsLabel ) const {
+  string Document::toXml( const string& nsLabel, bool kanon ) const {
     string result;
     if ( foliadoc ){
       xmlDoc *outDoc = xmlNewDoc( (const xmlChar*)"1.0" );
@@ -762,7 +760,7 @@ namespace folia {
       setmetadata( md );
       vector<FoliaElement*>::const_iterator it= foliadoc->data.begin();
       while ( it != foliadoc->data.end() ){
-	xmlAddChild( root, (*it)->xml( true ) );
+	xmlAddChild( root, (*it)->xml( true, kanon ) );
 	++it;
       }
       xmlChar *buf; int size;

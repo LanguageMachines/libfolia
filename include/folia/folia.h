@@ -231,7 +231,7 @@ namespace folia {
     std::string feat( const std::string& ) const;
     //XML (de)serialisation
     std::string xmlstring() const; // serialize to a string (XML fragment)
-    virtual xmlNode *xml( bool ) const; //serialize to XML  
+    virtual xmlNode *xml( bool, bool = false ) const; //serialize to XML  
     virtual FoliaElement* parseXml( const xmlNode * );
     virtual std::string str() const;
     UnicodeString unicode() const { return text(); };
@@ -582,7 +582,7 @@ namespace folia {
   class AbstractSpanAnnotation: public AbstractAnnotation, AllowGenerateID {
   public:
   AbstractSpanAnnotation( Document *d=0 ):  AbstractAnnotation( d ){ classInit(); };
-    xmlNode *xml( bool ) const;
+    xmlNode *xml( bool, bool=false ) const;
     FoliaElement *append( FoliaElement* );
     std::string generateId( const std::string& tag ){
       return IGgen( tag, _id ); 
@@ -598,7 +598,7 @@ namespace folia {
   TextContent( Document *d, const std::string& s="" ):  FoliaElement( d ){ classInit( s ); }
   TextContent( Document *d, const KWargs& a ):  FoliaElement( d ){ classInit( a ); }
     FoliaElement* parseXml( const xmlNode * );
-    xmlNode *xml( bool ) const;
+    xmlNode *xml( bool, bool=false ) const;
     void setAttributes( const KWargs& );
     KWargs collectAttributes() const;  
     std::string str() const;
@@ -661,7 +661,7 @@ namespace folia {
   Content( Document *d, const std::string& s=""): FoliaElement( d ) { classInit( s ); };
   Content( Document *d, const KWargs& a ): FoliaElement( d ) { classInit( a ); };
     FoliaElement* parseXml( const xmlNode * );
-    xmlNode *xml( bool ) const;
+    xmlNode *xml( bool, bool = false ) const;
     std::string content() const { return value; };
   private:
     void init();
@@ -1185,7 +1185,7 @@ namespace folia {
     std::string description() const { return _value; };
     void setAttributes( const KWargs& kwargs );
     FoliaElement* parseXml( const xmlNode * );
-    xmlNode *xml( bool ) const;
+    xmlNode *xml( bool, bool=false ) const;
   private:
     void init();
     std::string _value;
