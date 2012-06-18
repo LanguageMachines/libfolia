@@ -347,6 +347,7 @@ namespace folia {
   xmlNode *xPath( xmlNode *, const std::string& );
 
   std::tm *parseDate( const std::string& );
+  std::string toString( const std::tm* );
 
   bool AT_sanity_check();
   bool Attrib_sanity_check();

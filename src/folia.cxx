@@ -275,6 +275,10 @@ namespace folia {
 	  throw ValueError( "invalid datetime string:" + it->second );
       }
     }
+    else if ( mydoc &&
+	      (def = mydoc->defaultdatetime( _annotation_type, _set )) != "" ){
+      _datetime = parseDate(def);
+    }
     else
       _datetime = 0;
 
@@ -350,7 +354,14 @@ namespace folia {
       isDefaultAnn = false;
       attribs["annotator"] = _annotator;
     }
-  
+
+    if ( _datetime != 0 ){
+      string tmp = mydoc->defaultdatetime( _annotation_type, _set );
+      string tm = getDateTime();
+      if ( tm  != tmp ){
+	attribs["datetime"] = tm;;
+      }
+    }
     if ( _annotator_type != UNDEFINED ){
       AnnotatorType at = stringTo<AnnotatorType>( mydoc->defaultannotatortype( _annotation_type, _set ) );
       if ( (!isDefaultSet || !isDefaultAnn) && _annotator_type != at ){
@@ -366,9 +377,6 @@ namespace folia {
   
     if ( !_n.empty() )
       attribs["n"] = _n;
-
-    if ( _datetime != 0 )
-      attribs["datetime"] = getDateTime();
 
     if ( !AUTH || !_auth )
       attribs["auth"] = "no";
@@ -805,9 +813,7 @@ namespace folia {
   }
 
   string FoliaElement::getDateTime() const {
-    char buf[100];
-    strftime( buf, 100, "%Y-%m-%dT%X", _datetime );
-    return buf;
+    return toString( _datetime );
   }
 
   string FoliaElement::pos() const { 
@@ -2167,7 +2173,7 @@ namespace folia {
     _annotation_type = AnnotationType::GAP;
     const ElementType accept[] = { Content_t, Description_t };
     _accepted_data = std::set<ElementType>(accept, accept + 2 );
-    _optional_attributes = CLASS|ID|ANNOTATOR|CONFIDENCE|N;
+    _optional_attributes = CLASS|ID|ANNOTATOR|CONFIDENCE|N|DATETIME;
   }
 
   void Content::init(){

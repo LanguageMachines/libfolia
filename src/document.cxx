@@ -385,6 +385,7 @@ namespace folia {
 	string s;
 	string a;
 	string t;
+	string d;
 	KWargs::const_iterator it = att.find("set" );
 	if ( it != att.end() ){
 	  s = it->second;
@@ -399,7 +400,12 @@ namespace folia {
 	if ( it != att.end() ){
 	  t = it->second;
 	}
-	declare( type, s, a, t );
+	it = att.find( "datetime" );
+	if ( it != att.end() ){
+	  tm * date = parseDate( it->second );
+	  d = toString( date );
+	}
+	declare( type, s, a, t, d );
       }
       n = n->next;
     }
@@ -542,19 +548,22 @@ namespace folia {
     KWargs kw = getArgs( args );
     string a = kw["annotator"];
     string t = kw["annotatortype"];
+    string d = kw["datetime"];
     kw.erase("annotator");
     kw.erase("annotatortype");
+    kw.erase("datetime");
     if ( kw.size() != 0 ){
-      throw XmlError( "declaration: expected 'annotator' of 'annotatortype', got '" + kw.begin()->first + "'" );
+      throw XmlError( "declaration: expected 'annotator', 'annotatortype' or 'datetime', got '" + kw.begin()->first + "'" );
     }
-    declare( type, st, a, t );
+    declare( type, st, a, t, d );
   }
 
   void Document::declare( AnnotationType::AnnotationType type, 
-			  const string& s, const string& a, const string& t ){
-    if ( !isDeclared( type, s, a, t ) ){
-      annotationdefaults[type].insert( make_pair(s, at_t(a,t) ) );
-      //    cerr << "inserted [" << type << "][" << st << "](" << a << "," << t << ")" << endl;
+			  const string& s, const string& a, 
+			  const string& t, const string& d ){
+    if ( !isDeclared( type, s, a, t, d ) ){
+      annotationdefaults[type].insert( make_pair(s, at_t(a,t,d) ) );
+      //    cerr << "inserted [" << type << "][" << st << "](" << a << "," << t << "," << d ")" << endl;
       //    cerr << "annotation defaults now: " <<  annotationdefaults << endl;
       
     }
@@ -570,14 +579,15 @@ namespace folia {
   bool Document::isDeclared( AnnotationType::AnnotationType type,
 			     const string& s, 
 			     const string& a,
-			     const string& t ){
+			     const string& t,
+			     const string& d ){
     map<AnnotationType::AnnotationType,multimap<string,at_t> >::const_iterator mit1 = annotationdefaults.find(type);
     if ( mit1 != annotationdefaults.end() ){
       if ( s.empty() )
 	throw runtime_error("isDeclared with empty set.");
       multimap<string,at_t>::const_iterator mit2 = mit1->second.lower_bound(s);
       while ( mit2 != mit1->second.upper_bound(s) ){
-	if ( mit2->second.a == a && mit2->second.t == t )
+	if ( mit2->second.a == a && mit2->second.t == t && mit2->second.d == d )
 	  return true;
 	++mit2;
       }
@@ -658,6 +668,27 @@ namespace folia {
     return result;
   }
 
+  std::string Document::defaultdatetime( AnnotationType::AnnotationType type,
+					 const string& st ) const {
+    map<AnnotationType::AnnotationType,multimap<string,at_t> >::const_iterator mit1 = annotationdefaults.find(type);
+    string result;
+    if ( mit1 != annotationdefaults.end() ){
+      if ( st.empty() ){
+	if ( mit1->second.size() == 1 )
+	  result = mit1->second.begin()->second.d;
+	return result;
+      }
+      else {
+	if ( mit1->second.count( st ) == 1 ){
+	  map<string,at_t>::const_iterator mit2 = mit1->second.find( st );
+	  result = mit2->second.d;
+	}
+      }
+    }
+    //  cerr << "get default ==> " << result << endl;
+    return result;
+  }
+
   void Document::setannotations( xmlNode *node ) const {
     map<AnnotationType::AnnotationType,multimap<string,at_t> >::const_iterator mit = annotationdefaults.begin();
     while ( mit != annotationdefaults.end() ){
@@ -674,6 +705,9 @@ namespace folia {
 	s = it->second.t;
 	if ( !s.empty() )
 	  args["annotatortype"] = s;
+	s = it->second.d;
+	if ( !s.empty() )
+	  args["datetime"] = s;
 	s = it->first;
 	if ( s != "undefined" ) // the default
 	  args["set"] = s;

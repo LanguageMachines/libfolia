@@ -124,7 +124,8 @@ namespace folia {
   
     FoliaElement *index( const std::string& ) const; //retrieve element with specified ID 
     FoliaElement* operator []( const std::string& ) const ; //index as operator 
-    bool isDeclared( AnnotationType::AnnotationType, const std::string&, 
+    bool isDeclared( AnnotationType::AnnotationType, 
+		     const std::string&, const std::string&,
 		     const std::string&, const std::string& );
     bool isDeclared( AnnotationType::AnnotationType, const std::string& = "" );
     std::string defaultset( AnnotationType::AnnotationType ) const;
@@ -134,6 +135,9 @@ namespace folia {
     std::string defaultannotatortype( AnnotationType::AnnotationType, 
 				      const std::string& ="" ) const;
 
+    std::string defaultdatetime( AnnotationType::AnnotationType, 
+				 const std::string& ="" ) const;
+
     FoliaElement* parseXml( );
 
     std::string id() const { return _id; };
@@ -141,7 +145,8 @@ namespace folia {
 		  const std::string&,
 		  const std::string& = "" );
     void declare( AnnotationType::AnnotationType, 
-		  const std::string&, const std::string&, const std::string& );
+		  const std::string&, const std::string&, 
+		  const std::string&, const std::string& );
     xmlDoc *XmlDoc() const { return xmldoc; };
     xmlNs *foliaNs() const { return _foliaNsOut; };
     void keepForDeletion( FoliaElement *p ) { delSet.insert( p ); };
@@ -150,9 +155,10 @@ namespace folia {
     class at_t {
       friend std::ostream& operator<<( std::ostream&, const at_t& );
     public:
-    at_t( const std::string& _a, const std::string& _t ): a(_a),t(_t){}; 
+    at_t( const std::string& _a, const std::string& _t, const std::string& _d ): a(_a),t(_t),d(_d){}; 
       std::string a;
       std::string t;
+      std::string d;
     };
   private:
     std::map<AnnotationType::AnnotationType,std::multimap<std::string,at_t> > annotationdefaults;
@@ -194,7 +200,7 @@ namespace folia {
   }
 
   inline std::ostream& operator<<( std::ostream& os, const Document::at_t& at ){
-    os << "<" << at.a << "," << at.t << ">";
+    os << "<" << at.a << "," << at.t << "," << at.d << ">";
     return os;
   }
 

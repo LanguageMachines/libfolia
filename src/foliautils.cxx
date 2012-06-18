@@ -967,7 +967,9 @@ namespace folia {
   }
 
   tm *parseDate( const string& s ){
-    //  cerr << "try to read a date-time " << s << endl;
+    if ( s.empty() )
+      return 0;
+    //    cerr << "try to read a date-time " << s << endl;
     vector<string> date_time;
     size_t num = split_at( s, date_time, "T");
     if ( num == 0 ){
@@ -977,24 +979,24 @@ namespace folia {
 	return 0;
       }
     }
-    //  cerr << "found " << num << " parts" << endl;
+    //    cerr << "found " << num << " parts" << endl;
     tm *time = new tm();
     if ( num == 1 || num == 2 ){
-      //    cerr << "parse date " << date_time[0] << endl;
+      //      cerr << "parse date " << date_time[0] << endl;
       vector<string> date_parts;
       size_t dnum = split_at( date_time[0], date_parts, "-" );
       switch ( dnum ){
       case 3: {
-	int year = stringTo<int>( date_parts[0] );
-	time->tm_year = year-1900;
+	int mday = stringTo<int>( date_parts[2] );
+	time->tm_mday = mday;
       }
       case 2: {
 	int mon = toMonth( date_parts[1] );
 	time->tm_mon = mon;
       }
       case 1: {
-	int mday = stringTo<int>( date_parts[2] );
-	time->tm_mday = mday;
+	int year = stringTo<int>( date_parts[0] );
+	time->tm_year = year-1900;
       }
 	break;
       default:
@@ -1003,23 +1005,24 @@ namespace folia {
       }
     }
     if ( num == 2 ){
-      //    cerr << "parse time " << date_time[1] << endl;
+      //      cerr << "parse time " << date_time[1] << endl;
       vector<string> date_parts;
       num = split_at( date_time[1], date_parts, ":" );
+      //      cerr << "parts " << date_parts << endl;
       switch ( num ){
       case 4:
 	// ignore
       case 3: {
-	int hour = stringTo<int>( date_parts[0] );
-	time->tm_hour = hour;
+	int sec = stringTo<int>( date_parts[2] );
+	time->tm_sec = sec;
       }
       case 2: {
 	int min = stringTo<int>( date_parts[1] );
 	time->tm_min = min;
       }
       case 1: {
-	int sec = stringTo<int>( date_parts[2] );
-	time->tm_sec = sec;
+	int hour = stringTo<int>( date_parts[0] );
+	time->tm_hour = hour;
       }
 	break;
       default:
@@ -1027,11 +1030,14 @@ namespace folia {
 	return 0;
       }
     }
-    //  cerr << "read _date time = ";
-    // char buf[100];
-    // strftime( buf, 100, "%Y-%b-%d %X", time );
-    // cerr << buf << endl;
+    // cerr << "read _date time = " << toString(time) << endl;
     return time;
+  }
+
+  string toString( const tm *date ) {
+    char buf[100];
+    strftime( buf, 100, "%Y-%m-%dT%X", date );
+    return buf;
   }
 
   bool AT_sanity_check(){
