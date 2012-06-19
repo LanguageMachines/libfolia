@@ -81,7 +81,6 @@ namespace folia {
     _confidence = -1;
     _element_id = BASE;
     refcount = 0;
-    _datetime = 0;
     _parent = 0;
     _auth = true;
     _required_attributes = NO_ATT;
@@ -105,7 +104,6 @@ namespace folia {
 	mydoc->keepForDeletion( data[i] );
       }
     }
-    delete _datetime;
   }
 
   xmlNs *FoliaElement::foliaNs() const {
@@ -270,17 +268,18 @@ namespace folia {
       if ( !(DATETIME & supported) )
 	throw ValueError("datetime is not supported for " + classname() );
       else {
-	_datetime = parseDate( it->second );
-	if ( _datetime == 0 )
+	tm *time = parseDate( it->second );
+	if ( time == 0 )
 	  throw ValueError( "invalid datetime string:" + it->second );
+	_datetime = toString( time );
       }
     }
     else if ( mydoc &&
 	      (def = mydoc->defaultdatetime( _annotation_type, _set )) != "" ){
-      _datetime = parseDate(def);
+      _datetime = def;
     }
     else
-      _datetime = 0;
+      _datetime.clear();
 
     it = kwargs.find( "auth" );
     if ( it != kwargs.end() ){
@@ -355,12 +354,9 @@ namespace folia {
       attribs["annotator"] = _annotator;
     }
 
-    if ( _datetime != 0 ){
-      string tmp = mydoc->defaultdatetime( _annotation_type, _set );
-      string tm = getDateTime();
-      if ( tm  != tmp ){
-	attribs["datetime"] = tm;;
-      }
+    if ( !_datetime.empty() &&
+	 _datetime != mydoc->defaultdatetime( _annotation_type, _set ) ){
+      attribs["datetime"] = _datetime;
     }
     if ( _annotator_type != UNDEFINED ){
       AnnotatorType at = stringTo<AnnotatorType>( mydoc->defaultannotatortype( _annotation_type, _set ) );
@@ -806,14 +802,15 @@ namespace folia {
     if ( !(DATETIME & supported) )
       throw ValueError("datetime is not supported for " + classname() );
     else {
-      _datetime = parseDate( s );
-      if ( _datetime == 0 )
+      tm *time = parseDate( s );
+      if ( time == 0 )
 	throw ValueError( "invalid datetime string:" + s );
+      _datetime = toString( time );
     }
   }
 
   string FoliaElement::getDateTime() const {
-    return toString( _datetime );
+    return _datetime;
   }
 
   string FoliaElement::pos() const { 

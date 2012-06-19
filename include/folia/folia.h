@@ -468,7 +468,7 @@ namespace folia {
     std::string _class;
     std::string _annotator;
     std::string _n;
-    std::tm *_datetime;
+    std::string _datetime;
     AnnotatorType _annotator_type;
     double _confidence;
     int refcount;
