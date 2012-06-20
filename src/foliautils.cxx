@@ -966,9 +966,9 @@ namespace folia {
     }
   }
 
-  tm *parseDate( const string& s ){
+  string parseDate( const string& s ){
     if ( s.empty() )
-      return 0;
+      return "";
     //    cerr << "try to read a date-time " << s << endl;
     vector<string> date_time;
     size_t num = split_at( s, date_time, "T");
@@ -1031,12 +1031,9 @@ namespace folia {
       }
     }
     // cerr << "read _date time = " << toString(time) << endl;
-    return time;
-  }
-
-  string toString( const tm *date ) {
     char buf[100];
-    strftime( buf, 100, "%Y-%m-%dT%X", date );
+    strftime( buf, 100, "%Y-%m-%dT%X", time );
+    delete time;
     return buf;
   }
 

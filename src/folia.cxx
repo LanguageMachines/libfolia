@@ -268,10 +268,10 @@ namespace folia {
       if ( !(DATETIME & supported) )
 	throw ValueError("datetime is not supported for " + classname() );
       else {
-	tm *time = parseDate( it->second );
-	if ( time == 0 )
+	string time = parseDate( it->second );
+	if ( time.empty() )
 	  throw ValueError( "invalid datetime string:" + it->second );
-	_datetime = toString( time );
+	_datetime = time;
       }
     }
     else if ( mydoc &&
@@ -802,10 +802,10 @@ namespace folia {
     if ( !(DATETIME & supported) )
       throw ValueError("datetime is not supported for " + classname() );
     else {
-      tm *time = parseDate( s );
-      if ( time == 0 )
+      string time = parseDate( s );
+      if ( time.empty() )
 	throw ValueError( "invalid datetime string:" + s );
-      _datetime = toString( time );
+      _datetime = time;
     }
   }
 

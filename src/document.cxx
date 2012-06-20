@@ -402,8 +402,7 @@ namespace folia {
 	}
 	it = att.find( "datetime" );
 	if ( it != att.end() ){
-	  tm * date = parseDate( it->second );
-	  d = toString( date );
+	  d = parseDate( it->second );
 	}
 	declare( type, s, a, t, d );
       }
