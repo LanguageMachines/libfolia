@@ -2352,37 +2352,39 @@ namespace folia {
     AUTH = false;
   }
 
+  void AbstractCorrectionChild::init(){
+    _optional_attributes = NO_ATT;
+    const ElementType accept[] = { Pos_t, Lemma_t,
+				   Phon_t, Domain_t,
+				   Sense_t, Subjectivity_t,
+				   Correction_t, ErrorDetection_t,
+				   Word_t, WordReference_t, 
+				   TextContent_t, Description_t };
+    _accepted_data = std::set<ElementType>(accept, accept + 12 );
+    occurrences = 1;
+    PRINTABLE=true;
+  }
+  
   void NewElement::init(){
     _xmltag = "new";
     _element_id = New_t;
-    const ElementType accept[] = { Pos_t, Lemma_t, Word_t, TextContent_t };
-    _accepted_data = std::set<ElementType>(accept, accept + 4 );
-    occurrences = 1;
   }
 
   void Current::init(){
     _xmltag = "current";
     _element_id = Current_t;
-    const ElementType accept[] = { Pos_t, Lemma_t, Word_t, TextContent_t };
-    _accepted_data = std::set<ElementType>(accept, accept + 4 );
-    occurrences = 1;
   }
 
   void Original::init(){
     _xmltag = "original";
     _element_id = Original_t;
-    const ElementType accept[] = { Pos_t, Lemma_t, Word_t, TextContent_t,
-				   Correction_t, Description_t };
-    _accepted_data = std::set<ElementType>(accept, accept + 6 );
     AUTH = false;
-    occurrences = 1;
   }
 
   void Suggestion::init(){
     _xmltag = "suggestion";
     _element_id = Suggestion_t;
-    const ElementType accept[] = { Pos_t, Lemma_t, TextContent_t, Word_t };
-    _accepted_data = std::set<ElementType>(accept, accept + 4 );
+    _optional_attributes = ANNOTATOR|CONFIDENCE|DATETIME|N;
     _annotation_type = AnnotationType::SUGGESTION;    
     occurrences=0;
     occurrences_per_set=0;

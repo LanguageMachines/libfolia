@@ -1136,42 +1136,49 @@ namespace folia {
     void init();
   };
 
-  class NewElement: public FoliaElement {
+  class AbstractCorrectionChild: public FoliaElement {
   public:
-  NewElement( const std::string& s=""): FoliaElement( ) { classInit( s ); };
-  NewElement( const KWargs& a ): FoliaElement( ) { classInit( a ); };
-  NewElement( Document *d, const std::string& s=""): FoliaElement( d ) { classInit( s ); };
-  NewElement( Document *d, const KWargs& a ): FoliaElement( d ) { classInit( a ); };
+  AbstractCorrectionChild( Document *d=0 ):  FoliaElement( d ){ classInit(); };
   private:
     void init();
   };
 
-  class Current: public FoliaElement {
+  class NewElement: public AbstractCorrectionChild {
   public:
-  Current( const std::string& s=""): FoliaElement( ) { classInit( s ); };
-  Current( const KWargs& a ): FoliaElement( ) { classInit( a ); };
-  Current( Document *d, const std::string& s=""): FoliaElement( d ) { classInit( s ); };
-  Current( Document *d, const KWargs& a ): FoliaElement( d ) { classInit( a ); };
+  NewElement( const std::string& s=""): AbstractCorrectionChild( ) { classInit( s ); };
+  NewElement( const KWargs& a ): AbstractCorrectionChild( ) { classInit( a ); };
+  NewElement( Document *d, const std::string& s=""): AbstractCorrectionChild( d ) { classInit( s ); };
+  NewElement( Document *d, const KWargs& a ): AbstractCorrectionChild( d ) { classInit( a ); };
   private:
     void init();
   };
 
-  class Original: public FoliaElement {
+  class Current: public AbstractCorrectionChild {
   public:
-  Original( const std::string& s=""): FoliaElement( ) { classInit( s ); };
-  Original( const KWargs& a ): FoliaElement( ) { classInit( a ); };
-  Original( Document *d, const std::string& s=""): FoliaElement( d ) { classInit( s ); };
-  Original( Document *d, const KWargs& a ): FoliaElement( d ) { classInit( a ); };
+  Current( const std::string& s=""): AbstractCorrectionChild( ) { classInit( s ); };
+  Current( const KWargs& a ): AbstractCorrectionChild( ) { classInit( a ); };
+  Current( Document *d, const std::string& s=""): AbstractCorrectionChild( d ) { classInit( s ); };
+  Current( Document *d, const KWargs& a ): AbstractCorrectionChild( d ) { classInit( a ); };
   private:
     void init();
   };
 
-  class Suggestion: public FoliaElement {
+  class Original: public AbstractCorrectionChild {
   public:
-  Suggestion( const std::string& s=""): FoliaElement( ) { classInit( s ); };
-  Suggestion( const KWargs& a ): FoliaElement( ) { classInit( a ); };
-  Suggestion( Document *d, const std::string& s=""): FoliaElement( d ) { classInit( s ); };
-  Suggestion( Document *d, const KWargs& a ): FoliaElement( d ) { classInit( a ); };
+  Original( const std::string& s=""): AbstractCorrectionChild( ) { classInit( s ); };
+  Original( const KWargs& a ): AbstractCorrectionChild( ) { classInit( a ); };
+  Original( Document *d, const std::string& s=""): AbstractCorrectionChild( d ) { classInit( s ); };
+  Original( Document *d, const KWargs& a ): AbstractCorrectionChild( d ) { classInit( a ); };
+  private:
+    void init();
+  };
+
+  class Suggestion: public AbstractCorrectionChild {
+  public:
+  Suggestion( const std::string& s=""): AbstractCorrectionChild( ) { classInit( s ); };
+  Suggestion( const KWargs& a ): AbstractCorrectionChild( ) { classInit( a ); };
+  Suggestion( Document *d, const std::string& s=""): AbstractCorrectionChild( d ) { classInit( s ); };
+  Suggestion( Document *d, const KWargs& a ): AbstractCorrectionChild( d ) { classInit( a ); };
   private:
     void init();
   };
