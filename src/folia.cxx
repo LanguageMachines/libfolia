@@ -865,6 +865,42 @@ namespace folia {
     return res;
   }
 
+
+  vector<Word*> Quote::wordParts() const {
+    vector<Word*> result;
+    for ( size_t i=0; i < data.size(); ++i ){
+      FoliaElement *pnt = data[i];
+      if ( pnt->isinstance( Word_t ) )
+	result.push_back( dynamic_cast<Word*>(pnt) );
+      else if ( pnt->isinstance( Sentence_t ) ){	
+	result.push_back( new PlaceHolder("text='[" + 
+					  pnt->id() + "]'") );
+      }
+      else {
+	throw XmlError( "Word or Sentence expected in Quote. got: " 
+			+ pnt->classname() );
+      }
+    }
+    return result;
+  }
+
+  vector<Word*> Sentence::wordParts() const {
+    vector<Word*> result;
+    for ( size_t i=0; i < data.size(); ++i ){
+      FoliaElement *pnt = data[i];
+      if ( pnt->isinstance( Word_t ) )
+	result.push_back( dynamic_cast<Word*>(pnt) );
+      else if ( pnt->isinstance( Quote_t ) ){	
+	vector<Word*> v = pnt->wordParts();
+	result.insert( result.end(), v.begin(),v.end() );
+      }
+      else {
+	// skip all other stuff. Is there any?
+      }
+    }
+    return result;
+  }
+  
   Correction *Sentence::splitWord( FoliaElement *orig, FoliaElement *p1, FoliaElement *p2, const KWargs& args ){
     vector<FoliaElement*> ov;
     ov.push_back( orig );

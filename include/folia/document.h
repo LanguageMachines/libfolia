@@ -101,6 +101,7 @@ namespace folia {
     };
     std::vector<Paragraph*> paragraphs() const;
     std::vector<Sentence*> sentences() const;
+    std::vector<Sentence*> sentenceParts() const;
     std::vector<Word*> words() const;
     std::vector<std::vector<Word*> > findwords( const Pattern&,
 						const std::string& ="" ) const;

@@ -272,6 +272,12 @@ namespace folia {
     return foliadoc->select<Sentence>( excludeSet );
   }
   
+  vector<Sentence*> Document::sentenceParts() const {
+    static set<ElementType> excludeSet;
+    vector<Sentence*> sents = foliadoc->select<Sentence>( excludeSet );
+    return sents;
+  }
+  
   Sentence *Document::sentences( size_t index ) const {
     vector<Sentence*> v = sentences();
     if ( index < v.size() ){

@@ -228,6 +228,7 @@ namespace folia {
     }
 
     std::vector<std::string> feats( const std::string& ) const;
+    std::vector<Sentence *> sentencePart() const;
     std::string feat( const std::string& ) const;
     //XML (de)serialisation
     std::string xmlstring() const; // serialize to a string (XML fragment)
@@ -341,6 +342,9 @@ namespace folia {
       throw NotImplementedError("rparagraphs() for " + _xmltag );
     };
     virtual Word *words( size_t ) const {
+      throw NotImplementedError("words() for " + _xmltag );
+    };
+    virtual std::vector<Word *> wordParts() const {
       throw NotImplementedError("words() for " + _xmltag );
     };
     virtual Word *rwords( size_t ) const {
@@ -762,6 +766,7 @@ namespace folia {
     Correction *deleteword( FoliaElement *, const std::string& args );
     Correction *insertword( FoliaElement *, FoliaElement *,
 			    const std::string& args );
+    std::vector<Word*> wordParts() const;
   private:
     Correction *correctWords( const std::vector<FoliaElement *>&,
 			      const std::vector<FoliaElement *>&,
@@ -963,6 +968,7 @@ namespace folia {
   Quote( Document *d, const std::string& s="" ): AbstractStructureElement( d ){ classInit( s ); };
   Quote( Document *d, const KWargs& a ): AbstractStructureElement( d ){ classInit( a ); };
     FoliaElement *append( FoliaElement *);
+    std::vector<Word*> wordParts() const;
   private:
     void init();
   };
