@@ -747,6 +747,8 @@ namespace folia {
   public:
   PlaceHolder( const std::string& s=""): Word(){ classInit( s ); };
   PlaceHolder( const KWargs& a ): Word(){ classInit( a ); };
+  PlaceHolder( Document *d, const std::string& s=""): Word( d ){ classInit( s ); };
+  PlaceHolder( Document *d, const KWargs& a ): Word( d ){ classInit( a ); };
     void setAttributes( const KWargs& );
   private:
     void init();

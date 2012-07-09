@@ -872,9 +872,11 @@ namespace folia {
       FoliaElement *pnt = data[i];
       if ( pnt->isinstance( Word_t ) )
 	result.push_back( dynamic_cast<Word*>(pnt) );
-      else if ( pnt->isinstance( Sentence_t ) ){	
-	result.push_back( new PlaceHolder("text='[" + 
-					  pnt->id() + "]'") );
+      else if ( pnt->isinstance( Sentence_t ) ){
+	PlaceHolder *p = new PlaceHolder( mydoc, "text='[" + 
+					  pnt->id() + "]'");
+	mydoc->keepForDeletion( p );
+	result.push_back( p );
       }
       else {
 	throw XmlError( "Word or Sentence expected in Quote. got: " 
@@ -1899,7 +1901,8 @@ namespace folia {
   }
 
   FoliaElement *AbstractSpanAnnotation::append( FoliaElement *child ){
-    if ( child->isinstance(Word_t) && acceptable( WordReference_t ) )
+    if ( child->isinstance(PlaceHolder_t) ||
+	 ( child->isinstance(Word_t) && acceptable( WordReference_t ) ) )
       child->increfcount();
     FoliaElement::append( child );
     return child;
@@ -2166,6 +2169,12 @@ namespace folia {
     space = true;
   }
 
+  void PlaceHolder::init(){
+    _xmltag="placeholder";
+    _element_id = PlaceHolder_t;
+    _required_attributes = NO_ATT;
+  }
+
   void WordReference::init(){
     _required_attributes = ID;
     _xmltag = "wref";
@@ -2187,16 +2196,6 @@ namespace folia {
   void AlignReference::init(){
     _xmltag = "aref";
     _element_id = AlignReference_t;
-  }
-
-  void PlaceHolder::init(){
-    _xmltag="placeholder";
-    _element_id = PlaceHolder_t;
-    const ElementType accept[] = { TextContent_t };
-    _accepted_data = std::set<ElementType>(accept, accept + 1 );
-    _annotation_type = AnnotationType::TOKEN;
-    _required_attributes = NO_ATT;
-    TEXTDELIMITER = " ";
   }
 
 
@@ -2589,9 +2588,9 @@ namespace folia {
     _required_attributes = NO_ATT;
     _optional_attributes = NO_ATT;
     _annotation_type = AnnotationType::DEPENDENCY;
-    const ElementType accept[] = { Word_t, WordReference_t, 
+    const ElementType accept[] = { Word_t, WordReference_t, PlaceHolder_t,
 				   Description_t, Feature_t, Alignment_t };
-    _accepted_data = std::set<ElementType>(accept, accept + 5 );
+    _accepted_data = std::set<ElementType>(accept, accept + 6 );
   }
 
   void DependencyHead::init(){
@@ -2600,9 +2599,9 @@ namespace folia {
     _required_attributes = NO_ATT;
     _optional_attributes = NO_ATT;
     _annotation_type = AnnotationType::DEPENDENCY;
-    const ElementType accept[] = { Word_t, WordReference_t, 
+    const ElementType accept[] = { Word_t, WordReference_t, PlaceHolder_t,
 				   Description_t, Feature_t, Alignment_t };
-    _accepted_data = std::set<ElementType>(accept, accept + 5 );
+    _accepted_data = std::set<ElementType>(accept, accept + 6 );
   }
 
   void PosAnnotation::init(){
