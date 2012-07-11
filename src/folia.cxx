@@ -873,8 +873,8 @@ namespace folia {
       if ( pnt->isinstance( Word_t ) )
 	result.push_back( dynamic_cast<Word*>(pnt) );
       else if ( pnt->isinstance( Sentence_t ) ){
-	PlaceHolder *p = new PlaceHolder( mydoc, "text='[" + 
-					  pnt->id() + "]'");
+	PlaceHolder *p = new PlaceHolder( mydoc, "text='" + 
+					  pnt->id() + "'");
 	mydoc->keepForDeletion( p );
 	result.push_back( p );
       }
