@@ -132,10 +132,15 @@ namespace folia {
     }
     else
       version.clear();
-
+    
     it = kwargs.find( "id" );
     if ( it != kwargs.end() ){
-      _id = it->second;
+      if ( isNCName( it->second ) ){
+	_id = it->second;
+      }
+      else {
+	// isNCName throws
+      }
       happy = true;
     }
     else {
@@ -165,13 +170,27 @@ namespace folia {
       throw DuplicateIDError( s );
   }
 
+  static int error_sink(void *mydata, xmlError *error ){
+    int *cnt = (int*)mydata;
+    if ( *cnt == 0 ){
+      cerr << "\nXML-error: " << error->message << endl;
+    }
+    (*cnt)++;
+    return 1;
+  }
+
   bool Document::readFromFile( const string& s ){
     if ( xmldoc ){
       throw runtime_error( "Document is aready initialized" );
       return false;
     }
+    int cnt = 0;
+    xmlSetStructuredErrorFunc( &cnt, (xmlStructuredErrorFunc)error_sink );
     xmldoc = xmlReadFile( s.c_str(), 0, XML_PARSE_NOBLANKS );
     if ( xmldoc ){
+      if ( cnt > 0 ){
+	throw XmlError( "document is invalid" );
+      }
       if ( debug )
 	cout << "read a doc from " << s << endl;
       foliadoc = parseXml();
@@ -194,8 +213,13 @@ namespace folia {
       throw runtime_error( "Document is aready initialized" );
       return false;
     }
+    int cnt = 0;
+    xmlSetStructuredErrorFunc( &cnt, (xmlStructuredErrorFunc)error_sink );
     xmldoc = xmlReadMemory( s.c_str(), s.length(), 0, 0, XML_PARSE_NOBLANKS );
     if ( xmldoc ){
+      if ( cnt > 0 ){
+	throw XmlError( "document is invalid" );
+      }
       if ( debug )
 	cout << "read a doc from string" << endl;
       foliadoc = parseXml();
@@ -527,7 +551,11 @@ namespace folia {
 	     checkNS( root, NSFOLIA ) ){
 	  result = parseFoliaDoc( root );
 	  if ( result ){
-	    _id = result->id();
+	    if ( isNCName( result->id() ) )
+	      _id = result->id();
+	    else {
+	      // isNCName throws
+	    }
 	  }
 	}
 	else if ( Name( root ) == "DCOI" &&

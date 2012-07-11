@@ -1104,4 +1104,20 @@ namespace folia {
     return sane;
   };
 
+  bool isNCName( const std::string& s ){
+    static string extra=".:-_";
+    if ( s.empty() )
+      throw XmlError( "'" + s + "' is not a valid NCName." );
+    else if ( !isalpha(s[0]) )
+      throw XmlError( "'" + s + "' is not a valid NCName." );
+    else {
+      for ( size_t i=1; i < s.length(); ++i ){
+	if ( !isalnum(s[i]) &&
+	     extra.find(s[i]) == string::npos )
+	  throw XmlError( "'" + s + "' is not a valid NCName." );
+      }
+    }
+    return true;
+  }
+  
 } //namespace folia

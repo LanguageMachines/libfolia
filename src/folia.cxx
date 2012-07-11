@@ -144,6 +144,7 @@ namespace folia {
 	if ( !ID & supported )
 	  throw ValueError("ID is not supported for " + classname() );
 	else {
+	  isNCName( it->second );
 	  _id = it->second;
 	}
       }

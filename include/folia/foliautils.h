@@ -352,6 +352,8 @@ namespace folia {
   bool Attrib_sanity_check();
   bool ET_sanity_check();
 
+  bool isNCName( const std::string& );
+
 } // namespace folia
 
 #endif // FOLIAUTILS
