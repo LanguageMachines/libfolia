@@ -879,6 +879,13 @@ namespace folia {
 	mydoc->keepForDeletion( p );
 	result.push_back( p );
       }
+      else if ( pnt->isinstance( Quote_t ) ){
+	vector<Word*> tmp = pnt->wordParts();
+	result.insert( result.end(), tmp.begin(), tmp.end() );
+      }
+      else if ( pnt->isinstance( Description_t ) ){
+	// ignore
+      }
       else {
 	throw XmlError( "Word or Sentence expected in Quote. got: " 
 			+ pnt->classname() );
