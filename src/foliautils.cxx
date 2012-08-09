@@ -36,6 +36,7 @@
 #include <list>
 #include <stdexcept>
 #include <algorithm> 
+#include "ticcutils/StringOps.h"
 #include "folia/document.h"
 #include "folia/folia.h"
 
@@ -165,22 +166,7 @@ namespace folia {
     };
     return result;
   }
-
-  int to_lower( const int& i ){ return tolower(i); }
-  int to_upper( const int& i ){ return toupper(i); }
-
-  string lowercase( const string& in ){
-    string s = in;
-    transform( s.begin(), s.end(), s.begin(), to_lower );
-    return s;
-  }
-
-  string uppercase( const string& in ){
-    string s = in;
-    transform( s.begin(), s.end(), s.begin(), to_upper );
-    return s;
-  }
-
+ 
   AnnotationType::AnnotationType stringToAT( const string& at ){
     if ( at == "text" )
       return AnnotationType::TEXT;
@@ -648,46 +634,6 @@ namespace folia {
     return createElement( doc, et );
   }
 
-  string compress( const string& s ){
-    // remove leading and trailing spaces from a string
-    string result;
-    if ( !s.empty() ){
-      string::const_iterator b_it = s.begin();
-      while ( b_it != s.end() && isspace( *b_it ) ) ++b_it;
-      string::const_iterator e_it = s.end();
-      --e_it;
-      while ( e_it != s.begin() && isspace( *e_it ) ) --e_it;
-      if ( b_it <= e_it )
-	result = string( b_it, e_it+1 );
-    }
-    return result;
-  }
-
-  size_t split_at( const string& src, vector<string>& results, 
-		   const string& sep ){
-    // split a string into substrings, using seps as seperator
-    // silently skip empty entries (e.g. when two or more seperators co-incide)
-    // also purges trailing and leading spaces
-    results.clear();
-    string::size_type pos = 0;
-    string res;
-    while ( pos != string::npos ){
-      string::size_type p = src.find( sep, pos );
-      if ( p == string::npos ){
-	res = src.substr( pos );
-	pos = p;
-      }
-      else {
-	res = src.substr( pos, p - pos );
-	pos = p + sep.length();
-      }
-      res = folia::compress( res );
-      if ( !res.empty() )
-	results.push_back( res );
-    }
-    return results.size();
-  }
-
   KWargs getArgs( const std::string& s ){
     KWargs result;
     bool quoted = false;
@@ -936,7 +882,7 @@ namespace folia {
       return result - 1;
     }
     catch( exception ){
-      string m = lowercase( ms );
+      string m = TiCC::lowercase( ms );
       if ( m == "jan" )
 	return 0;
       else if ( m == "feb" )
@@ -971,9 +917,9 @@ namespace folia {
       return "";
     //    cerr << "try to read a date-time " << s << endl;
     vector<string> date_time;
-    size_t num = split_at( s, date_time, "T");
+    size_t num = TiCC::split_at( s, date_time, "T");
     if ( num == 0 ){
-      num = split_at( s, date_time, " ");
+      num = TiCC::split_at( s, date_time, " ");
       if ( num == 0 ){
 	cerr << "failed to read a date-time " << s << endl;
 	return 0;
@@ -984,7 +930,7 @@ namespace folia {
     if ( num == 1 || num == 2 ){
       //      cerr << "parse date " << date_time[0] << endl;
       vector<string> date_parts;
-      size_t dnum = split_at( date_time[0], date_parts, "-" );
+      size_t dnum = TiCC::split_at( date_time[0], date_parts, "-" );
       switch ( dnum ){
       case 3: {
 	int mday = stringTo<int>( date_parts[2] );
@@ -1007,7 +953,7 @@ namespace folia {
     if ( num == 2 ){
       //      cerr << "parse time " << date_time[1] << endl;
       vector<string> date_parts;
-      num = split_at( date_time[1], date_parts, ":" );
+      num = TiCC::split_at( date_time[1], date_parts, ":" );
       //      cerr << "parts " << date_parts << endl;
       switch ( num ){
       case 4:

@@ -38,6 +38,8 @@
 #include <map>
 #include <algorithm>
 #include <stdexcept>
+#include "ticcutils/PrettyPrint.h"
+#include "ticcutils/StringOps.h"
 #include "folia/document.h"
 #include "folia/folia.h"
 #include "config.h"
@@ -45,7 +47,7 @@
 using namespace std;
 
 namespace folia {
-
+  
   string VersionName() { return PACKAGE_STRING; }
   string Version() { return VERSION; }
 
@@ -123,8 +125,10 @@ namespace folia {
     //   cerr << "ID & supported = " << (ID & supported) << endl;
     //   cerr << "ID & _required = " << (ID & _required_attributes ) << endl;
     // }
-    if ( mydoc && mydoc->debug > 2 )
+    if ( mydoc && mydoc->debug > 2 ){
+      using TiCC::operator <<;
       cerr << "set attributes: " << kwargs << " on " << toString(_element_id) << endl;
+    }
   
     KWargs::const_iterator it = kwargs.find( "generate_id" );
     if ( it != kwargs.end() ) {
@@ -1094,7 +1098,7 @@ namespace folia {
   void AllowGenerateID::setMaxId( FoliaElement *child ) {
     if ( !child->id().empty() && !child->xmltag().empty() ){
       vector<string> parts;
-      size_t num = split_at( child->id(), parts, "." );
+      size_t num = TiCC::split_at( child->id(), parts, "." );
       if ( num > 0 ){
 	string val = parts[num-1];
 	int i;

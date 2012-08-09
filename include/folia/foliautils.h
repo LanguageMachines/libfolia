@@ -36,6 +36,8 @@
 #include <vector>
 #include <stdexcept>
 #include <ctime>
+#include "ticcutils/PrettyPrint.h"
+#include "ticcutils/StringOps.h"
 #include "unicode/unistr.h"
 #include "unicode/unistr.h"
 #include <unicode/ustream.h>
@@ -189,20 +191,10 @@ namespace folia {
   std::string toString( const AnnotationType::AnnotationType& );
   AnnotatorType stringToANT( const std::string& );
   
-  std::string lowercase( const std::string& );
-  std::string uppercase( const std::string& );
-  
   AnnotationType::AnnotationType stringToAT( const std::string& );
   
   std::string toString( const ElementType& );
   ElementType stringToET( const std::string& );
-  
-  std::string compress( const std::string& );
-  
-  inline std::string strip( const std::string& s) { return compress( s ); }
-  
-  size_t split_at( const std::string&, std::vector<std::string>&,
-		   const std::string& );
   
   typedef std::map<std::string, std::string> KWargs;
   
@@ -238,7 +230,7 @@ namespace folia {
 
   template<>
     inline AnnotatorType stringTo( const std::string& str ) {
-    std::string at = uppercase( str );
+    std::string at = TiCC::uppercase( str );
     if ( at == "AUTO" )
       return AUTO;
     else if ( at == "MANUAL" )
@@ -249,7 +241,7 @@ namespace folia {
   
   template<>
     inline bool stringTo( const std::string& str ) {
-    std::string b = uppercase( str );
+    std::string b = TiCC::uppercase( str );
     if ( b == "YES" || b == "TRUE" || b == "1" )
       return true;
     else if ( b == "FALSE" || b == "NO" || b == "0" )
@@ -259,76 +251,6 @@ namespace folia {
 				 + str + "' to bool failed" ) );
   }
   
-  template< typename T >
-    inline std::ostream& operator<<( std::ostream& os, const std::set<T>& s ){
-    os << "{";
-    typename std::set<T>::const_iterator it = s.begin();
-    while ( it != s.end() ){
-      os << *it;
-      ++it;
-      if ( it != s.end() )
-	os << ",";
-    }
-    os << "}";
-    return os;
-  }
-  
-  template< typename T >
-    inline std::ostream& operator<<( std::ostream& os, const std::list<T>& s ){
-    os << "[";
-    typename std::list<T>::const_iterator it = s.begin();
-    while ( it != s.end() ){
-      os << *it;
-      ++it;
-      if ( it != s.end() )
-	os << ",";
-    }
-    os << "]";
-    return os;
-  }
-  
-  template< typename T >
-    inline std::ostream& operator<<( std::ostream& os, const std::vector<T>& s ){
-    os << "[";
-    typename std::vector<T>::const_iterator it = s.begin();
-    while ( it != s.end() ){
-      os << *it;
-      ++it;
-      if ( it != s.end() )
-	os << ",";
-    }
-    os << "]";
-    return os;
-  }
-
-  template< typename S, typename T >
-    inline std::ostream& operator<< ( std::ostream& os, const std::map<S,T>& s ){
-    os << "{";
-    typename std::map<S,T>::const_iterator it = s.begin();
-    while ( it != s.end() ){
-      os << "<" << it->first << "," << it->second << ">";
-      ++it;
-      if ( it != s.end() )
-	os << ",";
-    }
-    os << "}";
-    return os;
-  }
-
-  template< typename S, typename T >
-    inline std::ostream& operator<< ( std::ostream& os, const std::multimap<S,T>& s ){
-    os << "{";
-    typename std::multimap<S,T>::const_iterator it = s.begin();
-    while ( it != s.end() ){
-      os << "<" << it->first << "," << it->second << ">";
-      ++it;
-      if ( it != s.end() )
-	os << ",";
-    }
-    os << "}";
-    return os;
-  }
-
   xmlNode *newXMLNode( xmlNs *,  const std::string& );
   void addAttributes( xmlNode *, const KWargs& );
   KWargs getAttributes( const xmlNode * );
@@ -354,6 +276,7 @@ namespace folia {
 
   bool isNCName( const std::string& );
 
+  inline std::string strip( const std::string& s ){ return TiCC::trim(s); };
 } // namespace folia
 
 #endif // FOLIAUTILS

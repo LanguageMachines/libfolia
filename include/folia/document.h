@@ -65,11 +65,6 @@ namespace folia {
     std::string matchannotationset;
   };
 
-  inline std::ostream& operator<<( std::ostream& os, const Pattern& p ){
-    os << "pattern: " << p.sequence;
-    return os;
-  }
-
   class FoliaElement;
   class Word;
   class Sentence;

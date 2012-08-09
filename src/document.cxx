@@ -42,6 +42,7 @@
 #include "config.h"
 
 using namespace std;
+using namespace TiCC;
 
 namespace folia {
 
@@ -539,6 +540,7 @@ namespace folia {
     xmlNode *root = xmlDocGetRootElement( xmldoc );
     _foliaNsIn = root->ns;
     if ( debug > 2 ){
+      using TiCC::operator <<;
       string dum;
       cerr << "root = " << Name( root ) << endl;
       cerr << "in namespace " << getNS( root, dum ) << endl;
@@ -1064,6 +1066,12 @@ namespace folia {
     for ( size_t i=0; i < matchers.size(); ++i ){  
       delete matchers[i];
     }
+  }
+
+  inline std::ostream& operator<<( std::ostream& os, const Pattern& p ){
+    using TiCC::operator <<;
+    os << "pattern: " << p.sequence;
+    return os;
   }
 
   bool Pattern::match( const UnicodeString& us, size_t& pos, int& gap, 
