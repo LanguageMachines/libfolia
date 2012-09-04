@@ -1778,6 +1778,7 @@ namespace folia {
       cerr << "Found word reference" << id << endl;
     FoliaElement *res = (*mydoc)[id];
     if ( res ){
+      // To DO: check juiste type. Woord, morpheme, dat mag, maar andere?
       res->increfcount();
     }
     else {
