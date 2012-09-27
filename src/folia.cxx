@@ -2185,8 +2185,8 @@ namespace folia {
 				   Sense_t, Alternative_t, 
 				   Correction_t, ErrorDetection_t, 
 				   Description_t, Morphology_t,
-				   Alignment_t };
-    _accepted_data = std::set<ElementType>(accept, accept + 10 );
+				   Alignment_t, Metric_t };
+    _accepted_data = std::set<ElementType>(accept, accept + 11 );
     _annotation_type = AnnotationType::TOKEN;
     TEXTDELIMITER = " ";
     space = true;
@@ -2231,6 +2231,15 @@ namespace folia {
     _optional_attributes = CLASS|ID|ANNOTATOR|CONFIDENCE|N|DATETIME;
   }
 
+  void Metric::init(){
+    _element_id = Metric_t;
+    _xmltag = "metric";
+    const ElementType accept[] = { ValueFeature_t, Description_t };
+    _accepted_data = std::set<ElementType>(accept, accept + 2 );
+    _optional_attributes = CLASS|ANNOTATOR|CONFIDENCE;
+    _annotation_type = AnnotationType::METRIC;
+  }
+
   void Content::init(){
     _xmltag = "content";
     _element_id = Content_t;
@@ -2245,8 +2254,8 @@ namespace folia {
 				   Entities_t,
 				   Quote_t, Event_t, TimingLayer_t,
 				   Correction_t,
-				   Description_t, Alignment_t };
-    _accepted_data = std::set<ElementType>(accept, accept + 15 );
+				   Description_t, Alignment_t, Metric_t };
+    _accepted_data = std::set<ElementType>(accept, accept + 16 );
     _annotation_type = AnnotationType::SENTENCE;
   }
 
@@ -2257,8 +2266,8 @@ namespace folia {
     const ElementType accept[] = { Division_t, Gap_t, Head_t, Paragraph_t,
 				   Sentence_t, List_t, Figure_t, Event_t,
 				   Description_t, LineBreak_t, TextContent_t,
-				   WhiteSpace_t };
-    _accepted_data = std::set<ElementType>(accept, accept + 12 );
+				   WhiteSpace_t, Metric_t };
+    _accepted_data = std::set<ElementType>(accept, accept + 13 );
     _annotation_type = AnnotationType::DIVISION;
   }
 
@@ -2267,8 +2276,8 @@ namespace folia {
     _element_id = Text_t;
     const ElementType accept[] = { Gap_t, Division_t, Paragraph_t, Sentence_t, 
 				   List_t, Figure_t, Description_t, Event_t,
-				   TextContent_t };
-    _accepted_data = std::set<ElementType>(accept, accept + 9 );
+				   TextContent_t, Metric_t };
+    _accepted_data = std::set<ElementType>(accept, accept + 10 );
     _required_attributes = ID;
     TEXTDELIMITER = "\n\n";
   }
@@ -2346,8 +2355,8 @@ namespace folia {
     _element_id = Paragraph_t;
     const ElementType accept[] = { Sentence_t, Correction_t, TextContent_t, 
 				   Description_t, LineBreak_t, WhiteSpace_t, 
-				   List_t, Figure_t, Alignment_t };
-    _accepted_data = std::set<ElementType>(accept, accept + 9 );
+				   List_t, Figure_t, Alignment_t, Metric_t };
+    _accepted_data = std::set<ElementType>(accept, accept + 10 );
     _annotation_type = AnnotationType::PARAGRAPH;
   }
 

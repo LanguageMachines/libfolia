@@ -161,6 +161,9 @@ namespace folia {
     case AnnotationType::ALIGNMENT:
       result = "alignment";
       break; 
+    case AnnotationType::METRIC:
+      result = "metric";
+      break; 
     case AnnotationType::LAST_ANN:
       throw logic_error("LAST_ANN");
     };
@@ -226,6 +229,8 @@ namespace folia {
       return AnnotationType::GAP;
     if ( at == "alignment" )
       return AnnotationType::ALIGNMENT;
+    if ( at == "metric" )
+      return AnnotationType::METRIC;
     throw ValueError( " unknown translation for attribute: " + at );
   }
 
@@ -280,6 +285,7 @@ namespace folia {
     case Description_t: result = "desc"; break;
     case Gap_t: result = "gap"; break;
     case Content_t: result = "content"; break;
+    case Metric_t: result = "metric"; break;
     case Feature_t: result = "feat"; break;
     case SynsetFeature_t: result = "synset"; break;
     case ActorFeature_t: result = "actor"; break;
@@ -372,6 +378,9 @@ namespace folia {
     }
     if ( tag == "content" ){
       return Content_t;
+    }
+    if ( tag == "metric" ){
+      return Metric_t;
     }
     if ( tag == "div" ){
       return Division_t;
@@ -544,6 +553,8 @@ namespace folia {
       return new Gap( doc );
     case Content_t:
       return new Content( doc );
+    case Metric_t:
+      return new Metric( doc );
     case Division_t:
       return new Division( doc );
     case AnnotationLayer_t:

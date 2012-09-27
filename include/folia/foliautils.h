@@ -85,6 +85,7 @@ namespace folia {
     Alternative_t, Alternatives_t, //alternatives
     Description_t, Gap_t, 
     Content_t, 
+    Metric_t, 
     Feature_t, SynsetFeature_t, ActorFeature_t, HeadFeature_t, ValueFeature_t,
     BeginDateTimeFeature_t, EndDateTimeFeature_t, //features
     PlaceHolder_t,
@@ -112,7 +113,7 @@ namespace folia {
 			  // where/how/why?
 			  CORRECTION, SUGGESTION, ERRORDETECTION, ALTERNATIVE, 
 			  PHON, SUBJECTIVITY, MORPHOLOGICAL, SUBENTITY, EVENT, 
-			  DEPENDENCY, TIMEDEVENT, GAP, ALIGNMENT, 
+			  DEPENDENCY, TIMEDEVENT, GAP, ALIGNMENT, METRIC,
 			  LAST_ANN
     };
     inline AnnotationType& operator++( AnnotationType &at ){
