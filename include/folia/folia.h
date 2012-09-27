@@ -672,12 +672,12 @@ namespace folia {
     std::string value;
   };
   
-  class Metric: public FoliaElement {
+  class MetricAnnotation: public FoliaElement {
   public:
-  Metric( const std::string& s=""): FoliaElement( ) { classInit( s ); };
-  Metric( const KWargs& a ): FoliaElement( ) { classInit( a ); };
-  Metric( Document *d, const std::string& s=""): FoliaElement( d ) { classInit( s ); };
-  Metric( Document *d, const KWargs& a ): FoliaElement( d ) { classInit( a ); };
+  MetricAnnotation( const std::string& s=""): FoliaElement( ) { classInit( s ); };
+  MetricAnnotation( const KWargs& a ): FoliaElement( ) { classInit( a ); };
+  MetricAnnotation( Document *d, const std::string& s=""): FoliaElement( d ) { classInit( s ); };
+  MetricAnnotation( Document *d, const KWargs& a ): FoliaElement( d ) { classInit( a ); };
   private:
     void init();
   };

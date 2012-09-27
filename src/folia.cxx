@@ -2231,7 +2231,7 @@ namespace folia {
     _optional_attributes = CLASS|ID|ANNOTATOR|CONFIDENCE|N|DATETIME;
   }
 
-  void Metric::init(){
+  void MetricAnnotation::init(){
     _element_id = Metric_t;
     _xmltag = "metric";
     const ElementType accept[] = { ValueFeature_t, Description_t };

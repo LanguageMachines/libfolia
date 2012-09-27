@@ -554,7 +554,7 @@ namespace folia {
     case Content_t:
       return new Content( doc );
     case Metric_t:
-      return new Metric( doc );
+      return new MetricAnnotation( doc );
     case Division_t:
       return new Division( doc );
     case AnnotationLayer_t:

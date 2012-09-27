@@ -72,7 +72,7 @@ namespace folia {
     Sentence_t, Paragraph_t,
     Division_t, Head_t, Caption_t, Label_t,
     List_t, ListItem_t, Figure_t, Quote_t, //structure annotation elements
-    Pos_t, Lemma_t, Phon_t, Domain_t, Sense_t, Subjectivity_t,
+    Pos_t, Lemma_t, Phon_t, Domain_t, Sense_t, Subjectivity_t, Metric_t, 
     Correction_t, //token annotation elements
     AnnotationLayer_t, SyntacticUnit_t, SyntaxLayer_t, 
     Chunk_t, Chunking_t, 
@@ -85,7 +85,6 @@ namespace folia {
     Alternative_t, Alternatives_t, //alternatives
     Description_t, Gap_t, 
     Content_t, 
-    Metric_t, 
     Feature_t, SynsetFeature_t, ActorFeature_t, HeadFeature_t, ValueFeature_t,
     BeginDateTimeFeature_t, EndDateTimeFeature_t, //features
     PlaceHolder_t,
