@@ -310,6 +310,14 @@ namespace folia {
       tmp->setAttributes( newa );
       append( tmp );
     }
+    it = kwargs.find( "value" );
+    if ( it != kwargs.end() ){
+      KWargs newa;
+      newa["class"] = it->second;
+      FoliaElement *tmp = new ValueFeature();
+      tmp->setAttributes( newa );
+      append( tmp );
+    }
     it = kwargs.find( "synset" );
     if ( it != kwargs.end() ){
       KWargs newa;
@@ -404,6 +412,8 @@ namespace folia {
       return "actor";
     else if ( c->isinstance(HeadFeature_t) )
       return "head";
+    else if ( c->isinstance(ValueFeature_t) )
+      return "value";
     else if ( c->isinstance(BeginDateTimeFeature_t) )
       return "begindatetime";
     else if ( c->isinstance(EndDateTimeFeature_t) )
@@ -2494,6 +2504,7 @@ namespace folia {
 	     data[i]->isinstance( BeginDateTimeFeature_t ) ||
 	     data[i]->isinstance( EndDateTimeFeature_t ) ||
 	     data[i]->isinstance( HeadFeature_t ) ||
+	     data[i]->isinstance( ValueFeature_t ) ||
 	     data[i]->isinstance( ActorFeature_t ) ) &&
 	   data[i]->subset() == s )
 	result.push_back( data[i]->cls() );
@@ -2509,6 +2520,7 @@ namespace folia {
 	     data[i]->isinstance( BeginDateTimeFeature_t ) ||
 	     data[i]->isinstance( EndDateTimeFeature_t ) ||
 	     data[i]->isinstance( HeadFeature_t ) ||
+	     data[i]->isinstance( ValueFeature_t ) ||
 	     data[i]->isinstance( ActorFeature_t ) ) &&
 	   data[i]->subset() == s )
 	return data[i]->cls();
@@ -2706,6 +2718,12 @@ namespace folia {
     _xmltag = "headfeature";
     _element_id = HeadFeature_t;
     _subset = "head";
+  }
+
+  void ValueFeature::init(){
+    _xmltag = "value";
+    _element_id = ValueFeature_t;
+    _subset = "value";
   }
 
   void AbstractSubtokenAnnotation::init() {

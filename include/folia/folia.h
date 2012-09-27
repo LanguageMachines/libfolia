@@ -1025,6 +1025,16 @@ namespace folia {
     void init();
   };
 
+  class ValueFeature: public Feature {
+  public:
+  ValueFeature( const std::string& s="" ): Feature( ){ classInit( s ); }
+  ValueFeature( const KWargs& a ): Feature( ){ classInit( a ); }
+  ValueFeature( Document *d, const std::string& s="" ): Feature( d ){ classInit( s ); }
+  ValueFeature( Document *d, const KWargs& a ): Feature( d ){ classInit( a ); }
+  private:
+    void init();
+  };
+
   class WordReference: public FoliaElement {
   public:
   WordReference( const std::string& s="" ): FoliaElement( ){ classInit( s ); };
