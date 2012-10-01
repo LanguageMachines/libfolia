@@ -329,10 +329,13 @@ namespace folia {
       excludeSet.insert( Alternative_t );
       excludeSet.insert( Chunk_t );
       excludeSet.insert( SyntacticUnit_t );
+      excludeSet.insert( Coreferences_t );
+      excludeSet.insert( Semroles_t );
       excludeSet.insert( Entity_t );
-      excludeSet.insert( TimedEvent_t );
-      excludeSet.insert( DependencyHead_t );
+      excludeSet.insert( Headwords_t );
+      excludeSet.insert( TimingLayer_t );
       excludeSet.insert( DependencyDependent_t );
+      excludeSet.insert( TimeSegment_t );
     }
     return foliadoc->select<Word>( excludeSet );
   }

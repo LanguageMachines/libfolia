@@ -67,28 +67,41 @@ namespace folia {
   
   enum ElementType  {
     BASE=0, TextContent_t,
-    Text_t, Word_t, WordReference_t, Event_t, TimedEvent_t, TimingLayer_t,
+    Text_t, Word_t, 
+    WordReference_t, Event_t, 
+    TimeSegment_t, TimingLayer_t,
     LineBreak_t, WhiteSpace_t, 
     Sentence_t, Paragraph_t,
-    Division_t, Head_t, Caption_t, Label_t,
-    List_t, ListItem_t, Figure_t, Quote_t, //structure annotation elements
-    Pos_t, Lemma_t, Phon_t, Domain_t, Sense_t, Subjectivity_t, Metric_t, 
-    Correction_t, //token annotation elements
-    AnnotationLayer_t, SyntacticUnit_t, SyntaxLayer_t, 
+    Division_t, Head_t, 
+    Caption_t, Label_t,
+    List_t, ListItem_t,
+    Figure_t, Quote_t, //structure annotation elements
+    Pos_t, Lemma_t, 
+    Phon_t, Domain_t, 
+    Sense_t, Subjectivity_t,
+    Metric_t, Correction_t, //token annotation elements
+    AnnotationLayer_t, SyntacticUnit_t, 
     Chunk_t, Chunking_t, 
     Entity_t, Entities_t, 
-    Subentity_t, Subentities_t, //annotation layers
+    Coreferences_t, CoreferenceLink_t, 
+    CoreferenceChain_t,  SyntaxLayer_t, 
+    Semroles_t, Semrole_t,
+    //    Subentity_t, Subentities_t, //annotation layers
     Morphology_t, Morpheme_t, 
     ErrorDetection_t, New_t, 
     Original_t, Current_t, 
-    Suggestion_t, 
     Alternative_t, Alternatives_t, //alternatives
     Description_t, Gap_t, 
-    Content_t, 
-    Feature_t, SynsetFeature_t, ActorFeature_t, HeadFeature_t, ValueFeature_t,
-    BeginDateTimeFeature_t, EndDateTimeFeature_t, //features
+    Suggestion_t, Content_t, 
+    Feature_t, SynsetFeature_t, 
+    ActorFeature_t, HeadFeature_t, 
+    ValueFeature_t, TimeFeature_t, 
+    ModalityFeature_t, LevelFeature_t,
+    BeginDateTimeFeature_t, EndDateTimeFeature_t,
+    FunctionFeature_t, //features
     PlaceHolder_t,
-    Dependencies_t, Dependency_t, DependencyHead_t, DependencyDependent_t,
+    Dependencies_t, Dependency_t, 
+    Headwords_t, DependencyDependent_t,
     Alignment_t, AlignReference_t,
     LastElement
   };
@@ -112,7 +125,8 @@ namespace folia {
 			  // where/how/why?
 			  CORRECTION, SUGGESTION, ERRORDETECTION, ALTERNATIVE, 
 			  PHON, SUBJECTIVITY, MORPHOLOGICAL, SUBENTITY, EVENT, 
-			  DEPENDENCY, TIMEDEVENT, GAP, ALIGNMENT, METRIC,
+			  DEPENDENCY, TIMEDEVENT, GAP, ALIGNMENT, 
+			  COMPLEXALIGNMENT, COREFERENCE, SEMROLE, METRIC,
 			  LAST_ANN
     };
     inline AnnotationType& operator++( AnnotationType &at ){

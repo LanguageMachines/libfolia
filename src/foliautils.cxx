@@ -153,13 +153,22 @@ namespace folia {
       result = "dependency";
       break;
     case AnnotationType::TIMEDEVENT:
-      result = "timedevent";
+      result = "timesegment";
       break;
     case AnnotationType::GAP:
       result = "gap";
       break; 
     case AnnotationType::ALIGNMENT:
       result = "alignment";
+      break; 
+    case AnnotationType::COMPLEXALIGNMENT:
+      result = "complexalignment";
+      break; 
+    case AnnotationType::COREFERENCE:
+      result = "coreference";
+      break; 
+    case AnnotationType::SEMROLE:
+      result = "semrole";
       break; 
     case AnnotationType::METRIC:
       result = "metric";
@@ -223,12 +232,18 @@ namespace folia {
       return AnnotationType::EVENT;
     if ( at == "dependency" )
       return AnnotationType::DEPENDENCY;
-    if ( at == "timedevent" )
+    if ( at == "timesegment" )
       return AnnotationType::TIMEDEVENT;
     if ( at == "gap" )
       return AnnotationType::GAP;
+    if ( at == "complexalignment" )
+      return AnnotationType::COMPLEXALIGNMENT;
     if ( at == "alignment" )
       return AnnotationType::ALIGNMENT;
+    if ( at == "semrole" )
+      return AnnotationType::SEMROLE;
+    if ( at == "coreference" )
+      return AnnotationType::COREFERENCE;
     if ( at == "metric" )
       return AnnotationType::METRIC;
     throw ValueError( " unknown translation for attribute: " + at );
@@ -241,7 +256,7 @@ namespace folia {
     case TextContent_t: result = "t"; break;
     case Text_t: result = "text"; break;
     case Event_t: result = "event"; break;
-    case TimedEvent_t: result = "timedevent"; break;
+    case TimeSegment_t: result = "timesegment"; break;
     case TimingLayer_t: result = "timing"; break;
     case LineBreak_t: result = "br"; break;
     case WhiteSpace_t: result = "whitespace"; break;
@@ -271,8 +286,13 @@ namespace folia {
     case Chunking_t: result = "chunking"; break; 
     case Entity_t: result = "entity"; break;
     case Entities_t: result = "entities"; break;
-    case Subentity_t: result = "subentity"; break;
-    case Subentities_t: result = "subentities"; break;
+    case Semroles_t: result = "semroles"; break;
+    case Semrole_t: result = "semrole"; break;
+    case Coreferences_t: result = "coreferences"; break;
+    case CoreferenceLink_t: result = "coreferencelink"; break;
+    case CoreferenceChain_t: result = "coreferencechain"; break;
+    // case Subentity_t: result = "subentity"; break;
+    // case Subentities_t: result = "subentities"; break;
     case Morphology_t: result = "morphology"; break;
     case Morpheme_t: result = "morpheme"; break;
     case ErrorDetection_t: result = "errordetection"; break;
@@ -291,13 +311,17 @@ namespace folia {
     case ActorFeature_t: result = "actor"; break;
     case HeadFeature_t: result = "headfeature"; break;
     case ValueFeature_t: result = "value"; break;
+    case TimeFeature_t: result = "time"; break;
+    case ModalityFeature_t: result = "modality"; break;
+    case LevelFeature_t: result = "level"; break;
+    case FunctionFeature_t: result = "function"; break;
     case BeginDateTimeFeature_t: result = "begindatetime"; break;
     case EndDateTimeFeature_t: result = "enddatetime"; break;
     case PlaceHolder_t: result = "placeholder"; break;
     case Dependencies_t: result = "dependencies"; break;
     case Dependency_t: result = "dependency"; break;
     case DependencyDependent_t: result = "dep"; break;
-    case DependencyHead_t: result = "hd"; break;
+    case Headwords_t: result = "hd"; break;
     case Alignment_t: result = "alignment"; break;
     case AlignReference_t: result = "aref"; break; 
     default:
@@ -319,8 +343,8 @@ namespace folia {
     if ( tag == "event" ){
       return Event_t;
     }
-    if ( tag == "timedevent" ){
-      return TimedEvent_t;
+    if ( tag == "timesegment" ){
+      return TimeSegment_t;
     }
     if ( tag == "timing" ){
       return TimingLayer_t;
@@ -421,12 +445,27 @@ namespace folia {
     if ( tag == "entities" ){
       return Entities_t;
     }
-    if ( tag == "subentity" ){
-      return Subentity_t;
+    if ( tag == "semroles" ){
+      return Semroles_t;
     }
-    if ( tag == "subentities" ){
-      return Subentities_t;
+    if ( tag == "semrole" ){
+      return Semrole_t;
     }
+    if ( tag == "coreferences" ){
+      return Coreferences_t;
+    }
+    if ( tag == "coreferencelink" ){
+      return CoreferenceLink_t;
+    }
+    if ( tag == "coreferencechain" ){
+      return CoreferenceChain_t;
+    }
+    // if ( tag == "subentity" ){
+    //   return Subentity_t;
+    // }
+    // if ( tag == "subentities" ){
+    //   return Subentities_t;
+    // }
     if ( tag == "alt" ){
       return Alternative_t;
     }
@@ -475,6 +514,18 @@ namespace folia {
     if ( tag == "value" ){
       return ValueFeature_t;
     }
+    if ( tag == "time" ){
+      return TimeFeature_t;
+    }
+    if ( tag == "level" ){
+      return LevelFeature_t;
+    }
+    if ( tag == "function" ){
+      return FunctionFeature_t;
+    }
+    if ( tag == "modality" ){
+      return ModalityFeature_t;
+    }
     if ( tag == "quote" ){
       return Quote_t;
     }
@@ -488,7 +539,7 @@ namespace folia {
       return DependencyDependent_t;
     }
     if ( tag == "hd" ){
-      return DependencyHead_t;
+      return Headwords_t;
     }
     if ( tag == "alignment" ){
       return Alignment_t;
@@ -513,8 +564,8 @@ namespace folia {
       return new Word( doc );
     case Event_t:
       return new Event( doc );
-    case TimedEvent_t:
-      return new TimedEvent( doc );
+    case TimeSegment_t:
+      return new TimeSegment( doc );
     case TimingLayer_t:
       return new TimingLayer( doc );
     case Sentence_t:
@@ -581,10 +632,20 @@ namespace folia {
       return new Entity( doc );
     case Entities_t:
       return new EntitiesLayer( doc );
-    case Subentity_t:
-      return new Subentity( doc );
-    case Subentities_t:
-      return new SubentitiesLayer( doc );
+    case Semroles_t:
+      return new SemanticRolesLayer( doc );
+    case Semrole_t:
+      return new SemanticRole( doc );
+    case Coreferences_t:
+      return new CoreferenceLayer( doc );
+    case CoreferenceLink_t:
+      return new CoreferenceLink( doc );
+    case CoreferenceChain_t:
+      return new CoreferenceChain( doc );
+    // case Subentity_t:
+    //   return new Subentity( doc );
+    // case Subentities_t:
+    //   return new SubentitiesLayer( doc );
     case Alternative_t:
       return new Alternative( doc );
     case PlaceHolder_t:
@@ -617,6 +678,14 @@ namespace folia {
       return new HeadFeature( doc );
     case ValueFeature_t:
       return new ValueFeature( doc );
+    case TimeFeature_t:
+      return new TimeFeature( doc );
+    case ModalityFeature_t:
+      return new ModalityFeature( doc );
+    case FunctionFeature_t:
+      return new FunctionFeature( doc );
+    case LevelFeature_t:
+      return new LevelFeature( doc );
     case Quote_t:
       return new Quote( doc );
     case Dependencies_t:
@@ -625,8 +694,8 @@ namespace folia {
       return new Dependency( doc );
     case DependencyDependent_t:
       return new DependencyDependent( doc );
-    case DependencyHead_t:
-      return new DependencyHead( doc );
+    case Headwords_t:
+      return new Headwords( doc );
     case Alignment_t:
       return new Alignment( doc );
     case AlignReference_t:

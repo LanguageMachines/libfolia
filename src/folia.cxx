@@ -318,6 +318,38 @@ namespace folia {
       tmp->setAttributes( newa );
       append( tmp );
     }
+    it = kwargs.find( "function" );
+    if ( it != kwargs.end() ){
+      KWargs newa;
+      newa["class"] = it->second;
+      FoliaElement *tmp = new FunctionFeature();
+      tmp->setAttributes( newa );
+      append( tmp );
+    }
+    it = kwargs.find( "level" );
+    if ( it != kwargs.end() ){
+      KWargs newa;
+      newa["class"] = it->second;
+      FoliaElement *tmp = new LevelFeature();
+      tmp->setAttributes( newa );
+      append( tmp );
+    }
+    it = kwargs.find( "time" );
+    if ( it != kwargs.end() ){
+      KWargs newa;
+      newa["class"] = it->second;
+      FoliaElement *tmp = new TimeFeature();
+      tmp->setAttributes( newa );
+      append( tmp );
+    }
+    it = kwargs.find( "modality" );
+    if ( it != kwargs.end() ){
+      KWargs newa;
+      newa["class"] = it->second;
+      FoliaElement *tmp = new ModalityFeature();
+      tmp->setAttributes( newa );
+      append( tmp );
+    }
     it = kwargs.find( "synset" );
     if ( it != kwargs.end() ){
       KWargs newa;
@@ -414,6 +446,8 @@ namespace folia {
       return "head";
     else if ( c->isinstance(ValueFeature_t) )
       return "value";
+    else if ( c->isinstance(FunctionFeature_t) )
+      return "function";
     else if ( c->isinstance(BeginDateTimeFeature_t) )
       return "begindatetime";
     else if ( c->isinstance(EndDateTimeFeature_t) )
@@ -604,10 +638,46 @@ namespace folia {
       return v[0]->description();
   }
 
+  void fillSM( map<ElementType,set<ElementType> >& sm ){
+    static ElementType featureSet[] = { SynsetFeature_t, 
+					ActorFeature_t, HeadFeature_t, 
+					ValueFeature_t, TimeFeature_t, 
+					ModalityFeature_t, LevelFeature_t,
+					BeginDateTimeFeature_t, 
+					EndDateTimeFeature_t,
+					FunctionFeature_t };
+    sm[Feature_t] = set<ElementType>(featureSet, featureSet + 10 );
+    static ElementType annolaySet[] = { SyntaxLayer_t, 
+					Chunking_t, Entities_t, 
+					TimingLayer_t, Dependencies_t, 
+					Coreferences_t, Semroles_t };
+    sm[AnnotationLayer_t] = set<ElementType>( annolaySet, 
+					      annolaySet + 7 );
+  }
+
+  bool isSubClass( ElementType e1, ElementType e2 ){
+    static map<ElementType,set<ElementType> > sm;
+    if ( sm.empty() )
+      fillSM( sm );
+    map<ElementType,set<ElementType> >::const_iterator it = sm.find( e2 );
+    if ( it != sm.end() ){
+      return it->second.find( e1 ) != it->second.end();
+    }
+    return false;
+  }
+
   bool FoliaElement::acceptable( ElementType t ) const {
     set<ElementType>::const_iterator it = _accepted_data.find( t );
-    if ( it == _accepted_data.end() )
+    if ( it == _accepted_data.end() ){
       return false;
+      // it = _accepted_data.begin();
+      // while ( it != _accepted_data.end() ){
+      // 	if ( isSubClass( t, *it ) )
+      // 	  return true;
+      // 	++it;
+      // }
+      // return false;
+    }
     return true;
   }
  
@@ -781,7 +851,7 @@ namespace folia {
       excludeSet.insert( Chunk_t );
       excludeSet.insert( SyntacticUnit_t );
       excludeSet.insert( Entity_t );
-      excludeSet.insert( DependencyHead_t );
+      excludeSet.insert( Headwords_t );
       excludeSet.insert( DependencyDependent_t );
     }
     return select( et, excludeSet, recurse );
@@ -1377,7 +1447,7 @@ namespace folia {
       excludeSet.insert( Chunk_t );
       excludeSet.insert( SyntacticUnit_t );
       excludeSet.insert( Entity_t );
-      excludeSet.insert( DependencyHead_t );
+      excludeSet.insert( Headwords_t );
       excludeSet.insert( DependencyDependent_t );
     }
     return select<Paragraph>( excludeSet );
@@ -1393,7 +1463,7 @@ namespace folia {
       excludeSet.insert( Chunk_t );
       excludeSet.insert( SyntacticUnit_t );
       excludeSet.insert( Entity_t );
-      excludeSet.insert( DependencyHead_t );
+      excludeSet.insert( Headwords_t );
       excludeSet.insert( DependencyDependent_t );
     }
     return select<Sentence>( excludeSet );
@@ -1407,9 +1477,13 @@ namespace folia {
       excludeSet.insert( Alternative_t );
       excludeSet.insert( Chunk_t );
       excludeSet.insert( SyntacticUnit_t );
+      excludeSet.insert( Coreferences_t );
+      excludeSet.insert( Semroles_t );
       excludeSet.insert( Entity_t );
-      excludeSet.insert( DependencyHead_t );
+      excludeSet.insert( Headwords_t );
+      excludeSet.insert( TimingLayer_t );
       excludeSet.insert( DependencyDependent_t );
+      excludeSet.insert( TimeSegment_t );
     }
     return select<Word>( excludeSet );
   }
@@ -2099,8 +2173,8 @@ namespace folia {
     }
   }
 
-  DependencyHead *Dependency::head() const {
-    vector<DependencyHead*> v = select<DependencyHead>();
+  Headwords *Dependency::head() const {
+    vector<Headwords*> v = select<Headwords>();
     if ( v.size() < 1 )
       throw NoSuchAnnotation( "head" );
     else {
@@ -2251,11 +2325,11 @@ namespace folia {
     const ElementType accept[] = { LineBreak_t, WhiteSpace_t, Word_t, 
 				   TextContent_t, AnnotationLayer_t, 
 				   SyntaxLayer_t, Chunking_t, Dependencies_t,
-				   Entities_t,
+				   Entities_t, Semroles_t,
 				   Quote_t, Event_t, TimingLayer_t,
 				   Correction_t,
 				   Description_t, Alignment_t, Metric_t };
-    _accepted_data = std::set<ElementType>(accept, accept + 16 );
+    _accepted_data = std::set<ElementType>(accept, accept + 17 );
     _annotation_type = AnnotationType::SENTENCE;
   }
 
@@ -2266,8 +2340,8 @@ namespace folia {
     const ElementType accept[] = { Division_t, Gap_t, Head_t, Paragraph_t,
 				   Sentence_t, List_t, Figure_t, Event_t,
 				   Description_t, LineBreak_t, TextContent_t,
-				   WhiteSpace_t, Metric_t };
-    _accepted_data = std::set<ElementType>(accept, accept + 13 );
+				   WhiteSpace_t, Metric_t, Coreferences_t };
+    _accepted_data = std::set<ElementType>(accept, accept + 14 );
     _annotation_type = AnnotationType::DIVISION;
   }
 
@@ -2294,9 +2368,9 @@ namespace folia {
     occurrences_per_set=0;
   }
 
-  void TimedEvent::init(){
-    _xmltag="timedevent";
-    _element_id = TimedEvent_t;
+  void TimeSegment::init(){
+    _xmltag="timesegment";
+    _element_id = TimeSegment_t;
     const ElementType accept[] = { Description_t, Feature_t, ActorFeature_t,
 				   Word_t,
 				   BeginDateTimeFeature_t, EndDateTimeFeature_t };
@@ -2368,6 +2442,16 @@ namespace folia {
     const ElementType accept[] = { SyntacticUnit_t, Word_t, WordReference_t,
 				   Description_t, Feature_t };
     _accepted_data = std::set<ElementType>(accept, accept + 5 );
+  }
+
+  void SemanticRole::init(){
+    _xmltag = "semrole";
+    _element_id = Semrole_t;
+    _required_attributes = CLASS;
+    _annotation_type = AnnotationType::SEMROLE;
+    const ElementType accept[] = { Word_t, WordReference_t, Headwords_t,
+				   Alignment_t, Description_t, Metric_t };
+    _accepted_data = std::set<ElementType>(accept, accept + 6 );
   }
 
   void Chunk::init(){
@@ -2545,18 +2629,23 @@ namespace folia {
   void Morpheme::init(){
     _element_id = Morpheme_t;
     _xmltag = "morpheme";
-    const ElementType accept[] = { Feature_t, TextContent_t };
-    _accepted_data = std::set<ElementType>(accept, accept + 2 );
+    _required_attributes = NO_ATT;
+    _optional_attributes = ALL;
+    const ElementType accept[] = { Feature_t, FunctionFeature_t, TextContent_t,
+				   Metric_t, Alignment_t, 
+				   Pos_t, Lemma_t, Sense_t, Subjectivity_t,
+				   Description_t };
+    _accepted_data = std::set<ElementType>(accept, accept + 7 );
     _annotation_type = AnnotationType::MORPHOLOGICAL;
   }
 
-  void Subentity::init(){
-    _element_id = Subentity_t;
-    _xmltag = "subentity";
-    const ElementType accept[] = { Feature_t, TextContent_t };
-    _accepted_data = std::set<ElementType>(accept, accept + 2 );
-    _annotation_type = AnnotationType::SUBENTITY;
-  }
+  // void Subentity::init(){
+  //   _element_id = Subentity_t;
+  //   _xmltag = "subentity";
+  //   const ElementType accept[] = { Feature_t, TextContent_t };
+  //   _accepted_data = std::set<ElementType>(accept, accept + 2 );
+  //   _annotation_type = AnnotationType::SUBENTITY;
+  // }
 
   void SyntaxLayer::init(){
     _element_id = SyntaxLayer_t;
@@ -2582,7 +2671,7 @@ namespace folia {
   void TimingLayer::init(){
     _element_id = TimingLayer_t;
     _xmltag = "timing";
-    const ElementType accept[] = { TimedEvent_t, Description_t };
+    const ElementType accept[] = { TimeSegment_t, Description_t };
     _accepted_data = std::set<ElementType>(accept, accept + 2 );
   }
 
@@ -2593,11 +2682,48 @@ namespace folia {
     _accepted_data = std::set<ElementType>(accept, accept + 1 );
   }
 
-  void SubentitiesLayer::init(){
-    _element_id = Subentities_t;
-    _xmltag = "subentities";
-    const ElementType accept[] = { Subentity_t };
-    _accepted_data = std::set<ElementType>(accept, accept + 1 );
+  // void SubentitiesLayer::init(){
+  //   _element_id = Subentities_t;
+  //   _xmltag = "subentities";
+  //   const ElementType accept[] = { Subentity_t };
+  //   _accepted_data = std::set<ElementType>(accept, accept + 1 );
+  // }
+
+  void CoreferenceLayer::init(){
+    _element_id = Coreferences_t;
+    _xmltag = "coreferences";
+    const ElementType accept[] = { CoreferenceChain_t, Description_t };
+    _accepted_data = std::set<ElementType>(accept, accept + 2 );
+  }
+
+  void CoreferenceLink::init(){
+    _element_id = CoreferenceLink_t;
+    _xmltag = "coreferencelink";
+    _required_attributes = NO_ATT;
+    _optional_attributes = ANNOTATOR|N|DATETIME;
+    const ElementType accept[] = { Word_t, WordReference_t, Headwords_t, 
+				   Description_t,
+				   Alignment_t, TimeFeature_t, LevelFeature_t,
+				   ModalityFeature_t, Metric_t};
+    _accepted_data = std::set<ElementType>(accept, accept + 9 );
+    _annotation_type = AnnotationType::COREFERENCE;    
+  }
+
+  void CoreferenceChain::init(){
+    _element_id = CoreferenceChain_t;
+    _xmltag = "coreferencechain";
+    _required_attributes = NO_ATT;
+    const ElementType accept[] = { CoreferenceLink_t, Description_t,
+				   Metric_t };
+    _accepted_data = std::set<ElementType>(accept, accept + 3 );
+    _annotation_type = AnnotationType::COREFERENCE;    
+  }
+
+  void SemanticRolesLayer::init(){
+    _element_id = Semroles_t;
+    _xmltag = "semroles";
+    const ElementType accept[] = { Semrole_t, Description_t };
+    _accepted_data = std::set<ElementType>(accept, accept + 2 );
   }
 
   void DependenciesLayer::init(){
@@ -2612,7 +2738,7 @@ namespace folia {
     _xmltag = "dependency";
     _required_attributes = NO_ATT;
     _annotation_type = AnnotationType::DEPENDENCY;
-    const ElementType accept[] = { DependencyDependent_t, DependencyHead_t, 
+    const ElementType accept[] = { DependencyDependent_t, Headwords_t, 
 				   Feature_t, Description_t, Alignment_t };
     _accepted_data = std::set<ElementType>(accept, accept + 5 );
   }
@@ -2628,15 +2754,15 @@ namespace folia {
     _accepted_data = std::set<ElementType>(accept, accept + 6 );
   }
 
-  void DependencyHead::init(){
-    _element_id = DependencyHead_t;
+  void Headwords::init(){
+    _element_id = Headwords_t;
     _xmltag = "hd";
     _required_attributes = NO_ATT;
     _optional_attributes = NO_ATT;
-    _annotation_type = AnnotationType::DEPENDENCY;
     const ElementType accept[] = { Word_t, WordReference_t, PlaceHolder_t,
-				   Description_t, Feature_t, Alignment_t };
-    _accepted_data = std::set<ElementType>(accept, accept + 6 );
+				   Description_t, Feature_t, Metric_t,
+				   Alignment_t };
+    _accepted_data = std::set<ElementType>(accept, accept + 7 );
   }
 
   void PosAnnotation::init(){
@@ -2697,6 +2823,11 @@ namespace folia {
     TEXTDELIMITER = " ";
   }
 
+  void Feature::init() {
+    _xmltag = "feat";
+    _element_id = Feature_t;
+    occurrences_per_set = 0; // Allow duplicates within the same set
+  }
 
   void BeginDateTimeFeature::init(){
     _xmltag="begindatetime";
@@ -2735,6 +2866,30 @@ namespace folia {
     _subset = "value";
   }
 
+  void FunctionFeature::init(){
+    _xmltag = "function";
+    _element_id = FunctionFeature_t;
+    _subset = "function";
+  }
+
+  void LevelFeature::init(){
+    _xmltag = "level";
+    _element_id = LevelFeature_t;
+    _subset = "level";
+  }
+
+  void ModalityFeature::init(){
+    _xmltag = "modality";
+    _element_id = ModalityFeature_t;
+    _subset = "modality";
+  }
+
+  void TimeFeature::init(){
+    _xmltag = "time";
+    _element_id = TimeFeature_t;
+    _subset = "time";
+  }
+
   void AbstractSubtokenAnnotation::init() {
     _required_attributes = NO_ATT;
     _optional_attributes = ALL;
@@ -2744,12 +2899,6 @@ namespace folia {
   void AbstractSpanAnnotation::init() {
     _required_attributes = NO_ATT;
     _optional_attributes = ALL;
-    occurrences_per_set = 0; // Allow duplicates within the same set
-  }
-
-  void Feature::init() {
-    _xmltag = "feat";
-    _element_id = Feature_t;
     occurrences_per_set = 0; // Allow duplicates within the same set
   }
 
