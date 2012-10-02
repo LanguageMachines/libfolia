@@ -1,3 +1,11 @@
+0.10
+  * now implements new nodes like Metric, Coreferences and Semroles
+    (follwing the FoLiA 0.9 specs)
+  * some code improvement too
+
+0.9 
+  * lost in tranistion
+
 0.8 2012-03-29
   * reworked and improved handling of (default) annotation sets.
     We are more strict now.
