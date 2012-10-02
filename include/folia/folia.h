@@ -247,47 +247,47 @@ namespace folia {
       throw NotImplementedError("head() for " + _xmltag );
     }
     virtual FoliaElement *getNew() const {
-      throw NotImplementedError("getNew()"); };
+      throw NotImplementedError("getNew() for " + _xmltag ); };
     virtual FoliaElement *getOriginal() const {
-      throw NotImplementedError("getOriginal()"); };
+      throw NotImplementedError("getOriginal() for " + _xmltag ); };
     virtual FoliaElement *getCurrent() const {
-      throw NotImplementedError("getCurrent()"); };
+      throw NotImplementedError("getCurrent() for " + _xmltag ); };
     virtual FoliaElement *split( FoliaElement *, FoliaElement *, 
 				    const std::string& = "" ){
-      throw NotImplementedError("split()"); };
+      throw NotImplementedError("split() for " + _xmltag ); };
     virtual Correction *mergewords( FoliaElement *, 
 				    const std::vector<FoliaElement *>&,
 				    const std::string& = "" ){
-      throw NotImplementedError("mergewords()"); };
+      throw NotImplementedError("mergewords() for " + _xmltag ); };
     virtual Correction *deleteword( FoliaElement *, 
 				    const std::string& = "" ){
-      throw NotImplementedError("deleteword()"); };
+      throw NotImplementedError("deleteword() for " + _xmltag ); };
     virtual Correction *insertword( FoliaElement *, FoliaElement *,
 				    const std::string& = "" ){
-      throw NotImplementedError("insertword()"); };
+      throw NotImplementedError("insertword() for " + _xmltag ); };
     virtual std::vector<Suggestion*> suggestions() const
-      { throw NotImplementedError("suggestions()"); };    
+      { throw NotImplementedError("suggestions() for " + _xmltag ); };
     virtual Suggestion *suggestions( size_t ) const
-      { throw NotImplementedError("suggestions()"); };    
+      { throw NotImplementedError("suggestions() for " + _xmltag ); };    
     virtual std::string subset() const 
-      { throw NotImplementedError("subset()"); };
+      { throw NotImplementedError("subset() for " + _xmltag ); };
     virtual FoliaElement *previous() const {
-      throw NotImplementedError("previous()"); };
+      throw NotImplementedError("previous() for " + _xmltag ); };
     virtual FoliaElement *next() const {
-      throw NotImplementedError("next()"); };
+      throw NotImplementedError("next() for " + _xmltag ); };
     virtual std::vector<Word*> context( size_t, 
 					const std::string& ="" ) const {
-      throw NotImplementedError("contect()"); };
+      throw NotImplementedError("contect() for " + _xmltag ); };
     virtual std::vector<Word*> leftcontext( size_t, 
 					    const std::string& ="" ) const {
-      throw NotImplementedError("leftcontect()"); 
+      throw NotImplementedError("leftcontect() for " + _xmltag ); 
     };
     virtual std::vector<Word*> rightcontext( size_t, 
 					     const std::string& ="" ) const {
-      throw NotImplementedError("rightcontext()"); 
+      throw NotImplementedError("rightcontext() for " + _xmltag ); 
     };
     virtual int offset() const {
-      throw NotImplementedError("offset()"); 
+      throw NotImplementedError("offset() for " + _xmltag ); 
     };
 
     std::string pos() const;
@@ -388,7 +388,7 @@ namespace folia {
     virtual std::vector<Alternative *> alternatives( ElementType,
 						     const std::string& = ""
 						     ) const { 
-      throw NotImplementedError("alternatives()"); 
+      throw NotImplementedError("alternatives() for " + _xmltag ); 
     }
     virtual std::string content() const {
       throw NoSuchAnnotation( "content" );
@@ -406,13 +406,13 @@ namespace folia {
       throw NotImplementedError("correct() for " + _xmltag );
     }
     virtual Correction *correct( const std::string& = "" ){
-      throw NotImplementedError("correct()"); };
+      throw NotImplementedError("correct() for " + _xmltag ); };
 
     virtual std::string src() const {
-      throw NotImplementedError("src()"); };
+      throw NotImplementedError("src() for " + _xmltag ); };
 
     virtual UnicodeString caption() const {
-      throw NotImplementedError("caption() for " + classname()); };
+      throw NotImplementedError("caption() for " + _xmltag ); };
 
     void increfcount() { ++refcount; };
     FoliaElement *parent() const { return _parent; };
@@ -608,7 +608,8 @@ namespace folia {
     std::string str() const;
     UnicodeString text( const std::string& = "current", bool = false ) const;
     int offset() const { return _offset; };
-    FoliaElement *append( FoliaElement* ){ throw NotImplementedError("TextContent::append()"); };
+    FoliaElement *append( FoliaElement* ){ 
+      throw NotImplementedError("TextContent::append() for " + _xmltag ); };
     TextContent *postappend();
     std::vector<FoliaElement*> findreplacables( FoliaElement * ) const;
   private:

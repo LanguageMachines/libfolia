@@ -1868,7 +1868,7 @@ namespace folia {
     else {
       if ( mydoc->debug )
 	cerr << "...Unresolvable!" << endl;
-      res = this;
+      throw XmlError( "Unresolvable id " + id + "in WordReference" );
     }
     delete this;
     return res;
@@ -1999,7 +1999,8 @@ namespace folia {
 
   FoliaElement *AbstractSpanAnnotation::append( FoliaElement *child ){
     if ( child->isinstance(PlaceHolder_t) ||
-	 ( child->isinstance(Word_t) && acceptable( WordReference_t ) ) )
+	 ( ( child->isinstance(Word_t) || child->isinstance(Morpheme_t) )
+	   && acceptable( WordReference_t ) ) )
       child->increfcount();
     FoliaElement::append( child );
     return child;
@@ -2010,7 +2011,8 @@ namespace folia {
     // append Word children as WREFS
     vector<FoliaElement*>::const_iterator it=data.begin();
     while ( it != data.end() ){
-      if ( (*it)->element_id() == Word_t ){
+      if ( (*it)->element_id() == Word_t ||
+	   (*it)->element_id() == Morpheme_t ){
 	xmlNode *t = newXMLNode( foliaNs(), "wref" );
 	KWargs attribs;
 	attribs["id"] = (*it)->id();
@@ -2336,13 +2338,15 @@ namespace folia {
   void Division::init(){
     _xmltag="div";
     _element_id = Division_t;
-    _optional_attributes = CLASS;
+    _required_attributes = ID;
+    _optional_attributes = CLASS|N;
     const ElementType accept[] = { Division_t, Gap_t, Head_t, Paragraph_t,
 				   Sentence_t, List_t, Figure_t, Event_t,
 				   Description_t, LineBreak_t, TextContent_t,
 				   WhiteSpace_t, Metric_t, Coreferences_t };
     _accepted_data = std::set<ElementType>(accept, accept + 14 );
     _annotation_type = AnnotationType::DIVISION;
+    TEXTDELIMITER = "\n\n\n";
   }
 
   void Text::init(){
@@ -2470,9 +2474,9 @@ namespace folia {
     _xmltag = "entity";
     _element_id = Entity_t;
     _annotation_type = AnnotationType::ENTITY;
-    const ElementType accept[] = { Word_t, WordReference_t, 
-				   Description_t, Feature_t };
-    _accepted_data = std::set<ElementType>(accept, accept + 4 );
+    const ElementType accept[] = { Word_t, WordReference_t, Morpheme_t,
+				   Description_t, Feature_t, Metric_t };
+    _accepted_data = std::set<ElementType>(accept, accept + 6 );
   }
 
   void AbstractAnnotationLayer::init(){
