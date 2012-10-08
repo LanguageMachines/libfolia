@@ -836,7 +836,7 @@ namespace folia {
 	++it;
       }
       xmlChar *buf; int size;
-      xmlDocDumpFormatMemory( outDoc, &buf, &size, 1 );
+      xmlDocDumpFormatMemoryEnc( outDoc, &buf, &size, "UTF-8", 1 );
       result = string( (const char *)buf, size );
       xmlFree( buf );
       xmlFreeDoc( outDoc );
