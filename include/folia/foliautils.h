@@ -27,8 +27,8 @@
       timbl@uvt.nl
 */
 
-#ifndef FOLIAUTILS_H
-#define FOLIAUTILS_H
+#ifndef FOLIA_UTILS_H
+#define FOLIA_UTILS_H
 
 #include <sstream>
 #include <set>
@@ -294,4 +294,4 @@ namespace folia {
   inline std::string strip( const std::string& s ){ return TiCC::trim(s); };
 } // namespace folia
 
-#endif // FOLIAUTILS
+#endif // FOLIA_UTILS

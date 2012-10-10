@@ -27,8 +27,8 @@
       timbl@uvt.nl
 */
 
-#ifndef DOCUMENT_H
-#define DOCUMENT_H
+#ifndef FOLIA_DOCUMENT_H
+#define FOLIA_DOCUMENT_H
 
 #include <list>
 #include "unicode/unistr.h"
@@ -202,4 +202,4 @@ namespace folia {
 
 } // namespace folia
 
-#endif // DOCUMENT_H
+#endif // FOLIA_DOCUMENT_H
