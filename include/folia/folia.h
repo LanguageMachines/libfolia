@@ -373,7 +373,10 @@ namespace folia {
     TextContent *settext( const std::string&, const std::string& = "current" );
 
     template <typename F>
-      Alternative *addAlternative( const KWargs& );
+      F *addAlternative();
+    template <typename F>
+      F *addAlternative( const KWargs& );
+
     template <typename F>
       F *addAnnotation( const KWargs& args ) {
       F *res = 0;
@@ -904,23 +907,28 @@ namespace folia {
     void init();
   };
 
-
   template <typename F>
-    Alternative *FoliaElement::addAlternative( const KWargs& args ){
+    F *FoliaElement::addAlternative( const KWargs& args ){
     KWargs kw;
     std::string id = generateId( "alt" );
     kw["id"] = id;
-    Alternative *res = 0;
+    F *res = 0;
+    Alternative *alt = 0;
     try {
-      res = new Alternative( mydoc, kw );
-      res->addAnnotation<F>( args );
+      alt = new Alternative( mydoc, kw );
+      res = alt->addAnnotation<F>( args );
     }
     catch( std::exception& ){
-      delete res;
+      delete alt;
       throw;
     }
-    append( res );
+    append( alt );
     return res;
+  }
+  template <typename F>
+    F *FoliaElement::addAlternative(){
+    KWargs numb;
+    return addAlternative<F>( numb );
   }
 
   class PosAnnotation: public AbstractTokenAnnotation {
