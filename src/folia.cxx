@@ -681,8 +681,7 @@ namespace folia {
     return true;
   }
  
-  bool FoliaElement::addable( const FoliaElement *c,
-			      const string& setname ) const {
+  bool FoliaElement::addable( const FoliaElement *c ) const {
     if ( !acceptable( c->_element_id ) ){
       throw ValueError( "Unable to append object of type " + c->classname()
 			+ " to a " + classname() );
@@ -693,9 +692,9 @@ namespace folia {
       if ( count > c->occurrences )
 	throw DuplicateAnnotationError( "Unable to add another object of type " + c->classname() + " to " + classname() + ". There are already " + toString(count) + " instances of this class, which is the maximum." );
     }
-    if ( c->occurrences_per_set > 0 && !setname.empty() &&
+    if ( c->occurrences_per_set > 0 &&
 	 ( CLASS & c->_required_attributes ) ){
-      vector<FoliaElement*> v = select( c->_element_id, setname );
+      vector<FoliaElement*> v = select( c->_element_id, c->_set );
       size_t count = v.size();
       if ( count > c->occurrences_per_set )
 	throw DuplicateAnnotationError( "Unable to add another object of type " + c->classname() + " to " + classname() + ". There are already " + toString(count) + " instances of this class, which is the maximum." );
@@ -1653,12 +1652,13 @@ namespace folia {
 
   FoliaElement *Word::append( FoliaElement *child ) {
     if ( child->element_id() == Pos_t ||
-	 child->element_id() == Lemma_t ){
+    	 child->element_id() == Lemma_t ||
+    	 child->element_id() == Morphology_t ){
       // sanity check, there may be no other child within the same set
       vector<FoliaElement*> v = select( child->element_id(), child->sett() );
       if ( v.empty() ) {
-	// OK!
-	return FoliaElement::append( child );
+    	// OK!
+    	return FoliaElement::append( child );
       }
       delete child;
       throw DuplicateAnnotationError( "Word::append" );
@@ -1697,6 +1697,24 @@ namespace folia {
       p = p->parent();
     }
     return 0;
+  }
+
+  vector<Morpheme *> Word::morphemes( const string& set ) const {
+    vector<Morpheme *> result;
+    vector<MorphologyLayer*> mv = select<MorphologyLayer>();
+    for( size_t i=0; i < mv.size(); ++i ){
+      vector<Morpheme*> tmp = mv[i]->select<Morpheme>( set );
+      result.insert( result.end(), tmp.begin(), tmp.end() );
+    }
+    return result;
+  }
+
+  Morpheme * Word::morpheme( size_t pos, const string& set ) const {
+    vector<Morpheme *> tmp = morphemes( set );
+    if ( pos >=0 && pos < tmp.size() )
+      return tmp[pos];
+    else
+      throw range_error( "morpheme() index out of range" );
   }
 
   Correction *Word::incorrection( ) const {
@@ -2491,8 +2509,8 @@ namespace folia {
     _element_id = Alternative_t;
     _required_attributes = NO_ATT;
     _optional_attributes = ALL;
-    const ElementType accept[] = { Pos_t, Lemma_t, Correction_t };
-    _accepted_data = std::set<ElementType>(accept, accept + 3 );
+    const ElementType accept[] = { Pos_t, Lemma_t, Morphology_t, Correction_t };
+    _accepted_data = std::set<ElementType>(accept, accept + 4 );
     _annotation_type = AnnotationType::ALTERNATIVE;
     PRINTABLE = false;
     AUTH = false;
@@ -2684,6 +2702,7 @@ namespace folia {
     _xmltag = "morphology";
     const ElementType accept[] = { Morpheme_t };
     _accepted_data = std::set<ElementType>(accept, accept + 1 );
+    occurrences_per_set = 1; // Don't allow duplicates within the same set    
   }
 
   // void SubentitiesLayer::init(){

@@ -53,6 +53,7 @@ namespace folia {
   class Division;
   class DependencyDependent;
   class Paragraph;
+  class Morpheme;
 
   class FoliaElement {
     friend std::ostream& operator<<( std::ostream&, const FoliaElement& );
@@ -329,6 +330,12 @@ namespace folia {
     virtual std::vector<Word*> words() const {
       throw NotImplementedError("words() for " + _xmltag );
     };
+    virtual std::vector<Morpheme*> morphemes( const std::string& ) const {
+      throw NotImplementedError("morphemes() for " + _xmltag );
+    };
+    virtual Morpheme* morpheme( size_t, const std::string& ) const {
+      throw NotImplementedError("morpheme() for " + _xmltag );
+    };
     virtual Sentence *sentences( size_t ) const {
       throw NotImplementedError("sentences() for " + _xmltag );
     };
@@ -445,7 +452,7 @@ namespace folia {
 				       bool = true ) const;
     bool acceptable( ElementType ) const;
     bool checkAtts();
-    bool addable( const FoliaElement *, const std::string& = "" ) const;
+    bool addable( const FoliaElement * ) const;
 
     std::vector<FoliaElement*> data;
     FoliaElement *_parent;
@@ -729,6 +736,8 @@ namespace folia {
     Sentence *sentence() const;
     Paragraph *paragraph() const;
     Division *division() const;
+    std::vector<Morpheme *> morphemes( const std::string& ="" ) const;
+    Morpheme* morpheme( size_t, const std::string& ="" ) const;
     Correction *incorrection() const;
     Word *previous() const;
     Word *next() const;
