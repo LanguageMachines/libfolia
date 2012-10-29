@@ -2072,14 +2072,25 @@ namespace folia {
     KWargs att = getAttributes( node );
     setAttributes( att );
     xmlNode *p = node->children;
+    bool isCdata = false;
+    bool isText = false;
     while ( p ){
       if ( p->type == XML_CDATA_SECTION_NODE ){
+	if ( isText )
+	  throw XmlError( "intermixing text and CDATA in Content node" );
+	isCdata = true;
+	value += (char*)p->content;
+      }
+      else if ( p->type == XML_TEXT_NODE ){
+	if ( isCdata )
+	  throw XmlError( "intermixing text and CDATA in Content node" );
+	isText = true;
 	value += (char*)p->content;
       }
       p = p->next;
     }
     if ( value.empty() )
-      throw XmlError( "CDATA expected in Content node" );
+      throw XmlError( "CDATA or Text expected in Content node" );
     return this;
   }
 
