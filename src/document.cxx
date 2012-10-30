@@ -527,12 +527,54 @@ namespace folia {
     }
     return result;
   }
+  
+  void Document::addStyle( const std::string& type, const std::string& href ){
+    if ( type == "text/xsl" ){
+      multimap<string,string>::iterator it = styles.find( type );
+      if ( it != styles.end() )
+	throw XmlError( "multiple 'text/xsl' style-sheets defined." );
+    }
+    styles.insert( make_pair( type, href ) );
+  }
+  
+  void Document::replaceStyle( const std::string& type, 
+			       const std::string& href ){
+    multimap<string,string>::iterator it = styles.find( type );
+    if ( it != styles.end() ){
+      it->second = href;
+    }
+    else {
+      styles.insert( make_pair( type, href ) );
+    }
+  }
 
   void Document::getstyles(){
     xmlNode *pnt = xmldoc->children;
     while ( pnt ){
       if ( pnt->type == XML_PI_NODE && Name(pnt) == "xml-stylesheet" ){
-	addStyle( (const char*)pnt->content );
+	string content = (const char*)pnt->content;
+	string type;
+	string href;
+	vector<string> v;
+	split( content, v );
+	if ( v.size() == 2 ){
+	  vector<string> w;
+	  split_at( v[0], w, "=" );
+	  if ( w.size() == 2 && w[0] == "type" ){
+	    type = w[1].substr(1,w[1].length()-2);
+	  }
+	  w.clear();
+	  split_at( v[1], w, "=" );
+	  if ( w.size() == 2 && w[0] == "href" ){
+	    href = w[1].substr(1,w[1].length()-2);
+	  }
+	}
+	if ( !type.empty() && !href.empty() ){
+	  addStyle( type, href );
+	}
+	else {
+	  throw XmlError( "problem parsing line: " + content );
+	}
       }
       pnt = pnt->next;
     }
@@ -789,11 +831,15 @@ namespace folia {
   }
 
   void Document::setstyles( xmlDoc* doc ) const {
-    for ( size_t i=0; i < styles.size(); ++i ){
+    multimap<string,string>::const_iterator it = styles.begin();
+    while ( it != styles.end() ){
+      string content = "type=\"" + it->first 
+	+ "\" href=\"" + it->second + "\"";
       xmlAddChild( (xmlNode*)doc,
 		   xmlNewDocPI( doc,
 				(const xmlChar*)"xml-stylesheet", 
-				(const xmlChar*)styles[i].c_str() ) );
+				(const xmlChar*)content.c_str() ) );
+      ++it;
     }
   }
 

@@ -91,9 +91,8 @@ namespace folia {
     int size() const;
     FoliaElement* doc() const { return foliadoc; }
     FoliaElement* addNode( ElementType, const KWargs& );
-    void addStyle( const std::string& st ){
-      styles.push_back( st );
-    };
+    void addStyle( const std::string&, const std::string& );
+    void replaceStyle( const std::string&, const std::string& );
     std::vector<Paragraph*> paragraphs() const;
     std::vector<Sentence*> sentences() const;
     std::vector<Sentence*> sentenceParts() const;
@@ -184,7 +183,7 @@ namespace folia {
     std::string _language;
     std::string _publisher;
     std::string _license;
-    std::vector<std::string> styles;
+    std::multimap<std::string,std::string> styles;
     bool loadall;
     std::string filename;
     std::string version;
