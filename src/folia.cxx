@@ -791,17 +791,18 @@ namespace folia {
   }
 
   vector<FoliaElement*> FoliaElement::select( ElementType et,
-					      const string& val,
+					      const string& st,
 					      const set<ElementType>& exclude,
 					      bool recurse ) const {
     vector<FoliaElement*> res;
     for ( size_t i = 0; i < data.size(); ++i ){
-      if ( data[i]->_element_id == et  && data[i]->_set == val ){
+      if ( data[i]->_element_id == et && 
+	   ( st.empty() || data[i]->_set == st ) ){
 	res.push_back( data[i] );
       }
       if ( recurse ){
 	if ( exclude.find( data[i]->_element_id ) == exclude.end() ){
-	  vector<FoliaElement*> tmp = data[i]->select( et, val, exclude, recurse );
+	  vector<FoliaElement*> tmp = data[i]->select( et, st, exclude, recurse );
 	  res.insert( res.end(), tmp.begin(), tmp.end() );
 	}
       }
@@ -810,7 +811,7 @@ namespace folia {
   }
 
   vector<FoliaElement*> FoliaElement::select( ElementType et,
-					      const string& val,
+					      const string& st,
 					      bool recurse ) const {
     static set<ElementType> excludeSet;
     if ( excludeSet.empty() ){
@@ -818,7 +819,7 @@ namespace folia {
       excludeSet.insert( Suggestion_t );
       excludeSet.insert( Alternative_t );
     }
-    return select( et, val, excludeSet, recurse );
+    return select( et, st, excludeSet, recurse );
   }
 
   vector<FoliaElement*> FoliaElement::select( ElementType et,
@@ -897,12 +898,12 @@ namespace folia {
     return _datetime;
   }
 
-  string FoliaElement::pos() const { 
-    return annotation<PosAnnotation>()->cls(); 
+  string FoliaElement::pos( const string& st ) const { 
+    return annotation<PosAnnotation>( st )->cls(); 
   }
   
-  string FoliaElement::lemma() const { 
-    return annotation<LemmaAnnotation>()->cls(); 
+  string FoliaElement::lemma( const string& st ) const { 
+    return annotation<LemmaAnnotation>( st )->cls(); 
   }
 
   PosAnnotation *FoliaElement::addPosAnnotation( const KWargs& args ){

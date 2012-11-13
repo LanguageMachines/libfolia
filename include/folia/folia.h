@@ -211,16 +211,19 @@ namespace folia {
     }
 
     template <typename F>
-      F *annotation( const std::string& val ) const {
+      F *annotation( const std::string& st ) const {
       if ( allowannotations() ){
 	// Will return a SINGLE annotation (even if there are multiple). 
 	// Raises a NoSuchAnnotation exception if none was found
-	std::vector<F*>v = select<F>( val );
+	std::vector<F*>v = select<F>( st );
 	if ( v.size() >= 1 )
 	  return v[0];
 	else {
 	  F obj("");
-	  throw NoSuchAnnotation( obj.classname() );
+	  if ( st.empty() )
+	    throw NoSuchAnnotation( obj.classname() );
+	  else
+	    throw NoSuchAnnotation( obj.classname() + " in set '" + st + "'" );
 	}
       }
       else {
@@ -291,11 +294,11 @@ namespace folia {
       throw NotImplementedError("offset() for " + _xmltag ); 
     };
 
-    std::string pos() const;
-    std::string lemma() const;
+    std::string pos( const std::string& = "" ) const;
+    std::string lemma( const std::string& = "" ) const;
     std::string cls() const { return _class; };
     std::string sett() const { return _set; };
-    std::string annotator() const { return _annotator; };
+    std::string annotator( ) const { return _annotator; };
     void annotator( const std::string& a ) { _annotator = a; };
     AnnotatorType annotatortype() const { return _annotator_type; };
     void annotatortype( AnnotatorType t ) { _annotator_type =  t; };
