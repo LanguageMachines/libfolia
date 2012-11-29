@@ -840,6 +840,18 @@ namespace folia {
     return atts;
   }
 
+  string getAttribute( const xmlNode *node, const string& att ){
+    if ( node ){
+      xmlAttr *a = node->properties;
+      while ( a ){
+	if ( att == (char*)a->name )
+	  return (char *)a->children->content;
+	a = a->next;
+      }
+    }
+    return "";
+  }
+
   void addAttributes( xmlNode *node, const KWargs& attribs ){
     KWargs::const_iterator it = attribs.begin();
     while ( it != attribs.end() ){

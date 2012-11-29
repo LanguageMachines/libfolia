@@ -269,6 +269,7 @@ namespace folia {
   xmlNode *newXMLNode( xmlNs *,  const std::string& );
   void addAttributes( xmlNode *, const KWargs& );
   KWargs getAttributes( const xmlNode * );
+  std::string getAttribute( const xmlNode *, const std::string& );
 
   std::string Name( const xmlNode * );
   std::string XmlContent( const xmlNode * );
