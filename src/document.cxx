@@ -661,6 +661,9 @@ namespace folia {
 			     const string& a,
 			     const string& t,
 			     const string& d ){
+    if ( type == AnnotationType::NO_ANN ){
+      return true;
+    }
     map<AnnotationType::AnnotationType,multimap<string,at_t> >::const_iterator mit1 = annotationdefaults.find(type);
     if ( mit1 != annotationdefaults.end() ){
       if ( s.empty() )
@@ -677,6 +680,9 @@ namespace folia {
 
   bool Document::isDeclared( AnnotationType::AnnotationType type,
 			     const string& s ){
+    if ( type == AnnotationType::NO_ANN ){
+      return true;
+    }
     map<AnnotationType::AnnotationType,multimap<string,at_t> >::const_iterator mit1 = annotationdefaults.find(type);
     if ( mit1 != annotationdefaults.end() ){
       if ( s.empty() )
@@ -688,6 +694,8 @@ namespace folia {
   }
 
   string Document::defaultset( AnnotationType::AnnotationType type ) const {
+    if ( type == AnnotationType::NO_ANN )
+      return "";
     // search a set. it must be unique. Otherwise return ""
     //    cerr << "zoek '" << type << "' default set " <<  annotationdefaults << endl;
     map<AnnotationType::AnnotationType,multimap<string,at_t> >::const_iterator mit1 = annotationdefaults.find(type);
@@ -703,6 +711,9 @@ namespace folia {
 
   std::string Document::defaultannotator( AnnotationType::AnnotationType type,
 					  const string& st ) const {
+    if ( type == AnnotationType::NO_ANN ){
+      return "";
+    }
     // if ( !st.empty() ){
     //   cerr << "zoek '" << st << "' default annotator " <<  annotationdefaults << endl;
     // }
@@ -729,6 +740,9 @@ namespace folia {
 
   std::string Document::defaultannotatortype( AnnotationType::AnnotationType type,
 					      const string& st ) const {
+    if ( type == AnnotationType::NO_ANN ){
+      return "";
+    }
     map<AnnotationType::AnnotationType,multimap<string,at_t> >::const_iterator mit1 = annotationdefaults.find(type);
     string result;
     if ( mit1 != annotationdefaults.end() ){
