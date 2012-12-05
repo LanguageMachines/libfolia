@@ -48,10 +48,10 @@ namespace folia {
   enum AnnotatorType{ UNDEFINED = -1, AUTO = 0, MANUAL = 1 };
   
   enum Attrib { NO_ATT=0, ID=1, CLASS=2, ANNOTATOR=4, CONFIDENCE=8, 
-		N=16, DATETIME=32, ALL=63 };
+		N=16, DATETIME=32, SETONLY=64, ALL=127 };
   
   inline Attrib& operator++( Attrib & a ){
-    return a = ( DATETIME == a ) 
+    return a = ( SETONLY == a ) 
       ? NO_ATT
       : ( NO_ATT == a ? ID : Attrib(a<<1) );
   }

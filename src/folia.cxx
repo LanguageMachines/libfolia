@@ -159,8 +159,9 @@ namespace folia {
     it = kwargs.find( "set" );
     string def;
     if ( it != kwargs.end() ) {
-      if ( !(CLASS & supported) )
+      if ( !( (CLASS|SETONLY) & supported ) ){
 	throw ValueError("Set is not supported for " + classname());
+      }
       else {
 	_set = it->second;
       }
@@ -226,7 +227,8 @@ namespace folia {
       else {
 	_annotator_type = stringTo<AnnotatorType>( it->second );
 	if ( _annotator_type == UNDEFINED )
-	  throw ValueError("annotatortype must be 'auto' or 'manual'");
+	  throw ValueError( "annotatortype must be 'auto' or 'manual', got '"
+			    + it->second + "'" );
       }
     }
     else if ( mydoc &&
@@ -247,7 +249,7 @@ namespace folia {
 	try {
 	  _confidence = stringTo<double>(it->second);
 	  if ( _confidence < 0 || _confidence > 1.0 )
-	    throw ValueError("Confidence must be a floating point number between 0 and 1");	    
+	    throw ValueError("Confidence must be a floating point number between 0 and 1, got " + toString(_confidence) );	    
 	}
 	catch (...){
 	  throw ValueError("invalid Confidence value, (not a number?)");
@@ -689,11 +691,12 @@ namespace folia {
     if ( c->occurrences > 0 ){
       vector<FoliaElement*> v = select( c->_element_id );
       size_t count = v.size();
-      if ( count > c->occurrences )
+      if ( count > c->occurrences ){
 	throw DuplicateAnnotationError( "Unable to add another object of type " + c->classname() + " to " + classname() + ". There are already " + toString(count) + " instances of this class, which is the maximum." );
+      }
     }
     if ( c->occurrences_per_set > 0 &&
-	 ( CLASS & c->_required_attributes ) ){
+	 ( (CLASS|SETONLY) & c->_required_attributes ) ){
       vector<FoliaElement*> v = select( c->_element_id, c->_set );
       size_t count = v.size();
       if ( count > c->occurrences_per_set )
@@ -2512,7 +2515,7 @@ namespace folia {
   void AbstractAnnotationLayer::init(){
     _xmltag = "annotationlayer";
     _element_id = AnnotationLayer_t;
-    _optional_attributes = NO_ATT;
+    _optional_attributes = SETONLY;
     PRINTABLE=false;
   }
 
@@ -2655,11 +2658,6 @@ namespace folia {
     return "";
   }
   
-  void AbstractSubtokenAnnotationLayer::init(){
-    _optional_attributes = NO_ATT;
-    PRINTABLE=false;
-  }
-
   void Morpheme::init(){
     _element_id = Morpheme_t;
     _xmltag = "morpheme";
@@ -2673,19 +2671,12 @@ namespace folia {
     _annotation_type = AnnotationType::MORPHOLOGICAL;
   }
 
-  // void Subentity::init(){
-  //   _element_id = Subentity_t;
-  //   _xmltag = "subentity";
-  //   const ElementType accept[] = { Feature_t, TextContent_t };
-  //   _accepted_data = std::set<ElementType>(accept, accept + 2 );
-  //   _annotation_type = AnnotationType::SUBENTITY;
-  // }
-
   void SyntaxLayer::init(){
     _element_id = SyntaxLayer_t;
     _xmltag = "syntax";
     const ElementType accept[] = { SyntacticUnit_t, Description_t };
     _accepted_data = std::set<ElementType>(accept, accept + 2 );
+    _annotation_type = AnnotationType::SYNTAX;
   }
 
   void ChunkingLayer::init(){
@@ -2693,6 +2684,7 @@ namespace folia {
     _xmltag = "chunking";
     const ElementType accept[] = { Chunk_t, Description_t };
     _accepted_data = std::set<ElementType>(accept, accept + 2 );
+    _annotation_type = AnnotationType::CHUNKING;
   }
 
   void EntitiesLayer::init(){
@@ -2700,6 +2692,7 @@ namespace folia {
     _xmltag = "entities";
     const ElementType accept[] = { Entity_t, Description_t };
     _accepted_data = std::set<ElementType>(accept, accept + 2 );
+    _annotation_type = AnnotationType::ENTITY;
   }
 
   void TimingLayer::init(){
@@ -2715,20 +2708,15 @@ namespace folia {
     const ElementType accept[] = { Morpheme_t };
     _accepted_data = std::set<ElementType>(accept, accept + 1 );
     occurrences_per_set = 1; // Don't allow duplicates within the same set    
+    _annotation_type = AnnotationType::MORPHOLOGICAL;
   }
-
-  // void SubentitiesLayer::init(){
-  //   _element_id = Subentities_t;
-  //   _xmltag = "subentities";
-  //   const ElementType accept[] = { Subentity_t };
-  //   _accepted_data = std::set<ElementType>(accept, accept + 1 );
-  // }
 
   void CoreferenceLayer::init(){
     _element_id = Coreferences_t;
     _xmltag = "coreferences";
     const ElementType accept[] = { CoreferenceChain_t, Description_t };
     _accepted_data = std::set<ElementType>(accept, accept + 2 );
+    _annotation_type = AnnotationType::COREFERENCE;
   }
 
   void CoreferenceLink::init(){
@@ -2759,6 +2747,7 @@ namespace folia {
     _xmltag = "semroles";
     const ElementType accept[] = { Semrole_t, Description_t };
     _accepted_data = std::set<ElementType>(accept, accept + 2 );
+    _annotation_type = AnnotationType::SEMROLE;
   }
 
   void DependenciesLayer::init(){
@@ -2766,6 +2755,7 @@ namespace folia {
     _xmltag = "dependencies";
     const ElementType accept[] = { Dependency_t, Description_t };
     _accepted_data = std::set<ElementType>(accept, accept + 2 );
+    _annotation_type = AnnotationType::DEPENDENCY;
   }
 
   void Dependency::init(){

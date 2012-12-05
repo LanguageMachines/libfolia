@@ -1348,20 +1348,6 @@ namespace folia {
     void init();
   };
 
-  class AbstractSubtokenAnnotationLayer: public FoliaElement, AllowGenerateID {
-  public:
-  AbstractSubtokenAnnotationLayer( const std::string& s="" ): FoliaElement( ){ classInit( s ); }
-  AbstractSubtokenAnnotationLayer( const KWargs& a ): FoliaElement( ){ classInit( a ); }
-  AbstractSubtokenAnnotationLayer( Document *d, const std::string& s="" ): FoliaElement( d ){ classInit( s ); }
-  AbstractSubtokenAnnotationLayer( Document *d, const KWargs& a ): FoliaElement( d ){ classInit( a ); }
-    std::string generateId( const std::string& tag ){
-      return IGgen( tag, _id ); 
-    }
-
-  private:
-    void init();
-  };
-
   class AbstractSubtokenAnnotation: public AbstractAnnotation, AllowGenerateID {
   public:
   AbstractSubtokenAnnotation( const std::string& s="" ): AbstractAnnotation( ){ classInit( s ); }
@@ -1446,25 +1432,15 @@ namespace folia {
     void init();
   };
 
-  class MorphologyLayer: public AbstractSubtokenAnnotationLayer {
+  class MorphologyLayer: public AbstractAnnotationLayer {
   public:
-  MorphologyLayer( const std::string& s="" ): AbstractSubtokenAnnotationLayer(){ classInit( s ); }
-  MorphologyLayer( const KWargs& a ): AbstractSubtokenAnnotationLayer(){ classInit( a ); }
-  MorphologyLayer( Document *d, const std::string& s="" ): AbstractSubtokenAnnotationLayer( d ){ classInit( s ); }
-  MorphologyLayer( Document *d, const KWargs& a ): AbstractSubtokenAnnotationLayer( d ){ classInit( a ); }
+  MorphologyLayer( const std::string& s="" ): AbstractAnnotationLayer(){ classInit( s ); }
+  MorphologyLayer( const KWargs& a ): AbstractAnnotationLayer(){ classInit( a ); }
+  MorphologyLayer( Document *d, const std::string& s="" ): AbstractAnnotationLayer( d ){ classInit( s ); }
+  MorphologyLayer( Document *d, const KWargs& a ): AbstractAnnotationLayer( d ){ classInit( a ); }
   private:
     void init();
   };
-
-  /* class SubentitiesLayer: public AbstractSubtokenAnnotationLayer { */
-  /* public: */
-  /* SubentitiesLayer( const std::string& s="" ): AbstractSubtokenAnnotationLayer(){ classInit( s ); } */
-  /* SubentitiesLayer( const KWargs& a ): AbstractSubtokenAnnotationLayer(){ classInit( a ); } */
-  /* SubentitiesLayer( Document *d, const std::string& s="" ): AbstractSubtokenAnnotationLayer( d ){ classInit( s ); } */
-  /* SubentitiesLayer( Document *d, const KWargs& a ): AbstractSubtokenAnnotationLayer( d ){ classInit( a ); } */
-  /* private: */
-  /*   void init(); */
-  /* }; */
 
   class DependenciesLayer: public AbstractAnnotationLayer {
   public:
