@@ -638,9 +638,24 @@ namespace folia {
     declare( type, st, a, t, d );
   }
 
+  string getNow() {
+    time_t Time;
+    time(&Time);
+    tm curtime;
+    localtime_r(&Time,&curtime);
+    char buf[256];
+    strftime( buf, 100, "%Y-%m-%dT%X", &curtime );
+    string res = buf;
+    return res;
+  }
+  
   void Document::declare( AnnotationType::AnnotationType type, 
 			  const string& s, const string& a, 
-			  const string& t, const string& d ){
+			  const string& t, const string& ds ){
+    string d = ds;
+    if ( d == "now()" ){
+      d = getNow();
+    }
     if ( !isDeclared( type, s, a, t, d ) ){
       annotationdefaults[type].insert( make_pair(s, at_t(a,t,d) ) );
       //    cerr << "inserted [" << type << "][" << st << "](" << a << "," << t << "," << d ")" << endl;
