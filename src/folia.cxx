@@ -1609,6 +1609,22 @@ namespace folia {
     return atts;
   }
 
+  void AlignReference::setAttributes( const KWargs& args ){
+    KWargs::const_iterator it = args.find( "id" );
+    if ( it != args.end() ){
+      refId = it->second;
+    }
+    it = args.find( "type" );
+    if ( it != args.end() ){
+      _type = it->second;
+    }
+    it = args.find( "t" );
+    if ( it != args.end() ){
+      _t = it->second;
+    }
+  }
+
+
   KWargs Alignment::collectAttributes() const {
     KWargs atts = FoliaElement::collectAttributes();
     if ( !_href.empty() )
@@ -2301,6 +2317,16 @@ namespace folia {
     space = true;
   }
 
+  void Substring::init(){
+    _xmltag="str";
+    _element_id = Substr_t;
+    const ElementType accept[] = { TextContent_t, Correction_t,
+				   Description_t, Alignment_t, Metric_t };
+    _accepted_data = std::set<ElementType>(accept, accept + 5 );
+    _annotation_type = AnnotationType::TOKEN;
+    TEXTDELIMITER = " ";
+  }
+
   void PlaceHolder::init(){
     _xmltag="placeholder";
     _element_id = PlaceHolder_t;
@@ -2465,9 +2491,10 @@ namespace folia {
     _xmltag="p";
     _element_id = Paragraph_t;
     const ElementType accept[] = { Sentence_t, Correction_t, TextContent_t, 
+				   Substr_t,
 				   Description_t, LineBreak_t, WhiteSpace_t, 
 				   List_t, Figure_t, Alignment_t, Metric_t };
-    _accepted_data = std::set<ElementType>(accept, accept + 10 );
+    _accepted_data = std::set<ElementType>(accept, accept + 11 );
     _annotation_type = AnnotationType::PARAGRAPH;
   }
 

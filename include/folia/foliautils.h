@@ -67,7 +67,7 @@ namespace folia {
   
   enum ElementType  {
     BASE=0, TextContent_t,
-    Text_t, Word_t, 
+    Text_t, Word_t, Substr_t,
     WordReference_t, Event_t, 
     TimeSegment_t, TimingLayer_t,
     LineBreak_t, WhiteSpace_t, 

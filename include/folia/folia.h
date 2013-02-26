@@ -769,6 +769,16 @@ namespace folia {
     bool space;
   };
 
+  class Substring: public AbstractStructureElement {
+  public:
+  Substring( const std::string& s="" ): AbstractStructureElement(){ classInit( s ); };
+  Substring( const KWargs& a ):  AbstractStructureElement(){ classInit( a ); };
+  Substring( Document *d, const std::string& s=""):  AbstractStructureElement( d ){ classInit( s ); };
+  Substring( Document *d, const KWargs& a ):  AbstractStructureElement( d ){ classInit( a ); };
+  private:
+    void init();
+  };
+
   class PlaceHolder: public Word {
   public:
   PlaceHolder( const std::string& s=""): Word(){ classInit( s ); };
@@ -1141,6 +1151,7 @@ namespace folia {
   AlignReference( Document *d, const std::string& s="" ): FoliaElement( d ){ classInit( s ); };
   AlignReference( Document *d, const KWargs& a ): FoliaElement( d ){ classInit( a ); };
     KWargs collectAttributes() const;  
+    void setAttributes( const KWargs& );
   private:
     void init();
     FoliaElement* parseXml( const xmlNode *node );
