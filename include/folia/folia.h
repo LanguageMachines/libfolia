@@ -374,6 +374,7 @@ namespace folia {
     }
     Word *addWord( const KWargs& );
     TextContent *settext( const std::string&, const std::string& = "current" );
+    TextContent *settext( const std::string&, int , const std::string& = "current" );
 
     template <typename F>
       F *addAlternative();
@@ -769,12 +770,12 @@ namespace folia {
     bool space;
   };
 
-  class Substring: public AbstractStructureElement {
+  class String: public AbstractTokenAnnotation {
   public:
-  Substring( const std::string& s="" ): AbstractStructureElement(){ classInit( s ); };
-  Substring( const KWargs& a ):  AbstractStructureElement(){ classInit( a ); };
-  Substring( Document *d, const std::string& s=""):  AbstractStructureElement( d ){ classInit( s ); };
-  Substring( Document *d, const KWargs& a ):  AbstractStructureElement( d ){ classInit( a ); };
+  String( const std::string& s="" ): AbstractTokenAnnotation(){ classInit( s ); };
+  String( const KWargs& a ):  AbstractTokenAnnotation(){ classInit( a ); };
+  String( Document *d, const std::string& s=""):  AbstractTokenAnnotation( d ){ classInit( s ); };
+  String( Document *d, const KWargs& a ):  AbstractTokenAnnotation( d ){ classInit( a ); };
   private:
     void init();
   };

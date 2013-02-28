@@ -67,7 +67,7 @@ namespace folia {
   
   enum ElementType  {
     BASE=0, TextContent_t,
-    Text_t, Word_t, Substr_t,
+    Text_t, Word_t, Str_t,
     WordReference_t, Event_t, 
     TimeSegment_t, TimingLayer_t,
     LineBreak_t, WhiteSpace_t, 
@@ -118,7 +118,7 @@ namespace folia {
    *  static const annotation_type = {AnnotationType}
    */
   namespace AnnotationType {
-    enum AnnotationType { NO_ANN, TEXT, TOKEN, DIVISION, PARAGRAPH, 
+    enum AnnotationType { NO_ANN, TEXT, TOKEN, DIVISION, PARAGRAPH, STRING,
 			  LIST, FIGURE, WHITESPACE, LINEBREAK, SENTENCE, 
 			  POS, LEMMA, DOMEIN, SENSE, SYNTAX, CHUNKING, ENTITY,
 			  // Attention DOMAIN seems to be a defined constant

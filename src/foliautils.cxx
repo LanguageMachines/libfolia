@@ -77,6 +77,9 @@ namespace folia {
     case AnnotationType::TEXT:
       result = "text";
       break; 
+    case AnnotationType::STRING:
+      result = "string";
+      break; 
     case AnnotationType::TOKEN:
       result = "token";
       break; 
@@ -182,6 +185,8 @@ namespace folia {
   AnnotationType::AnnotationType stringToAT( const string& at ){
     if ( at == "text" )
       return AnnotationType::TEXT;
+    if ( at == "string" )
+      return AnnotationType::STRING;
     if ( at == "token" )
       return AnnotationType::TOKEN;
     if ( at == "div" )
@@ -262,7 +267,7 @@ namespace folia {
     case WhiteSpace_t: result = "whitespace"; break;
     case Word_t: result = "w"; break;
     case WordReference_t: result = "wref"; break; 
-    case Substr_t: result = "str"; break;
+    case Str_t: result = "str"; break;
     case Sentence_t: result = "s"; break;
     case Paragraph_t: result = "p"; break;
     case Division_t: result = "div"; break;
@@ -342,7 +347,7 @@ namespace folia {
       return Word_t;
     }
     if ( tag == "str" ){
-      return Substr_t;
+      return Str_t;
     }
     if ( tag == "event" ){
       return Event_t;
@@ -566,8 +571,8 @@ namespace folia {
       return new Text( doc );
     case Word_t:
       return new Word( doc );
-    case Substr_t:
-      return new Substring( doc );
+    case Str_t:
+      return new String( doc );
     case Event_t:
       return new Event( doc );
     case TimeSegment_t:
