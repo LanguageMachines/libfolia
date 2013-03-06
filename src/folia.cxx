@@ -525,6 +525,8 @@ namespace folia {
   }
 
   bool FoliaElement::hastext( const string& cls ) const {
+    // does this element have a TextContent with class 'cls'
+    // Default is class="current"
     try {
       this->textcontent(cls);
       return true;
@@ -534,6 +536,8 @@ namespace folia {
   }
   
   UnicodeString FoliaElement::text( const string& cls, bool retaintok ) const {
+    // get the UnicodeString value of underlying elements
+    // default cls="current"
     if ( !PRINTABLE )
       throw NoSuchText( _xmltag );
     //  cerr << (void*)this << ":text() for " << _xmltag << " and class= " << cls << " step 1 " << endl;
@@ -571,11 +575,14 @@ namespace folia {
   }
   
   UnicodeString FoliaElement::stricttext( const string& cls ) const {
+    // get UnicoeString content of TextContent children only
+    // default cls="current"
     return this->textcontent(cls)->text(cls);
   }
 
   TextContent *FoliaElement::textcontent( const string& cls ) const {
     // Get the text explicitly associated with this element (of the specified class).
+    // the default class is 'current'
     // Returns the TextContent instance rather than the actual text. Does not recurse into children
     // with sole exception of Correction
     // Raises NoSuchText exception if not found. 
@@ -623,6 +630,8 @@ namespace folia {
 
   TextContent *FoliaElement::settext( const string& txt, 
 				      const string& cls ){
+    // create a TextContent child of class 'cls'
+    // Default cls="current"
     KWargs args;
     args["value"] = txt;
     args["class"] = cls;
@@ -635,6 +644,9 @@ namespace folia {
   TextContent *FoliaElement::settext( const string& txt, 
 				      int offset,
 				      const string& cls ){
+    // create a TextContent child of class 'cls'
+    // Default cls="current"
+    // sets the offset attribute.
     KWargs args;
     args["value"] = txt;
     args["class"] = cls;
