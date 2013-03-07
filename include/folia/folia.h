@@ -296,7 +296,7 @@ namespace folia {
     virtual std::string getlang() const {
       throw NotImplementedError("offset() for " + _xmltag ); 
     };
-    virtual std::string setlang( std::string& ) {
+    virtual std::string setlang( const std::string& ) {
       throw NotImplementedError("offset() for " + _xmltag ); 
     };
 
@@ -629,7 +629,7 @@ namespace folia {
     UnicodeString text( const std::string& = "current", bool = false ) const;
     int offset() const { return _offset; };
     std::string getlang() const { return _lang; };
-    std::string setlang( std::string& l ) { 
+    std::string setlang( const std::string& l ) { 
       std::string t = _lang;
       _lang = l;
       return t;
