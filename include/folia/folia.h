@@ -293,6 +293,12 @@ namespace folia {
     virtual int offset() const {
       throw NotImplementedError("offset() for " + _xmltag ); 
     };
+    virtual std::string getlang() const {
+      throw NotImplementedError("offset() for " + _xmltag ); 
+    };
+    virtual std::string setlang( std::string& ) {
+      throw NotImplementedError("offset() for " + _xmltag ); 
+    };
 
     std::string pos( const std::string& = "" ) const;
     std::string lemma( const std::string& = "" ) const;
@@ -622,6 +628,12 @@ namespace folia {
     std::string str() const;
     UnicodeString text( const std::string& = "current", bool = false ) const;
     int offset() const { return _offset; };
+    std::string getlang() const { return _lang; };
+    std::string setlang( std::string& l ) { 
+      std::string t = _lang;
+      _lang = l;
+      return t;
+    };
     FoliaElement *append( FoliaElement* ){ 
       throw NotImplementedError("TextContent::append() for " + _xmltag ); };
     TextContent *postappend();
@@ -629,6 +641,7 @@ namespace folia {
   private:
     void init();
     int _offset;
+    std::string _lang;
     UnicodeString _text;
   };
 

@@ -870,6 +870,9 @@ namespace folia {
       if ( it->first == "_id" ){ // id is special
 	xmlNewNsProp( node, 0, XML_XML_ID,  (const xmlChar *)it->second.c_str() );
       }
+      else if ( it->first == "lang" ){ // lang is special
+	xmlNodeSetLang( node, (const xmlChar*)it->second.c_str() );
+      }
       else {
 	xmlNewNsProp( node, 0, 
 		      (const xmlChar*)it->first.c_str(), 

@@ -884,7 +884,7 @@ namespace folia {
     }
     return select( et, excludeSet, recurse );
   }
-
+  
   FoliaElement* FoliaElement::parseXml( const xmlNode *node ){
     KWargs att = getAttributes( node );
     //    cerr << "got attributes " << att << endl;
@@ -1133,6 +1133,13 @@ namespace folia {
     }
     else
       _offset = -1;
+    it = kwargs.find( "lang" );
+    if ( it != kwargs.end() ) {
+      _lang = it->second;
+      kwargs.erase("lang");
+    }
+    else
+      _lang.clear();
     it = kwargs.find( "ref" );
     if ( it != kwargs.end() ) {
       throw NotImplementedError( "ref attribute in TextContent" );
@@ -1148,6 +1155,7 @@ namespace folia {
 
   FoliaElement* TextContent::parseXml( const xmlNode *node ){
     KWargs att = getAttributes( node );
+    using TiCC::operator<<;
     att["value"] = XmlContent( node );
     setAttributes( att );
     if ( mydoc && mydoc->debug > 2 )
@@ -2009,6 +2017,9 @@ namespace folia {
       
     if ( _offset >= 0 ){
       attribs["offset"] = toString( _offset );
+    }
+    if ( !_lang.empty() ){
+      attribs["lang"] = _lang;
     }
     return attribs;
   }
