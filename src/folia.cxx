@@ -1640,7 +1640,16 @@ namespace folia {
     }
     it = args.find( "type" );
     if ( it != args.end() ){
+      try {
+	stringTo<ElementType>( it->second );
+      }
+      catch (...){
+	throw XmlError( "attribute 'type' must be an Element Type" );
+      }
       _type = it->second;
+    }
+    else {
+      throw XmlError( "attribute 'type' required for AlignReference" );
     }
     it = args.find( "t" );
     if ( it != args.end() ){
