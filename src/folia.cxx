@@ -45,6 +45,7 @@
 #include "config.h"
 
 using namespace std;
+using namespace TiCC;
 
 namespace folia {
   
@@ -249,7 +250,7 @@ namespace folia {
 	try {
 	  _confidence = stringTo<double>(it->second);
 	  if ( _confidence < 0 || _confidence > 1.0 )
-	    throw ValueError("Confidence must be a floating point number between 0 and 1, got " + toString(_confidence) );	    
+	    throw ValueError("Confidence must be a floating point number between 0 and 1, got " + TiCC::toString(_confidence) );	    
 	}
 	catch (...){
 	  throw ValueError("invalid Confidence value, (not a number?)");
@@ -416,7 +417,7 @@ namespace folia {
     }
   
     if ( _confidence >= 0 )
-      attribs["confidence"] = toString(_confidence);
+      attribs["confidence"] = TiCC::toString(_confidence);
   
     if ( !_n.empty() )
       attribs["n"] = _n;
@@ -650,7 +651,7 @@ namespace folia {
     KWargs args;
     args["value"] = txt;
     args["class"] = cls;
-    args["offset"] = toString(offset);
+    args["offset"] = TiCC::toString(offset);
     TextContent *node = new TextContent( mydoc );
     node->setAttributes( args );
     replace( node );
@@ -717,7 +718,7 @@ namespace folia {
       vector<FoliaElement*> v = select( c->_element_id );
       size_t count = v.size();
       if ( count > c->occurrences ){
-	throw DuplicateAnnotationError( "Unable to add another object of type " + c->classname() + " to " + classname() + ". There are already " + toString(count) + " instances of this class, which is the maximum." );
+	throw DuplicateAnnotationError( "Unable to add another object of type " + c->classname() + " to " + classname() + ". There are already " + TiCC::toString(count) + " instances of this class, which is the maximum." );
       }
     }
     if ( c->occurrences_per_set > 0 &&
@@ -725,7 +726,7 @@ namespace folia {
       vector<FoliaElement*> v = select( c->_element_id, c->_set );
       size_t count = v.size();
       if ( count > c->occurrences_per_set )
-	throw DuplicateAnnotationError( "Unable to add another object of type " + c->classname() + " to " + classname() + ". There are already " + toString(count) + " instances of this class, which is the maximum." );
+	throw DuplicateAnnotationError( "Unable to add another object of type " + c->classname() + " to " + classname() + ". There are already " + TiCC::toString(count) + " instances of this class, which is the maximum." );
     }
     return true;
   }
@@ -1200,7 +1201,7 @@ namespace folia {
     //    cerr << "generateId," << tag << " nodeId = " << nodeId << endl;
     int max = getMaxId(tag);
     //    cerr << "MAX = " << max << endl;
-    string id = nodeId + '.' + tag + '.' +  toString( max + 1 );
+    string id = nodeId + '.' + tag + '.' +  TiCC::toString( max + 1 );
     //    cerr << "new id = " << id << endl;
     return id;
   }
@@ -2016,7 +2017,7 @@ namespace folia {
       attribs.erase( "class" );    
       
     if ( _offset >= 0 ){
-      attribs["offset"] = toString( _offset );
+      attribs["offset"] = TiCC::toString( _offset );
     }
     if ( !_lang.empty() ){
       attribs["lang"] = _lang;

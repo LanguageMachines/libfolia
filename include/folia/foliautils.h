@@ -222,50 +222,44 @@ namespace folia {
     return os;
   }
   
-  template< typename T >
-    inline T stringTo( const std::string& str ) {
-    T result;
-    std::stringstream dummy ( str );
-    if ( !( dummy >> result ) ) {
-      throw( std::runtime_error( "conversion from string '"
-				 + str + "' failed" ) );
-    }
-    return result;
-  }  
+  /* template< typename T > */
+  /*   inline T stringTo( const std::string& str ) { */
+  /*   T result; */
+  /*   std::stringstream dummy ( str ); */
+  /*   if ( !( dummy >> result ) ) { */
+  /*     throw( std::runtime_error( "conversion from string '" */
+  /* 				 + str + "' failed" ) ); */
+  /*   } */
+  /*   return result; */
+  /* }   */
+  
+}
+
+namespace TiCC {
+  template<>
+    inline folia::AnnotationType::AnnotationType stringTo( const std::string& str ) {
+    return folia::stringToAT( str );
+  }
   
   template<>
-    inline AnnotationType::AnnotationType stringTo( const std::string& str ) {
-    return stringToAT( str );
+    inline folia::ElementType stringTo( const std::string& str ) {
+    return folia::stringToET( str );
   }
 
   template<>
-    inline ElementType stringTo( const std::string& str ) {
-    return stringToET( str );
-  }
-
-  template<>
-    inline AnnotatorType stringTo( const std::string& str ) {
-    std::string at = TiCC::uppercase( str );
+    inline folia::AnnotatorType stringTo( const std::string& str ) {
+    std::string at = uppercase( str );
     if ( at == "AUTO" )
-      return AUTO;
+      return folia::AUTO;
     else if ( at == "MANUAL" )
-      return MANUAL;
+      return folia::MANUAL;
     else
-      return UNDEFINED;
+      return folia::UNDEFINED;
   }
   
-  template<>
-    inline bool stringTo( const std::string& str ) {
-    std::string b = TiCC::uppercase( str );
-    if ( b == "YES" || b == "TRUE" || b == "1" )
-      return true;
-    else if ( b == "FALSE" || b == "NO" || b == "0" )
-      return false;
-    else
-      throw( std::runtime_error( "conversion from string '"
-				 + str + "' to bool failed" ) );
-  }
-  
+}
+
+namespace folia {
   xmlNode *newXMLNode( xmlNs *,  const std::string& );
   void addAttributes( xmlNode *, const KWargs& );
   KWargs getAttributes( const xmlNode * );

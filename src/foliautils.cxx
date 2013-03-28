@@ -41,6 +41,7 @@
 #include "folia/folia.h"
 
 using namespace std;
+using namespace TiCC;
 
 namespace folia {
 
