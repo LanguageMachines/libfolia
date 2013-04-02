@@ -1,6 +1,6 @@
 /*
-  $Id: folia.cxx 15845 2013-03-28 17:41:22Z sloot $
-  $URL: https://ilk.uvt.nl/svn/sources/libfolia/trunk/src/folia.cxx $
+  $Id$
+  $URL$
 
   Copyright (c) 1998 - 2013
   ILK   - Tilburg University
