@@ -40,6 +40,7 @@
 #include <stdexcept>
 #include "ticcutils/PrettyPrint.h"
 #include "ticcutils/StringOps.h"
+#include "ticcutils/XMLtools.h"
 #include "folia/document.h"
 #include "folia/folia.h"
 #include "config.h"
@@ -459,7 +460,7 @@ namespace folia {
   }
 
   xmlNode *FoliaElement::xml( bool recursive, bool kanon ) const {
-    xmlNode *e = newXMLNode( foliaNs(), _xmltag );
+    xmlNode *e = XmlNewNode( foliaNs(), _xmltag );
     KWargs attribs = collectAttributes();
     set<FoliaElement *> skipelements;
     vector<FoliaElement*>::const_iterator it=data.begin();
@@ -2099,7 +2100,7 @@ namespace folia {
     while ( it != data.end() ){
       if ( (*it)->element_id() == Word_t ||
 	   (*it)->element_id() == Morpheme_t ){
-	xmlNode *t = newXMLNode( foliaNs(), "wref" );
+	xmlNode *t = XmlNewNode( foliaNs(), "wref" );
 	KWargs attribs;
 	attribs["id"] = (*it)->id();
 	string txt = (*it)->str();

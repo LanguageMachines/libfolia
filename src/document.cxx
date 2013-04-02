@@ -37,6 +37,7 @@
 #include <map>
 #include <algorithm>
 #include <stdexcept>
+#include "ticcutils/XMLtools.h"
 #include "folia/document.h"
 #include "folia/folia.h"
 #include "config.h"
@@ -806,7 +807,7 @@ namespace folia {
 	// Find the 'label' 
 	string label = toString( mit->first );
 	label += "-annotation";
-	xmlNode *n = newXMLNode( foliaNs(), label );
+	xmlNode *n = XmlNewNode( foliaNs(), label );
 	KWargs args;
 	string s = it->second.a;
 	if ( !s.empty() )
@@ -901,8 +902,8 @@ namespace folia {
 	attribs["version"] = version;
       addAttributes( root, attribs );
 
-      xmlNode *md = xmlAddChild( root,  newXMLNode( foliaNs(), "metadata" ) );  
-      xmlNode *an = xmlAddChild( md,  newXMLNode( foliaNs(), "annotations" ) );
+      xmlNode *md = xmlAddChild( root, XmlNewNode( foliaNs(), "metadata" ) );  
+      xmlNode *an = xmlAddChild( md, XmlNewNode( foliaNs(), "annotations" ) );
       setannotations( an );
       setmetadata( md );
       vector<FoliaElement*>::const_iterator it= foliadoc->data.begin();

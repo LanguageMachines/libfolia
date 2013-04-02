@@ -8,7 +8,7 @@ LDADD = libfolia.la
 lib_LTLIBRARIES = libfolia.la
 libfolia_la_LDFLAGS = -version-info 1:0:0
 
-libfolia_la_SOURCES =  folia.cxx document.cxx foliautils.cxx
+libfolia_la_SOURCES = folia.cxx document.cxx foliautils.cxx
 
 bin_PROGRAMS = folialint
 folialint_SOURCES = folialint.cxx

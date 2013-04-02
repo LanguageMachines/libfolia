@@ -38,6 +38,7 @@
 #include <ctime>
 #include "ticcutils/PrettyPrint.h"
 #include "ticcutils/StringOps.h"
+#include "ticcutils/XMLtools.h"
 #include "unicode/unistr.h"
 #include "unicode/unistr.h"
 #include <unicode/ustream.h>
@@ -245,20 +246,8 @@ namespace TiCC {
 }
 
 namespace folia {
-  xmlNode *newXMLNode( xmlNs *,  const std::string& );
   void addAttributes( xmlNode *, const KWargs& );
   KWargs getAttributes( const xmlNode * );
-  std::string getAttribute( const xmlNode *, const std::string& );
-
-  std::string Name( const xmlNode * );
-  std::string XmlContent( const xmlNode * );
-  std::string getNS( const xmlNode *, std::string& );
-  inline std::string getNS( const xmlNode *n ) {
-    std::string s;
-    return getNS( n, s);
-  }
-
-  std::map<std::string,std::string> getNSlist( const xmlNode * );
 
   std::list<xmlNode*> FindNodes( xmlNode *, const std::string& );
   xmlNode *xPath( xmlNode *, const std::string& );

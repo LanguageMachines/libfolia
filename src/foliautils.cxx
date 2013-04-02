@@ -37,6 +37,7 @@
 #include <stdexcept>
 #include <algorithm> 
 #include "ticcutils/StringOps.h"
+#include "ticcutils/XMLtools.h"
 #include "folia/document.h"
 #include "folia/folia.h"
 
@@ -836,10 +837,6 @@ namespace folia {
     return result;
   }
 
-  xmlNode *newXMLNode( xmlNs *ns,  const string& elem ){
-    return xmlNewNode( ns, (const xmlChar*)elem.c_str() );
-  }
-
   KWargs getAttributes( const xmlNode *node ){
     KWargs atts;
     if ( node ){
@@ -850,18 +847,6 @@ namespace folia {
       }
     }
     return atts;
-  }
-
-  string getAttribute( const xmlNode *node, const string& att ){
-    if ( node ){
-      xmlAttr *a = node->properties;
-      while ( a ){
-	if ( att == (char*)a->name )
-	  return (char *)a->children->content;
-	a = a->next;
-      }
-    }
-    return "";
   }
 
   void addAttributes( xmlNode *node, const KWargs& attribs ){
@@ -881,55 +866,6 @@ namespace folia {
       }
       ++it;
     }
-  }
-
-  string Name( const xmlNode *node ){
-    string result;
-    if ( node ){
-      result = (char *)node->name;
-    }
-    return result;
-  }
-
-  string XmlContent( const xmlNode *node ){
-    string result;
-    if ( node ){
-      xmlChar *tmp = xmlNodeListGetString( node->doc, node->children, 1 );
-      if ( tmp ){
-	result = string( (char *)tmp );
-	xmlFree( tmp );
-      }
-    }
-    return result;
-  }
-
-  string getNS( const xmlNode *node, string& prefix ){
-    string result;
-    prefix = "";
-    xmlNs *p = node->ns;
-    if ( p ){
-      if ( p->prefix ){
-	prefix = (char *)p->prefix;
-      }
-      result = (char *)p->href;
-    }
-    return result;
-  }
-
-  map<string,string> getNSlist( const xmlNode *node ){
-    map<string,string> result;
-    xmlNs *p = node->ns;
-    while ( p ){
-      string pre;
-      string val;
-      if ( p->prefix ){
-	pre = (char *)p->prefix;
-      }
-      val = (char *)p->href;
-      result[pre] = val;
-      p = p->next;
-    }
-    return result;
   }
 
   list<xmlNode*> FindLocal( xmlXPathContext* ctxt, 
