@@ -199,10 +199,6 @@ namespace folia {
   UnicodeString UTF8ToUnicode( const std::string& );
   std::string UnicodeToUTF8( const UnicodeString& );
   
-  double toDouble( const std::string& );
-  
-  std::string toString( const double );
-  
   std::string toString( const AnnotationType::AnnotationType& );
   AnnotatorType stringToANT( const std::string& );
   
@@ -221,17 +217,6 @@ namespace folia {
     os << toString( at );
     return os;
   }
-  
-  /* template< typename T > */
-  /*   inline T stringTo( const std::string& str ) { */
-  /*   T result; */
-  /*   std::stringstream dummy ( str ); */
-  /*   if ( !( dummy >> result ) ) { */
-  /*     throw( std::runtime_error( "conversion from string '" */
-  /* 				 + str + "' failed" ) ); */
-  /*   } */
-  /*   return result; */
-  /* }   */
   
 }
 
