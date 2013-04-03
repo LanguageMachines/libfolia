@@ -4,7 +4,7 @@
 # $URL: https://ilk.uvt.nl/svn/sources/ucto/trunk/configure.ac $
 
 AC_PREREQ(2.59)
-AC_INIT([folia], [0.10], [timbl@uvt.nl])
+AC_INIT([libfolia], [0.10], [timbl@uvt.nl])
 AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR([configure.ac])
 AC_CONFIG_MACRO_DIR([m4])
@@ -95,5 +95,5 @@ AC_OUTPUT([
   m4/Makefile
   src/Makefile
   include/Makefile
-  include/folia/Makefile
+  include/libfolia/Makefile
 ])
