@@ -30,9 +30,7 @@
 #include <iostream>
 #include <string>
 #include <map>
-#include "folia/document.h"
-#include "folia/folia.h"
-#include "folia/foliautils.h"
+#include "libfolia/document.h"
 
 using namespace std;
 using namespace folia;

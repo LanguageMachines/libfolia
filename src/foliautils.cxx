@@ -38,8 +38,7 @@
 #include <algorithm> 
 #include "ticcutils/StringOps.h"
 #include "ticcutils/XMLtools.h"
-#include "folia/document.h"
-#include "folia/folia.h"
+#include "libfolia/document.h"
 
 using namespace std;
 using namespace TiCC;

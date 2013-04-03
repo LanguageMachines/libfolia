@@ -1,4 +1,4 @@
 
 #AUTOMAKE_OPTIONS = foreign 
 
-SUBDIRS = folia
+SUBDIRS = libfolia

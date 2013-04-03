@@ -31,8 +31,7 @@
 #include <fstream>
 #include <string>
 #include <map>
-#include "folia/folia.h"
-#include "folia/document.h"
+#include "libfolia/document.h"
 
 using namespace std;
 

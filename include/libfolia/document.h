@@ -36,7 +36,8 @@
 #include "libxml/tree.h"
 #include "libxml/xpath.h"
 #include <ctime>
-#include "folia/foliautils.h"
+#include "libfolia/folia.h"
+#include "libfolia/foliautils.h"
 
 namespace folia {
   extern const std::string NSFOLIA;
