@@ -1,7 +1,9 @@
 0.10
+  * some XML stuff is moved to ticcutils
+  * also use some other goodies form ticcutils
   * now implements new nodes like Metric, Coreferences and Semroles
     (follwing the FoLiA 0.9 specs)
-  * some code improvement too
+  * a lot of code improvement too, including some bug fixes
 
 0.9 
   * lost in tranistion
