@@ -43,7 +43,6 @@
 #include "unicode/unistr.h"
 #include <unicode/ustream.h>
 #include "libxml/tree.h"
-#include "libxml/xpath.h"
 
 namespace folia {
   enum AnnotatorType{ UNDEFINED = -1, AUTO = 0, MANUAL = 1 };
@@ -248,9 +247,6 @@ namespace TiCC {
 namespace folia {
   void addAttributes( xmlNode *, const KWargs& );
   KWargs getAttributes( const xmlNode * );
-
-  std::list<xmlNode*> FindNodes( xmlNode *, const std::string& );
-  xmlNode *xPath( xmlNode *, const std::string& );
 
   std::string parseDate( const std::string& );
 

@@ -590,7 +590,7 @@ namespace folia {
       string dum;
       cerr << "root = " << Name( root ) << endl;
       cerr << "in namespace " << getNS( root, dum ) << endl;
-      cerr << "namespace list" << getNSlist( root ) << endl;
+      cerr << "namespace list" << getNSvalues( root ) << endl;
     }
     FoliaElement *result = 0;
     if ( root  ){
