@@ -38,6 +38,7 @@
 #include <algorithm>
 #include <stdexcept>
 #include "ticcutils/XMLtools.h"
+#include "ticcutils/zipper.h"
 #include "libfolia/document.h"
 #include "config.h"
 
@@ -185,6 +186,16 @@ namespace folia {
       throw runtime_error( "Document is aready initialized" );
       return false;
     }
+    string::size_type pos = s.rfind( ".bz2" );
+    if ( pos != string::npos && pos == s.size() - 4 ){
+      string buffer = bz2readFile( s );
+      return readFromString( buffer );
+    }
+    // string::size_type pos = s.rfind( ".gz" );
+    // if ( pos != string::npos && pos == s.size() - 3 ){
+    //   cerr << "found a gzip file " << endl;
+    //   return readGZFile( s );
+    // }
     int cnt = 0;
     xmlSetStructuredErrorFunc( &cnt, (xmlStructuredErrorFunc)error_sink );
     xmldoc = xmlReadFile( s.c_str(), 0, XML_PARSE_NOBLANKS );
@@ -206,7 +217,7 @@ namespace folia {
     }
     if ( debug )
       cout << "Failed to read a doc from " << s << endl;
-    return false;
+    throw XmlError( "No XML document read" );
   }
 
   bool Document::readFromString( const string& s ){
@@ -251,9 +262,16 @@ namespace folia {
   }
 
   bool Document::save( const string& fn, const string& nsLabel, bool kanon ) {
-    ofstream os( fn.c_str() );
-    if ( os.good() ) {
-      return save( os, nsLabel, kanon );
+    string::size_type pos = fn.rfind( ".bz2" );
+    if ( pos != string::npos && pos == fn.size() - 4 ){
+      string s = toXml( nsLabel, kanon );
+      return bz2writeFile( fn, s );
+    }
+    else {
+      ofstream os( fn.c_str() );
+      if ( os.good() ) {
+	return save( os, nsLabel, kanon );
+      }
     }
     throw runtime_error( "saving to file " + fn + " failed" );
     return false;

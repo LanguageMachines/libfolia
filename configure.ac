@@ -86,7 +86,7 @@ AC_ARG_WITH(ticcutils,
 #  AC_MSG_NOTICE( [pkg-config search path: $PKG_CONFIG_PATH] )
 PKG_CHECK_MODULES([ticcutils], [ticcutils >= 0.4] )
 CXXFLAGS="$CXXFLAGS $ticcutils_CFLAGS"
-LIBS="$LIBS $ticcutils_LIBS"
+LIBS="$ticcutils_LIBS $LIBS"
 
 
 AC_OUTPUT([
