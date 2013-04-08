@@ -188,14 +188,14 @@ namespace folia {
     }
     string::size_type pos = s.rfind( ".bz2" );
     if ( pos != string::npos && pos == s.size() - 4 ){
-      string buffer = bz2readFile( s );
+      string buffer = bz2ReadFile( s );
       return readFromString( buffer );
     }
-    // string::size_type pos = s.rfind( ".gz" );
-    // if ( pos != string::npos && pos == s.size() - 3 ){
-    //   cerr << "found a gzip file " << endl;
-    //   return readGZFile( s );
-    // }
+    pos = s.rfind( ".gz" );
+    if ( pos != string::npos && pos == s.size() - 3 ){
+      string buffer = gzReadFile( s );
+      return readFromString( buffer );
+    }
     int cnt = 0;
     xmlSetStructuredErrorFunc( &cnt, (xmlStructuredErrorFunc)error_sink );
     xmldoc = xmlReadFile( s.c_str(), 0, XML_PARSE_NOBLANKS );
@@ -265,13 +265,16 @@ namespace folia {
     string::size_type pos = fn.rfind( ".bz2" );
     if ( pos != string::npos && pos == fn.size() - 4 ){
       string s = toXml( nsLabel, kanon );
-      return bz2writeFile( fn, s );
+      return bz2WriteFile( fn, s );
     }
-    else {
-      ofstream os( fn.c_str() );
-      if ( os.good() ) {
-	return save( os, nsLabel, kanon );
-      }
+    pos = fn.rfind( ".gz" );
+    if ( pos != string::npos && pos == fn.size() - 3 ){
+      string s = toXml( nsLabel, kanon );
+      return gzWriteFile( fn, s );
+    }
+    ofstream os( fn.c_str() );
+    if ( os.good() ) {
+      return save( os, nsLabel, kanon );
     }
     throw runtime_error( "saving to file " + fn + " failed" );
     return false;
