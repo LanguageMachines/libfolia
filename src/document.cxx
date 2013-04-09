@@ -38,6 +38,7 @@
 #include <algorithm>
 #include <stdexcept>
 #include "ticcutils/XMLtools.h"
+#include "ticcutils/StringOps.h"
 #include "ticcutils/zipper.h"
 #include "libfolia/document.h"
 #include "config.h"
@@ -186,13 +187,11 @@ namespace folia {
       throw runtime_error( "Document is aready initialized" );
       return false;
     }
-    string::size_type pos = s.rfind( ".bz2" );
-    if ( pos != string::npos && pos == s.size() - 4 ){
+    if ( match_back( s, ".bz2" ) ){
       string buffer = bz2ReadFile( s );
       return readFromString( buffer );
     }
-    pos = s.rfind( ".gz" );
-    if ( pos != string::npos && pos == s.size() - 3 ){
+    else if ( match_back( s, ".gz" ) ) {
       string buffer = gzReadFile( s );
       return readFromString( buffer );
     }
@@ -262,13 +261,11 @@ namespace folia {
   }
 
   bool Document::save( const string& fn, const string& nsLabel, bool kanon ) {
-    string::size_type pos = fn.rfind( ".bz2" );
-    if ( pos != string::npos && pos == fn.size() - 4 ){
+    if ( match_back( fn, ".bz2" ) ){
       string s = toXml( nsLabel, kanon );
       return bz2WriteFile( fn, s );
     }
-    pos = fn.rfind( ".gz" );
-    if ( pos != string::npos && pos == fn.size() - 3 ){
+    else  if ( match_back( fn, ".gz" ) ){
       string s = toXml( nsLabel, kanon );
       return gzWriteFile( fn, s );
     }
