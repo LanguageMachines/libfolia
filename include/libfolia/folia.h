@@ -441,7 +441,7 @@ namespace folia {
     virtual std::vector<FoliaElement *> resolve() const {
       throw NotImplementedError("resolve() for " + _xmltag );
     };
-
+    bool printable() const { return PRINTABLE; };
   protected:
     virtual void init()=0;
     virtual KWargs collectAttributes() const;
