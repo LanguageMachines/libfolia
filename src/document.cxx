@@ -670,11 +670,11 @@ namespace folia {
   void Document::declare( AnnotationType::AnnotationType type, 
 			  const string& s, const string& a, 
 			  const string& t, const string& ds ){
-    string d = ds;
-    if ( d == "now()" ){
-      d = getNow();
-    }
-    if ( !isDeclared( type, s, a, t, d ) ){
+    if ( !isDeclared( type, s, a, t ) ){
+      string d = ds;
+      if ( d == "now()" ){
+	d = getNow();
+      }
       annotationdefaults[type].insert( make_pair(s, at_t(a,t,d) ) );
       //    cerr << "inserted [" << type << "][" << st << "](" << a << "," << t << "," << d ")" << endl;
       //    cerr << "annotation defaults now: " <<  annotationdefaults << endl;
@@ -692,8 +692,10 @@ namespace folia {
   bool Document::isDeclared( AnnotationType::AnnotationType type,
 			     const string& s, 
 			     const string& a,
-			     const string& t,
-			     const string& d ){
+			     const string& t){
+    //
+    // We DO NOT check the date. if all parameters match, it is OK
+    //
     if ( type == AnnotationType::NO_ANN ){
       return true;
     }
@@ -703,7 +705,7 @@ namespace folia {
 	throw runtime_error("isDeclared with empty set.");
       multimap<string,at_t>::const_iterator mit2 = mit1->second.lower_bound(s);
       while ( mit2 != mit1->second.upper_bound(s) ){
-	if ( mit2->second.a == a && mit2->second.t == t && mit2->second.d == d )
+	if ( mit2->second.a == a && mit2->second.t == t )
 	  return true;
 	++mit2;
       }
