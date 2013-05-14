@@ -1109,8 +1109,16 @@ namespace folia {
     }
     KWargs::const_iterator ait = args.find("suggest");
     if ( ait != args.end() && ait->second == "true" ){
+      FoliaElement *sugg = new Suggestion();
+      it = _new.begin();
+      while ( it != _new.end() ){
+	sugg->append( *it );
+	++it;
+      }
       vector<FoliaElement *> nil;
-      return correct( nil, orig, nil, _new, args );
+      vector<FoliaElement *> sv;
+      sv.push_back( sugg );
+      return correct( nil, orig, nil, sv, args );
     }
     else {
       vector<FoliaElement *> nil;
@@ -1253,11 +1261,12 @@ namespace folia {
     return child;
   }
 
-  Correction *AbstractStructureElement::correct( vector<FoliaElement*> original,
-						 vector<FoliaElement*> current,
-						 vector<FoliaElement*> _new,
-						 vector<FoliaElement*> suggestions,
-						 const KWargs& args_in ){
+  Correction * AllowCorrection::correctBase( FoliaElement *root, 
+					     vector<FoliaElement*> original,
+					     vector<FoliaElement*> current,
+					     vector<FoliaElement*> _new,
+					     vector<FoliaElement*> suggestions,
+					     const KWargs& args_in ){
     // cerr << "correct " << this << endl;
     // cerr << "original= " << original << endl;
     // cerr << "current = " << current << endl;
@@ -1265,6 +1274,7 @@ namespace folia {
     // cerr << "suggestions     = " << suggestions << endl;
     //  cerr << "args in     = " << args_in << endl;
     // Apply a correction
+    Document *mydoc = root->doc();
     Correction *c = 0;
     bool suggestionsonly = false;
     bool hooked = false;
@@ -1312,7 +1322,7 @@ namespace folia {
       KWargs args2 = args;
       args2.erase("suggestion" );
       args2.erase("suggestions" );
-      string id = generateId( "correction" );
+      string id = root->generateId( "correction" );
       args2["id"] = id;
       c = new Correction(mydoc );
       c->setAttributes( args2 );
@@ -1327,10 +1337,10 @@ namespace folia {
 	add->append( *cit );
 	c->replace( add );
 	if ( !hooked ) {
-	  for ( size_t i=0; i < data.size(); ++i ){
-	    if ( data[i] == *cit ){
+	  for ( size_t i=0; i < root->data.size(); ++i ){
+	    if ( root->data[i] == *cit ){
 	      //	    delete data[i];
-	      data[i] = c;
+	      root->data[i] = c;
 	      hooked = true;
 	    }
 	  }
@@ -1364,16 +1374,16 @@ namespace folia {
 	bool dummyNode = ( (*nit)->id() == "dummy" );
 	if ( !dummyNode )
 	  add->append( *nit );
-	for ( size_t i=0; i < data.size(); ++i ){
-	  if ( data[i] == *nit ){
+	for ( size_t i=0; i < root->data.size(); ++i ){
+	  if ( root->data[i] == *nit ){
 	    if ( !hooked ) {
 	      if ( dummyNode )
-		delete data[i];
-	      data[i] = c;
+		delete root->data[i];
+	      root->data[i] = c;
 	      hooked = true;
 	    }
 	    else 
-	      remove( *nit, false );
+	      root->remove( *nit, false );
 	  }
 	}
 	++nit;
@@ -1386,7 +1396,7 @@ namespace folia {
       for ( size_t i=0; i < len(addnew); ++ i ){
 	FoliaElement *p = addnew->index(i);
 	//      cerr << "bekijk " << p << endl;
-	vector<FoliaElement*> v = p->findreplacables( this );
+	vector<FoliaElement*> v = p->findreplacables( root );
 	vector<FoliaElement*>::iterator vit=v.begin();      
 	while ( vit != v.end() ){
 	  orig.push_back( *vit );
@@ -1404,15 +1414,15 @@ namespace folia {
 	while ( oit != orig.end() ){
 	  //	cerr << " an original is : " << *oit << endl;
 	  add->append( *oit );
-	  for ( size_t i=0; i < data.size(); ++i ){
-	    if ( data[i] == *oit ){
+	  for ( size_t i=0; i < root->data.size(); ++i ){
+	    if ( root->data[i] == *oit ){
 	      if ( !hooked ) {
 		//delete data[i];
-		data[i] = c;
+		root->data[i] = c;
 		hooked = true;
 	      }
 	      else 
-		remove( *oit, false );
+		root->remove( *oit, false );
 	    }
 	  }
 	  ++oit;
@@ -1421,7 +1431,7 @@ namespace folia {
 	vector<Current*>::iterator cit = v.begin();
 	//delete current if present
 	while ( cit != v.end() ){
-	  remove( *cit, false );
+	  root->remove( *cit, false );
 	  ++cit;
 	}
       }
@@ -1436,13 +1446,18 @@ namespace folia {
     }
 
     if ( !suggestions.empty() ){
-      FoliaElement *add = new Suggestion( mydoc );
-      c->append(add);
       if ( !hooked )
-	append(c);
+	root->append(c);
       vector<FoliaElement *>::iterator nit = suggestions.begin();
       while ( nit != suggestions.end() ){
-	add->append( *nit );
+	if ( (*nit)->isinstance( Suggestion_t ) ){
+	  c->append( *nit );
+	}
+	else {
+	  FoliaElement *add = new Suggestion( mydoc );
+	  add->append( *nit );
+	  c->append( add );
+	}
 	++nit;
       }
     }
@@ -1711,7 +1726,7 @@ namespace folia {
   }
 
   FoliaElement *Word::split( FoliaElement *part1, FoliaElement *part2,
-				const string& args ){
+			     const string& args ){
     return sentence()->splitWord( this, part1, part2, getArgs(args) );
   }
 

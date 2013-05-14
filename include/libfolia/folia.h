@@ -48,6 +48,7 @@ namespace folia {
   class Sentence;
   class Word;
   class TextContent;
+  class AllowCorrection;
   class Correction;
   class Suggestion;
   class Division;
@@ -61,6 +62,7 @@ namespace folia {
     friend bool operator==( const FoliaElement&, const FoliaElement& );
     friend class Document;
     friend class Correction;
+    friend class AllowCorrection;
   public:
     //Constructor  
     FoliaElement( Document* =0 );
@@ -532,7 +534,17 @@ namespace folia {
     std::map<std::string, int> maxid;
   };
 
-  class AbstractStructureElement: public FoliaElement, AllowGenerateID {
+  class AllowCorrection {
+  public:
+    Correction *correctBase( FoliaElement *,
+			     std::vector<FoliaElement*>,
+			     std::vector<FoliaElement*>,
+			     std::vector<FoliaElement*>,
+			     std::vector<FoliaElement*>,
+			     const KWargs& );
+  };
+
+  class AbstractStructureElement: public FoliaElement, AllowGenerateID, AllowCorrection {
   public:  
   AbstractStructureElement( Document *d=0 ): FoliaElement( d ) { classInit(); };
     
@@ -542,11 +554,13 @@ namespace folia {
 					     const std::string& = "" ) const;
   
     FoliaElement *append( FoliaElement* );
-    Correction *correct( std::vector<FoliaElement*>,
-			 std::vector<FoliaElement*>,
-			 std::vector<FoliaElement*>,
-			 std::vector<FoliaElement*>,
-			 const KWargs& );
+    Correction *correct( std::vector<FoliaElement*> v1,
+			 std::vector<FoliaElement*> v2,
+ 			 std::vector<FoliaElement*> v3,
+			 std::vector<FoliaElement*> v4,
+			 const KWargs& args ) {
+      return correctBase( this, v1, v2, v3, v4, args );
+    }
     std::vector<Paragraph*> paragraphs() const;
     std::vector<Sentence*> sentences() const;
     std::vector<Word*> words() const;
@@ -783,12 +797,19 @@ namespace folia {
     bool space;
   };
 
-  class String: public AbstractTokenAnnotation {
+  class String: public AbstractTokenAnnotation, AllowCorrection {
   public:
   String( const std::string& s="" ): AbstractTokenAnnotation(){ classInit( s ); };
   String( const KWargs& a ):  AbstractTokenAnnotation(){ classInit( a ); };
   String( Document *d, const std::string& s=""):  AbstractTokenAnnotation( d ){ classInit( s ); };
   String( Document *d, const KWargs& a ):  AbstractTokenAnnotation( d ){ classInit( a ); };
+    Correction *correct( std::vector<FoliaElement*> v1,
+			 std::vector<FoliaElement*> v2,
+ 			 std::vector<FoliaElement*> v3,
+			 std::vector<FoliaElement*> v4,
+			 const KWargs& args ) {
+      return correctBase( this, v1, v2, v3, v4, args );
+    }
   private:
     void init();
   };
