@@ -340,22 +340,7 @@ namespace folia {
   }
 
   vector<Word*> Document::words() const {
-    static set<ElementType> excludeSet;
-    if ( excludeSet.empty() ){
-      excludeSet.insert( Original_t );
-      excludeSet.insert( Suggestion_t );
-      excludeSet.insert( Alternative_t );
-      excludeSet.insert( Chunk_t );
-      excludeSet.insert( SyntacticUnit_t );
-      excludeSet.insert( Coreferences_t );
-      excludeSet.insert( Semroles_t );
-      excludeSet.insert( Entity_t );
-      excludeSet.insert( Headwords_t );
-      excludeSet.insert( TimingLayer_t );
-      excludeSet.insert( DependencyDependent_t );
-      excludeSet.insert( TimeSegment_t );
-    }
-    return foliadoc->select<Word>( excludeSet );
+    return foliadoc->select<Word>( default_ignore_structure );
   }
   
   Word *Document::words( size_t index ) const {

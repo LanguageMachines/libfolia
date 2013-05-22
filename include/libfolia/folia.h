@@ -42,6 +42,7 @@ namespace folia {
   class Document;
   class FoliaElement;
   class AbstractTokenAnnotation;
+  class AbstractSpanAnnotation;
   class Alternative;
   class PosAnnotation;
   class LemmaAnnotation;
@@ -55,6 +56,10 @@ namespace folia {
   class DependencyDependent;
   class Paragraph;
   class Morpheme;
+
+  extern std::set<ElementType> default_ignore;  
+  extern std::set<ElementType> default_ignore_annotations;  
+  extern std::set<ElementType> default_ignore_structure;  
 
   class FoliaElement {
     friend std::ostream& operator<<( std::ostream&, const FoliaElement& );
@@ -113,6 +118,8 @@ namespace folia {
     bool isinstance( ElementType et ) const {
       return et == _element_id;
     }
+
+    std::vector<AbstractSpanAnnotation*> selectSpan() const;
 
     template <typename F>
       bool isinstance() const {
@@ -191,14 +198,17 @@ namespace folia {
     }
     
     template <typename F> 
-      std::vector<F*> annotations( ) const {
+      std::vector<F*> annotations( const std::string& s = "" ) const {
       if ( allowannotations() ){
-	std::vector<F*> v = select<F>();
+	std::vector<F*> v = select<F>( s, default_ignore_annotations );
 	if ( v.size() >= 1 )
 	  return v;
 	else {
 	  F obj("");
-	  throw NoSuchAnnotation( obj.classname() );
+	  if ( s.empty() )
+	    throw NoSuchAnnotation( obj.classname() );
+	  else
+	    throw NoSuchAnnotation( obj.classname() + " for set='" + s + "'" );
 	}
       }
       else {
@@ -207,30 +217,9 @@ namespace folia {
     }
     
     template <typename F> 
-      F *annotation() const {
-      std::vector<F*>v = annotations<F>();
+      F *annotation( const std::string& st = "" ) const {
+      std::vector<F*>v = annotations<F>( st );
       return v[0]; // always exist, otherwise annotations would throw()
-    }
-
-    template <typename F>
-      F *annotation( const std::string& st ) const {
-      if ( allowannotations() ){
-	// Will return a SINGLE annotation (even if there are multiple). 
-	// Raises a NoSuchAnnotation exception if none was found
-	std::vector<F*>v = select<F>( st );
-	if ( v.size() >= 1 )
-	  return v[0];
-	else {
-	  F obj("");
-	  if ( st.empty() )
-	    throw NoSuchAnnotation( obj.classname() );
-	  else
-	    throw NoSuchAnnotation( obj.classname() + " in set '" + st + "'" );
-	}
-      }
-      else {
-	throw NotImplementedError( "annotation() for " + _xmltag ); 
-      }
     }
 
     std::vector<std::string> feats( const std::string& ) const;
@@ -292,6 +281,9 @@ namespace folia {
 					     const std::string& ="" ) const {
       throw NotImplementedError("rightcontext() for " + _xmltag ); 
     };
+    virtual FoliaElement *findspan( const std::vector<FoliaElement*>& ) const {
+      throw NotImplementedError("findspan() for " + _xmltag ); 
+    };
     virtual int offset() const {
       throw NotImplementedError("offset() for " + _xmltag ); 
     };
@@ -341,10 +333,14 @@ namespace folia {
     virtual std::vector<Word*> words() const {
       throw NotImplementedError("words() for " + _xmltag );
     };
-    virtual std::vector<Morpheme*> morphemes( const std::string& ) const {
+    virtual std::vector<FoliaElement*> wrefs() const {
+      throw NotImplementedError("wrefs() for " + _xmltag );
+    };
+
+    virtual std::vector<Morpheme*> morphemes( const std::string& ="" ) const {
       throw NotImplementedError("morphemes() for " + _xmltag );
     };
-    virtual Morpheme* morpheme( size_t, const std::string& ) const {
+    virtual Morpheme* morpheme( size_t, const std::string& ="" ) const {
       throw NotImplementedError("morpheme() for " + _xmltag );
     };
     virtual Sentence *sentences( size_t ) const {
@@ -625,6 +621,9 @@ namespace folia {
     std::string generateId( const std::string& tag ){
       return IGgen( tag, _id ); 
     }
+    bool allowannotations() const { return true; };
+    std::vector<FoliaElement*> wrefs() const;
+
   private:
     void init();
   };
@@ -1297,6 +1296,8 @@ namespace folia {
     std::string generateId( const std::string& tag ){
       return IGgen( tag, _id ); 
     }
+    bool allowannotations() const { return true; };
+    FoliaElement *findspan( const std::vector<FoliaElement*>& ) const;
   private:
     void init();
   };

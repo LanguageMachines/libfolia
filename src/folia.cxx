@@ -838,17 +838,40 @@ namespace folia {
     }
     return res;
   }
+  
+  static ElementType ignoreList[] = { Original_t,
+				      Suggestion_t, 
+				      Alternative_t };
+  set<ElementType> default_ignore( ignoreList,
+				   ignoreList + sizeof( ignoreList )/sizeof( ElementType ) );
+  
+  static ElementType ignoreAnnList[] = { Original_t,
+					 Suggestion_t, 
+					 Alternative_t,
+					 Morphology_t };
+  set<ElementType> default_ignore_annotations( ignoreAnnList,
+					       ignoreAnnList + sizeof( ignoreAnnList )/sizeof( ElementType ) );
+  
+  static ElementType ignoreStrList[] = { Original_t,
+					 Suggestion_t, 
+					 Alternative_t,
+					 Chunk_t, 
+					 SyntacticUnit_t,
+					 Coreferences_t,
+					 Semroles_t,
+					 Entity_t,
+					 Headwords_t,
+					 TimingLayer_t,
+					 DependencyDependent_t,
+					 TimeSegment_t };
+  set<ElementType> default_ignore_structure( ignoreStrList,
+					     ignoreStrList + sizeof( ignoreStrList )/sizeof( ElementType ) );
+  
 
   vector<FoliaElement*> FoliaElement::select( ElementType et,
 					      const string& st,
 					      bool recurse ) const {
-    static set<ElementType> excludeSet;
-    if ( excludeSet.empty() ){
-      excludeSet.insert( Original_t );
-      excludeSet.insert( Suggestion_t );
-      excludeSet.insert( Alternative_t );
-    }
-    return select( et, st, excludeSet, recurse );
+    return select( et, st, default_ignore, recurse );
   }
 
   vector<FoliaElement*> FoliaElement::select( ElementType et,
@@ -871,19 +894,7 @@ namespace folia {
 
   vector<FoliaElement*> FoliaElement::select( ElementType et,
 					      bool recurse ) const {
-    static set<ElementType> excludeSet;
-    if ( excludeSet.empty() ){
-      excludeSet.insert( Quote_t );
-      excludeSet.insert( Original_t );
-      excludeSet.insert( Suggestion_t );
-      excludeSet.insert( Alternative_t );
-      excludeSet.insert( Chunk_t );
-      excludeSet.insert( SyntacticUnit_t );
-      excludeSet.insert( Entity_t );
-      excludeSet.insert( Headwords_t );
-      excludeSet.insert( DependencyDependent_t );
-    }
-    return select( et, excludeSet, recurse );
+    return select( et, default_ignore, recurse );
   }
   
   FoliaElement* FoliaElement::parseXml( const xmlNode *node ){
@@ -1490,53 +1501,15 @@ namespace folia {
   }
 
   vector<Paragraph*> AbstractStructureElement::paragraphs() const{
-    static set<ElementType> excludeSet;
-    if ( excludeSet.empty() ){
-      excludeSet.insert( Original_t );
-      excludeSet.insert( Suggestion_t );
-      excludeSet.insert( Alternative_t );
-      excludeSet.insert( Chunk_t );
-      excludeSet.insert( SyntacticUnit_t );
-      excludeSet.insert( Entity_t );
-      excludeSet.insert( Headwords_t );
-      excludeSet.insert( DependencyDependent_t );
-    }
-    return select<Paragraph>( excludeSet );
+    return select<Paragraph>( default_ignore_structure );
   }
 
   vector<Sentence*> AbstractStructureElement::sentences() const{
-    static set<ElementType> excludeSet;
-    if ( excludeSet.empty() ){
-      excludeSet.insert( Quote_t );
-      excludeSet.insert( Original_t );
-      excludeSet.insert( Suggestion_t );
-      excludeSet.insert( Alternative_t );
-      excludeSet.insert( Chunk_t );
-      excludeSet.insert( SyntacticUnit_t );
-      excludeSet.insert( Entity_t );
-      excludeSet.insert( Headwords_t );
-      excludeSet.insert( DependencyDependent_t );
-    }
-    return select<Sentence>( excludeSet );
+    return select<Sentence>( default_ignore_structure );
   }
 
   vector<Word*> AbstractStructureElement::words() const{
-    static set<ElementType> excludeSet;
-    if ( excludeSet.empty() ){
-      excludeSet.insert( Original_t );
-      excludeSet.insert( Suggestion_t );
-      excludeSet.insert( Alternative_t );
-      excludeSet.insert( Chunk_t );
-      excludeSet.insert( SyntacticUnit_t );
-      excludeSet.insert( Coreferences_t );
-      excludeSet.insert( Semroles_t );
-      excludeSet.insert( Entity_t );
-      excludeSet.insert( Headwords_t );
-      excludeSet.insert( TimingLayer_t );
-      excludeSet.insert( DependencyDependent_t );
-      excludeSet.insert( TimeSegment_t );
-    }
-    return select<Word>( excludeSet );
+    return select<Word>( default_ignore_structure );
   }
 
   Sentence *AbstractStructureElement::sentences( size_t index ) const {
@@ -2614,6 +2587,68 @@ namespace folia {
     _element_id = AnnotationLayer_t;
     _optional_attributes = SETONLY;
     PRINTABLE=false;
+  }
+
+  static ElementType ASlist[] = { SyntacticUnit_t, Chunk_t,
+				  Entity_t, Headwords_t,
+				  DependencyDependent_t,
+				  CoreferenceLink_t,
+				  CoreferenceChain_t, Semrole_t,
+				  Semroles_t, TimeSegment_t };
+  static set<ElementType> asSet( ASlist,
+				 ASlist + sizeof( ASlist )/ sizeof( ElementType ) );
+  
+  vector<AbstractSpanAnnotation*> FoliaElement::selectSpan() const {
+    vector<AbstractSpanAnnotation*> res;
+    set<ElementType>::const_iterator it = asSet.begin();
+    while( it != asSet.end() ){
+      vector<FoliaElement*> tmp = select( *it, true );
+      for ( size_t i = 0; i < tmp.size(); ++i ){
+	res.push_back( dynamic_cast<AbstractSpanAnnotation*>( tmp[i]) );
+      }
+      ++it;
+    }
+    return res;
+  }
+  
+  vector<FoliaElement*> AbstractSpanAnnotation::wrefs() const {
+    vector<FoliaElement*> res;
+    for ( size_t i=0; i < size(); ++ i ){
+      ElementType et = data[i]->element_id();
+      if ( et == Word_t 
+	   || et == WordReference_t 
+	   //	   || et == Phoneme_t 
+	   || et == Morphology_t ){
+	res.push_back( data[i] );
+      }
+      else {
+	AbstractSpanAnnotation *as = dynamic_cast<AbstractSpanAnnotation*>(data[i]);
+	if ( as != 0 ){
+	  vector<FoliaElement*> sub = as->wrefs();
+	  for( size_t j=0; j < sub.size(); ++j ){
+	    res.push_back( sub[j] );
+	  }
+	}
+      }
+    }
+    return res;
+  }
+  
+  FoliaElement *AbstractAnnotationLayer::findspan( const vector<FoliaElement*>& words ) const {
+    vector<AbstractSpanAnnotation*> av = selectSpan();
+    for ( size_t i=0; i < av.size(); ++i ){
+      vector<FoliaElement*> v = av[i]->wrefs();
+      if ( v.size() == words.size() ){
+	bool ok = true;
+	for ( size_t n = 0; n < v.size() && ok ; ++n ){
+	  if ( v[n] != words[n] )
+	    ok = false;
+	}
+	if ( ok )
+	  return av[i];
+      }
+    }
+    return 0;
   }
 
   void Alternative::init(){
