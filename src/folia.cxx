@@ -674,13 +674,14 @@ namespace folia {
 					BeginDateTimeFeature_t, 
 					EndDateTimeFeature_t,
 					FunctionFeature_t };
-    sm[Feature_t] = set<ElementType>(featureSet, featureSet + 10 );
+    sm[Feature_t] = set<ElementType>(featureSet, 
+				     featureSet + sizeof(featureSet)/sizeof(ElementType) );
     static ElementType annolaySet[] = { SyntaxLayer_t, 
 					Chunking_t, Entities_t, 
 					TimingLayer_t, Dependencies_t, 
 					Coreferences_t, Semroles_t };
     sm[AnnotationLayer_t] = set<ElementType>( annolaySet, 
-					      annolaySet + 7 );
+					      annolaySet + sizeof(annolaySet)/sizeof(ElementType) );
   }
 
   bool isSubClass( ElementType e1, ElementType e2 ){
@@ -1175,7 +1176,6 @@ namespace folia {
 
   FoliaElement* TextContent::parseXml( const xmlNode *node ){
     KWargs att = getAttributes( node );
-    using TiCC::operator<<;
     att["value"] = XmlContent( node );
     setAttributes( att );
     if ( mydoc && mydoc->debug > 2 )
@@ -1918,10 +1918,40 @@ namespace folia {
     return result;
   }
 
-  const Word* Word::resolveword( const string& id ) const{
+  const Word* Word::resolveword( const string& id ) const {
     if ( _id == id )
       return this;
     return 0;
+  }
+  
+  vector<FoliaElement*> Word::findspans( ElementType et,
+					 const string& st ) const {
+    vector<FoliaElement *> result;
+    if ( !isSubClass( et , AnnotationLayer_t ) ){
+      throw NotImplementedError( "findspans: " + toString( et ) +
+				 " is not an AnnotationLayer type" );
+    }
+    else {
+      const FoliaElement *e = parent();
+      if ( e ){
+	vector<FoliaElement*> v = e->select( et, st, false );
+	for ( size_t i=0; i < v.size(); ++i ){
+	  for ( size_t k=0; k < v[i]->size(); ++k ){
+	    FoliaElement *f = v[i]->index(k);
+	    AbstractSpanAnnotation *as = dynamic_cast<AbstractSpanAnnotation*>(f);
+	    if ( as ){
+	      vector<FoliaElement*> wv = f->wrefs();
+	      for ( size_t j=0; j < wv.size(); ++j ){
+		if ( wv[j] == this ){
+		  result.push_back(f);
+		}
+	      }
+	    }
+	  }
+	}
+      }
+    }
+    return result;
   }
 
   FoliaElement* WordReference::parseXml( const xmlNode *node ){

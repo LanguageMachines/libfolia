@@ -66,6 +66,7 @@ namespace folia {
     friend std::ostream& operator<<( std::ostream&, const FoliaElement* );
     friend bool operator==( const FoliaElement&, const FoliaElement& );
     friend class Document;
+    friend class Word;
     friend class Correction;
     friend class AllowCorrection;
   public:
@@ -220,6 +221,17 @@ namespace folia {
       F *annotation( const std::string& st = "" ) const {
       std::vector<F*>v = annotations<F>( st );
       return v[0]; // always exist, otherwise annotations would throw()
+    }
+
+    virtual std::vector<FoliaElement*> findspans( ElementType,
+						  const std::string& = "" ) const {
+      throw NotImplementedError( "findspans() for " + _xmltag ); 
+    }
+
+    template <typename F> 
+      std::vector<FoliaElement*> findspans( const std::string& st = "" ) const {
+      F obj("");
+      return findspans( obj._element_id, st );
     }
 
     std::vector<std::string> feats( const std::string& ) const;
@@ -780,6 +792,8 @@ namespace folia {
 				    const std::string& = "" ) const;
     std::vector<Word*> rightcontext( size_t, 
 				     const std::string& ="" ) const;
+    std::vector<FoliaElement*> findspans( ElementType, 
+					  const std::string& = "" ) const;
     FoliaElement *append( FoliaElement *);
     const Word* resolveword( const std::string& ) const;
     void setAttributes( const KWargs& );
