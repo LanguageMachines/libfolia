@@ -177,6 +177,9 @@ namespace folia {
     case AnnotationType::METRIC:
       result = "metric";
       break; 
+    case AnnotationType::TABLE:
+      result = "table";
+      break; 
     case AnnotationType::LAST_ANN:
       throw logic_error("LAST_ANN");
     };
@@ -252,6 +255,8 @@ namespace folia {
       return AnnotationType::COREFERENCE;
     if ( at == "metric" )
       return AnnotationType::METRIC;
+    if ( at == "table" )
+      return AnnotationType::TABLE;
     throw ValueError( " unknown translation for attribute: " + at );
   }
 
@@ -273,6 +278,10 @@ namespace folia {
     case Paragraph_t: result = "p"; break;
     case Division_t: result = "div"; break;
     case Head_t: result = "head"; break;
+    case Table_t: result = "table"; break;
+    case TableHead_t: result = "tablehead"; break;
+    case Cell_t: result = "cell"; break;
+    case Row_t: result = "row"; break;
     case Caption_t: result = "caption"; break;
     case Label_t: result = "label"; break;
     case List_t: result = "list"; break;
@@ -403,6 +412,18 @@ namespace folia {
     }
     if ( tag == "head" ){
       return Head_t;
+    }
+    if ( tag == "table" ){
+      return Table_t;
+    }
+    if ( tag == "tablehead" ){
+      return TableHead_t;
+    }
+    if ( tag == "cell" ){
+      return Cell_t;
+    }
+    if ( tag == "row" ){
+      return Row_t;
     }
     if ( tag == "desc" ){
       return Description_t;
@@ -610,6 +631,14 @@ namespace folia {
       return new Suggestion( doc );
     case Head_t:
       return new Head( doc );
+    case Table_t:
+      return new Table( doc );
+    case TableHead_t:
+      return new TableHead( doc );
+    case Cell_t:
+      return new Cell( doc );
+    case Row_t:
+      return new Row( doc );
     case Description_t:
       return new Description( doc );
     case Gap_t:

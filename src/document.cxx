@@ -48,7 +48,7 @@ using namespace TiCC;
 
 namespace folia {
 
-  const string FOLIAVERSION = "0.8.2"; // the FoLiA version we implement
+  const string FOLIAVERSION = "0.9.3"; // the FoLiA version we implement
   const string NSFOLIA = "http://ilk.uvt.nl/folia";
   const string NSDCOI = "http://lands.let.ru.nl/projects/d-coi/ns/1.0";
   const string NSIMDI = "http://www.mpi.nl/IMDI/Schema/IMDI";

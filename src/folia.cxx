@@ -2348,11 +2348,54 @@ namespace folia {
   void Head::init() {
     _element_id = Head_t;
     _xmltag="head";
-    const ElementType accept[] = { Sentence_t, Description_t, Event_t, 
-				   TextContent_t, Alignment_t };
-    _accepted_data = std::set<ElementType>(accept, accept + 5 );
+    const ElementType accept[] = { Sentence_t, Word_t, Description_t, Event_t, 
+				   TextContent_t, Alignment_t, Metric_t,
+				   LineBreak_t, WhiteSpace_t,  Alternative_t,
+				   Alternatives_t, Str_t };
+    _accepted_data = std::set<ElementType>(accept, accept + 12 );
     occurrences=1;
     TEXTDELIMITER = " ";
+  }
+
+  void TableHead::init() {
+    _element_id = TableHead_t;
+    _xmltag="tablehead";
+    _required_attributes = NO_ATT;
+    const ElementType accept[] = { Row_t };
+    _accepted_data = std::set<ElementType>(accept, accept + 1 );
+    _annotation_type = AnnotationType::TABLE;
+  }
+
+  void Table::init() {
+    _element_id = Table_t;
+    _xmltag="table";
+    const ElementType accept[] = { TableHead_t, Row_t };
+    _accepted_data = std::set<ElementType>(accept, accept + 2 );
+    _annotation_type = AnnotationType::TABLE;
+  }
+
+  void Cell::init() {
+    _element_id = Cell_t;
+    _xmltag="cell";
+    _required_attributes = NO_ATT;
+    const ElementType accept[] = { Paragraph_t, Head_t, Sentence_t, Word_t, 
+				   Correction_t, Event_t,
+				   Alignment_t, Metric_t,
+				   LineBreak_t, WhiteSpace_t,  Alternative_t,
+				   Alternatives_t, Str_t };
+    _accepted_data = std::set<ElementType>(accept, accept + 13 );
+    _annotation_type = AnnotationType::TABLE;
+    TEXTDELIMITER = " | ";
+  }
+
+  void Row::init() {
+    _element_id = Row_t;
+    _xmltag="row";
+    _required_attributes = NO_ATT;
+    const ElementType accept[] = { Cell_t, };
+    _accepted_data = std::set<ElementType>(accept, accept + 1 );
+    _annotation_type = AnnotationType::TABLE;
+    TEXTDELIMITER = "\n";
   }
 
   void LineBreak::init(){
@@ -2470,11 +2513,12 @@ namespace folia {
     _required_attributes = ID;
     _optional_attributes = CLASS|N;
     const ElementType accept[] = { Division_t, Gap_t, Head_t, Paragraph_t,
-				   Sentence_t, List_t, Figure_t, Event_t,
+				   Sentence_t, List_t, Figure_t, Table_t,
+				   Event_t,
 				   Description_t, LineBreak_t, Str_t,
 				   TextContent_t,
 				   WhiteSpace_t, Metric_t, Coreferences_t };
-    _accepted_data = std::set<ElementType>(accept, accept + 15 );
+    _accepted_data = std::set<ElementType>(accept, accept + 16 );
     _annotation_type = AnnotationType::DIVISION;
     TEXTDELIMITER = "\n\n\n";
   }

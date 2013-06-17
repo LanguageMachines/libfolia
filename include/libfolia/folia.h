@@ -700,6 +700,46 @@ namespace folia {
     void init();
   };
 
+  class TableHead: public AbstractStructureElement {
+  public:
+  TableHead( const std::string& s=""): AbstractStructureElement() {  classInit( s ); };
+  TableHead( const KWargs& a ): AbstractStructureElement() {  classInit( a ); };
+  TableHead( Document *d, const std::string& s=""): AbstractStructureElement( d ) {  classInit( s ); };
+  TableHead( Document *d, const KWargs& a ): AbstractStructureElement( d ) {  classInit( a ); };
+  private:
+    void init();
+  };
+
+  class Table: public AbstractStructureElement {
+  public:
+  Table( const std::string& s=""): AbstractStructureElement() {  classInit( s ); };
+  Table( const KWargs& a ): AbstractStructureElement() {  classInit( a ); };
+  Table( Document *d, const std::string& s=""): AbstractStructureElement( d ) {  classInit( s ); };
+  Table( Document *d, const KWargs& a ): AbstractStructureElement( d ) {  classInit( a ); };
+  private:
+    void init();
+  };
+
+  class Row: public AbstractStructureElement {
+  public:
+  Row( const std::string& s=""): AbstractStructureElement() {  classInit( s ); };
+  Row( const KWargs& a ): AbstractStructureElement() {  classInit( a ); };
+  Row( Document *d, const std::string& s=""): AbstractStructureElement( d ) {  classInit( s ); };
+  Row( Document *d, const KWargs& a ): AbstractStructureElement( d ) {  classInit( a ); };
+  private:
+    void init();
+  };
+
+  class Cell: public AbstractStructureElement {
+  public:
+  Cell( const std::string& s=""): AbstractStructureElement() {  classInit( s ); };
+  Cell( const KWargs& a ): AbstractStructureElement() {  classInit( a ); };
+  Cell( Document *d, const std::string& s=""): AbstractStructureElement( d ) {  classInit( s ); };
+  Cell( Document *d, const KWargs& a ): AbstractStructureElement( d ) {  classInit( a ); };
+  private:
+    void init();
+  };
+
   class Gap: public FoliaElement {
   public:
   Gap( const std::string& s=""): FoliaElement( ) { classInit( s ); };
