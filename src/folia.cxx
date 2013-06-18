@@ -1983,7 +1983,8 @@ namespace folia {
       stringTo<ElementType>( val );
     }
     catch (...){
-      throw XmlError( "type must be an Element Type" );
+      throw XmlError( "AlignReference:type must be an Element Type (" 
+		      + val + ")" );
     }
     _type = val;
     val = att["t"];
