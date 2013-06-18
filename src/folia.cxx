@@ -1154,13 +1154,6 @@ namespace folia {
     }
     else
       _offset = -1;
-    it = kwargs.find( "lang" );
-    if ( it != kwargs.end() ) {
-      _lang = it->second;
-      kwargs.erase("lang");
-    }
-    else
-      _lang.clear();
     it = kwargs.find( "ref" );
     if ( it != kwargs.end() ) {
       throw NotImplementedError( "ref attribute in TextContent" );
@@ -2036,9 +2029,6 @@ namespace folia {
       
     if ( _offset >= 0 ){
       attribs["offset"] = TiCC::toString( _offset );
-    }
-    if ( !_lang.empty() ){
-      attribs["lang"] = _lang;
     }
     return attribs;
   }

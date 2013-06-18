@@ -653,11 +653,11 @@ namespace folia {
     std::string str() const;
     UnicodeString text( const std::string& = "current", bool = false ) const;
     int offset() const { return _offset; };
-    std::string getlang() const { return _lang; };
+    std::string getlang() const { 
+      throw NotImplementedError("TextContent::getlang() is obsolete" ); 
+    };
     std::string setlang( const std::string& l ) { 
-      std::string t = _lang;
-      _lang = l;
-      return t;
+      throw NotImplementedError("TextContent::setlang() is obsolete" ); 
     };
     FoliaElement *append( FoliaElement* ){ 
       throw NotImplementedError("TextContent::append() for " + _xmltag ); };
@@ -666,7 +666,7 @@ namespace folia {
   private:
     void init();
     int _offset;
-    std::string _lang;
+    std::string _lang; // UNUSED!
     UnicodeString _text;
   };
 
