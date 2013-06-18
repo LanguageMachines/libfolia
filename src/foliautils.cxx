@@ -180,6 +180,9 @@ namespace folia {
     case AnnotationType::TABLE:
       result = "table";
       break; 
+    case AnnotationType::LANG:
+      result = "lang";
+      break; 
     case AnnotationType::LAST_ANN:
       throw logic_error("LAST_ANN");
     };
@@ -257,6 +260,8 @@ namespace folia {
       return AnnotationType::METRIC;
     if ( at == "table" )
       return AnnotationType::TABLE;
+    if ( at == "lang" )
+      return AnnotationType::LANG;
     throw ValueError( " unknown translation for attribute: " + at );
   }
 
@@ -281,6 +286,7 @@ namespace folia {
     case Table_t: result = "table"; break;
     case TableHead_t: result = "tablehead"; break;
     case Cell_t: result = "cell"; break;
+    case Lang_t: result = "lang"; break;
     case Row_t: result = "row"; break;
     case Caption_t: result = "caption"; break;
     case Label_t: result = "label"; break;
@@ -318,6 +324,7 @@ namespace folia {
     case Suggestion_t: result = "suggestion"; break;
     case Alternative_t: result = "alt"; break; 
     case Alternatives_t: result = "altlayers"; break;
+    case Comment_t: result = "comment"; break;
     case Description_t: result = "desc"; break;
     case Gap_t: result = "gap"; break;
     case Content_t: result = "content"; break;
@@ -424,6 +431,12 @@ namespace folia {
     }
     if ( tag == "row" ){
       return Row_t;
+    }
+    if ( tag == "lang" ){
+      return Lang_t;
+    }
+    if ( tag == "comment" ){
+      return Comment_t;
     }
     if ( tag == "desc" ){
       return Description_t;
@@ -639,6 +652,10 @@ namespace folia {
       return new Cell( doc );
     case Row_t:
       return new Row( doc );
+    case Lang_t:
+      return new LangAnnotation( doc );
+    case Comment_t:
+      return new Comment( doc );
     case Description_t:
       return new Description( doc );
     case Gap_t:

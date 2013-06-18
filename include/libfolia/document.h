@@ -161,6 +161,7 @@ namespace folia {
     std::map<AnnotationType::AnnotationType,std::multimap<std::string,at_t> > annotationdefaults;
 
     FoliaElement* parseFoliaDoc( xmlNode * );
+    void parsemeta( xmlNode * );
     void setimdi( xmlNode * );
     void setAttributes( const KWargs&  );
     void parseannotations( xmlNode * );

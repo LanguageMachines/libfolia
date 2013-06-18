@@ -1052,6 +1052,16 @@ namespace folia {
     void init();
   };
 
+  class LangAnnotation: public AbstractTokenAnnotation {
+  public:
+  LangAnnotation( const std::string& s=""): AbstractTokenAnnotation(){ classInit( s ); };
+  LangAnnotation( const KWargs& a ): AbstractTokenAnnotation(){ classInit( a ); };
+  LangAnnotation( Document *d, const std::string& s=""): AbstractTokenAnnotation( d ){ classInit( s ); };
+  LangAnnotation( Document *d, const KWargs& a ): AbstractTokenAnnotation( d ){ classInit( a ); };
+  private:
+    void init();
+  };
+
   class PhonAnnotation: public AbstractTokenAnnotation {
   public:
   PhonAnnotation( const std::string& s=""): AbstractTokenAnnotation(){ classInit( s ); };
@@ -1411,6 +1421,19 @@ namespace folia {
   Description( Document *d, const KWargs& a ): FoliaElement( d ) { classInit( a ); };
     std::string description() const { return _value; };
     void setAttributes( const KWargs& kwargs );
+    FoliaElement* parseXml( const xmlNode * );
+    xmlNode *xml( bool, bool=false ) const;
+  private:
+    void init();
+    std::string _value;
+  };
+
+  class Comment: public FoliaElement {
+  public:
+  Comment( const std::string& s=""): FoliaElement( ) { classInit( s ); };
+  Comment( const KWargs& a ): FoliaElement( ) { classInit( a ); };
+  Comment( Document *d, const std::string& s="" ): FoliaElement( d ) { classInit( s ); };
+  Comment( Document *d, const KWargs& a ): FoliaElement( d ) { classInit( a ); };
     FoliaElement* parseXml( const xmlNode * );
     xmlNode *xml( bool, bool=false ) const;
   private:

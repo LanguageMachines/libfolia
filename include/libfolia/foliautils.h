@@ -103,7 +103,8 @@ namespace folia {
     Dependencies_t, Dependency_t, 
     Headwords_t, DependencyDependent_t,
     Alignment_t, AlignReference_t,
-    Table_t, TableHead_t, Row_t, Cell_t,
+    Table_t, TableHead_t, Row_t, Cell_t, 
+    Lang_t, Comment_t,
     LastElement
   };
   
@@ -128,7 +129,7 @@ namespace folia {
 			  PHON, SUBJECTIVITY, MORPHOLOGICAL, SUBENTITY, EVENT, 
 			  DEPENDENCY, TIMEDEVENT, GAP, ALIGNMENT, 
 			  COMPLEXALIGNMENT, COREFERENCE, SEMROLE, METRIC,
-			  TABLE,
+			  TABLE, LANG,
 			  LAST_ANN
     };
     inline AnnotationType& operator++( AnnotationType &at ){

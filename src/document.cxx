@@ -411,6 +411,24 @@ namespace folia {
       _language = XmlContent( n );
   }
 
+  void Document::parsemeta( xmlNode *node ){
+    if ( node ){
+      KWargs att = getAttributes( node );
+      string type = att["id"];
+      string val = XmlContent( node );
+      if ( type == "title" )
+	_title = val;
+      else if ( type == "date" )
+	_date = val;
+      else if ( type == "language" )
+	_language = val;
+      else if ( type == "publisher" )
+	_publisher = val;
+      else if ( type == "licence" )
+	_license = val;
+    }
+  }
+  
   void Document::parseannotations( xmlNode *node ){
     xmlNode *n = node->children;
     while ( n ){
@@ -505,6 +523,12 @@ namespace folia {
 	      if ( debug > 1 )
 		cerr << "found annotations" << endl;
 	      parseannotations( m );
+	    }
+	    else if ( Name( m ) == "meta" &&
+		      checkNS( m, NSFOLIA ) ){
+	      if ( debug > 1 )
+		cerr << "found meta node" << endl;
+	      parsemeta( m );
 	    }
 	    m = m->next;
 	  }
@@ -841,19 +865,48 @@ namespace folia {
       atts["type"] = "imdi";
     else if ( _metadatatype == CMDI )
       atts["type"] = "cmdi";
-
+    addAttributes( node, atts );
     if ( _metadatatype == NATIVE ){
-      if ( !_title.empty() )
-	atts["title"] = _title;
-      if ( !_date.empty() )
-	atts["date"] = _date;
-      if ( !_language.empty() )
-	atts["language"] = _language;
-      if ( !_license.empty() )
-	atts["license"] = _license;
-      if ( !_publisher.empty() )
-	atts["publisher"] = _publisher;
-      addAttributes( node, atts );
+      if ( !_title.empty() ){
+	xmlNode *m = XmlNewNode( foliaNs(), "meta" );
+	xmlAddChild( m, xmlNewText( (const xmlChar*)_title.c_str()) );
+	KWargs atts;
+	atts["id"] = "title";
+	addAttributes( m, atts );
+	xmlAddChild( node, m );
+      }
+      if ( !_date.empty() ){
+	xmlNode *m = XmlNewNode( foliaNs(), "meta" );
+	xmlAddChild( m, xmlNewText( (const xmlChar*)_date.c_str()) );
+	KWargs atts;
+	atts["id"] = "date";
+	addAttributes( m, atts );
+	xmlAddChild( node, m );
+      }
+      if ( !_language.empty() ){
+	xmlNode *m = XmlNewNode( foliaNs(), "meta" );
+	xmlAddChild( m, xmlNewText( (const xmlChar*)_language.c_str()) );
+	KWargs atts;
+	atts["id"] = "language";
+	addAttributes( m, atts );
+	xmlAddChild( node, m );
+      }
+      if ( !_license.empty() ){
+	xmlNode *m = XmlNewNode( foliaNs(), "meta" );
+	xmlAddChild( m, xmlNewText( (const xmlChar*)_license.c_str()) );
+	KWargs atts;
+	atts["id"] = "license";
+	addAttributes( m, atts );
+	xmlAddChild( node, m );
+      }
+      if ( !_publisher.empty() ){
+	xmlNode *m = XmlNewNode( foliaNs(), "meta" );
+	xmlAddChild( m, xmlNewText( (const xmlChar*)_publisher.c_str()) );
+	KWargs atts;
+	atts["id"] = "publisher";
+	addAttributes( m, atts );
+	xmlAddChild( node, m );
+      }
     }
     else if ( _metadatatype == IMDI  ||
 	      _metadatatype == CMDI ){
