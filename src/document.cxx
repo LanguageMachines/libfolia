@@ -1065,7 +1065,7 @@ namespace folia {
   }
 
   vector<vector<Word*> > Document::findwords( list<Pattern>& pats,
-						      const string& args ) const {
+					      const string& args ) const {
     size_t prevsize = 0;
     bool start = true;
     bool unsetwildcards = false;

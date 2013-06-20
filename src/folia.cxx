@@ -478,6 +478,7 @@ namespace folia {
       // in front and the 'current' class first
       list<FoliaElement *> textelements;
       list<FoliaElement *> otherelements;
+      list<FoliaElement *> commentelements;
       multimap<ElementType, FoliaElement *> otherelementsMap;
       vector<FoliaElement*>::const_iterator it=data.begin();
       while ( it != data.end() ){
@@ -491,13 +492,23 @@ namespace folia {
 	  else {
 	    if ( kanon )
 	      otherelementsMap.insert( make_pair( (*it)->element_id(), *it ) );
-	    else
-	      otherelements.push_back( *it );
+	    else {
+	      if ( (*it)->isinstance(Comment_t) ){
+		commentelements.push_back( *it );
+	      }
+	      else
+		otherelements.push_back( *it );
+	    }
 	  }
 	}
 	++it;
       }
-      list<FoliaElement*>::const_iterator lit=textelements.begin();
+      list<FoliaElement*>::const_iterator lit=commentelements.begin();
+      while ( lit != commentelements.end() ){
+	xmlAddChild( e, (*lit)->xml( recursive, kanon ) );
+	++lit;
+      }
+      lit=textelements.begin();
       while ( lit != textelements.end() ){
 	xmlAddChild( e, (*lit)->xml( recursive, kanon ) );
 	++lit;
@@ -696,18 +707,22 @@ namespace folia {
   }
 
   bool FoliaElement::acceptable( ElementType t ) const {
-    set<ElementType>::const_iterator it = _accepted_data.find( t );
-    if ( it == _accepted_data.end() ){
-      return false;
-      // it = _accepted_data.begin();
-      // while ( it != _accepted_data.end() ){
-      // 	if ( isSubClass( t, *it ) )
-      // 	  return true;
-      // 	++it;
-      // }
-      // return false;
+    if ( t == Comment_t )
+      return true;
+    else {
+      set<ElementType>::const_iterator it = _accepted_data.find( t );
+      if ( it == _accepted_data.end() ){
+	return false;
+	// it = _accepted_data.begin();
+	// while ( it != _accepted_data.end() ){
+	// 	if ( isSubClass( t, *it ) )
+	// 	  return true;
+	// 	++it;
+	// }
+	// return false;
+      }
+      return true;
     }
-    return true;
   }
  
   bool FoliaElement::addable( const FoliaElement *c ) const {
@@ -906,6 +921,20 @@ namespace folia {
     while ( p ){
       if ( p->type == XML_ELEMENT_NODE ){
 	string tag = Name( p );
+	FoliaElement *t = createElement( mydoc, tag );
+	if ( t ){
+	  if ( mydoc && mydoc->debug > 2 )
+	    cerr << "created " << t << endl;
+	  t = t->parseXml( p );
+	  if ( t ){
+	    if ( mydoc && mydoc->debug > 2 )
+	      cerr << "extend " << this << " met " << tag << endl;
+	    append( t );
+	  }
+	}
+      }
+      if ( p->type == XML_COMMENT_NODE ){
+	string tag = "comment";
 	FoliaElement *t = createElement( mydoc, tag );
 	if ( t ){
 	  if ( mydoc && mydoc->debug > 2 )
@@ -2137,8 +2166,8 @@ namespace folia {
   }
 
 
-  xmlNode *Content::xml( bool, bool ) const {
-    xmlNode *e = FoliaElement::xml( false, false );
+  xmlNode *Content::xml( bool recurse, bool ) const {
+    xmlNode *e = FoliaElement::xml( recurse, false );
     xmlAddChild( e, xmlNewCDataBlock( 0,
 				      (const xmlChar*)value.c_str() ,
 				      value.length() ) );
@@ -2163,6 +2192,14 @@ namespace folia {
 	  throw XmlError( "intermixing text and CDATA in Content node" );
 	isText = true;
 	value += (char*)p->content;
+      }
+      else if ( p->type == XML_COMMENT_NODE ){
+	string tag = "comment";
+	FoliaElement *t = createElement( mydoc, tag );
+	if ( t ){
+	  t = t->parseXml( p );
+	  append( t );
+	}
       }
       p = p->next;
     }
@@ -2797,18 +2834,11 @@ namespace folia {
   }
 
   xmlNode *Comment::xml( bool, bool ) const {
-    xmlNode *e = FoliaElement::xml( false, false );
-    xmlAddChild( e, xmlNewText( (const xmlChar*)_value.c_str()) );
-    return e;
+    return xmlNewComment( (const xmlChar*)_value.c_str() );
   }
 
   FoliaElement* Comment::parseXml( const xmlNode *node ){
-    KWargs att = getAttributes( node );
-    KWargs::const_iterator it = att.find("value" );
-    if ( it == att.end() ){
-      att["value"] = XmlContent( node );
-    }
-    setAttributes( att );
+    _value = (const char*)node->content;
     return this;
   }
 
