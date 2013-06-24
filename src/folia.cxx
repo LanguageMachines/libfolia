@@ -461,13 +461,15 @@ namespace folia {
   xmlNode *FoliaElement::xml( bool recursive, bool kanon ) const {
     xmlNode *e = XmlNewNode( foliaNs(), _xmltag );
     KWargs attribs = collectAttributes();
-    set<FoliaElement *> skipelements;
+    set<FoliaElement *> attribute_elements;
+    // nodes that can be represented as attributes are converted to atributes
+    // and excluded of 'normal' output.
     vector<FoliaElement*>::const_iterator it=data.begin();
     while ( it != data.end() ){
       string at = tagToAtt( *it );
       if ( !at.empty() ){
 	attribs[at] = (*it)->cls();
-	skipelements.insert( *it );
+	attribute_elements.insert( *it );
       }
       ++it;
     }
@@ -482,7 +484,7 @@ namespace folia {
       multimap<ElementType, FoliaElement *> otherelementsMap;
       vector<FoliaElement*>::const_iterator it=data.begin();
       while ( it != data.end() ){
-	if ( skipelements.find(*it) == skipelements.end() ){
+	if ( attribute_elements.find(*it) == attribute_elements.end() ){
 	  if ( (*it)->isinstance(TextContent_t) ){
 	    if ( (*it)->_class == "current" )
 	      textelements.push_front( *it );
@@ -493,7 +495,7 @@ namespace folia {
 	    if ( kanon )
 	      otherelementsMap.insert( make_pair( (*it)->element_id(), *it ) );
 	    else {
-	      if ( (*it)->isinstance(Comment_t) ){
+	      if ( (*it)->isinstance(XmlComment_t) && textelements.empty() ){
 		commentelements.push_back( *it );
 	      }
 	      else
@@ -707,7 +709,7 @@ namespace folia {
   }
 
   bool FoliaElement::acceptable( ElementType t ) const {
-    if ( t == Comment_t )
+    if ( t == XmlComment_t )
       return true;
     else {
       set<ElementType>::const_iterator it = _accepted_data.find( t );
@@ -934,7 +936,7 @@ namespace folia {
 	}
       }
       if ( p->type == XML_COMMENT_NODE ){
-	string tag = "comment";
+	string tag = "xml-comment";
 	FoliaElement *t = createElement( mydoc, tag );
 	if ( t ){
 	  if ( mydoc && mydoc->debug > 2 )
@@ -2194,7 +2196,7 @@ namespace folia {
 	value += (char*)p->content;
       }
       else if ( p->type == XML_COMMENT_NODE ){
-	string tag = "comment";
+	string tag = "xml-comment";
 	FoliaElement *t = createElement( mydoc, tag );
 	if ( t ){
 	  t = t->parseXml( p );
@@ -2833,18 +2835,19 @@ namespace folia {
     occurrences = 1;
   }
 
-  xmlNode *Comment::xml( bool, bool ) const {
+  xmlNode *XmlComment::xml( bool, bool ) const {
     return xmlNewComment( (const xmlChar*)_value.c_str() );
   }
-
-  FoliaElement* Comment::parseXml( const xmlNode *node ){
-    _value = (const char*)node->content;
+  
+  FoliaElement* XmlComment::parseXml( const xmlNode *node ){
+    if ( node->content )
+      _value = (const char*)node->content;
     return this;
   }
 
-  void Comment::init(){
-    _xmltag = "comment";
-    _element_id = Comment_t;
+  void XmlComment::init(){
+    _xmltag = "xml_comment";
+    _element_id = XmlComment_t;
   }
 
   void Feature::setAttributes( const KWargs& kwargs ){

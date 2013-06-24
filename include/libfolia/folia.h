@@ -1428,12 +1428,12 @@ namespace folia {
     std::string _value;
   };
 
-  class Comment: public FoliaElement {
+  class XmlComment: public FoliaElement {
   public:
-  Comment( const std::string& s=""): FoliaElement( ) { classInit( s ); };
-  Comment( const KWargs& a ): FoliaElement( ) { classInit( a ); };
-  Comment( Document *d, const std::string& s="" ): FoliaElement( d ) { classInit( s ); };
-  Comment( Document *d, const KWargs& a ): FoliaElement( d ) { classInit( a ); };
+  XmlComment( const std::string& s=""): FoliaElement( ) { classInit( s ); };
+  XmlComment( const KWargs& a ): FoliaElement( ) { classInit( a ); };
+  XmlComment( Document *d, const std::string& s="" ): FoliaElement( d ) { classInit( s ); };
+  XmlComment( Document *d, const KWargs& a ): FoliaElement( d ) { classInit( a ); };
     FoliaElement* parseXml( const xmlNode * );
     xmlNode *xml( bool, bool=false ) const;
   private:

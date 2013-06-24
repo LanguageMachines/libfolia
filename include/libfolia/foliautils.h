@@ -104,7 +104,7 @@ namespace folia {
     Headwords_t, DependencyDependent_t,
     Alignment_t, AlignReference_t,
     Table_t, TableHead_t, Row_t, Cell_t, 
-    Lang_t, Comment_t,
+    Lang_t, XmlComment_t,
     LastElement
   };
   

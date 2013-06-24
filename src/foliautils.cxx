@@ -324,7 +324,7 @@ namespace folia {
     case Suggestion_t: result = "suggestion"; break;
     case Alternative_t: result = "alt"; break; 
     case Alternatives_t: result = "altlayers"; break;
-    case Comment_t: result = "comment"; break;
+    case XmlComment_t: result = "xml-comment"; break;
     case Description_t: result = "desc"; break;
     case Gap_t: result = "gap"; break;
     case Content_t: result = "content"; break;
@@ -435,8 +435,8 @@ namespace folia {
     if ( tag == "lang" ){
       return Lang_t;
     }
-    if ( tag == "comment" ){
-      return Comment_t;
+    if ( tag == "xml-comment" ){
+      return XmlComment_t;
     }
     if ( tag == "desc" ){
       return Description_t;
@@ -654,8 +654,8 @@ namespace folia {
       return new Row( doc );
     case Lang_t:
       return new LangAnnotation( doc );
-    case Comment_t:
-      return new Comment( doc );
+    case XmlComment_t:
+      return new XmlComment( doc );
     case Description_t:
       return new Description( doc );
     case Gap_t:
