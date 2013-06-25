@@ -679,7 +679,7 @@ namespace folia {
       return v[0]->description();
   }
 
-  bool isSubClass( ElementType e1, ElementType e2 ){
+  bool isSubClass( const ElementType e1, const ElementType e2 ){
     static map<ElementType,set<ElementType> > sm;
     static ElementType structureSet[] = { Head_t, Division_t,
 					  TableHead_t, Table_t, 
@@ -730,6 +730,10 @@ namespace folia {
     return false;
   }
 
+  bool FoliaElement::isSubClass( ElementType t ) const {
+    return folia::isSubClass( _element_id, t );
+  }
+  
   bool FoliaElement::acceptable( ElementType t ) const {
     if ( t == XmlComment_t )
       return true;
@@ -738,7 +742,7 @@ namespace folia {
       if ( it == _accepted_data.end() ){
 	it = _accepted_data.begin();
 	while ( it != _accepted_data.end() ){
-	  if ( isSubClass( t, *it ) )
+	  if ( folia::isSubClass( t, *it ) )
 	    return true;
 	  ++it;
 	}
@@ -1749,7 +1753,7 @@ namespace folia {
   }
 
   FoliaElement *Word::append( FoliaElement *child ) {
-    if ( isSubClass( child->element_id(), TokenAnnotation_t ) ){
+    if ( child->isSubClass( TokenAnnotation_t ) ){
       // sanity check, there may be no other child within the same set
       vector<FoliaElement*> v = select( child->element_id(), child->sett() );
       if ( v.empty() ) {
@@ -1970,7 +1974,7 @@ namespace folia {
   vector<FoliaElement*> Word::findspans( ElementType et,
 					 const string& st ) const {
     vector<FoliaElement *> result;
-    if ( !isSubClass( et , AnnotationLayer_t ) ){
+    if ( !folia::isSubClass( et , AnnotationLayer_t ) ){
       throw NotImplementedError( "findspans: " + toString( et ) +
 				 " is not an AnnotationLayer type" );
     }
@@ -2954,7 +2958,7 @@ namespace folia {
     //    return all classes of the given subset
     vector<string> result;
     for ( size_t i=0; i < data.size(); ++i ){
-      if ( isSubClass( data[i]->element_id(), Feature_t ) &&
+      if ( data[i]->isSubClass( Feature_t ) &&
 	   data[i]->subset() == s ) {
 	result.push_back( data[i]->cls() );
       }
@@ -2965,7 +2969,7 @@ namespace folia {
   string FoliaElement::feat( const std::string& s ) const {
     //    return the fist class of the given subset
     for ( size_t i=0; i < data.size(); ++i ){
-      if ( isSubClass( data[i]->element_id(), Feature_t ) &&
+      if ( data[i]->isSubClass( Feature_t ) &&
 	   data[i]->subset() == s ) {
 	return data[i]->cls();
       }

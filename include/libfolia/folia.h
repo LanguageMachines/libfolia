@@ -452,6 +452,10 @@ namespace folia {
       throw NotImplementedError("resolve() for " + _xmltag );
     };
     bool printable() const { return PRINTABLE; };
+    bool isSubClass( ElementType ) const;
+    bool isSubClass( const FoliaElement *c ) const {
+      return isSubClass( c->element_id() );
+    };
   protected:
     virtual void init()=0;
     virtual KWargs collectAttributes() const;
@@ -506,6 +510,12 @@ namespace folia {
     AnnotatorType _annotator_type;
     double _confidence;
     int refcount;
+  };
+
+  bool isSubClass( const ElementType e1, const ElementType e2 );
+
+  inline bool isSubClass( const FoliaElement *e1, const FoliaElement *e2 ){
+    return isSubClass( e1->element_id(), e2->element_id() );
   };
 
   bool operator==( const FoliaElement&, const FoliaElement& );
