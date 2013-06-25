@@ -294,6 +294,8 @@ namespace folia {
     case ListItem_t: result = "listitem"; break;
     case Figure_t: result = "figure"; break;
     case Quote_t: result = "quote"; break;
+    case TokenAnnotation_t: result = "tokenannotation"; break; 
+    case Structure_t: result = "structure"; break; 
     case Pos_t: result = "pos"; break;
     case Lemma_t: result = "lemma"; break;
     case Phon_t: result = "phon"; break; 
@@ -313,8 +315,6 @@ namespace folia {
     case Coreferences_t: result = "coreferences"; break;
     case CoreferenceLink_t: result = "coreferencelink"; break;
     case CoreferenceChain_t: result = "coreferencechain"; break;
-    // case Subentity_t: result = "subentity"; break;
-    // case Subentities_t: result = "subentities"; break;
     case Morphology_t: result = "morphology"; break;
     case Morpheme_t: result = "morpheme"; break;
     case ErrorDetection_t: result = "errordetection"; break;
@@ -456,6 +456,12 @@ namespace folia {
     if ( tag == "annotationlayer" ){
       return AnnotationLayer_t;
     }
+    if ( tag == "tokenannotation" ){
+      return TokenAnnotation_t;
+    }
+    if ( tag == "structure" ){
+      return Structure_t;
+    }
     if ( tag == "pos" ){
       return Pos_t;
     }
@@ -504,12 +510,6 @@ namespace folia {
     if ( tag == "coreferencechain" ){
       return CoreferenceChain_t;
     }
-    // if ( tag == "subentity" ){
-    //   return Subentity_t;
-    // }
-    // if ( tag == "subentities" ){
-    //   return Subentities_t;
-    // }
     if ( tag == "alt" ){
       return Alternative_t;
     }
@@ -654,6 +654,10 @@ namespace folia {
       return new Row( doc );
     case Lang_t:
       return new LangAnnotation( doc );
+    case TokenAnnotation_t:
+      return new AbstractTokenAnnotation( doc );
+    case Structure_t:
+      return new AbstractStructureElement( doc );
     case XmlComment_t:
       return new XmlComment( doc );
     case Description_t:
@@ -700,10 +704,6 @@ namespace folia {
       return new CoreferenceLink( doc );
     case CoreferenceChain_t:
       return new CoreferenceChain( doc );
-    // case Subentity_t:
-    //   return new Subentity( doc );
-    // case Subentities_t:
-    //   return new SubentitiesLayer( doc );
     case Alternative_t:
       return new Alternative( doc );
     case PlaceHolder_t:

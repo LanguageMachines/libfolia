@@ -86,7 +86,6 @@ namespace folia {
     Coreferences_t, CoreferenceLink_t, 
     CoreferenceChain_t,  SyntaxLayer_t, 
     Semroles_t, Semrole_t,
-    //    Subentity_t, Subentities_t, //annotation layers
     Morphology_t, Morpheme_t, 
     ErrorDetection_t, New_t, 
     Original_t, Current_t, 
@@ -105,6 +104,7 @@ namespace folia {
     Alignment_t, AlignReference_t,
     Table_t, TableHead_t, Row_t, Cell_t, 
     Lang_t, XmlComment_t,
+    TokenAnnotation_t, Structure_t,
     LastElement
   };
   

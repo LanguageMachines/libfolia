@@ -601,13 +601,6 @@ namespace folia {
     void init();
   };
 
-  class AbstractSubTokenAnnotation: public AbstractAnnotation {
-  public:
-  AbstractSubTokenAnnotation( Document *d=0 ):  AbstractAnnotation( d ){ classInit(); };
-  private:
-    void init();
-  };
-
   class Feature: public FoliaElement {
   public:
   Feature( const std::string& s=""): FoliaElement( ){ classInit( s ); }
@@ -1472,20 +1465,6 @@ namespace folia {
     void init();
   };
 
-  class AbstractSubtokenAnnotation: public AbstractAnnotation, AllowGenerateID {
-  public:
-  AbstractSubtokenAnnotation( const std::string& s="" ): AbstractAnnotation( ){ classInit( s ); }
-  AbstractSubtokenAnnotation( const KWargs& a ): AbstractAnnotation( ){ classInit( a ); }
-  AbstractSubtokenAnnotation( Document *d, const std::string& s="" ): AbstractAnnotation( d ){ classInit( s ); }
-  AbstractSubtokenAnnotation( Document *d, const KWargs& a ): AbstractAnnotation( d ){ classInit( a ); }
-    std::string generateId( const std::string& tag ){
-      return IGgen( tag, _id ); 
-    }
-
-  private:
-    void init();
-  };
-
   class TimeSegment: public AbstractSpanAnnotation {
   public:
   TimeSegment( const std::string& s="" ): AbstractSpanAnnotation(){ classInit( s ); }
@@ -1502,16 +1481,6 @@ namespace folia {
   Morpheme( const KWargs& a ): AbstractStructureElement(){ classInit( a ); }
   Morpheme( Document *d, const std::string& s="" ): AbstractStructureElement( d ){ classInit( s ); }
   Morpheme( Document *d, const KWargs& a ): AbstractStructureElement( d ){ classInit( a ); }
-  private:
-    void init();
-  };
-
-  class Subentity: public AbstractSubtokenAnnotation {
-  public:
-  Subentity( const std::string& s="" ): AbstractSubtokenAnnotation(){ classInit( s ); }
-  Subentity( const KWargs& a ): AbstractSubtokenAnnotation(){ classInit( a ); }
-  Subentity( Document *d, const std::string& s="" ): AbstractSubtokenAnnotation( d ){ classInit( s ); }
-  Subentity( Document *d, const KWargs& a ): AbstractSubtokenAnnotation( d ){ classInit( a ); }
   private:
     void init();
   };
