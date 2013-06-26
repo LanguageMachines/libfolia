@@ -297,87 +297,34 @@ namespace folia {
     if ( mydoc && !_id.empty() )
       mydoc->addDocIndex( this, _id );
     
-    it = kwargs.find( "actor" );
-    if ( it != kwargs.end() ){
-      KWargs newa;
-      newa["class"] = it->second;
-      FoliaElement *tmp = new ActorFeature();
-      tmp->setAttributes( newa );
-      append( tmp );
+    addFeatureNodes( kwargs );
+  }
+
+  void FoliaElement::addFeatureNodes( const KWargs& kwargs ){
+    KWargs::const_iterator it = kwargs.begin();
+    while ( it != kwargs.end() ){
+      string tag = it->first;
+      if ( tag == "head" ){
+	// "head" is special because the tag is "headfeature"
+	// this to avoid conflicts withe the "head" tag!
+	KWargs newa;
+	newa["class"] = it->second;
+	FoliaElement *tmp = new HeadFeature();
+	tmp->setAttributes( newa );
+	append( tmp );
+      }
+      else if ( tag == "actor" || tag == "value"|| tag == "function" ||
+		tag == "level" || tag == "time" || tag == "modality" ||
+		tag == "synset" || tag == "begindatetime" ||
+		tag == "enddatetime" ){
+	KWargs newa;
+	newa["class"] = it->second;
+	FoliaElement *tmp = createElement( mydoc, tag );
+	tmp->setAttributes( newa );
+	append( tmp );
+      }
+      ++it;
     }
-    it = kwargs.find( "head" );
-    if ( it != kwargs.end() ){
-      KWargs newa;
-      newa["class"] = it->second;
-      FoliaElement *tmp = new HeadFeature();
-      tmp->setAttributes( newa );
-      append( tmp );
-    }
-    it = kwargs.find( "value" );
-    if ( it != kwargs.end() ){
-      KWargs newa;
-      newa["class"] = it->second;
-      FoliaElement *tmp = new ValueFeature();
-      tmp->setAttributes( newa );
-      append( tmp );
-    }
-    it = kwargs.find( "function" );
-    if ( it != kwargs.end() ){
-      KWargs newa;
-      newa["class"] = it->second;
-      FoliaElement *tmp = new FunctionFeature();
-      tmp->setAttributes( newa );
-      append( tmp );
-    }
-    it = kwargs.find( "level" );
-    if ( it != kwargs.end() ){
-      KWargs newa;
-      newa["class"] = it->second;
-      FoliaElement *tmp = new LevelFeature();
-      tmp->setAttributes( newa );
-      append( tmp );
-    }
-    it = kwargs.find( "time" );
-    if ( it != kwargs.end() ){
-      KWargs newa;
-      newa["class"] = it->second;
-      FoliaElement *tmp = new TimeFeature();
-      tmp->setAttributes( newa );
-      append( tmp );
-    }
-    it = kwargs.find( "modality" );
-    if ( it != kwargs.end() ){
-      KWargs newa;
-      newa["class"] = it->second;
-      FoliaElement *tmp = new ModalityFeature();
-      tmp->setAttributes( newa );
-      append( tmp );
-    }
-    it = kwargs.find( "synset" );
-    if ( it != kwargs.end() ){
-      KWargs newa;
-      newa["class"] = it->second;
-      FoliaElement *tmp = new SynsetFeature();
-      tmp->setAttributes( newa );
-      append( tmp );
-    }
-    it = kwargs.find( "begindatetime" );
-    if ( it != kwargs.end() ){
-      KWargs newa;
-      newa["class"] = it->second;
-      FoliaElement *tmp = new BeginDateTimeFeature();
-      tmp->setAttributes( newa );
-      append( tmp );
-    }
-    it = kwargs.find( "enddatetime" );
-    if ( it != kwargs.end() ){
-      KWargs newa;
-      newa["class"] = it->second;
-      FoliaElement *tmp = new EndDateTimeFeature();
-      tmp->setAttributes( newa );
-      append( tmp );
-    }
-  
   }
 
   KWargs FoliaElement::collectAttributes() const {
@@ -441,21 +388,18 @@ namespace folia {
   }
 
   string tagToAtt( const FoliaElement* c ){
-    if ( c->isinstance(SynsetFeature_t) )
-      return "synset";
-    else if ( c->isinstance(ActorFeature_t) )
-      return "actor";
-    else if ( c->isinstance(HeadFeature_t) )
-      return "head";
-    else if ( c->isinstance(ValueFeature_t) )
-      return "value";
-    else if ( c->isinstance(FunctionFeature_t) )
-      return "function";
-    else if ( c->isinstance(BeginDateTimeFeature_t) )
-      return "begindatetime";
-    else if ( c->isinstance(EndDateTimeFeature_t) )
-      return "enddatetime";
-    return "";
+    string att;
+    if ( c->isSubClass( Feature_t ) ){
+      att = c->xmltag();
+      if ( att == "feat" ){
+	// "feat" is a Feature_t too. exclude!
+	att = "";
+      }
+      else if ( att == "headfeature" )
+	// "head" is special
+	att = "head";
+    }
+    return att;
   }
 
   xmlNode *FoliaElement::xml( bool recursive, bool kanon ) const {
@@ -589,7 +533,7 @@ namespace folia {
   }
   
   UnicodeString FoliaElement::stricttext( const string& cls ) const {
-    // get UnicoeString content of TextContent children only
+    // get UnicodeString content of TextContent children only
     // default cls="current"
     return this->textcontent(cls)->text(cls);
   }
@@ -1274,11 +1218,6 @@ namespace folia {
     return id;
   }
 
-  string AbstractStructureElement::str() const{
-    UnicodeString result = text();
-    return UnicodeToUTF8(result);
-  }
-  
   void AllowGenerateID::setMaxId( FoliaElement *child ) {
     if ( !child->id().empty() && !child->xmltag().empty() ){
       vector<string> parts;
@@ -1314,13 +1253,7 @@ namespace folia {
     }
     return res;
   }
-
-  FoliaElement *AbstractStructureElement::append( FoliaElement *child ){
-    FoliaElement::append( child );
-    setMaxId( child );
-    return child;
-  }
-
+ 
   Correction * AllowCorrection::correctBase( FoliaElement *root, 
 					     vector<FoliaElement*> original,
 					     vector<FoliaElement*> current,
@@ -1545,8 +1478,18 @@ namespace folia {
 	c->confidence( stringTo<double>(it->second) );
 
     }
-
     return c;
+  }
+
+  string AbstractStructureElement::str() const{
+    UnicodeString result = text();
+    return UnicodeToUTF8(result);
+  }
+  
+  FoliaElement *AbstractStructureElement::append( FoliaElement *child ){
+    FoliaElement::append( child );
+    setMaxId( child );
+    return child;
   }
 
   vector<Paragraph*> AbstractStructureElement::paragraphs() const{
@@ -1648,28 +1591,6 @@ namespace folia {
     }
   }
 
-  void Word::setAttributes( const KWargs& args ){
-    KWargs::const_iterator it = args.find( "space" );
-    if ( it != args.end() ){
-      if ( it->second == "no" ){
-	space = false;
-      }
-    }
-    it = args.find( "text" );
-    if ( it != args.end() ) {
-      settext( it->second );
-    }
-    FoliaElement::setAttributes( args );
-  }
-
-  KWargs Word::collectAttributes() const {
-    KWargs atts = FoliaElement::collectAttributes();
-    if ( !space ){
-      atts["space"] = "no";
-    }
-    return atts;
-  }
-
   KWargs AlignReference::collectAttributes() const {
     KWargs atts;
     atts["id"] = refId;
@@ -1722,6 +1643,28 @@ namespace folia {
       _href = it->second;
     }
     FoliaElement::setAttributes( args );
+  }
+
+  void Word::setAttributes( const KWargs& args ){
+    KWargs::const_iterator it = args.find( "space" );
+    if ( it != args.end() ){
+      if ( it->second == "no" ){
+	space = false;
+      }
+    }
+    it = args.find( "text" );
+    if ( it != args.end() ) {
+      settext( it->second );
+    }
+    FoliaElement::setAttributes( args );
+  }
+
+  KWargs Word::collectAttributes() const {
+    KWargs atts = FoliaElement::collectAttributes();
+    if ( !space ){
+      atts["space"] = "no";
+    }
+    return atts;
   }
 
   Correction *Word::correct( const string& s ){
@@ -2157,7 +2100,7 @@ namespace folia {
 
   xmlNode *AbstractSpanAnnotation::xml( bool recursive, bool kanon ) const {
     xmlNode *e = FoliaElement::xml( false, false );
-    // append Word children as WREFS
+    // append Word and Morpheme children as WREFS
     vector<FoliaElement*>::const_iterator it=data.begin();
     while ( it != data.end() ){
       if ( (*it)->element_id() == Word_t ||

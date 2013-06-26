@@ -510,6 +510,8 @@ namespace folia {
     AnnotatorType _annotator_type;
     double _confidence;
     int refcount;
+  private:
+    void addFeatureNodes( const KWargs& args );
   };
 
   bool isSubClass( const ElementType e1, const ElementType e2 );
