@@ -636,9 +636,6 @@ namespace folia {
 					  Caption_t, Label_t,
 					  ListItem_t, List_t,
 					  Figure_t, Alternative_t };
-    sm[Structure_t] 
-      = set<ElementType>( structureSet, 
-			  structureSet + sizeof(structureSet)/sizeof(ElementType) );
     static ElementType featureSet[] = { SynsetFeature_t, 
 					ActorFeature_t, HeadFeature_t, 
 					ValueFeature_t, TimeFeature_t, 
@@ -646,25 +643,31 @@ namespace folia {
 					BeginDateTimeFeature_t, 
 					EndDateTimeFeature_t,
 					FunctionFeature_t };
-    sm[Feature_t] 
-      = set<ElementType>(featureSet, 
-			 featureSet + sizeof(featureSet)/sizeof(ElementType) );
     static ElementType tokenAnnoSet[] = { Pos_t, Lemma_t, Morphology_t,
 					  Sense_t, Phon_t, Str_t, Lang_t,
 					  Correction_t, Subjectivity_t,
 					  ErrorDetection_t };
-    sm[TokenAnnotation_t] 
-      = set<ElementType>( tokenAnnoSet, 
-			  tokenAnnoSet + sizeof(tokenAnnoSet)/sizeof(ElementType) );
     static ElementType annolaySet[] = { SyntaxLayer_t, 
 					Chunking_t, Entities_t, 
 					TimingLayer_t, Morphology_t,
 					Dependencies_t, 
 					Coreferences_t, Semroles_t };
-    sm[AnnotationLayer_t] 
-      = set<ElementType>( annolaySet, 
-			  annolaySet + sizeof(annolaySet)/sizeof(ElementType) );
-    
+    static bool filled = false;
+    if ( ! filled ){
+      sm[Structure_t] 
+	= set<ElementType>( structureSet, 
+			    structureSet + sizeof(structureSet)/sizeof(ElementType) );
+      sm[Feature_t] 
+	= set<ElementType>(featureSet, 
+			   featureSet + sizeof(featureSet)/sizeof(ElementType) );
+      sm[TokenAnnotation_t] 
+	= set<ElementType>( tokenAnnoSet, 
+			    tokenAnnoSet + sizeof(tokenAnnoSet)/sizeof(ElementType) );
+      sm[AnnotationLayer_t] 
+	= set<ElementType>( annolaySet, 
+			    annolaySet + sizeof(annolaySet)/sizeof(ElementType) );
+      filled = true;
+    }  
     if ( e1 == e2 )
       return true;
     map<ElementType,set<ElementType> >::const_iterator it = sm.find( e2 );
