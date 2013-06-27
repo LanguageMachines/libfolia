@@ -858,15 +858,10 @@ namespace folia {
   }
 
   void Document::setmetadata( xmlNode *node ) const{
-    KWargs atts;
-    if ( _metadatatype == NATIVE )
-      atts["type"] = "native";
-    else if ( _metadatatype == IMDI )
-      atts["type"] = "imdi";
-    else if ( _metadatatype == CMDI )
-      atts["type"] = "cmdi";
-    addAttributes( node, atts );
     if ( _metadatatype == NATIVE ){
+      KWargs atts;
+      atts["type"] = "native";
+      addAttributes( node, atts );
       if ( !_title.empty() ){
 	xmlNode *m = XmlNewNode( foliaNs(), "meta" );
 	xmlAddChild( m, xmlNewText( (const xmlChar*)_title.c_str()) );
@@ -910,6 +905,11 @@ namespace folia {
     }
     else if ( _metadatatype == IMDI  ||
 	      _metadatatype == CMDI ){
+      KWargs atts;
+      if ( _metadatatype == IMDI )
+	atts["type"] = "imdi";
+      else if ( _metadatatype == CMDI )
+	atts["type"] = "cmdi";
       if ( !_metadatafile.empty() )
 	atts["src"] = _metadatafile;
       addAttributes( node, atts );
