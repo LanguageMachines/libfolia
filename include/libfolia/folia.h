@@ -460,11 +460,7 @@ namespace folia {
     virtual void init()=0;
     virtual KWargs collectAttributes() const;
     virtual std::string getTextDelimiter( bool retaintok=false ) const { 
-      if ( retaintok )
-	return TEXTDELIMITER;
-      else {
-	return "";
-      }
+      return TEXTDELIMITER;
     };
     virtual std::string generateId( const std::string& ){
       throw NotImplementedError( "generateId() not allowed for " + classname() );
