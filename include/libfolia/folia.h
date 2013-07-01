@@ -456,12 +456,13 @@ namespace folia {
     bool isSubClass( const FoliaElement *c ) const {
       return isSubClass( c->element_id() );
     };
+    std::string publicGetTextDelimiter( bool retaintok=false ) {
+      return getTextDelimiter( retaintok );
+    }
   protected:
     virtual void init()=0;
     virtual KWargs collectAttributes() const;
-    virtual std::string getTextDelimiter( bool retaintok=false ) const { 
-      return TEXTDELIMITER;
-    };
+    virtual std::string getTextDelimiter( bool retaintok=false ) const;
     virtual std::string generateId( const std::string& ){
       throw NotImplementedError( "generateId() not allowed for " + classname() );
     };
@@ -845,13 +846,7 @@ namespace folia {
     const Word* resolveword( const std::string& ) const;
     void setAttributes( const KWargs& );
     KWargs collectAttributes() const;  
-    std::string getTextDelimiter( bool retaintok=false) const { 
-      if ( space || retaintok )
-	return TEXTDELIMITER;
-      else {
-	return "";
-      }
-    }
+    std::string getTextDelimiter( bool retaintok=false) const;
   private:
     void init();
     bool space;
@@ -1117,6 +1112,7 @@ namespace folia {
   Quote( Document *d, const KWargs& a ): AbstractStructureElement( d ){ classInit( a ); };
     FoliaElement *append( FoliaElement *);
     std::vector<Word*> wordParts() const;
+    std::string getTextDelimiter( bool retaintok=false) const;
   private:
     void init();
   };

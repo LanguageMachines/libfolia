@@ -492,10 +492,30 @@ namespace folia {
       return false;
     }
   }
+
+  string FoliaElement::getTextDelimiter( bool retaintok ) const {
+    if ( TEXTDELIMITER == "" ){
+      for ( size_t i = data.size()-1; i >= 0; --i ){
+	string det = data[i]->getTextDelimiter( retaintok );
+	if ( det != "" )
+	  return det;
+      }
+    }
+    if ( retaintok )
+      return TEXTDELIMITER;
+    else
+      return " ";
+  };
   
+  //#define DEBUG_TEXT
+
   UnicodeString FoliaElement::text( const string& cls, bool retaintok ) const {
     // get the UnicodeString value of underlying elements
     // default cls="current"
+#ifdef DEBUG_TEXT
+    cerr << "TEXT() op node : " << id() << endl;
+    cerr << "TEXT() op node : " << this << endl;
+#endif
     if ( !PRINTABLE )
       throw NoSuchText( _xmltag );
     //  cerr << (void*)this << ":text() for " << _xmltag << " and class= " << cls << " step 1 " << endl;
@@ -504,25 +524,41 @@ namespace folia {
     try {
       result = this->textcontent(cls)->text(cls, retaintok );
     } catch (NoSuchText& e ) {
+#ifdef DEBUG_TEXT
+      cerr << endl << "No textcontent found: try children" << endl;
+#endif
       for( size_t i=0; i < data.size(); ++i ){
 	// try to get text dynamically from children
 	// skip TextContent elements
 	if ( data[i]->PRINTABLE && !data[i]->isinstance( TextContent_t ) ){
+#ifdef DEBUG_TEXT
+	  cerr << "bekijk node : " << data[i]->id() << endl;
+#endif
 	  try {
 	    UnicodeString tmp = data[i]->text( cls, retaintok );
-	    //	cerr << "text() for " << _xmltag << " step 2, tmp= " << tmp << endl;
+#ifdef DEBUG_TEXT
+	    cerr << "found '" << tmp << "'" << endl;
+#endif
 	    result += tmp;
 	    if ( !tmp.isEmpty() ){
-	      result += UTF8ToUnicode( data[i]->getTextDelimiter( retaintok ) );
+	      string delim = data[i]->getTextDelimiter( retaintok );
+#ifdef DEBUG_TEXT
+	      cerr << "delimiter='" << delim << "'" << endl;
+#endif
+	      result += UTF8ToUnicode( delim );
 	    }
 	  } catch ( NoSuchText& e ){
+#ifdef DEBUG_TEXT
+	      cerr << "HELAAS" << endl;
+#endif
 	  }
 	}
       }
     }
     
-    //  cerr << "text() for " << _xmltag << " step 3 >> " << endl;
-    
+#ifdef DEBUG_TEXT
+    cerr << "text() for " << _xmltag << " step 3 >> " << endl;
+#endif
     result.trim();
     if ( !result.isEmpty() ){
       //    cerr << "text() for " << _xmltag << " result= " << result << endl;
@@ -994,6 +1030,18 @@ namespace folia {
     return res;
   }
 
+  std::string Quote::getTextDelimiter( bool retaintok ) const {
+    for ( size_t i = data.size()-1; i >= 0; --i ){
+      if ( data[i]->isinstance( Sentence_t ) ){
+	// if a quote ends in a sentence, we don't want any delimiter
+	return "";
+      }
+      else {
+	return data[i]->publicGetTextDelimiter( retaintok );
+      }
+    }
+    return " ";
+  };
 
   vector<Word*> Quote::wordParts() const {
     vector<Word*> result;
@@ -1668,6 +1716,14 @@ namespace folia {
       atts["space"] = "no";
     }
     return atts;
+  }
+
+  string Word::getTextDelimiter( bool retaintok ) const {
+    if ( space || retaintok )
+      return TEXTDELIMITER;
+    else {
+      return "";
+    }
   }
 
   Correction *Word::correct( const string& s ){

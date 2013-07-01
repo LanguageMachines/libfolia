@@ -6,7 +6,7 @@ AM_CPPFLAGS = -I@top_srcdir@/include
 LDADD = libfolia.la
 
 lib_LTLIBRARIES = libfolia.la
-libfolia_la_LDFLAGS = -version-info 2:0:0
+libfolia_la_LDFLAGS = -version-info 2:1:0
 
 libfolia_la_SOURCES = folia.cxx document.cxx foliautils.cxx
 
