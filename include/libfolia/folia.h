@@ -248,7 +248,9 @@ namespace folia {
     }
     virtual UnicodeString text( const std::string& = "current", bool = false ) const;
     virtual TextContent *textcontent( const std::string& = "current" ) const;
+    // FIXABI stricttext shouldn't be virtual
     virtual UnicodeString stricttext( const std::string& = "current" ) const;
+    UnicodeString deeptext( const std::string& = "current", bool = false ) const;
     bool hastext( const std::string& = "current" ) const ;
     virtual FoliaElement *head() const {
       throw NotImplementedError("head() for " + _xmltag );
@@ -456,6 +458,8 @@ namespace folia {
     bool isSubClass( const FoliaElement *c ) const {
       return isSubClass( c->element_id() );
     };
+    // FIXABI publicGetTextDelimiter is not needed when GetTextDelimiter
+    // is made public
     std::string publicGetTextDelimiter( bool retaintok=false ) {
       return getTextDelimiter( retaintok );
     }

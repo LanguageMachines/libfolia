@@ -522,50 +522,65 @@ namespace folia {
     
     UnicodeString result;    
     try {
-      result = this->textcontent(cls)->text(cls, retaintok );
+      result = this->stricttext(cls);
     } catch (NoSuchText& e ) {
 #ifdef DEBUG_TEXT
       cerr << endl << "No textcontent found: try children" << endl;
 #endif
-      for( size_t i=0; i < data.size(); ++i ){
-	// try to get text dynamically from children
-	// skip TextContent elements
-	if ( data[i]->PRINTABLE && !data[i]->isinstance( TextContent_t ) ){
+      result = deeptext( cls, retaintok );
+    }
+    return result;
+  }
+  
+  UnicodeString FoliaElement::deeptext( const string& cls, 
+					bool retaintok ) const {
+    // get the UnicodeString value of underlying elements
+    // default cls="current"
 #ifdef DEBUG_TEXT
-	  cerr << "bekijk node : " << data[i]->id() << endl;
-#endif
-	  try {
-	    UnicodeString tmp = data[i]->text( cls, retaintok );
+    cerr << "deepTEXT() op node : " << id() << endl;
+    cerr << "deepTEXT() op node : " << this << endl;
+#endif    
+    UnicodeString result;
+    for( size_t i=0; i < data.size(); ++i ){
+      // try to get text dynamically from children
+      // skip TextContent elements
+      if ( data[i]->PRINTABLE && !data[i]->isinstance( TextContent_t ) ){
 #ifdef DEBUG_TEXT
-	    cerr << "found '" << tmp << "'" << endl;
+	cerr << "bekijk node : " << data[i]->id() << endl;
 #endif
-	    result += tmp;
-	    if ( !tmp.isEmpty() ){
-	      string delim = data[i]->getTextDelimiter( retaintok );
+	try {
+	  UnicodeString tmp = data[i]->text( cls, retaintok );
 #ifdef DEBUG_TEXT
-	      cerr << "delimiter='" << delim << "'" << endl;
+	  cerr << "found '" << tmp << "'" << endl;
 #endif
-	      result += UTF8ToUnicode( delim );
-	    }
-	  } catch ( NoSuchText& e ){
+	  result += tmp;
+	  if ( !tmp.isEmpty() ){
+	    string delim = data[i]->getTextDelimiter( retaintok );
 #ifdef DEBUG_TEXT
-	      cerr << "HELAAS" << endl;
+	    cerr << "delimiter='" << delim << "'" << endl;
 #endif
+	    result += UTF8ToUnicode( delim );
 	  }
+	} catch ( NoSuchText& e ){
+#ifdef DEBUG_TEXT
+	  cerr << "HELAAS" << endl;
+#endif
 	}
       }
     }
-    
+  
 #ifdef DEBUG_TEXT
-    cerr << "text() for " << _xmltag << " step 3 >> " << endl;
+    cerr << "deeptext() for " << _xmltag << " step 3 >> " << endl;
 #endif
     result.trim();
     if ( !result.isEmpty() ){
-      //    cerr << "text() for " << _xmltag << " result= " << result << endl;
+#ifdef DEBUG_TEXT
+      cerr << "deeptext() for " << _xmltag << " result= " << result << endl;
+#endif
       return result;
     }
     else
-      throw NoSuchText( ": empty!" );
+      throw NoSuchText( "(class=" + cls +"): empty!" );
   }
   
   UnicodeString FoliaElement::stricttext( const string& cls ) const {
