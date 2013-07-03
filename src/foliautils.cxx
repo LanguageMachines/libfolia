@@ -85,7 +85,7 @@ namespace folia {
       result = "token";
       break; 
     case AnnotationType::DIVISION:
-      result = "div";
+      result = "division"; //adapted from erroneous div
       break; 
     case AnnotationType::PARAGRAPH: 
       result = "paragraph";
@@ -199,7 +199,7 @@ namespace folia {
       return AnnotationType::STRING;
     if ( at == "token" )
       return AnnotationType::TOKEN;
-    if ( at == "div" )
+    if (( at == "div" ) || ( at == "division")) //patch, documentation and libraries used different terms
       return AnnotationType::DIVISION;
     if ( at == "paragraph" )
       return AnnotationType::PARAGRAPH;
