@@ -703,6 +703,9 @@ namespace folia {
 					TimingLayer_t, Morphology_t,
 					Dependencies_t, 
 					Coreferences_t, Semroles_t };
+    static ElementType markupSet[] = { TextMarkupString_t, TextMarkupGap_t, 
+				       TextMarkupCorrection_t, 
+				       TextMarkupError_t, TextMarkupStyle_t };
     static bool filled = false;
     if ( ! filled ){
       sm[Structure_t] 
@@ -717,6 +720,9 @@ namespace folia {
       sm[AnnotationLayer_t] 
 	= set<ElementType>( annolaySet, 
 			    annolaySet + sizeof(annolaySet)/sizeof(ElementType) );
+      sm[AbstractTextMarkup_t]
+	= set<ElementType>( markupSet, 
+			    markupSet + sizeof(markupSet)/sizeof(ElementType) );
       filled = true;
     }  
     if ( e1 == e2 )
@@ -2417,6 +2423,10 @@ namespace folia {
     _element_id = TextContent_t;
     _xmltag="t";
     _optional_attributes = CLASS|ANNOTATOR|CONFIDENCE|DATETIME;
+    const ElementType accept[] = { AbstractTextMarkup_t };
+    _accepted_data = 
+      std::set<ElementType>( accept,
+			     accept + sizeof(accept)/sizeof(ElementType) );
     _annotation_type = AnnotationType::TEXT;
     occurrences = 0;
     occurrences_per_set=0;
@@ -2428,7 +2438,7 @@ namespace folia {
     _xmltag="head";
     const ElementType accept[] = { Structure_t, Description_t, 
 				   TextContent_t, Alignment_t, Metric_t,
-				   Alternatives_t, TokenAnnotation_t };
+				   Alternatives_t, TokenAnnotation_t, Gap_t };
     _accepted_data = 
       std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
@@ -2464,7 +2474,7 @@ namespace folia {
     const ElementType accept[] = { Structure_t,
 				   TokenAnnotation_t,
 				   Alignment_t, Metric_t,
-				   Alternatives_t };
+				   Alternatives_t, Gap_t };
     _accepted_data = 
       std::set<ElementType>( accept, 
 			     accept + sizeof(accept)/sizeof(ElementType) );
@@ -2594,7 +2604,8 @@ namespace folia {
 				   TokenAnnotation_t, 
 				   TextContent_t, AnnotationLayer_t, 
 				   Correction_t,
-				   Description_t, Alignment_t, Metric_t };
+				   Description_t, Alignment_t, Metric_t,
+				   Gap_t };
     _accepted_data = 
       std::set<ElementType>( accept, 
 			     accept + sizeof(accept)/sizeof(ElementType) );
@@ -2682,7 +2693,8 @@ namespace folia {
     _element_id = ListItem_t;
     const ElementType accept[] = { Structure_t, Description_t, 
 				   TokenAnnotation_t,
-				   TextContent_t, Alignment_t };
+				   TextContent_t, Alignment_t,
+				   Gap_t };
     _accepted_data = 
       std::set<ElementType>( accept, 
 			     accept + sizeof(accept)/sizeof(ElementType) );
@@ -2720,7 +2732,8 @@ namespace folia {
     const ElementType accept[] = { Structure_t, TextContent_t, 
 				   TokenAnnotation_t,
 				   Description_t, 
-				   Alignment_t, Metric_t };
+				   Alignment_t, Metric_t,
+				   Gap_t };
     _accepted_data = 
       std::set<ElementType>( accept, 
 			     accept + sizeof(accept)/sizeof(ElementType) );
@@ -2993,6 +3006,31 @@ namespace folia {
     }
     return "";
   }
+
+  KWargs AbstractTextMarkup::collectAttributes() const {
+    KWargs attribs = FoliaElement::collectAttributes();
+    if ( !idref.empty() )
+      attribs["id"] = idref;
+    return attribs;
+  }
+
+  void AbstractTextMarkup::setAttributes( const KWargs& args ){
+    KWargs argl = args;
+    KWargs::const_iterator it = argl.find( "id" );
+    if ( it != argl.end() ){
+      idref = it->second;
+      argl.erase( "id" );
+    }
+    FoliaElement::setAttributes( argl );
+  }
+
+  
+  FoliaElement* AbstractTextMarkup::resolveid() const { 
+    if ( idref.empty() || !mydoc )
+      return 0;
+    else
+      return mydoc->index(idref);
+  };
   
   void Morpheme::init(){
     _element_id = Morpheme_t;
@@ -3229,7 +3267,8 @@ namespace folia {
     _element_id = Quote_t;
     _required_attributes = NO_ATT;
     const ElementType accept[] = { Structure_t, Str_t, Lang_t,
-				   TextContent_t, Description_t, Alignment_t };
+				   TextContent_t, Description_t, Alignment_t,
+				   Gap_t };
     _accepted_data =
       std::set<ElementType>( accept, 
 			     accept + sizeof(accept)/sizeof(ElementType) );
@@ -3314,6 +3353,51 @@ namespace folia {
     _element_id = ErrorDetection_t;
     _annotation_type = AnnotationType::ERRORDETECTION;
     occurrences_per_set = 0; // Allow duplicates within the same set
+  }
+  
+  void AbstractTextMarkup::init(){
+    _xmltag = "textmarkup";
+    _element_id = AbstractTextMarkup_t;
+    _required_attributes = NO_ATT;
+    _optional_attributes = ALL;
+    _annotation_type = AnnotationType::NO_ANN;
+    const ElementType accept[] = { AbstractTextMarkup_t };
+    _accepted_data =
+      std::set<ElementType>( accept, 
+			     accept + sizeof(accept)/sizeof(ElementType) );
+    PRINTABLE = true;
+    TEXTDELIMITER = "";
+    occurrences_per_set = 0; // Allow duplicates within the same set
+  }
+
+  void TextMarkupString::init(){
+    _xmltag = "t-str";
+    _element_id = TextMarkupString_t;
+    _annotation_type = AnnotationType::STRING;
+  }
+
+  void TextMarkupGap::init(){
+    _xmltag = "t-gap";
+    _element_id = TextMarkupGap_t;
+    _annotation_type = AnnotationType::GAP;
+  }
+
+  void TextMarkupCorrection::init(){
+    _xmltag = "t-correction";
+    _element_id = TextMarkupCorrection_t;
+    _annotation_type = AnnotationType::CORRECTION;
+  }
+
+  void TextMarkupError::init(){
+    _xmltag = "t-error";
+    _element_id = TextMarkupError_t;
+    _annotation_type = AnnotationType::ERRORDETECTION;
+  }
+
+  void TextMarkupStyle::init(){
+    _xmltag = "t-style";
+    _element_id = TextMarkupStyle_t;
+    _annotation_type = AnnotationType::STYLE;
   }
 
 } // namespace folia

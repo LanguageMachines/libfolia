@@ -183,6 +183,9 @@ namespace folia {
     case AnnotationType::LANG:
       result = "lang";
       break; 
+    case AnnotationType::STYLE:
+      result = "style";
+      break; 
     case AnnotationType::LAST_ANN:
       throw logic_error("LAST_ANN");
     };
@@ -262,6 +265,8 @@ namespace folia {
       return AnnotationType::TABLE;
     if ( at == "lang" )
       return AnnotationType::LANG;
+    if ( at == "style" )
+      return AnnotationType::STYLE;
     throw ValueError( " unknown translation for attribute: " + at );
   }
 
@@ -347,6 +352,12 @@ namespace folia {
     case Headwords_t: result = "hd"; break;
     case Alignment_t: result = "alignment"; break;
     case AlignReference_t: result = "aref"; break; 
+    case AbstractTextMarkup_t: result = "textmarkup"; break; 
+    case TextMarkupString_t: result = "t-str"; break; 
+    case TextMarkupGap_t: result = "t-gap"; break; 
+    case TextMarkupCorrection_t: result = "t-correction"; break; 
+    case TextMarkupError_t: result = "t-error"; break; 
+    case TextMarkupStyle_t: result = "t-style"; break; 
     default:
       result = "Unknown Elementtype " + folia::toString( int(et) );
     }
@@ -591,6 +602,24 @@ namespace folia {
     if ( tag == "aref" ){
       return AlignReference_t;
     }
+    if ( tag == "textmarkup" ){
+      return AbstractTextMarkup_t;
+    }
+    if ( tag == "t-str" ){
+      return TextMarkupString_t;
+    }
+    if ( tag == "t-gap" ){
+      return TextMarkupGap_t;
+    }
+    if ( tag == "t-correction" ){
+      return TextMarkupCorrection_t;
+    }
+    if ( tag == "t-error" ){
+      return TextMarkupError_t;
+    }
+    if ( tag == "t-style" ){
+      return TextMarkupStyle_t;
+    }
     else {
       throw ValueError( "unknown tag <" + tag + ">" );
     }
@@ -758,6 +787,18 @@ namespace folia {
       return new Alignment( doc );
     case AlignReference_t:
       return new AlignReference( doc );
+    case AbstractTextMarkup_t:
+      return new AbstractTextMarkup( doc );
+    case TextMarkupString_t: 
+      return new TextMarkupString( doc );
+    case TextMarkupGap_t: 
+      return new TextMarkupGap( doc );
+    case TextMarkupCorrection_t: 
+      return new TextMarkupCorrection( doc );
+    case TextMarkupError_t:
+      return new TextMarkupError( doc );
+    case TextMarkupStyle_t: 
+      return new TextMarkupStyle( doc );
     default:
       throw ValueError( "unknown elementtype(" + toString(int(et)) + ")" );
     }

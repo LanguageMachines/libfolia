@@ -105,6 +105,8 @@ namespace folia {
     Table_t, TableHead_t, Row_t, Cell_t, 
     Lang_t, XmlComment_t,
     TokenAnnotation_t, Structure_t,
+    AbstractTextMarkup_t, TextMarkupString_t, TextMarkupGap_t, 
+    TextMarkupCorrection_t, TextMarkupError_t, TextMarkupStyle_t,
     LastElement
   };
   
@@ -129,7 +131,7 @@ namespace folia {
 			  PHON, SUBJECTIVITY, MORPHOLOGICAL, SUBENTITY, EVENT, 
 			  DEPENDENCY, TIMEDEVENT, GAP, ALIGNMENT, 
 			  COMPLEXALIGNMENT, COREFERENCE, SEMROLE, METRIC,
-			  TABLE, LANG,
+			  TABLE, LANG, STYLE,
 			  LAST_ANN
     };
     inline AnnotationType& operator++( AnnotationType &at ){

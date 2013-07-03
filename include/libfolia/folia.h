@@ -651,7 +651,53 @@ namespace folia {
   private:
     void init();
   };
+  
+  class AbstractTextMarkup: public AbstractAnnotation {
+  public:
+  AbstractTextMarkup( Document *d=0 ):  AbstractAnnotation( d ){ classInit(); };
+    void setAttributes( const KWargs& );
+    KWargs collectAttributes() const;  
+    FoliaElement* resolveid() const;
+  private:
+    void init();
+    std::string idref;
+  };
+  
+  class TextMarkupGap: public AbstractTextMarkup {
+  public:
+  TextMarkupGap( Document *d=0 ):  AbstractTextMarkup( d ){ classInit(); };
+  private:
+    void init();
+  };
+  
+  class TextMarkupString: public AbstractTextMarkup {
+  public:
+  TextMarkupString( Document *d=0 ):  AbstractTextMarkup( d ){ classInit(); };
+  private:
+    void init();
+  };
 
+  class TextMarkupCorrection: public AbstractTextMarkup {
+  public:
+  TextMarkupCorrection( Document *d=0 ):  AbstractTextMarkup( d ){ classInit(); };
+  private:
+    void init();
+  };
+  
+  class TextMarkupError: public AbstractTextMarkup {
+  public:
+  TextMarkupError( Document *d=0 ):  AbstractTextMarkup( d ){ classInit(); };
+  private:
+    void init();
+  };
+  
+  class TextMarkupStyle: public AbstractTextMarkup {
+  public:
+  TextMarkupStyle( Document *d=0 ):  AbstractTextMarkup( d ){ classInit(); };
+  private:
+    void init();
+  };  
+  
   class TextContent: public FoliaElement {
   public:
   TextContent( const std::string& s="" ):  FoliaElement( ){ classInit( s ); }
