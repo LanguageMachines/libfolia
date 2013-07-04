@@ -658,9 +658,10 @@ namespace folia {
     void setAttributes( const KWargs& );
     KWargs collectAttributes() const;  
     FoliaElement* resolveid() const;
+  protected:
+    std::string idref;
   private:
     void init();
-    std::string idref;
   };
   
   class TextMarkupGap: public AbstractTextMarkup {
@@ -680,8 +681,11 @@ namespace folia {
   class TextMarkupCorrection: public AbstractTextMarkup {
   public:
   TextMarkupCorrection( Document *d=0 ):  AbstractTextMarkup( d ){ classInit(); };
+    void setAttributes( const KWargs& );
+    KWargs collectAttributes() const;  
   private:
     void init();
+    std::string _original;
   };
   
   class TextMarkupError: public AbstractTextMarkup {
@@ -704,8 +708,6 @@ namespace folia {
   TextContent( const KWargs& a ):  FoliaElement( ){ classInit( a ); }
   TextContent( Document *d, const std::string& s="" ):  FoliaElement( d ){ classInit( s ); }
   TextContent( Document *d, const KWargs& a ):  FoliaElement( d ){ classInit( a ); }
-    FoliaElement* parseXml( const xmlNode * );
-    xmlNode *xml( bool, bool=false ) const;
     void setAttributes( const KWargs& );
     KWargs collectAttributes() const;  
     std::string str() const;
@@ -717,8 +719,8 @@ namespace folia {
     std::string setlang( const std::string& l ) { 
       throw NotImplementedError("TextContent::setlang() is obsolete" ); 
     };
-    FoliaElement *append( FoliaElement* ){ 
-      throw NotImplementedError("TextContent::append() for " + _xmltag ); };
+    /* FoliaElement *append( FoliaElement* ){  */
+    /*   throw NotImplementedError("TextContent::append() for " + _xmltag ); }; */
     TextContent *postappend();
     std::vector<FoliaElement*> findreplacables( FoliaElement * ) const;
   private:
@@ -1492,6 +1494,21 @@ namespace folia {
   private:
     void init();
     std::string _value;
+  };
+
+  class XmlText: public FoliaElement {
+  public:
+  XmlText( const std::string& s=""): FoliaElement( ) { classInit( s ); };
+  XmlText( const KWargs& a ): FoliaElement( ) { classInit( a ); };
+  XmlText( Document *d, const std::string& s="" ): FoliaElement( d ) { classInit( s ); };
+  XmlText( Document *d, const KWargs& a ): FoliaElement( d ) { classInit( a ); };
+    FoliaElement* parseXml( const xmlNode * );
+    xmlNode *xml( bool, bool=false ) const;
+    bool setvalue( const std::string& s ) { _value = s; };
+    UnicodeString text( const std::string&, bool ) const;
+  private:
+    void init();
+    std::string _value; //UTF8 value
   };
 
   class Correction: public AbstractTokenAnnotation {

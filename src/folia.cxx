@@ -144,7 +144,13 @@ namespace folia {
 	throw ValueError("Unable to generate an id from ID= " + it->second );
     }
     else {
-      it = kwargs.find( "id" );
+      it = kwargs.find( "_id" );
+      KWargs::const_iterator it2 = kwargs.find( "id" );
+      if ( it == kwargs.end() )
+	it = it2;
+      else if ( it2 != kwargs.end() ){
+	throw ValueError("Both 'id' and 'xml:id found for " + classname() );
+      }
       if ( it != kwargs.end() ) {
 	if ( !ID & supported )
 	  throw ValueError("ID is not supported for " + classname() );
@@ -513,8 +519,7 @@ namespace folia {
     // get the UnicodeString value of underlying elements
     // default cls="current"
 #ifdef DEBUG_TEXT
-    cerr << "TEXT() op node : " << id() << endl;
-    cerr << "TEXT() op node : " << this << endl;
+    cerr << "TEXT() op node : " << _xmltag << "id ( " << id() << ")" << endl;
 #endif
     if ( !PRINTABLE )
       throw NoSuchText( _xmltag );
@@ -537,8 +542,7 @@ namespace folia {
     // get the UnicodeString value of underlying elements
     // default cls="current"
 #ifdef DEBUG_TEXT
-    cerr << "deepTEXT() op node : " << id() << endl;
-    cerr << "deepTEXT() op node : " << this << endl;
+    cerr << "deepTEXT() op node : " << _xmltag << " id(" << id() << ")" << endl;
 #endif    
     UnicodeString result;
     for( size_t i=0; i < data.size(); ++i ){
@@ -546,18 +550,18 @@ namespace folia {
       // skip TextContent elements
       if ( data[i]->PRINTABLE && !data[i]->isinstance( TextContent_t ) ){
 #ifdef DEBUG_TEXT
-	cerr << "bekijk node : " << data[i]->id() << endl;
+	cerr << "deeptext:bekijk node : " << data[i]->xmltag() << endl;
 #endif
 	try {
 	  UnicodeString tmp = data[i]->text( cls, retaintok );
 #ifdef DEBUG_TEXT
-	  cerr << "found '" << tmp << "'" << endl;
+	  cerr << "deeptext found '" << tmp << "'" << endl;
 #endif
 	  result += tmp;
 	  if ( !tmp.isEmpty() ){
 	    string delim = data[i]->getTextDelimiter( retaintok );
 #ifdef DEBUG_TEXT
-	    cerr << "delimiter='" << delim << "'" << endl;
+	    cerr << "deeptext:delimiter='" << delim << "'" << endl;
 #endif
 	    result += UTF8ToUnicode( delim );
 	  }
@@ -568,7 +572,7 @@ namespace folia {
 	}
       }
     }
-  
+    
 #ifdef DEBUG_TEXT
     cerr << "deeptext() for " << _xmltag << " step 3 >> " << endl;
 #endif
@@ -946,7 +950,6 @@ namespace folia {
   
   FoliaElement* FoliaElement::parseXml( const xmlNode *node ){
     KWargs att = getAttributes( node );
-    //    cerr << "got attributes " << att << endl;
     setAttributes( att );
     xmlNode *p = node->children;
     while ( p ){
@@ -964,8 +967,22 @@ namespace folia {
 	  }
 	}
       }
-      if ( p->type == XML_COMMENT_NODE ){
+      else if ( p->type == XML_COMMENT_NODE ){
 	string tag = "xml-comment";
+	FoliaElement *t = createElement( mydoc, tag );
+	if ( t ){
+	  if ( mydoc && mydoc->debug > 2 )
+	    cerr << "created " << t << endl;
+	  t = t->parseXml( p );
+	  if ( t ){
+	    if ( mydoc && mydoc->debug > 2 )
+	      cerr << "extend " << this << " met " << tag << endl;
+	    append( t );
+	  }
+	}
+      }
+      else if ( p->type == XML_TEXT_NODE ){
+	string tag = "xml-text";
 	FoliaElement *t = createElement( mydoc, tag );
 	if ( t ){
 	  if ( mydoc && mydoc->debug > 2 )
@@ -1214,11 +1231,14 @@ namespace folia {
     KWargs kwargs = args; // need to copy
     KWargs::const_iterator it = kwargs.find( "value" );
     if ( it != kwargs.end() ) {
-      _text = UTF8ToUnicode(it->second);
+      //      _text = UTF8ToUnicode(it->second);
+      XmlText *t = new XmlText();
+      t->setvalue( it->second );
+      append( t );
       kwargs.erase("value");
     }
-    else
-      throw ValueError( "TextContent expects 'value' attribute" );
+    // else
+    //   throw ValueError( "TextContent expects 'value' attribute" );
     it = kwargs.find( "offset" );
     if ( it != kwargs.end() ) {
       _offset = stringTo<int>(it->second);
@@ -1239,13 +1259,17 @@ namespace folia {
     FoliaElement::setAttributes(kwargs);
   }
 
-  FoliaElement* TextContent::parseXml( const xmlNode *node ){
-    KWargs att = getAttributes( node );
-    att["value"] = XmlContent( node );
-    setAttributes( att );
-    if ( mydoc && mydoc->debug > 2 )
-      cerr << "set textcontent to " << _text << endl;
-    return this;
+  KWargs TextContent::collectAttributes() const {
+    KWargs attribs = FoliaElement::collectAttributes();
+    if ( _class == "current" )
+      attribs.erase( "class" );
+    else if ( _class == "original" && parent()->isinstance( Original_t ) )
+      attribs.erase( "class" );    
+      
+    if ( _offset >= 0 ){
+      attribs["offset"] = TiCC::toString( _offset );
+    }
+    return attribs;
   }
 
   TextContent *TextContent::postappend(){
@@ -1273,11 +1297,40 @@ namespace folia {
 
 
   string TextContent::str() const{
-    return UnicodeToUTF8(_text);
+#ifdef DEBUG_TEXT
+    cerr << "textContent::str() this=" << this << endl;
+#endif
+    return UnicodeToUTF8(text());
   }
 
-  UnicodeString TextContent::text( const string&, bool ) const{
-    return _text;
+  UnicodeString TextContent::text( const string& cls, bool retaintok ) const {
+    // get the UnicodeString value of underlying elements
+    // default cls="current"
+#ifdef DEBUG_TEXT
+    cerr << "TextContent::TEXT() " << endl;
+#endif    
+    UnicodeString result;
+    for( size_t i=0; i < data.size(); ++i ){
+      // try to get text dynamically from children
+#ifdef DEBUG_TEXT
+      cerr << "TextContent: bekijk node[" << i+1 << "] " << data[i]->str() << endl;
+#endif
+      try {
+	UnicodeString tmp = data[i]->text( cls, retaintok );
+#ifdef DEBUG_TEXT
+	cerr << "TextContent found '" << tmp << "'" << endl;
+#endif
+	result += tmp;
+      } catch ( NoSuchText& e ){
+#ifdef DEBUG_TEXT
+	cerr << "TextContent::HELAAS" << endl;
+#endif
+      }
+    }
+#ifdef DEBUG_TEXT
+    cerr << "TextContent return " << result << endl;
+#endif
+    return result;
   }
 
   string AllowGenerateID::IGgen( const string& tag, 
@@ -2098,25 +2151,6 @@ namespace folia {
     Word::setAttributes( args );
   }
 
-  KWargs TextContent::collectAttributes() const {
-    KWargs attribs = FoliaElement::collectAttributes();
-    if ( _class == "current" )
-      attribs.erase( "class" );
-    else if ( _class == "original" && parent()->isinstance( Original_t ) )
-      attribs.erase( "class" );    
-      
-    if ( _offset >= 0 ){
-      attribs["offset"] = TiCC::toString( _offset );
-    }
-    return attribs;
-  }
-
-  xmlNode *TextContent::xml( bool, bool ) const {
-    xmlNode *e = FoliaElement::xml( false, false );
-    xmlAddChild( e, xmlNewText( (const xmlChar*)str().c_str()) );
-    return e;
-  }
-
   KWargs Figure::collectAttributes() const {
     KWargs atts = FoliaElement::collectAttributes();
     if ( !_src.empty() ){
@@ -2423,7 +2457,8 @@ namespace folia {
     _element_id = TextContent_t;
     _xmltag="t";
     _optional_attributes = CLASS|ANNOTATOR|CONFIDENCE|DATETIME;
-    const ElementType accept[] = { AbstractTextMarkup_t };
+    const ElementType accept[] = { AbstractTextMarkup_t, 
+				   XmlText_t, LineBreak_t };
     _accepted_data = 
       std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
@@ -2940,6 +2975,25 @@ namespace folia {
     _element_id = Description_t;
     occurrences = 1;
   }
+  
+  UnicodeString XmlText::text( const string&, bool ) const {
+    return UTF8ToUnicode(_value);
+  }
+  
+  xmlNode *XmlText::xml( bool, bool ) const {
+    return xmlNewText( (const xmlChar*)_value.c_str() );
+  }
+  
+  FoliaElement* XmlText::parseXml( const xmlNode *node ){
+    if ( node->content )
+      _value = (const char*)node->content;
+    return this;
+  }
+
+  void XmlText::init(){
+    _xmltag = "xml-text";
+    _element_id = XmlText_t;
+  }
 
   xmlNode *XmlComment::xml( bool, bool ) const {
     return xmlNewComment( (const xmlChar*)_value.c_str() );
@@ -3013,17 +3067,36 @@ namespace folia {
       attribs["id"] = idref;
     return attribs;
   }
-
+  
   void AbstractTextMarkup::setAttributes( const KWargs& args ){
+    KWargs::const_iterator it = args.find( "id" );
+    if ( it != args.end() ){
+      idref = it->second;
+    }
+    FoliaElement::setAttributes( args );
+  }
+  
+  KWargs TextMarkupCorrection::collectAttributes() const {
+    KWargs attribs = AbstractTextMarkup::collectAttributes();
+    if ( !_original.empty() )
+      attribs["original"] = _original;
+    return attribs;
+  }
+
+  void TextMarkupCorrection::setAttributes( const KWargs& args ){
     KWargs argl = args;
     KWargs::const_iterator it = argl.find( "id" );
     if ( it != argl.end() ){
       idref = it->second;
       argl.erase( "id" );
     }
+    it = argl.find( "original" );
+    if ( it != argl.end() ){
+      _original = it->second;
+      argl.erase( "original" );
+    }
     FoliaElement::setAttributes( argl );
   }
-
   
   FoliaElement* AbstractTextMarkup::resolveid() const { 
     if ( idref.empty() || !mydoc )
@@ -3361,7 +3434,7 @@ namespace folia {
     _required_attributes = NO_ATT;
     _optional_attributes = ALL;
     _annotation_type = AnnotationType::NO_ANN;
-    const ElementType accept[] = { AbstractTextMarkup_t };
+    const ElementType accept[] = { AbstractTextMarkup_t, XmlText_t };
     _accepted_data =
       std::set<ElementType>( accept, 
 			     accept + sizeof(accept)/sizeof(ElementType) );

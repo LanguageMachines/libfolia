@@ -330,6 +330,7 @@ namespace folia {
     case Alternative_t: result = "alt"; break; 
     case Alternatives_t: result = "altlayers"; break;
     case XmlComment_t: result = "xml-comment"; break;
+    case XmlText_t: result = "xml-text"; break;
     case Description_t: result = "desc"; break;
     case Gap_t: result = "gap"; break;
     case Content_t: result = "content"; break;
@@ -448,6 +449,9 @@ namespace folia {
     }
     if ( tag == "xml-comment" ){
       return XmlComment_t;
+    }
+    if ( tag == "xml-text" ){
+      return XmlText_t;
     }
     if ( tag == "desc" ){
       return Description_t;
@@ -689,6 +693,8 @@ namespace folia {
       return new AbstractStructureElement( doc );
     case XmlComment_t:
       return new XmlComment( doc );
+    case XmlText_t:
+      return new XmlText( doc );
     case Description_t:
       return new Description( doc );
     case Gap_t:
@@ -928,28 +934,40 @@ namespace folia {
     if ( node ){
       xmlAttr *a = node->properties;
       while ( a ){
-	atts[(char*)a->name] = (char *)a->children->content;
+	if ( a->atype == XML_ATTRIBUTE_ID && string((char*)a->name) == "id" ){
+	  atts["_id"] = (char *)a->children->content;
+	}
+	else
+	  atts[(char*)a->name] = (char *)a->children->content;
 	a = a->next;
       }
     }
     return atts;
   }
 
-  void addAttributes( xmlNode *node, const KWargs& attribs ){
-    KWargs::const_iterator it = attribs.begin();
+  void addAttributes( xmlNode *node, const KWargs& atts ){
+    KWargs attribs = atts;
+    KWargs::iterator it = attribs.find("_id");
+    if ( it != attribs.end() ){ // _id is special for xml:id
+      xmlSetProp( node, XML_XML_ID, (const xmlChar *)it->second.c_str() );
+      attribs.erase(it);
+    }
+    it = attribs.find("lang");
+    if ( it != attribs.end() ){ // lang is special too
+      xmlNodeSetLang( node, (const xmlChar*)it->second.c_str() );
+      attribs.erase(it);
+    }
+    it = attribs.find("id");
+    if ( it != attribs.end() ){ // id is te be sorted before the rest
+      xmlSetProp( node, (const xmlChar*)("id"), (const xmlChar *)it->second.c_str() );
+      attribs.erase(it);
+    }
+    // and now the rest
+    it = attribs.begin();
     while ( it != attribs.end() ){
-      //    cerr << "addAttributes(" << it->first << ", " << it->second << ")" << endl;
-      if ( it->first == "_id" ){ // id is special
-	xmlSetProp( node, XML_XML_ID, (const xmlChar *)it->second.c_str() );
-      }
-      else if ( it->first == "lang" ){ // lang is special
-	xmlNodeSetLang( node, (const xmlChar*)it->second.c_str() );
-      }
-      else {
-	xmlSetProp( node,
-		    (const xmlChar*)it->first.c_str(), 
-		    (const xmlChar*)it->second.c_str() );
-      }
+      xmlSetProp( node,
+		  (const xmlChar*)it->first.c_str(), 
+		  (const xmlChar*)it->second.c_str() );
       ++it;
     }
   }

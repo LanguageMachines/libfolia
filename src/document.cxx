@@ -136,7 +136,10 @@ namespace folia {
     else
       version.clear();
     
-    it = kwargs.find( "id" );
+    it = kwargs.find( "_id" );
+    if ( it == kwargs.end() ){
+      it = kwargs.find( "id" );
+    }
     if ( it != kwargs.end() ){
       if ( isNCName( it->second ) ){
 	_id = it->second;
@@ -477,7 +480,7 @@ namespace folia {
 
   FoliaElement* Document::parseFoliaDoc( xmlNode *root ){
     KWargs att = getAttributes( root );
-    if ( att["id"] == "" ){
+    if ( att["_id"] == "" ){
       throw XmlError("FoLiA Document has no ID!");
       return 0;
     }
