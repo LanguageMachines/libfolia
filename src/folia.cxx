@@ -519,7 +519,7 @@ namespace folia {
     // get the UnicodeString value of underlying elements
     // default cls="current"
 #ifdef DEBUG_TEXT
-    cerr << "TEXT() op node : " << _xmltag << "id ( " << id() << ")" << endl;
+    cerr << "TEXT(" << cls << ") op node : " << _xmltag << "id ( " << id() << ")" << endl;
 #endif
     if ( !PRINTABLE )
       throw NoSuchText( _xmltag );
@@ -542,7 +542,7 @@ namespace folia {
     // get the UnicodeString value of underlying elements
     // default cls="current"
 #ifdef DEBUG_TEXT
-    cerr << "deepTEXT() op node : " << _xmltag << " id(" << id() << ")" << endl;
+    cerr << "deepTEXT(" << cls << ") op node : " << _xmltag << " id(" << id() << ")" << endl;
 #endif    
     UnicodeString result;
     for( size_t i=0; i < data.size(); ++i ){
@@ -1307,7 +1307,7 @@ namespace folia {
     // get the UnicodeString value of underlying elements
     // default cls="current"
 #ifdef DEBUG_TEXT
-    cerr << "TextContent::TEXT() " << endl;
+    cerr << "TextContent::TEXT(" << cls << ") " << endl;
 #endif    
     UnicodeString result;
     for( size_t i=0; i < data.size(); ++i ){
@@ -1316,6 +1316,9 @@ namespace folia {
       cerr << "TextContent: bekijk node[" << i+1 << "] " << data[i]->str() << endl;
 #endif
       try {
+#ifdef DEBUG_TEXT
+	cerr << "roep text(" << cls << ") aan" << endl;
+#endif
 	UnicodeString tmp = data[i]->text( cls, retaintok );
 #ifdef DEBUG_TEXT
 	cerr << "TextContent found '" << tmp << "'" << endl;
@@ -3102,6 +3105,14 @@ namespace folia {
       argl.erase( "original" );
     }
     FoliaElement::setAttributes( argl );
+  }
+
+  UnicodeString TextMarkupCorrection::text( const std::string& cls, 
+					    bool ret ) const{
+    if ( cls == "original" )
+      return UTF8ToUnicode(_original);
+    else
+      return FoliaElement::text( cls, ret );
   }
   
   FoliaElement* AbstractTextMarkup::resolveid() const { 

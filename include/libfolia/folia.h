@@ -683,6 +683,7 @@ namespace folia {
   TextMarkupCorrection( Document *d=0 ):  AbstractTextMarkup( d ){ classInit(); };
     void setAttributes( const KWargs& );
     KWargs collectAttributes() const;  
+    UnicodeString text( const std::string& = "current", bool = false ) const;
   private:
     void init();
     std::string _original;
@@ -850,6 +851,9 @@ namespace folia {
   LineBreak( const KWargs& a ):  AbstractStructureElement(){ classInit( a ); };
   LineBreak( Document *d,  const std::string& s=""):  AbstractStructureElement( d ){ classInit( s ); };
   LineBreak( Document *d,  const KWargs& a ):  AbstractStructureElement( d ){ classInit( a ); };
+    UnicodeString text( const std::string& = "current", bool = false ) const {
+      return "";
+    }
   private:
     void init();
   };
