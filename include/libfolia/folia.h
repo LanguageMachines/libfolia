@@ -719,8 +719,6 @@ namespace folia {
     std::string setlang( const std::string& l ) { 
       throw NotImplementedError("TextContent::setlang() is obsolete" ); 
     };
-    /* FoliaElement *append( FoliaElement* ){  */
-    /*   throw NotImplementedError("TextContent::append() for " + _xmltag ); }; */
     TextContent *postappend();
     std::vector<FoliaElement*> findreplacables( FoliaElement * ) const;
   private:

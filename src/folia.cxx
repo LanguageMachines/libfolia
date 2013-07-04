@@ -3068,10 +3068,16 @@ namespace folia {
     return attribs;
   }
   
-  void AbstractTextMarkup::setAttributes( const KWargs& args ){
-    KWargs::const_iterator it = args.find( "id" );
+  void AbstractTextMarkup::setAttributes( const KWargs& atts ){
+    KWargs args = atts;
+    KWargs::iterator it = args.find( "id" );
     if ( it != args.end() ){
+      KWargs::const_iterator it2 = args.find( "_id" );
+      if ( it2 != args.end() ){
+	throw ValueError("Both 'id' and 'xml:id found for " + classname() );
+      }
       idref = it->second;
+      args.erase( it );
     }
     FoliaElement::setAttributes( args );
   }
