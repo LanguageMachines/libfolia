@@ -499,8 +499,7 @@ namespace folia {
     }
   }
 
-  //#define DEBUG_TEXT
-
+  // #define DEBUG_TEXT
 
   string FoliaElement::getTextDelimiter( bool retaintok ) const {
 #ifdef DEBUG_TEXT
@@ -524,7 +523,7 @@ namespace folia {
     cerr << "TEXT(" << cls << ") op node : " << _xmltag << " id ( " << id() << ")" << endl;
 #endif
     if ( !PRINTABLE )
-      throw NoSuchText( _xmltag );
+      throw NoSuchText( "non-printable tag: " + _xmltag );
     //  cerr << (void*)this << ":text() for " << _xmltag << " and class= " << cls << " step 1 " << endl;
     
     UnicodeString result;    
@@ -606,7 +605,7 @@ namespace folia {
     // Raises NoSuchText exception if not found. 
     
     if ( !PRINTABLE )
-      throw NoSuchText( _xmltag );
+      throw NoSuchText( "non-printable tag: " +  _xmltag );
     
     for( size_t i=0; i < data.size(); ++i ){
       if ( data[i]->isinstance(TextContent_t) && (data[i]->_class == cls) ){
@@ -620,7 +619,7 @@ namespace folia {
 	}
       }
     }    
-    throw NoSuchText( "textcontent()" );
+    throw NoSuchText( _xmltag + "::textcontent()" );
   }
 
   vector<FoliaElement *>FoliaElement::findreplacables( FoliaElement *par ) const {
@@ -3139,9 +3138,9 @@ namespace folia {
       return FoliaElement::text( cls, ret );
   }
   
-  FoliaElement* AbstractTextMarkup::resolveid() const { 
+  const FoliaElement* AbstractTextMarkup::resolveid() const { 
     if ( idref.empty() || !mydoc )
-      return 0;
+      return this;
     else
       return mydoc->index(idref);
   };

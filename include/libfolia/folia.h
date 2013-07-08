@@ -132,7 +132,7 @@ namespace folia {
       std::vector<F*> select( const std::string& st,
 			      const std::set<ElementType>& exclude, 
 			      bool recurse = true ) const {
-      F obj("");
+      F obj(0);
       std::vector<F*> res;
       std::vector<FoliaElement*> tmp = select( obj._element_id, 
 					       st,
@@ -147,7 +147,7 @@ namespace folia {
     template <typename F>
       std::vector<F*> select( const std::string& st,
 			      bool recurse = true ) const {
-      F obj("");
+      F obj(0);
       std::vector<F*> res;
       std::vector<FoliaElement*> tmp = select( obj._element_id, 
 					       st,
@@ -161,7 +161,7 @@ namespace folia {
     template <typename F>
       std::vector<F*> select( const char* st,
 			      bool recurse = true ) const {
-      F obj("");
+      F obj(0);
       std::vector<F*> res;
       std::vector<FoliaElement*> tmp = select( obj._element_id, 
 					       std::string(st),
@@ -175,7 +175,7 @@ namespace folia {
     template <typename F>
       std::vector<F*> select( const std::set<ElementType>& exclude, 
 			      bool recurse = true ) const {
-      F obj("");
+      F obj(0);
       std::vector<F*> res;
       std::vector<FoliaElement*> tmp = select( obj._element_id, 
 					       exclude,
@@ -188,7 +188,7 @@ namespace folia {
     
     template <typename F>
       std::vector<F*> select( bool recurse = true ) const {
-      F obj("");
+      F obj(0);
       std::vector<F*> res;
       std::vector<FoliaElement*> tmp = select( obj._element_id,
 					       recurse );
@@ -205,7 +205,7 @@ namespace folia {
 	if ( v.size() >= 1 )
 	  return v;
 	else {
-	  F obj("");
+	  F obj(0);
 	  if ( s.empty() )
 	    throw NoSuchAnnotation( obj.classname() );
 	  else
@@ -464,6 +464,9 @@ namespace folia {
     virtual std::vector<FoliaElement *> resolve() const {
       throw NotImplementedError("resolve() for " + _xmltag );
     };
+    virtual const FoliaElement* resolveid() const {
+      throw NotImplementedError("resolveid() for " + _xmltag );
+    };
     bool printable() const { return PRINTABLE; };
     bool isSubClass( ElementType ) const;
     bool isSubClass( const FoliaElement *c ) const {
@@ -668,7 +671,7 @@ namespace folia {
   AbstractTextMarkup( Document *d=0 ):  AbstractAnnotation( d ){ classInit(); };
     void setAttributes( const KWargs& );
     KWargs collectAttributes() const;  
-    FoliaElement* resolveid() const;
+    const FoliaElement* resolveid() const;
   protected:
     std::string getTextDelimiter( bool ) const { return ""; };
     std::string idref;
