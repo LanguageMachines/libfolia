@@ -499,7 +499,7 @@ namespace folia {
     }
   }
 
-  // #define DEBUG_TEXT
+  //#define DEBUG_TEXT
 
   string FoliaElement::getTextDelimiter( bool retaintok ) const {
 #ifdef DEBUG_TEXT
@@ -1082,7 +1082,7 @@ namespace folia {
 	return "";
       }
       else {
-	return data[i]->publicGetTextDelimiter( retaintok );
+	return data[i]->getTextDelimiter( retaintok );
       }
     }
     return " ";
@@ -2670,6 +2670,7 @@ namespace folia {
       std::set<ElementType>( accept, 
 			     accept + sizeof(accept)/sizeof(ElementType) );
     _annotation_type = AnnotationType::SENTENCE;
+    TEXTDELIMITER = " ";
   }
 
   void Division::init(){
