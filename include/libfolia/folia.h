@@ -218,6 +218,17 @@ namespace folia {
     }
     
     template <typename F> 
+      bool hasannotation( const std::string& st = "" ) const {
+      try {
+	std::vector<F*> v = annotations<F>( st );
+	return true;
+      }
+      catch ( NoSuchAnnotation& e ){
+	return false;
+      }
+    }
+
+    template <typename F> 
       F *annotation( const std::string& st = "" ) const {
       std::vector<F*>v = annotations<F>( st );
       return v[0]; // always exist, otherwise annotations would throw()
@@ -659,6 +670,7 @@ namespace folia {
     KWargs collectAttributes() const;  
     FoliaElement* resolveid() const;
   protected:
+    std::string getTextDelimiter( bool ) const { return ""; };
     std::string idref;
   private:
     void init();
@@ -900,7 +912,7 @@ namespace folia {
     const Word* resolveword( const std::string& ) const;
     void setAttributes( const KWargs& );
     KWargs collectAttributes() const;  
-    std::string getTextDelimiter( bool retaintok=false) const;
+    std::string getTextDelimiter( bool=false) const;
   private:
     void init();
     bool space;
@@ -919,6 +931,7 @@ namespace folia {
 			 const KWargs& args ) {
       return correctBase( this, v1, v2, v3, v4, args );
     }
+    bool allowannotations() const { return true; };
   private:
     void init();
   };
@@ -1166,7 +1179,7 @@ namespace folia {
   Quote( Document *d, const KWargs& a ): AbstractStructureElement( d ){ classInit( a ); };
     FoliaElement *append( FoliaElement *);
     std::vector<Word*> wordParts() const;
-    std::string getTextDelimiter( bool retaintok=false) const;
+    std::string getTextDelimiter( bool=false) const;
   private:
     void init();
   };
@@ -1507,6 +1520,7 @@ namespace folia {
     FoliaElement* parseXml( const xmlNode * );
     xmlNode *xml( bool, bool=false ) const;
     bool setvalue( const std::string& s ) { _value = s; };
+    std::string getTextDelimiter( bool ) const { return ""; };
     UnicodeString text( const std::string&, bool ) const;
   private:
     void init();
@@ -1530,6 +1544,7 @@ namespace folia {
     Suggestion *suggestions( size_t ) const;
     UnicodeString text( const std::string& = "current", bool = false ) const;
     TextContent *textcontent( const std::string& = "current" ) const;
+    std::string getTextDelimiter( bool=false) const;
   private:
     void init();
   };

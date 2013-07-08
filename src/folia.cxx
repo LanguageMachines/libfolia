@@ -93,7 +93,7 @@ namespace folia {
     _xmltag = "ThIsIsSoWrOnG";
     occurrences = 0;  //#Number of times this element may occur in its parent (0=unlimited, default=0)
     occurrences_per_set = 1; // #Number of times this element may occur per set (0=unlimited, default=1)
-    TEXTDELIMITER = " " ;
+    TEXTDELIMITER = "NONE" ;
     PRINTABLE = true;
     AUTH = true;
   }
@@ -499,27 +499,29 @@ namespace folia {
     }
   }
 
-  string FoliaElement::getTextDelimiter( bool retaintok ) const {
-    if ( TEXTDELIMITER == "" ){
-      for ( size_t i = data.size()-1; i >= 0; --i ){
-	string det = data[i]->getTextDelimiter( retaintok );
-	if ( det != "" )
-	  return det;
-      }
-    }
-    if ( retaintok )
-      return TEXTDELIMITER;
-    else
-      return " ";
-  };
-  
   //#define DEBUG_TEXT
 
+
+  string FoliaElement::getTextDelimiter( bool retaintok ) const {
+#ifdef DEBUG_TEXT
+    cerr << "IN " << xmltag() << " gettextdelimiter (" << TEXTDELIMITER << ")" << endl;
+#endif
+    if ( TEXTDELIMITER == "NONE" ){
+      if ( data.size() > 0 ){
+	string det = data[data.size()-1]->getTextDelimiter( retaintok );
+	return det;
+      }
+      else
+	return "";
+    }
+    return TEXTDELIMITER;
+  };
+  
   UnicodeString FoliaElement::text( const string& cls, bool retaintok ) const {
     // get the UnicodeString value of underlying elements
     // default cls="current"
 #ifdef DEBUG_TEXT
-    cerr << "TEXT(" << cls << ") op node : " << _xmltag << "id ( " << id() << ")" << endl;
+    cerr << "TEXT(" << cls << ") op node : " << _xmltag << " id ( " << id() << ")" << endl;
 #endif
     if ( !PRINTABLE )
       throw NoSuchText( _xmltag );
@@ -545,12 +547,15 @@ namespace folia {
     cerr << "deepTEXT(" << cls << ") op node : " << _xmltag << " id(" << id() << ")" << endl;
 #endif    
     UnicodeString result;
+#ifdef DEBUG_TEXT
+    cerr << "deeptext: node has " << data.size() << " children." << endl;
+#endif
     for( size_t i=0; i < data.size(); ++i ){
       // try to get text dynamically from children
       // skip TextContent elements
       if ( data[i]->PRINTABLE && !data[i]->isinstance( TextContent_t ) ){
 #ifdef DEBUG_TEXT
-	cerr << "deeptext:bekijk node : " << data[i]->xmltag() << endl;
+	cerr << "deeptext:bekijk node[" << i << "] " << data[i]->xmltag() << endl;
 #endif
 	try {
 	  UnicodeString tmp = data[i]->text( cls, retaintok );
@@ -558,10 +563,10 @@ namespace folia {
 	  cerr << "deeptext found '" << tmp << "'" << endl;
 #endif
 	  result += tmp;
-	  if ( !tmp.isEmpty() ){
+	  if ( !tmp.isEmpty() && i < data.size()-1 ){
 	    string delim = data[i]->getTextDelimiter( retaintok );
 #ifdef DEBUG_TEXT
-	    cerr << "deeptext:delimiter='" << delim << "'" << endl;
+	    cerr << "deeptext:delimiter van "<< data[i]->xmltag() << " ='" << delim << "'" << endl;
 #endif
 	    result += UTF8ToUnicode( delim );
 	  }
@@ -574,12 +579,12 @@ namespace folia {
     }
     
 #ifdef DEBUG_TEXT
-    cerr << "deeptext() for " << _xmltag << " step 3 >> " << endl;
+    cerr << "deeptext() for " << _xmltag << " step 3 " << endl;
 #endif
     result.trim();
     if ( !result.isEmpty() ){
 #ifdef DEBUG_TEXT
-      cerr << "deeptext() for " << _xmltag << " result= " << result << endl;
+      cerr << "deeptext() for " << _xmltag << " result= '" << result << "'" << endl;
 #endif
       return result;
     }
@@ -1069,6 +1074,9 @@ namespace folia {
   }
 
   std::string Quote::getTextDelimiter( bool retaintok ) const {
+#ifdef DEBUG_TEXT
+    cerr << "IN " << xmltag() << " gettextdelimiter (" << TEXTDELIMITER << ")" << endl;
+#endif
     for ( size_t i = data.size()-1; i >= 0; --i ){
       if ( data[i]->isinstance( Sentence_t ) ){
 	// if a quote ends in a sentence, we don't want any delimiter
@@ -2294,16 +2302,23 @@ namespace folia {
   }
 
   UnicodeString Correction::text( const string& cls, bool retaintok ) const {
+#ifdef DEBUG_TEXT
+    cerr << "TEXT(" << cls << ") op node : " << _xmltag << " id ( " << id() << ")" << endl;
+#endif
     if ( cls == "current" ){
       for( size_t i=0; i < data.size(); ++i ){
-	//    cerr << "data[" << i << "]=" << data[i] << endl;
+#ifdef DEBUG_TEXT
+	cerr << "data[" << i << "]=" << data[i] << endl;
+#endif
 	if ( data[i]->isinstance( New_t ) || data[i]->isinstance( Current_t ) )
 	  return data[i]->text( cls, retaintok );
       }
     }
     else if ( cls == "original" ){
       for( size_t i=0; i < data.size(); ++i ){
-	//    cerr << "data[" << i << "]=" << data[i] << endl;
+#ifdef DEBUG_TEXT
+	cerr << "data[" << i << "]=" << data[i] << endl;
+#endif
 	if ( data[i]->isinstance( Original_t ) )
 	  return data[i]->text( cls, retaintok );
       }
@@ -2311,6 +2326,14 @@ namespace folia {
     throw NoSuchText("wrong cls");
   }
 
+  string Correction::getTextDelimiter( bool retaintok ) const {
+    for( size_t i=0; i < data.size(); ++i ){
+      //    cerr << "data[" << i << "]=" << data[i] << endl;
+      if ( data[i]->isinstance( New_t ) || data[i]->isinstance( Current_t ) )
+	return data[i]->getTextDelimiter( retaintok );
+    }
+  }
+  
   TextContent *Correction::textcontent( const string& cls ) const {
     if ( cls == "current" ){
       for( size_t i=0; i < data.size(); ++i ){
@@ -2996,6 +3019,7 @@ namespace folia {
   void XmlText::init(){
     _xmltag = "xml-text";
     _element_id = XmlText_t;
+    TEXTDELIMITER = "*";
   }
 
   xmlNode *XmlComment::xml( bool, bool ) const {
