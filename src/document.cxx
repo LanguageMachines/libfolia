@@ -251,9 +251,14 @@ namespace folia {
     return false;
   }
 
-  ostream& operator<<( ostream& os, const Document& d ){
-    string s = d.toXml();
-    os << s << endl;
+  ostream& operator<<( ostream& os, const Document *d ){
+    if ( d ){
+      string s = d->toXml();
+      os << s << endl;
+    }
+    else {
+      os << "MISSING DOCUMENT" << endl;
+    }
     return os;
   }
 

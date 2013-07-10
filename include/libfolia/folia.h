@@ -255,7 +255,7 @@ namespace folia {
     virtual std::string str() const;
     UnicodeString unicode() const { return text(); };
     UnicodeString toktext( const std::string& cls = "current" ) const {
-      return text( cls, true );
+      return deeptext( cls, true );
     }
     virtual UnicodeString text( const std::string& = "current", bool = false ) const;
     virtual TextContent *textcontent( const std::string& = "current" ) const;

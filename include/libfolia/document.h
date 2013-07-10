@@ -73,7 +73,7 @@ namespace folia {
 
   class Document {
     friend bool operator==( const Document&, const Document& );
-    friend std::ostream& operator<<( std::ostream&, const Document& );
+    friend std::ostream& operator<<( std::ostream&, const Document * );
   public:
     Document();
     Document( const std::string& );
@@ -196,6 +196,12 @@ namespace folia {
   inline bool operator!=( const Document& d1, const Document& d2 ){ 
     return !( d1==d2 );
   }
+
+  std::ostream& operator<<( std::ostream&, const Document * );
+  inline std::ostream& operator<<( std::ostream& os, const Document& d ){
+    os << &d;
+    return os;
+  } 
 
   inline std::ostream& operator<<( std::ostream& os, const Document::at_t& at ){
     os << "<" << at.a << "," << at.t << "," << at.d << ">";
