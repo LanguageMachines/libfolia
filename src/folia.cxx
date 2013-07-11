@@ -507,6 +507,7 @@ namespace folia {
 #endif
     if ( TEXTDELIMITER == "NONE" ){
       if ( data.size() > 0 ){
+	// attempt to get a delimiter form the last child
 	string det = data[data.size()-1]->getTextDelimiter( retaintok );
 	return det;
       }
@@ -522,16 +523,12 @@ namespace folia {
 #ifdef DEBUG_TEXT
     cerr << "TEXT(" << cls << ") op node : " << _xmltag << " id ( " << id() << ")" << endl;
 #endif
-    if ( !PRINTABLE )
-      throw NoSuchText( "non-printable tag: " + _xmltag );
-    //  cerr << (void*)this << ":text() for " << _xmltag << " and class= " << cls << " step 1 " << endl;
-    
     UnicodeString result;    
     try {
       result = this->stricttext(cls);
     } catch (NoSuchText& e ) {
 #ifdef DEBUG_TEXT
-      cerr << endl << "No textcontent found: try children" << endl;
+      cerr << "No direct textcontent found: try children" << endl;
 #endif
       result = deeptext( cls, retaintok );
     }
@@ -563,6 +560,8 @@ namespace folia {
 #endif
 	  result += tmp;
 	  if ( !tmp.isEmpty() && i < data.size()-1 ){
+	    // append a delimiter, only if there was text, 
+	    // and NOT on the last child
 	    string delim = data[i]->getTextDelimiter( retaintok );
 #ifdef DEBUG_TEXT
 	    cerr << "deeptext:delimiter van "<< data[i]->xmltag() << " ='" << delim << "'" << endl;
@@ -596,7 +595,7 @@ namespace folia {
     // default cls="current"
     return this->textcontent(cls)->text(cls);
   }
-
+  
   TextContent *FoliaElement::textcontent( const string& cls ) const {
     // Get the text explicitly associated with this element (of the specified class).
     // the default class is 'current'
@@ -770,18 +769,19 @@ namespace folia {
 			+ " to a " + classname() );
     }
     if ( c->occurrences > 0 ){
-      vector<FoliaElement*> v = select( c->_element_id );
+      vector<FoliaElement*> v = select( c->_element_id, false );
       size_t count = v.size();
-      if ( count > c->occurrences ){
+      if ( count >= c->occurrences ){
 	throw DuplicateAnnotationError( "Unable to add another object of type " + c->classname() + " to " + classname() + ". There are already " + TiCC::toString(count) + " instances of this class, which is the maximum." );
       }
     }
     if ( c->occurrences_per_set > 0 &&
 	 ( (CLASS|SETONLY) & c->_required_attributes ) ){
-      vector<FoliaElement*> v = select( c->_element_id, c->_set );
+      vector<FoliaElement*> v = select( c->_element_id, c->_set, false );
       size_t count = v.size();
-      if ( count > c->occurrences_per_set )
+      if ( count >= c->occurrences_per_set ){
 	throw DuplicateAnnotationError( "Unable to add another object of type " + c->classname() + " to " + classname() + ". There are already " + TiCC::toString(count) + " instances of this class, which is the maximum." );
+      }
     }
     return true;
   }
