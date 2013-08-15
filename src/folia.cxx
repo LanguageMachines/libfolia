@@ -5,7 +5,7 @@
   Copyright (c) 1998 - 2013
   ILK   - Tilburg University
   CLiPS - University of Antwerp
- 
+
   This file is part of libfolia
 
   libfolia is free software; you can redistribute it and/or modify
@@ -48,7 +48,7 @@ using namespace std;
 using namespace TiCC;
 
 namespace folia {
-  
+
   string VersionName() { return PACKAGE_STRING; }
   string Version() { return VERSION; }
 
@@ -99,14 +99,19 @@ namespace folia {
   }
 
   FoliaElement::~FoliaElement( ){
-    //  cerr << "delete element " << _xmltag << " *= " << (void*)this << endl;
+    // cerr << "delete element id=" << _id << " tag = " << _xmltag << " *= "
+    //  	 << (void*)this << " datasize= " << data.size() << endl;
     for ( size_t i=0; i < data.size(); ++i ){
-      if ( data[i]->refcount == 0 ) // probably only for words
+      if ( data[i]->refcount == 0 ) {
+	// probably only for words
 	delete data[i];
+      }
       else {
 	mydoc->keepForDeletion( data[i] );
       }
     }
+    // cerr << "\t\tdelete element id=" << _id << " tag = " << _xmltag << " *= "
+    //  	 << (void*)this << " datasize= " << data.size() << endl;
   }
 
   xmlNs *FoliaElement::foliaNs() const {
@@ -130,7 +135,7 @@ namespace folia {
       using TiCC::operator <<;
       cerr << "set attributes: " << kwargs << " on " << toString(_element_id) << endl;
     }
-  
+
     KWargs::const_iterator it = kwargs.find( "generate_id" );
     if ( it != kwargs.end() ) {
       if ( !mydoc ){
@@ -184,7 +189,7 @@ namespace folia {
     }
     else
       _set = "";
-    
+
     it = kwargs.find( "class" );
     if ( it == kwargs.end() )
       it = kwargs.find( "cls" );
@@ -196,8 +201,8 @@ namespace folia {
 	if ( !mydoc ){
 	  throw ValueError( "Class=" + _class + " is used on a node without a document." );
 	}
-	else if ( _set == "" && 
-		  mydoc->defaultset( _annotation_type ) == "" && 
+	else if ( _set == "" &&
+		  mydoc->defaultset( _annotation_type ) == "" &&
 		  mydoc->isDeclared( _annotation_type ) ){
 	  throw ValueError( "Class " + _class + " is used but has no default declaration " +
 			    "for " + toString( _annotation_type ) + "-annotation" );
@@ -209,10 +214,10 @@ namespace folia {
 
     if ( _element_id != TextContent_t ){
       if ( !_class.empty() && _set.empty() )
-	throw ValueError("Set is required for " + classname() + 
+	throw ValueError("Set is required for " + classname() +
 			 " class=\"" + _class + "\" assigned without set."  );
     }
-    it = kwargs.find( "annotator" );    
+    it = kwargs.find( "annotator" );
     if ( it != kwargs.end() ) {
       if ( !(ANNOTATOR & supported) )
 	throw ValueError("Annotator is not supported for " + classname() );
@@ -226,8 +231,8 @@ namespace folia {
     }
     else
       _annotator = "";
-  
-    it = kwargs.find( "annotatortype" );    
+
+    it = kwargs.find( "annotatortype" );
     if ( it != kwargs.end() ) {
       if ( ! (ANNOTATOR & supported) )
 	throw ValueError("Annotatortype is not supported for " + classname() );
@@ -247,7 +252,7 @@ namespace folia {
     else
       _annotator_type = UNDEFINED;
 
-        
+
     it = kwargs.find( "confidence" );
     if ( it != kwargs.end() ) {
       if ( !(CONFIDENCE & supported) )
@@ -256,7 +261,7 @@ namespace folia {
 	try {
 	  _confidence = stringTo<double>(it->second);
 	  if ( _confidence < 0 || _confidence > 1.0 )
-	    throw ValueError("Confidence must be a floating point number between 0 and 1, got " + TiCC::toString(_confidence) );	    
+	    throw ValueError("Confidence must be a floating point number between 0 and 1, got " + TiCC::toString(_confidence) );
 	}
 	catch (...){
 	  throw ValueError("invalid Confidence value, (not a number?)");
@@ -276,7 +281,7 @@ namespace folia {
     }
     else
       _n = "";
-  
+
     it = kwargs.find( "datetime" );
     if ( it != kwargs.end() ) {
       if ( !(DATETIME & supported) )
@@ -299,10 +304,10 @@ namespace folia {
     if ( it != kwargs.end() ){
       _auth = stringTo<bool>( it->second );
     }
-    
+
     if ( mydoc && !_id.empty() )
       mydoc->addDocIndex( this, _id );
-    
+
     addFeatureNodes( kwargs );
   }
 
@@ -368,10 +373,10 @@ namespace folia {
 	  attribs["annotatortype"] = "manual";
       }
     }
-  
+
     if ( _confidence >= 0 )
       attribs["confidence"] = TiCC::toString(_confidence);
-  
+
     if ( !_n.empty() )
       attribs["n"] = _n;
 
@@ -426,7 +431,7 @@ namespace folia {
     addAttributes( e, attribs );
     if ( recursive ){
       // append children:
-      // we want make sure that text elements are in the right order, 
+      // we want make sure that text elements are in the right order,
       // in front and the 'current' class first
       list<FoliaElement *> textelements;
       list<FoliaElement *> otherelements;
@@ -516,14 +521,14 @@ namespace folia {
     }
     return TEXTDELIMITER;
   };
-  
+
   UnicodeString FoliaElement::text( const string& cls, bool retaintok ) const {
     // get the UnicodeString value of underlying elements
     // default cls="current"
 #ifdef DEBUG_TEXT
     cerr << "TEXT(" << cls << ") op node : " << _xmltag << " id ( " << id() << ")" << endl;
 #endif
-    UnicodeString result;    
+    UnicodeString result;
     try {
       result = this->stricttext(cls);
     } catch (NoSuchText& e ) {
@@ -534,14 +539,14 @@ namespace folia {
     }
     return result;
   }
-  
-  UnicodeString FoliaElement::deeptext( const string& cls, 
+
+  UnicodeString FoliaElement::deeptext( const string& cls,
 					bool retaintok ) const {
     // get the UnicodeString value of underlying elements
     // default cls="current"
 #ifdef DEBUG_TEXT
     cerr << "deepTEXT(" << cls << ") op node : " << _xmltag << " id(" << id() << ")" << endl;
-#endif    
+#endif
     UnicodeString result;
 #ifdef DEBUG_TEXT
     cerr << "deeptext: node has " << data.size() << " children." << endl;
@@ -560,7 +565,7 @@ namespace folia {
 #endif
 	  result += tmp;
 	  if ( !tmp.isEmpty() && i < data.size()-1 ){
-	    // append a delimiter, only if there was text, 
+	    // append a delimiter, only if there was text,
 	    // and NOT on the last child
 	    string delim = data[i]->getTextDelimiter( retaintok );
 #ifdef DEBUG_TEXT
@@ -575,7 +580,7 @@ namespace folia {
 	}
       }
     }
-    
+
 #ifdef DEBUG_TEXT
     cerr << "deeptext() for " << _xmltag << " step 3 " << endl;
 #endif
@@ -589,35 +594,35 @@ namespace folia {
     else
       throw NoSuchText( "(class=" + cls +"): empty!" );
   }
-  
+
   UnicodeString FoliaElement::stricttext( const string& cls ) const {
     // get UnicodeString content of TextContent children only
     // default cls="current"
     return this->textcontent(cls)->text(cls);
   }
-  
+
   TextContent *FoliaElement::textcontent( const string& cls ) const {
     // Get the text explicitly associated with this element (of the specified class).
     // the default class is 'current'
     // Returns the TextContent instance rather than the actual text. Does not recurse into children
     // with sole exception of Correction
-    // Raises NoSuchText exception if not found. 
-    
+    // Raises NoSuchText exception if not found.
+
     if ( !PRINTABLE )
       throw NoSuchText( "non-printable tag: " +  _xmltag );
-    
+
     for( size_t i=0; i < data.size(); ++i ){
       if ( data[i]->isinstance(TextContent_t) && (data[i]->_class == cls) ){
 	return dynamic_cast<TextContent*>(data[i]);
       }
       else if ( data[i]->element_id() == Correction_t) {
-	try {	    
+	try {
 	  return data[i]->textcontent(cls);
 	} catch ( NoSuchText& e ){
 	  // continue search for other Corrections or a TextContent
 	}
       }
-    }    
+    }
     throw NoSuchText( _xmltag + "::textcontent()" );
   }
 
@@ -626,10 +631,10 @@ namespace folia {
   }
 
   void FoliaElement::replace( FoliaElement *child ){
-    // Appends a child element like append(), but replaces any existing child 
-    // element of the same type and set. 
+    // Appends a child element like append(), but replaces any existing child
+    // element of the same type and set.
     // If no such child element exists, this will act the same as append()
-  
+
     vector<FoliaElement*> replace = child->findreplacables( this );
     if ( replace.empty() ){
       // nothing to replace, simply call append
@@ -642,9 +647,9 @@ namespace folia {
       remove( replace[0], true );
       append( child );
     }
-  }                
+  }
 
-  TextContent *FoliaElement::settext( const string& txt, 
+  TextContent *FoliaElement::settext( const string& txt,
 				      const string& cls ){
     // create a TextContent child of class 'cls'
     // Default cls="current"
@@ -657,7 +662,7 @@ namespace folia {
     return node;
   }
 
-  TextContent *FoliaElement::settext( const string& txt, 
+  TextContent *FoliaElement::settext( const string& txt,
 				      int offset,
 				      const string& cls ){
     // create a TextContent child of class 'cls'
@@ -684,54 +689,54 @@ namespace folia {
   bool isSubClass( const ElementType e1, const ElementType e2 ){
     static map<ElementType,set<ElementType> > sm;
     static ElementType structureSet[] = { Head_t, Division_t,
-					  TableHead_t, Table_t, 
-					  Row_t, Cell_t, 
+					  TableHead_t, Table_t,
+					  Row_t, Cell_t,
 					  LineBreak_t, WhiteSpace_t,
-					  Word_t, WordReference_t, 
-					  Sentence_t, Paragraph_t, 
+					  Word_t, WordReference_t,
+					  Sentence_t, Paragraph_t,
 					  Quote_t, Morpheme_t,
-					  Text_t, Event_t, 
+					  Text_t, Event_t,
 					  Caption_t, Label_t,
 					  ListItem_t, List_t,
 					  Figure_t, Alternative_t };
-    static ElementType featureSet[] = { SynsetFeature_t, 
-					ActorFeature_t, HeadFeature_t, 
-					ValueFeature_t, TimeFeature_t, 
+    static ElementType featureSet[] = { SynsetFeature_t,
+					ActorFeature_t, HeadFeature_t,
+					ValueFeature_t, TimeFeature_t,
 					ModalityFeature_t, LevelFeature_t,
-					BeginDateTimeFeature_t, 
+					BeginDateTimeFeature_t,
 					EndDateTimeFeature_t,
 					FunctionFeature_t };
     static ElementType tokenAnnoSet[] = { Pos_t, Lemma_t, Morphology_t,
 					  Sense_t, Phon_t, Str_t, Lang_t,
 					  Correction_t, Subjectivity_t,
 					  ErrorDetection_t };
-    static ElementType annolaySet[] = { SyntaxLayer_t, 
-					Chunking_t, Entities_t, 
+    static ElementType annolaySet[] = { SyntaxLayer_t,
+					Chunking_t, Entities_t,
 					TimingLayer_t, Morphology_t,
-					Dependencies_t, 
+					Dependencies_t,
 					Coreferences_t, Semroles_t };
-    static ElementType markupSet[] = { TextMarkupString_t, TextMarkupGap_t, 
-				       TextMarkupCorrection_t, 
+    static ElementType markupSet[] = { TextMarkupString_t, TextMarkupGap_t,
+				       TextMarkupCorrection_t,
 				       TextMarkupError_t, TextMarkupStyle_t };
     static bool filled = false;
     if ( ! filled ){
-      sm[Structure_t] 
-	= set<ElementType>( structureSet, 
+      sm[Structure_t]
+	= set<ElementType>( structureSet,
 			    structureSet + sizeof(structureSet)/sizeof(ElementType) );
-      sm[Feature_t] 
-	= set<ElementType>(featureSet, 
+      sm[Feature_t]
+	= set<ElementType>(featureSet,
 			   featureSet + sizeof(featureSet)/sizeof(ElementType) );
-      sm[TokenAnnotation_t] 
-	= set<ElementType>( tokenAnnoSet, 
+      sm[TokenAnnotation_t]
+	= set<ElementType>( tokenAnnoSet,
 			    tokenAnnoSet + sizeof(tokenAnnoSet)/sizeof(ElementType) );
-      sm[AnnotationLayer_t] 
-	= set<ElementType>( annolaySet, 
+      sm[AnnotationLayer_t]
+	= set<ElementType>( annolaySet,
 			    annolaySet + sizeof(annolaySet)/sizeof(ElementType) );
       sm[AbstractTextMarkup_t]
-	= set<ElementType>( markupSet, 
+	= set<ElementType>( markupSet,
 			    markupSet + sizeof(markupSet)/sizeof(ElementType) );
       filled = true;
-    }  
+    }
     if ( e1 == e2 )
       return true;
     map<ElementType,set<ElementType> >::const_iterator it = sm.find( e2 );
@@ -744,7 +749,7 @@ namespace folia {
   bool FoliaElement::isSubClass( ElementType t ) const {
     return folia::isSubClass( _element_id, t );
   }
-  
+
   bool FoliaElement::acceptable( ElementType t ) const {
     if ( t == XmlComment_t )
       return true;
@@ -762,7 +767,7 @@ namespace folia {
       return true;
     }
   }
- 
+
   bool FoliaElement::addable( const FoliaElement *c ) const {
     if ( !acceptable( c->_element_id ) ){
       throw ValueError( "Unable to append object of type " + c->classname()
@@ -783,17 +788,36 @@ namespace folia {
 	throw DuplicateAnnotationError( "Unable to add another object of type " + c->classname() + " to " + classname() + ". There are already " + TiCC::toString(count) + " instances of this class, which is the maximum." );
       }
     }
+#ifdef SHOULDBETESTED
+    if ( c->_parent &&
+	 !( (c->_element_id == Word_t || c->_element_id == Morpheme_t )
+	    && c->refcount > 0 ) ){
+      cerr << c->classname() << " refcount = " << c->refcount << endl;
+      // Only for WordRef i hope
+      throw XmlError( "attempt to reconnect node " + c->classname()
+			+ " to a " + classname() + " node, id=" + _id
+			+ ", it was already connected to a "
+			+  c->_parent->classname() + " id=" + c->_parent->id() );
+    }
+#endif
+    if ( c->_element_id == TextContent_t && _element_id == Word_t ){
+      string val = c->str();
+      val = trim( val );
+      if ( val.empty() ){
+	throw ValueError( "attempt to add an empty <t> to word: " + _id );
+      }
+    }
     return true;
   }
- 
+
   void FoliaElement::fixupDoc( Document* doc ) {
     if ( !mydoc ){
       mydoc = doc;
       string myid = id();
-      if ( !_set.empty() 
+      if ( !_set.empty()
 	   && (CLASS & _required_attributes )
 	   && !mydoc->isDeclared( _annotation_type, _set ) )
-	throw ValueError( "Set " + _set + " is used in " + _xmltag 
+	throw ValueError( "Set " + _set + " is used in " + _xmltag
 			  + "element: " + myid + " but has no declaration " +
 			  "for " + toString( _annotation_type ) + "-annotation" );
       if ( !myid.empty() )
@@ -803,7 +827,7 @@ namespace folia {
 	data[i]->fixupDoc( doc );
     }
   }
-  
+
   bool FoliaElement::checkAtts(){
     if ( _id.empty() && (ID & _required_attributes ) ){
       throw ValueError( "ID is required for " + classname() );
@@ -837,6 +861,9 @@ namespace folia {
     try {
       ok = child->checkAtts();
       ok = addable( child );
+    }
+    catch ( XmlError& ){
+      throw;
     }
     catch ( exception& ){
       delete child;
@@ -880,7 +907,7 @@ namespace folia {
 					      bool recurse ) const {
     vector<FoliaElement*> res;
     for ( size_t i = 0; i < data.size(); ++i ){
-      if ( data[i]->_element_id == et && 
+      if ( data[i]->_element_id == et &&
 	   ( st.empty() || data[i]->_set == st ) ){
 	res.push_back( data[i] );
       }
@@ -893,24 +920,24 @@ namespace folia {
     }
     return res;
   }
-  
+
   static ElementType ignoreList[] = { Original_t,
-				      Suggestion_t, 
+				      Suggestion_t,
 				      Alternative_t };
   set<ElementType> default_ignore( ignoreList,
 				   ignoreList + sizeof( ignoreList )/sizeof( ElementType ) );
-  
+
   static ElementType ignoreAnnList[] = { Original_t,
-					 Suggestion_t, 
+					 Suggestion_t,
 					 Alternative_t,
 					 Morphology_t };
   set<ElementType> default_ignore_annotations( ignoreAnnList,
 					       ignoreAnnList + sizeof( ignoreAnnList )/sizeof( ElementType ) );
-  
+
   static ElementType ignoreStrList[] = { Original_t,
-					 Suggestion_t, 
+					 Suggestion_t,
 					 Alternative_t,
-					 Chunk_t, 
+					 Chunk_t,
 					 SyntacticUnit_t,
 					 Coreferences_t,
 					 Semroles_t,
@@ -921,7 +948,7 @@ namespace folia {
 					 TimeSegment_t };
   set<ElementType> default_ignore_structure( ignoreStrList,
 					     ignoreStrList + sizeof( ignoreStrList )/sizeof( ElementType ) );
-  
+
 
   vector<FoliaElement*> FoliaElement::select( ElementType et,
 					      const string& st,
@@ -951,7 +978,7 @@ namespace folia {
 					      bool recurse ) const {
     return select( et, default_ignore, recurse );
   }
-  
+
   FoliaElement* FoliaElement::parseXml( const xmlNode *node ){
     KWargs att = getAttributes( node );
     setAttributes( att );
@@ -1020,12 +1047,12 @@ namespace folia {
     return _datetime;
   }
 
-  string FoliaElement::pos( const string& st ) const { 
-    return annotation<PosAnnotation>( st )->cls(); 
+  string FoliaElement::pos( const string& st ) const {
+    return annotation<PosAnnotation>( st )->cls();
   }
-  
-  string FoliaElement::lemma( const string& st ) const { 
-    return annotation<LemmaAnnotation>( st )->cls(); 
+
+  string FoliaElement::lemma( const string& st ) const {
+    return annotation<LemmaAnnotation>( st )->cls();
   }
 
   PosAnnotation *FoliaElement::addPosAnnotation( const KWargs& args ){
@@ -1095,7 +1122,7 @@ namespace folia {
       if ( pnt->isinstance( Word_t ) )
 	result.push_back( dynamic_cast<Word*>(pnt) );
       else if ( pnt->isinstance( Sentence_t ) ){
-	PlaceHolder *p = new PlaceHolder( mydoc, "text='" + 
+	PlaceHolder *p = new PlaceHolder( mydoc, "text='" +
 					  pnt->id() + "'");
 	mydoc->keepForDeletion( p );
 	result.push_back( p );
@@ -1108,7 +1135,7 @@ namespace folia {
 	// ignore
       }
       else {
-	throw XmlError( "Word or Sentence expected in Quote. got: " 
+	throw XmlError( "Word or Sentence expected in Quote. got: "
 			+ pnt->classname() );
       }
     }
@@ -1121,7 +1148,7 @@ namespace folia {
       FoliaElement *pnt = data[i];
       if ( pnt->isinstance( Word_t ) )
 	result.push_back( dynamic_cast<Word*>(pnt) );
-      else if ( pnt->isinstance( Quote_t ) ){	
+      else if ( pnt->isinstance( Quote_t ) ){
 	vector<Word*> v = pnt->wordParts();
 	result.insert( result.end(), v.begin(),v.end() );
       }
@@ -1131,7 +1158,7 @@ namespace folia {
     }
     return result;
   }
-  
+
   Correction *Sentence::splitWord( FoliaElement *orig, FoliaElement *p1, FoliaElement *p2, const KWargs& args ){
     vector<FoliaElement*> ov;
     ov.push_back( orig );
@@ -1142,7 +1169,7 @@ namespace folia {
     return correctWords( ov, nv, nil, args );
   }
 
-  Correction *Sentence::mergewords( FoliaElement *nw, 
+  Correction *Sentence::mergewords( FoliaElement *nw,
 				    const vector<FoliaElement *>& orig,
 				    const string& args ){
     vector<FoliaElement*> nv;
@@ -1151,7 +1178,7 @@ namespace folia {
     return correctWords( orig, nv, nil, getArgs(args) );
   }
 
-  Correction *Sentence::deleteword( FoliaElement *w, 
+  Correction *Sentence::deleteword( FoliaElement *w,
 				    const string& args ){
     vector<FoliaElement*> ov;
     ov.push_back( w );
@@ -1159,7 +1186,7 @@ namespace folia {
     return correctWords( ov, nil, nil, getArgs(args) );
   }
 
-  Correction *Sentence::insertword( FoliaElement *w, 
+  Correction *Sentence::insertword( FoliaElement *w,
 				    FoliaElement *p,
 				    const string& args ){
     if ( !p || !p->isinstance( Word_t ) )
@@ -1184,16 +1211,16 @@ namespace folia {
     vector<FoliaElement *> nv;
     nv.push_back( w );
     vector<FoliaElement*> nil;
-    return correctWords( ov, nv, nil, getArgs(args) );  
+    return correctWords( ov, nv, nil, getArgs(args) );
   }
 
   Correction *Sentence::correctWords( const vector<FoliaElement *>& orig,
 				      const vector<FoliaElement *>& _new,
-				      const vector<FoliaElement *>& current, 
+				      const vector<FoliaElement *>& current,
 				      const KWargs& args ){
     // Generic correction method for words. You most likely want to use the helper functions
     //      splitword() , mergewords(), deleteword(), insertword() instead
-  
+
     // sanity check:
     vector<FoliaElement *>::const_iterator it = orig.begin();
     while ( it != orig.end() ){
@@ -1238,14 +1265,16 @@ namespace folia {
     KWargs kwargs = args; // need to copy
     KWargs::const_iterator it = kwargs.find( "value" );
     if ( it != kwargs.end() ) {
-      //      _text = UTF8ToUnicode(it->second);
       XmlText *t = new XmlText();
-      t->setvalue( it->second );
+      string value = it->second;
+      if ( value.empty() ){
+	// can this ever happen?
+	throw ValueError( "TextContent: 'value' attribute may not be empty." );
+      }
+      t->setvalue( value );
       append( t );
       kwargs.erase("value");
     }
-    // else
-    //   throw ValueError( "TextContent expects 'value' attribute" );
     it = kwargs.find( "offset" );
     if ( it != kwargs.end() ) {
       _offset = stringTo<int>(it->second);
@@ -1258,7 +1287,7 @@ namespace folia {
       throw NotImplementedError( "ref attribute in TextContent" );
     }
     it = kwargs.find( "cls" );
-    if ( it == kwargs.end() ) 
+    if ( it == kwargs.end() )
       it = kwargs.find( "class" );
     if ( it == kwargs.end() ) {
       kwargs["class"] = "current";
@@ -1271,8 +1300,8 @@ namespace folia {
     if ( _class == "current" )
       attribs.erase( "class" );
     else if ( _class == "original" && parent()->isinstance( Original_t ) )
-      attribs.erase( "class" );    
-      
+      attribs.erase( "class" );
+
     if ( _offset >= 0 ){
       attribs["offset"] = TiCC::toString( _offset );
     }
@@ -1293,7 +1322,7 @@ namespace folia {
     // cerr << "TextContent::findreplacable found " << v << endl;
     vector<TextContent*>::iterator it = v.begin();
     while ( it != v.end() ){
-      // cerr << "TextContent::findreplacable bekijkt " << *it << " (" 
+      // cerr << "TextContent::findreplacable bekijkt " << *it << " ("
       if ( (*it)->cls() == _class )
 	result.push_back( *it );
       ++it;
@@ -1315,7 +1344,7 @@ namespace folia {
     // default cls="current"
 #ifdef DEBUG_TEXT
     cerr << "TextContent::TEXT(" << cls << ") " << endl;
-#endif    
+#endif
     UnicodeString result;
     for( size_t i=0; i < data.size(); ++i ){
       // try to get text dynamically from children
@@ -1343,7 +1372,7 @@ namespace folia {
     return result;
   }
 
-  string AllowGenerateID::IGgen( const string& tag, 
+  string AllowGenerateID::IGgen( const string& tag,
 				 const string& nodeId ){
     //    cerr << "generateId," << tag << " nodeId = " << nodeId << endl;
     int max = getMaxId(tag);
@@ -1388,8 +1417,8 @@ namespace folia {
     }
     return res;
   }
- 
-  Correction * AllowCorrection::correctBase( FoliaElement *root, 
+
+  Correction * AllowCorrection::correctBase( FoliaElement *root,
 					     vector<FoliaElement*> original,
 					     vector<FoliaElement*> current,
 					     vector<FoliaElement*> _new,
@@ -1424,7 +1453,7 @@ namespace folia {
     if ( it != args.end() ){
       // reuse an existing correction instead of making a new one
       try {
-	c = dynamic_cast<Correction*>(mydoc->index(it->second)); 
+	c = dynamic_cast<Correction*>(mydoc->index(it->second));
       }
       catch ( exception& e ){
 	throw ValueError("reuse= must point to an existing correction id!");
@@ -1436,7 +1465,7 @@ namespace folia {
       suggestionsonly = (!c->hasNew() && !c->hasOriginal() && c->hasSuggestions() );
       if ( !_new.empty() && c->hasCurrent() ){
 	// can't add new if there's current, so first set original to current, and then delete current
-      
+
 	if ( !current.empty() )
 	  throw runtime_error( "Can't set both new= and current= !");
 	if ( original.empty() ){
@@ -1455,7 +1484,7 @@ namespace folia {
       c = new Correction(mydoc );
       c->setAttributes( args2 );
     }
-  
+
     if ( !current.empty() ){
       if ( !original.empty() || !_new.empty() )
 	throw runtime_error("When setting current=, original= and new= can not be set!");
@@ -1480,7 +1509,7 @@ namespace folia {
       //    cerr << "there is new! " << endl;
       addnew = new NewElement( mydoc );
       c->append(addnew);
-      vector<FoliaElement *>::iterator nit = _new.begin();    
+      vector<FoliaElement *>::iterator nit = _new.begin();
       while ( nit != _new.end() ){
 	addnew->append( *nit );
 	++nit;
@@ -1488,7 +1517,7 @@ namespace folia {
       //    cerr << "after adding " << c << endl;
       vector<Current*> v = c->select<Current>();
       //delete current if present
-      vector<Current*>::iterator cit = v.begin();    
+      vector<Current*>::iterator cit = v.begin();
       while ( cit != v.end() ){
 	c->remove( *cit, false );
 	++cit;
@@ -1510,7 +1539,7 @@ namespace folia {
 	      root->data[i] = c;
 	      hooked = true;
 	    }
-	    else 
+	    else
 	      root->remove( *nit, false );
 	  }
 	}
@@ -1525,7 +1554,7 @@ namespace folia {
 	FoliaElement *p = addnew->index(i);
 	//      cerr << "bekijk " << p << endl;
 	vector<FoliaElement*> v = p->findreplacables( root );
-	vector<FoliaElement*>::iterator vit=v.begin();      
+	vector<FoliaElement*>::iterator vit=v.begin();
 	while ( vit != v.end() ){
 	  orig.push_back( *vit );
 	  ++vit;
@@ -1549,7 +1578,7 @@ namespace folia {
 		root->data[i] = c;
 		hooked = true;
 	      }
-	      else 
+	      else
 		root->remove( *oit, false );
 	    }
 	  }
@@ -1564,7 +1593,7 @@ namespace folia {
 	}
       }
     }
-  
+
     if ( addnew ){
       vector<FoliaElement*>::iterator oit = original.begin();
       while ( oit != original.end() ){
@@ -1589,7 +1618,7 @@ namespace folia {
 	++nit;
       }
     }
-  
+
     it = args.find("reuse");
     if ( it != args.end() ){
       if ( addnew && suggestionsonly ){
@@ -1597,7 +1626,7 @@ namespace folia {
 	for ( size_t i=0; i < sv.size(); ++i ){
 	  if ( !c->annotator().empty() && sv[i]->annotator().empty() )
 	    sv[i]->annotator( c->annotator() );
-	  if ( !(c->annotatortype() == UNDEFINED) && 
+	  if ( !(c->annotatortype() == UNDEFINED) &&
 	       (sv[i]->annotatortype() == UNDEFINED ) )
 	    sv[i]->annotatortype( c->annotatortype() );
 	}
@@ -1620,7 +1649,7 @@ namespace folia {
     UnicodeString result = text();
     return UnicodeToUTF8(result);
   }
-  
+
   FoliaElement *AbstractStructureElement::append( FoliaElement *child ){
     FoliaElement::append( child );
     setMaxId( child );
@@ -1771,7 +1800,7 @@ namespace folia {
     }
     return atts;
   }
-  
+
   void Alignment::setAttributes( const KWargs& args ){
     KWargs::const_iterator it = args.find( "href" );
     if ( it != args.end() ){
@@ -1854,7 +1883,7 @@ namespace folia {
 
   Sentence *Word::sentence( ) const {
     // return the sentence this word is a part of, otherwise return null
-    FoliaElement *p = _parent; 
+    FoliaElement *p = _parent;
     while( p ){
       if ( p->isinstance( Sentence_t ) )
 	return dynamic_cast<Sentence*>(p);
@@ -1865,7 +1894,7 @@ namespace folia {
 
   Paragraph *Word::paragraph( ) const {
     // return the sentence this word is a part of, otherwise return null
-    FoliaElement *p = _parent; 
+    FoliaElement *p = _parent;
     while( p ){
       if ( p->isinstance( Paragraph_t ) )
 	return dynamic_cast<Paragraph*>(p);
@@ -1876,7 +1905,7 @@ namespace folia {
 
   Division *Word::division() const {
     // return the <div> this word is a part of, otherwise return null
-    FoliaElement *p = _parent; 
+    FoliaElement *p = _parent;
     while( p ){
       if ( p->isinstance( Division_t ) )
 	return dynamic_cast<Division*>(p);
@@ -1905,7 +1934,7 @@ namespace folia {
 
   Correction *Word::incorrection( ) const {
     // Is the Word part of a correction? If it is, it returns the Correction element, otherwise it returns 0;
-    FoliaElement *p = _parent; 
+    FoliaElement *p = _parent;
     while( p ){
       if ( p->isinstance( Correction_t ) )
 	return dynamic_cast<Correction*>(p);
@@ -1923,14 +1952,14 @@ namespace folia {
       if ( words[i] == this ){
 	if ( i > 0 )
 	  return words[i-1];
-	else 
+	else
 	  return 0;
-	break;	
+	break;
       }
     }
     return 0;
   }
-  
+
   Word *Word::next() const{
     Sentence *s = sentence();
     vector<Word*> words = s->words();
@@ -1938,15 +1967,15 @@ namespace folia {
       if ( words[i] == this ){
 	if ( i+1 < words.size() )
 	  return words[i+1];
-	else 
+	else
 	  return 0;
-	break;	
+	break;
       }
     }
     return 0;
   }
 
-  vector<Word*> Word::context( size_t size, 
+  vector<Word*> Word::context( size_t size,
 			       const string& val ) const {
     vector<Word*> result;
     if ( size > 0 ){
@@ -1988,7 +2017,7 @@ namespace folia {
   }
 
 
-  vector<Word*> Word::leftcontext( size_t size, 
+  vector<Word*> Word::leftcontext( size_t size,
 				   const string& val ) const {
     //  cerr << "leftcontext : " << size << endl;
     vector<Word*> result;
@@ -2019,7 +2048,7 @@ namespace folia {
     return result;
   }
 
-  vector<Word*> Word::rightcontext( size_t size, 
+  vector<Word*> Word::rightcontext( size_t size,
 				    const string& val ) const {
     vector<Word*> result;
     //  cerr << "rightcontext : " << size << endl;
@@ -2056,7 +2085,7 @@ namespace folia {
       return this;
     return 0;
   }
-  
+
   vector<FoliaElement*> Word::findspans( ElementType et,
 					 const string& st ) const {
     vector<FoliaElement *> result;
@@ -2092,7 +2121,7 @@ namespace folia {
     string id = att["id"];
     if ( id.empty() )
       throw XmlError( "empty id in WordReference" );
-    if ( mydoc->debug ) 
+    if ( mydoc->debug )
       cerr << "Found word reference" << id << endl;
     FoliaElement *res = (*mydoc)[id];
     if ( res ){
@@ -2114,7 +2143,7 @@ namespace folia {
     if ( val.empty() )
       throw XmlError( "ID required for AlignReference" );
     refId = val;
-    if ( mydoc->debug ) 
+    if ( mydoc->debug )
       cerr << "Found AlignReference ID " << refId << endl;
     val = att["type"];
     if ( val.empty() )
@@ -2123,7 +2152,7 @@ namespace folia {
       stringTo<ElementType>( val );
     }
     catch (...){
-      throw XmlError( "AlignReference:type must be an Element Type (" 
+      throw XmlError( "AlignReference:type must be an Element Type ("
 		      + val + ")" );
     }
     _type = val;
@@ -2136,7 +2165,7 @@ namespace folia {
 
   FoliaElement *AlignReference::resolve( const Alignment *ref ) const {
     if ( ref->href().empty() )
-      return (*mydoc)[refId]; 
+      return (*mydoc)[refId];
     else
       throw NotImplementedError( "resolve for external doc" );
   }
@@ -2214,11 +2243,11 @@ namespace folia {
   }
 
   FoliaElement *AbstractSpanAnnotation::append( FoliaElement *child ){
+    FoliaElement::append( child );
     if ( child->isinstance(PlaceHolder_t) ||
 	 ( ( child->isinstance(Word_t) || child->isinstance(Morpheme_t) )
 	   && acceptable( WordReference_t ) ) )
       child->increfcount();
-    FoliaElement::append( child );
     return child;
   }
 
@@ -2251,9 +2280,9 @@ namespace folia {
   }
 
   FoliaElement *Quote::append( FoliaElement *child ){
+    FoliaElement::append( child );
     if ( child->isinstance(Sentence_t) )
       child->setAuth( false ); // Sentences under quotes are non-authoritative
-    FoliaElement::append( child );
     return child;
   }
 
@@ -2332,7 +2361,7 @@ namespace folia {
 	return data[i]->getTextDelimiter( retaintok );
     }
   }
-  
+
   TextContent *Correction::textcontent( const string& cls ) const {
     if ( cls == "current" ){
       for( size_t i=0; i < data.size(); ++i ){
@@ -2349,8 +2378,8 @@ namespace folia {
       }
     }
     throw NoSuchText("wrong cls");
-  }    
-  
+  }
+
   bool Correction::hasNew( ) const {
     vector<FoliaElement*> v = select( New_t, false );
     return !v.empty();
@@ -2364,12 +2393,12 @@ namespace folia {
       return v[0];
   }
 
-  bool Correction::hasOriginal() const { 
+  bool Correction::hasOriginal() const {
     vector<FoliaElement*> v = select( Original_t, false );
     return !v.empty();
   }
 
-  Original *Correction::getOriginal() const { 
+  Original *Correction::getOriginal() const {
     vector<Original*> v = select<Original>( false );
     if ( v.empty() )
       throw NoSuchAnnotation("original");
@@ -2377,12 +2406,12 @@ namespace folia {
       return v[0];
   }
 
-  bool Correction::hasCurrent( ) const { 
+  bool Correction::hasCurrent( ) const {
     vector<FoliaElement*> v = select( Current_t, false );
     return !v.empty();
   }
 
-  Current *Correction::getCurrent( ) const { 
+  Current *Correction::getCurrent( ) const {
     vector<Current*> v = select<Current>( false );
     if ( v.empty() )
       throw NoSuchAnnotation("current");
@@ -2390,16 +2419,16 @@ namespace folia {
       return v[0];
   }
 
-  bool Correction::hasSuggestions( ) const { 
+  bool Correction::hasSuggestions( ) const {
     vector<Suggestion*> v = suggestions();
     return !v.empty();
   }
-  
+
   vector<Suggestion*> Correction::suggestions( ) const {
     return select<Suggestion>( false );
   }
 
-  Suggestion *Correction::suggestions( size_t index ) const { 
+  Suggestion *Correction::suggestions( size_t index ) const {
     vector<Suggestion*> v = suggestions();
     if ( v.empty() || index >= v.size() )
       throw NoSuchAnnotation("suggestion");
@@ -2415,9 +2444,9 @@ namespace folia {
       throw runtime_error( "No head" );
     return 0;
   }
-  
+
   string Gap::content() const {
-    vector<FoliaElement*> cv = select( Content_t );  
+    vector<FoliaElement*> cv = select( Content_t );
     if ( cv.size() < 1 )
       throw NoSuchAnnotation( "content" );
     else {
@@ -2432,8 +2461,8 @@ namespace folia {
     else {
       return v[0];
     }
-  } 
-    
+  }
+
   DependencyDependent *Dependency::dependent() const {
     vector<DependencyDependent *> v = select<DependencyDependent>();
     if ( v.size() < 1 )
@@ -2448,7 +2477,7 @@ namespace folia {
     _element_id = BASE;
     const ElementType accept[] = { Text_t };
     _accepted_data =
-      std::set<ElementType>( accept, 
+      std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
   }
 
@@ -2457,7 +2486,7 @@ namespace folia {
     _element_id = BASE;
     const ElementType accept[] = { Text_t };
     _accepted_data =
-      std::set<ElementType>( accept, 
+      std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
   }
 
@@ -2482,9 +2511,9 @@ namespace folia {
     _element_id = TextContent_t;
     _xmltag="t";
     _optional_attributes = CLASS|ANNOTATOR|CONFIDENCE|DATETIME;
-    const ElementType accept[] = { AbstractTextMarkup_t, 
+    const ElementType accept[] = { AbstractTextMarkup_t,
 				   XmlText_t, LineBreak_t };
-    _accepted_data = 
+    _accepted_data =
       std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
     _annotation_type = AnnotationType::TEXT;
@@ -2496,10 +2525,10 @@ namespace folia {
   void Head::init() {
     _element_id = Head_t;
     _xmltag="head";
-    const ElementType accept[] = { Structure_t, Description_t, 
+    const ElementType accept[] = { Structure_t, Description_t, LineBreak_t,
 				   TextContent_t, Alignment_t, Metric_t,
 				   Alternatives_t, TokenAnnotation_t, Gap_t };
-    _accepted_data = 
+    _accepted_data =
       std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
     occurrences=1;
@@ -2512,7 +2541,7 @@ namespace folia {
     _required_attributes = NO_ATT;
     const ElementType accept[] = { Row_t };
     _accepted_data =
-      std::set<ElementType>( accept, 
+      std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
     _annotation_type = AnnotationType::TABLE;
   }
@@ -2522,7 +2551,7 @@ namespace folia {
     _xmltag="table";
     const ElementType accept[] = { TableHead_t, Row_t };
     _accepted_data =
-      std::set<ElementType>( accept, 
+      std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
     _annotation_type = AnnotationType::TABLE;
   }
@@ -2535,20 +2564,20 @@ namespace folia {
 				   TokenAnnotation_t,
 				   Alignment_t, Metric_t,
 				   Alternatives_t, Gap_t };
-    _accepted_data = 
-      std::set<ElementType>( accept, 
+    _accepted_data =
+      std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
     _annotation_type = AnnotationType::TABLE;
     TEXTDELIMITER = " | ";
   }
-  
+
   void Row::init() {
     _element_id = Row_t;
     _xmltag="row";
     _required_attributes = NO_ATT;
     const ElementType accept[] = { Cell_t, };
     _accepted_data =
-      std::set<ElementType>( accept, 
+      std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
     _annotation_type = AnnotationType::TABLE;
     TEXTDELIMITER = "\n";
@@ -2573,9 +2602,9 @@ namespace folia {
     _element_id = Word_t;
     const ElementType accept[] = { TextContent_t, TokenAnnotation_t,
 				   Alternative_t,
-				   Description_t, 
+				   Description_t,
 				   Alignment_t, Metric_t };
-    _accepted_data = 
+    _accepted_data =
       std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
     _annotation_type = AnnotationType::TOKEN;
@@ -2590,7 +2619,7 @@ namespace folia {
     _optional_attributes = ID|CLASS;
     const ElementType accept[] = { TextContent_t, Correction_t, Lang_t,
 				   Description_t, Alignment_t, Metric_t };
-    _accepted_data = 
+    _accepted_data =
       std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
     _annotation_type = AnnotationType::STRING;
@@ -2617,7 +2646,7 @@ namespace folia {
     _element_id = Alignment_t;
     const ElementType accept[] = { AlignReference_t, Description_t };
     _accepted_data =
-      std::set<ElementType>( accept, 
+      std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
     occurrences_per_set=0;
     _annotation_type = AnnotationType::ALIGNMENT;
@@ -2636,7 +2665,7 @@ namespace folia {
     _annotation_type = AnnotationType::GAP;
     const ElementType accept[] = { Content_t, Description_t };
     _accepted_data =
-      std::set<ElementType>( accept, 
+      std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
     _optional_attributes = CLASS|ID|ANNOTATOR|CONFIDENCE|N|DATETIME;
   }
@@ -2646,7 +2675,7 @@ namespace folia {
     _xmltag = "metric";
     const ElementType accept[] = { ValueFeature_t, Description_t };
     _accepted_data =
-      std::set<ElementType>( accept, 
+      std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
     _optional_attributes = CLASS|ANNOTATOR|CONFIDENCE;
     _annotation_type = AnnotationType::METRIC;
@@ -2661,13 +2690,13 @@ namespace folia {
     _xmltag="s";
     _element_id = Sentence_t;
     const ElementType accept[] = { Structure_t,
-				   TokenAnnotation_t, 
-				   TextContent_t, AnnotationLayer_t, 
+				   TokenAnnotation_t,
+				   TextContent_t, AnnotationLayer_t,
 				   Correction_t,
 				   Description_t, Alignment_t, Metric_t,
 				   Gap_t };
-    _accepted_data = 
-      std::set<ElementType>( accept, 
+    _accepted_data =
+      std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
     _annotation_type = AnnotationType::SENTENCE;
     TEXTDELIMITER = " ";
@@ -2678,13 +2707,13 @@ namespace folia {
     _element_id = Division_t;
     _required_attributes = ID;
     _optional_attributes = CLASS|N;
-    const ElementType accept[] = { Structure_t, Gap_t, 
+    const ElementType accept[] = { Structure_t, Gap_t,
 				   TokenAnnotation_t,
-				   Description_t, 
+				   Description_t,
 				   TextContent_t,
 				   Metric_t, Coreferences_t };
-    _accepted_data = 
-      std::set<ElementType>( accept, 
+    _accepted_data =
+      std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
     _annotation_type = AnnotationType::DIVISION;
     TEXTDELIMITER = "\n\n\n";
@@ -2693,12 +2722,12 @@ namespace folia {
   void Text::init(){
     _xmltag="text";
     _element_id = Text_t;
-    const ElementType accept[] = { Gap_t, Division_t, Paragraph_t, Sentence_t, 
+    const ElementType accept[] = { Gap_t, Division_t, Paragraph_t, Sentence_t,
 				   List_t, Figure_t, Description_t, Event_t,
 				   TokenAnnotation_t,
 				   TextContent_t, Metric_t };
-    _accepted_data = 
-      std::set<ElementType>( accept, 
+    _accepted_data =
+      std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
     _required_attributes = ID;
     TEXTDELIMITER = "\n\n";
@@ -2707,11 +2736,11 @@ namespace folia {
   void Event::init(){
     _xmltag="event";
     _element_id = Event_t;
-    const ElementType accept[] = { Gap_t, Division_t, Paragraph_t, Sentence_t, 
-				   List_t, Figure_t, Description_t, 
+    const ElementType accept[] = { Gap_t, Division_t, Paragraph_t, Sentence_t,
+				   List_t, Figure_t, Description_t,
 				   Feature_t, TextContent_t };
-    _accepted_data = 
-      std::set<ElementType>( accept, 
+    _accepted_data =
+      std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
     _annotation_type = AnnotationType::EVENT;
     occurrences_per_set=0;
@@ -2722,7 +2751,7 @@ namespace folia {
     _element_id = TimeSegment_t;
     const ElementType accept[] = { Description_t, Feature_t, Word_t };
     _accepted_data =
-      std::set<ElementType>( accept, 
+      std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
     _annotation_type = AnnotationType::TIMEDEVENT;
     occurrences_per_set=0;
@@ -2731,10 +2760,10 @@ namespace folia {
   void Caption::init(){
     _xmltag="caption";
     _element_id = Caption_t;
-    const ElementType accept[] = { Sentence_t, Description_t, 
+    const ElementType accept[] = { Sentence_t, Description_t,
 				   TokenAnnotation_t, TextContent_t };
-    _accepted_data = 
-      std::set<ElementType>( accept, 
+    _accepted_data =
+      std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
     occurrences = 1;
   }
@@ -2744,20 +2773,20 @@ namespace folia {
     _element_id = Label_t;
     const ElementType accept[] = { Word_t, Description_t, TextContent_t,
 				   TokenAnnotation_t, Alignment_t };
-    _accepted_data = 
-      std::set<ElementType>( accept, 
+    _accepted_data =
+      std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
   }
 
   void ListItem::init(){
     _xmltag="listitem";
     _element_id = ListItem_t;
-    const ElementType accept[] = { Structure_t, Description_t, 
+    const ElementType accept[] = { Structure_t, Description_t,
 				   TokenAnnotation_t,
 				   TextContent_t, Alignment_t,
 				   Gap_t };
-    _accepted_data = 
-      std::set<ElementType>( accept, 
+    _accepted_data =
+      std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
     _annotation_type = AnnotationType::LIST;
   }
@@ -2765,13 +2794,13 @@ namespace folia {
   void List::init(){
     _xmltag="list";
     _element_id = List_t;
-    const ElementType accept[] = { ListItem_t, Description_t,  
+    const ElementType accept[] = { ListItem_t, Description_t,
 				   Caption_t, Event_t, Str_t, Lang_t,
 				   TextContent_t, Alignment_t };
     _accepted_data =
       std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
-    
+
     _annotation_type = AnnotationType::LIST;
     TEXTDELIMITER="\n";
   }
@@ -2779,9 +2808,9 @@ namespace folia {
   void Figure::init(){
     _xmltag="figure";
     _element_id = Figure_t;
-    const ElementType accept[] = { Sentence_t, Description_t, 
+    const ElementType accept[] = { Sentence_t, Description_t,
 				   Caption_t, Str_t, Lang_t, TextContent_t };
-    _accepted_data = 
+    _accepted_data =
       std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
     _annotation_type = AnnotationType::FIGURE;
@@ -2790,13 +2819,13 @@ namespace folia {
   void Paragraph::init(){
     _xmltag="p";
     _element_id = Paragraph_t;
-    const ElementType accept[] = { Structure_t, TextContent_t, 
+    const ElementType accept[] = { Structure_t, TextContent_t,
 				   TokenAnnotation_t,
-				   Description_t, 
+				   Description_t,
 				   Alignment_t, Metric_t,
 				   Gap_t };
-    _accepted_data = 
-      std::set<ElementType>( accept, 
+    _accepted_data =
+      std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
     _annotation_type = AnnotationType::PARAGRAPH;
   }
@@ -2808,8 +2837,8 @@ namespace folia {
     _annotation_type = AnnotationType::SYNTAX;
     const ElementType accept[] = { SyntacticUnit_t, Word_t, WordReference_t,
 				   Description_t, Feature_t };
-    _accepted_data = 
-      std::set<ElementType>( accept, 
+    _accepted_data =
+      std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
   }
 
@@ -2820,8 +2849,8 @@ namespace folia {
     _annotation_type = AnnotationType::SEMROLE;
     const ElementType accept[] = { Word_t, WordReference_t, Lang_t, Headwords_t,
 				   Alignment_t, Description_t, Metric_t };
-    _accepted_data = 
-      std::set<ElementType>( accept, 
+    _accepted_data =
+      std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
   }
 
@@ -2832,7 +2861,7 @@ namespace folia {
     _annotation_type = AnnotationType::CHUNKING;
     const ElementType accept[] = { Word_t, WordReference_t, Lang_t,
 				   Description_t, Feature_t };
-    _accepted_data = 
+    _accepted_data =
       std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
   }
@@ -2845,11 +2874,11 @@ namespace folia {
     _annotation_type = AnnotationType::ENTITY;
     const ElementType accept[] = { Word_t, Lang_t, WordReference_t, Morpheme_t,
 				   Description_t, Feature_t, Metric_t };
-    _accepted_data = 
-      std::set<ElementType>( accept, 
+    _accepted_data =
+      std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );;
   }
-  
+
   void AbstractAnnotationLayer::init(){
     _xmltag = "annotationlayer";
     _element_id = AnnotationLayer_t;
@@ -2865,7 +2894,7 @@ namespace folia {
 				  Semroles_t, TimeSegment_t };
   static set<ElementType> asSet( ASlist,
 				 ASlist + sizeof( ASlist )/ sizeof( ElementType ) );
-  
+
   vector<AbstractSpanAnnotation*> FoliaElement::selectSpan() const {
     vector<AbstractSpanAnnotation*> res;
     set<ElementType>::const_iterator it = asSet.begin();
@@ -2878,14 +2907,14 @@ namespace folia {
     }
     return res;
   }
-  
+
   vector<FoliaElement*> AbstractSpanAnnotation::wrefs() const {
     vector<FoliaElement*> res;
     for ( size_t i=0; i < size(); ++ i ){
       ElementType et = data[i]->element_id();
-      if ( et == Word_t 
-	   || et == WordReference_t 
-	   //	   || et == Phoneme_t 
+      if ( et == Word_t
+	   || et == WordReference_t
+	   //	   || et == Phoneme_t
 	   || et == Morphology_t ){
 	res.push_back( data[i] );
       }
@@ -2901,7 +2930,7 @@ namespace folia {
     }
     return res;
   }
-  
+
   FoliaElement *AbstractAnnotationLayer::findspan( const vector<FoliaElement*>& words ) const {
     vector<AbstractSpanAnnotation*> av = selectSpan();
     for ( size_t i=0; i < av.size(); ++i ){
@@ -2926,7 +2955,7 @@ namespace folia {
     _optional_attributes = ALL;
     const ElementType accept[] = { TokenAnnotation_t };
     _accepted_data =
-      std::set<ElementType>( accept, 
+      std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
     _annotation_type = AnnotationType::ALTERNATIVE;
     PRINTABLE = false;
@@ -2939,7 +2968,7 @@ namespace folia {
     _optional_attributes = ALL;
     const ElementType accept[] = { AnnotationLayer_t };
     _accepted_data =
-      std::set<ElementType>( accept, 
+      std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
     PRINTABLE = false;
     AUTH = false;
@@ -2947,16 +2976,16 @@ namespace folia {
 
   void AbstractCorrectionChild::init(){
     _optional_attributes = NO_ATT;
-    const ElementType accept[] = { TokenAnnotation_t, 
+    const ElementType accept[] = { TokenAnnotation_t,
 				   Word_t, WordReference_t, Str_t,
 				   TextContent_t, Description_t };
-    _accepted_data = 
-      std::set<ElementType>( accept, 
+    _accepted_data =
+      std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
     occurrences = 1;
     PRINTABLE=true;
   }
-  
+
   void NewElement::init(){
     _xmltag = "new";
     _element_id = New_t;
@@ -2977,7 +3006,7 @@ namespace folia {
     _xmltag = "suggestion";
     _element_id = Suggestion_t;
     _optional_attributes = ANNOTATOR|CONFIDENCE|DATETIME|N;
-    _annotation_type = AnnotationType::SUGGESTION;    
+    _annotation_type = AnnotationType::SUGGESTION;
     occurrences=0;
     occurrences_per_set=0;
     AUTH = false;
@@ -2990,8 +3019,8 @@ namespace folia {
     _annotation_type = AnnotationType::CORRECTION;
     const ElementType accept[] = { New_t, Original_t, Suggestion_t, Current_t,
 				   Description_t };
-    _accepted_data = 
-      std::set<ElementType>( accept, 
+    _accepted_data =
+      std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
     occurrences_per_set=0;
   }
@@ -3001,18 +3030,22 @@ namespace folia {
     _element_id = Description_t;
     occurrences = 1;
   }
-  
+
   UnicodeString XmlText::text( const string&, bool ) const {
     return UTF8ToUnicode(_value);
   }
-  
+
   xmlNode *XmlText::xml( bool, bool ) const {
     return xmlNewText( (const xmlChar*)_value.c_str() );
   }
-  
+
   FoliaElement* XmlText::parseXml( const xmlNode *node ){
-    if ( node->content )
+    if ( node->content ){
       _value = (const char*)node->content;
+    }
+    if ( _value.empty() ){
+      throw ValueError( "TextContent may not be empty" );
+    }
     return this;
   }
 
@@ -3025,7 +3058,7 @@ namespace folia {
   xmlNode *XmlComment::xml( bool, bool ) const {
     return xmlNewComment( (const xmlChar*)_value.c_str() );
   }
-  
+
   FoliaElement* XmlComment::parseXml( const xmlNode *node ){
     if ( node->content )
       _value = (const char*)node->content;
@@ -3076,7 +3109,7 @@ namespace folia {
     }
     return result;
   }
-  
+
   string FoliaElement::feat( const std::string& s ) const {
     //    return the fist class of the given subset
     for ( size_t i=0; i < data.size(); ++i ){
@@ -3094,7 +3127,7 @@ namespace folia {
       attribs["id"] = idref;
     return attribs;
   }
-  
+
   void AbstractTextMarkup::setAttributes( const KWargs& atts ){
     KWargs args = atts;
     KWargs::iterator it = args.find( "id" );
@@ -3108,7 +3141,7 @@ namespace folia {
     }
     FoliaElement::setAttributes( args );
   }
-  
+
   KWargs TextMarkupCorrection::collectAttributes() const {
     KWargs attribs = AbstractTextMarkup::collectAttributes();
     if ( !_original.empty() )
@@ -3131,31 +3164,31 @@ namespace folia {
     FoliaElement::setAttributes( argl );
   }
 
-  UnicodeString TextMarkupCorrection::text( const std::string& cls, 
+  UnicodeString TextMarkupCorrection::text( const std::string& cls,
 					    bool ret ) const{
     if ( cls == "original" )
       return UTF8ToUnicode(_original);
     else
       return FoliaElement::text( cls, ret );
   }
-  
-  const FoliaElement* AbstractTextMarkup::resolveid() const { 
+
+  const FoliaElement* AbstractTextMarkup::resolveid() const {
     if ( idref.empty() || !mydoc )
       return this;
     else
       return mydoc->index(idref);
   };
-  
+
   void Morpheme::init(){
     _element_id = Morpheme_t;
     _xmltag = "morpheme";
     _required_attributes = NO_ATT;
     _optional_attributes = ALL;
     const ElementType accept[] = { Feature_t, FunctionFeature_t, TextContent_t,
-				   Metric_t, Alignment_t, TokenAnnotation_t, 
+				   Metric_t, Alignment_t, TokenAnnotation_t,
 				   Description_t };
-    _accepted_data = 
-      std::set<ElementType>( accept, 
+    _accepted_data =
+      std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
     _annotation_type = AnnotationType::MORPHOLOGICAL;
   }
@@ -3165,7 +3198,7 @@ namespace folia {
     _xmltag = "syntax";
     const ElementType accept[] = { SyntacticUnit_t, Description_t };
     _accepted_data =
-      std::set<ElementType>( accept, 
+      std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
     _annotation_type = AnnotationType::SYNTAX;
   }
@@ -3175,7 +3208,7 @@ namespace folia {
     _xmltag = "chunking";
     const ElementType accept[] = { Chunk_t, Description_t };
     _accepted_data =
-      std::set<ElementType>( accept, 
+      std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
     _annotation_type = AnnotationType::CHUNKING;
   }
@@ -3185,7 +3218,7 @@ namespace folia {
     _xmltag = "entities";
     const ElementType accept[] = { Entity_t, Description_t };
     _accepted_data =
-      std::set<ElementType>( accept, 
+      std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
    _annotation_type = AnnotationType::ENTITY;
   }
@@ -3195,7 +3228,7 @@ namespace folia {
     _xmltag = "timing";
     const ElementType accept[] = { TimeSegment_t, Description_t };
     _accepted_data =
-      std::set<ElementType>( accept, 
+      std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
   }
 
@@ -3204,9 +3237,9 @@ namespace folia {
     _xmltag = "morphology";
     const ElementType accept[] = { Morpheme_t };
     _accepted_data =
-      std::set<ElementType>( accept, 
+      std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
-    occurrences_per_set = 1; // Don't allow duplicates within the same set    
+    occurrences_per_set = 1; // Don't allow duplicates within the same set
     _annotation_type = AnnotationType::MORPHOLOGICAL;
   }
 
@@ -3215,7 +3248,7 @@ namespace folia {
     _xmltag = "coreferences";
     const ElementType accept[] = { CoreferenceChain_t, Description_t };
     _accepted_data =
-      std::set<ElementType>( accept, 
+      std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
     _annotation_type = AnnotationType::COREFERENCE;
   }
@@ -3225,14 +3258,14 @@ namespace folia {
     _xmltag = "coreferencelink";
     _required_attributes = NO_ATT;
     _optional_attributes = ANNOTATOR|N|DATETIME;
-    const ElementType accept[] = { Word_t, WordReference_t, Headwords_t, 
+    const ElementType accept[] = { Word_t, WordReference_t, Headwords_t,
 				   Description_t, Lang_t,
 				   Alignment_t, TimeFeature_t, LevelFeature_t,
 				   ModalityFeature_t, Metric_t};
     _accepted_data =
       std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
-    _annotation_type = AnnotationType::COREFERENCE;    
+    _annotation_type = AnnotationType::COREFERENCE;
   }
 
   void CoreferenceChain::init(){
@@ -3242,9 +3275,9 @@ namespace folia {
     const ElementType accept[] = { CoreferenceLink_t, Description_t,
 				   Metric_t };
     _accepted_data =
-      std::set<ElementType>( accept, 
+      std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
-    _annotation_type = AnnotationType::COREFERENCE;    
+    _annotation_type = AnnotationType::COREFERENCE;
   }
 
   void SemanticRolesLayer::init(){
@@ -3252,7 +3285,7 @@ namespace folia {
     _xmltag = "semroles";
     const ElementType accept[] = { Semrole_t, Description_t };
     _accepted_data =
-      std::set<ElementType>( accept, 
+      std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
     _annotation_type = AnnotationType::SEMROLE;
   }
@@ -3262,7 +3295,7 @@ namespace folia {
     _xmltag = "dependencies";
     const ElementType accept[] = { Dependency_t, Description_t };
     _accepted_data =
-      std::set<ElementType>( accept, 
+      std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
     _annotation_type = AnnotationType::DEPENDENCY;
   }
@@ -3272,10 +3305,10 @@ namespace folia {
     _xmltag = "dependency";
     _required_attributes = NO_ATT;
     _annotation_type = AnnotationType::DEPENDENCY;
-    const ElementType accept[] = { DependencyDependent_t, Headwords_t, 
+    const ElementType accept[] = { DependencyDependent_t, Headwords_t,
 				   Feature_t, Description_t, Alignment_t };
-    _accepted_data = 
-      std::set<ElementType>( accept, 
+    _accepted_data =
+      std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
   }
 
@@ -3288,7 +3321,7 @@ namespace folia {
     const ElementType accept[] = { Word_t, WordReference_t, PlaceHolder_t,
 				   Description_t, Feature_t, Alignment_t };
     _accepted_data =
-      std::set<ElementType>( accept, 
+      std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
   }
 
@@ -3300,8 +3333,8 @@ namespace folia {
     const ElementType accept[] = { Word_t, WordReference_t, PlaceHolder_t,
 				   Description_t, Feature_t, Metric_t,
 				   Alignment_t, Lang_t };
-    _accepted_data = 
-      std::set<ElementType>( accept, 
+    _accepted_data =
+      std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
   }
 
@@ -3309,10 +3342,10 @@ namespace folia {
     _xmltag="pos";
     _element_id = Pos_t;
     _annotation_type = AnnotationType::POS;
-    const ElementType accept[] = { Feature_t, 
+    const ElementType accept[] = { Feature_t,
 				   Metric_t, Description_t };
     _accepted_data =
-      std::set<ElementType>( accept, 
+      std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
   }
 
@@ -3322,7 +3355,7 @@ namespace folia {
     _annotation_type = AnnotationType::LEMMA;
     const ElementType accept[] = { Feature_t, Metric_t, Description_t };
     _accepted_data =
-      std::set<ElementType>( accept, 
+      std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
   }
 
@@ -3332,7 +3365,7 @@ namespace folia {
     _annotation_type = AnnotationType::LANG;
     const ElementType accept[] = { Feature_t, Metric_t, Description_t };
     _accepted_data =
-      std::set<ElementType>( accept, 
+      std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
   }
 
@@ -3342,7 +3375,7 @@ namespace folia {
     _annotation_type = AnnotationType::PHON;
     const ElementType accept[] = { Feature_t, Description_t };
     _accepted_data =
-      std::set<ElementType>( accept, 
+      std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
   }
 
@@ -3352,7 +3385,7 @@ namespace folia {
     _annotation_type = AnnotationType::DOMEIN;
     const ElementType accept[] = { Feature_t, Description_t };
     _accepted_data =
-      std::set<ElementType>( accept, 
+      std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
   }
 
@@ -3362,7 +3395,7 @@ namespace folia {
     _annotation_type = AnnotationType::SENSE;
     const ElementType accept[] = { Feature_t, Description_t };
     _accepted_data =
-      std::set<ElementType>( accept, 
+      std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
   }
 
@@ -3372,7 +3405,7 @@ namespace folia {
     _annotation_type = AnnotationType::SUBJECTIVITY;
     const ElementType accept[] = { Feature_t, Description_t };
     _accepted_data =
-      std::set<ElementType>( accept, 
+      std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
   }
 
@@ -3384,7 +3417,7 @@ namespace folia {
 				   TextContent_t, Description_t, Alignment_t,
 				   Gap_t };
     _accepted_data =
-      std::set<ElementType>( accept, 
+      std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
     TEXTDELIMITER = " ";
   }
@@ -3468,7 +3501,7 @@ namespace folia {
     _annotation_type = AnnotationType::ERRORDETECTION;
     occurrences_per_set = 0; // Allow duplicates within the same set
   }
-  
+
   void AbstractTextMarkup::init(){
     _xmltag = "textmarkup";
     _element_id = AbstractTextMarkup_t;
@@ -3477,7 +3510,7 @@ namespace folia {
     _annotation_type = AnnotationType::NO_ANN;
     const ElementType accept[] = { AbstractTextMarkup_t, XmlText_t };
     _accepted_data =
-      std::set<ElementType>( accept, 
+      std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
     PRINTABLE = true;
     TEXTDELIMITER = "";
