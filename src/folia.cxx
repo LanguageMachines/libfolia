@@ -791,7 +791,6 @@ namespace folia {
     }
     if ( c->_parent &&
 	 !(c->_element_id == Word_t || c->_element_id == Morpheme_t ) ){
-      assert( 4==6);
       // Only for WordRef i hope
       throw XmlError( "attempt to reconnect node " + c->classname()
 		      + " to a " + classname() + " node, id=" + _id
