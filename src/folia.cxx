@@ -27,6 +27,7 @@
       timbl@uvt.nl
 */
 
+#include <cassert>
 #include <cstdlib>
 #include <iostream>
 #include <fstream>
@@ -788,18 +789,15 @@ namespace folia {
 	throw DuplicateAnnotationError( "Unable to add another object of type " + c->classname() + " to " + classname() + ". There are already " + TiCC::toString(count) + " instances of this class, which is the maximum." );
       }
     }
-#ifdef SHOULDBETESTED
     if ( c->_parent &&
-	 !( (c->_element_id == Word_t || c->_element_id == Morpheme_t )
-	    && c->refcount > 0 ) ){
-      cerr << c->classname() << " refcount = " << c->refcount << endl;
+	 !(c->_element_id == Word_t || c->_element_id == Morpheme_t ) ){
+      assert( 4==6);
       // Only for WordRef i hope
       throw XmlError( "attempt to reconnect node " + c->classname()
-			+ " to a " + classname() + " node, id=" + _id
-			+ ", it was already connected to a "
-			+  c->_parent->classname() + " id=" + c->_parent->id() );
+		      + " to a " + classname() + " node, id=" + _id
+		      + ", it was already connected to a "
+		      +  c->_parent->classname() + " id=" + c->_parent->id() );
     }
-#endif
     if ( c->_element_id == TextContent_t && _element_id == Word_t ){
       string val = c->str();
       val = trim( val );
@@ -863,6 +861,8 @@ namespace folia {
       ok = addable( child );
     }
     catch ( XmlError& ){
+      // don't delethe the offending child in case of illegal reconnection
+      // it will be deleted by the true parent
       throw;
     }
     catch ( exception& ){
@@ -872,8 +872,10 @@ namespace folia {
     if ( ok ){
       child->fixupDoc( mydoc );
       data.push_back(child);
-      if ( !child->_parent ) // Only for WordRef i hope
+      if ( !child->_parent ) // Only for WordRef and Morpheme
 	child->_parent = this;
+      else
+	child->increfcount();
       return child->postappend();
     }
     return 0;
@@ -1491,6 +1493,7 @@ namespace folia {
       vector<FoliaElement *>::iterator cit = current.begin();
       while ( cit != current.end() ){
 	FoliaElement *add = new Current( mydoc );
+	(*cit)->setParent(0);
 	add->append( *cit );
 	c->replace( add );
 	if ( !hooked ) {
@@ -1511,6 +1514,7 @@ namespace folia {
       c->append(addnew);
       vector<FoliaElement *>::iterator nit = _new.begin();
       while ( nit != _new.end() ){
+	(*nit)->setParent(0);
 	addnew->append( *nit );
 	++nit;
       }
@@ -1529,8 +1533,10 @@ namespace folia {
       vector<FoliaElement *>::iterator nit = original.begin();
       while ( nit != original.end() ){
 	bool dummyNode = ( (*nit)->id() == "dummy" );
-	if ( !dummyNode )
+	if ( !dummyNode ){
+	  (*nit)->setParent(0);
 	  add->append( *nit );
+	}
 	for ( size_t i=0; i < root->data.size(); ++i ){
 	  if ( root->data[i] == *nit ){
 	    if ( !hooked ) {
@@ -1570,6 +1576,7 @@ namespace folia {
 	vector<FoliaElement *>::iterator oit = orig.begin();
 	while ( oit != orig.end() ){
 	  //	cerr << " an original is : " << *oit << endl;
+	  (*oit)->setParent( 0 );
 	  add->append( *oit );
 	  for ( size_t i=0; i < root->data.size(); ++i ){
 	    if ( root->data[i] == *oit ){
@@ -1608,10 +1615,12 @@ namespace folia {
       vector<FoliaElement *>::iterator nit = suggestions.begin();
       while ( nit != suggestions.end() ){
 	if ( (*nit)->isinstance( Suggestion_t ) ){
+	  (*nit)->setParent(0);
 	  c->append( *nit );
 	}
 	else {
 	  FoliaElement *add = new Suggestion( mydoc );
+	  (*nit)->setParent(0);
 	  add->append( *nit );
 	  c->append( add );
 	}
@@ -2125,7 +2134,7 @@ namespace folia {
       cerr << "Found word reference" << id << endl;
     FoliaElement *res = (*mydoc)[id];
     if ( res ){
-      // To DO: check juiste type. Woord, morpheme, dat mag, maar andere?
+      // To DO: check type. Word_t and Morpheme_t
       res->increfcount();
     }
     else {
@@ -2244,10 +2253,9 @@ namespace folia {
 
   FoliaElement *AbstractSpanAnnotation::append( FoliaElement *child ){
     FoliaElement::append( child );
-    if ( child->isinstance(PlaceHolder_t) ||
-	 ( ( child->isinstance(Word_t) || child->isinstance(Morpheme_t) )
-	   && acceptable( WordReference_t ) ) )
+    if ( child->isinstance(PlaceHolder_t) ){
       child->increfcount();
+    }
     return child;
   }
 
