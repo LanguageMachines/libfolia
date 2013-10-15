@@ -505,7 +505,7 @@ namespace folia {
     }
   }
 
-  //#define DEBUG_TEXT
+ //#define DEBUG_TEXT
 
   string FoliaElement::getTextDelimiter( bool retaintok ) const {
 #ifdef DEBUG_TEXT
@@ -2789,8 +2789,8 @@ namespace folia {
     _xmltag="listitem";
     _element_id = ListItem_t;
     const ElementType accept[] = { Structure_t, Description_t,
-				   TokenAnnotation_t,
-				   TextContent_t, Alignment_t,
+				   TokenAnnotation_t, Event_t,
+				   TextContent_t, Str_t, Alignment_t,
 				   Gap_t };
     _accepted_data =
       std::set<ElementType>( accept,
@@ -2802,8 +2802,8 @@ namespace folia {
     _xmltag="list";
     _element_id = List_t;
     const ElementType accept[] = { ListItem_t, Description_t,
-				   Caption_t, Event_t, Str_t, Lang_t,
-				   TextContent_t, Alignment_t };
+				   Caption_t, Event_t, Lang_t,
+				   Alignment_t };
     _accepted_data =
       std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
