@@ -24,10 +24,9 @@ if $cxx_flags_were_set; then
   CXXFLAGS=$CXXFLAGS
 fi
 
-AC_PROG_RANLIB
 # use libtool
 AC_PROG_LIBTOOL
-AC_SUBST([LIBTOOL_DEPS])
+LT_INIT
 
 # when running tests, use CXX
 AC_LANG([C++])
@@ -42,6 +41,7 @@ AC_C_INLINE
 AC_TYPE_SIZE_T
 
 # Checks for library functions.
+AC_CHECK_FUNCS([localtime_r])
 
 PKG_PROG_PKG_CONFIG
 PKG_CHECK_MODULES([XML2], [libxml-2.0 >= 2.6.16] )
@@ -78,7 +78,7 @@ if test "x$PKG_CONFIG_PATH" = x; then
      export PKG_CONFIG_PATH=""
 fi
 AC_ARG_WITH(ticcutils,
-       [  --with-ticcutils=DIR       use ticcutils installed in <DIR>; 
+       [  --with-ticcutils=DIR       use ticcutils installed in <DIR>;
                note that you can install ticcutils in a non-default directory with
                ./configure --prefix=<DIR> in the ticcutils installation directory],
        [PKG_CONFIG_PATH="$PKG_CONFIG_PATH:$withval/lib/pkgconfig"],
