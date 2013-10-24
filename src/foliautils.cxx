@@ -5,7 +5,7 @@
   Copyright (c) 1998 - 2013
   ILK   - Tilburg University
   CLiPS - University of Antwerp
- 
+
   This file is part of libfolia
 
   libfolia is free software; you can redistribute it and/or modify
@@ -35,7 +35,7 @@
 #include <set>
 #include <list>
 #include <stdexcept>
-#include <algorithm> 
+#include <algorithm>
 #include "ticcutils/StringOps.h"
 #include "ticcutils/XMLtools.h"
 #include "libfolia/document.h"
@@ -74,70 +74,70 @@ namespace folia {
     switch ( at ) {
     case AnnotationType::NO_ANN:
       result = "NoNe";
-      break; 
+      break;
     case AnnotationType::TEXT:
       result = "text";
-      break; 
+      break;
     case AnnotationType::STRING:
       result = "string";
-      break; 
+      break;
     case AnnotationType::TOKEN:
       result = "token";
-      break; 
+      break;
     case AnnotationType::DIVISION:
       result = "division"; //adapted from erroneous div
-      break; 
-    case AnnotationType::PARAGRAPH: 
+      break;
+    case AnnotationType::PARAGRAPH:
       result = "paragraph";
-      break; 
-    case AnnotationType::LIST: 
+      break;
+    case AnnotationType::LIST:
       result = "list";
-      break; 
-    case AnnotationType::FIGURE: 
+      break;
+    case AnnotationType::FIGURE:
       result = "figure";
-      break; 
-    case AnnotationType::WHITESPACE: 
+      break;
+    case AnnotationType::WHITESPACE:
       result = "whitespace";
-      break; 
-    case AnnotationType::LINEBREAK: 
+      break;
+    case AnnotationType::LINEBREAK:
       result = "linebreak";
-      break; 
-    case AnnotationType::SENTENCE: 
+      break;
+    case AnnotationType::SENTENCE:
       result = "sentence";
-      break; 
-    case AnnotationType::POS: 
+      break;
+    case AnnotationType::POS:
       result = "pos";
-      break; 
+      break;
     case AnnotationType::LEMMA:
       result = "lemma";
-      break; 
+      break;
     case AnnotationType::DOMEIN:
       result = "domain";
-      break; 
-    case AnnotationType::SENSE: 
+      break;
+    case AnnotationType::SENSE:
       result = "sense";
-      break; 
-    case AnnotationType::SYNTAX: 
+      break;
+    case AnnotationType::SYNTAX:
       result = "syntax";
       break;
-    case AnnotationType::CHUNKING: 
+    case AnnotationType::CHUNKING:
       result = "chunking";
-      break; 
-    case AnnotationType::ENTITY: 
+      break;
+    case AnnotationType::ENTITY:
       result = "entity";
       break;
-    case AnnotationType::CORRECTION: 
+    case AnnotationType::CORRECTION:
       result = "correction";
       break;
-    case AnnotationType::SUGGESTION: 
+    case AnnotationType::SUGGESTION:
       result = "suggestion";
       break;
-    case AnnotationType::ERRORDETECTION: 
+    case AnnotationType::ERRORDETECTION:
       result = "errordetection";
       break;
-    case AnnotationType::ALTERNATIVE: 
+    case AnnotationType::ALTERNATIVE:
       result = "alternative";
-      break; 
+      break;
     case AnnotationType::PHON:
       result = "phon";
       break;
@@ -147,12 +147,12 @@ namespace folia {
     case AnnotationType::MORPHOLOGICAL:
       result = "morphological";
       break;
-    case AnnotationType::SUBENTITY: 
+    case AnnotationType::SUBENTITY:
       result = "subentity";
       break;
     case AnnotationType::EVENT:
       result = "event";
-      break; 
+      break;
     case AnnotationType::DEPENDENCY:
       result = "dependency";
       break;
@@ -161,37 +161,37 @@ namespace folia {
       break;
     case AnnotationType::GAP:
       result = "gap";
-      break; 
+      break;
     case AnnotationType::ALIGNMENT:
       result = "alignment";
-      break; 
+      break;
     case AnnotationType::COMPLEXALIGNMENT:
       result = "complexalignment";
-      break; 
+      break;
     case AnnotationType::COREFERENCE:
       result = "coreference";
-      break; 
+      break;
     case AnnotationType::SEMROLE:
       result = "semrole";
-      break; 
+      break;
     case AnnotationType::METRIC:
       result = "metric";
-      break; 
+      break;
     case AnnotationType::TABLE:
       result = "table";
-      break; 
+      break;
     case AnnotationType::LANG:
       result = "lang";
-      break; 
+      break;
     case AnnotationType::STYLE:
       result = "style";
-      break; 
+      break;
     case AnnotationType::LAST_ANN:
       throw logic_error("LAST_ANN");
     };
     return result;
   }
- 
+
   AnnotationType::AnnotationType stringToAT( const string& at ){
     if ( at == "text" )
       return AnnotationType::TEXT;
@@ -228,11 +228,11 @@ namespace folia {
     if ( at == "entity" )
       return AnnotationType::ENTITY;
     if ( at == "correction" )
-      return AnnotationType::CORRECTION; 
+      return AnnotationType::CORRECTION;
     if ( at == "suggestion" )
-      return AnnotationType::SUGGESTION; 
+      return AnnotationType::SUGGESTION;
     if ( at == "errordetection" )
-      return AnnotationType::ERRORDETECTION; 
+      return AnnotationType::ERRORDETECTION;
     if ( at == "alternative" )
       return AnnotationType::ALTERNATIVE;
     if ( at == "phon" )
@@ -282,7 +282,7 @@ namespace folia {
     case LineBreak_t: result = "br"; break;
     case WhiteSpace_t: result = "whitespace"; break;
     case Word_t: result = "w"; break;
-    case WordReference_t: result = "wref"; break; 
+    case WordReference_t: result = "wref"; break;
     case Str_t: result = "str"; break;
     case Sentence_t: result = "s"; break;
     case Paragraph_t: result = "p"; break;
@@ -299,20 +299,20 @@ namespace folia {
     case ListItem_t: result = "listitem"; break;
     case Figure_t: result = "figure"; break;
     case Quote_t: result = "quote"; break;
-    case TokenAnnotation_t: result = "tokenannotation"; break; 
-    case Structure_t: result = "structure"; break; 
+    case TokenAnnotation_t: result = "tokenannotation"; break;
+    case Structure_t: result = "structure"; break;
     case Pos_t: result = "pos"; break;
     case Lemma_t: result = "lemma"; break;
-    case Phon_t: result = "phon"; break; 
-    case Domain_t: result = "domain"; break; 
-    case Sense_t: result = "sense"; break; 
-    case Subjectivity_t: result = "subjectivity"; break; 
+    case Phon_t: result = "phon"; break;
+    case Domain_t: result = "domain"; break;
+    case Sense_t: result = "sense"; break;
+    case Subjectivity_t: result = "subjectivity"; break;
     case Correction_t: result = "correction"; break;
-    case AnnotationLayer_t: result = "annotationlayer"; break; 
-    case SyntacticUnit_t: result = "su"; break; 
-    case SyntaxLayer_t: result = "syntax"; break; 
-    case Chunk_t: result = "chunk"; break; 
-    case Chunking_t: result = "chunking"; break; 
+    case AnnotationLayer_t: result = "annotationlayer"; break;
+    case SyntacticUnit_t: result = "su"; break;
+    case SyntaxLayer_t: result = "syntax"; break;
+    case Chunk_t: result = "chunk"; break;
+    case Chunking_t: result = "chunking"; break;
     case Entity_t: result = "entity"; break;
     case Entities_t: result = "entities"; break;
     case Semroles_t: result = "semroles"; break;
@@ -327,7 +327,7 @@ namespace folia {
     case Original_t: result = "original"; break;
     case Current_t: result = "current"; break;
     case Suggestion_t: result = "suggestion"; break;
-    case Alternative_t: result = "alt"; break; 
+    case Alternative_t: result = "alt"; break;
     case Alternatives_t: result = "altlayers"; break;
     case XmlComment_t: result = "xml-comment"; break;
     case XmlText_t: result = "xml-text"; break;
@@ -352,13 +352,13 @@ namespace folia {
     case DependencyDependent_t: result = "dep"; break;
     case Headwords_t: result = "hd"; break;
     case Alignment_t: result = "alignment"; break;
-    case AlignReference_t: result = "aref"; break; 
-    case AbstractTextMarkup_t: result = "textmarkup"; break; 
-    case TextMarkupString_t: result = "t-str"; break; 
-    case TextMarkupGap_t: result = "t-gap"; break; 
-    case TextMarkupCorrection_t: result = "t-correction"; break; 
-    case TextMarkupError_t: result = "t-error"; break; 
-    case TextMarkupStyle_t: result = "t-style"; break; 
+    case AlignReference_t: result = "aref"; break;
+    case AbstractTextMarkup_t: result = "textmarkup"; break;
+    case TextMarkupString_t: result = "t-str"; break;
+    case TextMarkupGap_t: result = "t-gap"; break;
+    case TextMarkupCorrection_t: result = "t-correction"; break;
+    case TextMarkupError_t: result = "t-error"; break;
+    case TextMarkupStyle_t: result = "t-style"; break;
     default:
       result = "Unknown Elementtype " + folia::toString( int(et) );
     }
@@ -630,7 +630,7 @@ namespace folia {
     return BASE;
   }
 
-  FoliaElement *FoliaElement::createElement( Document *doc, 
+  FoliaElement *FoliaElement::createElement( Document *doc,
 					     ElementType et ){
     switch ( et ){
     case BASE:
@@ -795,15 +795,15 @@ namespace folia {
       return new AlignReference( doc );
     case AbstractTextMarkup_t:
       return new AbstractTextMarkup( doc );
-    case TextMarkupString_t: 
+    case TextMarkupString_t:
       return new TextMarkupString( doc );
-    case TextMarkupGap_t: 
+    case TextMarkupGap_t:
       return new TextMarkupGap( doc );
-    case TextMarkupCorrection_t: 
+    case TextMarkupCorrection_t:
       return new TextMarkupCorrection( doc );
     case TextMarkupError_t:
       return new TextMarkupError( doc );
-    case TextMarkupStyle_t: 
+    case TextMarkupStyle_t:
       return new TextMarkupStyle( doc );
     default:
       throw ValueError( "unknown elementtype(" + toString(int(et)) + ")" );
@@ -811,9 +811,9 @@ namespace folia {
     return 0;
   }
 
-  FoliaElement *FoliaElement::createElement( Document *doc, 
+  FoliaElement *FoliaElement::createElement( Document *doc,
 					     const string& tag ){
-    
+
     ElementType et = BASE;
     try {
       et = stringToET( tag );
@@ -837,7 +837,7 @@ namespace folia {
 
     for ( size_t i=0; i < s.size(); ++i ){
       //      cerr << "bekijk " << s[i] << endl;
-      //      cerr << "quoted = " << (quoted?"YES":"NO") 
+      //      cerr << "quoted = " << (quoted?"YES":"NO")
       // 	   << " parseatt = " << (parseatt?"YES":"NO")
       // 	   << " escaped = " << (escaped?"YES":"NO") << endl;
       if ( s[i] == '\\' ){
@@ -853,7 +853,7 @@ namespace folia {
 	  }
 	}
 	else
-	  throw ArgsError( s + ", stray \\" );	  
+	  throw ArgsError( s + ", stray \\" );
       }
       else if ( s[i] == '\'' ){
 	//	cerr << "handle single quote " << endl;
@@ -966,7 +966,7 @@ namespace folia {
     it = attribs.begin();
     while ( it != attribs.end() ){
       xmlSetProp( node,
-		  (const xmlChar*)it->first.c_str(), 
+		  (const xmlChar*)it->first.c_str(),
 		  (const xmlChar*)it->second.c_str() );
       ++it;
     }
@@ -1094,13 +1094,13 @@ namespace folia {
 	  stringTo<AnnotationType::AnnotationType>( s );
 	}
 	catch ( ValueError& e ){
-	  cerr << "no AnnotationType found for string '" << s << "'" << endl;	
+	  cerr << "no AnnotationType found for string '" << s << "'" << endl;
 	  sane = false;
 	}
       }
     }
     return sane;
-  };
+  }
 
   bool ET_sanity_check(){
     bool sane = true;
@@ -1122,14 +1122,14 @@ namespace folia {
 	  continue;
 	}
 	if ( et != et2 ){
-	  cerr << "Argl: toString(ET) doesn't match original:" << s 
+	  cerr << "Argl: toString(ET) doesn't match original:" << s
 	       << " vs " << toString(et2) << endl;
 	  sane = false;
 	  continue;
 	}
 	FoliaElement *tmp = FoliaElement::createElement( 0, s );
 	if ( tmp == 0 ) {
-	  cerr << "no Element created found for string '" << s << "'" << endl;	
+	  cerr << "no Element created found for string '" << s << "'" << endl;
 	  sane = false;
 	}
 	else {
@@ -1145,26 +1145,26 @@ namespace folia {
       }
     }
     return sane;
-  };
+  }
 
   bool isNCName( const std::string& s ){
     static string extra=".-_";
     if ( s.empty() )
       throw XmlError( "an empty string is not a valid NCName." );
     else if ( !isalpha(s[0]) )
-      throw XmlError( "'" 
-		      + s 
+      throw XmlError( "'"
+		      + s
 		      + "' is not a valid NCName. (must start with character)." );
     else {
       for ( size_t i=1; i < s.length(); ++i ){
 	if ( !isalnum(s[i]) &&
 	     extra.find(s[i]) == string::npos )
-	  throw XmlError( "'" + s 
-			  + "' is not a valid NCName.(invalid '" 
+	  throw XmlError( "'" + s
+			  + "' is not a valid NCName.(invalid '"
 			  + char(s[i]) + "' found" );
       }
     }
     return true;
   }
-  
+
 } //namespace folia

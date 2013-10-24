@@ -726,7 +726,7 @@ namespace folia {
     std::string getlang() const {
       throw NotImplementedError("TextContent::getlang() is obsolete" );
     };
-    std::string setlang( const std::string& l ) {
+    std::string setlang( const std::string& ) {
       throw NotImplementedError("TextContent::setlang() is obsolete" );
     };
     TextContent *postappend();
@@ -1516,7 +1516,7 @@ namespace folia {
   XmlText( Document *d, const KWargs& a ): FoliaElement( d ) { classInit( a ); };
     FoliaElement* parseXml( const xmlNode * );
     xmlNode *xml( bool, bool=false ) const;
-    bool setvalue( const std::string& s ) { _value = s; };
+    bool setvalue( const std::string& s ) { _value = s; return true; };
     std::string getTextDelimiter( bool ) const { return ""; };
     UnicodeString text( const std::string&, bool ) const;
   private:

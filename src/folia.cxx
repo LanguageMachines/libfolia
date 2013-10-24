@@ -521,7 +521,7 @@ namespace folia {
 	return "";
     }
     return TEXTDELIMITER;
-  };
+  }
 
   UnicodeString FoliaElement::text( const string& cls, bool retaintok ) const {
     // get the UnicodeString value of underlying elements
@@ -1104,7 +1104,7 @@ namespace folia {
 #ifdef DEBUG_TEXT
     cerr << "IN " << xmltag() << " gettextdelimiter (" << TEXTDELIMITER << ")" << endl;
 #endif
-    for ( size_t i = data.size()-1; i >= 0; --i ){
+    for ( size_t i = data.size()-1; i--; ){
       if ( data[i]->isinstance( Sentence_t ) ){
 	// if a quote ends in a sentence, we don't want any delimiter
 	return "";
@@ -1114,7 +1114,7 @@ namespace folia {
       }
     }
     return " ";
-  };
+  }
 
   vector<Word*> Quote::wordParts() const {
     vector<Word*> result;
@@ -1934,7 +1934,7 @@ namespace folia {
 
   Morpheme * Word::morpheme( size_t pos, const string& set ) const {
     vector<Morpheme *> tmp = morphemes( set );
-    if ( pos >=0 && pos < tmp.size() )
+    if ( pos < tmp.size() )
       return tmp[pos];
     else
       throw range_error( "morpheme() index out of range" );
@@ -2367,6 +2367,7 @@ namespace folia {
       if ( data[i]->isinstance( New_t ) || data[i]->isinstance( Current_t ) )
 	return data[i]->getTextDelimiter( retaintok );
     }
+    return "";
   }
 
   TextContent *Correction::textcontent( const string& cls ) const {
@@ -3184,7 +3185,7 @@ namespace folia {
       return this;
     else
       return mydoc->index(idref);
-  };
+  }
 
   void Morpheme::init(){
     _element_id = Morpheme_t;
