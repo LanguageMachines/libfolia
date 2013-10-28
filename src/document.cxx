@@ -5,7 +5,7 @@
   Copyright (c) 1998 - 2013
   ILK   - Tilburg University
   CLiPS - University of Antwerp
- 
+
   This file is part of libfolia
 
   libfolia is free software; you can redistribute it and/or modify
@@ -94,7 +94,7 @@ namespace folia {
     }
     return true;
   }
-  
+
   bool operator==( const FoliaElement& a1, const FoliaElement& a2){
     if ( a1._element_id != a2._element_id )
       return false;
@@ -135,7 +135,7 @@ namespace folia {
     }
     else
       version.clear();
-    
+
     it = kwargs.find( "_id" );
     if ( it == kwargs.end() ){
       it = kwargs.find( "id" );
@@ -287,7 +287,7 @@ namespace folia {
 
   int Document::size() const {
     if ( foliadoc )
-      return foliadoc->size(); 
+      return foliadoc->size();
     else
       return 0;
   }
@@ -322,13 +322,13 @@ namespace folia {
     }
     return foliadoc->select<Sentence>( excludeSet );
   }
-  
+
   vector<Sentence*> Document::sentenceParts() const {
     static set<ElementType> excludeSet;
     vector<Sentence*> sents = foliadoc->select<Sentence>( excludeSet );
     return sents;
   }
-  
+
   Sentence *Document::sentences( size_t index ) const {
     vector<Sentence*> v = sentences();
     if ( index < v.size() ){
@@ -350,7 +350,7 @@ namespace folia {
   vector<Word*> Document::words() const {
     return foliadoc->select<Word>( default_ignore_structure );
   }
-  
+
   Word *Document::words( size_t index ) const {
     vector<Word*> v = words();
     if ( index < v.size() ){
@@ -404,12 +404,12 @@ namespace folia {
     if ( n ){
       _date = XmlContent( n);
     }
-  
+
     n = xPath( node, "//imdi:Source/imdi:Access/imdi:Publisher" );
     if ( n ){
       _publisher = XmlContent( n );
     }
-  
+
     n = xPath( node, "//imdi:Source/imdi:Access/imdi:Availability" );
     if ( n ){
       _license = XmlContent( n );
@@ -434,9 +434,58 @@ namespace folia {
 	_publisher = val;
       else if ( type == "licence" )
 	_license = val;
+      else if ( _metadatatype != NATIVE ){
+	throw runtime_error( "meta tag with id=" + type
+			     + " requires NATIVE metadataype." );
+      }
+      else if ( meta_atts[type] != "" ){
+	throw runtime_error( "meta tag with id=" + type
+			     + " is defined more then once " );
+      }
+      else
+	meta_atts[type] = val;
     }
   }
-  
+
+  void Document::set_metadata( const string& type, const string& value ){
+    if ( type == "title" )
+      _title = value;
+    else if ( type == "date" )
+      _date = value;
+    else if ( type == "language" )
+      _language = value;
+    else if ( type == "publisher" )
+      _publisher = value;
+    else if ( type == "licence" )
+      _license = value;
+    else if ( _metadatatype != NATIVE ){
+      throw runtime_error( "meta tag with id=" + type
+			   + " requires NATIVE metadataype." );
+    }
+    else
+      meta_atts[type] = value;
+  }
+
+  const string Document::get_metadata( const string& type ) const {
+    if ( type == "title" )
+      return _title;
+    else if ( type == "date" )
+      return _date;
+    else if ( type == "language" )
+      return _language;
+    else if ( type == "publisher" )
+      return _publisher;
+    else if ( type == "licence" )
+      return _license;
+    else {
+      map<string,string>::const_iterator it = meta_atts.find( type );
+      if ( it != meta_atts.end() )
+	return it->second;
+      else
+	return "";
+    }
+  }
+
   void Document::parseannotations( xmlNode *node ){
     xmlNode *n = node->children;
     while ( n ){
@@ -562,7 +611,7 @@ namespace folia {
     }
     return result;
   }
-  
+
   void Document::addStyle( const std::string& type, const std::string& href ){
     if ( type == "text/xsl" ){
       multimap<string,string>::iterator it = styles.find( type );
@@ -571,8 +620,8 @@ namespace folia {
     }
     styles.insert( make_pair( type, href ) );
   }
-  
-  void Document::replaceStyle( const std::string& type, 
+
+  void Document::replaceStyle( const std::string& type,
 			       const std::string& href ){
     multimap<string,string>::iterator it = styles.find( type );
     if ( it != styles.end() ){
@@ -655,7 +704,7 @@ namespace folia {
     return result;
   }
 
-  void Document::declare( AnnotationType::AnnotationType type, 
+  void Document::declare( AnnotationType::AnnotationType type,
 			  const string& setname, const string& args ){
     string st = setname;
     if ( st.empty() )
@@ -683,9 +732,9 @@ namespace folia {
     string res = buf;
     return res;
   }
-  
-  void Document::declare( AnnotationType::AnnotationType type, 
-			  const string& s, const string& a, 
+
+  void Document::declare( AnnotationType::AnnotationType type,
+			  const string& s, const string& a,
 			  const string& t, const string& ds ){
     if ( !isDeclared( type, s, a, t ) ){
       string d = ds;
@@ -695,7 +744,7 @@ namespace folia {
       annotationdefaults[type].insert( make_pair(s, at_t(a,t,d) ) );
       //    cerr << "inserted [" << type << "][" << st << "](" << a << "," << t << "," << d ")" << endl;
       //    cerr << "annotation defaults now: " <<  annotationdefaults << endl;
-      
+
     }
   }
 
@@ -707,7 +756,7 @@ namespace folia {
   }
 
   bool Document::isDeclared( AnnotationType::AnnotationType type,
-			     const string& s, 
+			     const string& s,
 			     const string& a,
 			     const string& t){
     //
@@ -840,7 +889,7 @@ namespace folia {
     while ( mit != annotationdefaults.end() ){
       map<string,at_t>::const_iterator it = mit->second.begin();
       while ( it != mit->second.end() ){
-	// Find the 'label' 
+	// Find the 'label'
 	string label = toString( mit->first );
 	label += "-annotation";
 	xmlNode *n = XmlNewNode( foliaNs(), label );
@@ -910,6 +959,16 @@ namespace folia {
 	addAttributes( m, atts );
 	xmlAddChild( node, m );
       }
+      map<string,string>::const_iterator it = meta_atts.begin();
+      while ( it != meta_atts.end() ){
+	xmlNode *m = XmlNewNode( foliaNs(), "meta" );
+	xmlAddChild( m, xmlNewText( (const xmlChar*)it->second.c_str()) );
+	KWargs atts;
+	atts["id"] = it->first;
+	addAttributes( m, atts );
+	xmlAddChild( node, m );
+	++it;
+      }
     }
     else if ( _metadatatype == IMDI  ||
 	      _metadatatype == CMDI ){
@@ -928,11 +987,11 @@ namespace folia {
   void Document::setstyles( xmlDoc* doc ) const {
     multimap<string,string>::const_iterator it = styles.begin();
     while ( it != styles.end() ){
-      string content = "type=\"" + it->first 
+      string content = "type=\"" + it->first
 	+ "\" href=\"" + it->second + "\"";
       xmlAddChild( (xmlNode*)doc,
 		   xmlNewDocPI( doc,
-				(const xmlChar*)"xml-stylesheet", 
+				(const xmlChar*)"xml-stylesheet",
 				(const xmlChar*)content.c_str() ) );
       ++it;
     }
@@ -945,7 +1004,7 @@ namespace folia {
       setstyles( outDoc );
       xmlNode *root = xmlNewDocNode( outDoc, 0, (const xmlChar*)"FoLiA", 0 );
       xmlDocSetRootElement( outDoc, root );
-      xmlNs *xl = xmlNewNs( root, (const xmlChar *)"http://www.w3.org/1999/xlink", 
+      xmlNs *xl = xmlNewNs( root, (const xmlChar *)"http://www.w3.org/1999/xlink",
 			    (const xmlChar *)"xlink" );
       xmlSetNs( root, xl );
       if ( !_foliaNsIn ){
@@ -967,7 +1026,7 @@ namespace folia {
 	attribs["version"] = version;
       addAttributes( root, attribs );
 
-      xmlNode *md = xmlAddChild( root, XmlNewNode( foliaNs(), "metadata" ) );  
+      xmlNode *md = xmlAddChild( root, XmlNewNode( foliaNs(), "metadata" ) );
       xmlNode *an = xmlAddChild( md, XmlNewNode( foliaNs(), "annotations" ) );
       setannotations( an );
       setmetadata( md );
@@ -1093,7 +1152,7 @@ namespace folia {
 	if ( index > 0 && variablewildcards.empty() )
 	  unsetwildcards = true;
 	else {
-	  if ( !variablewildcards.empty() && 
+	  if ( !variablewildcards.empty() &&
 	       variablewildcards != it->variablewildcards() ){
 	    throw runtime_error("If multiple patterns are provided with variable wildcards, then these wildcards must all be in the same positions!");
 	  }
@@ -1127,7 +1186,7 @@ namespace folia {
     return result;
   }
 
-  Pattern::Pattern( const std::vector<std::string>&v, 
+  Pattern::Pattern( const std::vector<std::string>&v,
 		    const ElementType at,
 		    const string& args ):matchannotation(at) {
     regexp = false;
@@ -1165,10 +1224,10 @@ namespace folia {
     }
   }
 
-  Pattern::Pattern( const std::vector<std::string>&v, 
+  Pattern::Pattern( const std::vector<std::string>&v,
 		    const string& args ):matchannotation(BASE) {
 
-    // code duplication 
+    // code duplication
     // BAD BAD BAD
     //
     regexp = false;
@@ -1207,7 +1266,7 @@ namespace folia {
   }
 
   Pattern::~Pattern(){
-    for ( size_t i=0; i < matchers.size(); ++i ){  
+    for ( size_t i=0; i < matchers.size(); ++i ){
       delete matchers[i];
     }
   }
@@ -1218,7 +1277,7 @@ namespace folia {
     return os;
   }
 
-  bool Pattern::match( const UnicodeString& us, size_t& pos, int& gap, 
+  bool Pattern::match( const UnicodeString& us, size_t& pos, int& gap,
 		       bool& done, bool& flag ) const {
     UnicodeString s = us;
     //  cerr << "gap = " << gap << "cursor=" << pos << " vergelijk '" <<  sequence[pos] << "' met '" << us << "'" << endl;

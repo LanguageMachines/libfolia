@@ -5,7 +5,7 @@
   Copyright (c) 1998 - 2013
   ILK   - Tilburg University
   CLiPS - University of Antwerp
- 
+
   This file is part of libfolia
 
   libfolia is free software; you can redistribute it and/or modify
@@ -45,10 +45,10 @@ namespace folia {
   class Pattern {
     friend std::ostream& operator<<( std::ostream&, const Pattern& );
   public:
-    Pattern( const std::vector<std::string>&, 
+    Pattern( const std::vector<std::string>&,
 	     const ElementType = BASE,
 	     const std::string& = "" );
-    Pattern( const std::vector<std::string>&, 
+    Pattern( const std::vector<std::string>&,
 	     const std::string& );
     ~Pattern();
     bool match( const UnicodeString& , size_t&, int&, bool&, bool& ) const;
@@ -111,38 +111,40 @@ namespace folia {
     std::string toXml( const std::string& ="", bool = false ) const;
     MetaDataType metadatatype() const { return _metadatatype; };
     std::string metadatafile() const { return _metadatafile; };
+    void set_metadata( const std::string& type, const std::string& value );
+    const std::string get_metadata( const std::string& type ) const;
 
     FoliaElement *append( FoliaElement* );
 
     void addDocIndex( FoliaElement* el, const std::string& );
 
     FoliaElement* operator []( size_t ) const; //select i'th element from data
-  
-    FoliaElement *index( const std::string& ) const; //retrieve element with specified ID 
-    FoliaElement* operator []( const std::string& ) const ; //index as operator 
-    bool isDeclared( AnnotationType::AnnotationType, 
-		     const std::string&, 
-		     const std::string&, 
+
+    FoliaElement *index( const std::string& ) const; //retrieve element with specified ID
+    FoliaElement* operator []( const std::string& ) const ; //index as operator
+    bool isDeclared( AnnotationType::AnnotationType,
+		     const std::string&,
+		     const std::string&,
 		     const std::string& );
     bool isDeclared( AnnotationType::AnnotationType, const std::string& = "" );
     std::string defaultset( AnnotationType::AnnotationType ) const;
 
-    std::string defaultannotator( AnnotationType::AnnotationType, 
+    std::string defaultannotator( AnnotationType::AnnotationType,
 				  const std::string& ="" ) const;
-    std::string defaultannotatortype( AnnotationType::AnnotationType, 
+    std::string defaultannotatortype( AnnotationType::AnnotationType,
 				      const std::string& ="" ) const;
 
-    std::string defaultdatetime( AnnotationType::AnnotationType, 
+    std::string defaultdatetime( AnnotationType::AnnotationType,
 				 const std::string& ="" ) const;
 
     FoliaElement* parseXml( );
 
     std::string id() const { return _id; };
-    void declare( AnnotationType::AnnotationType, 
+    void declare( AnnotationType::AnnotationType,
 		  const std::string&,
 		  const std::string& = "" );
-    void declare( AnnotationType::AnnotationType, 
-		  const std::string&, const std::string&, 
+    void declare( AnnotationType::AnnotationType,
+		  const std::string&, const std::string&,
 		  const std::string&, const std::string& );
     xmlDoc *XmlDoc() const { return xmldoc; };
     xmlNs *foliaNs() const { return _foliaNsOut; };
@@ -152,7 +154,7 @@ namespace folia {
     class at_t {
       friend std::ostream& operator<<( std::ostream&, const at_t& );
     public:
-    at_t( const std::string& _a, const std::string& _t, const std::string& _d ): a(_a),t(_t),d(_d){}; 
+    at_t( const std::string& _a, const std::string& _t, const std::string& _d ): a(_a),t(_t),d(_d){};
       std::string a;
       std::string t;
       std::string d;
@@ -186,6 +188,7 @@ namespace folia {
     std::string _language;
     std::string _publisher;
     std::string _license;
+    std::map<std::string,std::string> meta_atts;
     std::multimap<std::string,std::string> styles;
     bool loadall;
     std::string filename;
@@ -193,7 +196,7 @@ namespace folia {
   };
 
   bool operator==( const Document&, const Document& );
-  inline bool operator!=( const Document& d1, const Document& d2 ){ 
+  inline bool operator!=( const Document& d1, const Document& d2 ){
     return !( d1==d2 );
   }
 
@@ -201,7 +204,7 @@ namespace folia {
   inline std::ostream& operator<<( std::ostream& os, const Document& d ){
     os << &d;
     return os;
-  } 
+  }
 
   inline std::ostream& operator<<( std::ostream& os, const Document::at_t& at ){
     os << "<" << at.a << "," << at.t << "," << at.d << ">";
