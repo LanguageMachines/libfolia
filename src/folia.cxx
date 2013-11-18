@@ -505,19 +505,26 @@ namespace folia {
     }
   }
 
- //#define DEBUG_TEXT
+  //#define DEBUG_TEXT
+  //#define DEBUG_TEXT_DEL
 
   string FoliaElement::getTextDelimiter( bool retaintok ) const {
-#ifdef DEBUG_TEXT
-    cerr << "IN " << xmltag() << " gettextdelimiter (" << TEXTDELIMITER << ")" << endl;
+#ifdef DEBUG_TEXT_DEL
+    cerr << "IN " << xmltag() << "::gettextdelimiter (" << retaintok << ")" << endl;
 #endif
     if ( TEXTDELIMITER == "NONE" ){
       if ( data.size() > 0 ){
 	// attempt to get a delimiter form the last child
 	string det = data[data.size()-1]->getTextDelimiter( retaintok );
+#ifdef DEBUG_TEXT_DEL
+	cerr << "out" << xmltag() << "::gettextdelimiter ==> '" << det << "'" << endl;
+#endif
 	return det;
       }
       else
+#ifdef DEBUG_TEXT_DEL
+	cerr << "out" << xmltag() << "::gettextdelimiter ==> ''" << endl;
+#endif
 	return "";
     }
     return TEXTDELIMITER;
@@ -1101,17 +1108,27 @@ namespace folia {
   }
 
   std::string Quote::getTextDelimiter( bool retaintok ) const {
-#ifdef DEBUG_TEXT
-    cerr << "IN " << xmltag() << " gettextdelimiter (" << TEXTDELIMITER << ")" << endl;
+#ifdef DEBUG_TEXT_DEL
+    cerr << "IN " << xmltag() << "::gettextdelimiter (" << retaintok << ")" << endl;
 #endif
-    for ( size_t i = data.size()-1; i--; ){
-      if ( data[i]->isinstance( Sentence_t ) ){
+    std::vector<FoliaElement*>::const_reverse_iterator it = data.rbegin();
+    while ( it != data.rend() ){
+      if ( (*it)->isinstance( Sentence_t ) ){
 	// if a quote ends in a sentence, we don't want any delimiter
+#ifdef DEBUG_TEXT_DEL
+	cerr << "OUT " << xmltag() << "::gettextdelimiter ==>''" << endl;
+#endif
 	return "";
       }
       else {
-	return data[i]->getTextDelimiter( retaintok );
+	string res = (*it)->getTextDelimiter( retaintok );
+#ifdef DEBUG_TEXT_DEL
+	cerr << "OUT " << xmltag() << "::gettextdelimiter ==> '"
+	     << res << "'" << endl;
+#endif
+	return res;
       }
+      ++it;
     }
     return " ";
   }
