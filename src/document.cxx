@@ -186,8 +186,12 @@ namespace folia {
   }
 
   bool Document::readFromFile( const string& s ){
+    ifstream is( s.c_str() );
+    if ( !is.good() ){
+      throw runtime_error( "file not found: " + s );
+    }
     if ( xmldoc ){
-      throw runtime_error( "Document is aready initialized" );
+      throw runtime_error( "Document is already initialized" );
       return false;
     }
     if ( match_back( s, ".bz2" ) ){
@@ -224,7 +228,7 @@ namespace folia {
 
   bool Document::readFromString( const string& s ){
     if ( xmldoc ){
-      throw runtime_error( "Document is aready initialized" );
+      throw runtime_error( "Document is already initialized" );
       return false;
     }
     int cnt = 0;
