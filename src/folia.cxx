@@ -3211,7 +3211,7 @@ namespace folia {
     _optional_attributes = ALL;
     const ElementType accept[] = { Feature_t, FunctionFeature_t, TextContent_t,
 				   Metric_t, Alignment_t, TokenAnnotation_t,
-				   Description_t };
+				   Description_t, Morpheme_t };
     _accepted_data =
       std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
