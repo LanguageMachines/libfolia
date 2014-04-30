@@ -670,6 +670,14 @@ namespace folia {
     return node;
   }
 
+  TextContent *FoliaElement::setutext( const UnicodeString& txt,
+				       const string& cls ){
+    // create a TextContent child of class 'cls'
+    // Default cls="current"
+    string utf8 = UnicodeToUTF8(txt);
+    return settext( utf8, cls );
+  }
+
   TextContent *FoliaElement::settext( const string& txt,
 				      int offset,
 				      const string& cls ){
@@ -684,6 +692,15 @@ namespace folia {
     node->setAttributes( args );
     replace( node );
     return node;
+  }
+
+  TextContent *FoliaElement::setutext( const UnicodeString& txt,
+				       int offset,
+				       const string& cls ){
+    // create a TextContent child of class 'cls'
+    // Default cls="current"
+    string utf8 = UnicodeToUTF8(txt);
+    return settext( utf8, offset, cls );
   }
 
   string FoliaElement::description() const {

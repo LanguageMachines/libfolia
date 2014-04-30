@@ -403,6 +403,8 @@ namespace folia {
     Word *addWord( const KWargs& );
     TextContent *settext( const std::string&, const std::string& = "current" );
     TextContent *settext( const std::string&, int , const std::string& = "current" );
+    TextContent *setutext( const UnicodeString&, const std::string& = "current" );
+    TextContent *setutext( const UnicodeString&, int , const std::string& = "current" );
 
     template <typename F>
       F *addAlternative();
