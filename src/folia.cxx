@@ -744,7 +744,7 @@ namespace folia {
 				       TextMarkupCorrection_t,
 				       TextMarkupError_t, TextMarkupStyle_t };
     static bool filled = false;
-    if ( ! filled ){
+    if ( !filled ){
       sm[Structure_t]
 	= set<ElementType>( structureSet,
 			    structureSet + sizeof(structureSet)/sizeof(ElementType) );

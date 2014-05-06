@@ -48,6 +48,16 @@ using namespace TiCC;
 
 namespace folia {
 
+  void initMT(){
+    try {
+      Document doc( "string='<?xml version=\"1.0\" encoding=\"UTF-8\"?><FoLiA xmlns=\"http://ilk.uvt.nl/folia\" xml:id=\"ID\"><text xml:id=\"text\"><div xml:id=\"head\"><w xml:id=\"w1\"><t>test</t></w></div></text></FoLiA>'" );
+    }
+    catch( exception& e ){
+      cerr << "serious initialization problem: " << e.what() << endl;
+      exit(EXIT_FAILURE);
+    };
+  }
+
   const string FOLIAVERSION = "0.10.0"; // the FoLiA version we implement
   const string NSFOLIA = "http://ilk.uvt.nl/folia";
   const string NSDCOI = "http://lands.let.ru.nl/projects/d-coi/ns/1.0";

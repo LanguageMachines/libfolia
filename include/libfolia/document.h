@@ -40,6 +40,8 @@
 #include "libfolia/foliautils.h"
 
 namespace folia {
+  void initMT();
+
   extern const std::string NSFOLIA;
 
   class Pattern {
