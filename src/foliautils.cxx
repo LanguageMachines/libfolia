@@ -186,6 +186,9 @@ namespace folia {
     case AnnotationType::STYLE:
       result = "style";
       break;
+    case AnnotationType::NOTE:
+      result = "note";
+      break;
     case AnnotationType::LAST_ANN:
       throw logic_error("LAST_ANN");
     };
@@ -267,6 +270,8 @@ namespace folia {
       return AnnotationType::LANG;
     if ( at == "style" )
       return AnnotationType::STYLE;
+    if ( at == "note" )
+      return AnnotationType::NOTE;
     throw ValueError( " unknown translation for attribute: " + at );
   }
 

@@ -132,7 +132,7 @@ namespace folia {
 			  PHON, SUBJECTIVITY, MORPHOLOGICAL, SUBENTITY, EVENT,
 			  DEPENDENCY, TIMEDEVENT, GAP, ALIGNMENT,
 			  COMPLEXALIGNMENT, COREFERENCE, SEMROLE, METRIC,
-			  TABLE, LANG, STYLE,
+			  TABLE, LANG, STYLE, NOTE,
 			  LAST_ANN
     };
     inline AnnotationType& operator++( AnnotationType &at ){

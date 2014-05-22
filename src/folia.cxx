@@ -739,7 +739,7 @@ namespace folia {
 					  Text_t, Event_t,
 					  Caption_t, Label_t,
 					  ListItem_t, List_t,
-					  Figure_t, Alternative_t };
+					  Figure_t, Alternative_t, Note_t };
     static ElementType featureSet[] = { SynsetFeature_t,
 					ActorFeature_t, HeadFeature_t,
 					ValueFeature_t, TimeFeature_t,
@@ -750,7 +750,7 @@ namespace folia {
     static ElementType tokenAnnoSet[] = { Pos_t, Lemma_t, Morphology_t,
 					  Sense_t, Phon_t, Str_t, Lang_t,
 					  Correction_t, Subjectivity_t,
-					  ErrorDetection_t };
+					  ErrorDetection_t, NoteReference_t };
     static ElementType annolaySet[] = { SyntaxLayer_t,
 					Chunking_t, Entities_t,
 					TimingLayer_t, Morphology_t,
@@ -3204,13 +3204,33 @@ namespace folia {
   }
 
   void Note::init(){
+    _required_attributes = NO_ATT;
     _xmltag = "note";
     _element_id = Note_t;
+    const ElementType accept[] = { Structure_t };
+    _accepted_data =
+      std::set<ElementType>( accept,
+			     accept + sizeof(accept)/sizeof(ElementType) );
+  }
+
+  KWargs Note::collectAttributes() const {
+    KWargs atts;
+    atts["id"] = refId;
+    return atts;
+  }
+
+  void Note::setAttributes( const KWargs& args ){
+    KWargs::const_iterator it = args.find( "id" );
+    if ( it != args.end() ){
+      refId = it->second;
+    }
   }
 
   void NoteReference::init(){
     _xmltag = "noteref";
     _element_id = NoteReference_t;
+    _annotation_type = AnnotationType::NOTE;
+    _required_attributes = NO_ATT;
   }
 
   KWargs NoteReference::collectAttributes() const {
