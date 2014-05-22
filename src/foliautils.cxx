@@ -1171,7 +1171,7 @@ namespace folia {
   }
 
   bool isNCName( const std::string& s ){
-    static string extra=".-_";
+    const string extra=".-_";
     if ( s.empty() )
       throw XmlError( "an empty string is not a valid NCName." );
     else if ( !isalpha(s[0]) )
