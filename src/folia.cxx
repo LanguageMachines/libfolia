@@ -107,12 +107,15 @@ namespace folia {
 	// probably only for words
 	delete data[i];
       }
-      else {
+      else if ( mydoc ){
 	mydoc->keepForDeletion( data[i] );
       }
     }
-    // cerr << "\t\tdelete element id=" << _id << " tag = " << _xmltag << " *= "
-    //  	 << (void*)this << " datasize= " << data.size() << endl;
+    //    cerr << "\t\tdelete element id=" << _id << " tag = " << _xmltag << " *= "
+    //	 << (void*)this << " datasize= " << data.size() << endl;
+    if ( mydoc ){
+      mydoc->delDocIndex( this, _id );
+    }
   }
 
   xmlNs *FoliaElement::foliaNs() const {
@@ -657,6 +660,19 @@ namespace folia {
     }
   }
 
+  void FoliaElement::replace( FoliaElement *old, FoliaElement* _new ){
+    // replaced old by _new
+    // deletes old
+    // when not found does nothing
+    for( size_t i=0; i < data.size(); ++i ){
+      if ( data[i] == old ){
+	data[i] = _new;
+	_new->_parent = this;
+	delete old;
+      }
+    }
+  }
+
   TextContent *FoliaElement::settext( const string& txt,
 				      const string& cls ){
     // create a TextContent child of class 'cls'
@@ -910,6 +926,19 @@ namespace folia {
     data.erase( it, data.end() );
     if ( del )
       delete child;
+  }
+
+  void FoliaElement::remove( size_t pos, bool del ){
+    if ( pos < data.size() ){
+      vector<FoliaElement*>::iterator it = data.begin();
+      while ( pos > 0 ){
+	++it;
+	--pos;
+      }
+      if ( del )
+	delete *it;
+      data.erase(it);
+    }
   }
 
   FoliaElement* FoliaElement::index( size_t i ) const {
@@ -2767,7 +2796,7 @@ namespace folia {
     const ElementType accept[] = { Gap_t, Division_t, Paragraph_t, Sentence_t,
 				   List_t, Figure_t, Description_t, Event_t,
 				   TokenAnnotation_t,
-				   TextContent_t, Metric_t };
+				   TextContent_t, Metric_t, External_t };
     _accepted_data =
       std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
@@ -3095,6 +3124,106 @@ namespace folia {
     _xmltag = "xml-text";
     _element_id = XmlText_t;
     TEXTDELIMITER = "*";
+  }
+
+  void External::init(){
+    _xmltag = "external";
+    _element_id = External_t;
+    _include = false;
+  }
+
+  void External::resolve( ) {
+    try {
+      cerr << "try to resolve: " << _src << endl;
+      Document doc( "file='"+_src +"'" );
+      xmlDoc *xmldoc = doc.XmlDoc();
+      xmlNode *root = xmlDocGetRootElement( xmldoc );
+      xmlNode *p = root->children;
+      while ( p ){
+	if ( p->type == XML_ELEMENT_NODE ){
+	  string tag = Name( p );
+	  if ( tag == "text" ){
+	    FoliaElement *parent = _parent;
+	    KWargs args = parent->collectAttributes();
+	    args["_id"] = "Arglebargleglop-glyf";
+	    Text *tmp = new Text( mydoc, args );
+	    tmp->FoliaElement::parseXml( p );
+	    parent->replace( this, tmp->index(0) );
+	    mydoc->delDocIndex( tmp, "Arglebargleglop-glyf" );
+	    tmp->remove( (size_t)0, false );
+	    delete tmp;
+	  }
+	  p = p->next;
+	}
+      }
+    }
+    catch ( const exception& e ){
+      throw XmlError( "resolving external " + _src + " failed: "
+		      + e.what() );
+    }
+  }
+
+  FoliaElement* External::parseXml( const xmlNode *node ){
+    KWargs att = getAttributes( node );
+    KWargs::const_iterator it = att.find("src" );
+    if ( it == att.end() ){
+      throw ValueError( "External: 'src' may not be empty" );
+    }
+    setAttributes( att );
+    if ( _include ){
+      mydoc->addExternal( this );
+    }
+    return this;
+  }
+
+  KWargs External::collectAttributes() const {
+    KWargs atts = FoliaElement::collectAttributes();
+    if ( !_src.empty() ){
+      atts["src"] = _src;
+    }
+    if ( _include ){
+      atts["include"] = "yes";
+    }
+    return atts;
+  }
+
+  void External::setAttributes( const KWargs& kwargsin ){
+    KWargs kwargs = kwargsin;
+    KWargs::const_iterator it;
+    it = kwargs.find( "src" );
+    if ( it != kwargs.end() ) {
+      _src = it->second;
+      kwargs.erase( "src" );
+    }
+    it = kwargs.find( "include" );
+    if ( it != kwargs.end() ) {
+      _include = stringTo<bool>( it->second );
+      kwargs.erase( "include" );
+    }
+    FoliaElement::setAttributes(kwargs);
+  }
+
+  void Note::init(){
+    _xmltag = "note";
+    _element_id = Note_t;
+  }
+
+  void NoteReference::init(){
+    _xmltag = "noteref";
+    _element_id = NoteReference_t;
+  }
+
+  KWargs NoteReference::collectAttributes() const {
+    KWargs atts;
+    atts["id"] = refId;
+    return atts;
+  }
+
+  void NoteReference::setAttributes( const KWargs& args ){
+    KWargs::const_iterator it = args.find( "id" );
+    if ( it != args.end() ){
+      refId = it->second;
+    }
   }
 
   xmlNode *XmlComment::xml( bool, bool ) const {

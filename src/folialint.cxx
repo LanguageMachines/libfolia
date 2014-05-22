@@ -5,7 +5,7 @@
   Copyright (c) 1998 - 2014
   ILK   - Tilburg University
   CLiPS - University of Antwerp
- 
+
   This file is part of libfolia
 
   libfolia is free software; you can redistribute it and/or modify
@@ -49,8 +49,7 @@ int main( int argc, char* argv[] ){
     outName == argv[2];
   }
   try {
-    folia::Document d;
-    d.readFromFile( argv[1] );
+    folia::Document d("file='" + string(argv[1]) + "'"); //,debug='3'");"
     if ( !outName.empty() )
       d.save( outName );
     else

@@ -331,6 +331,9 @@ namespace folia {
     case Alternatives_t: result = "altlayers"; break;
     case XmlComment_t: result = "xml-comment"; break;
     case XmlText_t: result = "xml-text"; break;
+    case External_t: result = "external"; break;
+    case Note_t:result = "note"; break;
+    case NoteReference_t: result = "noteref"; break;
     case Description_t: result = "desc"; break;
     case Gap_t: result = "gap"; break;
     case Content_t: result = "content"; break;
@@ -452,6 +455,15 @@ namespace folia {
     }
     if ( tag == "xml-text" ){
       return XmlText_t;
+    }
+    if ( tag == "external" ){
+      return External_t;
+    }
+    if ( tag == "note" ){
+      return Note_t;
+    }
+    if ( tag == "noteref" ){
+      return NoteReference_t;
     }
     if ( tag == "desc" ){
       return Description_t;
@@ -695,6 +707,12 @@ namespace folia {
       return new XmlComment( doc );
     case XmlText_t:
       return new XmlText( doc );
+    case External_t:
+      return new External( doc );
+    case Note_t:
+      return new Note( doc );
+    case NoteReference_t:
+      return new NoteReference( doc );
     case Description_t:
       return new Description( doc );
     case Gap_t:

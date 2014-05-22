@@ -118,7 +118,8 @@ namespace folia {
 
     FoliaElement *append( FoliaElement* );
 
-    void addDocIndex( FoliaElement* el, const std::string& );
+    void addDocIndex( FoliaElement*, const std::string& );
+    void delDocIndex( const FoliaElement*, const std::string& );
 
     FoliaElement* operator []( size_t ) const; //select i'th element from data
 
@@ -151,6 +152,8 @@ namespace folia {
     xmlDoc *XmlDoc() const { return xmldoc; };
     xmlNs *foliaNs() const { return _foliaNsOut; };
     void keepForDeletion( FoliaElement *p ) { delSet.insert( p ); };
+    void addExternal( External *p ) { externals.push_back( p ); };
+    FoliaElement *resolveExternals( FoliaElement* );
     int debug;
 
     class at_t {
@@ -176,6 +179,7 @@ namespace folia {
     std::map<std::string, FoliaElement* > sindex;
     std::vector<FoliaElement* > iindex;
     std::vector<FoliaElement*> data;
+    std::vector<External*> externals;
     std::string _id;
     std::set<FoliaElement *> delSet;
     FoliaElement *foliadoc;
@@ -195,6 +199,7 @@ namespace folia {
     bool loadall;
     std::string filename;
     std::string version;
+    bool external;
   };
 
   bool operator==( const Document&, const Document& );

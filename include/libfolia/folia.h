@@ -103,8 +103,10 @@ namespace folia {
     virtual FoliaElement *append( FoliaElement* );
     virtual FoliaElement *postappend( ) { return this; };
     virtual std::vector<FoliaElement*> findreplacables( FoliaElement * ) const;
+    void remove( size_t, bool = true );
     void remove( FoliaElement *, bool = true );
     void replace( FoliaElement * );
+    void replace( FoliaElement *, FoliaElement* );
 
     FoliaElement* index( size_t ) const;
 
@@ -474,9 +476,9 @@ namespace folia {
       return isSubClass( c->element_id() );
     };
     virtual std::string getTextDelimiter( bool retaintok=false ) const;
+    virtual KWargs collectAttributes() const;
   protected:
     virtual void init()=0;
-    virtual KWargs collectAttributes() const;
     virtual std::string generateId( const std::string& ){
       throw NotImplementedError( "generateId() not allowed for " + classname() );
     };
@@ -1525,6 +1527,48 @@ namespace folia {
     void init();
     std::string _value; //UTF8 value
   };
+
+  class External: public FoliaElement {
+  public:
+  External( const std::string& s=""): FoliaElement( ) { classInit( s ); };
+  External( const KWargs& a ): FoliaElement( ) { classInit( a ); };
+  External( Document *d, const std::string& s="" ): FoliaElement( d ) { classInit( s ); };
+  External( Document *d, const KWargs& a ): FoliaElement( d ) { classInit( a ); };
+    FoliaElement* parseXml( const xmlNode * );
+    void resolve();
+    void setAttributes( const KWargs& );
+    KWargs collectAttributes() const;
+  private:
+    void init();
+    std::string _src;
+    bool _include;
+  };
+
+
+  class Note: public AbstractStructureElement {
+  public:
+  Note( const std::string& s=""):  AbstractStructureElement(){ classInit( s ); };
+  Note( const KWargs& a ):  AbstractStructureElement(){ classInit( a ); };
+  Note( Document *d, const std::string& s=""):  AbstractStructureElement( d ){ classInit( s ); };
+  Note( Document *d, const KWargs& a ):  AbstractStructureElement( d ){ classInit( a ); };
+  private:
+    void init();
+  };
+
+  class NoteReference: public FoliaElement {
+    friend class Note;
+  public:
+  NoteReference( const std::string& s="" ): FoliaElement( ){ classInit( s ); };
+  NoteReference( const KWargs& a ): FoliaElement( ){ classInit( a ); };
+  NoteReference( Document *d, const std::string& s="" ): FoliaElement( d ){ classInit( s ); };
+  NoteReference( Document *d, const KWargs& a ): FoliaElement( d ){ classInit( a ); };
+    KWargs collectAttributes() const;
+    void setAttributes( const KWargs& );
+  private:
+    void init();
+    std::string refId;
+  };
+
 
   class Correction: public AbstractTokenAnnotation {
   public:

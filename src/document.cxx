@@ -58,7 +58,9 @@ namespace folia {
     };
   }
 
-  const string FOLIAVERSION = "0.10.0"; // the FoLiA version we implement
+  const int MAJOR_VERSION = 0;
+  const int MINOR_VERSION = 11;
+  const int SUB_VERSION   = 0;
   const string NSFOLIA = "http://ilk.uvt.nl/folia";
   const string NSDCOI = "http://lands.let.ru.nl/projects/d-coi/ns/1.0";
   const string NSIMDI = "http://www.mpi.nl/IMDI/Schema/IMDI";
@@ -74,6 +76,12 @@ namespace folia {
       foliadoc = new FoLiA( this, args );
   }
 
+  string versionstring(){
+    stringstream ss;
+    ss << MAJOR_VERSION << "." << MINOR_VERSION << "." << SUB_VERSION;
+    return ss.str();
+  }
+
   void Document::init(){
     _metadatatype = NATIVE;
     metadata = 0;
@@ -82,7 +90,7 @@ namespace folia {
     _foliaNsIn = 0;
     _foliaNsOut = 0;
     debug = 0;
-    version = FOLIAVERSION;
+    version = versionstring();
   }
 
   Document::~Document(){
@@ -132,20 +140,20 @@ namespace folia {
     KWargs::const_iterator it = kwargs.find( "debug" );
     if ( it != kwargs.end() )
       debug = stringTo<int>( it->second );
-    else
-      debug = 0;
     it = kwargs.find( "load" );
     if ( it != kwargs.end() )
       loadall = stringTo<bool>( it->second );
     else
       loadall = true;
+    it = kwargs.find( "external" );
+    if ( it != kwargs.end() )
+      external = stringTo<bool>( it->second );
+    else
+      external = false;
     it = kwargs.find( "version" );
     if ( it != kwargs.end() ){
       version = it->second;
     }
-    else
-      version.clear();
-
     it = kwargs.find( "_id" );
     if ( it == kwargs.end() ){
       it = kwargs.find( "id" );
@@ -178,12 +186,38 @@ namespace folia {
   }
 
   void Document::addDocIndex( FoliaElement* el, const string& s ){
+    if ( s.empty() ) {
+      return;
+    }
+    // cerr << _id << "-add docindex " << el << " (" << s << ")" << endl;
+    // using TiCC::operator <<;
+    // cerr << "VOOR: " << sindex << endl;
     if ( sindex.find( s ) == sindex.end() ){
       sindex[s] = el;
       iindex.push_back( el );
     }
     else
       throw DuplicateIDError( s );
+    //    cerr << "NA  : " << sindex << endl;
+  }
+
+  void Document::delDocIndex( const FoliaElement* el, const string& s ){
+    if ( s.empty() ) {
+      return;
+    }
+    // cerr << _id << "-del docindex " << el << " (" << s << ")" << endl;
+    // using TiCC::operator <<;
+    // cerr << "VOOR: " << sindex << endl;
+    sindex.erase(s);
+    //    cerr << "NA  : " << sindex << endl;
+    vector<FoliaElement*>::iterator pos = iindex.begin();
+    while( pos != iindex.end() ){
+      if ( *pos == el ){
+	iindex.erase( pos );
+	return;
+      }
+      ++pos;
+    }
   }
 
   static int error_sink(void *mydata, xmlError *error ){
@@ -546,10 +580,45 @@ namespace folia {
     return false;
   }
 
+  bool check_version( const string& vers ){
+    vector<string> vec;
+    const int myVersion = MAJOR_VERSION * 10000 + MINOR_VERSION * 100 + SUB_VERSION;
+    int readVersion = 0;
+    split_at( vers, vec, "." );
+    for ( size_t i=0; i < vec.size(); ++i ){
+      int val = stringTo<int>( vec[i] );
+      if ( i == 0 )
+	readVersion += 10000 * val;
+      else if ( i == 1 )
+	readVersion += 100 * val;
+      else
+	readVersion += val;
+    }
+    if ( readVersion <= myVersion )
+      return true;
+    else
+      return false;
+  }
+
+  FoliaElement *Document::resolveExternals( FoliaElement* result ){
+    if ( !externals.empty() ){
+      for ( size_t i= 0;i < externals.size(); ++i ){
+	externals[i]->resolve();
+      }
+    }
+    return result;
+  }
+
   FoliaElement* Document::parseFoliaDoc( xmlNode *root ){
     KWargs att = getAttributes( root );
     if ( att["_id"] == "" ){
       throw XmlError("FoLiA Document has no ID!");
+      return 0;
+    }
+    string vers = att["version"];
+    if ( !check_version( vers ) ){
+      throw XmlError( "FoLiA Document has unsupported version: " + vers
+		      + " (" + version + " is supported.)" );
       return 0;
     }
     setAttributes( att );
@@ -623,6 +692,7 @@ namespace folia {
       }
       p = p->next;
     }
+    result = resolveExternals( result );
     return result;
   }
 
@@ -1038,6 +1108,8 @@ namespace folia {
       attribs["generator"] = string("libfolia-v") + VERSION;
       if ( !version.empty() )
 	attribs["version"] = version;
+      if ( external )
+	attribs["external"] = "yes";
       addAttributes( root, attribs );
 
       xmlNode *md = xmlAddChild( root, XmlNewNode( foliaNs(), "metadata" ) );
