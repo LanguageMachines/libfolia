@@ -3204,7 +3204,7 @@ namespace folia {
   }
 
   void Note::init(){
-    _required_attributes = NO_ATT;
+    _required_attributes = ID;
     _xmltag = "note";
     _element_id = Note_t;
     const ElementType accept[] = { Structure_t };
@@ -3214,16 +3214,16 @@ namespace folia {
   }
 
   KWargs Note::collectAttributes() const {
-    KWargs atts;
-    atts["id"] = refId;
-    return atts;
+    KWargs attribs = FoliaElement::collectAttributes();
+    return attribs;
   }
 
   void Note::setAttributes( const KWargs& args ){
-    KWargs::const_iterator it = args.find( "id" );
+    KWargs::const_iterator it = args.find( "_id" );
     if ( it != args.end() ){
       refId = it->second;
     }
+    FoliaElement::setAttributes( args );
   }
 
   void NoteReference::init(){
