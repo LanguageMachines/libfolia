@@ -367,7 +367,6 @@ namespace folia {
     static set<ElementType> excludeSet;
     if ( excludeSet.empty() ){
       excludeSet.insert( Quote_t );
-      excludeSet.insert( Note_t );
     }
     return foliadoc->select<Sentence>( excludeSet );
   }
