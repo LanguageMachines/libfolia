@@ -2632,7 +2632,7 @@ namespace folia {
     _xmltag="cell";
     _required_attributes = NO_ATT;
     const ElementType accept[] = { Structure_t,
-				   TokenAnnotation_t,
+				   TokenAnnotation_t, Entities_t,
 				   Alignment_t, Metric_t,
 				   Alternatives_t, Gap_t };
     _accepted_data =
