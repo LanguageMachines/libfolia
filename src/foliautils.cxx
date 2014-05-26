@@ -338,7 +338,7 @@ namespace folia {
     case XmlText_t: result = "xml-text"; break;
     case External_t: result = "external"; break;
     case Note_t:result = "note"; break;
-    case NoteReference_t: result = "noteref"; break;
+    case Reference_t: result = "ref"; break;
     case Description_t: result = "desc"; break;
     case Gap_t: result = "gap"; break;
     case Content_t: result = "content"; break;
@@ -467,8 +467,8 @@ namespace folia {
     if ( tag == "note" ){
       return Note_t;
     }
-    if ( tag == "noteref" ){
-      return NoteReference_t;
+    if ( tag == "ref" ){
+      return Reference_t;
     }
     if ( tag == "desc" ){
       return Description_t;
@@ -716,8 +716,8 @@ namespace folia {
       return new External( doc );
     case Note_t:
       return new Note( doc );
-    case NoteReference_t:
-      return new NoteReference( doc );
+    case Reference_t:
+      return new Reference( doc );
     case Description_t:
       return new Description( doc );
     case Gap_t:

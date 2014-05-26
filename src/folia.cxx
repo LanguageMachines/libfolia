@@ -750,7 +750,7 @@ namespace folia {
     static ElementType tokenAnnoSet[] = { Pos_t, Lemma_t, Morphology_t,
 					  Sense_t, Phon_t, Str_t, Lang_t,
 					  Correction_t, Subjectivity_t,
-					  ErrorDetection_t, NoteReference_t };
+					  ErrorDetection_t, Reference_t };
     static ElementType annolaySet[] = { SyntaxLayer_t,
 					Chunking_t, Entities_t,
 					TimingLayer_t, Morphology_t,
@@ -3226,23 +3226,33 @@ namespace folia {
     FoliaElement::setAttributes( args );
   }
 
-  void NoteReference::init(){
-    _xmltag = "noteref";
-    _element_id = NoteReference_t;
-    _annotation_type = AnnotationType::NOTE;
+  void Reference::init(){
+    _xmltag = "ref";
+    _element_id = Reference_t;
     _required_attributes = NO_ATT;
   }
 
-  KWargs NoteReference::collectAttributes() const {
+  KWargs Reference::collectAttributes() const {
     KWargs atts;
     atts["id"] = refId;
+    atts["type"] = _type;
     return atts;
   }
 
-  void NoteReference::setAttributes( const KWargs& args ){
+  void Reference::setAttributes( const KWargs& args ){
     KWargs::const_iterator it = args.find( "id" );
     if ( it != args.end() ){
       refId = it->second;
+    }
+    it = args.find( "type" );
+    if ( it != args.end() ){
+      try {
+	stringTo<ElementType>( it->second );
+      }
+      catch (...){
+	throw XmlError( "attribute 'type' must be an Element Type" );
+      }
+      _type = it->second;
     }
   }
 

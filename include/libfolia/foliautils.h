@@ -107,7 +107,7 @@ namespace folia {
     TokenAnnotation_t, Structure_t,
     AbstractTextMarkup_t, TextMarkupString_t, TextMarkupGap_t,
     TextMarkupCorrection_t, TextMarkupError_t, TextMarkupStyle_t,
-    XmlText_t, External_t, Note_t, NoteReference_t,
+    XmlText_t, External_t, Note_t, Reference_t,
     LastElement
   };
 

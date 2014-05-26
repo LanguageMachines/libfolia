@@ -1558,18 +1558,19 @@ namespace folia {
     std::string refId;
   };
 
-  class NoteReference: public AbstractTokenAnnotation {
+  class Reference: public AbstractStructureElement {
     friend class Note;
   public:
-  NoteReference( const std::string& s="" ): AbstractTokenAnnotation( ){ classInit( s ); };
-  NoteReference( const KWargs& a ): AbstractTokenAnnotation( ){ classInit( a ); };
-  NoteReference( Document *d, const std::string& s="" ): AbstractTokenAnnotation( d ){ classInit( s ); };
-  NoteReference( Document *d, const KWargs& a ): AbstractTokenAnnotation( d ){ classInit( a ); };
+  Reference( const std::string& s="" ): AbstractStructureElement( ){ classInit( s ); };
+  Reference( const KWargs& a ): AbstractStructureElement( ){ classInit( a ); };
+  Reference( Document *d, const std::string& s="" ): AbstractStructureElement( d ){ classInit( s ); };
+  Reference( Document *d, const KWargs& a ): AbstractStructureElement( d ){ classInit( a ); };
     KWargs collectAttributes() const;
     void setAttributes( const KWargs& );
   private:
     void init();
     std::string refId;
+    std::string _type;
   };
 
 
