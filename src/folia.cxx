@@ -736,7 +736,8 @@ namespace folia {
 					  Word_t, WordReference_t,
 					  Sentence_t, Paragraph_t,
 					  Quote_t, Morpheme_t,
-					  Text_t, Event_t,
+					  Text_t, Event_t, Reference_t,
+					  External_t,
 					  Caption_t, Label_t,
 					  ListItem_t, List_t,
 					  Figure_t, Alternative_t, Note_t };
@@ -750,7 +751,7 @@ namespace folia {
     static ElementType tokenAnnoSet[] = { Pos_t, Lemma_t, Morphology_t,
 					  Sense_t, Phon_t, Str_t, Lang_t,
 					  Correction_t, Subjectivity_t,
-					  ErrorDetection_t, Reference_t };
+					  ErrorDetection_t };
     static ElementType annolaySet[] = { SyntaxLayer_t,
 					Chunking_t, Entities_t,
 					TimingLayer_t, Morphology_t,
@@ -2672,7 +2673,7 @@ namespace folia {
     _xmltag="w";
     _element_id = Word_t;
     const ElementType accept[] = { TextContent_t, TokenAnnotation_t,
-				   Alternative_t,
+				   Alternative_t, Reference_t,
 				   Description_t,
 				   Alignment_t, Metric_t };
     _accepted_data =
@@ -2853,7 +2854,7 @@ namespace folia {
     _xmltag="listitem";
     _element_id = ListItem_t;
     const ElementType accept[] = { Structure_t, Description_t,
-				   TokenAnnotation_t, Event_t,
+				   TokenAnnotation_t,
 				   TextContent_t, Str_t, Alignment_t,
 				   Gap_t };
     _accepted_data =

@@ -1,3 +1,8 @@
+0.11 2014-06-xx
+  * now implements nodes like: Ref, Note, External
+  * several bug fixes
+  * better MT safe
+
 0.10
   * some XML stuff is moved to ticcutils
   * also use some other goodies form ticcutils
@@ -5,7 +10,7 @@
     (follwing the FoLiA 0.9 specs)
   * a lot of code improvement too, including some bug fixes
 
-0.9 
+0.9
   * lost in tranistion
 
 0.8 2012-03-29
@@ -24,7 +29,7 @@
   * 0.4 is lost in space
   * rather extensive rework. API and ABI changed.
     More to do, but releasing now is desirable
- 
+
 0.3 2011-11-02
 [Ko van der Sloot]
   * Get ready for first (beta) release as a package
