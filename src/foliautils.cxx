@@ -301,7 +301,7 @@ namespace folia {
     case Caption_t: result = "caption"; break;
     case Label_t: result = "label"; break;
     case List_t: result = "list"; break;
-    case ListItem_t: result = "listitem"; break;
+    case Item_t: result = "item"; break;
     case Figure_t: result = "figure"; break;
     case Quote_t: result = "quote"; break;
     case TokenAnnotation_t: result = "tokenannotation"; break;
@@ -419,8 +419,8 @@ namespace folia {
     if ( tag == "list" ){
       return List_t;
     }
-    if ( tag == "listitem" ){
-      return ListItem_t;
+    if ( tag == "listitem" || tag == "item" ){
+      return Item_t;
     }
     if ( tag == "p" ){
       return Paragraph_t;
@@ -680,8 +680,8 @@ namespace folia {
       return new Label( doc );
     case List_t:
       return new List( doc );
-    case ListItem_t:
-      return new ListItem( doc );
+    case Item_t:
+      return new Item( doc );
     case Paragraph_t:
       return new Paragraph( doc );
     case New_t:

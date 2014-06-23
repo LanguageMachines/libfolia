@@ -739,7 +739,7 @@ namespace folia {
 					  Text_t, Event_t, Reference_t,
 					  External_t,
 					  Caption_t, Label_t,
-					  ListItem_t, List_t,
+					  Item_t, List_t,
 					  Figure_t, Alternative_t, Note_t };
     static ElementType featureSet[] = { SynsetFeature_t,
 					ActorFeature_t, HeadFeature_t,
@@ -2850,9 +2850,9 @@ namespace folia {
 			     accept + sizeof(accept)/sizeof(ElementType) );
   }
 
-  void ListItem::init(){
-    _xmltag="listitem";
-    _element_id = ListItem_t;
+  void Item::init(){
+    _xmltag="item";
+    _element_id = Item_t;
     const ElementType accept[] = { Structure_t, Description_t,
 				   TokenAnnotation_t,
 				   TextContent_t, Str_t, Alignment_t,
@@ -2866,7 +2866,7 @@ namespace folia {
   void List::init(){
     _xmltag="list";
     _element_id = List_t;
-    const ElementType accept[] = { ListItem_t, Description_t,
+    const ElementType accept[] = { Item_t, Description_t,
 				   Caption_t, Event_t, Lang_t,
 				   Alignment_t };
     _accepted_data =

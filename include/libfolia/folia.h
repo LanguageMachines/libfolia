@@ -1011,12 +1011,12 @@ namespace folia {
     void init();
   };
 
-  class ListItem: public AbstractStructureElement {
+  class Item: public AbstractStructureElement {
   public:
-  ListItem( const std::string& s=""):  AbstractStructureElement(){ classInit( s ); };
-  ListItem( const KWargs& a ):  AbstractStructureElement(){ classInit( a ); };
-  ListItem( Document *d, const std::string& s=""):  AbstractStructureElement( d ){ classInit( s ); };
-  ListItem( Document *d, const KWargs& a ):  AbstractStructureElement( d ){ classInit( a ); };
+  Item( const std::string& s=""):  AbstractStructureElement(){ classInit( s ); };
+  Item( const KWargs& a ):  AbstractStructureElement(){ classInit( a ); };
+  Item( Document *d, const std::string& s=""):  AbstractStructureElement( d ){ classInit( s ); };
+  Item( Document *d, const KWargs& a ):  AbstractStructureElement( d ){ classInit( a ); };
   private:
     void init();
   };

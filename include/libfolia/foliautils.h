@@ -74,7 +74,7 @@ namespace folia {
     Sentence_t, Paragraph_t,
     Division_t, Head_t,
     Caption_t, Label_t,
-    List_t, ListItem_t,
+    List_t, Item_t,
     Figure_t, Quote_t, //structure annotation elements
     Pos_t, Lemma_t,
     Phon_t, Domain_t,
