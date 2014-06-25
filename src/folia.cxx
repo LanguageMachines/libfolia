@@ -2808,8 +2808,8 @@ namespace folia {
   void Event::init(){
     _xmltag="event";
     _element_id = Event_t;
-    const ElementType accept[] = { Gap_t, Division_t, Paragraph_t, Sentence_t,
-				   List_t, Figure_t, Description_t,
+    const ElementType accept[] = { Gap_t, Division_t, Structure_t,
+				   Description_t,
 				   Feature_t, TextContent_t };
     _accepted_data =
       std::set<ElementType>( accept,
