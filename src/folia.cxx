@@ -3208,7 +3208,7 @@ namespace folia {
     _required_attributes = ID;
     _xmltag = "note";
     _element_id = Note_t;
-    const ElementType accept[] = { Structure_t };
+    const ElementType accept[] = { Structure_t, TextContent_t, Feature_t, Alignment_t, TokenAnnotation_t, Description_t };
     _accepted_data =
       std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
