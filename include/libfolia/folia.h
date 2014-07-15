@@ -670,6 +670,7 @@ namespace folia {
     void setAttributes( const KWargs& );
     KWargs collectAttributes() const;
     const FoliaElement* resolveid() const;
+    UnicodeString text( const std::string& = "current", bool = false ) const;
   protected:
     std::string getTextDelimiter( bool ) const { return ""; };
     std::string idref;

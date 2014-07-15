@@ -508,8 +508,8 @@ namespace folia {
     }
   }
 
-  //#define DEBUG_TEXT
-  //#define DEBUG_TEXT_DEL
+  //  #define DEBUG_TEXT
+  //  #define DEBUG_TEXT_DEL
 
   string FoliaElement::getTextDelimiter( bool retaintok ) const {
 #ifdef DEBUG_TEXT_DEL
@@ -595,7 +595,8 @@ namespace folia {
 #ifdef DEBUG_TEXT
     cerr << "deeptext() for " << _xmltag << " step 3 " << endl;
 #endif
-    result.trim();
+    if ( !retaintok )
+      result.trim();
     if ( !result.isEmpty() ){
 #ifdef DEBUG_TEXT
       cerr << "deeptext() for " << _xmltag << " result= '" << result << "'" << endl;
@@ -3364,6 +3365,12 @@ namespace folia {
       argl.erase( "original" );
     }
     FoliaElement::setAttributes( argl );
+  }
+
+  UnicodeString AbstractTextMarkup::text( const std::string& cls,
+					  bool ) const {
+    // we assume al TextMarkup te be tokenized already
+    return FoliaElement::text( cls, true );
   }
 
   UnicodeString TextMarkupCorrection::text( const std::string& cls,
