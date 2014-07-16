@@ -508,8 +508,8 @@ namespace folia {
     }
   }
 
-  //  #define DEBUG_TEXT
-  //  #define DEBUG_TEXT_DEL
+// #define DEBUG_TEXT
+// #define DEBUG_TEXT_DEL
 
   string FoliaElement::getTextDelimiter( bool retaintok ) const {
 #ifdef DEBUG_TEXT_DEL
@@ -558,10 +558,11 @@ namespace folia {
 #ifdef DEBUG_TEXT
     cerr << "deepTEXT(" << cls << ") op node : " << _xmltag << " id(" << id() << ")" << endl;
 #endif
-    UnicodeString result;
 #ifdef DEBUG_TEXT
     cerr << "deeptext: node has " << data.size() << " children." << endl;
 #endif
+    vector<UnicodeString> parts;
+    vector<UnicodeString> seps;
     for( size_t i=0; i < data.size(); ++i ){
       // try to get text dynamically from children
       // skip TextContent elements
@@ -574,16 +575,15 @@ namespace folia {
 #ifdef DEBUG_TEXT
 	  cerr << "deeptext found '" << tmp << "'" << endl;
 #endif
-	  result += tmp;
-	  if ( !tmp.isEmpty() && i < data.size()-1 ){
-	    // append a delimiter, only if there was text,
-	    // and NOT on the last child
-	    string delim = data[i]->getTextDelimiter( retaintok );
+	  if ( !isSubClass(AbstractTextMarkup_t) )
+	    tmp.trim();
+	  parts.push_back(tmp);
+	  // get the delimiter
+	  string delim = data[i]->getTextDelimiter( retaintok );
 #ifdef DEBUG_TEXT
-	    cerr << "deeptext:delimiter van "<< data[i]->xmltag() << " ='" << delim << "'" << endl;
+	  cerr << "deeptext:delimiter van "<< data[i]->xmltag() << " ='" << delim << "'" << endl;
 #endif
-	    result += UTF8ToUnicode( delim );
-	  }
+	  seps.push_back(UTF8ToUnicode(delim));
 	} catch ( NoSuchText& e ){
 #ifdef DEBUG_TEXT
 	  cerr << "HELAAS" << endl;
@@ -592,11 +592,16 @@ namespace folia {
       }
     }
 
+    // now construct the result;
+    UnicodeString result;
+    for( size_t i=0; i < parts.size(); ++i ){
+      result += parts[i];
+      if ( i < parts.size()-1)
+	result += seps[i];
+    }
 #ifdef DEBUG_TEXT
     cerr << "deeptext() for " << _xmltag << " step 3 " << endl;
 #endif
-    if ( !retaintok )
-      result.trim();
     if ( !result.isEmpty() ){
 #ifdef DEBUG_TEXT
       cerr << "deeptext() for " << _xmltag << " result= '" << result << "'" << endl;
@@ -1365,7 +1370,7 @@ namespace folia {
     KWargs attribs = FoliaElement::collectAttributes();
     if ( _class == "current" )
       attribs.erase( "class" );
-    else if ( _class == "original" && parent()->isinstance( Original_t ) )
+    else if ( _class == "original" && parent() && parent()->isinstance( Original_t ) )
       attribs.erase( "class" );
 
     if ( _offset >= 0 ){
