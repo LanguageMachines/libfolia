@@ -666,17 +666,19 @@ namespace folia {
     }
   }
 
-  void FoliaElement::replace( FoliaElement *old, FoliaElement* _new ){
+  FoliaElement* FoliaElement::replace( FoliaElement *old,
+				       FoliaElement* _new ){
     // replaced old by _new
-    // deletes old
-    // when not found does nothing
+    // returns old
+    // when not found does nothing and returns 0;
     for( size_t i=0; i < data.size(); ++i ){
       if ( data[i] == old ){
 	data[i] = _new;
 	_new->_parent = this;
-	delete old;
+	return old;
       }
     }
+    return 0;
   }
 
   TextContent *FoliaElement::settext( const string& txt,
@@ -3156,10 +3158,11 @@ namespace folia {
 	    args["_id"] = "Arglebargleglop-glyf";
 	    Text *tmp = new Text( mydoc, args );
 	    tmp->FoliaElement::parseXml( p );
-	    parent->replace( this, tmp->index(0) );
+	    FoliaElement *old = parent->replace( this, tmp->index(0) );
 	    mydoc->delDocIndex( tmp, "Arglebargleglop-glyf" );
 	    tmp->remove( (size_t)0, false );
 	    delete tmp;
+	    delete old;
 	  }
 	  p = p->next;
 	}

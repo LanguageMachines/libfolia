@@ -106,7 +106,7 @@ namespace folia {
     void remove( size_t, bool = true );
     void remove( FoliaElement *, bool = true );
     void replace( FoliaElement * );
-    void replace( FoliaElement *, FoliaElement* );
+    FoliaElement* replace( FoliaElement *, FoliaElement* );
 
     FoliaElement* index( size_t ) const;
 
