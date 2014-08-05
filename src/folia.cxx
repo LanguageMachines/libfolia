@@ -1455,8 +1455,16 @@ namespace folia {
     return result;
   }
 
-  string AllowGenerateID::IGgen( const string& tag,
-				 const string& nodeId ){
+  string AllowGenerateID::IDgen( const string& tag,
+				 const FoliaElement* parent ){
+    string nodeId = parent->id();
+    if ( nodeId.empty() ){
+      // search nearest parent WITH an id
+      const FoliaElement *p = parent;
+      while ( p && p->id().empty() )
+	p = p->parent();
+      nodeId = p->id();
+    }
     //    cerr << "generateId," << tag << " nodeId = " << nodeId << endl;
     int max = getMaxId(tag);
     //    cerr << "MAX = " << max << endl;
@@ -1948,6 +1956,34 @@ namespace folia {
     vector<FoliaElement *> nil;
     //  cerr << "correct() <== " << this;
     Correction *tmp =AbstractStructureElement::correct( ov, nil, nv, nil, args );
+    //  cerr << "correct() ==> " << this;
+    return tmp;
+  }
+
+  Correction *AbstractSpanAnnotation::correct( FoliaElement *old,
+					       FoliaElement *_new,
+					       const KWargs& args ){
+    vector<FoliaElement *> nv;
+    nv.push_back( _new );
+    vector<FoliaElement *> ov;
+    ov.push_back( old );
+    vector<FoliaElement *> nil;
+    //  cerr << "correct() <== " << this;
+    Correction *tmp = correct( ov, nil, nv, nil, args );
+    //  cerr << "correct() ==> " << this;
+    return tmp;
+  }
+
+  Correction *AbstractAnnotationLayer::correct( FoliaElement *old,
+						FoliaElement *_new,
+						const KWargs& args ){
+    vector<FoliaElement *> nv;
+    nv.push_back( _new );
+    vector<FoliaElement *> ov;
+    ov.push_back( old );
+    vector<FoliaElement *> nil;
+    //  cerr << "correct() <== " << this;
+    Correction *tmp = correct( ov, nil, nv, nil, args );
     //  cerr << "correct() ==> " << this;
     return tmp;
   }

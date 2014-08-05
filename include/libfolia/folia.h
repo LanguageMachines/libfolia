@@ -568,7 +568,7 @@ namespace folia {
     void setMaxId( FoliaElement * );
     int getMaxId( const std::string& );
   protected:
-    std::string IGgen( const std::string&, const std::string& );
+    std::string IDgen( const std::string&, const FoliaElement* );
   private:
     std::map<std::string, int> maxid;
   };
@@ -611,7 +611,7 @@ namespace folia {
     Word *rwords( size_t ) const;
     const Word* resolveword( const std::string& ) const;
     std::string generateId( const std::string& tag ){
-      return IGgen( tag, _id );
+      return IDgen( tag, this );
     }
   private:
     void init();
@@ -626,7 +626,7 @@ namespace folia {
   public:
   AbstractTokenAnnotation( Document *d=0 ):  AbstractAnnotation( d ){ classInit(); };
     std::string generateId( const std::string& tag ){
-      return IGgen( tag, _id );
+      return IDgen( tag, this );
     }
   private:
     void init();
@@ -649,14 +649,28 @@ namespace folia {
     void init();
   };
 
-  class AbstractSpanAnnotation: public AbstractAnnotation, AllowGenerateID {
+  class AbstractSpanAnnotation: public AbstractAnnotation,
+    AllowGenerateID,
+    AllowCorrection
+    {
   public:
   AbstractSpanAnnotation( Document *d=0 ):  AbstractAnnotation( d ){ classInit(); };
     xmlNode *xml( bool, bool=false ) const;
     FoliaElement *append( FoliaElement* );
     std::string generateId( const std::string& tag ){
-      return IGgen( tag, _id );
+      return IDgen( tag, this );
     }
+    Correction *correct( std::vector<FoliaElement*> v1,
+			 std::vector<FoliaElement*> v2,
+ 			 std::vector<FoliaElement*> v3,
+			 std::vector<FoliaElement*> v4,
+			 const KWargs& args ) {
+      return correctBase( this, v1, v2, v3, v4, args );
+    }
+    Correction *correct( FoliaElement*,
+			 FoliaElement*,
+			 const KWargs& );
+
     bool allowannotations() const { return true; };
     std::vector<FoliaElement*> wrefs() const;
 
@@ -1423,15 +1437,27 @@ namespace folia {
     void init();
   };
 
-  class AbstractAnnotationLayer: public FoliaElement, AllowGenerateID {
+  class AbstractAnnotationLayer: public FoliaElement, AllowGenerateID,
+    AllowCorrection {
   public:
   AbstractAnnotationLayer( const std::string& s=""): FoliaElement( ) { classInit( s ); };
   AbstractAnnotationLayer( const KWargs& a ): FoliaElement( ) { classInit( a ); };
   AbstractAnnotationLayer( Document *d, const std::string& s=""): FoliaElement( d ) { classInit( s ); };
   AbstractAnnotationLayer( Document *d, const KWargs& a ): FoliaElement( d ) { classInit( a ); };
     std::string generateId( const std::string& tag ){
-      return IGgen( tag, _id );
+      return IDgen( tag, this );
     }
+    Correction *correct( std::vector<FoliaElement*> v1,
+			 std::vector<FoliaElement*> v2,
+ 			 std::vector<FoliaElement*> v3,
+			 std::vector<FoliaElement*> v4,
+			 const KWargs& args ) {
+      return correctBase( this, v1, v2, v3, v4, args );
+    }
+    Correction *correct( FoliaElement*,
+			 FoliaElement*,
+			 const KWargs& );
+
     bool allowannotations() const { return true; };
     FoliaElement *findspan( const std::vector<FoliaElement*>& ) const;
   private:
