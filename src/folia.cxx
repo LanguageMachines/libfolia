@@ -760,6 +760,12 @@ namespace folia {
 					  Sense_t, Phon_t, Str_t, Lang_t,
 					  Correction_t, Subjectivity_t,
 					  ErrorDetection_t };
+    static ElementType spanAnnoSet[] = { SyntacticUnit_t,
+					 Chunk_t, Entity_t,
+					 Headwords_t,
+					 DependencyDependent_t,Dependency_t,
+					 CoreferenceLink_t, CoreferenceChain_t,
+					 Semrole_t, TimeSegment_t };
     static ElementType annolaySet[] = { SyntaxLayer_t,
 					Chunking_t, Entities_t,
 					TimingLayer_t, Morphology_t,
@@ -779,6 +785,9 @@ namespace folia {
       sm[TokenAnnotation_t]
 	= set<ElementType>( tokenAnnoSet,
 			    tokenAnnoSet + sizeof(tokenAnnoSet)/sizeof(ElementType) );
+      sm[SpanAnnotation_t]
+	= set<ElementType>( spanAnnoSet,
+			    spanAnnoSet + sizeof(spanAnnoSet)/sizeof(ElementType) );
       sm[AnnotationLayer_t]
 	= set<ElementType>( annolaySet,
 			    annolaySet + sizeof(annolaySet)/sizeof(ElementType) );
@@ -3057,7 +3066,7 @@ namespace folia {
 
   void AbstractCorrectionChild::init(){
     _optional_attributes = NO_ATT;
-    const ElementType accept[] = { TokenAnnotation_t,
+    const ElementType accept[] = { TokenAnnotation_t, SpanAnnotation_t,
 				   Word_t, WordReference_t, Str_t,
 				   TextContent_t, Description_t };
     _accepted_data =
@@ -3434,7 +3443,7 @@ namespace folia {
   void EntitiesLayer::init(){
     _element_id = Entities_t;
     _xmltag = "entities";
-    const ElementType accept[] = { Entity_t, Description_t };
+    const ElementType accept[] = { Entity_t, Description_t, Correction_t };
     _accepted_data =
       std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
@@ -3708,6 +3717,8 @@ namespace folia {
   }
 
   void AbstractSpanAnnotation::init() {
+    _xmltag = "spanannotation";
+    _element_id = SpanAnnotation_t;
     _required_attributes = NO_ATT;
     _optional_attributes = ALL;
     occurrences_per_set = 0; // Allow duplicates within the same set

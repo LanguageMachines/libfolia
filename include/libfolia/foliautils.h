@@ -80,7 +80,8 @@ namespace folia {
     Phon_t, Domain_t,
     Sense_t, Subjectivity_t,
     Metric_t, Correction_t, //token annotation elements
-    AnnotationLayer_t, SyntacticUnit_t,
+    AnnotationLayer_t, SpanAnnotation_t,
+    SyntacticUnit_t,
     Chunk_t, Chunking_t,
     Entity_t, Entities_t,
     Coreferences_t, CoreferenceLink_t,

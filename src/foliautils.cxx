@@ -314,6 +314,7 @@ namespace folia {
     case Subjectivity_t: result = "subjectivity"; break;
     case Correction_t: result = "correction"; break;
     case AnnotationLayer_t: result = "annotationlayer"; break;
+    case SpanAnnotation_t: result = "spanannotation"; break;
     case SyntacticUnit_t: result = "su"; break;
     case SyntaxLayer_t: result = "syntax"; break;
     case Chunk_t: result = "chunk"; break;
@@ -487,6 +488,9 @@ namespace folia {
     }
     if ( tag == "annotationlayer" ){
       return AnnotationLayer_t;
+    }
+    if ( tag == "spanannotation" ){
+      return SpanAnnotation_t;
     }
     if ( tag == "tokenannotation" ){
       return TokenAnnotation_t;
@@ -704,6 +708,8 @@ namespace folia {
       return new Row( doc );
     case Lang_t:
       return new LangAnnotation( doc );
+    case SpanAnnotation_t:
+      return new AbstractSpanAnnotation( doc );
     case TokenAnnotation_t:
       return new AbstractTokenAnnotation( doc );
     case Structure_t:
