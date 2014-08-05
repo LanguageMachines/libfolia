@@ -2886,7 +2886,7 @@ namespace folia {
   void Caption::init(){
     _xmltag="caption";
     _element_id = Caption_t;
-    const ElementType accept[] = { Sentence_t, Description_t,
+    const ElementType accept[] = { Sentence_t, Reference_t, Description_t,
 				   TokenAnnotation_t, TextContent_t };
     _accepted_data =
       std::set<ElementType>( accept,
@@ -3459,7 +3459,8 @@ namespace folia {
   void SyntaxLayer::init(){
     _element_id = SyntaxLayer_t;
     _xmltag = "syntax";
-    const ElementType accept[] = { SyntacticUnit_t, Description_t };
+    const ElementType accept[] = { SyntacticUnit_t, Description_t,
+				   Correction_t };
     _accepted_data =
       std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
@@ -3469,7 +3470,7 @@ namespace folia {
   void ChunkingLayer::init(){
     _element_id = Chunking_t;
     _xmltag = "chunking";
-    const ElementType accept[] = { Chunk_t, Description_t };
+    const ElementType accept[] = { Chunk_t, Description_t, Correction_t };
     _accepted_data =
       std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
@@ -3489,7 +3490,7 @@ namespace folia {
   void TimingLayer::init(){
     _element_id = TimingLayer_t;
     _xmltag = "timing";
-    const ElementType accept[] = { TimeSegment_t, Description_t };
+    const ElementType accept[] = { TimeSegment_t, Description_t, Correction_t };
     _accepted_data =
       std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
@@ -3498,7 +3499,7 @@ namespace folia {
   void MorphologyLayer::init(){
     _element_id = Morphology_t;
     _xmltag = "morphology";
-    const ElementType accept[] = { Morpheme_t };
+    const ElementType accept[] = { Morpheme_t, Correction_t };
     _accepted_data =
       std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
@@ -3509,7 +3510,8 @@ namespace folia {
   void CoreferenceLayer::init(){
     _element_id = Coreferences_t;
     _xmltag = "coreferences";
-    const ElementType accept[] = { CoreferenceChain_t, Description_t };
+    const ElementType accept[] = { CoreferenceChain_t, Description_t,
+				   Correction_t };
     _accepted_data =
       std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
@@ -3546,7 +3548,7 @@ namespace folia {
   void SemanticRolesLayer::init(){
     _element_id = Semroles_t;
     _xmltag = "semroles";
-    const ElementType accept[] = { Semrole_t, Description_t };
+    const ElementType accept[] = { Semrole_t, Description_t, Correction_t };
     _accepted_data =
       std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
@@ -3556,7 +3558,7 @@ namespace folia {
   void DependenciesLayer::init(){
     _element_id = Dependencies_t;
     _xmltag = "dependencies";
-    const ElementType accept[] = { Dependency_t, Description_t };
+    const ElementType accept[] = { Dependency_t, Description_t, Correction_t };
     _accepted_data =
       std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
