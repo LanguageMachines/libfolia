@@ -1264,8 +1264,9 @@ namespace folia {
 				    const string& args ){
     vector<FoliaElement*> ov;
     ov.push_back( w );
-    vector<FoliaElement*> nil;
-    return correctWords( ov, nil, nil, getArgs(args) );
+    vector<FoliaElement*> nil1;
+    vector<FoliaElement*> nil2;
+    return correctWords( ov, nil1, nil2, getArgs(args) );
   }
 
   Correction *Sentence::insertword( FoliaElement *w,
@@ -1332,14 +1333,19 @@ namespace folia {
 	sugg->append( *it );
 	++it;
       }
-      vector<FoliaElement *> nil;
+      vector<FoliaElement *> nil1;
+      vector<FoliaElement *> nil2;
       vector<FoliaElement *> sv;
+      vector<FoliaElement *> tmp = orig;
       sv.push_back( sugg );
-      return correct( nil, orig, nil, sv, args );
+      return correct( nil1, tmp, nil2, sv, args );
     }
     else {
-      vector<FoliaElement *> nil;
-      return correct( orig, nil, _new, nil, args );
+      vector<FoliaElement *> nil1;
+      vector<FoliaElement *> nil2;
+      vector<FoliaElement *> o_tmp = orig;
+      vector<FoliaElement *> n_tmp = _new;
+      return correct( o_tmp, nil1, n_tmp, nil2, args );
     }
   }
 
@@ -1510,10 +1516,10 @@ namespace folia {
   }
 
   Correction * AllowCorrection::correctBase( FoliaElement *root,
-					     vector<FoliaElement*> original,
-					     vector<FoliaElement*> current,
-					     vector<FoliaElement*> _new,
-					     vector<FoliaElement*> suggestions,
+					     vector<FoliaElement*>& original,
+					     vector<FoliaElement*>& current,
+					     vector<FoliaElement*>& _new,
+					     vector<FoliaElement*>& suggestions,
 					     const KWargs& args_in ){
     // cerr << "correct " << this << endl;
     // cerr << "original= " << original << endl;
@@ -1938,10 +1944,13 @@ namespace folia {
   }
 
   Correction *Word::correct( const string& s ){
-    vector<FoliaElement*> nil;
+    vector<FoliaElement*> nil1;
+    vector<FoliaElement*> nil2;
+    vector<FoliaElement*> nil3;
+    vector<FoliaElement*> nil4;
     KWargs args = getArgs( s );
     //  cerr << "word::correct() <== " << this << endl;
-    Correction *tmp = AbstractStructureElement::correct( nil, nil, nil, nil, args );
+    Correction *tmp = AbstractStructureElement::correct( nil1, nil2, nil3, nil4, args );
     //  cerr << "word::correct() ==> " << this << endl;
     return tmp;
   }
@@ -1953,9 +1962,10 @@ namespace folia {
     nv.push_back( _new );
     vector<FoliaElement *> ov;
     ov.push_back( old );
-    vector<FoliaElement *> nil;
+    vector<FoliaElement *> nil1;
+    vector<FoliaElement *> nil2;
     //  cerr << "correct() <== " << this;
-    Correction *tmp =AbstractStructureElement::correct( ov, nil, nv, nil, args );
+    Correction *tmp =AbstractStructureElement::correct( ov, nil1, nv, nil2, args );
     //  cerr << "correct() ==> " << this;
     return tmp;
   }
@@ -1967,9 +1977,10 @@ namespace folia {
     nv.push_back( _new );
     vector<FoliaElement *> ov;
     ov.push_back( old );
-    vector<FoliaElement *> nil;
+    vector<FoliaElement *> nil1;
+    vector<FoliaElement *> nil2;
     //  cerr << "correct() <== " << this;
-    Correction *tmp = correct( ov, nil, nv, nil, args );
+    Correction *tmp = correct( ov, nil1, nv, nil2, args );
     //  cerr << "correct() ==> " << this;
     return tmp;
   }
@@ -1981,9 +1992,10 @@ namespace folia {
     nv.push_back( _new );
     vector<FoliaElement *> ov;
     ov.push_back( old );
-    vector<FoliaElement *> nil;
+    vector<FoliaElement *> nil1;
+    vector<FoliaElement *> nil2;
     //  cerr << "correct() <== " << this;
-    Correction *tmp = correct( ov, nil, nv, nil, args );
+    Correction *tmp = correct( ov, nil1, nv, nil2, args );
     //  cerr << "correct() ==> " << this;
     return tmp;
   }

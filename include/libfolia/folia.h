@@ -439,10 +439,10 @@ namespace folia {
     virtual std::string content() const {
       throw NoSuchAnnotation( "content" );
     }
-    virtual Correction *correct( const std::vector<FoliaElement*>,
-				 const std::vector<FoliaElement*>,
-				 const std::vector<FoliaElement*>,
-				 const std::vector<FoliaElement*>,
+    virtual Correction *correct( std::vector<FoliaElement*>&,
+				 std::vector<FoliaElement*>&,
+				 std::vector<FoliaElement*>&,
+				 std::vector<FoliaElement*>&,
 				 const KWargs& ){
       throw NotImplementedError("correct() for " + _xmltag );
     }
@@ -576,10 +576,10 @@ namespace folia {
   class AllowCorrection {
   public:
     Correction *correctBase( FoliaElement *,
-			     std::vector<FoliaElement*>,
-			     std::vector<FoliaElement*>,
-			     std::vector<FoliaElement*>,
-			     std::vector<FoliaElement*>,
+			     std::vector<FoliaElement*>&,
+			     std::vector<FoliaElement*>&,
+			     std::vector<FoliaElement*>&,
+			     std::vector<FoliaElement*>&,
 			     const KWargs& );
   };
 
@@ -593,10 +593,10 @@ namespace folia {
 					     const std::string& = "" ) const;
 
     FoliaElement *append( FoliaElement* );
-    Correction *correct( std::vector<FoliaElement*> v1,
-			 std::vector<FoliaElement*> v2,
- 			 std::vector<FoliaElement*> v3,
-			 std::vector<FoliaElement*> v4,
+    Correction *correct( std::vector<FoliaElement*>& v1,
+			 std::vector<FoliaElement*>& v2,
+ 			 std::vector<FoliaElement*>& v3,
+			 std::vector<FoliaElement*>& v4,
 			 const KWargs& args ) {
       return correctBase( this, v1, v2, v3, v4, args );
     }
@@ -660,10 +660,10 @@ namespace folia {
     std::string generateId( const std::string& tag ){
       return IDgen( tag, this );
     }
-    Correction *correct( std::vector<FoliaElement*> v1,
-			 std::vector<FoliaElement*> v2,
- 			 std::vector<FoliaElement*> v3,
-			 std::vector<FoliaElement*> v4,
+    Correction *correct( std::vector<FoliaElement*>& v1,
+			 std::vector<FoliaElement*>& v2,
+ 			 std::vector<FoliaElement*>& v3,
+			 std::vector<FoliaElement*>& v4,
 			 const KWargs& args ) {
       return correctBase( this, v1, v2, v3, v4, args );
     }
@@ -940,10 +940,10 @@ namespace folia {
   String( const KWargs& a ):  AbstractTokenAnnotation(){ classInit( a ); };
   String( Document *d, const std::string& s=""):  AbstractTokenAnnotation( d ){ classInit( s ); };
   String( Document *d, const KWargs& a ):  AbstractTokenAnnotation( d ){ classInit( a ); };
-    Correction *correct( std::vector<FoliaElement*> v1,
-			 std::vector<FoliaElement*> v2,
- 			 std::vector<FoliaElement*> v3,
-			 std::vector<FoliaElement*> v4,
+    Correction *correct( std::vector<FoliaElement*>& v1,
+			 std::vector<FoliaElement*>& v2,
+ 			 std::vector<FoliaElement*>& v3,
+			 std::vector<FoliaElement*>& v4,
 			 const KWargs& args ) {
       return correctBase( this, v1, v2, v3, v4, args );
     }
@@ -1447,10 +1447,10 @@ namespace folia {
     std::string generateId( const std::string& tag ){
       return IDgen( tag, this );
     }
-    Correction *correct( std::vector<FoliaElement*> v1,
-			 std::vector<FoliaElement*> v2,
- 			 std::vector<FoliaElement*> v3,
-			 std::vector<FoliaElement*> v4,
+    Correction *correct( std::vector<FoliaElement*>& v1,
+			 std::vector<FoliaElement*>& v2,
+ 			 std::vector<FoliaElement*>& v3,
+			 std::vector<FoliaElement*>& v4,
 			 const KWargs& args ) {
       return correctBase( this, v1, v2, v3, v4, args );
     }
