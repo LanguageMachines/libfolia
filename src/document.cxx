@@ -114,21 +114,21 @@ namespace folia {
   }
 
   bool operator==( const FoliaElement& a1, const FoliaElement& a2){
-    if ( a1._element_id != a2._element_id )
+    if ( a1.element_id() != a2.element_id() )
       return false;
-    if ( a1._id != a2._id )
+    if ( a1.id() != a2.id() )
       return false;
-    if ( a1._set != a2._set )
+    if ( a1.sett() != a2.sett() )
       return false;
-    if ( a1._class != a2._class )
+    if ( a1.cls() != a2.cls() )
       return false;
-    if ( a1._annotator != a2._annotator )
+    if ( a1.annotator() != a2.annotator() )
       return false;
-    if ( a1._annotator_type != a2._annotator_type )
+    if ( a1.annotatortype() != a2.annotatortype() )
       return false;
-    if ( a1.data.size() == a2.data.size() ) {
-      for ( size_t i = 0; i < a1.data.size(); ++i ){
-	if ( *a1.data[i] != *a2.data[i] )
+    if ( a1.size() == a2.size() ) {
+      for ( size_t i = 0; i < a1.size(); ++i ){
+	if ( *a1.index(i) != *a2.index(i) )
 	  return false;
       }
     }
@@ -1116,10 +1116,9 @@ namespace folia {
       xmlNode *an = xmlAddChild( md, XmlNewNode( foliaNs(), "annotations" ) );
       setannotations( an );
       setmetadata( md );
-      vector<FoliaElement*>::const_iterator it= foliadoc->data.begin();
-      while ( it != foliadoc->data.end() ){
-	xmlAddChild( root, (*it)->xml( true, kanon ) );
-	++it;
+      for ( size_t i=0; i < foliadoc->size(); ++i ){
+	FoliaElement* el = foliadoc->index(i);
+	xmlAddChild( root, el->xml( true, kanon ) );
       }
       xmlChar *buf; int size;
       xmlDocDumpFormatMemoryEnc( outDoc, &buf, &size, "UTF-8", 1 );

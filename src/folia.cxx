@@ -56,8 +56,8 @@ namespace folia {
   ostream& operator<<( ostream& os, const FoliaElement& ae ){
     os << " <" << ae.classname();
     KWargs ats = ae.collectAttributes();
-    if ( !ae._id.empty() )
-      ats["id"] = ae._id;
+    if ( !ae.id().empty() )
+      ats["id"] = ae.id();
 
     KWargs::const_iterator it = ats.begin();
     while ( it != ats.end() ){
@@ -65,8 +65,8 @@ namespace folia {
       ++it;
     }
     os << " > {";
-    for( size_t i=0; i < ae.data.size(); ++i ){
-      os << "<" << ae.data[i]->classname() << ">,";
+    for( size_t i=0; i < ae.size(); ++i ){
+      os << "<" << ae.index(i)->classname() << ">,";
     }
     os << "}";
     return os;
@@ -80,11 +80,11 @@ namespace folia {
     return os;
   }
 
-  FoliaElement::FoliaElement( Document *d ){
+  FoliaImpl::FoliaImpl( Document *d ){
     mydoc = d;
     _confidence = -1;
     _element_id = BASE;
-    refcount = 0;
+    _refcount = 0;
     _parent = 0;
     _auth = true;
     _required_attributes = NO_ATT;
@@ -92,18 +92,18 @@ namespace folia {
     _annotation_type = AnnotationType::NO_ANN;
     _annotator_type = UNDEFINED;
     _xmltag = "ThIsIsSoWrOnG";
-    occurrences = 0;  //#Number of times this element may occur in its parent (0=unlimited, default=0)
-    occurrences_per_set = 1; // #Number of times this element may occur per set (0=unlimited, default=1)
+    _occurrences = 0;  //#Number of times this element may occur in its parent (0=unlimited, default=0)
+    _occurrences_per_set = 1; // #Number of times this element may occur per set (0=unlimited, default=1)
     TEXTDELIMITER = "NONE" ;
     PRINTABLE = true;
     AUTH = true;
   }
 
-  FoliaElement::~FoliaElement( ){
+  FoliaImpl::~FoliaImpl( ){
     // cerr << "delete element id=" << _id << " tag = " << _xmltag << " *= "
     //  	 << (void*)this << " datasize= " << data.size() << endl;
     for ( size_t i=0; i < data.size(); ++i ){
-      if ( data[i]->refcount == 0 ) {
+      if ( data[i]->refcount() == 0 ) {
 	// probably only for words
 	delete data[i];
       }
@@ -118,14 +118,14 @@ namespace folia {
     }
   }
 
-  xmlNs *FoliaElement::foliaNs() const {
+  xmlNs *FoliaImpl::foliaNs() const {
     if ( mydoc )
       return mydoc->foliaNs();
     else
       return 0;
   }
 
-  void FoliaElement::setAttributes( const KWargs& kwargs ){
+  void FoliaImpl::setAttributes( const KWargs& kwargs ){
     Attrib supported = _required_attributes | _optional_attributes;
     // if ( _element_id == Feature_t ){
     //   cerr << "set attributes: " << kwargs << " on " << toString(_element_id) << endl;
@@ -145,7 +145,7 @@ namespace folia {
       if ( !mydoc ){
 	throw runtime_error( "can't generate an ID without a doc" );
       }
-      FoliaElement * e = (*mydoc)[it->second];
+      FoliaElement *e = (*mydoc)[it->second];
       if ( e ){
 	_id = e->generateId( _xmltag );
       }
@@ -315,7 +315,7 @@ namespace folia {
     addFeatureNodes( kwargs );
   }
 
-  void FoliaElement::addFeatureNodes( const KWargs& kwargs ){
+  void FoliaImpl::addFeatureNodes( const KWargs& kwargs ){
     KWargs::const_iterator it = kwargs.begin();
     while ( it != kwargs.end() ){
       string tag = it->first;
@@ -342,7 +342,7 @@ namespace folia {
     }
   }
 
-  KWargs FoliaElement::collectAttributes() const {
+  KWargs FoliaImpl::collectAttributes() const {
     KWargs attribs;
     bool isDefaultSet = true;
     bool isDefaultAnn = true;
@@ -417,7 +417,7 @@ namespace folia {
     return att;
   }
 
-  xmlNode *FoliaElement::xml( bool recursive, bool kanon ) const {
+  xmlNode *FoliaImpl::xml( bool recursive, bool kanon ) const {
     xmlNode *e = XmlNewNode( foliaNs(), _xmltag );
     KWargs attribs = collectAttributes();
     set<FoliaElement *> attribute_elements;
@@ -445,7 +445,7 @@ namespace folia {
       while ( it != data.end() ){
 	if ( attribute_elements.find(*it) == attribute_elements.end() ){
 	  if ( (*it)->isinstance(TextContent_t) ){
-	    if ( (*it)->_class == "current" )
+	    if ( (*it)->cls() == "current" )
 	      textelements.push_front( *it );
 	    else
 	      textelements.push_back( *it );
@@ -493,7 +493,8 @@ namespace folia {
     return e;
   }
 
-  string FoliaElement::str() const {
+  string FoliaImpl::str() const {
+    cerr << "Impl::str()" << endl;
     return _xmltag;
   }
 
@@ -508,10 +509,10 @@ namespace folia {
     }
   }
 
-// #define DEBUG_TEXT
-// #define DEBUG_TEXT_DEL
+  //#define DEBUG_TEXT
+  //#define DEBUG_TEXT_DEL
 
-  string FoliaElement::getTextDelimiter( bool retaintok ) const {
+  string FoliaImpl::getTextDelimiter( bool retaintok ) const {
 #ifdef DEBUG_TEXT_DEL
     cerr << "IN " << xmltag() << "::gettextdelimiter (" << retaintok << ")" << endl;
 #endif
@@ -533,11 +534,11 @@ namespace folia {
     return TEXTDELIMITER;
   }
 
-  UnicodeString FoliaElement::text( const string& cls, bool retaintok ) const {
+  UnicodeString FoliaImpl::text( const string& cls, bool retaintok ) const {
     // get the UnicodeString value of underlying elements
     // default cls="current"
 #ifdef DEBUG_TEXT
-    cerr << "TEXT(" << cls << ") op node : " << _xmltag << " id ( " << id() << ")" << endl;
+    cerr << "TEXT(" << cls << ") op node : " << xmltag() << " id ( " << id() << ")" << endl;
 #endif
     UnicodeString result;
     try {
@@ -551,8 +552,8 @@ namespace folia {
     return result;
   }
 
-  UnicodeString FoliaElement::deeptext( const string& cls,
-					bool retaintok ) const {
+  UnicodeString FoliaImpl::deeptext( const string& cls,
+				     bool retaintok ) const {
     // get the UnicodeString value of underlying elements
     // default cls="current"
 #ifdef DEBUG_TEXT
@@ -566,7 +567,7 @@ namespace folia {
     for( size_t i=0; i < data.size(); ++i ){
       // try to get text dynamically from children
       // skip TextContent elements
-      if ( data[i]->PRINTABLE && !data[i]->isinstance( TextContent_t ) ){
+      if ( data[i]->printable() && !data[i]->isinstance( TextContent_t ) ){
 #ifdef DEBUG_TEXT
 	cerr << "deeptext:bekijk node[" << i << "] " << data[i]->xmltag() << endl;
 #endif
@@ -618,7 +619,7 @@ namespace folia {
     return this->textcontent(cls)->text(cls);
   }
 
-  TextContent *FoliaElement::textcontent( const string& cls ) const {
+  TextContent *FoliaImpl::textcontent( const string& cls ) const {
     // Get the text explicitly associated with this element (of the specified class).
     // the default class is 'current'
     // Returns the TextContent instance rather than the actual text. Does not recurse into children
@@ -629,7 +630,7 @@ namespace folia {
       throw NoSuchText( "non-printable tag: " +  _xmltag );
 
     for( size_t i=0; i < data.size(); ++i ){
-      if ( data[i]->isinstance(TextContent_t) && (data[i]->_class == cls) ){
+      if ( data[i]->isinstance(TextContent_t) && (data[i]->cls() == cls) ){
 	return dynamic_cast<TextContent*>(data[i]);
       }
       else if ( data[i]->element_id() == Correction_t) {
@@ -643,11 +644,11 @@ namespace folia {
     throw NoSuchText( _xmltag + "::textcontent()" );
   }
 
-  vector<FoliaElement *>FoliaElement::findreplacables( FoliaElement *par ) const {
-    return par->select( element_id(), _set, false );
+  vector<FoliaElement *>FoliaImpl::findreplacables( FoliaElement *par ) const {
+    return par->select( element_id(), sett(), false );
   }
 
-  void FoliaElement::replace( FoliaElement *child ){
+  void FoliaImpl::replace( FoliaElement *child ){
     // Appends a child element like append(), but replaces any existing child
     // element of the same type and set.
     // If no such child element exists, this will act the same as append()
@@ -666,15 +667,15 @@ namespace folia {
     }
   }
 
-  FoliaElement* FoliaElement::replace( FoliaElement *old,
-				       FoliaElement* _new ){
+  FoliaElement* FoliaImpl::replace( FoliaElement *old,
+				    FoliaElement* _new ){
     // replaced old by _new
     // returns old
     // when not found does nothing and returns 0;
     for( size_t i=0; i < data.size(); ++i ){
       if ( data[i] == old ){
 	data[i] = _new;
-	_new->_parent = this;
+	_new->setParent( this );
 	return old;
       }
     }
@@ -688,7 +689,7 @@ namespace folia {
     KWargs args;
     args["value"] = txt;
     args["class"] = cls;
-    TextContent *node = new TextContent( mydoc );
+    TextContent *node = new TextContent( doc() );
     node->setAttributes( args );
     replace( node );
     return node;
@@ -712,7 +713,7 @@ namespace folia {
     args["value"] = txt;
     args["class"] = cls;
     args["offset"] = TiCC::toString(offset);
-    TextContent *node = new TextContent( mydoc );
+    TextContent *node = new TextContent( doc() );
     node->setAttributes( args );
     replace( node );
     return node;
@@ -806,10 +807,10 @@ namespace folia {
   }
 
   bool FoliaElement::isSubClass( ElementType t ) const {
-    return folia::isSubClass( _element_id, t );
+    return folia::isSubClass( element_id(), t );
   }
 
-  bool FoliaElement::acceptable( ElementType t ) const {
+  bool FoliaImpl::acceptable( ElementType t ) const {
     if ( t == XmlComment_t )
       return true;
     else {
@@ -827,35 +828,35 @@ namespace folia {
     }
   }
 
-  bool FoliaElement::addable( const FoliaElement *c ) const {
-    if ( !acceptable( c->_element_id ) ){
+  bool FoliaImpl::addable( const FoliaElement *c ) const {
+    if ( !acceptable( c->element_id() ) ){
       throw ValueError( "Unable to append object of type " + c->classname()
 			+ " to a " + classname() );
     }
-    if ( c->occurrences > 0 ){
-      vector<FoliaElement*> v = select( c->_element_id, false );
+    if ( c->occurrences() > 0 ){
+      vector<FoliaElement*> v = select( c->element_id(), false );
       size_t count = v.size();
-      if ( count >= c->occurrences ){
+      if ( count >= c->occurrences() ){
 	throw DuplicateAnnotationError( "Unable to add another object of type " + c->classname() + " to " + classname() + ". There are already " + TiCC::toString(count) + " instances of this class, which is the maximum." );
       }
     }
-    if ( c->occurrences_per_set > 0 &&
-	 ( (CLASS|SETONLY) & c->_required_attributes ) ){
-      vector<FoliaElement*> v = select( c->_element_id, c->_set, false );
+    if ( c->occurrences_per_set() > 0 &&
+	 ( (CLASS|SETONLY) & c->required_attributes() ) ){
+      vector<FoliaElement*> v = select( c->element_id(), c->sett(), false );
       size_t count = v.size();
-      if ( count >= c->occurrences_per_set ){
+      if ( count >= c->occurrences_per_set() ){
 	throw DuplicateAnnotationError( "Unable to add another object of type " + c->classname() + " to " + classname() + ". There are already " + TiCC::toString(count) + " instances of this class, which is the maximum." );
       }
     }
-    if ( c->_parent &&
-	 !(c->_element_id == Word_t || c->_element_id == Morpheme_t ) ){
+    if ( c->parent() &&
+	 !(c->element_id() == Word_t || c->element_id() == Morpheme_t ) ){
       // Only for WordRef i hope
       throw XmlError( "attempt to reconnect node " + c->classname()
 		      + " to a " + classname() + " node, id=" + _id
 		      + ", it was already connected to a "
-		      +  c->_parent->classname() + " id=" + c->_parent->id() );
+		      +  c->parent()->classname() + " id=" + c->parent()->id() );
     }
-    if ( c->_element_id == TextContent_t && _element_id == Word_t ){
+    if ( c->element_id() == TextContent_t && _element_id == Word_t ){
       string val = c->str();
       val = trim( val );
       if ( val.empty() ){
@@ -865,7 +866,7 @@ namespace folia {
     return true;
   }
 
-  void FoliaElement::fixupDoc( Document* doc ) {
+  void FoliaImpl::fixupDoc( Document* doc ) {
     if ( !mydoc ){
       mydoc = doc;
       string myid = id();
@@ -883,7 +884,7 @@ namespace folia {
     }
   }
 
-  bool FoliaElement::checkAtts(){
+  bool FoliaImpl::checkAtts(){
     if ( _id.empty() && (ID & _required_attributes ) ){
       throw ValueError( "ID is required for " + classname() );
     }
@@ -911,7 +912,7 @@ namespace folia {
     return true;
   }
 
-  FoliaElement *FoliaElement::append( FoliaElement *child ){
+  FoliaElement *FoliaImpl::append( FoliaElement *child ){
     bool ok = false;
     try {
       ok = child->checkAtts();
@@ -929,8 +930,8 @@ namespace folia {
     if ( ok ){
       child->fixupDoc( mydoc );
       data.push_back(child);
-      if ( !child->_parent ) // Only for WordRef and Morpheme
-	child->_parent = this;
+      if ( !child->parent() ) // Only for WordRef and Morpheme
+	child->setParent(this);
       else
 	child->increfcount();
       return child->postappend();
@@ -939,14 +940,14 @@ namespace folia {
   }
 
 
-  void FoliaElement::remove( FoliaElement *child, bool del ){
+  void FoliaImpl::remove( FoliaElement *child, bool del ){
     vector<FoliaElement*>::iterator it = std::remove( data.begin(), data.end(), child );
     data.erase( it, data.end() );
     if ( del )
       delete child;
   }
 
-  void FoliaElement::remove( size_t pos, bool del ){
+  void FoliaImpl::remove( size_t pos, bool del ){
     if ( pos < data.size() ){
       vector<FoliaElement*>::iterator it = data.begin();
       while ( pos > 0 ){
@@ -959,32 +960,32 @@ namespace folia {
     }
   }
 
-  FoliaElement* FoliaElement::index( size_t i ) const {
+  FoliaElement* FoliaImpl::index( size_t i ) const {
     if ( i < data.size() )
       return data[i];
     else
       throw range_error( "[] index out of range" );
   }
 
-  FoliaElement* FoliaElement::rindex( size_t i ) const {
+  FoliaElement* FoliaImpl::rindex( size_t i ) const {
     if ( i < data.size() )
       return data[data.size()-1-i];
     else
       throw range_error( "[] rindex out of range" );
   }
 
-  vector<FoliaElement*> FoliaElement::select( ElementType et,
-					      const string& st,
-					      const set<ElementType>& exclude,
-					      bool recurse ) const {
+  vector<FoliaElement*> FoliaImpl::select( ElementType et,
+					   const string& st,
+					   const set<ElementType>& exclude,
+					   bool recurse ) const {
     vector<FoliaElement*> res;
     for ( size_t i = 0; i < data.size(); ++i ){
-      if ( data[i]->_element_id == et &&
-	   ( st.empty() || data[i]->_set == st ) ){
+      if ( data[i]->element_id() == et &&
+	   ( st.empty() || data[i]->sett() == st ) ){
 	res.push_back( data[i] );
       }
       if ( recurse ){
-	if ( exclude.find( data[i]->_element_id ) == exclude.end() ){
+	if ( exclude.find( data[i]->element_id() ) == exclude.end() ){
 	  vector<FoliaElement*> tmp = data[i]->select( et, st, exclude, recurse );
 	  res.insert( res.end(), tmp.begin(), tmp.end() );
 	}
@@ -1022,22 +1023,22 @@ namespace folia {
 					     ignoreStrList + sizeof( ignoreStrList )/sizeof( ElementType ) );
 
 
-  vector<FoliaElement*> FoliaElement::select( ElementType et,
-					      const string& st,
-					      bool recurse ) const {
+  vector<FoliaElement*> FoliaImpl::select( ElementType et,
+					   const string& st,
+					   bool recurse ) const {
     return select( et, st, default_ignore, recurse );
   }
 
-  vector<FoliaElement*> FoliaElement::select( ElementType et,
-					      const set<ElementType>& exclude,
-					      bool recurse ) const {
+  vector<FoliaElement*> FoliaImpl::select( ElementType et,
+					   const set<ElementType>& exclude,
+					   bool recurse ) const {
     vector<FoliaElement*> res;
     for ( size_t i = 0; i < data.size(); ++i ){
-      if ( data[i]->_element_id == et ){
+      if ( data[i]->element_id() == et ){
 	res.push_back( data[i] );
       }
       if ( recurse ){
-	if ( exclude.find( data[i]->_element_id ) == exclude.end() ){
+	if ( exclude.find( data[i]->element_id() ) == exclude.end() ){
 	  vector<FoliaElement*> tmp = data[i]->select( et, exclude, recurse );
 	  res.insert( res.end(), tmp.begin(), tmp.end() );
 	}
@@ -1046,54 +1047,54 @@ namespace folia {
     return res;
   }
 
-  vector<FoliaElement*> FoliaElement::select( ElementType et,
+  vector<FoliaElement*> FoliaImpl::select( ElementType et,
 					      bool recurse ) const {
     return select( et, default_ignore, recurse );
   }
 
-  FoliaElement* FoliaElement::parseXml( const xmlNode *node ){
+  FoliaElement* FoliaImpl::parseXml( const xmlNode *node ){
     KWargs att = getAttributes( node );
     setAttributes( att );
     xmlNode *p = node->children;
     while ( p ){
       if ( p->type == XML_ELEMENT_NODE ){
 	string tag = Name( p );
-	FoliaElement *t = createElement( mydoc, tag );
+	FoliaElement *t = createElement( doc(), tag );
 	if ( t ){
-	  if ( mydoc && mydoc->debug > 2 )
+	  if ( doc() && doc()->debug > 2 )
 	    cerr << "created " << t << endl;
 	  t = t->parseXml( p );
 	  if ( t ){
-	    if ( mydoc && mydoc->debug > 2 )
-	      cerr << "extend " << this << " met " << tag << endl;
+	    if ( doc() && doc()->debug > 2 )
+	      cerr << "extend " << this << " met " << t << endl;
 	    append( t );
 	  }
 	}
       }
       else if ( p->type == XML_COMMENT_NODE ){
 	string tag = "xml-comment";
-	FoliaElement *t = createElement( mydoc, tag );
+	FoliaElement *t = createElement( doc(), tag );
 	if ( t ){
-	  if ( mydoc && mydoc->debug > 2 )
+	  if ( doc() && doc()->debug > 2 )
 	    cerr << "created " << t << endl;
 	  t = t->parseXml( p );
 	  if ( t ){
-	    if ( mydoc && mydoc->debug > 2 )
-	      cerr << "extend " << this << " met " << tag << endl;
+	    if ( doc() && doc()->debug > 2 )
+	      cerr << "extend " << this << " met " << t << endl;
 	    append( t );
 	  }
 	}
       }
       else if ( p->type == XML_TEXT_NODE ){
 	string tag = "xml-text";
-	FoliaElement *t = createElement( mydoc, tag );
+	FoliaElement *t = createElement( doc(), tag );
 	if ( t ){
-	  if ( mydoc && mydoc->debug > 2 )
+	  if ( doc() && doc()->debug > 2 )
 	    cerr << "created " << t << endl;
 	  t = t->parseXml( p );
 	  if ( t ){
-	    if ( mydoc && mydoc->debug > 2 )
-	      cerr << "extend " << this << " met " << tag << endl;
+	    if ( doc() && doc()->debug > 2 )
+	      cerr << "extend " << this << " met " << t << endl;
 	    append( t );
 	  }
 	}
@@ -1103,7 +1104,7 @@ namespace folia {
     return this;
   }
 
-  void FoliaElement::setDateTime( const string& s ){
+  void FoliaImpl::setDateTime( const string& s ){
     Attrib supported = _required_attributes | _optional_attributes;
     if ( !(DATETIME & supported) )
       throw ValueError("datetime is not supported for " + classname() );
@@ -1115,27 +1116,27 @@ namespace folia {
     }
   }
 
-  string FoliaElement::getDateTime() const {
+  string FoliaImpl::getDateTime() const {
     return _datetime;
   }
 
-  string FoliaElement::pos( const string& st ) const {
+  string FoliaImpl::pos( const string& st ) const {
     return annotation<PosAnnotation>( st )->cls();
   }
 
-  string FoliaElement::lemma( const string& st ) const {
+  string FoliaImpl::lemma( const string& st ) const {
     return annotation<LemmaAnnotation>( st )->cls();
   }
 
-  PosAnnotation *FoliaElement::addPosAnnotation( const KWargs& args ){
+  PosAnnotation *FoliaImpl::addPosAnnotation( const KWargs& args ){
     return addAnnotation<PosAnnotation>( args );
   }
 
-  LemmaAnnotation *FoliaElement::addLemmaAnnotation( const KWargs& args ){
+  LemmaAnnotation *FoliaImpl::addLemmaAnnotation( const KWargs& args ){
     return addAnnotation<LemmaAnnotation>( args );
   }
 
-  Sentence *FoliaElement::addSentence( const KWargs& args ){
+  Sentence *FoliaImpl::addSentence( const KWargs& args ){
     Sentence *res = new Sentence( mydoc );
     KWargs kw = args;
     if ( kw["id"].empty() ){
@@ -1153,7 +1154,7 @@ namespace folia {
     return res;
   }
 
-  Word *FoliaElement::addWord( const KWargs& args ){
+  Word *FoliaImpl::addWord( const KWargs& args ){
     Word *res = new Word( mydoc );
     KWargs kw = args;
     if ( kw["id"].empty() ){
@@ -1380,11 +1381,11 @@ namespace folia {
     if ( it == kwargs.end() ) {
       kwargs["class"] = "current";
     }
-    FoliaElement::setAttributes(kwargs);
+    FoliaImpl::setAttributes(kwargs);
   }
 
   KWargs TextContent::collectAttributes() const {
-    KWargs attribs = FoliaElement::collectAttributes();
+    KWargs attribs = FoliaImpl::collectAttributes();
     if ( _class == "current" )
       attribs.erase( "class" );
     else if ( _class == "original" && parent() && parent()->isinstance( Original_t ) )
@@ -1406,7 +1407,7 @@ namespace folia {
 
   vector<FoliaElement *>TextContent::findreplacables( FoliaElement *par ) const {
     vector<FoliaElement *> result;
-    vector<TextContent*> v = par->select<TextContent>( _set, false );
+    vector<TextContent*> v = par->FoliaElement::select<TextContent>( _set, false );
     // cerr << "TextContent::findreplacable found " << v << endl;
     vector<TextContent*>::iterator it = v.begin();
     while ( it != v.end() ){
@@ -1441,7 +1442,7 @@ namespace folia {
 #endif
       try {
 #ifdef DEBUG_TEXT
-	cerr << "roep text(" << cls << ") aan" << endl;
+	cerr << "roep text(" << cls << ") aan op " << data[i] << endl;
 #endif
 	UnicodeString tmp = data[i]->text( cls, retaintok );
 #ifdef DEBUG_TEXT
@@ -1592,10 +1593,9 @@ namespace folia {
 	add->append( *cit );
 	c->replace( add );
 	if ( !hooked ) {
-	  for ( size_t i=0; i < root->data.size(); ++i ){
-	    if ( root->data[i] == *cit ){
-	      //	    delete data[i];
-	      root->data[i] = c;
+	  for ( size_t i=0; i < root->size(); ++i ){
+	    if ( root->index(i) == *cit ){
+	      root->replace( root->index(i), c );
 	      hooked = true;
 	    }
 	  }
@@ -1614,7 +1614,7 @@ namespace folia {
 	++nit;
       }
       //    cerr << "after adding " << c << endl;
-      vector<Current*> v = c->select<Current>();
+      vector<Current*> v = c->FoliaElement::select<Current>();
       //delete current if present
       vector<Current*>::iterator cit = v.begin();
       while ( cit != v.end() ){
@@ -1632,12 +1632,12 @@ namespace folia {
 	  (*nit)->setParent(0);
 	  add->append( *nit );
 	}
-	for ( size_t i=0; i < root->data.size(); ++i ){
-	  if ( root->data[i] == *nit ){
+	for ( size_t i=0; i < root->size(); ++i ){
+	  if ( root->index(i) == *nit ){
 	    if ( !hooked ) {
+	      FoliaElement *tmp = root->replace( root->index(i), c );
 	      if ( dummyNode )
-		delete root->data[i];
-	      root->data[i] = c;
+		delete tmp;
 	      hooked = true;
 	    }
 	    else
@@ -1673,11 +1673,10 @@ namespace folia {
 	  //	cerr << " an original is : " << *oit << endl;
 	  (*oit)->setParent( 0 );
 	  add->append( *oit );
-	  for ( size_t i=0; i < root->data.size(); ++i ){
-	    if ( root->data[i] == *oit ){
+	  for ( size_t i=0; i < root->size(); ++i ){
+	    if ( root->index(i) == *oit ){
 	      if ( !hooked ) {
-		//delete data[i];
-		root->data[i] = c;
+		root->replace( root->index(i), c );
 		hooked = true;
 	      }
 	      else
@@ -1686,7 +1685,7 @@ namespace folia {
 	  }
 	  ++oit;
 	}
-	vector<Current*> v = c->select<Current>();
+	vector<Current*> v = c->FoliaElement::select<Current>();
 	vector<Current*>::iterator cit = v.begin();
 	//delete current if present
 	while ( cit != v.end() ){
@@ -1755,21 +1754,21 @@ namespace folia {
   }
 
   FoliaElement *AbstractStructureElement::append( FoliaElement *child ){
-    FoliaElement::append( child );
+    FoliaImpl::append( child );
     setMaxId( child );
     return child;
   }
 
   vector<Paragraph*> AbstractStructureElement::paragraphs() const{
-    return select<Paragraph>( default_ignore_structure );
+    return FoliaElement::select<Paragraph>( default_ignore_structure );
   }
 
   vector<Sentence*> AbstractStructureElement::sentences() const{
-    return select<Sentence>( default_ignore_structure );
+    return FoliaElement::select<Sentence>( default_ignore_structure );
   }
 
   vector<Word*> AbstractStructureElement::words() const{
-    return select<Word>( default_ignore_structure );
+    return FoliaElement::select<Word>( default_ignore_structure );
   }
 
   Sentence *AbstractStructureElement::sentences( size_t index ) const {
@@ -1838,7 +1837,7 @@ namespace folia {
       excludeSet.insert( Original_t );
       excludeSet.insert( Suggestion_t );
     }
-    vector<Alternative *> alts = select<Alternative>( excludeSet );
+    vector<Alternative *> alts = FoliaElement::select<Alternative>( excludeSet );
     if ( elt == BASE ){
       return alts;
     }
@@ -1894,7 +1893,7 @@ namespace folia {
 
 
   KWargs Alignment::collectAttributes() const {
-    KWargs atts = FoliaElement::collectAttributes();
+    KWargs atts = FoliaImpl::collectAttributes();
     if ( !_href.empty() ){
       atts["xlink:href"] = _href;
       if ( !_type.empty() )
@@ -1910,7 +1909,7 @@ namespace folia {
     if ( it != args.end() ){
       _href = it->second;
     }
-    FoliaElement::setAttributes( args );
+    FoliaImpl::setAttributes( args );
   }
 
   void Word::setAttributes( const KWargs& args ){
@@ -1924,11 +1923,11 @@ namespace folia {
     if ( it != args.end() ) {
       settext( it->second );
     }
-    FoliaElement::setAttributes( args );
+    FoliaImpl::setAttributes( args );
   }
 
   KWargs Word::collectAttributes() const {
-    KWargs atts = FoliaElement::collectAttributes();
+    KWargs atts = FoliaImpl::collectAttributes();
     if ( !space ){
       atts["space"] = "no";
     }
@@ -1980,7 +1979,7 @@ namespace folia {
     vector<FoliaElement *> nil1;
     vector<FoliaElement *> nil2;
     //  cerr << "correct() <== " << this;
-    Correction *tmp = correct( ov, nil1, nv, nil2, args );
+    Correction *tmp = AllowCorrection::correct( ov, nil1, nv, nil2, args );
     //  cerr << "correct() ==> " << this;
     return tmp;
   }
@@ -1995,7 +1994,7 @@ namespace folia {
     vector<FoliaElement *> nil1;
     vector<FoliaElement *> nil2;
     //  cerr << "correct() <== " << this;
-    Correction *tmp = correct( ov, nil1, nv, nil2, args );
+    Correction *tmp = AllowCorrection::correct( ov, nil1, nv, nil2, args );
     //  cerr << "correct() ==> " << this;
     return tmp;
   }
@@ -2011,12 +2010,12 @@ namespace folia {
       vector<FoliaElement*> v = select( child->element_id(), child->sett() );
       if ( v.empty() ) {
     	// OK!
-    	return FoliaElement::append( child );
+    	return FoliaImpl::append( child );
       }
       delete child;
       throw DuplicateAnnotationError( "Word::append" );
     }
-    return FoliaElement::append( child );
+    return FoliaImpl::append( child );
   }
 
   Sentence *Word::sentence( ) const {
@@ -2054,9 +2053,9 @@ namespace folia {
 
   vector<Morpheme *> Word::morphemes( const string& set ) const {
     vector<Morpheme *> result;
-    vector<MorphologyLayer*> mv = select<MorphologyLayer>();
+    vector<MorphologyLayer*> mv = FoliaElement::select<MorphologyLayer>();
     for( size_t i=0; i < mv.size(); ++i ){
-      vector<Morpheme*> tmp = mv[i]->select<Morpheme>( set );
+      vector<Morpheme*> tmp = mv[i]->FoliaElement::select<Morpheme>( set );
       result.insert( result.end(), tmp.begin(), tmp.end() );
     }
     return result;
@@ -2309,7 +2308,7 @@ namespace folia {
   }
 
   vector<FoliaElement *> Alignment::resolve() const {
-    vector<AlignReference*> v = select<AlignReference>();
+    vector<AlignReference*> v = FoliaElement::select<AlignReference>();
     vector<FoliaElement*> result;
     for ( size_t i=0; i < v.size(); ++i ){
       result.push_back( v[i]->resolve( this ) );
@@ -2329,7 +2328,7 @@ namespace folia {
   }
 
   KWargs Figure::collectAttributes() const {
-    KWargs atts = FoliaElement::collectAttributes();
+    KWargs atts = FoliaImpl::collectAttributes();
     if ( !_src.empty() ){
       atts["src"] = _src;
     }
@@ -2344,7 +2343,7 @@ namespace folia {
       _src = it->second;
       kwargs.erase( "src" );
     }
-    FoliaElement::setAttributes(kwargs);
+    FoliaImpl::setAttributes(kwargs);
   }
 
   UnicodeString Figure::caption() const {
@@ -2365,7 +2364,7 @@ namespace folia {
   }
 
   xmlNode *Description::xml( bool, bool ) const {
-    xmlNode *e = FoliaElement::xml( false, false );
+    xmlNode *e = FoliaImpl::xml( false, false );
     xmlAddChild( e, xmlNewText( (const xmlChar*)_value.c_str()) );
     return e;
   }
@@ -2381,7 +2380,7 @@ namespace folia {
   }
 
   FoliaElement *AbstractSpanAnnotation::append( FoliaElement *child ){
-    FoliaElement::append( child );
+    FoliaImpl::append( child );
     if ( child->isinstance(PlaceHolder_t) ){
       child->increfcount();
     }
@@ -2389,7 +2388,7 @@ namespace folia {
   }
 
   xmlNode *AbstractSpanAnnotation::xml( bool recursive, bool kanon ) const {
-    xmlNode *e = FoliaElement::xml( false, false );
+    xmlNode *e = FoliaImpl::xml( false, false );
     // append Word and Morpheme children as WREFS
     vector<FoliaElement*>::const_iterator it=data.begin();
     while ( it != data.end() ){
@@ -2417,7 +2416,7 @@ namespace folia {
   }
 
   FoliaElement *Quote::append( FoliaElement *child ){
-    FoliaElement::append( child );
+    FoliaImpl::append( child );
     if ( child->isinstance(Sentence_t) )
       child->setAuth( false ); // Sentences under quotes are non-authoritative
     return child;
@@ -2425,7 +2424,7 @@ namespace folia {
 
 
   xmlNode *Content::xml( bool recurse, bool ) const {
-    xmlNode *e = FoliaElement::xml( recurse, false );
+    xmlNode *e = FoliaImpl::xml( recurse, false );
     xmlAddChild( e, xmlNewCDataBlock( 0,
 				      (const xmlChar*)value.c_str() ,
 				      value.length() ) );
@@ -2524,7 +2523,7 @@ namespace folia {
   }
 
   NewElement *Correction::getNew() const {
-    vector<NewElement*> v = select<NewElement>( false );
+    vector<NewElement*> v = FoliaElement::select<NewElement>( false );
     if ( v.empty() )
       throw NoSuchAnnotation("new");
     else
@@ -2537,7 +2536,7 @@ namespace folia {
   }
 
   Original *Correction::getOriginal() const {
-    vector<Original*> v = select<Original>( false );
+    vector<Original*> v = FoliaElement::select<Original>( false );
     if ( v.empty() )
       throw NoSuchAnnotation("original");
     else
@@ -2550,7 +2549,7 @@ namespace folia {
   }
 
   Current *Correction::getCurrent( ) const {
-    vector<Current*> v = select<Current>( false );
+    vector<Current*> v = FoliaElement::select<Current>( false );
     if ( v.empty() )
       throw NoSuchAnnotation("current");
     else
@@ -2563,7 +2562,7 @@ namespace folia {
   }
 
   vector<Suggestion*> Correction::suggestions( ) const {
-    return select<Suggestion>( false );
+    return FoliaElement::select<Suggestion>( false );
   }
 
   Suggestion *Correction::suggestions( size_t index ) const {
@@ -2593,7 +2592,7 @@ namespace folia {
   }
 
   Headwords *Dependency::head() const {
-    vector<Headwords*> v = select<Headwords>();
+    vector<Headwords*> v = FoliaElement::select<Headwords>();
     if ( v.size() < 1 )
       throw NoSuchAnnotation( "head" );
     else {
@@ -2602,7 +2601,7 @@ namespace folia {
   }
 
   DependencyDependent *Dependency::dependent() const {
-    vector<DependencyDependent *> v = select<DependencyDependent>();
+    vector<DependencyDependent *> v = FoliaElement::select<DependencyDependent>();
     if ( v.size() < 1 )
       throw NoSuchAnnotation( "dependent" );
     else {
@@ -2633,7 +2632,7 @@ namespace folia {
     _xmltag = "structure";
     _required_attributes = ID;
     _optional_attributes = ALL;
-    occurrences_per_set=0;
+    _occurrences_per_set=0;
     TEXTDELIMITER = "\n\n";
   }
 
@@ -2642,7 +2641,7 @@ namespace folia {
     _xmltag="tokenannotation";
     _required_attributes = CLASS;
     _optional_attributes = ALL;
-    occurrences_per_set=1;
+    _occurrences_per_set=1;
   }
 
   void TextContent::init(){
@@ -2655,8 +2654,8 @@ namespace folia {
       std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
     _annotation_type = AnnotationType::TEXT;
-    occurrences = 0;
-    occurrences_per_set=0;
+    _occurrences = 0;
+    _occurrences_per_set=0;
     _offset = -1;
   }
 
@@ -2669,7 +2668,7 @@ namespace folia {
     _accepted_data =
       std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
-    occurrences=1;
+    _occurrences=1;
     TEXTDELIMITER = " ";
   }
 
@@ -2761,8 +2760,8 @@ namespace folia {
       std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
     _annotation_type = AnnotationType::STRING;
-    occurrences = 0;
-    occurrences_per_set=0;
+    _occurrences = 0;
+    _occurrences_per_set=0;
   }
 
   void PlaceHolder::init(){
@@ -2786,7 +2785,7 @@ namespace folia {
     _accepted_data =
       std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
-    occurrences_per_set=0;
+    _occurrences_per_set=0;
     _annotation_type = AnnotationType::ALIGNMENT;
     PRINTABLE = false;
   }
@@ -2881,7 +2880,7 @@ namespace folia {
       std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
     _annotation_type = AnnotationType::EVENT;
-    occurrences_per_set=0;
+    _occurrences_per_set=0;
   }
 
   void TimeSegment::init(){
@@ -2892,7 +2891,7 @@ namespace folia {
       std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
     _annotation_type = AnnotationType::TIMEDEVENT;
-    occurrences_per_set=0;
+    _occurrences_per_set=0;
   }
 
   void Caption::init(){
@@ -2903,7 +2902,7 @@ namespace folia {
     _accepted_data =
       std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
-    occurrences = 1;
+    _occurrences = 1;
   }
 
   void Label::init(){
@@ -3033,7 +3032,7 @@ namespace folia {
   static set<ElementType> asSet( ASlist,
 				 ASlist + sizeof( ASlist )/ sizeof( ElementType ) );
 
-  vector<AbstractSpanAnnotation*> FoliaElement::selectSpan() const {
+  vector<AbstractSpanAnnotation*> FoliaImpl::selectSpan() const {
     vector<AbstractSpanAnnotation*> res;
     set<ElementType>::const_iterator it = asSet.begin();
     while( it != asSet.end() ){
@@ -3120,7 +3119,7 @@ namespace folia {
     _accepted_data =
       std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
-    occurrences = 1;
+    _occurrences = 1;
     PRINTABLE=true;
   }
 
@@ -3145,8 +3144,8 @@ namespace folia {
     _element_id = Suggestion_t;
     _optional_attributes = ANNOTATOR|CONFIDENCE|DATETIME|N;
     _annotation_type = AnnotationType::SUGGESTION;
-    occurrences=0;
-    occurrences_per_set=0;
+    _occurrences=0;
+    _occurrences_per_set=0;
     AUTH = false;
   }
 
@@ -3160,13 +3159,13 @@ namespace folia {
     _accepted_data =
       std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
-    occurrences_per_set=0;
+    _occurrences_per_set=0;
   }
 
   void Description::init(){
     _xmltag = "desc";
     _element_id = Description_t;
-    occurrences = 1;
+    _occurrences = 1;
   }
 
   UnicodeString XmlText::text( const string&, bool ) const {
@@ -3214,7 +3213,7 @@ namespace folia {
 	    KWargs args = parent->collectAttributes();
 	    args["_id"] = "Arglebargleglop-glyf";
 	    Text *tmp = new Text( mydoc, args );
-	    tmp->FoliaElement::parseXml( p );
+	    tmp->FoliaImpl::parseXml( p );
 	    FoliaElement *old = parent->replace( this, tmp->index(0) );
 	    mydoc->delDocIndex( tmp, "Arglebargleglop-glyf" );
 	    tmp->remove( (size_t)0, false );
@@ -3245,7 +3244,7 @@ namespace folia {
   }
 
   KWargs External::collectAttributes() const {
-    KWargs atts = FoliaElement::collectAttributes();
+    KWargs atts = FoliaImpl::collectAttributes();
     if ( !_src.empty() ){
       atts["src"] = _src;
     }
@@ -3268,7 +3267,7 @@ namespace folia {
       _include = stringTo<bool>( it->second );
       kwargs.erase( "include" );
     }
-    FoliaElement::setAttributes(kwargs);
+    FoliaImpl::setAttributes(kwargs);
   }
 
   void Note::init(){
@@ -3282,7 +3281,7 @@ namespace folia {
   }
 
   KWargs Note::collectAttributes() const {
-    KWargs attribs = FoliaElement::collectAttributes();
+    KWargs attribs = FoliaImpl::collectAttributes();
     return attribs;
   }
 
@@ -3291,7 +3290,7 @@ namespace folia {
     if ( it != args.end() ){
       refId = it->second;
     }
-    FoliaElement::setAttributes( args );
+    FoliaImpl::setAttributes( args );
   }
 
   void Reference::init(){
@@ -3362,12 +3361,12 @@ namespace folia {
   }
 
   KWargs Feature::collectAttributes() const {
-    KWargs attribs = FoliaElement::collectAttributes();
+    KWargs attribs = FoliaImpl::collectAttributes();
     attribs["subset"] = _subset;
     return attribs;
   }
 
-  vector<string> FoliaElement::feats( const std::string& s ) const {
+  vector<string> FoliaImpl::feats( const std::string& s ) const {
     //    return all classes of the given subset
     vector<string> result;
     for ( size_t i=0; i < data.size(); ++i ){
@@ -3379,7 +3378,7 @@ namespace folia {
     return result;
   }
 
-  string FoliaElement::feat( const std::string& s ) const {
+  string FoliaImpl::feat( const std::string& s ) const {
     //    return the fist class of the given subset
     for ( size_t i=0; i < data.size(); ++i ){
       if ( data[i]->isSubClass( Feature_t ) &&
@@ -3391,7 +3390,7 @@ namespace folia {
   }
 
   KWargs AbstractTextMarkup::collectAttributes() const {
-    KWargs attribs = FoliaElement::collectAttributes();
+    KWargs attribs = FoliaImpl::collectAttributes();
     if ( !idref.empty() )
       attribs["id"] = idref;
     return attribs;
@@ -3408,7 +3407,7 @@ namespace folia {
       idref = it->second;
       args.erase( it );
     }
-    FoliaElement::setAttributes( args );
+    FoliaImpl::setAttributes( args );
   }
 
   KWargs TextMarkupCorrection::collectAttributes() const {
@@ -3430,13 +3429,13 @@ namespace folia {
       _original = it->second;
       argl.erase( "original" );
     }
-    FoliaElement::setAttributes( argl );
+    FoliaImpl::setAttributes( argl );
   }
 
   UnicodeString AbstractTextMarkup::text( const std::string& cls,
 					  bool ) const {
     // we assume al TextMarkup te be tokenized already
-    return FoliaElement::text( cls, true );
+    return FoliaImpl::text( cls, true );
   }
 
   UnicodeString TextMarkupCorrection::text( const std::string& cls,
@@ -3444,7 +3443,7 @@ namespace folia {
     if ( cls == "original" )
       return UTF8ToUnicode(_original);
     else
-      return FoliaElement::text( cls, ret );
+      return FoliaImpl::text( cls, ret );
   }
 
   const FoliaElement* AbstractTextMarkup::resolveid() const {
@@ -3515,7 +3514,7 @@ namespace folia {
     _accepted_data =
       std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
-    occurrences_per_set = 1; // Don't allow duplicates within the same set
+    _occurrences_per_set = 1; // Don't allow duplicates within the same set
     _annotation_type = AnnotationType::MORPHOLOGICAL;
   }
 
@@ -3702,7 +3701,7 @@ namespace folia {
   void Feature::init() {
     _xmltag = "feat";
     _element_id = Feature_t;
-    occurrences_per_set = 0; // Allow duplicates within the same set
+    _occurrences_per_set = 0; // Allow duplicates within the same set
   }
 
   void BeginDateTimeFeature::init(){
@@ -3771,14 +3770,14 @@ namespace folia {
     _element_id = SpanAnnotation_t;
     _required_attributes = NO_ATT;
     _optional_attributes = ALL;
-    occurrences_per_set = 0; // Allow duplicates within the same set
+    _occurrences_per_set = 0; // Allow duplicates within the same set
   }
 
   void ErrorDetection::init(){
     _xmltag = "errordetection";
     _element_id = ErrorDetection_t;
     _annotation_type = AnnotationType::ERRORDETECTION;
-    occurrences_per_set = 0; // Allow duplicates within the same set
+    _occurrences_per_set = 0; // Allow duplicates within the same set
   }
 
   void AbstractTextMarkup::init(){
@@ -3793,7 +3792,7 @@ namespace folia {
 			     accept + sizeof(accept)/sizeof(ElementType) );
     PRINTABLE = true;
     TEXTDELIMITER = "";
-    occurrences_per_set = 0; // Allow duplicates within the same set
+    _occurrences_per_set = 0; // Allow duplicates within the same set
   }
 
   void TextMarkupString::init(){
