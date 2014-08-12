@@ -33,7 +33,6 @@
 #include <list>
 #include "unicode/unistr.h"
 #include "libxml/tree.h"
-//#include <ctime>
 #include "libfolia/foliautils.h"
 
 namespace folia {
@@ -56,6 +55,10 @@ namespace folia {
   extern std::set<ElementType> default_ignore_annotations;
   extern std::set<ElementType> default_ignore_structure;
 
+#define NOT_IMPLEMENTED {						\
+    throw NotImplementedError( xmltag() + "::" + std::string(__func__) ); \
+  }
+
   class FoliaElement {
     friend std::ostream& operator<<( std::ostream&, const FoliaElement& );
     friend std::ostream& operator<<( std::ostream&, const FoliaElement* );
@@ -67,7 +70,6 @@ namespace folia {
     static FoliaElement *createElement( Document *, const ElementType  );
     static FoliaElement *createElement( Document *, const std::string&  );
 
-    virtual void setAttributes( const KWargs& ) = 0;
     virtual size_t size() const = 0;
     virtual void fixupDoc( Document* ) = 0;
     virtual FoliaElement *append( FoliaElement* ) = 0;
@@ -83,10 +85,10 @@ namespace folia {
     FoliaElement* operator[]( size_t i ) const {
       return index(i);
     }
+    virtual bool isinstance( ElementType et ) const = 0;
 
     virtual const Word* resolveword( const std::string& ) const = 0;
 
-    virtual bool isinstance( ElementType et ) const = 0;
     virtual void setDateTime( const std::string& ) = 0;
     virtual std::string getDateTime() const = 0;
 
@@ -196,9 +198,7 @@ namespace folia {
 	    throw NoSuchAnnotation( obj.classname() + " for set='" + s + "'" );
 	}
       }
-      else {
-	throw NotImplementedError( "annotations() for " + xmltag() );
-      };
+      else NOT_IMPLEMENTED;
     }
 
     template <typename F>
@@ -219,9 +219,7 @@ namespace folia {
     }
 
     virtual std::vector<FoliaElement*> findspans( ElementType,
-						  const std::string& = "" ) const {
-      throw NotImplementedError( "findspans() for " + xmltag() );
-    }
+						  const std::string& = "" ) const NOT_IMPLEMENTED;
 
     template <typename F>
       std::vector<FoliaElement*> findspans( const std::string& st = "" ) const {
@@ -247,61 +245,36 @@ namespace folia {
     virtual UnicodeString deeptext( const std::string& = "current", bool = false ) const = 0;
     bool hastext( const std::string& = "current" ) const;
     virtual bool printable() const = 0;
-    virtual FoliaElement *head() const {
-      throw NotImplementedError("head() for " + xmltag() );
-    }
-    virtual FoliaElement *getNew() const {
-      throw NotImplementedError("getNew() for " + xmltag() ); };
-    virtual FoliaElement *getOriginal() const {
-      throw NotImplementedError("getOriginal() for " + xmltag() ); };
-    virtual FoliaElement *getCurrent() const {
-      throw NotImplementedError("getCurrent() for " + xmltag() ); };
+    virtual FoliaElement *head() const NOT_IMPLEMENTED;
+    virtual FoliaElement *getNew() const NOT_IMPLEMENTED;
+    virtual FoliaElement *getOriginal() const NOT_IMPLEMENTED;
+    virtual FoliaElement *getCurrent() const NOT_IMPLEMENTED;
     virtual FoliaElement *split( FoliaElement *, FoliaElement *,
-				    const std::string& = "" ){
-      throw NotImplementedError("split() for " + xmltag() ); };
+				 const std::string& = "" ) NOT_IMPLEMENTED;
+
     virtual Correction *mergewords( FoliaElement *,
 				    const std::vector<FoliaElement *>&,
-				    const std::string& = "" ){
-      throw NotImplementedError("mergewords() for " + xmltag() ); };
+				    const std::string& = "" ) NOT_IMPLEMENTED;
+
     virtual Correction *deleteword( FoliaElement *,
-				    const std::string& = "" ){
-      throw NotImplementedError("deleteword() for " + xmltag() ); };
+				    const std::string& = "" ) NOT_IMPLEMENTED;
     virtual Correction *insertword( FoliaElement *, FoliaElement *,
-				    const std::string& = "" ){
-      throw NotImplementedError("insertword() for " + xmltag() ); };
-    virtual std::vector<Suggestion*> suggestions() const
-    { throw NotImplementedError("suggestions() for " + xmltag() ); };
-    virtual Suggestion *suggestions( size_t ) const
-    { throw NotImplementedError("suggestions() for " + xmltag() ); };
-    virtual std::string subset() const
-    { throw NotImplementedError("subset() for " + xmltag() ); };
-    virtual FoliaElement *previous() const {
-      throw NotImplementedError("previous() for " + xmltag() ); };
-    virtual FoliaElement *next() const {
-      throw NotImplementedError("next() for " + xmltag() ); };
+				    const std::string& = "" ) NOT_IMPLEMENTED;
+    virtual std::vector<Suggestion*> suggestions() const NOT_IMPLEMENTED;
+    virtual Suggestion *suggestions( size_t ) const NOT_IMPLEMENTED;
+    virtual std::string subset() const NOT_IMPLEMENTED;
+    virtual FoliaElement *previous() const NOT_IMPLEMENTED;
+    virtual FoliaElement *next() const NOT_IMPLEMENTED;
     virtual std::vector<Word*> context( size_t,
-					const std::string& ="" ) const {
-      throw NotImplementedError("contect() for " + xmltag() ); };
+					const std::string& ="" ) const NOT_IMPLEMENTED;
     virtual std::vector<Word*> leftcontext( size_t,
-					    const std::string& ="" ) const {
-      throw NotImplementedError("leftcontect() for " + xmltag() );
-    };
+					    const std::string& ="" ) const NOT_IMPLEMENTED;
     virtual std::vector<Word*> rightcontext( size_t,
-					     const std::string& ="" ) const {
-      throw NotImplementedError("rightcontext() for " + xmltag() );
-    };
-    virtual FoliaElement *findspan( const std::vector<FoliaElement*>& ) const {
-      throw NotImplementedError("findspan() for " + xmltag() );
-    };
-    virtual int offset() const {
-      throw NotImplementedError("offset() for " + xmltag() );
-    };
-    virtual std::string getlang() const {
-      throw NotImplementedError("offset() for " + xmltag() );
-    };
-    virtual std::string setlang( const std::string& ) {
-      throw NotImplementedError("offset() for " + xmltag() );
-    };
+					     const std::string& ="" ) const NOT_IMPLEMENTED;
+    virtual FoliaElement *findspan( const std::vector<FoliaElement*>& ) const NOT_IMPLEMENTED;
+    virtual int offset() const NOT_IMPLEMENTED;
+    virtual std::string getlang() const NOT_IMPLEMENTED;
+    virtual std::string setlang( const std::string& ) NOT_IMPLEMENTED;
 
     virtual std::string pos( const std::string& = "" ) const = 0;
     virtual std::string lemma( const std::string& = "" ) const = 0;
@@ -319,61 +292,25 @@ namespace folia {
     virtual std::string xmltag() const = 0;
     virtual Document *doc() const = 0;
     virtual xmlNs *foliaNs() const = 0;
-    virtual Sentence *sentence() const {
-      throw NotImplementedError("sentence() for " + xmltag() );
-    };
-    virtual Paragraph *paragraph() const {
-      throw NotImplementedError("paragraph() for " + xmltag() );
-    };
-    virtual Division *division() const {
-      throw NotImplementedError("division() for " + xmltag() );
-    };
-    virtual Correction *incorrection() const {
-      throw NotImplementedError("incorrection() for " + xmltag() );
-    };
-    virtual std::vector<Paragraph*> paragraphs() const {
-      throw NotImplementedError("paragraphs() for " + xmltag() );
-    };
-    virtual std::vector<Sentence*> sentences() const {
-      throw NotImplementedError("sentences() for " + xmltag() );
-    };
-    virtual std::vector<Word*> words() const {
-      throw NotImplementedError("words() for " + xmltag() );
-    };
-    virtual std::vector<FoliaElement*> wrefs() const {
-      throw NotImplementedError("wrefs() for " + xmltag() );
-    };
+    virtual Sentence *sentence() const NOT_IMPLEMENTED;
+    virtual Paragraph *paragraph() const NOT_IMPLEMENTED;
+    virtual Division *division() const NOT_IMPLEMENTED;
+    virtual Correction *incorrection() const NOT_IMPLEMENTED;
+    virtual std::vector<Paragraph*> paragraphs() const NOT_IMPLEMENTED;
+    virtual std::vector<Sentence*> sentences() const NOT_IMPLEMENTED;
+    virtual std::vector<Word*> words() const NOT_IMPLEMENTED;
+    virtual std::vector<FoliaElement*> wrefs() const NOT_IMPLEMENTED;
 
-    virtual std::vector<Morpheme*> morphemes( const std::string& ="" ) const {
-      throw NotImplementedError("morphemes() for " + xmltag() );
-    };
-    virtual Morpheme* morpheme( size_t, const std::string& ="" ) const {
-      throw NotImplementedError("morpheme() for " + xmltag() );
-    };
-    virtual Sentence *sentences( size_t ) const {
-      throw NotImplementedError("sentences() for " + xmltag() );
-    };
-    virtual Sentence *rsentences( size_t ) const {
-      throw NotImplementedError("rsentences() for " + xmltag() );
-    };
-    virtual Paragraph *paragraphs( size_t ) const {
-      throw NotImplementedError("paragraphs() for " + xmltag() );
-    };
-    virtual Paragraph *rparagraphs( size_t ) const {
-      throw NotImplementedError("rparagraphs() for " + xmltag() );
-    };
-    virtual Word *words( size_t ) const {
-      throw NotImplementedError("words() for " + xmltag() );
-    };
-    virtual std::vector<Word *> wordParts() const {
-      throw NotImplementedError("words() for " + xmltag() );
-    };
-    virtual Word *rwords( size_t ) const {
-      throw NotImplementedError("rwords() for " + xmltag() );
-    };
-    virtual DependencyDependent *dependent() const {
-      throw NotImplementedError("dependent() for " + xmltag() );
-    };
+    virtual std::vector<Morpheme*> morphemes( const std::string& ="" ) const NOT_IMPLEMENTED;
+    virtual Morpheme* morpheme( size_t, const std::string& ="" ) const NOT_IMPLEMENTED;
+    virtual Sentence *sentences( size_t ) const NOT_IMPLEMENTED;
+    virtual Sentence *rsentences( size_t ) const NOT_IMPLEMENTED;
+    virtual Paragraph *paragraphs( size_t ) const NOT_IMPLEMENTED;
+    virtual Paragraph *rparagraphs( size_t ) const NOT_IMPLEMENTED;
+    virtual Word *words( size_t ) const NOT_IMPLEMENTED;
+    virtual std::vector<Word *> wordParts() const NOT_IMPLEMENTED;
+    virtual Word *rwords( size_t ) const NOT_IMPLEMENTED;
+    virtual DependencyDependent *dependent() const NOT_IMPLEMENTED;
 
     std::string description() const;
     virtual Sentence *addSentence( const KWargs& ) = 0;
@@ -393,9 +330,7 @@ namespace folia {
     virtual LemmaAnnotation *addLemmaAnnotation( const KWargs& ) = 0;
     virtual std::vector<Alternative *> alternatives( ElementType,
 						     const std::string& = ""
-						     ) const {
-      throw NotImplementedError("alternatives() for " + xmltag() );
-    }
+						     ) const NOT_IMPLEMENTED;
     std::vector<Alternative*> alternatives( const std::string& s = "" ) const {
       return alternatives( BASE, s );
     }
@@ -406,44 +341,28 @@ namespace folia {
 				 std::vector<FoliaElement*>&,
 				 std::vector<FoliaElement*>&,
 				 std::vector<FoliaElement*>&,
-				 const KWargs& ){
-      throw NotImplementedError("correct() for " + xmltag() );
-    }
+				 const KWargs& ) NOT_IMPLEMENTED;
     virtual Correction* correct( FoliaElement*,
 				 FoliaElement*,
-				 const KWargs& ){
-      throw NotImplementedError("correct() for " + xmltag() );
-    }
-    virtual Correction *correct( const std::string& = "" ){
-      throw NotImplementedError("correct() for " + xmltag() ); };
-
-    virtual std::string src() const {
-      throw NotImplementedError("src() for " + xmltag() ); };
-
-    virtual UnicodeString caption() const {
-      throw NotImplementedError("caption() for " + xmltag() ); };
-
+				 const KWargs& ) NOT_IMPLEMENTED;
+    virtual Correction *correct( const std::string& = "" ) NOT_IMPLEMENTED;
+    virtual std::string src() const NOT_IMPLEMENTED;
+    virtual UnicodeString caption() const NOT_IMPLEMENTED;
     virtual int refcount() const = 0;
     virtual void increfcount() = 0;
     virtual FoliaElement *parent() const = 0;
     virtual void setParent( FoliaElement *p ) = 0;
     virtual void setAuth( bool b ) = 0;
-    virtual std::vector<FoliaElement *> resolve() const {
-      throw NotImplementedError("resolve() for " + xmltag() );
-    };
-    virtual const FoliaElement* resolveid() const {
-      throw NotImplementedError("resolveid() for " + xmltag() );
-    };
+    virtual std::vector<FoliaElement *> resolve() const NOT_IMPLEMENTED;
+    virtual const FoliaElement* resolveid() const NOT_IMPLEMENTED;
     bool isSubClass( ElementType ) const;
     bool isSubClass( const FoliaElement *c ) const {
       return isSubClass( c->element_id() );
     };
     virtual std::string getTextDelimiter( bool retaintok=false ) const = 0;
+    virtual void setAttributes( const KWargs& ) = 0;
     virtual KWargs collectAttributes() const = 0;
-    virtual std::string generateId( const std::string& ){
-      throw NotImplementedError( "generateId() not allowed for " + classname() );
-
-    };
+    virtual std::string generateId( const std::string& ) NOT_IMPLEMENTED;
     virtual size_t occurrences() const = 0;
     virtual size_t occurrences_per_set() const = 0;
     virtual Attrib required_attributes() const = 0;
@@ -721,6 +640,9 @@ namespace folia {
 			 const KWargs& args ) {
       return correctBase( this, v1, v2, v3, v4, args );
     }
+    Correction *correct( FoliaElement*,
+			 FoliaElement*,
+			 const KWargs& );
   private:
     Correction *correctBase( FoliaElement *,
 			     std::vector<FoliaElement*>&,
@@ -801,9 +723,6 @@ namespace folia {
   AbstractSpanAnnotation( Document *d=0 ): AbstractAnnotation( d ){ classInit(); };
     xmlNode *xml( bool, bool=false ) const;
     FoliaElement *append( FoliaElement* );
-    Correction *correct( FoliaElement*,
-			 FoliaElement*,
-			 const KWargs& );
 
     std::vector<FoliaElement*> wrefs() const;
 
@@ -875,12 +794,6 @@ namespace folia {
     std::string str() const;
     UnicodeString text( const std::string& = "current", bool = false ) const;
     int offset() const { return _offset; };
-    std::string getlang() const {
-      throw NotImplementedError("TextContent::getlang() is obsolete" );
-    };
-    std::string setlang( const std::string& ) {
-      throw NotImplementedError("TextContent::setlang() is obsolete" );
-    };
     TextContent *postappend();
     std::vector<FoliaElement*> findreplacables( FoliaElement * ) const;
   private:
@@ -1036,9 +949,6 @@ namespace folia {
   Word( Document *d, const std::string& s=""): AbstractStructureElement( d ){ classInit( s ); };
   Word( Document *d, const KWargs& a ): AbstractStructureElement( d ){ classInit( a ); };
     Correction *correct( const std::string& = "" );
-    Correction *correct( FoliaElement*,
-			 FoliaElement*,
-			 const KWargs& );
     FoliaElement *split( FoliaElement *, FoliaElement *,
 			 const std::string& = "" );
     Sentence *sentence() const;
@@ -1574,10 +1484,6 @@ namespace folia {
   AbstractAnnotationLayer( const KWargs& a ): FoliaImpl() { classInit( a ); };
   AbstractAnnotationLayer( Document *d, const std::string& s=""): FoliaImpl(d) { classInit( s ); };
   AbstractAnnotationLayer( Document *d, const KWargs& a ): FoliaImpl(d) { classInit( a ); };
-    Correction *correct( FoliaElement*,
-			 FoliaElement*,
-			 const KWargs& );
-
     FoliaElement *findspan( const std::vector<FoliaElement*>& ) const;
   private:
     void init();

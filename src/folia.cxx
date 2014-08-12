@@ -1949,44 +1949,14 @@ namespace folia {
     vector<FoliaElement*> nil4;
     KWargs args = getArgs( s );
     //  cerr << "word::correct() <== " << this << endl;
-    Correction *tmp = AbstractStructureElement::correct( nil1, nil2, nil3, nil4, args );
+    Correction *tmp = AllowCorrection::correct( nil1, nil2, nil3, nil4, args );
     //  cerr << "word::correct() ==> " << this << endl;
     return tmp;
   }
 
-  Correction *Word::correct( FoliaElement *old,
-			     FoliaElement *_new,
-			     const KWargs& args ){
-    vector<FoliaElement *> nv;
-    nv.push_back( _new );
-    vector<FoliaElement *> ov;
-    ov.push_back( old );
-    vector<FoliaElement *> nil1;
-    vector<FoliaElement *> nil2;
-    //  cerr << "correct() <== " << this;
-    Correction *tmp =AbstractStructureElement::correct( ov, nil1, nv, nil2, args );
-    //  cerr << "correct() ==> " << this;
-    return tmp;
-  }
-
-  Correction *AbstractSpanAnnotation::correct( FoliaElement *old,
-					       FoliaElement *_new,
-					       const KWargs& args ){
-    vector<FoliaElement *> nv;
-    nv.push_back( _new );
-    vector<FoliaElement *> ov;
-    ov.push_back( old );
-    vector<FoliaElement *> nil1;
-    vector<FoliaElement *> nil2;
-    //  cerr << "correct() <== " << this;
-    Correction *tmp = AllowCorrection::correct( ov, nil1, nv, nil2, args );
-    //  cerr << "correct() ==> " << this;
-    return tmp;
-  }
-
-  Correction *AbstractAnnotationLayer::correct( FoliaElement *old,
-						FoliaElement *_new,
-						const KWargs& args ){
+  Correction *AllowCorrection::correct( FoliaElement *old,
+					FoliaElement *_new,
+					const KWargs& args ){
     vector<FoliaElement *> nv;
     nv.push_back( _new );
     vector<FoliaElement *> ov;
@@ -2227,8 +2197,9 @@ namespace folia {
 					 const string& st ) const {
     vector<FoliaElement *> result;
     if ( !folia::isSubClass( et , AnnotationLayer_t ) ){
-      throw NotImplementedError( "findspans: " + toString( et ) +
-				 " is not an AnnotationLayer type" );
+      throw NotImplementedError( "findspans(" + toString( et ) +
+				 ") is not supported. " +
+				 " (Not an AnnotationLayer type)" );
     }
     else {
       const FoliaElement *e = parent();
@@ -2304,7 +2275,7 @@ namespace folia {
     if ( ref->href().empty() )
       return (*mydoc)[refId];
     else
-      throw NotImplementedError( "resolve for external doc" );
+      throw NotImplementedError( "AlignReference::resolve() for external doc" );
   }
 
   vector<FoliaElement *> Alignment::resolve() const {
