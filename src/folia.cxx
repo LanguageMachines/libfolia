@@ -1516,12 +1516,11 @@ namespace folia {
     return res;
   }
 
-  Correction * AllowCorrection::correctBase( FoliaElement *root,
-					     vector<FoliaElement*>& original,
-					     vector<FoliaElement*>& current,
-					     vector<FoliaElement*>& _new,
-					     vector<FoliaElement*>& suggestions,
-					     const KWargs& args_in ){
+  Correction * AllowCorrection::correct( vector<FoliaElement*>& original,
+					 vector<FoliaElement*>& current,
+					 vector<FoliaElement*>& _new,
+					 vector<FoliaElement*>& suggestions,
+					 const KWargs& args_in ){
     // cerr << "correct " << this << endl;
     // cerr << "original= " << original << endl;
     // cerr << "current = " << current << endl;
@@ -1529,7 +1528,7 @@ namespace folia {
     // cerr << "suggestions     = " << suggestions << endl;
     //  cerr << "args in     = " << args_in << endl;
     // Apply a correction
-    Document *mydoc = root->doc();
+    Document *mydoc = doc();
     Correction *c = 0;
     bool suggestionsonly = false;
     bool hooked = false;
@@ -1577,7 +1576,7 @@ namespace folia {
       KWargs args2 = args;
       args2.erase("suggestion" );
       args2.erase("suggestions" );
-      string id = root->generateId( "correction" );
+      string id = generateId( "correction" );
       args2["id"] = id;
       c = new Correction(mydoc );
       c->setAttributes( args2 );
@@ -1593,9 +1592,9 @@ namespace folia {
 	add->append( *cit );
 	c->replace( add );
 	if ( !hooked ) {
-	  for ( size_t i=0; i < root->size(); ++i ){
-	    if ( root->index(i) == *cit ){
-	      root->replace( root->index(i), c );
+	  for ( size_t i=0; i < size(); ++i ){
+	    if ( index(i) == *cit ){
+	      replace( index(i), c );
 	      hooked = true;
 	    }
 	  }
@@ -1632,16 +1631,16 @@ namespace folia {
 	  (*nit)->setParent(0);
 	  add->append( *nit );
 	}
-	for ( size_t i=0; i < root->size(); ++i ){
-	  if ( root->index(i) == *nit ){
+	for ( size_t i=0; i < size(); ++i ){
+	  if ( index(i) == *nit ){
 	    if ( !hooked ) {
-	      FoliaElement *tmp = root->replace( root->index(i), c );
+	      FoliaElement *tmp = replace( index(i), c );
 	      if ( dummyNode )
 		delete tmp;
 	      hooked = true;
 	    }
 	    else
-	      root->remove( *nit, false );
+	      remove( *nit, false );
 	  }
 	}
 	++nit;
@@ -1654,7 +1653,7 @@ namespace folia {
       for ( size_t i=0; i < len(addnew); ++ i ){
 	FoliaElement *p = addnew->index(i);
 	//      cerr << "bekijk " << p << endl;
-	vector<FoliaElement*> v = p->findreplacables( root );
+	vector<FoliaElement*> v = p->findreplacables( this );
 	vector<FoliaElement*>::iterator vit=v.begin();
 	while ( vit != v.end() ){
 	  orig.push_back( *vit );
@@ -1673,14 +1672,14 @@ namespace folia {
 	  //	cerr << " an original is : " << *oit << endl;
 	  (*oit)->setParent( 0 );
 	  add->append( *oit );
-	  for ( size_t i=0; i < root->size(); ++i ){
-	    if ( root->index(i) == *oit ){
+	  for ( size_t i=0; i < size(); ++i ){
+	    if ( index(i) == *oit ){
 	      if ( !hooked ) {
-		root->replace( root->index(i), c );
+		replace( index(i), c );
 		hooked = true;
 	      }
 	      else
-		root->remove( *oit, false );
+		remove( *oit, false );
 	    }
 	  }
 	  ++oit;
@@ -1689,7 +1688,7 @@ namespace folia {
 	vector<Current*>::iterator cit = v.begin();
 	//delete current if present
 	while ( cit != v.end() ){
-	  root->remove( *cit, false );
+	  remove( *cit, false );
 	  ++cit;
 	}
       }
@@ -1705,7 +1704,7 @@ namespace folia {
 
     if ( !suggestions.empty() ){
       if ( !hooked )
-	root->append(c);
+	append(c);
       vector<FoliaElement *>::iterator nit = suggestions.begin();
       while ( nit != suggestions.end() ){
 	if ( (*nit)->isinstance( Suggestion_t ) ){
@@ -1942,14 +1941,14 @@ namespace folia {
     }
   }
 
-  Correction *Word::correct( const string& s ){
+  Correction *AllowCorrection::correct( const string& s ){
     vector<FoliaElement*> nil1;
     vector<FoliaElement*> nil2;
     vector<FoliaElement*> nil3;
     vector<FoliaElement*> nil4;
     KWargs args = getArgs( s );
     //  cerr << "word::correct() <== " << this << endl;
-    Correction *tmp = AllowCorrection::correct( nil1, nil2, nil3, nil4, args );
+    Correction *tmp = correct( nil1, nil2, nil3, nil4, args );
     //  cerr << "word::correct() ==> " << this << endl;
     return tmp;
   }
@@ -1964,7 +1963,7 @@ namespace folia {
     vector<FoliaElement *> nil1;
     vector<FoliaElement *> nil2;
     //  cerr << "correct() <== " << this;
-    Correction *tmp = AllowCorrection::correct( ov, nil1, nv, nil2, args );
+    Correction *tmp = correct( ov, nil1, nv, nil2, args );
     //  cerr << "correct() ==> " << this;
     return tmp;
   }

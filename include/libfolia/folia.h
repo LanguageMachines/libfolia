@@ -637,19 +637,11 @@ namespace folia {
 			 std::vector<FoliaElement*>& v2,
  			 std::vector<FoliaElement*>& v3,
 			 std::vector<FoliaElement*>& v4,
-			 const KWargs& args ) {
-      return correctBase( this, v1, v2, v3, v4, args );
-    }
+			 const KWargs& args );
     Correction *correct( FoliaElement*,
 			 FoliaElement*,
 			 const KWargs& );
-  private:
-    Correction *correctBase( FoliaElement *,
-			     std::vector<FoliaElement*>&,
-			     std::vector<FoliaElement*>&,
-			     std::vector<FoliaElement*>&,
-			     std::vector<FoliaElement*>&,
-			     const KWargs& );
+    Correction *correct( const std::string& = "" );
   };
 
   class AllowAnnotation: public virtual FoliaElement {
@@ -948,7 +940,6 @@ namespace folia {
   Word( const KWargs& a ): AbstractStructureElement(){ classInit( a ); };
   Word( Document *d, const std::string& s=""): AbstractStructureElement( d ){ classInit( s ); };
   Word( Document *d, const KWargs& a ): AbstractStructureElement( d ){ classInit( a ); };
-    Correction *correct( const std::string& = "" );
     FoliaElement *split( FoliaElement *, FoliaElement *,
 			 const std::string& = "" );
     Sentence *sentence() const;
