@@ -1248,8 +1248,7 @@ namespace folia {
     vector<FoliaElement*> nv;
     nv.push_back( p1 );
     nv.push_back( p2 );
-    vector<FoliaElement*> nil;
-    return correctWords( ov, nv, nil, args );
+    return correctWords( ov, nv, args );
   }
 
   Correction *Sentence::mergewords( FoliaElement *nw,
@@ -1257,8 +1256,7 @@ namespace folia {
 				    const string& args ){
     vector<FoliaElement*> nv;
     nv.push_back( nw );
-    vector<FoliaElement*> nil;
-    return correctWords( orig, nv, nil, getArgs(args) );
+    return correctWords( orig, nv, getArgs(args) );
   }
 
   Correction *Sentence::deleteword( FoliaElement *w,
@@ -1266,8 +1264,7 @@ namespace folia {
     vector<FoliaElement*> ov;
     ov.push_back( w );
     vector<FoliaElement*> nil1;
-    vector<FoliaElement*> nil2;
-    return correctWords( ov, nil1, nil2, getArgs(args) );
+    return correctWords( ov, nil1, getArgs(args) );
   }
 
   Correction *Sentence::insertword( FoliaElement *w,
@@ -1294,13 +1291,11 @@ namespace folia {
     ov.push_back( *it );
     vector<FoliaElement *> nv;
     nv.push_back( w );
-    vector<FoliaElement*> nil;
-    return correctWords( ov, nv, nil, getArgs(args) );
+    return correctWords( ov, nv, getArgs(args) );
   }
 
   Correction *Sentence::correctWords( const vector<FoliaElement *>& orig,
 				      const vector<FoliaElement *>& _new,
-				      const vector<FoliaElement *>& current,
 				      const KWargs& args ){
     // Generic correction method for words. You most likely want to use the helper functions
     //      splitword() , mergewords(), deleteword(), insertword() instead
@@ -1318,12 +1313,6 @@ namespace folia {
     while ( it != _new.end() ){
       if ( ! (*it)->isinstance( Word_t) )
 	throw runtime_error("new word is not a Word instance" );
-      ++it;
-    }
-    it = current.begin();
-    while ( it != current.end() ){
-      if ( ! (*it)->isinstance( Word_t) )
-	throw runtime_error("current word is not a Word instance" );
       ++it;
     }
     KWargs::const_iterator ait = args.find("suggest");

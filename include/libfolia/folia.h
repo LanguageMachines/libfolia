@@ -1010,7 +1010,6 @@ namespace folia {
   private:
     Correction *correctWords( const std::vector<FoliaElement *>&,
 			      const std::vector<FoliaElement *>&,
-			      const std::vector<FoliaElement *>&,
 			      const KWargs& );
     void init();
   };
