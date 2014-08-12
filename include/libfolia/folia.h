@@ -32,16 +32,12 @@
 
 #include <list>
 #include "unicode/unistr.h"
-#include "unicode/regex.h"
 #include "libxml/tree.h"
-#include "libxml/xpath.h"
-#include <ctime>
+//#include <ctime>
 #include "libfolia/foliautils.h"
 
 namespace folia {
   class Document;
-  class FoliaElement;
-  class AbstractTokenAnnotation;
   class AbstractSpanAnnotation;
   class Alternative;
   class PosAnnotation;
@@ -49,7 +45,6 @@ namespace folia {
   class Sentence;
   class Word;
   class TextContent;
-  class AllowCorrection;
   class Correction;
   class Suggestion;
   class Division;
@@ -65,10 +60,6 @@ namespace folia {
     friend std::ostream& operator<<( std::ostream&, const FoliaElement& );
     friend std::ostream& operator<<( std::ostream&, const FoliaElement* );
     friend bool operator==( const FoliaElement&, const FoliaElement& );
-    friend class Document;
-    friend class Word;
-    friend class Correction;
-    friend class AllowCorrection;
   public:
     //Constructor
     virtual ~FoliaElement(){};
@@ -77,7 +68,7 @@ namespace folia {
     static FoliaElement *createElement( Document *, const std::string&  );
 
     virtual void setAttributes( const KWargs& ) = 0;
-    virtual size_t size() const =0;
+    virtual size_t size() const = 0;
     virtual void fixupDoc( Document* ) = 0;
     virtual FoliaElement *append( FoliaElement* ) = 0;
     virtual FoliaElement *postappend( ) = 0;
@@ -93,7 +84,7 @@ namespace folia {
       return index(i);
     }
 
-    virtual const Word* resolveword( const std::string& ) const { return 0; };
+    virtual const Word* resolveword( const std::string& ) const = 0;
 
     virtual bool isinstance( ElementType et ) const = 0;
     virtual void setDateTime( const std::string& ) = 0;
@@ -595,7 +586,7 @@ namespace folia {
     void setDateTime( const std::string& );
     std::string getDateTime() const;
     std::vector<FoliaElement*> findreplacables( FoliaElement * ) const;
-
+    const Word* resolveword( const std::string& ) const { return 0; };
     bool isinstance( ElementType et ) const {
       return et == _element_id;
     }
@@ -692,16 +683,20 @@ namespace folia {
   template <typename T>
     inline size_t len( const std::vector<T>& v ) {
     return v.size(); }
+
   inline std::string str( const FoliaElement *e ) {
     return e->str(); }
+
   inline UnicodeString text( const FoliaElement *e ) {
     if ( e )
       return e->text();
     else
       throw ValueError( "text() for empty element" );
   }
+
   inline UnicodeString unicode( const FoliaElement *e ) {
     return e->unicode(); }
+
   inline bool isinstance( const FoliaElement *e, ElementType t ) {
     return e->isinstance( t ); }
 
@@ -735,14 +730,19 @@ namespace folia {
 			     const KWargs& );
   };
 
+  class AllowAnnotation: public virtual FoliaElement {
+  public:
+    virtual bool allowannotations() const { return true; };
+  };
+
   class AbstractStructureElement: public FoliaImpl,
     public AllowGenerateID,
+    public AllowAnnotation,
     public AllowCorrection {
   public:
   AbstractStructureElement( Document *d=0 ): FoliaImpl( d ) { classInit(); };
 
     std::string str() const;
-    bool allowannotations() const { return true; };
     std::vector<Alternative *> alternatives( ElementType = BASE,
 					     const std::string& = "" ) const;
 
@@ -794,6 +794,7 @@ namespace folia {
 
   class AbstractSpanAnnotation: public AbstractAnnotation,
     public AllowGenerateID,
+    public AllowAnnotation,
     public AllowCorrection
     {
   public:
@@ -804,7 +805,6 @@ namespace folia {
 			 FoliaElement*,
 			 const KWargs& );
 
-    bool allowannotations() const { return true; };
     std::vector<FoliaElement*> wrefs() const;
 
   private:
@@ -1067,14 +1067,16 @@ namespace folia {
     bool space;
   };
 
-  class String: public AbstractTokenAnnotation, public AllowCorrection {
+  class String:
+    public AbstractTokenAnnotation,
+    public AllowAnnotation,
+    public AllowCorrection {
   public:
   String( const std::string& s="" ): AbstractTokenAnnotation(){ classInit( s ); };
   String( const KWargs& a ): AbstractTokenAnnotation(){ classInit( a ); };
   String( Document *d, const std::string& s=""): AbstractTokenAnnotation( d ){ classInit( s ); };
   String( Document *d, const KWargs& a ): AbstractTokenAnnotation( d ){ classInit( a ); };
-    bool allowannotations() const { return true; };
-  private:
+    private:
     void init();
   };
 
@@ -1203,7 +1205,6 @@ namespace folia {
   Alternative( const KWargs& a ): AbstractStructureElement(){ classInit( a ); };
   Alternative( Document *d, const std::string& s=""): AbstractStructureElement( d ){ classInit( s ); };
   Alternative( Document *d, const KWargs& a ): AbstractStructureElement( d ){ classInit( a ); };
-    bool allowannotations() const { return true; };
   private:
     void init();
   };
@@ -1566,6 +1567,7 @@ namespace folia {
 
   class AbstractAnnotationLayer: public FoliaImpl,
     public AllowGenerateID,
+    public AllowAnnotation,
     public AllowCorrection {
   public:
   AbstractAnnotationLayer( const std::string& s=""): FoliaImpl() { classInit( s ); };
@@ -1576,7 +1578,6 @@ namespace folia {
 			 FoliaElement*,
 			 const KWargs& );
 
-    bool allowannotations() const { return true; };
     FoliaElement *findspan( const std::vector<FoliaElement*>& ) const;
   private:
     void init();
