@@ -1276,7 +1276,7 @@ namespace folia {
       throw runtime_error( "insertword(): new word is not a Word " );
     Word *tmp = new Word( "text='dummy', id='dummy'" );
     tmp->setParent( this ); // we create a dummy Word as member of the
-    // Sentence. This makes correct() happy
+    // Sentence. This makes correctWords() happy
     vector<FoliaElement *>::iterator it = data.begin();
     while ( it != data.end() ){
       if ( *it == p ){
@@ -1505,10 +1505,10 @@ namespace folia {
     return res;
   }
 
-  Correction * AllowCorrection::correct( vector<FoliaElement*>& original,
-					 vector<FoliaElement*>& current,
-					 vector<FoliaElement*>& _new,
-					 vector<FoliaElement*>& suggestions,
+  Correction * AllowCorrection::correct( const vector<FoliaElement*>& _original,
+					 const vector<FoliaElement*>& current,
+					 const vector<FoliaElement*>& _newv,
+					 const vector<FoliaElement*>& _suggestions,
 					 const KWargs& args_in ){
     // cerr << "correct " << this << endl;
     // cerr << "original= " << original << endl;
@@ -1523,6 +1523,9 @@ namespace folia {
     bool hooked = false;
     FoliaElement * addnew = 0;
     KWargs args = args_in;
+    vector<FoliaElement*> original = _original;
+    vector<FoliaElement*> _new = _newv;
+    vector<FoliaElement*> suggestions = _suggestions;
     KWargs::const_iterator it = args.find("new");
     if ( it != args.end() ){
       TextContent *t = new TextContent( mydoc, "value='" +  it->second + "'" );
@@ -1574,7 +1577,7 @@ namespace folia {
     if ( !current.empty() ){
       if ( !original.empty() || !_new.empty() )
 	throw runtime_error("When setting current=, original= and new= can not be set!");
-      vector<FoliaElement *>::iterator cit = current.begin();
+      vector<FoliaElement *>::const_iterator cit = current.begin();
       while ( cit != current.end() ){
 	FoliaElement *add = new Current( mydoc );
 	(*cit)->setParent(0);
@@ -1735,6 +1738,34 @@ namespace folia {
     }
     return c;
   }
+
+  Correction *AllowCorrection::correct( const string& s ){
+    vector<FoliaElement*> nil1;
+    vector<FoliaElement*> nil2;
+    vector<FoliaElement*> nil3;
+    vector<FoliaElement*> nil4;
+    KWargs args = getArgs( s );
+    //    cerr << xmltag() << "::correct() <== " << this << endl;
+    Correction *tmp = correct( nil1, nil2, nil3, nil4, args );
+    //    cerr << xmltag() << "::correct() ==> " << this << endl;
+    return tmp;
+  }
+
+  Correction *AllowCorrection::correct( FoliaElement *_old,
+					FoliaElement *_new,
+					const vector<FoliaElement*>& sugg,
+					const KWargs& args ){
+    vector<FoliaElement *> nv;
+    nv.push_back( _new );
+    vector<FoliaElement *> ov;
+    ov.push_back( _old );
+    vector<FoliaElement *> nil;
+    //    cerr << xmltag() << "::correct() <== " << this << endl;
+    Correction *tmp = correct( ov, nil, nv, sugg, args );
+    //    cerr << xmltag() << "::correct() ==> " << this << endl;
+    return tmp;
+  }
+
 
   string AbstractStructureElement::str() const{
     UnicodeString result = text();
@@ -1928,33 +1959,6 @@ namespace folia {
     else {
       return "";
     }
-  }
-
-  Correction *AllowCorrection::correct( const string& s ){
-    vector<FoliaElement*> nil1;
-    vector<FoliaElement*> nil2;
-    vector<FoliaElement*> nil3;
-    vector<FoliaElement*> nil4;
-    KWargs args = getArgs( s );
-    //  cerr << "word::correct() <== " << this << endl;
-    Correction *tmp = correct( nil1, nil2, nil3, nil4, args );
-    //  cerr << "word::correct() ==> " << this << endl;
-    return tmp;
-  }
-
-  Correction *AllowCorrection::correct( FoliaElement *old,
-					FoliaElement *_new,
-					const KWargs& args ){
-    vector<FoliaElement *> nv;
-    nv.push_back( _new );
-    vector<FoliaElement *> ov;
-    ov.push_back( old );
-    vector<FoliaElement *> nil1;
-    vector<FoliaElement *> nil2;
-    //  cerr << "correct() <== " << this;
-    Correction *tmp = correct( ov, nil1, nv, nil2, args );
-    //  cerr << "correct() ==> " << this;
-    return tmp;
   }
 
   FoliaElement *Word::split( FoliaElement *part1, FoliaElement *part2,

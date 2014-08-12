@@ -337,13 +337,17 @@ namespace folia {
     virtual std::string content() const {
       throw NoSuchAnnotation( "content" );
     }
-    virtual Correction *correct( std::vector<FoliaElement*>&,
-				 std::vector<FoliaElement*>&,
-				 std::vector<FoliaElement*>&,
-				 std::vector<FoliaElement*>&,
+    virtual Correction *correct( const std::vector<FoliaElement*>&,
+				 const std::vector<FoliaElement*>&,
+				 const std::vector<FoliaElement*>&,
+				 const std::vector<FoliaElement*>&,
 				 const KWargs& ) NOT_IMPLEMENTED;
     virtual Correction* correct( FoliaElement*,
 				 FoliaElement*,
+				 const KWargs& ) NOT_IMPLEMENTED;
+    virtual Correction* correct( FoliaElement*,
+				 FoliaElement*,
+				 const std::vector<FoliaElement*>&,
 				 const KWargs& ) NOT_IMPLEMENTED;
     virtual Correction *correct( const std::string& = "" ) NOT_IMPLEMENTED;
     virtual std::string src() const NOT_IMPLEMENTED;
@@ -633,13 +637,20 @@ namespace folia {
 
   class AllowCorrection: public virtual FoliaElement {
   public:
-    Correction *correct( std::vector<FoliaElement*>& v1,
-			 std::vector<FoliaElement*>& v2,
- 			 std::vector<FoliaElement*>& v3,
-			 std::vector<FoliaElement*>& v4,
+    Correction *correct( const std::vector<FoliaElement*>& v1,
+			 const std::vector<FoliaElement*>& v2,
+ 			 const std::vector<FoliaElement*>& v3,
+			 const std::vector<FoliaElement*>& v4,
 			 const KWargs& args );
-    Correction *correct( FoliaElement*,
+    Correction *correct( FoliaElement* o,
+			 FoliaElement* n,
+			 const KWargs& args ) {
+      const std::vector<FoliaElement*> v;
+      return correct( o, n, v, args );
+    }
+    Correction* correct( FoliaElement*,
 			 FoliaElement*,
+			 const std::vector<FoliaElement*>&,
 			 const KWargs& );
     Correction *correct( const std::string& = "" );
   };
