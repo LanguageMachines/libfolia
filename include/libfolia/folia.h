@@ -291,7 +291,7 @@ namespace folia {
     virtual ElementType element_id() const = 0;
     virtual std::string xmltag() const = 0;
     virtual Document *doc() const = 0;
-    virtual xmlNs *foliaNs() const = 0;
+    //    virtual xmlNs *foliaNs() const = 0;
     virtual Sentence *sentence() const NOT_IMPLEMENTED;
     virtual Paragraph *paragraph() const NOT_IMPLEMENTED;
     virtual Division *division() const NOT_IMPLEMENTED;
@@ -515,7 +515,6 @@ namespace folia {
     }
 
     void fixupDoc( Document* );
-    xmlNs *foliaNs() const;
     FoliaElement *append( FoliaElement* );
     FoliaElement *postappend( ) { return this; };
     void remove( size_t, bool = true );
@@ -523,7 +522,6 @@ namespace folia {
     void replace( FoliaElement * );
     FoliaElement* replace( FoliaElement *, FoliaElement* );
 
-    UnicodeString unicode() const { return text(); };
     UnicodeString deeptext( const std::string& = "current", bool = false ) const;
     UnicodeString toktext( const std::string& cls = "current" ) const {
       return deeptext( cls, true );
@@ -562,6 +560,7 @@ namespace folia {
     void addFeatureNodes( const KWargs& args );
 
   protected:
+    xmlNs *foliaNs() const;
     std::vector<FoliaElement*> data;
     FoliaElement *_parent;
     bool _auth;
