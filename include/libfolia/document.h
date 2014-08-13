@@ -117,8 +117,6 @@ namespace folia {
     void set_metadata( const std::string& type, const std::string& value );
     const std::string get_metadata( const std::string& type ) const;
 
-    FoliaElement *append( FoliaElement* );
-
     void addDocIndex( FoliaElement*, const std::string& );
     void delDocIndex( const FoliaElement*, const std::string& );
 
