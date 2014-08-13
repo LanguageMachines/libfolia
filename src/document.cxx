@@ -435,14 +435,6 @@ namespace folia {
       throw range_error( "rparagraphs() index out of range" );
   }
 
-  FoliaElement *Document::append( FoliaElement *txt ){
-    if ( !isinstance( txt, Text_t ) )
-      throw runtime_error( "can only append() a Text_t element to a Document" );
-    else {
-      return foliadoc->append( txt );
-    }
-  }
-
   void Document::setimdi( xmlNode *node ){
     xmlNode *n = xPath( node, "//imdi:Session/imdi:Title" );
     if ( n ){
@@ -622,7 +614,7 @@ namespace folia {
       return 0;
     }
     setAttributes( att );
-    FoliaElement *result = FoliaElement::createElement( this, Name(root) );
+    FoliaElement *result = FoliaImpl::createElement( this, Name(root) );
     if ( debug > 2 )
       cerr << "created " << root << endl;
     result->setAttributes( att );
@@ -676,7 +668,7 @@ namespace folia {
 	else {
 	  if ( p && getNS(p) == NSFOLIA ){
 	    string tag = Name( p );
-	    FoliaElement *t = FoliaElement::createElement( this, tag );
+	    FoliaElement *t = FoliaImpl::createElement( this, tag );
 	    if ( t ){
 	      if ( debug > 2 )
 		cerr << "created " << t << endl;
@@ -832,11 +824,15 @@ namespace folia {
     }
   }
 
-  FoliaElement* Document::addNode( ElementType et, const KWargs& kwargs ){
-    FoliaElement *res = FoliaElement::createElement( this, et );
-    res->setAttributes( kwargs );
+  Text* Document::addText( const KWargs& kwargs ){
+    Text *res = new Text( this, kwargs );
     foliadoc->append( res );
     return res;
+  }
+
+  Text* Document::addText( Text *t ){
+    foliadoc->append( t );
+    return t;
   }
 
   bool Document::isDeclared( AnnotationType::AnnotationType type,

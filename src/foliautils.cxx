@@ -651,8 +651,17 @@ namespace folia {
     return BASE;
   }
 
-  FoliaElement *FoliaElement::createElement( Document *doc,
-					     ElementType et ){
+  FoliaElement *FoliaImpl::createElement( Document *doc,
+					  const string& tag ){
+
+    ElementType et = BASE;
+    try {
+      et = stringToET( tag );
+    }
+    catch ( ValueError& e ){
+      cerr << e.what() << endl;
+      return 0;
+    }
     switch ( et ){
     case BASE:
       return new FoLiA( doc );
@@ -840,19 +849,6 @@ namespace folia {
     return 0;
   }
 
-  FoliaElement *FoliaElement::createElement( Document *doc,
-					     const string& tag ){
-
-    ElementType et = BASE;
-    try {
-      et = stringToET( tag );
-    }
-    catch ( ValueError& e ){
-      cerr << e.what() << endl;
-      return 0;
-    }
-    return createElement( doc, et );
-  }
 
   KWargs getArgs( const std::string& s ){
     KWargs result;
@@ -1156,7 +1152,7 @@ namespace folia {
 	  sane = false;
 	  continue;
 	}
-	FoliaElement *tmp = FoliaElement::createElement( 0, s );
+	FoliaElement *tmp = FoliaImpl::createElement( 0, s );
 	if ( tmp == 0 ) {
 	  cerr << "no Element created found for string '" << s << "'" << endl;
 	  sane = false;

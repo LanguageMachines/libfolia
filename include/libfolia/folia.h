@@ -64,11 +64,7 @@ namespace folia {
     friend std::ostream& operator<<( std::ostream&, const FoliaElement* );
     friend bool operator==( const FoliaElement&, const FoliaElement& );
   public:
-    //Constructor
     virtual ~FoliaElement(){};
-
-    static FoliaElement *createElement( Document *, const ElementType  );
-    static FoliaElement *createElement( Document *, const std::string&  );
 
     virtual size_t size() const = 0;
     virtual void fixupDoc( Document* ) = 0;
@@ -401,6 +397,9 @@ namespace folia {
     //Constructor
     FoliaImpl( Document* = 0 );
     virtual ~FoliaImpl();
+    // static element Constructor
+    static FoliaElement *createElement( Document *, const std::string&  );
+
 
     std::vector<FoliaElement*> select( ElementType elementtype,
 				       bool = true ) const;

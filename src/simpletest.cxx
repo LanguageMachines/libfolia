@@ -5,7 +5,7 @@
   Copyright (c) 1998 - 2014
   ILK   - Tilburg University
   CLiPS - University of Antwerp
- 
+
   This file is part of libfolia
 
   libfolia is free software; you can redistribute it and/or modify
@@ -50,14 +50,14 @@ int main() {
   cout << " Creating a document from scratch: ";
   Document d( "id='example'" );
   d.declare( AnnotationType::TOKEN, "adhocset", "annotator='proycon'" );
-  if ( d.defaultset(AnnotationType::TOKEN) != "adhocset" 
+  if ( d.defaultset(AnnotationType::TOKEN) != "adhocset"
        ||
        d.defaultannotator(AnnotationType::TOKEN) != "proycon" ){
     return EXIT_FAILURE;
   }
   string id = d.id() + ".text.1";
   KWargs kw = getArgs( "id='" + id + "'" );
-  FoliaElement *text = d.addNode( Text_t, kw );
+  FoliaElement *text = d.addText( kw );
   kw.clear();
   FoliaElement *s = new Sentence( &d, "generate_id='" + text->id() + "'" );
   text->append( s );

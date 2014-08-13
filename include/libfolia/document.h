@@ -93,7 +93,8 @@ namespace folia {
     }
     int size() const;
     FoliaElement* doc() const { return foliadoc; }
-    FoliaElement* addNode( ElementType, const KWargs& );
+    Text* addText( const KWargs& );
+    Text* addText( Text * );
     void addStyle( const std::string&, const std::string& );
     void replaceStyle( const std::string&, const std::string& );
     std::vector<Paragraph*> paragraphs() const;
