@@ -95,6 +95,10 @@ namespace folia {
     FoliaElement* doc() const { return foliadoc; }
     Text* addText( const KWargs& );
     Text* addText( Text * );
+    FoliaElement* append( Text *t ){
+      // almost backward compatible
+      return addText(t);
+    };
     void addStyle( const std::string&, const std::string& );
     void replaceStyle( const std::string&, const std::string& );
     std::vector<Paragraph*> paragraphs() const;
