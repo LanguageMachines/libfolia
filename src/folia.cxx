@@ -2639,7 +2639,10 @@ namespace folia {
     _element_id = TableHead_t;
     _xmltag="tablehead";
     _required_attributes = NO_ATT;
-    const ElementType accept[] = { Row_t };
+    const ElementType accept[] = { Row_t,
+				   Correction_t,
+				   Alternatives_t,
+				   AnnotationLayer_t };
     _accepted_data =
       std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
@@ -2649,7 +2652,11 @@ namespace folia {
   void Table::init() {
     _element_id = Table_t;
     _xmltag="table";
-    const ElementType accept[] = { TableHead_t, Row_t };
+    const ElementType accept[] = { TableHead_t,
+				   Row_t,
+				   Correction_t,
+				   Alternatives_t,
+				   AnnotationLayer_t };
     _accepted_data =
       std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
@@ -2661,9 +2668,13 @@ namespace folia {
     _xmltag="cell";
     _required_attributes = NO_ATT;
     const ElementType accept[] = { Structure_t,
-				   TokenAnnotation_t, Entities_t,
-				   Alignment_t, Metric_t,
-				   Alternatives_t, Gap_t };
+				   TokenAnnotation_t,
+				   Entities_t,
+				   Alignment_t,
+				   Metric_t,
+				   Alternatives_t,
+				   AnnotationLayer_t,
+				   Gap_t };
     _accepted_data =
       std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
@@ -2675,7 +2686,10 @@ namespace folia {
     _element_id = Row_t;
     _xmltag="row";
     _required_attributes = NO_ATT;
-    const ElementType accept[] = { Cell_t, };
+    const ElementType accept[] = { Cell_t,
+				   Correction_t,
+				   Alternatives_t,
+				   AnnotationLayer_t };
     _accepted_data =
       std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
@@ -2861,7 +2875,8 @@ namespace folia {
     _xmltag="caption";
     _element_id = Caption_t;
     const ElementType accept[] = { Sentence_t, Reference_t, Description_t,
-				   TokenAnnotation_t, TextContent_t };
+				   TokenAnnotation_t, TextContent_t,
+				   Correction_t };
     _accepted_data =
       std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
@@ -2872,7 +2887,8 @@ namespace folia {
     _xmltag="label";
     _element_id = Label_t;
     const ElementType accept[] = { Word_t, Description_t, TextContent_t,
-				   TokenAnnotation_t, Alignment_t };
+				   TokenAnnotation_t, Alignment_t,
+				   Correction_t };
     _accepted_data =
       std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
@@ -2884,7 +2900,8 @@ namespace folia {
     const ElementType accept[] = { Structure_t, Description_t,
 				   TokenAnnotation_t,
 				   TextContent_t, Str_t, Alignment_t,
-				   Gap_t };
+				   Gap_t,
+				   Correction_t };
     _accepted_data =
       std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
@@ -2896,7 +2913,8 @@ namespace folia {
     _element_id = List_t;
     const ElementType accept[] = { Item_t, Description_t,
 				   Caption_t, Event_t, Lang_t,
-				   Alignment_t };
+				   Alignment_t,
+				   Correction_t };
     _accepted_data =
       std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
@@ -2909,7 +2927,9 @@ namespace folia {
     _xmltag="figure";
     _element_id = Figure_t;
     const ElementType accept[] = { Sentence_t, Description_t,
-				   Caption_t, Str_t, Lang_t, TextContent_t };
+				   Caption_t, Str_t, Lang_t,
+				   TextContent_t,
+				   Correction_t };
     _accepted_data =
       std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
@@ -3433,7 +3453,8 @@ namespace folia {
   void SyntaxLayer::init(){
     _element_id = SyntaxLayer_t;
     _xmltag = "syntax";
-    const ElementType accept[] = { SyntacticUnit_t, Description_t,
+    const ElementType accept[] = { SyntacticUnit_t,
+				   Description_t,
 				   Correction_t };
     _accepted_data =
       std::set<ElementType>( accept,
@@ -3444,7 +3465,9 @@ namespace folia {
   void ChunkingLayer::init(){
     _element_id = Chunking_t;
     _xmltag = "chunking";
-    const ElementType accept[] = { Chunk_t, Description_t, Correction_t };
+    const ElementType accept[] = { Chunk_t,
+				   Description_t,
+				   Correction_t };
     _accepted_data =
       std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
@@ -3454,7 +3477,9 @@ namespace folia {
   void EntitiesLayer::init(){
     _element_id = Entities_t;
     _xmltag = "entities";
-    const ElementType accept[] = { Entity_t, Description_t, Correction_t };
+    const ElementType accept[] = { Entity_t,
+				   Description_t,
+				   Correction_t };
     _accepted_data =
       std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
@@ -3464,7 +3489,9 @@ namespace folia {
   void TimingLayer::init(){
     _element_id = TimingLayer_t;
     _xmltag = "timing";
-    const ElementType accept[] = { TimeSegment_t, Description_t, Correction_t };
+    const ElementType accept[] = { TimeSegment_t,
+				   Description_t,
+				   Correction_t };
     _accepted_data =
       std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
@@ -3484,7 +3511,8 @@ namespace folia {
   void CoreferenceLayer::init(){
     _element_id = Coreferences_t;
     _xmltag = "coreferences";
-    const ElementType accept[] = { CoreferenceChain_t, Description_t,
+    const ElementType accept[] = { CoreferenceChain_t,
+				   Description_t,
 				   Correction_t };
     _accepted_data =
       std::set<ElementType>( accept,
@@ -3522,7 +3550,9 @@ namespace folia {
   void SemanticRolesLayer::init(){
     _element_id = Semroles_t;
     _xmltag = "semroles";
-    const ElementType accept[] = { Semrole_t, Description_t, Correction_t };
+    const ElementType accept[] = { Semrole_t,
+				   Description_t,
+				   Correction_t };
     _accepted_data =
       std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
@@ -3532,7 +3562,9 @@ namespace folia {
   void DependenciesLayer::init(){
     _element_id = Dependencies_t;
     _xmltag = "dependencies";
-    const ElementType accept[] = { Dependency_t, Description_t, Correction_t };
+    const ElementType accept[] = { Dependency_t,
+				   Description_t,
+				   Correction_t };
     _accepted_data =
       std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
