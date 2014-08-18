@@ -96,7 +96,6 @@ namespace folia {
     _occurrences_per_set = 1; // #Number of times this element may occur per set (0=unlimited, default=1)
     TEXTDELIMITER = "NONE" ;
     PRINTABLE = true;
-    AUTH = true;
   }
 
   FoliaImpl::~FoliaImpl( ){
@@ -384,7 +383,7 @@ namespace folia {
     if ( !_n.empty() )
       attribs["n"] = _n;
 
-    if ( !AUTH || !_auth )
+    if ( !_auth )
       attribs["auth"] = "no";
 
     return attribs;
@@ -886,28 +885,28 @@ namespace folia {
 
   bool FoliaImpl::checkAtts(){
     if ( _id.empty() && (ID & _required_attributes ) ){
-      throw ValueError( "ID is required for " + classname() );
+      throw ValueError( "attribute 'ID' is required for " + classname() );
     }
     if ( _set.empty() && (CLASS & _required_attributes ) ){
-      throw ValueError( "Set is required for " + classname() );
+      throw ValueError( "attribute 'set' is required for " + classname() );
     }
     if ( _class.empty() && ( CLASS & _required_attributes ) ){
-      throw ValueError( "Class is required for " + classname() );
+      throw ValueError( "attribute 'class' is required for " + classname() );
     }
     if ( _annotator.empty() && ( ANNOTATOR & _required_attributes ) ){
-      throw ValueError( "Annotator is required for " + classname() );
+      throw ValueError( "attribute 'annotator' is required for " + classname() );
     }
     if ( _annotator_type == UNDEFINED && ( ANNOTATOR & _required_attributes ) ){
-      throw ValueError( "Annotatortype is required for " + classname() );
+      throw ValueError( "attribute 'Annotatortype' is required for " + classname() );
     }
     if ( _confidence == -1 && ( CONFIDENCE & _required_attributes ) ){
-      throw ValueError( "Confidence is required for " + classname() );
+      throw ValueError( "attribute 'confidence' is required for " + classname() );
     }
     if ( _n.empty() && ( N & _required_attributes ) ){
-      throw ValueError( "N is required for " + classname() );
+      throw ValueError( "attribute 'n' is required for " + classname() );
     }
     if ( DATETIME & _required_attributes ){
-      throw ValueError( "datetime is required for " + classname() );
+      throw ValueError( "attribute 'datetime' is required for " + classname() );
     }
     return true;
   }
@@ -919,7 +918,7 @@ namespace folia {
       ok = addable( child );
     }
     catch ( XmlError& ){
-      // don't delethe the offending child in case of illegal reconnection
+      // don't delete the offending child in case of illegal reconnection
       // it will be deleted by the true parent
       throw;
     }
@@ -3079,7 +3078,7 @@ namespace folia {
 			     accept + sizeof(accept)/sizeof(ElementType) );
     _annotation_type = AnnotationType::ALTERNATIVE;
     PRINTABLE = false;
-    AUTH = false;
+    _auth = false;
   }
 
   void AlternativeLayers::init(){
@@ -3091,7 +3090,7 @@ namespace folia {
       std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
     PRINTABLE = false;
-    AUTH = false;
+    _auth = false;
   }
 
   void AbstractCorrectionChild::init(){
@@ -3119,7 +3118,7 @@ namespace folia {
   void Original::init(){
     _xmltag = "original";
     _element_id = Original_t;
-    AUTH = false;
+    _auth = false;
   }
 
   void Suggestion::init(){
@@ -3129,7 +3128,7 @@ namespace folia {
     _annotation_type = AnnotationType::SUGGESTION;
     _occurrences=0;
     _occurrences_per_set=0;
-    AUTH = false;
+    _auth = false;
   }
 
   void Correction::init(){

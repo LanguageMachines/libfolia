@@ -89,6 +89,8 @@ namespace folia {
     };
 
     virtual void fixupDoc( Document* ) = 0;
+    virtual FoliaElement *parent() const = 0;
+    virtual void setParent( FoliaElement *p ) = 0;
     virtual bool acceptable( ElementType ) const = 0;
     virtual bool addable( const FoliaElement * ) const = 0;
     virtual FoliaElement *append( FoliaElement* ) = 0;
@@ -103,13 +105,12 @@ namespace folia {
     virtual FoliaElement *head() const NOT_IMPLEMENTED;
 
     // Sentences
-    std::vector<Sentence *> sentencePart() const;
     virtual Sentence *addSentence( const KWargs& ) = 0;
     Sentence *addSentence( const std::string& s ="" ){
       return addSentence( getArgs(s) );
     };
 
-
+    // Selections
     template <typename F>
       std::vector<F*> select( const std::string& st,
 			      const std::set<ElementType>& exclude,
@@ -270,7 +271,7 @@ namespace folia {
     UnicodeString stricttext( const std::string& = "current" ) const;
     virtual UnicodeString deeptext( const std::string& = "current", bool = false ) const = 0;
 
-   virtual bool printable() const = 0;
+    virtual bool printable() const = 0;
 
     // Word
     virtual Word *previous() const NOT_IMPLEMENTED;
@@ -306,7 +307,6 @@ namespace folia {
     virtual std::vector<Suggestion*> suggestions() const NOT_IMPLEMENTED;
     virtual Suggestion *suggestions( size_t ) const NOT_IMPLEMENTED;
 
-    virtual std::string subset() const NOT_IMPLEMENTED;
     virtual Correction *correct( const std::vector<FoliaElement*>&,
 				 const std::vector<FoliaElement*>&,
 				 const std::vector<FoliaElement*>&,
@@ -329,6 +329,7 @@ namespace folia {
     TextContent *setutext( const UnicodeString&, int , const std::string& = "current" );
     virtual int offset() const NOT_IMPLEMENTED;
 
+    // properties
     virtual std::string getTextDelimiter( bool retaintok=false ) const = 0;
     virtual void setDateTime( const std::string& ) = 0;
     virtual std::string getDateTime() const = 0;
@@ -339,8 +340,14 @@ namespace folia {
     virtual std::string classname() const = 0;
     virtual std::string n() const = 0;
     virtual std::string id() const = 0;
+    virtual double confidence() const = 0;
+    virtual void confidence( double ) = 0;
     virtual ElementType element_id() const = 0;
+    virtual size_t occurrences() const = 0;
+    virtual size_t occurrences_per_set() const = 0;
+    virtual Attrib required_attributes() const = 0;
     virtual std::string xmltag() const = 0;
+    virtual std::string subset() const NOT_IMPLEMENTED;
 
     virtual Document *doc() const = 0;
     virtual Sentence *sentence() const NOT_IMPLEMENTED;
@@ -382,17 +389,8 @@ namespace folia {
     }
     virtual std::string src() const NOT_IMPLEMENTED;
     virtual UnicodeString caption() const NOT_IMPLEMENTED;
-    virtual FoliaElement *parent() const = 0;
-    virtual void setParent( FoliaElement *p ) = 0;
-    virtual void setAuth( bool b ) = 0;
     virtual std::vector<FoliaElement *> resolve() const NOT_IMPLEMENTED;
     virtual const FoliaElement* resolveid() const NOT_IMPLEMENTED;
-    virtual void setAttributes( const KWargs& ) = 0;
-    virtual KWargs collectAttributes() const = 0;
-    virtual std::string generateId( const std::string& ) NOT_IMPLEMENTED;
-    virtual size_t occurrences() const = 0;
-    virtual size_t occurrences_per_set() const = 0;
-    virtual Attrib required_attributes() const = 0;
     virtual bool checkAtts() = 0;
 
 
@@ -411,32 +409,20 @@ namespace folia {
     // some 'internal stuff
     virtual int refcount() const = 0;
     virtual void increfcount() = 0;
-
+    virtual void setAttributes( const KWargs& ) = 0;
+    virtual KWargs collectAttributes() const = 0;
+    virtual void setAuth( bool b ) = 0;
+    virtual std::string generateId( const std::string& ) NOT_IMPLEMENTED;
   };
 
   class FoliaImpl: public virtual FoliaElement {
   public:
     //Constructor
     FoliaImpl( Document* = 0 );
-    virtual ~FoliaImpl();
     // static element Constructor
     static FoliaElement *createElement( Document *, const std::string&  );
+    virtual ~FoliaImpl();
 
-
-    std::vector<FoliaElement*> select( ElementType elementtype,
-				       bool = true ) const;
-    std::vector<FoliaElement*> select( ElementType elementtype,
-				       const std::set<ElementType>& ,
-				       bool = true ) const;
-    std::vector<FoliaElement*> select( ElementType elementtype,
-				       const std::string&,
-				       bool = true ) const;
-    std::vector<FoliaElement*> select( ElementType elementtype,
-				       const std::string&,
-				       const std::set<ElementType>& ,
-				       bool = true ) const;
-    bool checkAtts();
-    bool addable( const FoliaElement * ) const;
     void classInit( const std::string& s="" ){
       init(); // virtual init
       if ( !s.empty() ){
@@ -451,12 +437,37 @@ namespace folia {
       setAttributes( a ); // also virtual!
     }
 
+    //functions regarding contained data
+    size_t size() const { return data.size(); };
+    FoliaElement* index( size_t ) const;
+    FoliaElement* rindex( size_t ) const;
+
+    bool isinstance( ElementType et ) const {
+      return et == _element_id;
+    }
     template <typename F>
       bool isinstance() const {
       F obj("");
       return element_id() == obj.element_id();
     }
 
+    void fixupDoc( Document* );
+    FoliaElement *parent() const { return _parent; };
+    void setParent( FoliaElement *p ) { _parent = p ; };
+    bool acceptable( ElementType ) const;
+    bool addable( const FoliaElement * ) const;
+    FoliaElement *append( FoliaElement* );
+    FoliaElement *postappend( ) { return this; };
+    void remove( size_t, bool = true );
+    void remove( FoliaElement *, bool = true );
+    std::vector<FoliaElement*> findreplacables( FoliaElement * ) const;
+    void replace( FoliaElement * );
+    FoliaElement* replace( FoliaElement *, FoliaElement* );
+
+    // Sentences
+    Sentence *addSentence( const KWargs& );
+
+    // Selections
     template <typename F>
       std::vector<F*> select( bool recurse = true ) const {
       return FoliaElement::select<F>(recurse);
@@ -487,6 +498,14 @@ namespace folia {
       return FoliaElement::select<F>( exclude, recurse );
     }
 
+    std::string annotator( ) const { return _annotator; };
+    void annotator( const std::string& a ) { _annotator = a; };
+    AnnotatorType annotatortype() const { return _annotator_type; };
+    void annotatortype( AnnotatorType t ) { _annotator_type =  t; };
+    AnnotationType::AnnotationType annotation_type() const { return _annotation_type; };
+    PosAnnotation *addPosAnnotation( const KWargs& );
+    LemmaAnnotation *addLemmaAnnotation( const KWargs& );
+
     template <typename F>
       F *addAnnotation( const KWargs& args ) {
       return FoliaElement::addAnnotation<F>( args );
@@ -507,78 +526,72 @@ namespace folia {
       return FoliaElement::annotation<F>(st);
     }
 
+    // Span annotations
+    std::vector<AbstractSpanAnnotation*> selectSpan() const;
 
-    bool acceptable( ElementType ) const;
-    void setAttributes( const KWargs& );
-    KWargs collectAttributes() const;
-    xmlNode *xml( bool, bool = false ) const;
-    FoliaElement* parseXml( const xmlNode * );
+    // features
     std::vector<std::string> feats( const std::string& ) const;
     std::string feat( const std::string& ) const;
+
+    //XML (de)serialisation
+    FoliaElement* parseXml( const xmlNode * );
+    xmlNode *xml( bool, bool = false ) const;
+
+    // text/string content
+
     std::string str() const;
     UnicodeString text( const std::string& = "current", bool = false ) const;
-    //functions regarding contained data
-    size_t size() const { return data.size(); };
 
+    UnicodeString deeptext( const std::string& = "current", bool = false ) const;
+    bool printable() const { return PRINTABLE; };
 
-    FoliaElement* index( size_t ) const;
-    FoliaElement* rindex( size_t ) const;
+    // Word
+    const Word* resolveword( const std::string& ) const { return 0; };
+    Word *addWord( const KWargs& );
+
+    // TextContent
+    TextContent *textcontent( const std::string& = "current" ) const;
+
+    // properties
+    std::string getTextDelimiter( bool retaintok=false ) const;
+    void setDateTime( const std::string& );
+    std::string getDateTime() const;
     std::string pos( const std::string& = "" ) const ;
     std::string lemma( const std::string& = "" ) const;
     std::string cls() const { return _class; };
     std::string sett() const { return _set; };
-    void setDateTime( const std::string& );
-    std::string getDateTime() const;
-    std::vector<FoliaElement*> findreplacables( FoliaElement * ) const;
-    const Word* resolveword( const std::string& ) const { return 0; };
-    bool isinstance( ElementType et ) const {
-      return et == _element_id;
-    }
-
-    void fixupDoc( Document* );
-    FoliaElement *append( FoliaElement* );
-    FoliaElement *postappend( ) { return this; };
-    void remove( size_t, bool = true );
-    void remove( FoliaElement *, bool = true );
-    void replace( FoliaElement * );
-    FoliaElement* replace( FoliaElement *, FoliaElement* );
-
-    UnicodeString deeptext( const std::string& = "current", bool = false ) const;
-    UnicodeString toktext( const std::string& cls = "current" ) const {
-      return deeptext( cls, true );
-    }
-    TextContent *textcontent( const std::string& = "current" ) const;
-    std::string annotator( ) const { return _annotator; };
-    void annotator( const std::string& a ) { _annotator = a; };
-    AnnotatorType annotatortype() const { return _annotator_type; };
-    void annotatortype( AnnotatorType t ) { _annotator_type =  t; };
-    double confidence() const { return _confidence; };
-    void confidence( double d ) { _confidence = d; };
-    AnnotationType::AnnotationType annotation_type() const { return _annotation_type; };
     std::string classname() const { return toString(_element_id); };
     std::string n() const { return _n; };
     std::string id() const { return _id; };
+    double confidence() const { return _confidence; };
+    void confidence( double d ) { _confidence = d; };
     ElementType element_id() const { return _element_id; };
-    std::string xmltag() const { return _xmltag; };
-    Document *doc() const { return mydoc; };
-
-    int refcount() const { return _refcount; };
-    void increfcount() { ++_refcount; };
-    FoliaElement *parent() const { return _parent; };
-    void setParent( FoliaElement *p ) { _parent = p ; };
-    void setAuth( bool b ){ _auth = b; };
-    bool printable() const { return PRINTABLE; };
     size_t occurrences() const { return _occurrences; };
     size_t occurrences_per_set() const { return _occurrences_per_set; };
     Attrib required_attributes() const { return _required_attributes; };
-    PosAnnotation *addPosAnnotation( const KWargs& );
-    LemmaAnnotation *addLemmaAnnotation( const KWargs& );
-    std::vector<AbstractSpanAnnotation*> selectSpan() const;
-    Sentence *addSentence( const KWargs& );
-    Word *addWord( const KWargs& );
-    std::string getTextDelimiter( bool retaintok=false ) const;
-  private:
-    void addFeatureNodes( const KWargs& args );
+    std::string xmltag() const { return _xmltag; };
+
+    Document *doc() const { return mydoc; };
+
+    bool checkAtts();
+
+    std::vector<FoliaElement*> select( ElementType elementtype,
+				       bool = true ) const;
+    std::vector<FoliaElement*> select( ElementType elementtype,
+				       const std::set<ElementType>& ,
+				       bool = true ) const;
+    std::vector<FoliaElement*> select( ElementType elementtype,
+				       const std::string&,
+				       bool = true ) const;
+    std::vector<FoliaElement*> select( ElementType elementtype,
+				       const std::string&,
+				       const std::set<ElementType>& ,
+				       bool = true ) const;
+    int refcount() const { return _refcount; };
+    void increfcount() { ++_refcount; };
+    void setAttributes( const KWargs& );
+    KWargs collectAttributes() const;
+    void setAuth( bool b ){ _auth = b; };
 
   protected:
     xmlNs *foliaNs() const;
@@ -590,17 +603,18 @@ namespace folia {
     ElementType _element_id;
     std::set<ElementType> _accepted_data;
     AnnotationType::AnnotationType _annotation_type;
-
-    Attrib _required_attributes;
-    Attrib _optional_attributes;
+    std::string TEXTDELIMITER;
     size_t _occurrences;
     size_t _occurrences_per_set;
-    std::string TEXTDELIMITER;
     bool PRINTABLE;
-    bool AUTH;
+    Attrib _required_attributes;
+    Attrib _optional_attributes;
     std::string _id;
-    std::string _set;
     std::string _class;
+    std::string _set;
+
+  private:
+    void addFeatureNodes( const KWargs& args );
     std::string _annotator;
     std::string _n;
     std::string _datetime;
@@ -677,7 +691,7 @@ namespace folia {
 
   class AllowAnnotation: public virtual FoliaElement {
   public:
-    virtual bool allowannotations() const { return true; };
+    bool allowannotations() const { return true; };
   };
 
   class AbstractStructureElement: public FoliaImpl,
