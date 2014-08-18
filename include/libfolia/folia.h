@@ -45,6 +45,9 @@ namespace folia {
   class Word;
   class TextContent;
   class Correction;
+  class NewElement;
+  class Original;
+  class Current;
   class Suggestion;
   class Division;
   class DependencyDependent;
@@ -65,50 +68,47 @@ namespace folia {
     friend bool operator==( const FoliaElement&, const FoliaElement& );
   public:
     virtual ~FoliaElement(){};
+    virtual void init()=0;
 
     virtual size_t size() const = 0;
-    virtual void fixupDoc( Document* ) = 0;
-    virtual FoliaElement *append( FoliaElement* ) = 0;
-    virtual FoliaElement *postappend( ) = 0;
-    virtual std::vector<FoliaElement*> findreplacables( FoliaElement * ) const = 0;
-    virtual void remove( size_t, bool = true ) = 0;
-    virtual void remove( FoliaElement *, bool = true ) = 0;
-    virtual void replace( FoliaElement * ) = 0;
-    virtual FoliaElement* replace( FoliaElement *, FoliaElement* ) = 0;
-
     virtual FoliaElement* index( size_t ) const = 0;
     virtual FoliaElement* rindex( size_t ) const = 0;
     FoliaElement* operator[]( size_t i ) const {
       return index(i);
     }
+
     virtual bool isinstance( ElementType et ) const = 0;
-
-    virtual const Word* resolveword( const std::string& ) const = 0;
-
-    virtual void setDateTime( const std::string& ) = 0;
-    virtual std::string getDateTime() const = 0;
-
-    virtual std::vector<AbstractSpanAnnotation*> selectSpan() const = 0;
-
-    template <typename F>
-      F *addAnnotation( const KWargs& args ) {
-      F *res = 0;
-      try {
-	res = new F( doc(), args);
-      }
-      catch( std::exception& ){
-	delete res;
-	throw;
-      }
-      append( res );
-      return res;
-    }
-
     template <typename F>
       bool isinstance() const {
       F obj("");
       return element_id() == obj.element_id();
     }
+    bool isSubClass( ElementType ) const;
+    bool isSubClass( const FoliaElement *c ) const {
+      return isSubClass( c->element_id() );
+    };
+
+    virtual void fixupDoc( Document* ) = 0;
+    virtual bool acceptable( ElementType ) const = 0;
+    virtual bool addable( const FoliaElement * ) const = 0;
+    virtual FoliaElement *append( FoliaElement* ) = 0;
+    virtual FoliaElement *postappend( ) = 0;
+    virtual void remove( size_t, bool = true ) = 0;
+    virtual void remove( FoliaElement *, bool = true ) = 0;
+    virtual std::vector<FoliaElement*> findreplacables( FoliaElement * ) const = 0;
+    virtual void replace( FoliaElement * ) = 0;
+    virtual FoliaElement* replace( FoliaElement *, FoliaElement* ) = 0;
+
+
+    virtual FoliaElement *head() const NOT_IMPLEMENTED;
+
+    // Sentences
+    std::vector<Sentence *> sentencePart() const;
+    virtual Sentence *addSentence( const KWargs& ) = 0;
+    Sentence *addSentence( const std::string& s ="" ){
+      return addSentence( getArgs(s) );
+    };
+
 
     template <typename F>
       std::vector<F*> select( const std::string& st,
@@ -180,6 +180,17 @@ namespace folia {
       return res;
     }
 
+    // annotations
+
+    virtual bool allowannotations() const { return false; };
+    virtual std::string annotator( ) const = 0;
+    virtual void annotator( const std::string& ) = 0;
+    virtual AnnotatorType annotatortype() const = 0;
+    virtual void annotatortype( AnnotatorType t ) =  0;
+    virtual AnnotationType::AnnotationType annotation_type() const = 0;
+    virtual PosAnnotation *addPosAnnotation( const KWargs& ) = 0;
+    virtual LemmaAnnotation *addLemmaAnnotation( const KWargs& ) = 0;
+
     template <typename F>
       std::vector<F*> annotations( const std::string& s = "" ) const {
       if ( allowannotations() ){
@@ -214,39 +225,75 @@ namespace folia {
       return v[0]; // always exist, otherwise annotations would throw()
     }
 
-    virtual std::vector<FoliaElement*> findspans( ElementType,
-						  const std::string& = "" ) const NOT_IMPLEMENTED;
-
     template <typename F>
-      std::vector<FoliaElement*> findspans( const std::string& st = "" ) const {
+      F *addAnnotation( const KWargs& args ) {
+      F *res = 0;
+      try {
+	res = new F( doc(), args);
+      }
+      catch( std::exception& ){
+	delete res;
+	throw;
+      }
+      append( res );
+      return res;
+    }
+    // span annotation
+    virtual std::vector<AbstractSpanAnnotation*> selectSpan() const = 0;
+    virtual std::vector<AbstractSpanAnnotation*> findspans( ElementType,
+							    const std::string& = "" ) const NOT_IMPLEMENTED;
+    template <typename F>
+      std::vector<AbstractSpanAnnotation*> findspans( const std::string& st = "" ) const {
       F obj("");
       return findspans( obj.element_id(), st );
     }
+    virtual AbstractSpanAnnotation *findspan( const std::vector<FoliaElement*>& ) const NOT_IMPLEMENTED;
 
-    std::vector<Sentence *> sentencePart() const;
+    // features
     virtual std::vector<std::string> feats( const std::string& ) const = 0;
     virtual std::string feat( const std::string& ) const = 0;
+
     //XML (de)serialisation
+    virtual FoliaElement* parseXml( const xmlNode * ) = 0;
     std::string xmlstring() const; // serialize to a string (XML fragment)
     virtual xmlNode *xml( bool, bool = false ) const = 0; //serialize to XML
-    virtual FoliaElement* parseXml( const xmlNode * ) = 0;
+
+    // text/string content
+    bool hastext( const std::string& = "current" ) const;
+
     virtual std::string str() const = 0;
     UnicodeString unicode() const { return text(); };
     UnicodeString toktext( const std::string& cls = "current" ) const {
       return deeptext( cls, true );
     }
     virtual UnicodeString text( const std::string& = "current", bool = false ) const = 0;
-    virtual TextContent *textcontent( const std::string& = "current" ) const = 0;
     UnicodeString stricttext( const std::string& = "current" ) const;
     virtual UnicodeString deeptext( const std::string& = "current", bool = false ) const = 0;
-    bool hastext( const std::string& = "current" ) const;
-    virtual bool printable() const = 0;
-    virtual FoliaElement *head() const NOT_IMPLEMENTED;
-    virtual FoliaElement *getNew() const NOT_IMPLEMENTED;
-    virtual FoliaElement *getOriginal() const NOT_IMPLEMENTED;
-    virtual FoliaElement *getCurrent() const NOT_IMPLEMENTED;
-    virtual FoliaElement *split( FoliaElement *, FoliaElement *,
-				 const std::string& = "" ) NOT_IMPLEMENTED;
+
+   virtual bool printable() const = 0;
+
+    // Word
+    virtual Word *previous() const NOT_IMPLEMENTED;
+    virtual Word *next() const NOT_IMPLEMENTED;
+    virtual const Word* resolveword( const std::string& ) const = 0;
+    virtual std::vector<Word*> context( size_t,
+					const std::string& ="" ) const NOT_IMPLEMENTED;
+    virtual std::vector<Word*> leftcontext( size_t,
+					    const std::string& ="" ) const NOT_IMPLEMENTED;
+    virtual std::vector<Word*> rightcontext( size_t,
+					     const std::string& ="" ) const NOT_IMPLEMENTED;
+    virtual Word *addWord( const KWargs& ) = 0;
+    Word *addWord( const std::string& s ){
+      return addWord( getArgs(s) );
+    }
+
+    // corrections
+    virtual NewElement *getNew() const NOT_IMPLEMENTED;
+    virtual Original *getOriginal() const NOT_IMPLEMENTED;
+    virtual Current *getCurrent() const NOT_IMPLEMENTED;
+    virtual Correction *incorrection() const NOT_IMPLEMENTED;
+    virtual Correction *split( FoliaElement *, FoliaElement *,
+			       const std::string& = "" ) NOT_IMPLEMENTED;
 
     virtual Correction *mergewords( FoliaElement *,
 				    const std::vector<FoliaElement *>&,
@@ -258,40 +305,47 @@ namespace folia {
 				    const std::string& = "" ) NOT_IMPLEMENTED;
     virtual std::vector<Suggestion*> suggestions() const NOT_IMPLEMENTED;
     virtual Suggestion *suggestions( size_t ) const NOT_IMPLEMENTED;
-    virtual std::string subset() const NOT_IMPLEMENTED;
-    virtual FoliaElement *previous() const NOT_IMPLEMENTED;
-    virtual FoliaElement *next() const NOT_IMPLEMENTED;
-    virtual std::vector<Word*> context( size_t,
-					const std::string& ="" ) const NOT_IMPLEMENTED;
-    virtual std::vector<Word*> leftcontext( size_t,
-					    const std::string& ="" ) const NOT_IMPLEMENTED;
-    virtual std::vector<Word*> rightcontext( size_t,
-					     const std::string& ="" ) const NOT_IMPLEMENTED;
-    virtual FoliaElement *findspan( const std::vector<FoliaElement*>& ) const NOT_IMPLEMENTED;
-    virtual int offset() const NOT_IMPLEMENTED;
-    virtual std::string getlang() const NOT_IMPLEMENTED;
-    virtual std::string setlang( const std::string& ) NOT_IMPLEMENTED;
 
+    virtual std::string subset() const NOT_IMPLEMENTED;
+    virtual Correction *correct( const std::vector<FoliaElement*>&,
+				 const std::vector<FoliaElement*>&,
+				 const std::vector<FoliaElement*>&,
+				 const std::vector<FoliaElement*>&,
+				 const KWargs& ) NOT_IMPLEMENTED;
+    virtual Correction* correct( FoliaElement*,
+				 FoliaElement*,
+				 const KWargs& ) NOT_IMPLEMENTED;
+    virtual Correction* correct( FoliaElement*,
+				 FoliaElement*,
+				 const std::vector<FoliaElement*>&,
+				 const KWargs& ) NOT_IMPLEMENTED;
+    virtual Correction *correct( const std::string& = "" ) NOT_IMPLEMENTED;
+
+    // TextContent
+    virtual TextContent *textcontent( const std::string& = "current" ) const = 0;
+    TextContent *settext( const std::string&, const std::string& = "current" );
+    TextContent *settext( const std::string&, int , const std::string& = "current" );
+    TextContent *setutext( const UnicodeString&, const std::string& = "current" );
+    TextContent *setutext( const UnicodeString&, int , const std::string& = "current" );
+    virtual int offset() const NOT_IMPLEMENTED;
+
+    virtual std::string getTextDelimiter( bool retaintok=false ) const = 0;
+    virtual void setDateTime( const std::string& ) = 0;
+    virtual std::string getDateTime() const = 0;
     virtual std::string pos( const std::string& = "" ) const = 0;
     virtual std::string lemma( const std::string& = "" ) const = 0;
     virtual std::string cls() const = 0;
     virtual std::string sett() const = 0;
-    virtual std::string annotator( ) const = 0;
-    virtual void annotator( const std::string& ) = 0;
-    virtual AnnotatorType annotatortype() const = 0;
-    virtual void annotatortype( AnnotatorType t ) =  0;
-    virtual AnnotationType::AnnotationType annotation_type() const = 0;
     virtual std::string classname() const = 0;
     virtual std::string n() const = 0;
     virtual std::string id() const = 0;
     virtual ElementType element_id() const = 0;
     virtual std::string xmltag() const = 0;
+
     virtual Document *doc() const = 0;
-    //    virtual xmlNs *foliaNs() const = 0;
     virtual Sentence *sentence() const NOT_IMPLEMENTED;
     virtual Paragraph *paragraph() const NOT_IMPLEMENTED;
     virtual Division *division() const NOT_IMPLEMENTED;
-    virtual Correction *incorrection() const NOT_IMPLEMENTED;
     virtual std::vector<Paragraph*> paragraphs() const NOT_IMPLEMENTED;
     virtual std::vector<Sentence*> sentences() const NOT_IMPLEMENTED;
     virtual std::vector<Word*> words() const NOT_IMPLEMENTED;
@@ -306,60 +360,33 @@ namespace folia {
     virtual Word *words( size_t ) const NOT_IMPLEMENTED;
     virtual std::vector<Word *> wordParts() const NOT_IMPLEMENTED;
     virtual Word *rwords( size_t ) const NOT_IMPLEMENTED;
+
     virtual DependencyDependent *dependent() const NOT_IMPLEMENTED;
 
     std::string description() const;
-    virtual Sentence *addSentence( const KWargs& ) = 0;
-    Sentence *addSentence( const std::string& s ="" ){
-      return addSentence( getArgs(s) );
-    };
-    virtual Word *addWord( const KWargs& ) = 0;
-    Word *addWord( const std::string& s ){
-      return addWord( getArgs(s) );
-    }
-    TextContent *settext( const std::string&, const std::string& = "current" );
-    TextContent *settext( const std::string&, int , const std::string& = "current" );
-    TextContent *setutext( const UnicodeString&, const std::string& = "current" );
-    TextContent *setutext( const UnicodeString&, int , const std::string& = "current" );
 
-    virtual PosAnnotation *addPosAnnotation( const KWargs& ) = 0;
-    virtual LemmaAnnotation *addLemmaAnnotation( const KWargs& ) = 0;
+    // alternatives
+    template <typename F>
+      F *addAlternative();
+    template <typename F>
+      F *addAlternative( const KWargs& );
     virtual std::vector<Alternative *> alternatives( ElementType,
 						     const std::string& = ""
 						     ) const NOT_IMPLEMENTED;
     std::vector<Alternative*> alternatives( const std::string& s = "" ) const {
       return alternatives( BASE, s );
     }
+
     virtual std::string content() const {
       throw NoSuchAnnotation( "content" );
     }
-    virtual Correction *correct( const std::vector<FoliaElement*>&,
-				 const std::vector<FoliaElement*>&,
-				 const std::vector<FoliaElement*>&,
-				 const std::vector<FoliaElement*>&,
-				 const KWargs& ) NOT_IMPLEMENTED;
-    virtual Correction* correct( FoliaElement*,
-				 FoliaElement*,
-				 const KWargs& ) NOT_IMPLEMENTED;
-    virtual Correction* correct( FoliaElement*,
-				 FoliaElement*,
-				 const std::vector<FoliaElement*>&,
-				 const KWargs& ) NOT_IMPLEMENTED;
-    virtual Correction *correct( const std::string& = "" ) NOT_IMPLEMENTED;
     virtual std::string src() const NOT_IMPLEMENTED;
     virtual UnicodeString caption() const NOT_IMPLEMENTED;
-    virtual int refcount() const = 0;
-    virtual void increfcount() = 0;
     virtual FoliaElement *parent() const = 0;
     virtual void setParent( FoliaElement *p ) = 0;
     virtual void setAuth( bool b ) = 0;
     virtual std::vector<FoliaElement *> resolve() const NOT_IMPLEMENTED;
     virtual const FoliaElement* resolveid() const NOT_IMPLEMENTED;
-    bool isSubClass( ElementType ) const;
-    bool isSubClass( const FoliaElement *c ) const {
-      return isSubClass( c->element_id() );
-    };
-    virtual std::string getTextDelimiter( bool retaintok=false ) const = 0;
     virtual void setAttributes( const KWargs& ) = 0;
     virtual KWargs collectAttributes() const = 0;
     virtual std::string generateId( const std::string& ) NOT_IMPLEMENTED;
@@ -368,8 +395,6 @@ namespace folia {
     virtual Attrib required_attributes() const = 0;
     virtual bool checkAtts() = 0;
 
-    virtual void init()=0;
-    virtual bool allowannotations() const { return false; };
 
     virtual std::vector<FoliaElement*> select( ElementType elementtype,
 					       bool = true ) const = 0;
@@ -383,12 +408,9 @@ namespace folia {
 					       const std::string&,
 					       const std::set<ElementType>& ,
 					       bool = true ) const = 0;
-    virtual bool acceptable( ElementType ) const = 0;
-    virtual bool addable( const FoliaElement * ) const = 0;
-    template <typename F>
-      F *addAlternative();
-    template <typename F>
-      F *addAlternative( const KWargs& );
+    // some 'internal stuff
+    virtual int refcount() const = 0;
+    virtual void increfcount() = 0;
 
   };
 
@@ -949,8 +971,8 @@ namespace folia {
   Word( const KWargs& a ): AbstractStructureElement(){ classInit( a ); };
   Word( Document *d, const std::string& s=""): AbstractStructureElement( d ){ classInit( s ); };
   Word( Document *d, const KWargs& a ): AbstractStructureElement( d ){ classInit( a ); };
-    FoliaElement *split( FoliaElement *, FoliaElement *,
-			 const std::string& = "" );
+    Correction *split( FoliaElement *, FoliaElement *,
+		       const std::string& = "" );
     Sentence *sentence() const;
     Paragraph *paragraph() const;
     Division *division() const;
@@ -965,7 +987,7 @@ namespace folia {
 				    const std::string& = "" ) const;
     std::vector<Word*> rightcontext( size_t,
 				     const std::string& ="" ) const;
-    std::vector<FoliaElement*> findspans( ElementType,
+    std::vector<AbstractSpanAnnotation*> findspans( ElementType,
 					  const std::string& = "" ) const;
     FoliaElement *append( FoliaElement *);
     const Word* resolveword( const std::string& ) const;
@@ -1483,7 +1505,7 @@ namespace folia {
   AbstractAnnotationLayer( const KWargs& a ): FoliaImpl() { classInit( a ); };
   AbstractAnnotationLayer( Document *d, const std::string& s=""): FoliaImpl(d) { classInit( s ); };
   AbstractAnnotationLayer( Document *d, const KWargs& a ): FoliaImpl(d) { classInit( a ); };
-    FoliaElement *findspan( const std::vector<FoliaElement*>& ) const;
+    AbstractSpanAnnotation *findspan( const std::vector<FoliaElement*>& ) const;
   private:
     void init();
   };

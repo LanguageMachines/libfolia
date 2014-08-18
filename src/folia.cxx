@@ -1961,8 +1961,8 @@ namespace folia {
     }
   }
 
-  FoliaElement *Word::split( FoliaElement *part1, FoliaElement *part2,
-			     const string& args ){
+  Correction *Word::split( FoliaElement *part1, FoliaElement *part2,
+			   const string& args ){
     return sentence()->splitWord( this, part1, part2, getArgs(args) );
   }
 
@@ -2185,9 +2185,9 @@ namespace folia {
     return 0;
   }
 
-  vector<FoliaElement*> Word::findspans( ElementType et,
-					 const string& st ) const {
-    vector<FoliaElement *> result;
+  vector<AbstractSpanAnnotation*> Word::findspans( ElementType et,
+						   const string& st ) const {
+    vector<AbstractSpanAnnotation *> result;
     if ( !folia::isSubClass( et , AnnotationLayer_t ) ){
       throw NotImplementedError( "findspans(" + toString( et ) +
 				 ") is not supported. " +
@@ -2205,7 +2205,7 @@ namespace folia {
 	      vector<FoliaElement*> wv = f->wrefs();
 	      for ( size_t j=0; j < wv.size(); ++j ){
 		if ( wv[j] == this ){
-		  result.push_back(f);
+		  result.push_back(as);
 		}
 	      }
 	    }
@@ -3051,7 +3051,7 @@ namespace folia {
     return res;
   }
 
-  FoliaElement *AbstractAnnotationLayer::findspan( const vector<FoliaElement*>& words ) const {
+  AbstractSpanAnnotation *AbstractAnnotationLayer::findspan( const vector<FoliaElement*>& words ) const {
     vector<AbstractSpanAnnotation*> av = selectSpan();
     for ( size_t i=0; i < av.size(); ++i ){
       vector<FoliaElement*> v = av[i]->wrefs();
