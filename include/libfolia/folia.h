@@ -370,7 +370,7 @@ namespace folia {
 
     virtual DependencyDependent *dependent() const NOT_IMPLEMENTED;
 
-    std::string description() const;
+    virtual std::string description() const;
 
     // alternatives
     template <typename F>
