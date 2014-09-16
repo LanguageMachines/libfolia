@@ -1,13 +1,16 @@
-0.11 2014-06-xx
+0.11 2014-09-16
   * now implements nodes like: Ref, Note, External
+  * Correction may be added to a lot more nodes
   * several bug fixes
   * better MT safe
+  * major API and ABI changes: Added a true virtual base,
+    using virtual inheritance.
 
 0.10
   * some XML stuff is moved to ticcutils
   * also use some other goodies form ticcutils
   * now implements new nodes like Metric, Coreferences and Semroles
-    (follwing the FoLiA 0.9 specs)
+    (following the FoLiA 0.9 specs)
   * a lot of code improvement too, including some bug fixes
 
 0.9
