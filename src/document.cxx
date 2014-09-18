@@ -741,6 +741,14 @@ namespace folia {
     }
   }
 
+  void fixupNs( xmlNode *p, xmlNs *ns ){
+    while ( p ){
+      xmlSetNs( p, ns );
+      fixupNs( p->children, ns );
+      p = p->next;
+    }
+  }
+
   FoliaElement* Document::parseXml( ){
     getstyles();
     xmlNode *root = xmlDocGetRootElement( xmldoc );
@@ -757,8 +765,9 @@ namespace folia {
       if ( Name( root ) == "FoLiA" ){
 	string ns = getNS( root );
 	if ( ns.empty()  ){
-	  throw XmlError( "Folia Document without namespace declaration" );
-	  return 0;
+	  xmlNs *defNs = xmlNewNs( root, (const xmlChar *)NSFOLIA.c_str(), 0 );
+	  _foliaNsIn = defNs;
+	  fixupNs( root, defNs );
 	}
 	else if ( ns != NSFOLIA ){
 	  throw XmlError( "Folia Document should have namespace declaration "
