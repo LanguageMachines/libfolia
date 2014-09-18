@@ -563,12 +563,13 @@ namespace folia {
   }
 
   bool checkNS( xmlNode *n, const string& ns ){
-    if ( getNS(n) == ns )
+    string tns = getNS(n);
+    if ( tns == ns )
       return true;
     else
       throw runtime_error( "namespace conflict for tag:" + Name(n)
 			   + ", wanted:" + ns
-			   + " got:" + getNS(n) );
+			   + " got:" + tns );
     return false;
   }
 
@@ -753,9 +754,17 @@ namespace folia {
     }
     FoliaElement *result = 0;
     if ( root  ){
-      try {
-	if ( Name( root ) == "FoLiA" &&
-	     checkNS( root, NSFOLIA ) ){
+      if ( Name( root ) == "FoLiA" ){
+	string ns = getNS( root );
+	if ( ns.empty()  ){
+	  throw XmlError( "Folia Document without namespace declaration" );
+	  return 0;
+	}
+	else if ( ns != NSFOLIA ){
+	  throw XmlError( "Folia Document should have namespace declaration "
+			  + NSFOLIA + " but found: " + ns );
+	}
+	try {
 	  result = parseFoliaDoc( root );
 	  if ( result ){
 	    if ( isNCName( result->id() ) )
@@ -765,16 +774,16 @@ namespace folia {
 	    }
 	  }
 	}
-	else if ( Name( root ) == "DCOI" &&
-		  checkNS( root, NSDCOI ) ){
-	  throw runtime_error( "DCOI format not supported" );
-	}
-	else {
-	  throw runtime_error("root node must be FoLiA" );
+	catch ( exception& e ){
+	  throw XmlError( e.what() );
 	}
       }
-      catch ( exception& e ){
-	throw XmlError( e.what() );
+      else if ( Name( root ) == "DCOI" &&
+		checkNS( root, NSDCOI ) ){
+	throw XmlError( "DCOI format not supported" );
+      }
+      else {
+	throw XmlError( "root node must be FoLiA" );
       }
     }
     return result;
