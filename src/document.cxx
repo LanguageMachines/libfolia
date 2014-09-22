@@ -140,11 +140,13 @@ namespace folia {
     KWargs::const_iterator it = kwargs.find( "debug" );
     if ( it != kwargs.end() )
       debug = stringTo<int>( it->second );
-    it = kwargs.find( "load" );
-    if ( it != kwargs.end() )
-      loadall = stringTo<bool>( it->second );
-    else
-      loadall = true;
+    it = kwargs.find( "mode" );
+    if ( it != kwargs.end() ){
+      mode = it->second;
+      if ( mode != "permissive" ){
+	throw runtime_error( "FoLiA::Document: unsupported mode value: "+mode );
+      }
+    }
     it = kwargs.find( "external" );
     if ( it != kwargs.end() )
       external = stringTo<bool>( it->second );
@@ -764,10 +766,17 @@ namespace folia {
     if ( root  ){
       if ( Name( root ) == "FoLiA" ){
 	string ns = getNS( root );
-	if ( ns.empty()  ){
-	  xmlNs *defNs = xmlNewNs( root, (const xmlChar *)NSFOLIA.c_str(), 0 );
-	  _foliaNsIn = defNs;
-	  fixupNs( root, defNs );
+	if ( ns.empty() ){
+	  if ( mode == "permissive" ){
+	    xmlNs *defNs = xmlNewNs( root,
+				     (const xmlChar *)NSFOLIA.c_str(), 0 );
+	    _foliaNsIn = defNs;
+	    fixupNs( root, defNs );
+	  }
+	  else {
+	    throw XmlError( "Folia Document should have namespace declaration "
+			    + NSFOLIA + " but none found " );
+	  }
 	}
 	else if ( ns != NSFOLIA ){
 	  throw XmlError( "Folia Document should have namespace declaration "

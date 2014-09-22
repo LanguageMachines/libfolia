@@ -199,7 +199,7 @@ namespace folia {
     std::string _license;
     std::map<std::string,std::string> meta_atts;
     std::multimap<std::string,std::string> styles;
-    bool loadall;
+    std::string mode;
     std::string filename;
     std::string version;
     bool external;
