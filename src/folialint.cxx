@@ -31,27 +31,70 @@
 #include <fstream>
 #include <string>
 #include <map>
+#include "ticcutils/CommandLine.h"
 #include "libfolia/document.h"
 
 using namespace std;
 
 void usage(){
-  cerr << "usage: folialint <foliafile> [<outputfile>]" << endl;
+  cerr << "usage: folialint [options] <foliafile> [<outputfile>]" << endl;
 }
 
 int main( int argc, char* argv[] ){
-  string outName;
-  if ( argc < 2 ){
-    usage();
-    exit( EXIT_FAILURE);
+  string inputName;
+  string outputName;
+  bool permissive;
+  string debug;
+  vector<string> fileNames;
+  try {
+    TiCC::CL_Options Opts( "hV", "debug:,permissive");
+    Opts.init(argc, argv );
+    if ( Opts.extract( 'h' ) ){
+      usage();
+      return EXIT_SUCCESS;
+    }
+    if ( Opts.extract( 'V' ) ){
+      cout << "folialint version 0.2" << endl;
+      cout << "based on [" << folia::VersionName() << "]" << endl;
+      return EXIT_SUCCESS;
+    }
+    permissive = Opts.extract("permissive");
+    Opts.extract( "debug", debug );
+    if ( !Opts.empty() ){
+      cerr << "unsupported option(s): " << Opts.toString() << endl;
+      return EXIT_FAILURE;
+    }
+    fileNames = Opts.getMassOpts();
+    if ( fileNames.size() == 0 ){
+      cerr << "missing input file" << endl;
+      return EXIT_FAILURE;
+    }
+    if ( fileNames.size() > 2 ){
+      cerr << "expected 1 input file, and 1 output file" << endl;
+      return EXIT_FAILURE;
+    }
+    inputName = fileNames[0];
+    if ( fileNames.size() == 2 ){
+      outputName = fileNames[1];
+    }
+    if ( inputName == outputName ){
+      cerr << "output name cannot be same as input name!" << endl;
+      return EXIT_FAILURE;
+    }
   }
-  if ( argc == 3 ){
-    outName == argv[2];
+  catch( exception& e ){
+    cerr << "FAIL: " << e.what() << endl;
+    exit( EXIT_FAILURE );
   }
   try {
-    folia::Document d("file='" + string(argv[1]) + "'"); //,debug='3'");"
-    if ( !outName.empty() )
-      d.save( outName );
+    string cmd = "file='" + inputName + "'";
+    if ( !debug.empty() )
+      cmd += ", debug='" + debug + "'";
+    if ( permissive )
+      cmd += ", mode='permissive'";
+    folia::Document d( cmd );
+    if ( !outputName.empty() )
+      d.save( outputName );
     else
       cout << d;
   }
