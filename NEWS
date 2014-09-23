@@ -1,3 +1,8 @@
+0.12 2014-09-23
+[Ko van der Sloot]
+  * release 0.12
+  * library version bumped to 3.0.0 because ABI and API have heavily changed
+
 0.11 2014-09-16
   * now implements nodes like: Ref, Note, External
   * Correction may be added to a lot more nodes

@@ -4,7 +4,7 @@
 # $URL: https://ilk.uvt.nl/svn/sources/ucto/trunk/configure.ac $
 
 AC_PREREQ(2.59)
-AC_INIT([libfolia], [0.11], [timbl@uvt.nl])
+AC_INIT([libfolia], [0.12], [timbl@uvt.nl])
 AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR([configure.ac])
 AC_CONFIG_MACRO_DIR([m4])
