@@ -937,7 +937,7 @@ namespace folia {
       }
       else {
 	if ( mit1->second.count( st ) == 1 ){
-	  map<string,at_t>::const_iterator mit2 = mit1->second.find( st );
+	  multimap<string,at_t>::const_iterator mit2 = mit1->second.find( st );
 	  result = mit2->second.a;
 	}
       }
@@ -961,7 +961,7 @@ namespace folia {
       }
       else {
 	if ( mit1->second.count( st ) == 1 ){
-	  map<string,at_t>::const_iterator mit2 = mit1->second.find( st );
+	  multimap<string,at_t>::const_iterator mit2 = mit1->second.find( st );
 	  result = mit2->second.t;
 	}
       }
@@ -982,7 +982,7 @@ namespace folia {
       }
       else {
 	if ( mit1->second.count( st ) == 1 ){
-	  map<string,at_t>::const_iterator mit2 = mit1->second.find( st );
+	  multimap<string,at_t>::const_iterator mit2 = mit1->second.find( st );
 	  result = mit2->second.d;
 	}
       }
@@ -994,7 +994,7 @@ namespace folia {
   void Document::setannotations( xmlNode *node ) const {
     map<AnnotationType::AnnotationType,multimap<string,at_t> >::const_iterator mit = annotationdefaults.begin();
     while ( mit != annotationdefaults.end() ){
-      map<string,at_t>::const_iterator it = mit->second.begin();
+      multimap<string,at_t>::const_iterator it = mit->second.begin();
       while ( it != mit->second.end() ){
 	// Find the 'label'
 	string label = toString( mit->first );
