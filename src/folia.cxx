@@ -1167,7 +1167,7 @@ namespace folia {
       if ( alts[i]->size() > 0 ) { // child elements?
 	for ( size_t j =0; j < alts[i]->size(); ++j ){
 	  if ( alts[i]->index(j)->element_id() == Pos_t &&
-	       alts[i]->index(j)->sett() == st ){
+	       ( st.empty() || alts[i]->index(j)->sett() == st ) ){
 	    vec.push_back( dynamic_cast<PosAnnotation*>(alts[i]->index(j)) );
 	  }
 	}
@@ -1217,7 +1217,7 @@ namespace folia {
       if ( alts[i]->size() > 0 ) { // child elements?
 	for ( size_t j =0; j < alts[i]->size(); ++j ){
 	  if ( alts[i]->index(j)->element_id() == Lemma_t &&
-	       alts[i]->index(j)->sett() == st ){
+	       ( st.empty() || alts[i]->index(j)->sett() == st ) ){
 	    vec.push_back( dynamic_cast<LemmaAnnotation*>(alts[i]->index(j)) );
 	  }
 	}
@@ -1267,7 +1267,7 @@ namespace folia {
       if ( alts[i]->size() > 0 ) { // child elements?
 	for ( size_t j =0; j < alts[i]->size(); ++j ){
 	  if ( alts[i]->index(j)->element_id() == Morphology_t &&
-	       alts[i]->index(j)->sett() == st ){
+	       ( st.empty() || alts[i]->index(j)->sett() == st ) ){
 	    vec.push_back( dynamic_cast<MorphologyLayer*>(alts[i]->index(j)) );
 	  }
 	}
