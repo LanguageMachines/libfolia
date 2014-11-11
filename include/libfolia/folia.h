@@ -41,6 +41,7 @@ namespace folia {
   class Alternative;
   class PosAnnotation;
   class LemmaAnnotation;
+  class MorphologyLayer;
   class Sentence;
   class Word;
   class TextContent;
@@ -191,6 +192,7 @@ namespace folia {
     virtual AnnotationType::AnnotationType annotation_type() const = 0;
     virtual PosAnnotation *addPosAnnotation( const KWargs& ) NOT_IMPLEMENTED;
     virtual LemmaAnnotation *addLemmaAnnotation( const KWargs& ) NOT_IMPLEMENTED;
+    virtual MorphologyLayer *addMorphologyLayer( const KWargs& ) NOT_IMPLEMENTED;
 
     template <typename F>
       std::vector<F*> annotations( const std::string& s = "" ) const {
@@ -1008,6 +1010,7 @@ namespace folia {
     std::string getTextDelimiter( bool=false) const;
     PosAnnotation *addPosAnnotation( const KWargs& );
     LemmaAnnotation *addLemmaAnnotation( const KWargs& );
+    MorphologyLayer *addMorphologyLayer( const KWargs& );
   private:
     void init();
     bool space;

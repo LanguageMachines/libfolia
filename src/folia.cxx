@@ -1135,7 +1135,9 @@ namespace folia {
     }
     if ( hasannotation<PosAnnotation>( st ) ){
       // ok, there is already one, so create an Alternative
-      Alternative *alt = new Alternative();
+      KWargs kw;
+      kw["id"] = generateId( "alt-pos" );
+      Alternative *alt = new Alternative( doc(), kw );
       append( alt );
       return alt->addAnnotation<PosAnnotation>( args );
     }
@@ -1152,12 +1154,33 @@ namespace folia {
     }
     if ( hasannotation<LemmaAnnotation>( st ) ){
       // ok, there is already one, so create an Alternative
-      Alternative *alt = new Alternative();
+      KWargs kw;
+      kw["id"] = generateId( "alt-lem" );
+      Alternative *alt = new Alternative( doc(), kw );
       append( alt );
       return alt->addAnnotation<LemmaAnnotation>( args );
     }
     else {
       return addAnnotation<LemmaAnnotation>( args );
+    }
+  }
+
+  MorphologyLayer *Word::addMorphologyLayer( const KWargs& args ){
+    string st;
+    KWargs::const_iterator it = args.find("set" );
+    if ( it != args.end() ){
+      st = it->second;
+    }
+    if ( hasannotation<MorphologyLayer>( st ) ){
+      // ok, there is already one, so create an Alternative
+      KWargs kw;
+      kw["id"] = generateId( "alt-mor" );
+      Alternative *alt = new Alternative( doc(), kw );
+      append( alt );
+      return alt->addAnnotation<MorphologyLayer>( args );
+    }
+    else {
+      return addAnnotation<MorphologyLayer>( args );
     }
   }
 
