@@ -1127,11 +1127,11 @@ namespace folia {
     return annotation<LemmaAnnotation>( st )->cls();
   }
 
-  PosAnnotation *FoliaImpl::addPosAnnotation( const KWargs& args ){
+  PosAnnotation *Word::addPosAnnotation( const KWargs& args ){
     return addAnnotation<PosAnnotation>( args );
   }
 
-  LemmaAnnotation *FoliaImpl::addLemmaAnnotation( const KWargs& args ){
+  LemmaAnnotation *Word::addLemmaAnnotation( const KWargs& args ){
     return addAnnotation<LemmaAnnotation>( args );
   }
 

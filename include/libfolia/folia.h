@@ -189,8 +189,8 @@ namespace folia {
     virtual AnnotatorType annotatortype() const = 0;
     virtual void annotatortype( AnnotatorType t ) =  0;
     virtual AnnotationType::AnnotationType annotation_type() const = 0;
-    virtual PosAnnotation *addPosAnnotation( const KWargs& ) = 0;
-    virtual LemmaAnnotation *addLemmaAnnotation( const KWargs& ) = 0;
+    virtual PosAnnotation *addPosAnnotation( const KWargs& ) NOT_IMPLEMENTED;
+    virtual LemmaAnnotation *addLemmaAnnotation( const KWargs& ) NOT_IMPLEMENTED;
 
     template <typename F>
       std::vector<F*> annotations( const std::string& s = "" ) const {
@@ -503,8 +503,6 @@ namespace folia {
     AnnotatorType annotatortype() const { return _annotator_type; };
     void annotatortype( AnnotatorType t ) { _annotator_type =  t; };
     AnnotationType::AnnotationType annotation_type() const { return _annotation_type; };
-    PosAnnotation *addPosAnnotation( const KWargs& );
-    LemmaAnnotation *addLemmaAnnotation( const KWargs& );
 
     template <typename F>
       F *addAnnotation( const KWargs& args ) {
@@ -1008,6 +1006,8 @@ namespace folia {
     void setAttributes( const KWargs& );
     KWargs collectAttributes() const;
     std::string getTextDelimiter( bool=false) const;
+    PosAnnotation *addPosAnnotation( const KWargs& );
+    LemmaAnnotation *addLemmaAnnotation( const KWargs& );
   private:
     void init();
     bool space;
