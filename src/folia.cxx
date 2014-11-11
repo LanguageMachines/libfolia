@@ -1134,19 +1134,7 @@ namespace folia {
       st = it->second;
     }
     if ( hasannotation<PosAnnotation>( st ) ){
-      // ok, there is already one, try in the alternatives
-      try {
-	std::vector<Alternative*> v = select<Alternative>();
-	for ( size_t i=0; i < v.size(); ++i ){
-	  if ( v[i]->hasannotation<PosAnnotation>(st) ){
-	    throw DuplicateAnnotationError( "Word::addPosAnnotation" );
-	  }
-	}
-      }
-      catch ( NoSuchAnnotation& e ){
-	// ok
-      }
-      // not there, so create an Alternative
+      // ok, there is already one, so create an Alternative
       Alternative *alt = new Alternative();
       append( alt );
       return alt->addAnnotation<PosAnnotation>( args );
@@ -1163,19 +1151,7 @@ namespace folia {
       st = it->second;
     }
     if ( hasannotation<LemmaAnnotation>( st ) ){
-      // ok, there is already one, try in the alternatives
-      try {
-	std::vector<Alternative*> v = select<Alternative>();
-	for ( size_t i=0; i < v.size(); ++i ){
-	  if ( v[i]->hasannotation<LemmaAnnotation>(st) ){
-	    throw DuplicateAnnotationError( "Word::addLemmaAnnotation" );
-	  }
-	}
-      }
-      catch ( NoSuchAnnotation& e ){
-	// ok
-      }
-      // not there, so create an Alternative
+      // ok, there is already one, so create an Alternative
       Alternative *alt = new Alternative();
       append( alt );
       return alt->addAnnotation<LemmaAnnotation>( args );
