@@ -194,6 +194,13 @@ namespace folia {
     virtual LemmaAnnotation *addLemmaAnnotation( const KWargs& ) NOT_IMPLEMENTED;
     virtual MorphologyLayer *addMorphologyLayer( const KWargs& ) NOT_IMPLEMENTED;
 
+    virtual PosAnnotation *getPosAnnotations( const std::string&,
+					      std::vector<PosAnnotation*>& ) const NOT_IMPLEMENTED;
+    virtual LemmaAnnotation *getLemmaAnnotations( const std::string&,
+						  std::vector<LemmaAnnotation*>& ) const NOT_IMPLEMENTED;
+    virtual MorphologyLayer *getMorphologyLayers( const std::string&,
+						  std::vector<MorphologyLayer*>& ) const NOT_IMPLEMENTED;
+
     template <typename F>
       std::vector<F*> annotations( const std::string& s = "" ) const {
       if ( allowannotations() ){
@@ -1011,6 +1018,12 @@ namespace folia {
     PosAnnotation *addPosAnnotation( const KWargs& );
     LemmaAnnotation *addLemmaAnnotation( const KWargs& );
     MorphologyLayer *addMorphologyLayer( const KWargs& );
+    PosAnnotation *getPosAnnotations( const std::string&,
+				      std::vector<PosAnnotation*>& ) const;
+    LemmaAnnotation *getLemmaAnnotations( const std::string&,
+					  std::vector<LemmaAnnotation*>& ) const;
+    MorphologyLayer *getMorphologyLayers( const std::string&,
+					  std::vector<MorphologyLayer*>& ) const;
   private:
     void init();
     bool space;

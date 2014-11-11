@@ -1146,6 +1146,36 @@ namespace folia {
     }
   }
 
+  PosAnnotation* Word::getPosAnnotations( const string& st,
+					  vector<PosAnnotation*>& vec ) const {
+    PosAnnotation *res = 0;
+    vec.clear();
+    try {
+      res = annotation<PosAnnotation>( st );
+    }
+    catch( NoSuchAnnotation& e ){
+      res = 0;
+    }
+    // now search for alternatives
+    static set<ElementType> excludeSet;
+    if ( excludeSet.empty() ){
+      excludeSet.insert( Original_t );
+      excludeSet.insert( Suggestion_t );
+    }
+    vector<Alternative *> alts = select<Alternative>( excludeSet );
+    for ( size_t i=0; i < alts.size(); ++i ){
+      if ( alts[i]->size() > 0 ) { // child elements?
+	for ( size_t j =0; j < alts[i]->size(); ++j ){
+	  if ( alts[i]->index(j)->element_id() == Pos_t &&
+	       ( alts[i]->sett().empty() || alts[i]->sett() == st ) ){
+	    vec.push_back( dynamic_cast<PosAnnotation*>(alts[i]->index(j)) );
+	  }
+	}
+      }
+    }
+    return res;
+  }
+
   LemmaAnnotation *Word::addLemmaAnnotation( const KWargs& args ){
     string st;
     KWargs::const_iterator it = args.find("set" );
@@ -1165,6 +1195,37 @@ namespace folia {
     }
   }
 
+  LemmaAnnotation* Word::getLemmaAnnotations( const string& st,
+					      vector<LemmaAnnotation*>& vec ) const {
+    LemmaAnnotation *res = 0;
+    vec.clear();
+    try {
+      res = annotation<LemmaAnnotation>( st );
+    }
+    catch( NoSuchAnnotation& e ){
+      // ok
+      res = 0;
+    }
+    // now search for alternatives
+    static set<ElementType> excludeSet;
+    if ( excludeSet.empty() ){
+      excludeSet.insert( Original_t );
+      excludeSet.insert( Suggestion_t );
+    }
+    vector<Alternative *> alts = select<Alternative>( excludeSet );
+    for ( size_t i=0; i < alts.size(); ++i ){
+      if ( alts[i]->size() > 0 ) { // child elements?
+	for ( size_t j =0; j < alts[i]->size(); ++j ){
+	  if ( alts[i]->index(j)->element_id() == Lemma_t &&
+	       ( alts[i]->sett().empty() || alts[i]->sett() == st ) ){
+	    vec.push_back( dynamic_cast<LemmaAnnotation*>(alts[i]->index(j)) );
+	  }
+	}
+      }
+    }
+    return res;
+  }
+
   MorphologyLayer *Word::addMorphologyLayer( const KWargs& args ){
     string st;
     KWargs::const_iterator it = args.find("set" );
@@ -1182,6 +1243,37 @@ namespace folia {
     else {
       return addAnnotation<MorphologyLayer>( args );
     }
+  }
+
+  MorphologyLayer *Word::getMorphologyLayers( const string& st,
+					      vector<MorphologyLayer*>& vec ) const {
+    MorphologyLayer *res = 0;
+    vec.clear();
+    try {
+      res = annotation<MorphologyLayer>( st );
+    }
+    catch( NoSuchAnnotation& e ){
+      // ok
+      res = 0;
+    }
+    // now search for alternatives
+    static set<ElementType> excludeSet;
+    if ( excludeSet.empty() ){
+      excludeSet.insert( Original_t );
+      excludeSet.insert( Suggestion_t );
+    }
+    vector<Alternative *> alts = select<Alternative>( excludeSet );
+    for ( size_t i=0; i < alts.size(); ++i ){
+      if ( alts[i]->size() > 0 ) { // child elements?
+	for ( size_t j =0; j < alts[i]->size(); ++j ){
+	  if ( alts[i]->index(j)->element_id() == Morphology_t &&
+	       ( alts[i]->sett().empty() || alts[i]->sett() == st ) ){
+	    vec.push_back( dynamic_cast<MorphologyLayer*>(alts[i]->index(j)) );
+	  }
+	}
+      }
+    }
+    return res;
   }
 
   Sentence *FoliaImpl::addSentence( const KWargs& args ){
@@ -1916,7 +2008,6 @@ namespace folia {
 	    if ( alts[i]->index(j)->element_id() == elt &&
 		 ( alts[i]->sett().empty() || alts[i]->sett() == st ) ){
 	      res.push_back( alts[i] ); // not the child!
-	      break; // yield an alternative only once (in case there are multiple matches)
 	    }
 	  }
 	}
