@@ -1128,11 +1128,61 @@ namespace folia {
   }
 
   PosAnnotation *Word::addPosAnnotation( const KWargs& args ){
-    return addAnnotation<PosAnnotation>( args );
+    string st;
+    KWargs::const_iterator it = args.find("set" );
+    if ( it != args.end() ){
+      st = it->second;
+    }
+    if ( hasannotation<PosAnnotation>( st ) ){
+      // ok, there is already one, try in the alternatives
+      try {
+	std::vector<Alternative*> v = select<Alternative>();
+	for ( size_t i=0; i < v.size(); ++i ){
+	  if ( v[i]->hasannotation<PosAnnotation>(st) ){
+	    throw DuplicateAnnotationError( "Word::addPosAnnotation" );
+	  }
+	}
+      }
+      catch ( NoSuchAnnotation& e ){
+	// ok
+      }
+      // not there, so create an Alternative
+      Alternative *alt = new Alternative();
+      append( alt );
+      return alt->addAnnotation<PosAnnotation>( args );
+    }
+    else {
+      return addAnnotation<PosAnnotation>( args );
+    }
   }
 
   LemmaAnnotation *Word::addLemmaAnnotation( const KWargs& args ){
-    return addAnnotation<LemmaAnnotation>( args );
+    string st;
+    KWargs::const_iterator it = args.find("set" );
+    if ( it != args.end() ){
+      st = it->second;
+    }
+    if ( hasannotation<LemmaAnnotation>( st ) ){
+      // ok, there is already one, try in the alternatives
+      try {
+	std::vector<Alternative*> v = select<Alternative>();
+	for ( size_t i=0; i < v.size(); ++i ){
+	  if ( v[i]->hasannotation<LemmaAnnotation>(st) ){
+	    throw DuplicateAnnotationError( "Word::addLemmaAnnotation" );
+	  }
+	}
+      }
+      catch ( NoSuchAnnotation& e ){
+	// ok
+      }
+      // not there, so create an Alternative
+      Alternative *alt = new Alternative();
+      append( alt );
+      return alt->addAnnotation<LemmaAnnotation>( args );
+    }
+    else {
+      return addAnnotation<LemmaAnnotation>( args );
+    }
   }
 
   Sentence *FoliaImpl::addSentence( const KWargs& args ){
