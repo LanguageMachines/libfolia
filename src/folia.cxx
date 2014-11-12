@@ -1127,16 +1127,23 @@ namespace folia {
     return annotation<LemmaAnnotation>( st )->cls();
   }
 
-  PosAnnotation *Word::addPosAnnotation( const KWargs& args ){
+  PosAnnotation *Word::addPosAnnotation( const KWargs& inargs ){
+    KWargs args = inargs;
     string st;
     KWargs::const_iterator it = args.find("set" );
     if ( it != args.end() ){
       st = it->second;
     }
+    string newId = "alt-pos";
+    it = args.find("generate_id" );
+    if ( it != args.end() ){
+      newId = it->second;
+      args.erase("generate_id");
+    }
     if ( hasannotation<PosAnnotation>( st ) ){
       // ok, there is already one, so create an Alternative
       KWargs kw;
-      kw["id"] = generateId( "alt-pos" );
+      kw["id"] = generateId( newId );
       Alternative *alt = new Alternative( doc(), kw );
       append( alt );
       return alt->addAnnotation<PosAnnotation>( args );
@@ -1176,16 +1183,23 @@ namespace folia {
     return res;
   }
 
-  LemmaAnnotation *Word::addLemmaAnnotation( const KWargs& args ){
+  LemmaAnnotation *Word::addLemmaAnnotation( const KWargs& inargs ){
+    KWargs args = inargs;
     string st;
     KWargs::const_iterator it = args.find("set" );
     if ( it != args.end() ){
       st = it->second;
     }
+    string newId = "alt-lem";
+    it = args.find("generate_id" );
+    if ( it != args.end() ){
+      newId = it->second;
+      args.erase("generate_id");
+    }
     if ( hasannotation<LemmaAnnotation>( st ) ){
       // ok, there is already one, so create an Alternative
       KWargs kw;
-      kw["id"] = generateId( "alt-lem" );
+      kw["id"] = generateId( newId );
       Alternative *alt = new Alternative( doc(), kw );
       append( alt );
       return alt->addAnnotation<LemmaAnnotation>( args );
@@ -1226,16 +1240,23 @@ namespace folia {
     return res;
   }
 
-  MorphologyLayer *Word::addMorphologyLayer( const KWargs& args ){
+  MorphologyLayer *Word::addMorphologyLayer( const KWargs& inargs ){
+    KWargs args = inargs;
     string st;
     KWargs::const_iterator it = args.find("set" );
     if ( it != args.end() ){
       st = it->second;
     }
+    string newId = "alt-mor";
+    it = args.find("generate_id" );
+    if ( it != args.end() ){
+      newId = it->second;
+      args.erase("generate_id");
+    }
     if ( hasannotation<MorphologyLayer>( st ) ){
       // ok, there is already one, so create an Alternative
       KWargs kw;
-      kw["id"] = generateId( "alt-mor" );
+      kw["id"] = generateId( newId );
       Alternative *alt = new Alternative( doc(), kw );
       append( alt );
       return alt->addAnnotation<MorphologyLayer>( args );
