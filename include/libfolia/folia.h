@@ -699,6 +699,12 @@ namespace folia {
   class AllowAnnotation: public virtual FoliaElement {
   public:
     bool allowannotations() const { return true; };
+    PosAnnotation *addPosAnnotation( const KWargs& );
+    PosAnnotation *getPosAnnotations( const std::string&,
+				      std::vector<PosAnnotation*>& ) const;
+    LemmaAnnotation *addLemmaAnnotation( const KWargs& );
+    LemmaAnnotation *getLemmaAnnotations( const std::string&,
+					  std::vector<LemmaAnnotation*>& ) const;
   };
 
   class AbstractStructureElement: public FoliaImpl,
@@ -1015,13 +1021,7 @@ namespace folia {
     void setAttributes( const KWargs& );
     KWargs collectAttributes() const;
     std::string getTextDelimiter( bool=false) const;
-    PosAnnotation *addPosAnnotation( const KWargs& );
-    LemmaAnnotation *addLemmaAnnotation( const KWargs& );
     MorphologyLayer *addMorphologyLayer( const KWargs& );
-    PosAnnotation *getPosAnnotations( const std::string&,
-				      std::vector<PosAnnotation*>& ) const;
-    LemmaAnnotation *getLemmaAnnotations( const std::string&,
-					  std::vector<LemmaAnnotation*>& ) const;
     MorphologyLayer *getMorphologyLayers( const std::string&,
 					  std::vector<MorphologyLayer*>& ) const;
   private:

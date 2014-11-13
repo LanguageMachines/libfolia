@@ -1127,7 +1127,7 @@ namespace folia {
     return annotation<LemmaAnnotation>( st )->cls();
   }
 
-  PosAnnotation *Word::addPosAnnotation( const KWargs& inargs ){
+  PosAnnotation *AllowAnnotation::addPosAnnotation( const KWargs& inargs ){
     KWargs args = inargs;
     string st;
     KWargs::const_iterator it = args.find("set" );
@@ -1153,7 +1153,7 @@ namespace folia {
     }
   }
 
-  PosAnnotation* Word::getPosAnnotations( const string& st,
+  PosAnnotation* AllowAnnotation::getPosAnnotations( const string& st,
 					  vector<PosAnnotation*>& vec ) const {
     PosAnnotation *res = 0;
     vec.clear();
@@ -1183,7 +1183,7 @@ namespace folia {
     return res;
   }
 
-  LemmaAnnotation *Word::addLemmaAnnotation( const KWargs& inargs ){
+  LemmaAnnotation *AllowAnnotation::addLemmaAnnotation( const KWargs& inargs ){
     KWargs args = inargs;
     string st;
     KWargs::const_iterator it = args.find("set" );
@@ -1209,7 +1209,7 @@ namespace folia {
     }
   }
 
-  LemmaAnnotation* Word::getLemmaAnnotations( const string& st,
+  LemmaAnnotation* AllowAnnotation::getLemmaAnnotations( const string& st,
 					      vector<LemmaAnnotation*>& vec ) const {
     LemmaAnnotation *res = 0;
     vec.clear();
