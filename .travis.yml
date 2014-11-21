@@ -22,8 +22,6 @@ install:
     - bash bootstrap.sh
     - ./configure
     - make
+    - sudo make install
 script: 
-    - cd src
-    - ln -sf ../tests
-    - ./test >&2
-    
+    - foliatest >&2
