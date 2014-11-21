@@ -24,4 +24,4 @@ install:
     - make
     - sudo make install
 script: 
-    - foliatest >&2
+    - LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib foliatest >&2
