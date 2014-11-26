@@ -748,7 +748,8 @@ namespace folia {
 					  External_t,
 					  Caption_t, Label_t,
 					  Item_t, List_t,
-					  Figure_t, Alternative_t, Note_t };
+					  Figure_t, Alternative_t, Note_t,
+					  Part_t };
     static ElementType featureSet[] = { SynsetFeature_t,
 					ActorFeature_t, HeadFeature_t,
 					ValueFeature_t, TimeFeature_t,
@@ -2802,7 +2803,8 @@ namespace folia {
     const ElementType accept[] = { Row_t,
 				   Correction_t,
 				   Alternatives_t,
-				   AnnotationLayer_t };
+				   AnnotationLayer_t,
+				   Part_t };
     _accepted_data =
       std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
@@ -2816,7 +2818,8 @@ namespace folia {
 				   Row_t,
 				   Correction_t,
 				   Alternatives_t,
-				   AnnotationLayer_t };
+				   AnnotationLayer_t,
+				   Part_t };
     _accepted_data =
       std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
@@ -2849,7 +2852,8 @@ namespace folia {
     const ElementType accept[] = { Cell_t,
 				   Correction_t,
 				   Alternatives_t,
-				   AnnotationLayer_t };
+				   AnnotationLayer_t,
+				   Part_t };
     _accepted_data =
       std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
@@ -2901,6 +2905,20 @@ namespace folia {
     _occurrences_per_set=0;
   }
 
+  void Part::init(){
+    _xmltag="part";
+    _element_id = Part_t;
+    _required_attributes = NO_ATT;
+    const ElementType accept[] = { Structure_t, TextContent_t,
+				   TokenAnnotation_t,
+				   Description_t };
+    _accepted_data =
+      std::set<ElementType>( accept,
+			     accept + sizeof(accept)/sizeof(ElementType) );
+    _annotation_type = AnnotationType::PART;
+    TEXTDELIMITER = " ";
+  }
+
   void PlaceHolder::init(){
     _xmltag="placeholder";
     _element_id = PlaceHolder_t;
@@ -2937,7 +2955,7 @@ namespace folia {
     _xmltag = "gap";
     _element_id = Gap_t;
     _annotation_type = AnnotationType::GAP;
-    const ElementType accept[] = { Content_t, Description_t };
+    const ElementType accept[] = { Content_t, Description_t, Part_t };
     _accepted_data =
       std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
@@ -2999,7 +3017,8 @@ namespace folia {
     const ElementType accept[] = { Gap_t, Division_t, Paragraph_t, Sentence_t,
 				   List_t, Figure_t, Description_t, Event_t,
 				   TokenAnnotation_t,
-				   TextContent_t, Metric_t, External_t };
+				   TextContent_t, Metric_t, External_t,
+				   Part_t };
     _accepted_data =
       std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
@@ -3012,7 +3031,8 @@ namespace folia {
     _element_id = Event_t;
     const ElementType accept[] = { Gap_t, Division_t, Structure_t,
 				   Description_t,
-				   Feature_t, TextContent_t };
+				   Feature_t, TextContent_t,
+				   Part_t };
     _accepted_data =
       std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
@@ -3036,7 +3056,7 @@ namespace folia {
     _element_id = Caption_t;
     const ElementType accept[] = { Sentence_t, Reference_t, Description_t,
 				   TokenAnnotation_t, TextContent_t,
-				   Correction_t };
+				   Correction_t, Part_t };
     _accepted_data =
       std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
@@ -3048,7 +3068,7 @@ namespace folia {
     _element_id = Label_t;
     const ElementType accept[] = { Word_t, Description_t, TextContent_t,
 				   TokenAnnotation_t, Alignment_t,
-				   Correction_t };
+				   Correction_t, Part_t };
     _accepted_data =
       std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
@@ -3074,7 +3094,7 @@ namespace folia {
     const ElementType accept[] = { Item_t, Description_t,
 				   Caption_t, Event_t, Lang_t,
 				   Alignment_t,
-				   Correction_t };
+				   Correction_t, Part_t };
     _accepted_data =
       std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );
@@ -3089,7 +3109,7 @@ namespace folia {
     const ElementType accept[] = { Sentence_t, Description_t,
 				   Caption_t, Str_t, Lang_t,
 				   TextContent_t,
-				   Correction_t };
+				   Correction_t, Part_t };
     _accepted_data =
       std::set<ElementType>( accept,
 			     accept + sizeof(accept)/sizeof(ElementType) );

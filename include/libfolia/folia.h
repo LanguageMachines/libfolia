@@ -1029,6 +1029,16 @@ namespace folia {
     bool space;
   };
 
+  class Part: public AbstractStructureElement {
+  public:
+  Part( const std::string& s="" ): AbstractStructureElement(){ classInit( s ); };
+  Part( const KWargs& a ): AbstractStructureElement(){ classInit( a ); };
+  Part( Document *d, const std::string& s=""): AbstractStructureElement( d ){ classInit( s ); };
+  Part( Document *d, const KWargs& a ): AbstractStructureElement( d ){ classInit( a ); };
+  private:
+    void init();
+  };
+
   class String:
     public AbstractTokenAnnotation,
     public AllowAnnotation,

@@ -189,6 +189,9 @@ namespace folia {
     case AnnotationType::NOTE:
       result = "note";
       break;
+    case AnnotationType::PART:
+      result = "part";
+      break;
     case AnnotationType::LAST_ANN:
       throw logic_error("LAST_ANN");
     };
@@ -198,80 +201,82 @@ namespace folia {
   AnnotationType::AnnotationType stringToAT( const string& at ){
     if ( at == "text" )
       return AnnotationType::TEXT;
-    if ( at == "string" )
+    else if ( at == "string" )
       return AnnotationType::STRING;
-    if ( at == "token" )
+    else if ( at == "token" )
       return AnnotationType::TOKEN;
-    if (( at == "div" ) || ( at == "division")) //patch, documentation and libraries used different terms
+    else if (( at == "div" ) || ( at == "division")) //patch, documentation and libraries used delse ifferent terms
       return AnnotationType::DIVISION;
-    if ( at == "paragraph" )
+    else if ( at == "paragraph" )
       return AnnotationType::PARAGRAPH;
-    if ( at == "list" )
+    else if ( at == "list" )
       return AnnotationType::LIST;
-    if ( at == "figure" )
+    else if ( at == "figure" )
       return AnnotationType::FIGURE;
-    if ( at == "whitespace" )
+    else if ( at == "whitespace" )
       return AnnotationType::WHITESPACE;
-    if ( at == "linebreak" )
+    else if ( at == "linebreak" )
       return AnnotationType::LINEBREAK;
-    if ( at == "sentence" )
+    else if ( at == "sentence" )
       return AnnotationType::SENTENCE;
-    if ( at == "pos" )
+    else if ( at == "pos" )
       return AnnotationType::POS;
-    if ( at == "lemma" )
+    else if ( at == "lemma" )
       return AnnotationType::LEMMA;
-    if ( at == "domain" )
+    else if ( at == "domain" )
       return AnnotationType::DOMEIN;
-    if ( at == "sense" )
+    else if ( at == "sense" )
       return AnnotationType::SENSE;
-    if ( at == "syntax" )
+    else if ( at == "syntax" )
       return AnnotationType::SYNTAX;
-    if ( at == "chunking" )
+    else if ( at == "chunking" )
       return AnnotationType::CHUNKING;
-    if ( at == "entity" )
+    else if ( at == "entity" )
       return AnnotationType::ENTITY;
-    if ( at == "correction" )
+    else if ( at == "correction" )
       return AnnotationType::CORRECTION;
-    if ( at == "suggestion" )
+    else if ( at == "suggestion" )
       return AnnotationType::SUGGESTION;
-    if ( at == "errordetection" )
+    else if ( at == "errordetection" )
       return AnnotationType::ERRORDETECTION;
-    if ( at == "alternative" )
+    else if ( at == "alternative" )
       return AnnotationType::ALTERNATIVE;
-    if ( at == "phon" )
+    else if ( at == "phon" )
       return AnnotationType::PHON;
-    if ( at == "subjectivity" )
+    else if ( at == "subjectivity" )
       return AnnotationType::SUBJECTIVITY;
-    if ( at == "morphological" )
+    else if ( at == "morphological" )
       return AnnotationType::MORPHOLOGICAL;
-    if ( at == "subentity" )
+    else if ( at == "subentity" )
       return AnnotationType::SUBENTITY;
-    if ( at == "event" )
+    else if ( at == "event" )
       return AnnotationType::EVENT;
-    if ( at == "dependency" )
+    else if ( at == "dependency" )
       return AnnotationType::DEPENDENCY;
-    if ( at == "timesegment" )
+    else if ( at == "timesegment" )
       return AnnotationType::TIMEDEVENT;
-    if ( at == "gap" )
+    else if ( at == "gap" )
       return AnnotationType::GAP;
-    if ( at == "complexalignment" )
+    else if ( at == "complexalignment" )
       return AnnotationType::COMPLEXALIGNMENT;
-    if ( at == "alignment" )
+    else if ( at == "alignment" )
       return AnnotationType::ALIGNMENT;
-    if ( at == "semrole" )
+    else if ( at == "semrole" )
       return AnnotationType::SEMROLE;
-    if ( at == "coreference" )
+    else if ( at == "coreference" )
       return AnnotationType::COREFERENCE;
-    if ( at == "metric" )
+    else if ( at == "metric" )
       return AnnotationType::METRIC;
-    if ( at == "table" )
+    else if ( at == "table" )
       return AnnotationType::TABLE;
-    if ( at == "lang" )
+    else if ( at == "lang" )
       return AnnotationType::LANG;
-    if ( at == "style" )
+    else if ( at == "style" )
       return AnnotationType::STYLE;
-    if ( at == "note" )
+    else if ( at == "note" )
       return AnnotationType::NOTE;
+    else if ( at == "part" )
+      return AnnotationType::PART;
     throw ValueError( " unknown translation for attribute: " + at );
   }
 
@@ -368,6 +373,7 @@ namespace folia {
     case TextMarkupCorrection_t: result = "t-correction"; break;
     case TextMarkupError_t: result = "t-error"; break;
     case TextMarkupStyle_t: result = "t-style"; break;
+    case Part_t: result = "part"; break;
     default:
       result = "Unknown Elementtype " + folia::toString( int(et) );
     }
@@ -378,272 +384,275 @@ namespace folia {
     if ( tag == "FoLiA" ){
       return BASE;
     }
-    if ( tag == "text" ){
+    else if ( tag == "text" ){
       return Text_t;
     }
-    if ( tag == "w" ){
+    else if ( tag == "w" ){
       return Word_t;
     }
-    if ( tag == "str" ){
+    else if ( tag == "str" ){
       return Str_t;
     }
-    if ( tag == "event" ){
+    else if ( tag == "event" ){
       return Event_t;
     }
-    if ( tag == "timesegment" ){
+    else if ( tag == "timesegment" ){
       return TimeSegment_t;
     }
-    if ( tag == "timing" ){
+    else if ( tag == "timing" ){
       return TimingLayer_t;
     }
-    if ( tag == "s" ){
+    else if ( tag == "s" ){
       return Sentence_t;
     }
-    if ( tag == "t" ){
+    else if ( tag == "t" ){
       return TextContent_t;
     }
-    if ( tag == "br" ){
+    else if ( tag == "br" ){
       return LineBreak_t;
     }
-    if ( tag == "whitespace" ){
+    else if ( tag == "whitespace" ){
       return WhiteSpace_t;
     }
-    if ( tag == "figure" ){
+    else if ( tag == "figure" ){
       return Figure_t;
     }
-    if ( tag == "caption" ){
+    else if ( tag == "caption" ){
       return Caption_t;
     }
-    if ( tag == "label" ){
+    else if ( tag == "label" ){
       return Label_t;
     }
-    if ( tag == "list" ){
+    else if ( tag == "list" ){
       return List_t;
     }
-    if ( tag == "listitem" || tag == "item" ){
+    else if ( tag == "listitem" || tag == "item" ){
       return Item_t;
     }
-    if ( tag == "p" ){
+    else if ( tag == "p" ){
       return Paragraph_t;
     }
-    if ( tag == "new" ){
+    else if ( tag == "new" ){
       return New_t;
     }
-    if ( tag == "original" ){
+    else if ( tag == "original" ){
       return Original_t;
     }
-    if ( tag == "current" ){
+    else if ( tag == "current" ){
       return Current_t;
     }
-    if ( tag == "suggestion" ){
+    else if ( tag == "suggestion" ){
       return Suggestion_t;
     }
-    if ( tag == "head" ){
+    else if ( tag == "head" ){
       return Head_t;
     }
-    if ( tag == "table" ){
+    else if ( tag == "table" ){
       return Table_t;
     }
-    if ( tag == "tablehead" ){
+    else if ( tag == "tablehead" ){
       return TableHead_t;
     }
-    if ( tag == "cell" ){
+    else if ( tag == "cell" ){
       return Cell_t;
     }
-    if ( tag == "row" ){
+    else if ( tag == "row" ){
       return Row_t;
     }
-    if ( tag == "lang" ){
+    else if ( tag == "lang" ){
       return Lang_t;
     }
-    if ( tag == "xml-comment" ){
+    else if ( tag == "xml-comment" ){
       return XmlComment_t;
     }
-    if ( tag == "xml-text" ){
+    else if ( tag == "xml-text" ){
       return XmlText_t;
     }
-    if ( tag == "external" ){
+    else if ( tag == "external" ){
       return External_t;
     }
-    if ( tag == "note" ){
+    else if ( tag == "note" ){
       return Note_t;
     }
-    if ( tag == "ref" ){
+    else if ( tag == "ref" ){
       return Reference_t;
     }
-    if ( tag == "desc" ){
+    else if ( tag == "desc" ){
       return Description_t;
     }
-    if ( tag == "gap" ){
+    else if ( tag == "gap" ){
       return Gap_t;
     }
-    if ( tag == "content" ){
+    else if ( tag == "content" ){
       return Content_t;
     }
-    if ( tag == "metric" ){
+    else if ( tag == "metric" ){
       return Metric_t;
     }
-    if ( tag == "div" ){
+    else if ( tag == "div" ){
       return Division_t;
     }
-    if ( tag == "annotationlayer" ){
+    else if ( tag == "annotationlayer" ){
       return AnnotationLayer_t;
     }
-    if ( tag == "spanannotation" ){
+    else if ( tag == "spanannotation" ){
       return SpanAnnotation_t;
     }
-    if ( tag == "tokenannotation" ){
+    else if ( tag == "tokenannotation" ){
       return TokenAnnotation_t;
     }
-    if ( tag == "structure" ){
+    else if ( tag == "structure" ){
       return Structure_t;
     }
-    if ( tag == "pos" ){
+    else if ( tag == "pos" ){
       return Pos_t;
     }
-    if ( tag == "lemma" ){
+    else if ( tag == "lemma" ){
       return Lemma_t;
     }
-    if ( tag == "phon" ){
+    else if ( tag == "phon" ){
       return Phon_t;
     }
-    if ( tag == "domain" ){
+    else if ( tag == "domain" ){
       return Domain_t;
     }
-    if ( tag == "sense" ){
+    else if ( tag == "sense" ){
       return Sense_t;
     }
-    if ( tag == "syntax" ){
+    else if ( tag == "syntax" ){
       return SyntaxLayer_t;
     }
-    if ( tag == "subjectivity" ){
+    else if ( tag == "subjectivity" ){
       return Subjectivity_t;
     }
-    if ( tag == "chunk" ){
+    else if ( tag == "chunk" ){
       return Chunk_t;
     }
-    if ( tag == "chunking" ){
+    else if ( tag == "chunking" ){
       return Chunking_t;
     }
-    if ( tag == "entity" ){
+    else if ( tag == "entity" ){
       return Entity_t;
     }
-    if ( tag == "entities" ){
+    else if ( tag == "entities" ){
       return Entities_t;
     }
-    if ( tag == "semroles" ){
+    else if ( tag == "semroles" ){
       return Semroles_t;
     }
-    if ( tag == "semrole" ){
+    else if ( tag == "semrole" ){
       return Semrole_t;
     }
-    if ( tag == "coreferences" ){
+    else if ( tag == "coreferences" ){
       return Coreferences_t;
     }
-    if ( tag == "coreferencelink" ){
+    else if ( tag == "coreferencelink" ){
       return CoreferenceLink_t;
     }
-    if ( tag == "coreferencechain" ){
+    else if ( tag == "coreferencechain" ){
       return CoreferenceChain_t;
     }
-    if ( tag == "alt" ){
+    else if ( tag == "alt" ){
       return Alternative_t;
     }
-    if ( tag == "placeholder" ){
+    else if ( tag == "placeholder" ){
       return PlaceHolder_t;
     }
-    if ( tag == "altlayers" ){
+    else if ( tag == "altlayers" ){
       return Alternatives_t;
     }
-    if ( tag == "su" ){
+    else if ( tag == "su" ){
       return SyntacticUnit_t;
     }
-    if ( tag == "wref" ){
+    else if ( tag == "wref" ){
       return WordReference_t;
     }
-    if ( tag == "correction" ){
+    else if ( tag == "correction" ){
       return Correction_t;
     }
-    if ( tag == "errordetection" ){
+    else if ( tag == "errordetection" ){
       return ErrorDetection_t;
     }
-    if ( tag == "morphology" ){
+    else if ( tag == "morphology" ){
       return Morphology_t;
     }
-    if ( tag == "morpheme" ){
+    else if ( tag == "morpheme" ){
       return Morpheme_t;
     }
-    if ( tag == "feat" ){
+    else if ( tag == "feat" ){
       return Feature_t;
     }
-    if ( tag == "begindatetime" ){
+    else if ( tag == "begindatetime" ){
       return BeginDateTimeFeature_t;
     }
-    if ( tag == "enddatetime" ){
+    else if ( tag == "enddatetime" ){
       return EndDateTimeFeature_t;
     }
-    if ( tag == "synset" ){
+    else if ( tag == "synset" ){
       return SynsetFeature_t;
     }
-    if ( tag == "actor" ){
+    else if ( tag == "actor" ){
       return ActorFeature_t;
     }
-    if ( tag == "headfeature" ){
+    else if ( tag == "headfeature" ){
       return HeadFeature_t;
     }
-    if ( tag == "value" ){
+    else if ( tag == "value" ){
       return ValueFeature_t;
     }
-    if ( tag == "time" ){
+    else if ( tag == "time" ){
       return TimeFeature_t;
     }
-    if ( tag == "level" ){
+    else if ( tag == "level" ){
       return LevelFeature_t;
     }
-    if ( tag == "function" ){
+    else if ( tag == "function" ){
       return FunctionFeature_t;
     }
-    if ( tag == "modality" ){
+    else if ( tag == "modality" ){
       return ModalityFeature_t;
     }
-    if ( tag == "quote" ){
+    else if ( tag == "quote" ){
       return Quote_t;
     }
-    if ( tag == "dependencies" ){
+    else if ( tag == "dependencies" ){
       return Dependencies_t;
     }
-    if ( tag == "dependency" ){
+    else if ( tag == "dependency" ){
       return Dependency_t;
     }
-    if ( tag == "dep" ){
+    else if ( tag == "dep" ){
       return DependencyDependent_t;
     }
-    if ( tag == "hd" ){
+    else if ( tag == "hd" ){
       return Headwords_t;
     }
-    if ( tag == "alignment" ){
+    else if ( tag == "alignment" ){
       return Alignment_t;
     }
-    if ( tag == "aref" ){
+    else if ( tag == "aref" ){
       return AlignReference_t;
     }
-    if ( tag == "textmarkup" ){
+    else if ( tag == "textmarkup" ){
       return AbstractTextMarkup_t;
     }
-    if ( tag == "t-str" ){
+    else if ( tag == "t-str" ){
       return TextMarkupString_t;
     }
-    if ( tag == "t-gap" ){
+    else if ( tag == "t-gap" ){
       return TextMarkupGap_t;
     }
-    if ( tag == "t-correction" ){
+    else if ( tag == "t-correction" ){
       return TextMarkupCorrection_t;
     }
-    if ( tag == "t-error" ){
+    else if ( tag == "t-error" ){
       return TextMarkupError_t;
     }
-    if ( tag == "t-style" ){
+    else if ( tag == "t-style" ){
       return TextMarkupStyle_t;
+    }
+    else if ( tag == "part" ){
+      return Part_t;
     }
     else {
       throw ValueError( "unknown tag <" + tag + ">" );
@@ -843,6 +852,8 @@ namespace folia {
       return new TextMarkupError( doc );
     case TextMarkupStyle_t:
       return new TextMarkupStyle( doc );
+    case Part_t:
+      return new Part( doc );
     default:
       throw ValueError( "unknown elementtype(" + toString(int(et)) + ")" );
     }
