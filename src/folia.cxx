@@ -2894,7 +2894,7 @@ namespace folia {
     _xmltag="str";
     _element_id = Str_t;
     _required_attributes = NO_ATT;
-    _optional_attributes = ID|CLASS;
+    _optional_attributes = ID|CLASS|ANNOTATOR|CONFIDENCE|DATETIME;
     const ElementType accept[] = { TextContent_t, Correction_t, Lang_t,
 				   Description_t, Alignment_t, Metric_t };
     _accepted_data =
