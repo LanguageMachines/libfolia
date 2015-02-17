@@ -158,7 +158,7 @@ namespace folia {
     void addExternal( External *p ) { externals.push_back( p ); };
     FoliaElement *resolveExternals( FoliaElement* );
     int debug;
-
+    bool permissive() const { return mode == "permissive"; };
     class at_t {
       friend std::ostream& operator<<( std::ostream&, const at_t& );
     public:
@@ -173,7 +173,7 @@ namespace folia {
     FoliaElement* parseFoliaDoc( xmlNode * );
     void parsemeta( xmlNode * );
     void setimdi( xmlNode * );
-    void setAttributes( const KWargs&  );
+    void setDocumentProps( KWargs&  );
     void parseannotations( xmlNode * );
     void getstyles();
     void setannotations( xmlNode *) const;

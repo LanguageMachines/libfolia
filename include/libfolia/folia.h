@@ -1423,7 +1423,7 @@ namespace folia {
   private:
     void init();
     std::string _href;
-    std::string _type;
+    std::string all_type;
   };
 
   class AlignReference: public FoliaImpl {
@@ -1440,7 +1440,7 @@ namespace folia {
     FoliaElement* parseXml( const xmlNode *node );
     FoliaElement *resolve( const Alignment *ref ) const;
     std::string refId;
-    std::string _type;
+    std::string ref_type;
     std::string _t;
   };
 
@@ -1683,7 +1683,7 @@ namespace folia {
   private:
     void init();
     std::string refId;
-    std::string _type;
+    std::string ref_type;
   };
 
 

@@ -71,9 +71,11 @@ namespace folia {
 
   Document::Document( const string& args ){
     init();
-    setAttributes( getArgs( args ) );
-    if ( ! foliadoc )
+    KWargs kwargs = getArgs( args );
+    setDocumentProps( kwargs );
+    if ( ! foliadoc ){
       foliadoc = new FoLiA( this, args );
+    }
   }
 
   string versionstring(){
@@ -135,7 +137,7 @@ namespace folia {
     return true;
   }
 
-  void Document::setAttributes( const KWargs& kwargs ){
+  void Document::setDocumentProps( KWargs& kwargs ){
     bool happy = false;
     KWargs::const_iterator it = kwargs.find( "debug" );
     if ( it != kwargs.end() )
@@ -148,13 +150,16 @@ namespace folia {
       }
     }
     it = kwargs.find( "external" );
-    if ( it != kwargs.end() )
+    if ( it != kwargs.end() ){
       external = stringTo<bool>( it->second );
+      kwargs.erase( it );
+    }
     else
       external = false;
     it = kwargs.find( "version" );
     if ( it != kwargs.end() ){
       version = it->second;
+      kwargs.erase( it );
     }
     it = kwargs.find( "_id" );
     if ( it == kwargs.end() ){
@@ -185,6 +190,7 @@ namespace folia {
     }
     if ( !happy )
       throw runtime_error( "No ID, valid filename or string specified" );
+    kwargs.erase( "generator" ); // also delete unused att-val(s)
   }
 
   void Document::addDocIndex( FoliaElement* el, const string& s ){
@@ -232,7 +238,7 @@ namespace folia {
   }
 
   bool Document::readFromFile( const string& s ){
-    ifstream is( s.c_str() );
+    ifstream is( s );
     if ( !is.good() ){
       throw runtime_error( "file not found: " + s );
     }
@@ -327,7 +333,7 @@ namespace folia {
       string s = toXml( nsLabel, kanon );
       return gzWriteFile( fn, s );
     }
-    ofstream os( fn.c_str() );
+    ofstream os( fn );
     if ( os.good() ) {
       return save( os, nsLabel, kanon );
     }
@@ -606,6 +612,7 @@ namespace folia {
 
   FoliaElement* Document::parseFoliaDoc( xmlNode *root ){
     KWargs att = getAttributes( root );
+    using TiCC::operator<<;
     if ( att["_id"] == "" ){
       throw XmlError("FoLiA Document has no ID!");
       return 0;
@@ -616,7 +623,7 @@ namespace folia {
 		      + " (" + version + " is supported.)" );
       return 0;
     }
-    setAttributes( att );
+    setDocumentProps( att );
     FoliaElement *result = FoliaImpl::createElement( this, Name(root) );
     if ( debug > 2 )
       cerr << "created " << root << endl;

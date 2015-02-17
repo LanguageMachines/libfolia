@@ -124,9 +124,11 @@ namespace folia {
       return 0;
   }
 
-  void FoliaImpl::setAttributes( const KWargs& kwargs ){
+  void FoliaImpl::setAttributes( const KWargs& kwargs_in ){
+    KWargs kwargs = kwargs_in;
     Attrib supported = _required_attributes | _optional_attributes;
     // if ( _element_id == Feature_t ){
+    //   using TiCC::operator <<;
     //   cerr << "set attributes: " << kwargs << " on " << toString(_element_id) << endl;
     //   cerr << "required = " <<  _required_attributes << endl;
     //   cerr << "optional = " <<  _optional_attributes << endl;
@@ -150,6 +152,7 @@ namespace folia {
       }
       else
 	throw ValueError("Unable to generate an id from ID= " + it->second );
+      kwargs.erase( it );
     }
     else {
       it = kwargs.find( "_id" );
@@ -165,6 +168,7 @@ namespace folia {
 	else {
 	  isNCName( it->second );
 	  _id = it->second;
+	  kwargs.erase( it );
 	}
       }
       else
@@ -186,13 +190,13 @@ namespace folia {
       if ( !mydoc->isDeclared( _annotation_type, _set ) )
 	throw ValueError( "Set " + _set + " is used but has no declaration " +
 			  "for " + toString( _annotation_type ) + "-annotation" );
+      kwargs.erase( it );
     }
     else if ( mydoc && ( def = mydoc->defaultset( _annotation_type )) != "" ){
       _set = def;
     }
     else
       _set = "";
-
     it = kwargs.find( "class" );
     if ( it == kwargs.end() )
       it = kwargs.find( "cls" );
@@ -211,6 +215,7 @@ namespace folia {
 			    "for " + toString( _annotation_type ) + "-annotation" );
 	}
       }
+      kwargs.erase( it );
     }
     else
       _class = "";
@@ -227,6 +232,7 @@ namespace folia {
       else {
 	_annotator = it->second;
       }
+      kwargs.erase( it );
     }
     else if ( mydoc &&
 	      (def = mydoc->defaultannotator( _annotation_type, _set )) != "" ){
@@ -245,6 +251,7 @@ namespace folia {
 	  throw ValueError( "annotatortype must be 'auto' or 'manual', got '"
 			    + it->second + "'" );
       }
+      kwargs.erase( it );
     }
     else if ( mydoc &&
 	      (def = mydoc->defaultannotatortype( _annotation_type, _set ) ) != ""  ){
@@ -270,6 +277,7 @@ namespace folia {
 	  throw ValueError("invalid Confidence value, (not a number?)");
 	}
       }
+      kwargs.erase( it );
     }
     else
       _confidence = -1;
@@ -281,6 +289,7 @@ namespace folia {
       else {
 	_n = it->second;
       }
+      kwargs.erase( it );
     }
     else
       _n = "";
@@ -295,6 +304,7 @@ namespace folia {
 	  throw ValueError( "invalid datetime string:" + it->second );
 	_datetime = time;
       }
+      kwargs.erase( it );
     }
     else if ( mydoc &&
 	      (def = mydoc->defaultdatetime( _annotation_type, _set )) != "" ){
@@ -306,6 +316,7 @@ namespace folia {
     it = kwargs.find( "auth" );
     if ( it != kwargs.end() ){
       _auth = stringTo<bool>( it->second );
+      kwargs.erase( it );
     }
 
     if ( mydoc && !_id.empty() )
@@ -336,6 +347,16 @@ namespace folia {
 	FoliaElement *tmp = createElement( mydoc, tag );
 	tmp->setAttributes( newa );
 	append( tmp );
+      }
+      else {
+	string message = "unsupported attribute: " + tag + "='" + it->second
+	  + "' for node with tag '" + classname() + "'";
+	if ( mydoc && mydoc->permissive() ){
+	  cerr << message << endl;
+	}
+	else {
+	  throw XmlError( message );
+	}
       }
       ++it;
     }
@@ -1458,7 +1479,7 @@ namespace folia {
 
   Correction *Sentence::correctWords( const vector<FoliaElement *>& orig,
 				      const vector<FoliaElement *>& _new,
-				      const KWargs& args ){
+				      const KWargs& argsin ){
     // Generic correction method for words. You most likely want to use the helper functions
     //      splitword() , mergewords(), deleteword(), insertword() instead
 
@@ -1477,8 +1498,8 @@ namespace folia {
 	throw runtime_error("new word is not a Word instance" );
       ++it;
     }
-    KWargs::const_iterator ait = args.find("suggest");
-    if ( ait != args.end() && ait->second == "true" ){
+    KWargs::const_iterator ait = argsin.find("suggest");
+    if ( ait != argsin.end() && ait->second == "true" ){
       FoliaElement *sugg = new Suggestion();
       it = _new.begin();
       while ( it != _new.end() ){
@@ -1490,6 +1511,8 @@ namespace folia {
       vector<FoliaElement *> sv;
       vector<FoliaElement *> tmp = orig;
       sv.push_back( sugg );
+      KWargs args = argsin;
+      args.erase("suggest");
       return correct( nil1, tmp, nil2, sv, args );
     }
     else {
@@ -1497,7 +1520,7 @@ namespace folia {
       vector<FoliaElement *> nil2;
       vector<FoliaElement *> o_tmp = orig;
       vector<FoliaElement *> n_tmp = _new;
-      return correct( o_tmp, nil1, n_tmp, nil2, args );
+      return correct( o_tmp, nil1, n_tmp, nil2, argsin );
     }
   }
 
@@ -1513,12 +1536,12 @@ namespace folia {
       }
       t->setvalue( value );
       append( t );
-      kwargs.erase("value");
+      kwargs.erase(it);
     }
     it = kwargs.find( "offset" );
     if ( it != kwargs.end() ) {
       _offset = stringTo<int>(it->second);
-      kwargs.erase("offset");
+      kwargs.erase(it);
     }
     else
       _offset = -1;
@@ -1692,13 +1715,13 @@ namespace folia {
     if ( it != args.end() ){
       TextContent *t = new TextContent( mydoc, "value='" +  it->second + "'" );
       _new.push_back( t );
-      args.erase("new");
+      args.erase( it );
     }
     it = args.find("suggestion");
     if ( it != args.end() ){
       TextContent *t = new TextContent( mydoc, "value='" +  it->second + "'" );
       suggestions.push_back( t );
-      args.erase("suggestion");
+      args.erase( it );
     }
     it = args.find("reuse");
     if ( it != args.end() ){
@@ -2041,7 +2064,7 @@ namespace folia {
   KWargs AlignReference::collectAttributes() const {
     KWargs atts;
     atts["id"] = refId;
-    atts["type"] = _type;
+    atts["type"] = ref_type;
     if ( !_t.empty() )
       atts["t"] = _t;
     return atts;
@@ -2060,7 +2083,7 @@ namespace folia {
       catch (...){
 	throw XmlError( "attribute 'type' must be an Element Type" );
       }
-      _type = it->second;
+      ref_type = it->second;
     }
     else {
       throw XmlError( "attribute 'type' required for AlignReference" );
@@ -2076,32 +2099,42 @@ namespace folia {
     KWargs atts = FoliaImpl::collectAttributes();
     if ( !_href.empty() ){
       atts["xlink:href"] = _href;
-      if ( !_type.empty() )
-	atts["xlink:type"] = _type;
+      if ( !all_type.empty() )
+	atts["xlink:type"] = all_type;
       else
 	atts["xlink:type"] = "simple";
     }
     return atts;
   }
 
-  void Alignment::setAttributes( const KWargs& args ){
-    KWargs::const_iterator it = args.find( "href" );
+  void Alignment::setAttributes( const KWargs& args_in ){
+    KWargs args = args_in;
+    KWargs::iterator it = args.find( "href" );
     if ( it != args.end() ){
       _href = it->second;
+      args.erase( it );
+    }
+    it = args.find( "type" );
+    if ( it != args.end() ){
+      all_type = it->second;
+      args.erase( it );
     }
     FoliaImpl::setAttributes( args );
   }
 
-  void Word::setAttributes( const KWargs& args ){
-    KWargs::const_iterator it = args.find( "space" );
+  void Word::setAttributes( const KWargs& args_in ){
+    KWargs args = args_in;
+    KWargs::iterator it = args.find( "space" );
     if ( it != args.end() ){
       if ( it->second == "no" ){
 	space = false;
       }
+      args.erase( it );
     }
     it = args.find( "text" );
     if ( it != args.end() ) {
       settext( it->second );
+      args.erase( it );
     }
     FoliaImpl::setAttributes( args );
   }
@@ -2416,7 +2449,7 @@ namespace folia {
       throw XmlError( "AlignReference:type must be an Element Type ("
 		      + val + ")" );
     }
-    _type = val;
+    ref_type = val;
     val = att["t"];
     if ( !val.empty() ){
       _t = val;
@@ -2465,7 +2498,7 @@ namespace folia {
     it = kwargs.find( "src" );
     if ( it != kwargs.end() ) {
       _src = it->second;
-      kwargs.erase( "src" );
+      kwargs.erase( it );
     }
     FoliaImpl::setAttributes(kwargs);
   }
@@ -3423,12 +3456,12 @@ namespace folia {
     it = kwargs.find( "src" );
     if ( it != kwargs.end() ) {
       _src = it->second;
-      kwargs.erase( "src" );
+      kwargs.erase( it );
     }
     it = kwargs.find( "include" );
     if ( it != kwargs.end() ) {
       _include = stringTo<bool>( it->second );
-      kwargs.erase( "include" );
+      kwargs.erase( it );
     }
     FoliaImpl::setAttributes(kwargs);
   }
@@ -3465,7 +3498,7 @@ namespace folia {
   KWargs Reference::collectAttributes() const {
     KWargs atts;
     atts["id"] = refId;
-    atts["type"] = _type;
+    atts["type"] = ref_type;
     return atts;
   }
 
@@ -3482,7 +3515,7 @@ namespace folia {
       catch (...){
 	throw XmlError( "attribute 'type' must be an Element Type" );
       }
-      _type = it->second;
+      ref_type = it->second;
     }
   }
 
@@ -3585,12 +3618,12 @@ namespace folia {
     KWargs::const_iterator it = argl.find( "id" );
     if ( it != argl.end() ){
       idref = it->second;
-      argl.erase( "id" );
+      argl.erase( it );
     }
     it = argl.find( "original" );
     if ( it != argl.end() ){
       _original = it->second;
-      argl.erase( "original" );
+      argl.erase( it );
     }
     FoliaImpl::setAttributes( argl );
   }
