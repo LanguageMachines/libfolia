@@ -758,64 +758,46 @@ namespace folia {
 
   bool isSubClass( const ElementType e1, const ElementType e2 ){
     static map<ElementType,set<ElementType> > sm;
-    static ElementType structureSet[] = { Head_t, Division_t,
-					  TableHead_t, Table_t,
-					  Row_t, Cell_t,
-					  LineBreak_t, WhiteSpace_t,
-					  Word_t, WordReference_t,
-					  Sentence_t, Paragraph_t,
-					  Quote_t, Morpheme_t,
-					  Text_t, Event_t, Reference_t,
-					  External_t,
-					  Caption_t, Label_t,
-					  Item_t, List_t,
-					  Figure_t, Alternative_t, Note_t,
-					  Part_t };
-    static ElementType featureSet[] = { SynsetFeature_t,
-					ActorFeature_t, HeadFeature_t,
-					ValueFeature_t, TimeFeature_t,
-					ModalityFeature_t, LevelFeature_t,
-					BeginDateTimeFeature_t,
-					EndDateTimeFeature_t,
-					FunctionFeature_t };
-    static ElementType tokenAnnoSet[] = { Pos_t, Lemma_t, Morphology_t,
-					  Sense_t, Phon_t, Str_t, Lang_t,
-					  Correction_t, Subjectivity_t,
-					  ErrorDetection_t };
-    static ElementType spanAnnoSet[] = { SyntacticUnit_t,
-					 Chunk_t, Entity_t,
-					 Headwords_t,
-					 DependencyDependent_t,Dependency_t,
-					 CoreferenceLink_t, CoreferenceChain_t,
-					 Semrole_t, TimeSegment_t };
-    static ElementType annolaySet[] = { SyntaxLayer_t,
-					Chunking_t, Entities_t,
-					TimingLayer_t, Morphology_t,
-					Dependencies_t,
-					Coreferences_t, Semroles_t };
-    static ElementType markupSet[] = { TextMarkupString_t, TextMarkupGap_t,
-				       TextMarkupCorrection_t,
-				       TextMarkupError_t, TextMarkupStyle_t };
     static bool filled = false;
     if ( !filled ){
-      sm[Structure_t]
-	= set<ElementType>( structureSet,
-			    structureSet + sizeof(structureSet)/sizeof(ElementType) );
-      sm[Feature_t]
-	= set<ElementType>(featureSet,
-			   featureSet + sizeof(featureSet)/sizeof(ElementType) );
-      sm[TokenAnnotation_t]
-	= set<ElementType>( tokenAnnoSet,
-			    tokenAnnoSet + sizeof(tokenAnnoSet)/sizeof(ElementType) );
-      sm[SpanAnnotation_t]
-	= set<ElementType>( spanAnnoSet,
-			    spanAnnoSet + sizeof(spanAnnoSet)/sizeof(ElementType) );
-      sm[AnnotationLayer_t]
-	= set<ElementType>( annolaySet,
-			    annolaySet + sizeof(annolaySet)/sizeof(ElementType) );
-      sm[AbstractTextMarkup_t]
-	= set<ElementType>( markupSet,
-			    markupSet + sizeof(markupSet)/sizeof(ElementType) );
+      sm[Structure_t] = { Head_t, Division_t,
+			  TableHead_t, Table_t,
+			  Row_t, Cell_t,
+			  LineBreak_t, WhiteSpace_t,
+			  Word_t, WordReference_t,
+			  Sentence_t, Paragraph_t,
+			  Quote_t, Morpheme_t,
+			  Text_t, Event_t, Reference_t,
+			  External_t,
+			  Caption_t, Label_t,
+			  Item_t, List_t,
+			  Figure_t, Alternative_t, Note_t,
+			  Part_t };
+      sm[Feature_t] = { SynsetFeature_t,
+			ActorFeature_t, HeadFeature_t,
+			ValueFeature_t, TimeFeature_t,
+			ModalityFeature_t, LevelFeature_t,
+			BeginDateTimeFeature_t,
+			EndDateTimeFeature_t,
+			FunctionFeature_t };
+      sm[TokenAnnotation_t] = { Pos_t, Lemma_t, Morphology_t,
+				Sense_t, Phon_t, Str_t, Lang_t,
+				Correction_t, Subjectivity_t,
+				ErrorDetection_t };
+      sm[SpanAnnotation_t] = { SyntacticUnit_t,
+			       Chunk_t, Entity_t,
+			       Headwords_t,
+			       DependencyDependent_t,Dependency_t,
+			       CoreferenceLink_t, CoreferenceChain_t,
+			       Semrole_t, TimeSegment_t };
+      sm[AnnotationLayer_t] = { SyntaxLayer_t,
+				Chunking_t, Entities_t,
+				TimingLayer_t, Morphology_t,
+				Dependencies_t,
+				Coreferences_t, Semroles_t };
+      sm[AbstractTextMarkup_t] = { TextMarkupString_t, TextMarkupGap_t,
+				   TextMarkupCorrection_t,
+				   TextMarkupError_t, TextMarkupStyle_t };
       filled = true;
     }
     if ( e1 == e2 )
@@ -1015,34 +997,26 @@ namespace folia {
     return res;
   }
 
-  static ElementType ignoreList[] = { Original_t,
-				      Suggestion_t,
-				      Alternative_t };
-  set<ElementType> default_ignore( ignoreList,
-				   ignoreList + sizeof( ignoreList )/sizeof( ElementType ) );
+  set<ElementType> default_ignore =  { Original_t,
+				       Suggestion_t,
+				       Alternative_t };
+  set<ElementType> default_ignore_annotations = { Original_t,
+						  Suggestion_t,
+						  Alternative_t,
+						  Morphology_t };
 
-  static ElementType ignoreAnnList[] = { Original_t,
-					 Suggestion_t,
-					 Alternative_t,
-					 Morphology_t };
-  set<ElementType> default_ignore_annotations( ignoreAnnList,
-					       ignoreAnnList + sizeof( ignoreAnnList )/sizeof( ElementType ) );
-
-  static ElementType ignoreStrList[] = { Original_t,
-					 Suggestion_t,
-					 Alternative_t,
-					 Chunk_t,
-					 SyntacticUnit_t,
-					 Coreferences_t,
-					 Semroles_t,
-					 Entity_t,
-					 Headwords_t,
-					 TimingLayer_t,
-					 DependencyDependent_t,
-					 TimeSegment_t };
-  set<ElementType> default_ignore_structure( ignoreStrList,
-					     ignoreStrList + sizeof( ignoreStrList )/sizeof( ElementType ) );
-
+  set<ElementType> default_ignore_structure = { Original_t,
+						Suggestion_t,
+						Alternative_t,
+						Chunk_t,
+						SyntacticUnit_t,
+						Coreferences_t,
+						Semroles_t,
+						Entity_t,
+						Headwords_t,
+						TimingLayer_t,
+						DependencyDependent_t,
+						TimeSegment_t };
 
   vector<FoliaElement*> FoliaImpl::select( ElementType et,
 					   const string& st,
@@ -3137,14 +3111,12 @@ namespace folia {
     PRINTABLE=false;
   }
 
-  static ElementType ASlist[] = { SyntacticUnit_t, Chunk_t,
-				  Entity_t, Headwords_t,
-				  DependencyDependent_t,
-				  CoreferenceLink_t,
-				  CoreferenceChain_t, Semrole_t,
-				  Semroles_t, TimeSegment_t };
-  static set<ElementType> asSet( ASlist,
-				 ASlist + sizeof( ASlist )/ sizeof( ElementType ) );
+  static set<ElementType> asSet = { SyntacticUnit_t, Chunk_t,
+				    Entity_t, Headwords_t,
+				    DependencyDependent_t,
+				    CoreferenceLink_t,
+				    CoreferenceChain_t, Semrole_t,
+				    Semroles_t, TimeSegment_t };
 
   vector<AbstractSpanAnnotation*> FoliaImpl::selectSpan() const {
     vector<AbstractSpanAnnotation*> res;
