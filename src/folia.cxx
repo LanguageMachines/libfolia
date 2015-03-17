@@ -2774,7 +2774,7 @@ namespace folia {
     _xmltag="t";
     _optional_attributes = CLASS|ANNOTATOR|CONFIDENCE|DATETIME;
     _accepted_data = { AbstractTextMarkup_t,
-		       XmlText_t, 
+		       XmlText_t,
 		       LineBreak_t };
     _annotation_type = AnnotationType::TEXT;
     _occurrences = 0;
@@ -2862,12 +2862,12 @@ namespace folia {
   void Word::init(){
     _xmltag="w";
     _element_id = Word_t;
-    _accepted_data = { TextContent_t, 
+    _accepted_data = { TextContent_t,
 		       TokenAnnotation_t,
-		       Alternative_t, 
+		       Alternative_t,
 		       Reference_t,
 		       Description_t,
-		       Alignment_t, 
+		       Alignment_t,
 		       Metric_t };
     _annotation_type = AnnotationType::TOKEN;
     TEXTDELIMITER = " ";
@@ -2979,8 +2979,10 @@ namespace folia {
     _element_id = Text_t;
     _accepted_data = { Gap_t, Division_t, Paragraph_t, Sentence_t,
 		       List_t, Figure_t, Description_t, Event_t,
-		       TokenAnnotation_t,
-		       TextContent_t, Metric_t, External_t,
+		       TokenAnnotation_t, Quote_t, Word_t, Table_t,
+		       Note_t, Reference_t, TokenAnnotation_t,
+		       AnnotationLayer_t, Str_t,
+		       Correction_t, TextContent_t, Metric_t, External_t,
 		       Part_t };
     _required_attributes = ID;
     TEXTDELIMITER = "\n\n";
@@ -3057,7 +3059,7 @@ namespace folia {
   void Paragraph::init(){
     _xmltag="p";
     _element_id = Paragraph_t;
-    _accepted_data = { Structure_t, 
+    _accepted_data = { Structure_t,
 		       TextContent_t,
 		       TokenAnnotation_t,
 		       Description_t,
@@ -3348,11 +3350,11 @@ namespace folia {
     _required_attributes = ID;
     _xmltag = "note";
     _element_id = Note_t;
-    _accepted_data = { Structure_t, 
-		       TextContent_t, 
-		       Feature_t, 
-		       Alignment_t, 
-		       TokenAnnotation_t, 
+    _accepted_data = { Structure_t,
+		       TextContent_t,
+		       Feature_t,
+		       Alignment_t,
+		       TokenAnnotation_t,
 		       Description_t };
   }
 
@@ -3608,7 +3610,7 @@ namespace folia {
     _element_id = CoreferenceChain_t;
     _xmltag = "coreferencechain";
     _required_attributes = NO_ATT;
-    _accepted_data = { CoreferenceLink_t, 
+    _accepted_data = { CoreferenceLink_t,
 		       Description_t,
 		       Metric_t };
     _annotation_type = AnnotationType::COREFERENCE;
