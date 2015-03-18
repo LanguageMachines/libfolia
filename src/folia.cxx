@@ -2865,7 +2865,6 @@ namespace folia {
     _accepted_data = { TextContent_t,
 		       TokenAnnotation_t,
 		       Alternative_t,
-		       Reference_t,
 		       Description_t,
 		       Alignment_t,
 		       Metric_t };
