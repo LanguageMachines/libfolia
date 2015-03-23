@@ -95,7 +95,8 @@ namespace folia {
     _occurrences = 0;  //#Number of times this element may occur in its parent (0=unlimited, default=0)
     _occurrences_per_set = 1; // #Number of times this element may occur per set (0=unlimited, default=1)
     TEXTDELIMITER = "NONE" ;
-    PRINTABLE = true;
+    PRINTABLE = false;
+    SPEAKABLE = false;
   }
 
   FoliaImpl::~FoliaImpl( ){
@@ -587,6 +588,11 @@ namespace folia {
     for( size_t i=0; i < data.size(); ++i ){
       // try to get text dynamically from children
       // skip TextContent elements
+#ifdef DEBUG_TEXT
+      if ( !data[i]->printable() ){
+      cerr << "deeptext: node[" << i << "] " << data[i]->xmltag() << " NOT PRINTABLE! " << endl;
+      }
+#endif
       if ( data[i]->printable() && !data[i]->isinstance( TextContent_t ) ){
 #ifdef DEBUG_TEXT
 	cerr << "deeptext:bekijk node[" << i << "] " << data[i]->xmltag() << endl;
@@ -751,7 +757,7 @@ namespace folia {
   string FoliaElement::description() const {
     vector<FoliaElement *> v =  select( Description_t, false );
     if ( v.size() == 0 )
-      throw NoDescription();
+      throw NoSuchAnnotation( "description" );
     else
       return v[0]->description();
   }
@@ -2758,6 +2764,8 @@ namespace folia {
     _required_attributes = ID;
     _optional_attributes = ALL;
     _occurrences_per_set=0;
+    PRINTABLE = true;
+    SPEAKABLE = true;
     TEXTDELIMITER = "\n\n";
   }
 
@@ -2883,6 +2891,8 @@ namespace folia {
     _annotation_type = AnnotationType::STRING;
     _occurrences = 0;
     _occurrences_per_set=0;
+    PRINTABLE = true;
+    SPEAKABLE = true;
   }
 
   void Part::init(){
@@ -2913,10 +2923,9 @@ namespace folia {
     _optional_attributes = ALL;
     _xmltag = "alignment";
     _element_id = Alignment_t;
-    _accepted_data = { AlignReference_t, Description_t };
+    _accepted_data = { AlignReference_t, Description_t, Metric_t };
     _occurrences_per_set=0;
     _annotation_type = AnnotationType::ALIGNMENT;
-    PRINTABLE = false;
   }
 
   void AlignReference::init(){
@@ -2944,6 +2953,10 @@ namespace folia {
   void Content::init(){
     _xmltag = "content";
     _element_id = Content_t;
+    _optional_attributes = ALL;
+    _occurrences_per_set=0;
+    PRINTABLE = true;
+    SPEAKABLE = true;
   }
 
   void Sentence::init(){
@@ -3109,7 +3122,6 @@ namespace folia {
     _xmltag = "annotationlayer";
     _element_id = AnnotationLayer_t;
     _optional_attributes = SETONLY;
-    PRINTABLE=false;
   }
 
   static set<ElementType> asSet = { SyntacticUnit_t, Chunk_t,
@@ -3179,7 +3191,6 @@ namespace folia {
     _optional_attributes = ALL;
     _accepted_data = { TokenAnnotation_t };
     _annotation_type = AnnotationType::ALTERNATIVE;
-    PRINTABLE = false;
     _auth = false;
   }
 
@@ -3188,7 +3199,6 @@ namespace folia {
     _element_id = Alternatives_t;
     _optional_attributes = ALL;
     _accepted_data = { AnnotationLayer_t };
-    PRINTABLE = false;
     _auth = false;
   }
 
@@ -3199,6 +3209,7 @@ namespace folia {
 		       TextContent_t, Description_t };
     _occurrences = 1;
     PRINTABLE=true;
+    SPEAKABLE=true;
   }
 
   void NewElement::init(){
@@ -3235,6 +3246,8 @@ namespace folia {
     _accepted_data = { New_t, Original_t, Suggestion_t, Current_t,
 		       Description_t };
     _occurrences_per_set=0;
+    PRINTABLE=true;
+    SPEAKABLE=true;
   }
 
   void Description::init(){
@@ -3265,12 +3278,16 @@ namespace folia {
     _xmltag = "xml-text";
     _element_id = XmlText_t;
     TEXTDELIMITER = "*";
+    PRINTABLE = true;
+    SPEAKABLE = true;
   }
 
   void External::init(){
     _xmltag = "external";
     _element_id = External_t;
     _include = false;
+    PRINTABLE = true;
+    SPEAKABLE = false;
   }
 
   void External::resolve( ) {
@@ -3796,6 +3813,8 @@ namespace folia {
     _required_attributes = NO_ATT;
     _optional_attributes = ALL;
     _occurrences_per_set = 0; // Allow duplicates within the same set
+    PRINTABLE = true;
+    SPEAKABLE = true;
   }
 
   void ErrorDetection::init(){

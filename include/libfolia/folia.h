@@ -551,6 +551,7 @@ namespace folia {
 
     UnicodeString deeptext( const std::string& = "current", bool = false ) const;
     bool printable() const { return PRINTABLE; };
+    bool speaktable() const { return SPEAKABLE; };
 
     // Word
     const Word* resolveword( const std::string& ) const { return 0; };
@@ -614,6 +615,7 @@ namespace folia {
     size_t _occurrences;
     size_t _occurrences_per_set;
     bool PRINTABLE;
+    bool SPEAKABLE;
     Attrib _required_attributes;
     Attrib _optional_attributes;
     std::string _id;

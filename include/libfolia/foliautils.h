@@ -184,9 +184,10 @@ namespace folia {
   NoSuchText( const std::string& s ): std::runtime_error( "no such text: " + s ){};
   };
 
-  class NoDescription: public std::runtime_error {
+  class NoSuchPhon: public std::runtime_error {
   public:
-  NoDescription( ): std::runtime_error( "no description" ){};
+  NoSuchPhon( ): std::runtime_error( "no such phoneme" ){};
+  NoSuchPhon( const std::string& s ): std::runtime_error( "no such phoneme: " + s ){};
   };
 
   class DuplicateAnnotationError: public std::runtime_error {
