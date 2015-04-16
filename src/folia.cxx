@@ -514,7 +514,7 @@ namespace folia {
     return e;
   }
 
-  string FoliaImpl::str() const {
+  string FoliaImpl::str( const std::string& ) const {
     cerr << "Impl::str()" << endl;
     return _xmltag;
   }
@@ -1575,11 +1575,11 @@ namespace folia {
   }
 
 
-  string TextContent::str() const{
+  string TextContent::str( const string& cls ) const{
 #ifdef DEBUG_TEXT
-    cerr << "textContent::str() this=" << this << endl;
+    cerr << "textContent::str(" << cls << ") this=" << this << endl;
 #endif
-    return UnicodeToUTF8(text());
+    return UnicodeToUTF8(text(cls));
   }
 
   UnicodeString TextContent::text( const string& cls, bool retaintok ) const {
@@ -1592,7 +1592,7 @@ namespace folia {
     for( size_t i=0; i < data.size(); ++i ){
       // try to get text dynamically from children
 #ifdef DEBUG_TEXT
-      cerr << "TextContent: bekijk node[" << i+1 << "] " << data[i]->str() << endl;
+      cerr << "TextContent: bekijk node[" << i+1 << "] " << data[i]->str(cls) << endl;
 #endif
       try {
 #ifdef DEBUG_TEXT
@@ -1932,8 +1932,8 @@ namespace folia {
   }
 
 
-  string AbstractStructureElement::str() const{
-    UnicodeString result = text();
+  string AbstractStructureElement::str( const string& cls ) const{
+    UnicodeString result = text( cls );
     return UnicodeToUTF8(result);
   }
 

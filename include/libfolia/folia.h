@@ -271,8 +271,8 @@ namespace folia {
     // text/string content
     bool hastext( const std::string& = "current" ) const;
 
-    virtual std::string str() const = 0;
-    UnicodeString unicode() const { return text(); };
+    virtual std::string str( const std::string& = "current" ) const = 0;
+    UnicodeString unicode( const std::string& cls = "current" ) const { return text( cls ); };
     UnicodeString toktext( const std::string& cls = "current" ) const {
       return deeptext( cls, true );
     }
@@ -546,7 +546,7 @@ namespace folia {
 
     // text/string content
 
-    std::string str() const;
+    std::string str( const std::string& = "current" ) const;
     UnicodeString text( const std::string& = "current", bool = false ) const;
 
     UnicodeString deeptext( const std::string& = "current", bool = false ) const;
@@ -650,12 +650,14 @@ namespace folia {
     inline size_t len( const std::vector<T>& v ) {
     return v.size(); }
 
-  inline std::string str( const FoliaElement *e ) {
-    return e->str(); }
+  inline std::string str( const FoliaElement *e,
+			  const std::string& cls = "current" ) {
+    return e->str( cls ); }
 
-  inline UnicodeString text( const FoliaElement *e ) {
+  inline UnicodeString text( const FoliaElement *e,
+			     const std::string& cls = "current" ) {
     if ( e )
-      return e->text();
+      return e->text( cls );
     else
       throw ValueError( "text() for empty element" );
   }
@@ -716,8 +718,8 @@ namespace folia {
   public:
   AbstractStructureElement( Document *d=0 ): FoliaImpl( d ) { classInit(); };
 
-    std::string str() const;
-    std::vector<Alternative *> alternatives( ElementType = BASE,
+      std::string str( const std::string& = "current" ) const;
+      std::vector<Alternative *> alternatives( ElementType = BASE,
 					     const std::string& = "" ) const;
 
     FoliaElement *append( FoliaElement* );
@@ -843,7 +845,7 @@ namespace folia {
   TextContent( Document *d, const KWargs& a ): FoliaImpl(d){ classInit( a ); }
     void setAttributes( const KWargs& );
     KWargs collectAttributes() const;
-    std::string str() const;
+    std::string str( const std::string& = "current" ) const;
     UnicodeString text( const std::string& = "current", bool = false ) const;
     int offset() const { return _offset; };
     TextContent *postappend();
