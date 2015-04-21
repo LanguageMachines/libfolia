@@ -46,18 +46,12 @@ using namespace TiCC;
 namespace folia {
 
   UnicodeString UTF8ToUnicode( const string& s ){
-    return UnicodeString( s.c_str(), s.length(), "UTF-8" );
+    return UnicodeString::fromUTF8( s );
   }
 
   string UnicodeToUTF8( const UnicodeString& s ){
     string result;
-    int len = s.length();
-    if ( len > 0 ){
-      char *buf = new char[len*6+1];
-      s.extract( 0, len, buf, len*6, "UTF-8" );
-      result = buf;
-      delete [] buf;
-    }
+    s.toUTF8String(result);
     return result;
   }
 
