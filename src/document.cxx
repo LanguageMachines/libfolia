@@ -321,7 +321,7 @@ namespace folia {
   bool Document::save( ostream& os, const string& nsLabel, bool kanon ) {
     string s = toXml( nsLabel, kanon );
     os << s << endl;
-    return os;
+    return os.good();
   }
 
   bool Document::save( const string& fn, const string& nsLabel, bool kanon ) {
