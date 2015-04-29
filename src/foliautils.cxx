@@ -335,8 +335,8 @@ namespace folia {
     case Structure_t: result = "structure"; break;
     case Pos_t: result = "pos"; break;
     case Lemma_t: result = "lemma"; break;
-    case PhonologyLayer_t: result = "phonology"; break;
-    case Phoneme_t: result = "phon"; break;
+    case PhonologyLayer_t: result = "phonetics"; break;
+    case Phoneme_t: result = "phoneme"; break;
     case Domain_t: result = "domain"; break;
     case Sense_t: result = "sense"; break;
     case Subjectivity_t: result = "subjectivity"; break;
@@ -554,10 +554,10 @@ namespace folia {
     else if ( tag == "lemma" ){
       return Lemma_t;
     }
-    else if ( tag == "phonology" ){
+    else if ( tag == "phonetics" ){
       return PhonologyLayer_t;
     }
-    else if ( tag == "phon" ){
+    else if ( tag == "phoneme" ){
       return Phoneme_t;
     }
     else if ( tag == "domain" ){

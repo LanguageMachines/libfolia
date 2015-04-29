@@ -223,8 +223,8 @@ namespace folia {
 
     if ( _element_id != TextContent_t ){
       if ( !_class.empty() && _set.empty() )
-	throw ValueError("Set is required for " + classname() +
-			 " class=\"" + _class + "\" assigned without set."  );
+	throw ValueError("Set is required for <" + classname() +
+			 " class=\"" + _class + "\"> assigned without set."  );
     }
     it = kwargs.find( "annotator" );
     if ( it != kwargs.end() ) {
@@ -924,7 +924,9 @@ namespace folia {
       }
     }
     if ( c->parent() &&
-	 !(c->element_id() == Word_t || c->element_id() == Morpheme_t ) ){
+	 !( c->element_id() == Word_t
+	    || c->element_id() == Morpheme_t
+	    || c->element_id() == Phoneme_t ) ){
       // Only for WordRef i hope
       throw XmlError( "attempt to reconnect node " + c->classname()
 		      + " to a " + classname() + " node, id=" + _id
@@ -2963,6 +2965,8 @@ namespace folia {
     _xmltag="w";
     _element_id = Word_t;
     _accepted_data = { TextContent_t,
+		       PhonContent_t,
+		       PhonologyLayer_t,
 		       TokenAnnotation_t,
 		       Alternative_t,
 		       Description_t,
@@ -3069,11 +3073,13 @@ namespace folia {
     _element_id = Division_t;
     _required_attributes = ID;
     _optional_attributes = CLASS|N|SRC|BEGINTIME|ENDTIME|SPEAKER;
-    _accepted_data = { Structure_t, Gap_t,
-		       TokenAnnotation_t,
-		       Description_t,
-		       TextContent_t,
-		       Metric_t, Coreferences_t };
+    _accepted_data = { Division_t, Quote_t, Gap_t, Event_t, Example_t,
+		       Entry_t, Head_t, Utterance_t, Paragraph_t,
+		       Sentence_t, List_t, Figure_t, Table_t, Note_t,
+		       Reference_t, TokenAnnotation_t, Description_t,
+		       LineBreak_t, WhiteSpace_t, Alternative_t,
+		       AlternativeLayers_t, AnnotationLayer_t,
+		       Correction_t, Part_t };
     _annotation_type = AnnotationType::DIVISION;
     TEXTDELIMITER = "\n\n\n";
   }
@@ -3424,9 +3430,10 @@ namespace folia {
   void Example::init(){
     _xmltag = "ex";
     _element_id = Example_t;
-    _accepted_data = { Term_t, Definition_t, Example_t, Correction_t,
-		       Description_t, Metric_t, Alignment_t,
-		       AlternativeLayers_t, AnnotationLayer_t };
+    _accepted_data = { Paragraph_t, Sentence_t, Word_t, Utterance_t,
+		       List_t, Figure_t, Table_t, Reference_t, Feature_t,
+		       TextContent_t, PhonContent_t, Str_t, Metric_t,
+		       TokenAnnotation_t, Correction_t, Part_t };
     _annotation_type = AnnotationType::EXAMPLE;
   }
 
@@ -3547,6 +3554,9 @@ namespace folia {
     _xmltag = "ref";
     _element_id = Reference_t;
     _required_attributes = NO_ATT;
+    _optional_attributes = ID|ANNOTATOR|CONFIDENCE|DATETIME;
+    _accepted_data = { TextContent_t, PhonContent_t, Str_t,
+		       Description_t, Metric_t };
   }
 
   KWargs Reference::collectAttributes() const {
@@ -3759,7 +3769,7 @@ namespace folia {
 
   void PhonologyLayer::init(){
     _element_id = PhonologyLayer_t;
-    _xmltag = "phonology";
+    _xmltag = "phonetics";
     _accepted_data = { Phoneme_t, Correction_t };
     _occurrences_per_set = 1; // Don't allow duplicates within the same set
     _annotation_type = AnnotationType::PHONETIC;
@@ -3867,10 +3877,12 @@ namespace folia {
   }
 
   void Phoneme::init(){
-    _xmltag="phon";
+    _xmltag="phoneme";
     _element_id = Phoneme_t;
+    _required_attributes = NO_ATT;
+    _optional_attributes = ALL;
     _annotation_type = AnnotationType::PHON;
-    _accepted_data = { Feature_t, Description_t };
+    _accepted_data = { PhonContent_t, Feature_t, Description_t };
   }
 
   void DomainAnnotation::init(){
@@ -3884,7 +3896,7 @@ namespace folia {
     _xmltag="sense";
     _element_id = Sense_t;
     _annotation_type = AnnotationType::SENSE;
-    _accepted_data = { Feature_t, Description_t };
+    _accepted_data = { Feature_t, SynsetFeature_t, Description_t, Metric_t };
   }
 
   void SubjectivityAnnotation::init(){
