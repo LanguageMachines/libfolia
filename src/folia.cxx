@@ -344,6 +344,30 @@ namespace folia {
     else
       _endtime.clear();
 
+    it = kwargs.find( "src" );
+    if ( it != kwargs.end() ) {
+      if ( !(SRC & supported) )
+	throw ValueError( "src is not supported for " + classname() );
+      else {
+	_src = it->second;
+      }
+      kwargs.erase( it );
+    }
+    else
+      _src.clear();
+
+    it = kwargs.find( "speaker" );
+    if ( it != kwargs.end() ) {
+      if ( !(SPEAKER & supported) )
+	throw ValueError( "speaker is not supported for " + classname() );
+      else {
+	_speaker = it->second;
+      }
+      kwargs.erase( it );
+    }
+    else
+      _speaker.clear();
+
     it = kwargs.find( "auth" );
     if ( it != kwargs.end() ){
       _auth = stringTo<bool>( it->second );
@@ -418,6 +442,18 @@ namespace folia {
     if ( !_datetime.empty() &&
 	 _datetime != mydoc->defaultdatetime( _annotation_type, _set ) ){
       attribs["datetime"] = _datetime;
+    }
+    if ( !_begintime.empty() ){
+      attribs["begintime"] = _begintime;
+    }
+    if ( !_endtime.empty() ){
+      attribs["endtime"] = _endtime;
+    }
+    if ( !_src.empty() ){
+      attribs["src"] = _src;
+    }
+    if ( !_speaker.empty() ){
+      attribs["speaker"] = _speaker;
     }
     if ( _annotator_type != UNDEFINED ){
       AnnotatorType at = stringTo<AnnotatorType>( mydoc->defaultannotatortype( _annotation_type, _set ) );
@@ -953,6 +989,12 @@ namespace folia {
     }
     if ( ENDTIME & _required_attributes ){
       throw ValueError( "attribute 'endtime' is required for " + classname() );
+    }
+    if ( SRC & _required_attributes ){
+      throw ValueError( "attribute 'src' is required for " + classname() );
+    }
+    if ( SPEAKER & _required_attributes ){
+      throw ValueError( "attribute 'speaker' is required for " + classname() );
     }
     return true;
   }

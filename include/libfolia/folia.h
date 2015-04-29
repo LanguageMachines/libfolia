@@ -627,11 +627,13 @@ namespace folia {
     std::string _annotator;
     std::string _n;
     std::string _datetime;
+    std::string _begintime;
+    std::string _endtime;
+    std::string _src;
+    std::string _speaker;
     AnnotatorType _annotator_type;
     double _confidence;
     int _refcount;
-    std::string _begintime;
-    std::string _endtime;
   };
 
   bool isSubClass( const ElementType e1, const ElementType e2 );
