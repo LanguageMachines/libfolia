@@ -141,16 +141,13 @@ namespace folia {
     case AnnotationType::MORPHOLOGICAL:
       result = "morphological";
       break;
-    case AnnotationType::SUBENTITY:
-      result = "subentity";
-      break;
     case AnnotationType::EVENT:
       result = "event";
       break;
     case AnnotationType::DEPENDENCY:
       result = "dependency";
       break;
-    case AnnotationType::TIMEDEVENT:
+    case AnnotationType::TIMESEGMENT:
       result = "timesegment";
       break;
     case AnnotationType::GAP:
@@ -186,6 +183,22 @@ namespace folia {
     case AnnotationType::PART:
       result = "part";
       break;
+    case AnnotationType::UTTERANCE:
+      result = "utterance";
+      break;
+    case AnnotationType::TERM:
+      result = "term";
+      break;
+    case AnnotationType::DEFINITION:
+      result = "definition";
+      break;
+    case AnnotationType::EXAMPLE:
+      result = "example";
+      break;
+    case AnnotationType::PHONETIC:
+      result = "phonetic";
+      break;
+
     case AnnotationType::LAST_ANN:
       throw logic_error("LAST_ANN");
     };
@@ -241,14 +254,12 @@ namespace folia {
       return AnnotationType::SUBJECTIVITY;
     else if ( at == "morphological" )
       return AnnotationType::MORPHOLOGICAL;
-    else if ( at == "subentity" )
-      return AnnotationType::SUBENTITY;
     else if ( at == "event" )
       return AnnotationType::EVENT;
     else if ( at == "dependency" )
       return AnnotationType::DEPENDENCY;
     else if ( at == "timesegment" )
-      return AnnotationType::TIMEDEVENT;
+      return AnnotationType::TIMESEGMENT;
     else if ( at == "gap" )
       return AnnotationType::GAP;
     else if ( at == "complexalignment" )
@@ -271,6 +282,16 @@ namespace folia {
       return AnnotationType::NOTE;
     else if ( at == "part" )
       return AnnotationType::PART;
+    else if ( at == "utterance" )
+      return AnnotationType::UTTERANCE;
+    else if ( at == "term" )
+      return AnnotationType::TERM;
+    else if ( at == "definition" )
+      return AnnotationType::DEFINITION;
+    else if ( at == "example" )
+      return AnnotationType::EXAMPLE;
+    else if ( at == "phonetic" )
+      return AnnotationType::PHONETIC;
     throw ValueError( " unknown translation for attribute: " + at );
   }
 

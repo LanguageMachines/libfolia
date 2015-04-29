@@ -126,16 +126,17 @@ namespace folia {
    *  static const annotation_type = {AnnotationType}
    */
   namespace AnnotationType {
-    enum AnnotationType { NO_ANN, TEXT, TOKEN, DIVISION, PARAGRAPH, STRING,
+    enum AnnotationType { NO_ANN, TEXT, TOKEN, DIVISION, PARAGRAPH,
 			  LIST, FIGURE, WHITESPACE, LINEBREAK, SENTENCE,
 			  POS, LEMMA, DOMEIN, SENSE, SYNTAX, CHUNKING, ENTITY,
 			  // Attention DOMAIN seems to be a defined constant
 			  // where/how/why?
 			  CORRECTION, SUGGESTION, ERRORDETECTION, ALTERNATIVE,
-			  PHON, SUBJECTIVITY, MORPHOLOGICAL, SUBENTITY, EVENT,
-			  DEPENDENCY, TIMEDEVENT, GAP, ALIGNMENT,
+			  PHON, SUBJECTIVITY, MORPHOLOGICAL, EVENT,
+			  DEPENDENCY, TIMESEGMENT, GAP, NOTE, ALIGNMENT,
 			  COMPLEXALIGNMENT, COREFERENCE, SEMROLE, METRIC,
-			  TABLE, LANG, STYLE, NOTE, PART,
+			  LANG, STRING, TABLE, STYLE, PART, UTTERANCE, TERM,
+			  DEFINITION, EXAMPLE, PHONETIC,
 			  LAST_ANN
     };
     inline AnnotationType& operator++( AnnotationType &at ){

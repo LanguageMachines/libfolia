@@ -3051,7 +3051,7 @@ namespace folia {
     _xmltag="timesegment";
     _element_id = TimeSegment_t;
     _accepted_data = { Description_t, Feature_t, Word_t };
-    _annotation_type = AnnotationType::TIMEDEVENT;
+    _annotation_type = AnnotationType::TIMESEGMENT;
     _occurrences_per_set=0;
   }
 
