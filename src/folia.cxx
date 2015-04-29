@@ -314,6 +314,36 @@ namespace folia {
     else
       _datetime.clear();
 
+    it = kwargs.find( "begintime" );
+    if ( it != kwargs.end() ) {
+      if ( !(BEGINTIME & supported) )
+	throw ValueError( "begintime is not supported for " + classname() );
+      else {
+	string time = parseDate( it->second );
+	if ( time.empty() )
+	  throw ValueError( "invalid begintime string:" + it->second );
+	_begintime = time;
+      }
+      kwargs.erase( it );
+    }
+    else
+      _begintime.clear();
+
+    it = kwargs.find( "endtime" );
+    if ( it != kwargs.end() ) {
+      if ( !(ENDTIME & supported) )
+	throw ValueError( "endtime is not supported for " + classname() );
+      else {
+	string time = parseDate( it->second );
+	if ( time.empty() )
+	  throw ValueError( "invalid endime string:" + it->second );
+	_endtime = time;
+      }
+      kwargs.erase( it );
+    }
+    else
+      _endtime.clear();
+
     it = kwargs.find( "auth" );
     if ( it != kwargs.end() ){
       _auth = stringTo<bool>( it->second );
@@ -917,6 +947,12 @@ namespace folia {
     }
     if ( DATETIME & _required_attributes ){
       throw ValueError( "attribute 'datetime' is required for " + classname() );
+    }
+    if ( BEGINTIME & _required_attributes ){
+      throw ValueError( "attribute 'begintime' is required for " + classname() );
+    }
+    if ( ENDTIME & _required_attributes ){
+      throw ValueError( "attribute 'endtime' is required for " + classname() );
     }
     return true;
   }

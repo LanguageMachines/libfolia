@@ -630,6 +630,8 @@ namespace folia {
     AnnotatorType _annotator_type;
     double _confidence;
     int _refcount;
+    std::string _begintime;
+    std::string _endtime;
   };
 
   bool isSubClass( const ElementType e1, const ElementType e2 );
