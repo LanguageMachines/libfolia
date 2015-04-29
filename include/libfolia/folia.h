@@ -1284,12 +1284,12 @@ namespace folia {
     void init();
   };
 
-  class PhonAnnotation: public AbstractTokenAnnotation {
+  class Phoneme: public AbstractTokenAnnotation {
   public:
-  PhonAnnotation( const std::string& s=""): AbstractTokenAnnotation(){ classInit( s ); };
-  PhonAnnotation( const KWargs& a ): AbstractTokenAnnotation(){ classInit( a ); };
-  PhonAnnotation( Document *d, const std::string& s=""): AbstractTokenAnnotation( d ){ classInit( s ); };
-  PhonAnnotation( Document *d, const KWargs& a ): AbstractTokenAnnotation( d ){ classInit( a ); };
+  Phoneme( const std::string& s=""): AbstractTokenAnnotation(){ classInit( s ); };
+  Phoneme( const KWargs& a ): AbstractTokenAnnotation(){ classInit( a ); };
+  Phoneme( Document *d, const std::string& s=""): AbstractTokenAnnotation( d ){ classInit( s ); };
+  Phoneme( Document *d, const KWargs& a ): AbstractTokenAnnotation( d ){ classInit( a ); };
   private:
     void init();
   };
@@ -1862,6 +1862,16 @@ namespace folia {
   MorphologyLayer( const KWargs& a ): AbstractAnnotationLayer(){ classInit( a ); }
   MorphologyLayer( Document *d, const std::string& s="" ): AbstractAnnotationLayer( d ){ classInit( s ); }
   MorphologyLayer( Document *d, const KWargs& a ): AbstractAnnotationLayer( d ){ classInit( a ); }
+  private:
+    void init();
+  };
+
+  class PhonologyLayer: public AbstractAnnotationLayer {
+  public:
+  PhonologyLayer( const std::string& s="" ): AbstractAnnotationLayer(){ classInit( s ); }
+  PhonologyLayer( const KWargs& a ): AbstractAnnotationLayer(){ classInit( a ); }
+  PhonologyLayer( Document *d, const std::string& s="" ): AbstractAnnotationLayer( d ){ classInit( s ); }
+  PhonologyLayer( Document *d, const KWargs& a ): AbstractAnnotationLayer( d ){ classInit( a ); }
   private:
     void init();
   };

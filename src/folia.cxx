@@ -852,8 +852,8 @@ namespace folia {
 			BeginDateTimeFeature_t,
 			EndDateTimeFeature_t,
 			FunctionFeature_t };
-      sm[TokenAnnotation_t] = { Pos_t, Lemma_t, Morphology_t,
-				Sense_t, Phon_t, Str_t, Lang_t,
+      sm[TokenAnnotation_t] = { Pos_t, Lemma_t, MorphologyLayer_t,
+				Sense_t, Phoneme_t, Str_t, Lang_t,
 				Correction_t, Subjectivity_t,
 				ErrorDetection_t };
       sm[SpanAnnotation_t] = { SyntacticUnit_t,
@@ -864,7 +864,7 @@ namespace folia {
 			       Semrole_t, TimeSegment_t };
       sm[AnnotationLayer_t] = { SyntaxLayer_t,
 				Chunking_t, Entities_t,
-				TimingLayer_t, Morphology_t,
+				TimingLayer_t, MorphologyLayer_t,
 				Dependencies_t,
 				Coreferences_t, Semroles_t };
       sm[AbstractTextMarkup_t] = { TextMarkupString_t, TextMarkupGap_t,
@@ -1087,7 +1087,7 @@ namespace folia {
   set<ElementType> default_ignore_annotations = { Original_t,
 						  Suggestion_t,
 						  Alternative_t,
-						  Morphology_t };
+						  MorphologyLayer_t };
 
   set<ElementType> default_ignore_structure = { Original_t,
 						Suggestion_t,
@@ -1367,7 +1367,7 @@ namespace folia {
     for ( size_t i=0; i < alts.size(); ++i ){
       if ( alts[i]->size() > 0 ) { // child elements?
 	for ( size_t j =0; j < alts[i]->size(); ++j ){
-	  if ( alts[i]->index(j)->element_id() == Morphology_t &&
+	  if ( alts[i]->index(j)->element_id() == MorphologyLayer_t &&
 	       ( st.empty() || alts[i]->index(j)->sett() == st ) ){
 	    vec.push_back( dynamic_cast<MorphologyLayer*>(alts[i]->index(j)) );
 	  }
@@ -3270,7 +3270,7 @@ namespace folia {
       if ( et == Word_t
 	   || et == WordReference_t
 	   //	   || et == Phoneme_t
-	   || et == Morphology_t ){
+	   || et == MorphologyLayer_t ){
 	res.push_back( data[i] );
       }
       else {
@@ -3750,11 +3750,19 @@ namespace folia {
   }
 
   void MorphologyLayer::init(){
-    _element_id = Morphology_t;
+    _element_id = MorphologyLayer_t;
     _xmltag = "morphology";
     _accepted_data = { Morpheme_t, Correction_t };
     _occurrences_per_set = 1; // Don't allow duplicates within the same set
     _annotation_type = AnnotationType::MORPHOLOGICAL;
+  }
+
+  void PhonologyLayer::init(){
+    _element_id = PhonologyLayer_t;
+    _xmltag = "phonology";
+    _accepted_data = { Phoneme_t, Correction_t };
+    _occurrences_per_set = 1; // Don't allow duplicates within the same set
+    _annotation_type = AnnotationType::PHONETIC;
   }
 
   void CoreferenceLayer::init(){
@@ -3858,9 +3866,9 @@ namespace folia {
     _accepted_data = { Feature_t, Metric_t, Description_t };
   }
 
-  void PhonAnnotation::init(){
+  void Phoneme::init(){
     _xmltag="phon";
-    _element_id = Phon_t;
+    _element_id = Phoneme_t;
     _annotation_type = AnnotationType::PHON;
     _accepted_data = { Feature_t, Description_t };
   }

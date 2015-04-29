@@ -80,7 +80,8 @@ namespace folia {
     List_t, Item_t,
     Figure_t, Quote_t, //structure annotation elements
     Pos_t, Lemma_t,
-    Phon_t, Domain_t,
+    PhonologyLayer_t, Phoneme_t,
+    Domain_t,
     Sense_t, Subjectivity_t,
     Metric_t, Correction_t, //token annotation elements
     AnnotationLayer_t, SpanAnnotation_t,
@@ -90,7 +91,7 @@ namespace folia {
     Coreferences_t, CoreferenceLink_t,
     CoreferenceChain_t,  SyntaxLayer_t,
     Semroles_t, Semrole_t,
-    Morphology_t, Morpheme_t,
+    MorphologyLayer_t, Morpheme_t,
     ErrorDetection_t, New_t,
     Original_t, Current_t,
     Alternative_t, AlternativeLayers_t, //alternatives

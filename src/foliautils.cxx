@@ -335,7 +335,8 @@ namespace folia {
     case Structure_t: result = "structure"; break;
     case Pos_t: result = "pos"; break;
     case Lemma_t: result = "lemma"; break;
-    case Phon_t: result = "phon"; break;
+    case PhonologyLayer_t: result = "phonology"; break;
+    case Phoneme_t: result = "phon"; break;
     case Domain_t: result = "domain"; break;
     case Sense_t: result = "sense"; break;
     case Subjectivity_t: result = "subjectivity"; break;
@@ -353,7 +354,7 @@ namespace folia {
     case Coreferences_t: result = "coreferences"; break;
     case CoreferenceLink_t: result = "coreferencelink"; break;
     case CoreferenceChain_t: result = "coreferencechain"; break;
-    case Morphology_t: result = "morphology"; break;
+    case MorphologyLayer_t: result = "morphology"; break;
     case Morpheme_t: result = "morpheme"; break;
     case ErrorDetection_t: result = "errordetection"; break;
     case New_t: result = "new"; break;
@@ -553,8 +554,11 @@ namespace folia {
     else if ( tag == "lemma" ){
       return Lemma_t;
     }
+    else if ( tag == "phonology" ){
+      return PhonologyLayer_t;
+    }
     else if ( tag == "phon" ){
-      return Phon_t;
+      return Phoneme_t;
     }
     else if ( tag == "domain" ){
       return Domain_t;
@@ -617,7 +621,7 @@ namespace folia {
       return ErrorDetection_t;
     }
     else if ( tag == "morphology" ){
-      return Morphology_t;
+      return MorphologyLayer_t;
     }
     else if ( tag == "morpheme" ){
       return Morpheme_t;
@@ -815,8 +819,10 @@ namespace folia {
       return new PosAnnotation( doc );
     case Lemma_t:
       return new LemmaAnnotation( doc );
-    case Phon_t:
-      return new PhonAnnotation( doc );
+    case PhonologyLayer_t:
+      return new PhonologyLayer( doc );
+    case Phoneme_t:
+      return new Phoneme( doc );
     case Domain_t:
       return new DomainAnnotation( doc );
     case Sense_t:
@@ -857,7 +863,7 @@ namespace folia {
       return new Correction( doc );
     case ErrorDetection_t:
       return new ErrorDetection( doc );
-    case Morphology_t:
+    case MorphologyLayer_t:
       return new MorphologyLayer( doc );
     case Morpheme_t:
       return new Morpheme( doc );
