@@ -861,6 +861,16 @@ namespace folia {
     UnicodeString _text;
   };
 
+  class PhonContent: public FoliaImpl {
+  public:
+  PhonContent( const std::string& s="" ): FoliaImpl(){ classInit( s ); }
+  PhonContent( const KWargs& a ): FoliaImpl(){ classInit( a ); }
+  PhonContent( Document *d, const std::string& s="" ): FoliaImpl(d){ classInit( s ); }
+  PhonContent( Document *d, const KWargs& a ): FoliaImpl(d){ classInit( a ); }
+  private:
+    void init();
+  };
+
   class FoLiA: public FoliaImpl {
   public:
   FoLiA( const std::string& s="" ): FoliaImpl() { classInit( s ); };
@@ -1093,12 +1103,32 @@ namespace folia {
     void init();
   };
 
+  class Speech: public AbstractStructureElement {
+  public:
+  Speech( const std::string& s=""): AbstractStructureElement(){ classInit( s ); };
+  Speech( const KWargs& a ): AbstractStructureElement(){ classInit( a ); };
+  Speech( Document *d, const std::string& s=""): AbstractStructureElement( d ){ classInit( s ); };
+  Speech( Document *d, const KWargs& a ): AbstractStructureElement( d ){ classInit( a ); };
+  private:
+    void init();
+  };
+
   class Text: public AbstractStructureElement {
   public:
   Text( const std::string& s=""): AbstractStructureElement(){ classInit( s ); };
   Text( const KWargs& a ): AbstractStructureElement(){ classInit( a ); };
   Text( Document *d, const std::string& s=""): AbstractStructureElement( d ){ classInit( s ); };
   Text( Document *d, const KWargs& a ): AbstractStructureElement( d ){ classInit( a ); };
+  private:
+    void init();
+  };
+
+  class Utterance: public AbstractStructureElement {
+  public:
+  Utterance( const std::string& s=""): AbstractStructureElement(){ classInit( s ); };
+  Utterance( const KWargs& a ): AbstractStructureElement(){ classInit( a ); };
+  Utterance( Document *d, const std::string& s=""): AbstractStructureElement( d ){ classInit( s ); };
+  Utterance( Document *d, const KWargs& a ): AbstractStructureElement( d ){ classInit( a ); };
   private:
     void init();
   };
@@ -1665,7 +1695,6 @@ namespace folia {
     bool _include;
   };
 
-
   class Note: public AbstractStructureElement {
   public:
   Note( const std::string& s=""): AbstractStructureElement(){ classInit( s ); };
@@ -1677,6 +1706,46 @@ namespace folia {
   private:
     void init();
     std::string refId;
+  };
+
+  class Definition: public AbstractStructureElement {
+  public:
+  Definition( const std::string& s=""): AbstractStructureElement(){ classInit( s ); };
+  Definition( const KWargs& a ): AbstractStructureElement(){ classInit( a ); };
+  Definition( Document *d, const std::string& s=""): AbstractStructureElement( d ){ classInit( s ); };
+  Definition( Document *d, const KWargs& a ): AbstractStructureElement( d ){ classInit( a ); };
+  private:
+    void init();
+  };
+
+  class Term: public AbstractStructureElement {
+  public:
+  Term( const std::string& s=""): AbstractStructureElement(){ classInit( s ); };
+  Term( const KWargs& a ): AbstractStructureElement(){ classInit( a ); };
+  Term( Document *d, const std::string& s=""): AbstractStructureElement( d ){ classInit( s ); };
+  Term( Document *d, const KWargs& a ): AbstractStructureElement( d ){ classInit( a ); };
+  private:
+    void init();
+  };
+
+  class Example: public AbstractStructureElement {
+  public:
+  Example( const std::string& s=""): AbstractStructureElement(){ classInit( s ); };
+  Example( const KWargs& a ): AbstractStructureElement(){ classInit( a ); };
+  Example( Document *d, const std::string& s=""): AbstractStructureElement( d ){ classInit( s ); };
+  Example( Document *d, const KWargs& a ): AbstractStructureElement( d ){ classInit( a ); };
+  private:
+    void init();
+  };
+
+  class Entry: public AbstractStructureElement {
+  public:
+  Entry( const std::string& s=""): AbstractStructureElement(){ classInit( s ); };
+  Entry( const KWargs& a ): AbstractStructureElement(){ classInit( a ); };
+  Entry( Document *d, const std::string& s=""): AbstractStructureElement( d ){ classInit( s ); };
+  Entry( Document *d, const KWargs& a ): AbstractStructureElement( d ){ classInit( a ); };
+  private:
+    void init();
   };
 
   class Reference: public AbstractStructureElement {

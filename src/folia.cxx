@@ -2868,12 +2868,26 @@ namespace folia {
     _offset = -1;
   }
 
+  void PhonContent::init(){
+    _element_id = PhonContent_t;
+    _xmltag="ph";
+    _optional_attributes = CLASS|ANNOTATOR|CONFIDENCE|DATETIME;
+    _accepted_data = { AbstractTextMarkup_t,
+		       XmlText_t,
+		       LineBreak_t };
+    _annotation_type = AnnotationType::PHON;
+    _occurrences = 0;
+    _occurrences_per_set=0;
+    PRINTABLE = false;
+    SPEAKABLE = true;
+  }
+
   void Head::init() {
     _element_id = Head_t;
     _xmltag="head";
     _accepted_data = { Structure_t, Description_t, LineBreak_t,
 		       TextContent_t, Alignment_t, Metric_t,
-		       Alternatives_t, TokenAnnotation_t, Gap_t };
+		       AlternativeLayers_t, TokenAnnotation_t, Gap_t };
     _occurrences=1;
     TEXTDELIMITER = " ";
   }
@@ -2884,7 +2898,7 @@ namespace folia {
     _required_attributes = NO_ATT;
     _accepted_data ={ Row_t,
 		      Correction_t,
-		      Alternatives_t,
+		      AlternativeLayers_t,
 		      AnnotationLayer_t,
 		      Part_t };
     _annotation_type = AnnotationType::TABLE;
@@ -2896,7 +2910,7 @@ namespace folia {
     _accepted_data = { TableHead_t,
 		       Row_t,
 		       Correction_t,
-		       Alternatives_t,
+		       AlternativeLayers_t,
 		       AnnotationLayer_t,
 		       Part_t };
     _annotation_type = AnnotationType::TABLE;
@@ -2911,7 +2925,7 @@ namespace folia {
 		       Entities_t,
 		       Alignment_t,
 		       Metric_t,
-		       Alternatives_t,
+		       AlternativeLayers_t,
 		       AnnotationLayer_t,
 		       Gap_t };
     _annotation_type = AnnotationType::TABLE;
@@ -2924,7 +2938,7 @@ namespace folia {
     _required_attributes = NO_ATT;
     _accepted_data = { Cell_t,
 		       Correction_t,
-		       Alternatives_t,
+		       AlternativeLayers_t,
 		       AnnotationLayer_t,
 		       Part_t };
     _annotation_type = AnnotationType::TABLE;
@@ -3054,7 +3068,7 @@ namespace folia {
     _xmltag="div";
     _element_id = Division_t;
     _required_attributes = ID;
-    _optional_attributes = CLASS|N;
+    _optional_attributes = CLASS|N|SRC|BEGINTIME|ENDTIME|SPEAKER;
     _accepted_data = { Structure_t, Gap_t,
 		       TokenAnnotation_t,
 		       Description_t,
@@ -3070,12 +3084,39 @@ namespace folia {
     _accepted_data = { Gap_t, Division_t, Paragraph_t, Sentence_t,
 		       List_t, Figure_t, Description_t, Event_t,
 		       TokenAnnotation_t, Quote_t, Word_t, Table_t,
-		       Note_t, Reference_t, TokenAnnotation_t,
+		       Note_t, Reference_t,
 		       AnnotationLayer_t, Str_t,
 		       Correction_t, TextContent_t, Metric_t, External_t,
 		       Part_t };
     _required_attributes = ID;
     TEXTDELIMITER = "\n\n";
+  }
+
+  void Speech::init(){
+    _xmltag="speech";
+    _element_id = Speech_t;
+    _accepted_data = { Utterance_t, Gap_t, Event_t, Entry_t, Example_t,
+		       Division_t, Paragraph_t, Quote_t, Sentence_t,
+		       Word_t, List_t, Note_t, Reference_t, AnnotationLayer_t,
+		       TokenAnnotation_t, Description_t, TextContent_t,
+		       PhonContent_t, Str_t, Metric_t, Correction_t };
+    _required_attributes = ID;
+    _optional_attributes = N|SRC|BEGINTIME|ENDTIME|SPEAKER;
+    TEXTDELIMITER = "\n\n";
+  }
+
+  void Utterance::init(){
+    _xmltag="utt";
+    _element_id = Utterance_t;
+    _accepted_data = { Word_t, Sentence_t, Quote_t, TokenAnnotation_t,
+		       Correction_t, TextContent_t, PhonContent_t,
+		       Str_t, Gap_t, Description_t, Note_t, Reference_t,
+		       Alignment_t, Metric_t, Alternative_t,
+		       AlternativeLayers_t, AnnotationLayer_t, Part_t };
+    _annotation_type = AnnotationType::UTTERANCE;
+    TEXTDELIMITER = " ";
+    PRINTABLE = true;
+    SPEAKABLE = true;
   }
 
   void Event::init(){
@@ -3274,7 +3315,7 @@ namespace folia {
 
   void AlternativeLayers::init(){
     _xmltag = "altlayers";
-    _element_id = Alternatives_t;
+    _element_id = AlternativeLayers_t;
     _optional_attributes = ALL;
     _accepted_data = { AnnotationLayer_t };
     _auth = false;
@@ -3350,6 +3391,43 @@ namespace folia {
       throw ValueError( "TextContent may not be empty" );
     }
     return this;
+  }
+
+  void Entry::init(){
+    _xmltag = "entry";
+    _element_id = Entry_t;
+    _accepted_data = { Term_t, Definition_t, Example_t, Correction_t,
+		       Description_t, Metric_t, Alignment_t,
+		       AlternativeLayers_t, AnnotationLayer_t };
+  }
+
+  void Definition::init(){
+    _xmltag = "def";
+    _element_id = Definition_t;
+    _accepted_data = { Paragraph_t, Sentence_t, Word_t, Utterance_t,
+		       List_t, Figure_t, Table_t, Reference_t, Feature_t,
+		       TextContent_t, PhonContent_t, Str_t, Metric_t,
+		       TokenAnnotation_t, Correction_t, Part_t };
+    _annotation_type = AnnotationType::DEFINITION;
+  }
+
+  void Term::init(){
+    _xmltag = "term";
+    _element_id = Term_t;
+    _accepted_data = { Paragraph_t, Event_t, Sentence_t, Word_t, Utterance_t,
+		       List_t, Figure_t, Table_t, Reference_t, Feature_t,
+		       TextContent_t, PhonContent_t, Str_t, Metric_t,
+		       TokenAnnotation_t, Correction_t, Part_t };
+    _annotation_type = AnnotationType::TERM;
+  }
+
+  void Example::init(){
+    _xmltag = "ex";
+    _element_id = Example_t;
+    _accepted_data = { Term_t, Definition_t, Example_t, Correction_t,
+		       Description_t, Metric_t, Alignment_t,
+		       AlternativeLayers_t, AnnotationLayer_t };
+    _annotation_type = AnnotationType::EXAMPLE;
   }
 
   void XmlText::init(){

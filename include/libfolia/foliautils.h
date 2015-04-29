@@ -68,7 +68,9 @@ namespace folia {
 
   enum ElementType  {
     BASE=0, TextContent_t,
-    Text_t, Word_t, Str_t,
+    Text_t, Speech_t, Word_t, Str_t,
+    Utterance_t, Entry_t, Example_t, PhonContent_t,
+    Term_t, Definition_t,
     WordReference_t, Event_t,
     TimeSegment_t, TimingLayer_t,
     LineBreak_t, WhiteSpace_t,
@@ -91,7 +93,7 @@ namespace folia {
     Morphology_t, Morpheme_t,
     ErrorDetection_t, New_t,
     Original_t, Current_t,
-    Alternative_t, Alternatives_t, //alternatives
+    Alternative_t, AlternativeLayers_t, //alternatives
     Description_t, Gap_t,
     Suggestion_t, Content_t,
     Feature_t, SynsetFeature_t,

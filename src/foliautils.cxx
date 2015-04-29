@@ -301,6 +301,7 @@ namespace folia {
     case BASE: result = "BASE"; break;
     case TextContent_t: result = "t"; break;
     case Text_t: result = "text"; break;
+    case Speech_t: result = "speech"; break;
     case Event_t: result = "event"; break;
     case TimeSegment_t: result = "timesegment"; break;
     case TimingLayer_t: result = "timing"; break;
@@ -309,6 +310,12 @@ namespace folia {
     case Word_t: result = "w"; break;
     case WordReference_t: result = "wref"; break;
     case Str_t: result = "str"; break;
+    case Utterance_t: result = "utt"; break;
+    case Entry_t: result = "entry"; break;
+    case Term_t: result = "term"; break;
+    case Example_t: result = "ex"; break;
+    case Definition_t: result = "def"; break;
+    case PhonContent_t: result = "ph"; break;
     case Sentence_t: result = "s"; break;
     case Paragraph_t: result = "p"; break;
     case Division_t: result = "div"; break;
@@ -354,7 +361,7 @@ namespace folia {
     case Current_t: result = "current"; break;
     case Suggestion_t: result = "suggestion"; break;
     case Alternative_t: result = "alt"; break;
-    case Alternatives_t: result = "altlayers"; break;
+    case AlternativeLayers_t: result = "altlayers"; break;
     case XmlComment_t: result = "xml-comment"; break;
     case XmlText_t: result = "xml-text"; break;
     case External_t: result = "external"; break;
@@ -401,6 +408,27 @@ namespace folia {
     }
     else if ( tag == "text" ){
       return Text_t;
+    }
+    else if ( tag == "speech" ){
+      return Speech_t;
+    }
+    else if ( tag == "utt" ){
+      return Utterance_t;
+    }
+    else if ( tag == "entry" ){
+      return Entry_t;
+    }
+    else if ( tag == "term" ){
+      return Term_t;
+    }
+    else if ( tag == "def" ){
+      return Definition_t;
+    }
+    else if ( tag == "ex" ){
+      return Example_t;
+    }
+    else if ( tag == "ph" ){
+      return PhonContent_t;
     }
     else if ( tag == "w" ){
       return Word_t;
@@ -574,7 +602,7 @@ namespace folia {
       return PlaceHolder_t;
     }
     else if ( tag == "altlayers" ){
-      return Alternatives_t;
+      return AlternativeLayers_t;
     }
     else if ( tag == "su" ){
       return SyntacticUnit_t;
@@ -691,6 +719,20 @@ namespace folia {
       return new FoLiA( doc );
     case Text_t:
       return new Text( doc );
+    case Speech_t:
+      return new Speech( doc );
+    case Utterance_t:
+      return new Utterance( doc );
+    case Entry_t:
+      return new Entry( doc );
+    case Example_t:
+      return new Example( doc );
+    case Term_t:
+      return new Term( doc );
+    case Definition_t:
+      return new Definition( doc );
+    case PhonContent_t:
+      return new PhonContent( doc );
     case Word_t:
       return new Word( doc );
     case Str_t:
@@ -805,7 +847,7 @@ namespace folia {
       return new Alternative( doc );
     case PlaceHolder_t:
       return new PlaceHolder();
-    case Alternatives_t:
+    case AlternativeLayers_t:
       return new AlternativeLayers( doc );
     case SyntacticUnit_t:
       return new SyntacticUnit( doc );
