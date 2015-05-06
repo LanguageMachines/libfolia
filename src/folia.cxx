@@ -302,7 +302,7 @@ namespace folia {
       else {
 	string time = parseDate( it->second );
 	if ( time.empty() )
-	  throw ValueError( "invalid datetime string:" + it->second );
+	  throw ValueError( "invalid datetime, must be in YYYY-MM-DDThh:mm:ss format: " + it->second );
 	_datetime = time;
       }
       kwargs.erase( it );
@@ -321,7 +321,7 @@ namespace folia {
       else {
 	string time = parseTime( it->second );
 	if ( time.empty() )
-	  throw ValueError( "invalid begintime string:" + it->second );
+	  throw ValueError( "invalid begintime, must be in HH:MM:SS:mmmm format: " + it->second );
 	_begintime = time;
       }
       kwargs.erase( it );
@@ -336,7 +336,7 @@ namespace folia {
       else {
 	string time = parseTime( it->second );
 	if ( time.empty() )
-	  throw ValueError( "invalid endime string:" + it->second );
+	  throw ValueError( "invalid endtime, must be in HH:MM:SS:mmmm format: " + it->second );
 	_endtime = time;
       }
       kwargs.erase( it );
@@ -1192,7 +1192,7 @@ namespace folia {
     else {
       string time = parseDate( s );
       if ( time.empty() )
-	throw ValueError( "invalid datetime string:" + s );
+	throw ValueError( "invalid datetime, must be in YYYY-MM-DDThh:mm:ss format: " + s );
       _datetime = time;
     }
   }
