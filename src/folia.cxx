@@ -319,7 +319,7 @@ namespace folia {
       if ( !(BEGINTIME & supported) )
 	throw ValueError( "begintime is not supported for " + classname() );
       else {
-	string time = parseDate( it->second );
+	string time = parseTime( it->second );
 	if ( time.empty() )
 	  throw ValueError( "invalid begintime string:" + it->second );
 	_begintime = time;
@@ -334,7 +334,7 @@ namespace folia {
       if ( !(ENDTIME & supported) )
 	throw ValueError( "endtime is not supported for " + classname() );
       else {
-	string time = parseDate( it->second );
+	string time = parseTime( it->second );
 	if ( time.empty() )
 	  throw ValueError( "invalid endime string:" + it->second );
 	_endtime = time;

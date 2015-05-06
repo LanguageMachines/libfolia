@@ -263,6 +263,7 @@ namespace folia {
   KWargs getAttributes( const xmlNode * );
 
   std::string parseDate( const std::string& );
+  std::string parseTime( const std::string& );
 
   bool AT_sanity_check();
   bool Attrib_sanity_check();

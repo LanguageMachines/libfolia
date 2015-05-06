@@ -1118,7 +1118,7 @@ namespace folia {
       num = TiCC::split_at( s, date_time, " ");
       if ( num == 0 ){
 	cerr << "failed to read a date-time " << s << endl;
-	return 0;
+	return "";
       }
     }
     //    cerr << "found " << num << " parts" << endl;
@@ -1143,7 +1143,7 @@ namespace folia {
 	break;
       default:
 	cerr << "failed to read a date from " << date_time[0] << endl;
-	return 0;
+	return "";
       }
     }
     if ( num == 2 ){
@@ -1169,7 +1169,7 @@ namespace folia {
 	break;
       default:
 	cerr << "failed to read a time from " << date_time[1] << endl;
-	return 0;
+	return "";
       }
     }
     // cerr << "read _date time = " << toString(time) << endl;
@@ -1177,6 +1177,43 @@ namespace folia {
     strftime( buf, 100, "%Y-%m-%dT%X", time );
     delete time;
     return buf;
+  }
+
+  string parseTime( const string& s ){
+    if ( s.empty() )
+      return "";
+    //    cerr << "try to read a time " << s << endl;
+    vector<string> time_parts;
+    string mil = "000";
+    tm *time = new tm();
+    int num = TiCC::split_at( s, time_parts, ":" );
+    switch ( num ){
+    case 4:
+      mil = time_parts[3];
+    case 3: {
+      int sec = stringTo<int>( time_parts[2] );
+      time->tm_sec = sec;
+    }
+    case 2: {
+      int min = stringTo<int>( time_parts[1] );
+	time->tm_min = min;
+    }
+    case 1: {
+      int hour = stringTo<int>( time_parts[0] );
+      time->tm_hour = hour;
+    }
+      break;
+    default:
+      cerr << "failed to read a time from " << s << endl;
+      return 0;
+    }
+    char buf[100];
+    strftime( buf, 100, "%X", time );
+    delete time;
+    string result = buf;
+    result += ":" + mil;
+    //    cerr << "formatted time = " << result << endl;
+    return result;
   }
 
   bool AT_sanity_check(){
