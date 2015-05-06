@@ -97,6 +97,7 @@ namespace folia {
     TEXTDELIMITER = "NONE" ;
     PRINTABLE = false;
     SPEAKABLE = false;
+    XLINK = false;
   }
 
   FoliaImpl::~FoliaImpl( ){
@@ -295,6 +296,22 @@ namespace folia {
     else
       _n = "";
 
+    if ( XLINK ){
+      it = kwargs.find( "href" );
+      if ( it != kwargs.end() ){
+	_href = it->second;
+	kwargs.erase( it );
+      }
+      it = kwargs.find( "type" );
+      if ( it != kwargs.end() ){
+	string type = it->second;
+	if ( type != "simple" ){
+	  throw XmlError( "only xlink:type=\"simple\" is supported!" );
+	}
+	kwargs.erase( it );
+      }
+    }
+
     it = kwargs.find( "datetime" );
     if ( it != kwargs.end() ) {
       if ( !(DATETIME & supported) )
@@ -438,7 +455,12 @@ namespace folia {
       isDefaultAnn = false;
       attribs["annotator"] = _annotator;
     }
-
+    if ( XLINK ){
+      if ( !_href.empty() ){
+	attribs["xlink:href"] = _href;
+	attribs["xlink:type"] = "simple";
+      }
+    }
     if ( !_datetime.empty() &&
 	 _datetime != mydoc->defaultdatetime( _annotation_type, _set ) ){
       attribs["datetime"] = _datetime;
@@ -853,7 +875,7 @@ namespace folia {
 			EndDateTimeFeature_t,
 			FunctionFeature_t };
       sm[TokenAnnotation_t] = { Pos_t, Lemma_t, MorphologyLayer_t,
-				Sense_t, Phoneme_t, Str_t, Lang_t,
+				Sense_t, Phoneme_t, String_t, Lang_t,
 				Correction_t, Subjectivity_t,
 				ErrorDetection_t };
       sm[SpanAnnotation_t] = { SyntacticUnit_t,
@@ -2154,34 +2176,6 @@ namespace folia {
     }
   }
 
-
-  KWargs Alignment::collectAttributes() const {
-    KWargs atts = FoliaImpl::collectAttributes();
-    if ( !_href.empty() ){
-      atts["xlink:href"] = _href;
-      if ( !all_type.empty() )
-	atts["xlink:type"] = all_type;
-      else
-	atts["xlink:type"] = "simple";
-    }
-    return atts;
-  }
-
-  void Alignment::setAttributes( const KWargs& args_in ){
-    KWargs args = args_in;
-    KWargs::iterator it = args.find( "href" );
-    if ( it != args.end() ){
-      _href = it->second;
-      args.erase( it );
-    }
-    it = args.find( "type" );
-    if ( it != args.end() ){
-      all_type = it->second;
-      args.erase( it );
-    }
-    FoliaImpl::setAttributes( args );
-  }
-
   void Word::setAttributes( const KWargs& args_in ){
     KWargs args = args_in;
     KWargs::iterator it = args.find( "space" );
@@ -2868,6 +2862,7 @@ namespace folia {
     _occurrences = 0;
     _occurrences_per_set=0;
     _offset = -1;
+    XLINK = true;
   }
 
   void PhonContent::init(){
@@ -2979,7 +2974,7 @@ namespace folia {
 
   void String::init(){
     _xmltag="str";
-    _element_id = Str_t;
+    _element_id = String_t;
     _required_attributes = NO_ATT;
     _optional_attributes = ID|CLASS|ANNOTATOR|CONFIDENCE|DATETIME;
     _accepted_data = { TextContent_t, Correction_t, Lang_t,
@@ -3022,6 +3017,7 @@ namespace folia {
     _accepted_data = { AlignReference_t, Description_t, Metric_t };
     _occurrences_per_set=0;
     _annotation_type = AnnotationType::ALIGNMENT;
+    XLINK = true;
   }
 
   void AlignReference::init(){
@@ -3091,7 +3087,7 @@ namespace folia {
 		       List_t, Figure_t, Description_t, Event_t,
 		       TokenAnnotation_t, Quote_t, Word_t, Table_t,
 		       Note_t, Reference_t,
-		       AnnotationLayer_t, Str_t,
+		       AnnotationLayer_t, String_t,
 		       Correction_t, TextContent_t, Metric_t, External_t,
 		       Part_t };
     _required_attributes = ID;
@@ -3105,7 +3101,7 @@ namespace folia {
 		       Division_t, Paragraph_t, Quote_t, Sentence_t,
 		       Word_t, List_t, Note_t, Reference_t, AnnotationLayer_t,
 		       TokenAnnotation_t, Description_t, TextContent_t,
-		       PhonContent_t, Str_t, Metric_t, Correction_t };
+		       PhonContent_t, String_t, Metric_t, Correction_t };
     _required_attributes = ID;
     _optional_attributes = N|SRC|BEGINTIME|ENDTIME|SPEAKER;
     TEXTDELIMITER = "\n\n";
@@ -3116,7 +3112,7 @@ namespace folia {
     _element_id = Utterance_t;
     _accepted_data = { Word_t, Sentence_t, Quote_t, TokenAnnotation_t,
 		       Correction_t, TextContent_t, PhonContent_t,
-		       Str_t, Gap_t, Description_t, Note_t, Reference_t,
+		       String_t, Gap_t, Description_t, Note_t, Reference_t,
 		       Alignment_t, Metric_t, Alternative_t,
 		       AlternativeLayers_t, AnnotationLayer_t, Part_t };
     _annotation_type = AnnotationType::UTTERANCE;
@@ -3166,7 +3162,7 @@ namespace folia {
     _element_id = Item_t;
     _accepted_data = { Structure_t, Description_t,
 		       TokenAnnotation_t,
-		       TextContent_t, Str_t, Alignment_t,
+		       TextContent_t, String_t, Alignment_t,
 		       Gap_t,
 		       Correction_t };
     _annotation_type = AnnotationType::LIST;
@@ -3187,7 +3183,7 @@ namespace folia {
     _xmltag="figure";
     _element_id = Figure_t;
     _accepted_data = { Sentence_t, Description_t,
-		       Caption_t, Str_t, Lang_t,
+		       Caption_t, String_t, Lang_t,
 		       TextContent_t,
 		       Correction_t, Part_t };
     _annotation_type = AnnotationType::FIGURE;
@@ -3330,7 +3326,7 @@ namespace folia {
   void AbstractCorrectionChild::init(){
     _optional_attributes = NO_ATT;
     _accepted_data = { TokenAnnotation_t, SpanAnnotation_t,
-		       Word_t, WordReference_t, Str_t,
+		       Word_t, WordReference_t, String_t,
 		       TextContent_t, Description_t };
     _occurrences = 1;
     PRINTABLE=true;
@@ -3412,7 +3408,7 @@ namespace folia {
     _element_id = Definition_t;
     _accepted_data = { Paragraph_t, Sentence_t, Word_t, Utterance_t,
 		       List_t, Figure_t, Table_t, Reference_t, Feature_t,
-		       TextContent_t, PhonContent_t, Str_t, Metric_t,
+		       TextContent_t, PhonContent_t, String_t, Metric_t,
 		       TokenAnnotation_t, Correction_t, Part_t };
     _annotation_type = AnnotationType::DEFINITION;
   }
@@ -3422,7 +3418,7 @@ namespace folia {
     _element_id = Term_t;
     _accepted_data = { Paragraph_t, Event_t, Sentence_t, Word_t, Utterance_t,
 		       List_t, Figure_t, Table_t, Reference_t, Feature_t,
-		       TextContent_t, PhonContent_t, Str_t, Metric_t,
+		       TextContent_t, PhonContent_t, String_t, Metric_t,
 		       TokenAnnotation_t, Correction_t, Part_t };
     _annotation_type = AnnotationType::TERM;
   }
@@ -3432,7 +3428,7 @@ namespace folia {
     _element_id = Example_t;
     _accepted_data = { Paragraph_t, Sentence_t, Word_t, Utterance_t,
 		       List_t, Figure_t, Table_t, Reference_t, Feature_t,
-		       TextContent_t, PhonContent_t, Str_t, Metric_t,
+		       TextContent_t, PhonContent_t, String_t, Metric_t,
 		       TokenAnnotation_t, Correction_t, Part_t };
     _annotation_type = AnnotationType::EXAMPLE;
   }
@@ -3529,12 +3525,26 @@ namespace folia {
     _required_attributes = ID;
     _xmltag = "note";
     _element_id = Note_t;
-    _accepted_data = { Structure_t,
-		       TextContent_t,
+    _accepted_data = { Paragraph_t,
+		       Sentence_t,
+		       Word_t,
+		       Example_t,
+		       Head_t,
+		       Utterance_t,
+		       List_t,
+		       Figure_t,
+		       Table_t,
+		       Reference_t,
 		       Feature_t,
-		       Alignment_t,
+		       TextContent_t,
+		       PhonContent_t,
+		       String_t,
+		       Metric_t,
 		       TokenAnnotation_t,
+		       Correction_t,
+		       Part_t,
 		       Description_t };
+    _annotation_type = AnnotationType::NOTE;
   }
 
   KWargs Note::collectAttributes() const {
@@ -3555,7 +3565,7 @@ namespace folia {
     _element_id = Reference_t;
     _required_attributes = NO_ATT;
     _optional_attributes = ID|ANNOTATOR|CONFIDENCE|DATETIME;
-    _accepted_data = { TextContent_t, PhonContent_t, Str_t,
+    _accepted_data = { TextContent_t, PhonContent_t, String_t,
 		       Description_t, Metric_t };
   }
 
@@ -3910,7 +3920,7 @@ namespace folia {
     _xmltag="quote";
     _element_id = Quote_t;
     _required_attributes = NO_ATT;
-    _accepted_data = { Structure_t, Str_t, Lang_t,
+    _accepted_data = { Structure_t, String_t, Lang_t,
 		       TextContent_t, Description_t, Alignment_t,
 		       Gap_t };
     TEXTDELIMITER = " ";
@@ -4008,6 +4018,7 @@ namespace folia {
     _annotation_type = AnnotationType::NO_ANN;
     _accepted_data = { AbstractTextMarkup_t, XmlText_t };
     PRINTABLE = true;
+    XLINK = true;
     TEXTDELIMITER = "";
     _occurrences_per_set = 0; // Allow duplicates within the same set
   }

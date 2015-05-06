@@ -68,7 +68,7 @@ namespace folia {
 
   enum ElementType  {
     BASE=0, TextContent_t,
-    Text_t, Speech_t, Word_t, Str_t,
+    Text_t, Speech_t, Word_t, String_t,
     Utterance_t, Entry_t, Example_t, PhonContent_t,
     Term_t, Definition_t,
     WordReference_t, Event_t,

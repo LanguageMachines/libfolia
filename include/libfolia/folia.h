@@ -571,6 +571,7 @@ namespace folia {
     std::string classname() const { return toString(_element_id); };
     std::string n() const { return _n; };
     std::string id() const { return _id; };
+    std::string href() const { return _href; };
     double confidence() const { return _confidence; };
     void confidence( double d ) { _confidence = d; };
     ElementType element_id() const { return _element_id; };
@@ -616,11 +617,13 @@ namespace folia {
     size_t _occurrences_per_set;
     bool PRINTABLE;
     bool SPEAKABLE;
+    bool XLINK;
     Attrib _required_attributes;
     Attrib _optional_attributes;
     std::string _id;
     std::string _class;
     std::string _set;
+    std::string _href;
 
   private:
     void addFeatureNodes( const KWargs& args );
@@ -1454,14 +1457,9 @@ namespace folia {
   Alignment( const KWargs& a ): FoliaImpl(){ classInit( a ); };
   Alignment( Document *d, const std::string& s="" ): FoliaImpl(d){ classInit( s ); };
   Alignment( Document *d, const KWargs& a ): FoliaImpl(d){ classInit( a ); };
-    std::string href() const { return _href; };
     std::vector<FoliaElement *>resolve() const;
-    KWargs collectAttributes() const;
-    void setAttributes( const KWargs& );
   private:
     void init();
-    std::string _href;
-    std::string all_type;
   };
 
   class AlignReference: public FoliaImpl {

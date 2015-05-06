@@ -309,7 +309,7 @@ namespace folia {
     case WhiteSpace_t: result = "whitespace"; break;
     case Word_t: result = "w"; break;
     case WordReference_t: result = "wref"; break;
-    case Str_t: result = "str"; break;
+    case String_t: result = "str"; break;
     case Utterance_t: result = "utt"; break;
     case Entry_t: result = "entry"; break;
     case Term_t: result = "term"; break;
@@ -435,7 +435,7 @@ namespace folia {
       return Word_t;
     }
     else if ( tag == "str" ){
-      return Str_t;
+      return String_t;
     }
     else if ( tag == "event" ){
       return Event_t;
@@ -739,7 +739,7 @@ namespace folia {
       return new PhonContent( doc );
     case Word_t:
       return new Word( doc );
-    case Str_t:
+    case String_t:
       return new String( doc );
     case Event_t:
       return new Event( doc );
