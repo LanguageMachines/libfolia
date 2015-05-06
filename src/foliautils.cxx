@@ -195,8 +195,8 @@ namespace folia {
     case AnnotationType::EXAMPLE:
       result = "example";
       break;
-    case AnnotationType::PHONETIC:
-      result = "phonetic";
+    case AnnotationType::PHONOLOGICAL:
+      result = "phonology";
       break;
 
     case AnnotationType::LAST_ANN:
@@ -290,8 +290,8 @@ namespace folia {
       return AnnotationType::DEFINITION;
     else if ( at == "example" )
       return AnnotationType::EXAMPLE;
-    else if ( at == "phonetic" )
-      return AnnotationType::PHONETIC;
+    else if ( at == "phonology" )
+      return AnnotationType::PHONOLOGICAL;
     throw ValueError( " unknown translation for attribute: " + at );
   }
 
@@ -335,7 +335,7 @@ namespace folia {
     case Structure_t: result = "structure"; break;
     case Pos_t: result = "pos"; break;
     case Lemma_t: result = "lemma"; break;
-    case PhonologyLayer_t: result = "phonetics"; break;
+    case PhonologyLayer_t: result = "phonology"; break;
     case Phoneme_t: result = "phoneme"; break;
     case Domain_t: result = "domain"; break;
     case Sense_t: result = "sense"; break;
@@ -554,7 +554,7 @@ namespace folia {
     else if ( tag == "lemma" ){
       return Lemma_t;
     }
-    else if ( tag == "phonetics" ){
+    else if ( tag == "phonology" ){
       return PhonologyLayer_t;
     }
     else if ( tag == "phoneme" ){
@@ -1187,31 +1187,26 @@ namespace folia {
     string mil = "000";
     tm *time = new tm();
     int num = TiCC::split_at( s, time_parts, ":" );
-    switch ( num ){
-    case 4:
-      mil = time_parts[3];
-    case 3: {
-      int sec = stringTo<int>( time_parts[2] );
-      time->tm_sec = sec;
+    if ( num != 3 ){
+      cerr << "failed to read a time " << s << endl;
+      return "";
     }
-    case 2: {
-      int min = stringTo<int>( time_parts[1] );
-	time->tm_min = min;
-    }
-    case 1: {
-      int hour = stringTo<int>( time_parts[0] );
-      time->tm_hour = hour;
-    }
-      break;
-    default:
-      cerr << "failed to read a time from " << s << endl;
-      return 0;
-    }
+    time->tm_min = stringTo<int>( time_parts[1] );
+    time->tm_hour = stringTo<int>( time_parts[0] );
+    string secs = time_parts[2];
+    num = TiCC::split_at( secs, time_parts, "." );
+    // for ( int i=0; i < num; ++i ){
+    //   cerr << "part[" << i << "]= " << time_parts[i] << endl;
+    // }
+    time->tm_sec = stringTo<int>( time_parts[0] );
+    string mil_sec = "000";
+    if ( num == 2 )
+      mil_sec = time_parts[1];
     char buf[100];
     strftime( buf, 100, "%X", time );
     delete time;
     string result = buf;
-    result += ":" + mil;
+    result += "." + mil_sec;
     //    cerr << "formatted time = " << result << endl;
     return result;
   }

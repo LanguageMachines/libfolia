@@ -3769,10 +3769,10 @@ namespace folia {
 
   void PhonologyLayer::init(){
     _element_id = PhonologyLayer_t;
-    _xmltag = "phonetics";
+    _xmltag = "phonology";
     _accepted_data = { Phoneme_t, Correction_t };
     _occurrences_per_set = 1; // Don't allow duplicates within the same set
-    _annotation_type = AnnotationType::PHONETIC;
+    _annotation_type = AnnotationType::PHONOLOGICAL;
   }
 
   void CoreferenceLayer::init(){
