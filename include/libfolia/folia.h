@@ -299,8 +299,11 @@ namespace folia {
 
     // corrections
     virtual NewElement *getNew() const NOT_IMPLEMENTED;
+    virtual FoliaElement *getNew( size_t ) const NOT_IMPLEMENTED;
     virtual Original *getOriginal() const NOT_IMPLEMENTED;
+    virtual FoliaElement *getOriginal( size_t ) const NOT_IMPLEMENTED;
     virtual Current *getCurrent() const NOT_IMPLEMENTED;
+    virtual FoliaElement *getCurrent( size_t ) const NOT_IMPLEMENTED;
     virtual Correction *incorrection() const NOT_IMPLEMENTED;
     virtual Correction *split( FoliaElement *, FoliaElement *,
 			       const std::string& = "" ) NOT_IMPLEMENTED;
@@ -1780,8 +1783,11 @@ namespace folia {
     bool hasCurrent() const;
     bool hasSuggestions() const;
     NewElement *getNew() const;
+    FoliaElement *getNew( size_t ) const;
     Original *getOriginal() const;
+    FoliaElement *getOriginal( size_t ) const;
     Current *getCurrent() const;
+    FoliaElement *getCurrent( size_t ) const;
     std::vector<Suggestion*> suggestions() const;
     Suggestion *suggestions( size_t ) const;
     UnicodeString text( const std::string& = "current", bool = false ) const;

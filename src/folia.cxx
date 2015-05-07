@@ -2741,6 +2741,11 @@ namespace folia {
       return v[0];
   }
 
+  FoliaElement *Correction::getNew( size_t index ) const {
+    NewElement *n = getNew();
+    return n->index(index);
+  }
+
   bool Correction::hasOriginal() const {
     vector<FoliaElement*> v = select( Original_t, false );
     return !v.empty();
@@ -2754,6 +2759,11 @@ namespace folia {
       return v[0];
   }
 
+  FoliaElement *Correction::getOriginal( size_t index ) const {
+    Original *n = getOriginal();
+    return n->index(index);
+  }
+
   bool Correction::hasCurrent( ) const {
     vector<FoliaElement*> v = select( Current_t, false );
     return !v.empty();
@@ -2765,6 +2775,11 @@ namespace folia {
       throw NoSuchAnnotation("current");
     else
       return v[0];
+  }
+
+  FoliaElement *Correction::getCurrent( size_t index ) const {
+    Current *n = getCurrent();
+    return n->index(index);
   }
 
   bool Correction::hasSuggestions( ) const {
