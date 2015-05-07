@@ -645,6 +645,13 @@ namespace folia {
     return isSubClass( e1->element_id(), e2->element_id() );
   }
 
+  template <typename T1, typename T2>
+    bool isSubClass(){
+    T1 t1(0);
+    T2 t2(0);
+    return t1.isSubClass( &t2 );
+  }
+
   bool operator==( const FoliaElement&, const FoliaElement& );
   inline bool operator!=( const FoliaElement& e1, const FoliaElement& e2 ){
     return !( e1 == e2 );
