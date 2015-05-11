@@ -3303,6 +3303,14 @@ namespace folia {
     return res;
   }
 
+  FoliaElement *AbstractSpanAnnotation::wrefs( size_t pos ) const {
+    vector<FoliaElement*> v = wrefs();
+    if ( pos < v.size() )
+      return v[pos];
+    else
+      return 0;
+  }
+
   AbstractSpanAnnotation *AbstractAnnotationLayer::findspan( const vector<FoliaElement*>& words ) const {
     vector<AbstractSpanAnnotation*> av = selectSpan();
     for ( size_t i=0; i < av.size(); ++i ){

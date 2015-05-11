@@ -369,6 +369,7 @@ namespace folia {
     virtual std::vector<Sentence*> sentences() const NOT_IMPLEMENTED;
     virtual std::vector<Word*> words() const NOT_IMPLEMENTED;
     virtual std::vector<FoliaElement*> wrefs() const NOT_IMPLEMENTED;
+    virtual FoliaElement* wrefs( size_t ) const NOT_IMPLEMENTED;
 
     virtual std::vector<Morpheme*> morphemes( const std::string& ="" ) const NOT_IMPLEMENTED;
     virtual Morpheme* morpheme( size_t, const std::string& ="" ) const NOT_IMPLEMENTED;
@@ -796,6 +797,7 @@ namespace folia {
     FoliaElement *append( FoliaElement* );
 
     std::vector<FoliaElement*> wrefs() const;
+    FoliaElement *wrefs( size_t ) const;
 
   private:
     void init();
