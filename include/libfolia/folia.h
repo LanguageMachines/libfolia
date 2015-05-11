@@ -273,12 +273,10 @@ namespace folia {
 
     virtual std::string str( const std::string& = "current" ) const = 0;
     UnicodeString unicode( const std::string& cls = "current" ) const { return text( cls ); };
-    UnicodeString toktext( const std::string& cls = "current" ) const {
-      return deeptext( cls, true );
-    }
     virtual UnicodeString text( const std::string& = "current",
 				bool = false, bool = false ) const = 0;
     UnicodeString stricttext( const std::string& = "current" ) const;
+    UnicodeString toktext( const std::string& = "current" ) const;
     virtual UnicodeString deeptext( const std::string& = "current", bool = false ) const = 0;
 
     virtual bool printable() const = 0;

@@ -735,6 +735,12 @@ namespace folia {
     return this->textcontent(cls)->text(cls);
   }
 
+  UnicodeString FoliaElement::toktext( const string& cls ) const {
+    // get UnicodeString content of TextContent children only
+    // default cls="current"
+    return this->deeptext(cls, true );
+  }
+
   TextContent *FoliaImpl::textcontent( const string& cls ) const {
     // Get the text explicitly associated with this element (of the specified class).
     // the default class is 'current'
@@ -1688,7 +1694,7 @@ namespace folia {
 
   UnicodeString TextContent::text( const string& cls,
 				   bool retaintok,
-				   bool strict ) const {
+				   bool ) const {
     // get the UnicodeString value of underlying elements
     // default cls="current"
 #ifdef DEBUG_TEXT
@@ -2682,7 +2688,7 @@ namespace folia {
 
   UnicodeString Correction::text( const string& cls,
 				  bool retaintok,
-				  bool strict ) const {
+				  bool ) const {
 #ifdef DEBUG_TEXT
     cerr << "TEXT(" << cls << ") op node : " << _xmltag << " id ( " << id() << ")" << endl;
 #endif
