@@ -276,7 +276,8 @@ namespace folia {
     UnicodeString toktext( const std::string& cls = "current" ) const {
       return deeptext( cls, true );
     }
-    virtual UnicodeString text( const std::string& = "current", bool = false ) const = 0;
+    virtual UnicodeString text( const std::string& = "current",
+				bool = false, bool = false ) const = 0;
     UnicodeString stricttext( const std::string& = "current" ) const;
     virtual UnicodeString deeptext( const std::string& = "current", bool = false ) const = 0;
 
@@ -551,7 +552,8 @@ namespace folia {
     // text/string content
 
     std::string str( const std::string& = "current" ) const;
-    UnicodeString text( const std::string& = "current", bool = false ) const;
+    UnicodeString text( const std::string& = "current",
+			bool = false, bool = false ) const;
 
     UnicodeString deeptext( const std::string& = "current", bool = false ) const;
     bool printable() const { return PRINTABLE; };
@@ -809,7 +811,8 @@ namespace folia {
     void setAttributes( const KWargs& );
     KWargs collectAttributes() const;
     const FoliaElement* resolveid() const;
-    UnicodeString text( const std::string& = "current", bool = false ) const;
+    UnicodeString text( const std::string& = "current",
+			bool = false, bool = false ) const;
   protected:
     std::string getTextDelimiter( bool ) const { return ""; };
     std::string idref;
@@ -836,7 +839,8 @@ namespace folia {
   TextMarkupCorrection( Document *d=0 ): AbstractTextMarkup( d ){ classInit(); };
     void setAttributes( const KWargs& );
     KWargs collectAttributes() const;
-    UnicodeString text( const std::string& = "current", bool = false ) const;
+    UnicodeString text( const std::string& = "current",
+			bool = false, bool = false ) const;
   private:
     void init();
     std::string _original;
@@ -865,7 +869,8 @@ namespace folia {
     void setAttributes( const KWargs& );
     KWargs collectAttributes() const;
     std::string str( const std::string& = "current" ) const;
-    UnicodeString text( const std::string& = "current", bool = false ) const;
+    UnicodeString text( const std::string& = "current",
+			bool = false, bool = false ) const;
     int offset() const { return _offset; };
     TextContent *postappend();
     std::vector<FoliaElement*> findreplacables( FoliaElement * ) const;
@@ -1008,7 +1013,8 @@ namespace folia {
   LineBreak( const KWargs& a ): AbstractStructureElement(){ classInit( a ); };
   LineBreak( Document *d,  const std::string& s=""): AbstractStructureElement( d ){ classInit( s ); };
   LineBreak( Document *d,  const KWargs& a ): AbstractStructureElement( d ){ classInit( a ); };
-    UnicodeString text( const std::string& = "current", bool = false ) const {
+    UnicodeString text( const std::string& = "current",
+			bool = false, bool = false ) const {
       return "";
     }
   private:
@@ -1683,7 +1689,8 @@ namespace folia {
     xmlNode *xml( bool, bool=false ) const;
     bool setvalue( const std::string& s ) { _value = s; return true; };
     std::string getTextDelimiter( bool ) const { return ""; };
-    UnicodeString text( const std::string&, bool ) const;
+    UnicodeString text( const std::string& = "current",
+			bool = false, bool = false ) const;
   private:
     void init();
     std::string _value; //UTF8 value
@@ -1792,7 +1799,8 @@ namespace folia {
     FoliaElement *getCurrent( size_t ) const;
     std::vector<Suggestion*> suggestions() const;
     Suggestion *suggestions( size_t ) const;
-    UnicodeString text( const std::string& = "current", bool = false ) const;
+    UnicodeString text( const std::string& = "current",
+			bool = false, bool = false ) const;
     TextContent *textcontent( const std::string& = "current" ) const;
     std::string getTextDelimiter( bool=false) const;
   private:

@@ -643,7 +643,9 @@ namespace folia {
     return TEXTDELIMITER;
   }
 
-  UnicodeString FoliaImpl::text( const string& cls, bool retaintok ) const {
+  UnicodeString FoliaImpl::text( const string& cls,
+				 bool retaintok,
+				 bool strict ) const {
     // get the UnicodeString value of underlying elements
     // default cls="current"
 #ifdef DEBUG_TEXT
@@ -1684,7 +1686,9 @@ namespace folia {
     return UnicodeToUTF8(text(cls));
   }
 
-  UnicodeString TextContent::text( const string& cls, bool retaintok ) const {
+  UnicodeString TextContent::text( const string& cls,
+				   bool retaintok,
+				   bool strict ) const {
     // get the UnicodeString value of underlying elements
     // default cls="current"
 #ifdef DEBUG_TEXT
@@ -2676,7 +2680,9 @@ namespace folia {
     return this;
   }
 
-  UnicodeString Correction::text( const string& cls, bool retaintok ) const {
+  UnicodeString Correction::text( const string& cls,
+				  bool retaintok,
+				  bool strict ) const {
 #ifdef DEBUG_TEXT
     cerr << "TEXT(" << cls << ") op node : " << _xmltag << " id ( " << id() << ")" << endl;
 #endif
@@ -3088,7 +3094,7 @@ namespace folia {
 		       Entry_t, Head_t, Utterance_t, Paragraph_t,
 		       Sentence_t, List_t, Figure_t, Table_t, Note_t,
 		       Reference_t, TokenAnnotation_t, Description_t,
-		       LineBreak_t, WhiteSpace_t, Alternative_t,
+		       LineBreak_t, WhiteSpace_t, Alternative_t, TextContent_t,
 		       AlternativeLayers_t, AnnotationLayer_t,
 		       Correction_t, Part_t };
     _annotation_type = AnnotationType::DIVISION;
@@ -3400,7 +3406,7 @@ namespace folia {
     _occurrences = 1;
   }
 
-  UnicodeString XmlText::text( const string&, bool ) const {
+  UnicodeString XmlText::text( const string&, bool, bool ) const {
     return UTF8ToUnicode(_value);
   }
 
@@ -3726,17 +3732,17 @@ namespace folia {
   }
 
   UnicodeString AbstractTextMarkup::text( const std::string& cls,
-					  bool ) const {
+					  bool, bool ) const {
     // we assume al TextMarkup te be tokenized already
     return FoliaImpl::text( cls, true );
   }
 
   UnicodeString TextMarkupCorrection::text( const std::string& cls,
-					    bool ret ) const{
+					    bool ret, bool strict ) const{
     if ( cls == "original" )
       return UTF8ToUnicode(_original);
     else
-      return FoliaImpl::text( cls, ret );
+      return FoliaImpl::text( cls, ret, strict );
   }
 
   const FoliaElement* AbstractTextMarkup::resolveid() const {
