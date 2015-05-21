@@ -652,26 +652,17 @@ namespace folia {
     cerr << "TEXT(" << cls << ") op node : " << xmltag() << " id ( " << id() << ")" << endl;
 #endif
     if ( strict ){
-      UnicodeString result;
-      try {
-	result = this->textcontent(cls)->text();
-      } catch (NoSuchText& e ) {
-#ifdef DEBUG_TEXT
-	cerr << "No textcontent" << endl;
-#endif
-	result = "";
-      }
-      return result;
+      return textcontent(cls)->text();
     }
     else if ( !PRINTABLE ){
-      throw NoSuchText( "in tag " + xmltag() );
+      throw NoSuchText( "NON printable element: " + xmltag() );
     }
     else {
       UnicodeString result = deeptext( cls, retaintok );
       if ( result.isEmpty() )
 	result = stricttext( cls );
       if ( result.isEmpty() )
-	throw NoSuchText( "AT ALL" );
+	throw NoSuchText( "on tag " +_xmltag + " nor it's children" );
       return result;
     }
   }
@@ -747,18 +738,18 @@ namespace folia {
   UnicodeString FoliaElement::stricttext( const string& cls ) const {
     // get UnicodeString content of TextContent children only
     // default cls="current"
-    return this->textcontent(cls)->text(cls);
+    return this->text(cls, false, true );
   }
 
   UnicodeString FoliaElement::toktext( const string& cls ) const {
     // get UnicodeString content of TextContent children only
     // default cls="current"
-    return this->deeptext(cls, true );
+    return this->text(cls, true, false );
   }
 
   TextContent *FoliaImpl::textcontent( const string& cls ) const {
-    // Get the text explicitly associated with this element (of the specified class).
-    // the default class is 'current'
+    // Get the text explicitly associated with this element
+    // (of the specified class) the default class is 'current'
     // Returns the TextContent instance rather than the actual text.
     // Does not recurse into children
     // with sole exception of Correction
