@@ -59,10 +59,8 @@ namespace folia {
     if ( !ae.id().empty() )
       ats["id"] = ae.id();
 
-    KWargs::const_iterator it = ats.begin();
-    while ( it != ats.end() ){
-      os << " " << it->first << "='" << it->second << "'";
-      ++it;
+    for ( const auto& it: ats ){
+      os << " " << it.first << "='" << it.second << "'";
     }
     os << " > {";
     for( size_t i=0; i < ae.size(); ++i ){
@@ -398,14 +396,13 @@ namespace folia {
   }
 
   void FoliaImpl::addFeatureNodes( const KWargs& kwargs ){
-    KWargs::const_iterator it = kwargs.begin();
-    while ( it != kwargs.end() ){
-      string tag = it->first;
+    for ( const auto& it: kwargs ){
+      string tag = it.first;
       if ( tag == "head" ){
 	// "head" is special because the tag is "headfeature"
 	// this to avoid conflicts withe the "head" tag!
 	KWargs newa;
-	newa["class"] = it->second;
+	newa["class"] = it.second;
 	FoliaElement *tmp = new HeadFeature();
 	tmp->setAttributes( newa );
 	append( tmp );
@@ -415,13 +412,13 @@ namespace folia {
 		tag == "synset" || tag == "begindatetime" ||
 		tag == "enddatetime" ){
 	KWargs newa;
-	newa["class"] = it->second;
+	newa["class"] = it.second;
 	FoliaElement *tmp = createElement( mydoc, tag );
 	tmp->setAttributes( newa );
 	append( tmp );
       }
       else {
-	string message = "unsupported attribute: " + tag + "='" + it->second
+	string message = "unsupported attribute: " + tag + "='" + it.second
 	  + "' for node with tag '" + classname() + "'";
 	if ( mydoc && mydoc->permissive() ){
 	  cerr << message << endl;
@@ -430,7 +427,6 @@ namespace folia {
 	  throw XmlError( message );
 	}
       }
-      ++it;
     }
   }
 
@@ -532,14 +528,12 @@ namespace folia {
     set<FoliaElement *> attribute_elements;
     // nodes that can be represented as attributes are converted to atributes
     // and excluded of 'normal' output.
-    vector<FoliaElement*>::const_iterator it=data.begin();
-    while ( it != data.end() ){
-      string at = tagToAtt( *it );
+    for ( const auto el : data ){
+      string at = tagToAtt( el );
       if ( !at.empty() ){
-	attribs[at] = (*it)->cls();
-	attribute_elements.insert( *it );
+	attribs[at] = el->cls();
+	attribute_elements.insert( el );
       }
-      ++it;
     }
     addAttributes( e, attribs );
     if ( recursive ){
@@ -550,52 +544,41 @@ namespace folia {
       list<FoliaElement *> otherelements;
       list<FoliaElement *> commentelements;
       multimap<ElementType, FoliaElement *> otherelementsMap;
-      vector<FoliaElement*>::const_iterator it=data.begin();
-      while ( it != data.end() ){
-	if ( attribute_elements.find(*it) == attribute_elements.end() ){
-	  if ( (*it)->isinstance(TextContent_t) ){
-	    if ( (*it)->cls() == "current" )
-	      textelements.push_front( *it );
+      for ( const auto el : data ){
+	if ( attribute_elements.find(el) == attribute_elements.end() ){
+	  if ( el->isinstance(TextContent_t) ){
+	    if ( el->cls() == "current" )
+	      textelements.push_front( el );
 	    else
-	      textelements.push_back( *it );
+	      textelements.push_back( el );
 	  }
 	  else {
 	    if ( kanon )
-	      otherelementsMap.insert( make_pair( (*it)->element_id(), *it ) );
+	      otherelementsMap.insert( make_pair( el->element_id(), el ) );
 	    else {
-	      if ( (*it)->isinstance(XmlComment_t) && textelements.empty() ){
-		commentelements.push_back( *it );
+	      if ( el->isinstance(XmlComment_t) && textelements.empty() ){
+		commentelements.push_back( el );
 	      }
 	      else
-		otherelements.push_back( *it );
+		otherelements.push_back( el );
 	    }
 	  }
 	}
-	++it;
       }
-      list<FoliaElement*>::const_iterator lit=commentelements.begin();
-      while ( lit != commentelements.end() ){
-	xmlAddChild( e, (*lit)->xml( recursive, kanon ) );
-	++lit;
+      for( const auto cel : commentelements ){
+	xmlAddChild( e, cel->xml( recursive, kanon ) );
       }
-      lit=textelements.begin();
-      while ( lit != textelements.end() ){
-	xmlAddChild( e, (*lit)->xml( recursive, kanon ) );
-	++lit;
+      for ( const auto tel : textelements ){
+	xmlAddChild( e, tel->xml( recursive, kanon ) );
       }
       if ( !kanon ){
-	list<FoliaElement*>::const_iterator lit=otherelements.begin();
-	while ( lit != otherelements.end() ){
-	  xmlAddChild( e, (*lit)->xml( recursive, kanon ) );
-	  ++lit;
+	for ( const auto oel : otherelements ){
+	  xmlAddChild( e, oel->xml( recursive, kanon ) );
 	}
       }
       else {
-	multimap<ElementType, FoliaElement*>::const_iterator lit
-	  = otherelementsMap.begin();
-	while ( lit != otherelementsMap.end() ){
-	  xmlAddChild( e, (lit->second)->xml( recursive, kanon ) );
-	  ++lit;
+	for ( const auto oem : otherelementsMap ){
+	  xmlAddChild( e, oem.second->xml( recursive, kanon ) );
 	}
       }
     }
@@ -1581,27 +1564,21 @@ namespace folia {
     //      splitword() , mergewords(), deleteword(), insertword() instead
 
     // sanity check:
-    vector<FoliaElement *>::const_iterator it = orig.begin();
-    while ( it != orig.end() ){
-      if ( !(*it) || !(*it)->isinstance( Word_t) )
+    for ( const auto org : orig ){
+      if ( !org || !org->isinstance( Word_t) )
 	throw runtime_error("Original word is not a Word instance" );
-      else if ( (*it)->sentence() != this )
+      else if ( org->sentence() != this )
 	throw runtime_error( "Original not found as member of sentence!");
-      ++it;
     }
-    it = _new.begin();
-    while ( it != _new.end() ){
-      if ( ! (*it)->isinstance( Word_t) )
+    for ( const auto nw : _new ){
+      if ( ! nw->isinstance( Word_t) )
 	throw runtime_error("new word is not a Word instance" );
-      ++it;
     }
     KWargs::const_iterator ait = argsin.find("suggest");
     if ( ait != argsin.end() && ait->second == "true" ){
       FoliaElement *sugg = new Suggestion();
-      it = _new.begin();
-      while ( it != _new.end() ){
-	sugg->append( *it );
-	++it;
+      for ( const auto nw : _new ){
+	sugg->append( nw );
       }
       vector<FoliaElement *> nil1;
       vector<FoliaElement *> nil2;
@@ -1680,12 +1657,10 @@ namespace folia {
     vector<FoliaElement *> result;
     vector<TextContent*> v = par->FoliaElement::select<TextContent>( _set, false );
     // cerr << "TextContent::findreplacable found " << v << endl;
-    vector<TextContent*>::iterator it = v.begin();
-    while ( it != v.end() ){
-      // cerr << "TextContent::findreplacable bekijkt " << *it << " ("
-      if ( (*it)->cls() == _class )
-	result.push_back( *it );
-      ++it;
+    for( const auto el:v ){
+      // cerr << "TextContent::findreplacable bekijkt " << el << " ("
+      if ( el->cls() == _class )
+	result.push_back( el );
     }
     //  cerr << "TextContent::findreplacable resultaat " << v << endl;
     return result;
@@ -1861,54 +1836,47 @@ namespace folia {
     if ( !current.empty() ){
       if ( !original.empty() || !_new.empty() )
 	throw runtime_error("When setting current=, original= and new= can not be set!");
-      vector<FoliaElement *>::const_iterator cit = current.begin();
-      while ( cit != current.end() ){
+      for ( const auto cur : current ){
 	FoliaElement *add = new Current( mydoc );
-	(*cit)->setParent(0);
-	add->append( *cit );
+	cur->setParent(0);
+	add->append( cur );
 	c->replace( add );
 	if ( !hooked ) {
 	  for ( size_t i=0; i < size(); ++i ){
-	    if ( index(i) == *cit ){
+	    if ( index(i) == cur ){
 	      replace( index(i), c );
 	      hooked = true;
 	    }
 	  }
 	}
-	++cit;
       }
     }
     if ( !_new.empty() ){
       //    cerr << "there is new! " << endl;
       addnew = new NewElement( mydoc );
       c->append(addnew);
-      vector<FoliaElement *>::iterator nit = _new.begin();
-      while ( nit != _new.end() ){
-	(*nit)->setParent(0);
-	addnew->append( *nit );
-	++nit;
+      for ( const auto nw : _new ){
+	nw->setParent(0);
+	addnew->append( nw );
       }
       //    cerr << "after adding " << c << endl;
       vector<Current*> v = c->FoliaElement::select<Current>();
       //delete current if present
-      vector<Current*>::iterator cit = v.begin();
-      while ( cit != v.end() ){
-	c->remove( *cit, false );
-	++cit;
+      for ( const auto cur:v ){
+	c->remove( cur, false );
       }
     }
     if ( !original.empty() ){
       FoliaElement *add = new Original( mydoc );
       c->replace(add);
-      vector<FoliaElement *>::iterator nit = original.begin();
-      while ( nit != original.end() ){
-	bool dummyNode = ( (*nit)->id() == "dummy" );
+      for( const auto org: original ){
+	bool dummyNode = ( org->id() == "dummy" );
 	if ( !dummyNode ){
-	  (*nit)->setParent(0);
-	  add->append( *nit );
+	  org->setParent(0);
+	  add->append( org );
 	}
 	for ( size_t i=0; i < size(); ++i ){
-	  if ( index(i) == *nit ){
+	  if ( index(i) == org ){
 	    if ( !hooked ) {
 	      FoliaElement *tmp = replace( index(i), c );
 	      if ( dummyNode )
@@ -1916,10 +1884,9 @@ namespace folia {
 	      hooked = true;
 	    }
 	    else
-	      remove( *nit, false );
+	      remove( org, false );
 	  }
 	}
-	++nit;
       }
     }
     else if ( addnew ){
@@ -1930,10 +1897,8 @@ namespace folia {
 	FoliaElement *p = addnew->index(i);
 	//      cerr << "bekijk " << p << endl;
 	vector<FoliaElement*> v = p->findreplacables( this );
-	vector<FoliaElement*>::iterator vit=v.begin();
-	while ( vit != v.end() ){
-	  orig.push_back( *vit );
-	  ++vit;
+	for ( const auto el: v ){
+	  orig.push_back( el );
 	}
       }
       if ( orig.empty() ){
@@ -1943,57 +1908,49 @@ namespace folia {
 	//      cerr << "we seem to have some originals! " << endl;
 	FoliaElement *add = new Original( mydoc );
 	c->replace(add);
-	vector<FoliaElement *>::iterator oit = orig.begin();
-	while ( oit != orig.end() ){
+	for ( const auto org: orig ){
 	  //	cerr << " an original is : " << *oit << endl;
-	  (*oit)->setParent( 0 );
-	  add->append( *oit );
+	  org->setParent( 0 );
+	  add->append( org );
 	  for ( size_t i=0; i < size(); ++i ){
-	    if ( index(i) == *oit ){
+	    if ( index(i) == org ){
 	      if ( !hooked ) {
 		replace( index(i), c );
 		hooked = true;
 	      }
 	      else
-		remove( *oit, false );
+		remove( org, false );
 	    }
 	  }
-	  ++oit;
 	}
 	vector<Current*> v = c->FoliaElement::select<Current>();
-	vector<Current*>::iterator cit = v.begin();
 	//delete current if present
-	while ( cit != v.end() ){
-	  remove( *cit, false );
-	  ++cit;
+	for( const auto cur: v ){
+	  remove( cur, false );
 	}
       }
     }
 
     if ( addnew ){
-      vector<FoliaElement*>::iterator oit = original.begin();
-      while ( oit != original.end() ){
-	c->remove( *oit, false );
-	++oit;
+      for( const auto org : original ){
+	c->remove( org, false );
       }
     }
 
     if ( !suggestions.empty() ){
       if ( !hooked )
 	append(c);
-      vector<FoliaElement *>::iterator nit = suggestions.begin();
-      while ( nit != suggestions.end() ){
-	if ( (*nit)->isinstance( Suggestion_t ) ){
-	  (*nit)->setParent(0);
-	  c->append( *nit );
+      for ( const auto sug : suggestions ){
+	if ( sug->isinstance( Suggestion_t ) ){
+	  sug->setParent(0);
+	  c->append( sug );
 	}
 	else {
 	  FoliaElement *add = new Suggestion( mydoc );
-	  (*nit)->setParent(0);
-	  add->append( *nit );
+	  sug->setParent(0);
+	  add->append( sug );
 	  c->append( add );
 	}
-	++nit;
       }
     }
 
@@ -3289,13 +3246,11 @@ namespace folia {
 
   vector<AbstractSpanAnnotation*> FoliaImpl::selectSpan() const {
     vector<AbstractSpanAnnotation*> res;
-    set<ElementType>::const_iterator it = asSet.begin();
-    while( it != asSet.end() ){
-      vector<FoliaElement*> tmp = select( *it, true );
+    for ( const auto el : asSet ){
+      vector<FoliaElement*> tmp = select( el, true );
       for ( size_t i = 0; i < tmp.size(); ++i ){
 	res.push_back( dynamic_cast<AbstractSpanAnnotation*>( tmp[i]) );
       }
-      ++it;
     }
     return res;
   }
