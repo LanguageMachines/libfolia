@@ -651,16 +651,29 @@ namespace folia {
 #ifdef DEBUG_TEXT
     cerr << "TEXT(" << cls << ") op node : " << xmltag() << " id ( " << id() << ")" << endl;
 #endif
-    UnicodeString result;
-    try {
-      result = this->stricttext(cls);
-    } catch (NoSuchText& e ) {
+    if ( strict ){
+      UnicodeString result;
+      try {
+	result = this->textcontent(cls)->text();
+      } catch (NoSuchText& e ) {
 #ifdef DEBUG_TEXT
-      cerr << "No direct textcontent found: try children" << endl;
+	cerr << "No textcontent" << endl;
 #endif
-      result = deeptext( cls, retaintok );
+	result = "";
+      }
+      return result;
     }
-    return result;
+    else if ( !PRINTABLE ){
+      throw NoSuchText( "in tag " + xmltag() );
+    }
+    else {
+      UnicodeString result = deeptext( cls, retaintok );
+      if ( result.isEmpty() )
+	result = stricttext( cls );
+      if ( result.isEmpty() )
+	throw NoSuchText( "AT ALL" );
+      return result;
+    }
   }
 
   UnicodeString FoliaImpl::deeptext( const string& cls,
@@ -680,7 +693,7 @@ namespace folia {
       // skip TextContent elements
 #ifdef DEBUG_TEXT
       if ( !data[i]->printable() ){
-      cerr << "deeptext: node[" << i << "] " << data[i]->xmltag() << " NOT PRINTABLE! " << endl;
+	cerr << "deeptext: node[" << i << "] " << data[i]->xmltag() << " NOT PRINTABLE! " << endl;
       }
 #endif
       if ( data[i]->printable() && !data[i]->isinstance( TextContent_t ) ){
@@ -688,7 +701,7 @@ namespace folia {
 	cerr << "deeptext:bekijk node[" << i << "] " << data[i]->xmltag() << endl;
 #endif
 	try {
-	  UnicodeString tmp = data[i]->text( cls, retaintok );
+	  UnicodeString tmp = data[i]->text( cls, retaintok, false );
 #ifdef DEBUG_TEXT
 	  cerr << "deeptext found '" << tmp << "'" << endl;
 #endif
@@ -719,14 +732,16 @@ namespace folia {
 #ifdef DEBUG_TEXT
     cerr << "deeptext() for " << _xmltag << " step 3 " << endl;
 #endif
-    if ( !result.isEmpty() ){
-#ifdef DEBUG_TEXT
-      cerr << "deeptext() for " << _xmltag << " result= '" << result << "'" << endl;
-#endif
-      return result;
+    if ( result.isEmpty() ){
+      result = textcontent(cls)->text();
     }
-    else
-      throw NoSuchText( "(class=" + cls +"): empty!" );
+#ifdef DEBUG_TEXT
+    cerr << "deeptext() for " << _xmltag << " result= '" << result << "'" << endl;
+#endif
+    if ( result.isEmpty() ){
+      throw NoSuchText( _xmltag + ":(class=" + cls +"): empty!" );
+    }
+    return result;
   }
 
   UnicodeString FoliaElement::stricttext( const string& cls ) const {
@@ -744,12 +759,13 @@ namespace folia {
   TextContent *FoliaImpl::textcontent( const string& cls ) const {
     // Get the text explicitly associated with this element (of the specified class).
     // the default class is 'current'
-    // Returns the TextContent instance rather than the actual text. Does not recurse into children
+    // Returns the TextContent instance rather than the actual text.
+    // Does not recurse into children
     // with sole exception of Correction
     // Raises NoSuchText exception if not found.
 
     if ( !PRINTABLE )
-      throw NoSuchText( "non-printable tag: " +  _xmltag );
+      throw NoSuchText( "non-printable element: " +  _xmltag );
 
     for( size_t i=0; i < data.size(); ++i ){
       if ( data[i]->isinstance(TextContent_t) && (data[i]->cls() == cls) ){
@@ -2889,6 +2905,7 @@ namespace folia {
     _occurrences = 0;
     _occurrences_per_set=0;
     _offset = -1;
+    PRINTABLE = true;
     XLINK = true;
   }
 
