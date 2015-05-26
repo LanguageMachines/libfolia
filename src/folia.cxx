@@ -2407,15 +2407,26 @@ namespace folia {
     return 0;
   }
 
+  ElementType layertypeof( ElementType et ){
+    switch( et ){
+    case Entity_t:
+      return Entities_t;
+    default:
+      return BASE;
+    }
+  }
+
   vector<AbstractSpanAnnotation*> Word::findspans( ElementType et,
 						   const string& st ) const {
-    vector<AbstractSpanAnnotation *> result;
-    if ( !folia::isSubClass( et , AnnotationLayer_t ) ){
-      throw NotImplementedError( "findspans(" + toString( et ) +
-				 ") is not supported. " +
-				 " (Not an AnnotationLayer type)" );
+    ElementType layertype = BASE;
+    if ( folia::isSubClass( et , AnnotationLayer_t ) ){
+      layertype = et;
     }
     else {
+      layertype = layertypeof( et );
+    }
+    vector<AbstractSpanAnnotation *> result;
+    if ( layertype != BASE ){
       const FoliaElement *e = parent();
       if ( e ){
 	vector<FoliaElement*> v = e->select( et, st, false );
@@ -2569,6 +2580,53 @@ namespace folia {
     if ( child->isinstance(PlaceHolder_t) ){
       child->increfcount();
     }
+    return child;
+  }
+
+  FoliaElement *AbstractAnnotationLayer::append( FoliaElement *child ){
+    if ( _set.empty() ){
+      if ( child->isinstance( SpanAnnotation_t ) ){
+	string st = child->sett();
+	if ( !st.empty()
+	     && mydoc->defaultset( child->annotation_type() ) != st ){
+	  _set = st;
+	}
+      }
+      else if ( child->isinstance(Correction_t) ){
+	FoliaElement *t1 = child->getNew();
+	if ( t1 && t1->isinstance( SpanAnnotation_t ) ){
+	  string st = t1->sett();
+	  if ( !st.empty()
+	       && mydoc->defaultset( t1->annotation_type() ) != st ){
+	    _set = st;
+	  }
+	}
+	if ( _set.empty() ){
+	  FoliaElement *t2 = child->getOriginal();
+	  if ( t2 && t2->isinstance( SpanAnnotation_t ) ){
+	    string st = t2->sett();
+	    if ( !st.empty()
+		 && mydoc->defaultset( t2->annotation_type() ) != st ){
+	      _set = st;
+	    }
+	  }
+	}
+	if ( _set.empty() ){
+	  auto v = child->suggestions();
+	  for ( auto e : v ){
+	    if ( e->isinstance( SpanAnnotation_t ) ){
+	      string st = e->sett();
+	      if ( !st.empty()
+		   && mydoc->defaultset( e->annotation_type() ) != st ){
+		_set = st;
+		break;
+	      }
+	    }
+	  }
+	}
+      }
+    }
+    FoliaImpl::append( child );
     return child;
   }
 

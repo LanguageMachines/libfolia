@@ -1598,6 +1598,7 @@ namespace folia {
   AbstractAnnotationLayer( Document *d, const std::string& s=""): FoliaImpl(d) { classInit( s ); };
   AbstractAnnotationLayer( Document *d, const KWargs& a ): FoliaImpl(d) { classInit( a ); };
     AbstractSpanAnnotation *findspan( const std::vector<FoliaElement*>& ) const;
+    FoliaElement *append( FoliaElement * );
   private:
     void init();
   };
