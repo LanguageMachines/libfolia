@@ -1601,6 +1601,7 @@ namespace folia {
     FoliaElement *append( FoliaElement * );
   private:
     void init();
+    void assignset( FoliaElement * );
   };
 
   class AbstractCorrectionChild: public FoliaImpl {

@@ -2410,7 +2410,32 @@ namespace folia {
   ElementType layertypeof( ElementType et ){
     switch( et ){
     case Entity_t:
+    case Entities_t:
       return Entities_t;
+    case Chunk_t:
+    case Chunking_t:
+      return Chunking_t;
+    case SyntacticUnit_t:
+    case SyntaxLayer_t:
+      return SyntaxLayer_t;
+    case TimeSegment_t:
+    case TimingLayer_t:
+      return TimingLayer_t;
+    case Morpheme_t:
+    case MorphologyLayer_t:
+      return MorphologyLayer_t;
+    case Phoneme_t:
+    case PhonologyLayer_t:
+      return PhonologyLayer_t;
+    case CoreferenceChain_t:
+    case Coreferences_t:
+      return Coreferences_t;
+    case Semroles_t:
+    case Semrole_t:
+      return Semroles_t;
+    case Dependencies_t:
+    case Dependency_t:
+      return Dependencies_t;
     default:
       return BASE;
     }
@@ -2418,13 +2443,7 @@ namespace folia {
 
   vector<AbstractSpanAnnotation*> Word::findspans( ElementType et,
 						   const string& st ) const {
-    ElementType layertype = BASE;
-    if ( folia::isSubClass( et , AnnotationLayer_t ) ){
-      layertype = et;
-    }
-    else {
-      layertype = layertypeof( et );
-    }
+    ElementType layertype = layertypeof( et );
     vector<AbstractSpanAnnotation *> result;
     if ( layertype != BASE ){
       const FoliaElement *e = parent();
@@ -2583,9 +2602,12 @@ namespace folia {
     return child;
   }
 
-  FoliaElement *AbstractAnnotationLayer::append( FoliaElement *child ){
+  void AbstractAnnotationLayer::assignset( FoliaElement *child ){
+    // If there is no set (yet), try to get the set form the child
+    // but not if it is the default set.
+    // for a Correction child, we look deeper.
     if ( _set.empty() ){
-      if ( child->isinstance( SpanAnnotation_t ) ){
+      if ( child->isSubClass( SpanAnnotation_t ) ){
 	string st = child->sett();
 	if ( !st.empty()
 	     && mydoc->defaultset( child->annotation_type() ) != st ){
@@ -2593,40 +2615,42 @@ namespace folia {
 	}
       }
       else if ( child->isinstance(Correction_t) ){
-	FoliaElement *t1 = child->getNew();
-	if ( t1 && t1->isinstance( SpanAnnotation_t ) ){
-	  string st = t1->sett();
+	FoliaElement *el = child->getOriginal();
+	if ( el->isSubClass( SpanAnnotation_t ) ){
+	  string st = el->sett();
 	  if ( !st.empty()
-	       && mydoc->defaultset( t1->annotation_type() ) != st ){
+	       && mydoc->defaultset( el->annotation_type() ) != st ){
 	    _set = st;
+	    return;
 	  }
 	}
-	if ( _set.empty() ){
-	  FoliaElement *t2 = child->getOriginal();
-	  if ( t2 && t2->isinstance( SpanAnnotation_t ) ){
-	    string st = t2->sett();
+	el = child->getNew();
+	if ( el->isSubClass( SpanAnnotation_t ) ){
+	  string st = el->sett();
+	  if ( !st.empty()
+	       && mydoc->defaultset( el->annotation_type() ) != st ){
+	    _set = st;
+	    return;
+	  }
+	}
+	auto v = child->suggestions();
+	for ( auto el : v ){
+	  if ( el->isSubClass( SpanAnnotation_t ) ){
+	    string st = el->sett();
 	    if ( !st.empty()
-		 && mydoc->defaultset( t2->annotation_type() ) != st ){
+		 && mydoc->defaultset( el->annotation_type() ) != st ){
 	      _set = st;
-	    }
-	  }
-	}
-	if ( _set.empty() ){
-	  auto v = child->suggestions();
-	  for ( auto e : v ){
-	    if ( e->isinstance( SpanAnnotation_t ) ){
-	      string st = e->sett();
-	      if ( !st.empty()
-		   && mydoc->defaultset( e->annotation_type() ) != st ){
-		_set = st;
-		break;
-	      }
+	      return;
 	    }
 	  }
 	}
       }
     }
+  }
+
+  FoliaElement *AbstractAnnotationLayer::append( FoliaElement *child ){
     FoliaImpl::append( child );
+    assignset( child );
     return child;
   }
 
