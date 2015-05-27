@@ -356,6 +356,10 @@ namespace folia {
     virtual std::string classname() const = 0;
     virtual std::string n() const = 0;
     virtual std::string id() const = 0;
+    virtual std::string begintime() const = 0;
+    virtual std::string endtime() const = 0;
+    virtual std::string speech_src() const = 0;
+    virtual std::string speech_speaker() const = 0;
     virtual double confidence() const = 0;
     virtual void confidence( double ) = 0;
     virtual ElementType element_id() const = 0;
@@ -588,6 +592,11 @@ namespace folia {
     std::string n() const { return _n; };
     std::string id() const { return _id; };
     std::string href() const { return _href; };
+    std::string begintime() const { return _begintime; };
+    std::string endtime() const { return _endtime; };
+    std::string speech_src() const;
+    std::string speech_speaker() const;
+
     double confidence() const { return _confidence; };
     void confidence( double d ) { _confidence = d; };
     ElementType element_id() const { return _element_id; };

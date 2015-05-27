@@ -590,6 +590,22 @@ namespace folia {
     return _xmltag;
   }
 
+  string FoliaImpl::speech_src() const {
+    if ( !_src.empty() )
+      return _src;
+    if ( _parent )
+      return _parent->speech_src();
+    return "";
+  }
+
+  string FoliaImpl::speech_speaker() const {
+    if ( !_speaker.empty() )
+      return _speaker;
+    if ( _parent )
+      return _parent->speech_speaker();
+    return "";
+  }
+
   bool FoliaElement::hastext( const string& cls ) const {
     // does this element have a TextContent with class 'cls'
     // Default is class="current"
