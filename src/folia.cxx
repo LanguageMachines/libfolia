@@ -2615,22 +2615,32 @@ namespace folia {
 	}
       }
       else if ( child->isinstance(Correction_t) ){
-	FoliaElement *el = child->getOriginal();
-	if ( el->isSubClass( SpanAnnotation_t ) ){
-	  string st = el->sett();
-	  if ( !st.empty()
-	       && mydoc->defaultset( el->annotation_type() ) != st ){
-	    _set = st;
-	    return;
+	Original *org = child->getOriginal();
+	if ( org ){
+	  for ( size_t i=0; i < org->size(); ++i ){
+	    FoliaElement *el = org->index(i);
+	    if ( el->isSubClass( SpanAnnotation_t ) ){
+	      string st = el->sett();
+	      if ( !st.empty()
+		   && mydoc->defaultset( el->annotation_type() ) != st ){
+		_set = st;
+		return;
+	      }
+	    }
 	  }
 	}
-	el = child->getNew();
-	if ( el->isSubClass( SpanAnnotation_t ) ){
-	  string st = el->sett();
-	  if ( !st.empty()
-	       && mydoc->defaultset( el->annotation_type() ) != st ){
-	    _set = st;
-	    return;
+	NewElement *nw = child->getNew();
+	if ( nw ){
+	  for ( size_t i=0; i < nw->size(); ++i ){
+	    FoliaElement *el = nw->index(i);
+	    if ( el->isSubClass( SpanAnnotation_t ) ){
+	      string st = el->sett();
+	      if ( !st.empty()
+		   && mydoc->defaultset( el->annotation_type() ) != st ){
+		_set = st;
+		return;
+	      }
+	    }
 	  }
 	}
 	auto v = child->suggestions();
