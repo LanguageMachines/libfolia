@@ -2429,7 +2429,7 @@ namespace folia {
     if ( layertype != BASE ){
       const FoliaElement *e = parent();
       if ( e ){
-	vector<FoliaElement*> v = e->select( et, st, false );
+	vector<FoliaElement*> v = e->select( layertype, st, false );
 	for ( size_t i=0; i < v.size(); ++i ){
 	  for ( size_t k=0; k < v[i]->size(); ++k ){
 	    FoliaElement *f = v[i]->index(k);
