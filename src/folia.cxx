@@ -220,7 +220,7 @@ namespace folia {
     else
       _class = "";
 
-    if ( _element_id != TextContent_t ){
+    if ( _element_id != TextContent_t && _element_id != PhonContent_t ){
       if ( !_class.empty() && _set.empty() )
 	throw ValueError("Set is required for <" + classname() +
 			 " class=\"" + _class + "\"> assigned without set."  );
@@ -755,6 +755,123 @@ namespace folia {
     }
     throw NoSuchText( _xmltag + "::textcontent()" );
   }
+
+  PhonContent *FoliaImpl::phoncontent( const string& cls ) const {
+    // Get the phon explicitly associated with this element
+    // (of the specified class) the default class is 'current'
+    // Returns the PhonContent instance rather than the actual phoneme.
+    // Does not recurse into children
+    // with sole exception of Correction
+    // Raises NoSuchPhon exception if not found.
+
+    if ( !SPEAKABLE )
+      throw NoSuchPhon( "non-speakable element: " +  _xmltag );
+
+    for( size_t i=0; i < data.size(); ++i ){
+      if ( data[i]->isinstance(PhonContent_t) && (data[i]->cls() == cls) ){
+	return dynamic_cast<PhonContent*>(data[i]);
+      }
+      else if ( data[i]->element_id() == Correction_t) {
+	try {
+	  return data[i]->phoncontent(cls);
+	} catch ( NoSuchPhon& e ){
+	  // continue search for other Corrections or a TextContent
+	}
+      }
+    }
+    throw NoSuchPhon( _xmltag + "::phoncontent()" );
+  }
+
+  //#define DEBUG_PHON
+
+  UnicodeString FoliaImpl::phon( const string& cls,
+				 bool strict ) const {
+    // get the UnicodeString value of underlying elements
+    // default cls="current"
+#ifdef DEBUG_PHON
+    cerr << "PHON(" << cls << ") op node : " << xmltag() << " id ( " << id() << ")" << endl;
+#endif
+    if ( strict ){
+      return phoncontent(cls)->phon();
+    }
+    else if ( !SPEAKABLE ){
+      throw NoSuchText( "NON speakable element: " + xmltag() );
+    }
+    else {
+      UnicodeString result = deepphon( cls );
+      if ( result.isEmpty() )
+	result = phoncontent(cls)->phon();
+      if ( result.isEmpty() )
+	throw NoSuchPhon( "on tag " +_xmltag + " nor it's children" );
+      return result;
+    }
+  }
+
+  UnicodeString FoliaImpl::deepphon( const string& cls ) const {
+    // get the UnicodeString value of underlying elements
+    // default cls="current"
+#ifdef DEBUG_PHON
+    cerr << "deepPHON(" << cls << ") op node : " << _xmltag << " id(" << id() << ")" << endl;
+#endif
+#ifdef DEBUG_PHON
+    cerr << "deepphon: node has " << data.size() << " children." << endl;
+#endif
+    vector<UnicodeString> parts;
+    vector<UnicodeString> seps;
+    for( size_t i=0; i < data.size(); ++i ){
+      // try to get text dynamically from children
+      // skip TextContent elements
+#ifdef DEBUG_TEXT
+      if ( !data[i]->speakable() ){
+	cerr << "deepphon: node[" << i << "] " << data[i]->xmltag() << " NOT SPEAKABLE! " << endl;
+      }
+#endif
+      if ( data[i]->speakable() && !data[i]->isinstance( PhonContent_t ) ){
+#ifdef DEBUG_TEXT
+	cerr << "deepphon:bekijk node[" << i << "] " << data[i]->xmltag() << endl;
+#endif
+	try {
+	  UnicodeString tmp = data[i]->phon( cls, false );
+#ifdef DEBUG_TEXT
+	  cerr << "deepphon found '" << tmp << "'" << endl;
+#endif
+	  parts.push_back(tmp);
+	  // get the delimiter
+	  string delim = data[i]->getTextDelimiter();
+#ifdef DEBUG_TEXT
+	  cerr << "deepphon:delimiter van "<< data[i]->xmltag() << " ='" << delim << "'" << endl;
+#endif
+	  seps.push_back(UTF8ToUnicode(delim));
+	} catch ( NoSuchPhon& e ){
+#ifdef DEBUG_TEXT
+	  cerr << "HELAAS" << endl;
+#endif
+	}
+      }
+    }
+
+    // now construct the result;
+    UnicodeString result;
+    for( size_t i=0; i < parts.size(); ++i ){
+      result += parts[i];
+      if ( i < parts.size()-1)
+	result += seps[i];
+    }
+#ifdef DEBUG_TEXT
+    cerr << "deepphon() for " << _xmltag << " step 3 " << endl;
+#endif
+    if ( result.isEmpty() ){
+      result = phoncontent(cls)->phon();
+    }
+#ifdef DEBUG_TEXT
+    cerr << "deepphontext() for " << _xmltag << " result= '" << result << "'" << endl;
+#endif
+    if ( result.isEmpty() ){
+      throw NoSuchPhon( _xmltag + ":(class=" + cls +"): empty!" );
+    }
+    return result;
+  }
+
 
   vector<FoliaElement *>FoliaImpl::findreplacables( FoliaElement *par ) const {
     return par->select( element_id(), sett(), false );
@@ -1632,6 +1749,28 @@ namespace folia {
     FoliaImpl::setAttributes(kwargs);
   }
 
+  void PhonContent::setAttributes( const KWargs& args ){
+    KWargs kwargs = args; // need to copy
+    KWargs::const_iterator it = kwargs.find( "offset" );
+    if ( it != kwargs.end() ) {
+      _offset = stringTo<int>(it->second);
+      kwargs.erase(it);
+    }
+    else
+      _offset = -1;
+    it = kwargs.find( "ref" );
+    if ( it != kwargs.end() ) {
+      throw NotImplementedError( "ref attribute in TextContent" );
+    }
+    it = kwargs.find( "cls" );
+    if ( it == kwargs.end() )
+      it = kwargs.find( "class" );
+    if ( it == kwargs.end() ) {
+      kwargs["class"] = "current";
+    }
+    FoliaImpl::setAttributes(kwargs);
+  }
+
   KWargs TextContent::collectAttributes() const {
     KWargs attribs = FoliaImpl::collectAttributes();
     if ( _class == "current" )
@@ -1639,6 +1778,16 @@ namespace folia {
     else if ( _class == "original" && parent() && parent()->isinstance( Original_t ) )
       attribs.erase( "class" );
 
+    if ( _offset >= 0 ){
+      attribs["offset"] = TiCC::toString( _offset );
+    }
+    return attribs;
+  }
+
+  KWargs PhonContent::collectAttributes() const {
+    KWargs attribs = FoliaImpl::collectAttributes();
+    if ( _class == "current" )
+      attribs.erase( "class" );
     if ( _offset >= 0 ){
       attribs["offset"] = TiCC::toString( _offset );
     }
@@ -1706,6 +1855,41 @@ namespace folia {
     result.trim();
 #ifdef DEBUG_TEXT
     cerr << "TextContent return " << result << endl;
+#endif
+    return result;
+  }
+
+  UnicodeString PhonContent::phon( const string& cls,
+				   bool ) const {
+    // get the UnicodeString value of underlying elements
+    // default cls="current"
+#ifdef DEBUG_PHON
+    cerr << "PhonContent::PHON(" << cls << ") " << endl;
+#endif
+    UnicodeString result;
+    for( size_t i=0; i < data.size(); ++i ){
+      // try to get text dynamically from children
+#ifdef DEBUG_PHON
+      cerr << "PhonContent: bekijk node[" << i+1 << "] " << data[i]->str(cls) << endl;
+#endif
+      try {
+#ifdef DEBUG_PHON
+	cerr << "roep text(" << cls << ") aan op " << data[i] << endl;
+#endif
+	UnicodeString tmp = data[i]->text( cls );
+#ifdef DEBUG_PHON
+	cerr << "PhonContent found '" << tmp << "'" << endl;
+#endif
+	result += tmp;
+      } catch ( NoSuchPhon& e ){
+#ifdef DEBUG_TEXT
+	cerr << "PhonContent::HELAAS" << endl;
+#endif
+      }
+    }
+    result.trim();
+#ifdef DEBUG_PHON
+    cerr << "PhonContent return " << result << endl;
 #endif
     return result;
   }
@@ -2796,6 +2980,24 @@ namespace folia {
     throw NoSuchText("wrong cls");
   }
 
+  PhonContent *Correction::phoncontent( const string& cls ) const {
+    if ( cls == "current" ){
+      for( size_t i=0; i < data.size(); ++i ){
+	//    cerr << "data[" << i << "]=" << data[i] << endl;
+	if ( data[i]->isinstance( New_t ) || data[i]->isinstance( Current_t ) )
+	  return data[i]->phoncontent( cls );
+      }
+    }
+    else if ( cls == "original" ){
+      for( size_t i=0; i < data.size(); ++i ){
+	//    cerr << "data[" << i << "]=" << data[i] << endl;
+	if ( data[i]->isinstance( Original_t ) )
+	  return data[i]->phoncontent( cls );;
+      }
+    }
+    throw NoSuchPhon("wrong cls");
+  }
+
   bool Correction::hasNew( ) const {
     vector<FoliaElement*> v = select( New_t, false );
     return !v.empty();
@@ -2906,13 +3108,13 @@ namespace folia {
   void FoLiA::init(){
     _xmltag="FoLiA";
     _element_id = BASE;
-    _accepted_data = { Text_t };
+    _accepted_data = { Text_t, Speech_t };
   }
 
   void DCOI::init(){
     _xmltag="DCOI";
     _element_id = BASE;
-    _accepted_data = { Text_t };
+    _accepted_data = { Text_t, Speech_t };
   }
 
   void AbstractStructureElement::init(){
@@ -2953,9 +3155,7 @@ namespace folia {
     _element_id = PhonContent_t;
     _xmltag="ph";
     _optional_attributes = CLASS|ANNOTATOR|CONFIDENCE|DATETIME;
-    _accepted_data = { AbstractTextMarkup_t,
-		       XmlText_t,
-		       LineBreak_t };
+    _accepted_data = { XmlText_t };
     _annotation_type = AnnotationType::PHON;
     _occurrences = 0;
     _occurrences_per_set=0;
