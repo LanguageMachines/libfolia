@@ -98,10 +98,8 @@ namespace folia {
   Document::~Document(){
     xmlFreeDoc( xmldoc );
     delete foliadoc;
-    set<FoliaElement*>::const_iterator it = delSet.begin();
-    while ( it != delSet.end() ){
-      delete *it;
-      ++it;
+    for ( const auto& it : delSet ){
+      delete it;
     }
   }
 
@@ -526,7 +524,7 @@ namespace folia {
     else if ( type == "licence" )
       return _license;
     else {
-      map<string,string>::const_iterator it = meta_atts.find( type );
+      const auto it = meta_atts.find( type );
       if ( it != meta_atts.end() )
 	return it->second;
       else
@@ -700,7 +698,7 @@ namespace folia {
 
   void Document::addStyle( const std::string& type, const std::string& href ){
     if ( type == "text/xsl" ){
-      multimap<string,string>::iterator it = styles.find( type );
+      const auto it = styles.find( type );
       if ( it != styles.end() )
 	throw XmlError( "multiple 'text/xsl' style-sheets defined." );
     }
@@ -709,7 +707,7 @@ namespace folia {
 
   void Document::replaceStyle( const std::string& type,
 			       const std::string& href ){
-    multimap<string,string>::iterator it = styles.find( type );
+    const auto it = styles.find( type );
     if ( it != styles.end() ){
       it->second = href;
     }
@@ -879,12 +877,12 @@ namespace folia {
     if ( type == AnnotationType::NO_ANN ){
       return true;
     }
-    map<AnnotationType::AnnotationType,multimap<string,at_t> >::const_iterator mit1 = annotationdefaults.find(type);
-    if ( mit1 != annotationdefaults.end() ){
+    const auto& it1 = annotationdefaults.find(type);
+    if ( it1 != annotationdefaults.end() ){
       if ( s.empty() )
 	throw runtime_error("isDeclared with empty set.");
-      multimap<string,at_t>::const_iterator mit2 = mit1->second.lower_bound(s);
-      while ( mit2 != mit1->second.upper_bound(s) ){
+      multimap<string,at_t>::const_iterator mit2 = it1->second.lower_bound(s);
+      while ( mit2 != it1->second.upper_bound(s) ){
 	if ( mit2->second.a == a && mit2->second.t == t )
 	  return true;
 	++mit2;
@@ -898,11 +896,11 @@ namespace folia {
     if ( type == AnnotationType::NO_ANN ){
       return true;
     }
-    map<AnnotationType::AnnotationType,multimap<string,at_t> >::const_iterator mit1 = annotationdefaults.find(type);
+    const auto mit1 = annotationdefaults.find(type);
     if ( mit1 != annotationdefaults.end() ){
       if ( s.empty() )
 	return true;
-      multimap<string,at_t>::const_iterator mit2 = mit1->second.find(s);
+      const auto mit2 = mit1->second.find(s);
       return mit2 != mit1->second.end();
     }
     return false;
@@ -913,8 +911,8 @@ namespace folia {
       return "";
     // search a set. it must be unique. Otherwise return ""
     //    cerr << "zoek '" << type << "' default set " <<  annotationdefaults << endl;
-    map<AnnotationType::AnnotationType,multimap<string,at_t> >::const_iterator mit1 = annotationdefaults.find(type);
     string result;
+    const auto mit1 = annotationdefaults.find(type);
     if ( mit1 != annotationdefaults.end() ){
       //      cerr << "vind tussen " <<  mit1->second << endl;
       if ( mit1->second.size() == 1 )
@@ -932,7 +930,7 @@ namespace folia {
     // if ( !st.empty() ){
     //   cerr << "zoek '" << st << "' default annotator " <<  annotationdefaults << endl;
     // }
-    map<AnnotationType::AnnotationType,multimap<string,at_t> >::const_iterator mit1 = annotationdefaults.find(type);
+    const auto mit1 = annotationdefaults.find(type);
     string result;
     if ( mit1 != annotationdefaults.end() ){
       //      cerr << "vind tussen " <<  mit1->second << endl;
@@ -944,7 +942,7 @@ namespace folia {
       }
       else {
 	if ( mit1->second.count( st ) == 1 ){
-	  multimap<string,at_t>::const_iterator mit2 = mit1->second.find( st );
+	  const auto mit2 = mit1->second.find( st );
 	  result = mit2->second.a;
 	}
       }
@@ -958,7 +956,7 @@ namespace folia {
     if ( type == AnnotationType::NO_ANN ){
       return "";
     }
-    map<AnnotationType::AnnotationType,multimap<string,at_t> >::const_iterator mit1 = annotationdefaults.find(type);
+    const auto mit1 = annotationdefaults.find(type);
     string result;
     if ( mit1 != annotationdefaults.end() ){
       if ( st.empty() ){
@@ -968,7 +966,7 @@ namespace folia {
       }
       else {
 	if ( mit1->second.count( st ) == 1 ){
-	  multimap<string,at_t>::const_iterator mit2 = mit1->second.find( st );
+	  const auto mit2 = mit1->second.find( st );
 	  result = mit2->second.t;
 	}
       }
@@ -979,7 +977,7 @@ namespace folia {
 
   std::string Document::defaultdatetime( AnnotationType::AnnotationType type,
 					 const string& st ) const {
-    map<AnnotationType::AnnotationType,multimap<string,at_t> >::const_iterator mit1 = annotationdefaults.find(type);
+    const auto mit1 = annotationdefaults.find(type);
     string result;
     if ( mit1 != annotationdefaults.end() ){
       if ( st.empty() ){
@@ -989,7 +987,7 @@ namespace folia {
       }
       else {
 	if ( mit1->second.count( st ) == 1 ){
-	  multimap<string,at_t>::const_iterator mit2 = mit1->second.find( st );
+	  const auto mit2 = mit1->second.find( st );
 	  result = mit2->second.d;
 	}
       }
@@ -999,32 +997,28 @@ namespace folia {
   }
 
   void Document::setannotations( xmlNode *node ) const {
-    map<AnnotationType::AnnotationType,multimap<string,at_t> >::const_iterator mit = annotationdefaults.begin();
-    while ( mit != annotationdefaults.end() ){
-      multimap<string,at_t>::const_iterator it = mit->second.begin();
-      while ( it != mit->second.end() ){
-	// Find the 'label'
-	string label = toString( mit->first );
-	label += "-annotation";
-	xmlNode *n = XmlNewNode( foliaNs(), label );
+    for ( const auto& mit :  annotationdefaults ){
+      // Find the 'label'
+      string label = toString( mit.first );
+      label += "-annotation";
+      for ( const auto& it : mit.second ){
 	KWargs args;
-	string s = it->second.a;
+	string s = it.second.a;
 	if ( !s.empty() )
 	  args["annotator"] = s;
-	s = it->second.t;
+	s = it.second.t;
 	if ( !s.empty() )
 	  args["annotatortype"] = s;
-	s = it->second.d;
+	s = it.second.d;
 	if ( !s.empty() )
 	  args["datetime"] = s;
-	s = it->first;
+	s = it.first;
 	if ( s != "undefined" ) // the default
 	  args["set"] = s;
+	xmlNode *n = XmlNewNode( foliaNs(), label );
 	addAttributes( n, args );
 	xmlAddChild( node, n );
-	++it;
       }
-      ++mit;
     }
   }
 
@@ -1073,15 +1067,13 @@ namespace folia {
 	addAttributes( m, atts );
 	xmlAddChild( node, m );
       }
-      map<string,string>::const_iterator it = meta_atts.begin();
-      while ( it != meta_atts.end() ){
+      for ( const auto& it : meta_atts ){
 	xmlNode *m = XmlNewNode( foliaNs(), "meta" );
-	xmlAddChild( m, xmlNewText( (const xmlChar*)it->second.c_str()) );
+	xmlAddChild( m, xmlNewText( (const xmlChar*)it.second.c_str()) );
 	KWargs atts;
-	atts["id"] = it->first;
+	atts["id"] = it.first;
 	addAttributes( m, atts );
 	xmlAddChild( node, m );
-	++it;
       }
     }
     else if ( _metadatatype == IMDI  ||
@@ -1099,15 +1091,12 @@ namespace folia {
   }
 
   void Document::setstyles( xmlDoc* doc ) const {
-    multimap<string,string>::const_iterator it = styles.begin();
-    while ( it != styles.end() ){
-      string content = "type=\"" + it->first
-	+ "\" href=\"" + it->second + "\"";
+    for ( const auto& it : styles ){
+      string content = "type=\"" + it.first + "\" href=\"" + it.second + "\"";
       xmlAddChild( (xmlNode*)doc,
 		   xmlNewDocPI( doc,
 				(const xmlChar*)"xml-stylesheet",
 				(const xmlChar*)content.c_str() ) );
-      ++it;
     }
   }
 
@@ -1252,51 +1241,45 @@ namespace folia {
     bool start = true;
     bool unsetwildcards = false;
     set<int> variablewildcards;
-    list<Pattern>::const_iterator it = pats.begin();
     int index = 0;
-    while ( it != pats.end() ){
+    for ( const auto& it : pats ){
       //    cerr << "bekijk patroon : " << *it << endl;
       if ( start ){
-	prevsize = it->size();
+	prevsize = it.size();
 	start = false;
       }
-      else if ( it->size() != prevsize ){
+      else if ( it.size() != prevsize ){
 	throw runtime_error( "findnodes(): If multiple patterns are provided, they must all have the same length!" );
       }
-      if ( it->variablesize() ){
+      if ( it.variablesize() ){
 	if ( index > 0 && variablewildcards.empty() )
 	  unsetwildcards = true;
 	else {
 	  if ( !variablewildcards.empty() &&
-	       variablewildcards != it->variablewildcards() ){
+	       variablewildcards != it.variablewildcards() ){
 	    throw runtime_error("If multiple patterns are provided with variable wildcards, then these wildcards must all be in the same positions!");
 	  }
-	  variablewildcards = it->variablewildcards();
+	  variablewildcards = it.variablewildcards();
 	}
       }
       else if ( !variablewildcards.empty() )
 	unsetwildcards = true;
       ++index;
-      ++it;
     }
     if ( unsetwildcards ){
-      list<Pattern>::iterator it1 = pats.begin();
-      while ( it1 != pats.end() ){
-	it1->unsetwild();
-	++it1;
+      for ( auto& it : pats ){
+	it.unsetwild();
       }
     }
     vector<vector<Word*> > result;
-    it = pats.begin();
-    while ( it != pats.end() ){
-      vector<vector<Word*> > res = findwords( *it, args );
+    for ( const auto& it : pats ){
+      vector<vector<Word*> > res = findwords( it, args );
       if ( result.empty() )
 	result = res;
       else if ( res != result ){
 	result.clear();
 	break;
       }
-      ++it;
     }
     return result;
   }
