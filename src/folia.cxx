@@ -49,6 +49,7 @@ using namespace std;
 using namespace TiCC;
 
 namespace folia {
+  using TiCC::operator <<;
 
   string VersionName() { return PACKAGE_STRING; }
   string Version() { return VERSION; }
@@ -128,7 +129,6 @@ namespace folia {
     KWargs kwargs = kwargs_in;
     Attrib supported = _required_attributes | _optional_attributes;
     // if ( _element_id == Feature_t ){
-    //   using TiCC::operator <<;
     //   cerr << "set attributes: " << kwargs << " on " << toString(_element_id) << endl;
     //   cerr << "required = " <<  _required_attributes << endl;
     //   cerr << "optional = " <<  _optional_attributes << endl;
@@ -137,7 +137,6 @@ namespace folia {
     //   cerr << "ID & _required = " << (ID & _required_attributes ) << endl;
     // }
     if ( mydoc && mydoc->debug > 2 ){
-      using TiCC::operator <<;
       cerr << "set attributes: " << kwargs << " on " << toString(_element_id) << endl;
     }
 
@@ -1136,19 +1135,19 @@ namespace folia {
     if ( _n.empty() && ( N & _required_attributes ) ){
       throw ValueError( "attribute 'n' is required for " + classname() );
     }
-    if ( DATETIME & _required_attributes ){
+    if ( _datetime.empty() && ( DATETIME & _required_attributes ) ){
       throw ValueError( "attribute 'datetime' is required for " + classname() );
     }
-    if ( BEGINTIME & _required_attributes ){
+    if ( _begintime.empty() && ( BEGINTIME & _required_attributes ) ){
       throw ValueError( "attribute 'begintime' is required for " + classname() );
     }
-    if ( ENDTIME & _required_attributes ){
+    if ( _endtime.empty() && ( ENDTIME & _required_attributes ) ){
       throw ValueError( "attribute 'endtime' is required for " + classname() );
     }
-    if ( SRC & _required_attributes ){
+    if ( _src.empty() && ( SRC & _required_attributes ) ){
       throw ValueError( "attribute 'src' is required for " + classname() );
     }
-    if ( SPEAKER & _required_attributes ){
+    if ( _speaker.empty() && ( SPEAKER & _required_attributes ) ){
       throw ValueError( "attribute 'speaker' is required for " + classname() );
     }
     return true;
@@ -2742,25 +2741,6 @@ namespace folia {
     Word::setAttributes( args );
   }
 
-  KWargs Figure::collectAttributes() const {
-    KWargs atts = FoliaImpl::collectAttributes();
-    if ( !_src.empty() ){
-      atts["src"] = _src;
-    }
-    return atts;
-  }
-
-  void Figure::setAttributes( const KWargs& kwargsin ){
-    KWargs kwargs = kwargsin;
-    KWargs::const_iterator it;
-    it = kwargs.find( "src" );
-    if ( it != kwargs.end() ) {
-      _src = it->second;
-      kwargs.erase( it );
-    }
-    FoliaImpl::setAttributes(kwargs);
-  }
-
   UnicodeString Figure::caption() const {
     vector<FoliaElement *> v = select(Caption_t);
     if ( v.empty() )
@@ -3750,6 +3730,7 @@ namespace folia {
   void External::init(){
     _xmltag = "external";
     _element_id = External_t;
+    _required_attributes = SRC;
     _include = false;
     PRINTABLE = true;
     SPEAKABLE = false;
@@ -3789,10 +3770,6 @@ namespace folia {
 
   FoliaElement* External::parseXml( const xmlNode *node ){
     KWargs att = getAttributes( node );
-    KWargs::const_iterator it = att.find("src" );
-    if ( it == att.end() ){
-      throw ValueError( "External: 'src' may not be empty" );
-    }
     setAttributes( att );
     if ( _include ){
       mydoc->addExternal( this );
@@ -3802,9 +3779,6 @@ namespace folia {
 
   KWargs External::collectAttributes() const {
     KWargs atts = FoliaImpl::collectAttributes();
-    if ( !_src.empty() ){
-      atts["src"] = _src;
-    }
     if ( _include ){
       atts["include"] = "yes";
     }
@@ -3814,11 +3788,6 @@ namespace folia {
   void External::setAttributes( const KWargs& kwargsin ){
     KWargs kwargs = kwargsin;
     KWargs::const_iterator it;
-    it = kwargs.find( "src" );
-    if ( it != kwargs.end() ) {
-      _src = it->second;
-      kwargs.erase( it );
-    }
     it = kwargs.find( "include" );
     if ( it != kwargs.end() ) {
       _include = stringTo<bool>( it->second );

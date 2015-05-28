@@ -649,6 +649,7 @@ namespace folia {
     std::string _class;
     std::string _set;
     std::string _href;
+    std::string _src;
 
   private:
     void addFeatureNodes( const KWargs& args );
@@ -657,7 +658,6 @@ namespace folia {
     std::string _datetime;
     std::string _begintime;
     std::string _endtime;
-    std::string _src;
     std::string _speaker;
     AnnotatorType _annotator_type;
     double _confidence;
@@ -896,8 +896,6 @@ namespace folia {
   private:
     void init();
     int _offset;
-    std::string _lang; // UNUSED!
-    UnicodeString _text;
   };
 
   class PhonContent: public FoliaImpl {
@@ -1114,7 +1112,7 @@ namespace folia {
   String( const KWargs& a ): AbstractTokenAnnotation(){ classInit( a ); };
   String( Document *d, const std::string& s=""): AbstractTokenAnnotation( d ){ classInit( s ); };
   String( Document *d, const KWargs& a ): AbstractTokenAnnotation( d ){ classInit( a ); };
-    private:
+  private:
     void init();
   };
 
@@ -1237,13 +1235,10 @@ namespace folia {
   Figure( const KWargs& a ): AbstractStructureElement(){ classInit( a ); };
   Figure( Document *d, const std::string& s="" ): AbstractStructureElement( d ){ classInit( s ); };
   Figure( Document *d, const KWargs& a ): AbstractStructureElement( d ){ classInit( a ); };
-    void setAttributes( const KWargs& );
-    KWargs collectAttributes() const;
     std::string src() const { return _src; };
     UnicodeString caption() const;
   private:
     void init();
-    std::string _src;
   };
 
   class Paragraph: public AbstractStructureElement {
@@ -1737,7 +1732,6 @@ namespace folia {
     KWargs collectAttributes() const;
   private:
     void init();
-    std::string _src;
     bool _include;
   };
 
