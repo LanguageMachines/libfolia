@@ -1108,8 +1108,9 @@ namespace folia {
       if ( !myid.empty() )
 	doc->addDocIndex( this, myid );
       // assume that children also might be doc-less
-      for( size_t i=0; i < data.size(); ++i )
-	data[i]->fixupDoc( doc );
+      for ( const auto el : data ){
+	el->fixupDoc( doc );
+      }
     }
   }
 
@@ -1220,14 +1221,14 @@ namespace folia {
 					   const set<ElementType>& exclude,
 					   bool recurse ) const {
     vector<FoliaElement*> res;
-    for ( size_t i = 0; i < data.size(); ++i ){
-      if ( data[i]->element_id() == et &&
-	   ( st.empty() || data[i]->sett() == st ) ){
-	res.push_back( data[i] );
+    for ( const auto el : data ){
+      if ( el->element_id() == et &&
+	   ( st.empty() || el->sett() == st ) ){
+	res.push_back( el );
       }
       if ( recurse ){
-	if ( exclude.find( data[i]->element_id() ) == exclude.end() ){
-	  vector<FoliaElement*> tmp = data[i]->select( et, st, exclude, recurse );
+	if ( exclude.find( el->element_id() ) == exclude.end() ){
+	  vector<FoliaElement*> tmp = el->select( et, st, exclude, recurse );
 	  res.insert( res.end(), tmp.begin(), tmp.end() );
 	}
       }
@@ -1266,13 +1267,13 @@ namespace folia {
 					   const set<ElementType>& exclude,
 					   bool recurse ) const {
     vector<FoliaElement*> res;
-    for ( size_t i = 0; i < data.size(); ++i ){
-      if ( data[i]->element_id() == et ){
-	res.push_back( data[i] );
+    for ( const auto el : data ){
+      if ( el->element_id() == et ){
+	res.push_back( el );
       }
       if ( recurse ){
-	if ( exclude.find( data[i]->element_id() ) == exclude.end() ){
-	  vector<FoliaElement*> tmp = data[i]->select( et, exclude, recurse );
+	if ( exclude.find( el->element_id() ) == exclude.end() ){
+	  vector<FoliaElement*> tmp = el->select( et, exclude, recurse );
 	  res.insert( res.end(), tmp.begin(), tmp.end() );
 	}
       }
@@ -1595,8 +1596,7 @@ namespace folia {
 
   vector<Word*> Quote::wordParts() const {
     vector<Word*> result;
-    for ( size_t i=0; i < data.size(); ++i ){
-      FoliaElement *pnt = data[i];
+    for ( const auto pnt : data ){
       if ( pnt->isinstance( Word_t ) )
 	result.push_back( dynamic_cast<Word*>(pnt) );
       else if ( pnt->isinstance( Sentence_t ) ){
@@ -1622,8 +1622,7 @@ namespace folia {
 
   vector<Word*> Sentence::wordParts() const {
     vector<Word*> result;
-    for ( size_t i=0; i < data.size(); ++i ){
-      FoliaElement *pnt = data[i];
+    for ( const auto pnt : data ){
       if ( pnt->isinstance( Word_t ) )
 	result.push_back( dynamic_cast<Word*>(pnt) );
       else if ( pnt->isinstance( Quote_t ) ){
@@ -1847,16 +1846,16 @@ namespace folia {
     cerr << "TextContent::TEXT(" << cls << ") " << endl;
 #endif
     UnicodeString result;
-    for( size_t i=0; i < data.size(); ++i ){
+    for( const auto el : data ){
       // try to get text dynamically from children
 #ifdef DEBUG_TEXT
-      cerr << "TextContent: bekijk node[" << i+1 << "] " << data[i]->str(cls) << endl;
+      cerr << "TextContent: bekijk node[" << el->str(cls) << endl;
 #endif
       try {
 #ifdef DEBUG_TEXT
-	cerr << "roep text(" << cls << ") aan op " << data[i] << endl;
+	cerr << "roep text(" << cls << ") aan op " << el << endl;
 #endif
-	UnicodeString tmp = data[i]->text( cls, retaintok );
+	UnicodeString tmp = el->text( cls, retaintok );
 #ifdef DEBUG_TEXT
 	cerr << "TextContent found '" << tmp << "'" << endl;
 #endif
@@ -1882,16 +1881,16 @@ namespace folia {
     cerr << "PhonContent::PHON(" << cls << ") " << endl;
 #endif
     UnicodeString result;
-    for( size_t i=0; i < data.size(); ++i ){
+    for ( const auto el : data ){
       // try to get text dynamically from children
 #ifdef DEBUG_PHON
-      cerr << "PhonContent: bekijk node[" << i+1 << "] " << data[i]->str(cls) << endl;
+      cerr << "PhonContent: bekijk node[" << el->str(cls) << endl;
 #endif
       try {
 #ifdef DEBUG_PHON
-	cerr << "roep text(" << cls << ") aan op " << data[i] << endl;
+	cerr << "roep text(" << cls << ") aan op " << el << endl;
 #endif
-	UnicodeString tmp = data[i]->text( cls );
+	UnicodeString tmp = el->text( cls );
 #ifdef DEBUG_PHON
 	cerr << "PhonContent found '" << tmp << "'" << endl;
 #endif
@@ -2280,8 +2279,8 @@ namespace folia {
 
   const Word* AbstractStructureElement::resolveword( const string& id ) const{
     const Word *result = 0;
-    for ( size_t i=0; i < data.size(); ++i ){
-      result = data[i]->resolveword( id );
+    for ( const auto el : data ){
+      result = el->resolveword( id );
       if ( result )
 	return result;
     }
@@ -3538,16 +3537,16 @@ namespace folia {
 
   vector<FoliaElement*> AbstractSpanAnnotation::wrefs() const {
     vector<FoliaElement*> res;
-    for ( size_t i=0; i < size(); ++ i ){
-      ElementType et = data[i]->element_id();
+    for ( const auto el : data ){
+      ElementType et = el->element_id();
       if ( et == Word_t
 	   || et == WordReference_t
 	   //	   || et == Phoneme_t
 	   || et == MorphologyLayer_t ){
-	res.push_back( data[i] );
+	res.push_back( el );
       }
       else {
-	AbstractSpanAnnotation *as = dynamic_cast<AbstractSpanAnnotation*>(data[i]);
+	AbstractSpanAnnotation *as = dynamic_cast<AbstractSpanAnnotation*>(el);
 	if ( as != 0 ){
 	  vector<FoliaElement*> sub = as->wrefs();
 	  for( size_t j=0; j < sub.size(); ++j ){
@@ -3907,10 +3906,10 @@ namespace folia {
   vector<string> FoliaImpl::feats( const std::string& s ) const {
     //    return all classes of the given subset
     vector<string> result;
-    for ( size_t i=0; i < data.size(); ++i ){
-      if ( data[i]->isSubClass( Feature_t ) &&
-	   data[i]->subset() == s ) {
-	result.push_back( data[i]->cls() );
+    for ( const auto &el : data ){
+      if ( el->isSubClass( Feature_t ) &&
+	   el->subset() == s ) {
+	result.push_back( el->cls() );
       }
     }
     return result;
@@ -3918,10 +3917,10 @@ namespace folia {
 
   string FoliaImpl::feat( const std::string& s ) const {
     //    return the fist class of the given subset
-    for ( size_t i=0; i < data.size(); ++i ){
-      if ( data[i]->isSubClass( Feature_t ) &&
-	   data[i]->subset() == s ) {
-	return data[i]->cls();
+    for ( const auto &el : data ){
+      if ( el->isSubClass( Feature_t ) &&
+	   el->subset() == s ) {
+	return el->cls();
       }
     }
     return "";
