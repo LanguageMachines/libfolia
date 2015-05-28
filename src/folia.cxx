@@ -916,9 +916,9 @@ namespace folia {
     // replaced old by _new
     // returns old
     // when not found does nothing and returns 0;
-    for( size_t i=0; i < data.size(); ++i ){
-      if ( data[i] == old ){
-	data[i] = _new;
+    for( auto& el: data ){
+      if ( el == old ){
+	el = _new;
 	_new->setParent( this );
 	return old;
       }
