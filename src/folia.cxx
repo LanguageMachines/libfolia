@@ -1776,7 +1776,7 @@ namespace folia {
       _offset = -1;
     it = kwargs.find( "ref" );
     if ( it != kwargs.end() ) {
-      throw NotImplementedError( "ref attribute in TextContent" );
+      throw NotImplementedError( "ref attribute in PhonContent" );
     }
     it = kwargs.find( "cls" );
     if ( it == kwargs.end() )
