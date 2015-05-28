@@ -102,13 +102,13 @@ namespace folia {
   FoliaImpl::~FoliaImpl( ){
     // cerr << "delete element id=" << _id << " tag = " << _xmltag << " *= "
     //  	 << (void*)this << " datasize= " << data.size() << endl;
-    for ( size_t i=0; i < data.size(); ++i ){
-      if ( data[i]->refcount() == 0 ) {
+    for ( const auto el : data ){
+      if ( el->refcount() == 0 ) {
 	// probably only != 0 for words
-	delete data[i];
+	delete el;
       }
       else if ( mydoc ){
-	mydoc->keepForDeletion( data[i] );
+	mydoc->keepForDeletion( el );
       }
     }
     //    cerr << "\t\tdelete element id=" << _id << " tag = " << _xmltag << " *= "
