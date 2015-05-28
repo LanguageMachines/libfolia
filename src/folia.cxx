@@ -2927,48 +2927,45 @@ namespace folia {
     cerr << "TEXT(" << cls << ") op node : " << _xmltag << " id ( " << id() << ")" << endl;
 #endif
     if ( cls == "current" ){
-      for( size_t i=0; i < data.size(); ++i ){
+      for ( auto const el : data ){
 #ifdef DEBUG_TEXT
-	cerr << "data[" << i << "]=" << data[i] << endl;
+	cerr << "data=" << el << endl;
 #endif
-	if ( data[i]->isinstance( New_t ) || data[i]->isinstance( Current_t ) )
-	  return data[i]->text( cls, retaintok );
+	if ( el->isinstance( New_t ) || el->isinstance( Current_t ) )
+	  return el->text( cls, retaintok );
       }
     }
     else if ( cls == "original" ){
-      for( size_t i=0; i < data.size(); ++i ){
+      for ( const auto el : data ){
 #ifdef DEBUG_TEXT
-	cerr << "data[" << i << "]=" << data[i] << endl;
+	cerr << "data=" << el << endl;
 #endif
-	if ( data[i]->isinstance( Original_t ) )
-	  return data[i]->text( cls, retaintok );
+	if ( el->isinstance( Original_t ) )
+	  return el->text( cls, retaintok );
       }
     }
     throw NoSuchText("wrong cls");
   }
 
   string Correction::getTextDelimiter( bool retaintok ) const {
-    for( size_t i=0; i < data.size(); ++i ){
-      //    cerr << "data[" << i << "]=" << data[i] << endl;
-      if ( data[i]->isinstance( New_t ) || data[i]->isinstance( Current_t ) )
-	return data[i]->getTextDelimiter( retaintok );
+    for ( const auto el : data ){
+      if ( el->isinstance( New_t ) || el->isinstance( Current_t ) )
+	return el->getTextDelimiter( retaintok );
     }
     return "";
   }
 
   TextContent *Correction::textcontent( const string& cls ) const {
     if ( cls == "current" ){
-      for( size_t i=0; i < data.size(); ++i ){
-	//    cerr << "data[" << i << "]=" << data[i] << endl;
-	if ( data[i]->isinstance( New_t ) || data[i]->isinstance( Current_t ) )
-	  return data[i]->textcontent( cls );
+      for( const auto el : data ){
+	if ( el->isinstance( New_t ) || el->isinstance( Current_t ) )
+	  return el->textcontent( cls );
       }
     }
     else if ( cls == "original" ){
-      for( size_t i=0; i < data.size(); ++i ){
-	//    cerr << "data[" << i << "]=" << data[i] << endl;
-	if ( data[i]->isinstance( Original_t ) )
-	  return data[i]->textcontent( cls );;
+      for( const auto el : data ){
+	if ( el->isinstance( Original_t ) )
+	  return el->textcontent( cls );
       }
     }
     throw NoSuchText("wrong cls");
@@ -2976,17 +2973,15 @@ namespace folia {
 
   PhonContent *Correction::phoncontent( const string& cls ) const {
     if ( cls == "current" ){
-      for( size_t i=0; i < data.size(); ++i ){
-	//    cerr << "data[" << i << "]=" << data[i] << endl;
-	if ( data[i]->isinstance( New_t ) || data[i]->isinstance( Current_t ) )
-	  return data[i]->phoncontent( cls );
+      for( const auto el: data ){
+	if ( el->isinstance( New_t ) || el->isinstance( Current_t ) )
+	  return el->phoncontent( cls );
       }
     }
     else if ( cls == "original" ){
-      for( size_t i=0; i < data.size(); ++i ){
-	//    cerr << "data[" << i << "]=" << data[i] << endl;
-	if ( data[i]->isinstance( Original_t ) )
-	  return data[i]->phoncontent( cls );;
+      for( const auto el: data ){
+	if ( el->isinstance( Original_t ) )
+	  return el->phoncontent( cls );
       }
     }
     throw NoSuchPhon("wrong cls");
