@@ -137,7 +137,7 @@ namespace folia {
 
   void Document::setDocumentProps( KWargs& kwargs ){
     bool happy = false;
-    KWargs::const_iterator it = kwargs.find( "debug" );
+    auto it = kwargs.find( "debug" );
     if ( it != kwargs.end() )
       debug = stringTo<int>( it->second );
     it = kwargs.find( "mode" );
@@ -216,7 +216,7 @@ namespace folia {
     // cerr << "VOOR: " << sindex << endl;
     sindex.erase(s);
     //    cerr << "NA  : " << sindex << endl;
-    vector<FoliaElement*>::iterator pos = iindex.begin();
+    auto pos = iindex.begin();
     while( pos != iindex.end() ){
       if ( *pos == el ){
 	iindex.erase( pos );
@@ -347,7 +347,7 @@ namespace folia {
   }
 
   FoliaElement* Document::index( const string& s ) const {
-    map<string,FoliaElement*>::const_iterator it = sindex.find( s );
+    const auto& it = sindex.find( s );
     if ( it == sindex.end() )
       return 0;
     else
@@ -524,7 +524,7 @@ namespace folia {
     else if ( type == "licence" )
       return _license;
     else {
-      const auto it = meta_atts.find( type );
+      const auto& it = meta_atts.find( type );
       if ( it != meta_atts.end() )
 	return it->second;
       else
@@ -544,7 +544,7 @@ namespace folia {
 	string a;
 	string t;
 	string d;
-	KWargs::const_iterator it = att.find("set" );
+	auto it = att.find("set" );
 	if ( it != att.end() ){
 	  s = it->second;
 	}
@@ -698,7 +698,7 @@ namespace folia {
 
   void Document::addStyle( const std::string& type, const std::string& href ){
     if ( type == "text/xsl" ){
-      const auto it = styles.find( type );
+      const auto& it = styles.find( type );
       if ( it != styles.end() )
 	throw XmlError( "multiple 'text/xsl' style-sheets defined." );
     }
@@ -707,7 +707,7 @@ namespace folia {
 
   void Document::replaceStyle( const std::string& type,
 			       const std::string& href ){
-    const auto it = styles.find( type );
+    const auto& it = styles.find( type );
     if ( it != styles.end() ){
       it->second = href;
     }
@@ -881,7 +881,7 @@ namespace folia {
     if ( it1 != annotationdefaults.end() ){
       if ( s.empty() )
 	throw runtime_error("isDeclared with empty set.");
-      multimap<string,at_t>::const_iterator mit2 = it1->second.lower_bound(s);
+      auto mit2 = it1->second.lower_bound(s);
       while ( mit2 != it1->second.upper_bound(s) ){
 	if ( mit2->second.a == a && mit2->second.t == t )
 	  return true;
@@ -896,11 +896,11 @@ namespace folia {
     if ( type == AnnotationType::NO_ANN ){
       return true;
     }
-    const auto mit1 = annotationdefaults.find(type);
+    const auto& mit1 = annotationdefaults.find(type);
     if ( mit1 != annotationdefaults.end() ){
       if ( s.empty() )
 	return true;
-      const auto mit2 = mit1->second.find(s);
+      const auto& mit2 = mit1->second.find(s);
       return mit2 != mit1->second.end();
     }
     return false;
@@ -912,7 +912,7 @@ namespace folia {
     // search a set. it must be unique. Otherwise return ""
     //    cerr << "zoek '" << type << "' default set " <<  annotationdefaults << endl;
     string result;
-    const auto mit1 = annotationdefaults.find(type);
+    const auto& mit1 = annotationdefaults.find(type);
     if ( mit1 != annotationdefaults.end() ){
       //      cerr << "vind tussen " <<  mit1->second << endl;
       if ( mit1->second.size() == 1 )
@@ -930,7 +930,7 @@ namespace folia {
     // if ( !st.empty() ){
     //   cerr << "zoek '" << st << "' default annotator " <<  annotationdefaults << endl;
     // }
-    const auto mit1 = annotationdefaults.find(type);
+    const auto& mit1 = annotationdefaults.find(type);
     string result;
     if ( mit1 != annotationdefaults.end() ){
       //      cerr << "vind tussen " <<  mit1->second << endl;
@@ -942,7 +942,7 @@ namespace folia {
       }
       else {
 	if ( mit1->second.count( st ) == 1 ){
-	  const auto mit2 = mit1->second.find( st );
+	  const auto& mit2 = mit1->second.find( st );
 	  result = mit2->second.a;
 	}
       }
@@ -956,7 +956,7 @@ namespace folia {
     if ( type == AnnotationType::NO_ANN ){
       return "";
     }
-    const auto mit1 = annotationdefaults.find(type);
+    const auto& mit1 = annotationdefaults.find(type);
     string result;
     if ( mit1 != annotationdefaults.end() ){
       if ( st.empty() ){
@@ -966,7 +966,7 @@ namespace folia {
       }
       else {
 	if ( mit1->second.count( st ) == 1 ){
-	  const auto mit2 = mit1->second.find( st );
+	  const auto& mit2 = mit1->second.find( st );
 	  result = mit2->second.t;
 	}
       }
@@ -977,7 +977,7 @@ namespace folia {
 
   std::string Document::defaultdatetime( AnnotationType::AnnotationType type,
 					 const string& st ) const {
-    const auto mit1 = annotationdefaults.find(type);
+    const auto& mit1 = annotationdefaults.find(type);
     string result;
     if ( mit1 != annotationdefaults.end() ){
       if ( st.empty() ){
@@ -987,7 +987,7 @@ namespace folia {
       }
       else {
 	if ( mit1->second.count( st ) == 1 ){
-	  const auto mit2 = mit1->second.find( st );
+	  const auto& mit2 = mit1->second.find( st );
 	  result = mit2->second.d;
 	}
       }
