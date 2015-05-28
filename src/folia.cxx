@@ -1043,11 +1043,9 @@ namespace folia {
     else {
       auto it = _accepted_data.find( t );
       if ( it == _accepted_data.end() ){
-	it = _accepted_data.begin();
-	while ( it != _accepted_data.end() ){
-	  if ( folia::isSubClass( t, *it ) )
+	for ( const auto& et : _accepted_data ){
+	  if ( folia::isSubClass( t, et ) )
 	    return true;
-	  ++it;
 	}
 	return false;
       }

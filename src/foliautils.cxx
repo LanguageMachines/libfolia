@@ -1018,7 +1018,7 @@ namespace folia {
 
   std::string toString( const KWargs& args ){
     string result;
-    KWargs::const_iterator it = args.begin();
+    auto it = args.begin();
     while ( it != args.end() ){
       result += it->first + "='" + it->second + "'";
       ++it;
@@ -1046,7 +1046,7 @@ namespace folia {
 
   void addAttributes( xmlNode *node, const KWargs& atts ){
     KWargs attribs = atts;
-    KWargs::iterator it = attribs.find("_id");
+    auto it = attribs.find("_id");
     if ( it != attribs.end() ){ // _id is special for xml:id
       xmlSetProp( node, XML_XML_ID, (const xmlChar *)it->second.c_str() );
       attribs.erase(it);
