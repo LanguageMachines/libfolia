@@ -2847,27 +2847,25 @@ namespace folia {
   xmlNode *AbstractSpanAnnotation::xml( bool recursive, bool kanon ) const {
     xmlNode *e = FoliaImpl::xml( false, false );
     // append Word and Morpheme children as WREFS
-    vector<FoliaElement*>::const_iterator it=data.begin();
-    while ( it != data.end() ){
-      if ( (*it)->element_id() == Word_t ||
-	   (*it)->element_id() == Morpheme_t ){
+    for ( auto el : data ){
+      if ( el->element_id() == Word_t ||
+	   el->element_id() == Morpheme_t ){
 	xmlNode *t = XmlNewNode( foliaNs(), "wref" );
 	KWargs attribs;
-	attribs["id"] = (*it)->id();
-	string txt = (*it)->str();
+	attribs["id"] = el->id();
+	string txt = el->str();
 	if ( !txt.empty() )
 	  attribs["t"] = txt;
 	addAttributes( t, attribs );
 	xmlAddChild( e, t );
       }
       else {
-	string at = tagToAtt( *it );
+	string at = tagToAtt( el );
 	if ( at.empty() ){
 	  // otherwise handled by FoliaElement::xml() above
-	  xmlAddChild( e, (*it)->xml( recursive, kanon ) );
+	  xmlAddChild( e, el->xml( recursive, kanon ) );
 	}
       }
-      ++it;
     }
     return e;
   }
