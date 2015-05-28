@@ -104,7 +104,7 @@ namespace folia {
     //  	 << (void*)this << " datasize= " << data.size() << endl;
     for ( size_t i=0; i < data.size(); ++i ){
       if ( data[i]->refcount() == 0 ) {
-	// probably only for words
+	// probably only != 0 for words
 	delete data[i];
       }
       else if ( mydoc ){
@@ -625,7 +625,7 @@ namespace folia {
 #endif
     if ( TEXTDELIMITER == "NONE" ){
       if ( data.size() > 0 ){
-	// attempt to get a delimiter form the last child
+	// attempt to get a delimiter from the last child
 	string det = data[data.size()-1]->getTextDelimiter( retaintok );
 #ifdef DEBUG_TEXT_DEL
 	cerr << "out" << xmltag() << "::gettextdelimiter ==> '" << det << "'" << endl;
@@ -677,20 +677,20 @@ namespace folia {
 #endif
     vector<UnicodeString> parts;
     vector<UnicodeString> seps;
-    for( size_t i=0; i < data.size(); ++i ){
+    for ( const auto child : data ){
       // try to get text dynamically from children
       // skip TextContent elements
 #ifdef DEBUG_TEXT
-      if ( !data[i]->printable() ){
-	cerr << "deeptext: node[" << i << "] " << data[i]->xmltag() << " NOT PRINTABLE! " << endl;
+      if ( !child->printable() ){
+	cerr << "deeptext: node[" << child->xmltag() << "] NOT PRINTABLE! " << endl;
       }
 #endif
-      if ( data[i]->printable() && !data[i]->isinstance( TextContent_t ) ){
+      if ( child->printable() && !child->isinstance( TextContent_t ) ){
 #ifdef DEBUG_TEXT
-	cerr << "deeptext:bekijk node[" << i << "] " << data[i]->xmltag() << endl;
+	cerr << "deeptext:bekijk node[" << child->xmltag() << "]"<< endl;
 #endif
 	try {
-	  UnicodeString tmp = data[i]->text( cls, retaintok, false );
+	  UnicodeString tmp = child->text( cls, retaintok, false );
 #ifdef DEBUG_TEXT
 	  cerr << "deeptext found '" << tmp << "'" << endl;
 #endif
@@ -698,9 +698,9 @@ namespace folia {
 	    tmp.trim();
 	  parts.push_back(tmp);
 	  // get the delimiter
-	  string delim = data[i]->getTextDelimiter( retaintok );
+	  string delim = child->getTextDelimiter( retaintok );
 #ifdef DEBUG_TEXT
-	  cerr << "deeptext:delimiter van "<< data[i]->xmltag() << " ='" << delim << "'" << endl;
+	  cerr << "deeptext:delimiter van "<< child->xmltag() << " ='" << delim << "'" << endl;
 #endif
 	  seps.push_back(UTF8ToUnicode(delim));
 	} catch ( NoSuchText& e ){
@@ -756,13 +756,13 @@ namespace folia {
     if ( !PRINTABLE )
       throw NoSuchText( "non-printable element: " +  _xmltag );
 
-    for( size_t i=0; i < data.size(); ++i ){
-      if ( data[i]->isinstance(TextContent_t) && (data[i]->cls() == cls) ){
-	return dynamic_cast<TextContent*>(data[i]);
+    for( auto el : data ){
+      if ( el->isinstance(TextContent_t) && (el->cls() == cls) ){
+	return dynamic_cast<TextContent*>(el);
       }
-      else if ( data[i]->element_id() == Correction_t) {
+      else if ( el->element_id() == Correction_t) {
 	try {
-	  return data[i]->textcontent(cls);
+	  return el->textcontent(cls);
 	} catch ( NoSuchText& e ){
 	  // continue search for other Corrections or a TextContent
 	}
@@ -782,13 +782,13 @@ namespace folia {
     if ( !SPEAKABLE )
       throw NoSuchPhon( "non-speakable element: " +  _xmltag );
 
-    for( size_t i=0; i < data.size(); ++i ){
-      if ( data[i]->isinstance(PhonContent_t) && (data[i]->cls() == cls) ){
-	return dynamic_cast<PhonContent*>(data[i]);
+    for ( const auto el : data ){
+      if ( el->isinstance(PhonContent_t) && ( el->cls() == cls) ){
+	return dynamic_cast<PhonContent*>(el);
       }
-      else if ( data[i]->element_id() == Correction_t) {
+      else if ( el->element_id() == Correction_t) {
 	try {
-	  return data[i]->phoncontent(cls);
+	  return el->phoncontent(cls);
 	} catch ( NoSuchPhon& e ){
 	  // continue search for other Corrections or a TextContent
 	}
@@ -833,32 +833,32 @@ namespace folia {
 #endif
     vector<UnicodeString> parts;
     vector<UnicodeString> seps;
-    for( size_t i=0; i < data.size(); ++i ){
+    for( const auto child : data ){
       // try to get text dynamically from children
       // skip TextContent elements
-#ifdef DEBUG_TEXT
-      if ( !data[i]->speakable() ){
-	cerr << "deepphon: node[" << i << "] " << data[i]->xmltag() << " NOT SPEAKABLE! " << endl;
+#ifdef DEBUG_PHON
+      if ( !child->speakable() ){
+	cerr << "deepphon: node[" << child->xmltag() << "] NOT SPEAKABLE! " << endl;
       }
 #endif
-      if ( data[i]->speakable() && !data[i]->isinstance( PhonContent_t ) ){
-#ifdef DEBUG_TEXT
-	cerr << "deepphon:bekijk node[" << i << "] " << data[i]->xmltag() << endl;
+      if ( child->speakable() && !child->isinstance( PhonContent_t ) ){
+#ifdef DEBUG_PHON
+	cerr << "deepphon:bekijk node[" << child->xmltag() << "]" << endl;
 #endif
 	try {
-	  UnicodeString tmp = data[i]->phon( cls, false );
-#ifdef DEBUG_TEXT
+	  UnicodeString tmp = child->phon( cls, false );
+#ifdef DEBUG_PHON
 	  cerr << "deepphon found '" << tmp << "'" << endl;
 #endif
 	  parts.push_back(tmp);
 	  // get the delimiter
-	  string delim = data[i]->getTextDelimiter();
-#ifdef DEBUG_TEXT
-	  cerr << "deepphon:delimiter van "<< data[i]->xmltag() << " ='" << delim << "'" << endl;
+	  string delim = child->getTextDelimiter();
+#ifdef DEBUG_PHON
+	  cerr << "deepphon:delimiter van "<< child->xmltag() << " ='" << delim << "'" << endl;
 #endif
 	  seps.push_back(UTF8ToUnicode(delim));
 	} catch ( NoSuchPhon& e ){
-#ifdef DEBUG_TEXT
+#ifdef DEBUG_PHON
 	  cerr << "HELAAS" << endl;
 #endif
 	}
