@@ -3344,6 +3344,7 @@ namespace folia {
 		       Reference_t, TokenAnnotation_t, Description_t,
 		       LineBreak_t, WhiteSpace_t, Alternative_t, TextContent_t,
 		       AlternativeLayers_t, AnnotationLayer_t,
+		       Word_t,
 		       Correction_t, Part_t };
     _annotation_type = AnnotationType::DIVISION;
     TEXTDELIMITER = "\n\n\n";
