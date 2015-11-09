@@ -162,7 +162,7 @@ namespace folia {
 	throw ValueError("Both 'id' and 'xml:id found for " + classname() );
       }
       if ( it != kwargs.end() ) {
-	if ( !ID & supported )
+	if ( (!ID) & supported )
 	  throw ValueError("ID is not supported for " + classname() );
 	else {
 	  isNCName( it->second );
@@ -3641,7 +3641,7 @@ namespace folia {
     _required_attributes = NO_ATT;
     _annotation_type = AnnotationType::CORRECTION;
     _accepted_data = { New_t, Original_t, Suggestion_t, Current_t,
-		       Description_t };
+		       ErrorDetection_t, Description_t, Feature_t };
     _occurrences_per_set=0;
     PRINTABLE=true;
     SPEAKABLE=true;
