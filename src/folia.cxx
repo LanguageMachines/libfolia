@@ -3151,11 +3151,11 @@ namespace folia {
   void Head::init() {
     _element_id = Head_t;
     _xmltag="head";
-    _accepted_data = { Structure_t, Description_t, LineBreak_t,
-		       TextContent_t, Alignment_t, Metric_t,
+    _accepted_data = { Structure_t, Description_t, Correction_t, String_t,
+		       TextContent_t, PhonContent_t, Alignment_t, Metric_t,
 		       AlternativeLayers_t, TokenAnnotation_t, Gap_t };
     _occurrences=1;
-    TEXTDELIMITER = " ";
+    TEXTDELIMITER = "\n\n";
   }
 
   void TableHead::init() {
@@ -3163,9 +3163,10 @@ namespace folia {
     _xmltag="tablehead";
     _required_attributes = NO_ATT;
     _accepted_data ={ Row_t,
-		      Correction_t,
 		      AlternativeLayers_t,
 		      AnnotationLayer_t,
+		      TokenAnnotation_t,
+		      Correction_t,
 		      Part_t };
     _annotation_type = AnnotationType::TABLE;
   }
@@ -3175,9 +3176,10 @@ namespace folia {
     _xmltag="table";
     _accepted_data = { TableHead_t,
 		       Row_t,
-		       Correction_t,
 		       AlternativeLayers_t,
 		       AnnotationLayer_t,
+		       TokenAnnotation_t,
+		       Correction_t,
 		       Part_t };
     _annotation_type = AnnotationType::TABLE;
   }
@@ -3187,13 +3189,17 @@ namespace folia {
     _xmltag="cell";
     _required_attributes = NO_ATT;
     _accepted_data = { Structure_t,
-		       TokenAnnotation_t,
 		       Entities_t,
 		       Alignment_t,
 		       Metric_t,
+		       Gap_t,
 		       AlternativeLayers_t,
 		       AnnotationLayer_t,
-		       Gap_t };
+		       TokenAnnotation_t,
+		       Correction_t,
+		       Part_t,
+		       Feature_t };
+
     _annotation_type = AnnotationType::TABLE;
     TEXTDELIMITER = " | ";
   }
@@ -3203,9 +3209,10 @@ namespace folia {
     _xmltag="row";
     _required_attributes = NO_ATT;
     _accepted_data = { Cell_t,
-		       Correction_t,
-		       AlternativeLayers_t,
 		       AnnotationLayer_t,
+		       AlternativeLayers_t,
+		       TokenAnnotation_t,
+		       Correction_t,
 		       Part_t };
     _annotation_type = AnnotationType::TABLE;
     TEXTDELIMITER = "\n";
@@ -3215,6 +3222,9 @@ namespace folia {
     _xmltag = "br";
     _element_id = LineBreak_t;
     _required_attributes = NO_ATT;
+    _accepted_data = { Feature_t,
+		       Metric_t,
+		       Description_t };
     _annotation_type = AnnotationType::LINEBREAK;
   }
 
@@ -3222,20 +3232,29 @@ namespace folia {
     _xmltag = "whitespace";
     _element_id = WhiteSpace_t;
     _required_attributes = NO_ATT;
+    _accepted_data = { Feature_t,
+		       Metric_t,
+		       Description_t };
     _annotation_type = AnnotationType::WHITESPACE;
   }
 
   void Word::init(){
     _xmltag="w";
     _element_id = Word_t;
-    _accepted_data = { TextContent_t,
+    _accepted_data = { TokenAnnotation_t,
+		       Correction_t,
+		       TextContent_t,
 		       PhonContent_t,
 		       PhonologyLayer_t,
-		       TokenAnnotation_t,
+		       String_t,
 		       Alternative_t,
+		       AlternativeLayers_t,
 		       Description_t,
+		       AnnotationLayer_t,
 		       Alignment_t,
-		       Metric_t };
+		       Metric_t,
+		       Reference_t,
+		       Feature_t };
     _annotation_type = AnnotationType::TOKEN;
     TEXTDELIMITER = " ";
     space = true;
@@ -3246,8 +3265,16 @@ namespace folia {
     _element_id = String_t;
     _required_attributes = NO_ATT;
     _optional_attributes = ID|CLASS|ANNOTATOR|CONFIDENCE|DATETIME;
-    _accepted_data = { TextContent_t, Correction_t, Lang_t,
-		       Description_t, Alignment_t, Metric_t };
+    _accepted_data = { TextContent_t,
+		       PhonContent_t,
+		       Alignment_t,
+		       Description_t,
+		       Metric_t,
+		       Correction_t,
+		       TokenAnnotation_t,
+		       Lang_t,
+		       Feature_t };
+
     _annotation_type = AnnotationType::STRING;
     _occurrences = 0;
     _occurrences_per_set=0;
@@ -3259,8 +3286,11 @@ namespace folia {
     _xmltag="part";
     _element_id = Part_t;
     _required_attributes = NO_ATT;
-    _accepted_data = { Structure_t, TextContent_t,
+    _accepted_data = { Structure_t,
 		       TokenAnnotation_t,
+		       AlternativeLayers_t,
+		       AnnotationLayer_t,
+		       Correction_t,
 		       Description_t };
     _annotation_type = AnnotationType::PART;
     TEXTDELIMITER = " ";
@@ -3325,10 +3355,17 @@ namespace folia {
     _element_id = Sentence_t;
     _accepted_data = { Structure_t,
 		       TokenAnnotation_t,
-		       TextContent_t, AnnotationLayer_t,
+		       TextContent_t,
+		       PhonContent_t,
+		       String_t,
+		       Gap_t,
+		       Description_t,
+		       AnnotationLayer_t,
 		       Correction_t,
-		       Description_t, Alignment_t, Metric_t,
-		       Gap_t };
+		       Description_t,
+		       Alignment_t,
+		       Metric_t,
+		       AlternativeLayers_t };
     _annotation_type = AnnotationType::SENTENCE;
     TEXTDELIMITER = " ";
   }
@@ -3430,21 +3467,36 @@ namespace folia {
   void Item::init(){
     _xmltag="item";
     _element_id = Item_t;
-    _accepted_data = { Structure_t, Description_t,
-		       TokenAnnotation_t,
-		       TextContent_t, String_t, Alignment_t,
+    _accepted_data = { Structure_t,
+		       Description_t,
+		       TextContent_t,
+		       PhonContent_t,
+		       String_t,
 		       Gap_t,
-		       Correction_t };
+		       Alignment_t,
+		       Metric_t,
+		       Alternative_t,
+		       AlternativeLayers_t,
+		       AnnotationLayer_t,
+		       TokenAnnotation_t,
+		       Correction_t,
+		       Feature_t };
     _annotation_type = AnnotationType::LIST;
   }
 
   void List::init(){
     _xmltag="list";
     _element_id = List_t;
-    _accepted_data = { Item_t, Description_t,
-		       Caption_t, Event_t, Lang_t,
+    _accepted_data = { Structure_t,
+		       Description_t,
+		       Caption_t,
+		       Event_t,
+		       Lang_t,
+		       TextContent_t,
+		       PhonContent_t,
 		       Alignment_t,
-		       Correction_t, Part_t };
+		       Correction_t,
+		       Feature_t };
     _annotation_type = AnnotationType::LIST;
     TEXTDELIMITER="\n";
   }
@@ -3452,23 +3504,52 @@ namespace folia {
   void Figure::init(){
     _xmltag="figure";
     _element_id = Figure_t;
-    _accepted_data = { Sentence_t, Description_t,
-		       Caption_t, String_t, Lang_t,
+    _accepted_data = { Sentence_t,
+		       Description_t,
+		       Caption_t,
 		       TextContent_t,
-		       Correction_t, Part_t };
+		       PhonContent_t,
+		       String_t,
+		       Alignment_t,
+		       Metric_t,
+		       Alternative_t,
+		       AlternativeLayers_t,
+		       AnnotationLayer_t,
+		       Lang_t,
+		       Correction_t,
+		       Part_t };
     _annotation_type = AnnotationType::FIGURE;
   }
 
   void Paragraph::init(){
     _xmltag="p";
     _element_id = Paragraph_t;
-    _accepted_data = { Structure_t,
-		       TextContent_t,
+    _accepted_data = { Sentence_t,
+		       Word_t,
+		       Quote_t,
+		       Example_t,
+		       Entry_t,
 		       TokenAnnotation_t,
+		       Correction_t,
+		       TextContent_t,
+		       PhonContent_t,
+		       String_t,
 		       Description_t,
+		       LineBreak_t,
+		       WhiteSpace_t,
+		       Gap_t,
+		       List_t,
+		       Figure_t,
+		       Event_t,
+		       Head_t,
+		       Note_t,
+		       Reference_t,
 		       Alignment_t,
 		       Metric_t,
-		       Gap_t };
+		       Alternative_t,
+		       AlternativeLayers_t,
+		       AnnotationLayer_t,
+		       Part_t };
     _annotation_type = AnnotationType::PARAGRAPH;
   }
 
