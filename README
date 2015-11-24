@@ -27,17 +27,20 @@ Contents of this distribution:
 Dependencies:
 To be able to succesfully build libfolia from source, you need the following dependencies:
 - ticcutils (https://github.com/LanguageMachines/ticcutils)
-- libxml2
+- libxml2-dev
+- libicu-dev
 - A sane C++ build environment with autoconf, automake, autoconf-archive, make, gcc or clang, libtool, pkg-config
 
 To install libfolia, first consult whether your distribution's package manager has an up-to-date package.
 If not, for easy installation of libfolia and all dependencies, it is included as part of our software
-distribution LaMachine: https://proycon.github.io/LaMachine . 
+distribution LaMachine: https://proycon.github.io/LaMachine .
 
 To compile and install manually from source, provided you have all the
 dependencies installed:
 
  $ bash bootstrap.sh
- $ ./configure 
+ $ ./configure
  $ make
  $ make install
+ and, optional:
+ $ make check
