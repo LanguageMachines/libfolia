@@ -17,11 +17,5 @@ install:
     - ./configure
     - make
     - sudo make install
-    - git clone https://github.com/proycon/foliatest.git
-    - cd foliatest
-    - bash bootstrap.sh
-    - ./configure
-    - make
-    - sudo make install
-script: 
-    - LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib foliatest >&2
+script:
+    - LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib make check
