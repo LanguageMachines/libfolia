@@ -370,17 +370,15 @@ namespace folia {
     return foliadoc->select<Paragraph>();
   }
 
+  static const set<ElementType> quoteSet = { Quote_t };
+  static const set<ElementType> emptySet;
+
   vector<Sentence*> Document::sentences() const {
-    static set<ElementType> excludeSet;
-    if ( excludeSet.empty() ){
-      excludeSet.insert( Quote_t );
-    }
-    return foliadoc->select<Sentence>( excludeSet );
+    return foliadoc->select<Sentence>( quoteSet );
   }
 
   vector<Sentence*> Document::sentenceParts() const {
-    static set<ElementType> excludeSet;
-    vector<Sentence*> sents = foliadoc->select<Sentence>( excludeSet );
+    vector<Sentence*> sents = foliadoc->select<Sentence>( emptySet );
     return sents;
   }
 

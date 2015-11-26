@@ -56,9 +56,9 @@ namespace folia {
   class Paragraph;
   class Morpheme;
 
-  extern std::set<ElementType> default_ignore;
-  extern std::set<ElementType> default_ignore_annotations;
-  extern std::set<ElementType> default_ignore_structure;
+  extern const std::set<ElementType> default_ignore;
+  extern const std::set<ElementType> default_ignore_annotations;
+  extern const std::set<ElementType> default_ignore_structure;
 
 #define NOT_IMPLEMENTED {						\
     throw NotImplementedError( xmltag() + "::" + std::string(__func__) ); \

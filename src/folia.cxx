@@ -980,54 +980,99 @@ namespace folia {
       return v[0]->description();
   }
 
+  const set<ElementType> default_ignore =
+    { Original_t,
+      Suggestion_t,
+      Alternative_t };
+  const set<ElementType> default_ignore_annotations =
+    { Original_t,
+      Suggestion_t,
+      Alternative_t,
+      MorphologyLayer_t };
+
+  const set<ElementType> default_ignore_structure =
+    { Original_t,
+      Suggestion_t,
+      Alternative_t,
+      Chunk_t,
+      SyntacticUnit_t,
+      Coreferences_t,
+      Semroles_t,
+      Entity_t,
+      Headwords_t,
+      TimingLayer_t,
+      DependencyDependent_t,
+      TimeSegment_t };
+
+  static const set<ElementType> SpanSet = { SyntacticUnit_t, Chunk_t,
+					    Entity_t, Headwords_t,
+					    DependencyDependent_t,
+					    CoreferenceLink_t,
+					    CoreferenceChain_t, Semrole_t,
+					    Semroles_t, TimeSegment_t };
+
+  static const set<ElementType> AnnoExcludeSet = { Original_t, Suggestion_t };
+
+  static const map<ElementType,set<ElementType> > SubclassMap =
+    { { Structure_t,
+	{ Head_t, Division_t,
+	  TableHead_t, Table_t,
+	  Row_t, Cell_t,
+	  LineBreak_t, WhiteSpace_t,
+	  Word_t, WordReference_t,
+	  Sentence_t, Paragraph_t,
+	  Quote_t, Morpheme_t,
+	  Text_t, Event_t, Reference_t,
+	  External_t,
+	  Caption_t, Label_t,
+	  Item_t, List_t,
+	  Figure_t, Alternative_t, Note_t,
+	  Part_t
+	}
+    },
+      { Feature_t,
+	{ SynsetFeature_t,
+	  ActorFeature_t, HeadFeature_t,
+	  ValueFeature_t, TimeFeature_t,
+	  ModalityFeature_t, LevelFeature_t,
+	  BeginDateTimeFeature_t,
+	  EndDateTimeFeature_t,
+	  FunctionFeature_t
+	}
+      },
+      { TokenAnnotation_t,
+	{ Pos_t, Lemma_t, MorphologyLayer_t,
+	  Sense_t, Phoneme_t, String_t, Lang_t,
+	  Correction_t, Subjectivity_t,
+	  ErrorDetection_t }
+      },
+      { SpanAnnotation_t,
+	{ SyntacticUnit_t,
+	  Chunk_t, Entity_t,
+	  Headwords_t,
+	  DependencyDependent_t,Dependency_t,
+	  CoreferenceLink_t, CoreferenceChain_t,
+	  Semrole_t, TimeSegment_t }
+      },
+      { AnnotationLayer_t,
+	{ SyntaxLayer_t,
+	  Chunking_t, Entities_t,
+	  TimingLayer_t, MorphologyLayer_t,
+	  Dependencies_t,
+	  Coreferences_t, Semroles_t }
+      },
+      { AbstractTextMarkup_t,
+	{ TextMarkupString_t, TextMarkupGap_t,
+	  TextMarkupCorrection_t,
+	  TextMarkupError_t, TextMarkupStyle_t }
+      }
+  };
+
   bool isSubClass( const ElementType e1, const ElementType e2 ){
-    static map<ElementType,set<ElementType> > sm;
-    static bool filled = false;
-    if ( !filled ){
-      sm[Structure_t] = { Head_t, Division_t,
-			  TableHead_t, Table_t,
-			  Row_t, Cell_t,
-			  LineBreak_t, WhiteSpace_t,
-			  Word_t, WordReference_t,
-			  Sentence_t, Paragraph_t,
-			  Quote_t, Morpheme_t,
-			  Text_t, Event_t, Reference_t,
-			  External_t,
-			  Caption_t, Label_t,
-			  Item_t, List_t,
-			  Figure_t, Alternative_t, Note_t,
-			  Part_t };
-      sm[Feature_t] = { SynsetFeature_t,
-			ActorFeature_t, HeadFeature_t,
-			ValueFeature_t, TimeFeature_t,
-			ModalityFeature_t, LevelFeature_t,
-			BeginDateTimeFeature_t,
-			EndDateTimeFeature_t,
-			FunctionFeature_t };
-      sm[TokenAnnotation_t] = { Pos_t, Lemma_t, MorphologyLayer_t,
-				Sense_t, Phoneme_t, String_t, Lang_t,
-				Correction_t, Subjectivity_t,
-				ErrorDetection_t };
-      sm[SpanAnnotation_t] = { SyntacticUnit_t,
-			       Chunk_t, Entity_t,
-			       Headwords_t,
-			       DependencyDependent_t,Dependency_t,
-			       CoreferenceLink_t, CoreferenceChain_t,
-			       Semrole_t, TimeSegment_t };
-      sm[AnnotationLayer_t] = { SyntaxLayer_t,
-				Chunking_t, Entities_t,
-				TimingLayer_t, MorphologyLayer_t,
-				Dependencies_t,
-				Coreferences_t, Semroles_t };
-      sm[AbstractTextMarkup_t] = { TextMarkupString_t, TextMarkupGap_t,
-				   TextMarkupCorrection_t,
-				   TextMarkupError_t, TextMarkupStyle_t };
-      filled = true;
-    }
     if ( e1 == e2 )
       return true;
-    const auto& it = sm.find( e2 );
-    if ( it != sm.end() ){
+    const auto& it = SubclassMap.find( e2 );
+    if ( it != SubclassMap.end() ){
       return it->second.find( e1 ) != it->second.end();
     }
     return false;
@@ -1234,27 +1279,6 @@ namespace folia {
     return res;
   }
 
-  set<ElementType> default_ignore =  { Original_t,
-				       Suggestion_t,
-				       Alternative_t };
-  set<ElementType> default_ignore_annotations = { Original_t,
-						  Suggestion_t,
-						  Alternative_t,
-						  MorphologyLayer_t };
-
-  set<ElementType> default_ignore_structure = { Original_t,
-						Suggestion_t,
-						Alternative_t,
-						Chunk_t,
-						SyntacticUnit_t,
-						Coreferences_t,
-						Semroles_t,
-						Entity_t,
-						Headwords_t,
-						TimingLayer_t,
-						DependencyDependent_t,
-						TimeSegment_t };
-
   vector<FoliaElement*> FoliaImpl::select( ElementType et,
 					   const string& st,
 					   bool recurse ) const {
@@ -1397,12 +1421,7 @@ namespace folia {
       res = 0;
     }
     // now search for alternatives
-    static set<ElementType> excludeSet;
-    if ( excludeSet.empty() ){
-      excludeSet.insert( Original_t );
-      excludeSet.insert( Suggestion_t );
-    }
-    vector<Alternative *> alts = select<Alternative>( excludeSet );
+    vector<Alternative *> alts = select<Alternative>( AnnoExcludeSet );
     for ( size_t i=0; i < alts.size(); ++i ){
       if ( alts[i]->size() > 0 ) { // child elements?
 	for ( size_t j =0; j < alts[i]->size(); ++j ){
@@ -1453,13 +1472,7 @@ namespace folia {
       // ok
       res = 0;
     }
-    // now search for alternatives
-    static set<ElementType> excludeSet;
-    if ( excludeSet.empty() ){
-      excludeSet.insert( Original_t );
-      excludeSet.insert( Suggestion_t );
-    }
-    vector<Alternative *> alts = select<Alternative>( excludeSet );
+    vector<Alternative *> alts = select<Alternative>( AnnoExcludeSet );
     for ( size_t i=0; i < alts.size(); ++i ){
       if ( alts[i]->size() > 0 ) { // child elements?
 	for ( size_t j =0; j < alts[i]->size(); ++j ){
@@ -1511,12 +1524,7 @@ namespace folia {
       res = 0;
     }
     // now search for alternatives
-    static set<ElementType> excludeSet;
-    if ( excludeSet.empty() ){
-      excludeSet.insert( Original_t );
-      excludeSet.insert( Suggestion_t );
-    }
-    vector<Alternative *> alts = select<Alternative>( excludeSet );
+    vector<Alternative *> alts = select<Alternative>( AnnoExcludeSet );
     for ( size_t i=0; i < alts.size(); ++i ){
       if ( alts[i]->size() > 0 ) { // child elements?
 	for ( size_t j =0; j < alts[i]->size(); ++j ){
@@ -2288,12 +2296,7 @@ namespace folia {
   vector<Alternative *> AbstractStructureElement::alternatives( ElementType elt,
 								const string& st ) const {
     // Return a list of alternatives, either all or only of a specific type, restrained by set
-    static set<ElementType> excludeSet;
-    if ( excludeSet.empty() ){
-      excludeSet.insert( Original_t );
-      excludeSet.insert( Suggestion_t );
-    }
-    vector<Alternative *> alts = FoliaElement::select<Alternative>( excludeSet );
+    vector<Alternative *> alts = FoliaElement::select<Alternative>( AnnoExcludeSet );
     if ( elt == BASE ){
       return alts;
     }
@@ -3596,19 +3599,12 @@ namespace folia {
     _optional_attributes = SETONLY;
   }
 
-  static set<ElementType> asSet = { SyntacticUnit_t, Chunk_t,
-				    Entity_t, Headwords_t,
-				    DependencyDependent_t,
-				    CoreferenceLink_t,
-				    CoreferenceChain_t, Semrole_t,
-				    Semroles_t, TimeSegment_t };
-
   vector<AbstractSpanAnnotation*> FoliaImpl::selectSpan() const {
     vector<AbstractSpanAnnotation*> res;
-    for ( const auto& el : asSet ){
+    for ( const auto& el : SpanSet ){
       vector<FoliaElement*> tmp = select( el, true );
-      for ( size_t i = 0; i < tmp.size(); ++i ){
-	res.push_back( dynamic_cast<AbstractSpanAnnotation*>( tmp[i]) );
+      for ( auto& sp : tmp ){
+	res.push_back( dynamic_cast<AbstractSpanAnnotation*>( sp ) );
       }
     }
     return res;
@@ -3628,8 +3624,8 @@ namespace folia {
 	AbstractSpanAnnotation *as = dynamic_cast<AbstractSpanAnnotation*>(el);
 	if ( as != 0 ){
 	  vector<FoliaElement*> sub = as->wrefs();
-	  for( size_t j=0; j < sub.size(); ++j ){
-	    res.push_back( sub[j] );
+	  for( auto& wr : sub ){
+	    res.push_back( wr );
 	  }
 	}
       }
