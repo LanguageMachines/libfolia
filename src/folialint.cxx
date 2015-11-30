@@ -1,7 +1,4 @@
 /*
-  $Id$
-  $URL$
-
   Copyright (c) 1998 - 2015
   ILK   - Tilburg University
   CLiPS - University of Antwerp
@@ -30,8 +27,9 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <map>
 #include "ticcutils/CommandLine.h"
+#include "libfolia/foliautils.h"
+#include "libfolia/folia.h"
 #include "libfolia/document.h"
 
 using namespace std;

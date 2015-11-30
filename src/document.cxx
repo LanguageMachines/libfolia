@@ -37,11 +37,14 @@
 #include <map>
 #include <algorithm>
 #include <stdexcept>
+#include "config.h"
+#include "ticcutils/PrettyPrint.h"
 #include "ticcutils/XMLtools.h"
 #include "ticcutils/StringOps.h"
 #include "ticcutils/zipper.h"
+#include "libfolia/foliautils.h"
+#include "libfolia/folia.h"
 #include "libfolia/document.h"
-#include "config.h"
 
 using namespace std;
 using namespace TiCC;

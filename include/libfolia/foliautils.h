@@ -30,15 +30,8 @@
 #ifndef FOLIA_UTILS_H
 #define FOLIA_UTILS_H
 
-#include <sstream>
-#include <set>
-#include <list>
-#include <vector>
-#include <stdexcept>
+#include <map>
 #include <ctime>
-#include "ticcutils/PrettyPrint.h"
-#include "ticcutils/StringOps.h"
-#include "ticcutils/XMLtools.h"
 #include "unicode/unistr.h"
 #include "unicode/unistr.h"
 #include <unicode/ustream.h>
@@ -66,7 +59,7 @@ namespace folia {
     return a1;
   }
 
-  enum ElementType  {
+  enum ElementType : unsigned int {
     BASE=0, TextContent_t,
     Text_t, Speech_t, Word_t, String_t,
     Utterance_t, Entry_t, Example_t, PhonContent_t,

@@ -1,7 +1,4 @@
 /*
-  $Id$
-  $URL$
-
   Copyright (c) 1998 - 2015
   ILK   - Tilburg University
   CLiPS - University of Antwerp
@@ -35,14 +32,13 @@
 #include "unicode/regex.h"
 #include "libxml/tree.h"
 #include "libxml/xpath.h"
-#include <ctime>
-#include "libfolia/folia.h"
-#include "libfolia/foliautils.h"
 
 namespace folia {
   void initMT();
 
   extern const std::string NSFOLIA;
+
+  enum ElementType : unsigned int;
 
   class Pattern {
     friend std::ostream& operator<<( std::ostream&, const Pattern& );

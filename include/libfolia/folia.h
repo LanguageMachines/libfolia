@@ -30,10 +30,11 @@
 #ifndef FOLIA_H
 #define FOLIA_H
 
-#include <list>
+#include <set>
+#include <map>
+#include <vector>
 #include "unicode/unistr.h"
 #include "libxml/tree.h"
-#include "libfolia/foliautils.h"
 
 namespace folia {
   class Document;
