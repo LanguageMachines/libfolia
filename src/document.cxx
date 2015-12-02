@@ -45,6 +45,7 @@
 #include "libfolia/foliautils.h"
 #include "libfolia/folia.h"
 #include "libfolia/document.h"
+#include "libxml/xmlstring.h"
 
 using namespace std;
 using namespace TiCC;
@@ -72,8 +73,9 @@ namespace folia {
     init();
   }
 
-  Document::Document( const string& args ){
+  Document::Document( const string& args, bool keepxml ) {
     init();
+    _keepxml = keepxml;
     KWargs kwargs = getArgs( args );
     setDocumentProps( kwargs );
     if ( ! foliadoc ){
@@ -88,18 +90,22 @@ namespace folia {
   }
 
   void Document::init(){
+    _keepxml = false;
     _metadatatype = NATIVE;
-    metadata = 0;
-    xmldoc = 0;
+    _metadata = 0;
+    _xmldoc = 0;
     foliadoc = 0;
-    _foliaNsIn = 0;
+    _foliaNsIn_href = 0;
+    _foliaNsIn_prefix = 0;
     _foliaNsOut = 0;
     debug = 0;
     version = versionstring();
   }
 
   Document::~Document(){
-    xmlFreeDoc( xmldoc );
+    xmlFreeDoc( _xmldoc );
+    xmlFree( (xmlChar*)_foliaNsIn_href );
+    xmlFree( (xmlChar*)_foliaNsIn_prefix );
     delete foliadoc;
     for ( const auto& it : delSet ){
       delete it;
@@ -243,7 +249,7 @@ namespace folia {
     if ( !is.good() ){
       throw runtime_error( "file not found: " + s );
     }
-    if ( xmldoc ){
+    if ( foliadoc ){
       throw runtime_error( "Document is already initialized" );
       return false;
     }
@@ -257,8 +263,8 @@ namespace folia {
     }
     int cnt = 0;
     xmlSetStructuredErrorFunc( &cnt, (xmlStructuredErrorFunc)error_sink );
-    xmldoc = xmlReadFile( s.c_str(), 0, XML_PARSE_NOBLANKS|XML_PARSE_HUGE );
-    if ( xmldoc ){
+    _xmldoc = xmlReadFile( s.c_str(), 0, XML_PARSE_NOBLANKS|XML_PARSE_HUGE );
+    if ( _xmldoc ){
       if ( cnt > 0 ){
 	throw XmlError( "document is invalid" );
       }
@@ -272,6 +278,10 @@ namespace folia {
 	else
 	  cout << "failed to parse the doc" << endl;
       }
+      if ( !_keepxml ){
+	xmlFreeDoc( _xmldoc );
+	_xmldoc = 0;
+      }
       return foliadoc != 0;
     }
     if ( debug )
@@ -280,15 +290,15 @@ namespace folia {
   }
 
   bool Document::readFromString( const string& s ){
-    if ( xmldoc ){
+    if ( foliadoc ){
       throw runtime_error( "Document is already initialized" );
       return false;
     }
     int cnt = 0;
     xmlSetStructuredErrorFunc( &cnt, (xmlStructuredErrorFunc)error_sink );
-    xmldoc = xmlReadMemory( s.c_str(), s.length(), 0, 0,
+    _xmldoc = xmlReadMemory( s.c_str(), s.length(), 0, 0,
 			    XML_PARSE_NOBLANKS|XML_PARSE_HUGE );
-    if ( xmldoc ){
+    if ( _xmldoc ){
       if ( cnt > 0 ){
 	throw XmlError( "document is invalid" );
       }
@@ -301,6 +311,10 @@ namespace folia {
 	}
 	else
 	  cout << "failed to parse the doc" << endl;
+      }
+      if ( !_keepxml ){
+	xmlFreeDoc( _xmldoc );
+	_xmldoc = 0;
       }
       return foliadoc != 0;
     }
@@ -657,8 +671,8 @@ namespace folia {
 		throw runtime_error( "imdi != imdi " );
 	      if ( debug > 1 )
 		cerr << "found IMDI" << endl;
-	      metadata = m;
-	      setimdi(m);
+	      _metadata = xmlCopyNodeList(m);
+	      setimdi( _metadata );
 	    }
 	    else if ( Name( m ) == "annotations" &&
 		      checkNS( m, NSFOLIA ) ){
@@ -719,7 +733,7 @@ namespace folia {
   }
 
   void Document::getstyles(){
-    xmlNode *pnt = xmldoc->children;
+    xmlNode *pnt = _xmldoc->children;
     while ( pnt ){
       if ( pnt->type == XML_PI_NODE && Name(pnt) == "xml-stylesheet" ){
 	string content = (const char*)pnt->content;
@@ -760,8 +774,12 @@ namespace folia {
 
   FoliaElement* Document::parseXml( ){
     getstyles();
-    xmlNode *root = xmlDocGetRootElement( xmldoc );
-    _foliaNsIn = root->ns;
+    xmlNode *root = xmlDocGetRootElement( _xmldoc );
+    if ( root->ns ){
+      if ( root->ns->prefix )
+	_foliaNsIn_prefix = xmlStrdup( root->ns->prefix );
+      _foliaNsIn_href = xmlStrdup( root->ns->href );
+    }
     if ( debug > 2 ){
       using TiCC::operator <<;
       string dum;
@@ -775,9 +793,10 @@ namespace folia {
 	string ns = getNS( root );
 	if ( ns.empty() ){
 	  if ( mode == "permissive" ){
+	    _foliaNsIn_href = xmlCharStrdup( NSFOLIA.c_str() );;
+	    _foliaNsIn_prefix = 0;
 	    xmlNs *defNs = xmlNewNs( root,
-				     (const xmlChar *)NSFOLIA.c_str(), 0 );
-	    _foliaNsIn = defNs;
+				     _foliaNsIn_href, _foliaNsIn_prefix );
 	    fixupNs( root, defNs );
 	  }
 	  else {
@@ -1088,7 +1107,7 @@ namespace folia {
       if ( !_metadatafile.empty() )
 	atts["src"] = _metadatafile;
       addAttributes( node, atts );
-      xmlAddChild( node, xmlCopyNodeList(metadata) );
+      xmlAddChild( node, _metadata );
     }
   }
 
@@ -1112,7 +1131,7 @@ namespace folia {
       xmlNs *xl = xmlNewNs( root, (const xmlChar *)"http://www.w3.org/1999/xlink",
 			    (const xmlChar *)"xlink" );
       xmlSetNs( root, xl );
-      if ( !_foliaNsIn ){
+      if ( _foliaNsIn_href == 0 ){
 	if ( nsLabel.empty() )
 	  _foliaNsOut = xmlNewNs( root, (const xmlChar *)NSFOLIA.c_str(), 0 );
 	else
@@ -1121,7 +1140,9 @@ namespace folia {
 				  (const xmlChar*)nsLabel.c_str() );
       }
       else {
-	_foliaNsOut = xmlNewNs( root, _foliaNsIn->href, _foliaNsIn->prefix );
+	_foliaNsOut = xmlNewNs( root,
+				_foliaNsIn_href,
+				_foliaNsIn_prefix );
       }
       xmlSetNs( root, _foliaNsOut );
       KWargs attribs;

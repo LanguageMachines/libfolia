@@ -74,7 +74,7 @@ namespace folia {
     friend std::ostream& operator<<( std::ostream&, const Document * );
   public:
     Document();
-    Document( const std::string& );
+    Document( const std::string&, bool=false );
     ~Document();
     void init();
     bool readFromFile( const std::string& );
@@ -148,7 +148,7 @@ namespace folia {
     void declare( AnnotationType::AnnotationType,
 		  const std::string&, const std::string&,
 		  const std::string&, const std::string& );
-    xmlDoc *XmlDoc() const { return xmldoc; };
+    xmlDoc *XmlDoc() const { return _xmldoc; };
     xmlNs *foliaNs() const { return _foliaNsOut; };
     void keepForDeletion( FoliaElement *p ) { delSet.insert( p ); };
     void addExternal( External *p ) { externals.push_back( p ); };
@@ -182,11 +182,13 @@ namespace folia {
     std::string _id;
     std::set<FoliaElement *> delSet;
     FoliaElement *foliadoc;
-    xmlDoc *xmldoc;
-    xmlNs *_foliaNsIn;
+    xmlDoc *_xmldoc;
+    bool _keepxml;
+    const xmlChar* _foliaNsIn_href;
+    const xmlChar* _foliaNsIn_prefix;
     mutable xmlNs *_foliaNsOut;
     MetaDataType _metadatatype;
-    xmlNode *metadata;
+    xmlNode *_metadata;
     std::string _metadatafile;
     std::string _title;
     std::string _date;

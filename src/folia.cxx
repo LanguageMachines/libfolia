@@ -3808,7 +3808,7 @@ namespace folia {
   void External::resolve( ) {
     try {
       cerr << "try to resolve: " << _src << endl;
-      Document doc( "file='"+_src +"'" );
+      Document doc( "file='"+_src +"'", true );
       xmlDoc *xmldoc = doc.XmlDoc();
       xmlNode *root = xmlDocGetRootElement( xmldoc );
       xmlNode *p = root->children;
