@@ -111,7 +111,11 @@ namespace folia {
     Paragraph *rparagraphs( size_t ) const;
     Sentence *sentences( size_t ) const;
     Sentence *rsentences( size_t ) const;
-    std::string toXml( const std::string& ="", bool = false ) const;
+    std::string toXml( const std::string& ="",
+		       bool = false ) const;
+    bool toXml( const std::string&,
+		const std::string& ="",
+		bool = false ) const;
     MetaDataType metadatatype() const { return _metadatatype; };
     std::string metadatafile() const { return _metadatafile; };
     void set_metadata( const std::string& type, const std::string& value );
@@ -175,6 +179,7 @@ namespace folia {
     void setannotations( xmlNode *) const;
     void setmetadata( xmlNode * ) const;
     void setstyles( xmlDoc* ) const;
+    xmlDoc *to_xmlDoc( const std::string& ="", bool=false ) const;
     std::map<std::string, FoliaElement* > sindex;
     std::vector<FoliaElement* > iindex;
     std::vector<FoliaElement*> data;

@@ -341,20 +341,37 @@ namespace folia {
   }
 
   bool Document::save( const string& fn, const string& nsLabel, bool kanon ) {
-    if ( match_back( fn, ".bz2" ) ){
-      string s = toXml( nsLabel, kanon );
-      return bz2WriteFile( fn, s );
+    try {
+      if ( match_back( fn, ".bz2" ) ){
+	string tmpname = fn.substr( 0, fn.length() - 3 ) + "tmp";
+	if ( toXml( tmpname, nsLabel, kanon ) ){
+	  bool stat = bz2Compress( tmpname, fn );
+	  remove( tmpname.c_str() );
+	  return stat;
+	}
+	else {
+	  return false;
+	}
+      }
+      else  if ( match_back( fn, ".gz" ) ){
+	string tmpname = fn.substr( 0, fn.length() - 2 ) + "tmp";
+	if ( toXml( tmpname, nsLabel, kanon ) ){
+	  bool stat = gzCompress( tmpname, fn );
+	  remove( tmpname.c_str() );
+	  return stat;
+	}
+	else {
+	  return false;
+	}
+      }
+      else {
+	return toXml( fn, nsLabel, kanon );
+      }
     }
-    else  if ( match_back( fn, ".gz" ) ){
-      string s = toXml( nsLabel, kanon );
-      return gzWriteFile( fn, s );
+    catch ( ... ){
+      throw runtime_error( "saving to file " + fn + " failed" );
+      return false;
     }
-    ofstream os( fn );
-    if ( os.good() ) {
-      return save( os, nsLabel, kanon );
-    }
-    throw runtime_error( "saving to file " + fn + " failed" );
-    return false;
   }
 
   int Document::size() const {
@@ -1121,47 +1138,52 @@ namespace folia {
     }
   }
 
+  xmlDoc *Document::to_xmlDoc( const string& nsLabel, bool kanon ) const {
+    xmlDoc *outDoc = xmlNewDoc( (const xmlChar*)"1.0" );
+    setstyles( outDoc );
+    xmlNode *root = xmlNewDocNode( outDoc, 0, (const xmlChar*)"FoLiA", 0 );
+    xmlDocSetRootElement( outDoc, root );
+    xmlNs *xl = xmlNewNs( root, (const xmlChar *)"http://www.w3.org/1999/xlink",
+			  (const xmlChar *)"xlink" );
+    xmlSetNs( root, xl );
+    if ( _foliaNsIn_href == 0 ){
+      if ( nsLabel.empty() )
+	_foliaNsOut = xmlNewNs( root, (const xmlChar *)NSFOLIA.c_str(), 0 );
+      else
+	_foliaNsOut = xmlNewNs( root,
+				(const xmlChar *)NSFOLIA.c_str(),
+				(const xmlChar*)nsLabel.c_str() );
+    }
+    else {
+      _foliaNsOut = xmlNewNs( root,
+			      _foliaNsIn_href,
+			      _foliaNsIn_prefix );
+    }
+    xmlSetNs( root, _foliaNsOut );
+    KWargs attribs;
+    attribs["_id"] = foliadoc->id(); // sort "id" in front!
+    attribs["generator"] = string("libfolia-v") + VERSION;
+    if ( !version.empty() )
+      attribs["version"] = version;
+    if ( external )
+      attribs["external"] = "yes";
+    addAttributes( root, attribs );
+
+    xmlNode *md = xmlAddChild( root, XmlNewNode( foliaNs(), "metadata" ) );
+    xmlNode *an = xmlAddChild( md, XmlNewNode( foliaNs(), "annotations" ) );
+    setannotations( an );
+    setmetadata( md );
+    for ( size_t i=0; i < foliadoc->size(); ++i ){
+      FoliaElement* el = foliadoc->index(i);
+      xmlAddChild( root, el->xml( true, kanon ) );
+    }
+    return outDoc;
+  }
+
   string Document::toXml( const string& nsLabel, bool kanon ) const {
     string result;
     if ( foliadoc ){
-      xmlDoc *outDoc = xmlNewDoc( (const xmlChar*)"1.0" );
-      setstyles( outDoc );
-      xmlNode *root = xmlNewDocNode( outDoc, 0, (const xmlChar*)"FoLiA", 0 );
-      xmlDocSetRootElement( outDoc, root );
-      xmlNs *xl = xmlNewNs( root, (const xmlChar *)"http://www.w3.org/1999/xlink",
-			    (const xmlChar *)"xlink" );
-      xmlSetNs( root, xl );
-      if ( _foliaNsIn_href == 0 ){
-	if ( nsLabel.empty() )
-	  _foliaNsOut = xmlNewNs( root, (const xmlChar *)NSFOLIA.c_str(), 0 );
-	else
-	  _foliaNsOut = xmlNewNs( root,
-				  (const xmlChar *)NSFOLIA.c_str(),
-				  (const xmlChar*)nsLabel.c_str() );
-      }
-      else {
-	_foliaNsOut = xmlNewNs( root,
-				_foliaNsIn_href,
-				_foliaNsIn_prefix );
-      }
-      xmlSetNs( root, _foliaNsOut );
-      KWargs attribs;
-      attribs["_id"] = foliadoc->id(); // sort "id" in front!
-      attribs["generator"] = string("libfolia-v") + VERSION;
-      if ( !version.empty() )
-	attribs["version"] = version;
-      if ( external )
-	attribs["external"] = "yes";
-      addAttributes( root, attribs );
-
-      xmlNode *md = xmlAddChild( root, XmlNewNode( foliaNs(), "metadata" ) );
-      xmlNode *an = xmlAddChild( md, XmlNewNode( foliaNs(), "annotations" ) );
-      setannotations( an );
-      setmetadata( md );
-      for ( size_t i=0; i < foliadoc->size(); ++i ){
-	FoliaElement* el = foliadoc->index(i);
-	xmlAddChild( root, el->xml( true, kanon ) );
-      }
+      xmlDoc *outDoc = to_xmlDoc( nsLabel, kanon );
       xmlChar *buf; int size;
       xmlDocDumpFormatMemoryEnc( outDoc, &buf, &size, "UTF-8", 1 );
       result = string( (const char *)buf, size );
@@ -1172,6 +1194,22 @@ namespace folia {
     else
       throw runtime_error( "can't save, no doc" );
     return result;
+  }
+
+  bool Document::toXml( const string& filename,
+			const string& nsLabel, bool kanon ) const {
+    if ( foliadoc ){
+      xmlDoc *outDoc = to_xmlDoc( nsLabel, kanon );
+      long int res = xmlSaveFormatFileEnc( filename.c_str(), outDoc, "UTF-8", 1 );
+      xmlFreeDoc( outDoc );
+      _foliaNsOut = 0;
+      if ( res == -1 )
+	return false;
+    }
+    else {
+      return false;
+    }
+    return true;
   }
 
   vector<vector<Word*> > Document::findwords( const Pattern& pat,
