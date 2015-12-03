@@ -106,12 +106,14 @@ namespace folia {
     xmlFreeDoc( _xmldoc );
     xmlFree( (xmlChar*)_foliaNsIn_href );
     xmlFree( (xmlChar*)_foliaNsIn_prefix );
+    sindex.clear();
+    iindex.clear();
     delete foliadoc;
     for ( const auto& it : delSet ){
       delete it;
     }
   }
-
+  
   bool operator==( const Document& d1, const Document& d2 ){
     if ( d1.data.size() != d2.data.size() )
       return false;
@@ -217,14 +219,15 @@ namespace folia {
   }
 
   void Document::delDocIndex( const FoliaElement* el, const string& s ){
+    if ( sindex.empty() ){
+      // only when ~~Document is in progress
+      return;
+    }
     if ( s.empty() ) {
       return;
     }
     // cerr << _id << "-del docindex " << el << " (" << s << ")" << endl;
-    // using TiCC::operator <<;
-    // cerr << "VOOR: " << sindex << endl;
     sindex.erase(s);
-    //    cerr << "NA  : " << sindex << endl;
     auto pos = iindex.begin();
     while( pos != iindex.end() ){
       if ( *pos == el ){
