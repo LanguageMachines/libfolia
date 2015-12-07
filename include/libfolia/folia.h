@@ -1,7 +1,4 @@
 /*
-  $Id$
-  $URL$
-
   Copyright (c) 1998 - 2015
   ILK   - Tilburg University
   CLiPS - University of Antwerp
@@ -33,6 +30,9 @@
 #include <set>
 #include <map>
 #include <vector>
+#include <string>
+#include <iostream>
+#include <exception>
 #include "unicode/unistr.h"
 #include "libxml/tree.h"
 

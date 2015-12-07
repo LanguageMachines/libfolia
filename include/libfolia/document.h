@@ -28,6 +28,11 @@
 #define FOLIA_DOCUMENT_H
 
 #include <list>
+#include <set>
+#include <map>
+#include <vector>
+#include <string>
+#include <iostream>
 #include "unicode/unistr.h"
 #include "unicode/regex.h"
 #include "libxml/tree.h"
