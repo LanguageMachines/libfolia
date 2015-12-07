@@ -38,8 +38,6 @@
 #include "libxml/tree.h"
 #include "libxml/xpath.h"
 
-//the following are duplicate headers, they are also in cxx files but included here as well to facilitate use from Cython
-#include <ctime>
 #include "libfolia/folia.h"
 #include "libfolia/foliautils.h"
 

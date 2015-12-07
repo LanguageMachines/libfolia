@@ -42,8 +42,8 @@
 #include "ticcutils/XMLtools.h"
 #include "ticcutils/StringOps.h"
 #include "ticcutils/zipper.h"
-#include "libfolia/foliautils.h"
 #include "libfolia/folia.h"
+#include "libfolia/foliautils.h"
 #include "libfolia/document.h"
 #include "libxml/xmlstring.h"
 
@@ -113,7 +113,7 @@ namespace folia {
       delete it;
     }
   }
-  
+
   bool operator==( const Document& d1, const Document& d2 ){
     if ( d1.data.size() != d2.data.size() )
       return false;
