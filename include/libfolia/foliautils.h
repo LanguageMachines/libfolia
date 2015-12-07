@@ -37,6 +37,11 @@
 #include <unicode/ustream.h>
 #include "libxml/tree.h"
 
+//the following are duplicate headers, they are also in cxx files but included here as well to facilitate use from Cython
+#include "ticcutils/PrettyPrint.h"
+#include "ticcutils/StringOps.h"
+#include "ticcutils/XMLtools.h"
+
 namespace folia {
   enum AnnotatorType{ UNDEFINED = -1, AUTO = 0, MANUAL = 1 };
 

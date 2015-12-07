@@ -35,6 +35,9 @@
 #include <vector>
 #include "unicode/unistr.h"
 #include "libxml/tree.h"
+//
+//the following are duplicate headers, they are also in cxx files but included here as well to facilitate use from Cython
+#include "libfolia/foliautils.h"
 
 namespace folia {
   class Document;
