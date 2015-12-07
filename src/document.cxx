@@ -73,9 +73,8 @@ namespace folia {
     init();
   }
 
-  Document::Document( const string& args, bool keepxml ) {
+  Document::Document( const string& args ) {
     init();
-    _keepxml = keepxml;
     KWargs kwargs = getArgs( args );
     setDocumentProps( kwargs );
     if ( ! foliadoc ){
@@ -90,7 +89,6 @@ namespace folia {
   }
 
   void Document::init(){
-    _keepxml = false;
     _metadatatype = NATIVE;
     _metadata = 0;
     _xmldoc = 0;
@@ -281,10 +279,8 @@ namespace folia {
 	else
 	  cout << "failed to parse the doc" << endl;
       }
-      if ( !_keepxml ){
-	xmlFreeDoc( _xmldoc );
-	_xmldoc = 0;
-      }
+      xmlFreeDoc( _xmldoc );
+      _xmldoc = 0;
       return foliadoc != 0;
     }
     if ( debug )
@@ -315,10 +311,8 @@ namespace folia {
 	else
 	  cout << "failed to parse the doc" << endl;
       }
-      if ( !_keepxml ){
-	xmlFreeDoc( _xmldoc );
-	_xmldoc = 0;
-      }
+      xmlFreeDoc( _xmldoc );
+      _xmldoc = 0;
       return foliadoc != 0;
     }
     if ( debug )

@@ -3805,30 +3805,46 @@ namespace folia {
     SPEAKABLE = false;
   }
 
+  static int error_sink(void *mydata, xmlError *error ){
+    int *cnt = (int*)mydata;
+    if ( *cnt == 0 ){
+      cerr << "\nXML-error: " << error->message << endl;
+    }
+    (*cnt)++;
+    return 1;
+  }
+
   void External::resolve( ) {
     try {
       cerr << "try to resolve: " << _src << endl;
-      Document doc( "file='"+_src +"'", true );
-      xmlDoc *xmldoc = doc.XmlDoc();
-      xmlNode *root = xmlDocGetRootElement( xmldoc );
-      xmlNode *p = root->children;
-      while ( p ){
-	if ( p->type == XML_ELEMENT_NODE ){
-	  string tag = Name( p );
-	  if ( tag == "text" ){
-	    FoliaElement *parent = _parent;
-	    KWargs args = parent->collectAttributes();
-	    args["_id"] = "Arglebargleglop-glyf";
-	    Text *tmp = new Text( mydoc, args );
-	    tmp->FoliaImpl::parseXml( p );
-	    FoliaElement *old = parent->replace( this, tmp->index(0) );
-	    mydoc->delDocIndex( tmp, "Arglebargleglop-glyf" );
-	    tmp->remove( (size_t)0, false );
-	    delete tmp;
-	    delete old;
+      int cnt = 0;
+      xmlSetStructuredErrorFunc( &cnt, (xmlStructuredErrorFunc)error_sink );
+      xmlDoc *extdoc = xmlReadFile( _src.c_str(), 0, XML_PARSE_NOBLANKS|XML_PARSE_HUGE );
+      if ( extdoc && cnt == 0 ){
+	xmlNode *root = xmlDocGetRootElement( extdoc );
+	xmlNode *p = root->children;
+	while ( p ){
+	  if ( p->type == XML_ELEMENT_NODE ){
+	    string tag = Name( p );
+	    if ( tag == "text" ){
+	      FoliaElement *parent = _parent;
+	      KWargs args = parent->collectAttributes();
+	      args["_id"] = "Arglebargleglop-glyf";
+	      Text *tmp = new Text( mydoc, args );
+	      tmp->FoliaImpl::parseXml( p );
+	      FoliaElement *old = parent->replace( this, tmp->index(0) );
+	      mydoc->delDocIndex( tmp, "Arglebargleglop-glyf" );
+	      tmp->remove( (size_t)0, false );
+	      delete tmp;
+	      delete old;
+	    }
+	    p = p->next;
 	  }
-	  p = p->next;
 	}
+	xmlFreeDoc( extdoc );
+      }
+      else {
+	throw XmlError( "resolving external " + _src + " failed" );
       }
     }
     catch ( const exception& e ){

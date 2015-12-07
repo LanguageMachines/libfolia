@@ -82,7 +82,7 @@ namespace folia {
     friend std::ostream& operator<<( std::ostream&, const Document * );
   public:
     Document();
-    Document( const std::string&, bool=false );
+    Document( const std::string& );
     ~Document();
     void init();
     bool readFromFile( const std::string& );
@@ -196,7 +196,6 @@ namespace folia {
     std::set<FoliaElement *> delSet;
     FoliaElement *foliadoc;
     xmlDoc *_xmldoc;
-    bool _keepxml;
     const xmlChar* _foliaNsIn_href;
     const xmlChar* _foliaNsIn_prefix;
     mutable xmlNs *_foliaNsOut;
