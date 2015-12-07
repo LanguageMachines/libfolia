@@ -3820,7 +3820,7 @@ namespace folia {
       int cnt = 0;
       xmlSetStructuredErrorFunc( &cnt, (xmlStructuredErrorFunc)error_sink );
       xmlDoc *extdoc = xmlReadFile( _src.c_str(), 0, XML_PARSE_NOBLANKS|XML_PARSE_HUGE );
-      if ( extdoc && cnt == 0 ){
+      if ( extdoc ){
 	xmlNode *root = xmlDocGetRootElement( extdoc );
 	xmlNode *p = root->children;
 	while ( p ){
