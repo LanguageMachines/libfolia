@@ -1,10 +1,10 @@
-Libfolia (c) CLS/ILK/CLiPS 1998 - 2015
+Libfolia (c) CLS/ILK 1998 - 2016
 
 FoLiA Library for C++
  https://proycon.github.io/folia/
 
     Centre for Language Studies, Radboud University Nijmegen
-    Induction of Linguistic Knowledge Research Group, Tilburg University and
+    Induction of Linguistic Knowledge Research Group, Tilburg University
 
 This is a C++ Library, developed by Ko van der Sloot,  for working with the
 Format for Linguistic Annotation (FoLiA, https://proycon.github.io/folia/).

@@ -1,10 +1,8 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
-# $Id: configure.ac 9271 2011-04-04 12:08:35Z sloot $
-# $URL: https://ilk.uvt.nl/svn/sources/ucto/trunk/configure.ac $
 
 AC_PREREQ(2.59)
-AC_INIT([libfolia], [0.13], [timbl@uvt.nl])
+AC_INIT([libfolia], [0.13], [lamasoftware@science.ru.nl])
 AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR([configure.ac])
 AC_CONFIG_MACRO_DIR([m4])
