@@ -1,3 +1,15 @@
+0.13 2016-01-14
+[Ko van der Sloot]
+  * repository moved to GitHub
+  * added Travis support
+  * much smaller memory footprint
+  * Document deletion was very slow due to a brainfarth
+  * no more initialization problems in MT cases
+  * use XML_PARSE_HUGE to be able to handle VERY LARGE documents
+  * text() functions in line with the Python version
+  * added new "tags" to keep in sync with the Python version
+  * a lot of small code updates and refactorings
+
 0.12 2014-09-23
 [Ko van der Sloot]
   * release 0.12
