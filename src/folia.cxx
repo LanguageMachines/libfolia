@@ -78,7 +78,7 @@ namespace folia {
     return os;
   }
 
-  FoliaImpl::FoliaImpl( Document *d ){
+  FoliaImpl::FoliaImpl( const properties& p, Document *d ) : _props(p){
     mydoc = d;
     _confidence = -1;
     _element_id = BASE;
