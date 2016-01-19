@@ -1,1 +1,1 @@
-pkginclude_HEADERS = folia.h document.h foliautils.h
+pkginclude_HEADERS = folia.h document.h foliautils.h properties.h

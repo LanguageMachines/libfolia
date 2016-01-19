@@ -787,12 +787,6 @@ namespace folia {
       return new Row( doc );
     case Lang_t:
       return new LangAnnotation( doc );
-    case SpanAnnotation_t:
-      return new AbstractSpanAnnotation( doc );
-    case TokenAnnotation_t:
-      return new AbstractTokenAnnotation( doc );
-    case Structure_t:
-      return new AbstractStructureElement( doc );
     case XmlComment_t:
       return new XmlComment( doc );
     case XmlText_t:
@@ -813,8 +807,6 @@ namespace folia {
       return new MetricAnnotation( doc );
     case Division_t:
       return new Division( doc );
-    case AnnotationLayer_t:
-      return new AbstractAnnotationLayer( doc );
     case Pos_t:
       return new PosAnnotation( doc );
     case Lemma_t:
@@ -903,8 +895,6 @@ namespace folia {
       return new Alignment( doc );
     case AlignReference_t:
       return new AlignReference( doc );
-    case AbstractTextMarkup_t:
-      return new AbstractTextMarkup( doc );
     case TextMarkupString_t:
       return new TextMarkupString( doc );
     case TextMarkupGap_t:
@@ -917,6 +907,13 @@ namespace folia {
       return new TextMarkupStyle( doc );
     case Part_t:
       return new Part( doc );
+    case SpanAnnotation_t:
+    case TokenAnnotation_t:
+    case Structure_t:
+    case AnnotationLayer_t:
+    case AbstractTextMarkup_t:
+      throw ValueError( "Illegal attempt to create an abstract instance of type '"
+		       + toString(et) + "'" );
     default:
       throw ValueError( "unknown elementtype(" + toString(int(et)) + ")" );
     }
@@ -1258,12 +1255,17 @@ namespace folia {
 	  sane = false;
 	  continue;
 	}
-	FoliaElement *tmp = FoliaImpl::createElement( 0, s );
-	if ( tmp == 0 ) {
-	  cerr << "no Element created found for string '" << s << "'" << endl;
-	  sane = false;
+	FoliaElement *tmp = 0;
+	try {
+	  tmp = FoliaImpl::createElement( 0, s );
 	}
-	else {
+	catch( ValueError &e ){
+	  string err = e.what();
+	  if ( !err.find("abstract" ) ){
+	    sane = false;
+	  }
+	}
+	if ( tmp != 0 ) {
 	  if ( et != tmp->element_id() ){
 	    cerr << "the element type of " << tmp << " != " << et << endl;
 	    sane = false;

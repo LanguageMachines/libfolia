@@ -761,8 +761,8 @@ namespace folia {
     public AllowAnnotation,
     public AllowCorrection {
   public:
-  AbstractStructureElement( Document *d=0 ): FoliaImpl( PROPS, d )
-      { classInit(); };
+    AbstractStructureElement( const properties& props, Document *d=0 ):
+      FoliaImpl( props, d ){ classInit(); };
 
 
       std::string str( const std::string& = "current" ) const;
@@ -770,35 +770,35 @@ namespace folia {
 					       const std::string& = "" ) const;
 
       FoliaElement *append( FoliaElement* );
-    std::vector<Paragraph*> paragraphs() const;
-    std::vector<Sentence*> sentences() const;
-    std::vector<Word*> words() const;
-    Sentence *sentences( size_t ) const;
-    Sentence *rsentences( size_t ) const;
-    Paragraph *paragraphs( size_t ) const;
-    Paragraph *rparagraphs( size_t ) const;
-    Word *words( size_t ) const;
-    Word *rwords( size_t ) const;
-    const Word* resolveword( const std::string& ) const;
-    static properties PROPS;
+      std::vector<Paragraph*> paragraphs() const;
+      std::vector<Sentence*> sentences() const;
+      std::vector<Word*> words() const;
+      Sentence *sentences( size_t ) const;
+      Sentence *rsentences( size_t ) const;
+      Paragraph *paragraphs( size_t ) const;
+      Paragraph *rparagraphs( size_t ) const;
+      Word *words( size_t ) const;
+      Word *rwords( size_t ) const;
+      const Word* resolveword( const std::string& ) const;
   private:
-    void init();
-  };
+      void init();
+    };
 
   class AbstractAnnotation: public FoliaImpl {
   public:
-  AbstractAnnotation( Document *d=0 ): FoliaImpl( PROPS, d ){};
-    static properties PROPS;
+  AbstractAnnotation( const properties& props, Document *d=0 ):
+    FoliaImpl( props, d ){};
   };
 
   class AbstractTokenAnnotation:
     public AbstractAnnotation,
     public AllowGenerateID {
   public:
-  AbstractTokenAnnotation( Document *d=0 ): AbstractAnnotation( d ){ classInit(); };
+  AbstractTokenAnnotation( const properties& props, Document *d=0 ):
+      AbstractAnnotation( props, d ){ classInit(); };
   private:
-    void init();
-  };
+      void init();
+    };
 
   class Feature: public FoliaImpl {
   public:
@@ -823,20 +823,22 @@ namespace folia {
     public AllowCorrection
     {
   public:
-  AbstractSpanAnnotation( Document *d=0 ): AbstractAnnotation( d ){ classInit(); };
-    xmlNode *xml( bool, bool=false ) const;
-    FoliaElement *append( FoliaElement* );
+    AbstractSpanAnnotation( const properties& props, Document *d=0 ):
+      AbstractAnnotation( props, d ){ classInit(); };
+      xmlNode *xml( bool, bool=false ) const;
+      FoliaElement *append( FoliaElement* );
 
-    std::vector<FoliaElement*> wrefs() const;
-    FoliaElement *wrefs( size_t ) const;
+      std::vector<FoliaElement*> wrefs() const;
+      FoliaElement *wrefs( size_t ) const;
 
-  private:
-    void init();
-  };
+    private:
+      void init();
+    };
 
   class AbstractTextMarkup: public AbstractAnnotation {
   public:
-  AbstractTextMarkup( Document *d=0 ): AbstractAnnotation( d ){ classInit(); };
+  AbstractTextMarkup( const properties& props, Document *d=0 ):
+    AbstractAnnotation( props, d ){ classInit(); };
     void setAttributes( const KWargs& );
     KWargs collectAttributes() const;
     const FoliaElement* resolveid() const;
@@ -851,25 +853,31 @@ namespace folia {
 
   class TextMarkupGap: public AbstractTextMarkup {
   public:
-  TextMarkupGap( Document *d=0 ): AbstractTextMarkup( d ){ classInit(); };
+  TextMarkupGap( Document *d=0 ):
+    AbstractTextMarkup( PROPS, d ) { classInit(); };
+    static properties PROPS;
   private:
     void init();
   };
 
   class TextMarkupString: public AbstractTextMarkup {
   public:
-  TextMarkupString( Document *d=0 ): AbstractTextMarkup( d ){ classInit(); };
+  TextMarkupString( Document *d=0 ):
+    AbstractTextMarkup( PROPS, d ) { classInit(); };
+    static properties PROPS;
   private:
     void init();
   };
 
   class TextMarkupCorrection: public AbstractTextMarkup {
   public:
-  TextMarkupCorrection( Document *d=0 ): AbstractTextMarkup( d ){ classInit(); };
+  TextMarkupCorrection( Document *d=0 ):
+    AbstractTextMarkup( PROPS, d ){ classInit(); };
     void setAttributes( const KWargs& );
     KWargs collectAttributes() const;
     UnicodeString text( const std::string& = "current",
 			bool = false, bool = false ) const;
+    static properties PROPS;
   private:
     void init();
     std::string _original;
@@ -877,14 +885,18 @@ namespace folia {
 
   class TextMarkupError: public AbstractTextMarkup {
   public:
-  TextMarkupError( Document *d=0 ): AbstractTextMarkup( d ){ classInit(); };
+  TextMarkupError( Document *d=0 ):
+    AbstractTextMarkup( PROPS, d ){ classInit(); };
+    static properties PROPS;
   private:
     void init();
   };
 
   class TextMarkupStyle: public AbstractTextMarkup {
   public:
-  TextMarkupStyle( Document *d=0 ): AbstractTextMarkup( d ){ classInit(); };
+  TextMarkupStyle( Document *d=0 ):
+    AbstractTextMarkup( PROPS, d ){ classInit(); };
+    static properties PROPS;
   private:
     void init();
   };
@@ -953,60 +965,89 @@ namespace folia {
 
   class Head: public AbstractStructureElement {
   public:
-  Head( const std::string& s=""): AbstractStructureElement() {  classInit( s ); };
-  Head( const KWargs& a ): AbstractStructureElement() {  classInit( a ); };
-  Head( Document *d, const std::string& s=""): AbstractStructureElement( d ) {  classInit( s ); };
-  Head( Document *d, const KWargs& a ): AbstractStructureElement( d ) {  classInit( a ); };
+  Head( const std::string& s=""):
+    AbstractStructureElement( PROPS ) {  classInit( s ); };
+  Head( const KWargs& a ):
+    AbstractStructureElement( PROPS ) {  classInit( a ); };
+  Head( Document *d, const std::string& s=""):
+    AbstractStructureElement( PROPS, d ) {  classInit( s ); };
+  Head( Document *d, const KWargs& a ):
+    AbstractStructureElement( PROPS, d ) {  classInit( a ); };
+    static properties PROPS;
   private:
     void init();
   };
 
   class TableHead: public AbstractStructureElement {
   public:
-  TableHead( const std::string& s=""): AbstractStructureElement() {  classInit( s ); };
-  TableHead( const KWargs& a ): AbstractStructureElement() {  classInit( a ); };
-  TableHead( Document *d, const std::string& s=""): AbstractStructureElement( d ) {  classInit( s ); };
-  TableHead( Document *d, const KWargs& a ): AbstractStructureElement( d ) {  classInit( a ); };
+  TableHead( const std::string& s=""):
+    AbstractStructureElement( PROPS ) {  classInit( s ); };
+  TableHead( const KWargs& a ):
+    AbstractStructureElement( PROPS ) {  classInit( a ); };
+  TableHead( Document *d, const std::string& s=""):
+    AbstractStructureElement( PROPS, d ) {  classInit( s ); };
+  TableHead( Document *d, const KWargs& a ):
+    AbstractStructureElement( PROPS, d ) {  classInit( a ); };
+    static properties PROPS;
   private:
     void init();
   };
 
   class Table: public AbstractStructureElement {
   public:
-  Table( const std::string& s=""): AbstractStructureElement() {  classInit( s ); };
-  Table( const KWargs& a ): AbstractStructureElement() {  classInit( a ); };
-  Table( Document *d, const std::string& s=""): AbstractStructureElement( d ) {  classInit( s ); };
-  Table( Document *d, const KWargs& a ): AbstractStructureElement( d ) {  classInit( a ); };
+  Table( const std::string& s=""):
+    AbstractStructureElement( PROPS ) {  classInit( s ); };
+  Table( const KWargs& a ):
+    AbstractStructureElement( PROPS ) {  classInit( a ); };
+  Table( Document *d, const std::string& s=""):
+    AbstractStructureElement( PROPS, d ) {  classInit( s ); };
+  Table( Document *d, const KWargs& a ):
+    AbstractStructureElement( PROPS, d ) {  classInit( a ); };
+    static properties PROPS;
   private:
     void init();
   };
 
   class Row: public AbstractStructureElement {
   public:
-  Row( const std::string& s=""): AbstractStructureElement() {  classInit( s ); };
-  Row( const KWargs& a ): AbstractStructureElement() {  classInit( a ); };
-  Row( Document *d, const std::string& s=""): AbstractStructureElement( d ) {  classInit( s ); };
-  Row( Document *d, const KWargs& a ): AbstractStructureElement( d ) {  classInit( a ); };
+  Row( const std::string& s=""):
+    AbstractStructureElement( PROPS ) {  classInit( s ); };
+  Row( const KWargs& a ):
+    AbstractStructureElement( PROPS ) {  classInit( a ); };
+  Row( Document *d, const std::string& s=""):
+    AbstractStructureElement( PROPS, d ) {  classInit( s ); };
+  Row( Document *d, const KWargs& a ):
+    AbstractStructureElement( PROPS, d ) {  classInit( a ); };
+    static properties PROPS;
   private:
     void init();
   };
 
   class Cell: public AbstractStructureElement {
   public:
-  Cell( const std::string& s=""): AbstractStructureElement() {  classInit( s ); };
-  Cell( const KWargs& a ): AbstractStructureElement() {  classInit( a ); };
-  Cell( Document *d, const std::string& s=""): AbstractStructureElement( d ) {  classInit( s ); };
-  Cell( Document *d, const KWargs& a ): AbstractStructureElement( d ) {  classInit( a ); };
+  Cell( const std::string& s=""):
+    AbstractStructureElement( PROPS ) {  classInit( s ); };
+  Cell( const KWargs& a ):
+    AbstractStructureElement( PROPS ) {  classInit( a ); };
+  Cell( Document *d, const std::string& s=""):
+    AbstractStructureElement( PROPS, d ) {  classInit( s ); };
+  Cell( Document *d, const KWargs& a ):
+    AbstractStructureElement( PROPS, d ) {  classInit( a ); };
+    static properties PROPS;
   private:
     void init();
   };
 
   class Gap: public FoliaImpl {
   public:
-  Gap( const std::string& s=""): FoliaImpl(PROPS) { classInit( s ); };
-  Gap( const KWargs& a ): FoliaImpl(PROPS) { classInit( a ); };
-  Gap( Document *d, const std::string& s=""): FoliaImpl(PROPS,d) { classInit( s ); };
-  Gap( Document *d, const KWargs& a ): FoliaImpl(PROPS,d) { classInit( a ); };
+  Gap( const std::string& s=""):
+    FoliaImpl(PROPS) { classInit( s ); };
+  Gap( const KWargs& a ):
+    FoliaImpl(PROPS) { classInit( a ); };
+  Gap( Document *d, const std::string& s=""):
+    FoliaImpl(PROPS,d) { classInit( s ); };
+  Gap( Document *d, const KWargs& a ):
+    FoliaImpl(PROPS,d) { classInit( a ); };
     std::string content() const;
     static properties PROPS;
   private:
@@ -1015,10 +1056,14 @@ namespace folia {
 
   class Content: public FoliaImpl {
   public:
-  Content( const std::string& s=""): FoliaImpl(PROPS) { classInit( s ); };
-  Content( const KWargs& a ): FoliaImpl(PROPS) { classInit( a ); };
-  Content( Document *d, const std::string& s=""): FoliaImpl(PROPS,d) { classInit( s ); };
-  Content( Document *d, const KWargs& a ): FoliaImpl(PROPS,d) { classInit( a ); };
+  Content( const std::string& s=""):
+    FoliaImpl(PROPS) { classInit( s ); };
+  Content( const KWargs& a ):
+    FoliaImpl(PROPS) { classInit( a ); };
+  Content( Document *d, const std::string& s=""):
+    FoliaImpl(PROPS,d) { classInit( s ); };
+  Content( Document *d, const KWargs& a ):
+    FoliaImpl(PROPS,d) { classInit( a ); };
     FoliaElement* parseXml( const xmlNode * );
     xmlNode *xml( bool, bool = false ) const;
     std::string content() const { return value; };
@@ -1030,10 +1075,14 @@ namespace folia {
 
   class MetricAnnotation: public FoliaImpl {
   public:
-  MetricAnnotation( const std::string& s=""): FoliaImpl(PROPS) { classInit( s ); };
-  MetricAnnotation( const KWargs& a ): FoliaImpl(PROPS) { classInit( a ); };
-  MetricAnnotation( Document *d, const std::string& s=""): FoliaImpl(PROPS,d) { classInit( s ); };
-  MetricAnnotation( Document *d, const KWargs& a ): FoliaImpl(PROPS,d) { classInit( a ); };
+  MetricAnnotation( const std::string& s=""):
+    FoliaImpl(PROPS) { classInit( s ); };
+  MetricAnnotation( const KWargs& a ):
+    FoliaImpl(PROPS) { classInit( a ); };
+  MetricAnnotation( Document *d, const std::string& s=""):
+    FoliaImpl(PROPS,d) { classInit( s ); };
+  MetricAnnotation( Document *d, const KWargs& a ):
+    FoliaImpl(PROPS,d) { classInit( a ); };
     static properties PROPS;
   private:
     void init();
@@ -1041,45 +1090,64 @@ namespace folia {
 
   class Division: public AbstractStructureElement {
   public:
-  Division( const std::string& s=""): AbstractStructureElement() { classInit( s ); };
-  Division( const KWargs& a ): AbstractStructureElement() { classInit( a ); };
-  Division( Document *d, const std::string& s=""): AbstractStructureElement( d ) { classInit( s ); };
-  Division( Document *d, const KWargs& a ): AbstractStructureElement( d ) { classInit( a ); };
+  Division( const std::string& s=""):
+    AbstractStructureElement( PROPS ) { classInit( s ); };
+  Division( const KWargs& a ):
+    AbstractStructureElement( PROPS ) { classInit( a ); };
+  Division( Document *d, const std::string& s=""):
+    AbstractStructureElement( PROPS, d ) { classInit( s ); };
+  Division( Document *d, const KWargs& a ):
+    AbstractStructureElement( PROPS, d ) { classInit( a ); };
     Head *head() const;
+    static properties PROPS;
   private:
     void init();
   };
 
   class LineBreak: public AbstractStructureElement {
   public:
-  LineBreak( const std::string& s=""): AbstractStructureElement(){ classInit( s ); };
-  LineBreak( const KWargs& a ): AbstractStructureElement(){ classInit( a ); };
-  LineBreak( Document *d,  const std::string& s=""): AbstractStructureElement( d ){ classInit( s ); };
-  LineBreak( Document *d,  const KWargs& a ): AbstractStructureElement( d ){ classInit( a ); };
+  LineBreak( const std::string& s=""):
+    AbstractStructureElement( PROPS ){ classInit( s ); };
+  LineBreak( const KWargs& a ):
+    AbstractStructureElement( PROPS ){ classInit( a ); };
+  LineBreak( Document *d,  const std::string& s=""):
+    AbstractStructureElement( PROPS, d ){ classInit( s ); };
+  LineBreak( Document *d,  const KWargs& a ):
+    AbstractStructureElement( PROPS, d ){ classInit( a ); };
     UnicodeString text( const std::string& = "current",
 			bool = false, bool = false ) const {
       return "";
     }
+    static properties PROPS;
   private:
     void init();
   };
 
   class WhiteSpace: public AbstractStructureElement {
   public:
-  WhiteSpace( const std::string& s=""): AbstractStructureElement(){ classInit( s ); };
-  WhiteSpace( const KWargs& a ): AbstractStructureElement(){ classInit( a ); };
-  WhiteSpace( Document *d,  const std::string& s=""): AbstractStructureElement( d ){ classInit( s ); };
-  WhiteSpace( Document *d,  const KWargs& a ): AbstractStructureElement( d ){ classInit( a ); };
+  WhiteSpace( const std::string& s=""):
+    AbstractStructureElement( PROPS ){ classInit( s ); };
+  WhiteSpace( const KWargs& a ):
+    AbstractStructureElement( PROPS ){ classInit( a ); };
+  WhiteSpace( Document *d,  const std::string& s=""):
+    AbstractStructureElement( PROPS, d ){ classInit( s ); };
+  WhiteSpace( Document *d,  const KWargs& a ):
+    AbstractStructureElement( PROPS, d ){ classInit( a ); };
+    static properties PROPS;
   private:
     void init();
   };
 
   class Word: public AbstractStructureElement {
   public:
-  Word( const std::string& s="" ): AbstractStructureElement(){ classInit( s ); };
-  Word( const KWargs& a ): AbstractStructureElement(){ classInit( a ); };
-  Word( Document *d, const std::string& s=""): AbstractStructureElement( d ){ classInit( s ); };
-  Word( Document *d, const KWargs& a ): AbstractStructureElement( d ){ classInit( a ); };
+  Word( const std::string& s="" ):
+    AbstractStructureElement( PROPS ){ classInit( s ); };
+  Word( const KWargs& a ):
+    AbstractStructureElement( PROPS ){ classInit( a ); };
+  Word( Document *d, const std::string& s=""):
+    AbstractStructureElement( PROPS, d ){ classInit( s ); };
+  Word( Document *d, const KWargs& a ):
+    AbstractStructureElement( PROPS, d ){ classInit( a ); };
     Correction *split( FoliaElement *, FoliaElement *,
 		       const std::string& = "" );
     Sentence *sentence() const;
@@ -1106,6 +1174,7 @@ namespace folia {
     MorphologyLayer *addMorphologyLayer( const KWargs& );
     MorphologyLayer *getMorphologyLayers( const std::string&,
 					  std::vector<MorphologyLayer*>& ) const;
+    static properties PROPS;
   private:
     void init();
     bool space;
@@ -1113,10 +1182,15 @@ namespace folia {
 
   class Part: public AbstractStructureElement {
   public:
-  Part( const std::string& s="" ): AbstractStructureElement(){ classInit( s ); };
-  Part( const KWargs& a ): AbstractStructureElement(){ classInit( a ); };
-  Part( Document *d, const std::string& s=""): AbstractStructureElement( d ){ classInit( s ); };
-  Part( Document *d, const KWargs& a ): AbstractStructureElement( d ){ classInit( a ); };
+  Part( const std::string& s="" ):
+    AbstractStructureElement( PROPS ){ classInit( s ); };
+  Part( const KWargs& a ):
+    AbstractStructureElement( PROPS ){ classInit( a ); };
+  Part( Document *d, const std::string& s=""):
+    AbstractStructureElement( PROPS, d ){ classInit( s ); };
+  Part( Document *d, const KWargs& a ):
+    AbstractStructureElement( PROPS, d ){ classInit( a ); };
+    static properties PROPS;
   private:
     void init();
   };
@@ -1126,13 +1200,18 @@ namespace folia {
     public AllowAnnotation,
     public AllowCorrection {
   public:
-  String( const std::string& s="" ): AbstractTokenAnnotation(){ classInit( s ); };
-  String( const KWargs& a ): AbstractTokenAnnotation(){ classInit( a ); };
-  String( Document *d, const std::string& s=""): AbstractTokenAnnotation( d ){ classInit( s ); };
-  String( Document *d, const KWargs& a ): AbstractTokenAnnotation( d ){ classInit( a ); };
+  String( const std::string& s="" ):
+      AbstractTokenAnnotation( PROPS ){ classInit( s ); };
+  String( const KWargs& a ):
+      AbstractTokenAnnotation( PROPS ){ classInit( a ); };
+  String( Document *d, const std::string& s=""):
+      AbstractTokenAnnotation( PROPS, d ){ classInit( s ); };
+  String( Document *d, const KWargs& a ):
+      AbstractTokenAnnotation( PROPS, d ){ classInit( a ); };
+      static properties PROPS;
   private:
-    void init();
-  };
+      void init();
+    };
 
   class PlaceHolder: public Word {
   public:
@@ -1147,10 +1226,14 @@ namespace folia {
 
   class Sentence: public AbstractStructureElement {
   public:
-  Sentence( const std::string& s=""): AbstractStructureElement(){ classInit( s ); }
-  Sentence( const KWargs& a ): AbstractStructureElement(){ classInit( a ); }
-  Sentence( Document *d, const std::string& s=""): AbstractStructureElement( d ){ classInit( s ); }
-  Sentence( Document *d, const KWargs& a ): AbstractStructureElement( d ){ classInit( a ); }
+  Sentence( const std::string& s=""):
+    AbstractStructureElement( PROPS ){ classInit( s ); }
+  Sentence( const KWargs& a ):
+    AbstractStructureElement( PROPS ){ classInit( a ); }
+  Sentence( Document *d, const std::string& s=""):
+    AbstractStructureElement( PROPS, d ){ classInit( s ); }
+  Sentence( Document *d, const KWargs& a ):
+    AbstractStructureElement( PROPS, d ){ classInit( a ); }
     Correction *splitWord( FoliaElement *, FoliaElement *,
 			   FoliaElement *, const KWargs& );
     Correction *mergewords( FoliaElement *,
@@ -1160,6 +1243,7 @@ namespace folia {
     Correction *insertword( FoliaElement *, FoliaElement *,
 			    const std::string& args );
     std::vector<Word*> wordParts() const;
+    static properties PROPS;
   private:
     Correction *correctWords( const std::vector<FoliaElement *>&,
 			      const std::vector<FoliaElement *>&,
@@ -1169,112 +1253,168 @@ namespace folia {
 
   class Speech: public AbstractStructureElement {
   public:
-  Speech( const std::string& s=""): AbstractStructureElement(){ classInit( s ); };
-  Speech( const KWargs& a ): AbstractStructureElement(){ classInit( a ); };
-  Speech( Document *d, const std::string& s=""): AbstractStructureElement( d ){ classInit( s ); };
-  Speech( Document *d, const KWargs& a ): AbstractStructureElement( d ){ classInit( a ); };
+  Speech( const std::string& s=""):
+    AbstractStructureElement( PROPS ){ classInit( s ); };
+  Speech( const KWargs& a ):
+    AbstractStructureElement( PROPS ){ classInit( a ); };
+  Speech( Document *d, const std::string& s=""):
+    AbstractStructureElement( PROPS, d ){ classInit( s ); };
+  Speech( Document *d, const KWargs& a ):
+    AbstractStructureElement( PROPS, d ){ classInit( a ); };
+    static properties PROPS;
   private:
     void init();
   };
 
   class Text: public AbstractStructureElement {
   public:
-  Text( const std::string& s=""): AbstractStructureElement(){ classInit( s ); };
-  Text( const KWargs& a ): AbstractStructureElement(){ classInit( a ); };
-  Text( Document *d, const std::string& s=""): AbstractStructureElement( d ){ classInit( s ); };
-  Text( Document *d, const KWargs& a ): AbstractStructureElement( d ){ classInit( a ); };
+  Text( const std::string& s=""):
+    AbstractStructureElement( PROPS ){ classInit( s ); };
+  Text( const KWargs& a ):
+    AbstractStructureElement( PROPS ){ classInit( a ); };
+  Text( Document *d, const std::string& s=""):
+    AbstractStructureElement( PROPS, d ){ classInit( s ); };
+  Text( Document *d, const KWargs& a ):
+    AbstractStructureElement( PROPS, d ){ classInit( a ); };
+    static properties PROPS;
   private:
     void init();
   };
 
   class Utterance: public AbstractStructureElement {
   public:
-  Utterance( const std::string& s=""): AbstractStructureElement(){ classInit( s ); };
-  Utterance( const KWargs& a ): AbstractStructureElement(){ classInit( a ); };
-  Utterance( Document *d, const std::string& s=""): AbstractStructureElement( d ){ classInit( s ); };
-  Utterance( Document *d, const KWargs& a ): AbstractStructureElement( d ){ classInit( a ); };
+  Utterance( const std::string& s=""):
+    AbstractStructureElement( PROPS ){ classInit( s ); };
+  Utterance( const KWargs& a ):
+    AbstractStructureElement( PROPS ){ classInit( a ); };
+  Utterance( Document *d, const std::string& s=""):
+    AbstractStructureElement( PROPS, d ){ classInit( s ); };
+  Utterance( Document *d, const KWargs& a ):
+    AbstractStructureElement( PROPS, d ){ classInit( a ); };
+    static properties PROPS;
   private:
     void init();
   };
 
   class Event: public AbstractStructureElement {
   public:
-  Event( const std::string& s=""): AbstractStructureElement(){ classInit( s ); };
-  Event( const KWargs& a ): AbstractStructureElement(){ classInit( a ); };
-  Event( Document *d, const std::string& s=""): AbstractStructureElement( d ){ classInit( s ); };
-  Event( Document *d, const KWargs& a ): AbstractStructureElement( d ){ classInit( a ); };
+  Event( const std::string& s=""):
+    AbstractStructureElement( PROPS ){ classInit( s ); };
+  Event( const KWargs& a ):
+    AbstractStructureElement( PROPS ){ classInit( a ); };
+  Event( Document *d, const std::string& s=""):
+    AbstractStructureElement( PROPS, d ){ classInit( s ); };
+  Event( Document *d, const KWargs& a ):
+    AbstractStructureElement( PROPS, d ){ classInit( a ); };
+        static properties PROPS;
+
   private:
     void init();
   };
 
   class Caption: public AbstractStructureElement {
   public:
-  Caption( const std::string& s="" ): AbstractStructureElement(){ classInit( s ); };
-  Caption( const KWargs& a ): AbstractStructureElement(){ classInit( a ); };
-  Caption( Document *d, const std::string& s=""): AbstractStructureElement( d ){ classInit( s ); };
-  Caption( Document *d, const KWargs& a ): AbstractStructureElement( d ){ classInit( a ); };
+  Caption( const std::string& s="" ):
+    AbstractStructureElement( PROPS ){ classInit( s ); };
+  Caption( const KWargs& a ):
+    AbstractStructureElement( PROPS ){ classInit( a ); };
+  Caption( Document *d, const std::string& s=""):
+    AbstractStructureElement( PROPS, d ){ classInit( s ); };
+  Caption( Document *d, const KWargs& a ):
+    AbstractStructureElement( PROPS, d ){ classInit( a ); };
+    static properties PROPS;
   private:
     void init();
   };
 
   class Label: public AbstractStructureElement {
   public:
-  Label( const std::string& s=""): AbstractStructureElement(){ classInit( s ); };
-  Label( const KWargs& a ): AbstractStructureElement(){ classInit( a ); };
-  Label( Document *d, const std::string& s="" ): AbstractStructureElement( d ){ classInit( s ); };
-  Label( Document *d, const KWargs& a ): AbstractStructureElement( d ){ classInit( a ); };
+  Label( const std::string& s=""):
+    AbstractStructureElement( PROPS ){ classInit( s ); };
+  Label( const KWargs& a ):
+    AbstractStructureElement( PROPS ){ classInit( a ); };
+  Label( Document *d, const std::string& s="" ):
+    AbstractStructureElement( PROPS, d ){ classInit( s ); };
+  Label( Document *d, const KWargs& a ):
+    AbstractStructureElement( PROPS, d ){ classInit( a ); };
+    static properties PROPS;
   private:
     void init();
   };
 
   class Item: public AbstractStructureElement {
   public:
-  Item( const std::string& s=""): AbstractStructureElement(){ classInit( s ); };
-  Item( const KWargs& a ): AbstractStructureElement(){ classInit( a ); };
-  Item( Document *d, const std::string& s=""): AbstractStructureElement( d ){ classInit( s ); };
-  Item( Document *d, const KWargs& a ): AbstractStructureElement( d ){ classInit( a ); };
+  Item( const std::string& s=""):
+    AbstractStructureElement( PROPS ){ classInit( s ); };
+  Item( const KWargs& a ):
+    AbstractStructureElement( PROPS ){ classInit( a ); };
+  Item( Document *d, const std::string& s=""):
+    AbstractStructureElement( PROPS, d ){ classInit( s ); };
+  Item( Document *d, const KWargs& a ):
+    AbstractStructureElement( PROPS, d ){ classInit( a ); };
+    static properties PROPS;
   private:
     void init();
   };
 
   class List: public AbstractStructureElement {
   public:
-  List( const std::string& s=""): AbstractStructureElement(){ classInit( s ); };
-  List( const KWargs& a ): AbstractStructureElement(){ classInit( a ); };
-  List( Document *d, const std::string& s=""): AbstractStructureElement( d ){ classInit( s ); };
-  List( Document *d, const KWargs& a ): AbstractStructureElement( d ){ classInit( a ); };
+  List( const std::string& s=""):
+    AbstractStructureElement( PROPS ){ classInit( s ); };
+  List( const KWargs& a ):
+    AbstractStructureElement( PROPS ){ classInit( a ); };
+  List( Document *d, const std::string& s=""):
+    AbstractStructureElement( PROPS, d ){ classInit( s ); };
+  List( Document *d, const KWargs& a ):
+    AbstractStructureElement( PROPS, d ){ classInit( a ); };
+    static properties PROPS;
   private:
     void init();
   };
 
   class Figure: public AbstractStructureElement {
   public:
-  Figure( const std::string& s=""): AbstractStructureElement(){ classInit( s ); };
-  Figure( const KWargs& a ): AbstractStructureElement(){ classInit( a ); };
-  Figure( Document *d, const std::string& s="" ): AbstractStructureElement( d ){ classInit( s ); };
-  Figure( Document *d, const KWargs& a ): AbstractStructureElement( d ){ classInit( a ); };
+  Figure( const std::string& s=""):
+    AbstractStructureElement( PROPS ){ classInit( s ); };
+  Figure( const KWargs& a ):
+    AbstractStructureElement( PROPS ){ classInit( a ); };
+  Figure( Document *d, const std::string& s="" ):
+    AbstractStructureElement( PROPS, d ){ classInit( s ); };
+  Figure( Document *d, const KWargs& a ):
+    AbstractStructureElement( PROPS, d ){ classInit( a ); };
     std::string src() const { return _src; };
     UnicodeString caption() const;
+    static properties PROPS;
   private:
     void init();
   };
 
   class Paragraph: public AbstractStructureElement {
   public:
-  Paragraph( const std::string& s=""): AbstractStructureElement(){ classInit( s ); };
-  Paragraph( const KWargs& a ): AbstractStructureElement(){ classInit( a ); };
-  Paragraph( Document *d, const std::string& s=""): AbstractStructureElement( d ){ classInit( s ); };
-  Paragraph( Document *d, const KWargs& a ): AbstractStructureElement( d ){ classInit( a ); };
+  Paragraph( const std::string& s=""):
+    AbstractStructureElement( PROPS ){ classInit( s ); };
+  Paragraph( const KWargs& a ):
+    AbstractStructureElement( PROPS ){ classInit( a ); };
+  Paragraph( Document *d, const std::string& s=""):
+    AbstractStructureElement( PROPS, d ){ classInit( s ); };
+  Paragraph( Document *d, const KWargs& a ):
+    AbstractStructureElement( PROPS, d ){ classInit( a ); };
+    static properties PROPS;
   private:
     void init();
   };
 
   class Alternative: public AbstractStructureElement {
   public:
-  Alternative( const std::string& s=""): AbstractStructureElement(){ classInit( s ); };
-  Alternative( const KWargs& a ): AbstractStructureElement(){ classInit( a ); };
-  Alternative( Document *d, const std::string& s=""): AbstractStructureElement( d ){ classInit( s ); };
-  Alternative( Document *d, const KWargs& a ): AbstractStructureElement( d ){ classInit( a ); };
+  Alternative( const std::string& s=""):
+    AbstractStructureElement( PROPS ){ classInit( s ); };
+  Alternative( const KWargs& a ):
+    AbstractStructureElement( PROPS ){ classInit( a ); };
+  Alternative( Document *d, const std::string& s=""):
+    AbstractStructureElement( PROPS, d ){ classInit( s ); };
+  Alternative( Document *d, const KWargs& a ):
+    AbstractStructureElement( PROPS, d ){ classInit( a ); };
+    static properties PROPS;
   private:
     void init();
   };
@@ -1282,10 +1422,14 @@ namespace folia {
 
   class AlternativeLayers: public FoliaImpl {
   public:
-  AlternativeLayers( const std::string& s=""): FoliaImpl(PROPS){ classInit( s ); };
-  AlternativeLayers( const KWargs& a ): FoliaImpl(PROPS){ classInit( a ); };
-  AlternativeLayers( Document *d, const std::string& s=""): FoliaImpl(PROPS,d){ classInit( s ); };
-  AlternativeLayers( Document *d, const KWargs& a ): FoliaImpl(PROPS,d){ classInit( a ); };
+  AlternativeLayers( const std::string& s=""):
+    FoliaImpl(PROPS){ classInit( s ); };
+  AlternativeLayers( const KWargs& a ):
+    FoliaImpl(PROPS){ classInit( a ); };
+  AlternativeLayers( Document *d, const std::string& s=""):
+    FoliaImpl(PROPS,d){ classInit( s ); };
+  AlternativeLayers( Document *d, const KWargs& a ):
+    FoliaImpl(PROPS,d){ classInit( a ); };
     static properties PROPS;
   private:
     void init();
@@ -1318,193 +1462,277 @@ namespace folia {
 
   class PosAnnotation: public AbstractTokenAnnotation {
   public:
-  PosAnnotation( const std::string& s=""): AbstractTokenAnnotation(){ classInit( s ); };
-  PosAnnotation( const KWargs& a ): AbstractTokenAnnotation(){ classInit( a ); };
-  PosAnnotation( Document *d, const std::string& s=""): AbstractTokenAnnotation( d ){ classInit( s ); };
-  PosAnnotation( Document *d, const KWargs& a ): AbstractTokenAnnotation( d ){ classInit( a ); };
+  PosAnnotation( const std::string& s=""):
+    AbstractTokenAnnotation( PROPS ){ classInit( s ); };
+  PosAnnotation( const KWargs& a ):
+    AbstractTokenAnnotation( PROPS ){ classInit( a ); };
+  PosAnnotation( Document *d, const std::string& s=""):
+    AbstractTokenAnnotation( PROPS, d ){ classInit( s ); };
+  PosAnnotation( Document *d, const KWargs& a ):
+    AbstractTokenAnnotation( PROPS, d ){ classInit( a ); };
+    static properties PROPS;
   private:
     void init();
   };
 
   class LemmaAnnotation: public AbstractTokenAnnotation {
   public:
-  LemmaAnnotation( const std::string& s=""): AbstractTokenAnnotation(){ classInit( s ); };
-  LemmaAnnotation( const KWargs& a ): AbstractTokenAnnotation(){ classInit( a ); };
-  LemmaAnnotation( Document *d, const std::string& s=""): AbstractTokenAnnotation( d ){ classInit( s ); };
-  LemmaAnnotation( Document *d, const KWargs& a ): AbstractTokenAnnotation( d ){ classInit( a ); };
+  LemmaAnnotation( const std::string& s=""):
+    AbstractTokenAnnotation( PROPS ){ classInit( s ); };
+  LemmaAnnotation( const KWargs& a ):
+    AbstractTokenAnnotation( PROPS ){ classInit( a ); };
+  LemmaAnnotation( Document *d, const std::string& s=""):
+    AbstractTokenAnnotation( PROPS, d ){ classInit( s ); };
+  LemmaAnnotation( Document *d, const KWargs& a ):
+    AbstractTokenAnnotation( PROPS, d ){ classInit( a ); };
+    static properties PROPS;
   private:
     void init();
   };
 
   class LangAnnotation: public AbstractTokenAnnotation {
   public:
-  LangAnnotation( const std::string& s=""): AbstractTokenAnnotation(){ classInit( s ); };
-  LangAnnotation( const KWargs& a ): AbstractTokenAnnotation(){ classInit( a ); };
-  LangAnnotation( Document *d, const std::string& s=""): AbstractTokenAnnotation( d ){ classInit( s ); };
-  LangAnnotation( Document *d, const KWargs& a ): AbstractTokenAnnotation( d ){ classInit( a ); };
+  LangAnnotation( const std::string& s=""):
+    AbstractTokenAnnotation( PROPS ){ classInit( s ); };
+  LangAnnotation( const KWargs& a ):
+    AbstractTokenAnnotation( PROPS ){ classInit( a ); };
+  LangAnnotation( Document *d, const std::string& s=""):
+    AbstractTokenAnnotation( PROPS, d ){ classInit( s ); };
+  LangAnnotation( Document *d, const KWargs& a ):
+    AbstractTokenAnnotation( PROPS, d ){ classInit( a ); };
+    static properties PROPS;
   private:
     void init();
   };
 
   class Phoneme: public AbstractTokenAnnotation {
   public:
-  Phoneme( const std::string& s=""): AbstractTokenAnnotation(){ classInit( s ); };
-  Phoneme( const KWargs& a ): AbstractTokenAnnotation(){ classInit( a ); };
-  Phoneme( Document *d, const std::string& s=""): AbstractTokenAnnotation( d ){ classInit( s ); };
-  Phoneme( Document *d, const KWargs& a ): AbstractTokenAnnotation( d ){ classInit( a ); };
+  Phoneme( const std::string& s=""):
+    AbstractTokenAnnotation( PROPS ){ classInit( s ); };
+  Phoneme( const KWargs& a ):
+    AbstractTokenAnnotation( PROPS ){ classInit( a ); };
+  Phoneme( Document *d, const std::string& s=""):
+    AbstractTokenAnnotation( PROPS, d ){ classInit( s ); };
+  Phoneme( Document *d, const KWargs& a ):
+    AbstractTokenAnnotation( PROPS, d ){ classInit( a ); };
+    static properties PROPS;
   private:
     void init();
   };
 
   class DomainAnnotation: public AbstractTokenAnnotation {
   public:
-  DomainAnnotation(  const std::string& s=""): AbstractTokenAnnotation(){ classInit( s ); };
-  DomainAnnotation(  const KWargs& a ): AbstractTokenAnnotation(){ classInit( a ); };
-  DomainAnnotation( Document *d, const std::string& s=""): AbstractTokenAnnotation( d ){ classInit( s ); };
-  DomainAnnotation( Document *d, const KWargs& a ): AbstractTokenAnnotation( d ){ classInit( a ); };
+  DomainAnnotation(  const std::string& s=""):
+    AbstractTokenAnnotation( PROPS ){ classInit( s ); };
+  DomainAnnotation(  const KWargs& a ):
+    AbstractTokenAnnotation( PROPS ){ classInit( a ); };
+  DomainAnnotation( Document *d, const std::string& s=""):
+    AbstractTokenAnnotation( PROPS, d ){ classInit( s ); };
+  DomainAnnotation( Document *d, const KWargs& a ):
+    AbstractTokenAnnotation( PROPS, d ){ classInit( a ); };
+    static properties PROPS;
   private:
     void init();
   };
 
   class SenseAnnotation: public AbstractTokenAnnotation {
   public:
-  SenseAnnotation( const std::string& s="" ): AbstractTokenAnnotation(){ classInit( s ); };
-  SenseAnnotation( const KWargs& a ): AbstractTokenAnnotation(){ classInit( a ); };
-  SenseAnnotation( Document *d, const std::string& s="" ): AbstractTokenAnnotation( d ){ classInit( s ); };
-  SenseAnnotation( Document *d, const KWargs& a ): AbstractTokenAnnotation( d ){ classInit( a ); };
+  SenseAnnotation( const std::string& s="" ):
+    AbstractTokenAnnotation( PROPS ){ classInit( s ); };
+  SenseAnnotation( const KWargs& a ):
+    AbstractTokenAnnotation( PROPS ){ classInit( a ); };
+  SenseAnnotation( Document *d, const std::string& s="" ):
+    AbstractTokenAnnotation( PROPS, d ){ classInit( s ); };
+  SenseAnnotation( Document *d, const KWargs& a ):
+    AbstractTokenAnnotation( PROPS, d ){ classInit( a ); };
+    static properties PROPS;
   private:
     void init();
   };
 
   class SubjectivityAnnotation: public AbstractTokenAnnotation {
   public:
-  SubjectivityAnnotation( const std::string& s="" ): AbstractTokenAnnotation(){ classInit( s ); };
-  SubjectivityAnnotation( const KWargs& a ): AbstractTokenAnnotation(){ classInit( a ); };
-  SubjectivityAnnotation( Document *d, const std::string& s="" ): AbstractTokenAnnotation( d ){ classInit( s ); };
-  SubjectivityAnnotation( Document *d, const KWargs& a ): AbstractTokenAnnotation( d ){ classInit( a ); };
+  SubjectivityAnnotation( const std::string& s="" ):
+    AbstractTokenAnnotation( PROPS ){ classInit( s ); };
+  SubjectivityAnnotation( const KWargs& a ):
+    AbstractTokenAnnotation( PROPS ){ classInit( a ); };
+  SubjectivityAnnotation( Document *d, const std::string& s="" ):
+    AbstractTokenAnnotation( PROPS, d ){ classInit( s ); };
+  SubjectivityAnnotation( Document *d, const KWargs& a ):
+    AbstractTokenAnnotation( PROPS, d ){ classInit( a ); };
+    static properties PROPS;
   private:
     void init();
   };
 
   class Quote: public AbstractStructureElement {
   public:
-  Quote( const std::string& s="" ): AbstractStructureElement(){ classInit( s ); };
-  Quote( const KWargs& a ): AbstractStructureElement(){ classInit( a ); };
-  Quote( Document *d, const std::string& s="" ): AbstractStructureElement( d ){ classInit( s ); };
-  Quote( Document *d, const KWargs& a ): AbstractStructureElement( d ){ classInit( a ); };
+  Quote( const std::string& s="" ):
+    AbstractStructureElement( PROPS ){ classInit( s ); };
+  Quote( const KWargs& a ):
+    AbstractStructureElement( PROPS ){ classInit( a ); };
+  Quote( Document *d, const std::string& s="" ):
+    AbstractStructureElement( PROPS, d ){ classInit( s ); };
+  Quote( Document *d, const KWargs& a ):
+    AbstractStructureElement( PROPS, d ){ classInit( a ); };
     FoliaElement *append( FoliaElement *);
     std::vector<Word*> wordParts() const;
     std::string getTextDelimiter( bool=false) const;
+    static properties PROPS;
   private:
     void init();
   };
 
   class BeginDateTimeFeature: public Feature {
   public:
-  BeginDateTimeFeature( const std::string& s="" ): Feature( ){ classInit( s ); }
-  BeginDateTimeFeature( const KWargs& a ): Feature( ){ classInit( a ); }
-  BeginDateTimeFeature( Document *d, const std::string& s="" ): Feature( d ){ classInit( s ); }
-  BeginDateTimeFeature( Document *d, const KWargs& a ): Feature( d ){ classInit( a ); }
+  BeginDateTimeFeature( const std::string& s="" ):
+    Feature( ){ classInit( s ); }
+  BeginDateTimeFeature( const KWargs& a ):
+    Feature( ){ classInit( a ); }
+  BeginDateTimeFeature( Document *d, const std::string& s="" ):
+    Feature( d ){ classInit( s ); }
+  BeginDateTimeFeature( Document *d, const KWargs& a ):
+    Feature( d ){ classInit( a ); }
   private:
     void init();
   };
 
   class EndDateTimeFeature: public Feature {
   public:
-  EndDateTimeFeature( const std::string& s="" ): Feature( ){ classInit( s ); }
-  EndDateTimeFeature( const KWargs& a ): Feature( ){ classInit( a ); }
-  EndDateTimeFeature( Document *d, const std::string& s="" ): Feature( d ){ classInit( s ); }
-  EndDateTimeFeature( Document *d, const KWargs& a ): Feature( d ){ classInit( a ); }
+  EndDateTimeFeature( const std::string& s="" ):
+    Feature( ){ classInit( s ); }
+  EndDateTimeFeature( const KWargs& a ):
+    Feature( ){ classInit( a ); }
+  EndDateTimeFeature( Document *d, const std::string& s="" ):
+    Feature( d ){ classInit( s ); }
+  EndDateTimeFeature( Document *d, const KWargs& a ):
+    Feature( d ){ classInit( a ); }
   private:
     void init();
   };
 
   class SynsetFeature: public Feature {
   public:
-  SynsetFeature( const std::string& s="" ): Feature( ){ classInit( s ); }
-  SynsetFeature( const KWargs& a ): Feature( ){ classInit( a ); }
-  SynsetFeature( Document *d, const std::string& s="" ): Feature( d ){ classInit( s ); }
-  SynsetFeature( Document *d, const KWargs& a ): Feature( d ){ classInit( a ); }
+  SynsetFeature( const std::string& s="" ):
+    Feature( ){ classInit( s ); }
+  SynsetFeature( const KWargs& a ):
+    Feature( ){ classInit( a ); }
+  SynsetFeature( Document *d, const std::string& s="" ):
+    Feature( d ){ classInit( s ); }
+  SynsetFeature( Document *d, const KWargs& a ):
+    Feature( d ){ classInit( a ); }
   private:
     void init();
   };
 
   class ActorFeature: public Feature {
   public:
-  ActorFeature( const std::string& s="" ): Feature( ){ classInit( s ); }
-  ActorFeature( const KWargs& a ): Feature( ){ classInit( a ); }
-  ActorFeature( Document *d, const std::string& s="" ): Feature( d ){ classInit( s ); }
-  ActorFeature( Document *d, const KWargs& a ): Feature( d ){ classInit( a ); }
+  ActorFeature( const std::string& s="" ):
+    Feature( ){ classInit( s ); }
+  ActorFeature( const KWargs& a ):
+    Feature( ){ classInit( a ); }
+  ActorFeature( Document *d, const std::string& s="" ):
+    Feature( d ){ classInit( s ); }
+  ActorFeature( Document *d, const KWargs& a ):
+    Feature( d ){ classInit( a ); }
   private:
     void init();
   };
 
   class HeadFeature: public Feature {
   public:
-  HeadFeature( const std::string& s="" ): Feature( ){ classInit( s ); }
-  HeadFeature( const KWargs& a ): Feature( ){ classInit( a ); }
-  HeadFeature( Document *d, const std::string& s="" ): Feature( d ){ classInit( s ); }
-  HeadFeature( Document *d, const KWargs& a ): Feature( d ){ classInit( a ); }
+  HeadFeature( const std::string& s="" ):
+    Feature( ){ classInit( s ); }
+  HeadFeature( const KWargs& a ):
+    Feature( ){ classInit( a ); }
+  HeadFeature( Document *d, const std::string& s="" ):
+    Feature( d ){ classInit( s ); }
+  HeadFeature( Document *d, const KWargs& a ):
+    Feature( d ){ classInit( a ); }
   private:
     void init();
   };
 
   class ValueFeature: public Feature {
   public:
-  ValueFeature( const std::string& s="" ): Feature( ){ classInit( s ); }
-  ValueFeature( const KWargs& a ): Feature( ){ classInit( a ); }
-  ValueFeature( Document *d, const std::string& s="" ): Feature( d ){ classInit( s ); }
-  ValueFeature( Document *d, const KWargs& a ): Feature( d ){ classInit( a ); }
+  ValueFeature( const std::string& s="" ):
+    Feature( ){ classInit( s ); }
+  ValueFeature( const KWargs& a ):
+    Feature( ){ classInit( a ); }
+  ValueFeature( Document *d, const std::string& s="" ):
+    Feature( d ){ classInit( s ); }
+  ValueFeature( Document *d, const KWargs& a ):
+    Feature( d ){ classInit( a ); }
   private:
     void init();
   };
 
   class FunctionFeature: public Feature {
   public:
-  FunctionFeature( const std::string& s="" ): Feature( ){ classInit( s ); }
-  FunctionFeature( const KWargs& a ): Feature( ){ classInit( a ); }
-  FunctionFeature( Document *d, const std::string& s="" ): Feature( d ){ classInit( s ); }
-  FunctionFeature( Document *d, const KWargs& a ): Feature( d ){ classInit( a ); }
+  FunctionFeature( const std::string& s="" ):
+    Feature( ){ classInit( s ); }
+  FunctionFeature( const KWargs& a ):
+    Feature( ){ classInit( a ); }
+  FunctionFeature( Document *d, const std::string& s="" ):
+    Feature( d ){ classInit( s ); }
+  FunctionFeature( Document *d, const KWargs& a ):
+    Feature( d ){ classInit( a ); }
   private:
     void init();
   };
 
   class TimeFeature: public Feature {
   public:
-  TimeFeature( const std::string& s="" ): Feature( ){ classInit( s ); }
-  TimeFeature( const KWargs& a ): Feature( ){ classInit( a ); }
-  TimeFeature( Document *d, const std::string& s="" ): Feature( d ){ classInit( s ); }
-  TimeFeature( Document *d, const KWargs& a ): Feature( d ){ classInit( a ); }
+  TimeFeature( const std::string& s="" ):
+    Feature( ){ classInit( s ); }
+  TimeFeature( const KWargs& a ):
+    Feature( ){ classInit( a ); }
+  TimeFeature( Document *d, const std::string& s="" ):
+    Feature( d ){ classInit( s ); }
+  TimeFeature( Document *d, const KWargs& a ):
+    Feature( d ){ classInit( a ); }
   private:
     void init();
   };
 
   class LevelFeature: public Feature {
   public:
-  LevelFeature( const std::string& s="" ): Feature( ){ classInit( s ); }
-  LevelFeature( const KWargs& a ): Feature( ){ classInit( a ); }
-  LevelFeature( Document *d, const std::string& s="" ): Feature( d ){ classInit( s ); }
-  LevelFeature( Document *d, const KWargs& a ): Feature( d ){ classInit( a ); }
+  LevelFeature( const std::string& s="" ):
+    Feature( ){ classInit( s ); }
+  LevelFeature( const KWargs& a ):
+    Feature( ){ classInit( a ); }
+  LevelFeature( Document *d, const std::string& s="" ):
+    Feature( d ){ classInit( s ); }
+  LevelFeature( Document *d, const KWargs& a ):
+    Feature( d ){ classInit( a ); }
   private:
     void init();
   };
 
   class ModalityFeature: public Feature {
   public:
-  ModalityFeature( const std::string& s="" ): Feature( ){ classInit( s ); }
-  ModalityFeature( const KWargs& a ): Feature( ){ classInit( a ); }
-  ModalityFeature( Document *d, const std::string& s="" ): Feature( d ){ classInit( s ); }
-  ModalityFeature( Document *d, const KWargs& a ): Feature( d ){ classInit( a ); }
+  ModalityFeature( const std::string& s="" ):
+    Feature( ){ classInit( s ); }
+  ModalityFeature( const KWargs& a ):
+    Feature( ){ classInit( a ); }
+  ModalityFeature( Document *d, const std::string& s="" ):
+    Feature( d ){ classInit( s ); }
+  ModalityFeature( Document *d, const KWargs& a ):
+    Feature( d ){ classInit( a ); }
   private:
     void init();
   };
 
   class WordReference: public FoliaImpl {
   public:
-  WordReference( const std::string& s="" ): FoliaImpl(PROPS){ classInit( s ); };
-  WordReference( const KWargs& a ): FoliaImpl(PROPS){ classInit( a ); };
-  WordReference( Document *d, const std::string& s="" ): FoliaImpl(PROPS,d){ classInit( s ); };
-  WordReference( Document *d, const KWargs& a ): FoliaImpl(PROPS,d){ classInit( a ); };
+  WordReference( const std::string& s="" ):
+    FoliaImpl(PROPS){ classInit( s ); };
+  WordReference( const KWargs& a ):
+    FoliaImpl(PROPS){ classInit( a ); };
+  WordReference( Document *d, const std::string& s="" ):
+    FoliaImpl(PROPS,d){ classInit( s ); };
+  WordReference( Document *d, const KWargs& a ):
+    FoliaImpl(PROPS,d){ classInit( a ); };
     static properties PROPS;
   private:
     void init();
@@ -1513,10 +1741,14 @@ namespace folia {
 
   class Alignment: public FoliaImpl {
   public:
-  Alignment( const std::string& s="" ): FoliaImpl(PROPS){ classInit( s ); };
-  Alignment( const KWargs& a ): FoliaImpl(PROPS){ classInit( a ); };
-  Alignment( Document *d, const std::string& s="" ): FoliaImpl(PROPS,d){ classInit( s ); };
-  Alignment( Document *d, const KWargs& a ): FoliaImpl(PROPS,d){ classInit( a ); };
+  Alignment( const std::string& s="" ):
+    FoliaImpl(PROPS){ classInit( s ); };
+  Alignment( const KWargs& a ):
+    FoliaImpl(PROPS){ classInit( a ); };
+  Alignment( Document *d, const std::string& s="" ):
+    FoliaImpl(PROPS,d){ classInit( s ); };
+  Alignment( Document *d, const KWargs& a ):
+    FoliaImpl(PROPS,d){ classInit( a ); };
     std::vector<FoliaElement *>resolve() const;
     static properties PROPS;
   private:
@@ -1526,10 +1758,14 @@ namespace folia {
   class AlignReference: public FoliaImpl {
     friend class Alignment;
   public:
-  AlignReference( const std::string& s="" ): FoliaImpl(PROPS){ classInit( s ); };
-  AlignReference( const KWargs& a ): FoliaImpl(PROPS){ classInit( a ); };
-  AlignReference( Document *d, const std::string& s="" ): FoliaImpl(PROPS,d){ classInit( s ); };
-  AlignReference( Document *d, const KWargs& a ): FoliaImpl(PROPS,d){ classInit( a ); };
+  AlignReference( const std::string& s="" ):
+    FoliaImpl(PROPS){ classInit( s ); };
+  AlignReference( const KWargs& a ):
+    FoliaImpl(PROPS){ classInit( a ); };
+  AlignReference( Document *d, const std::string& s="" ):
+    FoliaImpl(PROPS,d){ classInit( s ); };
+  AlignReference( Document *d, const KWargs& a ):
+    FoliaImpl(PROPS,d){ classInit( a ); };
     KWargs collectAttributes() const;
     void setAttributes( const KWargs& );
     static properties PROPS;
@@ -1544,92 +1780,137 @@ namespace folia {
 
   class SyntacticUnit: public AbstractSpanAnnotation {
   public:
-  SyntacticUnit( const std::string& s="" ): AbstractSpanAnnotation( ){ classInit( s ); }
-  SyntacticUnit( const KWargs& a ): AbstractSpanAnnotation( ){ classInit( a ); }
-  SyntacticUnit( Document *d, const std::string& s="" ): AbstractSpanAnnotation( d ){ classInit( s ); }
-  SyntacticUnit( Document *d, const KWargs& a ): AbstractSpanAnnotation( d ){ classInit( a ); }
+  SyntacticUnit( const std::string& s="" ):
+    AbstractSpanAnnotation( PROPS ){ classInit( s ); }
+  SyntacticUnit( const KWargs& a ):
+    AbstractSpanAnnotation( PROPS ){ classInit( a ); }
+  SyntacticUnit( Document *d, const std::string& s="" ):
+    AbstractSpanAnnotation( PROPS, d ){ classInit( s ); }
+  SyntacticUnit( Document *d, const KWargs& a ):
+    AbstractSpanAnnotation( PROPS, d ){ classInit( a ); }
+    static properties PROPS;
   private:
     void init();
   };
 
   class Chunk: public AbstractSpanAnnotation {
   public:
-  Chunk( const std::string& s="" ): AbstractSpanAnnotation( ){ classInit( s ); }
-  Chunk( const KWargs& a ): AbstractSpanAnnotation( ){ classInit( a ); }
-  Chunk( Document *d, const std::string& s="" ): AbstractSpanAnnotation( d ){ classInit( s ); }
-  Chunk( Document *d, const KWargs& a ): AbstractSpanAnnotation( d ){ classInit( a ); }
+  Chunk( const std::string& s="" ):
+    AbstractSpanAnnotation( PROPS ){ classInit( s ); }
+  Chunk( const KWargs& a ):
+    AbstractSpanAnnotation( PROPS ){ classInit( a ); }
+  Chunk( Document *d, const std::string& s="" ):
+    AbstractSpanAnnotation( PROPS, d ){ classInit( s ); }
+  Chunk( Document *d, const KWargs& a ):
+    AbstractSpanAnnotation( PROPS, d ){ classInit( a ); }
+    static properties PROPS;
   private:
     void init();
   };
 
   class Entity: public AbstractSpanAnnotation {
   public:
-  Entity( const std::string& s="" ): AbstractSpanAnnotation( ){ classInit( s ); }
-  Entity( const KWargs& a ): AbstractSpanAnnotation( ){ classInit( a ); }
-  Entity( Document *d, const std::string& s="" ): AbstractSpanAnnotation( d ){ classInit( s ); }
-  Entity( Document *d, const KWargs& a ): AbstractSpanAnnotation( d ){ classInit( a ); }
+  Entity( const std::string& s="" ):
+    AbstractSpanAnnotation( PROPS ){ classInit( s ); }
+  Entity( const KWargs& a ):
+    AbstractSpanAnnotation( PROPS ){ classInit( a ); }
+  Entity( Document *d, const std::string& s="" ):
+    AbstractSpanAnnotation( PROPS, d ){ classInit( s ); }
+  Entity( Document *d, const KWargs& a ):
+    AbstractSpanAnnotation( PROPS, d ){ classInit( a ); }
+    static properties PROPS;
   private:
     void init();
   };
 
   class Headwords: public AbstractSpanAnnotation {
   public:
-  Headwords( const std::string& s="" ): AbstractSpanAnnotation( ){ classInit( s ); }
-  Headwords( const KWargs& a ): AbstractSpanAnnotation( ){ classInit( a ); }
-  Headwords( Document *d, const std::string& s="" ): AbstractSpanAnnotation( d ){ classInit( s ); }
-  Headwords( Document *d, const KWargs& a ): AbstractSpanAnnotation( d ){ classInit( a ); }
+  Headwords( const std::string& s="" ):
+    AbstractSpanAnnotation( PROPS ){ classInit( s ); }
+  Headwords( const KWargs& a ):
+    AbstractSpanAnnotation( PROPS ){ classInit( a ); }
+  Headwords( Document *d, const std::string& s="" ):
+    AbstractSpanAnnotation( PROPS, d ){ classInit( s ); }
+  Headwords( Document *d, const KWargs& a ):
+    AbstractSpanAnnotation( PROPS, d ){ classInit( a ); }
+    static properties PROPS;
   private:
     void init();
   };
 
   class DependencyDependent: public AbstractSpanAnnotation {
   public:
-  DependencyDependent( const std::string& s="" ): AbstractSpanAnnotation( ){ classInit( s ); }
-  DependencyDependent( const KWargs& a ): AbstractSpanAnnotation( ){ classInit( a ); }
-  DependencyDependent( Document *d, const std::string& s="" ): AbstractSpanAnnotation( d ){ classInit( s ); }
-  DependencyDependent( Document *d, const KWargs& a ): AbstractSpanAnnotation( d ){ classInit( a ); }
+  DependencyDependent( const std::string& s="" ):
+    AbstractSpanAnnotation( PROPS ){ classInit( s ); }
+  DependencyDependent( const KWargs& a ):
+    AbstractSpanAnnotation( PROPS ){ classInit( a ); }
+  DependencyDependent( Document *d, const std::string& s="" ):
+    AbstractSpanAnnotation( PROPS, d ){ classInit( s ); }
+  DependencyDependent( Document *d, const KWargs& a ):
+    AbstractSpanAnnotation( PROPS, d ){ classInit( a ); }
+    static properties PROPS;
   private:
     void init();
   };
 
   class Dependency: public AbstractSpanAnnotation {
   public:
-  Dependency( const std::string& s="" ): AbstractSpanAnnotation( ){ classInit( s ); }
-  Dependency( const KWargs& a ): AbstractSpanAnnotation( ){ classInit( a ); }
-  Dependency( Document *d, const std::string& s="" ): AbstractSpanAnnotation( d ){ classInit( s ); }
-  Dependency( Document *d, const KWargs& a ): AbstractSpanAnnotation( d ){ classInit( a ); }
+  Dependency( const std::string& s="" ):
+    AbstractSpanAnnotation( PROPS ){ classInit( s ); }
+  Dependency( const KWargs& a ):
+    AbstractSpanAnnotation( PROPS ){ classInit( a ); }
+  Dependency( Document *d, const std::string& s="" ):
+    AbstractSpanAnnotation( PROPS, d ){ classInit( s ); }
+  Dependency( Document *d, const KWargs& a ):
+    AbstractSpanAnnotation( PROPS, d ){ classInit( a ); }
     Headwords *head() const;
     DependencyDependent *dependent() const;
+    static properties PROPS;
   private:
     void init();
   };
 
   class CoreferenceLink: public AbstractSpanAnnotation {
   public:
-  CoreferenceLink( const std::string& s="" ): AbstractSpanAnnotation(){ classInit( s ); }
-  CoreferenceLink( const KWargs& a ): AbstractSpanAnnotation(){ classInit( a ); }
-  CoreferenceLink( Document *d, const std::string& s="" ): AbstractSpanAnnotation( d ){ classInit( s ); }
-  CoreferenceLink( Document *d, const KWargs& a ): AbstractSpanAnnotation( d ){ classInit( a ); }
+  CoreferenceLink( const std::string& s="" ):
+    AbstractSpanAnnotation( PROPS ){ classInit( s ); }
+  CoreferenceLink( const KWargs& a ):
+    AbstractSpanAnnotation( PROPS ){ classInit( a ); }
+  CoreferenceLink( Document *d, const std::string& s="" ):
+    AbstractSpanAnnotation( PROPS, d ){ classInit( s ); }
+  CoreferenceLink( Document *d, const KWargs& a ):
+    AbstractSpanAnnotation( PROPS, d ){ classInit( a ); }
+    static properties PROPS;
   private:
     void init();
   };
 
   class CoreferenceChain: public AbstractSpanAnnotation {
   public:
-  CoreferenceChain( const std::string& s="" ): AbstractSpanAnnotation(){ classInit( s ); }
-  CoreferenceChain( const KWargs& a ): AbstractSpanAnnotation(){ classInit( a ); }
-  CoreferenceChain( Document *d, const std::string& s="" ): AbstractSpanAnnotation( d ){ classInit( s ); }
-  CoreferenceChain( Document *d, const KWargs& a ): AbstractSpanAnnotation( d ){ classInit( a ); }
+  CoreferenceChain( const std::string& s="" ):
+    AbstractSpanAnnotation( PROPS ){ classInit( s ); }
+  CoreferenceChain( const KWargs& a ):
+    AbstractSpanAnnotation( PROPS ){ classInit( a ); }
+  CoreferenceChain( Document *d, const std::string& s="" ):
+    AbstractSpanAnnotation( PROPS, d ){ classInit( s ); }
+  CoreferenceChain( Document *d, const KWargs& a ):
+    AbstractSpanAnnotation( PROPS, d ){ classInit( a ); }
+    static properties PROPS;
   private:
     void init();
   };
 
   class SemanticRole: public AbstractSpanAnnotation {
   public:
-  SemanticRole( const std::string& s="" ): AbstractSpanAnnotation(){ classInit( s ); }
-  SemanticRole( const KWargs& a ): AbstractSpanAnnotation(){ classInit( a ); }
-  SemanticRole( Document *d, const std::string& s="" ): AbstractSpanAnnotation( d ){ classInit( s ); }
-  SemanticRole( Document *d, const KWargs& a ): AbstractSpanAnnotation( d ){ classInit( a ); }
+  SemanticRole( const std::string& s="" ):
+    AbstractSpanAnnotation( PROPS ){ classInit( s ); }
+  SemanticRole( const KWargs& a ):
+    AbstractSpanAnnotation( PROPS ){ classInit( a ); }
+  SemanticRole( Document *d, const std::string& s="" ):
+    AbstractSpanAnnotation( PROPS, d ){ classInit( s ); }
+  SemanticRole( Document *d, const KWargs& a ):
+    AbstractSpanAnnotation( PROPS, d ){ classInit( a ); }
+    static properties PROPS;
   private:
     void init();
   };
@@ -1639,13 +1920,16 @@ namespace folia {
     public AllowAnnotation,
     public AllowCorrection {
   public:
-  AbstractAnnotationLayer( const std::string& s=""): FoliaImpl(PROPS) { classInit( s ); };
-  AbstractAnnotationLayer( const KWargs& a ): FoliaImpl(PROPS) { classInit( a ); };
-  AbstractAnnotationLayer( Document *d, const std::string& s=""): FoliaImpl(PROPS,d) { classInit( s ); };
-  AbstractAnnotationLayer( Document *d, const KWargs& a ): FoliaImpl(PROPS,d) { classInit( a ); };
+  AbstractAnnotationLayer( const properties& props, const std::string& s=""):
+      FoliaImpl( props ) { classInit( s ); };
+  AbstractAnnotationLayer( const properties& props, const KWargs& a ):
+      FoliaImpl( props ) { classInit( a ); };
+  AbstractAnnotationLayer( const properties& props, Document *d, const std::string& s=""):
+      FoliaImpl( props, d ) { classInit( s ); };
+  AbstractAnnotationLayer( const properties& props, Document *d, const KWargs& a ):
+      FoliaImpl( props, d ) { classInit( a ); };
     AbstractSpanAnnotation *findspan( const std::vector<FoliaElement*>& ) const;
     FoliaElement *append( FoliaElement * );
-    static properties PROPS;
   private:
     void init();
     void assignset( FoliaElement * );
@@ -1653,58 +1937,82 @@ namespace folia {
 
   class AbstractCorrectionChild: public FoliaImpl {
   public:
-  AbstractCorrectionChild( Document *d=0 ): FoliaImpl(PROPS,d){ classInit(); };
-    static properties PROPS;
+  AbstractCorrectionChild( const properties& props, Document *d=0 ):
+    FoliaImpl( props, d ){ classInit(); };
   private:
     void init();
   };
 
   class NewElement: public AbstractCorrectionChild {
   public:
-  NewElement( const std::string& s=""): AbstractCorrectionChild( ) { classInit( s ); };
-  NewElement( const KWargs& a ): AbstractCorrectionChild( ) { classInit( a ); };
-  NewElement( Document *d, const std::string& s=""): AbstractCorrectionChild( d ) { classInit( s ); };
-  NewElement( Document *d, const KWargs& a ): AbstractCorrectionChild( d ) { classInit( a ); };
+  NewElement( const std::string& s=""):
+    AbstractCorrectionChild( PROPS ) { classInit( s ); };
+  NewElement( const KWargs& a ):
+    AbstractCorrectionChild( PROPS ) { classInit( a ); };
+  NewElement( Document *d, const std::string& s=""):
+    AbstractCorrectionChild( PROPS, d ) { classInit( s ); };
+  NewElement( Document *d, const KWargs& a ):
+    AbstractCorrectionChild( PROPS, d ) { classInit( a ); };
+    static properties PROPS;
   private:
     void init();
   };
 
   class Current: public AbstractCorrectionChild {
   public:
-  Current( const std::string& s=""): AbstractCorrectionChild( ) { classInit( s ); };
-  Current( const KWargs& a ): AbstractCorrectionChild( ) { classInit( a ); };
-  Current( Document *d, const std::string& s=""): AbstractCorrectionChild( d ) { classInit( s ); };
-  Current( Document *d, const KWargs& a ): AbstractCorrectionChild( d ) { classInit( a ); };
+  Current( const std::string& s=""):
+    AbstractCorrectionChild( PROPS ) { classInit( s ); };
+  Current( const KWargs& a ):
+    AbstractCorrectionChild( PROPS ) { classInit( a ); };
+  Current( Document *d, const std::string& s=""):
+    AbstractCorrectionChild( PROPS, d ) { classInit( s ); };
+  Current( Document *d, const KWargs& a ):
+    AbstractCorrectionChild( PROPS, d ) { classInit( a ); };
+    static properties PROPS;
   private:
     void init();
   };
 
   class Original: public AbstractCorrectionChild {
   public:
-  Original( const std::string& s=""): AbstractCorrectionChild( ) { classInit( s ); };
-  Original( const KWargs& a ): AbstractCorrectionChild( ) { classInit( a ); };
-  Original( Document *d, const std::string& s=""): AbstractCorrectionChild( d ) { classInit( s ); };
-  Original( Document *d, const KWargs& a ): AbstractCorrectionChild( d ) { classInit( a ); };
+  Original( const std::string& s=""):
+    AbstractCorrectionChild( PROPS ) { classInit( s ); };
+  Original( const KWargs& a ):
+    AbstractCorrectionChild( PROPS ) { classInit( a ); };
+  Original( Document *d, const std::string& s=""):
+    AbstractCorrectionChild( PROPS, d ) { classInit( s ); };
+  Original( Document *d, const KWargs& a ):
+    AbstractCorrectionChild( PROPS, d ) { classInit( a ); };
+    static properties PROPS;
   private:
     void init();
   };
 
   class Suggestion: public AbstractCorrectionChild {
   public:
-  Suggestion( const std::string& s=""): AbstractCorrectionChild( ) { classInit( s ); };
-  Suggestion( const KWargs& a ): AbstractCorrectionChild( ) { classInit( a ); };
-  Suggestion( Document *d, const std::string& s=""): AbstractCorrectionChild( d ) { classInit( s ); };
-  Suggestion( Document *d, const KWargs& a ): AbstractCorrectionChild( d ) { classInit( a ); };
+  Suggestion( const std::string& s=""):
+    AbstractCorrectionChild( PROPS ) { classInit( s ); };
+  Suggestion( const KWargs& a ):
+    AbstractCorrectionChild( PROPS ) { classInit( a ); };
+  Suggestion( Document *d, const std::string& s=""):
+    AbstractCorrectionChild( PROPS, d ) { classInit( s ); };
+  Suggestion( Document *d, const KWargs& a ):
+    AbstractCorrectionChild( PROPS, d ) { classInit( a ); };
+    static properties PROPS;
   private:
     void init();
   };
 
   class Description: public FoliaImpl {
   public:
-  Description( const std::string& s=""): FoliaImpl(PROPS) { classInit( s ); };
-  Description( const KWargs& a ): FoliaImpl(PROPS) { classInit( a ); };
-  Description( Document *d, const std::string& s="" ): FoliaImpl(PROPS,d) { classInit( s ); };
-  Description( Document *d, const KWargs& a ): FoliaImpl(PROPS,d) { classInit( a ); };
+  Description( const std::string& s=""):
+    FoliaImpl(PROPS) { classInit( s ); };
+  Description( const KWargs& a ):
+    FoliaImpl(PROPS) { classInit( a ); };
+  Description( Document *d, const std::string& s="" ):
+    FoliaImpl(PROPS,d) { classInit( s ); };
+  Description( Document *d, const KWargs& a ):
+    FoliaImpl(PROPS,d) { classInit( a ); };
     std::string description() const { return _value; };
     void setAttributes( const KWargs& kwargs );
     FoliaElement* parseXml( const xmlNode * );
@@ -1717,10 +2025,14 @@ namespace folia {
 
   class XmlComment: public FoliaImpl {
   public:
-  XmlComment( const std::string& s=""): FoliaImpl(PROPS) { classInit( s ); };
-  XmlComment( const KWargs& a ): FoliaImpl(PROPS) { classInit( a ); };
-  XmlComment( Document *d, const std::string& s="" ): FoliaImpl(PROPS,d) { classInit( s ); };
-  XmlComment( Document *d, const KWargs& a ): FoliaImpl(PROPS,d) { classInit( a ); };
+  XmlComment( const std::string& s=""):
+    FoliaImpl(PROPS) { classInit( s ); };
+  XmlComment( const KWargs& a ):
+    FoliaImpl(PROPS) { classInit( a ); };
+  XmlComment( Document *d, const std::string& s="" ):
+    FoliaImpl(PROPS,d) { classInit( s ); };
+  XmlComment( Document *d, const KWargs& a ):
+    FoliaImpl(PROPS,d) { classInit( a ); };
     FoliaElement* parseXml( const xmlNode * );
     xmlNode *xml( bool, bool=false ) const;
     static properties PROPS;
@@ -1731,10 +2043,14 @@ namespace folia {
 
   class XmlText: public FoliaImpl {
   public:
-  XmlText( const std::string& s=""): FoliaImpl(PROPS) { classInit( s ); };
-  XmlText( const KWargs& a ): FoliaImpl(PROPS) { classInit( a ); };
-  XmlText( Document *d, const std::string& s="" ): FoliaImpl(PROPS,d) { classInit( s ); };
-  XmlText( Document *d, const KWargs& a ): FoliaImpl(PROPS, d ) { classInit( a ); };
+  XmlText( const std::string& s=""):
+    FoliaImpl(PROPS) { classInit( s ); };
+  XmlText( const KWargs& a ):
+    FoliaImpl(PROPS) { classInit( a ); };
+  XmlText( Document *d, const std::string& s="" ):
+    FoliaImpl(PROPS,d) { classInit( s ); };
+  XmlText( Document *d, const KWargs& a ):
+    FoliaImpl(PROPS, d ) { classInit( a ); };
     FoliaElement* parseXml( const xmlNode * );
     xmlNode *xml( bool, bool=false ) const;
     bool setvalue( const std::string& s ) { _value = s; return true; };
@@ -1749,10 +2065,14 @@ namespace folia {
 
   class External: public FoliaImpl {
   public:
-  External( const std::string& s=""): FoliaImpl(PROPS ) { classInit( s ); };
-  External( const KWargs& a ): FoliaImpl(PROPS ) { classInit( a ); };
-  External( Document *d, const std::string& s="" ): FoliaImpl(PROPS,d) { classInit( s ); };
-  External( Document *d, const KWargs& a ): FoliaImpl(PROPS,d) { classInit( a ); };
+  External( const std::string& s=""):
+    FoliaImpl( PROPS ) { classInit( s ); };
+  External( const KWargs& a ):
+    FoliaImpl( PROPS ) { classInit( a ); };
+  External( Document *d, const std::string& s="" ):
+    FoliaImpl( PROPS, d ) { classInit( s ); };
+  External( Document *d, const KWargs& a ):
+    FoliaImpl( PROPS, d ) { classInit( a ); };
     FoliaElement* parseXml( const xmlNode * );
     void resolve();
     void setAttributes( const KWargs& );
@@ -1765,12 +2085,16 @@ namespace folia {
 
   class Note: public AbstractStructureElement {
   public:
-  Note( const std::string& s=""): AbstractStructureElement(){ classInit( s ); };
-  Note( const KWargs& a ): AbstractStructureElement(){ classInit( a ); };
-  Note( Document *d, const std::string& s=""): AbstractStructureElement( d ){ classInit( s ); };
-  Note( Document *d, const KWargs& a ): AbstractStructureElement( d ){ classInit( a ); };
+  Note( const std::string& s=""):
+    AbstractStructureElement( PROPS ){ classInit( s ); };
+  Note( const KWargs& a ):
+    AbstractStructureElement( PROPS ){ classInit( a ); };
+  Note( Document *d, const std::string& s=""):
+    AbstractStructureElement( PROPS, d ){ classInit( s ); };
+  Note( Document *d, const KWargs& a ): AbstractStructureElement( PROPS, d ){ classInit( a ); };
     KWargs collectAttributes() const;
     void setAttributes( const KWargs& );
+    static properties PROPS;
   private:
     void init();
     std::string refId;
@@ -1778,40 +2102,60 @@ namespace folia {
 
   class Definition: public AbstractStructureElement {
   public:
-  Definition( const std::string& s=""): AbstractStructureElement(){ classInit( s ); };
-  Definition( const KWargs& a ): AbstractStructureElement(){ classInit( a ); };
-  Definition( Document *d, const std::string& s=""): AbstractStructureElement( d ){ classInit( s ); };
-  Definition( Document *d, const KWargs& a ): AbstractStructureElement( d ){ classInit( a ); };
+  Definition( const std::string& s=""):
+    AbstractStructureElement( PROPS ){ classInit( s ); };
+  Definition( const KWargs& a ):
+    AbstractStructureElement( PROPS ){ classInit( a ); };
+  Definition( Document *d, const std::string& s=""):
+    AbstractStructureElement( PROPS, d ){ classInit( s ); };
+  Definition( Document *d, const KWargs& a ):
+    AbstractStructureElement( PROPS, d ){ classInit( a ); };
+    static properties PROPS;
   private:
     void init();
   };
 
   class Term: public AbstractStructureElement {
   public:
-  Term( const std::string& s=""): AbstractStructureElement(){ classInit( s ); };
-  Term( const KWargs& a ): AbstractStructureElement(){ classInit( a ); };
-  Term( Document *d, const std::string& s=""): AbstractStructureElement( d ){ classInit( s ); };
-  Term( Document *d, const KWargs& a ): AbstractStructureElement( d ){ classInit( a ); };
+  Term( const std::string& s=""):
+    AbstractStructureElement( PROPS ){ classInit( s ); };
+  Term( const KWargs& a ):
+    AbstractStructureElement( PROPS ){ classInit( a ); };
+  Term( Document *d, const std::string& s=""):
+    AbstractStructureElement( PROPS, d ){ classInit( s ); };
+  Term( Document *d, const KWargs& a ):
+    AbstractStructureElement( PROPS, d ){ classInit( a ); };
+    static properties PROPS;
   private:
     void init();
   };
 
   class Example: public AbstractStructureElement {
   public:
-  Example( const std::string& s=""): AbstractStructureElement(){ classInit( s ); };
-  Example( const KWargs& a ): AbstractStructureElement(){ classInit( a ); };
-  Example( Document *d, const std::string& s=""): AbstractStructureElement( d ){ classInit( s ); };
-  Example( Document *d, const KWargs& a ): AbstractStructureElement( d ){ classInit( a ); };
+  Example( const std::string& s=""):
+    AbstractStructureElement( PROPS ){ classInit( s ); };
+  Example( const KWargs& a ):
+    AbstractStructureElement( PROPS ){ classInit( a ); };
+  Example( Document *d, const std::string& s=""):
+    AbstractStructureElement( PROPS, d ){ classInit( s ); };
+  Example( Document *d, const KWargs& a ):
+    AbstractStructureElement( PROPS, d ){ classInit( a ); };
+    static properties PROPS;
   private:
     void init();
   };
 
   class Entry: public AbstractStructureElement {
   public:
-  Entry( const std::string& s=""): AbstractStructureElement(){ classInit( s ); };
-  Entry( const KWargs& a ): AbstractStructureElement(){ classInit( a ); };
-  Entry( Document *d, const std::string& s=""): AbstractStructureElement( d ){ classInit( s ); };
-  Entry( Document *d, const KWargs& a ): AbstractStructureElement( d ){ classInit( a ); };
+  Entry( const std::string& s=""):
+    AbstractStructureElement( PROPS ){ classInit( s ); };
+  Entry( const KWargs& a ):
+    AbstractStructureElement( PROPS ){ classInit( a ); };
+  Entry( Document *d, const std::string& s=""):
+    AbstractStructureElement( PROPS, d ){ classInit( s ); };
+  Entry( Document *d, const KWargs& a ):
+    AbstractStructureElement( PROPS, d ){ classInit( a ); };
+    static properties PROPS;
   private:
     void init();
   };
@@ -1819,12 +2163,17 @@ namespace folia {
   class Reference: public AbstractStructureElement {
     friend class Note;
   public:
-  Reference( const std::string& s="" ): AbstractStructureElement( ){ classInit( s ); };
-  Reference( const KWargs& a ): AbstractStructureElement( ){ classInit( a ); };
-  Reference( Document *d, const std::string& s="" ): AbstractStructureElement( d ){ classInit( s ); };
-  Reference( Document *d, const KWargs& a ): AbstractStructureElement( d ){ classInit( a ); };
+  Reference( const std::string& s="" ):
+    AbstractStructureElement( PROPS ){ classInit( s ); };
+  Reference( const KWargs& a ):
+    AbstractStructureElement( PROPS ){ classInit( a ); };
+  Reference( Document *d, const std::string& s="" ):
+    AbstractStructureElement( PROPS, d ){ classInit( s ); };
+  Reference( Document *d, const KWargs& a ):
+    AbstractStructureElement( PROPS, d ){ classInit( a ); };
     KWargs collectAttributes() const;
     void setAttributes( const KWargs& );
+    static properties PROPS;
   private:
     void init();
     std::string refId;
@@ -1834,10 +2183,14 @@ namespace folia {
 
   class Correction: public AbstractTokenAnnotation {
   public:
-  Correction( const std::string& s=""): AbstractTokenAnnotation( ){ classInit( s ); }
-  Correction( const KWargs& a ): AbstractTokenAnnotation( ){ classInit( a ); }
-  Correction( Document *d, const std::string& s=""): AbstractTokenAnnotation( d ){ classInit( s ); }
-  Correction( Document *d, const KWargs& a ): AbstractTokenAnnotation( d ){ classInit( a ); }
+  Correction( const std::string& s=""):
+    AbstractTokenAnnotation( PROPS ){ classInit( s ); }
+  Correction( const KWargs& a ):
+    AbstractTokenAnnotation( PROPS ){ classInit( a ); }
+  Correction( Document *d, const std::string& s=""):
+    AbstractTokenAnnotation( PROPS, d ){ classInit( s ); }
+  Correction( Document *d, const KWargs& a ):
+    AbstractTokenAnnotation( PROPS, d ){ classInit( a ); }
     bool hasNew() const;
     bool hasOriginal() const;
     bool hasCurrent() const;
@@ -1855,126 +2208,186 @@ namespace folia {
     TextContent *textcontent( const std::string& = "current" ) const;
     PhonContent *phoncontent( const std::string& = "current" ) const;
     std::string getTextDelimiter( bool=false) const;
+    static properties PROPS;
   private:
     void init();
   };
 
   class ErrorDetection: public AbstractTokenAnnotation  {
   public:
-  ErrorDetection( const std::string& s=""): AbstractTokenAnnotation(){ classInit( s ); }
-  ErrorDetection( const KWargs& a ): AbstractTokenAnnotation(){ classInit( a ); }
-  ErrorDetection( Document *d, const std::string& s=""): AbstractTokenAnnotation( d ){ classInit( s ); }
-  ErrorDetection( Document *d, const KWargs& a ): AbstractTokenAnnotation( d ){ classInit( a ); }
+  ErrorDetection( const std::string& s=""):
+    AbstractTokenAnnotation( PROPS ){ classInit( s ); }
+  ErrorDetection( const KWargs& a ):
+    AbstractTokenAnnotation( PROPS ){ classInit( a ); }
+  ErrorDetection( Document *d, const std::string& s=""):
+    AbstractTokenAnnotation( PROPS, d ){ classInit( s ); }
+  ErrorDetection( Document *d, const KWargs& a ):
+    AbstractTokenAnnotation( PROPS, d ){ classInit( a ); }
+    static properties PROPS;
   private:
     void init();
   };
 
   class TimeSegment: public AbstractSpanAnnotation {
   public:
-  TimeSegment( const std::string& s="" ): AbstractSpanAnnotation(){ classInit( s ); }
-  TimeSegment( const KWargs& a ): AbstractSpanAnnotation(){ classInit( a ); }
-  TimeSegment( Document *d, const std::string& s="" ): AbstractSpanAnnotation( d ){ classInit( s ); }
-  TimeSegment( Document *d, const KWargs& a ): AbstractSpanAnnotation( d ){ classInit( a ); }
+  TimeSegment( const std::string& s="" ):
+    AbstractSpanAnnotation( PROPS ){ classInit( s ); }
+  TimeSegment( const KWargs& a ):
+    AbstractSpanAnnotation( PROPS ){ classInit( a ); }
+  TimeSegment( Document *d, const std::string& s="" ):
+    AbstractSpanAnnotation( PROPS, d ){ classInit( s ); }
+  TimeSegment( Document *d, const KWargs& a ):
+    AbstractSpanAnnotation( PROPS, d ){ classInit( a ); }
+    static properties PROPS;
   private:
     void init();
   };
 
   class Morpheme: public AbstractStructureElement {
   public:
-  Morpheme( const std::string& s="" ): AbstractStructureElement(){ classInit( s ); }
-  Morpheme( const KWargs& a ): AbstractStructureElement(){ classInit( a ); }
-  Morpheme( Document *d, const std::string& s="" ): AbstractStructureElement( d ){ classInit( s ); }
-  Morpheme( Document *d, const KWargs& a ): AbstractStructureElement( d ){ classInit( a ); }
+  Morpheme( const std::string& s="" ):
+    AbstractStructureElement( PROPS ){ classInit( s ); }
+  Morpheme( const KWargs& a ):
+    AbstractStructureElement( PROPS ){ classInit( a ); }
+  Morpheme( Document *d, const std::string& s="" ):
+    AbstractStructureElement( PROPS, d ){ classInit( s ); }
+  Morpheme( Document *d, const KWargs& a ): AbstractStructureElement( PROPS, d ){ classInit( a ); }
+    static properties PROPS;
   private:
     void init();
   };
 
   class SyntaxLayer: public AbstractAnnotationLayer {
   public:
-  SyntaxLayer( const std::string& s=""): AbstractAnnotationLayer(){ classInit( s ); }
-  SyntaxLayer( const KWargs& a ): AbstractAnnotationLayer(){ classInit( a ); }
-  SyntaxLayer( Document *d, const std::string& s=""): AbstractAnnotationLayer( d ){ classInit( s ); }
-  SyntaxLayer( Document *d, const KWargs& a ): AbstractAnnotationLayer( d ){ classInit( a ); }
+  SyntaxLayer( const std::string& s=""):
+    AbstractAnnotationLayer( PROPS ){ classInit( s ); }
+  SyntaxLayer( const KWargs& a ):
+    AbstractAnnotationLayer( PROPS ){ classInit( a ); }
+  SyntaxLayer( Document *d, const std::string& s=""):
+    AbstractAnnotationLayer( PROPS, d ){ classInit( s ); }
+  SyntaxLayer( Document *d, const KWargs& a ):
+    AbstractAnnotationLayer( PROPS, d ){ classInit( a ); }
+    static properties PROPS;
   private:
     void init();
   };
 
   class ChunkingLayer: public AbstractAnnotationLayer {
   public:
-  ChunkingLayer( const std::string& s=""): AbstractAnnotationLayer(){ classInit( s ); }
-  ChunkingLayer( const KWargs& a ): AbstractAnnotationLayer(){ classInit( a ); }
-  ChunkingLayer( Document *d, const std::string& s=""): AbstractAnnotationLayer( d ){ classInit( s ); }
-  ChunkingLayer( Document *d, const KWargs& a ): AbstractAnnotationLayer( d ){ classInit( a ); }
+  ChunkingLayer( const std::string& s=""):
+    AbstractAnnotationLayer( PROPS ){ classInit( s ); }
+  ChunkingLayer( const KWargs& a ):
+    AbstractAnnotationLayer( PROPS ){ classInit( a ); }
+  ChunkingLayer( Document *d, const std::string& s=""):
+    AbstractAnnotationLayer( PROPS, d ){ classInit( s ); }
+  ChunkingLayer( Document *d, const KWargs& a ):
+    AbstractAnnotationLayer( PROPS, d ){ classInit( a ); }
+    static properties PROPS;
   private:
     void init();
   };
 
   class EntitiesLayer: public AbstractAnnotationLayer {
   public:
-  EntitiesLayer( const std::string& s=""): AbstractAnnotationLayer(){ classInit( s ); }
-  EntitiesLayer( const KWargs& a ): AbstractAnnotationLayer(){ classInit( a ); }
-  EntitiesLayer( Document *d, const std::string& s=""): AbstractAnnotationLayer( d ){ classInit( s ); }
-  EntitiesLayer( Document *d, const KWargs& a ): AbstractAnnotationLayer( d ){ classInit( a ); }
+  EntitiesLayer( const std::string& s=""):
+    AbstractAnnotationLayer( PROPS ){ classInit( s ); }
+  EntitiesLayer( const KWargs& a ):
+    AbstractAnnotationLayer( PROPS ){ classInit( a ); }
+  EntitiesLayer( Document *d, const std::string& s=""):
+    AbstractAnnotationLayer( PROPS, d ){ classInit( s ); }
+  EntitiesLayer( Document *d, const KWargs& a ):
+    AbstractAnnotationLayer( PROPS, d ){ classInit( a ); }
+    static properties PROPS;
   private:
     void init();
   };
 
   class TimingLayer: public AbstractAnnotationLayer {
   public:
-  TimingLayer( const std::string& s=""): AbstractAnnotationLayer(){ classInit( s ); }
-  TimingLayer( const KWargs& a ): AbstractAnnotationLayer(){ classInit( a ); }
-  TimingLayer( Document *d, const std::string& s=""): AbstractAnnotationLayer( d ){ classInit( s ); }
-  TimingLayer( Document *d, const KWargs& a ): AbstractAnnotationLayer( d ){ classInit( a ); }
+  TimingLayer( const std::string& s=""):
+    AbstractAnnotationLayer( PROPS ){ classInit( s ); }
+  TimingLayer( const KWargs& a ):
+    AbstractAnnotationLayer( PROPS ){ classInit( a ); }
+  TimingLayer( Document *d, const std::string& s=""):
+    AbstractAnnotationLayer( PROPS, d ){ classInit( s ); }
+  TimingLayer( Document *d, const KWargs& a ):
+    AbstractAnnotationLayer( PROPS, d ){ classInit( a ); }
+    static properties PROPS;
   private:
     void init();
   };
 
   class MorphologyLayer: public AbstractAnnotationLayer {
   public:
-  MorphologyLayer( const std::string& s="" ): AbstractAnnotationLayer(){ classInit( s ); }
-  MorphologyLayer( const KWargs& a ): AbstractAnnotationLayer(){ classInit( a ); }
-  MorphologyLayer( Document *d, const std::string& s="" ): AbstractAnnotationLayer( d ){ classInit( s ); }
-  MorphologyLayer( Document *d, const KWargs& a ): AbstractAnnotationLayer( d ){ classInit( a ); }
+  MorphologyLayer( const std::string& s="" ):
+    AbstractAnnotationLayer( PROPS ){ classInit( s ); }
+  MorphologyLayer( const KWargs& a ):
+    AbstractAnnotationLayer( PROPS ){ classInit( a ); }
+  MorphologyLayer( Document *d, const std::string& s="" ):
+    AbstractAnnotationLayer( PROPS, d ){ classInit( s ); }
+  MorphologyLayer( Document *d, const KWargs& a ):
+    AbstractAnnotationLayer( PROPS, d ){ classInit( a ); }
+    static properties PROPS;
   private:
     void init();
   };
 
   class PhonologyLayer: public AbstractAnnotationLayer {
   public:
-  PhonologyLayer( const std::string& s="" ): AbstractAnnotationLayer(){ classInit( s ); }
-  PhonologyLayer( const KWargs& a ): AbstractAnnotationLayer(){ classInit( a ); }
-  PhonologyLayer( Document *d, const std::string& s="" ): AbstractAnnotationLayer( d ){ classInit( s ); }
-  PhonologyLayer( Document *d, const KWargs& a ): AbstractAnnotationLayer( d ){ classInit( a ); }
+  PhonologyLayer( const std::string& s="" ):
+    AbstractAnnotationLayer( PROPS ){ classInit( s ); }
+  PhonologyLayer( const KWargs& a ):
+    AbstractAnnotationLayer( PROPS ){ classInit( a ); }
+  PhonologyLayer( Document *d, const std::string& s="" ):
+    AbstractAnnotationLayer( PROPS, d ){ classInit( s ); }
+  PhonologyLayer( Document *d, const KWargs& a ):
+    AbstractAnnotationLayer( PROPS, d ){ classInit( a ); }
+    static properties PROPS;
   private:
     void init();
   };
 
   class DependenciesLayer: public AbstractAnnotationLayer {
   public:
-  DependenciesLayer( const std::string& s=""): AbstractAnnotationLayer(){ classInit( s ); }
-  DependenciesLayer( const KWargs& a ): AbstractAnnotationLayer(){ classInit( a ); }
-  DependenciesLayer( Document *d, const std::string& s=""): AbstractAnnotationLayer( d ){ classInit( s ); }
-  DependenciesLayer( Document *d, const KWargs& a ): AbstractAnnotationLayer( d ){ classInit( a ); }
+  DependenciesLayer( const std::string& s=""):
+    AbstractAnnotationLayer( PROPS ){ classInit( s ); }
+  DependenciesLayer( const KWargs& a ):
+    AbstractAnnotationLayer( PROPS ){ classInit( a ); }
+  DependenciesLayer( Document *d, const std::string& s=""):
+    AbstractAnnotationLayer( PROPS, d ){ classInit( s ); }
+  DependenciesLayer( Document *d, const KWargs& a ):
+    AbstractAnnotationLayer( PROPS, d ){ classInit( a ); }
+    static properties PROPS;
   private:
     void init();
   };
 
   class CoreferenceLayer: public AbstractAnnotationLayer {
   public:
-  CoreferenceLayer( const std::string& s=""): AbstractAnnotationLayer(){ classInit( s ); }
-  CoreferenceLayer( const KWargs& a ): AbstractAnnotationLayer(){ classInit( a ); }
-  CoreferenceLayer( Document *d, const std::string& s=""): AbstractAnnotationLayer( d ){ classInit( s ); }
-  CoreferenceLayer( Document *d, const KWargs& a ): AbstractAnnotationLayer( d ){ classInit( a ); }
+  CoreferenceLayer( const std::string& s=""):
+    AbstractAnnotationLayer( PROPS ){ classInit( s ); }
+  CoreferenceLayer( const KWargs& a ):
+    AbstractAnnotationLayer( PROPS ){ classInit( a ); }
+  CoreferenceLayer( Document *d, const std::string& s=""):
+    AbstractAnnotationLayer( PROPS, d ){ classInit( s ); }
+  CoreferenceLayer( Document *d, const KWargs& a ):
+    AbstractAnnotationLayer( PROPS, d ){ classInit( a ); }
+    static properties PROPS;
   private:
     void init();
   };
 
   class SemanticRolesLayer: public AbstractAnnotationLayer {
   public:
-  SemanticRolesLayer( const std::string& s=""): AbstractAnnotationLayer(){ classInit( s ); }
-  SemanticRolesLayer( const KWargs& a ): AbstractAnnotationLayer(){ classInit( a ); }
-  SemanticRolesLayer( Document *d, const std::string& s=""): AbstractAnnotationLayer( d ){ classInit( s ); }
-  SemanticRolesLayer( Document *d, const KWargs& a ): AbstractAnnotationLayer( d ){ classInit( a ); }
+  SemanticRolesLayer( const std::string& s=""):
+    AbstractAnnotationLayer( PROPS ){ classInit( s ); }
+  SemanticRolesLayer( const KWargs& a ):
+    AbstractAnnotationLayer( PROPS ){ classInit( a ); }
+  SemanticRolesLayer( Document *d, const std::string& s=""):
+    AbstractAnnotationLayer( PROPS, d ){ classInit( s ); }
+  SemanticRolesLayer( Document *d, const KWargs& a ):
+    AbstractAnnotationLayer( PROPS, d ){ classInit( a ); }
+    static properties PROPS;
   private:
     void init();
   };
