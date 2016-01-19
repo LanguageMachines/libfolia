@@ -41,7 +41,7 @@
 #include "ticcutils/StringOps.h"
 
 namespace folia {
-  enum AnnotatorType{ UNDEFINED = -1, AUTO = 0, MANUAL = 1 };
+  enum AnnotatorType: int { UNDEFINED = -1, AUTO = 0, MANUAL = 1 };
 
   enum Attrib : int { NO_ATT=0, ID=1, CLASS=2, ANNOTATOR=4, CONFIDENCE=8,
       N=16, DATETIME=32, SETONLY=64, BEGINTIME=128, ENDTIME=256,

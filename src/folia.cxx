@@ -3133,9 +3133,11 @@ namespace folia {
     _annotation_type = AnnotationType::TEXT;
     _occurrences = 0;
     _occurrences_per_set=0;
-    _offset = -1;
     PRINTABLE = true;
     XLINK = true;
+
+    _offset = -1;
+
   }
 
   void PhonContent::init(){
@@ -3259,6 +3261,7 @@ namespace folia {
 		       Feature_t };
     _annotation_type = AnnotationType::TOKEN;
     TEXTDELIMITER = " ";
+
     space = true;
   }
 
