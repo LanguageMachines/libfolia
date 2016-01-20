@@ -33,7 +33,7 @@ namespace folia {
 
   //  std::ostream& operator<<( std::ostream& os, const properties& );
   //  std::ostream& operator<<( std::ostream& os, const properties * );
-
+  void static_init();
 }
 
 #endif

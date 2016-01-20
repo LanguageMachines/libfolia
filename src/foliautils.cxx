@@ -1267,7 +1267,9 @@ namespace folia {
 	}
 	if ( tmp != 0 ) {
 	  if ( et != tmp->element_id() ){
-	    cerr << "the element type of " << tmp << " != " << et << endl;
+	    cerr << "the element type " << tmp->element_id() << " of " << tmp
+		 << " != " << et << " (" << toString(tmp->element_id())
+		 << " != " << toString(et) << ")" << endl;
 	    sane = false;
 	  }
 	  if ( s != tmp->xmltag() ){

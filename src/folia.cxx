@@ -3800,9 +3800,11 @@ namespace folia {
     _xmltag = "external";
     _element_id = External_t;
     _required_attributes = SRC;
-    _include = false;
     PRINTABLE = true;
     SPEAKABLE = false;
+
+    _include = false;
+
   }
 
   static int error_sink(void *mydata, xmlError *error ){
@@ -4294,12 +4296,14 @@ namespace folia {
   void BeginDateTimeFeature::init(){
     _xmltag="begindatetime";
     _element_id = BeginDateTimeFeature_t;
+
     _subset = "begindatetime";
   }
 
   void EndDateTimeFeature::init(){
     _xmltag="enddatetime";
     _element_id = EndDateTimeFeature_t;
+
     _subset = "enddatetime";
   }
 
@@ -4307,48 +4311,56 @@ namespace folia {
     _xmltag="synset";
     _element_id = SynsetFeature_t;
     _annotation_type = AnnotationType::SENSE;
+
     _subset = "synset";
   }
 
   void ActorFeature::init(){
     _xmltag = "actor";
     _element_id = ActorFeature_t;
+
     _subset = "actor";
   }
 
   void HeadFeature::init(){
     _xmltag = "headfeature";
     _element_id = HeadFeature_t;
+
     _subset = "head";
   }
 
   void ValueFeature::init(){
     _xmltag = "value";
     _element_id = ValueFeature_t;
+
     _subset = "value";
   }
 
   void FunctionFeature::init(){
     _xmltag = "function";
     _element_id = FunctionFeature_t;
+
     _subset = "function";
   }
 
   void LevelFeature::init(){
     _xmltag = "level";
     _element_id = LevelFeature_t;
+
     _subset = "level";
   }
 
   void ModalityFeature::init(){
     _xmltag = "modality";
     _element_id = ModalityFeature_t;
+
     _subset = "modality";
   }
 
   void TimeFeature::init(){
     _xmltag = "time";
     _element_id = TimeFeature_t;
+
     _subset = "time";
   }
 
