@@ -92,7 +92,7 @@ namespace folia {
     }
     bool isSubClass( ElementType ) const;
     bool isSubClass( const FoliaElement *c ) const {
-      return isSubClass( c->element_id() );
+      return dynamic_cast<decltype(c)>(this) != 0;
     };
 
     virtual void fixupDoc( Document* ) = 0;
@@ -191,7 +191,7 @@ namespace folia {
     // annotations
 
     virtual bool allowannotations() const { return false; };
-    virtual std::string annotator( ) const = 0;
+    virtual const std::string annotator( ) const = 0;
     virtual void annotator( const std::string& ) = 0;
     virtual AnnotatorType annotatortype() const = 0;
     virtual void annotatortype( AnnotatorType t ) =  0;
@@ -267,7 +267,7 @@ namespace folia {
 
     // features
     virtual std::vector<std::string> feats( const std::string& ) const = 0;
-    virtual std::string feat( const std::string& ) const = 0;
+    virtual const std::string feat( const std::string& ) const = 0;
 
     //XML (de)serialisation
     virtual FoliaElement* parseXml( const xmlNode * ) = 0;
@@ -278,12 +278,12 @@ namespace folia {
     bool hastext( const std::string& = "current" ) const;
 
     virtual const std::string str( const std::string& = "current" ) const = 0;
-    UnicodeString unicode( const std::string& cls = "current" ) const { return text( cls ); };
-    virtual UnicodeString text( const std::string& = "current",
+    const UnicodeString unicode( const std::string& cls = "current" ) const { return text( cls ); };
+    virtual const UnicodeString text( const std::string& = "current",
 				bool = false, bool = false ) const = 0;
-    UnicodeString stricttext( const std::string& = "current" ) const;
-    UnicodeString toktext( const std::string& = "current" ) const;
-    virtual UnicodeString phon( const std::string& = "current",
+    const UnicodeString stricttext( const std::string& = "current" ) const;
+    const UnicodeString toktext( const std::string& = "current" ) const;
+    virtual const UnicodeString phon( const std::string& = "current",
 				bool = false ) const = 0;
     virtual bool printable() const = 0;
     virtual bool speakable() const = 0;
@@ -353,9 +353,9 @@ namespace folia {
     // properties
     virtual const std::string& getTextDelimiter( bool retaintok=false ) const = 0;
     virtual void setDateTime( const std::string& ) = 0;
-    virtual std::string getDateTime() const = 0;
-    virtual std::string pos( const std::string& = "" ) const = 0;
-    virtual std::string lemma( const std::string& = "" ) const = 0;
+    virtual const std::string getDateTime() const = 0;
+    virtual const std::string pos( const std::string& = "" ) const = 0;
+    virtual const std::string lemma( const std::string& = "" ) const = 0;
     virtual const std::string cls() const = 0;
     virtual const std::string sett() const = 0;
     virtual const std::string classname() const = 0;
@@ -397,7 +397,7 @@ namespace folia {
 
     virtual DependencyDependent *dependent() const NOT_IMPLEMENTED;
 
-    virtual std::string description() const;
+    virtual const std::string description() const;
 
     // alternatives
     template <typename F>
@@ -411,11 +411,11 @@ namespace folia {
       return alternatives( BASE, s );
     }
 
-    virtual std::string content() const {
+    virtual const std::string content() const {
       throw NoSuchAnnotation( "content" );
     }
-    virtual std::string src() const NOT_IMPLEMENTED;
-    virtual UnicodeString caption() const NOT_IMPLEMENTED;
+    virtual const std::string src() const NOT_IMPLEMENTED;
+    virtual const UnicodeString caption() const NOT_IMPLEMENTED;
     virtual std::vector<FoliaElement *> resolve() const NOT_IMPLEMENTED;
     virtual const FoliaElement* resolveid() const NOT_IMPLEMENTED;
     virtual bool checkAtts() = 0;
@@ -439,7 +439,7 @@ namespace folia {
     virtual void setAttributes( const KWargs& ) = 0;
     virtual KWargs collectAttributes() const = 0;
     virtual void setAuth( bool b ) = 0;
-    virtual std::string generateId( const std::string& ) NOT_IMPLEMENTED;
+    virtual const std::string generateId( const std::string& ) NOT_IMPLEMENTED;
   };
 
   class FoliaImpl: public virtual FoliaElement {
@@ -525,7 +525,7 @@ namespace folia {
       return FoliaElement::select<F>( exclude, recurse );
     }
 
-    std::string annotator( ) const { return _annotator; };
+    const std::string annotator( ) const { return _annotator; };
     void annotator( const std::string& a ) { _annotator = a; };
     AnnotatorType annotatortype() const { return _annotator_type; };
     void annotatortype( AnnotatorType t ) { _annotator_type =  t; };
@@ -555,7 +555,7 @@ namespace folia {
 
     // features
     std::vector<std::string> feats( const std::string& ) const;
-    std::string feat( const std::string& ) const;
+    const std::string feat( const std::string& ) const;
 
     //XML (de)serialisation
     FoliaElement* parseXml( const xmlNode * );
@@ -564,14 +564,14 @@ namespace folia {
     // text/string content
 
     const std::string str( const std::string& = "current" ) const;
-    UnicodeString text( const std::string& = "current",
-			bool = false, bool = false ) const;
+    const UnicodeString text( const std::string& = "current",
+			      bool = false, bool = false ) const;
 
-    UnicodeString phon( const std::string& = "current",
-			bool = false ) const;
-    UnicodeString deeptext( const std::string& = "current",
-			    bool = false ) const;
-    UnicodeString deepphon( const std::string& = "current" ) const;
+    const UnicodeString phon( const std::string& = "current",
+			      bool = false ) const;
+    const UnicodeString deeptext( const std::string& = "current",
+				  bool = false ) const;
+    const UnicodeString deepphon( const std::string& = "current" ) const;
 
     // Word
     const Word* resolveword( const std::string& ) const { return 0; };
@@ -585,9 +585,9 @@ namespace folia {
     // properties
     const std::string& getTextDelimiter( bool retaintok=false ) const;
     void setDateTime( const std::string& );
-    std::string getDateTime() const;
-    std::string pos( const std::string& = "" ) const ;
-    std::string lemma( const std::string& = "" ) const;
+    const std::string getDateTime() const;
+    const std::string pos( const std::string& = "" ) const ;
+    const std::string lemma( const std::string& = "" ) const;
     const std::string cls() const { return _class; };
     const std::string sett() const { return _set; };
     const std::string n() const { return _n; };
@@ -667,14 +667,13 @@ namespace folia {
   bool isSubClass( const ElementType e1, const ElementType e2 );
 
   inline bool isSubClass( const FoliaElement *e1, const FoliaElement *e2 ){
-    return isSubClass( e1->element_id(), e2->element_id() );
+    return dynamic_cast<decltype(e2)>(e1) != 0;
   }
 
   template <typename T1, typename T2>
     bool isSubClass(){
     T1 t1((Document*)0);
-    T2 t2((Document*)0);
-    return t1.isSubClass( &t2 );
+    return dynamic_cast<T2*>(&t1) != 0;
   }
 
   bool operator==( const FoliaElement&, const FoliaElement& );
@@ -693,15 +692,15 @@ namespace folia {
 				const std::string& cls = "current" ) {
     return e->str( cls ); }
 
-  inline UnicodeString text( const FoliaElement *e,
-			     const std::string& cls = "current" ) {
+  inline const UnicodeString text( const FoliaElement *e,
+				   const std::string& cls = "current" ) {
     if ( e )
       return e->text( cls );
     else
       throw ValueError( "text() for empty element" );
   }
 
-  inline UnicodeString unicode( const FoliaElement *e ) {
+  inline const UnicodeString unicode( const FoliaElement *e ) {
     return e->unicode(); }
 
   inline bool isinstance( const FoliaElement *e, ElementType t ) {
@@ -711,7 +710,7 @@ namespace folia {
   public:
     void setMaxId( FoliaElement * );
     int getMaxId( const std::string& );
-    std::string generateId( const std::string& tag ){
+    const std::string generateId( const std::string& tag ){
       return IDgen( tag, this );
     }
   private:
@@ -861,8 +860,8 @@ namespace folia {
     void setAttributes( const KWargs& );
     KWargs collectAttributes() const;
     const FoliaElement* resolveid() const;
-    UnicodeString text( const std::string& = "current",
-			bool = false, bool = false ) const;
+    const UnicodeString text( const std::string& = "current",
+			      bool = false, bool = false ) const;
   protected:
     const std::string& getTextDelimiter( bool ) const { return EMPTY_STRING; };
     std::string idref;
@@ -898,8 +897,8 @@ namespace folia {
     AbstractTextMarkup( PROPS, d ){ classInit(); };
     void setAttributes( const KWargs& );
     KWargs collectAttributes() const;
-    UnicodeString text( const std::string& = "current",
-			bool = false, bool = false ) const;
+    const UnicodeString text( const std::string& = "current",
+			      bool = false, bool = false ) const;
   private:
     static properties PROPS;
     void init();
@@ -936,8 +935,8 @@ namespace folia {
     void setAttributes( const KWargs& );
     KWargs collectAttributes() const;
     const std::string str( const std::string& = "current" ) const;
-    UnicodeString text( const std::string& = "current",
-			bool = false, bool = false ) const;
+    const UnicodeString text( const std::string& = "current",
+			      bool = false, bool = false ) const;
     int offset() const { return _offset; };
     TextContent *postappend();
     std::vector<FoliaElement*> findreplacables( FoliaElement * ) const;
@@ -956,8 +955,8 @@ namespace folia {
   PhonContent( Document *d, const KWargs& a ): FoliaImpl(PROPS,d){ classInit( a ); }
     void setAttributes( const KWargs& );
     KWargs collectAttributes() const;
-    UnicodeString phon( const std::string& = "current",
-			bool = false ) const;
+    const UnicodeString phon( const std::string& = "current",
+			      bool = false ) const;
     int offset() const { return _offset; };
     /* TextContent *postappend(); */
     /* std::vector<FoliaElement*> findreplacables( FoliaElement * ) const; */
@@ -1083,7 +1082,7 @@ namespace folia {
     FoliaImpl(PROPS,d) { classInit( s ); };
   Gap( Document *d, const KWargs& a ):
     FoliaImpl(PROPS,d) { classInit( a ); };
-    std::string content() const;
+    const std::string content() const;
   private:
     static properties PROPS;
     void init();
@@ -1102,7 +1101,7 @@ namespace folia {
     FoliaImpl(PROPS,d) { classInit( a ); };
     FoliaElement* parseXml( const xmlNode * );
     xmlNode *xml( bool, bool = false ) const;
-    std::string content() const { return value; };
+    const std::string content() const { return value; };
   private:
     static properties PROPS;
     void init();
@@ -1153,8 +1152,8 @@ namespace folia {
     AbstractStructureElement( PROPS, d ){ classInit( s ); };
   LineBreak( Document *d,  const KWargs& a ):
     AbstractStructureElement( PROPS, d ){ classInit( a ); };
-    UnicodeString text( const std::string& = "current",
-			bool = false, bool = false ) const {
+    const UnicodeString text( const std::string& = "current",
+			      bool = false, bool = false ) const {
       return "";
     }
   private:
@@ -1444,8 +1443,8 @@ namespace folia {
     AbstractStructureElement( PROPS, d ){ classInit( s ); };
   Figure( Document *d, const KWargs& a ):
     AbstractStructureElement( PROPS, d ){ classInit( a ); };
-    std::string src() const { return _src; };
-    UnicodeString caption() const;
+    const std::string src() const { return _src; };
+    const UnicodeString caption() const;
   private:
     static properties PROPS;
     void init();
@@ -2131,7 +2130,7 @@ namespace folia {
     FoliaImpl(PROPS,d) { classInit( s ); };
   Description( Document *d, const KWargs& a ):
     FoliaImpl(PROPS,d) { classInit( a ); };
-    std::string description() const { return _value; };
+    const std::string description() const { return _value; };
     void setAttributes( const KWargs& kwargs );
     FoliaElement* parseXml( const xmlNode * );
     xmlNode *xml( bool, bool=false ) const;
@@ -2175,8 +2174,8 @@ namespace folia {
     xmlNode *xml( bool, bool=false ) const;
     bool setvalue( const std::string& s ) { _value = s; return true; };
     const std::string& getTextDelimiter( bool ) const { return EMPTY_STRING; };
-    UnicodeString text( const std::string& = "current",
-			bool = false, bool = false ) const;
+    const UnicodeString text( const std::string& = "current",
+			      bool = false, bool = false ) const;
   private:
     static properties PROPS;
     void init();
@@ -2331,8 +2330,8 @@ namespace folia {
     FoliaElement *getCurrent( size_t ) const;
     std::vector<Suggestion*> suggestions() const;
     Suggestion *suggestions( size_t ) const;
-    UnicodeString text( const std::string& = "current",
-			bool = false, bool = false ) const;
+    const UnicodeString text( const std::string& = "current",
+			      bool = false, bool = false ) const;
     TextContent *textcontent( const std::string& = "current" ) const;
     PhonContent *phoncontent( const std::string& = "current" ) const;
     const std::string& getTextDelimiter( bool=false) const;

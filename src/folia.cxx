@@ -629,9 +629,9 @@ namespace folia {
     return _props.TEXTDELIMITER;
   }
 
-  UnicodeString FoliaImpl::text( const string& cls,
-				 bool retaintok,
-				 bool strict ) const {
+  const UnicodeString FoliaImpl::text( const string& cls,
+				       bool retaintok,
+				       bool strict ) const {
     // get the UnicodeString value of underlying elements
     // default cls="current"
 #ifdef DEBUG_TEXT
@@ -653,7 +653,7 @@ namespace folia {
     }
   }
 
-  UnicodeString FoliaImpl::deeptext( const string& cls,
+  const UnicodeString FoliaImpl::deeptext( const string& cls,
 				     bool retaintok ) const {
     // get the UnicodeString value of underlying elements
     // default cls="current"
@@ -721,13 +721,13 @@ namespace folia {
     return result;
   }
 
-  UnicodeString FoliaElement::stricttext( const string& cls ) const {
+  const UnicodeString FoliaElement::stricttext( const string& cls ) const {
     // get UnicodeString content of TextContent children only
     // default cls="current"
     return this->text(cls, false, true );
   }
 
-  UnicodeString FoliaElement::toktext( const string& cls ) const {
+  const UnicodeString FoliaElement::toktext( const string& cls ) const {
     // get UnicodeString content of TextContent children only
     // default cls="current"
     return this->text(cls, true, false );
@@ -787,7 +787,7 @@ namespace folia {
 
   //#define DEBUG_PHON
 
-  UnicodeString FoliaImpl::phon( const string& cls,
+  const UnicodeString FoliaImpl::phon( const string& cls,
 				 bool strict ) const {
     // get the UnicodeString value of underlying elements
     // default cls="current"
@@ -810,7 +810,7 @@ namespace folia {
     }
   }
 
-  UnicodeString FoliaImpl::deepphon( const string& cls ) const {
+  const UnicodeString FoliaImpl::deepphon( const string& cls ) const {
     // get the UnicodeString value of underlying elements
     // default cls="current"
 #ifdef DEBUG_PHON
@@ -960,7 +960,7 @@ namespace folia {
     return settext( utf8, offset, cls );
   }
 
-  string FoliaElement::description() const {
+  const string FoliaElement::description() const {
     vector<FoliaElement *> v =  select( Description_t, false );
     if ( v.size() == 0 )
       throw NoSuchAnnotation( "description" );
@@ -1360,15 +1360,15 @@ namespace folia {
     }
   }
 
-  string FoliaImpl::getDateTime() const {
+  const string FoliaImpl::getDateTime() const {
     return _datetime;
   }
 
-  string FoliaImpl::pos( const string& st ) const {
+  const string FoliaImpl::pos( const string& st ) const {
     return annotation<PosAnnotation>( st )->cls();
   }
 
-  string FoliaImpl::lemma( const string& st ) const {
+  const string FoliaImpl::lemma( const string& st ) const {
     return annotation<LemmaAnnotation>( st )->cls();
   }
 
@@ -1832,9 +1832,9 @@ namespace folia {
     return UnicodeToUTF8(text(cls));
   }
 
-  UnicodeString TextContent::text( const string& cls,
-				   bool retaintok,
-				   bool ) const {
+  const UnicodeString TextContent::text( const string& cls,
+					 bool retaintok,
+					 bool ) const {
     // get the UnicodeString value of underlying elements
     // default cls="current"
 #ifdef DEBUG_TEXT
@@ -1868,8 +1868,8 @@ namespace folia {
     return result;
   }
 
-  UnicodeString PhonContent::phon( const string& cls,
-				   bool ) const {
+  const UnicodeString PhonContent::phon( const string& cls,
+					 bool ) const {
     // get the UnicodeString value of underlying elements
     // default cls="current"
 #ifdef DEBUG_PHON
@@ -2199,7 +2199,6 @@ namespace folia {
     //    cerr << xmltag() << "::correct() ==> " << this << endl;
     return tmp;
   }
-
 
   const string AbstractStructureElement::str( const string& cls ) const{
     UnicodeString result = text( cls );
@@ -2730,7 +2729,7 @@ namespace folia {
     Word::setAttributes( args );
   }
 
-  UnicodeString Figure::caption() const {
+  const UnicodeString Figure::caption() const {
     vector<FoliaElement *> v = select(Caption_t);
     if ( v.empty() )
       throw NoSuchText("caption");
@@ -2908,9 +2907,9 @@ namespace folia {
     return this;
   }
 
-  UnicodeString Correction::text( const string& cls,
-				  bool retaintok,
-				  bool ) const {
+  const UnicodeString Correction::text( const string& cls,
+					bool retaintok,
+					bool ) const {
 #ifdef DEBUG_TEXT
     cerr << "TEXT(" << cls << ") op node : " << xmltag() << " id ( " << id() << ")" << endl;
 #endif
@@ -3055,7 +3054,7 @@ namespace folia {
     return 0;
   }
 
-  string Gap::content() const {
+  const string Gap::content() const {
     vector<FoliaElement*> cv = select( Content_t );
     if ( cv.size() < 1 )
       throw NoSuchAnnotation( "content" );
@@ -3301,7 +3300,7 @@ namespace folia {
   void Description::init(){
   }
 
-  UnicodeString XmlText::text( const string&, bool, bool ) const {
+  const UnicodeString XmlText::text( const string&, bool, bool ) const {
     return UTF8ToUnicode(_value);
   }
 
@@ -3510,7 +3509,7 @@ namespace folia {
     return result;
   }
 
-  string FoliaImpl::feat( const std::string& s ) const {
+  const string FoliaImpl::feat( const std::string& s ) const {
     //    return the fist class of the given subset
     for ( const auto& el : data ){
       if ( el->isSubClass( Feature_t ) &&
@@ -3564,14 +3563,15 @@ namespace folia {
     FoliaImpl::setAttributes( argl );
   }
 
-  UnicodeString AbstractTextMarkup::text( const std::string& cls,
-					  bool, bool ) const {
+  const UnicodeString AbstractTextMarkup::text( const std::string& cls,
+						bool, bool ) const {
     // we assume al TextMarkup te be tokenized already
     return FoliaImpl::text( cls, true );
   }
 
-  UnicodeString TextMarkupCorrection::text( const std::string& cls,
-					    bool ret, bool strict ) const{
+  const UnicodeString TextMarkupCorrection::text( const std::string& cls,
+						  bool ret,
+						  bool strict ) const{
     if ( cls == "original" )
       return UTF8ToUnicode(_original);
     else

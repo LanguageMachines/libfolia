@@ -1003,13 +1003,13 @@ namespace folia {
   namespace {
     struct initializer {
       initializer() {
-	std::cout << "Loading the static properties" << std::endl;
+	//	std::cout << "Loading the static properties" << std::endl;
 	static_init();
       }
 
       ~initializer() {
-	std::cout << "Unloading the properties" << std::endl;
-	std::cout << "but don't care.." << std::endl;
+	// std::cout << "Unloading the properties" << std::endl;
+	// std::cout << "but don't care.." << std::endl;
       }
     };
     static initializer i;
