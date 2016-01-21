@@ -11,12 +11,13 @@ namespace folia {
     { BASE, "ThIsIsSoWrOnG",
       {},
       NO_ATT, NO_ATT,
-      AnnotationType::NO_ANN, UNDEFINED, true,
-      -1, 0, 1,
+      AnnotationType::NO_ANN,
+      0, 1,
       "NONE", false, false, false
     };
 
   properties AbstractStructureElement::PROPS = DEFAULT_PROPERTIES;
+  properties AbstractAnnotation::PROPS = DEFAULT_PROPERTIES;
   properties AbstractTokenAnnotation::PROPS = DEFAULT_PROPERTIES;
   properties AbstractCorrectionChild::PROPS = DEFAULT_PROPERTIES;
   properties AbstractAnnotationLayer::PROPS = DEFAULT_PROPERTIES;
@@ -302,6 +303,7 @@ namespace folia {
     Part::PROPS._annotation_type = AnnotationType::PART;
     Part::PROPS.TEXTDELIMITER = " ";
 
+    PlaceHolder::PROPS = Word::PROPS;
     PlaceHolder::PROPS._xmltag="placeholder";
     PlaceHolder::PROPS._element_id = PlaceHolder_t;
     PlaceHolder::PROPS._required_attributes = NO_ATT;
@@ -309,7 +311,6 @@ namespace folia {
     WordReference::PROPS._required_attributes = ID;
     WordReference::PROPS._xmltag = "wref";
     WordReference::PROPS._element_id = WordReference_t;
-    WordReference::PROPS._auth = false;
 
     Alignment::PROPS._optional_attributes = ALL;
     Alignment::PROPS._xmltag = "alignment";
@@ -586,13 +587,11 @@ namespace folia {
     Alternative::PROPS._optional_attributes = ALL;
     Alternative::PROPS._accepted_data = { TokenAnnotation_t };
     Alternative::PROPS._annotation_type = AnnotationType::ALTERNATIVE;
-    Alternative::PROPS._auth = false;
 
     AlternativeLayers::PROPS._xmltag = "altlayers";
     AlternativeLayers::PROPS._element_id = AlternativeLayers_t;
     AlternativeLayers::PROPS._optional_attributes = ALL;
     AlternativeLayers::PROPS._accepted_data = { AnnotationLayer_t };
-    AlternativeLayers::PROPS._auth = false;
 
     AbstractCorrectionChild::PROPS._optional_attributes = NO_ATT;
     AbstractCorrectionChild::PROPS._accepted_data =
@@ -614,7 +613,6 @@ namespace folia {
     Original::PROPS = AbstractCorrectionChild::PROPS;
     Original::PROPS._xmltag = "original";
     Original::PROPS._element_id = Original_t;
-    Original::PROPS._auth = false;
 
     Suggestion::PROPS = AbstractCorrectionChild::PROPS;
     Suggestion::PROPS._xmltag = "suggestion";
@@ -623,7 +621,6 @@ namespace folia {
     Suggestion::PROPS._annotation_type = AnnotationType::SUGGESTION;
     Suggestion::PROPS._occurrences=0;
     Suggestion::PROPS._occurrences_per_set=0;
-    Suggestion::PROPS._auth = false;
 
     Correction::PROPS = AbstractTokenAnnotation::PROPS;
     Correction::PROPS._xmltag = "correction";

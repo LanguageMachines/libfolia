@@ -84,21 +84,11 @@ namespace folia {
     _refcount = 0;
     _parent = 0;
     _auth = true;
-    _required_attributes = NO_ATT;
-    _optional_attributes = NO_ATT;
-    _annotation_type = AnnotationType::NO_ANN;
     _annotator_type = UNDEFINED;
-    _xmltag = "ThIsIsSoWrOnG";
-    _occurrences = 0;  //#Number of times this element may occur in its parent (0=unlimited, default=0)
-    _occurrences_per_set = 1; // #Number of times this element may occur per set (0=unlimited, default=1)
-    TEXTDELIMITER = "NONE" ;
-    PRINTABLE = false;
-    SPEAKABLE = false;
-    XLINK = false;
   }
 
   FoliaImpl::~FoliaImpl( ){
-    // cerr << "delete element id=" << _id << " tag = " << _xmltag << " *= "
+    // cerr << "delete element id=" << _id << " tag = " << xmltag() << " *= "
     //  	 << (void*)this << " datasize= " << data.size() << endl;
     for ( const auto& el : data ){
       if ( el->refcount() == 0 ) {
@@ -109,7 +99,7 @@ namespace folia {
 	mydoc->keepForDeletion( el );
       }
     }
-    //    cerr << "\t\tdelete element id=" << _id << " tag = " << _xmltag << " *= "
+    //    cerr << "\t\tdelete element id=" << _id << " tag = " << xmltag() << " *= "
     //	 << (void*)this << " datasize= " << data.size() << endl;
     if ( mydoc ){
       mydoc->delDocIndex( this, _id );
@@ -125,14 +115,14 @@ namespace folia {
 
   void FoliaImpl::setAttributes( const KWargs& kwargs_in ){
     KWargs kwargs = kwargs_in;
-    Attrib supported = _required_attributes | _optional_attributes;
+    Attrib supported = required_attributes() | optional_attributes();
     // if ( element_id() == Feature_t ){
     //   cerr << "set attributes: " << kwargs << " on " << classname() << endl;
-    //   cerr << "required = " <<  _required_attributes << endl;
-    //   cerr << "optional = " <<  _optional_attributes << endl;
+    //   cerr << "required = " <<  required_attributes() << endl;
+    //   cerr << "optional = " <<  optional_attributes() << endl;
     //   cerr << "supported = " << supported << endl;
     //   cerr << "ID & supported = " << (ID & supported) << endl;
-    //   cerr << "ID & _required = " << (ID & _required_attributes ) << endl;
+    //   cerr << "ID & _required = " << (ID & required_attributes() ) << endl;
     // }
     if ( mydoc && mydoc->debug > 2 ){
       cerr << "set attributes: " << kwargs << " on " << classname() << endl;
@@ -145,7 +135,7 @@ namespace folia {
       }
       FoliaElement *e = (*mydoc)[it->second];
       if ( e ){
-	_id = e->generateId( _xmltag );
+	_id = e->generateId( xmltag() );
       }
       else
 	throw ValueError("Unable to generate an id from ID= " + it->second );
@@ -184,12 +174,12 @@ namespace folia {
       if ( !mydoc ){
 	throw ValueError( "Set=" + _set + " is used on a node without a document." );
       }
-      if ( !mydoc->isDeclared( _annotation_type, _set ) )
+      if ( !mydoc->isDeclared( annotation_type(), _set ) )
 	throw ValueError( "Set " + _set + " is used but has no declaration " +
-			  "for " + toString( _annotation_type ) + "-annotation" );
+			  "for " + toString( annotation_type() ) + "-annotation" );
       kwargs.erase( it );
     }
-    else if ( mydoc && ( def = mydoc->defaultset( _annotation_type )) != "" ){
+    else if ( mydoc && ( def = mydoc->defaultset( annotation_type() )) != "" ){
       _set = def;
     }
     else
@@ -206,10 +196,10 @@ namespace folia {
 	  throw ValueError( "Class=" + _class + " is used on a node without a document." );
 	}
 	else if ( _set == "" &&
-		  mydoc->defaultset( _annotation_type ) == "" &&
-		  mydoc->isDeclared( _annotation_type ) ){
+		  mydoc->defaultset( annotation_type() ) == "" &&
+		  mydoc->isDeclared( annotation_type() ) ){
 	  throw ValueError( "Class " + _class + " is used but has no default declaration " +
-			    "for " + toString( _annotation_type ) + "-annotation" );
+			    "for " + toString( annotation_type() ) + "-annotation" );
 	}
       }
       kwargs.erase( it );
@@ -232,7 +222,7 @@ namespace folia {
       kwargs.erase( it );
     }
     else if ( mydoc &&
-	      (def = mydoc->defaultannotator( _annotation_type, _set )) != "" ){
+	      (def = mydoc->defaultannotator( annotation_type(), _set )) != "" ){
       _annotator = def;
     }
     else
@@ -251,7 +241,7 @@ namespace folia {
       kwargs.erase( it );
     }
     else if ( mydoc &&
-	      (def = mydoc->defaultannotatortype( _annotation_type, _set ) ) != ""  ){
+	      (def = mydoc->defaultannotatortype( annotation_type(), _set ) ) != ""  ){
       _annotator_type = stringTo<AnnotatorType>( def );
       if ( _annotator_type == UNDEFINED )
 	throw ValueError("annotatortype must be 'auto' or 'manual'");
@@ -291,7 +281,7 @@ namespace folia {
     else
       _n = "";
 
-    if ( XLINK ){
+    if ( xlink() ){
       it = kwargs.find( "href" );
       if ( it != kwargs.end() ){
 	_href = it->second;
@@ -320,7 +310,7 @@ namespace folia {
       kwargs.erase( it );
     }
     else if ( mydoc &&
-	      (def = mydoc->defaultdatetime( _annotation_type, _set )) != "" ){
+	      (def = mydoc->defaultdatetime( annotation_type(), _set )) != "" ){
       _datetime = def;
     }
     else
@@ -436,7 +426,7 @@ namespace folia {
       attribs["_id"] = _id; // sort "id" as first!
     }
     if ( !_set.empty() &&
-	 _set != mydoc->defaultset( _annotation_type ) ){
+	 _set != mydoc->defaultset( annotation_type() ) ){
       isDefaultSet = false;
       attribs["set"] = _set;
     }
@@ -444,18 +434,18 @@ namespace folia {
       attribs["class"] = _class;
 
     if ( !_annotator.empty() &&
-	 _annotator != mydoc->defaultannotator( _annotation_type, _set ) ){
+	 _annotator != mydoc->defaultannotator( annotation_type(), _set ) ){
       isDefaultAnn = false;
       attribs["annotator"] = _annotator;
     }
-    if ( XLINK ){
+    if ( xlink() ){
       if ( !_href.empty() ){
 	attribs["xlink:href"] = _href;
 	attribs["xlink:type"] = "simple";
       }
     }
     if ( !_datetime.empty() &&
-	 _datetime != mydoc->defaultdatetime( _annotation_type, _set ) ){
+	 _datetime != mydoc->defaultdatetime( annotation_type(), _set ) ){
       attribs["datetime"] = _datetime;
     }
     if ( !_begintime.empty() ){
@@ -471,7 +461,7 @@ namespace folia {
       attribs["speaker"] = _speaker;
     }
     if ( _annotator_type != UNDEFINED ){
-      AnnotatorType at = stringTo<AnnotatorType>( mydoc->defaultannotatortype( _annotation_type, _set ) );
+      AnnotatorType at = stringTo<AnnotatorType>( mydoc->defaultannotatortype( annotation_type(), _set ) );
       if ( (!isDefaultSet || !isDefaultAnn) && _annotator_type != at ){
 	if ( _annotator_type == AUTO )
 	  attribs["annotatortype"] = "auto";
@@ -492,7 +482,7 @@ namespace folia {
     return attribs;
   }
 
-  string FoliaElement::xmlstring() const{
+  const string FoliaElement::xmlstring() const{
     // serialize to a string (XML fragment)
     xmlNode *n = xml( true, false );
     xmlSetNs( n, xmlNewNs( n, (const xmlChar *)NSFOLIA.c_str(), 0 ) );
@@ -520,7 +510,7 @@ namespace folia {
   }
 
   xmlNode *FoliaImpl::xml( bool recursive, bool kanon ) const {
-    xmlNode *e = XmlNewNode( foliaNs(), _xmltag );
+    xmlNode *e = XmlNewNode( foliaNs(), xmltag() );
     KWargs attribs = collectAttributes();
     set<FoliaElement *> attribute_elements;
     // nodes that can be represented as attributes are converted to atributes
@@ -582,12 +572,12 @@ namespace folia {
     return e;
   }
 
-  string FoliaImpl::str( const std::string& ) const {
+  const string FoliaImpl::str( const std::string& ) const {
     cerr << "Impl::str()" << endl;
-    return _xmltag;
+    return xmltag();
   }
 
-  string FoliaImpl::speech_src() const {
+  const string FoliaImpl::speech_src() const {
     if ( !_src.empty() )
       return _src;
     if ( _parent )
@@ -595,7 +585,7 @@ namespace folia {
     return "";
   }
 
-  string FoliaImpl::speech_speaker() const {
+  const string FoliaImpl::speech_speaker() const {
     if ( !_speaker.empty() )
       return _speaker;
     if ( _parent )
@@ -617,14 +607,14 @@ namespace folia {
   //#define DEBUG_TEXT
   //#define DEBUG_TEXT_DEL
 
-  string FoliaImpl::getTextDelimiter( bool retaintok ) const {
+  const string& FoliaImpl::getTextDelimiter( bool retaintok ) const {
 #ifdef DEBUG_TEXT_DEL
     cerr << "IN " << xmltag() << "::gettextdelimiter (" << retaintok << ")" << endl;
 #endif
-    if ( TEXTDELIMITER == "NONE" ){
+    if ( _props.TEXTDELIMITER == "NONE" ){
       if ( data.size() > 0 ){
 	// attempt to get a delimiter from the last child
-	string det = data[data.size()-1]->getTextDelimiter( retaintok );
+	const string& det = data[data.size()-1]->getTextDelimiter( retaintok );
 #ifdef DEBUG_TEXT_DEL
 	cerr << "out" << xmltag() << "::gettextdelimiter ==> '" << det << "'" << endl;
 #endif
@@ -634,9 +624,9 @@ namespace folia {
 #ifdef DEBUG_TEXT_DEL
 	cerr << "out" << xmltag() << "::gettextdelimiter ==> ''" << endl;
 #endif
-	return "";
+	return EMPTY_STRING;
     }
-    return TEXTDELIMITER;
+    return _props.TEXTDELIMITER;
   }
 
   UnicodeString FoliaImpl::text( const string& cls,
@@ -650,7 +640,7 @@ namespace folia {
     if ( strict ){
       return textcontent(cls)->text();
     }
-    else if ( !PRINTABLE ){
+    else if ( !printable() ){
       throw NoSuchText( "NON printable element: " + xmltag() );
     }
     else {
@@ -658,7 +648,7 @@ namespace folia {
       if ( result.isEmpty() )
 	result = stricttext( cls );
       if ( result.isEmpty() )
-	throw NoSuchText( "on tag " +_xmltag + " nor it's children" );
+	throw NoSuchText( "on tag " + xmltag() + " nor it's children" );
       return result;
     }
   }
@@ -668,7 +658,7 @@ namespace folia {
     // get the UnicodeString value of underlying elements
     // default cls="current"
 #ifdef DEBUG_TEXT
-    cerr << "deepTEXT(" << cls << ") op node : " << _xmltag << " id(" << id() << ")" << endl;
+    cerr << "deepTEXT(" << cls << ") op node : " << xmltag() << " id(" << id() << ")" << endl;
 #endif
 #ifdef DEBUG_TEXT
     cerr << "deeptext: node has " << data.size() << " children." << endl;
@@ -696,7 +686,7 @@ namespace folia {
 	    tmp.trim();
 	  parts.push_back(tmp);
 	  // get the delimiter
-	  string delim = child->getTextDelimiter( retaintok );
+	  const string& delim = child->getTextDelimiter( retaintok );
 #ifdef DEBUG_TEXT
 	  cerr << "deeptext:delimiter van "<< child->xmltag() << " ='" << delim << "'" << endl;
 #endif
@@ -717,16 +707,16 @@ namespace folia {
 	result += seps[i];
     }
 #ifdef DEBUG_TEXT
-    cerr << "deeptext() for " << _xmltag << " step 3 " << endl;
+    cerr << "deeptext() for " << xmltag() << " step 3 " << endl;
 #endif
     if ( result.isEmpty() ){
       result = textcontent(cls)->text();
     }
 #ifdef DEBUG_TEXT
-    cerr << "deeptext() for " << _xmltag << " result= '" << result << "'" << endl;
+    cerr << "deeptext() for " << xmltag() << " result= '" << result << "'" << endl;
 #endif
     if ( result.isEmpty() ){
-      throw NoSuchText( _xmltag + ":(class=" + cls +"): empty!" );
+      throw NoSuchText( xmltag() + ":(class=" + cls +"): empty!" );
     }
     return result;
   }
@@ -751,8 +741,8 @@ namespace folia {
     // with sole exception of Correction
     // Raises NoSuchText exception if not found.
 
-    if ( !PRINTABLE )
-      throw NoSuchText( "non-printable element: " +  _xmltag );
+    if ( !printable() )
+      throw NoSuchText( "non-printable element: " +  xmltag() );
 
     for( const auto& el : data ){
       if ( el->isinstance(TextContent_t) && (el->cls() == cls) ){
@@ -766,7 +756,7 @@ namespace folia {
 	}
       }
     }
-    throw NoSuchText( _xmltag + "::textcontent()" );
+    throw NoSuchText( xmltag() + "::textcontent()" );
   }
 
   PhonContent *FoliaImpl::phoncontent( const string& cls ) const {
@@ -777,8 +767,8 @@ namespace folia {
     // with sole exception of Correction
     // Raises NoSuchPhon exception if not found.
 
-    if ( !SPEAKABLE )
-      throw NoSuchPhon( "non-speakable element: " +  _xmltag );
+    if ( !speakable() )
+      throw NoSuchPhon( "non-speakable element: " + xmltag() );
 
     for ( const auto& el : data ){
       if ( el->isinstance(PhonContent_t) && ( el->cls() == cls) ){
@@ -792,7 +782,7 @@ namespace folia {
 	}
       }
     }
-    throw NoSuchPhon( _xmltag + "::phoncontent()" );
+    throw NoSuchPhon( xmltag() + "::phoncontent()" );
   }
 
   //#define DEBUG_PHON
@@ -807,7 +797,7 @@ namespace folia {
     if ( strict ){
       return phoncontent(cls)->phon();
     }
-    else if ( !SPEAKABLE ){
+    else if ( !speakable() ){
       throw NoSuchText( "NON speakable element: " + xmltag() );
     }
     else {
@@ -815,7 +805,7 @@ namespace folia {
       if ( result.isEmpty() )
 	result = phoncontent(cls)->phon();
       if ( result.isEmpty() )
-	throw NoSuchPhon( "on tag " +_xmltag + " nor it's children" );
+	throw NoSuchPhon( "on tag " + xmltag() + " nor it's children" );
       return result;
     }
   }
@@ -824,7 +814,7 @@ namespace folia {
     // get the UnicodeString value of underlying elements
     // default cls="current"
 #ifdef DEBUG_PHON
-    cerr << "deepPHON(" << cls << ") op node : " << _xmltag << " id(" << id() << ")" << endl;
+    cerr << "deepPHON(" << cls << ") op node : " << xmltag() << " id(" << id() << ")" << endl;
 #endif
 #ifdef DEBUG_PHON
     cerr << "deepphon: node has " << data.size() << " children." << endl;
@@ -850,7 +840,7 @@ namespace folia {
 #endif
 	  parts.push_back(tmp);
 	  // get the delimiter
-	  string delim = child->getTextDelimiter();
+	  const string& delim = child->getTextDelimiter();
 #ifdef DEBUG_PHON
 	  cerr << "deepphon:delimiter van "<< child->xmltag() << " ='" << delim << "'" << endl;
 #endif
@@ -871,16 +861,16 @@ namespace folia {
 	result += seps[i];
     }
 #ifdef DEBUG_TEXT
-    cerr << "deepphon() for " << _xmltag << " step 3 " << endl;
+    cerr << "deepphon() for " << xmltag() << " step 3 " << endl;
 #endif
     if ( result.isEmpty() ){
       result = phoncontent(cls)->phon();
     }
 #ifdef DEBUG_TEXT
-    cerr << "deepphontext() for " << _xmltag << " result= '" << result << "'" << endl;
+    cerr << "deepphontext() for " << xmltag() << " result= '" << result << "'" << endl;
 #endif
     if ( result.isEmpty() ){
-      throw NoSuchPhon( _xmltag + ":(class=" + cls +"): empty!" );
+      throw NoSuchPhon( xmltag() + ":(class=" + cls +"): empty!" );
     }
     return result;
   }
@@ -1084,9 +1074,9 @@ namespace folia {
     if ( t == XmlComment_t )
       return true;
     else {
-      auto it = _accepted_data.find( t );
-      if ( it == _accepted_data.end() ){
-	for ( const auto& et : _accepted_data ){
+      auto it = accepted_data().find( t );
+      if ( it == accepted_data().end() ){
+	for ( const auto& et : accepted_data() ){
 	  if ( folia::isSubClass( t, et ) )
 	    return true;
 	}
@@ -1141,11 +1131,11 @@ namespace folia {
       mydoc = doc;
       string myid = id();
       if ( !_set.empty()
-	   && (CLASS & _required_attributes )
-	   && !mydoc->isDeclared( _annotation_type, _set ) )
-	throw ValueError( "Set " + _set + " is used in " + _xmltag
+	   && (CLASS & required_attributes() )
+	   && !mydoc->isDeclared( annotation_type(), _set ) )
+	throw ValueError( "Set " + _set + " is used in " + xmltag()
 			  + "element: " + myid + " but has no declaration " +
-			  "for " + toString( _annotation_type ) + "-annotation" );
+			  "for " + toString( annotation_type() ) + "-annotation" );
       if ( !myid.empty() )
 	doc->addDocIndex( this, myid );
       // assume that children also might be doc-less
@@ -1156,40 +1146,40 @@ namespace folia {
   }
 
   bool FoliaImpl::checkAtts(){
-    if ( _id.empty() && (ID & _required_attributes ) ){
+    if ( _id.empty() && (ID & required_attributes() ) ){
       throw ValueError( "attribute 'ID' is required for " + classname() );
     }
-    if ( _set.empty() && (CLASS & _required_attributes ) ){
+    if ( _set.empty() && (CLASS & required_attributes() ) ){
       throw ValueError( "attribute 'set' is required for " + classname() );
     }
-    if ( _class.empty() && ( CLASS & _required_attributes ) ){
+    if ( _class.empty() && ( CLASS & required_attributes() ) ){
       throw ValueError( "attribute 'class' is required for " + classname() );
     }
-    if ( _annotator.empty() && ( ANNOTATOR & _required_attributes ) ){
+    if ( _annotator.empty() && ( ANNOTATOR & required_attributes() ) ){
       throw ValueError( "attribute 'annotator' is required for " + classname() );
     }
-    if ( _annotator_type == UNDEFINED && ( ANNOTATOR & _required_attributes ) ){
+    if ( _annotator_type == UNDEFINED && ( ANNOTATOR & required_attributes() ) ){
       throw ValueError( "attribute 'Annotatortype' is required for " + classname() );
     }
-    if ( _confidence == -1 && ( CONFIDENCE & _required_attributes ) ){
+    if ( _confidence == -1 && ( CONFIDENCE & required_attributes() ) ){
       throw ValueError( "attribute 'confidence' is required for " + classname() );
     }
-    if ( _n.empty() && ( N & _required_attributes ) ){
+    if ( _n.empty() && ( N & required_attributes() ) ){
       throw ValueError( "attribute 'n' is required for " + classname() );
     }
-    if ( _datetime.empty() && ( DATETIME & _required_attributes ) ){
+    if ( _datetime.empty() && ( DATETIME & required_attributes() ) ){
       throw ValueError( "attribute 'datetime' is required for " + classname() );
     }
-    if ( _begintime.empty() && ( BEGINTIME & _required_attributes ) ){
+    if ( _begintime.empty() && ( BEGINTIME & required_attributes() ) ){
       throw ValueError( "attribute 'begintime' is required for " + classname() );
     }
-    if ( _endtime.empty() && ( ENDTIME & _required_attributes ) ){
+    if ( _endtime.empty() && ( ENDTIME & required_attributes() ) ){
       throw ValueError( "attribute 'endtime' is required for " + classname() );
     }
-    if ( _src.empty() && ( SRC & _required_attributes ) ){
+    if ( _src.empty() && ( SRC & required_attributes() ) ){
       throw ValueError( "attribute 'src' is required for " + classname() );
     }
-    if ( _speaker.empty() && ( SPEAKER & _required_attributes ) ){
+    if ( _speaker.empty() && ( SPEAKER & required_attributes() ) ){
       throw ValueError( "attribute 'speaker' is required for " + classname() );
     }
     return true;
@@ -1359,7 +1349,7 @@ namespace folia {
   }
 
   void FoliaImpl::setDateTime( const string& s ){
-    Attrib supported = _required_attributes | _optional_attributes;
+    Attrib supported = required_attributes() | optional_attributes();
     if ( !(DATETIME & supported) )
       throw ValueError("datetime is not supported for " + classname() );
     else {
@@ -1572,7 +1562,7 @@ namespace folia {
     return res;
   }
 
-  std::string Quote::getTextDelimiter( bool retaintok ) const {
+  const std::string& Quote::getTextDelimiter( bool retaintok ) const {
 #ifdef DEBUG_TEXT_DEL
     cerr << "IN " << xmltag() << "::gettextdelimiter (" << retaintok << ")" << endl;
 #endif
@@ -1583,10 +1573,10 @@ namespace folia {
 #ifdef DEBUG_TEXT_DEL
 	cerr << "OUT " << xmltag() << "::gettextdelimiter ==>''" << endl;
 #endif
-	return "";
+	return EMPTY_STRING;
       }
       else {
-	string res = (*it)->getTextDelimiter( retaintok );
+	const string& res = (*it)->getTextDelimiter( retaintok );
 #ifdef DEBUG_TEXT_DEL
 	cerr << "OUT " << xmltag() << "::gettextdelimiter ==> '"
 	     << res << "'" << endl;
@@ -1595,7 +1585,8 @@ namespace folia {
       }
       ++it;
     }
-    return " ";
+    static const string SPACE = " ";
+    return SPACE;
   }
 
   vector<Word*> Quote::wordParts() const {
@@ -1834,7 +1825,7 @@ namespace folia {
   }
 
 
-  string TextContent::str( const string& cls ) const{
+  const string TextContent::str( const string& cls ) const{
 #ifdef DEBUG_TEXT
     cerr << "textContent::str(" << cls << ") this=" << this << endl;
 #endif
@@ -2210,7 +2201,7 @@ namespace folia {
   }
 
 
-  string AbstractStructureElement::str( const string& cls ) const{
+  const string AbstractStructureElement::str( const string& cls ) const{
     UnicodeString result = text( cls );
     return UnicodeToUTF8(result);
   }
@@ -2372,11 +2363,11 @@ namespace folia {
     return atts;
   }
 
-  string Word::getTextDelimiter( bool retaintok ) const {
+  const string& Word::getTextDelimiter( bool retaintok ) const {
     if ( space || retaintok )
-      return TEXTDELIMITER;
+      return PROPS.TEXTDELIMITER;
     else {
-      return "";
+      return EMPTY_STRING;
     }
   }
 
@@ -2921,7 +2912,7 @@ namespace folia {
 				  bool retaintok,
 				  bool ) const {
 #ifdef DEBUG_TEXT
-    cerr << "TEXT(" << cls << ") op node : " << _xmltag << " id ( " << id() << ")" << endl;
+    cerr << "TEXT(" << cls << ") op node : " << xmltag() << " id ( " << id() << ")" << endl;
 #endif
     if ( cls == "current" ){
       for ( const auto& el : data ){
@@ -2944,12 +2935,12 @@ namespace folia {
     throw NoSuchText("wrong cls");
   }
 
-  string Correction::getTextDelimiter( bool retaintok ) const {
+  const string& Correction::getTextDelimiter( bool retaintok ) const {
     for ( const auto& el : data ){
       if ( el->isinstance( New_t ) || el->isinstance( Current_t ) )
 	return el->getTextDelimiter( retaintok );
     }
-    return "";
+    return EMPTY_STRING;
   }
 
   TextContent *Correction::textcontent( const string& cls ) const {
@@ -3092,471 +3083,132 @@ namespace folia {
   }
 
   void FoLiA::init(){
-    _xmltag="FoLiA";
-    _accepted_data = { Text_t, Speech_t };
   }
 
   void DCOI::init(){
-    _xmltag="DCOI";
-    _accepted_data = { Text_t, Speech_t };
   }
 
   void AbstractStructureElement::init(){
-    _xmltag = "structure";
-    _required_attributes = ID;
-    _optional_attributes = ALL;
-    _occurrences_per_set=0;
-    PRINTABLE = true;
-    SPEAKABLE = true;
-    TEXTDELIMITER = "\n\n";
   }
 
   void AbstractTokenAnnotation::init(){
-    _xmltag="tokenannotation";
-    _required_attributes = CLASS;
-    _optional_attributes = ALL;
-    _occurrences_per_set=1;
   }
 
   void TextContent::init(){
-    _xmltag="t";
-    _optional_attributes = CLASS|ANNOTATOR|CONFIDENCE|DATETIME;
-    _accepted_data = { AbstractTextMarkup_t,
-		       XmlText_t,
-		       LineBreak_t };
-    _annotation_type = AnnotationType::TEXT;
-    _occurrences = 0;
-    _occurrences_per_set=0;
-    PRINTABLE = true;
-    XLINK = true;
-
     _offset = -1;
 
   }
 
   void PhonContent::init(){
-    _xmltag="ph";
-    _optional_attributes = CLASS|ANNOTATOR|CONFIDENCE|DATETIME;
-    _accepted_data = { XmlText_t };
-    _annotation_type = AnnotationType::PHON;
-    _occurrences = 0;
-    _occurrences_per_set=0;
-    PRINTABLE = false;
-    SPEAKABLE = true;
   }
 
   void Head::init() {
-    _xmltag="head";
-    _accepted_data = { Structure_t, Description_t, Correction_t, String_t,
-		       TextContent_t, PhonContent_t, Alignment_t, Metric_t,
-		       AlternativeLayers_t, TokenAnnotation_t, Gap_t };
-    _occurrences=1;
-    TEXTDELIMITER = "\n\n";
   }
 
   void TableHead::init() {
-    _xmltag="tablehead";
-    _required_attributes = NO_ATT;
-    _accepted_data ={ Row_t,
-		      AlternativeLayers_t,
-		      AnnotationLayer_t,
-		      TokenAnnotation_t,
-		      Correction_t,
-		      Part_t };
-    _annotation_type = AnnotationType::TABLE;
   }
 
   void Table::init() {
-    _xmltag="table";
-    _accepted_data = { TableHead_t,
-		       Row_t,
-		       AlternativeLayers_t,
-		       AnnotationLayer_t,
-		       TokenAnnotation_t,
-		       Correction_t,
-		       Part_t };
-    _annotation_type = AnnotationType::TABLE;
   }
 
   void Cell::init() {
-    _xmltag="cell";
-    _required_attributes = NO_ATT;
-    _accepted_data = { Structure_t,
-		       Entities_t,
-		       Alignment_t,
-		       Metric_t,
-		       Gap_t,
-		       AlternativeLayers_t,
-		       AnnotationLayer_t,
-		       TokenAnnotation_t,
-		       Correction_t,
-		       Part_t,
-		       Feature_t };
-
-    _annotation_type = AnnotationType::TABLE;
-    TEXTDELIMITER = " | ";
   }
 
   void Row::init() {
-    _xmltag="row";
-    _required_attributes = NO_ATT;
-    _accepted_data = { Cell_t,
-		       AnnotationLayer_t,
-		       AlternativeLayers_t,
-		       TokenAnnotation_t,
-		       Correction_t,
-		       Part_t };
-    _annotation_type = AnnotationType::TABLE;
-    TEXTDELIMITER = "\n";
   }
 
   void LineBreak::init(){
-    _xmltag = "br";
-    _required_attributes = NO_ATT;
-    _accepted_data = { Feature_t,
-		       Metric_t,
-		       Description_t };
-    _annotation_type = AnnotationType::LINEBREAK;
   }
 
   void WhiteSpace::init(){
-    _xmltag = "whitespace";
-    _required_attributes = NO_ATT;
-    _accepted_data = { Feature_t,
-		       Metric_t,
-		       Description_t };
-    _annotation_type = AnnotationType::WHITESPACE;
   }
 
   void Word::init(){
-    _xmltag="w";
-    _accepted_data = { TokenAnnotation_t,
-		       Correction_t,
-		       TextContent_t,
-		       PhonContent_t,
-		       PhonologyLayer_t,
-		       String_t,
-		       Alternative_t,
-		       AlternativeLayers_t,
-		       Description_t,
-		       AnnotationLayer_t,
-		       Alignment_t,
-		       Metric_t,
-		       Reference_t,
-		       Feature_t };
-    _annotation_type = AnnotationType::TOKEN;
-    TEXTDELIMITER = " ";
 
     space = true;
   }
 
   void String::init(){
-    _xmltag="str";
-    _required_attributes = NO_ATT;
-    _optional_attributes = ID|CLASS|ANNOTATOR|CONFIDENCE|DATETIME;
-    _accepted_data = { TextContent_t,
-		       PhonContent_t,
-		       Alignment_t,
-		       Description_t,
-		       Metric_t,
-		       Correction_t,
-		       TokenAnnotation_t,
-		       Lang_t,
-		       Feature_t };
-
-    _annotation_type = AnnotationType::STRING;
-    _occurrences = 0;
-    _occurrences_per_set=0;
-    PRINTABLE = true;
-    SPEAKABLE = true;
   }
 
   void Part::init(){
-    _xmltag="part";
-    _required_attributes = NO_ATT;
-    _accepted_data = { Structure_t,
-		       TokenAnnotation_t,
-		       AlternativeLayers_t,
-		       AnnotationLayer_t,
-		       Correction_t,
-		       Description_t };
-    _annotation_type = AnnotationType::PART;
-    TEXTDELIMITER = " ";
   }
 
   void PlaceHolder::init(){
-    _xmltag="placeholder";
-    _required_attributes = NO_ATT;
   }
 
   void WordReference::init(){
-    _required_attributes = ID;
-    _xmltag = "wref";
     _auth = false;
   }
 
   void Alignment::init(){
-    _optional_attributes = ALL;
-    _xmltag = "alignment";
-    _accepted_data = { AlignReference_t, Description_t, Metric_t };
-    _occurrences_per_set=0;
-    _annotation_type = AnnotationType::ALIGNMENT;
-    XLINK = true;
   }
 
   void AlignReference::init(){
-    _xmltag = "aref";
   }
 
 
   void Gap::init(){
-    _xmltag = "gap";
-    _annotation_type = AnnotationType::GAP;
-    _accepted_data = { Content_t, Description_t, Part_t };
-    _optional_attributes = CLASS|ID|ANNOTATOR|CONFIDENCE|N|DATETIME;
   }
 
   void MetricAnnotation::init(){
-    _xmltag = "metric";
-    _accepted_data = { ValueFeature_t, Description_t };
-    _optional_attributes = CLASS|ANNOTATOR|CONFIDENCE;
-    _annotation_type = AnnotationType::METRIC;
   }
 
   void Content::init(){
-    _xmltag = "content";
-    _optional_attributes = ALL;
-    _occurrences_per_set=0;
-    PRINTABLE = true;
-    SPEAKABLE = true;
   }
 
   void Sentence::init(){
-    _xmltag="s";
-    _accepted_data = { Structure_t,
-		       TokenAnnotation_t,
-		       TextContent_t,
-		       PhonContent_t,
-		       String_t,
-		       Gap_t,
-		       Description_t,
-		       AnnotationLayer_t,
-		       Correction_t,
-		       Description_t,
-		       Alignment_t,
-		       Metric_t,
-		       AlternativeLayers_t };
-    _annotation_type = AnnotationType::SENTENCE;
-    TEXTDELIMITER = " ";
   }
 
   void Division::init(){
-    _xmltag="div";
-    _required_attributes = ID;
-    _optional_attributes = CLASS|N|SRC|BEGINTIME|ENDTIME|SPEAKER;
-    _accepted_data = { Division_t, Quote_t, Gap_t, Event_t, Example_t,
-		       Entry_t, Head_t, Utterance_t, Paragraph_t,
-		       Sentence_t, List_t, Figure_t, Table_t, Note_t,
-		       Reference_t, TokenAnnotation_t, Description_t,
-		       LineBreak_t, WhiteSpace_t, Alternative_t, TextContent_t,
-		       AlternativeLayers_t, AnnotationLayer_t,
-		       Word_t,
-		       Correction_t, Part_t };
-    _annotation_type = AnnotationType::DIVISION;
-    TEXTDELIMITER = "\n\n\n";
   }
 
   void Text::init(){
-    _xmltag="text";
-    _accepted_data = { Gap_t, Division_t, Paragraph_t, Sentence_t,
-		       List_t, Figure_t, Description_t, Event_t,
-		       TokenAnnotation_t, Quote_t, Word_t, Table_t,
-		       Note_t, Reference_t,
-		       AnnotationLayer_t, String_t,
-		       Correction_t, TextContent_t, Metric_t, External_t,
-		       Part_t };
-    _required_attributes = ID;
-    TEXTDELIMITER = "\n\n";
   }
 
   void Speech::init(){
-    _xmltag="speech";
-    _accepted_data = { Utterance_t, Gap_t, Event_t, Entry_t, Example_t,
-		       Division_t, Paragraph_t, Quote_t, Sentence_t,
-		       Word_t, List_t, Note_t, Reference_t, AnnotationLayer_t,
-		       TokenAnnotation_t, Description_t, TextContent_t,
-		       PhonContent_t, String_t, Metric_t, Correction_t };
-    _required_attributes = ID;
-    _optional_attributes = N|SRC|BEGINTIME|ENDTIME|SPEAKER;
-    TEXTDELIMITER = "\n\n";
   }
 
   void Utterance::init(){
-    _xmltag="utt";
-    _accepted_data = { Word_t, Sentence_t, Quote_t, TokenAnnotation_t,
-		       Correction_t, TextContent_t, PhonContent_t,
-		       String_t, Gap_t, Description_t, Note_t, Reference_t,
-		       Alignment_t, Metric_t, Alternative_t,
-		       AlternativeLayers_t, AnnotationLayer_t, Part_t };
-    _annotation_type = AnnotationType::UTTERANCE;
-    TEXTDELIMITER = " ";
-    PRINTABLE = true;
-    SPEAKABLE = true;
   }
 
   void Event::init(){
-    _xmltag="event";
-    _accepted_data = { Gap_t, Division_t, Structure_t,
-		       Description_t,
-		       Feature_t, TextContent_t,
-		       Part_t };
-    _annotation_type = AnnotationType::EVENT;
-    _occurrences_per_set=0;
   }
 
   void TimeSegment::init(){
-    _xmltag="timesegment";
-    _accepted_data = { Description_t, Feature_t, Word_t };
-    _annotation_type = AnnotationType::TIMESEGMENT;
-    _occurrences_per_set=0;
   }
 
   void Caption::init(){
-    _xmltag="caption";
-    _accepted_data = { Sentence_t, Reference_t, Description_t,
-		       TokenAnnotation_t, TextContent_t,
-		       Correction_t, Part_t };
-    _occurrences = 1;
   }
 
   void Label::init(){
-    _xmltag="label";
-    _accepted_data = { Word_t, Description_t, TextContent_t,
-		       TokenAnnotation_t, Alignment_t,
-		       Correction_t, Part_t };
   }
 
   void Item::init(){
-    _xmltag="item";
-    _accepted_data = { Structure_t,
-		       Description_t,
-		       TextContent_t,
-		       PhonContent_t,
-		       String_t,
-		       Gap_t,
-		       Alignment_t,
-		       Metric_t,
-		       Alternative_t,
-		       AlternativeLayers_t,
-		       AnnotationLayer_t,
-		       TokenAnnotation_t,
-		       Correction_t,
-		       Feature_t };
-    _annotation_type = AnnotationType::LIST;
   }
 
   void List::init(){
-    _xmltag="list";
-    _accepted_data = { Structure_t,
-		       Description_t,
-		       Caption_t,
-		       Event_t,
-		       Lang_t,
-		       TextContent_t,
-		       PhonContent_t,
-		       Alignment_t,
-		       Correction_t,
-		       Feature_t };
-    _annotation_type = AnnotationType::LIST;
-    TEXTDELIMITER="\n";
   }
 
   void Figure::init(){
-    _xmltag="figure";
-    _accepted_data = { Sentence_t,
-		       Description_t,
-		       Caption_t,
-		       TextContent_t,
-		       PhonContent_t,
-		       String_t,
-		       Alignment_t,
-		       Metric_t,
-		       Alternative_t,
-		       AlternativeLayers_t,
-		       AnnotationLayer_t,
-		       Lang_t,
-		       Correction_t,
-		       Part_t };
-    _annotation_type = AnnotationType::FIGURE;
   }
 
   void Paragraph::init(){
-    _xmltag="p";
-    _accepted_data = { Sentence_t,
-		       Word_t,
-		       Quote_t,
-		       Example_t,
-		       Entry_t,
-		       TokenAnnotation_t,
-		       Correction_t,
-		       TextContent_t,
-		       PhonContent_t,
-		       String_t,
-		       Description_t,
-		       LineBreak_t,
-		       WhiteSpace_t,
-		       Gap_t,
-		       List_t,
-		       Figure_t,
-		       Event_t,
-		       Head_t,
-		       Note_t,
-		       Reference_t,
-		       Alignment_t,
-		       Metric_t,
-		       Alternative_t,
-		       AlternativeLayers_t,
-		       AnnotationLayer_t,
-		       Part_t };
-    _annotation_type = AnnotationType::PARAGRAPH;
   }
 
   void SyntacticUnit::init(){
-    _xmltag = "su";
-    _required_attributes = NO_ATT;
-    _annotation_type = AnnotationType::SYNTAX;
-    _accepted_data = { SyntacticUnit_t, Word_t, WordReference_t,
-		       Description_t, Feature_t };
   }
 
   void SemanticRole::init(){
-    _xmltag = "semrole";
-    _required_attributes = CLASS;
-    _annotation_type = AnnotationType::SEMROLE;
-    _accepted_data = { Word_t, WordReference_t, Lang_t, Headwords_t,
-		       Alignment_t, Description_t, Metric_t };
   }
 
   void Chunk::init(){
-    _required_attributes = NO_ATT;
-    _xmltag = "chunk";
-    _annotation_type = AnnotationType::CHUNKING;
-    _accepted_data = { Word_t, WordReference_t, Lang_t,
-		       Description_t, Feature_t };
   }
 
   void Entity::init(){
-    _required_attributes = NO_ATT;
-    _optional_attributes = ID|CLASS|ANNOTATOR|CONFIDENCE|DATETIME;
-    _xmltag = "entity";
-    _annotation_type = AnnotationType::ENTITY;
-    _accepted_data = { Word_t, Lang_t, WordReference_t, Morpheme_t,
-		       Description_t, Feature_t, Metric_t };
   }
 
   void AbstractAnnotationLayer::init(){
-    _xmltag = "annotationlayer";
-    _optional_attributes = SETONLY;
   }
 
   vector<AbstractSpanAnnotation*> FoliaImpl::selectSpan() const {
@@ -3619,67 +3271,34 @@ namespace folia {
   }
 
   void Alternative::init(){
-    _xmltag = "alt";
-    _required_attributes = NO_ATT;
-    _optional_attributes = ALL;
-    _accepted_data = { TokenAnnotation_t };
-    _annotation_type = AnnotationType::ALTERNATIVE;
     _auth = false;
   }
 
   void AlternativeLayers::init(){
-    _xmltag = "altlayers";
-    _optional_attributes = ALL;
-    _accepted_data = { AnnotationLayer_t };
     _auth = false;
   }
 
   void AbstractCorrectionChild::init(){
-    _optional_attributes = NO_ATT;
-    _accepted_data = { TokenAnnotation_t, SpanAnnotation_t,
-		       Word_t, WordReference_t, String_t,
-		       TextContent_t, Description_t };
-    _occurrences = 1;
-    PRINTABLE=true;
-    SPEAKABLE=true;
   }
 
   void NewElement::init(){
-    _xmltag = "new";
   }
 
   void Current::init(){
-    _xmltag = "current";
   }
 
   void Original::init(){
-    _xmltag = "original";
     _auth = false;
   }
 
   void Suggestion::init(){
-    _xmltag = "suggestion";
-    _optional_attributes = ANNOTATOR|CONFIDENCE|DATETIME|N;
-    _annotation_type = AnnotationType::SUGGESTION;
-    _occurrences=0;
-    _occurrences_per_set=0;
     _auth = false;
   }
 
   void Correction::init(){
-    _xmltag = "correction";
-    _required_attributes = NO_ATT;
-    _annotation_type = AnnotationType::CORRECTION;
-    _accepted_data = { New_t, Original_t, Suggestion_t, Current_t,
-		       ErrorDetection_t, Description_t, Feature_t };
-    _occurrences_per_set=0;
-    PRINTABLE=true;
-    SPEAKABLE=true;
   }
 
   void Description::init(){
-    _xmltag = "desc";
-    _occurrences = 1;
   }
 
   UnicodeString XmlText::text( const string&, bool, bool ) const {
@@ -3701,52 +3320,21 @@ namespace folia {
   }
 
   void Entry::init(){
-    _xmltag = "entry";
-    _accepted_data = { Term_t, Definition_t, Example_t, Correction_t,
-		       Description_t, Metric_t, Alignment_t,
-		       AlternativeLayers_t, AnnotationLayer_t };
   }
 
   void Definition::init(){
-    _xmltag = "def";
-    _accepted_data = { Paragraph_t, Sentence_t, Word_t, Utterance_t,
-		       List_t, Figure_t, Table_t, Reference_t, Feature_t,
-		       TextContent_t, PhonContent_t, String_t, Metric_t,
-		       TokenAnnotation_t, Correction_t, Part_t };
-    _annotation_type = AnnotationType::DEFINITION;
   }
 
   void Term::init(){
-    _xmltag = "term";
-    _accepted_data = { Paragraph_t, Event_t, Sentence_t, Word_t, Utterance_t,
-		       List_t, Figure_t, Table_t, Reference_t, Feature_t,
-		       TextContent_t, PhonContent_t, String_t, Metric_t,
-		       TokenAnnotation_t, Correction_t, Part_t };
-    _annotation_type = AnnotationType::TERM;
   }
 
   void Example::init(){
-    _xmltag = "ex";
-    _accepted_data = { Paragraph_t, Sentence_t, Word_t, Utterance_t,
-		       List_t, Figure_t, Table_t, Reference_t, Feature_t,
-		       TextContent_t, PhonContent_t, String_t, Metric_t,
-		       TokenAnnotation_t, Correction_t, Part_t };
-    _annotation_type = AnnotationType::EXAMPLE;
   }
 
   void XmlText::init(){
-    _xmltag = "xml-text";
-    TEXTDELIMITER = "*";
-    PRINTABLE = true;
-    SPEAKABLE = true;
   }
 
   void External::init(){
-    _xmltag = "external";
-    _required_attributes = SRC;
-    PRINTABLE = true;
-    SPEAKABLE = false;
-
     _include = false;
 
   }
@@ -3827,28 +3415,6 @@ namespace folia {
   }
 
   void Note::init(){
-    _required_attributes = ID;
-    _xmltag = "note";
-    _accepted_data = { Paragraph_t,
-		       Sentence_t,
-		       Word_t,
-		       Example_t,
-		       Head_t,
-		       Utterance_t,
-		       List_t,
-		       Figure_t,
-		       Table_t,
-		       Reference_t,
-		       Feature_t,
-		       TextContent_t,
-		       PhonContent_t,
-		       String_t,
-		       Metric_t,
-		       TokenAnnotation_t,
-		       Correction_t,
-		       Part_t,
-		       Description_t };
-    _annotation_type = AnnotationType::NOTE;
   }
 
   KWargs Note::collectAttributes() const {
@@ -3865,11 +3431,6 @@ namespace folia {
   }
 
   void Reference::init(){
-    _xmltag = "ref";
-    _required_attributes = NO_ATT;
-    _optional_attributes = ID|ANNOTATOR|CONFIDENCE|DATETIME;
-    _accepted_data = { TextContent_t, PhonContent_t, String_t,
-		       Description_t, Metric_t };
   }
 
   KWargs Reference::collectAttributes() const {
@@ -3907,7 +3468,6 @@ namespace folia {
   }
 
   void XmlComment::init(){
-    _xmltag = "xml-comment";
   }
 
   void Feature::setAttributes( const KWargs& kwargs ){
@@ -4026,301 +3586,140 @@ namespace folia {
   }
 
   void Morpheme::init(){
-    _xmltag = "morpheme";
-    _required_attributes = NO_ATT;
-    _optional_attributes = ALL;
-    _accepted_data = { Feature_t, FunctionFeature_t, TextContent_t,
-		       Metric_t, Alignment_t, TokenAnnotation_t,
-		       Description_t, Morpheme_t };
-    _annotation_type = AnnotationType::MORPHOLOGICAL;
   }
 
   void SyntaxLayer::init(){
-    _xmltag = "syntax";
-    _accepted_data = { SyntacticUnit_t,
-		       Description_t,
-		       Correction_t };
-    _annotation_type = AnnotationType::SYNTAX;
   }
 
   void ChunkingLayer::init(){
-    _xmltag = "chunking";
-    _accepted_data = { Chunk_t,
-		       Description_t,
-		       Correction_t };
-    _annotation_type = AnnotationType::CHUNKING;
   }
 
   void EntitiesLayer::init(){
-    _xmltag = "entities";
-    _accepted_data = { Entity_t,
-		       Description_t,
-		       Correction_t };
-   _annotation_type = AnnotationType::ENTITY;
   }
 
   void TimingLayer::init(){
-    _xmltag = "timing";
-    _accepted_data = { TimeSegment_t,
-		       Description_t,
-		       Correction_t };
   }
 
   void MorphologyLayer::init(){
-    _xmltag = "morphology";
-    _accepted_data = { Morpheme_t, Correction_t };
-    _occurrences_per_set = 1; // Don't allow duplicates within the same set
-    _annotation_type = AnnotationType::MORPHOLOGICAL;
   }
 
   void PhonologyLayer::init(){
-    _xmltag = "phonology";
-    _accepted_data = { Phoneme_t, Correction_t };
-    _occurrences_per_set = 1; // Don't allow duplicates within the same set
-    _annotation_type = AnnotationType::PHONOLOGICAL;
   }
 
   void CoreferenceLayer::init(){
-    _xmltag = "coreferences";
-    _accepted_data = { CoreferenceChain_t,
-		       Description_t,
-		       Correction_t };
-    _annotation_type = AnnotationType::COREFERENCE;
   }
 
   void CoreferenceLink::init(){
-    _xmltag = "coreferencelink";
-    _required_attributes = NO_ATT;
-    _optional_attributes = ANNOTATOR|N|DATETIME;
-    _accepted_data = { Word_t, WordReference_t, Headwords_t,
-		       Description_t, Lang_t,
-		       Alignment_t, TimeFeature_t, LevelFeature_t,
-		       ModalityFeature_t, Metric_t};
-    _annotation_type = AnnotationType::COREFERENCE;
   }
 
   void CoreferenceChain::init(){
-    _xmltag = "coreferencechain";
-    _required_attributes = NO_ATT;
-    _accepted_data = { CoreferenceLink_t,
-		       Description_t,
-		       Metric_t };
-    _annotation_type = AnnotationType::COREFERENCE;
   }
 
   void SemanticRolesLayer::init(){
-    _xmltag = "semroles";
-    _accepted_data = { Semrole_t,
-		       Description_t,
-		       Correction_t };
-    _annotation_type = AnnotationType::SEMROLE;
   }
 
   void DependenciesLayer::init(){
-    _xmltag = "dependencies";
-    _accepted_data = { Dependency_t,
-		       Description_t,
-		       Correction_t };
-    _annotation_type = AnnotationType::DEPENDENCY;
   }
 
   void Dependency::init(){
-    _xmltag = "dependency";
-    _required_attributes = NO_ATT;
-    _annotation_type = AnnotationType::DEPENDENCY;
-    _accepted_data = { DependencyDependent_t, Headwords_t,
-		       Feature_t, Description_t, Alignment_t };
   }
 
   void DependencyDependent::init(){
-    _xmltag = "dep";
-    _required_attributes = NO_ATT;
-    _optional_attributes = NO_ATT;
-    _annotation_type = AnnotationType::DEPENDENCY;
-    _accepted_data = { Word_t, WordReference_t, PlaceHolder_t,
-		       Description_t, Feature_t, Alignment_t };
   }
 
   void Headwords::init(){
-    _xmltag = "hd";
-    _required_attributes = NO_ATT;
-    _optional_attributes = NO_ATT;
-    _accepted_data = { Word_t, WordReference_t, PlaceHolder_t,
-		       Description_t, Feature_t, Metric_t,
-		       Alignment_t, Lang_t };
   }
 
   void PosAnnotation::init(){
-    _xmltag="pos";
-    _annotation_type = AnnotationType::POS;
-    _accepted_data = { Feature_t,
-		       Metric_t,
-		       Description_t };
   }
 
   void LemmaAnnotation::init(){
-    _xmltag="lemma";
-    _annotation_type = AnnotationType::LEMMA;
-    _accepted_data = { Feature_t, Metric_t, Description_t };
   }
 
   void LangAnnotation::init(){
-    _xmltag="lang";
-    _annotation_type = AnnotationType::LANG;
-    _accepted_data = { Feature_t, Metric_t, Description_t };
   }
 
   void Phoneme::init(){
-    _xmltag="phoneme";
-    _required_attributes = NO_ATT;
-    _optional_attributes = ALL;
-    _annotation_type = AnnotationType::PHON;
-    _accepted_data = { PhonContent_t, Feature_t, Description_t };
   }
 
   void DomainAnnotation::init(){
-    _xmltag="domain";
-    _annotation_type = AnnotationType::DOMEIN;
-    _accepted_data = { Feature_t, Description_t };
   }
 
   void SenseAnnotation::init(){
-    _xmltag="sense";
-    _annotation_type = AnnotationType::SENSE;
-    _accepted_data = { Feature_t, SynsetFeature_t, Description_t, Metric_t };
   }
 
   void SubjectivityAnnotation::init(){
-    _xmltag="subjectivity";
-    _annotation_type = AnnotationType::SUBJECTIVITY;
-    _accepted_data = { Feature_t, Description_t };
   }
 
   void Quote::init(){
-    _xmltag="quote";
-    _required_attributes = NO_ATT;
-    _accepted_data = { Structure_t, String_t, Lang_t,
-		       TextContent_t, Description_t, Alignment_t,
-		       Gap_t };
-    TEXTDELIMITER = " ";
   }
 
   void Feature::init() {
-    _xmltag = "feat";
-    _occurrences_per_set = 0; // Allow duplicates within the same set
   }
 
   void BeginDateTimeFeature::init(){
-    _xmltag="begindatetime";
-
     _subset = "begindatetime";
   }
 
   void EndDateTimeFeature::init(){
-    _xmltag="enddatetime";
-
     _subset = "enddatetime";
   }
 
   void SynsetFeature::init(){
-    _xmltag="synset";
-    _annotation_type = AnnotationType::SENSE;
 
     _subset = "synset";
   }
 
   void ActorFeature::init(){
-    _xmltag = "actor";
-
     _subset = "actor";
   }
 
   void HeadFeature::init(){
-    _xmltag = "headfeature";
-
     _subset = "head";
   }
 
   void ValueFeature::init(){
-    _xmltag = "value";
-
     _subset = "value";
   }
 
   void FunctionFeature::init(){
-    _xmltag = "function";
-
     _subset = "function";
   }
 
   void LevelFeature::init(){
-    _xmltag = "level";
-
     _subset = "level";
   }
 
   void ModalityFeature::init(){
-    _xmltag = "modality";
-
     _subset = "modality";
   }
 
   void TimeFeature::init(){
-    _xmltag = "time";
-
     _subset = "time";
   }
 
   void AbstractSpanAnnotation::init() {
-    _xmltag = "spanannotation";
-    _required_attributes = NO_ATT;
-    _optional_attributes = ALL;
-    _occurrences_per_set = 0; // Allow duplicates within the same set
-    PRINTABLE = true;
-    SPEAKABLE = true;
   }
 
   void ErrorDetection::init(){
-    _xmltag = "errordetection";
-    _annotation_type = AnnotationType::ERRORDETECTION;
-    _occurrences_per_set = 0; // Allow duplicates within the same set
   }
 
   void AbstractTextMarkup::init(){
-    _xmltag = "textmarkup";
-    _required_attributes = NO_ATT;
-    _optional_attributes = ALL;
-    _annotation_type = AnnotationType::NO_ANN;
-    _accepted_data = { AbstractTextMarkup_t, XmlText_t };
-    PRINTABLE = true;
-    XLINK = true;
-    TEXTDELIMITER = "";
-    _occurrences_per_set = 0; // Allow duplicates within the same set
   }
 
   void TextMarkupString::init(){
-    _xmltag = "t-str";
-    _annotation_type = AnnotationType::STRING;
   }
 
   void TextMarkupGap::init(){
-    _xmltag = "t-gap";
-    _annotation_type = AnnotationType::GAP;
   }
 
   void TextMarkupCorrection::init(){
-    _xmltag = "t-correction";
-    _annotation_type = AnnotationType::CORRECTION;
   }
 
   void TextMarkupError::init(){
-    _xmltag = "t-error";
-    _annotation_type = AnnotationType::ERRORDETECTION;
   }
 
   void TextMarkupStyle::init(){
-    _xmltag = "t-style";
-    _annotation_type = AnnotationType::STYLE;
   }
 
 } // namespace folia

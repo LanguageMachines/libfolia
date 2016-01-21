@@ -20,9 +20,6 @@ namespace folia {
     Attrib _required_attributes;
     Attrib _optional_attributes;
     AnnotationType::AnnotationType _annotation_type;
-    AnnotatorType _annotator_type;
-    bool _auth;
-    double _confidence;
     size_t _occurrences;
     size_t _occurrences_per_set;
     std::string TEXTDELIMITER;
