@@ -87,7 +87,7 @@ namespace folia {
     virtual bool isinstance( ElementType et ) const = 0;
     template <typename F>
       bool isinstance() const {
-      F obj("");
+      F obj((Document*)0);
       return element_id() == obj.element_id();
     }
     bool isSubClass( ElementType ) const;
@@ -122,7 +122,7 @@ namespace folia {
       std::vector<F*> select( const std::string& st,
 			      const std::set<ElementType>& exclude,
 			      bool recurse = true ) const {
-      F obj(0);
+      F obj((Document*)0);
       std::vector<F*> res;
       std::vector<FoliaElement*> tmp = select( obj.element_id(),
 					       st,
@@ -137,7 +137,7 @@ namespace folia {
     template <typename F>
       std::vector<F*> select( const std::string& st,
 			      bool recurse = true ) const {
-      F obj(0);
+      F obj((Document*)0);
       std::vector<F*> res;
       std::vector<FoliaElement*> tmp = select( obj.element_id(),
 					       st,
@@ -151,7 +151,7 @@ namespace folia {
     template <typename F>
       std::vector<F*> select( const char* st,
 			      bool recurse = true ) const {
-      F obj(0);
+      F obj((Document*)0);
       std::vector<F*> res;
       std::vector<FoliaElement*> tmp = select( obj.element_id(),
 					       std::string(st),
@@ -165,7 +165,7 @@ namespace folia {
     template <typename F>
       std::vector<F*> select( const std::set<ElementType>& exclude,
 			      bool recurse = true ) const {
-      F obj(0);
+      F obj((Document*)0);
       std::vector<F*> res;
       std::vector<FoliaElement*> tmp = select( obj.element_id(),
 					       exclude,
@@ -178,7 +178,7 @@ namespace folia {
 
     template <typename F>
       std::vector<F*> select( bool recurse = true ) const {
-      F obj(0);
+      F obj((Document*)0);
       std::vector<F*> res;
       std::vector<FoliaElement*> tmp = select( obj.element_id(),
 					       recurse );
@@ -214,7 +214,7 @@ namespace folia {
 	if ( v.size() >= 1 )
 	  return v;
 	else {
-	  F obj(0);
+	  F obj((Document*)0);
 	  if ( s.empty() )
 	    throw NoSuchAnnotation( obj.classname() );
 	  else
@@ -260,7 +260,7 @@ namespace folia {
 							    const std::string& = "" ) const NOT_IMPLEMENTED;
     template <typename F>
       std::vector<AbstractSpanAnnotation*> findspans( const std::string& st = "" ) const {
-      F obj("");
+      F obj((Document*)0);
       return findspans( obj.element_id(), st );
     }
     virtual AbstractSpanAnnotation *findspan( const std::vector<FoliaElement*>& ) const NOT_IMPLEMENTED;
@@ -469,11 +469,11 @@ namespace folia {
     FoliaElement* rindex( size_t ) const;
 
     bool isinstance( ElementType et ) const {
-      return et == _element_id;
+      return et == element_id();
     }
     template <typename F>
       bool isinstance() const {
-      F obj("");
+      F obj((Document*)0);
       return element_id() == obj.element_id();
     }
 
@@ -593,7 +593,7 @@ namespace folia {
     std::string lemma( const std::string& = "" ) const;
     std::string cls() const { return _class; };
     std::string sett() const { return _set; };
-    std::string classname() const { return toString(_element_id); };
+    std::string classname() const { return toString(element_id()); };
     std::string n() const { return _n; };
     std::string id() const { return _id; };
     std::string href() const { return _href; };
@@ -639,7 +639,6 @@ namespace folia {
     bool _auth;
     Document *mydoc;
     std::string _xmltag;
-    ElementType _element_id;
     std::set<ElementType> _accepted_data;
     AnnotationType::AnnotationType _annotation_type;
     std::string TEXTDELIMITER;
@@ -678,8 +677,8 @@ namespace folia {
 
   template <typename T1, typename T2>
     bool isSubClass(){
-    T1 t1(0);
-    T2 t2(0);
+    T1 t1((Document*)0);
+    T2 t2((Document*)0);
     return t1.isSubClass( &t2 );
   }
 
@@ -760,8 +759,11 @@ namespace folia {
     public AllowGenerateID,
     public AllowAnnotation,
     public AllowCorrection {
+      friend void static_init();
   public:
-    AbstractStructureElement( const properties& props, Document *d=0 ):
+  AbstractStructureElement( Document *d=0 ):
+      FoliaImpl( PROPS, d ){ classInit(); };
+  AbstractStructureElement( const properties& props, Document *d=0 ):
       FoliaImpl( props, d ){ classInit(); };
 
 
@@ -781,6 +783,7 @@ namespace folia {
       Word *rwords( size_t ) const;
       const Word* resolveword( const std::string& ) const;
   private:
+      static properties PROPS;
       void init();
     };
 
@@ -793,10 +796,14 @@ namespace folia {
   class AbstractTokenAnnotation:
     public AbstractAnnotation,
     public AllowGenerateID {
+      friend void static_init();
   public:
+  AbstractTokenAnnotation( Document *d=0 ):
+      AbstractAnnotation( PROPS, d ){ classInit(); };
   AbstractTokenAnnotation( const properties& props, Document *d=0 ):
       AbstractAnnotation( props, d ){ classInit(); };
   private:
+      static properties PROPS;
       void init();
     };
 
@@ -825,7 +832,10 @@ namespace folia {
     public AllowAnnotation,
     public AllowCorrection
     {
-  public:
+      friend void static_init();
+    public:
+    AbstractSpanAnnotation( Document *d=0 ):
+      AbstractAnnotation( PROPS, d ){ classInit(); };
     AbstractSpanAnnotation( const properties& props, Document *d=0 ):
       AbstractAnnotation( props, d ){ classInit(); };
       xmlNode *xml( bool, bool=false ) const;
@@ -835,11 +845,15 @@ namespace folia {
       FoliaElement *wrefs( size_t ) const;
 
     private:
+      static properties PROPS;
       void init();
     };
 
   class AbstractTextMarkup: public AbstractAnnotation {
+    friend void static_init();
   public:
+  AbstractTextMarkup( Document *d=0 ):
+    AbstractAnnotation( PROPS, d ){ classInit(); };
   AbstractTextMarkup( const properties& props, Document *d=0 ):
     AbstractAnnotation( props, d ){ classInit(); };
     void setAttributes( const KWargs& );
@@ -851,6 +865,7 @@ namespace folia {
     std::string getTextDelimiter( bool ) const { return ""; };
     std::string idref;
   private:
+    static properties PROPS;
     void init();
   };
 
@@ -2007,6 +2022,7 @@ namespace folia {
     public AllowGenerateID,
     public AllowAnnotation,
     public AllowCorrection {
+    friend void static_init();
   public:
   AbstractAnnotationLayer( const properties& props, const std::string& s=""):
       FoliaImpl( props ) { classInit( s ); };
@@ -2019,15 +2035,20 @@ namespace folia {
     AbstractSpanAnnotation *findspan( const std::vector<FoliaElement*>& ) const;
     FoliaElement *append( FoliaElement * );
   private:
+    static properties PROPS;
     void init();
     void assignset( FoliaElement * );
   };
 
   class AbstractCorrectionChild: public FoliaImpl {
+    friend void static_init();
   public:
+  AbstractCorrectionChild( Document *d=0 ):
+    FoliaImpl( PROPS, d ){ classInit(); };
   AbstractCorrectionChild( const properties& props, Document *d=0 ):
     FoliaImpl( props, d ){ classInit(); };
   private:
+    static properties PROPS;
     void init();
   };
 

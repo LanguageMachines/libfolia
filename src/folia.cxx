@@ -81,7 +81,6 @@ namespace folia {
   FoliaImpl::FoliaImpl( const properties& p, Document *d ) : _props(p){
     mydoc = d;
     _confidence = -1;
-    _element_id = BASE;
     _refcount = 0;
     _parent = 0;
     _auth = true;
@@ -127,8 +126,8 @@ namespace folia {
   void FoliaImpl::setAttributes( const KWargs& kwargs_in ){
     KWargs kwargs = kwargs_in;
     Attrib supported = _required_attributes | _optional_attributes;
-    // if ( _element_id == Feature_t ){
-    //   cerr << "set attributes: " << kwargs << " on " << toString(_element_id) << endl;
+    // if ( element_id() == Feature_t ){
+    //   cerr << "set attributes: " << kwargs << " on " << classname() << endl;
     //   cerr << "required = " <<  _required_attributes << endl;
     //   cerr << "optional = " <<  _optional_attributes << endl;
     //   cerr << "supported = " << supported << endl;
@@ -136,7 +135,7 @@ namespace folia {
     //   cerr << "ID & _required = " << (ID & _required_attributes ) << endl;
     // }
     if ( mydoc && mydoc->debug > 2 ){
-      cerr << "set attributes: " << kwargs << " on " << toString(_element_id) << endl;
+      cerr << "set attributes: " << kwargs << " on " << classname() << endl;
     }
 
     auto it = kwargs.find( "generate_id" );
@@ -202,7 +201,7 @@ namespace folia {
       if ( !( CLASS & supported ) )
 	throw ValueError("Class is not supported for " + classname() );
       _class = it->second;
-      if ( _element_id != TextContent_t ){
+      if ( element_id() != TextContent_t ){
 	if ( !mydoc ){
 	  throw ValueError( "Class=" + _class + " is used on a node without a document." );
 	}
@@ -218,7 +217,7 @@ namespace folia {
     else
       _class = "";
 
-    if ( _element_id != TextContent_t && _element_id != PhonContent_t ){
+    if ( element_id() != TextContent_t && element_id() != PhonContent_t ){
       if ( !_class.empty() && _set.empty() )
 	throw ValueError("Set is required for <" + classname() +
 			 " class=\"" + _class + "\"> assigned without set."  );
@@ -1127,7 +1126,7 @@ namespace folia {
 		      + ", it was already connected to a "
 		      +  c->parent()->classname() + " id=" + c->parent()->id() );
     }
-    if ( c->element_id() == TextContent_t && _element_id == Word_t ){
+    if ( c->element_id() == TextContent_t && element_id() == Word_t ){
       string val = c->str();
       val = trim( val );
       if ( val.empty() ){
@@ -3094,18 +3093,15 @@ namespace folia {
 
   void FoLiA::init(){
     _xmltag="FoLiA";
-    _element_id = BASE;
     _accepted_data = { Text_t, Speech_t };
   }
 
   void DCOI::init(){
     _xmltag="DCOI";
-    _element_id = BASE;
     _accepted_data = { Text_t, Speech_t };
   }
 
   void AbstractStructureElement::init(){
-    _element_id = Structure_t;
     _xmltag = "structure";
     _required_attributes = ID;
     _optional_attributes = ALL;
@@ -3116,7 +3112,6 @@ namespace folia {
   }
 
   void AbstractTokenAnnotation::init(){
-    _element_id = TokenAnnotation_t;
     _xmltag="tokenannotation";
     _required_attributes = CLASS;
     _optional_attributes = ALL;
@@ -3124,7 +3119,6 @@ namespace folia {
   }
 
   void TextContent::init(){
-    _element_id = TextContent_t;
     _xmltag="t";
     _optional_attributes = CLASS|ANNOTATOR|CONFIDENCE|DATETIME;
     _accepted_data = { AbstractTextMarkup_t,
@@ -3141,7 +3135,6 @@ namespace folia {
   }
 
   void PhonContent::init(){
-    _element_id = PhonContent_t;
     _xmltag="ph";
     _optional_attributes = CLASS|ANNOTATOR|CONFIDENCE|DATETIME;
     _accepted_data = { XmlText_t };
@@ -3153,7 +3146,6 @@ namespace folia {
   }
 
   void Head::init() {
-    _element_id = Head_t;
     _xmltag="head";
     _accepted_data = { Structure_t, Description_t, Correction_t, String_t,
 		       TextContent_t, PhonContent_t, Alignment_t, Metric_t,
@@ -3163,7 +3155,6 @@ namespace folia {
   }
 
   void TableHead::init() {
-    _element_id = TableHead_t;
     _xmltag="tablehead";
     _required_attributes = NO_ATT;
     _accepted_data ={ Row_t,
@@ -3176,7 +3167,6 @@ namespace folia {
   }
 
   void Table::init() {
-    _element_id = Table_t;
     _xmltag="table";
     _accepted_data = { TableHead_t,
 		       Row_t,
@@ -3189,7 +3179,6 @@ namespace folia {
   }
 
   void Cell::init() {
-    _element_id = Cell_t;
     _xmltag="cell";
     _required_attributes = NO_ATT;
     _accepted_data = { Structure_t,
@@ -3209,7 +3198,6 @@ namespace folia {
   }
 
   void Row::init() {
-    _element_id = Row_t;
     _xmltag="row";
     _required_attributes = NO_ATT;
     _accepted_data = { Cell_t,
@@ -3224,7 +3212,6 @@ namespace folia {
 
   void LineBreak::init(){
     _xmltag = "br";
-    _element_id = LineBreak_t;
     _required_attributes = NO_ATT;
     _accepted_data = { Feature_t,
 		       Metric_t,
@@ -3234,7 +3221,6 @@ namespace folia {
 
   void WhiteSpace::init(){
     _xmltag = "whitespace";
-    _element_id = WhiteSpace_t;
     _required_attributes = NO_ATT;
     _accepted_data = { Feature_t,
 		       Metric_t,
@@ -3244,7 +3230,6 @@ namespace folia {
 
   void Word::init(){
     _xmltag="w";
-    _element_id = Word_t;
     _accepted_data = { TokenAnnotation_t,
 		       Correction_t,
 		       TextContent_t,
@@ -3267,7 +3252,6 @@ namespace folia {
 
   void String::init(){
     _xmltag="str";
-    _element_id = String_t;
     _required_attributes = NO_ATT;
     _optional_attributes = ID|CLASS|ANNOTATOR|CONFIDENCE|DATETIME;
     _accepted_data = { TextContent_t,
@@ -3289,7 +3273,6 @@ namespace folia {
 
   void Part::init(){
     _xmltag="part";
-    _element_id = Part_t;
     _required_attributes = NO_ATT;
     _accepted_data = { Structure_t,
 		       TokenAnnotation_t,
@@ -3303,21 +3286,18 @@ namespace folia {
 
   void PlaceHolder::init(){
     _xmltag="placeholder";
-    _element_id = PlaceHolder_t;
     _required_attributes = NO_ATT;
   }
 
   void WordReference::init(){
     _required_attributes = ID;
     _xmltag = "wref";
-    _element_id = WordReference_t;
     _auth = false;
   }
 
   void Alignment::init(){
     _optional_attributes = ALL;
     _xmltag = "alignment";
-    _element_id = Alignment_t;
     _accepted_data = { AlignReference_t, Description_t, Metric_t };
     _occurrences_per_set=0;
     _annotation_type = AnnotationType::ALIGNMENT;
@@ -3326,20 +3306,17 @@ namespace folia {
 
   void AlignReference::init(){
     _xmltag = "aref";
-    _element_id = AlignReference_t;
   }
 
 
   void Gap::init(){
     _xmltag = "gap";
-    _element_id = Gap_t;
     _annotation_type = AnnotationType::GAP;
     _accepted_data = { Content_t, Description_t, Part_t };
     _optional_attributes = CLASS|ID|ANNOTATOR|CONFIDENCE|N|DATETIME;
   }
 
   void MetricAnnotation::init(){
-    _element_id = Metric_t;
     _xmltag = "metric";
     _accepted_data = { ValueFeature_t, Description_t };
     _optional_attributes = CLASS|ANNOTATOR|CONFIDENCE;
@@ -3348,7 +3325,6 @@ namespace folia {
 
   void Content::init(){
     _xmltag = "content";
-    _element_id = Content_t;
     _optional_attributes = ALL;
     _occurrences_per_set=0;
     PRINTABLE = true;
@@ -3357,7 +3333,6 @@ namespace folia {
 
   void Sentence::init(){
     _xmltag="s";
-    _element_id = Sentence_t;
     _accepted_data = { Structure_t,
 		       TokenAnnotation_t,
 		       TextContent_t,
@@ -3377,7 +3352,6 @@ namespace folia {
 
   void Division::init(){
     _xmltag="div";
-    _element_id = Division_t;
     _required_attributes = ID;
     _optional_attributes = CLASS|N|SRC|BEGINTIME|ENDTIME|SPEAKER;
     _accepted_data = { Division_t, Quote_t, Gap_t, Event_t, Example_t,
@@ -3394,7 +3368,6 @@ namespace folia {
 
   void Text::init(){
     _xmltag="text";
-    _element_id = Text_t;
     _accepted_data = { Gap_t, Division_t, Paragraph_t, Sentence_t,
 		       List_t, Figure_t, Description_t, Event_t,
 		       TokenAnnotation_t, Quote_t, Word_t, Table_t,
@@ -3408,7 +3381,6 @@ namespace folia {
 
   void Speech::init(){
     _xmltag="speech";
-    _element_id = Speech_t;
     _accepted_data = { Utterance_t, Gap_t, Event_t, Entry_t, Example_t,
 		       Division_t, Paragraph_t, Quote_t, Sentence_t,
 		       Word_t, List_t, Note_t, Reference_t, AnnotationLayer_t,
@@ -3421,7 +3393,6 @@ namespace folia {
 
   void Utterance::init(){
     _xmltag="utt";
-    _element_id = Utterance_t;
     _accepted_data = { Word_t, Sentence_t, Quote_t, TokenAnnotation_t,
 		       Correction_t, TextContent_t, PhonContent_t,
 		       String_t, Gap_t, Description_t, Note_t, Reference_t,
@@ -3435,7 +3406,6 @@ namespace folia {
 
   void Event::init(){
     _xmltag="event";
-    _element_id = Event_t;
     _accepted_data = { Gap_t, Division_t, Structure_t,
 		       Description_t,
 		       Feature_t, TextContent_t,
@@ -3446,7 +3416,6 @@ namespace folia {
 
   void TimeSegment::init(){
     _xmltag="timesegment";
-    _element_id = TimeSegment_t;
     _accepted_data = { Description_t, Feature_t, Word_t };
     _annotation_type = AnnotationType::TIMESEGMENT;
     _occurrences_per_set=0;
@@ -3454,7 +3423,6 @@ namespace folia {
 
   void Caption::init(){
     _xmltag="caption";
-    _element_id = Caption_t;
     _accepted_data = { Sentence_t, Reference_t, Description_t,
 		       TokenAnnotation_t, TextContent_t,
 		       Correction_t, Part_t };
@@ -3463,7 +3431,6 @@ namespace folia {
 
   void Label::init(){
     _xmltag="label";
-    _element_id = Label_t;
     _accepted_data = { Word_t, Description_t, TextContent_t,
 		       TokenAnnotation_t, Alignment_t,
 		       Correction_t, Part_t };
@@ -3471,7 +3438,6 @@ namespace folia {
 
   void Item::init(){
     _xmltag="item";
-    _element_id = Item_t;
     _accepted_data = { Structure_t,
 		       Description_t,
 		       TextContent_t,
@@ -3491,7 +3457,6 @@ namespace folia {
 
   void List::init(){
     _xmltag="list";
-    _element_id = List_t;
     _accepted_data = { Structure_t,
 		       Description_t,
 		       Caption_t,
@@ -3508,7 +3473,6 @@ namespace folia {
 
   void Figure::init(){
     _xmltag="figure";
-    _element_id = Figure_t;
     _accepted_data = { Sentence_t,
 		       Description_t,
 		       Caption_t,
@@ -3528,7 +3492,6 @@ namespace folia {
 
   void Paragraph::init(){
     _xmltag="p";
-    _element_id = Paragraph_t;
     _accepted_data = { Sentence_t,
 		       Word_t,
 		       Quote_t,
@@ -3560,7 +3523,6 @@ namespace folia {
 
   void SyntacticUnit::init(){
     _xmltag = "su";
-    _element_id = SyntacticUnit_t;
     _required_attributes = NO_ATT;
     _annotation_type = AnnotationType::SYNTAX;
     _accepted_data = { SyntacticUnit_t, Word_t, WordReference_t,
@@ -3569,7 +3531,6 @@ namespace folia {
 
   void SemanticRole::init(){
     _xmltag = "semrole";
-    _element_id = Semrole_t;
     _required_attributes = CLASS;
     _annotation_type = AnnotationType::SEMROLE;
     _accepted_data = { Word_t, WordReference_t, Lang_t, Headwords_t,
@@ -3579,7 +3540,6 @@ namespace folia {
   void Chunk::init(){
     _required_attributes = NO_ATT;
     _xmltag = "chunk";
-    _element_id = Chunk_t;
     _annotation_type = AnnotationType::CHUNKING;
     _accepted_data = { Word_t, WordReference_t, Lang_t,
 		       Description_t, Feature_t };
@@ -3589,7 +3549,6 @@ namespace folia {
     _required_attributes = NO_ATT;
     _optional_attributes = ID|CLASS|ANNOTATOR|CONFIDENCE|DATETIME;
     _xmltag = "entity";
-    _element_id = Entity_t;
     _annotation_type = AnnotationType::ENTITY;
     _accepted_data = { Word_t, Lang_t, WordReference_t, Morpheme_t,
 		       Description_t, Feature_t, Metric_t };
@@ -3597,7 +3556,6 @@ namespace folia {
 
   void AbstractAnnotationLayer::init(){
     _xmltag = "annotationlayer";
-    _element_id = AnnotationLayer_t;
     _optional_attributes = SETONLY;
   }
 
@@ -3662,7 +3620,6 @@ namespace folia {
 
   void Alternative::init(){
     _xmltag = "alt";
-    _element_id = Alternative_t;
     _required_attributes = NO_ATT;
     _optional_attributes = ALL;
     _accepted_data = { TokenAnnotation_t };
@@ -3672,7 +3629,6 @@ namespace folia {
 
   void AlternativeLayers::init(){
     _xmltag = "altlayers";
-    _element_id = AlternativeLayers_t;
     _optional_attributes = ALL;
     _accepted_data = { AnnotationLayer_t };
     _auth = false;
@@ -3690,23 +3646,19 @@ namespace folia {
 
   void NewElement::init(){
     _xmltag = "new";
-    _element_id = New_t;
   }
 
   void Current::init(){
     _xmltag = "current";
-    _element_id = Current_t;
   }
 
   void Original::init(){
     _xmltag = "original";
-    _element_id = Original_t;
     _auth = false;
   }
 
   void Suggestion::init(){
     _xmltag = "suggestion";
-    _element_id = Suggestion_t;
     _optional_attributes = ANNOTATOR|CONFIDENCE|DATETIME|N;
     _annotation_type = AnnotationType::SUGGESTION;
     _occurrences=0;
@@ -3716,7 +3668,6 @@ namespace folia {
 
   void Correction::init(){
     _xmltag = "correction";
-    _element_id = Correction_t;
     _required_attributes = NO_ATT;
     _annotation_type = AnnotationType::CORRECTION;
     _accepted_data = { New_t, Original_t, Suggestion_t, Current_t,
@@ -3728,7 +3679,6 @@ namespace folia {
 
   void Description::init(){
     _xmltag = "desc";
-    _element_id = Description_t;
     _occurrences = 1;
   }
 
@@ -3752,7 +3702,6 @@ namespace folia {
 
   void Entry::init(){
     _xmltag = "entry";
-    _element_id = Entry_t;
     _accepted_data = { Term_t, Definition_t, Example_t, Correction_t,
 		       Description_t, Metric_t, Alignment_t,
 		       AlternativeLayers_t, AnnotationLayer_t };
@@ -3760,7 +3709,6 @@ namespace folia {
 
   void Definition::init(){
     _xmltag = "def";
-    _element_id = Definition_t;
     _accepted_data = { Paragraph_t, Sentence_t, Word_t, Utterance_t,
 		       List_t, Figure_t, Table_t, Reference_t, Feature_t,
 		       TextContent_t, PhonContent_t, String_t, Metric_t,
@@ -3770,7 +3718,6 @@ namespace folia {
 
   void Term::init(){
     _xmltag = "term";
-    _element_id = Term_t;
     _accepted_data = { Paragraph_t, Event_t, Sentence_t, Word_t, Utterance_t,
 		       List_t, Figure_t, Table_t, Reference_t, Feature_t,
 		       TextContent_t, PhonContent_t, String_t, Metric_t,
@@ -3780,7 +3727,6 @@ namespace folia {
 
   void Example::init(){
     _xmltag = "ex";
-    _element_id = Example_t;
     _accepted_data = { Paragraph_t, Sentence_t, Word_t, Utterance_t,
 		       List_t, Figure_t, Table_t, Reference_t, Feature_t,
 		       TextContent_t, PhonContent_t, String_t, Metric_t,
@@ -3790,7 +3736,6 @@ namespace folia {
 
   void XmlText::init(){
     _xmltag = "xml-text";
-    _element_id = XmlText_t;
     TEXTDELIMITER = "*";
     PRINTABLE = true;
     SPEAKABLE = true;
@@ -3798,7 +3743,6 @@ namespace folia {
 
   void External::init(){
     _xmltag = "external";
-    _element_id = External_t;
     _required_attributes = SRC;
     PRINTABLE = true;
     SPEAKABLE = false;
@@ -3885,7 +3829,6 @@ namespace folia {
   void Note::init(){
     _required_attributes = ID;
     _xmltag = "note";
-    _element_id = Note_t;
     _accepted_data = { Paragraph_t,
 		       Sentence_t,
 		       Word_t,
@@ -3923,7 +3866,6 @@ namespace folia {
 
   void Reference::init(){
     _xmltag = "ref";
-    _element_id = Reference_t;
     _required_attributes = NO_ATT;
     _optional_attributes = ID|ANNOTATOR|CONFIDENCE|DATETIME;
     _accepted_data = { TextContent_t, PhonContent_t, String_t,
@@ -3966,7 +3908,6 @@ namespace folia {
 
   void XmlComment::init(){
     _xmltag = "xml-comment";
-    _element_id = XmlComment_t;
   }
 
   void Feature::setAttributes( const KWargs& kwargs ){
@@ -4085,7 +4026,6 @@ namespace folia {
   }
 
   void Morpheme::init(){
-    _element_id = Morpheme_t;
     _xmltag = "morpheme";
     _required_attributes = NO_ATT;
     _optional_attributes = ALL;
@@ -4096,7 +4036,6 @@ namespace folia {
   }
 
   void SyntaxLayer::init(){
-    _element_id = SyntaxLayer_t;
     _xmltag = "syntax";
     _accepted_data = { SyntacticUnit_t,
 		       Description_t,
@@ -4105,7 +4044,6 @@ namespace folia {
   }
 
   void ChunkingLayer::init(){
-    _element_id = Chunking_t;
     _xmltag = "chunking";
     _accepted_data = { Chunk_t,
 		       Description_t,
@@ -4114,7 +4052,6 @@ namespace folia {
   }
 
   void EntitiesLayer::init(){
-    _element_id = Entities_t;
     _xmltag = "entities";
     _accepted_data = { Entity_t,
 		       Description_t,
@@ -4123,7 +4060,6 @@ namespace folia {
   }
 
   void TimingLayer::init(){
-    _element_id = TimingLayer_t;
     _xmltag = "timing";
     _accepted_data = { TimeSegment_t,
 		       Description_t,
@@ -4131,7 +4067,6 @@ namespace folia {
   }
 
   void MorphologyLayer::init(){
-    _element_id = MorphologyLayer_t;
     _xmltag = "morphology";
     _accepted_data = { Morpheme_t, Correction_t };
     _occurrences_per_set = 1; // Don't allow duplicates within the same set
@@ -4139,7 +4074,6 @@ namespace folia {
   }
 
   void PhonologyLayer::init(){
-    _element_id = PhonologyLayer_t;
     _xmltag = "phonology";
     _accepted_data = { Phoneme_t, Correction_t };
     _occurrences_per_set = 1; // Don't allow duplicates within the same set
@@ -4147,7 +4081,6 @@ namespace folia {
   }
 
   void CoreferenceLayer::init(){
-    _element_id = Coreferences_t;
     _xmltag = "coreferences";
     _accepted_data = { CoreferenceChain_t,
 		       Description_t,
@@ -4156,7 +4089,6 @@ namespace folia {
   }
 
   void CoreferenceLink::init(){
-    _element_id = CoreferenceLink_t;
     _xmltag = "coreferencelink";
     _required_attributes = NO_ATT;
     _optional_attributes = ANNOTATOR|N|DATETIME;
@@ -4168,7 +4100,6 @@ namespace folia {
   }
 
   void CoreferenceChain::init(){
-    _element_id = CoreferenceChain_t;
     _xmltag = "coreferencechain";
     _required_attributes = NO_ATT;
     _accepted_data = { CoreferenceLink_t,
@@ -4178,7 +4109,6 @@ namespace folia {
   }
 
   void SemanticRolesLayer::init(){
-    _element_id = Semroles_t;
     _xmltag = "semroles";
     _accepted_data = { Semrole_t,
 		       Description_t,
@@ -4187,7 +4117,6 @@ namespace folia {
   }
 
   void DependenciesLayer::init(){
-    _element_id = Dependencies_t;
     _xmltag = "dependencies";
     _accepted_data = { Dependency_t,
 		       Description_t,
@@ -4196,7 +4125,6 @@ namespace folia {
   }
 
   void Dependency::init(){
-    _element_id = Dependency_t;
     _xmltag = "dependency";
     _required_attributes = NO_ATT;
     _annotation_type = AnnotationType::DEPENDENCY;
@@ -4205,7 +4133,6 @@ namespace folia {
   }
 
   void DependencyDependent::init(){
-    _element_id = DependencyDependent_t;
     _xmltag = "dep";
     _required_attributes = NO_ATT;
     _optional_attributes = NO_ATT;
@@ -4215,7 +4142,6 @@ namespace folia {
   }
 
   void Headwords::init(){
-    _element_id = Headwords_t;
     _xmltag = "hd";
     _required_attributes = NO_ATT;
     _optional_attributes = NO_ATT;
@@ -4226,7 +4152,6 @@ namespace folia {
 
   void PosAnnotation::init(){
     _xmltag="pos";
-    _element_id = Pos_t;
     _annotation_type = AnnotationType::POS;
     _accepted_data = { Feature_t,
 		       Metric_t,
@@ -4235,21 +4160,18 @@ namespace folia {
 
   void LemmaAnnotation::init(){
     _xmltag="lemma";
-    _element_id = Lemma_t;
     _annotation_type = AnnotationType::LEMMA;
     _accepted_data = { Feature_t, Metric_t, Description_t };
   }
 
   void LangAnnotation::init(){
     _xmltag="lang";
-    _element_id = Lang_t;
     _annotation_type = AnnotationType::LANG;
     _accepted_data = { Feature_t, Metric_t, Description_t };
   }
 
   void Phoneme::init(){
     _xmltag="phoneme";
-    _element_id = Phoneme_t;
     _required_attributes = NO_ATT;
     _optional_attributes = ALL;
     _annotation_type = AnnotationType::PHON;
@@ -4258,28 +4180,24 @@ namespace folia {
 
   void DomainAnnotation::init(){
     _xmltag="domain";
-    _element_id = Domain_t;
     _annotation_type = AnnotationType::DOMEIN;
     _accepted_data = { Feature_t, Description_t };
   }
 
   void SenseAnnotation::init(){
     _xmltag="sense";
-    _element_id = Sense_t;
     _annotation_type = AnnotationType::SENSE;
     _accepted_data = { Feature_t, SynsetFeature_t, Description_t, Metric_t };
   }
 
   void SubjectivityAnnotation::init(){
     _xmltag="subjectivity";
-    _element_id = Subjectivity_t;
     _annotation_type = AnnotationType::SUBJECTIVITY;
     _accepted_data = { Feature_t, Description_t };
   }
 
   void Quote::init(){
     _xmltag="quote";
-    _element_id = Quote_t;
     _required_attributes = NO_ATT;
     _accepted_data = { Structure_t, String_t, Lang_t,
 		       TextContent_t, Description_t, Alignment_t,
@@ -4289,27 +4207,23 @@ namespace folia {
 
   void Feature::init() {
     _xmltag = "feat";
-    _element_id = Feature_t;
     _occurrences_per_set = 0; // Allow duplicates within the same set
   }
 
   void BeginDateTimeFeature::init(){
     _xmltag="begindatetime";
-    _element_id = BeginDateTimeFeature_t;
 
     _subset = "begindatetime";
   }
 
   void EndDateTimeFeature::init(){
     _xmltag="enddatetime";
-    _element_id = EndDateTimeFeature_t;
 
     _subset = "enddatetime";
   }
 
   void SynsetFeature::init(){
     _xmltag="synset";
-    _element_id = SynsetFeature_t;
     _annotation_type = AnnotationType::SENSE;
 
     _subset = "synset";
@@ -4317,56 +4231,48 @@ namespace folia {
 
   void ActorFeature::init(){
     _xmltag = "actor";
-    _element_id = ActorFeature_t;
 
     _subset = "actor";
   }
 
   void HeadFeature::init(){
     _xmltag = "headfeature";
-    _element_id = HeadFeature_t;
 
     _subset = "head";
   }
 
   void ValueFeature::init(){
     _xmltag = "value";
-    _element_id = ValueFeature_t;
 
     _subset = "value";
   }
 
   void FunctionFeature::init(){
     _xmltag = "function";
-    _element_id = FunctionFeature_t;
 
     _subset = "function";
   }
 
   void LevelFeature::init(){
     _xmltag = "level";
-    _element_id = LevelFeature_t;
 
     _subset = "level";
   }
 
   void ModalityFeature::init(){
     _xmltag = "modality";
-    _element_id = ModalityFeature_t;
 
     _subset = "modality";
   }
 
   void TimeFeature::init(){
     _xmltag = "time";
-    _element_id = TimeFeature_t;
 
     _subset = "time";
   }
 
   void AbstractSpanAnnotation::init() {
     _xmltag = "spanannotation";
-    _element_id = SpanAnnotation_t;
     _required_attributes = NO_ATT;
     _optional_attributes = ALL;
     _occurrences_per_set = 0; // Allow duplicates within the same set
@@ -4376,14 +4282,12 @@ namespace folia {
 
   void ErrorDetection::init(){
     _xmltag = "errordetection";
-    _element_id = ErrorDetection_t;
     _annotation_type = AnnotationType::ERRORDETECTION;
     _occurrences_per_set = 0; // Allow duplicates within the same set
   }
 
   void AbstractTextMarkup::init(){
     _xmltag = "textmarkup";
-    _element_id = AbstractTextMarkup_t;
     _required_attributes = NO_ATT;
     _optional_attributes = ALL;
     _annotation_type = AnnotationType::NO_ANN;
@@ -4396,31 +4300,26 @@ namespace folia {
 
   void TextMarkupString::init(){
     _xmltag = "t-str";
-    _element_id = TextMarkupString_t;
     _annotation_type = AnnotationType::STRING;
   }
 
   void TextMarkupGap::init(){
     _xmltag = "t-gap";
-    _element_id = TextMarkupGap_t;
     _annotation_type = AnnotationType::GAP;
   }
 
   void TextMarkupCorrection::init(){
     _xmltag = "t-correction";
-    _element_id = TextMarkupCorrection_t;
     _annotation_type = AnnotationType::CORRECTION;
   }
 
   void TextMarkupError::init(){
     _xmltag = "t-error";
-    _element_id = TextMarkupError_t;
     _annotation_type = AnnotationType::ERRORDETECTION;
   }
 
   void TextMarkupStyle::init(){
     _xmltag = "t-style";
-    _element_id = TextMarkupStyle_t;
     _annotation_type = AnnotationType::STYLE;
   }
 

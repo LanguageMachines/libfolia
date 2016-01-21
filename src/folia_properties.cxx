@@ -16,6 +16,13 @@ namespace folia {
       "NONE", false, false, false
     };
 
+  properties AbstractStructureElement::PROPS = DEFAULT_PROPERTIES;
+  properties AbstractTokenAnnotation::PROPS = DEFAULT_PROPERTIES;
+  properties AbstractCorrectionChild::PROPS = DEFAULT_PROPERTIES;
+  properties AbstractAnnotationLayer::PROPS = DEFAULT_PROPERTIES;
+  properties AbstractSpanAnnotation::PROPS = DEFAULT_PROPERTIES;
+  properties AbstractTextMarkup::PROPS = DEFAULT_PROPERTIES;
+
   properties FoLiA::PROPS = DEFAULT_PROPERTIES;
   properties DCOI::PROPS = DEFAULT_PROPERTIES;
   properties XmlText::PROPS = DEFAULT_PROPERTIES;
@@ -141,17 +148,16 @@ namespace folia {
     PhonContent::PROPS.PRINTABLE = false;
     PhonContent::PROPS.SPEAKABLE = true;
 
-    properties AbstractStructureElement_PROPS = DEFAULT_PROPERTIES;
-    AbstractStructureElement_PROPS._element_id = Structure_t;
-    AbstractStructureElement_PROPS._xmltag = "structure";
-    AbstractStructureElement_PROPS._required_attributes = ID;
-    AbstractStructureElement_PROPS._optional_attributes = ALL;
-    AbstractStructureElement_PROPS._occurrences_per_set=0;
-    AbstractStructureElement_PROPS.PRINTABLE = true;
-    AbstractStructureElement_PROPS.SPEAKABLE = true;
-    AbstractStructureElement_PROPS.TEXTDELIMITER = "\n\n";
+    AbstractStructureElement::PROPS._element_id = Structure_t;
+    AbstractStructureElement::PROPS._xmltag = "structure";
+    AbstractStructureElement::PROPS._required_attributes = ID;
+    AbstractStructureElement::PROPS._optional_attributes = ALL;
+    AbstractStructureElement::PROPS._occurrences_per_set=0;
+    AbstractStructureElement::PROPS.PRINTABLE = true;
+    AbstractStructureElement::PROPS.SPEAKABLE = true;
+    AbstractStructureElement::PROPS.TEXTDELIMITER = "\n\n";
 
-    Head::PROPS = AbstractStructureElement_PROPS;
+    Head::PROPS = AbstractStructureElement::PROPS;
     Head::PROPS._element_id = Head_t;
     Head::PROPS._xmltag="head";
     Head::PROPS._accepted_data = { Structure_t, Description_t, Correction_t,
@@ -161,7 +167,7 @@ namespace folia {
     Head::PROPS._occurrences=1;
     Head::PROPS.TEXTDELIMITER = "\n\n";
 
-    TableHead::PROPS = AbstractStructureElement_PROPS;
+    TableHead::PROPS = AbstractStructureElement::PROPS;
     TableHead::PROPS._element_id = TableHead_t;
     TableHead::PROPS._xmltag="tablehead";
     TableHead::PROPS._required_attributes = NO_ATT;
@@ -173,7 +179,7 @@ namespace folia {
 				       Part_t };
     TableHead::PROPS._annotation_type = AnnotationType::TABLE;
 
-    Table::PROPS = AbstractStructureElement_PROPS;
+    Table::PROPS = AbstractStructureElement::PROPS;
     Table::PROPS._element_id = Table_t;
     Table::PROPS._xmltag="table";
     Table::PROPS._accepted_data = { TableHead_t,
@@ -185,7 +191,7 @@ namespace folia {
 				    Part_t };
     Table::PROPS._annotation_type = AnnotationType::TABLE;
 
-    Cell::PROPS = AbstractStructureElement_PROPS;
+    Cell::PROPS = AbstractStructureElement::PROPS;
     Cell::PROPS._element_id = Cell_t;
     Cell::PROPS._xmltag="cell";
     Cell::PROPS._required_attributes = NO_ATT;
@@ -204,7 +210,7 @@ namespace folia {
     Cell::PROPS._annotation_type = AnnotationType::TABLE;
     Cell::PROPS.TEXTDELIMITER = " | ";
 
-    Row::PROPS = AbstractStructureElement_PROPS;
+    Row::PROPS = AbstractStructureElement::PROPS;
     Row::PROPS._element_id = Row_t;
     Row::PROPS._xmltag="row";
     Row::PROPS._required_attributes = NO_ATT;
@@ -217,7 +223,7 @@ namespace folia {
     Row::PROPS._annotation_type = AnnotationType::TABLE;
     Row::PROPS.TEXTDELIMITER = "\n";
 
-    LineBreak::PROPS = AbstractStructureElement_PROPS;
+    LineBreak::PROPS = AbstractStructureElement::PROPS;
     LineBreak::PROPS._xmltag = "br";
     LineBreak::PROPS._element_id = LineBreak_t;
     LineBreak::PROPS._required_attributes = NO_ATT;
@@ -226,7 +232,7 @@ namespace folia {
 					Description_t };
     LineBreak::PROPS._annotation_type = AnnotationType::LINEBREAK;
 
-    WhiteSpace::PROPS = AbstractStructureElement_PROPS;
+    WhiteSpace::PROPS = AbstractStructureElement::PROPS;
     WhiteSpace::PROPS._xmltag = "whitespace";
     WhiteSpace::PROPS._element_id = WhiteSpace_t;
     WhiteSpace::PROPS._required_attributes = NO_ATT;
@@ -235,7 +241,7 @@ namespace folia {
 					 Description_t };
     WhiteSpace::PROPS._annotation_type = AnnotationType::WHITESPACE;
 
-    Word::PROPS = AbstractStructureElement_PROPS;
+    Word::PROPS = AbstractStructureElement::PROPS;
     Word::PROPS._xmltag="w";
     Word::PROPS._element_id = Word_t;
     Word::PROPS._accepted_data = { TokenAnnotation_t,
@@ -256,14 +262,13 @@ namespace folia {
     Word::PROPS.TEXTDELIMITER = " ";
 
 
-    properties AbstractTokenAnnotation_PROPS = DEFAULT_PROPERTIES;
-    AbstractTokenAnnotation_PROPS._element_id = TokenAnnotation_t;
-    AbstractTokenAnnotation_PROPS._xmltag="tokenannotation";
-    AbstractTokenAnnotation_PROPS._required_attributes = CLASS;
-    AbstractTokenAnnotation_PROPS._optional_attributes = ALL;
-    AbstractTokenAnnotation_PROPS._occurrences_per_set=1;
+    AbstractTokenAnnotation::PROPS._element_id = TokenAnnotation_t;
+    AbstractTokenAnnotation::PROPS._xmltag="tokenannotation";
+    AbstractTokenAnnotation::PROPS._required_attributes = CLASS;
+    AbstractTokenAnnotation::PROPS._optional_attributes = ALL;
+    AbstractTokenAnnotation::PROPS._occurrences_per_set=1;
 
-    String::PROPS = AbstractTokenAnnotation_PROPS;
+    String::PROPS = AbstractTokenAnnotation::PROPS;
     String::PROPS._xmltag="str";
     String::PROPS._element_id = String_t;
     String::PROPS._required_attributes = NO_ATT;
@@ -283,7 +288,7 @@ namespace folia {
     String::PROPS.PRINTABLE = true;
     String::PROPS.SPEAKABLE = true;
 
-    Part::PROPS = AbstractStructureElement_PROPS;
+    Part::PROPS = AbstractStructureElement::PROPS;
     Part::PROPS._xmltag="part";
     Part::PROPS._element_id = Part_t;
     Part::PROPS._required_attributes = NO_ATT;
@@ -336,7 +341,7 @@ namespace folia {
     Content::PROPS.PRINTABLE = true;
     Content::PROPS.SPEAKABLE = true;
 
-    Sentence::PROPS = AbstractStructureElement_PROPS;
+    Sentence::PROPS = AbstractStructureElement::PROPS;
     Sentence::PROPS._xmltag="s";
     Sentence::PROPS._element_id = Sentence_t;
     Sentence::PROPS._accepted_data = { Structure_t,
@@ -355,7 +360,7 @@ namespace folia {
     Sentence::PROPS._annotation_type = AnnotationType::SENTENCE;
     Sentence::PROPS.TEXTDELIMITER = " ";
 
-    Division::PROPS = AbstractStructureElement_PROPS;
+    Division::PROPS = AbstractStructureElement::PROPS;
     Division::PROPS._xmltag="div";
     Division::PROPS._element_id = Division_t;
     Division::PROPS._required_attributes = ID;
@@ -371,7 +376,7 @@ namespace folia {
     Division::PROPS._annotation_type = AnnotationType::DIVISION;
     Division::PROPS.TEXTDELIMITER = "\n\n\n";
 
-    Text::PROPS = AbstractStructureElement_PROPS;
+    Text::PROPS = AbstractStructureElement::PROPS;
     Text::PROPS._xmltag="text";
     Text::PROPS._element_id = Text_t;
     Text::PROPS._accepted_data = { Gap_t, Division_t, Paragraph_t, Sentence_t,
@@ -384,7 +389,7 @@ namespace folia {
     Text::PROPS._required_attributes = ID;
     Text::PROPS.TEXTDELIMITER = "\n\n";
 
-    Speech::PROPS = AbstractStructureElement_PROPS;
+    Speech::PROPS = AbstractStructureElement::PROPS;
     Speech::PROPS._xmltag="speech";
     Speech::PROPS.
       _element_id = Speech_t;
@@ -398,7 +403,7 @@ namespace folia {
     Speech::PROPS._optional_attributes = N|SRC|BEGINTIME|ENDTIME|SPEAKER;
     Speech::PROPS.TEXTDELIMITER = "\n\n";
 
-    Utterance::PROPS = AbstractStructureElement_PROPS;
+    Utterance::PROPS = AbstractStructureElement::PROPS;
     Utterance::PROPS._xmltag="utt";
     Utterance::PROPS._element_id = Utterance_t;
     Utterance::PROPS._accepted_data = { Word_t, Sentence_t, Quote_t, TokenAnnotation_t,
@@ -411,7 +416,7 @@ namespace folia {
     Utterance::PROPS.PRINTABLE = true;
     Utterance::PROPS.SPEAKABLE = true;
 
-    Event::PROPS = AbstractStructureElement_PROPS;
+    Event::PROPS = AbstractStructureElement::PROPS;
     Event::PROPS._xmltag="event";
     Event::PROPS._element_id = Event_t;
     Event::PROPS._accepted_data = { Gap_t, Division_t, Structure_t,
@@ -421,23 +426,22 @@ namespace folia {
     Event::PROPS._annotation_type = AnnotationType::EVENT;
     Event::PROPS._occurrences_per_set=0;
 
-    properties AbstractSpanAnnotation_PROPS = DEFAULT_PROPERTIES;
-    AbstractSpanAnnotation_PROPS._xmltag = "spanannotation";
-    AbstractSpanAnnotation_PROPS._element_id = SpanAnnotation_t;
-    AbstractSpanAnnotation_PROPS._required_attributes = NO_ATT;
-    AbstractSpanAnnotation_PROPS._optional_attributes = ALL;
-    AbstractSpanAnnotation_PROPS._occurrences_per_set = 0;
-    AbstractSpanAnnotation_PROPS. PRINTABLE = true;
-    AbstractSpanAnnotation_PROPS.SPEAKABLE = true;
+    AbstractSpanAnnotation::PROPS._xmltag = "spanannotation";
+    AbstractSpanAnnotation::PROPS._element_id = SpanAnnotation_t;
+    AbstractSpanAnnotation::PROPS._required_attributes = NO_ATT;
+    AbstractSpanAnnotation::PROPS._optional_attributes = ALL;
+    AbstractSpanAnnotation::PROPS._occurrences_per_set = 0;
+    AbstractSpanAnnotation::PROPS. PRINTABLE = true;
+    AbstractSpanAnnotation::PROPS.SPEAKABLE = true;
 
-    TimeSegment::PROPS = AbstractSpanAnnotation_PROPS;
+    TimeSegment::PROPS = AbstractSpanAnnotation::PROPS;
     TimeSegment::PROPS._xmltag="timesegment";
     TimeSegment::PROPS._element_id = TimeSegment_t;
     TimeSegment::PROPS._accepted_data = { Description_t, Feature_t, Word_t };
     TimeSegment::PROPS._annotation_type = AnnotationType::TIMESEGMENT;
     TimeSegment::PROPS._occurrences_per_set=0;
 
-    Caption::PROPS = AbstractStructureElement_PROPS;
+    Caption::PROPS = AbstractStructureElement::PROPS;
     Caption::PROPS._xmltag="caption";
     Caption::PROPS._element_id = Caption_t;
     Caption::PROPS._accepted_data = { Sentence_t, Reference_t, Description_t,
@@ -445,7 +449,7 @@ namespace folia {
 				      Correction_t, Part_t };
     Caption::PROPS._occurrences = 1;
 
-    Label::PROPS = AbstractStructureElement_PROPS;
+    Label::PROPS = AbstractStructureElement::PROPS;
     Label::PROPS._xmltag="label";
     Label::PROPS._element_id = Label_t;
     Label::PROPS._accepted_data =
@@ -453,7 +457,7 @@ namespace folia {
 	TokenAnnotation_t, Alignment_t,
 	Correction_t, Part_t };
 
-    Item::PROPS = AbstractStructureElement_PROPS;
+    Item::PROPS = AbstractStructureElement::PROPS;
     Item::PROPS._xmltag="item";
     Item::PROPS._element_id = Item_t;
     Item::PROPS._accepted_data = { Structure_t,
@@ -472,7 +476,7 @@ namespace folia {
 				   Feature_t };
     Item::PROPS._annotation_type = AnnotationType::LIST;
 
-    List::PROPS = AbstractStructureElement_PROPS;
+    List::PROPS = AbstractStructureElement::PROPS;
     List::PROPS._xmltag="list";
     List::PROPS._element_id = List_t;
     List::PROPS._accepted_data = { Structure_t,
@@ -488,7 +492,7 @@ namespace folia {
     List::PROPS._annotation_type = AnnotationType::LIST;
     List::PROPS.TEXTDELIMITER="\n";
 
-    Figure::PROPS = AbstractStructureElement_PROPS;
+    Figure::PROPS = AbstractStructureElement::PROPS;
     Figure::PROPS._xmltag="figure";
     Figure::PROPS._element_id = Figure_t;
     Figure::PROPS._accepted_data = { Sentence_t,
@@ -507,7 +511,7 @@ namespace folia {
 				     Part_t };
     Figure::PROPS._annotation_type = AnnotationType::FIGURE;
 
-    Paragraph::PROPS = AbstractStructureElement_PROPS;
+    Paragraph::PROPS = AbstractStructureElement::PROPS;
     Paragraph::PROPS._xmltag="p";
     Paragraph::PROPS._element_id = Paragraph_t;
     Paragraph::PROPS._accepted_data = { Sentence_t,
@@ -539,7 +543,7 @@ namespace folia {
     Paragraph::PROPS._annotation_type = AnnotationType::PARAGRAPH;
 
 
-    SyntacticUnit::PROPS = AbstractSpanAnnotation_PROPS;
+    SyntacticUnit::PROPS = AbstractSpanAnnotation::PROPS;
     SyntacticUnit::PROPS._xmltag = "su";
     SyntacticUnit::PROPS._element_id = SyntacticUnit_t;
     SyntacticUnit::PROPS._required_attributes = NO_ATT;
@@ -548,7 +552,7 @@ namespace folia {
       { SyntacticUnit_t, Word_t, WordReference_t,
 	Description_t, Feature_t };
 
-    SemanticRole::PROPS = AbstractSpanAnnotation_PROPS;
+    SemanticRole::PROPS = AbstractSpanAnnotation::PROPS;
     SemanticRole::PROPS._xmltag = "semrole";
     SemanticRole::PROPS._element_id = Semrole_t;
     SemanticRole::PROPS._required_attributes = CLASS;
@@ -557,7 +561,7 @@ namespace folia {
       { Word_t, WordReference_t, Lang_t, Headwords_t,
 	Alignment_t, Description_t, Metric_t };
 
-    Chunk::PROPS = AbstractSpanAnnotation_PROPS;
+    Chunk::PROPS = AbstractSpanAnnotation::PROPS;
     Chunk::PROPS._required_attributes = NO_ATT;
     Chunk::PROPS._xmltag = "chunk";
     Chunk::PROPS._element_id = Chunk_t;
@@ -565,7 +569,7 @@ namespace folia {
     Chunk::PROPS._accepted_data = { Word_t, WordReference_t, Lang_t,
 				    Description_t, Feature_t };
 
-    Entity::PROPS = AbstractSpanAnnotation_PROPS;
+    Entity::PROPS = AbstractSpanAnnotation::PROPS;
     Entity::PROPS._required_attributes = NO_ATT;
     Entity::PROPS._optional_attributes = ID|CLASS|ANNOTATOR|CONFIDENCE|DATETIME;
     Entity::PROPS._xmltag = "entity";
@@ -575,7 +579,7 @@ namespace folia {
 				     Description_t, Feature_t, Metric_t };
 
 
-    Alternative::PROPS = AbstractStructureElement_PROPS;
+    Alternative::PROPS = AbstractStructureElement::PROPS;
     Alternative::PROPS._xmltag = "alt";
     Alternative::PROPS._element_id = Alternative_t;
     Alternative::PROPS._required_attributes = NO_ATT;
@@ -590,30 +594,29 @@ namespace folia {
     AlternativeLayers::PROPS._accepted_data = { AnnotationLayer_t };
     AlternativeLayers::PROPS._auth = false;
 
-    properties AbstractCorrectionChild_PROPS = DEFAULT_PROPERTIES;
-    AbstractCorrectionChild_PROPS._optional_attributes = NO_ATT;
-    AbstractCorrectionChild_PROPS._accepted_data =
+    AbstractCorrectionChild::PROPS._optional_attributes = NO_ATT;
+    AbstractCorrectionChild::PROPS._accepted_data =
       { TokenAnnotation_t, SpanAnnotation_t,
 	Word_t, WordReference_t, String_t,
 	TextContent_t, Description_t };
-    AbstractCorrectionChild_PROPS._occurrences = 1;
-    AbstractCorrectionChild_PROPS.PRINTABLE=true;
-    AbstractCorrectionChild_PROPS.SPEAKABLE=true;
+    AbstractCorrectionChild::PROPS._occurrences = 1;
+    AbstractCorrectionChild::PROPS.PRINTABLE=true;
+    AbstractCorrectionChild::PROPS.SPEAKABLE=true;
 
-    NewElement::PROPS = AbstractCorrectionChild_PROPS;
+    NewElement::PROPS = AbstractCorrectionChild::PROPS;
     NewElement::PROPS._xmltag = "new";
     NewElement::PROPS._element_id = New_t;
 
-    Current::PROPS = AbstractCorrectionChild_PROPS;
+    Current::PROPS = AbstractCorrectionChild::PROPS;
     Current::PROPS._xmltag = "current";
     Current::PROPS._element_id = Current_t;
 
-    Original::PROPS = AbstractCorrectionChild_PROPS;
+    Original::PROPS = AbstractCorrectionChild::PROPS;
     Original::PROPS._xmltag = "original";
     Original::PROPS._element_id = Original_t;
     Original::PROPS._auth = false;
 
-    Suggestion::PROPS = AbstractCorrectionChild_PROPS;
+    Suggestion::PROPS = AbstractCorrectionChild::PROPS;
     Suggestion::PROPS._xmltag = "suggestion";
     Suggestion::PROPS._element_id = Suggestion_t;
     Suggestion::PROPS._optional_attributes = ANNOTATOR|CONFIDENCE|DATETIME|N;
@@ -622,7 +625,7 @@ namespace folia {
     Suggestion::PROPS._occurrences_per_set=0;
     Suggestion::PROPS._auth = false;
 
-    Correction::PROPS = AbstractTokenAnnotation_PROPS;
+    Correction::PROPS = AbstractTokenAnnotation::PROPS;
     Correction::PROPS._xmltag = "correction";
     Correction::PROPS._element_id = Correction_t;
     Correction::PROPS._required_attributes = NO_ATT;
@@ -638,7 +641,7 @@ namespace folia {
     Description::PROPS._element_id = Description_t;
     Description::PROPS._occurrences = 1;
 
-    Entry::PROPS = AbstractStructureElement_PROPS;
+    Entry::PROPS = AbstractStructureElement::PROPS;
     Entry::PROPS._xmltag = "entry";
     Entry::PROPS._element_id = Entry_t;
     Entry::PROPS._accepted_data =
@@ -646,7 +649,7 @@ namespace folia {
 	Description_t, Metric_t, Alignment_t,
 	AlternativeLayers_t, AnnotationLayer_t };
 
-    Definition::PROPS = AbstractStructureElement_PROPS;
+    Definition::PROPS = AbstractStructureElement::PROPS;
     Definition::PROPS._xmltag = "def";
     Definition::PROPS._element_id = Definition_t;
     Definition::PROPS._accepted_data =
@@ -656,7 +659,7 @@ namespace folia {
 	TokenAnnotation_t, Correction_t, Part_t };
     Definition::PROPS._annotation_type = AnnotationType::DEFINITION;
 
-    Term::PROPS = AbstractStructureElement_PROPS;
+    Term::PROPS = AbstractStructureElement::PROPS;
     Term::PROPS._xmltag = "term";
     Term::PROPS._element_id = Term_t;
     Term::PROPS._accepted_data =
@@ -666,7 +669,7 @@ namespace folia {
 	TokenAnnotation_t, Correction_t, Part_t };
     Term::PROPS._annotation_type = AnnotationType::TERM;
 
-    Example::PROPS = AbstractStructureElement_PROPS;
+    Example::PROPS = AbstractStructureElement::PROPS;
     Example::PROPS._xmltag = "ex";
     Example::PROPS._element_id = Example_t;
     Example::PROPS._accepted_data
@@ -688,7 +691,7 @@ namespace folia {
     External::PROPS.PRINTABLE = true;
     External::PROPS.SPEAKABLE = false;
 
-    Note::PROPS = AbstractStructureElement_PROPS;
+    Note::PROPS = AbstractStructureElement::PROPS;
     Note::PROPS._required_attributes = ID;
     Note::PROPS._xmltag = "note";
     Note::PROPS._element_id = Note_t;
@@ -713,7 +716,7 @@ namespace folia {
 				   Description_t };
     Note::PROPS._annotation_type = AnnotationType::NOTE;
 
-    Reference::PROPS = AbstractStructureElement_PROPS;
+    Reference::PROPS = AbstractStructureElement::PROPS;
     Reference::PROPS._xmltag = "ref";
     Reference::PROPS._element_id = Reference_t;
     Reference::PROPS._required_attributes = NO_ATT;
@@ -725,7 +728,7 @@ namespace folia {
     XmlComment::PROPS._xmltag = "xml-comment";
     XmlComment::PROPS._element_id = XmlComment_t;
 
-    Morpheme::PROPS = AbstractStructureElement_PROPS;
+    Morpheme::PROPS = AbstractStructureElement::PROPS;
     Morpheme::PROPS._element_id = Morpheme_t;
     Morpheme::PROPS._xmltag = "morpheme";
     Morpheme::PROPS._required_attributes = NO_ATT;
@@ -736,12 +739,11 @@ namespace folia {
 	Description_t, Morpheme_t };
     Morpheme::PROPS._annotation_type = AnnotationType::MORPHOLOGICAL;
 
-    properties AbstractAnnotationLayer_PROPS = DEFAULT_PROPERTIES;
-    AbstractAnnotationLayer_PROPS._xmltag = "annotationlayer";
-    AbstractAnnotationLayer_PROPS._element_id = AnnotationLayer_t;
-    AbstractAnnotationLayer_PROPS._optional_attributes = SETONLY;
+    AbstractAnnotationLayer::PROPS._xmltag = "annotationlayer";
+    AbstractAnnotationLayer::PROPS._element_id = AnnotationLayer_t;
+    AbstractAnnotationLayer::PROPS._optional_attributes = SETONLY;
 
-    SyntaxLayer::PROPS = AbstractAnnotationLayer_PROPS;
+    SyntaxLayer::PROPS = AbstractAnnotationLayer::PROPS;
     SyntaxLayer::PROPS._element_id = SyntaxLayer_t;
     SyntaxLayer::PROPS._xmltag = "syntax";
     SyntaxLayer::PROPS._accepted_data = { SyntacticUnit_t,
@@ -749,7 +751,7 @@ namespace folia {
 					  Correction_t };
     SyntaxLayer::PROPS._annotation_type = AnnotationType::SYNTAX;
 
-    ChunkingLayer::PROPS = AbstractAnnotationLayer_PROPS;
+    ChunkingLayer::PROPS = AbstractAnnotationLayer::PROPS;
     ChunkingLayer::PROPS._element_id = Chunking_t;
     ChunkingLayer::PROPS._xmltag = "chunking";
     ChunkingLayer::PROPS._accepted_data = { Chunk_t,
@@ -757,7 +759,7 @@ namespace folia {
 					    Correction_t };
     ChunkingLayer::PROPS._annotation_type = AnnotationType::CHUNKING;
 
-    EntitiesLayer::PROPS = AbstractAnnotationLayer_PROPS;
+    EntitiesLayer::PROPS = AbstractAnnotationLayer::PROPS;
     EntitiesLayer::PROPS._element_id = Entities_t;
     EntitiesLayer::PROPS._xmltag = "entities";
     EntitiesLayer::PROPS._accepted_data = { Entity_t,
@@ -765,28 +767,28 @@ namespace folia {
 					    Correction_t };
     EntitiesLayer::PROPS._annotation_type = AnnotationType::ENTITY;
 
-    TimingLayer::PROPS = AbstractAnnotationLayer_PROPS;
+    TimingLayer::PROPS = AbstractAnnotationLayer::PROPS;
     TimingLayer::PROPS._element_id = TimingLayer_t;
     TimingLayer::PROPS._xmltag = "timing";
     TimingLayer::PROPS._accepted_data = { TimeSegment_t,
 					  Description_t,
 					  Correction_t };
 
-    MorphologyLayer::PROPS = AbstractAnnotationLayer_PROPS;
+    MorphologyLayer::PROPS = AbstractAnnotationLayer::PROPS;
     MorphologyLayer::PROPS._element_id = MorphologyLayer_t;
     MorphologyLayer::PROPS._xmltag = "morphology";
     MorphologyLayer::PROPS._accepted_data = { Morpheme_t, Correction_t };
     MorphologyLayer::PROPS._occurrences_per_set = 1;
     MorphologyLayer::PROPS._annotation_type = AnnotationType::MORPHOLOGICAL;
 
-    PhonologyLayer::PROPS = AbstractAnnotationLayer_PROPS;
+    PhonologyLayer::PROPS = AbstractAnnotationLayer::PROPS;
     PhonologyLayer::PROPS._element_id = PhonologyLayer_t;
     PhonologyLayer::PROPS._xmltag = "phonology";
     PhonologyLayer::PROPS._accepted_data = { Phoneme_t, Correction_t };
     PhonologyLayer::PROPS._occurrences_per_set = 1;
     PhonologyLayer::PROPS._annotation_type = AnnotationType::PHONOLOGICAL;
 
-    CoreferenceLayer::PROPS = AbstractAnnotationLayer_PROPS;
+    CoreferenceLayer::PROPS = AbstractAnnotationLayer::PROPS;
     CoreferenceLayer::PROPS._element_id = Coreferences_t;
     CoreferenceLayer::PROPS._xmltag = "coreferences";
     CoreferenceLayer::PROPS._accepted_data = { CoreferenceChain_t,
@@ -794,7 +796,7 @@ namespace folia {
 					       Correction_t };
     CoreferenceLayer::PROPS._annotation_type = AnnotationType::COREFERENCE;
 
-    CoreferenceLink::PROPS = AbstractSpanAnnotation_PROPS;
+    CoreferenceLink::PROPS = AbstractSpanAnnotation::PROPS;
     CoreferenceLink::PROPS._element_id = CoreferenceLink_t;
     CoreferenceLink::PROPS._xmltag = "coreferencelink";
     CoreferenceLink::PROPS._required_attributes = NO_ATT;
@@ -806,7 +808,7 @@ namespace folia {
 	ModalityFeature_t, Metric_t};
     CoreferenceLink::PROPS._annotation_type = AnnotationType::COREFERENCE;
 
-    CoreferenceChain::PROPS = AbstractSpanAnnotation_PROPS;
+    CoreferenceChain::PROPS = AbstractSpanAnnotation::PROPS;
     CoreferenceChain::PROPS._element_id = CoreferenceChain_t;
     CoreferenceChain::PROPS._xmltag = "coreferencechain";
     CoreferenceChain::PROPS._required_attributes = NO_ATT;
@@ -815,7 +817,7 @@ namespace folia {
 					       Metric_t };
     CoreferenceChain::PROPS._annotation_type = AnnotationType::COREFERENCE;
 
-    SemanticRolesLayer::PROPS = AbstractAnnotationLayer_PROPS;
+    SemanticRolesLayer::PROPS = AbstractAnnotationLayer::PROPS;
     SemanticRolesLayer::PROPS._element_id = Semroles_t;
     SemanticRolesLayer::PROPS._xmltag = "semroles";
     SemanticRolesLayer::PROPS._accepted_data = { Semrole_t,
@@ -823,7 +825,7 @@ namespace folia {
 						 Correction_t };
     SemanticRolesLayer::PROPS._annotation_type = AnnotationType::SEMROLE;
 
-    DependenciesLayer::PROPS = AbstractAnnotationLayer_PROPS;
+    DependenciesLayer::PROPS = AbstractAnnotationLayer::PROPS;
     DependenciesLayer::PROPS._element_id = Dependencies_t;
     DependenciesLayer::PROPS._xmltag = "dependencies";
     DependenciesLayer::PROPS._accepted_data = { Dependency_t,
@@ -831,7 +833,7 @@ namespace folia {
 						Correction_t };
     DependenciesLayer::PROPS._annotation_type = AnnotationType::DEPENDENCY;
 
-    Dependency::PROPS = AbstractSpanAnnotation_PROPS;
+    Dependency::PROPS = AbstractSpanAnnotation::PROPS;
     Dependency::PROPS._element_id = Dependency_t;
     Dependency::PROPS._xmltag = "dependency";
     Dependency::PROPS._required_attributes = NO_ATT;
@@ -839,7 +841,7 @@ namespace folia {
     Dependency::PROPS._accepted_data = { DependencyDependent_t, Headwords_t,
 					 Feature_t, Description_t, Alignment_t };
 
-    DependencyDependent::PROPS = AbstractSpanAnnotation_PROPS;
+    DependencyDependent::PROPS = AbstractSpanAnnotation::PROPS;
     DependencyDependent::PROPS._element_id = DependencyDependent_t;
     DependencyDependent::PROPS._xmltag = "dep";
     DependencyDependent::PROPS._required_attributes = NO_ATT;
@@ -849,7 +851,7 @@ namespace folia {
       { Word_t, WordReference_t, PlaceHolder_t,
 	Description_t, Feature_t, Alignment_t };
 
-    Headwords::PROPS = AbstractSpanAnnotation_PROPS;
+    Headwords::PROPS = AbstractSpanAnnotation::PROPS;
     Headwords::PROPS._element_id = Headwords_t;
     Headwords::PROPS._xmltag = "hd";
     Headwords::PROPS._required_attributes = NO_ATT;
@@ -858,28 +860,28 @@ namespace folia {
 					Description_t, Feature_t, Metric_t,
 					Alignment_t, Lang_t };
 
-    PosAnnotation::PROPS = AbstractTokenAnnotation_PROPS;
+    PosAnnotation::PROPS = AbstractTokenAnnotation::PROPS;
     PosAnnotation::PROPS._xmltag="pos";
     PosAnnotation::PROPS._element_id = Pos_t;
     PosAnnotation::PROPS._annotation_type = AnnotationType::POS;
     PosAnnotation::PROPS._accepted_data =
       { Feature_t, Metric_t, Description_t };
 
-    LemmaAnnotation::PROPS = AbstractTokenAnnotation_PROPS;
+    LemmaAnnotation::PROPS = AbstractTokenAnnotation::PROPS;
     LemmaAnnotation::PROPS._xmltag="lemma";
     LemmaAnnotation::PROPS._element_id = Lemma_t;
     LemmaAnnotation::PROPS._annotation_type = AnnotationType::LEMMA;
     LemmaAnnotation::PROPS._accepted_data =
       { Feature_t, Metric_t, Description_t };
 
-    LangAnnotation::PROPS = AbstractTokenAnnotation_PROPS;
+    LangAnnotation::PROPS = AbstractTokenAnnotation::PROPS;
     LangAnnotation::PROPS._xmltag="lang";
     LangAnnotation::PROPS._element_id = Lang_t;
     LangAnnotation::PROPS._annotation_type = AnnotationType::LANG;
     LangAnnotation::PROPS._accepted_data =
       { Feature_t, Metric_t, Description_t };
 
-    Phoneme::PROPS = AbstractTokenAnnotation_PROPS;
+    Phoneme::PROPS = AbstractTokenAnnotation::PROPS;
     Phoneme::PROPS._xmltag="phoneme";
     Phoneme::PROPS._element_id = Phoneme_t;
     Phoneme::PROPS._required_attributes = NO_ATT;
@@ -887,27 +889,27 @@ namespace folia {
     Phoneme::PROPS._annotation_type = AnnotationType::PHON;
     Phoneme::PROPS._accepted_data = { PhonContent_t, Feature_t, Description_t };
 
-    DomainAnnotation::PROPS = AbstractTokenAnnotation_PROPS;
+    DomainAnnotation::PROPS = AbstractTokenAnnotation::PROPS;
     DomainAnnotation::PROPS._xmltag="domain";
     DomainAnnotation::PROPS._element_id = Domain_t;
     DomainAnnotation::PROPS._annotation_type = AnnotationType::DOMEIN;
     DomainAnnotation::PROPS._accepted_data = { Feature_t, Description_t };
 
-    SenseAnnotation::PROPS = AbstractTokenAnnotation_PROPS;
+    SenseAnnotation::PROPS = AbstractTokenAnnotation::PROPS;
     SenseAnnotation::PROPS._xmltag="sense";
     SenseAnnotation::PROPS._element_id = Sense_t;
     SenseAnnotation::PROPS._annotation_type = AnnotationType::SENSE;
     SenseAnnotation::PROPS._accepted_data =
       { Feature_t, SynsetFeature_t, Description_t, Metric_t };
 
-    SubjectivityAnnotation::PROPS = AbstractTokenAnnotation_PROPS;
+    SubjectivityAnnotation::PROPS = AbstractTokenAnnotation::PROPS;
     SubjectivityAnnotation::PROPS._xmltag="subjectivity";
     SubjectivityAnnotation::PROPS._element_id = Subjectivity_t;
     SubjectivityAnnotation::PROPS._annotation_type = AnnotationType::SUBJECTIVITY;
     SubjectivityAnnotation::PROPS._accepted_data =
       { Feature_t, Description_t };
 
-    Quote::PROPS = AbstractStructureElement_PROPS;
+    Quote::PROPS = AbstractStructureElement::PROPS;
     Quote::PROPS._xmltag="quote";
     Quote::PROPS._element_id = Quote_t;
     Quote::PROPS._required_attributes = NO_ATT;
@@ -952,7 +954,7 @@ namespace folia {
     TimeFeature::PROPS._xmltag = "time";
     TimeFeature::PROPS._element_id = TimeFeature_t;
 
-    ErrorDetection::PROPS = AbstractTokenAnnotation_PROPS;
+    ErrorDetection::PROPS = AbstractTokenAnnotation::PROPS;
     ErrorDetection::PROPS.
       _xmltag = "errordetection";
     ErrorDetection::PROPS.
@@ -962,40 +964,39 @@ namespace folia {
     ErrorDetection::PROPS.
       _occurrences_per_set = 0; // Allow duplicates within the same set
 
-    properties AbstractTextMarkup_PROPS = DEFAULT_PROPERTIES;
-    AbstractTextMarkup_PROPS._xmltag = "textmarkup";
-    AbstractTextMarkup_PROPS._element_id = AbstractTextMarkup_t;
-    AbstractTextMarkup_PROPS._required_attributes = NO_ATT;
-    AbstractTextMarkup_PROPS._optional_attributes = ALL;
-    AbstractTextMarkup_PROPS._annotation_type = AnnotationType::NO_ANN;
-    AbstractTextMarkup_PROPS._accepted_data =
+    AbstractTextMarkup::PROPS._xmltag = "textmarkup";
+    AbstractTextMarkup::PROPS._element_id = AbstractTextMarkup_t;
+    AbstractTextMarkup::PROPS._required_attributes = NO_ATT;
+    AbstractTextMarkup::PROPS._optional_attributes = ALL;
+    AbstractTextMarkup::PROPS._annotation_type = AnnotationType::NO_ANN;
+    AbstractTextMarkup::PROPS._accepted_data =
       { AbstractTextMarkup_t, XmlText_t };
-    AbstractTextMarkup_PROPS.PRINTABLE = true;
-    AbstractTextMarkup_PROPS.XLINK = true;
-    AbstractTextMarkup_PROPS.TEXTDELIMITER = "";
-    AbstractTextMarkup_PROPS._occurrences_per_set = 0;
+    AbstractTextMarkup::PROPS.PRINTABLE = true;
+    AbstractTextMarkup::PROPS.XLINK = true;
+    AbstractTextMarkup::PROPS.TEXTDELIMITER = "";
+    AbstractTextMarkup::PROPS._occurrences_per_set = 0;
 
-    TextMarkupString::PROPS = AbstractTextMarkup_PROPS;
+    TextMarkupString::PROPS = AbstractTextMarkup::PROPS;
     TextMarkupString::PROPS._xmltag = "t-str";
     TextMarkupString::PROPS._element_id = TextMarkupString_t;
     TextMarkupString::PROPS._annotation_type = AnnotationType::STRING;
 
-    TextMarkupGap::PROPS = AbstractTextMarkup_PROPS;
+    TextMarkupGap::PROPS = AbstractTextMarkup::PROPS;
     TextMarkupGap::PROPS._xmltag = "t-gap";
     TextMarkupGap::PROPS._element_id = TextMarkupGap_t;
     TextMarkupGap::PROPS._annotation_type = AnnotationType::GAP;
 
-    TextMarkupCorrection::PROPS = AbstractTextMarkup_PROPS;
+    TextMarkupCorrection::PROPS = AbstractTextMarkup::PROPS;
     TextMarkupCorrection::PROPS._xmltag = "t-correction";
     TextMarkupCorrection::PROPS._element_id = TextMarkupCorrection_t;
     TextMarkupCorrection::PROPS._annotation_type = AnnotationType::CORRECTION;
 
-    TextMarkupError::PROPS = AbstractTextMarkup_PROPS;
+    TextMarkupError::PROPS = AbstractTextMarkup::PROPS;
     TextMarkupError::PROPS._xmltag = "t-error";
     TextMarkupError::PROPS._element_id = TextMarkupError_t;
     TextMarkupError::PROPS._annotation_type = AnnotationType::ERRORDETECTION;
 
-    TextMarkupStyle::PROPS = AbstractTextMarkup_PROPS;
+    TextMarkupStyle::PROPS = AbstractTextMarkup::PROPS;
     TextMarkupStyle::PROPS._xmltag = "t-style";
     TextMarkupStyle::PROPS._element_id = TextMarkupStyle_t;
     TextMarkupStyle::PROPS._annotation_type = AnnotationType::STYLE;
