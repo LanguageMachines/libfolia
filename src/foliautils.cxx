@@ -718,6 +718,11 @@ namespace folia {
       cerr << e.what() << endl;
       return 0;
     }
+    return createElement( doc, et );
+  }
+
+  FoliaElement *FoliaImpl::createElement( Document *doc,
+					  ElementType et ){
     switch ( et ){
     case BASE:
       return new FoLiA( doc );

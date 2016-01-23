@@ -447,6 +447,7 @@ namespace folia {
     //Constructor
     FoliaImpl( const properties& p, Document* = 0 );
     // static element Constructor
+    static FoliaElement *createElement( Document *, ElementType );
     static FoliaElement *createElement( Document *, const std::string&  );
     virtual ~FoliaImpl();
 
