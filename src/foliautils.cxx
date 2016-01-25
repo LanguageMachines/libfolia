@@ -913,12 +913,15 @@ namespace folia {
     case Part_t:
       return new Part( doc );
     case SpanAnnotation_t:
+      return new AbstractSpanAnnotation( doc );
     case TokenAnnotation_t:
+      return new AbstractTokenAnnotation( doc );
     case Structure_t:
+      return new AbstractStructureElement( doc );
     case AnnotationLayer_t:
+      return new AbstractAnnotationLayer( doc );
     case AbstractTextMarkup_t:
-      throw ValueError( "Illegal attempt to create an abstract instance of type '"
-		       + toString(et) + "'" );
+      return new AbstractTextMarkup( doc );
     default:
       throw ValueError( "unknown elementtype(" + toString(int(et)) + ")" );
     }
