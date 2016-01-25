@@ -756,11 +756,10 @@ namespace folia {
     public AllowCorrection {
       friend void static_init();
   public:
-  AbstractStructureElement( Document *d=0 ):
-      FoliaImpl( PROPS, d ){ classInit(); };
   AbstractStructureElement( const properties& props, Document *d=0 ):
       FoliaImpl( props, d ){ classInit(); };
-
+  AbstractStructureElement( Document *d=0 ):
+      AbstractStructureElement( PROPS, d ){};
 
       const std::string str( const std::string& = "current" ) const;
       std::vector<Alternative *> alternatives( ElementType = BASE,
@@ -784,10 +783,10 @@ namespace folia {
   class AbstractAnnotation: public FoliaImpl {
     friend void static_init();
   public:
-  AbstractAnnotation( Document *d=0 ):
-    FoliaImpl( PROPS, d ){};
   AbstractAnnotation( const properties& props, Document *d=0 ):
     FoliaImpl( props, d ){};
+  AbstractAnnotation( Document *d=0 ):
+    AbstractAnnotation( PROPS, d ){};
   private:
     static properties PROPS;
   };
@@ -797,10 +796,10 @@ namespace folia {
     public AllowGenerateID {
       friend void static_init();
   public:
-  AbstractTokenAnnotation( Document *d=0 ):
-      AbstractAnnotation( PROPS, d ){ classInit(); };
   AbstractTokenAnnotation( const properties& props, Document *d=0 ):
       AbstractAnnotation( props, d ){ classInit(); };
+  AbstractTokenAnnotation( Document *d=0 ):
+      AbstractTokenAnnotation( PROPS, d ){};
   private:
       static properties PROPS;
     };
@@ -808,12 +807,20 @@ namespace folia {
   class Feature: public FoliaImpl {
     friend void static_init();
   public:
-  Feature( const std::string& s=""): FoliaImpl(PROPS){ classInit( s ); }
-  Feature( const properties& p, const std::string& s=""): FoliaImpl(p){ classInit( s ); }
-  Feature( const KWargs& a ): FoliaImpl(PROPS){ classInit( a ); }
-  Feature( Document *d, const std::string& s=""): FoliaImpl(PROPS,d){ classInit( s ); }
-  Feature( const properties&p, Document *d, const std::string& s=""): FoliaImpl(p,d){ classInit( s ); }
-  Feature( Document *d, const KWargs& a ): FoliaImpl(PROPS,d){ classInit( a ); }
+  Feature( const properties&p, Document *d, const std::string& s=""):
+    FoliaImpl(p,d){ classInit( s ); }
+  Feature( const std::string& s=""):
+    Feature(PROPS, 0, s ){}
+  Feature( const properties& p, const std::string& s=""):
+    Feature(p,0,s){}
+  Feature( Document *d, const std::string& s=""):
+    Feature(PROPS,d,s){}
+
+  Feature( Document *d, const KWargs& a ):
+    FoliaImpl(PROPS,d){ classInit( a ); }
+  Feature( const KWargs& a ):
+    Feature(0, a){}
+
     void setAttributes( const KWargs& );
     KWargs collectAttributes() const;
     const std::string subset() const { return _subset; };
@@ -830,10 +837,11 @@ namespace folia {
     {
       friend void static_init();
     public:
-    AbstractSpanAnnotation( Document *d=0 ):
-      AbstractAnnotation( PROPS, d ){ classInit(); };
     AbstractSpanAnnotation( const properties& props, Document *d=0 ):
       AbstractAnnotation( props, d ){ classInit(); };
+    AbstractSpanAnnotation( Document *d=0 ):
+      AbstractSpanAnnotation( PROPS, d ){};
+
       xmlNode *xml( bool, bool=false ) const;
       FoliaElement *append( FoliaElement* );
 
@@ -849,10 +857,11 @@ namespace folia {
   class AbstractTextMarkup: public AbstractAnnotation {
     friend void static_init();
   public:
-  AbstractTextMarkup( Document *d=0 ):
-    AbstractAnnotation( PROPS, d ){ classInit(); };
   AbstractTextMarkup( const properties& props, Document *d=0 ):
     AbstractAnnotation( props, d ){ classInit(); };
+  AbstractTextMarkup( Document *d=0 ):
+    AbstractTextMarkup( PROPS, d ){};
+
     void setAttributes( const KWargs& );
     KWargs collectAttributes() const;
     const FoliaElement* resolveid() const;
