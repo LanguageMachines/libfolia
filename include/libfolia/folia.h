@@ -75,7 +75,7 @@ namespace folia {
     friend bool operator==( const FoliaElement&, const FoliaElement& );
   public:
     virtual ~FoliaElement(){};
-    virtual void init()=0;
+    virtual void init() {};
 
     virtual size_t size() const = 0;
     virtual FoliaElement* index( size_t ) const = 0;
@@ -779,7 +779,6 @@ namespace folia {
       const Word* resolveword( const std::string& ) const;
   private:
       static properties PROPS;
-      void init();
     };
 
   class AbstractAnnotation: public FoliaImpl {
@@ -804,7 +803,6 @@ namespace folia {
       AbstractAnnotation( props, d ){ classInit(); };
   private:
       static properties PROPS;
-      void init();
     };
 
   class Feature: public FoliaImpl {
@@ -821,10 +819,8 @@ namespace folia {
     const std::string subset() const { return _subset; };
   protected:
     std::string _subset;
-
   private:
     static properties PROPS;
-    void init();
   };
 
   class AbstractSpanAnnotation: public AbstractAnnotation,
@@ -846,7 +842,6 @@ namespace folia {
 
     private:
       static properties PROPS;
-      void init();
     };
 
   const std::string EMPTY_STRING = "";
@@ -868,7 +863,6 @@ namespace folia {
     std::string idref;
   private:
     static properties PROPS;
-    void init();
   };
 
   class TextMarkupGap: public AbstractTextMarkup {
@@ -878,7 +872,6 @@ namespace folia {
     AbstractTextMarkup( PROPS, d ) { classInit(); };
   private:
     static properties PROPS;
-    void init();
   };
 
   class TextMarkupString: public AbstractTextMarkup {
@@ -888,7 +881,6 @@ namespace folia {
     AbstractTextMarkup( PROPS, d ) { classInit(); };
   private:
     static properties PROPS;
-    void init();
   };
 
   class TextMarkupCorrection: public AbstractTextMarkup {
@@ -902,7 +894,6 @@ namespace folia {
 			      bool = false, bool = false ) const;
   private:
     static properties PROPS;
-    void init();
     std::string _original;
   };
 
@@ -913,7 +904,6 @@ namespace folia {
     AbstractTextMarkup( PROPS, d ){ classInit(); };
   private:
     static properties PROPS;
-    void init();
   };
 
   class TextMarkupStyle: public AbstractTextMarkup {
@@ -923,7 +913,6 @@ namespace folia {
     AbstractTextMarkup( PROPS, d ){ classInit(); };
   private:
     static properties PROPS;
-    void init();
   };
 
   class TextContent: public FoliaImpl {
@@ -959,11 +948,8 @@ namespace folia {
     const UnicodeString phon( const std::string& = "current",
 			      bool = false ) const;
     int offset() const { return _offset; };
-    /* TextContent *postappend(); */
-    /* std::vector<FoliaElement*> findreplacables( FoliaElement * ) const; */
   private:
     static properties PROPS;
-    void init();
     int _offset;
   };
 
@@ -977,7 +963,6 @@ namespace folia {
       { classInit( a ); };
   private:
     static properties PROPS;
-    void init();
   };
 
   class DCOI: public FoliaImpl {
@@ -989,7 +974,6 @@ namespace folia {
   DCOI( Document *d, const KWargs& a ): FoliaImpl(PROPS, d) { classInit( a ); };
   private:
     static properties PROPS;
-    void init();
   };
 
   class Head: public AbstractStructureElement {
@@ -1005,7 +989,6 @@ namespace folia {
     AbstractStructureElement( PROPS, d ) {  classInit( a ); };
   private:
     static properties PROPS;
-    void init();
   };
 
   class TableHead: public AbstractStructureElement {
@@ -1021,7 +1004,6 @@ namespace folia {
     AbstractStructureElement( PROPS, d ) {  classInit( a ); };
   private:
     static properties PROPS;
-    void init();
   };
 
   class Table: public AbstractStructureElement {
@@ -1037,7 +1019,6 @@ namespace folia {
     AbstractStructureElement( PROPS, d ) {  classInit( a ); };
   private:
     static properties PROPS;
-    void init();
   };
 
   class Row: public AbstractStructureElement {
@@ -1053,7 +1034,6 @@ namespace folia {
     AbstractStructureElement( PROPS, d ) {  classInit( a ); };
   private:
     static properties PROPS;
-    void init();
   };
 
   class Cell: public AbstractStructureElement {
@@ -1069,7 +1049,6 @@ namespace folia {
     AbstractStructureElement( PROPS, d ) {  classInit( a ); };
   private:
     static properties PROPS;
-    void init();
   };
 
   class Gap: public FoliaImpl {
@@ -1086,7 +1065,6 @@ namespace folia {
     const std::string content() const;
   private:
     static properties PROPS;
-    void init();
   };
 
   class Content: public FoliaImpl {
@@ -1105,7 +1083,6 @@ namespace folia {
     const std::string content() const { return value; };
   private:
     static properties PROPS;
-    void init();
     std::string value;
   };
 
@@ -1122,7 +1099,6 @@ namespace folia {
     FoliaImpl(PROPS,d) { classInit( a ); };
   private:
     static properties PROPS;
-    void init();
   };
 
   class Division: public AbstractStructureElement {
@@ -1139,7 +1115,6 @@ namespace folia {
     Head *head() const;
   private:
     static properties PROPS;
-    void init();
   };
 
   class LineBreak: public AbstractStructureElement {
@@ -1159,7 +1134,6 @@ namespace folia {
     }
   private:
     static properties PROPS;
-    void init();
   };
 
   class WhiteSpace: public AbstractStructureElement {
@@ -1175,7 +1149,6 @@ namespace folia {
     AbstractStructureElement( PROPS, d ){ classInit( a ); };
   private:
     static properties PROPS;
-    void init();
   };
 
   class Word: public AbstractStructureElement {
@@ -1238,7 +1211,6 @@ namespace folia {
     AbstractStructureElement( PROPS, d ){ classInit( a ); };
   private:
     static properties PROPS;
-    void init();
   };
 
   class String:
@@ -1257,7 +1229,6 @@ namespace folia {
       AbstractTokenAnnotation( PROPS, d ){ classInit( a ); };
   private:
       static properties PROPS;
-      void init();
     };
 
   class PlaceHolder: public Word {
@@ -1274,7 +1245,6 @@ namespace folia {
     void setAttributes( const KWargs& );
   private:
     static properties PROPS;
-    void init();
   };
 
   class Sentence: public AbstractStructureElement {
@@ -1302,7 +1272,6 @@ namespace folia {
     Correction *correctWords( const std::vector<FoliaElement *>&,
 			      const std::vector<FoliaElement *>&,
 			      const KWargs& );
-    void init();
   };
 
   class Speech: public AbstractStructureElement {
@@ -1318,7 +1287,6 @@ namespace folia {
     AbstractStructureElement( PROPS, d ){ classInit( a ); };
   private:
     static properties PROPS;
-    void init();
   };
 
   class Text: public AbstractStructureElement {
@@ -1334,7 +1302,6 @@ namespace folia {
     AbstractStructureElement( PROPS, d ){ classInit( a ); };
   private:
     static properties PROPS;
-    void init();
   };
 
   class Utterance: public AbstractStructureElement {
@@ -1350,7 +1317,6 @@ namespace folia {
     AbstractStructureElement( PROPS, d ){ classInit( a ); };
   private:
     static properties PROPS;
-    void init();
   };
 
   class Event: public AbstractStructureElement {
@@ -1366,7 +1332,6 @@ namespace folia {
     AbstractStructureElement( PROPS, d ){ classInit( a ); };
   private:
     static properties PROPS;
-    void init();
   };
 
   class Caption: public AbstractStructureElement {
@@ -1382,7 +1347,6 @@ namespace folia {
     AbstractStructureElement( PROPS, d ){ classInit( a ); };
   private:
     static properties PROPS;
-    void init();
   };
 
   class Label: public AbstractStructureElement {
@@ -1398,7 +1362,6 @@ namespace folia {
     AbstractStructureElement( PROPS, d ){ classInit( a ); };
   private:
     static properties PROPS;
-    void init();
   };
 
   class Item: public AbstractStructureElement {
@@ -1414,7 +1377,6 @@ namespace folia {
     AbstractStructureElement( PROPS, d ){ classInit( a ); };
   private:
     static properties PROPS;
-    void init();
   };
 
   class List: public AbstractStructureElement {
@@ -1430,7 +1392,6 @@ namespace folia {
     AbstractStructureElement( PROPS, d ){ classInit( a ); };
   private:
     static properties PROPS;
-    void init();
   };
 
   class Figure: public AbstractStructureElement {
@@ -1448,7 +1409,6 @@ namespace folia {
     const UnicodeString caption() const;
   private:
     static properties PROPS;
-    void init();
   };
 
   class Paragraph: public AbstractStructureElement {
@@ -1464,7 +1424,6 @@ namespace folia {
     AbstractStructureElement( PROPS, d ){ classInit( a ); };
   private:
     static properties PROPS;
-    void init();
   };
 
   class Alternative: public AbstractStructureElement {
@@ -1479,8 +1438,8 @@ namespace folia {
   Alternative( Document *d, const KWargs& a ):
     AbstractStructureElement( PROPS, d ){ classInit( a ); };
   private:
-    static properties PROPS;
     void init();
+    static properties PROPS;
   };
 
 
@@ -1496,8 +1455,8 @@ namespace folia {
   AlternativeLayers( Document *d, const KWargs& a ):
     FoliaImpl(PROPS,d){ classInit( a ); };
   private:
-    static properties PROPS;
     void init();
+    static properties PROPS;
   };
 
   template <typename F>
@@ -1538,7 +1497,6 @@ namespace folia {
     AbstractTokenAnnotation( PROPS, d ){ classInit( a ); };
   private:
     static properties PROPS;
-    void init();
   };
 
   class LemmaAnnotation: public AbstractTokenAnnotation {
@@ -1554,7 +1512,6 @@ namespace folia {
     AbstractTokenAnnotation( PROPS, d ){ classInit( a ); };
   private:
     static properties PROPS;
-    void init();
   };
 
   class LangAnnotation: public AbstractTokenAnnotation {
@@ -1570,7 +1527,6 @@ namespace folia {
     AbstractTokenAnnotation( PROPS, d ){ classInit( a ); };
   private:
     static properties PROPS;
-    void init();
   };
 
   class Phoneme: public AbstractTokenAnnotation {
@@ -1586,7 +1542,6 @@ namespace folia {
     AbstractTokenAnnotation( PROPS, d ){ classInit( a ); };
   private:
     static properties PROPS;
-    void init();
   };
 
   class DomainAnnotation: public AbstractTokenAnnotation {
@@ -1602,7 +1557,6 @@ namespace folia {
     AbstractTokenAnnotation( PROPS, d ){ classInit( a ); };
   private:
     static properties PROPS;
-    void init();
   };
 
   class SenseAnnotation: public AbstractTokenAnnotation {
@@ -1618,7 +1572,6 @@ namespace folia {
     AbstractTokenAnnotation( PROPS, d ){ classInit( a ); };
   private:
     static properties PROPS;
-    void init();
   };
 
   class SubjectivityAnnotation: public AbstractTokenAnnotation {
@@ -1634,7 +1587,6 @@ namespace folia {
     AbstractTokenAnnotation( PROPS, d ){ classInit( a ); };
   private:
     static properties PROPS;
-    void init();
   };
 
   class Quote: public AbstractStructureElement {
@@ -1653,7 +1605,6 @@ namespace folia {
     const std::string& getTextDelimiter( bool=false) const;
   private:
     static properties PROPS;
-    void init();
   };
 
   class BeginDateTimeFeature: public Feature {
@@ -1847,7 +1798,6 @@ namespace folia {
     std::vector<FoliaElement *>resolve() const;
   private:
     static properties PROPS;
-    void init();
   };
 
   class AlignReference: public FoliaImpl {
@@ -1866,7 +1816,6 @@ namespace folia {
     void setAttributes( const KWargs& );
   private:
     static properties PROPS;
-    void init();
     FoliaElement* parseXml( const xmlNode *node );
     FoliaElement *resolve( const Alignment *ref ) const;
     std::string refId;
@@ -1887,7 +1836,6 @@ namespace folia {
     AbstractSpanAnnotation( PROPS, d ){ classInit( a ); }
   private:
     static properties PROPS;
-    void init();
   };
 
   class Chunk: public AbstractSpanAnnotation {
@@ -1903,7 +1851,6 @@ namespace folia {
     AbstractSpanAnnotation( PROPS, d ){ classInit( a ); }
   private:
     static properties PROPS;
-    void init();
   };
 
   class Entity: public AbstractSpanAnnotation {
@@ -1919,7 +1866,6 @@ namespace folia {
     AbstractSpanAnnotation( PROPS, d ){ classInit( a ); }
   private:
     static properties PROPS;
-    void init();
   };
 
   class Headwords: public AbstractSpanAnnotation {
@@ -1935,7 +1881,6 @@ namespace folia {
     AbstractSpanAnnotation( PROPS, d ){ classInit( a ); }
   private:
     static properties PROPS;
-    void init();
   };
 
   class DependencyDependent: public AbstractSpanAnnotation {
@@ -1951,7 +1896,6 @@ namespace folia {
     AbstractSpanAnnotation( PROPS, d ){ classInit( a ); }
   private:
     static properties PROPS;
-    void init();
   };
 
   class Dependency: public AbstractSpanAnnotation {
@@ -1969,7 +1913,6 @@ namespace folia {
     DependencyDependent *dependent() const;
   private:
     static properties PROPS;
-    void init();
   };
 
   class CoreferenceLink: public AbstractSpanAnnotation {
@@ -1985,7 +1928,6 @@ namespace folia {
     AbstractSpanAnnotation( PROPS, d ){ classInit( a ); }
   private:
     static properties PROPS;
-    void init();
   };
 
   class CoreferenceChain: public AbstractSpanAnnotation {
@@ -2001,7 +1943,6 @@ namespace folia {
     AbstractSpanAnnotation( PROPS, d ){ classInit( a ); }
   private:
     static properties PROPS;
-    void init();
   };
 
   class SemanticRole: public AbstractSpanAnnotation {
@@ -2017,7 +1958,6 @@ namespace folia {
     AbstractSpanAnnotation( PROPS, d ){ classInit( a ); }
   private:
     static properties PROPS;
-    void init();
   };
 
   class AbstractAnnotationLayer: public FoliaImpl,
@@ -2040,7 +1980,6 @@ namespace folia {
     FoliaElement *append( FoliaElement * );
   private:
     static properties PROPS;
-    void init();
     void assignset( FoliaElement * );
   };
 
@@ -2053,7 +1992,6 @@ namespace folia {
     FoliaImpl( props, d ){ classInit(); };
   private:
     static properties PROPS;
-    void init();
   };
 
   class NewElement: public AbstractCorrectionChild {
@@ -2069,7 +2007,6 @@ namespace folia {
     AbstractCorrectionChild( PROPS, d ) { classInit( a ); };
   private:
     static properties PROPS;
-    void init();
   };
 
   class Current: public AbstractCorrectionChild {
@@ -2085,7 +2022,6 @@ namespace folia {
     AbstractCorrectionChild( PROPS, d ) { classInit( a ); };
   private:
     static properties PROPS;
-    void init();
   };
 
   class Original: public AbstractCorrectionChild {
@@ -2137,7 +2073,6 @@ namespace folia {
     xmlNode *xml( bool, bool=false ) const;
   private:
     static properties PROPS;
-    void init();
     std::string _value;
   };
 
@@ -2156,7 +2091,6 @@ namespace folia {
     xmlNode *xml( bool, bool=false ) const;
   private:
     static properties PROPS;
-    void init();
     std::string _value;
   };
 
@@ -2179,7 +2113,6 @@ namespace folia {
 			      bool = false, bool = false ) const;
   private:
     static properties PROPS;
-    void init();
     std::string _value; //UTF8 value
   };
 
@@ -2218,7 +2151,6 @@ namespace folia {
     void setAttributes( const KWargs& );
   private:
     static properties PROPS;
-    void init();
     std::string refId;
   };
 
@@ -2235,7 +2167,6 @@ namespace folia {
     AbstractStructureElement( PROPS, d ){ classInit( a ); };
   private:
     static properties PROPS;
-    void init();
   };
 
   class Term: public AbstractStructureElement {
@@ -2251,7 +2182,6 @@ namespace folia {
     AbstractStructureElement( PROPS, d ){ classInit( a ); };
   private:
     static properties PROPS;
-    void init();
   };
 
   class Example: public AbstractStructureElement {
@@ -2267,7 +2197,6 @@ namespace folia {
     AbstractStructureElement( PROPS, d ){ classInit( a ); };
   private:
     static properties PROPS;
-    void init();
   };
 
   class Entry: public AbstractStructureElement {
@@ -2283,7 +2212,6 @@ namespace folia {
     AbstractStructureElement( PROPS, d ){ classInit( a ); };
   private:
     static properties PROPS;
-    void init();
   };
 
   class Reference: public AbstractStructureElement {
@@ -2302,7 +2230,6 @@ namespace folia {
     void setAttributes( const KWargs& );
   private:
     static properties PROPS;
-    void init();
     std::string refId;
     std::string ref_type;
   };
@@ -2338,7 +2265,6 @@ namespace folia {
     const std::string& getTextDelimiter( bool=false) const;
   private:
     static properties PROPS;
-    void init();
   };
 
   class ErrorDetection: public AbstractTokenAnnotation  {
@@ -2354,7 +2280,6 @@ namespace folia {
     AbstractTokenAnnotation( PROPS, d ){ classInit( a ); }
   private:
     static properties PROPS;
-    void init();
   };
 
   class TimeSegment: public AbstractSpanAnnotation {
@@ -2370,7 +2295,6 @@ namespace folia {
     AbstractSpanAnnotation( PROPS, d ){ classInit( a ); }
   private:
     static properties PROPS;
-    void init();
   };
 
   class Morpheme: public AbstractStructureElement {
@@ -2385,7 +2309,6 @@ namespace folia {
   Morpheme( Document *d, const KWargs& a ): AbstractStructureElement( PROPS, d ){ classInit( a ); }
   private:
     static properties PROPS;
-    void init();
   };
 
   class SyntaxLayer: public AbstractAnnotationLayer {
@@ -2401,7 +2324,6 @@ namespace folia {
     AbstractAnnotationLayer( PROPS, d ){ classInit( a ); }
   private:
     static properties PROPS;
-    void init();
   };
 
   class ChunkingLayer: public AbstractAnnotationLayer {
@@ -2417,7 +2339,6 @@ namespace folia {
     AbstractAnnotationLayer( PROPS, d ){ classInit( a ); }
   private:
     static properties PROPS;
-    void init();
   };
 
   class EntitiesLayer: public AbstractAnnotationLayer {
@@ -2433,7 +2354,6 @@ namespace folia {
     AbstractAnnotationLayer( PROPS, d ){ classInit( a ); }
   private:
     static properties PROPS;
-    void init();
   };
 
   class TimingLayer: public AbstractAnnotationLayer {
@@ -2449,7 +2369,6 @@ namespace folia {
     AbstractAnnotationLayer( PROPS, d ){ classInit( a ); }
   private:
     static properties PROPS;
-    void init();
   };
 
   class MorphologyLayer: public AbstractAnnotationLayer {
@@ -2465,7 +2384,6 @@ namespace folia {
     AbstractAnnotationLayer( PROPS, d ){ classInit( a ); }
   private:
     static properties PROPS;
-    void init();
   };
 
   class PhonologyLayer: public AbstractAnnotationLayer {
@@ -2481,7 +2399,6 @@ namespace folia {
     AbstractAnnotationLayer( PROPS, d ){ classInit( a ); }
   private:
     static properties PROPS;
-    void init();
   };
 
   class DependenciesLayer: public AbstractAnnotationLayer {
@@ -2497,7 +2414,6 @@ namespace folia {
     AbstractAnnotationLayer( PROPS, d ){ classInit( a ); }
   private:
     static properties PROPS;
-    void init();
   };
 
   class CoreferenceLayer: public AbstractAnnotationLayer {
@@ -2513,7 +2429,6 @@ namespace folia {
     AbstractAnnotationLayer( PROPS, d ){ classInit( a ); }
   private:
     static properties PROPS;
-    void init();
   };
 
   class SemanticRolesLayer: public AbstractAnnotationLayer {
@@ -2529,7 +2444,6 @@ namespace folia {
     AbstractAnnotationLayer( PROPS, d ){ classInit( a ); }
   private:
     static properties PROPS;
-    void init();
   };
 
   std::string VersionName();

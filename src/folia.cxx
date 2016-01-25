@@ -3081,133 +3081,17 @@ namespace folia {
     }
   }
 
-  void FoLiA::init(){
-  }
-
-  void DCOI::init(){
-  }
-
-  void AbstractStructureElement::init(){
-  }
-
-  void AbstractTokenAnnotation::init(){
-  }
-
   void TextContent::init(){
     _offset = -1;
 
   }
 
-  void PhonContent::init(){
-  }
-
-  void Head::init() {
-  }
-
-  void TableHead::init() {
-  }
-
-  void Table::init() {
-  }
-
-  void Cell::init() {
-  }
-
-  void Row::init() {
-  }
-
-  void LineBreak::init(){
-  }
-
-  void WhiteSpace::init(){
-  }
-
   void Word::init(){
-
     space = true;
-  }
-
-  void String::init(){
-  }
-
-  void Part::init(){
-  }
-
-  void PlaceHolder::init(){
   }
 
   void WordReference::init(){
     _auth = false;
-  }
-
-  void Alignment::init(){
-  }
-
-  void AlignReference::init(){
-  }
-
-
-  void Gap::init(){
-  }
-
-  void MetricAnnotation::init(){
-  }
-
-  void Content::init(){
-  }
-
-  void Sentence::init(){
-  }
-
-  void Division::init(){
-  }
-
-  void Text::init(){
-  }
-
-  void Speech::init(){
-  }
-
-  void Utterance::init(){
-  }
-
-  void Event::init(){
-  }
-
-  void TimeSegment::init(){
-  }
-
-  void Caption::init(){
-  }
-
-  void Label::init(){
-  }
-
-  void Item::init(){
-  }
-
-  void List::init(){
-  }
-
-  void Figure::init(){
-  }
-
-  void Paragraph::init(){
-  }
-
-  void SyntacticUnit::init(){
-  }
-
-  void SemanticRole::init(){
-  }
-
-  void Chunk::init(){
-  }
-
-  void Entity::init(){
-  }
-
-  void AbstractAnnotationLayer::init(){
   }
 
   vector<AbstractSpanAnnotation*> FoliaImpl::selectSpan() const {
@@ -3277,27 +3161,12 @@ namespace folia {
     _auth = false;
   }
 
-  void AbstractCorrectionChild::init(){
-  }
-
-  void NewElement::init(){
-  }
-
-  void Current::init(){
-  }
-
   void Original::init(){
     _auth = false;
   }
 
   void Suggestion::init(){
     _auth = false;
-  }
-
-  void Correction::init(){
-  }
-
-  void Description::init(){
   }
 
   const UnicodeString XmlText::text( const string&, bool, bool ) const {
@@ -3316,21 +3185,6 @@ namespace folia {
       throw ValueError( "TextContent may not be empty" );
     }
     return this;
-  }
-
-  void Entry::init(){
-  }
-
-  void Definition::init(){
-  }
-
-  void Term::init(){
-  }
-
-  void Example::init(){
-  }
-
-  void XmlText::init(){
   }
 
   void External::init(){
@@ -3413,9 +3267,6 @@ namespace folia {
     FoliaImpl::setAttributes(kwargs);
   }
 
-  void Note::init(){
-  }
-
   KWargs Note::collectAttributes() const {
     KWargs attribs = FoliaImpl::collectAttributes();
     return attribs;
@@ -3427,9 +3278,6 @@ namespace folia {
       refId = it->second;
     }
     FoliaImpl::setAttributes( args );
-  }
-
-  void Reference::init(){
   }
 
   KWargs Reference::collectAttributes() const {
@@ -3464,9 +3312,6 @@ namespace folia {
     if ( node->content )
       _value = (const char*)node->content;
     return this;
-  }
-
-  void XmlComment::init(){
   }
 
   void Feature::setAttributes( const KWargs& kwargs ){
@@ -3585,78 +3430,6 @@ namespace folia {
       return mydoc->index(idref);
   }
 
-  void Morpheme::init(){
-  }
-
-  void SyntaxLayer::init(){
-  }
-
-  void ChunkingLayer::init(){
-  }
-
-  void EntitiesLayer::init(){
-  }
-
-  void TimingLayer::init(){
-  }
-
-  void MorphologyLayer::init(){
-  }
-
-  void PhonologyLayer::init(){
-  }
-
-  void CoreferenceLayer::init(){
-  }
-
-  void CoreferenceLink::init(){
-  }
-
-  void CoreferenceChain::init(){
-  }
-
-  void SemanticRolesLayer::init(){
-  }
-
-  void DependenciesLayer::init(){
-  }
-
-  void Dependency::init(){
-  }
-
-  void DependencyDependent::init(){
-  }
-
-  void Headwords::init(){
-  }
-
-  void PosAnnotation::init(){
-  }
-
-  void LemmaAnnotation::init(){
-  }
-
-  void LangAnnotation::init(){
-  }
-
-  void Phoneme::init(){
-  }
-
-  void DomainAnnotation::init(){
-  }
-
-  void SenseAnnotation::init(){
-  }
-
-  void SubjectivityAnnotation::init(){
-  }
-
-  void Quote::init(){
-  }
-
-  void Feature::init() {
-  }
-
   void BeginDateTimeFeature::init(){
     _subset = "begindatetime";
   }
@@ -3666,7 +3439,6 @@ namespace folia {
   }
 
   void SynsetFeature::init(){
-
     _subset = "synset";
   }
 
@@ -3696,30 +3468,6 @@ namespace folia {
 
   void TimeFeature::init(){
     _subset = "time";
-  }
-
-  void AbstractSpanAnnotation::init() {
-  }
-
-  void ErrorDetection::init(){
-  }
-
-  void AbstractTextMarkup::init(){
-  }
-
-  void TextMarkupString::init(){
-  }
-
-  void TextMarkupGap::init(){
-  }
-
-  void TextMarkupCorrection::init(){
-  }
-
-  void TextMarkupError::init(){
-  }
-
-  void TextMarkupStyle::init(){
   }
 
 } // namespace folia
