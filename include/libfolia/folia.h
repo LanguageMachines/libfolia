@@ -667,9 +667,7 @@ namespace folia {
 
   bool isSubClass( const ElementType e1, const ElementType e2 );
 
-  inline bool isSubClass( const FoliaElement *e1, const FoliaElement *e2 ){
-    return dynamic_cast<decltype(e2)>(e1) != 0;
-  }
+  bool isSubClass( const FoliaElement *e1, const FoliaElement *e2 );
 
   template <typename T1, typename T2>
     bool isSubClass(){

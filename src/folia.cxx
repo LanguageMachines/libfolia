@@ -35,6 +35,7 @@
 #include <vector>
 #include <map>
 #include <algorithm>
+#include <type_traits>
 #include <stdexcept>
 #include "ticcutils/PrettyPrint.h"
 #include "ticcutils/StringOps.h"
@@ -1000,75 +1001,6 @@ namespace folia {
 					    Semroles_t, TimeSegment_t };
 
   static const set<ElementType> AnnoExcludeSet = { Original_t, Suggestion_t };
-
-  static const map<ElementType,set<ElementType> > SubclassMap =
-    { { Structure_t,
-	{ Head_t, Division_t,
-	  TableHead_t, Table_t,
-	  Row_t, Cell_t,
-	  LineBreak_t, WhiteSpace_t,
-	  Word_t, WordReference_t,
-	  Sentence_t, Paragraph_t,
-	  Quote_t, Morpheme_t,
-	  Text_t, Event_t, Reference_t,
-	  External_t,
-	  Caption_t, Label_t,
-	  Item_t, List_t,
-	  Figure_t, Alternative_t, Note_t,
-	  Part_t
-	}
-    },
-      { Feature_t,
-	{ SynsetFeature_t,
-	  ActorFeature_t, HeadFeature_t,
-	  ValueFeature_t, TimeFeature_t,
-	  ModalityFeature_t, LevelFeature_t,
-	  BeginDateTimeFeature_t,
-	  EndDateTimeFeature_t,
-	  FunctionFeature_t
-	}
-      },
-      { TokenAnnotation_t,
-	{ Pos_t, Lemma_t, MorphologyLayer_t,
-	  Sense_t, Phoneme_t, String_t, Lang_t,
-	  Correction_t, Subjectivity_t,
-	  ErrorDetection_t }
-      },
-      { SpanAnnotation_t,
-	{ SyntacticUnit_t,
-	  Chunk_t, Entity_t,
-	  Headwords_t,
-	  DependencyDependent_t,Dependency_t,
-	  CoreferenceLink_t, CoreferenceChain_t,
-	  Semrole_t, TimeSegment_t }
-      },
-      { AnnotationLayer_t,
-	{ SyntaxLayer_t,
-	  Chunking_t, Entities_t,
-	  TimingLayer_t, MorphologyLayer_t,
-	  Dependencies_t,
-	  Coreferences_t, Semroles_t }
-      },
-      { AbstractTextMarkup_t,
-	{ TextMarkupString_t, TextMarkupGap_t,
-	  TextMarkupCorrection_t,
-	  TextMarkupError_t, TextMarkupStyle_t }
-      }
-  };
-
-  bool isSubClass( const ElementType e1, const ElementType e2 ){
-    if ( e1 == e2 )
-      return true;
-    const auto& it = SubclassMap.find( e2 );
-    if ( it != SubclassMap.end() ){
-      return it->second.find( e1 ) != it->second.end();
-    }
-    return false;
-  }
-
-  bool FoliaElement::isSubClass( ElementType t ) const {
-    return folia::isSubClass( element_id(), t );
-  }
 
   bool FoliaImpl::acceptable( ElementType t ) const {
     if ( t == XmlComment_t )
