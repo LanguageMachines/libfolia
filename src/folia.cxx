@@ -1026,7 +1026,7 @@ namespace folia {
 	  Caption_t, Label_t,
 	  Item_t, List_t,
 	  Figure_t, Alternative_t, Note_t,
-	  Part_t
+	  Part_t, PlaceHolder_t
 	}
     },
       { Feature_t,
@@ -1064,6 +1064,10 @@ namespace folia {
 	{ TextMarkupString_t, TextMarkupGap_t,
 	  TextMarkupCorrection_t,
 	  TextMarkupError_t, TextMarkupStyle_t }
+      },
+      { Word_t,
+	{ PlaceHolder_t
+	}
       }
   };
 
