@@ -985,8 +985,8 @@ namespace folia {
       Alternative_t,
       Chunk_t,
       SyntacticUnit_t,
-      Coreferences_t,
-      Semroles_t,
+      CoreferenceLayer_t,
+      SemanticRolesLayer_t,
       Entity_t,
       Headwords_t,
       TimingLayer_t,
@@ -997,8 +997,10 @@ namespace folia {
 					    Entity_t, Headwords_t,
 					    DependencyDependent_t,
 					    CoreferenceLink_t,
-					    CoreferenceChain_t, Semrole_t,
-					    Semroles_t, TimeSegment_t };
+					    CoreferenceChain_t,
+					    SemanticRole_t,
+					    SemanticRolesLayer_t,
+					    TimeSegment_t };
 
   static const set<ElementType> AnnoExcludeSet = { Original_t, Suggestion_t };
 
@@ -1345,7 +1347,7 @@ namespace folia {
     for ( size_t i=0; i < alts.size(); ++i ){
       if ( alts[i]->size() > 0 ) { // child elements?
 	for ( size_t j =0; j < alts[i]->size(); ++j ){
-	  if ( alts[i]->index(j)->element_id() == Pos_t &&
+	  if ( alts[i]->index(j)->element_id() == PosAnnotation_t &&
 	       ( st.empty() || alts[i]->index(j)->sett() == st ) ){
 	    vec.push_back( dynamic_cast<PosAnnotation*>(alts[i]->index(j)) );
 	  }
@@ -1396,7 +1398,7 @@ namespace folia {
     for ( size_t i=0; i < alts.size(); ++i ){
       if ( alts[i]->size() > 0 ) { // child elements?
 	for ( size_t j =0; j < alts[i]->size(); ++j ){
-	  if ( alts[i]->index(j)->element_id() == Lemma_t &&
+	  if ( alts[i]->index(j)->element_id() == LemmaAnnotation_t &&
 	       ( st.empty() || alts[i]->index(j)->sett() == st ) ){
 	    vec.push_back( dynamic_cast<LemmaAnnotation*>(alts[i]->index(j)) );
 	  }
@@ -1978,7 +1980,7 @@ namespace folia {
     }
     if ( !_new.empty() ){
       //    cerr << "there is new! " << endl;
-      addnew = new NewElement( mydoc );
+      addnew = new New( mydoc );
       c->append(addnew);
       for ( const auto& nw : _new ){
 	nw->setParent(0);
@@ -2308,7 +2310,7 @@ namespace folia {
   }
 
   FoliaElement *Word::append( FoliaElement *child ) {
-    if ( child->isSubClass( TokenAnnotation_t ) ){
+    if ( child->isSubClass( AbstractTokenAnnotation_t ) ){
       // sanity check, there may be no other child within the same set
       vector<FoliaElement*> v = select( child->element_id(), child->sett() );
       if ( v.empty() ) {
@@ -2529,11 +2531,11 @@ namespace folia {
   ElementType layertypeof( ElementType et ){
     switch( et ){
     case Entity_t:
-    case Entities_t:
-      return Entities_t;
+    case EntitiesLayer_t:
+      return EntitiesLayer_t;
     case Chunk_t:
-    case Chunking_t:
-      return Chunking_t;
+    case ChunkingLayer_t:
+      return ChunkingLayer_t;
     case SyntacticUnit_t:
     case SyntaxLayer_t:
       return SyntaxLayer_t;
@@ -2547,14 +2549,14 @@ namespace folia {
     case PhonologyLayer_t:
       return PhonologyLayer_t;
     case CoreferenceChain_t:
-    case Coreferences_t:
-      return Coreferences_t;
-    case Semroles_t:
-    case Semrole_t:
-      return Semroles_t;
-    case Dependencies_t:
+    case CoreferenceLayer_t:
+      return CoreferenceLayer_t;
+    case SemanticRolesLayer_t:
+    case SemanticRole_t:
+      return SemanticRolesLayer_t;
+    case DependenciesLayer_t:
     case Dependency_t:
-      return Dependencies_t;
+      return DependenciesLayer_t;
     default:
       return BASE;
     }
@@ -2706,7 +2708,7 @@ namespace folia {
     // but not if it is the default set.
     // for a Correction child, we look deeper.
     if ( _set.empty() ){
-      if ( child->isSubClass( SpanAnnotation_t ) ){
+      if ( child->isSubClass( AbstractSpanAnnotation_t ) ){
 	string st = child->sett();
 	if ( !st.empty()
 	     && mydoc->defaultset( child->annotation_type() ) != st ){
@@ -2718,7 +2720,7 @@ namespace folia {
 	if ( org ){
 	  for ( size_t i=0; i < org->size(); ++i ){
 	    FoliaElement *el = org->index(i);
-	    if ( el->isSubClass( SpanAnnotation_t ) ){
+	    if ( el->isSubClass( AbstractSpanAnnotation_t ) ){
 	      string st = el->sett();
 	      if ( !st.empty()
 		   && mydoc->defaultset( el->annotation_type() ) != st ){
@@ -2728,11 +2730,11 @@ namespace folia {
 	    }
 	  }
 	}
-	NewElement *nw = child->getNew();
+	New *nw = child->getNew();
 	if ( nw ){
 	  for ( size_t i=0; i < nw->size(); ++i ){
 	    FoliaElement *el = nw->index(i);
-	    if ( el->isSubClass( SpanAnnotation_t ) ){
+	    if ( el->isSubClass( AbstractSpanAnnotation_t ) ){
 	      string st = el->sett();
 	      if ( !st.empty()
 		   && mydoc->defaultset( el->annotation_type() ) != st ){
@@ -2744,7 +2746,7 @@ namespace folia {
 	}
 	auto v = child->suggestions();
 	for ( const auto& el : v ){
-	  if ( el->isSubClass( SpanAnnotation_t ) ){
+	  if ( el->isSubClass( AbstractSpanAnnotation_t ) ){
 	    string st = el->sett();
 	    if ( !st.empty()
 		 && mydoc->defaultset( el->annotation_type() ) != st ){
@@ -2911,8 +2913,8 @@ namespace folia {
     return !v.empty();
   }
 
-  NewElement *Correction::getNew() const {
-    vector<NewElement*> v = FoliaElement::select<NewElement>( false );
+  New *Correction::getNew() const {
+    vector<New*> v = FoliaElement::select<New>( false );
     if ( v.empty() )
       throw NoSuchAnnotation("new");
     else
@@ -2920,7 +2922,7 @@ namespace folia {
   }
 
   FoliaElement *Correction::getNew( size_t index ) const {
-    NewElement *n = getNew();
+    New *n = getNew();
     return n->index(index);
   }
 

@@ -323,7 +323,7 @@ namespace folia {
     case Table_t: result = "table"; break;
     case TableHead_t: result = "tablehead"; break;
     case Cell_t: result = "cell"; break;
-    case Lang_t: result = "lang"; break;
+    case LangAnnotation_t: result = "lang"; break;
     case Row_t: result = "row"; break;
     case Caption_t: result = "caption"; break;
     case Label_t: result = "label"; break;
@@ -331,27 +331,28 @@ namespace folia {
     case Item_t: result = "item"; break;
     case Figure_t: result = "figure"; break;
     case Quote_t: result = "quote"; break;
-    case TokenAnnotation_t: result = "tokenannotation"; break;
-    case Structure_t: result = "structure"; break;
-    case Pos_t: result = "pos"; break;
-    case Lemma_t: result = "lemma"; break;
+    case AbstractTokenAnnotation_t: result = "tokenannotation"; break;
+    case AbstractStructureElement_t: result = "structure"; break;
+    case PosAnnotation_t: result = "pos"; break;
+    case LemmaAnnotation_t: result = "lemma"; break;
     case PhonologyLayer_t: result = "phonology"; break;
     case Phoneme_t: result = "phoneme"; break;
-    case Domain_t: result = "domain"; break;
-    case Sense_t: result = "sense"; break;
-    case Subjectivity_t: result = "subjectivity"; break;
+    case DomainAnnotation_t: result = "domain"; break;
+    case SenseAnnotation_t: result = "sense"; break;
+    case SubjectivityAnnotation_t: result = "subjectivity"; break;
     case Correction_t: result = "correction"; break;
-    case AnnotationLayer_t: result = "annotationlayer"; break;
-    case SpanAnnotation_t: result = "spanannotation"; break;
+    case AbstractAnnotationLayer_t: result = "annotationlayer"; break;
+    case AbstractSpanAnnotation_t: result = "spanannotation"; break;
+    case AbstractCorrectionChild_t: result = "correctionchild"; break;
     case SyntacticUnit_t: result = "su"; break;
     case SyntaxLayer_t: result = "syntax"; break;
     case Chunk_t: result = "chunk"; break;
-    case Chunking_t: result = "chunking"; break;
+    case ChunkingLayer_t: result = "chunking"; break;
     case Entity_t: result = "entity"; break;
-    case Entities_t: result = "entities"; break;
-    case Semroles_t: result = "semroles"; break;
-    case Semrole_t: result = "semrole"; break;
-    case Coreferences_t: result = "coreferences"; break;
+    case EntitiesLayer_t: result = "entities"; break;
+    case SemanticRolesLayer_t: result = "semroles"; break;
+    case SemanticRole_t: result = "semrole"; break;
+    case CoreferenceLayer_t: result = "coreferences"; break;
     case CoreferenceLink_t: result = "coreferencelink"; break;
     case CoreferenceChain_t: result = "coreferencechain"; break;
     case MorphologyLayer_t: result = "morphology"; break;
@@ -384,7 +385,7 @@ namespace folia {
     case BeginDateTimeFeature_t: result = "begindatetime"; break;
     case EndDateTimeFeature_t: result = "enddatetime"; break;
     case PlaceHolder_t: result = "placeholder"; break;
-    case Dependencies_t: result = "dependencies"; break;
+    case DependenciesLayer_t: result = "dependencies"; break;
     case Dependency_t: result = "dependency"; break;
     case DependencyDependent_t: result = "dep"; break;
     case Headwords_t: result = "hd"; break;
@@ -504,7 +505,7 @@ namespace folia {
       return Row_t;
     }
     else if ( tag == "lang" ){
-      return Lang_t;
+      return LangAnnotation_t;
     }
     else if ( tag == "xml-comment" ){
       return XmlComment_t;
@@ -537,22 +538,25 @@ namespace folia {
       return Division_t;
     }
     else if ( tag == "annotationlayer" ){
-      return AnnotationLayer_t;
+      return AbstractAnnotationLayer_t;
+    }
+    else if ( tag == "correctionchild" ){
+      return AbstractCorrectionChild_t;
     }
     else if ( tag == "spanannotation" ){
-      return SpanAnnotation_t;
+      return AbstractSpanAnnotation_t;
     }
     else if ( tag == "tokenannotation" ){
-      return TokenAnnotation_t;
+      return AbstractTokenAnnotation_t;
     }
     else if ( tag == "structure" ){
-      return Structure_t;
+      return AbstractStructureElement_t;
     }
     else if ( tag == "pos" ){
-      return Pos_t;
+      return PosAnnotation_t;
     }
     else if ( tag == "lemma" ){
-      return Lemma_t;
+      return LemmaAnnotation_t;
     }
     else if ( tag == "phonology" ){
       return PhonologyLayer_t;
@@ -561,37 +565,37 @@ namespace folia {
       return Phoneme_t;
     }
     else if ( tag == "domain" ){
-      return Domain_t;
+      return DomainAnnotation_t;
     }
     else if ( tag == "sense" ){
-      return Sense_t;
+      return SenseAnnotation_t;
     }
     else if ( tag == "syntax" ){
       return SyntaxLayer_t;
     }
     else if ( tag == "subjectivity" ){
-      return Subjectivity_t;
+      return SubjectivityAnnotation_t;
     }
     else if ( tag == "chunk" ){
       return Chunk_t;
     }
     else if ( tag == "chunking" ){
-      return Chunking_t;
+      return ChunkingLayer_t;
     }
     else if ( tag == "entity" ){
       return Entity_t;
     }
     else if ( tag == "entities" ){
-      return Entities_t;
+      return EntitiesLayer_t;
     }
     else if ( tag == "semroles" ){
-      return Semroles_t;
+      return SemanticRolesLayer_t;
     }
     else if ( tag == "semrole" ){
-      return Semrole_t;
+      return SemanticRole_t;
     }
     else if ( tag == "coreferences" ){
-      return Coreferences_t;
+      return CoreferenceLayer_t;
     }
     else if ( tag == "coreferencelink" ){
       return CoreferenceLink_t;
@@ -663,7 +667,7 @@ namespace folia {
       return Quote_t;
     }
     else if ( tag == "dependencies" ){
-      return Dependencies_t;
+      return DependenciesLayer_t;
     }
     else if ( tag == "dependency" ){
       return Dependency_t;
@@ -773,7 +777,7 @@ namespace folia {
     case Paragraph_t:
       return new Paragraph( doc );
     case New_t:
-      return new NewElement( doc );
+      return new New( doc );
     case Original_t:
       return new Original( doc );
     case Current_t:
@@ -790,7 +794,7 @@ namespace folia {
       return new Cell( doc );
     case Row_t:
       return new Row( doc );
-    case Lang_t:
+    case LangAnnotation_t:
       return new LangAnnotation( doc );
     case XmlComment_t:
       return new XmlComment( doc );
@@ -809,38 +813,38 @@ namespace folia {
     case Content_t:
       return new Content( doc );
     case Metric_t:
-      return new MetricAnnotation( doc );
+      return new Metric( doc );
     case Division_t:
       return new Division( doc );
-    case Pos_t:
+    case PosAnnotation_t:
       return new PosAnnotation( doc );
-    case Lemma_t:
+    case LemmaAnnotation_t:
       return new LemmaAnnotation( doc );
     case PhonologyLayer_t:
       return new PhonologyLayer( doc );
     case Phoneme_t:
       return new Phoneme( doc );
-    case Domain_t:
+    case DomainAnnotation_t:
       return new DomainAnnotation( doc );
-    case Sense_t:
+    case SenseAnnotation_t:
       return new SenseAnnotation( doc );
     case SyntaxLayer_t:
       return new SyntaxLayer( doc );
-    case Subjectivity_t:
+    case SubjectivityAnnotation_t:
       return new SubjectivityAnnotation( doc );
     case Chunk_t:
       return new Chunk( doc );
-    case Chunking_t:
+    case ChunkingLayer_t:
       return new ChunkingLayer( doc );
     case Entity_t:
       return new Entity( doc );
-    case Entities_t:
+    case EntitiesLayer_t:
       return new EntitiesLayer( doc );
-    case Semroles_t:
+    case SemanticRolesLayer_t:
       return new SemanticRolesLayer( doc );
-    case Semrole_t:
+    case SemanticRole_t:
       return new SemanticRole( doc );
-    case Coreferences_t:
+    case CoreferenceLayer_t:
       return new CoreferenceLayer( doc );
     case CoreferenceLink_t:
       return new CoreferenceLink( doc );
@@ -888,7 +892,7 @@ namespace folia {
       return new LevelFeature( doc );
     case Quote_t:
       return new Quote( doc );
-    case Dependencies_t:
+    case DependenciesLayer_t:
       return new DependenciesLayer( doc );
     case Dependency_t:
       return new Dependency( doc );
@@ -912,13 +916,15 @@ namespace folia {
       return new TextMarkupStyle( doc );
     case Part_t:
       return new Part( doc );
-    case SpanAnnotation_t:
+    case AbstractSpanAnnotation_t:
       return new AbstractSpanAnnotation( doc );
-    case TokenAnnotation_t:
+    case AbstractCorrectionChild_t:
+      return new AbstractCorrectionChild( doc );
+    case AbstractTokenAnnotation_t:
       return new AbstractTokenAnnotation( doc );
-    case Structure_t:
+    case AbstractStructureElement_t:
       return new AbstractStructureElement( doc );
-    case AnnotationLayer_t:
+    case AbstractAnnotationLayer_t:
       return new AbstractAnnotationLayer( doc );
     case AbstractTextMarkup_t:
       return new AbstractTextMarkup( doc );

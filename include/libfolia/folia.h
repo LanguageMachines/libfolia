@@ -52,7 +52,7 @@ namespace folia {
   class TextContent;
   class PhonContent;
   class Correction;
-  class NewElement;
+  class New;
   class Original;
   class Current;
   class Suggestion;
@@ -304,7 +304,7 @@ namespace folia {
     }
 
     // corrections
-    virtual NewElement *getNew() const NOT_IMPLEMENTED;
+    virtual New *getNew() const NOT_IMPLEMENTED;
     virtual FoliaElement *getNew( size_t ) const NOT_IMPLEMENTED;
     virtual Original *getOriginal() const NOT_IMPLEMENTED;
     virtual FoliaElement *getOriginal( size_t ) const NOT_IMPLEMENTED;
@@ -1093,16 +1093,16 @@ namespace folia {
     std::string value;
   };
 
-  class MetricAnnotation: public FoliaImpl {
+  class Metric: public FoliaImpl {
     friend void static_init();
   public:
-  MetricAnnotation( const std::string& s=""):
+  Metric( const std::string& s=""):
     FoliaImpl(PROPS) { classInit( s ); };
-  MetricAnnotation( const KWargs& a ):
+  Metric( const KWargs& a ):
     FoliaImpl(PROPS) { classInit( a ); };
-  MetricAnnotation( Document *d, const std::string& s=""):
+  Metric( Document *d, const std::string& s=""):
     FoliaImpl(PROPS,d) { classInit( s ); };
-  MetricAnnotation( Document *d, const KWargs& a ):
+  Metric( Document *d, const KWargs& a ):
     FoliaImpl(PROPS,d) { classInit( a ); };
   private:
     static properties PROPS;
@@ -2001,16 +2001,16 @@ namespace folia {
     static properties PROPS;
   };
 
-  class NewElement: public AbstractCorrectionChild {
+  class New: public AbstractCorrectionChild {
     friend void static_init();
   public:
-  NewElement( const std::string& s=""):
+  New( const std::string& s=""):
     AbstractCorrectionChild( PROPS ) { classInit( s ); };
-  NewElement( const KWargs& a ):
+  New( const KWargs& a ):
     AbstractCorrectionChild( PROPS ) { classInit( a ); };
-  NewElement( Document *d, const std::string& s=""):
+  New( Document *d, const std::string& s=""):
     AbstractCorrectionChild( PROPS, d ) { classInit( s ); };
-  NewElement( Document *d, const KWargs& a ):
+  New( Document *d, const KWargs& a ):
     AbstractCorrectionChild( PROPS, d ) { classInit( a ); };
   private:
     static properties PROPS;
@@ -2257,7 +2257,7 @@ namespace folia {
     bool hasOriginal() const;
     bool hasCurrent() const;
     bool hasSuggestions() const;
-    NewElement *getNew() const;
+    New *getNew() const;
     FoliaElement *getNew( size_t ) const;
     Original *getOriginal() const;
     FoliaElement *getOriginal( size_t ) const;
