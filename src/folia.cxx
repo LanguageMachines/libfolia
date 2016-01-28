@@ -2310,7 +2310,7 @@ namespace folia {
   }
 
   FoliaElement *Word::append( FoliaElement *child ) {
-    if ( child->isSubClass( AbstractTokenAnnotation_t ) ){
+    if ( child->isSubClass( AbstractAnnotationLayer_t ) ){
       // sanity check, there may be no other child within the same set
       vector<FoliaElement*> v = select( child->element_id(), child->sett() );
       if ( v.empty() ) {

@@ -331,8 +331,6 @@ namespace folia {
     case Item_t: result = "item"; break;
     case Figure_t: result = "figure"; break;
     case Quote_t: result = "quote"; break;
-    case AbstractTokenAnnotation_t: result = "tokenannotation"; break;
-    case AbstractStructureElement_t: result = "structure"; break;
     case PosAnnotation_t: result = "pos"; break;
     case LemmaAnnotation_t: result = "lemma"; break;
     case PhonologyLayer_t: result = "phonology"; break;
@@ -341,9 +339,13 @@ namespace folia {
     case SenseAnnotation_t: result = "sense"; break;
     case SubjectivityAnnotation_t: result = "subjectivity"; break;
     case Correction_t: result = "correction"; break;
-    case AbstractAnnotationLayer_t: result = "annotationlayer"; break;
-    case AbstractSpanAnnotation_t: result = "spanannotation"; break;
-    case AbstractCorrectionChild_t: result = "correctionchild"; break;
+    case AbstractTokenAnnotation_t: result = "abstracttokenannotation"; break;
+    case AbstractAnnotation_t: result = "abstractannotation"; break;
+    case AbstractStructureElement_t: result = "abstractstructure"; break;
+    case AbstractAnnotationLayer_t: result = "abstractannotationlayer"; break;
+    case AbstractSpanAnnotation_t: result = "abstractspanannotation"; break;
+    case AbstractCorrectionChild_t: result = "abstractcorrectionchild"; break;
+    case AbstractTextMarkup_t: result = "abstracttextmarkup"; break;
     case SyntacticUnit_t: result = "su"; break;
     case SyntaxLayer_t: result = "syntax"; break;
     case Chunk_t: result = "chunk"; break;
@@ -391,7 +393,6 @@ namespace folia {
     case Headwords_t: result = "hd"; break;
     case Alignment_t: result = "alignment"; break;
     case AlignReference_t: result = "aref"; break;
-    case AbstractTextMarkup_t: result = "textmarkup"; break;
     case TextMarkupString_t: result = "t-str"; break;
     case TextMarkupGap_t: result = "t-gap"; break;
     case TextMarkupCorrection_t: result = "t-correction"; break;
@@ -537,19 +538,22 @@ namespace folia {
     else if ( tag == "div" ){
       return Division_t;
     }
-    else if ( tag == "annotationlayer" ){
+    else if ( tag == "abstractannotationlayer" ){
       return AbstractAnnotationLayer_t;
     }
-    else if ( tag == "correctionchild" ){
+    else if ( tag == "abstractcorrectionchild" ){
       return AbstractCorrectionChild_t;
     }
-    else if ( tag == "spanannotation" ){
+    else if ( tag == "abstractspanannotation" ){
       return AbstractSpanAnnotation_t;
     }
-    else if ( tag == "tokenannotation" ){
+    else if ( tag == "abstractannotation" ){
+      return AbstractAnnotation_t;
+    }
+    else if ( tag == "abstracttokenannotation" ){
       return AbstractTokenAnnotation_t;
     }
-    else if ( tag == "structure" ){
+    else if ( tag == "abstractstructure" ){
       return AbstractStructureElement_t;
     }
     else if ( tag == "pos" ){
@@ -684,7 +688,7 @@ namespace folia {
     else if ( tag == "aref" ){
       return AlignReference_t;
     }
-    else if ( tag == "textmarkup" ){
+    else if ( tag == "abstracttextmarkup" ){
       return AbstractTextMarkup_t;
     }
     else if ( tag == "t-str" ){
@@ -917,17 +921,13 @@ namespace folia {
     case Part_t:
       return new Part( doc );
     case AbstractSpanAnnotation_t:
-      return new AbstractSpanAnnotation( doc );
-    case AbstractCorrectionChild_t:
-      return new AbstractCorrectionChild( doc );
-    case AbstractTokenAnnotation_t:
-      return new AbstractTokenAnnotation( doc );
-    case AbstractStructureElement_t:
-      return new AbstractStructureElement( doc );
     case AbstractAnnotationLayer_t:
-      return new AbstractAnnotationLayer( doc );
     case AbstractTextMarkup_t:
-      return new AbstractTextMarkup( doc );
+    case AbstractTokenAnnotation_t:
+    case AbstractStructureElement_t:
+    case AbstractCorrectionChild_t:
+    case AbstractAnnotation_t:
+      throw ValueError( "you may not create an abstract node of type " + toString(int(et)) + ")" );
     default:
       throw ValueError( "unknown elementtype(" + toString(int(et)) + ")" );
     }

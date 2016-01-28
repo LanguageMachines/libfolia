@@ -76,7 +76,7 @@ namespace folia {
   public:
     virtual ~FoliaElement(){};
     virtual void init() {};
-
+    virtual bool has_base( ElementType ) const = 0;
     virtual size_t size() const = 0;
     virtual FoliaElement* index( size_t ) const = 0;
     virtual FoliaElement* rindex( size_t ) const = 0;
@@ -450,7 +450,6 @@ namespace folia {
     static FoliaElement *createElement( Document *, ElementType );
     static FoliaElement *createElement( Document *, const std::string&  );
     virtual ~FoliaImpl();
-
     void classInit( const std::string& s="" ){
       init(); // virtual init
       if ( !s.empty() ){
@@ -650,7 +649,6 @@ namespace folia {
     std::string _set;
     std::string _href;
     std::string _src;
-
   private:
     void addFeatureNodes( const KWargs& args );
     std::string _annotator;
@@ -751,14 +749,16 @@ namespace folia {
   class AbstractStructureElement: public FoliaImpl,
     public AllowGenerateID,
     public AllowAnnotation,
-    public AllowCorrection {
+    public AllowCorrection
+    {
       friend void static_init();
-  public:
-  AbstractStructureElement( const properties& props, Document *d=0 ):
+    protected:
+      // DO NOT USE AbstractStructureElement as a real node!!
+    AbstractStructureElement( const properties& props, Document *d=0 ):
       FoliaImpl( props, d ){ classInit(); };
-  AbstractStructureElement( Document *d=0 ):
+    AbstractStructureElement( Document *d=0 ):
       AbstractStructureElement( PROPS, d ){};
-
+    public:
       const std::string str( const std::string& = "current" ) const;
       std::vector<Alternative *> alternatives( ElementType = BASE,
 					       const std::string& = "" ) const;
@@ -780,7 +780,8 @@ namespace folia {
 
   class AbstractAnnotation: public FoliaImpl {
     friend void static_init();
-  public:
+  protected:
+    // DO NOT USE AbstractAnnotation as a real node!!
   AbstractAnnotation( const properties& props, Document *d=0 ):
     FoliaImpl( props, d ){};
   AbstractAnnotation( Document *d=0 ):
@@ -791,14 +792,16 @@ namespace folia {
 
   class AbstractTokenAnnotation:
     public AbstractAnnotation,
-    public AllowGenerateID {
+    public AllowGenerateID
+    {
       friend void static_init();
-  public:
-  AbstractTokenAnnotation( const properties& props, Document *d=0 ):
+    protected:
+    // DO NOT USE AbstractTokenAnnotation as a real node!!
+    AbstractTokenAnnotation( const properties& props, Document *d=0 ):
       AbstractAnnotation( props, d ){ classInit(); };
-  AbstractTokenAnnotation( Document *d=0 ):
+    AbstractTokenAnnotation( Document *d=0 ):
       AbstractTokenAnnotation( PROPS, d ){};
-  private:
+    private:
       static properties PROPS;
     };
 
@@ -825,6 +828,9 @@ namespace folia {
   protected:
     std::string _subset;
   private:
+    bool has_base( ElementType ) const {
+      return false;
+    }
     static properties PROPS;
   };
 
@@ -834,12 +840,13 @@ namespace folia {
     public AllowCorrection
     {
       friend void static_init();
-    public:
+    protected:
+      // DO NOT USE AbstractSpanAnnotation as a real node!!
     AbstractSpanAnnotation( const properties& props, Document *d=0 ):
       AbstractAnnotation( props, d ){ classInit(); };
     AbstractSpanAnnotation( Document *d=0 ):
       AbstractSpanAnnotation( PROPS, d ){};
-
+    public:
       xmlNode *xml( bool, bool=false ) const;
       FoliaElement *append( FoliaElement* );
 
@@ -854,12 +861,13 @@ namespace folia {
 
   class AbstractTextMarkup: public AbstractAnnotation {
     friend void static_init();
-  public:
+  protected:
+    // DO NOT USE AbstractTextMarkup as a real node!!
   AbstractTextMarkup( const properties& props, Document *d=0 ):
     AbstractAnnotation( props, d ){ classInit(); };
   AbstractTextMarkup( Document *d=0 ):
     AbstractTextMarkup( PROPS, d ){};
-
+  public:
     void setAttributes( const KWargs& );
     KWargs collectAttributes() const;
     const FoliaElement* resolveid() const;
@@ -878,6 +886,9 @@ namespace folia {
   TextMarkupGap( Document *d=0 ):
     AbstractTextMarkup( PROPS, d ) { classInit(); };
   private:
+    bool has_base( ElementType e ) const {
+      return e == AbstractTextMarkup_t;
+    }
     static properties PROPS;
   };
 
@@ -887,6 +898,9 @@ namespace folia {
   TextMarkupString( Document *d=0 ):
     AbstractTextMarkup( PROPS, d ) { classInit(); };
   private:
+    bool has_base( ElementType e ) const {
+      return e == AbstractTextMarkup_t;
+    }
     static properties PROPS;
   };
 
@@ -900,6 +914,9 @@ namespace folia {
     const UnicodeString text( const std::string& = "current",
 			      bool = false, bool = false ) const;
   private:
+    bool has_base( ElementType e ) const {
+      return e == AbstractTextMarkup_t;
+    }
     static properties PROPS;
     std::string _original;
   };
@@ -910,6 +927,9 @@ namespace folia {
   TextMarkupError( Document *d=0 ):
     AbstractTextMarkup( PROPS, d ){ classInit(); };
   private:
+    bool has_base( ElementType e ) const {
+      return e == AbstractTextMarkup_t;
+    }
     static properties PROPS;
   };
 
@@ -919,6 +939,9 @@ namespace folia {
   TextMarkupStyle( Document *d=0 ):
     AbstractTextMarkup( PROPS, d ){ classInit(); };
   private:
+    bool has_base( ElementType e ) const {
+      return e == AbstractTextMarkup_t;
+    }
     static properties PROPS;
   };
 
@@ -938,6 +961,9 @@ namespace folia {
     TextContent *postappend();
     std::vector<FoliaElement*> findreplacables( FoliaElement * ) const;
   private:
+    bool has_base( ElementType ) const {
+      return false;
+    }
     static properties PROPS;
     void init();
     int _offset;
@@ -956,6 +982,9 @@ namespace folia {
 			      bool = false ) const;
     int offset() const { return _offset; };
   private:
+    bool has_base( ElementType ) const {
+      return false;
+    }
     static properties PROPS;
     int _offset;
   };
@@ -969,6 +998,9 @@ namespace folia {
   FoLiA( Document *d, const KWargs& a ): FoliaImpl(PROPS, d)
       { classInit( a ); };
   private:
+    bool has_base( ElementType ) const {
+      return false;
+    }
     static properties PROPS;
   };
 
@@ -980,6 +1012,9 @@ namespace folia {
   DCOI( Document *d, const std::string& s=""): FoliaImpl(PROPS, d) { classInit( s ); };
   DCOI( Document *d, const KWargs& a ): FoliaImpl(PROPS, d) { classInit( a ); };
   private:
+    bool has_base( ElementType ) const {
+      return false;
+    }
     static properties PROPS;
   };
 
@@ -995,6 +1030,9 @@ namespace folia {
   Head( Document *d, const KWargs& a ):
     AbstractStructureElement( PROPS, d ) {  classInit( a ); };
   private:
+    bool has_base( ElementType e ) const {
+      return e == AbstractStructureElement_t;
+    }
     static properties PROPS;
   };
 
@@ -1010,6 +1048,9 @@ namespace folia {
   TableHead( Document *d, const KWargs& a ):
     AbstractStructureElement( PROPS, d ) {  classInit( a ); };
   private:
+    bool has_base( ElementType e ) const {
+      return e == AbstractStructureElement_t;
+    }
     static properties PROPS;
   };
 
@@ -1025,6 +1066,9 @@ namespace folia {
   Table( Document *d, const KWargs& a ):
     AbstractStructureElement( PROPS, d ) {  classInit( a ); };
   private:
+    bool has_base( ElementType e ) const {
+      return e == AbstractStructureElement_t;
+    }
     static properties PROPS;
   };
 
@@ -1040,6 +1084,9 @@ namespace folia {
   Row( Document *d, const KWargs& a ):
     AbstractStructureElement( PROPS, d ) {  classInit( a ); };
   private:
+    bool has_base( ElementType e ) const {
+      return e == AbstractStructureElement_t;
+    }
     static properties PROPS;
   };
 
@@ -1055,6 +1102,9 @@ namespace folia {
   Cell( Document *d, const KWargs& a ):
     AbstractStructureElement( PROPS, d ) {  classInit( a ); };
   private:
+    bool has_base( ElementType e ) const {
+      return e == AbstractStructureElement_t;
+    }
     static properties PROPS;
   };
 
@@ -1071,6 +1121,9 @@ namespace folia {
     FoliaImpl(PROPS,d) { classInit( a ); };
     const std::string content() const;
   private:
+    bool has_base( ElementType ) const {
+      return false;
+    }
     static properties PROPS;
   };
 
@@ -1089,6 +1142,9 @@ namespace folia {
     xmlNode *xml( bool, bool = false ) const;
     const std::string content() const { return value; };
   private:
+    bool has_base( ElementType ) const {
+      return false;
+    }
     static properties PROPS;
     std::string value;
   };
@@ -1105,6 +1161,9 @@ namespace folia {
   Metric( Document *d, const KWargs& a ):
     FoliaImpl(PROPS,d) { classInit( a ); };
   private:
+    bool has_base( ElementType ) const {
+      return false;
+    }
     static properties PROPS;
   };
 
@@ -1121,6 +1180,9 @@ namespace folia {
     AbstractStructureElement( PROPS, d ) { classInit( a ); };
     Head *head() const;
   private:
+    bool has_base( ElementType e ) const {
+      return e == AbstractStructureElement_t;
+    }
     static properties PROPS;
   };
 
@@ -1140,6 +1202,9 @@ namespace folia {
       return "";
     }
   private:
+    bool has_base( ElementType e ) const {
+      return e == AbstractStructureElement_t;
+    }
     static properties PROPS;
   };
 
@@ -1155,6 +1220,9 @@ namespace folia {
   WhiteSpace( Document *d,  const KWargs& a ):
     AbstractStructureElement( PROPS, d ){ classInit( a ); };
   private:
+    bool has_base( ElementType e ) const {
+      return e == AbstractStructureElement_t;
+    }
     static properties PROPS;
   };
 
@@ -1200,6 +1268,9 @@ namespace folia {
     MorphologyLayer *getMorphologyLayers( const std::string&,
 					  std::vector<MorphologyLayer*>& ) const;
   private:
+    bool has_base( ElementType e ) const {
+      return e == AbstractStructureElement_t;
+    }
     static properties PROPS;
     void init();
     bool space;
@@ -1217,6 +1288,9 @@ namespace folia {
   Part( Document *d, const KWargs& a ):
     AbstractStructureElement( PROPS, d ){ classInit( a ); };
   private:
+    bool has_base( ElementType e ) const {
+      return e == AbstractStructureElement_t;
+    }
     static properties PROPS;
   };
 
@@ -1235,6 +1309,9 @@ namespace folia {
   String( Document *d, const KWargs& a ):
       AbstractTokenAnnotation( PROPS, d ){ classInit( a ); };
   private:
+      bool has_base( ElementType e ) const {
+	return e == AbstractTokenAnnotation_t;
+      }
       static properties PROPS;
     };
 
@@ -1251,6 +1328,9 @@ namespace folia {
     Word( PROPS, d ){ classInit( a ); };
     void setAttributes( const KWargs& );
   private:
+    bool has_base( ElementType e ) const {
+      return e == Word_t || e == AbstractStructureElement_t;
+      }
     static properties PROPS;
   };
 
@@ -1275,6 +1355,9 @@ namespace folia {
 			    const std::string& args );
     std::vector<Word*> wordParts() const;
   private:
+    bool has_base( ElementType e ) const {
+      return e == AbstractStructureElement_t;
+    }
     static properties PROPS;
     Correction *correctWords( const std::vector<FoliaElement *>&,
 			      const std::vector<FoliaElement *>&,
@@ -1293,6 +1376,9 @@ namespace folia {
   Speech( Document *d, const KWargs& a ):
     AbstractStructureElement( PROPS, d ){ classInit( a ); };
   private:
+    bool has_base( ElementType e ) const {
+      return e == AbstractStructureElement_t;
+    }
     static properties PROPS;
   };
 
@@ -1308,6 +1394,9 @@ namespace folia {
   Text( Document *d, const KWargs& a ):
     AbstractStructureElement( PROPS, d ){ classInit( a ); };
   private:
+    bool has_base( ElementType e ) const {
+      return e == AbstractStructureElement_t;
+    }
     static properties PROPS;
   };
 
@@ -1323,6 +1412,9 @@ namespace folia {
   Utterance( Document *d, const KWargs& a ):
     AbstractStructureElement( PROPS, d ){ classInit( a ); };
   private:
+    bool has_base( ElementType e ) const {
+      return e == AbstractStructureElement_t;
+    }
     static properties PROPS;
   };
 
@@ -1338,6 +1430,9 @@ namespace folia {
   Event( Document *d, const KWargs& a ):
     AbstractStructureElement( PROPS, d ){ classInit( a ); };
   private:
+    bool has_base( ElementType e ) const {
+      return e == AbstractStructureElement_t;
+    }
     static properties PROPS;
   };
 
@@ -1353,6 +1448,9 @@ namespace folia {
   Caption( Document *d, const KWargs& a ):
     AbstractStructureElement( PROPS, d ){ classInit( a ); };
   private:
+    bool has_base( ElementType e ) const {
+      return e == AbstractStructureElement_t;
+    }
     static properties PROPS;
   };
 
@@ -1368,6 +1466,9 @@ namespace folia {
   Label( Document *d, const KWargs& a ):
     AbstractStructureElement( PROPS, d ){ classInit( a ); };
   private:
+    bool has_base( ElementType e ) const {
+      return e == AbstractStructureElement_t;
+    }
     static properties PROPS;
   };
 
@@ -1383,6 +1484,9 @@ namespace folia {
   Item( Document *d, const KWargs& a ):
     AbstractStructureElement( PROPS, d ){ classInit( a ); };
   private:
+    bool has_base( ElementType e ) const {
+      return e == AbstractStructureElement_t;
+    }
     static properties PROPS;
   };
 
@@ -1398,6 +1502,9 @@ namespace folia {
   List( Document *d, const KWargs& a ):
     AbstractStructureElement( PROPS, d ){ classInit( a ); };
   private:
+    bool has_base( ElementType e ) const {
+      return e == AbstractStructureElement_t;
+    }
     static properties PROPS;
   };
 
@@ -1415,6 +1522,9 @@ namespace folia {
     const std::string src() const { return _src; };
     const UnicodeString caption() const;
   private:
+    bool has_base( ElementType e ) const {
+      return e == AbstractStructureElement_t;
+    }
     static properties PROPS;
   };
 
@@ -1430,6 +1540,9 @@ namespace folia {
   Paragraph( Document *d, const KWargs& a ):
     AbstractStructureElement( PROPS, d ){ classInit( a ); };
   private:
+    bool has_base( ElementType e ) const {
+      return e == AbstractStructureElement_t;
+    }
     static properties PROPS;
   };
 
@@ -1445,6 +1558,9 @@ namespace folia {
   Alternative( Document *d, const KWargs& a ):
     AbstractStructureElement( PROPS, d ){ classInit( a ); };
   private:
+    bool has_base( ElementType e ) const {
+      return e == AbstractStructureElement_t;
+    }
     void init();
     static properties PROPS;
   };
@@ -1462,6 +1578,9 @@ namespace folia {
   AlternativeLayers( Document *d, const KWargs& a ):
     FoliaImpl(PROPS,d){ classInit( a ); };
   private:
+    bool has_base( ElementType ) const {
+      return false;
+    }
     void init();
     static properties PROPS;
   };
@@ -1503,6 +1622,9 @@ namespace folia {
   PosAnnotation( Document *d, const KWargs& a ):
     AbstractTokenAnnotation( PROPS, d ){ classInit( a ); };
   private:
+    bool has_base( ElementType e ) const {
+      return e == AbstractTokenAnnotation_t;
+    }
     static properties PROPS;
   };
 
@@ -1518,6 +1640,9 @@ namespace folia {
   LemmaAnnotation( Document *d, const KWargs& a ):
     AbstractTokenAnnotation( PROPS, d ){ classInit( a ); };
   private:
+    bool has_base( ElementType e ) const {
+      return e == AbstractTokenAnnotation_t;
+    }
     static properties PROPS;
   };
 
@@ -1533,6 +1658,9 @@ namespace folia {
   LangAnnotation( Document *d, const KWargs& a ):
     AbstractTokenAnnotation( PROPS, d ){ classInit( a ); };
   private:
+    bool has_base( ElementType e ) const {
+      return e == AbstractTokenAnnotation_t;
+    }
     static properties PROPS;
   };
 
@@ -1548,6 +1676,9 @@ namespace folia {
   Phoneme( Document *d, const KWargs& a ):
     AbstractTokenAnnotation( PROPS, d ){ classInit( a ); };
   private:
+    bool has_base( ElementType e ) const {
+      return e == AbstractTokenAnnotation_t;
+    }
     static properties PROPS;
   };
 
@@ -1563,6 +1694,9 @@ namespace folia {
   DomainAnnotation( Document *d, const KWargs& a ):
     AbstractTokenAnnotation( PROPS, d ){ classInit( a ); };
   private:
+    bool has_base( ElementType e ) const {
+      return e == AbstractTokenAnnotation_t;
+    }
     static properties PROPS;
   };
 
@@ -1578,6 +1712,9 @@ namespace folia {
   SenseAnnotation( Document *d, const KWargs& a ):
     AbstractTokenAnnotation( PROPS, d ){ classInit( a ); };
   private:
+    bool has_base( ElementType e ) const {
+      return e == AbstractTokenAnnotation_t;
+    }
     static properties PROPS;
   };
 
@@ -1593,6 +1730,9 @@ namespace folia {
   SubjectivityAnnotation( Document *d, const KWargs& a ):
     AbstractTokenAnnotation( PROPS, d ){ classInit( a ); };
   private:
+    bool has_base( ElementType e ) const {
+      return e == AbstractTokenAnnotation_t;
+    }
     static properties PROPS;
   };
 
@@ -1611,6 +1751,9 @@ namespace folia {
     std::vector<Word*> wordParts() const;
     const std::string& getTextDelimiter( bool=false) const;
   private:
+    bool has_base( ElementType e ) const {
+      return e == AbstractStructureElement_t;
+    }
     static properties PROPS;
   };
 
@@ -1626,6 +1769,9 @@ namespace folia {
   BeginDateTimeFeature( Document *d, const KWargs& a ):
     Feature( PROPS, d ){ classInit( a ); }
   private:
+    bool has_base( ElementType e ) const {
+      return e == Feature_t;
+    }
     static properties PROPS;
     void init();
   };
@@ -1642,6 +1788,9 @@ namespace folia {
   EndDateTimeFeature( Document *d, const KWargs& a ):
     Feature( PROPS, d ){ classInit( a ); }
   private:
+    bool has_base( ElementType e ) const {
+      return e == Feature_t;
+    }
     static properties PROPS;
     void init();
   };
@@ -1658,6 +1807,9 @@ namespace folia {
   SynsetFeature( Document *d, const KWargs& a ):
     Feature( PROPS, d ){ classInit( a ); }
   private:
+    bool has_base( ElementType e ) const {
+      return e == Feature_t;
+    }
     static properties PROPS;
     void init();
   };
@@ -1674,6 +1826,9 @@ namespace folia {
   ActorFeature( Document *d, const KWargs& a ):
     Feature( PROPS, d ){ classInit( a ); }
   private:
+    bool has_base( ElementType e ) const {
+      return e == Feature_t;
+    }
     static properties PROPS;
     void init();
   };
@@ -1690,6 +1845,9 @@ namespace folia {
   HeadFeature( Document *d, const KWargs& a ):
     Feature( PROPS, d ){ classInit( a ); }
   private:
+    bool has_base( ElementType e ) const {
+      return e == Feature_t;
+    }
     static properties PROPS;
     void init();
   };
@@ -1706,6 +1864,9 @@ namespace folia {
   ValueFeature( Document *d, const KWargs& a ):
     Feature( PROPS, d ){ classInit( a ); }
   private:
+    bool has_base( ElementType e ) const {
+      return e == Feature_t;
+    }
     static properties PROPS;
     void init();
   };
@@ -1722,6 +1883,9 @@ namespace folia {
   FunctionFeature( Document *d, const KWargs& a ):
     Feature( PROPS, d ){ classInit( a ); }
   private:
+    bool has_base( ElementType e ) const {
+      return e == Feature_t;
+    }
     static properties PROPS;
     void init();
   };
@@ -1738,6 +1902,9 @@ namespace folia {
   TimeFeature( Document *d, const KWargs& a ):
     Feature( PROPS, d ){ classInit( a ); }
   private:
+    bool has_base( ElementType e ) const {
+      return e == Feature_t;
+    }
     static properties PROPS;
     void init();
   };
@@ -1754,6 +1921,9 @@ namespace folia {
   LevelFeature( Document *d, const KWargs& a ):
     Feature( PROPS, d ){ classInit( a ); }
   private:
+    bool has_base( ElementType e ) const {
+      return e == Feature_t;
+    }
     static properties PROPS;
     void init();
   };
@@ -1770,6 +1940,9 @@ namespace folia {
   ModalityFeature( Document *d, const KWargs& a ):
     Feature( PROPS, d ){ classInit( a ); }
   private:
+    bool has_base( ElementType e ) const {
+      return e == Feature_t;
+    }
     static properties PROPS;
     void init();
   };
@@ -1786,6 +1959,9 @@ namespace folia {
   WordReference( Document *d, const KWargs& a ):
     FoliaImpl(PROPS,d){ classInit( a ); };
   private:
+    bool has_base( ElementType ) const {
+      return false;
+    }
     static properties PROPS;
     void init();
     FoliaElement* parseXml( const xmlNode *node );
@@ -1804,6 +1980,9 @@ namespace folia {
     FoliaImpl(PROPS,d){ classInit( a ); };
     std::vector<FoliaElement *>resolve() const;
   private:
+    bool has_base( ElementType ) const {
+      return false;
+    }
     static properties PROPS;
   };
 
@@ -1822,6 +2001,9 @@ namespace folia {
     KWargs collectAttributes() const;
     void setAttributes( const KWargs& );
   private:
+    bool has_base( ElementType ) const {
+      return false;
+    }
     static properties PROPS;
     FoliaElement* parseXml( const xmlNode *node );
     FoliaElement *resolve( const Alignment *ref ) const;
@@ -1842,6 +2024,9 @@ namespace folia {
   SyntacticUnit( Document *d, const KWargs& a ):
     AbstractSpanAnnotation( PROPS, d ){ classInit( a ); }
   private:
+    bool has_base( ElementType e ) const {
+      return e == AbstractSpanAnnotation_t;
+    }
     static properties PROPS;
   };
 
@@ -1857,6 +2042,9 @@ namespace folia {
   Chunk( Document *d, const KWargs& a ):
     AbstractSpanAnnotation( PROPS, d ){ classInit( a ); }
   private:
+    bool has_base( ElementType e ) const {
+      return e == AbstractSpanAnnotation_t;
+    }
     static properties PROPS;
   };
 
@@ -1872,6 +2060,9 @@ namespace folia {
   Entity( Document *d, const KWargs& a ):
     AbstractSpanAnnotation( PROPS, d ){ classInit( a ); }
   private:
+    bool has_base( ElementType e ) const {
+      return e == AbstractSpanAnnotation_t;
+    }
     static properties PROPS;
   };
 
@@ -1887,6 +2078,9 @@ namespace folia {
   Headwords( Document *d, const KWargs& a ):
     AbstractSpanAnnotation( PROPS, d ){ classInit( a ); }
   private:
+    bool has_base( ElementType e ) const {
+      return e == AbstractSpanAnnotation_t;
+    }
     static properties PROPS;
   };
 
@@ -1902,6 +2096,9 @@ namespace folia {
   DependencyDependent( Document *d, const KWargs& a ):
     AbstractSpanAnnotation( PROPS, d ){ classInit( a ); }
   private:
+    bool has_base( ElementType e ) const {
+      return e == AbstractSpanAnnotation_t;
+    }
     static properties PROPS;
   };
 
@@ -1919,6 +2116,9 @@ namespace folia {
     Headwords *head() const;
     DependencyDependent *dependent() const;
   private:
+    bool has_base( ElementType e ) const {
+      return e == AbstractSpanAnnotation_t;
+    }
     static properties PROPS;
   };
 
@@ -1934,6 +2134,9 @@ namespace folia {
   CoreferenceLink( Document *d, const KWargs& a ):
     AbstractSpanAnnotation( PROPS, d ){ classInit( a ); }
   private:
+    bool has_base( ElementType e ) const {
+      return e == AbstractSpanAnnotation_t;
+    }
     static properties PROPS;
   };
 
@@ -1949,6 +2152,9 @@ namespace folia {
   CoreferenceChain( Document *d, const KWargs& a ):
     AbstractSpanAnnotation( PROPS, d ){ classInit( a ); }
   private:
+    bool has_base( ElementType e ) const {
+      return e == AbstractSpanAnnotation_t;
+    }
     static properties PROPS;
   };
 
@@ -1964,25 +2170,31 @@ namespace folia {
   SemanticRole( Document *d, const KWargs& a ):
     AbstractSpanAnnotation( PROPS, d ){ classInit( a ); }
   private:
+    bool has_base( ElementType e ) const {
+      return e == AbstractSpanAnnotation_t;
+    }
     static properties PROPS;
   };
 
   class AbstractAnnotationLayer: public FoliaImpl,
     public AllowGenerateID,
     public AllowAnnotation,
-    public AllowCorrection {
-    friend void static_init();
-  public:
-  AbstractAnnotationLayer( Document *d = 0 ):
-    FoliaImpl( PROPS, d ) { classInit(); };
-  AbstractAnnotationLayer( const properties& props, Document *d = 0 ):
+    public AllowCorrection
+    {
+      friend void static_init();
+    protected:
+      // DO NOT USE AbstractAnnotationLayer as a real node!!
+    AbstractAnnotationLayer( Document *d = 0 ):
+      AbstractAnnotationLayer( PROPS, d ) { classInit(); };
+    AbstractAnnotationLayer( const properties& props, Document *d = 0 ):
       FoliaImpl( props, d ) { classInit(); };
-  AbstractAnnotationLayer( const properties& props, const KWargs& a ):
+    AbstractAnnotationLayer( const properties& props, const KWargs& a ):
       FoliaImpl( props ) { classInit( a ); };
-  AbstractAnnotationLayer( const properties& props, Document *d, const std::string& s ):
+    AbstractAnnotationLayer( const properties& props, Document *d, const std::string& s ):
       FoliaImpl( props, d ) { classInit( s ); };
-  AbstractAnnotationLayer( const properties& props, Document *d, const KWargs& a ):
+    AbstractAnnotationLayer( const properties& props, Document *d, const KWargs& a ):
       FoliaImpl( props, d ) { classInit( a ); };
+  public:
     AbstractSpanAnnotation *findspan( const std::vector<FoliaElement*>& ) const;
     FoliaElement *append( FoliaElement * );
   private:
@@ -1992,11 +2204,12 @@ namespace folia {
 
   class AbstractCorrectionChild: public FoliaImpl {
     friend void static_init();
-  public:
-  AbstractCorrectionChild( Document *d=0 ):
-    FoliaImpl( PROPS, d ){ classInit(); };
+  protected:
+    // DO NOT USE AbstractCorrectionChild as a real node!!
   AbstractCorrectionChild( const properties& props, Document *d=0 ):
     FoliaImpl( props, d ){ classInit(); };
+  AbstractCorrectionChild( Document *d=0 ):
+    AbstractCorrectionChild( PROPS, d ){};
   private:
     static properties PROPS;
   };
@@ -2013,6 +2226,9 @@ namespace folia {
   New( Document *d, const KWargs& a ):
     AbstractCorrectionChild( PROPS, d ) { classInit( a ); };
   private:
+    bool has_base( ElementType e ) const {
+      return e == AbstractCorrectionChild_t;
+    }
     static properties PROPS;
   };
 
@@ -2028,6 +2244,9 @@ namespace folia {
   Current( Document *d, const KWargs& a ):
     AbstractCorrectionChild( PROPS, d ) { classInit( a ); };
   private:
+    bool has_base( ElementType e ) const {
+      return e == AbstractCorrectionChild_t;
+    }
     static properties PROPS;
   };
 
@@ -2043,6 +2262,9 @@ namespace folia {
   Original( Document *d, const KWargs& a ):
     AbstractCorrectionChild( PROPS, d ) { classInit( a ); };
   private:
+    bool has_base( ElementType e ) const {
+      return e == AbstractCorrectionChild_t;
+    }
     static properties PROPS;
     void init();
   };
@@ -2059,6 +2281,9 @@ namespace folia {
   Suggestion( Document *d, const KWargs& a ):
     AbstractCorrectionChild( PROPS, d ) { classInit( a ); };
   private:
+    bool has_base( ElementType e ) const {
+      return e == AbstractCorrectionChild_t;
+    }
     static properties PROPS;
     void init();
   };
@@ -2079,6 +2304,9 @@ namespace folia {
     FoliaElement* parseXml( const xmlNode * );
     xmlNode *xml( bool, bool=false ) const;
   private:
+    bool has_base( ElementType ) const {
+      return false;
+    }
     static properties PROPS;
     std::string _value;
   };
@@ -2097,6 +2325,9 @@ namespace folia {
     FoliaElement* parseXml( const xmlNode * );
     xmlNode *xml( bool, bool=false ) const;
   private:
+    bool has_base( ElementType ) const {
+      return false;
+    }
     static properties PROPS;
     std::string _value;
   };
@@ -2119,6 +2350,9 @@ namespace folia {
     const UnicodeString text( const std::string& = "current",
 			      bool = false, bool = false ) const;
   private:
+    bool has_base( ElementType ) const {
+      return false;
+    }
     static properties PROPS;
     std::string _value; //UTF8 value
   };
@@ -2139,6 +2373,9 @@ namespace folia {
     void setAttributes( const KWargs& );
     KWargs collectAttributes() const;
   private:
+    bool has_base( ElementType ) const {
+      return false;
+    }
     static properties PROPS;
     void init();
     bool _include;
@@ -2157,6 +2394,9 @@ namespace folia {
     KWargs collectAttributes() const;
     void setAttributes( const KWargs& );
   private:
+    bool has_base( ElementType e ) const {
+      return e == AbstractStructureElement_t;
+    }
     static properties PROPS;
     std::string refId;
   };
@@ -2173,6 +2413,9 @@ namespace folia {
   Definition( Document *d, const KWargs& a ):
     AbstractStructureElement( PROPS, d ){ classInit( a ); };
   private:
+    bool has_base( ElementType e ) const {
+      return e == AbstractStructureElement_t;
+    }
     static properties PROPS;
   };
 
@@ -2188,6 +2431,9 @@ namespace folia {
   Term( Document *d, const KWargs& a ):
     AbstractStructureElement( PROPS, d ){ classInit( a ); };
   private:
+    bool has_base( ElementType e ) const {
+      return e == AbstractStructureElement_t;
+    }
     static properties PROPS;
   };
 
@@ -2203,6 +2449,9 @@ namespace folia {
   Example( Document *d, const KWargs& a ):
     AbstractStructureElement( PROPS, d ){ classInit( a ); };
   private:
+    bool has_base( ElementType e ) const {
+      return e == AbstractStructureElement_t;
+    }
     static properties PROPS;
   };
 
@@ -2218,6 +2467,9 @@ namespace folia {
   Entry( Document *d, const KWargs& a ):
     AbstractStructureElement( PROPS, d ){ classInit( a ); };
   private:
+    bool has_base( ElementType e ) const {
+      return e == AbstractStructureElement_t;
+    }
     static properties PROPS;
   };
 
@@ -2236,6 +2488,9 @@ namespace folia {
     KWargs collectAttributes() const;
     void setAttributes( const KWargs& );
   private:
+    bool has_base( ElementType e ) const {
+      return e == AbstractStructureElement_t;
+    }
     static properties PROPS;
     std::string refId;
     std::string ref_type;
@@ -2271,6 +2526,9 @@ namespace folia {
     PhonContent *phoncontent( const std::string& = "current" ) const;
     const std::string& getTextDelimiter( bool=false) const;
   private:
+    bool has_base( ElementType e ) const {
+      return e == AbstractTokenAnnotation_t;
+    }
     static properties PROPS;
   };
 
@@ -2286,6 +2544,9 @@ namespace folia {
   ErrorDetection( Document *d, const KWargs& a ):
     AbstractTokenAnnotation( PROPS, d ){ classInit( a ); }
   private:
+    bool has_base( ElementType e ) const {
+      return e == AbstractTokenAnnotation_t;
+    }
     static properties PROPS;
   };
 
@@ -2301,6 +2562,9 @@ namespace folia {
   TimeSegment( Document *d, const KWargs& a ):
     AbstractSpanAnnotation( PROPS, d ){ classInit( a ); }
   private:
+    bool has_base( ElementType e ) const {
+      return e == AbstractSpanAnnotation_t;
+    }
     static properties PROPS;
   };
 
@@ -2315,6 +2579,9 @@ namespace folia {
     AbstractStructureElement( PROPS, d ){ classInit( s ); }
   Morpheme( Document *d, const KWargs& a ): AbstractStructureElement( PROPS, d ){ classInit( a ); }
   private:
+    bool has_base( ElementType e ) const {
+      return e == AbstractStructureElement_t;
+    }
     static properties PROPS;
   };
 
@@ -2330,6 +2597,9 @@ namespace folia {
   SyntaxLayer( Document *d, const KWargs& a ):
     AbstractAnnotationLayer( PROPS, d ){ classInit( a ); }
   private:
+    bool has_base( ElementType e ) const {
+      return e == AbstractAnnotationLayer_t;
+    }
     static properties PROPS;
   };
 
@@ -2345,6 +2615,9 @@ namespace folia {
   ChunkingLayer( Document *d, const KWargs& a ):
     AbstractAnnotationLayer( PROPS, d ){ classInit( a ); }
   private:
+    bool has_base( ElementType e ) const {
+      return e == AbstractAnnotationLayer_t;
+    }
     static properties PROPS;
   };
 
@@ -2360,6 +2633,9 @@ namespace folia {
   EntitiesLayer( Document *d, const KWargs& a ):
     AbstractAnnotationLayer( PROPS, d ){ classInit( a ); }
   private:
+    bool has_base( ElementType e ) const {
+      return e == AbstractAnnotationLayer_t;
+    }
     static properties PROPS;
   };
 
@@ -2375,6 +2651,9 @@ namespace folia {
   TimingLayer( Document *d, const KWargs& a ):
     AbstractAnnotationLayer( PROPS, d ){ classInit( a ); }
   private:
+    bool has_base( ElementType e ) const {
+      return e == AbstractAnnotationLayer_t;
+    }
     static properties PROPS;
   };
 
@@ -2390,6 +2669,9 @@ namespace folia {
   MorphologyLayer( Document *d, const KWargs& a ):
     AbstractAnnotationLayer( PROPS, d ){ classInit( a ); }
   private:
+    bool has_base( ElementType e ) const {
+      return e == AbstractAnnotationLayer_t;
+    }
     static properties PROPS;
   };
 
@@ -2405,6 +2687,9 @@ namespace folia {
   PhonologyLayer( Document *d, const KWargs& a ):
     AbstractAnnotationLayer( PROPS, d ){ classInit( a ); }
   private:
+    bool has_base( ElementType e ) const {
+      return e == AbstractAnnotationLayer_t;
+    }
     static properties PROPS;
   };
 
@@ -2420,6 +2705,9 @@ namespace folia {
   DependenciesLayer( Document *d, const KWargs& a ):
     AbstractAnnotationLayer( PROPS, d ){ classInit( a ); }
   private:
+    bool has_base( ElementType e ) const {
+      return e == AbstractAnnotationLayer_t;
+    }
     static properties PROPS;
   };
 
@@ -2435,6 +2723,9 @@ namespace folia {
   CoreferenceLayer( Document *d, const KWargs& a ):
     AbstractAnnotationLayer( PROPS, d ){ classInit( a ); }
   private:
+    bool has_base( ElementType e ) const {
+      return e == AbstractAnnotationLayer_t;
+    }
     static properties PROPS;
   };
 
@@ -2450,6 +2741,9 @@ namespace folia {
   SemanticRolesLayer( Document *d, const KWargs& a ):
     AbstractAnnotationLayer( PROPS, d ){ classInit( a ); }
   private:
+    bool has_base( ElementType e ) const {
+      return e == AbstractAnnotationLayer_t;
+    }
     static properties PROPS;
   };
 

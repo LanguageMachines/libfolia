@@ -163,7 +163,7 @@ namespace folia {
     AbstractStructureElement::PROPS._xmltag = "structure";
     AbstractStructureElement::PROPS._required_attributes = ID;
     AbstractStructureElement::PROPS._optional_attributes = ALL;
-    AbstractStructureElement::PROPS._occurrences_per_set=0;
+    AbstractStructureElement::PROPS._occurrences_per_set = 0;
     AbstractStructureElement::PROPS.PRINTABLE = true;
     AbstractStructureElement::PROPS.SPEAKABLE = true;
     AbstractStructureElement::PROPS.TEXTDELIMITER = "\n\n";
@@ -694,7 +694,12 @@ namespace folia {
     Alternative::PROPS._element_id = Alternative_t;
     Alternative::PROPS._required_attributes = NO_ATT;
     Alternative::PROPS._optional_attributes = ALL;
-    Alternative::PROPS._accepted_data += { AbstractTokenAnnotation_t };
+    Alternative::PROPS._accepted_data +=
+      { AbstractTokenAnnotation_t,
+	  Correction_t,
+	  MorphologyLayer_t,
+	  PhonologyLayer_t
+	  };
     Alternative::PROPS._annotation_type = AnnotationType::ALTERNATIVE;
 
     AlternativeLayers::PROPS._xmltag = "altlayers";
@@ -1151,66 +1156,7 @@ namespace folia {
 
   }
 
-  static const map<ElementType,set<ElementType> > typeHierarchy =
-    { { AbstractStructureElement_t,
-	{ Head_t, Division_t,
-	  TableHead_t, Table_t,
-	  Row_t, Cell_t,
-	  LineBreak_t, WhiteSpace_t,
-	  Word_t, WordReference_t,
-	  Sentence_t, Paragraph_t,
-	  Quote_t, Morpheme_t,
-	  Text_t, Event_t, Reference_t,
-	  External_t,
-	  Caption_t, Label_t,
-	  Item_t, List_t,
-	  Figure_t, Alternative_t, Note_t,
-	  Part_t, PlaceHolder_t
-	}
-    },
-      { Feature_t,
-	{ SynsetFeature_t,
-	  ActorFeature_t, HeadFeature_t,
-	  ValueFeature_t, TimeFeature_t,
-	  ModalityFeature_t, LevelFeature_t,
-	  BeginDateTimeFeature_t,
-	  EndDateTimeFeature_t,
-	  FunctionFeature_t
-	}
-      },
-      { AbstractTokenAnnotation_t,
-	{ PosAnnotation_t, LemmaAnnotation_t, MorphologyLayer_t,
-	  SenseAnnotation_t, Phoneme_t, String_t, LangAnnotation_t,
-	  Correction_t, SubjectivityAnnotation_t,
-	  ErrorDetection_t }
-      },
-      { AbstractSpanAnnotation_t,
-	{ SyntacticUnit_t,
-	  Chunk_t, Entity_t,
-	  Headwords_t,
-	  DependencyDependent_t,Dependency_t,
-	  CoreferenceLink_t, CoreferenceChain_t,
-	  SemanticRole_t, TimeSegment_t }
-      },
-      { AbstractAnnotationLayer_t,
-	{ SyntaxLayer_t,
-	  ChunkingLayer_t,
-	  EntitiesLayer_t,
-	  TimingLayer_t,
-	  MorphologyLayer_t,
-	  DependenciesLayer_t,
-	  CoreferenceLayer_t,
-	  SemanticRolesLayer_t }
-      },
-      { AbstractTextMarkup_t,
-	{ TextMarkupString_t, TextMarkupGap_t,
-	  TextMarkupCorrection_t,
-	  TextMarkupError_t, TextMarkupStyle_t }
-      },
-      { Word_t, {
-	  PlaceHolder_t }
-      }
-  };
+  static map<ElementType,set<ElementType> > typeHierarchy;
 
   bool isSubClass( const FoliaElement *e1, const FoliaElement *e2 ){
     return isSubClass( e1->element_id(), e2->element_id() );
@@ -1230,12 +1176,44 @@ namespace folia {
     return folia::isSubClass( element_id(), t );
   }
 
+  void fill_hierarchy(){
+    ElementType et1 = BASE;
+    while ( ++et1 != LastElement ){
+      FoliaElement *el = 0;
+      try {
+	el = FoliaImpl::createElement( 0, et1 );
+      }
+      catch (...){
+      }
+      if ( el == 0 )
+	continue;
+      ElementType et2 = BASE;
+      while ( ++et2 != LastElement ){
+	if ( et2 != et1  && el->has_base( et2 ) ){
+	  typeHierarchy[et2].insert( et1 );
+	}
+      }
+      delete el;
+    }
+  }
+
+  void show( const map<ElementType,set<ElementType> >& hier ){
+    for ( auto const top : hier ){
+      cerr << toString(top.first) << endl;
+      for ( auto const el : top.second ){
+	cerr << "     -- " << toString(el) << endl;
+      }
+    }
+  }
 
   namespace {
     struct initializer {
       initializer() {
 	//	std::cout << "Loading the static properties" << std::endl;
 	static_init();
+	fill_hierarchy();
+	// cerr << "NEW:" << endl;
+	// show( typeHierarchy  );
       }
       ~initializer() {
 	// std::cout << "Unloading the properties" << std::endl;
