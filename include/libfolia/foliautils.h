@@ -41,113 +41,12 @@
 #include "ticcutils/StringOps.h"
 
 namespace folia {
-  enum AnnotatorType: int { UNDEFINED = -1, AUTO = 0, MANUAL = 1 };
 
-  enum Attrib : int { NO_ATT=0, ID=1, CLASS=2, ANNOTATOR=4, CONFIDENCE=8,
-      N=16, DATETIME=32, SETONLY=64, BEGINTIME=128, ENDTIME=256,
-      SRC=512, SPEAKER=1024, ALL=2047 };
-
-  inline Attrib& operator++( Attrib & a ){
-    return a = ( SPEAKER == a )
-      ? NO_ATT
-      : ( NO_ATT == a ? ID : Attrib(a<<1) );
-  }
-
-  inline Attrib operator|( Attrib a1, Attrib a2 ){
-    return (Attrib) ((int)a1|(int)a2) ;
-  }
-
-  inline Attrib& operator|=( Attrib& a1, Attrib& a2 ){
-    a1 = (a1 | a2);
-    return a1;
-  }
-
-  enum ElementType : unsigned int {
-    BASE=0, TextContent_t,
-      Text_t, Speech_t, Word_t, String_t,
-      Utterance_t, Entry_t, Example_t, PhonContent_t,
-      Term_t, Definition_t,
-      WordReference_t, Event_t,
-      TimeSegment_t, TimingLayer_t,
-      LineBreak_t, WhiteSpace_t,
-      Sentence_t, Paragraph_t,
-      Division_t, Head_t,
-      Caption_t, Label_t,
-      List_t, Item_t,
-      Figure_t, Quote_t, //structure annotation elements
-      PosAnnotation_t, LemmaAnnotation_t,
-      PhonologyLayer_t, Phoneme_t,
-      DomainAnnotation_t,
-      SenseAnnotation_t, SubjectivityAnnotation_t,
-      Metric_t, Correction_t, //token annotation elements
-      AbstractAnnotationLayer_t, AbstractSpanAnnotation_t,
-      SyntacticUnit_t,
-      Chunk_t, ChunkingLayer_t,
-      Entity_t, EntitiesLayer_t,
-      CoreferenceLayer_t, CoreferenceLink_t,
-      CoreferenceChain_t,  SyntaxLayer_t,
-      SemanticRolesLayer_t, SemanticRole_t,
-      MorphologyLayer_t, Morpheme_t,
-      ErrorDetection_t, New_t,
-      Original_t, Current_t,
-      Alternative_t, AlternativeLayers_t, //alternatives
-      Description_t, Gap_t,
-      Suggestion_t, Content_t,
-      Feature_t, SynsetFeature_t,
-      ActorFeature_t, HeadFeature_t,
-      ValueFeature_t, TimeFeature_t,
-      ModalityFeature_t, LevelFeature_t,
-      BeginDateTimeFeature_t, EndDateTimeFeature_t,
-      FunctionFeature_t, //features
-      PlaceHolder_t,
-      DependenciesLayer_t, Dependency_t,
-      Headwords_t, DependencyDependent_t,
-      Alignment_t, AlignReference_t,
-      Table_t, TableHead_t, Row_t, Cell_t,
-      LangAnnotation_t, XmlComment_t,
-      AbstractCorrectionChild_t,
-      AbstractAnnotation_t, AbstractTokenAnnotation_t,
-      AbstractStructureElement_t,
-      AbstractTextMarkup_t, TextMarkupString_t, TextMarkupGap_t,
-      TextMarkupCorrection_t, TextMarkupError_t, TextMarkupStyle_t,
-      XmlText_t, External_t, Note_t, Reference_t,
-      Part_t,
-      LastElement
-      };
-
-  inline ElementType& operator++( ElementType &et ){
-    return et = ( LastElement == et )
-      ? BASE
-      : ElementType(et+1);
-  }
-
-  /*
-   * Annotation types tie FoLiA elements to a particular kind of annotation.
-   * Especially declarations make use of this.
-   *  static const annotation_type = {AnnotationType}
-   */
   namespace AnnotationType {
-    enum AnnotationType : int { NO_ANN, TEXT, TOKEN, DIVISION, PARAGRAPH,
-	LIST, FIGURE, WHITESPACE, LINEBREAK, SENTENCE,
-	POS, LEMMA, DOMEIN, SENSE, SYNTAX, CHUNKING, ENTITY,
-	// Attention DOMAIN seems to be a defined constant
-	// where/how/why?
-	CORRECTION, SUGGESTION, ERRORDETECTION, ALTERNATIVE,
-	PHON, SUBJECTIVITY, MORPHOLOGICAL, EVENT,
-	DEPENDENCY, TIMESEGMENT, GAP, NOTE, ALIGNMENT,
-	COMPLEXALIGNMENT, COREFERENCE, SEMROLE, METRIC,
-	LANG, STRING, TABLE, STYLE, PART, UTTERANCE, TERM,
-	DEFINITION, EXAMPLE, PHONOLOGICAL,
-	LAST_ANN
-	};
-    inline AnnotationType& operator++( AnnotationType &at ){
-      return at = ( LAST_ANN == at )
-	? NO_ANN
-	: AnnotationType(at+1);
-    }
+    enum AnnotationType : int;
   }
-
-  enum MetaDataType { NATIVE, CMDI, IMDI };
+  enum AnnotatorType : int;
+  enum ElementType : unsigned int;
 
   class ArgsError: public std::runtime_error {
   public:
@@ -212,9 +111,9 @@ namespace folia {
   std::string UnicodeToUTF8( const UnicodeString& );
 
   std::string toString( const AnnotationType::AnnotationType& );
-  AnnotatorType stringToANT( const std::string& );
-
   AnnotationType::AnnotationType stringToAT( const std::string& );
+
+  AnnotatorType stringToANT( const std::string& );
 
   std::string toString( const ElementType& );
   ElementType stringToET( const std::string& );
@@ -230,33 +129,6 @@ namespace folia {
     return os;
   }
 
-}
-
-namespace TiCC {
-  template<>
-    inline folia::AnnotationType::AnnotationType stringTo( const std::string& str ) {
-    return folia::stringToAT( str );
-  }
-
-  template<>
-    inline folia::ElementType stringTo( const std::string& str ) {
-    return folia::stringToET( str );
-  }
-
-  template<>
-    inline folia::AnnotatorType stringTo( const std::string& str ) {
-    std::string at = uppercase( str );
-    if ( at == "AUTO" )
-      return folia::AUTO;
-    else if ( at == "MANUAL" )
-      return folia::MANUAL;
-    else
-      return folia::UNDEFINED;
-  }
-
-}
-
-namespace folia {
   void addAttributes( xmlNode *, const KWargs& );
   KWargs getAttributes( const xmlNode * );
 
@@ -269,8 +141,26 @@ namespace folia {
 
   bool isNCName( const std::string& );
 
-  inline std::string strip( const std::string& s ){ return TiCC::trim(s); }
-
 } // namespace folia
+
+namespace TiCC {
+  // add some specializations to the TiCC stringTo() family
+
+  template<>
+    inline folia::AnnotationType::AnnotationType stringTo( const std::string& str ) {
+    return folia::stringToAT( str );
+  }
+
+  template<>
+    inline folia::ElementType stringTo( const std::string& str ) {
+    return folia::stringToET( str );
+  }
+
+  template<>
+    inline folia::AnnotatorType stringTo( const std::string& str ) {
+    return folia::stringToANT( str );
+  }
+
+} // namespace TiCC
 
 #endif // FOLIA_UTILS

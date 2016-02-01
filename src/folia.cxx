@@ -41,6 +41,7 @@
 #include "ticcutils/StringOps.h"
 #include "ticcutils/XMLtools.h"
 #include "libfolia/foliautils.h"
+#include "libfolia/foliatypes.h"
 #include "libfolia/folia.h"
 #include "libfolia/document.h"
 #include "config.h"
@@ -968,41 +969,6 @@ namespace folia {
     else
       return v[0]->description();
   }
-
-  const set<ElementType> default_ignore =
-    { Original_t,
-      Suggestion_t,
-      Alternative_t };
-  const set<ElementType> default_ignore_annotations =
-    { Original_t,
-      Suggestion_t,
-      Alternative_t,
-      MorphologyLayer_t };
-
-  const set<ElementType> default_ignore_structure =
-    { Original_t,
-      Suggestion_t,
-      Alternative_t,
-      Chunk_t,
-      SyntacticUnit_t,
-      CoreferenceLayer_t,
-      SemanticRolesLayer_t,
-      Entity_t,
-      Headwords_t,
-      TimingLayer_t,
-      DependencyDependent_t,
-      TimeSegment_t };
-
-  static const set<ElementType> SpanSet = { SyntacticUnit_t, Chunk_t,
-					    Entity_t, Headwords_t,
-					    DependencyDependent_t,
-					    CoreferenceLink_t,
-					    CoreferenceChain_t,
-					    SemanticRole_t,
-					    SemanticRolesLayer_t,
-					    TimeSegment_t };
-
-  static const set<ElementType> AnnoExcludeSet = { Original_t, Suggestion_t };
 
   bool FoliaImpl::acceptable( ElementType t ) const {
     if ( t == XmlComment_t )

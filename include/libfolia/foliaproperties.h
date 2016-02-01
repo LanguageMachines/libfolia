@@ -28,8 +28,12 @@ namespace folia {
     bool XLINK;
   };
 
-  //  std::ostream& operator<<( std::ostream& os, const properties& );
-  //  std::ostream& operator<<( std::ostream& os, const properties * );
+  extern const std::set<ElementType> default_ignore;
+  extern const std::set<ElementType> default_ignore_annotations;
+  extern const std::set<ElementType> default_ignore_structure;
+  extern const std::set<ElementType> AnnoExcludeSet;
+  extern const std::set<ElementType> SpanSet;
+
   void static_init();
 }
 

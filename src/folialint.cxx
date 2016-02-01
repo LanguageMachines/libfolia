@@ -30,6 +30,7 @@
 #include <string>
 #include "ticcutils/CommandLine.h"
 #include "libfolia/foliautils.h"
+#include "libfolia/foliatypes.h"
 #include "libfolia/folia.h"
 #include "libfolia/document.h"
 

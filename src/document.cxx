@@ -39,6 +39,7 @@
 #include "ticcutils/XMLtools.h"
 #include "ticcutils/StringOps.h"
 #include "ticcutils/zipper.h"
+#include "libfolia/foliatypes.h"
 #include "libfolia/folia.h"
 #include "libfolia/foliautils.h"
 #include "libfolia/document.h"

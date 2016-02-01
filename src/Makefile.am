@@ -10,7 +10,7 @@ lib_LTLIBRARIES = libfolia.la
 libfolia_la_LDFLAGS = -version-info 3:1:0
 
 libfolia_la_SOURCES = folia.cxx document.cxx foliautils.cxx \
-	folia_properties.cxx
+	foliatypes.cxx foliaproperties.cxx
 
 bin_PROGRAMS = folialint
 folialint_SOURCES = folialint.cxx
