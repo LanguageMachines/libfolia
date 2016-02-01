@@ -948,10 +948,14 @@ namespace folia {
   class TextContent: public FoliaImpl {
     friend void static_init();
   public:
-  TextContent( const std::string& s="" ): FoliaImpl(PROPS){ classInit( s ); }
-  TextContent( const KWargs& a ): FoliaImpl(PROPS){ classInit( a ); }
-  TextContent( Document *d, const std::string& s="" ): FoliaImpl(PROPS,d){ classInit( s ); }
-  TextContent( Document *d, const KWargs& a ): FoliaImpl(PROPS,d){ classInit( a ); }
+  TextContent( Document *d, const std::string& s="" ):
+    FoliaImpl(PROPS,d){ classInit( s ); }
+  TextContent( const std::string& s="" ):
+    TextContent( 0, s ){}
+  TextContent( Document *d, const KWargs& a ):
+    FoliaImpl(PROPS,d){ classInit( a ); }
+  TextContent( const KWargs& a ):
+    TextContent( 0, a ){}
     void setAttributes( const KWargs& );
     KWargs collectAttributes() const;
     const std::string str( const std::string& = "current" ) const;
@@ -972,10 +976,14 @@ namespace folia {
   class PhonContent: public FoliaImpl {
     friend void static_init();
   public:
-  PhonContent( const std::string& s="" ): FoliaImpl(PROPS){ classInit( s ); }
-  PhonContent( const KWargs& a ): FoliaImpl(PROPS){ classInit( a ); }
-  PhonContent( Document *d, const std::string& s="" ): FoliaImpl(PROPS,d){ classInit( s ); }
-  PhonContent( Document *d, const KWargs& a ): FoliaImpl(PROPS,d){ classInit( a ); }
+  PhonContent( Document *d, const std::string& s="" ):
+    FoliaImpl(PROPS,d){ classInit( s ); }
+  PhonContent( Document *d, const KWargs& a ):
+    FoliaImpl(PROPS,d){ classInit( a ); }
+  PhonContent( const std::string& s="" ):
+    PhonContent(0,s){}
+  PhonContent( const KWargs& a ):
+    PhonContent(0,a){}
     void setAttributes( const KWargs& );
     KWargs collectAttributes() const;
     const UnicodeString phon( const std::string& = "current",
@@ -992,12 +1000,15 @@ namespace folia {
   class FoLiA: public FoliaImpl {
     friend void static_init();
   public:
-  FoLiA( const std::string& s="" ): FoliaImpl(PROPS) { classInit( s ); };
-  FoLiA( const KWargs& a ): FoliaImpl(PROPS) { classInit( a ); };
-  FoLiA( Document *d, const std::string& s=""): FoliaImpl(PROPS,d) { classInit( s ); };
-  FoLiA( Document *d, const KWargs& a ): FoliaImpl(PROPS, d)
-      { classInit( a ); };
-  private:
+  FoLiA( Document *d, const std::string& s=""):
+    FoliaImpl(PROPS,d) { classInit( s ); }
+  FoLiA( Document *d, const KWargs& a ):
+    FoliaImpl(PROPS, d) { classInit( a ); }
+  FoLiA( const std::string& s="" ):
+    FoLiA(0,s) {}
+  FoLiA( const KWargs& a ):
+    FoLiA(0,a) {}
+    private:
     bool has_base( ElementType ) const {
       return false;
     }
@@ -1007,10 +1018,14 @@ namespace folia {
   class DCOI: public FoliaImpl {
     friend void static_init();
   public:
-  DCOI( const std::string& s=""): FoliaImpl(PROPS) { classInit( s ); };
-  DCOI( const KWargs& a ): FoliaImpl(PROPS) { classInit( a ); };
-  DCOI( Document *d, const std::string& s=""): FoliaImpl(PROPS, d) { classInit( s ); };
-  DCOI( Document *d, const KWargs& a ): FoliaImpl(PROPS, d) { classInit( a ); };
+  DCOI( Document *d, const std::string& s=""):
+    FoliaImpl(PROPS, d) { classInit( s ); };
+  DCOI( Document *d, const KWargs& a ):
+    FoliaImpl(PROPS, d) { classInit( a ); };
+  DCOI( const std::string& s=""):
+    DCOI(0,s) {};
+  DCOI( const KWargs& a ):
+    DCOI(0,a) {};
   private:
     bool has_base( ElementType ) const {
       return false;
@@ -1021,14 +1036,14 @@ namespace folia {
   class Head: public AbstractStructureElement {
     friend void static_init();
   public:
-  Head( const std::string& s=""):
-    AbstractStructureElement( PROPS ) {  classInit( s ); };
-  Head( const KWargs& a ):
-    AbstractStructureElement( PROPS ) {  classInit( a ); };
   Head( Document *d, const std::string& s=""):
     AbstractStructureElement( PROPS, d ) {  classInit( s ); };
   Head( Document *d, const KWargs& a ):
     AbstractStructureElement( PROPS, d ) {  classInit( a ); };
+  Head( const std::string& s=""):
+    Head( 0, s ) {};
+  Head( const KWargs& a ):
+    Head( 0, a ) {};
   private:
     bool has_base( ElementType e ) const {
       return e == AbstractStructureElement_t;
@@ -1040,9 +1055,9 @@ namespace folia {
     friend void static_init();
   public:
   TableHead( const std::string& s=""):
-    AbstractStructureElement( PROPS ) {  classInit( s ); };
+    TableHead( 0, s ) {};
   TableHead( const KWargs& a ):
-    AbstractStructureElement( PROPS ) {  classInit( a ); };
+    TableHead( 0, a ) {};
   TableHead( Document *d, const std::string& s=""):
     AbstractStructureElement( PROPS, d ) {  classInit( s ); };
   TableHead( Document *d, const KWargs& a ):
@@ -1058,9 +1073,9 @@ namespace folia {
     friend void static_init();
   public:
   Table( const std::string& s=""):
-    AbstractStructureElement( PROPS ) {  classInit( s ); };
+    Table( 0, s ) {};
   Table( const KWargs& a ):
-    AbstractStructureElement( PROPS ) {  classInit( a ); };
+    Table( 0, a ) {};
   Table( Document *d, const std::string& s=""):
     AbstractStructureElement( PROPS, d ) {  classInit( s ); };
   Table( Document *d, const KWargs& a ):
@@ -1076,9 +1091,9 @@ namespace folia {
     friend void static_init();
   public:
   Row( const std::string& s=""):
-    AbstractStructureElement( PROPS ) {  classInit( s ); };
+    Row( 0, s ) {};
   Row( const KWargs& a ):
-    AbstractStructureElement( PROPS ) {  classInit( a ); };
+    Row( 0, a ) {};
   Row( Document *d, const std::string& s=""):
     AbstractStructureElement( PROPS, d ) {  classInit( s ); };
   Row( Document *d, const KWargs& a ):
@@ -1094,9 +1109,9 @@ namespace folia {
     friend void static_init();
   public:
   Cell( const std::string& s=""):
-    AbstractStructureElement( PROPS ) {  classInit( s ); };
+    Cell( 0, s ) {}
   Cell( const KWargs& a ):
-    AbstractStructureElement( PROPS ) {  classInit( a ); };
+    Cell( 0, a ) {}
   Cell( Document *d, const std::string& s=""):
     AbstractStructureElement( PROPS, d ) {  classInit( s ); };
   Cell( Document *d, const KWargs& a ):
@@ -1112,9 +1127,9 @@ namespace folia {
     friend void static_init();
   public:
   Gap( const std::string& s=""):
-    FoliaImpl(PROPS) { classInit( s ); };
+    Gap( 0, s ) {};
   Gap( const KWargs& a ):
-    FoliaImpl(PROPS) { classInit( a ); };
+    Gap( 0, a ) {};
   Gap( Document *d, const std::string& s=""):
     FoliaImpl(PROPS,d) { classInit( s ); };
   Gap( Document *d, const KWargs& a ):
@@ -1131,9 +1146,9 @@ namespace folia {
     friend void static_init();
   public:
   Content( const std::string& s=""):
-    FoliaImpl(PROPS) { classInit( s ); };
+    Content( 0, s ) {};
   Content( const KWargs& a ):
-    FoliaImpl(PROPS) { classInit( a ); };
+    Content( 0, a ) {};
   Content( Document *d, const std::string& s=""):
     FoliaImpl(PROPS,d) { classInit( s ); };
   Content( Document *d, const KWargs& a ):
@@ -1153,9 +1168,9 @@ namespace folia {
     friend void static_init();
   public:
   Metric( const std::string& s=""):
-    FoliaImpl(PROPS) { classInit( s ); };
+    Metric( 0, s ) {};
   Metric( const KWargs& a ):
-    FoliaImpl(PROPS) { classInit( a ); };
+    Metric( 0, a ) {};
   Metric( Document *d, const std::string& s=""):
     FoliaImpl(PROPS,d) { classInit( s ); };
   Metric( Document *d, const KWargs& a ):
@@ -1171,9 +1186,9 @@ namespace folia {
     friend void static_init();
   public:
   Division( const std::string& s=""):
-    AbstractStructureElement( PROPS ) { classInit( s ); };
+    Division( 0, s ) {};
   Division( const KWargs& a ):
-    AbstractStructureElement( PROPS ) { classInit( a ); };
+    Division( 0, a ) {};
   Division( Document *d, const std::string& s=""):
     AbstractStructureElement( PROPS, d ) { classInit( s ); };
   Division( Document *d, const KWargs& a ):
@@ -1190,9 +1205,9 @@ namespace folia {
     friend void static_init();
   public:
   LineBreak( const std::string& s=""):
-    AbstractStructureElement( PROPS ){ classInit( s ); };
+    LineBreak( 0, s ) {}
   LineBreak( const KWargs& a ):
-    AbstractStructureElement( PROPS ){ classInit( a ); };
+    LineBreak( 0, a ) {}
   LineBreak( Document *d,  const std::string& s=""):
     AbstractStructureElement( PROPS, d ){ classInit( s ); };
   LineBreak( Document *d,  const KWargs& a ):
@@ -1212,13 +1227,14 @@ namespace folia {
     friend void static_init();
   public:
   WhiteSpace( const std::string& s=""):
-    AbstractStructureElement( PROPS ){ classInit( s ); };
+    WhiteSpace( 0, s ) {}
   WhiteSpace( const KWargs& a ):
-    AbstractStructureElement( PROPS ){ classInit( a ); };
+    WhiteSpace( 0, a ) {}
   WhiteSpace( Document *d,  const std::string& s=""):
-    AbstractStructureElement( PROPS, d ){ classInit( s ); };
+    AbstractStructureElement( PROPS, d ){ classInit( s ); }
   WhiteSpace( Document *d,  const KWargs& a ):
-    AbstractStructureElement( PROPS, d ){ classInit( a ); };
+    AbstractStructureElement( PROPS, d ){ classInit( a ); }
+
   private:
     bool has_base( ElementType e ) const {
       return e == AbstractStructureElement_t;
@@ -1229,18 +1245,19 @@ namespace folia {
   class Word: public AbstractStructureElement {
     friend void static_init();
   public:
-  Word( const std::string& s="" ):
-    AbstractStructureElement( PROPS ){ classInit( s ); };
-  Word( const properties& p, const std::string& s="" ):
-    AbstractStructureElement( p ){ classInit( s ); };
-  Word( const KWargs& a ):
-    AbstractStructureElement( PROPS ){ classInit( a ); };
-  Word( Document *d, const std::string& s=""):
-    AbstractStructureElement( PROPS, d ){ classInit( s ); };
   Word( const properties& p, Document *d, const std::string& s=""):
-    AbstractStructureElement( p, d ){ classInit( s ); };
+    AbstractStructureElement( p, d ){ classInit( s ); }
+  Word( Document *d, const std::string& s=""):
+    Word( PROPS, d, s ){}
+  Word( const std::string& s="" ):
+    Word( PROPS, 0, s ){}
+  Word( const properties& p, const std::string& s="" ):
+    Word( p, 0, s ){}
   Word( Document *d, const KWargs& a ):
     AbstractStructureElement( PROPS, d ){ classInit( a ); };
+  Word( const KWargs& a ):
+    Word( 0, a ) {}
+
     Correction *split( FoliaElement *, FoliaElement *,
 		       const std::string& = "" );
     Sentence *sentence() const;
@@ -1280,13 +1297,14 @@ namespace folia {
     friend void static_init();
   public:
   Part( const std::string& s="" ):
-    AbstractStructureElement( PROPS ){ classInit( s ); };
+    Part( 0, s ){}
   Part( const KWargs& a ):
-    AbstractStructureElement( PROPS ){ classInit( a ); };
+    Part( 0, a ){}
   Part( Document *d, const std::string& s=""):
-    AbstractStructureElement( PROPS, d ){ classInit( s ); };
+    AbstractStructureElement( PROPS, d ){ classInit( s ); }
   Part( Document *d, const KWargs& a ):
-    AbstractStructureElement( PROPS, d ){ classInit( a ); };
+    AbstractStructureElement( PROPS, d ){ classInit( a ); }
+
   private:
     bool has_base( ElementType e ) const {
       return e == AbstractStructureElement_t;
@@ -1301,31 +1319,33 @@ namespace folia {
     friend void static_init();
   public:
   String( const std::string& s="" ):
-      AbstractTokenAnnotation( PROPS ){ classInit( s ); };
+    String( 0, s ) {}
   String( const KWargs& a ):
-      AbstractTokenAnnotation( PROPS ){ classInit( a ); };
+    String( 0, a ) {}
   String( Document *d, const std::string& s=""):
-      AbstractTokenAnnotation( PROPS, d ){ classInit( s ); };
+    AbstractTokenAnnotation( PROPS, d ){ classInit( s ); }
   String( Document *d, const KWargs& a ):
-      AbstractTokenAnnotation( PROPS, d ){ classInit( a ); };
+    AbstractTokenAnnotation( PROPS, d ){ classInit( a ); }
+
   private:
-      bool has_base( ElementType e ) const {
-	return e == AbstractTokenAnnotation_t;
-      }
-      static properties PROPS;
+    bool has_base( ElementType e ) const {
+      return e == AbstractTokenAnnotation_t;
+    }
+    static properties PROPS;
     };
 
   class PlaceHolder: public Word {
     friend void static_init();
   public:
   PlaceHolder( const std::string& s=""):
-    Word( PROPS ){ classInit( s ); };
+    PlaceHolder( 0, s ) {}
   PlaceHolder( const KWargs& a ):
-    Word( PROPS ){ classInit( a ); };
+    PlaceHolder( 0, a ) {}
   PlaceHolder( Document *d, const std::string& s=""):
-    Word( PROPS, d ){ classInit( s ); };
+    Word( PROPS, d ){ classInit( s ); }
   PlaceHolder( Document *d, const KWargs& a ):
-    Word( PROPS, d ){ classInit( a ); };
+    Word( PROPS, d ){ classInit( a ); }
+
     void setAttributes( const KWargs& );
   private:
     bool has_base( ElementType e ) const {
@@ -1338,13 +1358,14 @@ namespace folia {
     friend void static_init();
   public:
   Sentence( const std::string& s=""):
-    AbstractStructureElement( PROPS ){ classInit( s ); }
+    Sentence( 0, s ) {}
   Sentence( const KWargs& a ):
-    AbstractStructureElement( PROPS ){ classInit( a ); }
+    Sentence( 0, a ) {}
   Sentence( Document *d, const std::string& s=""):
     AbstractStructureElement( PROPS, d ){ classInit( s ); }
   Sentence( Document *d, const KWargs& a ):
     AbstractStructureElement( PROPS, d ){ classInit( a ); }
+
     Correction *splitWord( FoliaElement *, FoliaElement *,
 			   FoliaElement *, const KWargs& );
     Correction *mergewords( FoliaElement *,
@@ -1368,13 +1389,14 @@ namespace folia {
     friend void static_init();
   public:
   Speech( const std::string& s=""):
-    AbstractStructureElement( PROPS ){ classInit( s ); };
+    Speech( 0, s ) {}
   Speech( const KWargs& a ):
-    AbstractStructureElement( PROPS ){ classInit( a ); };
+    Speech( 0, a ) {}
   Speech( Document *d, const std::string& s=""):
-    AbstractStructureElement( PROPS, d ){ classInit( s ); };
+    AbstractStructureElement( PROPS, d ){ classInit( s ); }
   Speech( Document *d, const KWargs& a ):
-    AbstractStructureElement( PROPS, d ){ classInit( a ); };
+    AbstractStructureElement( PROPS, d ){ classInit( a ); }
+
   private:
     bool has_base( ElementType e ) const {
       return e == AbstractStructureElement_t;
@@ -1386,13 +1408,14 @@ namespace folia {
     friend void static_init();
   public:
   Text( const std::string& s=""):
-    AbstractStructureElement( PROPS ){ classInit( s ); };
+    Text( 0, s ) {}
   Text( const KWargs& a ):
-    AbstractStructureElement( PROPS ){ classInit( a ); };
+    Text( 0, a ) {}
   Text( Document *d, const std::string& s=""):
-    AbstractStructureElement( PROPS, d ){ classInit( s ); };
+    AbstractStructureElement( PROPS, d ){ classInit( s ); }
   Text( Document *d, const KWargs& a ):
-    AbstractStructureElement( PROPS, d ){ classInit( a ); };
+    AbstractStructureElement( PROPS, d ){ classInit( a ); }
+
   private:
     bool has_base( ElementType e ) const {
       return e == AbstractStructureElement_t;
@@ -1404,13 +1427,14 @@ namespace folia {
     friend void static_init();
   public:
   Utterance( const std::string& s=""):
-    AbstractStructureElement( PROPS ){ classInit( s ); };
+    Utterance( 0, s ) {}
   Utterance( const KWargs& a ):
-    AbstractStructureElement( PROPS ){ classInit( a ); };
+    Utterance( 0, a ) {}
   Utterance( Document *d, const std::string& s=""):
-    AbstractStructureElement( PROPS, d ){ classInit( s ); };
+    AbstractStructureElement( PROPS, d ){ classInit( s ); }
   Utterance( Document *d, const KWargs& a ):
-    AbstractStructureElement( PROPS, d ){ classInit( a ); };
+    AbstractStructureElement( PROPS, d ){ classInit( a ); }
+
   private:
     bool has_base( ElementType e ) const {
       return e == AbstractStructureElement_t;
@@ -1422,13 +1446,14 @@ namespace folia {
     friend void static_init();
   public:
   Event( const std::string& s=""):
-    AbstractStructureElement( PROPS ){ classInit( s ); };
+    Event( 0, s ) {}
   Event( const KWargs& a ):
-    AbstractStructureElement( PROPS ){ classInit( a ); };
+    Event( 0, a ) {}
   Event( Document *d, const std::string& s=""):
-    AbstractStructureElement( PROPS, d ){ classInit( s ); };
+    AbstractStructureElement( PROPS, d ){ classInit( s ); }
   Event( Document *d, const KWargs& a ):
-    AbstractStructureElement( PROPS, d ){ classInit( a ); };
+    AbstractStructureElement( PROPS, d ){ classInit( a ); }
+
   private:
     bool has_base( ElementType e ) const {
       return e == AbstractStructureElement_t;
@@ -1440,13 +1465,14 @@ namespace folia {
     friend void static_init();
   public:
   Caption( const std::string& s="" ):
-    AbstractStructureElement( PROPS ){ classInit( s ); };
+    Caption( 0, s ) {}
   Caption( const KWargs& a ):
-    AbstractStructureElement( PROPS ){ classInit( a ); };
+    Caption( 0, a ) {}
   Caption( Document *d, const std::string& s=""):
-    AbstractStructureElement( PROPS, d ){ classInit( s ); };
+    AbstractStructureElement( PROPS, d ){ classInit( s ); }
   Caption( Document *d, const KWargs& a ):
-    AbstractStructureElement( PROPS, d ){ classInit( a ); };
+    AbstractStructureElement( PROPS, d ){ classInit( a ); }
+
   private:
     bool has_base( ElementType e ) const {
       return e == AbstractStructureElement_t;
@@ -1458,13 +1484,13 @@ namespace folia {
     friend void static_init();
   public:
   Label( const std::string& s=""):
-    AbstractStructureElement( PROPS ){ classInit( s ); };
+    Label( 0, s ) {}
   Label( const KWargs& a ):
-    AbstractStructureElement( PROPS ){ classInit( a ); };
+    Label( 0, a ) {}
   Label( Document *d, const std::string& s="" ):
-    AbstractStructureElement( PROPS, d ){ classInit( s ); };
+    AbstractStructureElement( PROPS, d ){ classInit( s ); }
   Label( Document *d, const KWargs& a ):
-    AbstractStructureElement( PROPS, d ){ classInit( a ); };
+    AbstractStructureElement( PROPS, d ){ classInit( a ); }
   private:
     bool has_base( ElementType e ) const {
       return e == AbstractStructureElement_t;
@@ -1476,13 +1502,14 @@ namespace folia {
     friend void static_init();
   public:
   Item( const std::string& s=""):
-    AbstractStructureElement( PROPS ){ classInit( s ); };
+    Item( 0, s ) {}
   Item( const KWargs& a ):
-    AbstractStructureElement( PROPS ){ classInit( a ); };
+    Item( 0, a ) {}
   Item( Document *d, const std::string& s=""):
-    AbstractStructureElement( PROPS, d ){ classInit( s ); };
+    AbstractStructureElement( PROPS, d ){ classInit( s ); }
   Item( Document *d, const KWargs& a ):
-    AbstractStructureElement( PROPS, d ){ classInit( a ); };
+    AbstractStructureElement( PROPS, d ){ classInit( a ); }
+
   private:
     bool has_base( ElementType e ) const {
       return e == AbstractStructureElement_t;
@@ -1494,13 +1521,14 @@ namespace folia {
     friend void static_init();
   public:
   List( const std::string& s=""):
-    AbstractStructureElement( PROPS ){ classInit( s ); };
+    List( 0, s ) {}
   List( const KWargs& a ):
-    AbstractStructureElement( PROPS ){ classInit( a ); };
+    List( 0, a ) {}
   List( Document *d, const std::string& s=""):
-    AbstractStructureElement( PROPS, d ){ classInit( s ); };
+    AbstractStructureElement( PROPS, d ){ classInit( s ); }
   List( Document *d, const KWargs& a ):
-    AbstractStructureElement( PROPS, d ){ classInit( a ); };
+    AbstractStructureElement( PROPS, d ){ classInit( a ); }
+
   private:
     bool has_base( ElementType e ) const {
       return e == AbstractStructureElement_t;
@@ -1512,13 +1540,14 @@ namespace folia {
     friend void static_init();
   public:
   Figure( const std::string& s=""):
-    AbstractStructureElement( PROPS ){ classInit( s ); };
+    Figure( 0, s ) {}
   Figure( const KWargs& a ):
-    AbstractStructureElement( PROPS ){ classInit( a ); };
+    Figure( 0, a ) {}
   Figure( Document *d, const std::string& s="" ):
-    AbstractStructureElement( PROPS, d ){ classInit( s ); };
+    AbstractStructureElement( PROPS, d ){ classInit( s ); }
   Figure( Document *d, const KWargs& a ):
-    AbstractStructureElement( PROPS, d ){ classInit( a ); };
+    AbstractStructureElement( PROPS, d ){ classInit( a ); }
+
     const std::string src() const { return _src; };
     const UnicodeString caption() const;
   private:
@@ -1532,13 +1561,14 @@ namespace folia {
     friend void static_init();
   public:
   Paragraph( const std::string& s=""):
-    AbstractStructureElement( PROPS ){ classInit( s ); };
+    Paragraph( 0, s ) {}
   Paragraph( const KWargs& a ):
-    AbstractStructureElement( PROPS ){ classInit( a ); };
+    Paragraph( 0, a ) {}
   Paragraph( Document *d, const std::string& s=""):
-    AbstractStructureElement( PROPS, d ){ classInit( s ); };
+    AbstractStructureElement( PROPS, d ){ classInit( s ); }
   Paragraph( Document *d, const KWargs& a ):
-    AbstractStructureElement( PROPS, d ){ classInit( a ); };
+    AbstractStructureElement( PROPS, d ){ classInit( a ); }
+
   private:
     bool has_base( ElementType e ) const {
       return e == AbstractStructureElement_t;
@@ -1550,13 +1580,14 @@ namespace folia {
     friend void static_init();
   public:
   Alternative( const std::string& s=""):
-    AbstractStructureElement( PROPS ){ classInit( s ); };
+    Alternative( 0, s ) {}
   Alternative( const KWargs& a ):
-    AbstractStructureElement( PROPS ){ classInit( a ); };
+    Alternative( 0, a ) {}
   Alternative( Document *d, const std::string& s=""):
-    AbstractStructureElement( PROPS, d ){ classInit( s ); };
+    AbstractStructureElement( PROPS, d ){ classInit( s ); }
   Alternative( Document *d, const KWargs& a ):
-    AbstractStructureElement( PROPS, d ){ classInit( a ); };
+    AbstractStructureElement( PROPS, d ){ classInit( a ); }
+
   private:
     bool has_base( ElementType e ) const {
       return e == AbstractStructureElement_t;
@@ -1570,13 +1601,14 @@ namespace folia {
     friend void static_init();
   public:
   AlternativeLayers( const std::string& s=""):
-    FoliaImpl(PROPS){ classInit( s ); };
+    AlternativeLayers( 0, s ) {}
   AlternativeLayers( const KWargs& a ):
-    FoliaImpl(PROPS){ classInit( a ); };
+    AlternativeLayers( 0, a ) {}
   AlternativeLayers( Document *d, const std::string& s=""):
-    FoliaImpl(PROPS,d){ classInit( s ); };
+    FoliaImpl(PROPS,d){ classInit( s ); }
   AlternativeLayers( Document *d, const KWargs& a ):
-    FoliaImpl(PROPS,d){ classInit( a ); };
+    FoliaImpl(PROPS,d){ classInit( a ); }
+
   private:
     bool has_base( ElementType ) const {
       return false;
@@ -1614,13 +1646,14 @@ namespace folia {
     friend void static_init();
   public:
   PosAnnotation( const std::string& s=""):
-    AbstractTokenAnnotation( PROPS ){ classInit( s ); };
+    PosAnnotation( 0, s ) {}
   PosAnnotation( const KWargs& a ):
-    AbstractTokenAnnotation( PROPS ){ classInit( a ); };
+    PosAnnotation( 0, a ) {}
   PosAnnotation( Document *d, const std::string& s=""):
-    AbstractTokenAnnotation( PROPS, d ){ classInit( s ); };
+    AbstractTokenAnnotation( PROPS, d ){ classInit( s ); }
   PosAnnotation( Document *d, const KWargs& a ):
-    AbstractTokenAnnotation( PROPS, d ){ classInit( a ); };
+    AbstractTokenAnnotation( PROPS, d ){ classInit( a ); }
+
   private:
     bool has_base( ElementType e ) const {
       return e == AbstractTokenAnnotation_t;
@@ -1632,13 +1665,14 @@ namespace folia {
     friend void static_init();
   public:
   LemmaAnnotation( const std::string& s=""):
-    AbstractTokenAnnotation( PROPS ){ classInit( s ); };
+    LemmaAnnotation( 0, s ) {}
   LemmaAnnotation( const KWargs& a ):
-    AbstractTokenAnnotation( PROPS ){ classInit( a ); };
+    LemmaAnnotation( 0, a ) {}
   LemmaAnnotation( Document *d, const std::string& s=""):
-    AbstractTokenAnnotation( PROPS, d ){ classInit( s ); };
+    AbstractTokenAnnotation( PROPS, d ){ classInit( s ); }
   LemmaAnnotation( Document *d, const KWargs& a ):
-    AbstractTokenAnnotation( PROPS, d ){ classInit( a ); };
+    AbstractTokenAnnotation( PROPS, d ){ classInit( a ); }
+
   private:
     bool has_base( ElementType e ) const {
       return e == AbstractTokenAnnotation_t;
@@ -1650,13 +1684,14 @@ namespace folia {
     friend void static_init();
   public:
   LangAnnotation( const std::string& s=""):
-    AbstractTokenAnnotation( PROPS ){ classInit( s ); };
+    LangAnnotation( 0, s ) {}
   LangAnnotation( const KWargs& a ):
-    AbstractTokenAnnotation( PROPS ){ classInit( a ); };
+    LangAnnotation( 0, a ) {}
   LangAnnotation( Document *d, const std::string& s=""):
-    AbstractTokenAnnotation( PROPS, d ){ classInit( s ); };
+    AbstractTokenAnnotation( PROPS, d ){ classInit( s ); }
   LangAnnotation( Document *d, const KWargs& a ):
-    AbstractTokenAnnotation( PROPS, d ){ classInit( a ); };
+    AbstractTokenAnnotation( PROPS, d ){ classInit( a ); }
+
   private:
     bool has_base( ElementType e ) const {
       return e == AbstractTokenAnnotation_t;
@@ -1668,13 +1703,14 @@ namespace folia {
     friend void static_init();
   public:
   Phoneme( const std::string& s=""):
-    AbstractTokenAnnotation( PROPS ){ classInit( s ); };
+    Phoneme( 0, s ) {}
   Phoneme( const KWargs& a ):
-    AbstractTokenAnnotation( PROPS ){ classInit( a ); };
+    Phoneme( 0, a ) {}
   Phoneme( Document *d, const std::string& s=""):
-    AbstractTokenAnnotation( PROPS, d ){ classInit( s ); };
+    AbstractTokenAnnotation( PROPS, d ){ classInit( s ); }
   Phoneme( Document *d, const KWargs& a ):
-    AbstractTokenAnnotation( PROPS, d ){ classInit( a ); };
+    AbstractTokenAnnotation( PROPS, d ){ classInit( a ); }
+
   private:
     bool has_base( ElementType e ) const {
       return e == AbstractTokenAnnotation_t;
@@ -1686,13 +1722,14 @@ namespace folia {
     friend void static_init();
   public:
   DomainAnnotation(  const std::string& s=""):
-    AbstractTokenAnnotation( PROPS ){ classInit( s ); };
+    DomainAnnotation( 0, s ) {}
   DomainAnnotation(  const KWargs& a ):
-    AbstractTokenAnnotation( PROPS ){ classInit( a ); };
+    DomainAnnotation( 0, a ) {}
   DomainAnnotation( Document *d, const std::string& s=""):
-    AbstractTokenAnnotation( PROPS, d ){ classInit( s ); };
+    AbstractTokenAnnotation( PROPS, d ){ classInit( s ); }
   DomainAnnotation( Document *d, const KWargs& a ):
-    AbstractTokenAnnotation( PROPS, d ){ classInit( a ); };
+    AbstractTokenAnnotation( PROPS, d ){ classInit( a ); }
+
   private:
     bool has_base( ElementType e ) const {
       return e == AbstractTokenAnnotation_t;
@@ -1704,13 +1741,14 @@ namespace folia {
     friend void static_init();
   public:
   SenseAnnotation( const std::string& s="" ):
-    AbstractTokenAnnotation( PROPS ){ classInit( s ); };
+    SenseAnnotation( 0, s ) {}
   SenseAnnotation( const KWargs& a ):
-    AbstractTokenAnnotation( PROPS ){ classInit( a ); };
+    SenseAnnotation( 0, a ) {}
   SenseAnnotation( Document *d, const std::string& s="" ):
-    AbstractTokenAnnotation( PROPS, d ){ classInit( s ); };
+    AbstractTokenAnnotation( PROPS, d ){ classInit( s ); }
   SenseAnnotation( Document *d, const KWargs& a ):
-    AbstractTokenAnnotation( PROPS, d ){ classInit( a ); };
+    AbstractTokenAnnotation( PROPS, d ){ classInit( a ); }
+
   private:
     bool has_base( ElementType e ) const {
       return e == AbstractTokenAnnotation_t;
@@ -1722,13 +1760,14 @@ namespace folia {
     friend void static_init();
   public:
   SubjectivityAnnotation( const std::string& s="" ):
-    AbstractTokenAnnotation( PROPS ){ classInit( s ); };
+    SubjectivityAnnotation( 0, s ) {}
   SubjectivityAnnotation( const KWargs& a ):
-    AbstractTokenAnnotation( PROPS ){ classInit( a ); };
+    SubjectivityAnnotation( 0, a ) {}
   SubjectivityAnnotation( Document *d, const std::string& s="" ):
-    AbstractTokenAnnotation( PROPS, d ){ classInit( s ); };
+    AbstractTokenAnnotation( PROPS, d ){ classInit( s ); }
   SubjectivityAnnotation( Document *d, const KWargs& a ):
-    AbstractTokenAnnotation( PROPS, d ){ classInit( a ); };
+    AbstractTokenAnnotation( PROPS, d ){ classInit( a ); }
+
   private:
     bool has_base( ElementType e ) const {
       return e == AbstractTokenAnnotation_t;
@@ -1740,9 +1779,9 @@ namespace folia {
     friend void static_init();
   public:
   Quote( const std::string& s="" ):
-    AbstractStructureElement( PROPS ){ classInit( s ); };
+    Quote( 0, s ) {}
   Quote( const KWargs& a ):
-    AbstractStructureElement( PROPS ){ classInit( a ); };
+    Quote( 0, a ) {}
   Quote( Document *d, const std::string& s="" ):
     AbstractStructureElement( PROPS, d ){ classInit( s ); };
   Quote( Document *d, const KWargs& a ):
@@ -1761,9 +1800,9 @@ namespace folia {
     friend void static_init();
   public:
   BeginDateTimeFeature( const std::string& s="" ):
-    Feature( PROPS ){ classInit( s ); }
+    BeginDateTimeFeature( 0, s ) {}
   BeginDateTimeFeature( const KWargs& a ):
-    Feature( PROPS ){ classInit( a ); }
+    BeginDateTimeFeature( 0, a ) {}
   BeginDateTimeFeature( Document *d, const std::string& s="" ):
     Feature( PROPS, d ){ classInit( s ); }
   BeginDateTimeFeature( Document *d, const KWargs& a ):
@@ -1780,13 +1819,14 @@ namespace folia {
     friend void static_init();
   public:
   EndDateTimeFeature( const std::string& s="" ):
-    Feature( PROPS ){ classInit( s ); }
+    EndDateTimeFeature( 0, s ) {}
   EndDateTimeFeature( const KWargs& a ):
-    Feature( PROPS ){ classInit( a ); }
+    EndDateTimeFeature( 0, a ) {}
   EndDateTimeFeature( Document *d, const std::string& s="" ):
     Feature( PROPS, d ){ classInit( s ); }
   EndDateTimeFeature( Document *d, const KWargs& a ):
     Feature( PROPS, d ){ classInit( a ); }
+
   private:
     bool has_base( ElementType e ) const {
       return e == Feature_t;
@@ -1799,13 +1839,14 @@ namespace folia {
     friend void static_init();
   public:
   SynsetFeature( const std::string& s="" ):
-    Feature( PROPS ){ classInit( s ); }
+    SynsetFeature( 0, s ) {}
   SynsetFeature( const KWargs& a ):
-    Feature( PROPS ){ classInit( a ); }
+    SynsetFeature( 0, a ) {}
   SynsetFeature( Document *d, const std::string& s="" ):
     Feature( PROPS, d ){ classInit( s ); }
   SynsetFeature( Document *d, const KWargs& a ):
     Feature( PROPS, d ){ classInit( a ); }
+
   private:
     bool has_base( ElementType e ) const {
       return e == Feature_t;
@@ -1818,13 +1859,14 @@ namespace folia {
     friend void static_init();
   public:
   ActorFeature( const std::string& s="" ):
-    Feature( PROPS ){ classInit( s ); }
+    ActorFeature( 0, s ) {}
   ActorFeature( const KWargs& a ):
-    Feature( PROPS ){ classInit( a ); }
+    ActorFeature( 0, a ) {}
   ActorFeature( Document *d, const std::string& s="" ):
     Feature( PROPS, d ){ classInit( s ); }
   ActorFeature( Document *d, const KWargs& a ):
     Feature( PROPS, d ){ classInit( a ); }
+
   private:
     bool has_base( ElementType e ) const {
       return e == Feature_t;
@@ -1837,13 +1879,14 @@ namespace folia {
     friend void static_init();
   public:
   HeadFeature( const std::string& s="" ):
-    Feature( PROPS ){ classInit( s ); }
+    HeadFeature(0, s ) {}
   HeadFeature( const KWargs& a ):
-    Feature( PROPS ){ classInit( a ); }
+    HeadFeature(0, a ) {}
   HeadFeature( Document *d, const std::string& s="" ):
     Feature( PROPS, d ){ classInit( s ); }
   HeadFeature( Document *d, const KWargs& a ):
     Feature( PROPS, d ){ classInit( a ); }
+
   private:
     bool has_base( ElementType e ) const {
       return e == Feature_t;
@@ -1856,13 +1899,14 @@ namespace folia {
     friend void static_init();
   public:
   ValueFeature( const std::string& s="" ):
-    Feature( PROPS ){ classInit( s ); }
+    ValueFeature( 0, s ) {}
   ValueFeature( const KWargs& a ):
-    Feature( PROPS ){ classInit( a ); }
+    ValueFeature( 0, a ) {}
   ValueFeature( Document *d, const std::string& s="" ):
     Feature( PROPS, d ){ classInit( s ); }
   ValueFeature( Document *d, const KWargs& a ):
     Feature( PROPS, d ){ classInit( a ); }
+
   private:
     bool has_base( ElementType e ) const {
       return e == Feature_t;
@@ -1875,13 +1919,14 @@ namespace folia {
     friend void static_init();
   public:
   FunctionFeature( const std::string& s="" ):
-    Feature( PROPS ){ classInit( s ); }
+    FunctionFeature( 0, s  ) {}
   FunctionFeature( const KWargs& a ):
-    Feature( PROPS ){ classInit( a ); }
+    FunctionFeature( 0, a  ) {}
   FunctionFeature( Document *d, const std::string& s="" ):
     Feature( PROPS, d ){ classInit( s ); }
   FunctionFeature( Document *d, const KWargs& a ):
     Feature( PROPS, d ){ classInit( a ); }
+
   private:
     bool has_base( ElementType e ) const {
       return e == Feature_t;
@@ -1894,13 +1939,14 @@ namespace folia {
     friend void static_init();
   public:
   TimeFeature( const std::string& s="" ):
-    Feature( PROPS ){ classInit( s ); }
+    TimeFeature( 0, s ) {}
   TimeFeature( const KWargs& a ):
-    Feature( PROPS ){ classInit( a ); }
+    TimeFeature( 0, a ) {}
   TimeFeature( Document *d, const std::string& s="" ):
     Feature( PROPS, d ){ classInit( s ); }
   TimeFeature( Document *d, const KWargs& a ):
     Feature( PROPS, d ){ classInit( a ); }
+
   private:
     bool has_base( ElementType e ) const {
       return e == Feature_t;
@@ -1913,13 +1959,14 @@ namespace folia {
     friend void static_init();
   public:
   LevelFeature( const std::string& s="" ):
-    Feature( PROPS ){ classInit( s ); }
+    LevelFeature( 0, s ) {}
   LevelFeature( const KWargs& a ):
-    Feature( PROPS ){ classInit( a ); }
+    LevelFeature( 0, a ) {}
   LevelFeature( Document *d, const std::string& s="" ):
     Feature( PROPS, d ){ classInit( s ); }
   LevelFeature( Document *d, const KWargs& a ):
     Feature( PROPS, d ){ classInit( a ); }
+
   private:
     bool has_base( ElementType e ) const {
       return e == Feature_t;
@@ -1932,13 +1979,14 @@ namespace folia {
     friend void static_init();
   public:
   ModalityFeature( const std::string& s="" ):
-    Feature( PROPS ){ classInit( s ); }
+    ModalityFeature( 0, s ) {}
   ModalityFeature( const KWargs& a ):
-    Feature( PROPS ){ classInit( a ); }
+    ModalityFeature( 0, a ) {}
   ModalityFeature( Document *d, const std::string& s="" ):
     Feature( PROPS, d ){ classInit( s ); }
   ModalityFeature( Document *d, const KWargs& a ):
     Feature( PROPS, d ){ classInit( a ); }
+
   private:
     bool has_base( ElementType e ) const {
       return e == Feature_t;
@@ -1951,13 +1999,14 @@ namespace folia {
     friend void static_init();
   public:
   WordReference( const std::string& s="" ):
-    FoliaImpl(PROPS){ classInit( s ); };
+    WordReference( 0, s ) {}
   WordReference( const KWargs& a ):
-    FoliaImpl(PROPS){ classInit( a ); };
+    WordReference( 0, a ) {}
   WordReference( Document *d, const std::string& s="" ):
-    FoliaImpl(PROPS,d){ classInit( s ); };
+    FoliaImpl(PROPS,d){ classInit( s ); }
   WordReference( Document *d, const KWargs& a ):
-    FoliaImpl(PROPS,d){ classInit( a ); };
+    FoliaImpl(PROPS,d){ classInit( a ); }
+
   private:
     bool has_base( ElementType ) const {
       return false;
@@ -1971,13 +2020,14 @@ namespace folia {
     friend void static_init();
   public:
   Alignment( const std::string& s="" ):
-    FoliaImpl(PROPS){ classInit( s ); };
+    Alignment( 0, s ) {}
   Alignment( const KWargs& a ):
-    FoliaImpl(PROPS){ classInit( a ); };
+    Alignment( 0, a ) {}
   Alignment( Document *d, const std::string& s="" ):
-    FoliaImpl(PROPS,d){ classInit( s ); };
+    FoliaImpl(PROPS,d){ classInit( s ); }
   Alignment( Document *d, const KWargs& a ):
-    FoliaImpl(PROPS,d){ classInit( a ); };
+    FoliaImpl(PROPS,d){ classInit( a ); }
+
     std::vector<FoliaElement *>resolve() const;
   private:
     bool has_base( ElementType ) const {
@@ -1991,13 +2041,14 @@ namespace folia {
     friend class Alignment;
   public:
   AlignReference( const std::string& s="" ):
-    FoliaImpl(PROPS){ classInit( s ); };
+    AlignReference( 0, s ) {}
   AlignReference( const KWargs& a ):
-    FoliaImpl(PROPS){ classInit( a ); };
+    AlignReference( 0, a ) {}
   AlignReference( Document *d, const std::string& s="" ):
-    FoliaImpl(PROPS,d){ classInit( s ); };
+    FoliaImpl(PROPS,d){ classInit( s ); }
   AlignReference( Document *d, const KWargs& a ):
-    FoliaImpl(PROPS,d){ classInit( a ); };
+    FoliaImpl(PROPS,d){ classInit( a ); }
+
     KWargs collectAttributes() const;
     void setAttributes( const KWargs& );
   private:
@@ -2016,13 +2067,14 @@ namespace folia {
     friend void static_init();
   public:
   SyntacticUnit( const std::string& s="" ):
-    AbstractSpanAnnotation( PROPS ){ classInit( s ); }
+    SyntacticUnit( 0, s ) {}
   SyntacticUnit( const KWargs& a ):
-    AbstractSpanAnnotation( PROPS ){ classInit( a ); }
+    SyntacticUnit( 0, a ) {}
   SyntacticUnit( Document *d, const std::string& s="" ):
     AbstractSpanAnnotation( PROPS, d ){ classInit( s ); }
   SyntacticUnit( Document *d, const KWargs& a ):
     AbstractSpanAnnotation( PROPS, d ){ classInit( a ); }
+
   private:
     bool has_base( ElementType e ) const {
       return e == AbstractSpanAnnotation_t;
@@ -2034,13 +2086,14 @@ namespace folia {
     friend void static_init();
   public:
   Chunk( const std::string& s="" ):
-    AbstractSpanAnnotation( PROPS ){ classInit( s ); }
+    Chunk( 0, s ) {}
   Chunk( const KWargs& a ):
-    AbstractSpanAnnotation( PROPS ){ classInit( a ); }
+    Chunk( 0, a ) {}
   Chunk( Document *d, const std::string& s="" ):
     AbstractSpanAnnotation( PROPS, d ){ classInit( s ); }
   Chunk( Document *d, const KWargs& a ):
     AbstractSpanAnnotation( PROPS, d ){ classInit( a ); }
+
   private:
     bool has_base( ElementType e ) const {
       return e == AbstractSpanAnnotation_t;
@@ -2052,13 +2105,14 @@ namespace folia {
     friend void static_init();
   public:
   Entity( const std::string& s="" ):
-    AbstractSpanAnnotation( PROPS ){ classInit( s ); }
+    Entity( 0, s ) {}
   Entity( const KWargs& a ):
-    AbstractSpanAnnotation( PROPS ){ classInit( a ); }
+    Entity( 0, a ) {}
   Entity( Document *d, const std::string& s="" ):
     AbstractSpanAnnotation( PROPS, d ){ classInit( s ); }
   Entity( Document *d, const KWargs& a ):
     AbstractSpanAnnotation( PROPS, d ){ classInit( a ); }
+
   private:
     bool has_base( ElementType e ) const {
       return e == AbstractSpanAnnotation_t;
@@ -2070,13 +2124,14 @@ namespace folia {
     friend void static_init();
   public:
   Headwords( const std::string& s="" ):
-    AbstractSpanAnnotation( PROPS ){ classInit( s ); }
+    Headwords( 0, s ) {}
   Headwords( const KWargs& a ):
-    AbstractSpanAnnotation( PROPS ){ classInit( a ); }
+    Headwords( 0, a ) {}
   Headwords( Document *d, const std::string& s="" ):
     AbstractSpanAnnotation( PROPS, d ){ classInit( s ); }
   Headwords( Document *d, const KWargs& a ):
     AbstractSpanAnnotation( PROPS, d ){ classInit( a ); }
+
   private:
     bool has_base( ElementType e ) const {
       return e == AbstractSpanAnnotation_t;
@@ -2088,13 +2143,14 @@ namespace folia {
     friend void static_init();
   public:
   DependencyDependent( const std::string& s="" ):
-    AbstractSpanAnnotation( PROPS ){ classInit( s ); }
+    DependencyDependent( 0, s ) {}
   DependencyDependent( const KWargs& a ):
-    AbstractSpanAnnotation( PROPS ){ classInit( a ); }
+    DependencyDependent( 0, a ) {}
   DependencyDependent( Document *d, const std::string& s="" ):
     AbstractSpanAnnotation( PROPS, d ){ classInit( s ); }
   DependencyDependent( Document *d, const KWargs& a ):
     AbstractSpanAnnotation( PROPS, d ){ classInit( a ); }
+
   private:
     bool has_base( ElementType e ) const {
       return e == AbstractSpanAnnotation_t;
@@ -2106,13 +2162,14 @@ namespace folia {
     friend void static_init();
   public:
   Dependency( const std::string& s="" ):
-    AbstractSpanAnnotation( PROPS ){ classInit( s ); }
+    Dependency( 0, s ) {}
   Dependency( const KWargs& a ):
-    AbstractSpanAnnotation( PROPS ){ classInit( a ); }
+    Dependency( 0, a ) {}
   Dependency( Document *d, const std::string& s="" ):
     AbstractSpanAnnotation( PROPS, d ){ classInit( s ); }
   Dependency( Document *d, const KWargs& a ):
     AbstractSpanAnnotation( PROPS, d ){ classInit( a ); }
+
     Headwords *head() const;
     DependencyDependent *dependent() const;
   private:
@@ -2126,13 +2183,14 @@ namespace folia {
     friend void static_init();
   public:
   CoreferenceLink( const std::string& s="" ):
-    AbstractSpanAnnotation( PROPS ){ classInit( s ); }
+    CoreferenceLink( 0, s ) {}
   CoreferenceLink( const KWargs& a ):
-    AbstractSpanAnnotation( PROPS ){ classInit( a ); }
+    CoreferenceLink( 0, a ) {}
   CoreferenceLink( Document *d, const std::string& s="" ):
     AbstractSpanAnnotation( PROPS, d ){ classInit( s ); }
   CoreferenceLink( Document *d, const KWargs& a ):
     AbstractSpanAnnotation( PROPS, d ){ classInit( a ); }
+
   private:
     bool has_base( ElementType e ) const {
       return e == AbstractSpanAnnotation_t;
@@ -2144,9 +2202,9 @@ namespace folia {
     friend void static_init();
   public:
   CoreferenceChain( const std::string& s="" ):
-    AbstractSpanAnnotation( PROPS ){ classInit( s ); }
+    CoreferenceChain( 0, s ) {}
   CoreferenceChain( const KWargs& a ):
-    AbstractSpanAnnotation( PROPS ){ classInit( a ); }
+    CoreferenceChain( 0, a ) {}
   CoreferenceChain( Document *d, const std::string& s="" ):
     AbstractSpanAnnotation( PROPS, d ){ classInit( s ); }
   CoreferenceChain( Document *d, const KWargs& a ):
@@ -2162,13 +2220,14 @@ namespace folia {
     friend void static_init();
   public:
   SemanticRole( const std::string& s="" ):
-    AbstractSpanAnnotation( PROPS ){ classInit( s ); }
+    SemanticRole( 0, s ) {}
   SemanticRole( const KWargs& a ):
-    AbstractSpanAnnotation( PROPS ){ classInit( a ); }
+    SemanticRole( 0, a ) {}
   SemanticRole( Document *d, const std::string& s="" ):
     AbstractSpanAnnotation( PROPS, d ){ classInit( s ); }
   SemanticRole( Document *d, const KWargs& a ):
     AbstractSpanAnnotation( PROPS, d ){ classInit( a ); }
+
   private:
     bool has_base( ElementType e ) const {
       return e == AbstractSpanAnnotation_t;
@@ -2185,11 +2244,11 @@ namespace folia {
     protected:
       // DO NOT USE AbstractAnnotationLayer as a real node!!
     AbstractAnnotationLayer( Document *d = 0 ):
-      AbstractAnnotationLayer( PROPS, d ) { classInit(); };
+      AbstractAnnotationLayer( PROPS, d ) {}
     AbstractAnnotationLayer( const properties& props, Document *d = 0 ):
-      FoliaImpl( props, d ) { classInit(); };
+      AbstractAnnotationLayer( props, d, "" ) {}
     AbstractAnnotationLayer( const properties& props, const KWargs& a ):
-      FoliaImpl( props ) { classInit( a ); };
+      AbstractAnnotationLayer( props, 0, a ) {}
     AbstractAnnotationLayer( const properties& props, Document *d, const std::string& s ):
       FoliaImpl( props, d ) { classInit( s ); };
     AbstractAnnotationLayer( const properties& props, Document *d, const KWargs& a ):
@@ -2218,13 +2277,14 @@ namespace folia {
     friend void static_init();
   public:
   New( const std::string& s=""):
-    AbstractCorrectionChild( PROPS ) { classInit( s ); };
+    New( 0, s ) {}
   New( const KWargs& a ):
-    AbstractCorrectionChild( PROPS ) { classInit( a ); };
+    New( 0, a ) {}
   New( Document *d, const std::string& s=""):
-    AbstractCorrectionChild( PROPS, d ) { classInit( s ); };
+    AbstractCorrectionChild( PROPS, d ) { classInit( s ); }
   New( Document *d, const KWargs& a ):
-    AbstractCorrectionChild( PROPS, d ) { classInit( a ); };
+    AbstractCorrectionChild( PROPS, d ) { classInit( a ); }
+
   private:
     bool has_base( ElementType e ) const {
       return e == AbstractCorrectionChild_t;
@@ -2236,13 +2296,14 @@ namespace folia {
     friend void static_init();
   public:
   Current( const std::string& s=""):
-    AbstractCorrectionChild( PROPS ) { classInit( s ); };
+    Current( 0, s ) {}
   Current( const KWargs& a ):
-    AbstractCorrectionChild( PROPS ) { classInit( a ); };
+    Current( 0, a ) {}
   Current( Document *d, const std::string& s=""):
-    AbstractCorrectionChild( PROPS, d ) { classInit( s ); };
+    AbstractCorrectionChild( PROPS, d ) { classInit( s ); }
   Current( Document *d, const KWargs& a ):
-    AbstractCorrectionChild( PROPS, d ) { classInit( a ); };
+    AbstractCorrectionChild( PROPS, d ) { classInit( a ); }
+
   private:
     bool has_base( ElementType e ) const {
       return e == AbstractCorrectionChild_t;
@@ -2254,13 +2315,14 @@ namespace folia {
     friend void static_init();
   public:
   Original( const std::string& s=""):
-    AbstractCorrectionChild( PROPS ) { classInit( s ); };
+    Original( 0, s ) {}
   Original( const KWargs& a ):
-    AbstractCorrectionChild( PROPS ) { classInit( a ); };
+    Original( 0, a ) {}
   Original( Document *d, const std::string& s=""):
-    AbstractCorrectionChild( PROPS, d ) { classInit( s ); };
+    AbstractCorrectionChild( PROPS, d ) { classInit( s ); }
   Original( Document *d, const KWargs& a ):
-    AbstractCorrectionChild( PROPS, d ) { classInit( a ); };
+    AbstractCorrectionChild( PROPS, d ) { classInit( a ); }
+
   private:
     bool has_base( ElementType e ) const {
       return e == AbstractCorrectionChild_t;
@@ -2273,13 +2335,14 @@ namespace folia {
     friend void static_init();
   public:
   Suggestion( const std::string& s=""):
-    AbstractCorrectionChild( PROPS ) { classInit( s ); };
+    Suggestion( 0, s ) {}
   Suggestion( const KWargs& a ):
-    AbstractCorrectionChild( PROPS ) { classInit( a ); };
+    Suggestion( 0, a ) {}
   Suggestion( Document *d, const std::string& s=""):
-    AbstractCorrectionChild( PROPS, d ) { classInit( s ); };
+    AbstractCorrectionChild( PROPS, d ) { classInit( s ); }
   Suggestion( Document *d, const KWargs& a ):
-    AbstractCorrectionChild( PROPS, d ) { classInit( a ); };
+    AbstractCorrectionChild( PROPS, d ) { classInit( a ); }
+
   private:
     bool has_base( ElementType e ) const {
       return e == AbstractCorrectionChild_t;
@@ -2292,13 +2355,14 @@ namespace folia {
     friend void static_init();
   public:
   Description( const std::string& s=""):
-    FoliaImpl(PROPS) { classInit( s ); };
+    Description( 0, s ) {}
   Description( const KWargs& a ):
-    FoliaImpl(PROPS) { classInit( a ); };
+    Description( 0, a ) {}
   Description( Document *d, const std::string& s="" ):
-    FoliaImpl(PROPS,d) { classInit( s ); };
+    FoliaImpl(PROPS,d) { classInit( s ); }
   Description( Document *d, const KWargs& a ):
-    FoliaImpl(PROPS,d) { classInit( a ); };
+    FoliaImpl(PROPS,d) { classInit( a ); }
+
     const std::string description() const { return _value; };
     void setAttributes( const KWargs& kwargs );
     FoliaElement* parseXml( const xmlNode * );
@@ -2315,13 +2379,14 @@ namespace folia {
     friend void static_init();
   public:
   XmlComment( const std::string& s=""):
-    FoliaImpl(PROPS) { classInit( s ); };
+    XmlComment( 0, s ) {}
   XmlComment( const KWargs& a ):
-    FoliaImpl(PROPS) { classInit( a ); };
+    XmlComment( 0, a ) {}
   XmlComment( Document *d, const std::string& s="" ):
-    FoliaImpl(PROPS,d) { classInit( s ); };
+    FoliaImpl(PROPS,d) { classInit( s ); }
   XmlComment( Document *d, const KWargs& a ):
-    FoliaImpl(PROPS,d) { classInit( a ); };
+    FoliaImpl(PROPS,d) { classInit( a ); }
+
     FoliaElement* parseXml( const xmlNode * );
     xmlNode *xml( bool, bool=false ) const;
   private:
@@ -2336,13 +2401,14 @@ namespace folia {
     friend void static_init();
   public:
   XmlText( const std::string& s=""):
-    FoliaImpl(PROPS) { classInit( s ); };
+    XmlText( 0, s ) {}
   XmlText( const KWargs& a ):
-    FoliaImpl(PROPS) { classInit( a ); };
+    XmlText( 0, a ) {}
   XmlText( Document *d, const std::string& s="" ):
-    FoliaImpl(PROPS,d) { classInit( s ); };
+    FoliaImpl(PROPS,d) { classInit( s ); }
   XmlText( Document *d, const KWargs& a ):
-    FoliaImpl(PROPS, d ) { classInit( a ); };
+    FoliaImpl(PROPS, d ) { classInit( a ); }
+
     FoliaElement* parseXml( const xmlNode * );
     xmlNode *xml( bool, bool=false ) const;
     bool setvalue( const std::string& s ) { _value = s; return true; };
@@ -2361,13 +2427,14 @@ namespace folia {
     friend void static_init();
   public:
   External( const std::string& s=""):
-    FoliaImpl( PROPS ) { classInit( s ); };
+    External( 0, s ) {}
   External( const KWargs& a ):
-    FoliaImpl( PROPS ) { classInit( a ); };
+    External( 0, a ) {}
   External( Document *d, const std::string& s="" ):
-    FoliaImpl( PROPS, d ) { classInit( s ); };
+    FoliaImpl( PROPS, d ) { classInit( s ); }
   External( Document *d, const KWargs& a ):
-    FoliaImpl( PROPS, d ) { classInit( a ); };
+    FoliaImpl( PROPS, d ) { classInit( a ); }
+
     FoliaElement* parseXml( const xmlNode * );
     void resolve();
     void setAttributes( const KWargs& );
@@ -2385,12 +2452,14 @@ namespace folia {
     friend void static_init();
   public:
   Note( const std::string& s=""):
-    AbstractStructureElement( PROPS ){ classInit( s ); };
+    Note( 0, s ) {}
   Note( const KWargs& a ):
-    AbstractStructureElement( PROPS ){ classInit( a ); };
+    Note( 0, a ) {}
   Note( Document *d, const std::string& s=""):
-    AbstractStructureElement( PROPS, d ){ classInit( s ); };
-  Note( Document *d, const KWargs& a ): AbstractStructureElement( PROPS, d ){ classInit( a ); };
+    AbstractStructureElement( PROPS, d ){ classInit( s ); }
+  Note( Document *d, const KWargs& a ):
+    AbstractStructureElement( PROPS, d ){ classInit( a ); }
+
     KWargs collectAttributes() const;
     void setAttributes( const KWargs& );
   private:
@@ -2405,13 +2474,14 @@ namespace folia {
     friend void static_init();
   public:
   Definition( const std::string& s=""):
-    AbstractStructureElement( PROPS ){ classInit( s ); };
+    Definition( 0, s ) {}
   Definition( const KWargs& a ):
-    AbstractStructureElement( PROPS ){ classInit( a ); };
+    Definition( 0, a ) {}
   Definition( Document *d, const std::string& s=""):
-    AbstractStructureElement( PROPS, d ){ classInit( s ); };
+    AbstractStructureElement( PROPS, d ){ classInit( s ); }
   Definition( Document *d, const KWargs& a ):
-    AbstractStructureElement( PROPS, d ){ classInit( a ); };
+    AbstractStructureElement( PROPS, d ){ classInit( a ); }
+
   private:
     bool has_base( ElementType e ) const {
       return e == AbstractStructureElement_t;
@@ -2423,13 +2493,14 @@ namespace folia {
     friend void static_init();
   public:
   Term( const std::string& s=""):
-    AbstractStructureElement( PROPS ){ classInit( s ); };
+    Term( 0, s ) {}
   Term( const KWargs& a ):
-    AbstractStructureElement( PROPS ){ classInit( a ); };
+    Term( 0, a ) {}
   Term( Document *d, const std::string& s=""):
-    AbstractStructureElement( PROPS, d ){ classInit( s ); };
+    AbstractStructureElement( PROPS, d ){ classInit( s ); }
   Term( Document *d, const KWargs& a ):
-    AbstractStructureElement( PROPS, d ){ classInit( a ); };
+    AbstractStructureElement( PROPS, d ){ classInit( a ); }
+
   private:
     bool has_base( ElementType e ) const {
       return e == AbstractStructureElement_t;
@@ -2441,13 +2512,14 @@ namespace folia {
     friend void static_init();
   public:
   Example( const std::string& s=""):
-    AbstractStructureElement( PROPS ){ classInit( s ); };
+    Example( 0, s ) {}
   Example( const KWargs& a ):
-    AbstractStructureElement( PROPS ){ classInit( a ); };
+    Example( 0, a ) {}
   Example( Document *d, const std::string& s=""):
-    AbstractStructureElement( PROPS, d ){ classInit( s ); };
+    AbstractStructureElement( PROPS, d ){ classInit( s ); }
   Example( Document *d, const KWargs& a ):
-    AbstractStructureElement( PROPS, d ){ classInit( a ); };
+    AbstractStructureElement( PROPS, d ){ classInit( a ); }
+
   private:
     bool has_base( ElementType e ) const {
       return e == AbstractStructureElement_t;
@@ -2459,13 +2531,14 @@ namespace folia {
     friend void static_init();
   public:
   Entry( const std::string& s=""):
-    AbstractStructureElement( PROPS ){ classInit( s ); };
+    Entry( 0, s ) {}
   Entry( const KWargs& a ):
-    AbstractStructureElement( PROPS ){ classInit( a ); };
+    Entry( 0, a ) {}
   Entry( Document *d, const std::string& s=""):
-    AbstractStructureElement( PROPS, d ){ classInit( s ); };
+    AbstractStructureElement( PROPS, d ){ classInit( s ); }
   Entry( Document *d, const KWargs& a ):
-    AbstractStructureElement( PROPS, d ){ classInit( a ); };
+    AbstractStructureElement( PROPS, d ){ classInit( a ); }
+
   private:
     bool has_base( ElementType e ) const {
       return e == AbstractStructureElement_t;
@@ -2478,13 +2551,14 @@ namespace folia {
     friend class Note;
   public:
   Reference( const std::string& s="" ):
-    AbstractStructureElement( PROPS ){ classInit( s ); };
+    Reference( 0, s ) {}
   Reference( const KWargs& a ):
-    AbstractStructureElement( PROPS ){ classInit( a ); };
+    Reference( 0, a ) {}
   Reference( Document *d, const std::string& s="" ):
-    AbstractStructureElement( PROPS, d ){ classInit( s ); };
+    AbstractStructureElement( PROPS, d ){ classInit( s ); }
   Reference( Document *d, const KWargs& a ):
-    AbstractStructureElement( PROPS, d ){ classInit( a ); };
+    AbstractStructureElement( PROPS, d ){ classInit( a ); }
+
     KWargs collectAttributes() const;
     void setAttributes( const KWargs& );
   private:
@@ -2501,13 +2575,14 @@ namespace folia {
     friend void static_init();
   public:
   Correction( const std::string& s=""):
-    AbstractTokenAnnotation( PROPS ){ classInit( s ); }
+    Correction( 0, s ) {}
   Correction( const KWargs& a ):
-    AbstractTokenAnnotation( PROPS ){ classInit( a ); }
+    Correction( 0, a ) {}
   Correction( Document *d, const std::string& s=""):
     AbstractTokenAnnotation( PROPS, d ){ classInit( s ); }
   Correction( Document *d, const KWargs& a ):
     AbstractTokenAnnotation( PROPS, d ){ classInit( a ); }
+
     bool hasNew() const;
     bool hasOriginal() const;
     bool hasCurrent() const;
@@ -2536,13 +2611,14 @@ namespace folia {
     friend void static_init();
   public:
   ErrorDetection( const std::string& s=""):
-    AbstractTokenAnnotation( PROPS ){ classInit( s ); }
+    ErrorDetection( 0, s ) {}
   ErrorDetection( const KWargs& a ):
-    AbstractTokenAnnotation( PROPS ){ classInit( a ); }
+    ErrorDetection( 0, a ) {}
   ErrorDetection( Document *d, const std::string& s=""):
     AbstractTokenAnnotation( PROPS, d ){ classInit( s ); }
   ErrorDetection( Document *d, const KWargs& a ):
     AbstractTokenAnnotation( PROPS, d ){ classInit( a ); }
+
   private:
     bool has_base( ElementType e ) const {
       return e == AbstractTokenAnnotation_t;
@@ -2554,13 +2630,14 @@ namespace folia {
     friend void static_init();
   public:
   TimeSegment( const std::string& s="" ):
-    AbstractSpanAnnotation( PROPS ){ classInit( s ); }
+    TimeSegment( 0, s ) {}
   TimeSegment( const KWargs& a ):
-    AbstractSpanAnnotation( PROPS ){ classInit( a ); }
+    TimeSegment( 0, a ) {}
   TimeSegment( Document *d, const std::string& s="" ):
     AbstractSpanAnnotation( PROPS, d ){ classInit( s ); }
   TimeSegment( Document *d, const KWargs& a ):
     AbstractSpanAnnotation( PROPS, d ){ classInit( a ); }
+
   private:
     bool has_base( ElementType e ) const {
       return e == AbstractSpanAnnotation_t;
@@ -2572,12 +2649,14 @@ namespace folia {
     friend void static_init();
   public:
   Morpheme( const std::string& s="" ):
-    AbstractStructureElement( PROPS ){ classInit( s ); }
+    Morpheme( 0, s ) {}
   Morpheme( const KWargs& a ):
-    AbstractStructureElement( PROPS ){ classInit( a ); }
+    Morpheme( 0, a ) {}
   Morpheme( Document *d, const std::string& s="" ):
     AbstractStructureElement( PROPS, d ){ classInit( s ); }
-  Morpheme( Document *d, const KWargs& a ): AbstractStructureElement( PROPS, d ){ classInit( a ); }
+  Morpheme( Document *d, const KWargs& a ):
+    AbstractStructureElement( PROPS, d ){ classInit( a ); }
+
   private:
     bool has_base( ElementType e ) const {
       return e == AbstractStructureElement_t;
@@ -2589,13 +2668,14 @@ namespace folia {
     friend void static_init();
   public:
   SyntaxLayer( const std::string& s=""):
-    AbstractAnnotationLayer( PROPS ){ classInit( s ); }
+    SyntaxLayer( 0, s ) {}
   SyntaxLayer( const KWargs& a ):
-    AbstractAnnotationLayer( PROPS ){ classInit( a ); }
+    SyntaxLayer( 0, a ) {}
   SyntaxLayer( Document *d, const std::string& s=""):
     AbstractAnnotationLayer( PROPS, d ){ classInit( s ); }
   SyntaxLayer( Document *d, const KWargs& a ):
     AbstractAnnotationLayer( PROPS, d ){ classInit( a ); }
+
   private:
     bool has_base( ElementType e ) const {
       return e == AbstractAnnotationLayer_t;
@@ -2607,13 +2687,14 @@ namespace folia {
     friend void static_init();
   public:
   ChunkingLayer( const std::string& s=""):
-    AbstractAnnotationLayer( PROPS ){ classInit( s ); }
+    ChunkingLayer( 0, s ) {}
   ChunkingLayer( const KWargs& a ):
-    AbstractAnnotationLayer( PROPS ){ classInit( a ); }
+    ChunkingLayer( 0, a ) {}
   ChunkingLayer( Document *d, const std::string& s=""):
     AbstractAnnotationLayer( PROPS, d ){ classInit( s ); }
   ChunkingLayer( Document *d, const KWargs& a ):
     AbstractAnnotationLayer( PROPS, d ){ classInit( a ); }
+
   private:
     bool has_base( ElementType e ) const {
       return e == AbstractAnnotationLayer_t;
@@ -2625,13 +2706,14 @@ namespace folia {
     friend void static_init();
   public:
   EntitiesLayer( const std::string& s=""):
-    AbstractAnnotationLayer( PROPS ){ classInit( s ); }
+    EntitiesLayer( 0, s ) {}
   EntitiesLayer( const KWargs& a ):
-    AbstractAnnotationLayer( PROPS ){ classInit( a ); }
+    EntitiesLayer( 0, a ) {}
   EntitiesLayer( Document *d, const std::string& s=""):
     AbstractAnnotationLayer( PROPS, d ){ classInit( s ); }
   EntitiesLayer( Document *d, const KWargs& a ):
     AbstractAnnotationLayer( PROPS, d ){ classInit( a ); }
+
   private:
     bool has_base( ElementType e ) const {
       return e == AbstractAnnotationLayer_t;
@@ -2643,13 +2725,14 @@ namespace folia {
     friend void static_init();
   public:
   TimingLayer( const std::string& s=""):
-    AbstractAnnotationLayer( PROPS ){ classInit( s ); }
+    TimingLayer( 0, s ) {}
   TimingLayer( const KWargs& a ):
-    AbstractAnnotationLayer( PROPS ){ classInit( a ); }
+    TimingLayer( 0, a ) {}
   TimingLayer( Document *d, const std::string& s=""):
     AbstractAnnotationLayer( PROPS, d ){ classInit( s ); }
   TimingLayer( Document *d, const KWargs& a ):
     AbstractAnnotationLayer( PROPS, d ){ classInit( a ); }
+
   private:
     bool has_base( ElementType e ) const {
       return e == AbstractAnnotationLayer_t;
@@ -2661,13 +2744,14 @@ namespace folia {
     friend void static_init();
   public:
   MorphologyLayer( const std::string& s="" ):
-    AbstractAnnotationLayer( PROPS ){ classInit( s ); }
+    MorphologyLayer( 0, s ) {}
   MorphologyLayer( const KWargs& a ):
-    AbstractAnnotationLayer( PROPS ){ classInit( a ); }
+    MorphologyLayer( 0, a ) {}
   MorphologyLayer( Document *d, const std::string& s="" ):
     AbstractAnnotationLayer( PROPS, d ){ classInit( s ); }
   MorphologyLayer( Document *d, const KWargs& a ):
     AbstractAnnotationLayer( PROPS, d ){ classInit( a ); }
+
   private:
     bool has_base( ElementType e ) const {
       return e == AbstractAnnotationLayer_t;
@@ -2679,13 +2763,14 @@ namespace folia {
     friend void static_init();
   public:
   PhonologyLayer( const std::string& s="" ):
-    AbstractAnnotationLayer( PROPS ){ classInit( s ); }
+    PhonologyLayer( 0, s ) {}
   PhonologyLayer( const KWargs& a ):
-    AbstractAnnotationLayer( PROPS ){ classInit( a ); }
+    PhonologyLayer( 0, a ) {}
   PhonologyLayer( Document *d, const std::string& s="" ):
     AbstractAnnotationLayer( PROPS, d ){ classInit( s ); }
   PhonologyLayer( Document *d, const KWargs& a ):
     AbstractAnnotationLayer( PROPS, d ){ classInit( a ); }
+
   private:
     bool has_base( ElementType e ) const {
       return e == AbstractAnnotationLayer_t;
@@ -2697,13 +2782,14 @@ namespace folia {
     friend void static_init();
   public:
   DependenciesLayer( const std::string& s=""):
-    AbstractAnnotationLayer( PROPS ){ classInit( s ); }
+    DependenciesLayer( 0, s ) {}
   DependenciesLayer( const KWargs& a ):
-    AbstractAnnotationLayer( PROPS ){ classInit( a ); }
+    DependenciesLayer( 0, a ) {}
   DependenciesLayer( Document *d, const std::string& s=""):
     AbstractAnnotationLayer( PROPS, d ){ classInit( s ); }
   DependenciesLayer( Document *d, const KWargs& a ):
     AbstractAnnotationLayer( PROPS, d ){ classInit( a ); }
+
   private:
     bool has_base( ElementType e ) const {
       return e == AbstractAnnotationLayer_t;
@@ -2715,9 +2801,9 @@ namespace folia {
     friend void static_init();
   public:
   CoreferenceLayer( const std::string& s=""):
-    AbstractAnnotationLayer( PROPS ){ classInit( s ); }
+    CoreferenceLayer( 0, s )  {}
   CoreferenceLayer( const KWargs& a ):
-    AbstractAnnotationLayer( PROPS ){ classInit( a ); }
+    CoreferenceLayer( 0, a)  {}
   CoreferenceLayer( Document *d, const std::string& s=""):
     AbstractAnnotationLayer( PROPS, d ){ classInit( s ); }
   CoreferenceLayer( Document *d, const KWargs& a ):
@@ -2733,9 +2819,9 @@ namespace folia {
     friend void static_init();
   public:
   SemanticRolesLayer( const std::string& s=""):
-    AbstractAnnotationLayer( PROPS ){ classInit( s ); }
+    SemanticRolesLayer( 0, s ) {}
   SemanticRolesLayer( const KWargs& a ):
-    AbstractAnnotationLayer( PROPS ){ classInit( a ); }
+    SemanticRolesLayer( 0, a ) {}
   SemanticRolesLayer( Document *d, const std::string& s=""):
     AbstractAnnotationLayer( PROPS, d ){ classInit( s ); }
   SemanticRolesLayer( Document *d, const KWargs& a ):
