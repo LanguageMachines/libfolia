@@ -76,19 +76,16 @@ namespace folia {
 
   class NoSuchAnnotation: public std::runtime_error {
   public:
-  NoSuchAnnotation( ): std::runtime_error( "no such annotation" ){};
   NoSuchAnnotation( const std::string& s ): std::runtime_error( "no such annotation: " + s ){};
   };
 
   class NoSuchText: public std::runtime_error {
   public:
-  NoSuchText( ): std::runtime_error( "no such text" ){};
   NoSuchText( const std::string& s ): std::runtime_error( "no such text: " + s ){};
   };
 
   class NoSuchPhon: public std::runtime_error {
   public:
-  NoSuchPhon( ): std::runtime_error( "no such phoneme" ){};
   NoSuchPhon( const std::string& s ): std::runtime_error( "no such phoneme: " + s ){};
   };
 

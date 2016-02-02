@@ -406,9 +406,7 @@ namespace folia {
       return alternatives( BASE, s );
     }
 
-    virtual const std::string content() const {
-      throw NoSuchAnnotation( "content" );
-    }
+    virtual const std::string content() const NOT_IMPLEMENTED;
     virtual const std::string src() const NOT_IMPLEMENTED;
     virtual const UnicodeString caption() const NOT_IMPLEMENTED;
     virtual std::vector<FoliaElement *> resolve() const NOT_IMPLEMENTED;
