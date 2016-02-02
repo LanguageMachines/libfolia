@@ -2938,7 +2938,7 @@ namespace folia {
   New *Correction::getNew() const {
     vector<New*> v = FoliaElement::select<New>( false );
     if ( v.empty() )
-      throw NoSuchAnnotation("new");
+      throw NoSuchAnnotation( "new" );
     else
       return v[0];
   }
@@ -2956,7 +2956,7 @@ namespace folia {
   Original *Correction::getOriginal() const {
     vector<Original*> v = FoliaElement::select<Original>( false );
     if ( v.empty() )
-      throw NoSuchAnnotation("original");
+      throw NoSuchAnnotation( "original" );
     else
       return v[0];
   }
@@ -2974,7 +2974,7 @@ namespace folia {
   Current *Correction::getCurrent( ) const {
     vector<Current*> v = FoliaElement::select<Current>( false );
     if ( v.empty() )
-      throw NoSuchAnnotation("current");
+      throw NoSuchAnnotation( "current" );
     else
       return v[0];
   }
@@ -2996,7 +2996,7 @@ namespace folia {
   Suggestion *Correction::suggestions( size_t index ) const {
     vector<Suggestion*> v = suggestions();
     if ( v.empty() || index >= v.size() )
-      throw NoSuchAnnotation("suggestion");
+      throw NoSuchAnnotation( "suggestion" );
     return v[index];
   }
 
