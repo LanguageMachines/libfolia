@@ -12,18 +12,23 @@ namespace folia {
   const set<ElementType> default_ignore =
     { Original_t,
       Suggestion_t,
-      Alternative_t };
+      Alternative_t,
+      AlternativeLayers_t,
+    };
 
   const set<ElementType> default_ignore_annotations =
     { Original_t,
       Suggestion_t,
       Alternative_t,
-      MorphologyLayer_t };
+      AlternativeLayers_t,
+      MorphologyLayer_t,
+      PhonologyLayer_t };
 
   const set<ElementType> default_ignore_structure =
     { Original_t,
       Suggestion_t,
       Alternative_t,
+      AlternativeLayers_t,
       Chunk_t,
       SyntacticUnit_t,
       CoreferenceLayer_t,
