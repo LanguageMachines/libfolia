@@ -1009,27 +1009,23 @@ namespace folia {
   }
 
   const string FoliaElement::description() const {
-    vector<FoliaElement *> v =  select( Description_t, false );
+    vector<FoliaElement *> v = select( Description_t, false );
     if ( v.size() == 0 )
-      throw NoSuchAnnotation( "description" );
+      return "";
     else
       return v[0]->description();
   }
 
   bool FoliaImpl::acceptable( ElementType t ) const {
-    if ( t == XmlComment_t )
-      return true;
-    else {
-      auto it = accepted_data().find( t );
-      if ( it == accepted_data().end() ){
-	for ( const auto& et : accepted_data() ){
-	  if ( folia::isSubClass( t, et ) )
-	    return true;
-	}
-	return false;
+    auto it = accepted_data().find( t );
+    if ( it == accepted_data().end() ){
+      for ( const auto& et : accepted_data() ){
+	if ( folia::isSubClass( t, et ) )
+	  return true;
       }
-      return true;
+      return false;
     }
+    return true;
   }
 
   bool FoliaImpl::addable( const FoliaElement *c ) const {
@@ -1056,7 +1052,6 @@ namespace folia {
 	 !( c->element_id() == Word_t
 	    || c->element_id() == Morpheme_t
 	    || c->element_id() == Phoneme_t ) ){
-      // Only for WordRef i hope
       throw XmlError( "attempt to reconnect node " + c->classname()
 		      + " to a " + classname() + " node, id=" + _id
 		      + ", it was already connected to a "
@@ -1096,40 +1091,52 @@ namespace folia {
   }
 
   bool FoliaImpl::checkAtts(){
-    if ( _id.empty() && (ID & required_attributes() ) ){
+    if ( _id.empty()
+	 && (ID & required_attributes() ) ){
       throw ValueError( "attribute 'ID' is required for " + classname() );
     }
-    if ( _set.empty() && (CLASS & required_attributes() ) ){
+    if ( _set.empty()
+	 && (CLASS & required_attributes() ) ){
       throw ValueError( "attribute 'set' is required for " + classname() );
     }
-    if ( _class.empty() && ( CLASS & required_attributes() ) ){
+    if ( _class.empty()
+	 && ( CLASS & required_attributes() ) ){
       throw ValueError( "attribute 'class' is required for " + classname() );
     }
-    if ( _annotator.empty() && ( ANNOTATOR & required_attributes() ) ){
+    if ( _annotator.empty()
+	 && ( ANNOTATOR & required_attributes() ) ){
       throw ValueError( "attribute 'annotator' is required for " + classname() );
     }
-    if ( _annotator_type == UNDEFINED && ( ANNOTATOR & required_attributes() ) ){
+    if ( _annotator_type == UNDEFINED
+	 && ( ANNOTATOR & required_attributes() ) ){
       throw ValueError( "attribute 'Annotatortype' is required for " + classname() );
     }
-    if ( _confidence == -1 && ( CONFIDENCE & required_attributes() ) ){
+    if ( _confidence == -1 &&
+	 ( CONFIDENCE & required_attributes() ) ){
       throw ValueError( "attribute 'confidence' is required for " + classname() );
     }
-    if ( _n.empty() && ( N & required_attributes() ) ){
+    if ( _n.empty()
+	 && ( N & required_attributes() ) ){
       throw ValueError( "attribute 'n' is required for " + classname() );
     }
-    if ( _datetime.empty() && ( DATETIME & required_attributes() ) ){
+    if ( _datetime.empty()
+	 && ( DATETIME & required_attributes() ) ){
       throw ValueError( "attribute 'datetime' is required for " + classname() );
     }
-    if ( _begintime.empty() && ( BEGINTIME & required_attributes() ) ){
+    if ( _begintime.empty()
+	 && ( BEGINTIME & required_attributes() ) ){
       throw ValueError( "attribute 'begintime' is required for " + classname() );
     }
-    if ( _endtime.empty() && ( ENDTIME & required_attributes() ) ){
+    if ( _endtime.empty()
+	 && ( ENDTIME & required_attributes() ) ){
       throw ValueError( "attribute 'endtime' is required for " + classname() );
     }
-    if ( _src.empty() && ( SRC & required_attributes() ) ){
+    if ( _src.empty()
+	 && ( SRC & required_attributes() ) ){
       throw ValueError( "attribute 'src' is required for " + classname() );
     }
-    if ( _speaker.empty() && ( SPEAKER & required_attributes() ) ){
+    if ( _speaker.empty()
+	 && ( SPEAKER & required_attributes() ) ){
       throw ValueError( "attribute 'speaker' is required for " + classname() );
     }
     return true;
