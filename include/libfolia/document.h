@@ -40,7 +40,6 @@
 #include "libxml/xpath.h"
 
 #include "libfolia/folia.h"
-#include "libfolia/foliautils.h"
 
 namespace folia {
   void initMT();

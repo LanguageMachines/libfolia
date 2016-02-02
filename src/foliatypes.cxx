@@ -31,8 +31,7 @@
 #include <set>
 #include <list>
 #include "ticcutils/StringOps.h"
-#include "libfolia/foliatypes.h"
-#include "libfolia/foliautils.h"
+#include "libfolia/folia.h"
 
 using namespace std;
 

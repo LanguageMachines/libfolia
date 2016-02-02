@@ -2,8 +2,6 @@
 #include <string>
 #include <iostream>
 
-#include "libfolia/foliautils.h"
-#include "libfolia/foliatypes.h"
 #include "libfolia/folia.h"
 #include "libfolia/foliaproperties.h"
 

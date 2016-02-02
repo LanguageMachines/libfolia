@@ -39,10 +39,7 @@
 #include "ticcutils/XMLtools.h"
 #include "ticcutils/StringOps.h"
 #include "ticcutils/zipper.h"
-#include "libfolia/foliatypes.h"
 #include "libfolia/folia.h"
-#include "libfolia/foliautils.h"
-#include "libfolia/document.h"
 #include "libxml/xmlstring.h"
 
 using namespace std;
@@ -51,13 +48,7 @@ using namespace TiCC;
 namespace folia {
 
   void initMT(){
-    try {
-      Document doc( "string='<?xml version=\"1.0\" encoding=\"UTF-8\"?><FoLiA xmlns=\"http://ilk.uvt.nl/folia\" xml:id=\"ID\"><text xml:id=\"text\"><div xml:id=\"head\"><w xml:id=\"w1\"><t>test</t></w></div></text></FoLiA>'" );
-    }
-    catch( exception& e ){
-      cerr << "serious initialization problem: " << e.what() << endl;
-      exit(EXIT_FAILURE);
-    };
+    // a NO_OP now
   }
 
   const int MAJOR_VERSION = 0;

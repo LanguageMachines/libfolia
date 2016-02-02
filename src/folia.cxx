@@ -40,10 +40,7 @@
 #include "ticcutils/PrettyPrint.h"
 #include "ticcutils/StringOps.h"
 #include "ticcutils/XMLtools.h"
-#include "libfolia/foliautils.h"
-#include "libfolia/foliatypes.h"
 #include "libfolia/folia.h"
-#include "libfolia/document.h"
 #include "config.h"
 
 using namespace std;

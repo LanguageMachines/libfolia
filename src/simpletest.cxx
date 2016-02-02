@@ -29,10 +29,7 @@
 #include <string>
 #include <map>
 #include "ticcutils/StringOps.h"
-#include "libfolia/foliautils.h"
-#include "libfolia/foliatypes.h"
 #include "libfolia/folia.h"
-#include "libfolia/document.h"
 
 using namespace std;
 using namespace folia;

@@ -24,8 +24,8 @@
       lamasoftware (at ) science.ru.nl
 */
 
-#ifndef FOLIA_H
-#define FOLIA_H
+#ifndef FOLIA_IMPL_H
+#define FOLIA_IMPL_H
 
 #include <set>
 #include <map>
@@ -37,7 +37,7 @@
 #include "libxml/tree.h"
 //
 //the following are duplicate headers, they are also in cxx files but included here as well to facilitate use from Cython
-#include "libfolia/properties.h"
+#include "libfolia/foliaproperties.h"
 #include "libfolia/foliautils.h"
 
 namespace folia {
@@ -60,10 +60,6 @@ namespace folia {
   class DependencyDependent;
   class Paragraph;
   class Morpheme;
-
-  extern const std::set<ElementType> default_ignore;
-  extern const std::set<ElementType> default_ignore_annotations;
-  extern const std::set<ElementType> default_ignore_structure;
 
 #define NOT_IMPLEMENTED {						\
     throw NotImplementedError( xmltag() + "::" + std::string(__func__) ); \
