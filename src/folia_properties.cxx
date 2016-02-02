@@ -49,7 +49,7 @@ namespace folia {
 
   properties DEFAULT_PROPERTIES =
     { BASE, "ThIsIsSoWrOnG",
-      {Description_t },
+      { Description_t },
       NO_ATT, NO_ATT,
       AnnotationType::NO_ANN,
       0, 1,

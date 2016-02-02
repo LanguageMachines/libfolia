@@ -2288,7 +2288,7 @@ namespace folia {
     auto it = args.find( "space" );
     if ( it != args.end() ){
       if ( it->second == "no" ){
-	space = false;
+	_space = false;
       }
       args.erase( it );
     }
@@ -2302,14 +2302,14 @@ namespace folia {
 
   KWargs Word::collectAttributes() const {
     KWargs atts = FoliaImpl::collectAttributes();
-    if ( !space ){
+    if ( !_space ){
       atts["space"] = "no";
     }
     return atts;
   }
 
   const string& Word::getTextDelimiter( bool retaintok ) const {
-    if ( space || retaintok )
+    if ( _space || retaintok )
       return PROPS.TEXTDELIMITER;
     else {
       return EMPTY_STRING;
@@ -2810,7 +2810,6 @@ namespace folia {
     return child;
   }
 
-
   xmlNode *Content::xml( bool recurse, bool ) const {
     xmlNode *e = FoliaImpl::xml( recurse, false );
     xmlAddChild( e, xmlNewCDataBlock( 0,
@@ -3027,19 +3026,6 @@ namespace folia {
     }
   }
 
-  void TextContent::init(){
-    _offset = -1;
-
-  }
-
-  void Word::init(){
-    space = true;
-  }
-
-  void WordReference::init(){
-    _auth = false;
-  }
-
   vector<AbstractSpanAnnotation*> FoliaImpl::selectSpan() const {
     vector<AbstractSpanAnnotation*> res;
     for ( const auto& el : SpanSet ){
@@ -3099,22 +3085,6 @@ namespace folia {
     return 0;
   }
 
-  void Alternative::init(){
-    _auth = false;
-  }
-
-  void AlternativeLayers::init(){
-    _auth = false;
-  }
-
-  void Original::init(){
-    _auth = false;
-  }
-
-  void Suggestion::init(){
-    _auth = false;
-  }
-
   const UnicodeString XmlText::text( const string&, bool, bool ) const {
     return UTF8ToUnicode(_value);
   }
@@ -3131,11 +3101,6 @@ namespace folia {
       throw ValueError( "TextContent may not be empty" );
     }
     return this;
-  }
-
-  void External::init(){
-    _include = false;
-
   }
 
   static int error_sink(void *mydata, xmlError *error ){
@@ -3374,6 +3339,26 @@ namespace folia {
       return this;
     else
       return mydoc->index(idref);
+  }
+
+  void WordReference::init(){
+    _auth = false;
+  }
+
+  void Alternative::init(){
+    _auth = false;
+  }
+
+  void AlternativeLayers::init(){
+    _auth = false;
+  }
+
+  void Original::init(){
+    _auth = false;
+  }
+
+  void Suggestion::init(){
+    _auth = false;
   }
 
   void BeginDateTimeFeature::init(){
