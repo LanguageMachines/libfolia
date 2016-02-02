@@ -3,7 +3,7 @@
 #include <iostream>
 
 #include "libfolia/folia.h"
-#include "libfolia/foliaproperties.h"
+#include "libfolia/folia_properties.h"
 
 namespace folia {
 

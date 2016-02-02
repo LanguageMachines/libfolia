@@ -35,10 +35,6 @@
 #include <exception>
 #include "unicode/unistr.h"
 #include "libxml/tree.h"
-//
-//the following are duplicate headers, they are also in cxx files but included here as well to facilitate use from Cython
-#include "libfolia/foliaproperties.h"
-#include "libfolia/foliautils.h"
 
 namespace folia {
   class Document;
@@ -60,6 +56,9 @@ namespace folia {
   class DependencyDependent;
   class Paragraph;
   class Morpheme;
+
+  class properties;
+  extern const std::set<ElementType> default_ignore_annotations;
 
 #define NOT_IMPLEMENTED {						\
     throw NotImplementedError( xmltag() + "::" + std::string(__func__) ); \
@@ -598,18 +597,18 @@ namespace folia {
     void confidence( double d ) { _confidence = d; };
 
     // generic properties
-    ElementType element_id() const { return _props._element_id; };
-    const std::string classname() const { return toString(element_id()); };
-    size_t occurrences() const { return _props._occurrences; };
-    size_t occurrences_per_set() const { return _props._occurrences_per_set; };
-    Attrib required_attributes() const { return _props._required_attributes; };
-    Attrib optional_attributes() const { return _props._optional_attributes; };
-    const std::string& xmltag() const { return _props._xmltag; };
-    AnnotationType::AnnotationType annotation_type() const { return _props._annotation_type; };
-    const std::set<ElementType>& accepted_data() const { return _props._accepted_data; };
-    bool printable() const { return _props.PRINTABLE; };
-    bool speakable() const { return _props.SPEAKABLE; };
-    bool xlink() const { return _props.XLINK; };
+    ElementType element_id() const;
+    const std::string classname() const;
+    size_t occurrences() const;
+    size_t occurrences_per_set() const;
+    Attrib required_attributes() const;
+    Attrib optional_attributes() const;
+    const std::string& xmltag() const;
+    AnnotationType::AnnotationType annotation_type() const;
+    const std::set<ElementType>& accepted_data() const;
+    bool printable() const;
+    bool speakable() const;
+    bool xlink() const;
 
 
     Document *doc() const { return mydoc; };

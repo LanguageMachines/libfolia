@@ -41,6 +41,7 @@
 #include "ticcutils/StringOps.h"
 #include "ticcutils/XMLtools.h"
 #include "libfolia/folia.h"
+#include "libfolia/folia_properties.h"
 #include "config.h"
 
 using namespace std;
@@ -51,6 +52,54 @@ namespace folia {
 
   string VersionName() { return PACKAGE_STRING; }
   string Version() { return VERSION; }
+
+  inline ElementType FoliaImpl::element_id() const {
+    return _props._element_id;
+  }
+
+  inline const string FoliaImpl::classname() const {
+    return toString(element_id());
+  }
+
+  inline size_t FoliaImpl::occurrences() const {
+    return _props._occurrences;
+  }
+
+  inline size_t FoliaImpl::occurrences_per_set() const {
+    return _props._occurrences_per_set;
+  }
+
+  inline Attrib FoliaImpl::required_attributes() const {
+    return _props._required_attributes;
+  }
+
+  inline Attrib FoliaImpl::optional_attributes() const {
+    return _props._optional_attributes;
+  }
+
+  inline const string& FoliaImpl::xmltag() const {
+    return _props._xmltag;
+  }
+
+  inline AnnotationType::AnnotationType FoliaImpl::annotation_type() const {
+    return _props._annotation_type;
+  }
+
+  inline const set<ElementType>& FoliaImpl::accepted_data() const {
+    return _props._accepted_data;
+  }
+
+  inline bool FoliaImpl::printable() const {
+    return _props.PRINTABLE;
+  }
+
+  inline bool FoliaImpl::speakable() const {
+    return _props.SPEAKABLE;
+  }
+
+  inline bool FoliaImpl::xlink() const {
+    return _props.XLINK;
+  }
 
   ostream& operator<<( ostream& os, const FoliaElement& ae ){
     os << " <" << ae.classname();

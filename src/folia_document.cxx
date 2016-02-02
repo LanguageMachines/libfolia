@@ -47,6 +47,8 @@ using namespace TiCC;
 
 namespace folia {
 
+  extern set<ElementType> default_ignore_structure;
+
   void initMT(){
     // a NO_OP now
   }

@@ -38,7 +38,6 @@
 #include "unicode/regex.h"
 #include "libxml/tree.h"
 #include "libxml/xpath.h"
-
 #include "libfolia/folia.h"
 
 namespace folia {
