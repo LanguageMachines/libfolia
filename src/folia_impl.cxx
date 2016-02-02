@@ -1073,6 +1073,10 @@ namespace folia {
   }
 
   void FoliaImpl::fixupDoc( Document* doc ) {
+    // attach a document-less FoliaElement (tree) to its doc
+    // needs checking for correct annotation_type
+    // also register the ID
+    // then recurse into the children
     if ( !mydoc ){
       mydoc = doc;
       string myid = id();
