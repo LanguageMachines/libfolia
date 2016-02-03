@@ -1085,7 +1085,7 @@ namespace folia {
     DomainAnnotation::PROPS = AbstractTokenAnnotation::PROPS;
     DomainAnnotation::PROPS._xmltag="domain";
     DomainAnnotation::PROPS._element_id = DomainAnnotation_t;
-    DomainAnnotation::PROPS._annotation_type = AnnotationType::DOMEIN;
+    DomainAnnotation::PROPS._annotation_type = AnnotationType::DOMAIN;
     DomainAnnotation::PROPS._accepted_data += { Feature_t };
 
     SenseAnnotation::PROPS = AbstractTokenAnnotation::PROPS;
@@ -1225,7 +1225,8 @@ namespace folia {
       try {
 	el = FoliaImpl::createElement( 0, et1 );
       }
-      catch (...){
+      catch ( exception& e ){
+	//	cerr << e.what() << endl;
       }
       if ( el == 0 )
 	continue;
@@ -1239,11 +1240,11 @@ namespace folia {
     }
   }
 
-  void show( const map<ElementType,set<ElementType> >& hier ){
-    for ( auto const top : hier ){
-      cerr << toString(top.first) << endl;
+  void print_type_hierarchy( ostream& os ){
+    for ( auto const top : typeHierarchy ){
+      os << toString(top.first) << endl;
       for ( auto const el : top.second ){
-	cerr << "     -- " << toString(el) << endl;
+	os << "     -- " << toString(el) << endl;
       }
     }
   }
@@ -1251,11 +1252,9 @@ namespace folia {
   namespace {
     struct initializer {
       initializer() {
-	//	std::cout << "Loading the static properties" << std::endl;
 	static_init();
 	fill_hierarchy();
-	// cerr << "NEW:" << endl;
-	// show( typeHierarchy  );
+	//	print_type_hierarchy( cout );
       }
       ~initializer() {
 	// std::cout << "Unloading the properties" << std::endl;

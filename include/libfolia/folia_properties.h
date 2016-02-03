@@ -35,6 +35,7 @@ namespace folia {
   extern const std::set<ElementType> SpanSet;
 
   void static_init();
+  void print_type_hierarchy( std::ostream& );
 }
 
 #endif

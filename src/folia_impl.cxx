@@ -233,8 +233,8 @@ namespace folia {
     else
       _set = "";
     it = kwargs.find( "class" );
-    if ( it == kwargs.end() )
-      it = kwargs.find( "cls" );
+    // if ( it == kwargs.end() )
+    //   it = kwargs.find( "cls" );
     if ( it != kwargs.end() ) {
       if ( !( CLASS & supported ) )
 	throw ValueError("Class is not supported for " + classname() );
@@ -1233,24 +1233,12 @@ namespace folia {
   vector<FoliaElement*> FoliaImpl::select( ElementType et,
 					   const set<ElementType>& exclude,
 					   bool recurse ) const {
-    vector<FoliaElement*> res;
-    for ( const auto& el : data ){
-      if ( el->element_id() == et ){
-	res.push_back( el );
-      }
-      if ( recurse ){
-	if ( exclude.find( el->element_id() ) == exclude.end() ){
-	  vector<FoliaElement*> tmp = el->select( et, exclude, recurse );
-	  res.insert( res.end(), tmp.begin(), tmp.end() );
-	}
-      }
-    }
-    return res;
+    return select( et, "", exclude, recurse );
   }
 
   vector<FoliaElement*> FoliaImpl::select( ElementType et,
-					      bool recurse ) const {
-    return select( et, default_ignore, recurse );
+					   bool recurse ) const {
+    return select( et, "", default_ignore, recurse );
   }
 
   FoliaElement* FoliaImpl::parseXml( const xmlNode *node ){
@@ -1706,9 +1694,9 @@ namespace folia {
     if ( it != kwargs.end() ) {
       throw NotImplementedError( "ref attribute in TextContent" );
     }
-    it = kwargs.find( "cls" );
-    if ( it == kwargs.end() )
-      it = kwargs.find( "class" );
+    it = kwargs.find( "class" );
+    // if ( it == kwargs.end() )
+    //   it = kwargs.find( "cls" );
     if ( it == kwargs.end() ) {
       kwargs["class"] = "current";
     }
@@ -1728,9 +1716,9 @@ namespace folia {
     if ( it != kwargs.end() ) {
       throw NotImplementedError( "ref attribute in PhonContent" );
     }
-    it = kwargs.find( "cls" );
-    if ( it == kwargs.end() )
-      it = kwargs.find( "class" );
+    it = kwargs.find( "class" );
+    // if ( it == kwargs.end() )
+    //   it = kwargs.find( "cls" );
     if ( it == kwargs.end() ) {
       kwargs["class"] = "current";
     }
@@ -3249,9 +3237,9 @@ namespace folia {
     else {
       _subset = it->second;
     }
-    it = kwargs.find( "cls" );
-    if ( it == kwargs.end() )
-      it = kwargs.find( "class" );
+    it = kwargs.find( "class" );
+    // if ( it == kwargs.end() )
+    //   it = kwargs.find( "cls" );
     if ( it == kwargs.end() ) {
       throw ValueError("class attribute is required for " + classname() );
     }

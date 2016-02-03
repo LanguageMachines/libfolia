@@ -741,7 +741,8 @@ namespace folia {
 					  std::vector<LemmaAnnotation*>& ) const;
   };
 
-  class AbstractStructureElement: public FoliaImpl,
+  class AbstractStructureElement:
+    public FoliaImpl,
     public AllowGenerateID,
     public AllowAnnotation,
     public AllowCorrection
@@ -796,11 +797,16 @@ namespace folia {
       AbstractAnnotation( props, d ){ classInit(); };
     AbstractTokenAnnotation( Document *d=0 ):
       AbstractTokenAnnotation( PROPS, d ){};
+
     private:
+      bool has_base( ElementType e ) const {
+	return e == AbstractAnnotation_t;
+      }
       static properties PROPS;
     };
 
-  class AbstractSpanAnnotation: public AbstractAnnotation,
+  class AbstractSpanAnnotation:
+    public AbstractAnnotation,
     public AllowGenerateID,
     public AllowAnnotation,
     public AllowCorrection
@@ -820,6 +826,9 @@ namespace folia {
       FoliaElement *wrefs( size_t ) const;
 
     private:
+      bool has_base( ElementType e ) const {
+	return e == AbstractAnnotation_t;
+      }
       static properties PROPS;
     };
 
@@ -843,6 +852,9 @@ namespace folia {
     const std::string& getTextDelimiter( bool ) const { return EMPTY_STRING; };
     std::string idref;
   private:
+    bool has_base( ElementType e ) const {
+      return e == AbstractAnnotation_t;
+    }
     static properties PROPS;
   };
 
@@ -853,7 +865,8 @@ namespace folia {
     AbstractTextMarkup( PROPS, d ) { classInit(); };
   private:
     bool has_base( ElementType e ) const {
-      return e == AbstractTextMarkup_t;
+      return e == AbstractTextMarkup_t
+	|| e == AbstractAnnotation_t;
     }
     static properties PROPS;
   };
@@ -865,7 +878,8 @@ namespace folia {
     AbstractTextMarkup( PROPS, d ) { classInit(); };
   private:
     bool has_base( ElementType e ) const {
-      return e == AbstractTextMarkup_t;
+      return e == AbstractTextMarkup_t
+	|| e == AbstractAnnotation_t;
     }
     static properties PROPS;
   };
@@ -881,7 +895,8 @@ namespace folia {
 			      bool = false, bool = false ) const;
   private:
     bool has_base( ElementType e ) const {
-      return e == AbstractTextMarkup_t;
+      return e == AbstractTextMarkup_t
+	|| e == AbstractAnnotation_t;
     }
     static properties PROPS;
     std::string _original;
@@ -894,7 +909,8 @@ namespace folia {
     AbstractTextMarkup( PROPS, d ){ classInit(); };
   private:
     bool has_base( ElementType e ) const {
-      return e == AbstractTextMarkup_t;
+      return e == AbstractTextMarkup_t
+	|| e == AbstractAnnotation_t;
     }
     static properties PROPS;
   };
@@ -906,7 +922,8 @@ namespace folia {
     AbstractTextMarkup( PROPS, d ){ classInit(); };
   private:
     bool has_base( ElementType e ) const {
-      return e == AbstractTextMarkup_t;
+      return e == AbstractTextMarkup_t
+	|| e == AbstractAnnotation_t;
     }
     static properties PROPS;
   };
@@ -1280,7 +1297,9 @@ namespace folia {
 
   private:
     bool has_base( ElementType e ) const {
-      return e == AbstractTokenAnnotation_t;
+      return e == AbstractTokenAnnotation_t
+	|| e == AbstractAnnotation_t;
+
     }
     static properties PROPS;
     };
@@ -1604,7 +1623,8 @@ namespace folia {
 
   private:
     bool has_base( ElementType e ) const {
-      return e == AbstractTokenAnnotation_t;
+      return e == AbstractTokenAnnotation_t
+	|| e == AbstractAnnotation_t;
     }
     static properties PROPS;
   };
@@ -1623,7 +1643,8 @@ namespace folia {
 
   private:
     bool has_base( ElementType e ) const {
-      return e == AbstractTokenAnnotation_t;
+      return e == AbstractTokenAnnotation_t
+      || e == AbstractAnnotation_t;
     }
     static properties PROPS;
   };
@@ -1642,7 +1663,8 @@ namespace folia {
 
   private:
     bool has_base( ElementType e ) const {
-      return e == AbstractTokenAnnotation_t;
+      return e == AbstractTokenAnnotation_t
+	|| e == AbstractAnnotation_t;
     }
     static properties PROPS;
   };
@@ -1661,7 +1683,8 @@ namespace folia {
 
   private:
     bool has_base( ElementType e ) const {
-      return e == AbstractTokenAnnotation_t;
+      return e == AbstractTokenAnnotation_t
+	|| e == AbstractAnnotation_t;
     }
     static properties PROPS;
   };
@@ -1680,7 +1703,8 @@ namespace folia {
 
   private:
     bool has_base( ElementType e ) const {
-      return e == AbstractTokenAnnotation_t;
+      return e == AbstractTokenAnnotation_t
+	|| e == AbstractAnnotation_t;
     }
     static properties PROPS;
   };
@@ -1699,7 +1723,8 @@ namespace folia {
 
   private:
     bool has_base( ElementType e ) const {
-      return e == AbstractTokenAnnotation_t;
+      return e == AbstractTokenAnnotation_t
+	|| e == AbstractAnnotation_t;
     }
     static properties PROPS;
   };
@@ -1718,7 +1743,8 @@ namespace folia {
 
   private:
     bool has_base( ElementType e ) const {
-      return e == AbstractTokenAnnotation_t;
+      return e == AbstractTokenAnnotation_t
+	|| e == AbstractAnnotation_t;
     }
     static properties PROPS;
   };
@@ -2046,7 +2072,8 @@ namespace folia {
 
   private:
     bool has_base( ElementType e ) const {
-      return e == AbstractSpanAnnotation_t;
+      return e == AbstractSpanAnnotation_t
+	|| e == AbstractAnnotation_t;
     }
     static properties PROPS;
   };
@@ -2065,7 +2092,8 @@ namespace folia {
 
   private:
     bool has_base( ElementType e ) const {
-      return e == AbstractSpanAnnotation_t;
+      return e == AbstractSpanAnnotation_t
+	|| e == AbstractAnnotation_t;
     }
     static properties PROPS;
   };
@@ -2084,7 +2112,8 @@ namespace folia {
 
   private:
     bool has_base( ElementType e ) const {
-      return e == AbstractSpanAnnotation_t;
+      return e == AbstractSpanAnnotation_t
+	|| e == AbstractAnnotation_t;
     }
     static properties PROPS;
   };
@@ -2103,7 +2132,8 @@ namespace folia {
 
   private:
     bool has_base( ElementType e ) const {
-      return e == AbstractSpanAnnotation_t;
+      return e == AbstractSpanAnnotation_t
+	|| e == AbstractAnnotation_t;
     }
     static properties PROPS;
   };
@@ -2122,7 +2152,8 @@ namespace folia {
 
   private:
     bool has_base( ElementType e ) const {
-      return e == AbstractSpanAnnotation_t;
+      return e == AbstractSpanAnnotation_t
+	|| e == AbstractAnnotation_t;
     }
     static properties PROPS;
   };
@@ -2143,7 +2174,8 @@ namespace folia {
     DependencyDependent *dependent() const;
   private:
     bool has_base( ElementType e ) const {
-      return e == AbstractSpanAnnotation_t;
+      return e == AbstractSpanAnnotation_t
+	|| e == AbstractAnnotation_t;
     }
     static properties PROPS;
   };
@@ -2180,7 +2212,8 @@ namespace folia {
     AbstractSpanAnnotation( PROPS, d ){ classInit( a ); }
   private:
     bool has_base( ElementType e ) const {
-      return e == AbstractSpanAnnotation_t;
+      return e == AbstractSpanAnnotation_t
+	|| e == AbstractAnnotation_t;
     }
     static properties PROPS;
   };
@@ -2199,12 +2232,14 @@ namespace folia {
 
   private:
     bool has_base( ElementType e ) const {
-      return e == AbstractSpanAnnotation_t;
+      return e == AbstractSpanAnnotation_t
+	|| e == AbstractAnnotation_t;
     }
     static properties PROPS;
   };
 
-  class AbstractAnnotationLayer: public FoliaImpl,
+  class AbstractAnnotationLayer:
+    public FoliaImpl,
     public AllowGenerateID,
     public AllowAnnotation,
     public AllowCorrection
@@ -2559,7 +2594,8 @@ namespace folia {
     const std::string& getTextDelimiter( bool=false) const;
   private:
     bool has_base( ElementType e ) const {
-      return e == AbstractTokenAnnotation_t;
+      return e == AbstractTokenAnnotation_t
+	|| e == AbstractAnnotation_t;
     }
     static properties PROPS;
   };
@@ -2578,7 +2614,8 @@ namespace folia {
 
   private:
     bool has_base( ElementType e ) const {
-      return e == AbstractTokenAnnotation_t;
+      return e == AbstractTokenAnnotation_t
+	|| e == AbstractAnnotation_t;
     }
     static properties PROPS;
   };
@@ -2597,7 +2634,8 @@ namespace folia {
 
   private:
     bool has_base( ElementType e ) const {
-      return e == AbstractSpanAnnotation_t;
+      return e == AbstractSpanAnnotation_t
+	|| e == AbstractAnnotation_t;
     }
     static properties PROPS;
   };

@@ -79,7 +79,7 @@ namespace folia {
     case AnnotationType::LEMMA:
       result = "lemma";
       break;
-    case AnnotationType::DOMEIN:
+    case AnnotationType::DOMAIN:
       result = "domain";
       break;
     case AnnotationType::SENSE:
@@ -186,7 +186,8 @@ namespace folia {
       return AnnotationType::STRING;
     else if ( at == "token" )
       return AnnotationType::TOKEN;
-    else if (( at == "div" ) || ( at == "division")) //patch, documentation and libraries used delse ifferent terms
+    else if (( at == "div" ) || ( at == "division"))
+      //patch, documentation and libraries used different terms
       return AnnotationType::DIVISION;
     else if ( at == "paragraph" )
       return AnnotationType::PARAGRAPH;
@@ -205,7 +206,7 @@ namespace folia {
     else if ( at == "lemma" )
       return AnnotationType::LEMMA;
     else if ( at == "domain" )
-      return AnnotationType::DOMEIN;
+      return AnnotationType::DOMAIN;
     else if ( at == "sense" )
       return AnnotationType::SENSE;
     else if ( at == "syntax" )
