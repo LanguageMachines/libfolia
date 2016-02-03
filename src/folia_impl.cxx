@@ -54,7 +54,7 @@ namespace folia {
   string Version() { return VERSION; }
 
   inline ElementType FoliaImpl::element_id() const {
-    return _props._element_id;
+    return _props.ELEMENT_ID;
   }
 
   inline const string FoliaImpl::classname() const {
@@ -62,31 +62,31 @@ namespace folia {
   }
 
   inline size_t FoliaImpl::occurrences() const {
-    return _props._occurrences;
+    return _props.OCCURRENCES;
   }
 
   inline size_t FoliaImpl::occurrences_per_set() const {
-    return _props._occurrences_per_set;
+    return _props.OCCURRENCES_PER_SET;
   }
 
   inline Attrib FoliaImpl::required_attributes() const {
-    return _props._required_attributes;
+    return _props.REQUIRED_ATTRIBS;
   }
 
   inline Attrib FoliaImpl::optional_attributes() const {
-    return _props._optional_attributes;
+    return _props.OPTIONAL_ATTRIBS;
   }
 
   inline const string& FoliaImpl::xmltag() const {
-    return _props._xmltag;
+    return _props.XMLTAG;
   }
 
   inline AnnotationType::AnnotationType FoliaImpl::annotation_type() const {
-    return _props._annotation_type;
+    return _props.ANNOTATIONTYPE;
   }
 
   inline const set<ElementType>& FoliaImpl::accepted_data() const {
-    return _props._accepted_data;
+    return _props.ACCEPTED_DATA;
   }
 
   inline bool FoliaImpl::printable() const {

@@ -14,14 +14,14 @@ namespace folia {
   }
 
   struct properties {
-    ElementType _element_id;
-    std::string _xmltag;
-    std::set<ElementType> _accepted_data;
-    Attrib _required_attributes;
-    Attrib _optional_attributes;
-    AnnotationType::AnnotationType _annotation_type;
-    size_t _occurrences;
-    size_t _occurrences_per_set;
+    ElementType ELEMENT_ID;
+    std::string XMLTAG;
+    std::set<ElementType> ACCEPTED_DATA;
+    Attrib REQUIRED_ATTRIBS;
+    Attrib OPTIONAL_ATTRIBS;
+    AnnotationType::AnnotationType ANNOTATIONTYPE;
+    size_t OCCURRENCES;
+    size_t OCCURRENCES_PER_SET;
     std::string TEXTDELIMITER;
     bool PRINTABLE;
     bool SPEAKABLE;
