@@ -40,6 +40,7 @@
 #include "ticcutils/StringOps.h"
 #include "ticcutils/zipper.h"
 #include "libfolia/folia.h"
+#include "libfolia/folia_properties.h"
 #include "libxml/xmlstring.h"
 
 using namespace std;
@@ -47,18 +48,9 @@ using namespace TiCC;
 
 namespace folia {
 
-  extern set<ElementType> default_ignore_structure;
-
   void initMT(){
     // a NO_OP now
   }
-
-  const int MAJOR_VERSION = 0;
-  const int MINOR_VERSION = 12;
-  const int SUB_VERSION   = 0;
-  const string NSFOLIA = "http://ilk.uvt.nl/folia";
-  const string NSDCOI = "http://lands.let.ru.nl/projects/d-coi/ns/1.0";
-  const string NSIMDI = "http://www.mpi.nl/IMDI/Schema/IMDI";
 
   Document::Document(){
     init();

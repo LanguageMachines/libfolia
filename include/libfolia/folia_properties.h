@@ -34,6 +34,13 @@ namespace folia {
   extern const std::set<ElementType> AnnoExcludeSet;
   extern const std::set<ElementType> SpanSet;
 
+  extern const int MAJOR_VERSION;
+  extern const int MINOR_VERSION;
+  extern const int SUB_VERSION;
+  extern const std::string NSFOLIA;
+  extern const std::string NSDCOI;
+  extern const std::string NSIMDI;
+
   void static_init();
   void print_type_hierarchy( std::ostream& );
 }
