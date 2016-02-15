@@ -1248,9 +1248,9 @@ namespace folia {
   }
 
   void print_type_hierarchy( ostream& os ){
-    for ( auto const top : typeHierarchy ){
+    for ( auto const& top : typeHierarchy ){
       os << toString(top.first) << endl;
-      for ( auto const el : top.second ){
+      for ( auto const& el : top.second ){
 	os << "     -- " << toString(el) << endl;
       }
     }
@@ -1264,8 +1264,8 @@ namespace folia {
 	//	print_type_hierarchy( cout );
       }
       ~initializer() {
-	// std::cout << "Unloading the properties" << std::endl;
-	// std::cout << "but don't care.." << std::endl;
+	// cout << "Unloading the properties" << endl;
+	// cout << "but don't care.." << endl;
       }
     };
     static initializer i;

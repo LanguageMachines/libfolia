@@ -614,8 +614,8 @@ namespace folia {
 
   FoliaElement *Document::resolveExternals( FoliaElement* result ){
     if ( !externals.empty() ){
-      for ( size_t i= 0;i < externals.size(); ++i ){
-	externals[i]->resolve();
+      for ( const auto& ext : externals ){
+	ext->resolve();
       }
     }
     return result;
@@ -709,7 +709,7 @@ namespace folia {
     return result;
   }
 
-  void Document::addStyle( const std::string& type, const std::string& href ){
+  void Document::addStyle( const string& type, const string& href ){
     if ( type == "text/xsl" ){
       const auto& it = styles.find( type );
       if ( it != styles.end() )
@@ -718,8 +718,8 @@ namespace folia {
     styles.insert( make_pair( type, href ) );
   }
 
-  void Document::replaceStyle( const std::string& type,
-			       const std::string& href ){
+  void Document::replaceStyle( const string& type,
+			       const string& href ){
     const auto& it = styles.find( type );
     if ( it != styles.end() ){
       it->second = href;
@@ -940,8 +940,8 @@ namespace folia {
     return result;
   }
 
-  std::string Document::defaultannotator( AnnotationType::AnnotationType type,
-					  const string& st ) const {
+  string Document::defaultannotator( AnnotationType::AnnotationType type,
+				     const string& st ) const {
     if ( type == AnnotationType::NO_ANN ){
       return "";
     }
@@ -969,8 +969,8 @@ namespace folia {
     return result;
   }
 
-  std::string Document::defaultannotatortype( AnnotationType::AnnotationType type,
-					      const string& st ) const {
+  string Document::defaultannotatortype( AnnotationType::AnnotationType type,
+					 const string& st ) const {
     if ( type == AnnotationType::NO_ANN ){
       return "";
     }
@@ -993,8 +993,8 @@ namespace folia {
     return result;
   }
 
-  std::string Document::defaultdatetime( AnnotationType::AnnotationType type,
-					 const string& st ) const {
+  string Document::defaultdatetime( AnnotationType::AnnotationType type,
+				    const string& st ) const {
     const auto& mit1 = annotationdefaults.find(type);
     string result;
     if ( mit1 != annotationdefaults.end() ){
@@ -1325,9 +1325,9 @@ namespace folia {
     return result;
   }
 
-  Pattern::Pattern( const std::vector<std::string>&v,
+  Pattern::Pattern( const vector<string>& pat_vec,
 		    const ElementType at,
-		    const string& args ):matchannotation(at) {
+		    const string& args ): matchannotation(at) {
     regexp = false;
     case_sensitive = false;
     KWargs kw = getArgs( args );
@@ -1340,36 +1340,36 @@ namespace folia {
       maxgapsize = 10;
     if ( kw["casesensitive"] != "" )
       case_sensitive = stringTo<bool>( kw["casesensitive"] );
-    for ( size_t i=0; i < v.size(); ++i ){
-      if ( v[i].find( "regexp('" ) == 0 &&
-	   v[i].rfind( "')" ) == v[i].length()-2 ){
-	string tmp = v[i].substr( 8, v[i].length() - 10 );
+    for ( const auto& pat : pat_vec ){
+      if ( pat.find( "regexp('" ) == 0 &&
+	   pat.rfind( "')" ) == pat.length()-2 ){
+	string tmp = pat.substr( 8, pat.length() - 10 );
 	UnicodeString us = UTF8ToUnicode( tmp );
 	UErrorCode u_stat = U_ZERO_ERROR;
-	RegexMatcher *mat = new RegexMatcher(us, 0, u_stat);
+	RegexMatcher *matcher = new RegexMatcher(us, 0, u_stat);
 	if ( U_FAILURE(u_stat) ){
 	  throw runtime_error( "failed to create a regexp matcher with '" + tmp + "'" );
 	}
-	matchers.push_back( mat );
+	matchers.push_back( matcher );
 	sequence.push_back( "" );
       }
       else {
-	sequence.push_back( UTF8ToUnicode(v[i]) );
+	sequence.push_back( UTF8ToUnicode(pat) );
 	matchers.push_back( 0 );
 	if ( !case_sensitive ){
-	  sequence[i].toLower();
+	  sequence.back().toLower();
 	}
       }
     }
   }
 
   Pattern::~Pattern(){
-    for ( size_t i=0; i < matchers.size(); ++i ){
-      delete matchers[i];
+    for ( const auto& m : matchers ){
+      delete m;
     }
   }
 
-  inline std::ostream& operator<<( std::ostream& os, const Pattern& p ){
+  inline ostream& operator<<( ostream& os, const Pattern& p ){
     using TiCC::operator <<;
     os << "pattern: " << p.sequence;
     return os;
@@ -1427,8 +1427,8 @@ namespace folia {
   }
 
   bool Pattern::variablesize() const {
-    for ( size_t i=0; i < sequence.size(); ++i ){
-      if ( sequence[i] == "*" ){
+    for ( const auto& s : sequence ){
+      if ( s == "*" ){
 	return true;
       }
     }
@@ -1436,9 +1436,9 @@ namespace folia {
   }
 
   void Pattern::unsetwild() {
-    for ( size_t i=0; i < sequence.size(); ++i ){
-      if ( sequence[i] == "*" )
-	sequence[i] = "*:1";
+    for ( auto& s : sequence ){
+      if ( s == "*" )
+	s = "*:1";
     }
   }
 
@@ -1448,7 +1448,6 @@ namespace folia {
       if ( sequence[i] == "*" )
 	result.insert( i );
     }
-    //  cerr << "variablewildcards() ==> " << result << endl;
     return result;
   }
 

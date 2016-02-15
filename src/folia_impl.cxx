@@ -647,7 +647,7 @@ namespace folia {
     return e;
   }
 
-  const string FoliaImpl::str( const std::string& ) const {
+  const string FoliaImpl::str( const string& ) const {
     cerr << "Impl::str()" << endl;
     return xmltag();
   }
@@ -1562,7 +1562,7 @@ namespace folia {
     return res;
   }
 
-  const std::string& Quote::getTextDelimiter( bool retaintok ) const {
+  const string& Quote::getTextDelimiter( bool retaintok ) const {
 #ifdef DEBUG_TEXT_DEL
     cerr << "IN " << xmltag() << "::gettextdelimiter (" << retaintok << ")" << endl;
 #endif
@@ -3356,7 +3356,7 @@ namespace folia {
     return attribs;
   }
 
-  vector<string> FoliaImpl::feats( const std::string& s ) const {
+  vector<string> FoliaImpl::feats( const string& s ) const {
     //    return all classes of the given subset
     vector<string> result;
     for ( const auto& el : data ) {
@@ -3368,7 +3368,7 @@ namespace folia {
     return result;
   }
 
-  const string FoliaImpl::feat( const std::string& s ) const {
+  const string FoliaImpl::feat( const string& s ) const {
     //    return the fist class of the given subset
     for ( const auto& el : data ) {
       if ( el->isSubClass( Feature_t ) &&
@@ -3424,13 +3424,13 @@ namespace folia {
     FoliaImpl::setAttributes( argl );
   }
 
-  const UnicodeString AbstractTextMarkup::text( const std::string& cls,
+  const UnicodeString AbstractTextMarkup::text( const string& cls,
 						bool, bool ) const {
     // we assume al TextMarkup te be tokenized already
     return FoliaImpl::text( cls, true );
   }
 
-  const UnicodeString TextMarkupCorrection::text( const std::string& cls,
+  const UnicodeString TextMarkupCorrection::text( const string& cls,
 						  bool ret,
 						  bool strict ) const{
     if ( cls == "original" ) {

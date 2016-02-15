@@ -271,7 +271,7 @@ namespace folia {
   }
 
   AnnotatorType stringToANT( const string& str ){
-    std::string at = TiCC::uppercase( str );
+    string at = TiCC::uppercase( str );
     if ( at == "AUTO" )
       return folia::AUTO;
     else if ( at == "MANUAL" )
