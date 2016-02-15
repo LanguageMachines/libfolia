@@ -384,8 +384,9 @@ namespace folia {
 	if ( a->atype == XML_ATTRIBUTE_ID && string((char*)a->name) == "id" ){
 	  atts["_id"] = (char *)a->children->content;
 	}
-	else
+	else {
 	  atts[(char*)a->name] = (char *)a->children->content;
+	}
 	a = a->next;
       }
     }
@@ -457,8 +458,9 @@ namespace folia {
   }
 
   string parseDate( const string& s ){
-    if ( s.empty() )
+    if ( s.empty() ){
       return "";
+    }
     //    cerr << "try to read a date-time " << s << endl;
     vector<string> date_time;
     size_t num = TiCC::split_at( s, date_time, "T");
@@ -528,8 +530,9 @@ namespace folia {
   }
 
   string parseTime( const string& s ){
-    if ( s.empty() )
+    if ( s.empty() ){
       return "";
+    }
     //    cerr << "try to read a time " << s << endl;
     vector<string> time_parts;
     string mil = "000";
@@ -548,8 +551,9 @@ namespace folia {
     // }
     time->tm_sec = stringTo<int>( time_parts[0] );
     string mil_sec = "000";
-    if ( num == 2 )
+    if ( num == 2 ){
       mil_sec = time_parts[1];
+    }
     char buf[100];
     strftime( buf, 100, "%X", time );
     delete time;
@@ -635,19 +639,22 @@ namespace folia {
 
   bool isNCName( const std::string& s ){
     const string extra=".-_";
-    if ( s.empty() )
+    if ( s.empty() ){
       throw XmlError( "an empty string is not a valid NCName." );
-    else if ( !isalpha(s[0]) )
+    }
+    else if ( !isalpha(s[0]) ){
       throw XmlError( "'"
 		      + s
 		      + "' is not a valid NCName. (must start with character)." );
+    }
     else {
       for ( size_t i=1; i < s.length(); ++i ){
 	if ( !isalnum(s[i]) &&
-	     extra.find(s[i]) == string::npos )
+	     extra.find(s[i]) == string::npos ){
 	  throw XmlError( "'" + s
 			  + "' is not a valid NCName.(invalid '"
 			  + char(s[i]) + "' found" );
+	}
       }
     }
     return true;
