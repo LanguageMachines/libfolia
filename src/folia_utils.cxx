@@ -275,7 +275,7 @@ namespace folia {
   }
 
 
-  KWargs getArgs( const std::string& s ){
+  KWargs getArgs( const string& s ){
     KWargs result;
     bool quoted = false;
     bool parseatt = true;
@@ -364,7 +364,7 @@ namespace folia {
     return result;
   }
 
-  std::string toString( const KWargs& args ){
+  string toString( const KWargs& args ){
     string result;
     auto it = args.begin();
     while ( it != args.end() ){
@@ -637,7 +637,7 @@ namespace folia {
     return sane;
   }
 
-  bool isNCName( const std::string& s ){
+  bool isNCName( const string& s ){
     const string extra=".-_";
     if ( s.empty() ){
       throw XmlError( "an empty string is not a valid NCName." );
