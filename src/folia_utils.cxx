@@ -283,11 +283,11 @@ namespace folia {
     vector<string> parts;
     string att;
     string val;
-    for ( size_t i=0; i < s.size(); ++i ){
-      if ( s[i] == '\\' ){
+    for ( const auto& let : s ){
+      if ( let == '\\' ){
 	if ( quoted ){
 	  if ( escaped ){
-	    val += s[i];
+	    val += let;
 	    escaped = false;
 	  }
 	  else {
@@ -299,10 +299,10 @@ namespace folia {
 	  throw ArgsError( s + ", stray \\" );
 	}
       }
-      else if ( s[i] == '\'' ){
+      else if ( let == '\'' ){
 	if ( quoted ){
 	  if ( escaped ){
-	    val += s[i];
+	    val += let;
 	    escaped = false;
 	  }
 	  else {
@@ -319,20 +319,20 @@ namespace folia {
 	  quoted = true;
 	}
       }
-      else if ( s[i] == '=' ) {
+      else if ( let == '=' ) {
 	if ( parseatt ){
 	  parseatt = false;
 	}
 	else if ( quoted ) {
-	  val += s[i];
+	  val += let;
 	}
 	else {
 	  throw ArgsError( s + ", stray '='?" );
 	}
       }
-      else if ( s[i] == ',' ){
+      else if ( let == ',' ){
 	if ( quoted ){
-	  val += s[i];
+	  val += let;
 	}
 	else if ( !parseatt ){
 	  parseatt = true;
@@ -341,19 +341,19 @@ namespace folia {
 	  throw ArgsError( s + ", stray '='?" );
 	}
       }
-      else if ( s[i] == ' ' ){
+      else if ( let == ' ' ){
 	if ( quoted )
-	  val += s[i];
+	  val += let;
       }
       else if ( parseatt ){
-	att += s[i];
+	att += let;
       }
       else if ( quoted ){
 	if ( escaped ){
 	  val += "\\";
 	  escaped = false;
 	}
-	val += s[i];
+	val += let;
       }
       else {
 	throw ArgsError( s + ", unquoted value or missing , ?" );
@@ -546,9 +546,6 @@ namespace folia {
     time->tm_hour = stringTo<int>( time_parts[0] );
     string secs = time_parts[2];
     num = TiCC::split_at( secs, time_parts, "." );
-    // for ( int i=0; i < num; ++i ){
-    //   cerr << "part[" << i << "]= " << time_parts[i] << endl;
-    // }
     time->tm_sec = stringTo<int>( time_parts[0] );
     string mil_sec = "000";
     if ( num == 2 ){
@@ -648,12 +645,12 @@ namespace folia {
 		      + "' is not a valid NCName. (must start with character)." );
     }
     else {
-      for ( size_t i=1; i < s.length(); ++i ){
-	if ( !isalnum(s[i]) &&
-	     extra.find(s[i]) == string::npos ){
+      for ( const auto& let : s ){
+	if ( !isalnum(let) &&
+	     extra.find(let) == string::npos ){
 	  throw XmlError( "'" + s
 			  + "' is not a valid NCName.(invalid '"
-			  + char(s[i]) + "' found" );
+			  + char(let) + "' found" );
 	}
       }
     }

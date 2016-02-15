@@ -111,7 +111,7 @@ namespace folia {
       os << " " << it.first << "='" << it.second << "'";
     }
     os << " > {";
-    for( size_t i=0; i < ae.size(); ++i ) {
+    for ( size_t i=0; i < ae.size(); ++i ) {
       os << "<" << ae.index(i)->classname() << ">,";
     }
     os << "}";
@@ -783,7 +783,7 @@ namespace folia {
 
     // now construct the result;
     UnicodeString result;
-    for( size_t i=0; i < parts.size(); ++i ) {
+    for ( size_t i=0; i < parts.size(); ++i ) {
       result += parts[i];
       if ( i < parts.size()-1 ) {
 	result += seps[i];
@@ -827,7 +827,7 @@ namespace folia {
     if ( !printable() ) {
       throw NoSuchText( "non-printable element: " +  xmltag() );
     }
-    for( const auto& el : data ) {
+    for ( const auto& el : data ) {
       if ( el->isinstance(TextContent_t) && (el->cls() == cls) ) {
 	return dynamic_cast<TextContent*>(el);
       }
@@ -907,7 +907,7 @@ namespace folia {
 #endif
     vector<UnicodeString> parts;
     vector<UnicodeString> seps;
-    for( const auto& child : data ) {
+    for ( const auto& child : data ) {
       // try to get text dynamically from children
       // skip TextContent elements
 #ifdef DEBUG_PHON
@@ -941,7 +941,7 @@ namespace folia {
 
     // now construct the result;
     UnicodeString result;
-    for( size_t i=0; i < parts.size(); ++i ) {
+    for ( size_t i=0; i < parts.size(); ++i ) {
       result += parts[i];
       if ( i < parts.size()-1 ) {
 	result += seps[i];
@@ -991,7 +991,7 @@ namespace folia {
     // replaced old by _new
     // returns old
     // when not found does nothing and returns 0;
-    for( auto& el: data ) {
+    for ( auto& el: data ) {
       if ( el == old ) {
 	el = _new;
 	_new->setParent( this );
@@ -1410,12 +1410,12 @@ namespace folia {
     }
     // now search for alternatives
     vector<Alternative *> alts = select<Alternative>( AnnoExcludeSet );
-    for ( size_t i=0; i < alts.size(); ++i ) {
-      if ( alts[i]->size() > 0 ) { // child elements?
-	for ( size_t j =0; j < alts[i]->size(); ++j ) {
-	  if ( alts[i]->index(j)->element_id() == PosAnnotation_t &&
-	       ( st.empty() || alts[i]->index(j)->sett() == st ) ) {
-	    vec.push_back( dynamic_cast<PosAnnotation*>(alts[i]->index(j)) );
+    for ( const auto& alt : alts ){
+      if ( alt->size() > 0 ) { // child elements?
+	for ( size_t j=0; j < alt->size(); ++j ) {
+	  if ( alt->index(j)->element_id() == PosAnnotation_t &&
+	       ( st.empty() || alt->index(j)->sett() == st ) ) {
+	    vec.push_back( dynamic_cast<PosAnnotation*>(alt->index(j)) );
 	  }
 	}
       }
@@ -1461,12 +1461,12 @@ namespace folia {
       res = 0;
     }
     vector<Alternative *> alts = select<Alternative>( AnnoExcludeSet );
-    for ( size_t i=0; i < alts.size(); ++i ) {
-      if ( alts[i]->size() > 0 ) { // child elements?
-	for ( size_t j =0; j < alts[i]->size(); ++j ) {
-	  if ( alts[i]->index(j)->element_id() == LemmaAnnotation_t &&
-	       ( st.empty() || alts[i]->index(j)->sett() == st ) ) {
-	    vec.push_back( dynamic_cast<LemmaAnnotation*>(alts[i]->index(j)) );
+    for ( const auto& alt : alts ){
+      if ( alt->size() > 0 ) { // child elements?
+	for ( size_t j =0; j < alt->size(); ++j ) {
+	  if ( alt->index(j)->element_id() == LemmaAnnotation_t &&
+	       ( st.empty() || alt->index(j)->sett() == st ) ) {
+	    vec.push_back( dynamic_cast<LemmaAnnotation*>(alt->index(j)) );
 	  }
 	}
       }
@@ -1513,12 +1513,12 @@ namespace folia {
     }
     // now search for alternatives
     vector<Alternative *> alts = select<Alternative>( AnnoExcludeSet );
-    for ( size_t i=0; i < alts.size(); ++i ) {
-      if ( alts[i]->size() > 0 ) { // child elements?
-	for ( size_t j =0; j < alts[i]->size(); ++j ) {
-	  if ( alts[i]->index(j)->element_id() == MorphologyLayer_t &&
-	       ( st.empty() || alts[i]->index(j)->sett() == st ) ) {
-	    vec.push_back( dynamic_cast<MorphologyLayer*>(alts[i]->index(j)) );
+    for ( const auto& alt : alts ){
+      if ( alt->size() > 0 ) { // child elements?
+	for ( size_t j =0; j < alt->size(); ++j ) {
+	  if ( alt->index(j)->element_id() == MorphologyLayer_t &&
+	       ( st.empty() || alt->index(j)->sett() == st ) ) {
+	    vec.push_back( dynamic_cast<MorphologyLayer*>(alt->index(j)) );
 	  }
 	}
       }
@@ -1823,7 +1823,7 @@ namespace folia {
     vector<FoliaElement *> result;
     vector<TextContent*> v = par->FoliaElement::select<TextContent>( _set, false );
     // cerr << "TextContent::findreplacable found " << v << endl;
-    for( const auto& el:v ) {
+    for ( const auto& el:v ) {
       // cerr << "TextContent::findreplacable bekijkt " << el << " ("
       if ( el->cls() == _class ) {
 	result.push_back( el );
@@ -1850,7 +1850,7 @@ namespace folia {
     cerr << "TextContent::TEXT(" << cls << ") " << endl;
 #endif
     UnicodeString result;
-    for( const auto& el : data ) {
+    for ( const auto& el : data ) {
       // try to get text dynamically from children
 #ifdef DEBUG_TEXT
       cerr << "TextContent: bekijk node[" << el->str(cls) << endl;
@@ -2073,7 +2073,7 @@ namespace folia {
     if ( !original.empty() ) {
       FoliaElement *add = new Original( mydoc );
       c->replace(add);
-      for( const auto& org: original ) {
+      for ( const auto& org: original ) {
 	bool dummyNode = ( org->id() == "dummy" );
 	if ( !dummyNode ) {
 	  org->setParent(0);
@@ -2131,14 +2131,14 @@ namespace folia {
 	}
 	vector<Current*> v = c->FoliaElement::select<Current>();
 	//delete current if present
-	for( const auto& cur: v ) {
+	for ( const auto& cur: v ) {
 	  remove( cur, false );
 	}
       }
     }
 
     if ( addnew ) {
-      for( const auto& org : original ) {
+      for ( const auto& org : original ) {
 	c->remove( org, false );
       }
     }
@@ -2165,13 +2165,13 @@ namespace folia {
     if ( it != args.end() ) {
       if ( addnew && suggestionsonly ) {
 	vector<Suggestion*> sv = c->suggestions();
-	for ( size_t i=0; i < sv.size(); ++i ) {
-	  if ( !c->annotator().empty() && sv[i]->annotator().empty() ) {
-	    sv[i]->annotator( c->annotator() );
+	for ( const auto& sug : sv ){
+	  if ( !c->annotator().empty() && sug->annotator().empty() ) {
+	    sug->annotator( c->annotator() );
 	  }
 	  if ( !(c->annotatortype() == UNDEFINED) &&
-	       (sv[i]->annotatortype() == UNDEFINED ) ) {
-	    sv[i]->annotatortype( c->annotatortype() );
+	       (sug->annotatortype() == UNDEFINED ) ) {
+	    sug->annotatortype( c->annotatortype() );
 	  }
 	}
       }
@@ -2308,12 +2308,12 @@ namespace folia {
     }
     else {
       vector<Alternative*> res;
-      for ( size_t i=0; i < alts.size(); ++i ) {
-	if ( alts[i]->size() > 0 ) { // child elements?
-	  for ( size_t j =0; j < alts[i]->size(); ++j ) {
-	    if ( alts[i]->index(j)->element_id() == elt &&
-		 ( alts[i]->sett().empty() || alts[i]->sett() == st ) ) {
-	      res.push_back( alts[i] ); // not the child!
+      for ( const auto& alt : alts ){
+	if ( alt->size() > 0 ) { // child elements?
+	  for ( size_t j =0; j < alt->size(); ++j ) {
+	    if ( alt->index(j)->element_id() == elt &&
+		 ( alt->sett().empty() || alt->sett() == st ) ) {
+	      res.push_back( alt ); // not the child!
 	    }
 	  }
 	}
@@ -2446,8 +2446,8 @@ namespace folia {
   vector<Morpheme *> Word::morphemes( const string& set ) const {
     vector<Morpheme *> result;
     vector<MorphologyLayer*> mv = FoliaElement::select<MorphologyLayer>();
-    for( size_t i=0; i < mv.size(); ++i ) {
-      vector<Morpheme*> tmp = mv[i]->FoliaElement::select<Morpheme>( set );
+    for ( const auto& mor : mv ){
+      vector<Morpheme*> tmp = mor->FoliaElement::select<Morpheme>( set );
       result.insert( result.end(), tmp.begin(), tmp.end() );
     }
     return result;
@@ -2478,7 +2478,7 @@ namespace folia {
   Word *Word::previous() const{
     Sentence *s = sentence();
     vector<Word*> words = s->words();
-    for( size_t i=0; i < words.size(); ++i ) {
+    for ( size_t i=0; i < words.size(); ++i ) {
       if ( words[i] == this ) {
 	if ( i > 0 ) {
 	  return words[i-1];
@@ -2495,7 +2495,7 @@ namespace folia {
   Word *Word::next() const{
     Sentence *s = sentence();
     vector<Word*> words = s->words();
-    for( size_t i=0; i < words.size(); ++i ) {
+    for ( size_t i=0; i < words.size(); ++i ) {
       if ( words[i] == this ) {
 	if ( i+1 < words.size() ) {
 	  return words[i+1];
@@ -2514,7 +2514,7 @@ namespace folia {
     vector<Word*> result;
     if ( size > 0 ) {
       vector<Word*> words = mydoc->words();
-      for( size_t i=0; i < words.size(); ++i ) {
+      for ( size_t i=0; i < words.size(); ++i ) {
 	if ( words[i] == this ) {
 	  size_t miss = 0;
 	  if ( i < size ) {
@@ -2559,7 +2559,7 @@ namespace folia {
     vector<Word*> result;
     if ( size > 0 ) {
       vector<Word*> words = mydoc->words();
-      for( size_t i=0; i < words.size(); ++i ) {
+      for ( size_t i=0; i < words.size(); ++i ) {
 	if ( words[i] == this ) {
 	  size_t miss = 0;
 	  if ( i < size ) {
@@ -2593,7 +2593,7 @@ namespace folia {
       vector<Word*> words = mydoc->words();
       size_t begin;
       size_t end;
-      for( size_t i=0; i < words.size(); ++i ) {
+      for ( size_t i=0; i < words.size(); ++i ) {
 	if ( words[i] == this ) {
 	  begin = i + 1;
 	  end = begin + size;
@@ -2667,14 +2667,14 @@ namespace folia {
       const FoliaElement *e = parent();
       if ( e ) {
 	vector<FoliaElement*> v = e->select( layertype, st, false );
-	for ( size_t i=0; i < v.size(); ++i ) {
-	  for ( size_t k=0; k < v[i]->size(); ++k ) {
-	    FoliaElement *f = v[i]->index(k);
+	for ( const auto& el : v ){
+	  for ( size_t k=0; k < el->size(); ++k ) {
+	    FoliaElement *f = el->index(k);
 	    AbstractSpanAnnotation *as = dynamic_cast<AbstractSpanAnnotation*>(f);
 	    if ( as ) {
-	      vector<FoliaElement*> wv = f->wrefs();
-	      for ( size_t j=0; j < wv.size(); ++j ) {
-		if ( wv[j] == this ) {
+	      vector<FoliaElement*> wrefv = f->wrefs();
+	      for ( const auto& wr : wrefv ){
+		if ( wr == this ) {
 		  result.push_back(as);
 		}
 	      }
@@ -2747,10 +2747,10 @@ namespace folia {
   }
 
   vector<FoliaElement *> Alignment::resolve() const {
-    vector<AlignReference*> v = FoliaElement::select<AlignReference>();
     vector<FoliaElement*> result;
-    for ( size_t i=0; i < v.size(); ++i ) {
-      result.push_back( v[i]->resolve( this ) );
+    vector<AlignReference*> v = FoliaElement::select<AlignReference>();
+    for ( const auto& ar : v ){
+      result.push_back( ar->resolve( this ) );
     }
     return result;
   }
@@ -2990,14 +2990,14 @@ namespace folia {
 
   TextContent *Correction::textcontent( const string& cls ) const {
     if ( cls == "current" ) {
-      for( const auto& el : data ) {
+      for ( const auto& el : data ) {
 	if ( el->isinstance( New_t ) || el->isinstance( Current_t ) ) {
 	  return el->textcontent( cls );
 	}
       }
     }
     else if ( cls == "original" ) {
-      for( const auto& el : data ) {
+      for ( const auto& el : data ) {
 	if ( el->isinstance( Original_t ) ) {
 	  return el->textcontent( cls );
 	}
@@ -3008,14 +3008,14 @@ namespace folia {
 
   PhonContent *Correction::phoncontent( const string& cls ) const {
     if ( cls == "current" ) {
-      for( const auto& el: data ) {
+      for ( const auto& el: data ) {
 	if ( el->isinstance( New_t ) || el->isinstance( Current_t ) ) {
 	  return el->phoncontent( cls );
 	}
       }
     }
     else if ( cls == "original" ) {
-      for( const auto& el: data ) {
+      for ( const auto& el: data ) {
 	if ( el->isinstance( Original_t ) ) {
 	  return el->phoncontent( cls );
 	}
@@ -3152,7 +3152,7 @@ namespace folia {
 	AbstractSpanAnnotation *as = dynamic_cast<AbstractSpanAnnotation*>(el);
 	if ( as != 0 ) {
 	  vector<FoliaElement*> sub = as->wrefs();
-	  for( auto& wr : sub ) {
+	  for ( auto& wr : sub ) {
 	    res.push_back( wr );
 	  }
 	}
@@ -3171,17 +3171,18 @@ namespace folia {
 
   AbstractSpanAnnotation *AbstractAnnotationLayer::findspan( const vector<FoliaElement*>& words ) const {
     vector<AbstractSpanAnnotation*> av = selectSpan();
-    for ( size_t i=0; i < av.size(); ++i ) {
-      vector<FoliaElement*> v = av[i]->wrefs();
+    for ( const auto& span : av ){
+      vector<FoliaElement*> v = span->wrefs();
       if ( v.size() == words.size() ) {
 	bool ok = true;
-	for ( size_t n = 0; n < v.size() && ok ; ++n ) {
+	for ( size_t n = 0; n < v.size(); ++n ) {
 	  if ( v[n] != words[n] ) {
 	    ok = false;
+	    break;
 	  }
 	}
 	if ( ok ) {
-	  return av[i];
+	  return span;
 	}
       }
     }
