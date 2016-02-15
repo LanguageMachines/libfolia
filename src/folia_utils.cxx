@@ -53,14 +53,6 @@ namespace folia {
     return result;
   }
 
-  string toString( const double d ){
-    stringstream dummy;
-    if ( !( dummy << d ) ) {
-      throw( runtime_error( "conversion to string failed" ) );
-    }
-    return dummy.str();
-  }
-
   FoliaElement *FoliaImpl::createElement( Document *doc,
 					  const string& tag ){
 
@@ -273,9 +265,11 @@ namespace folia {
     case AbstractStructureElement_t:
     case AbstractCorrectionChild_t:
     case AbstractAnnotation_t:
-      throw ValueError( "you may not create an abstract node of type " + toString(int(et)) + ")" );
+      throw ValueError( "you may not create an abstract node of type "
+			+ TiCC::toString(int(et)) + ")" );
     default:
-      throw ValueError( "unknown elementtype(" + toString(int(et)) + ")" );
+      throw ValueError( "unknown elementtype("
+			+ TiCC::toString(int(et)) + ")" );
     }
     return 0;
   }
@@ -289,15 +283,8 @@ namespace folia {
     vector<string> parts;
     string att;
     string val;
-    //    cerr << "getArgs \\" << s << "\\" << endl;
-
     for ( size_t i=0; i < s.size(); ++i ){
-      //      cerr << "bekijk " << s[i] << endl;
-      //      cerr << "quoted = " << (quoted?"YES":"NO")
-      // 	   << " parseatt = " << (parseatt?"YES":"NO")
-      // 	   << " escaped = " << (escaped?"YES":"NO") << endl;
       if ( s[i] == '\\' ){
-	//	cerr << "handle backslash " << endl;
 	if ( quoted ){
 	  if ( escaped ){
 	    val += s[i];
@@ -308,21 +295,21 @@ namespace folia {
 	    continue;
 	  }
 	}
-	else
+	else {
 	  throw ArgsError( s + ", stray \\" );
+	}
       }
       else if ( s[i] == '\'' ){
-	//	cerr << "handle single quote " << endl;
 	if ( quoted ){
 	  if ( escaped ){
 	    val += s[i];
 	    escaped = false;
 	  }
 	  else {
-	    if ( att.empty() || val.empty() )
+	    if ( att.empty() || val.empty() ){
 	      throw ArgsError( s + ", (''?)" );
+	    }
 	    result[att] = val;
-	    //	    cerr << "added " << att << "='" << val << "'" << endl;
 	    att.clear();
 	    val.clear();
 	    quoted = false;
@@ -336,26 +323,31 @@ namespace folia {
 	if ( parseatt ){
 	  parseatt = false;
 	}
-	else if ( quoted )
+	else if ( quoted ) {
 	  val += s[i];
-	else
+	}
+	else {
 	  throw ArgsError( s + ", stray '='?" );
+	}
       }
       else if ( s[i] == ',' ){
-	if ( quoted )
+	if ( quoted ){
 	  val += s[i];
+	}
 	else if ( !parseatt ){
 	  parseatt = true;
 	}
-	else
+	else {
 	  throw ArgsError( s + ", stray '='?" );
+	}
       }
       else if ( s[i] == ' ' ){
 	if ( quoted )
 	  val += s[i];
       }
-      else if ( parseatt )
+      else if ( parseatt ){
 	att += s[i];
+      }
       else if ( quoted ){
 	if ( escaped ){
 	  val += "\\";
@@ -363,10 +355,9 @@ namespace folia {
 	}
 	val += s[i];
       }
-      else
+      else {
 	throw ArgsError( s + ", unquoted value or missing , ?" );
-      // cerr << "att = '" << att << "'" << endl;
-      // cerr << "val = '" << val << "'" << endl;
+      }
     }
     if ( quoted )
       throw ArgsError( s + ", unbalanced '?" );
