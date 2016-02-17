@@ -53,8 +53,9 @@ namespace folia {
     Pattern( const std::vector<std::string>&,
 	     const ElementType = BASE,
 	     const std::string& = "" );
-    Pattern( const std::vector<std::string>&,
-	     const std::string& );
+  Pattern( const std::vector<std::string>& v,  const std::string& s):
+    Pattern( v, BASE, s ){};
+
     ~Pattern();
     bool match( const UnicodeString& , size_t&, int&, bool&, bool& ) const;
     size_t size() const { return sequence.size(); };

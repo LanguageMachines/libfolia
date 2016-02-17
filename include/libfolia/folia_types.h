@@ -110,6 +110,8 @@ namespace folia {
     return a1;
   }
 
+#undef DOMAIN // ugly hack but GCC screws up
+
   /*
    * Annotation types tie FoLiA elements to a particular kind of annotation.
    * Especially declarations make use of this.
@@ -118,9 +120,7 @@ namespace folia {
   namespace AnnotationType {
     enum AnnotationType : int { NO_ANN, TEXT, TOKEN, DIVISION, PARAGRAPH,
 	LIST, FIGURE, WHITESPACE, LINEBREAK, SENTENCE,
-	POS, LEMMA, DOMEIN, SENSE, SYNTAX, CHUNKING, ENTITY,
-	// Attention DOMAIN seems to be a defined constant
-	// where/how/why?
+	POS, LEMMA, DOMAIN, SENSE, SYNTAX, CHUNKING, ENTITY,
 	CORRECTION, SUGGESTION, ERRORDETECTION, ALTERNATIVE,
 	PHON, SUBJECTIVITY, MORPHOLOGICAL, EVENT,
 	DEPENDENCY, TIMESEGMENT, GAP, NOTE, ALIGNMENT,

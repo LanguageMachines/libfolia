@@ -14,14 +14,14 @@ namespace folia {
   }
 
   struct properties {
-    ElementType _element_id;
-    std::string _xmltag;
-    std::set<ElementType> _accepted_data;
-    Attrib _required_attributes;
-    Attrib _optional_attributes;
-    AnnotationType::AnnotationType _annotation_type;
-    size_t _occurrences;
-    size_t _occurrences_per_set;
+    ElementType ELEMENT_ID;
+    std::string XMLTAG;
+    std::set<ElementType> ACCEPTED_DATA;
+    Attrib REQUIRED_ATTRIBS;
+    Attrib OPTIONAL_ATTRIBS;
+    AnnotationType::AnnotationType ANNOTATIONTYPE;
+    size_t OCCURRENCES;
+    size_t OCCURRENCES_PER_SET;
     std::string TEXTDELIMITER;
     bool PRINTABLE;
     bool SPEAKABLE;
@@ -34,7 +34,15 @@ namespace folia {
   extern const std::set<ElementType> AnnoExcludeSet;
   extern const std::set<ElementType> SpanSet;
 
+  extern const int MAJOR_VERSION;
+  extern const int MINOR_VERSION;
+  extern const int SUB_VERSION;
+  extern const std::string NSFOLIA;
+  extern const std::string NSDCOI;
+  extern const std::string NSIMDI;
+
   void static_init();
+  void print_type_hierarchy( std::ostream& );
 }
 
 #endif

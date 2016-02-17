@@ -53,14 +53,6 @@ namespace folia {
     return result;
   }
 
-  string toString( const double d ){
-    stringstream dummy;
-    if ( !( dummy << d ) ) {
-      throw( runtime_error( "conversion to string failed" ) );
-    }
-    return dummy.str();
-  }
-
   FoliaElement *FoliaImpl::createElement( Document *doc,
 					  const string& tag ){
 
@@ -273,15 +265,17 @@ namespace folia {
     case AbstractStructureElement_t:
     case AbstractCorrectionChild_t:
     case AbstractAnnotation_t:
-      throw ValueError( "you may not create an abstract node of type " + toString(int(et)) + ")" );
+      throw ValueError( "you may not create an abstract node of type "
+			+ TiCC::toString(int(et)) + ")" );
     default:
-      throw ValueError( "unknown elementtype(" + toString(int(et)) + ")" );
+      throw ValueError( "unknown elementtype("
+			+ TiCC::toString(int(et)) + ")" );
     }
     return 0;
   }
 
 
-  KWargs getArgs( const std::string& s ){
+  KWargs getArgs( const string& s ){
     KWargs result;
     bool quoted = false;
     bool parseatt = true;
@@ -289,18 +283,11 @@ namespace folia {
     vector<string> parts;
     string att;
     string val;
-    //    cerr << "getArgs \\" << s << "\\" << endl;
-
-    for ( size_t i=0; i < s.size(); ++i ){
-      //      cerr << "bekijk " << s[i] << endl;
-      //      cerr << "quoted = " << (quoted?"YES":"NO")
-      // 	   << " parseatt = " << (parseatt?"YES":"NO")
-      // 	   << " escaped = " << (escaped?"YES":"NO") << endl;
-      if ( s[i] == '\\' ){
-	//	cerr << "handle backslash " << endl;
+    for ( const auto& let : s ){
+      if ( let == '\\' ){
 	if ( quoted ){
 	  if ( escaped ){
-	    val += s[i];
+	    val += let;
 	    escaped = false;
 	  }
 	  else {
@@ -308,21 +295,21 @@ namespace folia {
 	    continue;
 	  }
 	}
-	else
+	else {
 	  throw ArgsError( s + ", stray \\" );
+	}
       }
-      else if ( s[i] == '\'' ){
-	//	cerr << "handle single quote " << endl;
+      else if ( let == '\'' ){
 	if ( quoted ){
 	  if ( escaped ){
-	    val += s[i];
+	    val += let;
 	    escaped = false;
 	  }
 	  else {
-	    if ( att.empty() || val.empty() )
+	    if ( att.empty() || val.empty() ){
 	      throw ArgsError( s + ", (''?)" );
+	    }
 	    result[att] = val;
-	    //	    cerr << "added " << att << "='" << val << "'" << endl;
 	    att.clear();
 	    val.clear();
 	    quoted = false;
@@ -332,48 +319,52 @@ namespace folia {
 	  quoted = true;
 	}
       }
-      else if ( s[i] == '=' ) {
+      else if ( let == '=' ) {
 	if ( parseatt ){
 	  parseatt = false;
 	}
-	else if ( quoted )
-	  val += s[i];
-	else
+	else if ( quoted ) {
+	  val += let;
+	}
+	else {
 	  throw ArgsError( s + ", stray '='?" );
+	}
       }
-      else if ( s[i] == ',' ){
-	if ( quoted )
-	  val += s[i];
+      else if ( let == ',' ){
+	if ( quoted ){
+	  val += let;
+	}
 	else if ( !parseatt ){
 	  parseatt = true;
 	}
-	else
+	else {
 	  throw ArgsError( s + ", stray '='?" );
+	}
       }
-      else if ( s[i] == ' ' ){
+      else if ( let == ' ' ){
 	if ( quoted )
-	  val += s[i];
+	  val += let;
       }
-      else if ( parseatt )
-	att += s[i];
+      else if ( parseatt ){
+	att += let;
+      }
       else if ( quoted ){
 	if ( escaped ){
 	  val += "\\";
 	  escaped = false;
 	}
-	val += s[i];
+	val += let;
       }
-      else
+      else {
 	throw ArgsError( s + ", unquoted value or missing , ?" );
-      // cerr << "att = '" << att << "'" << endl;
-      // cerr << "val = '" << val << "'" << endl;
+      }
     }
     if ( quoted )
       throw ArgsError( s + ", unbalanced '?" );
     return result;
   }
 
-  std::string toString( const KWargs& args ){
+  string toString( const KWargs& args ){
     string result;
     auto it = args.begin();
     while ( it != args.end() ){
@@ -393,8 +384,9 @@ namespace folia {
 	if ( a->atype == XML_ATTRIBUTE_ID && string((char*)a->name) == "id" ){
 	  atts["_id"] = (char *)a->children->content;
 	}
-	else
+	else {
 	  atts[(char*)a->name] = (char *)a->children->content;
+	}
 	a = a->next;
       }
     }
@@ -466,8 +458,9 @@ namespace folia {
   }
 
   string parseDate( const string& s ){
-    if ( s.empty() )
+    if ( s.empty() ){
       return "";
+    }
     //    cerr << "try to read a date-time " << s << endl;
     vector<string> date_time;
     size_t num = TiCC::split_at( s, date_time, "T");
@@ -537,8 +530,9 @@ namespace folia {
   }
 
   string parseTime( const string& s ){
-    if ( s.empty() )
+    if ( s.empty() ){
       return "";
+    }
     //    cerr << "try to read a time " << s << endl;
     vector<string> time_parts;
     string mil = "000";
@@ -552,13 +546,11 @@ namespace folia {
     time->tm_hour = stringTo<int>( time_parts[0] );
     string secs = time_parts[2];
     num = TiCC::split_at( secs, time_parts, "." );
-    // for ( int i=0; i < num; ++i ){
-    //   cerr << "part[" << i << "]= " << time_parts[i] << endl;
-    // }
     time->tm_sec = stringTo<int>( time_parts[0] );
     string mil_sec = "000";
-    if ( num == 2 )
+    if ( num == 2 ){
       mil_sec = time_parts[1];
+    }
     char buf[100];
     strftime( buf, 100, "%X", time );
     delete time;
@@ -642,21 +634,24 @@ namespace folia {
     return sane;
   }
 
-  bool isNCName( const std::string& s ){
+  bool isNCName( const string& s ){
     const string extra=".-_";
-    if ( s.empty() )
+    if ( s.empty() ){
       throw XmlError( "an empty string is not a valid NCName." );
-    else if ( !isalpha(s[0]) )
+    }
+    else if ( !isalpha(s[0]) ){
       throw XmlError( "'"
 		      + s
 		      + "' is not a valid NCName. (must start with character)." );
+    }
     else {
-      for ( size_t i=1; i < s.length(); ++i ){
-	if ( !isalnum(s[i]) &&
-	     extra.find(s[i]) == string::npos )
+      for ( const auto& let : s ){
+	if ( !isalnum(let) &&
+	     extra.find(let) == string::npos ){
 	  throw XmlError( "'" + s
 			  + "' is not a valid NCName.(invalid '"
-			  + char(s[i]) + "' found" );
+			  + char(let) + "' found" );
+	}
       }
     }
     return true;
