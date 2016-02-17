@@ -1,13 +1,17 @@
-Libfolia (c) CLS/ILK 1998 - 2016
+[![Build Status](https://travis-ci.org/LanguageMachines/libfolia.svg?branch=master)](https://travis-ci.org/LanguageMachines/libfolia) [![Language Machines Badge](http://applejack.science.ru.nl/lamabadge.php/ticcutils)](http://applejack.science.ru.nl/languagemachines/) 
 
-FoLiA Library for C++
- https://proycon.github.io/folia/
+===================================
+Libfolia: FoLiA Library for C++
+===================================
 
+    Libfolia (c) CLS/ILK 1998 - 2016
     Centre for Language Studies, Radboud University Nijmegen
     Induction of Linguistic Knowledge Research Group, Tilburg University
 
+**Website:** https://proycon.github.io/folia/
+
 This is a C++ Library, developed by Ko van der Sloot,  for working with the
-Format for Linguistic Annotation (FoLiA, https://proycon.github.io/folia/).
+[Format for Linguistic Annotation (FoLiA)](https://proycon.github.io/folia/), or FoLiA.
 
 libfolia is distributed under the GNU Public Licence v3 (see the file COPYING).
 
@@ -26,9 +30,9 @@ Contents of this distribution:
 
 Dependencies:
 To be able to succesfully build libfolia from source, you need the following dependencies:
-- ticcutils (https://github.com/LanguageMachines/ticcutils)
-- libxml2-dev
-- libicu-dev
+- [ticcutils](https://github.com/LanguageMachines/ticcutils)
+- ``libxml2-dev``
+- ``libicu-dev``
 - A sane C++ build environment with autoconf, automake, autoconf-archive, make, gcc or clang, libtool, pkg-config
 
 To install libfolia, first consult whether your distribution's package manager has an up-to-date package.
@@ -38,9 +42,10 @@ distribution LaMachine: https://proycon.github.io/LaMachine .
 To compile and install manually from source, provided you have all the
 dependencies installed:
 
- $ bash bootstrap.sh
- $ ./configure
- $ make
- $ make install
- and, optional:
- $ make check
+    $ bash bootstrap.sh
+    $ ./configure
+    $ make
+    $ make install
+
+and, optionally:
+    $ make check
