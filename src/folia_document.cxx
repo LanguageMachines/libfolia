@@ -1363,6 +1363,43 @@ namespace folia {
     }
   }
 
+  Pattern::Pattern( const std::vector<std::string>& pat_vec,
+		    const std::string& args ) : matchannotation(BASE) {
+    regexp = false;
+    case_sensitive = false;
+    KWargs kw = getArgs( args );
+    matchannotationset = kw["matchannotationset"];
+    if (kw["regexp"] != "" )
+      regexp = stringTo<bool>( kw["regexp"] );
+    if (kw["maxgapsize"] != "" )
+      maxgapsize = stringTo<int>( kw["maxgapsize"] );
+    else
+      maxgapsize = 10;
+    if ( kw["casesensitive"] != "" )
+      case_sensitive = stringTo<bool>( kw["casesensitive"] );
+    for ( const auto& pat : pat_vec ){
+      if ( pat.find( "regexp('" ) == 0 &&
+	   pat.rfind( "')" ) == pat.length()-2 ){
+	string tmp = pat.substr( 8, pat.length() - 10 );
+	UnicodeString us = UTF8ToUnicode( tmp );
+	UErrorCode u_stat = U_ZERO_ERROR;
+	RegexMatcher *matcher = new RegexMatcher(us, 0, u_stat);
+	if ( U_FAILURE(u_stat) ){
+	  throw runtime_error( "failed to create a regexp matcher with '" + tmp + "'" );
+	}
+	matchers.push_back( matcher );
+	sequence.push_back( "" );
+      }
+      else {
+	sequence.push_back( UTF8ToUnicode(pat) );
+	matchers.push_back( 0 );
+	if ( !case_sensitive ){
+	  sequence.back().toLower();
+	}
+      }
+    }
+  }
+
   Pattern::~Pattern(){
     for ( const auto& m : matchers ){
       delete m;

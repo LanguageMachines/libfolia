@@ -3448,6 +3448,18 @@ namespace folia {
     }
   }
 
+  void TextContent::init() {
+    _offset = -1;
+  }
+
+  void PhonContent::init() {
+    _offset = -1;
+  }
+
+  void Word::init() {
+    _space = true;
+  }
+
   void WordReference::init() {
     _auth = false;
   }

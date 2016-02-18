@@ -948,8 +948,9 @@ namespace folia {
     TextContent *postappend();
     std::vector<FoliaElement*> findreplacables( FoliaElement * ) const;
   private:
+    void init();
     static properties PROPS;
-    int _offset = -1;
+    int _offset;
   };
 
   class PhonContent: public FoliaImpl {
@@ -969,6 +970,7 @@ namespace folia {
 			      bool = false ) const;
     int offset() const { return _offset; };
   private:
+    void init();
     static properties PROPS;
     int _offset;
   };
@@ -1257,8 +1259,9 @@ namespace folia {
     bool has_base( ElementType e ) const {
       return e == AbstractStructureElement_t;
     }
+    void init();
     static properties PROPS;
-    bool _space = true;
+    bool _space;
   };
 
   class Part: public AbstractStructureElement {
