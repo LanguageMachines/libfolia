@@ -212,6 +212,8 @@ namespace folia {
     std::string filename;
     std::string version;
     bool external;
+    Document( const Document& ); // inhibit copies
+    Document& operator=( const Document& ); // inhibit copies
   };
 
   bool operator==( const Document&, const Document& );

@@ -436,6 +436,9 @@ namespace folia {
   };
 
   class FoliaImpl: public virtual FoliaElement {
+  private:
+    FoliaImpl( const FoliaImpl& ); // inhibit copies
+    FoliaImpl& operator=( const FoliaImpl& ); // inhibit copies
   public:
     //Constructor
     FoliaImpl( const properties& p, Document* = 0 );
@@ -707,7 +710,7 @@ namespace folia {
     }
   private:
     std::string IDgen( const std::string&, const FoliaElement* );
-    std::map<std::string, int> maxid;
+    std::map<std::string, int> id_map;
   };
 
   class AllowCorrection: public virtual FoliaElement {

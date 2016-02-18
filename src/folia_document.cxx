@@ -81,6 +81,7 @@ namespace folia {
     _foliaNsOut = 0;
     debug = 0;
     version = versionstring();
+    external = false;
   }
 
   Document::~Document(){

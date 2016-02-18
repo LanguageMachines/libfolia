@@ -1944,9 +1944,9 @@ namespace folia {
 	  // no number, so assume so user defined id
 	  return;
 	}
-	const auto& it = maxid.find( child->xmltag() );
-	if ( it == maxid.end() ) {
-	  maxid[child->xmltag()] = i;
+	const auto& it = id_map.find( child->xmltag() );
+	if ( it == id_map.end() ) {
+	  id_map[child->xmltag()] = i;
 	}
 	else {
 	  if ( it->second < i ) {
@@ -1960,8 +1960,8 @@ namespace folia {
   int AllowGenerateID::getMaxId( const string& xmltag ) {
     int res = 0;
     if ( !xmltag.empty() ) {
-      res = maxid[xmltag];
-      ++maxid[xmltag];
+      res = id_map[xmltag];
+      ++id_map[xmltag];
     }
     return res;
   }

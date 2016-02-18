@@ -2,7 +2,8 @@
 # $URL $
 
 AM_CPPFLAGS = -I@top_srcdir@/include
-AM_CXXFLAGS = -std=c++0x -g -O3
+AM_CXXFLAGS = -std=c++0x -g -O3 # -Weffc++
+
 
 LDADD = libfolia.la
 
