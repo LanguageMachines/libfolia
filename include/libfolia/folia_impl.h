@@ -220,14 +220,14 @@ namespace folia {
     }
 
     template <typename F>
-      bool hasannotation( const std::string& st = "" ) const {
+      int hasannotation( const std::string& st = "" ) const {
       try {
 	std::vector<F*> v = annotations<F>( st );
-	return true;
+	return v.size();
       }
       catch ( NoSuchAnnotation& e ){
-	return false;
       }
+      return 0;
     }
 
     template <typename F>
@@ -539,7 +539,7 @@ namespace folia {
     }
 
     template <typename F>
-      bool hasannotation( const std::string& st = "" ) const {
+      int hasannotation( const std::string& st = "" ) const {
       return FoliaElement::hasannotation<F>(st);
     }
 
