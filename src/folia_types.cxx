@@ -377,6 +377,8 @@ namespace folia {
     case Dependency_t: result = "dependency"; break;
     case DependencyDependent_t: result = "dep"; break;
     case Headwords_t: result = "hd"; break;
+    case ComplexAlignment_t: result = "complexalignment"; break;
+    case ComplexAlignmentLayer_t: result = "complexalignments"; break;
     case Alignment_t: result = "alignment"; break;
     case AlignReference_t: result = "aref"; break;
     case TextMarkupString_t: result = "t-str"; break;
@@ -386,7 +388,7 @@ namespace folia {
     case TextMarkupStyle_t: result = "t-style"; break;
     case Part_t: result = "part"; break;
     default:
-      result = "Unknown Elementtype " + TiCC::toString( int(et) );
+      result = "toString: Unknown Elementtype " + TiCC::toString( int(et) );
     }
     return result;
   }
@@ -667,6 +669,12 @@ namespace folia {
     }
     else if ( tag == "hd" ){
       return Headwords_t;
+    }
+    else if ( tag == "complexalignments" ){
+      return ComplexAlignmentLayer_t;
+    }
+    else if ( tag == "complexalignment" ){
+      return ComplexAlignment_t;
     }
     else if ( tag == "alignment" ){
       return Alignment_t;

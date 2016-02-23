@@ -242,6 +242,10 @@ namespace folia {
       return new DependencyDependent( doc );
     case Headwords_t:
       return new Headwords( doc );
+    case ComplexAlignmentLayer_t:
+      return new ComplexAlignmentLayer( doc );
+    case ComplexAlignment_t:
+      return new ComplexAlignment( doc );
     case Alignment_t:
       return new Alignment( doc );
     case AlignReference_t:
@@ -268,7 +272,7 @@ namespace folia {
       throw ValueError( "you may not create an abstract node of type "
 			+ TiCC::toString(int(et)) + ")" );
     default:
-      throw ValueError( "unknown elementtype("
+      throw ValueError( "createElement: unknown elementtype("
 			+ TiCC::toString(int(et)) + ")" );
     }
     return 0;

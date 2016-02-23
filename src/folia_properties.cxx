@@ -81,6 +81,8 @@ namespace folia {
   properties XmlText::PROPS = DEFAULT_PROPERTIES;
   properties Description::PROPS = DEFAULT_PROPERTIES;
   properties Alignment::PROPS = DEFAULT_PROPERTIES;
+  properties ComplexAlignment::PROPS = DEFAULT_PROPERTIES;
+  properties ComplexAlignmentLayer::PROPS = DEFAULT_PROPERTIES;
   properties Content::PROPS = DEFAULT_PROPERTIES;
   properties Gap::PROPS = DEFAULT_PROPERTIES;
   properties AlternativeLayers::PROPS = DEFAULT_PROPERTIES;
@@ -389,6 +391,22 @@ namespace folia {
     Alignment::PROPS.OCCURRENCES_PER_SET=0;
     Alignment::PROPS.ANNOTATIONTYPE = AnnotationType::ALIGNMENT;
     Alignment::PROPS.XLINK = true;
+
+    ComplexAlignmentLayer::PROPS.XMLTAG = "complexalignments";
+    ComplexAlignmentLayer::PROPS.ELEMENT_ID = ComplexAlignmentLayer_t;
+    ComplexAlignmentLayer::PROPS.ACCEPTED_DATA +=
+      { ComplexAlignment_t,
+	  Correction_t};
+
+    ComplexAlignment::PROPS.OPTIONAL_ATTRIBS = ALL;
+    ComplexAlignment::PROPS.XMLTAG = "complexalignment";
+    ComplexAlignment::PROPS.ELEMENT_ID = ComplexAlignment_t;
+    ComplexAlignment::PROPS.ACCEPTED_DATA +=
+      { Alignment_t,
+	  Metric_t,
+	  Feature_t};
+    ComplexAlignment::PROPS.OCCURRENCES_PER_SET=0;
+    ComplexAlignment::PROPS.ANNOTATIONTYPE = AnnotationType::COMPLEXALIGNMENT;
 
     AlignReference::PROPS.XMLTAG = "aref";
     AlignReference::PROPS.ELEMENT_ID = AlignReference_t;

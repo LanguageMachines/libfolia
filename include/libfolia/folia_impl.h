@@ -835,6 +835,19 @@ namespace folia {
       static properties PROPS;
     };
 
+  class ComplexAlignment: public AbstractAnnotation {
+    friend void static_init();
+  public:
+  ComplexAlignment( Document *d, const std::string& s="" ):
+    AbstractAnnotation( PROPS, d ){ classInit( s ); }
+  ComplexAlignment( Document *d, const KWargs& a ):
+    AbstractAnnotation( PROPS, d ){ classInit( a ); }
+
+  private:
+    static properties PROPS;
+  };
+
+
   const std::string EMPTY_STRING = "";
 
   class AbstractTextMarkup: public AbstractAnnotation {
@@ -2833,6 +2846,26 @@ namespace folia {
     }
     static properties PROPS;
   };
+
+  class ComplexAlignmentLayer: public AbstractAnnotationLayer {
+    friend void static_init();
+  public:
+  ComplexAlignmentLayer( const std::string& s=""):
+    AbstractAnnotationLayer( PROPS, 0 ){ classInit( s ); }
+  ComplexAlignmentLayer( const KWargs& a ):
+    AbstractAnnotationLayer( PROPS, 0 ){ classInit( a ); }
+  ComplexAlignmentLayer( Document *d, const std::string& s="" ):
+    AbstractAnnotationLayer( PROPS, d ){ classInit( s ); }
+  ComplexAlignmentLayer( Document *d, const KWargs& a ):
+    AbstractAnnotationLayer( PROPS, d ){ classInit( a ); }
+
+  private:
+    bool has_base( ElementType e ) const {
+      return e == AbstractAnnotationLayer_t;
+    }
+    static properties PROPS;
+  };
+
 
   std::string VersionName();
   std::string Version();
