@@ -11,7 +11,7 @@ namespace folia {
 
   const int MAJOR_VERSION = 0;
   const int MINOR_VERSION = 12;
-  const int SUB_VERSION   = 0;
+  const int SUB_VERSION   = 2;
   const string NSFOLIA = "http://ilk.uvt.nl/folia";
   const string NSDCOI = "http://lands.let.ru.nl/projects/d-coi/ns/1.0";
   const string NSIMDI = "http://www.mpi.nl/IMDI/Schema/IMDI";
