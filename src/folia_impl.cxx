@@ -1385,7 +1385,7 @@ namespace folia {
       newId = it->second;
       args.erase("generate_id");
     }
-    if ( hasannotation<PosAnnotation>( st ) ) {
+    if ( hasannotation<PosAnnotation>( st ) > 0 ) {
       // ok, there is already one, so create an Alternative
       KWargs kw;
       kw["id"] = generateId( newId );
@@ -1436,7 +1436,7 @@ namespace folia {
       newId = it->second;
       args.erase("generate_id");
     }
-    if ( hasannotation<LemmaAnnotation>( st ) ) {
+    if ( hasannotation<LemmaAnnotation>( st ) > 0 ) {
       // ok, there is already one, so create an Alternative
       KWargs kw;
       kw["id"] = generateId( newId );
@@ -1487,7 +1487,7 @@ namespace folia {
       newId = it->second;
       args.erase("generate_id");
     }
-    if ( hasannotation<MorphologyLayer>( st ) ) {
+    if ( hasannotation<MorphologyLayer>( st ) > 0 ) {
       // ok, there is already one, so create an Alternative
       KWargs kw;
       kw["id"] = generateId( newId );
