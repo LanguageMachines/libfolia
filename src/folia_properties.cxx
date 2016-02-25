@@ -27,6 +27,7 @@ namespace folia {
   const string NSDCOI = "http://lands.let.ru.nl/projects/d-coi/ns/1.0";
   const string NSIMDI = "http://www.mpi.nl/IMDI/Schema/IMDI";
 
+  //foliaspec:ant_s_map
   const map<AnnotationType::AnnotationType,string> ant_s_map = {
     { AnnotationType::NO_ANN, "NoNe" },
     { AnnotationType::TEXT, "text" },
@@ -73,6 +74,7 @@ namespace folia {
     { AnnotationType::EXAMPLE, "example" },
     { AnnotationType::PHONOLOGICAL, "phonology" }
   };
+
   map<string,AnnotationType::AnnotationType> s_ant_map;
 
   const map<ElementType,string> et_s_map = {
@@ -225,6 +227,7 @@ namespace folia {
 				     SemanticRolesLayer_t,
 				     TimeSegment_t };
 
+  //foliaspec:defaultproperties
   properties DEFAULT_PROPERTIES =
     { BASE, "ThIsIsSoWrOnG",
       { Description_t, XmlComment_t }, // may occur 'everywhere'
