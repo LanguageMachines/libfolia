@@ -188,6 +188,7 @@ namespace folia {
   //foliaspec:string_elementtype_map
   map<string,ElementType> s_et_map;
 
+  //foliaspec:default_ignore
   const set<ElementType> default_ignore =
     { Original_t,
       Suggestion_t,
@@ -195,6 +196,7 @@ namespace folia {
       AlternativeLayers_t,
     };
 
+  //foliaspec:default_ignore_annotations
   const set<ElementType> default_ignore_annotations =
     { Original_t,
       Suggestion_t,
@@ -203,6 +205,7 @@ namespace folia {
       MorphologyLayer_t,
       PhonologyLayer_t };
 
+  //foliaspec:default_ignore_structure
   const set<ElementType> default_ignore_structure =
     { Original_t,
       Suggestion_t,
