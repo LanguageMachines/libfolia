@@ -5,14 +5,25 @@
 #include "libfolia/folia.h"
 #include "libfolia/folia_properties.h"
 
+//foliaspec:header
+//blah blah.....
+
 namespace folia {
 
   using namespace std;
 
+  //foliaspec:version_major:MAJOR_VERSION
   const int MAJOR_VERSION = 0;
+
+  //foliaspec:version_minor:MINOR_VERSION
   const int MINOR_VERSION = 12;
+
+  //foliaspec:version_sub:SUB_VERSION
   const int SUB_VERSION   = 2;
+  
+  //foliaspec:namespace:NSFOLIA
   const string NSFOLIA = "http://ilk.uvt.nl/folia";
+
   const string NSDCOI = "http://lands.let.ru.nl/projects/d-coi/ns/1.0";
   const string NSIMDI = "http://www.mpi.nl/IMDI/Schema/IMDI";
 
@@ -223,6 +234,7 @@ namespace folia {
       "NONE", false, false, false
     };
 
+  //foliaspec:instantiateelementproperties
   properties AbstractStructureElement::PROPS = DEFAULT_PROPERTIES;
   properties AbstractAnnotation::PROPS = DEFAULT_PROPERTIES;
   properties AbstractTokenAnnotation::PROPS = DEFAULT_PROPERTIES;
@@ -230,7 +242,7 @@ namespace folia {
   properties AbstractAnnotationLayer::PROPS = DEFAULT_PROPERTIES;
   properties AbstractSpanAnnotation::PROPS = DEFAULT_PROPERTIES;
   properties AbstractTextMarkup::PROPS = DEFAULT_PROPERTIES;
-
+  //- (no newline so its's all one block)
   properties FoLiA::PROPS = DEFAULT_PROPERTIES;
   properties DCOI::PROPS = DEFAULT_PROPERTIES;
   properties XmlText::PROPS = DEFAULT_PROPERTIES;
@@ -342,6 +354,7 @@ namespace folia {
     DCOI::PROPS.XMLTAG = "DCOI";
     DCOI::PROPS.ACCEPTED_DATA += { Text_t, Speech_t };
 
+    //foliaspec:begin:setelementproperties
     TextContent::PROPS.ELEMENT_ID = TextContent_t;
     TextContent::PROPS.XMLTAG="t";
     TextContent::PROPS.OPTIONAL_ATTRIBS = CLASS|ANNOTATOR|CONFIDENCE|DATETIME;
@@ -1375,6 +1388,7 @@ namespace folia {
     TextMarkupStyle::PROPS.XMLTAG = "t-style";
     TextMarkupStyle::PROPS.ELEMENT_ID = TextMarkupStyle_t;
     TextMarkupStyle::PROPS.ANNOTATIONTYPE = AnnotationType::STYLE;
+    //foliaspec:end:setelementproperties
 
   }
 
