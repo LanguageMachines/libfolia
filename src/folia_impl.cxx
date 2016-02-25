@@ -3426,7 +3426,7 @@ namespace folia {
 
   const UnicodeString AbstractTextMarkup::text( const string& cls,
 						bool, bool ) const {
-    // we assume al TextMarkup te be tokenized already
+    // we assume al TextMarkup to be tokenized already
     return FoliaImpl::text( cls, true );
   }
 
