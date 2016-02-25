@@ -16,6 +16,161 @@ namespace folia {
   const string NSDCOI = "http://lands.let.ru.nl/projects/d-coi/ns/1.0";
   const string NSIMDI = "http://www.mpi.nl/IMDI/Schema/IMDI";
 
+  const map<AnnotationType::AnnotationType,string> ant_s_map = {
+    { AnnotationType::NO_ANN, "NoNe" },
+    { AnnotationType::TEXT, "text" },
+    { AnnotationType::STRING, "string" },
+    { AnnotationType::TOKEN, "token" },
+    { AnnotationType::DIVISION, "division" },
+    { AnnotationType::PARAGRAPH, "paragraph" },
+    { AnnotationType::LIST, "list" },
+    { AnnotationType::FIGURE, "figure" },
+    { AnnotationType::WHITESPACE, "whitespace" },
+    { AnnotationType::LINEBREAK, "linebreak" },
+    { AnnotationType::SENTENCE, "sentence" },
+    { AnnotationType::POS, "pos" },
+    { AnnotationType::LEMMA, "lemma" },
+    { AnnotationType::DOMAIN, "domain" },
+    { AnnotationType::SENSE, "sense" },
+    { AnnotationType::SYNTAX, "syntax" },
+    { AnnotationType::CHUNKING, "chunking" },
+    { AnnotationType::ENTITY, "entity" },
+    { AnnotationType::CORRECTION, "correction" },
+    { AnnotationType::SUGGESTION, "suggestion" },
+    { AnnotationType::ERRORDETECTION, "errordetection" },
+    { AnnotationType::ALTERNATIVE, "alternative" },
+    { AnnotationType::PHON, "phon" },
+    { AnnotationType::SUBJECTIVITY, "subjectivity" },
+    { AnnotationType::MORPHOLOGICAL, "morphological" },
+    { AnnotationType::EVENT, "event" },
+    { AnnotationType::DEPENDENCY, "dependency" },
+    { AnnotationType::TIMESEGMENT, "timesegment" },
+    { AnnotationType::GAP, "gap" },
+    { AnnotationType::ALIGNMENT, "alignment" },
+    { AnnotationType::COMPLEXALIGNMENT, "complexalignment" },
+    { AnnotationType::COREFERENCE, "coreference" },
+    { AnnotationType::SEMROLE, "semrole" },
+    { AnnotationType::METRIC, "metric" },
+    { AnnotationType::TABLE, "table" },
+    { AnnotationType::LANG, "lang" },
+    { AnnotationType::STYLE, "style" },
+    { AnnotationType::NOTE, "note" },
+    { AnnotationType::PART, "part" },
+    { AnnotationType::UTTERANCE, "utterance" },
+    { AnnotationType::TERM, "term" },
+    { AnnotationType::DEFINITION, "definition" },
+    { AnnotationType::EXAMPLE, "example" },
+    { AnnotationType::PHONOLOGICAL, "phonology" }
+  };
+  map<string,AnnotationType::AnnotationType> s_ant_map;
+
+  const map<ElementType,string> et_s_map = {
+    { BASE, "FoLiA" },
+    { TextContent_t, "t" },
+    { Text_t, "text" },
+    { Speech_t, "speech" },
+    { Event_t, "event" },
+    { TimeSegment_t, "timesegment" },
+    { TimingLayer_t, "timing" },
+    { LineBreak_t, "br" },
+    { WhiteSpace_t, "whitespace" },
+    { Word_t, "w" },
+    { WordReference_t, "wref" },
+    { String_t, "str" },
+    { Utterance_t, "utt" },
+    { Entry_t, "entry" },
+    { Term_t, "term" },
+    { Example_t, "ex" },
+    { Definition_t, "def" },
+    { PhonContent_t, "ph" },
+    { Sentence_t, "s" },
+    { Paragraph_t, "p" },
+    { Division_t, "div" },
+    { Head_t, "head" },
+    { Table_t, "table" },
+    { TableHead_t, "tablehead" },
+    { Cell_t, "cell" },
+    { LangAnnotation_t, "lang" },
+    { Row_t, "row" },
+    { Caption_t, "caption" },
+    { Label_t, "label" },
+    { List_t, "list" },
+    { Item_t, "item" },
+    { Figure_t, "figure" },
+    { Quote_t, "quote" },
+    { PosAnnotation_t, "pos" },
+    { LemmaAnnotation_t, "lemma" },
+    { PhonologyLayer_t, "phonology" },
+    { Phoneme_t, "phoneme" },
+    { DomainAnnotation_t, "domain" },
+    { SenseAnnotation_t, "sense" },
+    { SubjectivityAnnotation_t, "subjectivity" },
+    { Correction_t, "correction" },
+    { AbstractTokenAnnotation_t, "abstracttokenannotation" },
+    { AbstractAnnotation_t, "abstractannotation" },
+    { AbstractStructureElement_t, "abstractstructure" },
+    { AbstractAnnotationLayer_t, "abstractannotationlayer" },
+    { AbstractSpanAnnotation_t, "abstractspanannotation" },
+    { AbstractCorrectionChild_t, "abstractcorrectionchild" },
+    { AbstractTextMarkup_t, "abstracttextmarkup" },
+    { SyntacticUnit_t, "su" },
+    { SyntaxLayer_t, "syntax" },
+    { Chunk_t, "chunk" },
+    { ChunkingLayer_t, "chunking" },
+    { Entity_t, "entity" },
+    { EntitiesLayer_t, "entities" },
+    { SemanticRolesLayer_t, "semroles" },
+    { SemanticRole_t, "semrole" },
+    { CoreferenceLayer_t, "coreferences" },
+    { CoreferenceLink_t, "coreferencelink" },
+    { CoreferenceChain_t, "coreferencechain" },
+    { MorphologyLayer_t, "morphology" },
+    { Morpheme_t, "morpheme" },
+    { ErrorDetection_t, "errordetection" },
+    { New_t, "new" },
+    { Original_t, "original" },
+    { Current_t, "current" },
+    { Suggestion_t, "suggestion" },
+    { Alternative_t, "alt" },
+    { AlternativeLayers_t, "altlayers" },
+    { XmlComment_t, "xml-comment" },
+    { XmlText_t, "xml-text" },
+    { External_t, "external" },
+    { Note_t, "note" },
+    { Reference_t, "ref" },
+    { Description_t, "desc" },
+    { Gap_t, "gap" },
+    { Content_t, "content" },
+    { Metric_t, "metric" },
+    { Feature_t, "feat" },
+    { SynsetFeature_t, "synset" },
+    { ActorFeature_t, "actor" },
+    { HeadFeature_t, "headfeature" },
+    { ValueFeature_t, "value" },
+    { TimeFeature_t, "time" },
+    { ModalityFeature_t, "modality" },
+    { LevelFeature_t, "level" },
+    { FunctionFeature_t, "function" },
+    { BeginDateTimeFeature_t, "begindatetime" },
+    { EndDateTimeFeature_t, "enddatetime" },
+    { PlaceHolder_t, "placeholder" },
+    { DependenciesLayer_t, "dependencies" },
+    { Dependency_t, "dependency" },
+    { DependencyDependent_t, "dep" },
+    { Headwords_t, "hd" },
+    { ComplexAlignment_t, "complexalignment" },
+    { ComplexAlignmentLayer_t, "complexalignments" },
+    { Alignment_t, "alignment" },
+    { AlignReference_t, "aref" },
+    { TextMarkupString_t, "t-str" },
+    { TextMarkupGap_t, "t-gap" },
+    { TextMarkupCorrection_t, "t-correction" },
+    { TextMarkupError_t, "t-error" },
+    { TextMarkupStyle_t, "t-style" },
+    { Part_t, "part" }
+  };
+  map<string,ElementType> s_et_map;
+
   const set<ElementType> default_ignore =
     { Original_t,
       Suggestion_t,
@@ -1223,6 +1378,15 @@ namespace folia {
 
   }
 
+  void fill_transmaps(){
+    for ( const auto& it : et_s_map ){
+      s_et_map[it.second] = it.first;
+    }
+    for ( const auto& it : ant_s_map ){
+      s_ant_map[it.second] = it.first;
+    }
+  }
+
   static map<ElementType,set<ElementType> > typeHierarchy;
 
   bool isSubClass( const FoliaElement *e1, const FoliaElement *e2 ){
@@ -1278,6 +1442,7 @@ namespace folia {
     struct initializer {
       initializer() {
 	static_init();
+	fill_transmaps();
 	fill_hierarchy();
 	//	print_type_hierarchy( cout );
       }

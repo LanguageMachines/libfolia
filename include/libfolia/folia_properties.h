@@ -28,6 +28,11 @@ namespace folia {
     bool XLINK;
   };
 
+  extern const std::map<ElementType,std::string> et_s_map;
+  extern std::map<std::string,ElementType> s_et_map;
+  extern const std::map<AnnotationType::AnnotationType,std::string> ant_s_map;
+  extern std::map<std::string,AnnotationType::AnnotationType> s_ant_map;
+
   extern const std::set<ElementType> default_ignore;
   extern const std::set<ElementType> default_ignore_annotations;
   extern const std::set<ElementType> default_ignore_structure;
