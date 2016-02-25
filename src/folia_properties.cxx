@@ -27,7 +27,7 @@ namespace folia {
   const string NSDCOI = "http://lands.let.ru.nl/projects/d-coi/ns/1.0";
   const string NSIMDI = "http://www.mpi.nl/IMDI/Schema/IMDI";
 
-  //foliaspec:ant_s_map
+  //foliaspec:annotationtype_string_map
   const map<AnnotationType::AnnotationType,string> ant_s_map = {
     { AnnotationType::NO_ANN, "NoNe" },
     { AnnotationType::TEXT, "text" },
@@ -75,8 +75,10 @@ namespace folia {
     { AnnotationType::PHONOLOGICAL, "phonology" }
   };
 
+  //foliaspec:string_annotationtype_map
   map<string,AnnotationType::AnnotationType> s_ant_map;
 
+  //foliaspec:elementtype_string_map
   const map<ElementType,string> et_s_map = {
     { BASE, "FoLiA" },
     { TextContent_t, "t" },
@@ -182,6 +184,8 @@ namespace folia {
     { TextMarkupStyle_t, "t-style" },
     { Part_t, "part" }
   };
+
+  //foliaspec:string_elementtype_map
   map<string,ElementType> s_et_map;
 
   const set<ElementType> default_ignore =
