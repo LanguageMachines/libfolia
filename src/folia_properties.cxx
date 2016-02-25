@@ -237,6 +237,11 @@ namespace folia {
       "NONE", false, false, false
     };
 
+  //these are not in the external specification yet:
+  properties FoLiA::PROPS = DEFAULT_PROPERTIES;
+  properties DCOI::PROPS = DEFAULT_PROPERTIES;
+  properties XmlComment::PROPS = DEFAULT_PROPERTIES;
+
   //foliaspec:instantiateelementproperties
   properties AbstractStructureElement::PROPS = DEFAULT_PROPERTIES;
   properties AbstractAnnotation::PROPS = DEFAULT_PROPERTIES;
@@ -246,8 +251,6 @@ namespace folia {
   properties AbstractSpanAnnotation::PROPS = DEFAULT_PROPERTIES;
   properties AbstractTextMarkup::PROPS = DEFAULT_PROPERTIES;
   //- (no newline so its's all one block)
-  properties FoLiA::PROPS = DEFAULT_PROPERTIES;
-  properties DCOI::PROPS = DEFAULT_PROPERTIES;
   properties XmlText::PROPS = DEFAULT_PROPERTIES;
   properties Description::PROPS = DEFAULT_PROPERTIES;
   properties Alignment::PROPS = DEFAULT_PROPERTIES;
@@ -257,7 +260,6 @@ namespace folia {
   properties Gap::PROPS = DEFAULT_PROPERTIES;
   properties AlternativeLayers::PROPS = DEFAULT_PROPERTIES;
   properties Metric::PROPS = DEFAULT_PROPERTIES;
-  properties XmlComment::PROPS = DEFAULT_PROPERTIES;
   properties External::PROPS = DEFAULT_PROPERTIES;
   properties AlignReference::PROPS = DEFAULT_PROPERTIES;
   properties WordReference::PROPS = DEFAULT_PROPERTIES;
@@ -356,6 +358,9 @@ namespace folia {
 
     DCOI::PROPS.XMLTAG = "DCOI";
     DCOI::PROPS.ACCEPTED_DATA += { Text_t, Speech_t };
+
+    XmlComment::PROPS.XMLTAG = "xml-comment";
+    XmlComment::PROPS.ELEMENT_ID = XmlComment_t;
 
     //foliaspec:begin:setelementproperties
     TextContent::PROPS.ELEMENT_ID = TextContent_t;
@@ -1100,8 +1105,6 @@ namespace folia {
       { TextContent_t, PhonContent_t, String_t,
 	Metric_t };
 
-    XmlComment::PROPS.XMLTAG = "xml-comment";
-    XmlComment::PROPS.ELEMENT_ID = XmlComment_t;
 
     Morpheme::PROPS = AbstractStructureElement::PROPS;
     Morpheme::PROPS.ELEMENT_ID = Morpheme_t;
