@@ -127,13 +127,15 @@ namespace folia {
     return os;
   }
 
-  FoliaImpl::FoliaImpl( const properties& p, Document *d ) : _props(p) {
-    mydoc = d;
-    _confidence = -1;
-    _refcount = 0;
-    _parent = 0;
-    _auth = true;
-    _annotator_type = UNDEFINED;
+  FoliaImpl::FoliaImpl( const properties& p, Document *d ) :
+    _parent(0),
+    _auth(true),
+    mydoc(d),
+    _annotator_type(UNDEFINED),
+    _confidence(-1),
+    _refcount(0),
+    _props(p)
+  {
   }
 
   FoliaImpl::~FoliaImpl( ) {
