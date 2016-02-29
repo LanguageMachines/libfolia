@@ -61,7 +61,7 @@ namespace folia {
     KWargs kwargs = getArgs( args );
     setDocumentProps( kwargs );
     if ( ! foliadoc ){
-      foliadoc = new FoLiA( this, args );
+      foliadoc = new FoLiA( this, kwargs );
     }
   }
 

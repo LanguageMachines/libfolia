@@ -58,7 +58,8 @@ int main() {
   KWargs kw = getArgs( "id='" + id + "'" );
   FoliaElement *text = d.addText( kw );
   kw.clear();
-  FoliaElement *s = new Sentence( &d, "generate_id='" + text->id() + "'" );
+  kw = getArgs( "generate_id='" + text->id() + "'" );
+  FoliaElement *s = new Sentence( &d, kw );
   text->append( s );
   kw.clear();
   kw["text"] = "De";

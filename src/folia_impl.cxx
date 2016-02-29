@@ -1596,8 +1596,9 @@ namespace folia {
 	result.push_back( dynamic_cast<Word*>(pnt) );
       }
       else if ( pnt->isinstance( Sentence_t ) ) {
-	PlaceHolder *p = new PlaceHolder( mydoc, "text='" +
-					  pnt->id() + "'");
+	KWargs args;
+	args["text"] = pnt->id();
+	PlaceHolder *p = new PlaceHolder( mydoc, args );
 	mydoc->keepForDeletion( p );
 	result.push_back( p );
       }
@@ -1667,7 +1668,10 @@ namespace folia {
     if ( !w || !w->isinstance( Word_t ) ) {
       throw runtime_error( "insertword(): new word is not a Word " );
     }
-    Word *tmp = new Word( "text='dummy', id='dummy'" );
+    KWargs kwargs;
+    kwargs["text"] = "dummy";
+    kwargs["id"] = "dummy";
+    Word *tmp = new Word( kwargs );
     tmp->setParent( this ); // we create a dummy Word as member of the
     // Sentence. This makes correctWords() happy
     auto it = data.begin();
@@ -1989,13 +1993,17 @@ namespace folia {
     vector<FoliaElement*> suggestions = _suggestions;
     auto it = args.find("new");
     if ( it != args.end() ) {
-      TextContent *t = new TextContent( mydoc, "value='" +  it->second + "'" );
+      KWargs my_args;
+      my_args["value"] = it->second;
+      TextContent *t = new TextContent( mydoc, my_args );
       _new.push_back( t );
       args.erase( it );
     }
     it = args.find("suggestion");
     if ( it != args.end() ) {
-      TextContent *t = new TextContent( mydoc, "value='" +  it->second + "'" );
+      KWargs my_args;
+      my_args["value"] = it->second;
+      TextContent *t = new TextContent( mydoc, my_args );
       suggestions.push_back( t );
       args.erase( it );
     }
@@ -2525,7 +2533,9 @@ namespace folia {
 	      result.push_back( 0 );
 	    }
 	    else {
-	      PlaceHolder *p = new PlaceHolder( "text='" + val + "'" );
+	      KWargs args;
+	      args["text"] = val;
+	      PlaceHolder *p = new PlaceHolder( args );
 	      mydoc->keepForDeletion( p );
 	      result.push_back( p );
 	    }
@@ -2539,7 +2549,9 @@ namespace folia {
 		result.push_back( 0 );
 	      }
 	      else {
-		PlaceHolder *p = new PlaceHolder( "text='" + val + "'" );
+		KWargs args;
+		args["text"] = val;
+		PlaceHolder *p = new PlaceHolder( args );
 		mydoc->keepForDeletion( p );
 		result.push_back( p );
 	      }
@@ -2570,7 +2582,9 @@ namespace folia {
 	      result.push_back( 0 );
 	    }
 	    else {
-	      PlaceHolder *p = new PlaceHolder( "text='" + val + "'" );
+	      KWargs args;
+	      args["text"] = val;
+	      PlaceHolder *p = new PlaceHolder( args );
 	      mydoc->keepForDeletion( p );
 	      result.push_back( p );
 	    }
@@ -2603,7 +2617,9 @@ namespace folia {
 		result.push_back( 0 );
 	      }
 	      else {
-		PlaceHolder *p = new PlaceHolder( "text='" + val + "'" );
+		KWargs args;
+		args["text"] = val;
+		PlaceHolder *p = new PlaceHolder( args );
 		mydoc->keepForDeletion( p );
 		result.push_back( p );
 	      }
