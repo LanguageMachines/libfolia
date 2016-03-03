@@ -17,6 +17,7 @@ namespace folia {
     ElementType ELEMENT_ID;
     std::string XMLTAG;
     std::set<ElementType> ACCEPTED_DATA;
+    std::set<ElementType> REQUIRED_DATA;
     Attrib REQUIRED_ATTRIBS;
     Attrib OPTIONAL_ATTRIBS;
     AnnotationType::AnnotationType ANNOTATIONTYPE;

@@ -238,6 +238,7 @@ namespace folia {
   properties DEFAULT_PROPERTIES =
     { BASE, "ThIsIsSoWrOnG",
       { Description_t, XmlComment_t }, // may occur 'everywhere'
+      {}, // default: no required data
       NO_ATT, NO_ATT,
       AnnotationType::NO_ANN,
       0, 1,
