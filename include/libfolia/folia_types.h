@@ -29,6 +29,7 @@
 
 namespace folia {
 
+  //foliaspec:elementtype
   enum ElementType : unsigned int {
     BASE=0,
       TextContent_t,
@@ -145,6 +146,7 @@ namespace folia {
 
   enum AnnotatorType: int { UNDEFINED = -1, AUTO = 0, MANUAL = 1 };
 
+  //foliaspec:attributes
   enum Attrib : int { NO_ATT=0, ID=1, CLASS=2, ANNOTATOR=4, CONFIDENCE=8,
       N=16, DATETIME=32, SETONLY=64, BEGINTIME=128, ENDTIME=256,
       SRC=512, SPEAKER=1024, ALL=2047 };
@@ -172,6 +174,8 @@ namespace folia {
    *  static const annotation_type = {AnnotationType}
    */
   namespace AnnotationType {
+
+    //foliaspec:annotationtype
     enum AnnotationType : int { NO_ANN, TEXT, TOKEN, DIVISION, PARAGRAPH,
 	LIST, FIGURE, WHITESPACE, LINEBREAK, SENTENCE,
 	POS, LEMMA, DOMAIN, SENSE, SYNTAX, CHUNKING, ENTITY,
@@ -183,6 +187,7 @@ namespace folia {
 	DEFINITION, EXAMPLE, PHONOLOGICAL,
 	LAST_ANN
 	};
+
     inline AnnotationType& operator++( AnnotationType &at ){
       return at = ( LAST_ANN == at )
 	? NO_ANN

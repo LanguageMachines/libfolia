@@ -1402,6 +1402,7 @@ namespace folia {
     }
   }
 
+  //foliaspec:typehierarchy
   static map<ElementType,set<ElementType> > typeHierarchy;
 
   bool isSubClass( const FoliaElement *e1, const FoliaElement *e2 ){
