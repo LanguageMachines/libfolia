@@ -370,7 +370,7 @@ namespace folia {
     virtual const std::string& xmltag() const = 0;
     virtual const std::string& default_subset() const = 0;
     virtual const std::string subset() const NOT_IMPLEMENTED;
-
+    virtual bool setonly() const = 0;
     virtual Document *doc() const = 0;
     virtual Sentence *sentence() const NOT_IMPLEMENTED;
     virtual Paragraph *paragraph() const NOT_IMPLEMENTED;
@@ -616,6 +616,7 @@ namespace folia {
     bool xlink() const;
     bool default_auth() const;
     bool auth() const;
+    bool setonly() const;
 
     Document *doc() const { return mydoc; };
 

@@ -109,6 +109,10 @@ namespace folia {
     return _props.AUTH;
   }
 
+  inline bool FoliaImpl::setonly() const {
+    return _props.SETONLY;
+  }
+
   ostream& operator<<( ostream& os, const FoliaElement& ae ) {
     os << " <" << ae.classname();
     KWargs ats = ae.collectAttributes();
@@ -226,7 +230,7 @@ namespace folia {
     it = kwargs.find( "set" );
     string def;
     if ( it != kwargs.end() ) {
-      if ( !( (CLASS|SETONLY) & supported ) ) {
+      if ( !( (CLASS) & supported ) || !setonly()) {
 	throw ValueError("Set is not supported for " + classname());
       }
       else {
@@ -1091,7 +1095,7 @@ namespace folia {
       }
     }
     if ( c->occurrences_per_set() > 0 &&
-	 ( (CLASS|SETONLY) & c->required_attributes() ) ) {
+	 (CLASS & c->required_attributes() || c->setonly() ) ){
       vector<FoliaElement*> v = select( c->element_id(), c->sett(), false );
       size_t count = v.size();
       if ( count >= c->occurrences_per_set() ) {

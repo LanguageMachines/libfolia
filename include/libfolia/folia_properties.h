@@ -29,6 +29,7 @@ namespace folia {
     bool SPEAKABLE;
     bool XLINK;
     bool AUTH;
+    bool SETONLY;
   };
 
   extern const std::map<ElementType,std::string> et_s_map;

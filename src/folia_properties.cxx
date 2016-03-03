@@ -244,7 +244,7 @@ namespace folia {
       "",
       0, 1,
       "NONE",
-      false, false, false, true
+      false, false, false, true, false
     };
 
   //these are not in the external specification yet:
