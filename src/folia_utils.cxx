@@ -268,7 +268,6 @@ namespace folia {
     case AbstractTokenAnnotation_t:
     case AbstractStructureElement_t:
     case AbstractCorrectionChild_t:
-    case AbstractAnnotation_t:
       throw ValueError( "you may not create an abstract node of type "
 			+ TiCC::toString(int(et)) + ")" );
     default:

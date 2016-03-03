@@ -122,7 +122,6 @@ namespace folia {
     { SubjectivityAnnotation_t, "subjectivity" },
     { Correction_t, "correction" },
     { AbstractTokenAnnotation_t, "abstracttokenannotation" },
-    { AbstractAnnotation_t, "abstractannotation" },
     { AbstractStructureElement_t, "abstractstructure" },
     { AbstractAnnotationLayer_t, "abstractannotationlayer" },
     { AbstractSpanAnnotation_t, "abstractspanannotation" },
@@ -252,7 +251,6 @@ namespace folia {
 
   //foliaspec:instantiateelementproperties
   properties AbstractStructureElement::PROPS = DEFAULT_PROPERTIES;
-  properties AbstractAnnotation::PROPS = DEFAULT_PROPERTIES;
   properties AbstractTokenAnnotation::PROPS = DEFAULT_PROPERTIES;
   properties AbstractCorrectionChild::PROPS = DEFAULT_PROPERTIES;
   properties AbstractAnnotationLayer::PROPS = DEFAULT_PROPERTIES;

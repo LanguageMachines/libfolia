@@ -120,7 +120,6 @@ namespace folia {
       LangAnnotation_t,
       XmlComment_t,
       AbstractCorrectionChild_t,
-      AbstractAnnotation_t,
       AbstractTokenAnnotation_t,
       AbstractStructureElement_t,
       AbstractTextMarkup_t,
