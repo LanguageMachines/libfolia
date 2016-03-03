@@ -1021,14 +1021,6 @@ namespace folia {
 
   }
 
-  void fill_transmaps(){
-    for ( const auto& it : et_s_map ){
-      s_et_map[it.second] = it.first;
-    }
-    for ( const auto& it : ant_s_map ){
-      s_ant_map[it.second] = it.first;
-    }
-  }
 
   //foliaspec:typehierarchy
   static const map<ElementType, set<ElementType> > typeHierarchy = {      AbstractAnnotationLayer_t, {  },
@@ -1172,27 +1164,6 @@ namespace folia {
     return folia::isSubClass( element_id(), t );
   }
 
-  void fill_hierarchy(){
-    ElementType et1 = BASE;
-    while ( ++et1 != LastElement ){
-      FoliaElement *el = 0;
-      try {
-	el = FoliaImpl::createElement( 0, et1 );
-      }
-      catch ( exception& e ){
-	//	cerr << e.what() << endl;
-      }
-      if ( el == 0 )
-	continue;
-      ElementType et2 = BASE;
-      while ( ++et2 != LastElement ){
-	if ( et2 != et1  && el->has_base( et2 ) ){
-	  typeHierarchy[et2].insert( et1 );
-	}
-      }
-      delete el;
-    }
-  }
 
   void print_type_hierarchy( ostream& os ){
     for ( auto const& top : typeHierarchy ){
@@ -1205,10 +1176,8 @@ namespace folia {
 
   namespace {
     struct initializer {
-      initializer() {
-	static_init();
-	fill_transmaps();
-	fill_hierarchy();
+     initializer() {
+	 static_init();
 	//	print_type_hierarchy( cout );
       }
       ~initializer() {
