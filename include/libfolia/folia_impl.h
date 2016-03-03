@@ -797,6 +797,7 @@ namespace folia {
       static properties PROPS;
     };
 
+
   class AbstractSpanAnnotation:
     public FoliaImpl,
     public AllowGenerateID,
@@ -816,6 +817,20 @@ namespace folia {
 
       std::vector<FoliaElement*> wrefs() const;
       FoliaElement *wrefs( size_t ) const;
+
+    private:
+      static properties PROPS;
+    };
+
+  class AbstractExtendedTokenAnnotation: public AbstractTokenAnnotation
+    {
+      friend void static_init();
+    protected:
+    // DO NOT USE AbstractExtendedTokenAnnotation as a real node!!
+    AbstractExtendedTokenAnnotation( const properties& props, Document *d=0 ):
+      AbstractTokenAnnotation( props, d ){ classInit(); };
+    AbstractExtendedTokenAnnotation( Document *d=0 ):
+      AbstractTokenAnnotation( PROPS, d ){ classInit(); };
 
     private:
       static properties PROPS;
@@ -1572,19 +1587,19 @@ namespace folia {
     static properties PROPS;
   };
 
-  class LangAnnotation: public AbstractTokenAnnotation {
+  class LangAnnotation: public AbstractExtendedTokenAnnotation {
     friend void static_init();
   public:
   LangAnnotation( const KWargs& a ):
-    AbstractTokenAnnotation( PROPS, 0 ){ classInit( a ); }
+    AbstractExtendedTokenAnnotation( PROPS, 0 ){ classInit( a ); }
   LangAnnotation( Document *d=0 ):
-    AbstractTokenAnnotation( PROPS, d ){ classInit(); }
+    AbstractExtendedTokenAnnotation( PROPS, d ){ classInit(); }
   LangAnnotation( Document *d, const KWargs& a ):
-    AbstractTokenAnnotation( PROPS, d ){ classInit( a ); }
+    AbstractExtendedTokenAnnotation( PROPS, d ){ classInit( a ); }
 
   private:
     bool has_base( ElementType e ) const {
-      return e == AbstractTokenAnnotation_t;
+      return e == AbstractExtendedTokenAnnotation_t;
     }
     static properties PROPS;
   };
@@ -1606,19 +1621,19 @@ namespace folia {
     static properties PROPS;
   };
 
-  class DomainAnnotation: public AbstractTokenAnnotation {
+  class DomainAnnotation: public AbstractExtendedTokenAnnotation {
     friend void static_init();
   public:
   DomainAnnotation(  const KWargs& a ):
-    AbstractTokenAnnotation( PROPS, 0 ){ classInit( a ); }
+    AbstractExtendedTokenAnnotation( PROPS, 0 ){ classInit( a ); }
   DomainAnnotation( Document *d=0 ):
-    AbstractTokenAnnotation( PROPS, d ){ classInit(); }
+    AbstractExtendedTokenAnnotation( PROPS, d ){ classInit(); }
   DomainAnnotation( Document *d, const KWargs& a ):
-    AbstractTokenAnnotation( PROPS, d ){ classInit( a ); }
+    AbstractExtendedTokenAnnotation( PROPS, d ){ classInit( a ); }
 
   private:
     bool has_base( ElementType e ) const {
-      return e == AbstractTokenAnnotation_t;
+      return e == AbstractExtendedTokenAnnotation_t;
     }
     static properties PROPS;
   };
@@ -2453,19 +2468,19 @@ namespace folia {
     static properties PROPS;
   };
 
-  class ErrorDetection: public AbstractTokenAnnotation  {
+  class ErrorDetection: public AbstractExtendedTokenAnnotation  {
     friend void static_init();
   public:
   ErrorDetection( const KWargs& a ):
-    AbstractTokenAnnotation( PROPS, 0 ){ classInit( a ); }
+    AbstractExtendedTokenAnnotation( PROPS, 0 ){ classInit( a ); }
   ErrorDetection( Document *d=0 ):
-    AbstractTokenAnnotation( PROPS, d ){ classInit(); }
+    AbstractExtendedTokenAnnotation( PROPS, d ){ classInit(); }
   ErrorDetection( Document *d, const KWargs& a ):
-    AbstractTokenAnnotation( PROPS, d ){ classInit( a ); }
+    AbstractExtendedTokenAnnotation( PROPS, d ){ classInit( a ); }
 
   private:
     bool has_base( ElementType e ) const {
-      return e == AbstractTokenAnnotation_t;
+      return e == AbstractExtendedTokenAnnotation_t;
     }
     static properties PROPS;
   };
