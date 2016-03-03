@@ -21,12 +21,14 @@ namespace folia {
     Attrib REQUIRED_ATTRIBS;
     Attrib OPTIONAL_ATTRIBS;
     AnnotationType::AnnotationType ANNOTATIONTYPE;
+    std::string SUBSET;
     size_t OCCURRENCES;
     size_t OCCURRENCES_PER_SET;
     std::string TEXTDELIMITER;
     bool PRINTABLE;
     bool SPEAKABLE;
     bool XLINK;
+    bool AUTH;
   };
 
   extern const std::map<ElementType,std::string> et_s_map;

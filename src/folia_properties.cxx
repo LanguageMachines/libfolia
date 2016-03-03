@@ -241,8 +241,10 @@ namespace folia {
       {}, // default: no required data
       NO_ATT, NO_ATT,
       AnnotationType::NO_ANN,
+      "",
       0, 1,
-      "NONE", false, false, false
+      "NONE",
+      false, false, false, true
     };
 
   //these are not in the external specification yet:
