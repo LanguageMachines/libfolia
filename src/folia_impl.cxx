@@ -81,6 +81,10 @@ namespace folia {
     return _props.XMLTAG;
   }
 
+  inline const string& FoliaImpl::default_subset() const {
+    return _props.SUBSET;
+  }
+
   inline AnnotationType::AnnotationType FoliaImpl::annotation_type() const {
     return _props.ANNOTATIONTYPE;
   }
@@ -99,6 +103,10 @@ namespace folia {
 
   inline bool FoliaImpl::xlink() const {
     return _props.XLINK;
+  }
+
+  inline bool FoliaImpl::default_auth() const {
+    return _props.AUTH;
   }
 
   ostream& operator<<( ostream& os, const FoliaElement& ae ) {

@@ -368,6 +368,7 @@ namespace folia {
     virtual Attrib required_attributes() const = 0;
     virtual Attrib optional_attributes() const = 0;
     virtual const std::string& xmltag() const = 0;
+    virtual const std::string& default_subset() const = 0;
     virtual const std::string subset() const NOT_IMPLEMENTED;
 
     virtual Document *doc() const = 0;
@@ -607,12 +608,14 @@ namespace folia {
     Attrib required_attributes() const;
     Attrib optional_attributes() const;
     const std::string& xmltag() const;
+    const std::string& default_subset() const;
     AnnotationType::AnnotationType annotation_type() const;
     const std::set<ElementType>& accepted_data() const;
     bool printable() const;
     bool speakable() const;
     bool xlink() const;
-
+    bool default_auth() const;
+    bool auth() const;
 
     Document *doc() const { return mydoc; };
 
@@ -1687,6 +1690,7 @@ namespace folia {
     void setAttributes( const KWargs& );
     KWargs collectAttributes() const;
     const std::string subset() const { return _subset; };
+
   protected:
     std::string _subset;
 
