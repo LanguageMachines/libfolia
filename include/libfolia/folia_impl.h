@@ -1879,6 +1879,24 @@ namespace folia {
     void init();
   };
 
+  class StyleFeature: public Feature {
+    friend void static_init();
+  public:
+  StyleFeature( const KWargs& a ):
+    Feature( PROPS, 0 ){ classInit( a ); }
+  StyleFeature( Document *d=0 ):
+    Feature( PROPS, d ){ classInit(); }
+  StyleFeature( Document *d, const KWargs& a ):
+    Feature( PROPS, d ){ classInit( a ); }
+
+  private:
+    bool has_base( ElementType e ) const {
+      return e == Feature_t;
+    }
+    static properties PROPS;
+    void init();
+  };
+
   class WordReference: public FoliaImpl {
     friend void static_init();
   public:

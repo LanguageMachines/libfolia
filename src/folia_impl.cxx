@@ -3550,4 +3550,8 @@ namespace folia {
     _subset = "time";
   }
 
+  void StyleFeature::init() {
+    _subset = "actor";
+  }
+
 } // namespace folia
