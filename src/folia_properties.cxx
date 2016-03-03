@@ -251,6 +251,7 @@ namespace folia {
   properties FoLiA::PROPS = DEFAULT_PROPERTIES;
   properties DCOI::PROPS = DEFAULT_PROPERTIES;
   properties XmlComment::PROPS = DEFAULT_PROPERTIES;
+  properties PlaceHolder::PROPS = DEFAULT_PROPERTIES;
 
   //foliaspec:instantiateelementproperties
   properties AbstractStructureElement::PROPS = DEFAULT_PROPERTIES;
@@ -295,7 +296,6 @@ namespace folia {
   properties Word::PROPS = DEFAULT_PROPERTIES;
   properties Row::PROPS = DEFAULT_PROPERTIES;
   properties Part::PROPS = DEFAULT_PROPERTIES;
-  properties PlaceHolder::PROPS = DEFAULT_PROPERTIES;
   properties SubjectivityAnnotation::PROPS = DEFAULT_PROPERTIES;
   properties CoreferenceLink::PROPS = DEFAULT_PROPERTIES;
   properties LineBreak::PROPS = DEFAULT_PROPERTIES;
@@ -369,8 +369,6 @@ namespace folia {
     DCOI::PROPS.XMLTAG = "DCOI";
     DCOI::PROPS.ACCEPTED_DATA += { Text_t, Speech_t };
 
-    XmlComment::PROPS.XMLTAG = "xml-comment";
-    XmlComment::PROPS.ELEMENT_ID = XmlComment_t;
 
     //foliaspec:begin:setelementproperties
     TextContent::PROPS.ELEMENT_ID = TextContent_t;
@@ -559,10 +557,6 @@ namespace folia {
     Part::PROPS.ANNOTATIONTYPE = AnnotationType::PART;
     Part::PROPS.TEXTDELIMITER = " ";
 
-    PlaceHolder::PROPS = Word::PROPS;
-    PlaceHolder::PROPS.XMLTAG="placeholder";
-    PlaceHolder::PROPS.ELEMENT_ID = PlaceHolder_t;
-    PlaceHolder::PROPS.REQUIRED_ATTRIBS = NO_ATT;
 
     WordReference::PROPS.REQUIRED_ATTRIBS = ID;
     WordReference::PROPS.XMLTAG = "wref";
@@ -1392,6 +1386,14 @@ namespace folia {
     TextMarkupStyle::PROPS.ELEMENT_ID = TextMarkupStyle_t;
     TextMarkupStyle::PROPS.ANNOTATIONTYPE = AnnotationType::STYLE;
     //foliaspec:end:setelementproperties
+
+    XmlComment::PROPS.XMLTAG = "xml-comment";
+    XmlComment::PROPS.ELEMENT_ID = XmlComment_t;
+
+    PlaceHolder::PROPS = Word::PROPS;
+    PlaceHolder::PROPS.XMLTAG="placeholder";
+    PlaceHolder::PROPS.ELEMENT_ID = PlaceHolder_t;
+    PlaceHolder::PROPS.REQUIRED_ATTRIBS = NO_ATT;
 
   }
 
