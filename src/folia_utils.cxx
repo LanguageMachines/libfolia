@@ -114,8 +114,8 @@ namespace folia {
       return new Label( doc );
     case List_t:
       return new List( doc );
-    case Item_t:
-      return new Item( doc );
+    case ListItem_t:
+      return new ListItem( doc );
     case Paragraph_t:
       return new Paragraph( doc );
     case New_t:
