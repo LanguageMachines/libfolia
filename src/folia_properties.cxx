@@ -20,7 +20,7 @@ namespace folia {
 
   //foliaspec:version_sub:SUB_VERSION
   const int SUB_VERSION   = 2;
-  
+
   //foliaspec:namespace:NSFOLIA
   const string NSFOLIA = "http://ilk.uvt.nl/folia";
 
@@ -126,6 +126,7 @@ namespace folia {
     { AbstractStructureElement_t, "abstractstructure" },
     { AbstractAnnotationLayer_t, "abstractannotationlayer" },
     { AbstractSpanAnnotation_t, "abstractspanannotation" },
+    { AbstractSpanRole_t, "abstractspanrole" },
     { AbstractCorrectionChild_t, "abstractcorrectionchild" },
     { AbstractTextMarkup_t, "abstracttextmarkup" },
     { SyntacticUnit_t, "su" },
@@ -172,7 +173,7 @@ namespace folia {
     { DependenciesLayer_t, "dependencies" },
     { Dependency_t, "dependency" },
     { DependencyDependent_t, "dep" },
-    { Headwords_t, "hd" },
+    { Headspan_t, "hd" },
     { ComplexAlignment_t, "complexalignment" },
     { ComplexAlignmentLayer_t, "complexalignments" },
     { Alignment_t, "alignment" },
@@ -216,7 +217,7 @@ namespace folia {
       CoreferenceLayer_t,
       SemanticRolesLayer_t,
       Entity_t,
-      Headwords_t,
+      Headspan_t,
       TimingLayer_t,
       DependencyDependent_t,
       TimeSegment_t };
@@ -226,7 +227,7 @@ namespace folia {
   const set<ElementType> SpanSet = { SyntacticUnit_t,
 				     Chunk_t,
 				     Entity_t,
-				     Headwords_t,
+				     Headspan_t,
 				     DependencyDependent_t,
 				     CoreferenceLink_t,
 				     CoreferenceChain_t,
@@ -256,6 +257,7 @@ namespace folia {
   properties AbstractCorrectionChild::PROPS = DEFAULT_PROPERTIES;
   properties AbstractAnnotationLayer::PROPS = DEFAULT_PROPERTIES;
   properties AbstractSpanAnnotation::PROPS = DEFAULT_PROPERTIES;
+  properties AbstractSpanRole::PROPS = DEFAULT_PROPERTIES;
   properties AbstractTextMarkup::PROPS = DEFAULT_PROPERTIES;
   //- (no newline so its's all one block)
   properties XmlText::PROPS = DEFAULT_PROPERTIES;
@@ -303,7 +305,7 @@ namespace folia {
   properties Quote::PROPS = DEFAULT_PROPERTIES;
   properties Event::PROPS = DEFAULT_PROPERTIES;
   properties String::PROPS = DEFAULT_PROPERTIES;
-  properties Headwords::PROPS = DEFAULT_PROPERTIES;
+  properties Headspan::PROPS = DEFAULT_PROPERTIES;
   properties Alternative::PROPS = DEFAULT_PROPERTIES;
   properties Division::PROPS = DEFAULT_PROPERTIES;
   properties DependencyDependent::PROPS = DEFAULT_PROPERTIES;
@@ -770,6 +772,9 @@ namespace folia {
     AbstractSpanAnnotation::PROPS.OCCURRENCES_PER_SET = 0;
     AbstractSpanAnnotation::PROPS. PRINTABLE = true;
     AbstractSpanAnnotation::PROPS.SPEAKABLE = true;
+    AbstractSpanAnnotation::PROPS.ACCEPTED_DATA +=
+      { Metric_t,
+	  Alignment_t };
 
     TimeSegment::PROPS = AbstractSpanAnnotation::PROPS;
     TimeSegment::PROPS.XMLTAG="timesegment";
@@ -909,7 +914,7 @@ namespace folia {
       { Word_t,
 	  WordReference_t,
 	  LangAnnotation_t,
-	  Headwords_t,
+	  Headspan_t,
 	  Alignment_t,
 	  Metric_t };
 
@@ -1176,21 +1181,23 @@ namespace folia {
 					       Correction_t };
     CoreferenceLayer::PROPS.ANNOTATIONTYPE = AnnotationType::COREFERENCE;
 
-    CoreferenceLink::PROPS = AbstractSpanAnnotation::PROPS;
+    AbstractSpanRole::PROPS.XMLTAG = "spanrole";
+    AbstractSpanRole::PROPS.ELEMENT_ID = AbstractSpanRole_t;
+    AbstractSpanRole::PROPS.REQUIRED_ATTRIBS = NO_ATT;
+    AbstractSpanRole::PROPS.OPTIONAL_ATTRIBS = ANNOTATOR|N|DATETIME;
+    AbstractSpanRole::PROPS.ACCEPTED_DATA +=
+      { Feature_t,
+	  Word_t,
+	  WordReference_t };
+
+    CoreferenceLink::PROPS = AbstractSpanRole::PROPS;
     CoreferenceLink::PROPS.ELEMENT_ID = CoreferenceLink_t;
     CoreferenceLink::PROPS.XMLTAG = "coreferencelink";
-    CoreferenceLink::PROPS.REQUIRED_ATTRIBS = NO_ATT;
-    CoreferenceLink::PROPS.OPTIONAL_ATTRIBS = ANNOTATOR|N|DATETIME;
     CoreferenceLink::PROPS.ACCEPTED_DATA +=
-      { Word_t,
-	  WordReference_t,
-	  Headwords_t,
-	  LangAnnotation_t,
-	  Alignment_t,
+      {   Headspan_t,
 	  TimeFeature_t,
 	  LevelFeature_t,
-	  ModalityFeature_t,
-	  Metric_t };
+	  ModalityFeature_t };
     CoreferenceLink::PROPS.ANNOTATIONTYPE = AnnotationType::COREFERENCE;
 
     CoreferenceChain::PROPS = AbstractSpanAnnotation::PROPS;
@@ -1223,36 +1230,18 @@ namespace folia {
     Dependency::PROPS.ANNOTATIONTYPE = AnnotationType::DEPENDENCY;
     Dependency::PROPS.ACCEPTED_DATA +=
       { DependencyDependent_t,
-	  Headwords_t,
+	  Headspan_t,
 	  Feature_t,
 	  Alignment_t };
 
-    DependencyDependent::PROPS = AbstractSpanAnnotation::PROPS;
+    DependencyDependent::PROPS = AbstractSpanRole::PROPS;
     DependencyDependent::PROPS.ELEMENT_ID = DependencyDependent_t;
     DependencyDependent::PROPS.XMLTAG = "dep";
-    DependencyDependent::PROPS.REQUIRED_ATTRIBS = NO_ATT;
-    DependencyDependent::PROPS.OPTIONAL_ATTRIBS = NO_ATT;
     DependencyDependent::PROPS.ANNOTATIONTYPE = AnnotationType::DEPENDENCY;
-    DependencyDependent::PROPS.ACCEPTED_DATA +=
-      { Word_t,
-	  WordReference_t,
-	  PlaceHolder_t,
-	  Feature_t,
-	  Alignment_t };
 
-    Headwords::PROPS = AbstractSpanAnnotation::PROPS;
-    Headwords::PROPS.ELEMENT_ID = Headwords_t;
-    Headwords::PROPS.XMLTAG = "hd";
-    Headwords::PROPS.REQUIRED_ATTRIBS = NO_ATT;
-    Headwords::PROPS.OPTIONAL_ATTRIBS = NO_ATT;
-    Headwords::PROPS.ACCEPTED_DATA +=
-      { Word_t,
-	  WordReference_t,
-	  PlaceHolder_t,
-	  Feature_t,
-	  Metric_t,
-	  Alignment_t,
-	  LangAnnotation_t };
+    Headspan::PROPS = AbstractSpanRole::PROPS;
+    Headspan::PROPS.ELEMENT_ID = Headspan_t;
+    Headspan::PROPS.XMLTAG = "hd";
 
     PosAnnotation::PROPS = AbstractTokenAnnotation::PROPS;
     PosAnnotation::PROPS.XMLTAG="pos";

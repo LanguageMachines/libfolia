@@ -3129,8 +3129,8 @@ namespace folia {
     return cv[0]->content();
   }
 
-  Headwords *Dependency::head() const {
-    vector<Headwords*> v = FoliaElement::select<Headwords>();
+  Headspan *Dependency::head() const {
+    vector<Headspan*> v = FoliaElement::select<Headspan>();
     if ( v.size() < 1 ) {
       throw NoSuchAnnotation( "head" );
     }

@@ -240,8 +240,8 @@ namespace folia {
       return new Dependency( doc );
     case DependencyDependent_t:
       return new DependencyDependent( doc );
-    case Headwords_t:
-      return new Headwords( doc );
+    case Headspan_t:
+      return new Headspan( doc );
     case ComplexAlignmentLayer_t:
       return new ComplexAlignmentLayer( doc );
     case ComplexAlignment_t:

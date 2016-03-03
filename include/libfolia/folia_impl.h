@@ -2018,15 +2018,13 @@ namespace folia {
     static properties PROPS;
   };
 
-  class Headwords: public AbstractSpanAnnotation {
+    class AbstractSpanRole: public AbstractSpanAnnotation {
     friend void static_init();
   public:
-  Headwords( const KWargs& a ):
-    AbstractSpanAnnotation( PROPS, 0 ){ classInit( a ); }
-  Headwords( Document *d=0 ):
+  AbstractSpanRole( const properties& props, Document *d=0 ):
+    AbstractSpanAnnotation( props, d ){ classInit(); }
+  AbstractSpanRole( Document *d=0 ):
     AbstractSpanAnnotation( PROPS, d ){ classInit(); }
-  Headwords( Document *d, const KWargs& a ):
-    AbstractSpanAnnotation( PROPS, d ){ classInit( a ); }
 
   private:
     bool has_base( ElementType e ) const {
@@ -2036,19 +2034,39 @@ namespace folia {
     static properties PROPS;
   };
 
-  class DependencyDependent: public AbstractSpanAnnotation {
+  class Headspan: public AbstractSpanRole {
     friend void static_init();
   public:
-  DependencyDependent( const KWargs& a ):
-    AbstractSpanAnnotation( PROPS, 0 ){ classInit( a ); }
-  DependencyDependent( Document *d=0 ):
-    AbstractSpanAnnotation( PROPS, d ){ classInit(); }
-  DependencyDependent( Document *d, const KWargs& a ):
-    AbstractSpanAnnotation( PROPS, d ){ classInit( a ); }
+  Headspan( const KWargs& a ):
+    AbstractSpanRole( PROPS, 0 ){ classInit( a ); }
+  Headspan( Document *d=0 ):
+    AbstractSpanRole( PROPS, d ){ classInit(); }
+  Headspan( Document *d, const KWargs& a ):
+    AbstractSpanRole( PROPS, d ){ classInit( a ); }
 
   private:
     bool has_base( ElementType e ) const {
       return e == AbstractSpanAnnotation_t
+	|| e == AbstractSpanRole_t
+	|| e == AbstractAnnotation_t;
+    }
+    static properties PROPS;
+  };
+
+  class DependencyDependent: public AbstractSpanRole {
+    friend void static_init();
+  public:
+  DependencyDependent( const KWargs& a ):
+    AbstractSpanRole( PROPS, 0 ){ classInit( a ); }
+  DependencyDependent( Document *d=0 ):
+    AbstractSpanRole( PROPS, d ){ classInit(); }
+  DependencyDependent( Document *d, const KWargs& a ):
+    AbstractSpanRole( PROPS, d ){ classInit( a ); }
+
+  private:
+    bool has_base( ElementType e ) const {
+      return e == AbstractSpanAnnotation_t
+	|| e == AbstractSpanRole_t
 	|| e == AbstractAnnotation_t;
     }
     static properties PROPS;
@@ -2064,7 +2082,7 @@ namespace folia {
   Dependency( Document *d, const KWargs& a ):
     AbstractSpanAnnotation( PROPS, d ){ classInit( a ); }
 
-    Headwords *head() const;
+    Headspan *head() const;
     DependencyDependent *dependent() const;
   private:
     bool has_base( ElementType e ) const {
@@ -2074,19 +2092,20 @@ namespace folia {
     static properties PROPS;
   };
 
-  class CoreferenceLink: public AbstractSpanAnnotation {
+  class CoreferenceLink: public AbstractSpanRole {
     friend void static_init();
   public:
   CoreferenceLink( const KWargs& a ):
-    AbstractSpanAnnotation( PROPS, 0 ){ classInit( a ); }
+    AbstractSpanRole( PROPS, 0 ){ classInit( a ); }
   CoreferenceLink( Document *d=0 ):
-    AbstractSpanAnnotation( PROPS, d ){ classInit(); }
+    AbstractSpanRole( PROPS, d ){ classInit(); }
   CoreferenceLink( Document *d, const KWargs& a ):
-    AbstractSpanAnnotation( PROPS, d ){ classInit( a ); }
+    AbstractSpanRole( PROPS, d ){ classInit( a ); }
 
   private:
     bool has_base( ElementType e ) const {
-      return e == AbstractSpanAnnotation_t;
+      return e == AbstractSpanAnnotation_t
+	|| e == AbstractSpanRole_t;
     }
     static properties PROPS;
   };
