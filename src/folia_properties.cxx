@@ -87,8 +87,8 @@ namespace folia {
     { Event_t, "event" },
     { TimeSegment_t, "timesegment" },
     { TimingLayer_t, "timing" },
-    { LineBreak_t, "br" },
-    { WhiteSpace_t, "whitespace" },
+    { Linebreak_t, "br" },
+    { Whitespace_t, "whitespace" },
     { Word_t, "w" },
     { WordReference_t, "wref" },
     { String_t, "str" },
@@ -166,8 +166,8 @@ namespace folia {
     { ModalityFeature_t, "modality" },
     { LevelFeature_t, "level" },
     { FunctionFeature_t, "function" },
-    { BeginDateTimeFeature_t, "begindatetime" },
-    { EndDateTimeFeature_t, "enddatetime" },
+    { BegindatetimeFeature_t, "begindatetime" },
+    { EnddatetimeFeature_t, "enddatetime" },
     { PlaceHolder_t, "placeholder" },
     { DependenciesLayer_t, "dependencies" },
     { Dependency_t, "dependency" },
@@ -276,8 +276,8 @@ namespace folia {
   properties WordReference::PROPS = DEFAULT_PROPERTIES;
   properties PhonContent::PROPS = DEFAULT_PROPERTIES;
   properties Feature::PROPS = DEFAULT_PROPERTIES;
-  properties BeginDateTimeFeature::PROPS = DEFAULT_PROPERTIES;
-  properties EndDateTimeFeature::PROPS = DEFAULT_PROPERTIES;
+  properties BegindatetimeFeature::PROPS = DEFAULT_PROPERTIES;
+  properties EnddatetimeFeature::PROPS = DEFAULT_PROPERTIES;
   properties SynsetFeature::PROPS = DEFAULT_PROPERTIES;
   properties ValueFeature::PROPS = DEFAULT_PROPERTIES;
   properties TimeFeature::PROPS = DEFAULT_PROPERTIES;
@@ -298,7 +298,7 @@ namespace folia {
   properties Part::PROPS = DEFAULT_PROPERTIES;
   properties SubjectivityAnnotation::PROPS = DEFAULT_PROPERTIES;
   properties CoreferenceLink::PROPS = DEFAULT_PROPERTIES;
-  properties LineBreak::PROPS = DEFAULT_PROPERTIES;
+  properties Linebreak::PROPS = DEFAULT_PROPERTIES;
   properties ChunkingLayer::PROPS = DEFAULT_PROPERTIES;
   properties MorphologyLayer::PROPS = DEFAULT_PROPERTIES;
   properties New::PROPS = DEFAULT_PROPERTIES;
@@ -319,7 +319,7 @@ namespace folia {
   properties SenseAnnotation::PROPS = DEFAULT_PROPERTIES;
   properties SyntacticUnit::PROPS = DEFAULT_PROPERTIES;
   properties Chunk::PROPS = DEFAULT_PROPERTIES;
-  properties WhiteSpace::PROPS = DEFAULT_PROPERTIES;
+  properties Whitespace::PROPS = DEFAULT_PROPERTIES;
   properties TableHead::PROPS = DEFAULT_PROPERTIES;
   properties Caption::PROPS = DEFAULT_PROPERTIES;
   properties Correction::PROPS = DEFAULT_PROPERTIES;
@@ -377,7 +377,7 @@ namespace folia {
     TextContent::PROPS.ACCEPTED_DATA += {
       AbstractTextMarkup_t,
 	XmlText_t,
-	LineBreak_t };
+	Linebreak_t };
     TextContent::PROPS.ANNOTATIONTYPE = AnnotationType::TEXT;
     TextContent::PROPS.OCCURRENCES = 0;
     TextContent::PROPS.OCCURRENCES_PER_SET=0;
@@ -480,23 +480,23 @@ namespace folia {
     Row::PROPS.ANNOTATIONTYPE = AnnotationType::TABLE;
     Row::PROPS.TEXTDELIMITER = "\n";
 
-    LineBreak::PROPS = AbstractStructureElement::PROPS;
-    LineBreak::PROPS.XMLTAG = "br";
-    LineBreak::PROPS.ELEMENT_ID = LineBreak_t;
-    LineBreak::PROPS.REQUIRED_ATTRIBS = NO_ATT;
-    LineBreak::PROPS.ACCEPTED_DATA +=
+    Linebreak::PROPS = AbstractStructureElement::PROPS;
+    Linebreak::PROPS.XMLTAG = "br";
+    Linebreak::PROPS.ELEMENT_ID = Linebreak_t;
+    Linebreak::PROPS.REQUIRED_ATTRIBS = NO_ATT;
+    Linebreak::PROPS.ACCEPTED_DATA +=
       { Feature_t,
 	  Metric_t };
-    LineBreak::PROPS.ANNOTATIONTYPE = AnnotationType::LINEBREAK;
+    Linebreak::PROPS.ANNOTATIONTYPE = AnnotationType::LINEBREAK;
 
-    WhiteSpace::PROPS = AbstractStructureElement::PROPS;
-    WhiteSpace::PROPS.XMLTAG = "whitespace";
-    WhiteSpace::PROPS.ELEMENT_ID = WhiteSpace_t;
-    WhiteSpace::PROPS.REQUIRED_ATTRIBS = NO_ATT;
-    WhiteSpace::PROPS.ACCEPTED_DATA +=
+    Whitespace::PROPS = AbstractStructureElement::PROPS;
+    Whitespace::PROPS.XMLTAG = "whitespace";
+    Whitespace::PROPS.ELEMENT_ID = Whitespace_t;
+    Whitespace::PROPS.REQUIRED_ATTRIBS = NO_ATT;
+    Whitespace::PROPS.ACCEPTED_DATA +=
       { Feature_t,
 	  Metric_t };
-    WhiteSpace::PROPS.ANNOTATIONTYPE = AnnotationType::WHITESPACE;
+    Whitespace::PROPS.ANNOTATIONTYPE = AnnotationType::WHITESPACE;
 
     Word::PROPS = AbstractStructureElement::PROPS;
     Word::PROPS.XMLTAG="w";
@@ -653,8 +653,8 @@ namespace folia {
 	  Note_t,
 	  Reference_t,
 	  AbstractTokenAnnotation_t,
-	  LineBreak_t,
-	  WhiteSpace_t,
+	  Linebreak_t,
+	  Whitespace_t,
 	  Alternative_t,
 	  TextContent_t,
 	  AlternativeLayers_t,
@@ -871,8 +871,8 @@ namespace folia {
 	  TextContent_t,
 	  PhonContent_t,
 	  String_t,
-	  LineBreak_t,
-	  WhiteSpace_t,
+	  Linebreak_t,
+	  Whitespace_t,
 	  Gap_t,
 	  List_t,
 	  Figure_t,
@@ -1303,11 +1303,11 @@ namespace folia {
     Feature::PROPS.ELEMENT_ID = Feature_t;
     Feature::PROPS.OCCURRENCES_PER_SET = 0;
 
-    BeginDateTimeFeature::PROPS.XMLTAG="begindatetime";
-    BeginDateTimeFeature::PROPS.ELEMENT_ID = BeginDateTimeFeature_t;
+    BegindatetimeFeature::PROPS.XMLTAG="begindatetime";
+    BegindatetimeFeature::PROPS.ELEMENT_ID = BegindatetimeFeature_t;
 
-    EndDateTimeFeature::PROPS.XMLTAG="enddatetime";
-    EndDateTimeFeature::PROPS.ELEMENT_ID = EndDateTimeFeature_t;
+    EnddatetimeFeature::PROPS.XMLTAG="enddatetime";
+    EnddatetimeFeature::PROPS.ELEMENT_ID = EnddatetimeFeature_t;
 
     SynsetFeature::PROPS.XMLTAG="synset";
     SynsetFeature::PROPS.ELEMENT_ID = SynsetFeature_t;

@@ -1140,14 +1140,14 @@ namespace folia {
     static properties PROPS;
   };
 
-  class LineBreak: public AbstractStructureElement {
+  class Linebreak: public AbstractStructureElement {
     friend void static_init();
   public:
-  LineBreak( const KWargs& a ):
+  Linebreak( const KWargs& a ):
     AbstractStructureElement( PROPS, 0 ){ classInit( a ); };
-  LineBreak( Document *d=0 ):
+  Linebreak( Document *d=0 ):
     AbstractStructureElement( PROPS, d ){ classInit(); };
-  LineBreak( Document *d,  const KWargs& a ):
+  Linebreak( Document *d,  const KWargs& a ):
     AbstractStructureElement( PROPS, d ){ classInit( a ); };
     const UnicodeString text( const std::string& = "current",
 			      bool = false, bool = false ) const {
@@ -1160,14 +1160,14 @@ namespace folia {
     static properties PROPS;
   };
 
-  class WhiteSpace: public AbstractStructureElement {
+  class Whitespace: public AbstractStructureElement {
     friend void static_init();
   public:
-  WhiteSpace( const KWargs& a ):
+  Whitespace( const KWargs& a ):
     AbstractStructureElement( PROPS, 0 ){ classInit( a ); }
-  WhiteSpace( Document *d=0 ):
+  Whitespace( Document *d=0 ):
     AbstractStructureElement( PROPS, d ){ classInit(); }
-  WhiteSpace( Document *d,  const KWargs& a ):
+  Whitespace( Document *d,  const KWargs& a ):
     AbstractStructureElement( PROPS, d ){ classInit( a ); }
 
   private:
@@ -1699,14 +1699,14 @@ namespace folia {
     static properties PROPS;
   };
 
-  class BeginDateTimeFeature: public Feature {
+  class BegindatetimeFeature: public Feature {
     friend void static_init();
   public:
-  BeginDateTimeFeature( const KWargs& a ):
+  BegindatetimeFeature( const KWargs& a ):
     Feature( PROPS, 0 ){ classInit( a ); }
-  BeginDateTimeFeature( Document *d=0 ):
+  BegindatetimeFeature( Document *d=0 ):
     Feature( PROPS, d ){ classInit(); }
-  BeginDateTimeFeature( Document *d, const KWargs& a ):
+  BegindatetimeFeature( Document *d, const KWargs& a ):
     Feature( PROPS, d ){ classInit( a ); }
 
   private:
@@ -1717,14 +1717,14 @@ namespace folia {
     void init();
   };
 
-  class EndDateTimeFeature: public Feature {
+  class EnddatetimeFeature: public Feature {
     friend void static_init();
   public:
-  EndDateTimeFeature( const KWargs& a ):
+  EnddatetimeFeature( const KWargs& a ):
     Feature( PROPS, 0 ){ classInit( a ); }
-  EndDateTimeFeature( Document *d=0 ):
+  EnddatetimeFeature( Document *d=0 ):
     Feature( PROPS, d ){ classInit(); }
-  EndDateTimeFeature( Document *d, const KWargs& a ):
+  EnddatetimeFeature( Document *d, const KWargs& a ):
     Feature( PROPS, d ){ classInit( a ); }
 
   private:

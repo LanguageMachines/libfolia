@@ -3510,11 +3510,11 @@ namespace folia {
     _auth = false;
   }
 
-  void BeginDateTimeFeature::init() {
+  void BegindatetimeFeature::init() {
     _subset = "begindatetime";
   }
 
-  void EndDateTimeFeature::init() {
+  void EnddatetimeFeature::init() {
     _subset = "enddatetime";
   }
 

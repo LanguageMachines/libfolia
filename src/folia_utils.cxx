@@ -102,10 +102,10 @@ namespace folia {
       return new Sentence( doc );
     case TextContent_t:
       return new TextContent( doc );
-    case LineBreak_t:
-      return new LineBreak( doc );
-    case WhiteSpace_t:
-      return new WhiteSpace( doc );
+    case Linebreak_t:
+      return new Linebreak( doc );
+    case Whitespace_t:
+      return new Whitespace( doc );
     case Figure_t:
       return new Figure( doc );
     case Caption_t:
@@ -212,10 +212,10 @@ namespace folia {
       return new Morpheme( doc );
     case Feature_t:
       return new Feature( doc );
-    case BeginDateTimeFeature_t:
-      return new BeginDateTimeFeature( doc );
-    case EndDateTimeFeature_t:
-      return new EndDateTimeFeature( doc );
+    case BegindatetimeFeature_t:
+      return new BegindatetimeFeature( doc );
+    case EnddatetimeFeature_t:
+      return new EnddatetimeFeature( doc );
     case SynsetFeature_t:
       return new SynsetFeature( doc );
     case ActorFeature_t:
