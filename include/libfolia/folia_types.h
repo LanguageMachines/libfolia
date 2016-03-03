@@ -30,112 +30,7 @@
 namespace folia {
 
   //foliaspec:elementtype
-  enum ElementType : unsigned int {
-    BASE=0,
-      TextContent_t,
-      Text_t,
-      Speech_t,
-      Word_t,
-      String_t,
-      Utterance_t,
-      Entry_t,
-      Example_t,
-      PhonContent_t,
-      Term_t,
-      Definition_t,
-      WordReference_t,
-      Event_t,
-      TimeSegment_t,
-      TimingLayer_t,
-      Linebreak_t,
-      Whitespace_t,
-      Sentence_t,
-      Paragraph_t,
-      Division_t,
-      Head_t,
-      Caption_t,
-      Label_t,
-      List_t,
-      Item_t,
-      Figure_t,
-      Quote_t,
-      PosAnnotation_t,
-      LemmaAnnotation_t,
-      PhonologyLayer_t,
-      Phoneme_t,
-      DomainAnnotation_t,
-      SenseAnnotation_t,
-      SubjectivityAnnotation_t,
-      Metric_t,
-      Correction_t,
-      AbstractAnnotationLayer_t,
-      AbstractSpanAnnotation_t,
-      AbstractSpanRole_t,
-      SyntacticUnit_t,
-      Chunk_t,
-      ChunkingLayer_t,
-      Entity_t,
-      EntitiesLayer_t,
-      CoreferenceLayer_t,
-      CoreferenceLink_t,
-      CoreferenceChain_t,
-      SyntaxLayer_t,
-      SemanticRolesLayer_t,
-      SemanticRole_t,
-      MorphologyLayer_t,
-      Morpheme_t,
-      ErrorDetection_t,
-      New_t,
-      Original_t,
-      Current_t,
-      Alternative_t,
-      AlternativeLayers_t,
-      Description_t,
-      Gap_t,
-      Suggestion_t,
-      Content_t,
-      Feature_t,
-      SynsetFeature_t,
-      ActorFeature_t,
-      HeadFeature_t,
-      ValueFeature_t,
-      TimeFeature_t,
-      ModalityFeature_t,
-      LevelFeature_t,
-      BegindatetimeFeature_t,
-      EnddatetimeFeature_t,
-      FunctionFeature_t,
-      PlaceHolder_t,
-      DependenciesLayer_t,
-      Dependency_t,
-      Headspan_t,
-      DependencyDependent_t,
-      ComplexAlignment_t,
-      ComplexAlignmentLayer_t,
-      Alignment_t,
-      AlignReference_t,
-      Table_t,
-      TableHead_t,
-      Row_t,
-      Cell_t,
-      LangAnnotation_t,
-      XmlComment_t,
-      AbstractCorrectionChild_t,
-      AbstractTokenAnnotation_t,
-      AbstractStructureElement_t,
-      AbstractTextMarkup_t,
-      TextMarkupString_t,
-      TextMarkupGap_t,
-      TextMarkupCorrection_t,
-      TextMarkupError_t,
-      TextMarkupStyle_t,
-      XmlText_t,
-      External_t,
-      Note_t,
-      Reference_t,
-      Part_t,
-      LastElement
-      };
+  enum ElementType : unsigned int { BASE=0,AbstractAnnotationLayer_t, AbstractCorrectionChild_t, AbstractExtendedTokenAnnotation_t, AbstractSpanAnnotation_t, AbstractSpanRole_t, AbstractStructureElement_t, AbstractTextMarkup_t, AbstractTokenAnnotation_t, ActorFeature_t, AlignReference_t, Alignment_t, Alternative_t, AlternativeLayers_t, BegindatetimeFeature_t, Caption_t, Cell_t, Chunk_t, ChunkingLayer_t, ComplexAlignment_t, ComplexAlignmentLayer_t, Content_t, CoreferenceChain_t, CoreferenceLayer_t, CoreferenceLink_t, Correction_t, Current_t, Definition_t, DependenciesLayer_t, Dependency_t, DependencyDependent_t, Description_t, Division_t, DomainAnnotation_t, EnddatetimeFeature_t, EntitiesLayer_t, Entity_t, Entry_t, ErrorDetection_t, Event_t, Example_t, External_t, Feature_t, Figure_t, FunctionFeature_t, Gap_t, Head_t, HeadFeature_t, Headspan_t, Label_t, LangAnnotation_t, LemmaAnnotation_t, LevelFeature_t, Linebreak_t, List_t, ListItem_t, Metric_t, ModalityFeature_t, Morpheme_t, MorphologyLayer_t, New_t, Note_t, Original_t, Paragraph_t, Part_t, PhonContent_t, Phoneme_t, PhonologyLayer_t, PosAnnotation_t, Quote_t, Reference_t, Row_t, SemanticRole_t, SemanticRolesLayer_t, SenseAnnotation_t, Sentence_t, Speech_t, String_t, StyleFeature_t, SubjectivityAnnotation_t, Suggestion_t, SynsetFeature_t, SyntacticUnit_t, SyntaxLayer_t, Table_t, TableHead_t, Term_t, Text_t, TextContent_t, TextMarkupCorrection_t, TextMarkupError_t, TextMarkupGap_t, TextMarkupString_t, TextMarkupStyle_t, TimeFeature_t, TimeSegment_t, TimingLayer_t, Utterance_t, ValueFeature_t, Whitespace_t, Word_t, WordReference_t, PlaceHolder_t, XmlComment_t, XmlText_t,  LastElement };
 
   inline ElementType& operator++( ElementType &et ){
     return et = ( LastElement == et )
@@ -147,9 +42,8 @@ namespace folia {
   enum AnnotatorType: int { UNDEFINED = -1, AUTO = 0, MANUAL = 1 };
 
   //foliaspec:attributes
-  enum Attrib : int { NO_ATT=0, ID=1, CLASS=2, ANNOTATOR=4, CONFIDENCE=8,
-      N=16, DATETIME=32, SETONLY=64, BEGINTIME=128, ENDTIME=256,
-      SRC=512, SPEAKER=1024, ALL=2047 };
+  //Defines all common FoLiA attributes (as part of the Attrib enumeration)
+  enum Attrib : int { NO_ATT=0, ID=1, CLASS=2, ANNOTATOR=4, CONFIDENCE=8, N=16, DATETIME=32, BEGINTIME=64, ENDTIME=128, SRC=256, SPEAKER=512, ALL=1024 };
 
   inline Attrib& operator++( Attrib & a ){
     return a = ( SPEAKER == a )
@@ -176,17 +70,8 @@ namespace folia {
   namespace AnnotationType {
 
     //foliaspec:annotationtype
-    enum AnnotationType : int { NO_ANN, TEXT, TOKEN, DIVISION, PARAGRAPH,
-	LIST, FIGURE, WHITESPACE, LINEBREAK, SENTENCE,
-	POS, LEMMA, DOMAIN, SENSE, SYNTAX, CHUNKING, ENTITY,
-	CORRECTION, SUGGESTION, ERRORDETECTION, ALTERNATIVE,
-	PHON, SUBJECTIVITY, MORPHOLOGICAL, EVENT,
-	DEPENDENCY, TIMESEGMENT, GAP, NOTE, ALIGNMENT,
-	COMPLEXALIGNMENT, COREFERENCE, SEMROLE, METRIC,
-	LANG, STRING, TABLE, STYLE, PART, UTTERANCE, TERM,
-	DEFINITION, EXAMPLE, PHONOLOGICAL,
-	LAST_ANN
-	};
+    //Defines all annotation types (as part of the AnnotationType enumeration)
+    enum AnnotationType : int { NO_ANN,TEXT, TOKEN, DIVISION, PARAGRAPH, LIST, FIGURE, WHITESPACE, LINEBREAK, SENTENCE, POS, LEMMA, DOMAIN, SENSE, SYNTAX, CHUNKING, ENTITY, CORRECTION, SUGGESTION, ERRORDETECTION, ALTERNATIVE, PHON, SUBJECTIVITY, MORPHOLOGICAL, EVENT, DEPENDENCY, TIMESEGMENT, GAP, NOTE, ALIGNMENT, COMPLEXALIGNMENT, COREFERENCE, SEMROLE, METRIC, LANG, STRING, TABLE, STYLE, PART, UTTERANCE, ENTRY, TERM, DEFINITION, EXAMPLE, PHONOLOGICAL, LAST_ANN };
 
     inline AnnotationType& operator++( AnnotationType &at ){
       return at = ( LAST_ANN == at )

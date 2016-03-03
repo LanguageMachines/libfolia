@@ -6,220 +6,330 @@
 #include "libfolia/folia_properties.h"
 
 //foliaspec:header
-//blah blah.....
+//This file was last updated according to the FoLiA specification for version 0.12.2 on 2016-03-03 20:28:42, using foliaspec.py
+//Code blocks after a foliaspec comment (until the next newline) are automatically generated. **DO NOT EDIT THOSE** and **DO NOT REMOVE ANY FOLIASPEC COMMENTS** !!!
 
 namespace folia {
 
   using namespace std;
 
   //foliaspec:version_major:MAJOR_VERSION
+  //The FoLiA version (major)
   const int MAJOR_VERSION = 0;
 
   //foliaspec:version_minor:MINOR_VERSION
+  //The FoLiA version (minor)
   const int MINOR_VERSION = 12;
 
   //foliaspec:version_sub:SUB_VERSION
-  const int SUB_VERSION   = 2;
+  //The FoLiA version (sub/rev)
+  const int SUB_VERSION = 2;
 
   //foliaspec:namespace:NSFOLIA
+  //The FoLiA XML namespace
   const string NSFOLIA = "http://ilk.uvt.nl/folia";
 
   const string NSDCOI = "http://lands.let.ru.nl/projects/d-coi/ns/1.0";
   const string NSIMDI = "http://www.mpi.nl/IMDI/Schema/IMDI";
 
   //foliaspec:annotationtype_string_map
+  //A mapping from annotation types to strings (xml tag)
   const map<AnnotationType::AnnotationType,string> ant_s_map = {
-    { AnnotationType::NO_ANN, "NoNe" },
-    { AnnotationType::TEXT, "text" },
-    { AnnotationType::STRING, "string" },
-    { AnnotationType::TOKEN, "token" },
-    { AnnotationType::DIVISION, "division" },
-    { AnnotationType::PARAGRAPH, "paragraph" },
-    { AnnotationType::LIST, "list" },
-    { AnnotationType::FIGURE, "figure" },
-    { AnnotationType::WHITESPACE, "whitespace" },
-    { AnnotationType::LINEBREAK, "linebreak" },
-    { AnnotationType::SENTENCE, "sentence" },
-    { AnnotationType::POS, "pos" },
-    { AnnotationType::LEMMA, "lemma" },
-    { AnnotationType::DOMAIN, "domain" },
-    { AnnotationType::SENSE, "sense" },
-    { AnnotationType::SYNTAX, "syntax" },
-    { AnnotationType::CHUNKING, "chunking" },
-    { AnnotationType::ENTITY, "entity" },
-    { AnnotationType::CORRECTION, "correction" },
-    { AnnotationType::SUGGESTION, "suggestion" },
-    { AnnotationType::ERRORDETECTION, "errordetection" },
-    { AnnotationType::ALTERNATIVE, "alternative" },
-    { AnnotationType::PHON, "phon" },
-    { AnnotationType::SUBJECTIVITY, "subjectivity" },
-    { AnnotationType::MORPHOLOGICAL, "morphological" },
-    { AnnotationType::EVENT, "event" },
-    { AnnotationType::DEPENDENCY, "dependency" },
-    { AnnotationType::TIMESEGMENT, "timesegment" },
-    { AnnotationType::GAP, "gap" },
-    { AnnotationType::ALIGNMENT, "alignment" },
-    { AnnotationType::COMPLEXALIGNMENT, "complexalignment" },
-    { AnnotationType::COREFERENCE, "coreference" },
-    { AnnotationType::SEMROLE, "semrole" },
-    { AnnotationType::METRIC, "metric" },
-    { AnnotationType::TABLE, "table" },
-    { AnnotationType::LANG, "lang" },
-    { AnnotationType::STYLE, "style" },
-    { AnnotationType::NOTE, "note" },
-    { AnnotationType::PART, "part" },
-    { AnnotationType::UTTERANCE, "utterance" },
-    { AnnotationType::TERM, "term" },
-    { AnnotationType::DEFINITION, "definition" },
-    { AnnotationType::EXAMPLE, "example" },
-    { AnnotationType::PHONOLOGICAL, "phonology" }
+    { AnnotationType::NO_ANN, "NONE" },
+    { AnnotationType::ALIGNMENT,  "alignment" },
+    { AnnotationType::CHUNKING,  "chunk" },
+    { AnnotationType::COMPLEXALIGNMENT,  "complexalignment" },
+    { AnnotationType::COREFERENCE,  "coreferencechain" },
+    { AnnotationType::CORRECTION,  "correction" },
+    { AnnotationType::DEFINITION,  "def" },
+    { AnnotationType::DEPENDENCY,  "dependency" },
+    { AnnotationType::DIVISION,  "div" },
+    { AnnotationType::DOMAIN,  "domain" },
+    { AnnotationType::ENTITY,  "entity" },
+    { AnnotationType::ENTRY,  "entry" },
+    { AnnotationType::ERRORDETECTION,  "errordetection" },
+    { AnnotationType::EVENT,  "event" },
+    { AnnotationType::EXAMPLE,  "ex" },
+    { AnnotationType::FIGURE,  "figure" },
+    { AnnotationType::GAP,  "gap" },
+    { AnnotationType::LANG,  "lang" },
+    { AnnotationType::LEMMA,  "lemma" },
+    { AnnotationType::LIST,  "list" },
+    { AnnotationType::METRIC,  "metric" },
+    { AnnotationType::MORPHOLOGICAL,  "morpheme" },
+    { AnnotationType::NOTE,  "note" },
+    { AnnotationType::PARAGRAPH,  "p" },
+    { AnnotationType::PART,  "part" },
+    { AnnotationType::PHON,  "ph" },
+    { AnnotationType::PHONOLOGICAL,  "phoneme" },
+    { AnnotationType::POS,  "pos" },
+    { AnnotationType::SEMROLE,  "semrole" },
+    { AnnotationType::SENSE,  "sense" },
+    { AnnotationType::SENTENCE,  "s" },
+    { AnnotationType::STRING,  "str" },
+    { AnnotationType::SUBJECTIVITY,  "subjectivity" },
+    { AnnotationType::SYNTAX,  "su" },
+    { AnnotationType::TABLE,  "table" },
+    { AnnotationType::TERM,  "term" },
+    { AnnotationType::TEXT,  "t" },
+    { AnnotationType::CORRECTION,  "t-correction" },
+    { AnnotationType::ERRORDETECTION,  "t-error" },
+    { AnnotationType::GAP,  "t-gap" },
+    { AnnotationType::STRING,  "t-str" },
+    { AnnotationType::STYLE,  "t-style" },
+    { AnnotationType::TIMESEGMENT,  "timesegment" },
+    { AnnotationType::UTTERANCE,  "utt" },
+    { AnnotationType::WHITESPACE,  "whitespace" },
+    { AnnotationType::TOKEN,  "w" },
   };
 
   //foliaspec:string_annotationtype_map
-  map<string,AnnotationType::AnnotationType> s_ant_map;
+  //A mapping from strings (xml tag) to annotation types
+  const map<string,AnnotationType::AnnotationType> s_ant_map = {
+    { "NONE", AnnotationType::NO_ANN },
+    { "alignment", AnnotationType::ALIGNMENT },
+    { "chunk", AnnotationType::CHUNKING },
+    { "chunking", AnnotationType::CHUNKING },
+    { "complexalignment", AnnotationType::COMPLEXALIGNMENT },
+    { "complexalignments", AnnotationType::COMPLEXALIGNMENT },
+    { "coreferencechain", AnnotationType::COREFERENCE },
+    { "coreferences", AnnotationType::COREFERENCE },
+    { "coreferencelink", AnnotationType::COREFERENCE },
+    { "correction", AnnotationType::CORRECTION },
+    { "def", AnnotationType::DEFINITION },
+    { "dependencies", AnnotationType::DEPENDENCY },
+    { "dependency", AnnotationType::DEPENDENCY },
+    { "div", AnnotationType::DIVISION },
+    { "domain", AnnotationType::DOMAIN },
+    { "entities", AnnotationType::ENTITY },
+    { "entity", AnnotationType::ENTITY },
+    { "entry", AnnotationType::ENTRY },
+    { "errordetection", AnnotationType::ERRORDETECTION },
+    { "event", AnnotationType::EVENT },
+    { "ex", AnnotationType::EXAMPLE },
+    { "figure", AnnotationType::FIGURE },
+    { "gap", AnnotationType::GAP },
+    { "lang", AnnotationType::LANG },
+    { "lemma", AnnotationType::LEMMA },
+    { "list", AnnotationType::LIST },
+    { "metric", AnnotationType::METRIC },
+    { "morpheme", AnnotationType::MORPHOLOGICAL },
+    { "morphology", AnnotationType::MORPHOLOGICAL },
+    { "note", AnnotationType::NOTE },
+    { "p", AnnotationType::PARAGRAPH },
+    { "part", AnnotationType::PART },
+    { "ph", AnnotationType::PHON },
+    { "phoneme", AnnotationType::PHONOLOGICAL },
+    { "phonology", AnnotationType::PHONOLOGICAL },
+    { "pos", AnnotationType::POS },
+    { "semrole", AnnotationType::SEMROLE },
+    { "semroles", AnnotationType::SEMROLE },
+    { "sense", AnnotationType::SENSE },
+    { "s", AnnotationType::SENTENCE },
+    { "str", AnnotationType::STRING },
+    { "subjectivity", AnnotationType::SUBJECTIVITY },
+    { "su", AnnotationType::SYNTAX },
+    { "syntax", AnnotationType::SYNTAX },
+    { "table", AnnotationType::TABLE },
+    { "term", AnnotationType::TERM },
+    { "t", AnnotationType::TEXT },
+    { "t-correction", AnnotationType::CORRECTION },
+    { "t-error", AnnotationType::ERRORDETECTION },
+    { "t-gap", AnnotationType::GAP },
+    { "t-str", AnnotationType::STRING },
+    { "t-style", AnnotationType::STYLE },
+    { "timesegment", AnnotationType::TIMESEGMENT },
+    { "timing", AnnotationType::TIMESEGMENT },
+    { "utt", AnnotationType::UTTERANCE },
+    { "whitespace", AnnotationType::WHITESPACE },
+    { "w", AnnotationType::TOKEN },
+  };
 
   //foliaspec:elementtype_string_map
   const map<ElementType,string> et_s_map = {
     { BASE, "FoLiA" },
-    { TextContent_t, "t" },
-    { Text_t, "text" },
-    { Speech_t, "speech" },
-    { Event_t, "event" },
-    { TimeSegment_t, "timesegment" },
-    { TimingLayer_t, "timing" },
-    { Linebreak_t, "br" },
-    { Whitespace_t, "whitespace" },
-    { Word_t, "w" },
-    { WordReference_t, "wref" },
-    { String_t, "str" },
-    { Utterance_t, "utt" },
-    { Entry_t, "entry" },
-    { Term_t, "term" },
-    { Example_t, "ex" },
-    { Definition_t, "def" },
-    { PhonContent_t, "ph" },
-    { Sentence_t, "s" },
-    { Paragraph_t, "p" },
-    { Division_t, "div" },
-    { Head_t, "head" },
-    { Table_t, "table" },
-    { TableHead_t, "tablehead" },
-    { Cell_t, "cell" },
-    { LangAnnotation_t, "lang" },
-    { Row_t, "row" },
-    { Caption_t, "caption" },
-    { Label_t, "label" },
-    { List_t, "list" },
-    { Item_t, "item" },
-    { Figure_t, "figure" },
-    { Quote_t, "quote" },
-    { PosAnnotation_t, "pos" },
-    { LemmaAnnotation_t, "lemma" },
-    { PhonologyLayer_t, "phonology" },
-    { Phoneme_t, "phoneme" },
-    { DomainAnnotation_t, "domain" },
-    { SenseAnnotation_t, "sense" },
-    { SubjectivityAnnotation_t, "subjectivity" },
-    { Correction_t, "correction" },
-    { AbstractTokenAnnotation_t, "abstracttokenannotation" },
-    { AbstractStructureElement_t, "abstractstructure" },
-    { AbstractAnnotationLayer_t, "abstractannotationlayer" },
-    { AbstractSpanAnnotation_t, "abstractspanannotation" },
-    { AbstractSpanRole_t, "abstractspanrole" },
-    { AbstractCorrectionChild_t, "abstractcorrectionchild" },
-    { AbstractTextMarkup_t, "abstracttextmarkup" },
-    { SyntacticUnit_t, "su" },
-    { SyntaxLayer_t, "syntax" },
-    { Chunk_t, "chunk" },
-    { ChunkingLayer_t, "chunking" },
-    { Entity_t, "entity" },
-    { EntitiesLayer_t, "entities" },
-    { SemanticRolesLayer_t, "semroles" },
-    { SemanticRole_t, "semrole" },
-    { CoreferenceLayer_t, "coreferences" },
-    { CoreferenceLink_t, "coreferencelink" },
-    { CoreferenceChain_t, "coreferencechain" },
-    { MorphologyLayer_t, "morphology" },
-    { Morpheme_t, "morpheme" },
-    { ErrorDetection_t, "errordetection" },
-    { New_t, "new" },
-    { Original_t, "original" },
-    { Current_t, "current" },
-    { Suggestion_t, "suggestion" },
-    { Alternative_t, "alt" },
-    { AlternativeLayers_t, "altlayers" },
-    { XmlComment_t, "xml-comment" },
-    { XmlText_t, "xml-text" },
-    { External_t, "external" },
-    { Note_t, "note" },
-    { Reference_t, "ref" },
-    { Description_t, "desc" },
-    { Gap_t, "gap" },
-    { Content_t, "content" },
-    { Metric_t, "metric" },
-    { Feature_t, "feat" },
-    { SynsetFeature_t, "synset" },
-    { ActorFeature_t, "actor" },
-    { HeadFeature_t, "headfeature" },
-    { ValueFeature_t, "value" },
-    { TimeFeature_t, "time" },
-    { ModalityFeature_t, "modality" },
-    { LevelFeature_t, "level" },
-    { FunctionFeature_t, "function" },
-    { BegindatetimeFeature_t, "begindatetime" },
-    { EnddatetimeFeature_t, "enddatetime" },
-    { PlaceHolder_t, "placeholder" },
-    { DependenciesLayer_t, "dependencies" },
-    { Dependency_t, "dependency" },
-    { DependencyDependent_t, "dep" },
-    { Headspan_t, "hd" },
-    { ComplexAlignment_t, "complexalignment" },
-    { ComplexAlignmentLayer_t, "complexalignments" },
-    { Alignment_t, "alignment" },
-    { AlignReference_t, "aref" },
-    { TextMarkupString_t, "t-str" },
-    { TextMarkupGap_t, "t-gap" },
-    { TextMarkupCorrection_t, "t-correction" },
-    { TextMarkupError_t, "t-error" },
-    { TextMarkupStyle_t, "t-style" },
-    { Part_t, "part" }
+    { AlignReference_t,  "aref" },
+    { Alignment_t,  "alignment" },
+    { Alternative_t,  "alt" },
+    { AlternativeLayers_t,  "altlayers" },
+    { Caption_t,  "caption" },
+    { Cell_t,  "cell" },
+    { Chunk_t,  "chunk" },
+    { ChunkingLayer_t,  "chunking" },
+    { ComplexAlignment_t,  "complexalignment" },
+    { ComplexAlignmentLayer_t,  "complexalignments" },
+    { Content_t,  "content" },
+    { CoreferenceChain_t,  "coreferencechain" },
+    { CoreferenceLayer_t,  "coreferences" },
+    { CoreferenceLink_t,  "coreferencelink" },
+    { Correction_t,  "correction" },
+    { Current_t,  "current" },
+    { Definition_t,  "def" },
+    { DependenciesLayer_t,  "dependencies" },
+    { Dependency_t,  "dependency" },
+    { DependencyDependent_t,  "dep" },
+    { Description_t,  "desc" },
+    { Division_t,  "div" },
+    { DomainAnnotation_t,  "domain" },
+    { EntitiesLayer_t,  "entities" },
+    { Entity_t,  "entity" },
+    { Entry_t,  "entry" },
+    { ErrorDetection_t,  "errordetection" },
+    { Event_t,  "event" },
+    { Example_t,  "ex" },
+    { External_t,  "external" },
+    { Feature_t,  "feat" },
+    { Figure_t,  "figure" },
+    { Gap_t,  "gap" },
+    { Head_t,  "head" },
+    { Headspan_t,  "hd" },
+    { Label_t,  "label" },
+    { LangAnnotation_t,  "lang" },
+    { LemmaAnnotation_t,  "lemma" },
+    { Linebreak_t,  "br" },
+    { List_t,  "list" },
+    { ListItem_t,  "item" },
+    { Metric_t,  "metric" },
+    { Morpheme_t,  "morpheme" },
+    { MorphologyLayer_t,  "morphology" },
+    { New_t,  "new" },
+    { Note_t,  "note" },
+    { Original_t,  "original" },
+    { Paragraph_t,  "p" },
+    { Part_t,  "part" },
+    { PhonContent_t,  "ph" },
+    { Phoneme_t,  "phoneme" },
+    { PhonologyLayer_t,  "phonology" },
+    { PosAnnotation_t,  "pos" },
+    { Quote_t,  "quote" },
+    { Reference_t,  "ref" },
+    { Row_t,  "row" },
+    { SemanticRole_t,  "semrole" },
+    { SemanticRolesLayer_t,  "semroles" },
+    { SenseAnnotation_t,  "sense" },
+    { Sentence_t,  "s" },
+    { Speech_t,  "speech" },
+    { String_t,  "str" },
+    { SubjectivityAnnotation_t,  "subjectivity" },
+    { Suggestion_t,  "suggestion" },
+    { SyntacticUnit_t,  "su" },
+    { SyntaxLayer_t,  "syntax" },
+    { Table_t,  "table" },
+    { TableHead_t,  "tablehead" },
+    { Term_t,  "term" },
+    { Text_t,  "text" },
+    { TextContent_t,  "t" },
+    { TextMarkupCorrection_t,  "t-correction" },
+    { TextMarkupError_t,  "t-error" },
+    { TextMarkupGap_t,  "t-gap" },
+    { TextMarkupString_t,  "t-str" },
+    { TextMarkupStyle_t,  "t-style" },
+    { TimeSegment_t,  "timesegment" },
+    { TimingLayer_t,  "timing" },
+    { Utterance_t,  "utt" },
+    { Whitespace_t,  "whitespace" },
+    { Word_t,  "w" },
+    { WordReference_t,  "wref" },
   };
 
   //foliaspec:string_elementtype_map
-  map<string,ElementType> s_et_map;
+  const map<string,ElementType> s_et_map = {
+    { "FoLiA", BASE },
+    { "aref", AlignReference_t  },
+    { "alignment", Alignment_t  },
+    { "alt", Alternative_t  },
+    { "altlayers", AlternativeLayers_t  },
+    { "caption", Caption_t  },
+    { "cell", Cell_t  },
+    { "chunk", Chunk_t  },
+    { "chunking", ChunkingLayer_t  },
+    { "complexalignment", ComplexAlignment_t  },
+    { "complexalignments", ComplexAlignmentLayer_t  },
+    { "content", Content_t  },
+    { "coreferencechain", CoreferenceChain_t  },
+    { "coreferences", CoreferenceLayer_t  },
+    { "coreferencelink", CoreferenceLink_t  },
+    { "correction", Correction_t  },
+    { "current", Current_t  },
+    { "def", Definition_t  },
+    { "dependencies", DependenciesLayer_t  },
+    { "dependency", Dependency_t  },
+    { "dep", DependencyDependent_t  },
+    { "desc", Description_t  },
+    { "div", Division_t  },
+    { "domain", DomainAnnotation_t  },
+    { "entities", EntitiesLayer_t  },
+    { "entity", Entity_t  },
+    { "entry", Entry_t  },
+    { "errordetection", ErrorDetection_t  },
+    { "event", Event_t  },
+    { "ex", Example_t  },
+    { "external", External_t  },
+    { "feat", Feature_t  },
+    { "figure", Figure_t  },
+    { "gap", Gap_t  },
+    { "head", Head_t  },
+    { "hd", Headspan_t  },
+    { "label", Label_t  },
+    { "lang", LangAnnotation_t  },
+    { "lemma", LemmaAnnotation_t  },
+    { "br", Linebreak_t  },
+    { "list", List_t  },
+    { "item", ListItem_t  },
+    { "metric", Metric_t  },
+    { "morpheme", Morpheme_t  },
+    { "morphology", MorphologyLayer_t  },
+    { "new", New_t  },
+    { "note", Note_t  },
+    { "original", Original_t  },
+    { "p", Paragraph_t  },
+    { "part", Part_t  },
+    { "ph", PhonContent_t  },
+    { "phoneme", Phoneme_t  },
+    { "phonology", PhonologyLayer_t  },
+    { "pos", PosAnnotation_t  },
+    { "quote", Quote_t  },
+    { "ref", Reference_t  },
+    { "row", Row_t  },
+    { "semrole", SemanticRole_t  },
+    { "semroles", SemanticRolesLayer_t  },
+    { "sense", SenseAnnotation_t  },
+    { "s", Sentence_t  },
+    { "speech", Speech_t  },
+    { "str", String_t  },
+    { "subjectivity", SubjectivityAnnotation_t  },
+    { "suggestion", Suggestion_t  },
+    { "su", SyntacticUnit_t  },
+    { "syntax", SyntaxLayer_t  },
+    { "table", Table_t  },
+    { "tablehead", TableHead_t  },
+    { "term", Term_t  },
+    { "text", Text_t  },
+    { "t", TextContent_t  },
+    { "t-correction", TextMarkupCorrection_t  },
+    { "t-error", TextMarkupError_t  },
+    { "t-gap", TextMarkupGap_t  },
+    { "t-str", TextMarkupString_t  },
+    { "t-style", TextMarkupStyle_t  },
+    { "timesegment", TimeSegment_t  },
+    { "timing", TimingLayer_t  },
+    { "utt", Utterance_t  },
+    { "whitespace", Whitespace_t  },
+    { "w", Word_t  },
+    { "wref", WordReference_t  },
+  };
 
   //foliaspec:default_ignore
-  const set<ElementType> default_ignore =
-    { Original_t,
-      Suggestion_t,
-      Alternative_t,
-      AlternativeLayers_t,
-    };
+  //Default ignore list for the select() method, do not descend into these
+  const set<ElementType> default_ignore = { Original_t, Suggestion_t, Alternative_t, AlternativeLayers_t };
 
   //foliaspec:default_ignore_annotations
-  const set<ElementType> default_ignore_annotations =
-    { Original_t,
-      Suggestion_t,
-      Alternative_t,
-      AlternativeLayers_t,
-      MorphologyLayer_t,
-      PhonologyLayer_t };
+  //Default ignore list for token annotation
+  const set<ElementType> default_ignore_annotations = { Original_t, Suggestion_t, Alternative_t, AlternativeLayers_t, MorphologyLayer_t, PhonologyLayer_t };
 
   //foliaspec:default_ignore_structure
-  const set<ElementType> default_ignore_structure =
-    { Original_t,
-      Suggestion_t,
-      Alternative_t,
-      AlternativeLayers_t,
-      Chunk_t,
-      SyntacticUnit_t,
-      CoreferenceLayer_t,
-      SemanticRolesLayer_t,
-      Entity_t,
-      Headspan_t,
-      TimingLayer_t,
-      DependencyDependent_t,
-      TimeSegment_t };
+  //Default ignore list for structure annotation
+  const set<ElementType> default_ignore_structure = { Original_t, Suggestion_t, Alternative_t, AlternativeLayers_t, AbstractAnnotationLayer_t };
 
   const set<ElementType> AnnoExcludeSet = { Original_t, Suggestion_t };
 
@@ -234,18 +344,7 @@ namespace folia {
 				     SemanticRolesLayer_t,
 				     TimeSegment_t };
 
-  //foliaspec:defaultproperties
-  properties DEFAULT_PROPERTIES =
-    { BASE, "ThIsIsSoWrOnG",
-      { Description_t, XmlComment_t }, // may occur 'everywhere'
-      {}, // default: no required data
-      NO_ATT, NO_ATT,
-      AnnotationType::NO_ANN,
-      "",
-      0, 1,
-      "NONE",
-      false, false, false, true, false
-    };
+  properties DEFAULT_PROPERTIES;
 
   //these are not in the external specification yet:
   properties FoLiA::PROPS = DEFAULT_PROPERTIES;
@@ -255,106 +354,108 @@ namespace folia {
   properties XmlText::PROPS = DEFAULT_PROPERTIES;
 
   //foliaspec:instantiateelementproperties
-  properties AbstractStructureElement::PROPS = DEFAULT_PROPERTIES;
-  properties AbstractTokenAnnotation::PROPS = DEFAULT_PROPERTIES;
-  properties AbstractCorrectionChild::PROPS = DEFAULT_PROPERTIES;
+  //Instantiates all element properties for the first time, setting them to the default properties
   properties AbstractAnnotationLayer::PROPS = DEFAULT_PROPERTIES;
+  properties AbstractCorrectionChild::PROPS = DEFAULT_PROPERTIES;
+  properties AbstractExtendedTokenAnnotation::PROPS = DEFAULT_PROPERTIES;
   properties AbstractSpanAnnotation::PROPS = DEFAULT_PROPERTIES;
   properties AbstractSpanRole::PROPS = DEFAULT_PROPERTIES;
+  properties AbstractStructureElement::PROPS = DEFAULT_PROPERTIES;
   properties AbstractTextMarkup::PROPS = DEFAULT_PROPERTIES;
-  //- (no newline so its's all one block)
-  properties Description::PROPS = DEFAULT_PROPERTIES;
+  properties AbstractTokenAnnotation::PROPS = DEFAULT_PROPERTIES;
+  properties ActorFeature::PROPS = DEFAULT_PROPERTIES;
+  properties AlignReference::PROPS = DEFAULT_PROPERTIES;
   properties Alignment::PROPS = DEFAULT_PROPERTIES;
+  properties Alternative::PROPS = DEFAULT_PROPERTIES;
+  properties AlternativeLayers::PROPS = DEFAULT_PROPERTIES;
+  properties BegindatetimeFeature::PROPS = DEFAULT_PROPERTIES;
+  properties Caption::PROPS = DEFAULT_PROPERTIES;
+  properties Cell::PROPS = DEFAULT_PROPERTIES;
+  properties Chunk::PROPS = DEFAULT_PROPERTIES;
+  properties ChunkingLayer::PROPS = DEFAULT_PROPERTIES;
   properties ComplexAlignment::PROPS = DEFAULT_PROPERTIES;
   properties ComplexAlignmentLayer::PROPS = DEFAULT_PROPERTIES;
   properties Content::PROPS = DEFAULT_PROPERTIES;
-  properties Gap::PROPS = DEFAULT_PROPERTIES;
-  properties AlternativeLayers::PROPS = DEFAULT_PROPERTIES;
-  properties Metric::PROPS = DEFAULT_PROPERTIES;
-  properties External::PROPS = DEFAULT_PROPERTIES;
-  properties AlignReference::PROPS = DEFAULT_PROPERTIES;
-  properties WordReference::PROPS = DEFAULT_PROPERTIES;
-  properties PhonContent::PROPS = DEFAULT_PROPERTIES;
-  properties Feature::PROPS = DEFAULT_PROPERTIES;
-  properties BegindatetimeFeature::PROPS = DEFAULT_PROPERTIES;
-  properties EnddatetimeFeature::PROPS = DEFAULT_PROPERTIES;
-  properties SynsetFeature::PROPS = DEFAULT_PROPERTIES;
-  properties ValueFeature::PROPS = DEFAULT_PROPERTIES;
-  properties TimeFeature::PROPS = DEFAULT_PROPERTIES;
-  properties FunctionFeature::PROPS = DEFAULT_PROPERTIES;
-  properties HeadFeature::PROPS = DEFAULT_PROPERTIES;
-  properties ActorFeature::PROPS = DEFAULT_PROPERTIES;
-  properties ModalityFeature::PROPS = DEFAULT_PROPERTIES;
-  properties LevelFeature::PROPS = DEFAULT_PROPERTIES;
-  properties TextContent::PROPS = DEFAULT_PROPERTIES;
-  properties LemmaAnnotation::PROPS = DEFAULT_PROPERTIES;
-  properties SemanticRole::PROPS = DEFAULT_PROPERTIES;
-  properties Current::PROPS = DEFAULT_PROPERTIES;
-  properties Phoneme::PROPS = DEFAULT_PROPERTIES;
-  properties TextMarkupError::PROPS = DEFAULT_PROPERTIES;
-  properties Dependency::PROPS = DEFAULT_PROPERTIES;
-  properties Word::PROPS = DEFAULT_PROPERTIES;
-  properties Row::PROPS = DEFAULT_PROPERTIES;
-  properties Part::PROPS = DEFAULT_PROPERTIES;
-  properties SubjectivityAnnotation::PROPS = DEFAULT_PROPERTIES;
+  properties CoreferenceChain::PROPS = DEFAULT_PROPERTIES;
+  properties CoreferenceLayer::PROPS = DEFAULT_PROPERTIES;
   properties CoreferenceLink::PROPS = DEFAULT_PROPERTIES;
+  properties Correction::PROPS = DEFAULT_PROPERTIES;
+  properties Current::PROPS = DEFAULT_PROPERTIES;
+  properties Definition::PROPS = DEFAULT_PROPERTIES;
+  properties DependenciesLayer::PROPS = DEFAULT_PROPERTIES;
+  properties Dependency::PROPS = DEFAULT_PROPERTIES;
+  properties DependencyDependent::PROPS = DEFAULT_PROPERTIES;
+  properties Description::PROPS = DEFAULT_PROPERTIES;
+  properties Division::PROPS = DEFAULT_PROPERTIES;
+  properties DomainAnnotation::PROPS = DEFAULT_PROPERTIES;
+  properties EnddatetimeFeature::PROPS = DEFAULT_PROPERTIES;
+  properties EntitiesLayer::PROPS = DEFAULT_PROPERTIES;
+  properties Entity::PROPS = DEFAULT_PROPERTIES;
+  properties Entry::PROPS = DEFAULT_PROPERTIES;
+  properties ErrorDetection::PROPS = DEFAULT_PROPERTIES;
+  properties Event::PROPS = DEFAULT_PROPERTIES;
+  properties Example::PROPS = DEFAULT_PROPERTIES;
+  properties External::PROPS = DEFAULT_PROPERTIES;
+  properties Feature::PROPS = DEFAULT_PROPERTIES;
+  properties Figure::PROPS = DEFAULT_PROPERTIES;
+  properties FunctionFeature::PROPS = DEFAULT_PROPERTIES;
+  properties Gap::PROPS = DEFAULT_PROPERTIES;
+  properties Head::PROPS = DEFAULT_PROPERTIES;
+  properties HeadFeature::PROPS = DEFAULT_PROPERTIES;
+  properties Headspan::PROPS = DEFAULT_PROPERTIES;
+  properties Label::PROPS = DEFAULT_PROPERTIES;
+  properties LangAnnotation::PROPS = DEFAULT_PROPERTIES;
+  properties LemmaAnnotation::PROPS = DEFAULT_PROPERTIES;
+  properties LevelFeature::PROPS = DEFAULT_PROPERTIES;
   properties Linebreak::PROPS = DEFAULT_PROPERTIES;
-  properties ChunkingLayer::PROPS = DEFAULT_PROPERTIES;
+  properties List::PROPS = DEFAULT_PROPERTIES;
+  properties ListItem::PROPS = DEFAULT_PROPERTIES;
+  properties Metric::PROPS = DEFAULT_PROPERTIES;
+  properties ModalityFeature::PROPS = DEFAULT_PROPERTIES;
+  properties Morpheme::PROPS = DEFAULT_PROPERTIES;
   properties MorphologyLayer::PROPS = DEFAULT_PROPERTIES;
   properties New::PROPS = DEFAULT_PROPERTIES;
-  properties Speech::PROPS = DEFAULT_PROPERTIES;
-  properties Quote::PROPS = DEFAULT_PROPERTIES;
-  properties Event::PROPS = DEFAULT_PROPERTIES;
-  properties String::PROPS = DEFAULT_PROPERTIES;
-  properties Headspan::PROPS = DEFAULT_PROPERTIES;
-  properties Alternative::PROPS = DEFAULT_PROPERTIES;
-  properties Division::PROPS = DEFAULT_PROPERTIES;
-  properties DependencyDependent::PROPS = DEFAULT_PROPERTIES;
-  properties List::PROPS = DEFAULT_PROPERTIES;
-  properties CoreferenceChain::PROPS = DEFAULT_PROPERTIES;
-  properties Cell::PROPS = DEFAULT_PROPERTIES;
-  properties TextMarkupStyle::PROPS = DEFAULT_PROPERTIES;
-  properties Paragraph::PROPS = DEFAULT_PROPERTIES;
-  properties Entity::PROPS = DEFAULT_PROPERTIES;
-  properties SenseAnnotation::PROPS = DEFAULT_PROPERTIES;
-  properties SyntacticUnit::PROPS = DEFAULT_PROPERTIES;
-  properties Chunk::PROPS = DEFAULT_PROPERTIES;
-  properties Whitespace::PROPS = DEFAULT_PROPERTIES;
-  properties TableHead::PROPS = DEFAULT_PROPERTIES;
-  properties Caption::PROPS = DEFAULT_PROPERTIES;
-  properties Correction::PROPS = DEFAULT_PROPERTIES;
-  properties Head::PROPS = DEFAULT_PROPERTIES;
-  properties DomainAnnotation::PROPS = DEFAULT_PROPERTIES;
-  properties SemanticRolesLayer::PROPS = DEFAULT_PROPERTIES;
-  properties TextMarkupString::PROPS = DEFAULT_PROPERTIES;
   properties Note::PROPS = DEFAULT_PROPERTIES;
   properties Original::PROPS = DEFAULT_PROPERTIES;
-  properties TimeSegment::PROPS = DEFAULT_PROPERTIES;
-  properties TextMarkupGap::PROPS = DEFAULT_PROPERTIES;
-  properties Example::PROPS = DEFAULT_PROPERTIES;
-  properties DependenciesLayer::PROPS = DEFAULT_PROPERTIES;
-  properties Entry::PROPS = DEFAULT_PROPERTIES;
-  properties Term::PROPS = DEFAULT_PROPERTIES;
-  properties TimingLayer::PROPS = DEFAULT_PROPERTIES;
+  properties Paragraph::PROPS = DEFAULT_PROPERTIES;
+  properties Part::PROPS = DEFAULT_PROPERTIES;
+  properties PhonContent::PROPS = DEFAULT_PROPERTIES;
+  properties Phoneme::PROPS = DEFAULT_PROPERTIES;
   properties PhonologyLayer::PROPS = DEFAULT_PROPERTIES;
-  properties Table::PROPS = DEFAULT_PROPERTIES;
-  properties Reference::PROPS = DEFAULT_PROPERTIES;
-  properties Suggestion::PROPS = DEFAULT_PROPERTIES;
-  properties EntitiesLayer::PROPS = DEFAULT_PROPERTIES;
-  properties Figure::PROPS = DEFAULT_PROPERTIES;
-  properties Definition::PROPS = DEFAULT_PROPERTIES;
-  properties ErrorDetection::PROPS = DEFAULT_PROPERTIES;
-  properties SyntaxLayer::PROPS = DEFAULT_PROPERTIES;
-  properties CoreferenceLayer::PROPS = DEFAULT_PROPERTIES;
-  properties Utterance::PROPS = DEFAULT_PROPERTIES;
-  properties LangAnnotation::PROPS = DEFAULT_PROPERTIES;
-  properties Item::PROPS = DEFAULT_PROPERTIES;
-  properties TextMarkupCorrection::PROPS = DEFAULT_PROPERTIES;
-  properties Sentence::PROPS = DEFAULT_PROPERTIES;
-  properties Text::PROPS = DEFAULT_PROPERTIES;
   properties PosAnnotation::PROPS = DEFAULT_PROPERTIES;
-  properties Label::PROPS = DEFAULT_PROPERTIES;
-  properties Morpheme::PROPS = DEFAULT_PROPERTIES;
+  properties Quote::PROPS = DEFAULT_PROPERTIES;
+  properties Reference::PROPS = DEFAULT_PROPERTIES;
+  properties Row::PROPS = DEFAULT_PROPERTIES;
+  properties SemanticRole::PROPS = DEFAULT_PROPERTIES;
+  properties SemanticRolesLayer::PROPS = DEFAULT_PROPERTIES;
+  properties SenseAnnotation::PROPS = DEFAULT_PROPERTIES;
+  properties Sentence::PROPS = DEFAULT_PROPERTIES;
+  properties Speech::PROPS = DEFAULT_PROPERTIES;
+  properties String::PROPS = DEFAULT_PROPERTIES;
+  properties StyleFeature::PROPS = DEFAULT_PROPERTIES;
+  properties SubjectivityAnnotation::PROPS = DEFAULT_PROPERTIES;
+  properties Suggestion::PROPS = DEFAULT_PROPERTIES;
+  properties SynsetFeature::PROPS = DEFAULT_PROPERTIES;
+  properties SyntacticUnit::PROPS = DEFAULT_PROPERTIES;
+  properties SyntaxLayer::PROPS = DEFAULT_PROPERTIES;
+  properties Table::PROPS = DEFAULT_PROPERTIES;
+  properties TableHead::PROPS = DEFAULT_PROPERTIES;
+  properties Term::PROPS = DEFAULT_PROPERTIES;
+  properties Text::PROPS = DEFAULT_PROPERTIES;
+  properties TextContent::PROPS = DEFAULT_PROPERTIES;
+  properties TextMarkupCorrection::PROPS = DEFAULT_PROPERTIES;
+  properties TextMarkupError::PROPS = DEFAULT_PROPERTIES;
+  properties TextMarkupGap::PROPS = DEFAULT_PROPERTIES;
+  properties TextMarkupString::PROPS = DEFAULT_PROPERTIES;
+  properties TextMarkupStyle::PROPS = DEFAULT_PROPERTIES;
+  properties TimeFeature::PROPS = DEFAULT_PROPERTIES;
+  properties TimeSegment::PROPS = DEFAULT_PROPERTIES;
+  properties TimingLayer::PROPS = DEFAULT_PROPERTIES;
+  properties Utterance::PROPS = DEFAULT_PROPERTIES;
+  properties ValueFeature::PROPS = DEFAULT_PROPERTIES;
+  properties Whitespace::PROPS = DEFAULT_PROPERTIES;
+  properties Word::PROPS = DEFAULT_PROPERTIES;
+  properties WordReference::PROPS = DEFAULT_PROPERTIES;
 
   set<ElementType>& operator+=( set<ElementType>& a ,
 				const set<ElementType>& b ){
@@ -371,1016 +472,538 @@ namespace folia {
 
 
     //foliaspec:begin:setelementproperties
-    TextContent::PROPS.ELEMENT_ID = TextContent_t;
-    TextContent::PROPS.XMLTAG="t";
-    TextContent::PROPS.OPTIONAL_ATTRIBS = CLASS|ANNOTATOR|CONFIDENCE|DATETIME;
-    TextContent::PROPS.ACCEPTED_DATA += {
-      AbstractTextMarkup_t,
-	XmlText_t,
-	Linebreak_t };
-    TextContent::PROPS.ANNOTATIONTYPE = AnnotationType::TEXT;
-    TextContent::PROPS.OCCURRENCES = 0;
-    TextContent::PROPS.OCCURRENCES_PER_SET=0;
-    TextContent::PROPS.PRINTABLE = true;
-    TextContent::PROPS.XLINK = true;
-
-    PhonContent::PROPS.ELEMENT_ID = PhonContent_t;
-    PhonContent::PROPS.XMLTAG="ph";
-    PhonContent::PROPS.OPTIONAL_ATTRIBS = CLASS|ANNOTATOR|CONFIDENCE|DATETIME;
-    PhonContent::PROPS.ACCEPTED_DATA += { XmlText_t };
-    PhonContent::PROPS.ANNOTATIONTYPE = AnnotationType::PHON;
-    PhonContent::PROPS.OCCURRENCES = 0;
-    PhonContent::PROPS.OCCURRENCES_PER_SET=0;
-    PhonContent::PROPS.PRINTABLE = false;
-    PhonContent::PROPS.SPEAKABLE = true;
-
+    //Sets all element properties for all elements
+//------ AbstractAnnotationLayer -------
+    AbstractAnnotationLayer::PROPS.ELEMENT_ID = AbstractAnnotationLayer_t;
+    AbstractAnnotationLayer::PROPS.ACCEPTED_DATA += {Correction_t, Description_t};
+    AbstractAnnotationLayer::PROPS.OPTIONAL_ATTRIBS = ID;
+    AbstractAnnotationLayer::PROPS.PRINTABLE = false;
+    AbstractAnnotationLayer::PROPS.SETONLY = true;
+    AbstractAnnotationLayer::PROPS.SPEAKABLE = false;
+//------ AbstractCorrectionChild -------
+    AbstractCorrectionChild::PROPS.ELEMENT_ID = AbstractCorrectionChild_t;
+    AbstractCorrectionChild::PROPS.ACCEPTED_DATA += {AbstractSpanAnnotation_t, AbstractStructureElement_t, AbstractTokenAnnotation_t, Correction_t, Description_t, Metric_t, PhonContent_t, String_t, TextContent_t};
+    AbstractCorrectionChild::PROPS.OPTIONAL_ATTRIBS = ID|ANNOTATOR|CONFIDENCE|DATETIME|N;
+    AbstractCorrectionChild::PROPS.PRINTABLE = true;
+    AbstractCorrectionChild::PROPS.SPEAKABLE = true;
+    AbstractCorrectionChild::PROPS.TEXTDELIMITER = "NONE";
+//------ AbstractExtendedTokenAnnotation -------
+    AbstractExtendedTokenAnnotation::PROPS.ELEMENT_ID = AbstractExtendedTokenAnnotation_t;
+//------ AbstractSpanAnnotation -------
+    AbstractSpanAnnotation::PROPS.ELEMENT_ID = AbstractSpanAnnotation_t;
+    AbstractSpanAnnotation::PROPS.ACCEPTED_DATA += {Alignment_t, Description_t, Metric_t};
+    AbstractSpanAnnotation::PROPS.OPTIONAL_ATTRIBS = ID|CLASS|ANNOTATOR|N|CONFIDENCE|DATETIME|SRC|BEGINTIME|ENDTIME|SPEAKER;
+    AbstractSpanAnnotation::PROPS.PRINTABLE = true;
+    AbstractSpanAnnotation::PROPS.SPEAKABLE = true;
+//------ AbstractSpanRole -------
+    AbstractSpanRole::PROPS.ELEMENT_ID = AbstractSpanRole_t;
+    AbstractSpanRole::PROPS.ACCEPTED_DATA += {Alignment_t, Description_t, Feature_t, Metric_t, WordReference_t};
+    AbstractSpanRole::PROPS.OPTIONAL_ATTRIBS = ID|ANNOTATOR|N|DATETIME;
+//------ AbstractStructureElement -------
     AbstractStructureElement::PROPS.ELEMENT_ID = AbstractStructureElement_t;
-    AbstractStructureElement::PROPS.XMLTAG = "structure";
-    AbstractStructureElement::PROPS.REQUIRED_ATTRIBS = ID;
-    AbstractStructureElement::PROPS.OPTIONAL_ATTRIBS = ALL;
-    AbstractStructureElement::PROPS.OCCURRENCES_PER_SET = 0;
+    AbstractStructureElement::PROPS.ACCEPTED_DATA += {AbstractAnnotationLayer_t, Alignment_t, Alternative_t, AlternativeLayers_t, Correction_t, Description_t, Feature_t, Metric_t, Part_t};
+    AbstractStructureElement::PROPS.OPTIONAL_ATTRIBS = ID|CLASS|ANNOTATOR|N|CONFIDENCE|DATETIME|SRC|BEGINTIME|ENDTIME|SPEAKER;
     AbstractStructureElement::PROPS.PRINTABLE = true;
+    AbstractStructureElement::PROPS.REQUIRED_ATTRIBS = NO_ATT;
     AbstractStructureElement::PROPS.SPEAKABLE = true;
     AbstractStructureElement::PROPS.TEXTDELIMITER = "\n\n";
-
-    Head::PROPS = AbstractStructureElement::PROPS;
-    Head::PROPS.ELEMENT_ID = Head_t;
-    Head::PROPS.XMLTAG="head";
-    Head::PROPS.ACCEPTED_DATA += {
-      AbstractStructureElement_t,
-	Correction_t,
-	String_t,
-	TextContent_t,
-	PhonContent_t,
-	Alignment_t,
-	Metric_t,
-	AlternativeLayers_t,
-	AbstractTokenAnnotation_t,
-	Gap_t };
-    Head::PROPS.OCCURRENCES=1;
-    Head::PROPS.TEXTDELIMITER = "\n\n";
-
-    TableHead::PROPS = AbstractStructureElement::PROPS;
-    TableHead::PROPS.ELEMENT_ID = TableHead_t;
-    TableHead::PROPS.XMLTAG="tablehead";
-    TableHead::PROPS.REQUIRED_ATTRIBS = NO_ATT;
-    TableHead::PROPS.ACCEPTED_DATA +=
-      { Row_t,
-	  AlternativeLayers_t,
-	  AbstractAnnotationLayer_t,
-	  AbstractTokenAnnotation_t,
-	  Correction_t,
-	  Part_t };
-    TableHead::PROPS.ANNOTATIONTYPE = AnnotationType::TABLE;
-
-    Table::PROPS = AbstractStructureElement::PROPS;
-    Table::PROPS.ELEMENT_ID = Table_t;
-    Table::PROPS.XMLTAG="table";
-    Table::PROPS.ACCEPTED_DATA +=
-      { TableHead_t,
-	  Row_t,
-	  AlternativeLayers_t,
-	  AbstractAnnotationLayer_t,
-	  AbstractTokenAnnotation_t,
-	  Correction_t,
-	  Part_t };
-    Table::PROPS.ANNOTATIONTYPE = AnnotationType::TABLE;
-
-    Cell::PROPS = AbstractStructureElement::PROPS;
-    Cell::PROPS.ELEMENT_ID = Cell_t;
-    Cell::PROPS.XMLTAG="cell";
-    Cell::PROPS.REQUIRED_ATTRIBS = NO_ATT;
-    Cell::PROPS.ACCEPTED_DATA +=
-      { AbstractStructureElement_t,
-	  EntitiesLayer_t,
-	  Alignment_t,
-	  Metric_t,
-	  Gap_t,
-	  AlternativeLayers_t,
-	  AbstractAnnotationLayer_t,
-	  AbstractTokenAnnotation_t,
-	  Correction_t,
-	  Part_t,
-	  Feature_t };
-
-    Cell::PROPS.ANNOTATIONTYPE = AnnotationType::TABLE;
-    Cell::PROPS.TEXTDELIMITER = " | ";
-
-    Row::PROPS = AbstractStructureElement::PROPS;
-    Row::PROPS.ELEMENT_ID = Row_t;
-    Row::PROPS.XMLTAG="row";
-    Row::PROPS.REQUIRED_ATTRIBS = NO_ATT;
-    Row::PROPS.ACCEPTED_DATA +=
-      { Cell_t,
-	  AbstractAnnotationLayer_t,
-	  AlternativeLayers_t,
-	  AbstractTokenAnnotation_t,
-	  Correction_t,
-	  Part_t };
-    Row::PROPS.ANNOTATIONTYPE = AnnotationType::TABLE;
-    Row::PROPS.TEXTDELIMITER = "\n";
-
-    Linebreak::PROPS = AbstractStructureElement::PROPS;
-    Linebreak::PROPS.XMLTAG = "br";
-    Linebreak::PROPS.ELEMENT_ID = Linebreak_t;
-    Linebreak::PROPS.REQUIRED_ATTRIBS = NO_ATT;
-    Linebreak::PROPS.ACCEPTED_DATA +=
-      { Feature_t,
-	  Metric_t };
-    Linebreak::PROPS.ANNOTATIONTYPE = AnnotationType::LINEBREAK;
-
-    Whitespace::PROPS = AbstractStructureElement::PROPS;
-    Whitespace::PROPS.XMLTAG = "whitespace";
-    Whitespace::PROPS.ELEMENT_ID = Whitespace_t;
-    Whitespace::PROPS.REQUIRED_ATTRIBS = NO_ATT;
-    Whitespace::PROPS.ACCEPTED_DATA +=
-      { Feature_t,
-	  Metric_t };
-    Whitespace::PROPS.ANNOTATIONTYPE = AnnotationType::WHITESPACE;
-
-    Word::PROPS = AbstractStructureElement::PROPS;
-    Word::PROPS.XMLTAG="w";
-    Word::PROPS.ELEMENT_ID = Word_t;
-    Word::PROPS.ACCEPTED_DATA +=
-      { AbstractTokenAnnotation_t,
-	  Correction_t,
-	  TextContent_t,
-	  PhonContent_t,
-	  PhonologyLayer_t,
-	  String_t,
-	  Alternative_t,
-	  AlternativeLayers_t,
-	  AbstractAnnotationLayer_t,
-	  Alignment_t,
-	  Metric_t,
-	  Reference_t,
-	  Feature_t };
-    Word::PROPS.ANNOTATIONTYPE = AnnotationType::TOKEN;
-    Word::PROPS.TEXTDELIMITER = " ";
-
+//------ AbstractTextMarkup -------
+    AbstractTextMarkup::PROPS.ELEMENT_ID = AbstractTextMarkup_t;
+    AbstractTextMarkup::PROPS.ACCEPTED_DATA += {AbstractTextMarkup_t, Description_t, XmlText_t};
+    AbstractTextMarkup::PROPS.OPTIONAL_ATTRIBS = ID|CLASS|ANNOTATOR|N|CONFIDENCE|DATETIME|SRC|BEGINTIME|ENDTIME|SPEAKER;
+    AbstractTextMarkup::PROPS.PRINTABLE = true;
+    AbstractTextMarkup::PROPS.TEXTDELIMITER = "";
+    AbstractTextMarkup::PROPS.XLINK = true;
+//------ AbstractTokenAnnotation -------
     AbstractTokenAnnotation::PROPS.ELEMENT_ID = AbstractTokenAnnotation_t;
-    AbstractTokenAnnotation::PROPS.XMLTAG="tokenannotation";
+    AbstractTokenAnnotation::PROPS.ACCEPTED_DATA += {Description_t, Feature_t, Metric_t};
+    AbstractTokenAnnotation::PROPS.OCCURRENCES_PER_SET = 1;
+    AbstractTokenAnnotation::PROPS.OPTIONAL_ATTRIBS = ID|CLASS|ANNOTATOR|N|CONFIDENCE|DATETIME|SRC|BEGINTIME|ENDTIME|SPEAKER;
     AbstractTokenAnnotation::PROPS.REQUIRED_ATTRIBS = CLASS;
-    AbstractTokenAnnotation::PROPS.OPTIONAL_ATTRIBS = ALL;
-    AbstractTokenAnnotation::PROPS.OCCURRENCES_PER_SET=1;
-
-    String::PROPS = AbstractTokenAnnotation::PROPS;
-    String::PROPS.XMLTAG="str";
-    String::PROPS.ELEMENT_ID = String_t;
-    String::PROPS.REQUIRED_ATTRIBS = NO_ATT;
-    String::PROPS.OPTIONAL_ATTRIBS = ID|CLASS|ANNOTATOR|CONFIDENCE|DATETIME;
-    String::PROPS.ACCEPTED_DATA +=
-      { TextContent_t,
-	  PhonContent_t,
-	  Alignment_t,
-	  Metric_t,
-	  Correction_t,
-	  AbstractTokenAnnotation_t,
-	  LangAnnotation_t,
-	  Feature_t };
-    String::PROPS.ANNOTATIONTYPE = AnnotationType::STRING;
-    String::PROPS.OCCURRENCES = 0;
-    String::PROPS.OCCURRENCES_PER_SET=0;
-    String::PROPS.PRINTABLE = true;
-    String::PROPS.SPEAKABLE = true;
-
-    Part::PROPS = AbstractStructureElement::PROPS;
-    Part::PROPS.XMLTAG="part";
-    Part::PROPS.ELEMENT_ID = Part_t;
-    Part::PROPS.REQUIRED_ATTRIBS = NO_ATT;
-    Part::PROPS.ACCEPTED_DATA +=
-      { AbstractStructureElement_t,
-	  AbstractTokenAnnotation_t,
-	  AlternativeLayers_t,
-	  AbstractAnnotationLayer_t,
-	  Correction_t };
-    Part::PROPS.ANNOTATIONTYPE = AnnotationType::PART;
-    Part::PROPS.TEXTDELIMITER = " ";
-
-
-    WordReference::PROPS.REQUIRED_ATTRIBS = ID;
-    WordReference::PROPS.XMLTAG = "wref";
-    WordReference::PROPS.ELEMENT_ID = WordReference_t;
-
-    Alignment::PROPS.OPTIONAL_ATTRIBS = ALL;
-    Alignment::PROPS.XMLTAG = "alignment";
-    Alignment::PROPS.ELEMENT_ID = Alignment_t;
-    Alignment::PROPS.ACCEPTED_DATA +=
-      { AlignReference_t,
-	  Metric_t };
-    Alignment::PROPS.OCCURRENCES_PER_SET=0;
-    Alignment::PROPS.ANNOTATIONTYPE = AnnotationType::ALIGNMENT;
-    Alignment::PROPS.XLINK = true;
-
-    ComplexAlignmentLayer::PROPS.XMLTAG = "complexalignments";
-    ComplexAlignmentLayer::PROPS.ELEMENT_ID = ComplexAlignmentLayer_t;
-    ComplexAlignmentLayer::PROPS.ACCEPTED_DATA +=
-      { ComplexAlignment_t,
-	  Correction_t};
-
-    ComplexAlignment::PROPS.OPTIONAL_ATTRIBS = ALL;
-    ComplexAlignment::PROPS.XMLTAG = "complexalignment";
-    ComplexAlignment::PROPS.ELEMENT_ID = ComplexAlignment_t;
-    ComplexAlignment::PROPS.ACCEPTED_DATA +=
-      { Alignment_t,
-	  Metric_t,
-	  Feature_t};
-    ComplexAlignment::PROPS.OCCURRENCES_PER_SET=0;
-    ComplexAlignment::PROPS.ANNOTATIONTYPE = AnnotationType::COMPLEXALIGNMENT;
-
-    AlignReference::PROPS.XMLTAG = "aref";
+//------ ActorFeature -------
+    ActorFeature::PROPS.ELEMENT_ID = ActorFeature_t;
+    ActorFeature::PROPS.SUBSET = "actor";
+    ActorFeature::PROPS.XMLTAG = "NONE";
+//------ AlignReference -------
     AlignReference::PROPS.ELEMENT_ID = AlignReference_t;
-
-    Gap::PROPS.XMLTAG = "gap";
-    Gap::PROPS.ELEMENT_ID = Gap_t;
-    Gap::PROPS.ANNOTATIONTYPE = AnnotationType::GAP;
-    Gap::PROPS.ACCEPTED_DATA +=
-      { Content_t,
-	  Part_t };
-    Gap::PROPS.OPTIONAL_ATTRIBS = CLASS|ID|ANNOTATOR|CONFIDENCE|N|DATETIME;
-
-    Metric::PROPS.ELEMENT_ID = Metric_t;
-    Metric::PROPS.XMLTAG = "metric";
-    Metric::PROPS.ACCEPTED_DATA +=
-      { ValueFeature_t };
-    Metric::PROPS.OPTIONAL_ATTRIBS = CLASS|ANNOTATOR|CONFIDENCE;
-    Metric::PROPS.ANNOTATIONTYPE = AnnotationType::METRIC;
-
-    Content::PROPS.XMLTAG = "content";
-    Content::PROPS.ELEMENT_ID = Content_t;
-    Content::PROPS.OPTIONAL_ATTRIBS = ALL;
-    Content::PROPS.OCCURRENCES_PER_SET=0;
-    Content::PROPS.PRINTABLE = true;
-    Content::PROPS.SPEAKABLE = true;
-
-    Sentence::PROPS = AbstractStructureElement::PROPS;
-    Sentence::PROPS.XMLTAG="s";
-    Sentence::PROPS.ELEMENT_ID = Sentence_t;
-    Sentence::PROPS.ACCEPTED_DATA +=
-      { AbstractStructureElement_t,
-	  AbstractTokenAnnotation_t,
-	  TextContent_t,
-	  PhonContent_t,
-	  String_t,
-	  Gap_t,
-	  AbstractAnnotationLayer_t,
-	  Correction_t,
-	  Alignment_t,
-	  Metric_t,
-	  AlternativeLayers_t };
-    Sentence::PROPS.ANNOTATIONTYPE = AnnotationType::SENTENCE;
-    Sentence::PROPS.TEXTDELIMITER = " ";
-
-    Division::PROPS = AbstractStructureElement::PROPS;
-    Division::PROPS.XMLTAG="div";
-    Division::PROPS.ELEMENT_ID = Division_t;
-    Division::PROPS.REQUIRED_ATTRIBS = ID;
-    Division::PROPS.OPTIONAL_ATTRIBS = CLASS|N|SRC|BEGINTIME|ENDTIME|SPEAKER;
-    Division::PROPS.ACCEPTED_DATA +=
-      { Division_t,
-	  Quote_t,
-	  Gap_t,
-	  Event_t,
-	  Example_t,
-	  Entry_t,
-	  Head_t,
-	  Utterance_t,
-	  Paragraph_t,
-	  Sentence_t,
-	  List_t,
-	  Figure_t,
-	  Table_t,
-	  Note_t,
-	  Reference_t,
-	  AbstractTokenAnnotation_t,
-	  Linebreak_t,
-	  Whitespace_t,
-	  Alternative_t,
-	  TextContent_t,
-	  AlternativeLayers_t,
-	  AbstractAnnotationLayer_t,
-	  Word_t,
-	  Correction_t,
-	  Part_t };
-    Division::PROPS.ANNOTATIONTYPE = AnnotationType::DIVISION;
-    Division::PROPS.TEXTDELIMITER = "\n\n\n";
-
-    Text::PROPS = AbstractStructureElement::PROPS;
-    Text::PROPS.XMLTAG="text";
-    Text::PROPS.ELEMENT_ID = Text_t;
-    Text::PROPS.ACCEPTED_DATA +=
-      { Gap_t,
-	  Division_t,
-	  Paragraph_t,
-	  Sentence_t,
-	  List_t,
-	  Figure_t,
-	  Event_t,
-	  AbstractTokenAnnotation_t,
-	  Quote_t,
-	  Word_t,
-	  Table_t,
-	  Note_t,
-	  Reference_t,
-	  AbstractAnnotationLayer_t,
-	  String_t,
-	  Correction_t,
-	  TextContent_t,
-	  Metric_t,
-	  External_t,
-	  Part_t };
-    Text::PROPS.REQUIRED_ATTRIBS = ID;
-    Text::PROPS.TEXTDELIMITER = "\n\n";
-
-    Speech::PROPS = AbstractStructureElement::PROPS;
-    Speech::PROPS.XMLTAG="speech";
-    Speech::PROPS.
-      ELEMENT_ID = Speech_t;
-    Speech::PROPS.ACCEPTED_DATA +=
-      { Utterance_t,
-	  Gap_t,
-	  Event_t,
-	  Entry_t,
-	  Example_t,
-	  Division_t,
-	  Paragraph_t,
-	  Quote_t,
-	  Sentence_t,
-	  Word_t,
-	  List_t,
-	  Note_t,
-	  Reference_t,
-	  AbstractAnnotationLayer_t,
-	  AbstractTokenAnnotation_t,
-	  TextContent_t,
-	  PhonContent_t,
-	  String_t,
-	  Metric_t,
-	  Correction_t };
-    Speech::PROPS.REQUIRED_ATTRIBS = ID;
-    Speech::PROPS.OPTIONAL_ATTRIBS = N|SRC|BEGINTIME|ENDTIME|SPEAKER;
-    Speech::PROPS.TEXTDELIMITER = "\n\n";
-
-    Utterance::PROPS = AbstractStructureElement::PROPS;
-    Utterance::PROPS.XMLTAG="utt";
-    Utterance::PROPS.ELEMENT_ID = Utterance_t;
-    Utterance::PROPS.ACCEPTED_DATA +=
-      { Word_t,
-	  Sentence_t,
-	  Quote_t,
-	  AbstractTokenAnnotation_t,
-	  Correction_t,
-	  TextContent_t,
-	  PhonContent_t,
-	  String_t,
-	  Gap_t,
-	  Note_t,
-	  Reference_t,
-	  Alignment_t,
-	  Metric_t,
-	  Alternative_t,
-	  AlternativeLayers_t,
-	  AbstractAnnotationLayer_t,
-	  Part_t };
-    Utterance::PROPS.ANNOTATIONTYPE = AnnotationType::UTTERANCE;
-    Utterance::PROPS.TEXTDELIMITER = " ";
-    Utterance::PROPS.PRINTABLE = true;
-    Utterance::PROPS.SPEAKABLE = true;
-
-    Event::PROPS = AbstractStructureElement::PROPS;
-    Event::PROPS.XMLTAG="event";
-    Event::PROPS.ELEMENT_ID = Event_t;
-    Event::PROPS.ACCEPTED_DATA +=
-      { Gap_t,
-	  Division_t,
-	  AbstractStructureElement_t,
-	  Feature_t,
-	  TextContent_t,
-	  Part_t };
-    Event::PROPS.ANNOTATIONTYPE = AnnotationType::EVENT;
-    Event::PROPS.OCCURRENCES_PER_SET=0;
-
-    AbstractSpanAnnotation::PROPS.XMLTAG = "spanannotation";
-    AbstractSpanAnnotation::PROPS.ELEMENT_ID = AbstractSpanAnnotation_t;
-    AbstractSpanAnnotation::PROPS.REQUIRED_ATTRIBS = NO_ATT;
-    AbstractSpanAnnotation::PROPS.OPTIONAL_ATTRIBS = ALL;
-    AbstractSpanAnnotation::PROPS.OCCURRENCES_PER_SET = 0;
-    AbstractSpanAnnotation::PROPS. PRINTABLE = true;
-    AbstractSpanAnnotation::PROPS.SPEAKABLE = true;
-    AbstractSpanAnnotation::PROPS.ACCEPTED_DATA +=
-      { Metric_t,
-	  Alignment_t };
-
-    TimeSegment::PROPS = AbstractSpanAnnotation::PROPS;
-    TimeSegment::PROPS.XMLTAG="timesegment";
-    TimeSegment::PROPS.ELEMENT_ID = TimeSegment_t;
-    TimeSegment::PROPS.ACCEPTED_DATA +=
-      { Feature_t,
-	  Word_t };
-    TimeSegment::PROPS.ANNOTATIONTYPE = AnnotationType::TIMESEGMENT;
-    TimeSegment::PROPS.OCCURRENCES_PER_SET=0;
-
-    Caption::PROPS = AbstractStructureElement::PROPS;
-    Caption::PROPS.XMLTAG="caption";
-    Caption::PROPS.ELEMENT_ID = Caption_t;
-    Caption::PROPS.ACCEPTED_DATA +=
-      { Sentence_t,
-	  Reference_t,
-	  AbstractTokenAnnotation_t,
-	  TextContent_t,
-	  Correction_t,
-	  Part_t };
-    Caption::PROPS.OCCURRENCES = 1;
-
-    Label::PROPS = AbstractStructureElement::PROPS;
-    Label::PROPS.XMLTAG="label";
-    Label::PROPS.ELEMENT_ID = Label_t;
-    Label::PROPS.ACCEPTED_DATA +=
-      { Word_t,
-	  TextContent_t,
-	  AbstractTokenAnnotation_t,
-	  Alignment_t,
-	  Correction_t,
-	  Part_t };
-
-    Item::PROPS = AbstractStructureElement::PROPS;
-    Item::PROPS.XMLTAG="item";
-    Item::PROPS.ELEMENT_ID = Item_t;
-    Item::PROPS.ACCEPTED_DATA +=
-      { AbstractStructureElement_t,
-	  TextContent_t,
-	  PhonContent_t,
-	  String_t,
-	  Gap_t,
-	  Alignment_t,
-	  Metric_t,
-	  Alternative_t,
-	  AlternativeLayers_t,
-	  AbstractAnnotationLayer_t,
-	  AbstractTokenAnnotation_t,
-	  Correction_t,
-	  Feature_t };
-    Item::PROPS.ANNOTATIONTYPE = AnnotationType::LIST;
-
-    List::PROPS = AbstractStructureElement::PROPS;
-    List::PROPS.XMLTAG="list";
-    List::PROPS.ELEMENT_ID = List_t;
-    List::PROPS.ACCEPTED_DATA +=
-      { AbstractStructureElement_t,
-	  Caption_t,
-	  Event_t,
-	  LangAnnotation_t,
-	  TextContent_t,
-	  PhonContent_t,
-	  Alignment_t,
-	  Correction_t,
-	  Feature_t };
-    List::PROPS.ANNOTATIONTYPE = AnnotationType::LIST;
-    List::PROPS.TEXTDELIMITER="\n";
-
-    Figure::PROPS = AbstractStructureElement::PROPS;
-    Figure::PROPS.XMLTAG="figure";
-    Figure::PROPS.ELEMENT_ID = Figure_t;
-    Figure::PROPS.ACCEPTED_DATA +=
-      { Sentence_t,
-	  Caption_t,
-	  TextContent_t,
-	  PhonContent_t,
-	  String_t,
-	  Alignment_t,
-	  Metric_t,
-	  Alternative_t,
-	  AlternativeLayers_t,
-	  AbstractAnnotationLayer_t,
-	  LangAnnotation_t,
-	  Correction_t,
-	  Part_t };
-    Figure::PROPS.ANNOTATIONTYPE = AnnotationType::FIGURE;
-
-    Paragraph::PROPS = AbstractStructureElement::PROPS;
-    Paragraph::PROPS.XMLTAG="p";
-    Paragraph::PROPS.ELEMENT_ID = Paragraph_t;
-    Paragraph::PROPS.ACCEPTED_DATA +=
-      { Sentence_t,
-	  Word_t,
-	  Quote_t,
-	  Example_t,
-	  Entry_t,
-	  AbstractTokenAnnotation_t,
-	  Correction_t,
-	  TextContent_t,
-	  PhonContent_t,
-	  String_t,
-	  Linebreak_t,
-	  Whitespace_t,
-	  Gap_t,
-	  List_t,
-	  Figure_t,
-	  Event_t,
-	  Head_t,
-	  Note_t,
-	  Reference_t,
-	  Alignment_t,
-	  Metric_t,
-	  Alternative_t,
-	  AlternativeLayers_t,
-	  AbstractAnnotationLayer_t,
-	  Part_t };
-    Paragraph::PROPS.ANNOTATIONTYPE = AnnotationType::PARAGRAPH;
-
-
-    SyntacticUnit::PROPS = AbstractSpanAnnotation::PROPS;
-    SyntacticUnit::PROPS.XMLTAG = "su";
-    SyntacticUnit::PROPS.ELEMENT_ID = SyntacticUnit_t;
-    SyntacticUnit::PROPS.REQUIRED_ATTRIBS = NO_ATT;
-    SyntacticUnit::PROPS.ANNOTATIONTYPE = AnnotationType::SYNTAX;
-    SyntacticUnit::PROPS.ACCEPTED_DATA +=
-      { SyntacticUnit_t,
-	  Word_t,
-	  WordReference_t,
-	  Feature_t };
-
-    SemanticRole::PROPS = AbstractSpanAnnotation::PROPS;
-    SemanticRole::PROPS.XMLTAG = "semrole";
-    SemanticRole::PROPS.ELEMENT_ID = SemanticRole_t;
-    SemanticRole::PROPS.REQUIRED_ATTRIBS = CLASS;
-    SemanticRole::PROPS.ANNOTATIONTYPE = AnnotationType::SEMROLE;
-    SemanticRole::PROPS.ACCEPTED_DATA +=
-      { Word_t,
-	  WordReference_t,
-	  LangAnnotation_t,
-	  Headspan_t,
-	  Alignment_t,
-	  Metric_t };
-
-    Chunk::PROPS = AbstractSpanAnnotation::PROPS;
-    Chunk::PROPS.REQUIRED_ATTRIBS = NO_ATT;
-    Chunk::PROPS.XMLTAG = "chunk";
-    Chunk::PROPS.ELEMENT_ID = Chunk_t;
-    Chunk::PROPS.ANNOTATIONTYPE = AnnotationType::CHUNKING;
-    Chunk::PROPS.ACCEPTED_DATA +=
-      { Word_t,
-	  WordReference_t,
-	  LangAnnotation_t,
-	  Feature_t };
-
-    Entity::PROPS = AbstractSpanAnnotation::PROPS;
-    Entity::PROPS.REQUIRED_ATTRIBS = NO_ATT;
-    Entity::PROPS.OPTIONAL_ATTRIBS = ID|CLASS|ANNOTATOR|CONFIDENCE|DATETIME;
-    Entity::PROPS.XMLTAG = "entity";
-    Entity::PROPS.ELEMENT_ID = Entity_t;
-    Entity::PROPS.ANNOTATIONTYPE = AnnotationType::ENTITY;
-    Entity::PROPS.ACCEPTED_DATA +=
-      { Word_t,
-	  LangAnnotation_t,
-	  WordReference_t,
-	  Morpheme_t,
-	  Feature_t,
-	  Metric_t };
-
-
-    Alternative::PROPS = AbstractStructureElement::PROPS;
-    Alternative::PROPS.XMLTAG = "alt";
+    AlignReference::PROPS.XMLTAG = "aref";
+//------ Alignment -------
+    Alignment::PROPS.ELEMENT_ID = Alignment_t;
+    Alignment::PROPS.ACCEPTED_DATA += {AlignReference_t, Description_t, Feature_t, Metric_t};
+    Alignment::PROPS.ANNOTATIONTYPE = AnnotationType::ALIGNMENT;
+    Alignment::PROPS.OPTIONAL_ATTRIBS = ID|CLASS|ANNOTATOR|N|CONFIDENCE|DATETIME|SRC|BEGINTIME|ENDTIME|SPEAKER;
+    Alignment::PROPS.PRINTABLE = false;
+    Alignment::PROPS.REQUIRED_ATTRIBS = NO_ATT;
+    Alignment::PROPS.SPEAKABLE = false;
+    Alignment::PROPS.XLINK = true;
+    Alignment::PROPS.XMLTAG = "alignment";
+//------ Alternative -------
     Alternative::PROPS.ELEMENT_ID = Alternative_t;
+    Alternative::PROPS.ACCEPTED_DATA += {AbstractTokenAnnotation_t, Correction_t, Description_t, MorphologyLayer_t, PhonologyLayer_t};
+    Alternative::PROPS.AUTH = false;
+    Alternative::PROPS.OPTIONAL_ATTRIBS = ID|CLASS|ANNOTATOR|N|CONFIDENCE|DATETIME|SRC|BEGINTIME|ENDTIME|SPEAKER;
+    Alternative::PROPS.PRINTABLE = false;
     Alternative::PROPS.REQUIRED_ATTRIBS = NO_ATT;
-    Alternative::PROPS.OPTIONAL_ATTRIBS = ALL;
-    Alternative::PROPS.ACCEPTED_DATA +=
-      { AbstractTokenAnnotation_t,
-	  Correction_t,
-	  MorphologyLayer_t,
-	  PhonologyLayer_t
-	  };
-    Alternative::PROPS.ANNOTATIONTYPE = AnnotationType::ALTERNATIVE;
-
-    AlternativeLayers::PROPS.XMLTAG = "altlayers";
+    Alternative::PROPS.SPEAKABLE = false;
+    Alternative::PROPS.XMLTAG = "alt";
+//------ AlternativeLayers -------
     AlternativeLayers::PROPS.ELEMENT_ID = AlternativeLayers_t;
-    AlternativeLayers::PROPS.OPTIONAL_ATTRIBS = ALL;
-    AlternativeLayers::PROPS.ACCEPTED_DATA += { AbstractAnnotationLayer_t };
-
-    AbstractCorrectionChild::PROPS.XMLTAG = "correctionchild";
-    AbstractCorrectionChild::PROPS.ELEMENT_ID = AbstractCorrectionChild_t;
-    AbstractCorrectionChild::PROPS.OPTIONAL_ATTRIBS = NO_ATT;
-    AbstractCorrectionChild::PROPS.ACCEPTED_DATA +=
-      { AbstractTokenAnnotation_t,
-	  AbstractSpanAnnotation_t,
-	  Word_t,
-	  WordReference_t,
-	  String_t,
-	  TextContent_t };
-    AbstractCorrectionChild::PROPS.OCCURRENCES = 1;
-    AbstractCorrectionChild::PROPS.PRINTABLE=true;
-    AbstractCorrectionChild::PROPS.SPEAKABLE=true;
-
-    New::PROPS = AbstractCorrectionChild::PROPS;
-    New::PROPS.XMLTAG = "new";
-    New::PROPS.ELEMENT_ID = New_t;
-
-    Current::PROPS = AbstractCorrectionChild::PROPS;
-    Current::PROPS.XMLTAG = "current";
-    Current::PROPS.ELEMENT_ID = Current_t;
-
-    Original::PROPS = AbstractCorrectionChild::PROPS;
-    Original::PROPS.XMLTAG = "original";
-    Original::PROPS.ELEMENT_ID = Original_t;
-
-    Suggestion::PROPS = AbstractCorrectionChild::PROPS;
-    Suggestion::PROPS.XMLTAG = "suggestion";
-    Suggestion::PROPS.ELEMENT_ID = Suggestion_t;
-    Suggestion::PROPS.OPTIONAL_ATTRIBS = ANNOTATOR|CONFIDENCE|DATETIME|N;
-    Suggestion::PROPS.ANNOTATIONTYPE = AnnotationType::SUGGESTION;
-    Suggestion::PROPS.OCCURRENCES=0;
-    Suggestion::PROPS.OCCURRENCES_PER_SET=0;
-
-    Correction::PROPS = AbstractTokenAnnotation::PROPS;
-    Correction::PROPS.XMLTAG = "correction";
-    Correction::PROPS.ELEMENT_ID = Correction_t;
-    Correction::PROPS.REQUIRED_ATTRIBS = NO_ATT;
-    Correction::PROPS.ANNOTATIONTYPE = AnnotationType::CORRECTION;
-    Correction::PROPS.ACCEPTED_DATA +=
-      { New_t,
-	  Original_t,
-	  Suggestion_t,
-	  Current_t,
-	  ErrorDetection_t,
-	  Feature_t };
-    Correction::PROPS.OCCURRENCES_PER_SET=0;
-    Correction::PROPS.PRINTABLE=true;
-    Correction::PROPS.SPEAKABLE=true;
-
-    Description::PROPS.XMLTAG = "desc";
-    Description::PROPS.ELEMENT_ID = Description_t;
-    Description::PROPS.OCCURRENCES = 1;
-
-    Entry::PROPS = AbstractStructureElement::PROPS;
-    Entry::PROPS.XMLTAG = "entry";
-    Entry::PROPS.ELEMENT_ID = Entry_t;
-    Entry::PROPS.ACCEPTED_DATA +=
-      { Term_t,
-	  Definition_t,
-	  Example_t,
-	  Correction_t,
-	  Metric_t,
-	  Alignment_t,
-	  AlternativeLayers_t,
-	  AbstractAnnotationLayer_t };
-
-    Definition::PROPS = AbstractStructureElement::PROPS;
-    Definition::PROPS.XMLTAG = "def";
-    Definition::PROPS.ELEMENT_ID = Definition_t;
-    Definition::PROPS.ACCEPTED_DATA +=
-      { Paragraph_t,
-	  Sentence_t,
-	  Word_t,
-	  Utterance_t,
-	  List_t,
-	  Figure_t,
-	  Table_t,
-	  Reference_t,
-	  Feature_t,
-	  TextContent_t,
-	  PhonContent_t,
-	  String_t,
-	  Metric_t,
-	  AbstractTokenAnnotation_t,
-	  Correction_t,
-	  Part_t };
-    Definition::PROPS.ANNOTATIONTYPE = AnnotationType::DEFINITION;
-
-    Term::PROPS = AbstractStructureElement::PROPS;
-    Term::PROPS.XMLTAG = "term";
-    Term::PROPS.ELEMENT_ID = Term_t;
-    Term::PROPS.ACCEPTED_DATA +=
-      { Paragraph_t, Event_t, Sentence_t, Word_t, Utterance_t,
-	List_t, Figure_t, Table_t, Reference_t, Feature_t,
-	TextContent_t, PhonContent_t, String_t, Metric_t,
-	AbstractTokenAnnotation_t, Correction_t, Part_t };
-    Term::PROPS.ANNOTATIONTYPE = AnnotationType::TERM;
-
-    Example::PROPS = AbstractStructureElement::PROPS;
-    Example::PROPS.XMLTAG = "ex";
-    Example::PROPS.ELEMENT_ID = Example_t;
-    Example::PROPS.ACCEPTED_DATA +=
-      { Paragraph_t, Sentence_t, Word_t, Utterance_t,
-	  List_t, Figure_t, Table_t, Reference_t, Feature_t,
-	  TextContent_t, PhonContent_t, String_t, Metric_t,
-	  AbstractTokenAnnotation_t, Correction_t, Part_t };
-    Example::PROPS.ANNOTATIONTYPE = AnnotationType::EXAMPLE;
-
-
-    External::PROPS.XMLTAG = "external";
-    External::PROPS.ELEMENT_ID = External_t;
-    External::PROPS.REQUIRED_ATTRIBS = SRC;
-    External::PROPS.PRINTABLE = true;
-    External::PROPS.SPEAKABLE = false;
-
-    Note::PROPS = AbstractStructureElement::PROPS;
-    Note::PROPS.REQUIRED_ATTRIBS = ID;
-    Note::PROPS.XMLTAG = "note";
-    Note::PROPS.ELEMENT_ID = Note_t;
-    Note::PROPS.ACCEPTED_DATA +=
-      { Paragraph_t,
-				   Sentence_t,
-				   Word_t,
-				   Example_t,
-				   Head_t,
-				   Utterance_t,
-				   List_t,
-				   Figure_t,
-				   Table_t,
-				   Reference_t,
-				   Feature_t,
-				   TextContent_t,
-				   PhonContent_t,
-				   String_t,
-				   Metric_t,
-				   AbstractTokenAnnotation_t,
-				   Correction_t,
-				   Part_t };
-    Note::PROPS.ANNOTATIONTYPE = AnnotationType::NOTE;
-
-    Reference::PROPS = AbstractStructureElement::PROPS;
-    Reference::PROPS.XMLTAG = "ref";
-    Reference::PROPS.ELEMENT_ID = Reference_t;
-    Reference::PROPS.REQUIRED_ATTRIBS = NO_ATT;
-    Reference::PROPS.OPTIONAL_ATTRIBS = ID|ANNOTATOR|CONFIDENCE|DATETIME;
-    Reference::PROPS.ACCEPTED_DATA +=
-      { TextContent_t, PhonContent_t, String_t,
-	Metric_t };
-
-
-    Morpheme::PROPS = AbstractStructureElement::PROPS;
-    Morpheme::PROPS.ELEMENT_ID = Morpheme_t;
-    Morpheme::PROPS.XMLTAG = "morpheme";
-    Morpheme::PROPS.REQUIRED_ATTRIBS = NO_ATT;
-    Morpheme::PROPS.OPTIONAL_ATTRIBS = ALL;
-    Morpheme::PROPS.ACCEPTED_DATA +=
-      { Feature_t, FunctionFeature_t, TextContent_t,
-	Metric_t, Alignment_t, AbstractTokenAnnotation_t,
-	Morpheme_t };
-    Morpheme::PROPS.ANNOTATIONTYPE = AnnotationType::MORPHOLOGICAL;
-
-    AbstractAnnotationLayer::PROPS.XMLTAG = "annotationlayer";
-    AbstractAnnotationLayer::PROPS.ELEMENT_ID = AbstractAnnotationLayer_t;
-    AbstractAnnotationLayer::PROPS.OPTIONAL_ATTRIBS = SETONLY;
-
-    SyntaxLayer::PROPS = AbstractAnnotationLayer::PROPS;
-    SyntaxLayer::PROPS.ELEMENT_ID = SyntaxLayer_t;
-    SyntaxLayer::PROPS.XMLTAG = "syntax";
-    SyntaxLayer::PROPS.ACCEPTED_DATA += { SyntacticUnit_t,
-					  Correction_t };
-    SyntaxLayer::PROPS.ANNOTATIONTYPE = AnnotationType::SYNTAX;
-
-    ChunkingLayer::PROPS = AbstractAnnotationLayer::PROPS;
+    AlternativeLayers::PROPS.ACCEPTED_DATA += {AbstractAnnotationLayer_t, Description_t};
+    AlternativeLayers::PROPS.AUTH = false;
+    AlternativeLayers::PROPS.OPTIONAL_ATTRIBS = ID|CLASS|ANNOTATOR|N|CONFIDENCE|DATETIME|SRC|BEGINTIME|ENDTIME|SPEAKER;
+    AlternativeLayers::PROPS.PRINTABLE = false;
+    AlternativeLayers::PROPS.REQUIRED_ATTRIBS = NO_ATT;
+    AlternativeLayers::PROPS.SPEAKABLE = false;
+    AlternativeLayers::PROPS.XMLTAG = "altlayers";
+//------ BegindatetimeFeature -------
+    BegindatetimeFeature::PROPS.ELEMENT_ID = BegindatetimeFeature_t;
+    BegindatetimeFeature::PROPS.SUBSET = "begindatetime";
+    BegindatetimeFeature::PROPS.XMLTAG = "NONE";
+//------ Caption -------
+    Caption::PROPS.ELEMENT_ID = Caption_t;
+    Caption::PROPS.ACCEPTED_DATA += {AbstractAnnotationLayer_t, AbstractExtendedTokenAnnotation_t, Alignment_t, Alternative_t, AlternativeLayers_t, Correction_t, Description_t, Feature_t, Gap_t, Linebreak_t, Metric_t, Part_t, PhonContent_t, Reference_t, Sentence_t, String_t, TextContent_t, Whitespace_t};
+    Caption::PROPS.OCCURRENCES = 1;
+    Caption::PROPS.XMLTAG = "caption";
+//------ Cell -------
+    Cell::PROPS.ELEMENT_ID = Cell_t;
+    Cell::PROPS.ACCEPTED_DATA += {AbstractAnnotationLayer_t, AbstractExtendedTokenAnnotation_t, Alignment_t, Alternative_t, AlternativeLayers_t, Correction_t, Description_t, Entry_t, Event_t, Example_t, Feature_t, Gap_t, Head_t, Linebreak_t, Metric_t, Note_t, Paragraph_t, Part_t, Reference_t, Sentence_t, String_t, TextContent_t, Whitespace_t, Word_t};
+    Cell::PROPS.TEXTDELIMITER = " | ";
+    Cell::PROPS.XMLTAG = "cell";
+//------ Chunk -------
+    Chunk::PROPS.ELEMENT_ID = Chunk_t;
+    Chunk::PROPS.ACCEPTED_DATA += {Alignment_t, Description_t, Feature_t, Metric_t, WordReference_t};
+    Chunk::PROPS.ANNOTATIONTYPE = AnnotationType::CHUNKING;
+    Chunk::PROPS.XMLTAG = "chunk";
+//------ ChunkingLayer -------
     ChunkingLayer::PROPS.ELEMENT_ID = ChunkingLayer_t;
-    ChunkingLayer::PROPS.XMLTAG = "chunking";
-    ChunkingLayer::PROPS.ACCEPTED_DATA += { Chunk_t,
-					    Correction_t };
+    ChunkingLayer::PROPS.ACCEPTED_DATA += {Chunk_t, Correction_t, Description_t};
     ChunkingLayer::PROPS.ANNOTATIONTYPE = AnnotationType::CHUNKING;
-
-    EntitiesLayer::PROPS = AbstractAnnotationLayer::PROPS;
-    EntitiesLayer::PROPS.ELEMENT_ID = EntitiesLayer_t;
-    EntitiesLayer::PROPS.XMLTAG = "entities";
-    EntitiesLayer::PROPS.ACCEPTED_DATA += { Entity_t,
-					    Correction_t };
-    EntitiesLayer::PROPS.ANNOTATIONTYPE = AnnotationType::ENTITY;
-
-    TimingLayer::PROPS = AbstractAnnotationLayer::PROPS;
-    TimingLayer::PROPS.ELEMENT_ID = TimingLayer_t;
-    TimingLayer::PROPS.XMLTAG = "timing";
-    TimingLayer::PROPS.ACCEPTED_DATA += { TimeSegment_t,
-					  Correction_t };
-
-    MorphologyLayer::PROPS = AbstractAnnotationLayer::PROPS;
-    MorphologyLayer::PROPS.ELEMENT_ID = MorphologyLayer_t;
-    MorphologyLayer::PROPS.XMLTAG = "morphology";
-    MorphologyLayer::PROPS.ACCEPTED_DATA += { Morpheme_t, Correction_t };
-    MorphologyLayer::PROPS.OCCURRENCES_PER_SET = 1;
-    MorphologyLayer::PROPS.ANNOTATIONTYPE = AnnotationType::MORPHOLOGICAL;
-
-    PhonologyLayer::PROPS = AbstractAnnotationLayer::PROPS;
-    PhonologyLayer::PROPS.ELEMENT_ID = PhonologyLayer_t;
-    PhonologyLayer::PROPS.XMLTAG = "phonology";
-    PhonologyLayer::PROPS.ACCEPTED_DATA += { Phoneme_t, Correction_t };
-    PhonologyLayer::PROPS.OCCURRENCES_PER_SET = 1;
-    PhonologyLayer::PROPS.ANNOTATIONTYPE = AnnotationType::PHONOLOGICAL;
-
-    CoreferenceLayer::PROPS = AbstractAnnotationLayer::PROPS;
-    CoreferenceLayer::PROPS.ELEMENT_ID = CoreferenceLayer_t;
-    CoreferenceLayer::PROPS.XMLTAG = "coreferences";
-    CoreferenceLayer::PROPS.ACCEPTED_DATA += { CoreferenceChain_t,
-					       Correction_t };
-    CoreferenceLayer::PROPS.ANNOTATIONTYPE = AnnotationType::COREFERENCE;
-
-    AbstractSpanRole::PROPS.XMLTAG = "spanrole";
-    AbstractSpanRole::PROPS.ELEMENT_ID = AbstractSpanRole_t;
-    AbstractSpanRole::PROPS.REQUIRED_ATTRIBS = NO_ATT;
-    AbstractSpanRole::PROPS.OPTIONAL_ATTRIBS = ANNOTATOR|N|DATETIME;
-    AbstractSpanRole::PROPS.ACCEPTED_DATA +=
-      { Feature_t,
-	  Word_t,
-	  WordReference_t };
-
-    CoreferenceLink::PROPS = AbstractSpanRole::PROPS;
-    CoreferenceLink::PROPS.ELEMENT_ID = CoreferenceLink_t;
-    CoreferenceLink::PROPS.XMLTAG = "coreferencelink";
-    CoreferenceLink::PROPS.ACCEPTED_DATA +=
-      {   Headspan_t,
-	  TimeFeature_t,
-	  LevelFeature_t,
-	  ModalityFeature_t };
-    CoreferenceLink::PROPS.ANNOTATIONTYPE = AnnotationType::COREFERENCE;
-
-    CoreferenceChain::PROPS = AbstractSpanAnnotation::PROPS;
+    ChunkingLayer::PROPS.XMLTAG = "chunking";
+//------ ComplexAlignment -------
+    ComplexAlignment::PROPS.ELEMENT_ID = ComplexAlignment_t;
+    ComplexAlignment::PROPS.ACCEPTED_DATA += {Alignment_t, Description_t, Feature_t, Metric_t};
+    ComplexAlignment::PROPS.ANNOTATIONTYPE = AnnotationType::COMPLEXALIGNMENT;
+    ComplexAlignment::PROPS.OPTIONAL_ATTRIBS = ID|CLASS|ANNOTATOR|N|CONFIDENCE|DATETIME|SRC|BEGINTIME|ENDTIME|SPEAKER;
+    ComplexAlignment::PROPS.PRINTABLE = false;
+    ComplexAlignment::PROPS.REQUIRED_ATTRIBS = NO_ATT;
+    ComplexAlignment::PROPS.SPEAKABLE = false;
+    ComplexAlignment::PROPS.XMLTAG = "complexalignment";
+//------ ComplexAlignmentLayer -------
+    ComplexAlignmentLayer::PROPS.ELEMENT_ID = ComplexAlignmentLayer_t;
+    ComplexAlignmentLayer::PROPS.ACCEPTED_DATA += {ComplexAlignment_t, Correction_t, Description_t};
+    ComplexAlignmentLayer::PROPS.ANNOTATIONTYPE = AnnotationType::COMPLEXALIGNMENT;
+    ComplexAlignmentLayer::PROPS.XMLTAG = "complexalignments";
+//------ Content -------
+    Content::PROPS.ELEMENT_ID = Content_t;
+    Content::PROPS.OCCURRENCES = 1;
+    Content::PROPS.XMLTAG = "content";
+//------ CoreferenceChain -------
     CoreferenceChain::PROPS.ELEMENT_ID = CoreferenceChain_t;
-    CoreferenceChain::PROPS.XMLTAG = "coreferencechain";
-    CoreferenceChain::PROPS.REQUIRED_ATTRIBS = NO_ATT;
-    CoreferenceChain::PROPS.ACCEPTED_DATA += { CoreferenceLink_t,
-					       Metric_t };
+    CoreferenceChain::PROPS.ACCEPTED_DATA += {Alignment_t, CoreferenceLink_t, Description_t, Metric_t};
     CoreferenceChain::PROPS.ANNOTATIONTYPE = AnnotationType::COREFERENCE;
-
-    SemanticRolesLayer::PROPS = AbstractAnnotationLayer::PROPS;
-    SemanticRolesLayer::PROPS.ELEMENT_ID = SemanticRolesLayer_t;
-    SemanticRolesLayer::PROPS.XMLTAG = "semroles";
-    SemanticRolesLayer::PROPS.ACCEPTED_DATA +=
-      { SemanticRole_t,
-	  Correction_t };
-    SemanticRolesLayer::PROPS.ANNOTATIONTYPE = AnnotationType::SEMROLE;
-
-    DependenciesLayer::PROPS = AbstractAnnotationLayer::PROPS;
+    CoreferenceChain::PROPS.REQUIRED_DATA += {CoreferenceLink_t};
+    CoreferenceChain::PROPS.XMLTAG = "coreferencechain";
+//------ CoreferenceLayer -------
+    CoreferenceLayer::PROPS.ELEMENT_ID = CoreferenceLayer_t;
+    CoreferenceLayer::PROPS.ACCEPTED_DATA += {CoreferenceChain_t, Correction_t, Description_t};
+    CoreferenceLayer::PROPS.ANNOTATIONTYPE = AnnotationType::COREFERENCE;
+    CoreferenceLayer::PROPS.XMLTAG = "coreferences";
+//------ CoreferenceLink -------
+    CoreferenceLink::PROPS.ELEMENT_ID = CoreferenceLink_t;
+    CoreferenceLink::PROPS.ACCEPTED_DATA += {Alignment_t, Description_t, Feature_t, Headspan_t, LevelFeature_t, Metric_t, ModalityFeature_t, TimeFeature_t, WordReference_t};
+    CoreferenceLink::PROPS.ANNOTATIONTYPE = AnnotationType::COREFERENCE;
+    CoreferenceLink::PROPS.XMLTAG = "coreferencelink";
+//------ Correction -------
+    Correction::PROPS.ELEMENT_ID = Correction_t;
+    Correction::PROPS.ACCEPTED_DATA += {Current_t, Description_t, ErrorDetection_t, Feature_t, Metric_t, New_t, Original_t, Suggestion_t};
+    Correction::PROPS.ANNOTATIONTYPE = AnnotationType::CORRECTION;
+    Correction::PROPS.OPTIONAL_ATTRIBS = ID|CLASS|ANNOTATOR|N|CONFIDENCE|DATETIME|SRC|BEGINTIME|ENDTIME|SPEAKER;
+    Correction::PROPS.PRINTABLE = true;
+    Correction::PROPS.SPEAKABLE = true;
+    Correction::PROPS.TEXTDELIMITER = "NONE";
+    Correction::PROPS.XMLTAG = "correction";
+//------ Current -------
+    Current::PROPS.ELEMENT_ID = Current_t;
+    Current::PROPS.OCCURRENCES = 1;
+    Current::PROPS.OPTIONAL_ATTRIBS = NO_ATT;
+    Current::PROPS.XMLTAG = "current";
+//------ Definition -------
+    Definition::PROPS.ELEMENT_ID = Definition_t;
+    Definition::PROPS.ACCEPTED_DATA += {AbstractAnnotationLayer_t, AbstractExtendedTokenAnnotation_t, Alignment_t, Alternative_t, AlternativeLayers_t, Correction_t, Description_t, Feature_t, Figure_t, List_t, Metric_t, Paragraph_t, Part_t, PhonContent_t, Reference_t, Sentence_t, String_t, Table_t, TextContent_t, Utterance_t, Word_t};
+    Definition::PROPS.ANNOTATIONTYPE = AnnotationType::DEFINITION;
+    Definition::PROPS.XMLTAG = "def";
+//------ DependenciesLayer -------
     DependenciesLayer::PROPS.ELEMENT_ID = DependenciesLayer_t;
-    DependenciesLayer::PROPS.XMLTAG = "dependencies";
-    DependenciesLayer::PROPS.ACCEPTED_DATA += { Dependency_t,
-						Correction_t };
+    DependenciesLayer::PROPS.ACCEPTED_DATA += {Correction_t, Dependency_t, Description_t};
     DependenciesLayer::PROPS.ANNOTATIONTYPE = AnnotationType::DEPENDENCY;
-
-    Dependency::PROPS = AbstractSpanAnnotation::PROPS;
+    DependenciesLayer::PROPS.XMLTAG = "dependencies";
+//------ Dependency -------
     Dependency::PROPS.ELEMENT_ID = Dependency_t;
-    Dependency::PROPS.XMLTAG = "dependency";
-    Dependency::PROPS.REQUIRED_ATTRIBS = NO_ATT;
+    Dependency::PROPS.ACCEPTED_DATA += {Alignment_t, DependencyDependent_t, Description_t, Feature_t, Headspan_t, Metric_t};
     Dependency::PROPS.ANNOTATIONTYPE = AnnotationType::DEPENDENCY;
-    Dependency::PROPS.ACCEPTED_DATA +=
-      { DependencyDependent_t,
-	  Headspan_t,
-	  Feature_t,
-	  Alignment_t };
-
-    DependencyDependent::PROPS = AbstractSpanRole::PROPS;
+    Dependency::PROPS.REQUIRED_DATA += {DependencyDependent_t, Headspan_t};
+    Dependency::PROPS.XMLTAG = "dependency";
+//------ DependencyDependent -------
     DependencyDependent::PROPS.ELEMENT_ID = DependencyDependent_t;
     DependencyDependent::PROPS.XMLTAG = "dep";
-    DependencyDependent::PROPS.ANNOTATIONTYPE = AnnotationType::DEPENDENCY;
-
-    Headspan::PROPS = AbstractSpanRole::PROPS;
-    Headspan::PROPS.ELEMENT_ID = Headspan_t;
-    Headspan::PROPS.XMLTAG = "hd";
-
-    PosAnnotation::PROPS = AbstractTokenAnnotation::PROPS;
-    PosAnnotation::PROPS.XMLTAG="pos";
-    PosAnnotation::PROPS.ELEMENT_ID = PosAnnotation_t;
-    PosAnnotation::PROPS.ANNOTATIONTYPE = AnnotationType::POS;
-    PosAnnotation::PROPS.ACCEPTED_DATA +=
-      { Feature_t,
-	  Metric_t };
-
-    LemmaAnnotation::PROPS = AbstractTokenAnnotation::PROPS;
-    LemmaAnnotation::PROPS.XMLTAG="lemma";
-    LemmaAnnotation::PROPS.ELEMENT_ID = LemmaAnnotation_t;
-    LemmaAnnotation::PROPS.ANNOTATIONTYPE = AnnotationType::LEMMA;
-    LemmaAnnotation::PROPS.ACCEPTED_DATA +=
-      { Feature_t,
-	  Metric_t };
-
-    LangAnnotation::PROPS = AbstractTokenAnnotation::PROPS;
-    LangAnnotation::PROPS.XMLTAG="lang";
-    LangAnnotation::PROPS.ELEMENT_ID = LangAnnotation_t;
-    LangAnnotation::PROPS.ANNOTATIONTYPE = AnnotationType::LANG;
-    LangAnnotation::PROPS.ACCEPTED_DATA +=
-      { Feature_t,
-	  Metric_t };
-
-    Phoneme::PROPS = AbstractTokenAnnotation::PROPS;
-    Phoneme::PROPS.XMLTAG="phoneme";
-    Phoneme::PROPS.ELEMENT_ID = Phoneme_t;
-    Phoneme::PROPS.REQUIRED_ATTRIBS = NO_ATT;
-    Phoneme::PROPS.OPTIONAL_ATTRIBS = ALL;
-    Phoneme::PROPS.ANNOTATIONTYPE = AnnotationType::PHON;
-    Phoneme::PROPS.ACCEPTED_DATA +=
-      { PhonContent_t,
-	  Feature_t  };
-
-    DomainAnnotation::PROPS = AbstractTokenAnnotation::PROPS;
-    DomainAnnotation::PROPS.XMLTAG="domain";
+//------ Description -------
+    Description::PROPS.ELEMENT_ID = Description_t;
+    Description::PROPS.OCCURRENCES = 1;
+    Description::PROPS.XMLTAG = "desc";
+//------ Division -------
+    Division::PROPS.ELEMENT_ID = Division_t;
+    Division::PROPS.ACCEPTED_DATA += {AbstractAnnotationLayer_t, AbstractExtendedTokenAnnotation_t, Alignment_t, Alternative_t, AlternativeLayers_t, Correction_t, Description_t, Division_t, Entry_t, Event_t, Example_t, Feature_t, Figure_t, Gap_t, Head_t, Linebreak_t, List_t, Metric_t, Note_t, Paragraph_t, Part_t, PhonContent_t, Quote_t, Reference_t, Sentence_t, Table_t, TextContent_t, Utterance_t, Whitespace_t};
+    Division::PROPS.ANNOTATIONTYPE = AnnotationType::DIVISION;
+    Division::PROPS.TEXTDELIMITER = "\n\n\n";
+    Division::PROPS.XMLTAG = "div";
+//------ DomainAnnotation -------
     DomainAnnotation::PROPS.ELEMENT_ID = DomainAnnotation_t;
     DomainAnnotation::PROPS.ANNOTATIONTYPE = AnnotationType::DOMAIN;
-    DomainAnnotation::PROPS.ACCEPTED_DATA += { Feature_t };
-
-    SenseAnnotation::PROPS = AbstractTokenAnnotation::PROPS;
-    SenseAnnotation::PROPS.XMLTAG="sense";
+    DomainAnnotation::PROPS.XMLTAG = "domain";
+//------ EnddatetimeFeature -------
+    EnddatetimeFeature::PROPS.ELEMENT_ID = EnddatetimeFeature_t;
+    EnddatetimeFeature::PROPS.SUBSET = "enddatetime";
+    EnddatetimeFeature::PROPS.XMLTAG = "NONE";
+//------ EntitiesLayer -------
+    EntitiesLayer::PROPS.ELEMENT_ID = EntitiesLayer_t;
+    EntitiesLayer::PROPS.ACCEPTED_DATA += {Correction_t, Description_t, Entity_t};
+    EntitiesLayer::PROPS.ANNOTATIONTYPE = AnnotationType::ENTITY;
+    EntitiesLayer::PROPS.XMLTAG = "entities";
+//------ Entity -------
+    Entity::PROPS.ELEMENT_ID = Entity_t;
+    Entity::PROPS.ACCEPTED_DATA += {Alignment_t, Description_t, Feature_t, Metric_t, WordReference_t};
+    Entity::PROPS.ANNOTATIONTYPE = AnnotationType::ENTITY;
+    Entity::PROPS.XMLTAG = "entity";
+//------ Entry -------
+    Entry::PROPS.ELEMENT_ID = Entry_t;
+    Entry::PROPS.ACCEPTED_DATA += {AbstractAnnotationLayer_t, Alignment_t, Alternative_t, AlternativeLayers_t, Correction_t, Definition_t, Description_t, Example_t, Feature_t, Metric_t, Part_t, Term_t};
+    Entry::PROPS.ANNOTATIONTYPE = AnnotationType::ENTRY;
+    Entry::PROPS.XMLTAG = "entry";
+//------ ErrorDetection -------
+    ErrorDetection::PROPS.ELEMENT_ID = ErrorDetection_t;
+    ErrorDetection::PROPS.ANNOTATIONTYPE = AnnotationType::ERRORDETECTION;
+    ErrorDetection::PROPS.XMLTAG = "errordetection";
+//------ Event -------
+    Event::PROPS.ELEMENT_ID = Event_t;
+    Event::PROPS.ACCEPTED_DATA += {AbstractAnnotationLayer_t, AbstractExtendedTokenAnnotation_t, ActorFeature_t, Alignment_t, Alternative_t, AlternativeLayers_t, BegindatetimeFeature_t, Correction_t, Description_t, Division_t, EnddatetimeFeature_t, Event_t, Example_t, Feature_t, Figure_t, Head_t, Linebreak_t, List_t, Metric_t, Paragraph_t, Part_t, PhonContent_t, Reference_t, Sentence_t, String_t, Table_t, TextContent_t, Utterance_t, Whitespace_t, Word_t};
+    Event::PROPS.ANNOTATIONTYPE = AnnotationType::EVENT;
+    Event::PROPS.XMLTAG = "event";
+//------ Example -------
+    Example::PROPS.ELEMENT_ID = Example_t;
+    Example::PROPS.ACCEPTED_DATA += {AbstractAnnotationLayer_t, AbstractExtendedTokenAnnotation_t, Alignment_t, Alternative_t, AlternativeLayers_t, Correction_t, Description_t, Feature_t, Figure_t, Linebreak_t, List_t, Metric_t, Paragraph_t, Part_t, PhonContent_t, Reference_t, Sentence_t, String_t, Table_t, TextContent_t, Utterance_t, Whitespace_t, Word_t};
+    Example::PROPS.ANNOTATIONTYPE = AnnotationType::EXAMPLE;
+    Example::PROPS.XMLTAG = "ex";
+//------ External -------
+    External::PROPS.ELEMENT_ID = External_t;
+    External::PROPS.ACCEPTED_DATA += {Description_t};
+    External::PROPS.AUTH = true;
+    External::PROPS.OPTIONAL_ATTRIBS = NO_ATT;
+    External::PROPS.PRINTABLE = true;
+    External::PROPS.REQUIRED_ATTRIBS = NO_ATT;
+    External::PROPS.SPEAKABLE = false;
+    External::PROPS.XMLTAG = "external";
+//------ Feature -------
+    Feature::PROPS.ELEMENT_ID = Feature_t;
+    Feature::PROPS.XMLTAG = "feat";
+//------ Figure -------
+    Figure::PROPS.ELEMENT_ID = Figure_t;
+    Figure::PROPS.ACCEPTED_DATA += {AbstractAnnotationLayer_t, Alignment_t, Alternative_t, AlternativeLayers_t, Caption_t, Correction_t, Description_t, Feature_t, Metric_t, Part_t, Sentence_t, String_t, TextContent_t};
+    Figure::PROPS.ANNOTATIONTYPE = AnnotationType::FIGURE;
+    Figure::PROPS.SPEAKABLE = false;
+    Figure::PROPS.TEXTDELIMITER = "\n\n";
+    Figure::PROPS.XMLTAG = "figure";
+//------ FunctionFeature -------
+    FunctionFeature::PROPS.ELEMENT_ID = FunctionFeature_t;
+    FunctionFeature::PROPS.SUBSET = "function";
+    FunctionFeature::PROPS.XMLTAG = "NONE";
+//------ Gap -------
+    Gap::PROPS.ELEMENT_ID = Gap_t;
+    Gap::PROPS.ACCEPTED_DATA += {Content_t, Description_t, Feature_t, Metric_t, Part_t};
+    Gap::PROPS.ANNOTATIONTYPE = AnnotationType::GAP;
+    Gap::PROPS.OPTIONAL_ATTRIBS = ID|CLASS|ANNOTATOR|N|DATETIME|SRC|BEGINTIME|ENDTIME;
+    Gap::PROPS.XMLTAG = "gap";
+//------ Head -------
+    Head::PROPS.ELEMENT_ID = Head_t;
+    Head::PROPS.ACCEPTED_DATA += {AbstractAnnotationLayer_t, AbstractExtendedTokenAnnotation_t, Alignment_t, Alternative_t, AlternativeLayers_t, Correction_t, Description_t, Event_t, Feature_t, Gap_t, Linebreak_t, Metric_t, Part_t, PhonContent_t, Reference_t, Sentence_t, String_t, TextContent_t, Whitespace_t, Word_t};
+    Head::PROPS.OCCURRENCES = 1;
+    Head::PROPS.TEXTDELIMITER = "\n\n";
+    Head::PROPS.XMLTAG = "head";
+//------ HeadFeature -------
+    HeadFeature::PROPS.ELEMENT_ID = HeadFeature_t;
+    HeadFeature::PROPS.SUBSET = "head";
+    HeadFeature::PROPS.XMLTAG = "NONE";
+//------ Headspan -------
+    Headspan::PROPS.ELEMENT_ID = Headspan_t;
+    Headspan::PROPS.XMLTAG = "hd";
+//------ Label -------
+    Label::PROPS.ELEMENT_ID = Label_t;
+    Label::PROPS.ACCEPTED_DATA += {AbstractAnnotationLayer_t, AbstractExtendedTokenAnnotation_t, Alignment_t, Alternative_t, AlternativeLayers_t, Correction_t, Description_t, Feature_t, Metric_t, Part_t, PhonContent_t, Reference_t, String_t, TextContent_t, Word_t};
+    Label::PROPS.XMLTAG = "label";
+//------ LangAnnotation -------
+    LangAnnotation::PROPS.ELEMENT_ID = LangAnnotation_t;
+    LangAnnotation::PROPS.ANNOTATIONTYPE = AnnotationType::LANG;
+    LangAnnotation::PROPS.XMLTAG = "lang";
+//------ LemmaAnnotation -------
+    LemmaAnnotation::PROPS.ELEMENT_ID = LemmaAnnotation_t;
+    LemmaAnnotation::PROPS.ANNOTATIONTYPE = AnnotationType::LEMMA;
+    LemmaAnnotation::PROPS.XMLTAG = "lemma";
+//------ LevelFeature -------
+    LevelFeature::PROPS.ELEMENT_ID = LevelFeature_t;
+    LevelFeature::PROPS.SUBSET = "level";
+    LevelFeature::PROPS.XMLTAG = "NONE";
+//------ Linebreak -------
+    Linebreak::PROPS.ELEMENT_ID = Linebreak_t;
+    Linebreak::PROPS.TEXTDELIMITER = "";
+    Linebreak::PROPS.XMLTAG = "br";
+//------ List -------
+    List::PROPS.ELEMENT_ID = List_t;
+    List::PROPS.ACCEPTED_DATA += {AbstractAnnotationLayer_t, AbstractExtendedTokenAnnotation_t, Alignment_t, Alternative_t, AlternativeLayers_t, Caption_t, Correction_t, Description_t, Event_t, Feature_t, ListItem_t, Metric_t, Note_t, Part_t, PhonContent_t, Reference_t, String_t, TextContent_t};
+    List::PROPS.ANNOTATIONTYPE = AnnotationType::LIST;
+    List::PROPS.TEXTDELIMITER = "\n\n";
+    List::PROPS.XMLTAG = "list";
+//------ ListItem -------
+    ListItem::PROPS.ELEMENT_ID = ListItem_t;
+    ListItem::PROPS.ACCEPTED_DATA += {AbstractAnnotationLayer_t, AbstractExtendedTokenAnnotation_t, Alignment_t, Alternative_t, AlternativeLayers_t, Correction_t, Description_t, Event_t, Feature_t, Gap_t, Label_t, Linebreak_t, List_t, Metric_t, Note_t, Part_t, PhonContent_t, Reference_t, Sentence_t, String_t, TextContent_t, Whitespace_t};
+    ListItem::PROPS.TEXTDELIMITER = "\n";
+    ListItem::PROPS.XMLTAG = "item";
+//------ Metric -------
+    Metric::PROPS.ELEMENT_ID = Metric_t;
+    Metric::PROPS.ACCEPTED_DATA += {Description_t, Feature_t, ValueFeature_t};
+    Metric::PROPS.ANNOTATIONTYPE = AnnotationType::METRIC;
+    Metric::PROPS.OPTIONAL_ATTRIBS = ID|CLASS|ANNOTATOR|N|CONFIDENCE|DATETIME|SRC|BEGINTIME|ENDTIME|SPEAKER;
+    Metric::PROPS.XMLTAG = "metric";
+//------ ModalityFeature -------
+    ModalityFeature::PROPS.ELEMENT_ID = ModalityFeature_t;
+    ModalityFeature::PROPS.SUBSET = "modality";
+    ModalityFeature::PROPS.XMLTAG = "NONE";
+//------ Morpheme -------
+    Morpheme::PROPS.ELEMENT_ID = Morpheme_t;
+    Morpheme::PROPS.ACCEPTED_DATA += {AbstractAnnotationLayer_t, AbstractTokenAnnotation_t, Alignment_t, Alternative_t, AlternativeLayers_t, Correction_t, Description_t, Feature_t, FunctionFeature_t, Metric_t, Part_t, PhonContent_t, String_t, TextContent_t};
+    Morpheme::PROPS.ANNOTATIONTYPE = AnnotationType::MORPHOLOGICAL;
+    Morpheme::PROPS.TEXTDELIMITER = "";
+    Morpheme::PROPS.XMLTAG = "morpheme";
+//------ MorphologyLayer -------
+    MorphologyLayer::PROPS.ELEMENT_ID = MorphologyLayer_t;
+    MorphologyLayer::PROPS.ACCEPTED_DATA += {Correction_t, Description_t, Morpheme_t};
+    MorphologyLayer::PROPS.ANNOTATIONTYPE = AnnotationType::MORPHOLOGICAL;
+    MorphologyLayer::PROPS.XMLTAG = "morphology";
+//------ New -------
+    New::PROPS.ELEMENT_ID = New_t;
+    New::PROPS.OCCURRENCES = 1;
+    New::PROPS.OPTIONAL_ATTRIBS = NO_ATT;
+    New::PROPS.XMLTAG = "new";
+//------ Note -------
+    Note::PROPS.ELEMENT_ID = Note_t;
+    Note::PROPS.ACCEPTED_DATA += {AbstractAnnotationLayer_t, AbstractExtendedTokenAnnotation_t, Alignment_t, Alternative_t, AlternativeLayers_t, Correction_t, Description_t, Example_t, Feature_t, Figure_t, Head_t, Linebreak_t, List_t, Metric_t, Paragraph_t, Part_t, PhonContent_t, Reference_t, Sentence_t, String_t, Table_t, TextContent_t, Utterance_t, Whitespace_t, Word_t};
+    Note::PROPS.ANNOTATIONTYPE = AnnotationType::NOTE;
+    Note::PROPS.XMLTAG = "note";
+//------ Original -------
+    Original::PROPS.ELEMENT_ID = Original_t;
+    Original::PROPS.AUTH = false;
+    Original::PROPS.OCCURRENCES = 1;
+    Original::PROPS.OPTIONAL_ATTRIBS = NO_ATT;
+    Original::PROPS.XMLTAG = "original";
+//------ Paragraph -------
+    Paragraph::PROPS.ELEMENT_ID = Paragraph_t;
+    Paragraph::PROPS.ACCEPTED_DATA += {AbstractAnnotationLayer_t, AbstractExtendedTokenAnnotation_t, Alignment_t, Alternative_t, AlternativeLayers_t, Correction_t, Description_t, Entry_t, Event_t, Example_t, Feature_t, Figure_t, Gap_t, Head_t, Linebreak_t, List_t, Metric_t, Note_t, Part_t, PhonContent_t, Quote_t, Reference_t, Sentence_t, String_t, TextContent_t, Whitespace_t, Word_t};
+    Paragraph::PROPS.ANNOTATIONTYPE = AnnotationType::PARAGRAPH;
+    Paragraph::PROPS.TEXTDELIMITER = "\n\n";
+    Paragraph::PROPS.XMLTAG = "p";
+//------ Part -------
+    Part::PROPS.ELEMENT_ID = Part_t;
+    Part::PROPS.ACCEPTED_DATA += {AbstractAnnotationLayer_t, AbstractExtendedTokenAnnotation_t, AbstractStructureElement_t, Alignment_t, Alternative_t, AlternativeLayers_t, Correction_t, Description_t, Feature_t, Metric_t, Part_t};
+    Part::PROPS.ANNOTATIONTYPE = AnnotationType::PART;
+    Part::PROPS.TEXTDELIMITER = "NONE";
+    Part::PROPS.XMLTAG = "part";
+//------ PhonContent -------
+    PhonContent::PROPS.ELEMENT_ID = PhonContent_t;
+    PhonContent::PROPS.ACCEPTED_DATA += {Description_t, XmlText_t};
+    PhonContent::PROPS.ANNOTATIONTYPE = AnnotationType::PHON;
+    PhonContent::PROPS.OCCURRENCES = 0;
+    PhonContent::PROPS.OPTIONAL_ATTRIBS = CLASS|ANNOTATOR|CONFIDENCE|DATETIME;
+    PhonContent::PROPS.PRINTABLE = false;
+    PhonContent::PROPS.SPEAKABLE = true;
+    PhonContent::PROPS.XMLTAG = "ph";
+//------ Phoneme -------
+    Phoneme::PROPS.ELEMENT_ID = Phoneme_t;
+    Phoneme::PROPS.ACCEPTED_DATA += {AbstractAnnotationLayer_t, AbstractTokenAnnotation_t, Alignment_t, Alternative_t, AlternativeLayers_t, Correction_t, Description_t, Feature_t, FunctionFeature_t, Metric_t, Part_t, PhonContent_t, String_t, TextContent_t};
+    Phoneme::PROPS.ANNOTATIONTYPE = AnnotationType::PHONOLOGICAL;
+    Phoneme::PROPS.TEXTDELIMITER = "";
+    Phoneme::PROPS.XMLTAG = "phoneme";
+//------ PhonologyLayer -------
+    PhonologyLayer::PROPS.ELEMENT_ID = PhonologyLayer_t;
+    PhonologyLayer::PROPS.ACCEPTED_DATA += {Correction_t, Description_t, Phoneme_t};
+    PhonologyLayer::PROPS.ANNOTATIONTYPE = AnnotationType::PHONOLOGICAL;
+    PhonologyLayer::PROPS.XMLTAG = "phonology";
+//------ PosAnnotation -------
+    PosAnnotation::PROPS.ELEMENT_ID = PosAnnotation_t;
+    PosAnnotation::PROPS.ACCEPTED_DATA += {Description_t, Feature_t, HeadFeature_t, Metric_t};
+    PosAnnotation::PROPS.ANNOTATIONTYPE = AnnotationType::POS;
+    PosAnnotation::PROPS.XMLTAG = "pos";
+//------ Quote -------
+    Quote::PROPS.ELEMENT_ID = Quote_t;
+    Quote::PROPS.ACCEPTED_DATA += {AbstractAnnotationLayer_t, Alignment_t, Alternative_t, AlternativeLayers_t, Correction_t, Description_t, Division_t, Feature_t, Gap_t, Metric_t, Paragraph_t, Part_t, Quote_t, Sentence_t, String_t, TextContent_t, Utterance_t, Word_t};
+    Quote::PROPS.XMLTAG = "quote";
+//------ Reference -------
+    Reference::PROPS.ELEMENT_ID = Reference_t;
+    Reference::PROPS.ACCEPTED_DATA += {AbstractAnnotationLayer_t, Alignment_t, Alternative_t, AlternativeLayers_t, Correction_t, Description_t, Feature_t, Metric_t, Part_t, PhonContent_t, String_t, TextContent_t};
+    Reference::PROPS.TEXTDELIMITER = "NONE";
+    Reference::PROPS.XMLTAG = "ref";
+//------ Row -------
+    Row::PROPS.ELEMENT_ID = Row_t;
+    Row::PROPS.ACCEPTED_DATA += {AbstractAnnotationLayer_t, AbstractExtendedTokenAnnotation_t, Alignment_t, Alternative_t, AlternativeLayers_t, Cell_t, Correction_t, Description_t, Feature_t, Metric_t, Part_t};
+    Row::PROPS.TEXTDELIMITER = "\n";
+    Row::PROPS.XMLTAG = "row";
+//------ SemanticRole -------
+    SemanticRole::PROPS.ELEMENT_ID = SemanticRole_t;
+    SemanticRole::PROPS.ACCEPTED_DATA += {Alignment_t, Description_t, Feature_t, Headspan_t, Metric_t, WordReference_t};
+    SemanticRole::PROPS.ANNOTATIONTYPE = AnnotationType::SEMROLE;
+    SemanticRole::PROPS.REQUIRED_ATTRIBS = CLASS;
+    SemanticRole::PROPS.XMLTAG = "semrole";
+//------ SemanticRolesLayer -------
+    SemanticRolesLayer::PROPS.ELEMENT_ID = SemanticRolesLayer_t;
+    SemanticRolesLayer::PROPS.ACCEPTED_DATA += {Correction_t, Description_t, SemanticRole_t};
+    SemanticRolesLayer::PROPS.ANNOTATIONTYPE = AnnotationType::SEMROLE;
+    SemanticRolesLayer::PROPS.XMLTAG = "semroles";
+//------ SenseAnnotation -------
     SenseAnnotation::PROPS.ELEMENT_ID = SenseAnnotation_t;
+    SenseAnnotation::PROPS.ACCEPTED_DATA += {Description_t, Feature_t, Metric_t, SynsetFeature_t};
     SenseAnnotation::PROPS.ANNOTATIONTYPE = AnnotationType::SENSE;
-    SenseAnnotation::PROPS.ACCEPTED_DATA +=
-      { Feature_t, SynsetFeature_t, Metric_t };
-
-    SubjectivityAnnotation::PROPS = AbstractTokenAnnotation::PROPS;
-    SubjectivityAnnotation::PROPS.XMLTAG="subjectivity";
+    SenseAnnotation::PROPS.XMLTAG = "sense";
+//------ Sentence -------
+    Sentence::PROPS.ELEMENT_ID = Sentence_t;
+    Sentence::PROPS.ACCEPTED_DATA += {AbstractAnnotationLayer_t, AbstractExtendedTokenAnnotation_t, Alignment_t, Alternative_t, AlternativeLayers_t, Correction_t, Description_t, Entry_t, Event_t, Example_t, Feature_t, Gap_t, Linebreak_t, Metric_t, Note_t, Part_t, PhonContent_t, Quote_t, Reference_t, String_t, TextContent_t, Whitespace_t, Word_t};
+    Sentence::PROPS.ANNOTATIONTYPE = AnnotationType::SENTENCE;
+    Sentence::PROPS.TEXTDELIMITER = " ";
+    Sentence::PROPS.XMLTAG = "s";
+//------ Speech -------
+    Speech::PROPS.ELEMENT_ID = Speech_t;
+    Speech::PROPS.ACCEPTED_DATA += {AbstractAnnotationLayer_t, AbstractExtendedTokenAnnotation_t, Alignment_t, Alternative_t, AlternativeLayers_t, Correction_t, Description_t, Division_t, Entry_t, Event_t, Example_t, Feature_t, Gap_t, List_t, Metric_t, Note_t, Paragraph_t, Part_t, PhonContent_t, Quote_t, Reference_t, Sentence_t, String_t, TextContent_t, Utterance_t, Word_t};
+    Speech::PROPS.TEXTDELIMITER = "\n\n\n";
+    Speech::PROPS.XMLTAG = "speech";
+//------ String -------
+    String::PROPS.ELEMENT_ID = String_t;
+    String::PROPS.ACCEPTED_DATA += {AbstractExtendedTokenAnnotation_t, Alignment_t, Correction_t, Description_t, Feature_t, Metric_t, PhonContent_t, TextContent_t};
+    String::PROPS.ANNOTATIONTYPE = AnnotationType::STRING;
+    String::PROPS.OCCURRENCES = 0;
+    String::PROPS.OPTIONAL_ATTRIBS = ID|CLASS|ANNOTATOR|CONFIDENCE|DATETIME|N|SRC|BEGINTIME|ENDTIME;
+    String::PROPS.PRINTABLE = true;
+    String::PROPS.XMLTAG = "str";
+//------ StyleFeature -------
+    StyleFeature::PROPS.ELEMENT_ID = StyleFeature_t;
+    StyleFeature::PROPS.SUBSET = "style";
+    StyleFeature::PROPS.XMLTAG = "NONE";
+//------ SubjectivityAnnotation -------
     SubjectivityAnnotation::PROPS.ELEMENT_ID = SubjectivityAnnotation_t;
     SubjectivityAnnotation::PROPS.ANNOTATIONTYPE = AnnotationType::SUBJECTIVITY;
-    SubjectivityAnnotation::PROPS.ACCEPTED_DATA += { Feature_t };
-
-    Quote::PROPS = AbstractStructureElement::PROPS;
-    Quote::PROPS.XMLTAG="quote";
-    Quote::PROPS.ELEMENT_ID = Quote_t;
-    Quote::PROPS.REQUIRED_ATTRIBS = NO_ATT;
-    Quote::PROPS.ACCEPTED_DATA +=
-      { AbstractStructureElement_t,
-	  String_t,
-	  LangAnnotation_t,
-	  TextContent_t,
-	  Alignment_t,
-	  Gap_t };
-    Quote::PROPS.TEXTDELIMITER = " ";
-
-    Feature::PROPS.XMLTAG = "feat";
-    Feature::PROPS.ELEMENT_ID = Feature_t;
-    Feature::PROPS.OCCURRENCES_PER_SET = 0;
-
-    BegindatetimeFeature::PROPS.XMLTAG="begindatetime";
-    BegindatetimeFeature::PROPS.ELEMENT_ID = BegindatetimeFeature_t;
-
-    EnddatetimeFeature::PROPS.XMLTAG="enddatetime";
-    EnddatetimeFeature::PROPS.ELEMENT_ID = EnddatetimeFeature_t;
-
-    SynsetFeature::PROPS.XMLTAG="synset";
+    SubjectivityAnnotation::PROPS.XMLTAG = "subjectivity";
+//------ Suggestion -------
+    Suggestion::PROPS.ELEMENT_ID = Suggestion_t;
+    Suggestion::PROPS.AUTH = false;
+    Suggestion::PROPS.OCCURRENCES = 0;
+    Suggestion::PROPS.XMLTAG = "suggestion";
+//------ SynsetFeature -------
     SynsetFeature::PROPS.ELEMENT_ID = SynsetFeature_t;
-    SynsetFeature::PROPS.ANNOTATIONTYPE = AnnotationType::SENSE;
-
-    ActorFeature::PROPS.XMLTAG = "actor";
-    ActorFeature::PROPS.ELEMENT_ID = ActorFeature_t;
-
-    HeadFeature::PROPS.XMLTAG = "headfeature";
-    HeadFeature::PROPS.ELEMENT_ID = HeadFeature_t;
-
-    ValueFeature::PROPS.XMLTAG = "value";
-    ValueFeature::PROPS.ELEMENT_ID = ValueFeature_t;
-
-    FunctionFeature::PROPS.XMLTAG = "function";
-    FunctionFeature::PROPS.ELEMENT_ID = FunctionFeature_t;
-
-    LevelFeature::PROPS.XMLTAG = "level";
-    LevelFeature::PROPS.ELEMENT_ID = LevelFeature_t;
-
-    ModalityFeature::PROPS.XMLTAG = "modality";
-    ModalityFeature::PROPS.ELEMENT_ID = ModalityFeature_t;
-
-    TimeFeature::PROPS.XMLTAG = "time";
-    TimeFeature::PROPS.ELEMENT_ID = TimeFeature_t;
-
-    ErrorDetection::PROPS = AbstractTokenAnnotation::PROPS;
-    ErrorDetection::PROPS.
-      XMLTAG = "errordetection";
-    ErrorDetection::PROPS.
-      ELEMENT_ID = ErrorDetection_t;
-    ErrorDetection::PROPS.
-      ANNOTATIONTYPE = AnnotationType::ERRORDETECTION;
-    ErrorDetection::PROPS.
-      OCCURRENCES_PER_SET = 0; // Allow duplicates within the same set
-
-    AbstractTextMarkup::PROPS.XMLTAG = "textmarkup";
-    AbstractTextMarkup::PROPS.ELEMENT_ID = AbstractTextMarkup_t;
-    AbstractTextMarkup::PROPS.REQUIRED_ATTRIBS = NO_ATT;
-    AbstractTextMarkup::PROPS.OPTIONAL_ATTRIBS = ALL;
-    AbstractTextMarkup::PROPS.ANNOTATIONTYPE = AnnotationType::NO_ANN;
-    AbstractTextMarkup::PROPS.ACCEPTED_DATA +=
-      { AbstractTextMarkup_t, XmlText_t };
-    AbstractTextMarkup::PROPS.PRINTABLE = true;
-    AbstractTextMarkup::PROPS.XLINK = true;
-    AbstractTextMarkup::PROPS.TEXTDELIMITER = "";
-    AbstractTextMarkup::PROPS.OCCURRENCES_PER_SET = 0;
-
-    TextMarkupString::PROPS = AbstractTextMarkup::PROPS;
-    TextMarkupString::PROPS.XMLTAG = "t-str";
-    TextMarkupString::PROPS.ELEMENT_ID = TextMarkupString_t;
-    TextMarkupString::PROPS.ANNOTATIONTYPE = AnnotationType::STRING;
-
-    TextMarkupGap::PROPS = AbstractTextMarkup::PROPS;
-    TextMarkupGap::PROPS.XMLTAG = "t-gap";
-    TextMarkupGap::PROPS.ELEMENT_ID = TextMarkupGap_t;
-    TextMarkupGap::PROPS.ANNOTATIONTYPE = AnnotationType::GAP;
-
-    TextMarkupCorrection::PROPS = AbstractTextMarkup::PROPS;
-    TextMarkupCorrection::PROPS.XMLTAG = "t-correction";
+    SynsetFeature::PROPS.SUBSET = "synset";
+    SynsetFeature::PROPS.XMLTAG = "NONE";
+//------ SyntacticUnit -------
+    SyntacticUnit::PROPS.ELEMENT_ID = SyntacticUnit_t;
+    SyntacticUnit::PROPS.ACCEPTED_DATA += {Alignment_t, Description_t, Feature_t, Metric_t, SyntacticUnit_t, WordReference_t};
+    SyntacticUnit::PROPS.ANNOTATIONTYPE = AnnotationType::SYNTAX;
+    SyntacticUnit::PROPS.XMLTAG = "su";
+//------ SyntaxLayer -------
+    SyntaxLayer::PROPS.ELEMENT_ID = SyntaxLayer_t;
+    SyntaxLayer::PROPS.ACCEPTED_DATA += {Correction_t, Description_t, SyntacticUnit_t};
+    SyntaxLayer::PROPS.ANNOTATIONTYPE = AnnotationType::SYNTAX;
+    SyntaxLayer::PROPS.XMLTAG = "syntax";
+//------ Table -------
+    Table::PROPS.ELEMENT_ID = Table_t;
+    Table::PROPS.ACCEPTED_DATA += {AbstractAnnotationLayer_t, AbstractExtendedTokenAnnotation_t, Alignment_t, Alternative_t, AlternativeLayers_t, Correction_t, Description_t, Feature_t, Metric_t, Part_t, Row_t, TableHead_t};
+    Table::PROPS.ANNOTATIONTYPE = AnnotationType::TABLE;
+    Table::PROPS.XMLTAG = "table";
+//------ TableHead -------
+    TableHead::PROPS.ELEMENT_ID = TableHead_t;
+    TableHead::PROPS.ACCEPTED_DATA += {AbstractAnnotationLayer_t, AbstractExtendedTokenAnnotation_t, Alignment_t, Alternative_t, AlternativeLayers_t, Correction_t, Description_t, Feature_t, Metric_t, Part_t, Row_t};
+    TableHead::PROPS.XMLTAG = "tablehead";
+//------ Term -------
+    Term::PROPS.ELEMENT_ID = Term_t;
+    Term::PROPS.ACCEPTED_DATA += {AbstractAnnotationLayer_t, AbstractExtendedTokenAnnotation_t, Alignment_t, Alternative_t, AlternativeLayers_t, Correction_t, Description_t, Event_t, Feature_t, Figure_t, Gap_t, List_t, Metric_t, Paragraph_t, Part_t, PhonContent_t, Reference_t, Sentence_t, String_t, Table_t, TextContent_t, Utterance_t, Word_t};
+    Term::PROPS.ANNOTATIONTYPE = AnnotationType::TERM;
+    Term::PROPS.XMLTAG = "term";
+//------ Text -------
+    Text::PROPS.ELEMENT_ID = Text_t;
+    Text::PROPS.ACCEPTED_DATA += {AbstractAnnotationLayer_t, AbstractExtendedTokenAnnotation_t, Alignment_t, Alternative_t, AlternativeLayers_t, Correction_t, Description_t, Division_t, Entry_t, Event_t, Example_t, Feature_t, Figure_t, Gap_t, List_t, Metric_t, Note_t, Paragraph_t, Part_t, PhonContent_t, Quote_t, Reference_t, Sentence_t, String_t, Table_t, TextContent_t, Word_t};
+    Text::PROPS.TEXTDELIMITER = "\n\n\n";
+    Text::PROPS.XMLTAG = "text";
+//------ TextContent -------
+    TextContent::PROPS.ELEMENT_ID = TextContent_t;
+    TextContent::PROPS.ACCEPTED_DATA += {AbstractTextMarkup_t, Description_t, Linebreak_t, XmlText_t};
+    TextContent::PROPS.ANNOTATIONTYPE = AnnotationType::TEXT;
+    TextContent::PROPS.OCCURRENCES = 0;
+    TextContent::PROPS.OPTIONAL_ATTRIBS = CLASS|ANNOTATOR|CONFIDENCE|DATETIME;
+    TextContent::PROPS.PRINTABLE = true;
+    TextContent::PROPS.SPEAKABLE = false;
+    TextContent::PROPS.XLINK = true;
+    TextContent::PROPS.XMLTAG = "t";
+//------ TextMarkupCorrection -------
     TextMarkupCorrection::PROPS.ELEMENT_ID = TextMarkupCorrection_t;
     TextMarkupCorrection::PROPS.ANNOTATIONTYPE = AnnotationType::CORRECTION;
-
-    TextMarkupError::PROPS = AbstractTextMarkup::PROPS;
-    TextMarkupError::PROPS.XMLTAG = "t-error";
+    TextMarkupCorrection::PROPS.XMLTAG = "t-correction";
+//------ TextMarkupError -------
     TextMarkupError::PROPS.ELEMENT_ID = TextMarkupError_t;
     TextMarkupError::PROPS.ANNOTATIONTYPE = AnnotationType::ERRORDETECTION;
-
-    TextMarkupStyle::PROPS = AbstractTextMarkup::PROPS;
-    TextMarkupStyle::PROPS.XMLTAG = "t-style";
+    TextMarkupError::PROPS.XMLTAG = "t-error";
+//------ TextMarkupGap -------
+    TextMarkupGap::PROPS.ELEMENT_ID = TextMarkupGap_t;
+    TextMarkupGap::PROPS.ANNOTATIONTYPE = AnnotationType::GAP;
+    TextMarkupGap::PROPS.XMLTAG = "t-gap";
+//------ TextMarkupString -------
+    TextMarkupString::PROPS.ELEMENT_ID = TextMarkupString_t;
+    TextMarkupString::PROPS.ANNOTATIONTYPE = AnnotationType::STRING;
+    TextMarkupString::PROPS.XMLTAG = "t-str";
+//------ TextMarkupStyle -------
     TextMarkupStyle::PROPS.ELEMENT_ID = TextMarkupStyle_t;
     TextMarkupStyle::PROPS.ANNOTATIONTYPE = AnnotationType::STYLE;
-    //foliaspec:end:setelementproperties
+    TextMarkupStyle::PROPS.XMLTAG = "t-style";
+//------ TimeFeature -------
+    TimeFeature::PROPS.ELEMENT_ID = TimeFeature_t;
+    TimeFeature::PROPS.SUBSET = "time";
+    TimeFeature::PROPS.XMLTAG = "NONE";
+//------ TimeSegment -------
+    TimeSegment::PROPS.ELEMENT_ID = TimeSegment_t;
+    TimeSegment::PROPS.ACCEPTED_DATA += {ActorFeature_t, Alignment_t, BegindatetimeFeature_t, Description_t, EnddatetimeFeature_t, Feature_t, Metric_t, WordReference_t};
+    TimeSegment::PROPS.ANNOTATIONTYPE = AnnotationType::TIMESEGMENT;
+    TimeSegment::PROPS.XMLTAG = "timesegment";
+//------ TimingLayer -------
+    TimingLayer::PROPS.ELEMENT_ID = TimingLayer_t;
+    TimingLayer::PROPS.ACCEPTED_DATA += {Correction_t, Description_t, TimeSegment_t};
+    TimingLayer::PROPS.ANNOTATIONTYPE = AnnotationType::TIMESEGMENT;
+    TimingLayer::PROPS.XMLTAG = "timing";
+//------ Utterance -------
+    Utterance::PROPS.ELEMENT_ID = Utterance_t;
+    Utterance::PROPS.ACCEPTED_DATA += {AbstractAnnotationLayer_t, AbstractExtendedTokenAnnotation_t, Alignment_t, Alternative_t, AlternativeLayers_t, Correction_t, Description_t, Feature_t, Gap_t, Metric_t, Note_t, Part_t, PhonContent_t, Quote_t, Reference_t, Sentence_t, String_t, TextContent_t, Word_t};
+    Utterance::PROPS.ANNOTATIONTYPE = AnnotationType::UTTERANCE;
+    Utterance::PROPS.TEXTDELIMITER = " ";
+    Utterance::PROPS.XMLTAG = "utt";
+//------ ValueFeature -------
+    ValueFeature::PROPS.ELEMENT_ID = ValueFeature_t;
+    ValueFeature::PROPS.SUBSET = "value";
+    ValueFeature::PROPS.XMLTAG = "NONE";
+//------ Whitespace -------
+    Whitespace::PROPS.ELEMENT_ID = Whitespace_t;
+    Whitespace::PROPS.ANNOTATIONTYPE = AnnotationType::WHITESPACE;
+    Whitespace::PROPS.TEXTDELIMITER = "";
+    Whitespace::PROPS.XMLTAG = "whitespace";
+//------ Word -------
+    Word::PROPS.ELEMENT_ID = Word_t;
+    Word::PROPS.ACCEPTED_DATA += {AbstractAnnotationLayer_t, AbstractTokenAnnotation_t, Alignment_t, Alternative_t, AlternativeLayers_t, Correction_t, Description_t, Feature_t, Metric_t, Part_t, PhonContent_t, Reference_t, String_t, TextContent_t};
+    Word::PROPS.ANNOTATIONTYPE = AnnotationType::TOKEN;
+    Word::PROPS.XMLTAG = "w";
+//------ WordReference -------
+    WordReference::PROPS.ELEMENT_ID = WordReference_t;
+    WordReference::PROPS.XMLTAG = "wref";
+
+//foliaspec:end:setelementproperties
 
     XmlText::PROPS.XMLTAG = "xml-text";
     XmlText::PROPS.ELEMENT_ID = XmlText_t;
@@ -1408,7 +1031,128 @@ namespace folia {
   }
 
   //foliaspec:typehierarchy
-  static map<ElementType,set<ElementType> > typeHierarchy;
+  static const map<ElementType, set<ElementType> > typeHierarchy = {      AbstractAnnotationLayer_t, {  },
+     AbstractCorrectionChild_t, {  },
+     AbstractExtendedTokenAnnotation_t, { AbstractTokenAnnotation_t },
+     AbstractSpanAnnotation_t, {  },
+     AbstractSpanRole_t, { AbstractSpanAnnotation_t },
+     AbstractStructureElement_t, {  },
+     AbstractTextMarkup_t, {  },
+     AbstractTokenAnnotation_t, {  },
+     ActorFeature_t, { Feature_t },
+     Alignment_t, {  },
+     Alternative_t, {  },
+     AlternativeLayers_t, {  },
+     BegindatetimeFeature_t, { Feature_t },
+     Caption_t, { AbstractStructureElement_t },
+     Cell_t, { AbstractStructureElement_t },
+     Chunk_t, { AbstractSpanAnnotation_t },
+     ChunkingLayer_t, { AbstractAnnotationLayer_t },
+     ComplexAlignment_t, {  },
+     ComplexAlignmentLayer_t, { AbstractAnnotationLayer_t },
+     CoreferenceChain_t, { AbstractSpanAnnotation_t },
+     CoreferenceLayer_t, { AbstractAnnotationLayer_t },
+     CoreferenceLink_t, { AbstractSpanRole_t,AbstractSpanAnnotation_t },
+     Correction_t, {  },
+     Current_t, { AbstractCorrectionChild_t },
+     Definition_t, { AbstractStructureElement_t },
+     DependenciesLayer_t, { AbstractAnnotationLayer_t },
+     Dependency_t, { AbstractSpanAnnotation_t },
+     DependencyDependent_t, { AbstractSpanRole_t,AbstractSpanAnnotation_t },
+     Division_t, { AbstractStructureElement_t },
+     DomainAnnotation_t, { AbstractExtendedTokenAnnotation_t,AbstractTokenAnnotation_t },
+     EnddatetimeFeature_t, { Feature_t },
+     EntitiesLayer_t, { AbstractAnnotationLayer_t },
+     Entity_t, { AbstractSpanAnnotation_t },
+     Entry_t, { AbstractStructureElement_t },
+     ErrorDetection_t, { AbstractExtendedTokenAnnotation_t,AbstractTokenAnnotation_t },
+     Event_t, { AbstractStructureElement_t },
+     Example_t, { AbstractStructureElement_t },
+     External_t, {  },
+     Figure_t, { AbstractStructureElement_t },
+     FunctionFeature_t, { Feature_t },
+     Gap_t, {  },
+     Head_t, { AbstractStructureElement_t },
+     HeadFeature_t, { Feature_t },
+     Headspan_t, { AbstractSpanRole_t,AbstractSpanAnnotation_t },
+     Label_t, { AbstractStructureElement_t },
+     LangAnnotation_t, { AbstractExtendedTokenAnnotation_t,AbstractTokenAnnotation_t },
+     LemmaAnnotation_t, { AbstractTokenAnnotation_t },
+     LevelFeature_t, { Feature_t },
+     Linebreak_t, { AbstractStructureElement_t },
+     List_t, { AbstractStructureElement_t },
+     ListItem_t, { AbstractStructureElement_t },
+     Metric_t, {  },
+     ModalityFeature_t, { Feature_t },
+     Morpheme_t, { AbstractStructureElement_t },
+     MorphologyLayer_t, { AbstractAnnotationLayer_t },
+     New_t, { AbstractCorrectionChild_t },
+     Note_t, { AbstractStructureElement_t },
+     Original_t, { AbstractCorrectionChild_t },
+     Paragraph_t, { AbstractStructureElement_t },
+     Part_t, { AbstractStructureElement_t },
+     PhonContent_t, {  },
+     Phoneme_t, { AbstractStructureElement_t },
+     PhonologyLayer_t, { AbstractAnnotationLayer_t },
+     PosAnnotation_t, { AbstractTokenAnnotation_t },
+     Quote_t, { AbstractStructureElement_t },
+     Reference_t, { AbstractStructureElement_t },
+     Row_t, { AbstractStructureElement_t },
+     SemanticRole_t, { AbstractSpanAnnotation_t },
+     SemanticRolesLayer_t, { AbstractAnnotationLayer_t },
+     SenseAnnotation_t, { AbstractTokenAnnotation_t },
+     Sentence_t, { AbstractStructureElement_t },
+     Speech_t, { AbstractStructureElement_t },
+     String_t, {  },
+     StyleFeature_t, { Feature_t },
+     SubjectivityAnnotation_t, { AbstractTokenAnnotation_t },
+     Suggestion_t, { AbstractCorrectionChild_t },
+     SynsetFeature_t, { Feature_t },
+     SyntacticUnit_t, { AbstractSpanAnnotation_t },
+     SyntaxLayer_t, { AbstractAnnotationLayer_t },
+     Table_t, { AbstractStructureElement_t },
+     TableHead_t, { AbstractStructureElement_t },
+     Term_t, { AbstractStructureElement_t },
+     Text_t, { AbstractStructureElement_t },
+     TextContent_t, {  },
+     TextMarkupCorrection_t, { AbstractTextMarkup_t },
+     TextMarkupError_t, { AbstractTextMarkup_t },
+     TextMarkupGap_t, { AbstractTextMarkup_t },
+     TextMarkupString_t, { AbstractTextMarkup_t },
+     TextMarkupStyle_t, { AbstractTextMarkup_t },
+     TimeFeature_t, { Feature_t },
+     TimeSegment_t, { AbstractSpanAnnotation_t },
+     TimingLayer_t, { AbstractAnnotationLayer_t },
+     Utterance_t, { AbstractStructureElement_t },
+     ValueFeature_t, { Feature_t },
+     Whitespace_t, { AbstractStructureElement_t },
+     Word_t, { AbstractStructureElement_t },
+  };
+
+  properties::properties() {
+      //foliaspec:begin:defaultproperties
+      //Default properties which all elements inherit
+      ELEMENT_ID = BASE;
+      ACCEPTED_DATA.insert(XmlComment_t);
+      ACCEPTED_DATA += {Description_t};
+      ANNOTATIONTYPE = AnnotationType::NO_ANN;
+      AUTH = true;
+      OCCURRENCES = 0;
+      OCCURRENCES_PER_SET = 0;
+      OPTIONAL_ATTRIBS = NO_ATT;
+      PRINTABLE = false;
+      REQUIRED_ATTRIBS = NO_ATT;
+      REQUIRED_DATA = {};
+      SETONLY = false;
+      SPEAKABLE = false;
+      SUBSET = "";
+      TEXTDELIMITER = "NONE";
+      XLINK = false;
+      XMLTAG = "NONE";
+
+//foliaspec:end:defaultproperties
+  }
+
 
   bool isSubClass( const FoliaElement *e1, const FoliaElement *e2 ){
     return isSubClass( e1->element_id(), e2->element_id() );
