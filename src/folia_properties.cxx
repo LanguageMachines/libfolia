@@ -252,6 +252,7 @@ namespace folia {
   properties DCOI::PROPS = DEFAULT_PROPERTIES;
   properties XmlComment::PROPS = DEFAULT_PROPERTIES;
   properties PlaceHolder::PROPS = DEFAULT_PROPERTIES;
+  properties XmlText::PROPS = DEFAULT_PROPERTIES;
 
   //foliaspec:instantiateelementproperties
   properties AbstractStructureElement::PROPS = DEFAULT_PROPERTIES;
@@ -262,7 +263,6 @@ namespace folia {
   properties AbstractSpanRole::PROPS = DEFAULT_PROPERTIES;
   properties AbstractTextMarkup::PROPS = DEFAULT_PROPERTIES;
   //- (no newline so its's all one block)
-  properties XmlText::PROPS = DEFAULT_PROPERTIES;
   properties Description::PROPS = DEFAULT_PROPERTIES;
   properties Alignment::PROPS = DEFAULT_PROPERTIES;
   properties ComplexAlignment::PROPS = DEFAULT_PROPERTIES;
@@ -1066,11 +1066,6 @@ namespace folia {
 	  AbstractTokenAnnotation_t, Correction_t, Part_t };
     Example::PROPS.ANNOTATIONTYPE = AnnotationType::EXAMPLE;
 
-    XmlText::PROPS.XMLTAG = "xml-text";
-    XmlText::PROPS.ELEMENT_ID = XmlText_t;
-    XmlText::PROPS.TEXTDELIMITER = "*";
-    XmlText::PROPS.PRINTABLE = true;
-    XmlText::PROPS.SPEAKABLE = true;
 
     External::PROPS.XMLTAG = "external";
     External::PROPS.ELEMENT_ID = External_t;
@@ -1386,6 +1381,12 @@ namespace folia {
     TextMarkupStyle::PROPS.ELEMENT_ID = TextMarkupStyle_t;
     TextMarkupStyle::PROPS.ANNOTATIONTYPE = AnnotationType::STYLE;
     //foliaspec:end:setelementproperties
+
+    XmlText::PROPS.XMLTAG = "xml-text";
+    XmlText::PROPS.ELEMENT_ID = XmlText_t;
+    XmlText::PROPS.TEXTDELIMITER = "*";
+    XmlText::PROPS.PRINTABLE = true;
+    XmlText::PROPS.SPEAKABLE = true;
 
     XmlComment::PROPS.XMLTAG = "xml-comment";
     XmlComment::PROPS.ELEMENT_ID = XmlComment_t;
