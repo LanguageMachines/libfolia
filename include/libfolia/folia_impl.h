@@ -1409,14 +1409,14 @@ namespace folia {
     static properties PROPS;
   };
 
-  class Item: public AbstractStructureElement {
+  class ListItem: public AbstractStructureElement {
     friend void static_init();
   public:
-  Item( const KWargs& a ):
+  ListItem( const KWargs& a ):
     AbstractStructureElement( PROPS, 0 ){ classInit( a ); }
-  Item( Document *d=0 ):
+  ListItem( Document *d=0 ):
     AbstractStructureElement( PROPS, d ){ classInit(); }
-  Item( Document *d, const KWargs& a ):
+  ListItem( Document *d, const KWargs& a ):
     AbstractStructureElement( PROPS, d ){ classInit( a ); }
 
   private:
