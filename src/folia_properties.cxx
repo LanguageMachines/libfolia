@@ -6,7 +6,7 @@
 #include "libfolia/folia_properties.h"
 
 //foliaspec:header
-//This file was last updated according to the FoLiA specification for version 0.12.2 on 2016-03-04 16:15:56, using foliaspec.py
+//This file was last updated according to the FoLiA specification for version 0.12.2 on 2016-03-04 16:22:41, using foliaspec.py
 //Code blocks after a foliaspec comment (until the next newline) are automatically generated. **DO NOT EDIT THOSE** and **DO NOT REMOVE ANY FOLIASPEC COMMENTS** !!!
 
 namespace folia {
@@ -963,7 +963,7 @@ namespace folia {
 //------ Speech -------
     Speech::PROPS = AbstractStructureElement::PROPS;
     Speech::PROPS.ELEMENT_ID = Speech_t;
-    Speech::PROPS.ACCEPTED_DATA += {AbstractAnnotationLayer_t, AbstractExtendedTokenAnnotation_t, Alignment_t, Alternative_t, AlternativeLayers_t, Correction_t, Description_t, Division_t, Entry_t, Event_t, Example_t, Feature_t, Gap_t, List_t, Metric_t, Note_t, Paragraph_t, Part_t, PhonContent_t, Quote_t, Reference_t, Sentence_t, String_t, TextContent_t, Utterance_t, Word_t};
+    Speech::PROPS.ACCEPTED_DATA += {AbstractAnnotationLayer_t, AbstractExtendedTokenAnnotation_t, Alignment_t, Alternative_t, AlternativeLayers_t, Correction_t, Description_t, Division_t, Entry_t, Event_t, Example_t, External_t, Feature_t, Gap_t, List_t, Metric_t, Note_t, Paragraph_t, Part_t, PhonContent_t, Quote_t, Reference_t, Sentence_t, String_t, TextContent_t, Utterance_t, Word_t};
     Speech::PROPS.TEXTDELIMITER = "\n\n\n";
     Speech::PROPS.XMLTAG = "speech";
 //------ String -------
@@ -1027,7 +1027,7 @@ namespace folia {
 //------ Text -------
     Text::PROPS = AbstractStructureElement::PROPS;
     Text::PROPS.ELEMENT_ID = Text_t;
-    Text::PROPS.ACCEPTED_DATA += {AbstractAnnotationLayer_t, AbstractExtendedTokenAnnotation_t, Alignment_t, Alternative_t, AlternativeLayers_t, Correction_t, Description_t, Division_t, Entry_t, Event_t, Example_t, Feature_t, Figure_t, Gap_t, List_t, Metric_t, Note_t, Paragraph_t, Part_t, PhonContent_t, Quote_t, Reference_t, Sentence_t, String_t, Table_t, TextContent_t, Word_t};
+    Text::PROPS.ACCEPTED_DATA += {AbstractAnnotationLayer_t, AbstractExtendedTokenAnnotation_t, Alignment_t, Alternative_t, AlternativeLayers_t, Correction_t, Description_t, Division_t, Entry_t, Event_t, Example_t, External_t, Feature_t, Figure_t, Gap_t, List_t, Metric_t, Note_t, Paragraph_t, Part_t, PhonContent_t, Quote_t, Reference_t, Sentence_t, String_t, Table_t, TextContent_t, Word_t};
     Text::PROPS.TEXTDELIMITER = "\n\n\n";
     Text::PROPS.XMLTAG = "text";
 //------ TextContent -------
