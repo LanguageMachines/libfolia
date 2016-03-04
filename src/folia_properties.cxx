@@ -6,7 +6,7 @@
 #include "libfolia/folia_properties.h"
 
 //foliaspec:header
-//This file was last updated according to the FoLiA specification for version 0.12.2 on 2016-03-04 17:18:49, using foliaspec.py
+//This file was last updated according to the FoLiA specification for version 0.12.2 on 2016-03-04 17:44:38, using foliaspec.py
 //Code blocks after a foliaspec comment (until the next newline) are automatically generated. **DO NOT EDIT THOSE** and **DO NOT REMOVE ANY FOLIASPEC COMMENTS** !!!
 
 namespace folia {
@@ -846,7 +846,7 @@ namespace folia {
 //------ Morpheme -------
     Morpheme::PROPS = AbstractStructureElement::PROPS;
     Morpheme::PROPS.ELEMENT_ID = Morpheme_t;
-    Morpheme::PROPS.ACCEPTED_DATA += {AbstractAnnotationLayer_t, AbstractTokenAnnotation_t, Alignment_t, Alternative_t, AlternativeLayers_t, Correction_t, Description_t, Feature_t, FunctionFeature_t, Metric_t, Part_t, PhonContent_t, String_t, TextContent_t};
+    Morpheme::PROPS.ACCEPTED_DATA += {AbstractAnnotationLayer_t, AbstractTokenAnnotation_t, Alignment_t, Alternative_t, AlternativeLayers_t, Correction_t, Description_t, Feature_t, FunctionFeature_t, Metric_t, Morpheme_t, Part_t, PhonContent_t, String_t, TextContent_t};
     Morpheme::PROPS.ANNOTATIONTYPE = AnnotationType::MORPHOLOGICAL;
     Morpheme::PROPS.TEXTDELIMITER = "";
     Morpheme::PROPS.XMLTAG = "morpheme";
@@ -901,7 +901,7 @@ namespace folia {
 //------ Phoneme -------
     Phoneme::PROPS = AbstractStructureElement::PROPS;
     Phoneme::PROPS.ELEMENT_ID = Phoneme_t;
-    Phoneme::PROPS.ACCEPTED_DATA += {AbstractAnnotationLayer_t, AbstractTokenAnnotation_t, Alignment_t, Alternative_t, AlternativeLayers_t, Correction_t, Description_t, Feature_t, FunctionFeature_t, Metric_t, Part_t, PhonContent_t, String_t, TextContent_t};
+    Phoneme::PROPS.ACCEPTED_DATA += {AbstractAnnotationLayer_t, AbstractTokenAnnotation_t, Alignment_t, Alternative_t, AlternativeLayers_t, Correction_t, Description_t, Feature_t, FunctionFeature_t, Metric_t, Part_t, PhonContent_t, Phoneme_t, String_t, TextContent_t};
     Phoneme::PROPS.ANNOTATIONTYPE = AnnotationType::PHONOLOGICAL;
     Phoneme::PROPS.TEXTDELIMITER = "";
     Phoneme::PROPS.XMLTAG = "phoneme";
