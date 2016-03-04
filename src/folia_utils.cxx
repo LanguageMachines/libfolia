@@ -567,12 +567,15 @@ namespace folia {
     bool sane = true;
     AnnotationType::AnnotationType at = AnnotationType::NO_ANN;
     while ( ++at != AnnotationType::LAST_ANN ){
-      string s = toString( at );
-      if ( s.empty() ){
-	cerr << "no string translation for AnnotationType(" << at << ")" << endl;
+      string s;
+      try {
+	s = toString( at );
+      }
+      catch (...){
+	cerr << "no string translation for AnnotationType(" << int(at) << ")" << endl;
 	sane = false;
       }
-      else {
+      if ( !s.empty() ){
 	try {
 	  stringTo<AnnotationType::AnnotationType>( s );
 	}
