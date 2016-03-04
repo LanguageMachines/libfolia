@@ -6,7 +6,7 @@
 #include "libfolia/folia_properties.h"
 
 //foliaspec:header
-//This file was last updated according to the FoLiA specification for version 0.12.2 on 2016-03-04 14:32:25, using foliaspec.py
+//This file was last updated according to the FoLiA specification for version 0.12.2 on 2016-03-04 15:04:53, using foliaspec.py
 //Code blocks after a foliaspec comment (until the next newline) are automatically generated. **DO NOT EDIT THOSE** and **DO NOT REMOVE ANY FOLIASPEC COMMENTS** !!!
 
 namespace folia {
@@ -637,7 +637,7 @@ namespace folia {
     CoreferenceLayer::PROPS.ANNOTATIONTYPE = AnnotationType::COREFERENCE;
     CoreferenceLayer::PROPS.XMLTAG = "coreferences";
 //------ CoreferenceLink -------
-    CoreferenceLink::PROPS = AbstractSpanAnnotation::PROPS;
+    CoreferenceLink::PROPS = AbstractSpanRole::PROPS;
     CoreferenceLink::PROPS.ELEMENT_ID = CoreferenceLink_t;
     CoreferenceLink::PROPS.ACCEPTED_DATA += {Alignment_t, Description_t, Feature_t, Headspan_t, LevelFeature_t, Metric_t, ModalityFeature_t, TimeFeature_t, WordReference_t, Word_t, Morpheme_t, Phoneme_t};
     CoreferenceLink::PROPS.ANNOTATIONTYPE = AnnotationType::COREFERENCE;
@@ -677,7 +677,7 @@ namespace folia {
     Dependency::PROPS.REQUIRED_DATA += {DependencyDependent_t, Headspan_t};
     Dependency::PROPS.XMLTAG = "dependency";
 //------ DependencyDependent -------
-    DependencyDependent::PROPS = AbstractSpanAnnotation::PROPS;
+    DependencyDependent::PROPS = AbstractSpanRole::PROPS;
     DependencyDependent::PROPS.ELEMENT_ID = DependencyDependent_t;
     DependencyDependent::PROPS.XMLTAG = "dep";
 //------ Description -------
@@ -790,7 +790,7 @@ namespace folia {
     HeadFeature::PROPS.SUBSET = "head";
     HeadFeature::PROPS.XMLTAG = "NONE";
 //------ Headspan -------
-    Headspan::PROPS = AbstractSpanAnnotation::PROPS;
+    Headspan::PROPS = AbstractSpanRole::PROPS;
     Headspan::PROPS.ELEMENT_ID = Headspan_t;
     Headspan::PROPS.XMLTAG = "hd";
 //------ Label -------
@@ -1152,13 +1152,13 @@ namespace folia {
      { ComplexAlignmentLayer_t, { AbstractAnnotationLayer_t } },
      { CoreferenceChain_t, { AbstractSpanAnnotation_t } },
      { CoreferenceLayer_t, { AbstractAnnotationLayer_t } },
-     { CoreferenceLink_t, { AbstractSpanAnnotation_t,AbstractSpanRole_t } },
+     { CoreferenceLink_t, { AbstractSpanRole_t,AbstractSpanAnnotation_t } },
      { Correction_t, {  } },
      { Current_t, { AbstractCorrectionChild_t } },
      { Definition_t, { AbstractStructureElement_t } },
      { DependenciesLayer_t, { AbstractAnnotationLayer_t } },
      { Dependency_t, { AbstractSpanAnnotation_t } },
-     { DependencyDependent_t, { AbstractSpanAnnotation_t,AbstractSpanRole_t } },
+     { DependencyDependent_t, { AbstractSpanRole_t,AbstractSpanAnnotation_t } },
      { Division_t, { AbstractStructureElement_t } },
      { DomainAnnotation_t, { AbstractExtendedTokenAnnotation_t,AbstractTokenAnnotation_t } },
      { EnddatetimeFeature_t, { Feature_t } },
@@ -1174,7 +1174,7 @@ namespace folia {
      { Gap_t, {  } },
      { Head_t, { AbstractStructureElement_t } },
      { HeadFeature_t, { Feature_t } },
-     { Headspan_t, { AbstractSpanAnnotation_t,AbstractSpanRole_t } },
+     { Headspan_t, { AbstractSpanRole_t,AbstractSpanAnnotation_t } },
      { Label_t, { AbstractStructureElement_t } },
      { LangAnnotation_t, { AbstractExtendedTokenAnnotation_t,AbstractTokenAnnotation_t } },
      { LemmaAnnotation_t, { AbstractTokenAnnotation_t } },
