@@ -50,7 +50,8 @@ namespace folia {
   AnnotationType::AnnotationType stringToAT( const string& s ){
     auto result = s_ant_map.find( s );
     if ( result == s_ant_map.end() ){
-      throw logic_error( "Unknown translation for annotationtype: " + s );
+      throw logic_error( "Unknown translation for annotationtype: '"
+			 + s + "'" );
     }
     return result->second;
   }

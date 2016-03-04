@@ -1113,17 +1113,17 @@ namespace folia {
 
 //foliaspec:end:setelementproperties
 
-    XmlText::PROPS.XMLTAG = "xml-text";
+    XmlText::PROPS.XMLTAG = "_XmlText";
     XmlText::PROPS.ELEMENT_ID = XmlText_t;
     XmlText::PROPS.TEXTDELIMITER = "*";
     XmlText::PROPS.PRINTABLE = true;
     XmlText::PROPS.SPEAKABLE = true;
 
-    XmlComment::PROPS.XMLTAG = "xml-comment";
+    XmlComment::PROPS.XMLTAG = "_XmlComment";
     XmlComment::PROPS.ELEMENT_ID = XmlComment_t;
 
     PlaceHolder::PROPS = Word::PROPS;
-    PlaceHolder::PROPS.XMLTAG="placeholder";
+    PlaceHolder::PROPS.XMLTAG="_PlaceHolder";
     PlaceHolder::PROPS.ELEMENT_ID = PlaceHolder_t;
     PlaceHolder::PROPS.REQUIRED_ATTRIBS = NO_ATT;
 
@@ -1261,9 +1261,9 @@ namespace folia {
   bool isSubClass( const ElementType e1, const ElementType e2 ){
     if ( e1 == e2 )
       return true;
-    const auto& it = typeHierarchy.find( e2 );
+    const auto& it = typeHierarchy.find( e1 );
     if ( it != typeHierarchy.end() ){
-      return it->second.find( e1 ) != it->second.end();
+      return it->second.find( e2 ) != it->second.end();
     }
     return false;
   }

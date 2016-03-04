@@ -1324,7 +1324,7 @@ namespace folia {
 	}
       }
       else if ( p->type == XML_COMMENT_NODE ) {
-	string tag = "xml-comment";
+	string tag = "_XmlComment";
 	FoliaElement *t = createElement( doc(), tag );
 	if ( t ) {
 	  if ( doc() && doc()->debug > 2 ) {
@@ -1340,7 +1340,7 @@ namespace folia {
 	}
       }
       else if ( p->type == XML_TEXT_NODE ) {
-	string tag = "xml-text";
+	string tag = "_XmlText";
 	FoliaElement *t = createElement( doc(), tag );
 	if ( t ) {
 	  if ( doc() && doc()->debug > 2 ) {
@@ -2965,7 +2965,7 @@ namespace folia {
 	value += (char*)p->content;
       }
       else if ( p->type == XML_COMMENT_NODE ) {
-	string tag = "xml-comment";
+	string tag = "_XmlComment";
 	FoliaElement *t = createElement( mydoc, tag );
 	if ( t ) {
 	  t = t->parseXml( p );

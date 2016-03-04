@@ -1602,7 +1602,8 @@ namespace folia {
 
   private:
     bool has_base( ElementType e ) const {
-      return e == AbstractExtendedTokenAnnotation_t;
+      return e == AbstractExtendedTokenAnnotation_t
+	|| e == AbstractTokenAnnotation_t;
     }
     static properties PROPS;
   };
