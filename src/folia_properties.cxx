@@ -6,7 +6,7 @@
 #include "libfolia/folia_properties.h"
 
 //foliaspec:header
-//This file was last updated according to the FoLiA specification for version 0.12.2 on 2016-03-04 16:22:41, using foliaspec.py
+//This file was last updated according to the FoLiA specification for version 0.12.2 on 2016-03-04 17:14:38, using foliaspec.py
 //Code blocks after a foliaspec comment (until the next newline) are automatically generated. **DO NOT EDIT THOSE** and **DO NOT REMOVE ANY FOLIASPEC COMMENTS** !!!
 
 namespace folia {
@@ -1232,6 +1232,7 @@ namespace folia {
      { Whitespace_t, { AbstractStructureElement_t } },
      { Word_t, { AbstractStructureElement_t } },
      { WordReference_t, {  } },
+     { PlaceHolder_t , { AbstractStructureElement_t } }
   };
 
   properties::properties() {
