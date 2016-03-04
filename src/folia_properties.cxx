@@ -6,7 +6,7 @@
 #include "libfolia/folia_properties.h"
 
 //foliaspec:header
-//This file was last updated according to the FoLiA specification for version 0.12.2 on 2016-03-04 11:50:12, using foliaspec.py
+//This file was last updated according to the FoLiA specification for version 0.12.2 on 2016-03-04 12:28:34, using foliaspec.py
 //Code blocks after a foliaspec comment (until the next newline) are automatically generated. **DO NOT EDIT THOSE** and **DO NOT REMOVE ANY FOLIASPEC COMMENTS** !!!
 
 namespace folia {
@@ -33,118 +33,114 @@ namespace folia {
   const string NSIMDI = "http://www.mpi.nl/IMDI/Schema/IMDI";
 
   //foliaspec:annotationtype_string_map
-  //A mapping from annotation types to strings (xml tag)
+  //A mapping from annotation types to strings
   const map<AnnotationType::AnnotationType,string> ant_s_map = {
     { AnnotationType::NO_ANN, "NONE" },
     { AnnotationType::ALIGNMENT,  "alignment" },
-    { AnnotationType::CHUNKING,  "chunk" },
+    { AnnotationType::CHUNKING,  "chunking" },
     { AnnotationType::COMPLEXALIGNMENT,  "complexalignment" },
-    { AnnotationType::COREFERENCE,  "coreferencechain" },
+    { AnnotationType::COREFERENCE,  "coreference" },
     { AnnotationType::CORRECTION,  "correction" },
-    { AnnotationType::DEFINITION,  "def" },
+    { AnnotationType::DEFINITION,  "definition" },
     { AnnotationType::DEPENDENCY,  "dependency" },
-    { AnnotationType::DIVISION,  "div" },
+    { AnnotationType::DIVISION,  "division" },
     { AnnotationType::DOMAIN,  "domain" },
     { AnnotationType::ENTITY,  "entity" },
     { AnnotationType::ENTRY,  "entry" },
     { AnnotationType::ERRORDETECTION,  "errordetection" },
     { AnnotationType::EVENT,  "event" },
-    { AnnotationType::EXAMPLE,  "ex" },
+    { AnnotationType::EXAMPLE,  "example" },
     { AnnotationType::FIGURE,  "figure" },
     { AnnotationType::GAP,  "gap" },
     { AnnotationType::LANG,  "lang" },
     { AnnotationType::LEMMA,  "lemma" },
-    { AnnotationType::LINEBREAK,  "br" },
+    { AnnotationType::LINEBREAK,  "linebreak" },
     { AnnotationType::LIST,  "list" },
     { AnnotationType::METRIC,  "metric" },
-    { AnnotationType::MORPHOLOGICAL,  "morpheme" },
+    { AnnotationType::MORPHOLOGICAL,  "morphological" },
     { AnnotationType::NOTE,  "note" },
-    { AnnotationType::PARAGRAPH,  "p" },
+    { AnnotationType::PARAGRAPH,  "paragraph" },
     { AnnotationType::PART,  "part" },
-    { AnnotationType::PHON,  "ph" },
-    { AnnotationType::PHONOLOGICAL,  "phoneme" },
+    { AnnotationType::PHON,  "phon" },
+    { AnnotationType::PHONOLOGICAL,  "phonological" },
     { AnnotationType::POS,  "pos" },
     { AnnotationType::SEMROLE,  "semrole" },
     { AnnotationType::SENSE,  "sense" },
-    { AnnotationType::SENTENCE,  "s" },
-    { AnnotationType::STRING,  "str" },
+    { AnnotationType::SENTENCE,  "sentence" },
+    { AnnotationType::STRING,  "string" },
     { AnnotationType::SUBJECTIVITY,  "subjectivity" },
-    { AnnotationType::SYNTAX,  "su" },
+    { AnnotationType::SYNTAX,  "syntax" },
     { AnnotationType::TABLE,  "table" },
     { AnnotationType::TERM,  "term" },
-    { AnnotationType::TEXT,  "t" },
-    { AnnotationType::CORRECTION,  "t-correction" },
-    { AnnotationType::ERRORDETECTION,  "t-error" },
-    { AnnotationType::GAP,  "t-gap" },
-    { AnnotationType::STRING,  "t-str" },
-    { AnnotationType::STYLE,  "t-style" },
+    { AnnotationType::TEXT,  "text" },
+    { AnnotationType::STYLE,  "style" },
     { AnnotationType::TIMESEGMENT,  "timesegment" },
-    { AnnotationType::UTTERANCE,  "utt" },
+    { AnnotationType::UTTERANCE,  "utterance" },
     { AnnotationType::WHITESPACE,  "whitespace" },
-    { AnnotationType::TOKEN,  "w" },
+    { AnnotationType::TOKEN,  "token" },
   };
 
   //foliaspec:string_annotationtype_map
-  //A mapping from strings (xml tag) to annotation types
+  //A mapping from strings to annotation types
   const map<string,AnnotationType::AnnotationType> s_ant_map = {
     { "NONE", AnnotationType::NO_ANN },
     { "alignment", AnnotationType::ALIGNMENT },
-    { "chunk", AnnotationType::CHUNKING },
+    { "chunking", AnnotationType::CHUNKING },
     { "chunking", AnnotationType::CHUNKING },
     { "complexalignment", AnnotationType::COMPLEXALIGNMENT },
-    { "complexalignments", AnnotationType::COMPLEXALIGNMENT },
-    { "coreferencechain", AnnotationType::COREFERENCE },
-    { "coreferences", AnnotationType::COREFERENCE },
-    { "coreferencelink", AnnotationType::COREFERENCE },
+    { "complexalignment", AnnotationType::COMPLEXALIGNMENT },
+    { "coreference", AnnotationType::COREFERENCE },
+    { "coreference", AnnotationType::COREFERENCE },
+    { "coreference", AnnotationType::COREFERENCE },
     { "correction", AnnotationType::CORRECTION },
-    { "def", AnnotationType::DEFINITION },
-    { "dependencies", AnnotationType::DEPENDENCY },
+    { "definition", AnnotationType::DEFINITION },
     { "dependency", AnnotationType::DEPENDENCY },
-    { "div", AnnotationType::DIVISION },
+    { "dependency", AnnotationType::DEPENDENCY },
+    { "division", AnnotationType::DIVISION },
     { "domain", AnnotationType::DOMAIN },
-    { "entities", AnnotationType::ENTITY },
+    { "entity", AnnotationType::ENTITY },
     { "entity", AnnotationType::ENTITY },
     { "entry", AnnotationType::ENTRY },
     { "errordetection", AnnotationType::ERRORDETECTION },
     { "event", AnnotationType::EVENT },
-    { "ex", AnnotationType::EXAMPLE },
+    { "example", AnnotationType::EXAMPLE },
     { "figure", AnnotationType::FIGURE },
     { "gap", AnnotationType::GAP },
     { "lang", AnnotationType::LANG },
     { "lemma", AnnotationType::LEMMA },
-    { "br", AnnotationType::LINEBREAK },
+    { "linebreak", AnnotationType::LINEBREAK },
     { "list", AnnotationType::LIST },
     { "metric", AnnotationType::METRIC },
-    { "morpheme", AnnotationType::MORPHOLOGICAL },
-    { "morphology", AnnotationType::MORPHOLOGICAL },
+    { "morphological", AnnotationType::MORPHOLOGICAL },
+    { "morphological", AnnotationType::MORPHOLOGICAL },
     { "note", AnnotationType::NOTE },
-    { "p", AnnotationType::PARAGRAPH },
+    { "paragraph", AnnotationType::PARAGRAPH },
     { "part", AnnotationType::PART },
-    { "ph", AnnotationType::PHON },
-    { "phoneme", AnnotationType::PHONOLOGICAL },
-    { "phonology", AnnotationType::PHONOLOGICAL },
+    { "phon", AnnotationType::PHON },
+    { "phonological", AnnotationType::PHONOLOGICAL },
+    { "phonological", AnnotationType::PHONOLOGICAL },
     { "pos", AnnotationType::POS },
     { "semrole", AnnotationType::SEMROLE },
-    { "semroles", AnnotationType::SEMROLE },
+    { "semrole", AnnotationType::SEMROLE },
     { "sense", AnnotationType::SENSE },
-    { "s", AnnotationType::SENTENCE },
-    { "str", AnnotationType::STRING },
+    { "sentence", AnnotationType::SENTENCE },
+    { "string", AnnotationType::STRING },
     { "subjectivity", AnnotationType::SUBJECTIVITY },
-    { "su", AnnotationType::SYNTAX },
+    { "syntax", AnnotationType::SYNTAX },
     { "syntax", AnnotationType::SYNTAX },
     { "table", AnnotationType::TABLE },
     { "term", AnnotationType::TERM },
-    { "t", AnnotationType::TEXT },
-    { "t-correction", AnnotationType::CORRECTION },
-    { "t-error", AnnotationType::ERRORDETECTION },
-    { "t-gap", AnnotationType::GAP },
-    { "t-str", AnnotationType::STRING },
-    { "t-style", AnnotationType::STYLE },
+    { "text", AnnotationType::TEXT },
+    { "correction", AnnotationType::CORRECTION },
+    { "errordetection", AnnotationType::ERRORDETECTION },
+    { "gap", AnnotationType::GAP },
+    { "string", AnnotationType::STRING },
+    { "style", AnnotationType::STYLE },
     { "timesegment", AnnotationType::TIMESEGMENT },
-    { "timing", AnnotationType::TIMESEGMENT },
-    { "utt", AnnotationType::UTTERANCE },
+    { "timesegment", AnnotationType::TIMESEGMENT },
+    { "utterance", AnnotationType::UTTERANCE },
     { "whitespace", AnnotationType::WHITESPACE },
-    { "w", AnnotationType::TOKEN },
+    { "token", AnnotationType::TOKEN },
   };
 
   //foliaspec:elementtype_string_map
@@ -656,7 +652,7 @@ namespace folia {
     CoreferenceLayer::PROPS.ANNOTATIONTYPE = AnnotationType::COREFERENCE;
     CoreferenceLayer::PROPS.XMLTAG = "coreferences";
 //------ CoreferenceLink -------
-    CoreferenceLink::PROPS = AbstractSpanAnnotation::PROPS;
+    CoreferenceLink::PROPS = AbstractSpanRole::PROPS;
     CoreferenceLink::PROPS.ELEMENT_ID = CoreferenceLink_t;
     CoreferenceLink::PROPS.ACCEPTED_DATA += {Alignment_t, Description_t, Feature_t, Headspan_t, LevelFeature_t, Metric_t, ModalityFeature_t, TimeFeature_t, WordReference_t};
     CoreferenceLink::PROPS.ANNOTATIONTYPE = AnnotationType::COREFERENCE;
@@ -696,7 +692,7 @@ namespace folia {
     Dependency::PROPS.REQUIRED_DATA += {DependencyDependent_t, Headspan_t};
     Dependency::PROPS.XMLTAG = "dependency";
 //------ DependencyDependent -------
-    DependencyDependent::PROPS = AbstractSpanAnnotation::PROPS;
+    DependencyDependent::PROPS = AbstractSpanRole::PROPS;
     DependencyDependent::PROPS.ELEMENT_ID = DependencyDependent_t;
     DependencyDependent::PROPS.XMLTAG = "dep";
 //------ Description -------
@@ -809,7 +805,7 @@ namespace folia {
     HeadFeature::PROPS.SUBSET = "head";
     HeadFeature::PROPS.XMLTAG = "NONE";
 //------ Headspan -------
-    Headspan::PROPS = AbstractSpanAnnotation::PROPS;
+    Headspan::PROPS = AbstractSpanRole::PROPS;
     Headspan::PROPS.ELEMENT_ID = Headspan_t;
     Headspan::PROPS.XMLTAG = "hd";
 //------ Label -------
@@ -1171,13 +1167,13 @@ namespace folia {
      { ComplexAlignmentLayer_t, { AbstractAnnotationLayer_t } },
      { CoreferenceChain_t, { AbstractSpanAnnotation_t } },
      { CoreferenceLayer_t, { AbstractAnnotationLayer_t } },
-     { CoreferenceLink_t, { AbstractSpanAnnotation_t,AbstractSpanRole_t } },
+     { CoreferenceLink_t, { AbstractSpanRole_t,AbstractSpanAnnotation_t } },
      { Correction_t, {  } },
      { Current_t, { AbstractCorrectionChild_t } },
      { Definition_t, { AbstractStructureElement_t } },
      { DependenciesLayer_t, { AbstractAnnotationLayer_t } },
      { Dependency_t, { AbstractSpanAnnotation_t } },
-     { DependencyDependent_t, { AbstractSpanAnnotation_t,AbstractSpanRole_t } },
+     { DependencyDependent_t, { AbstractSpanRole_t,AbstractSpanAnnotation_t } },
      { Division_t, { AbstractStructureElement_t } },
      { DomainAnnotation_t, { AbstractTokenAnnotation_t,AbstractExtendedTokenAnnotation_t } },
      { EnddatetimeFeature_t, { Feature_t } },
@@ -1193,7 +1189,7 @@ namespace folia {
      { Gap_t, {  } },
      { Head_t, { AbstractStructureElement_t } },
      { HeadFeature_t, { Feature_t } },
-     { Headspan_t, { AbstractSpanAnnotation_t,AbstractSpanRole_t } },
+     { Headspan_t, { AbstractSpanRole_t,AbstractSpanAnnotation_t } },
      { Label_t, { AbstractStructureElement_t } },
      { LangAnnotation_t, { AbstractTokenAnnotation_t,AbstractExtendedTokenAnnotation_t } },
      { LemmaAnnotation_t, { AbstractTokenAnnotation_t } },
