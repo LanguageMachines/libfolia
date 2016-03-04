@@ -38,12 +38,12 @@ int main() {
   cout << "checking sanity" << endl;
   cout << "AnnotationType sanity" << endl;
   if ( ! AT_sanity_check() ){
-    cout << "to bad. no use to continue" << endl;
+    cout << "too bad. no use to continue" << endl;
     return EXIT_FAILURE;
   }
   cout << "ElementType sanity" << endl;
   if ( ! ET_sanity_check() ){
-    cout << "to bad. no use to continue" << endl;
+    cout << "too bad. no use to continue" << endl;
     return EXIT_FAILURE;
   }
   cout << " Creating a document from scratch: ";
@@ -52,6 +52,7 @@ int main() {
   if ( d.defaultset(AnnotationType::TOKEN) != "adhocset"
        ||
        d.defaultannotator(AnnotationType::TOKEN) != "proycon" ){
+    cout << " Defaultset or defaultannotator does not match" << endl;
     return EXIT_FAILURE;
   }
   string id = d.id() + ".text.1";
@@ -72,11 +73,15 @@ int main() {
   s->addWord( kw );
   kw["text"] = ".";
   s->addWord( kw );
-  if ( d[id+".s.1"]->size() != 5 )
+  if ( d[id+".s.1"]->size() != 5 ) {
+    cout << " Unexpected sentence size, " <<  d[id+".s.1"]->size() << ", expected 5" << endl;
     return EXIT_FAILURE;
+  }
   UnicodeString txt = s->text();
-  if ( txt != "De site staat online ." )
+  if ( txt != "De site staat online ." ) {
+    cout << " Text does not match reference: '" << txt << "' vs reference: 'De site staat online .'" << endl;
     return EXIT_FAILURE;
+  }
   cout << s->text() << endl;
   return EXIT_SUCCESS;
 }
