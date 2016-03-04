@@ -6,7 +6,7 @@
 #include "libfolia/folia_properties.h"
 
 //foliaspec:header
-//This file was last updated according to the FoLiA specification for version 0.12.2 on 2016-03-04 10:20:35, using foliaspec.py
+//This file was last updated according to the FoLiA specification for version 0.12.2 on 2016-03-04 10:36:01, using foliaspec.py
 //Code blocks after a foliaspec comment (until the next newline) are automatically generated. **DO NOT EDIT THOSE** and **DO NOT REMOVE ANY FOLIASPEC COMMENTS** !!!
 
 namespace folia {
@@ -251,6 +251,9 @@ namespace folia {
     { Whitespace_t,  "whitespace" },
     { Word_t,  "w" },
     { WordReference_t,  "wref" },
+    { PlaceHolder_t, "_PlaceHolder" },
+    { XmlComment_t, "_XmlComment" },
+    { XmlText_t, "_XmlText" }
   };
 
   //foliaspec:string_elementtype_map
@@ -357,6 +360,9 @@ namespace folia {
     { "whitespace", Whitespace_t  },
     { "w", Word_t  },
     { "wref", WordReference_t  },
+    { "_PlaceHolder", PlaceHolder_t  },
+    { "_XmlComment", XmlComment_t  },
+    { "_XmlText", XmlText_t  }
   };
 
   //foliaspec:default_ignore
@@ -1085,20 +1091,20 @@ namespace folia {
      { ComplexAlignmentLayer_t, { AbstractAnnotationLayer_t } },
      { CoreferenceChain_t, { AbstractSpanAnnotation_t } },
      { CoreferenceLayer_t, { AbstractAnnotationLayer_t } },
-     { CoreferenceLink_t, { AbstractSpanAnnotation_t,AbstractSpanRole_t } },
+     { CoreferenceLink_t, { AbstractSpanRole_t,AbstractSpanAnnotation_t } },
      { Correction_t, {  } },
      { Current_t, { AbstractCorrectionChild_t } },
      { Definition_t, { AbstractStructureElement_t } },
      { DependenciesLayer_t, { AbstractAnnotationLayer_t } },
      { Dependency_t, { AbstractSpanAnnotation_t } },
-     { DependencyDependent_t, { AbstractSpanAnnotation_t,AbstractSpanRole_t } },
+     { DependencyDependent_t, { AbstractSpanRole_t,AbstractSpanAnnotation_t } },
      { Division_t, { AbstractStructureElement_t } },
-     { DomainAnnotation_t, { AbstractTokenAnnotation_t,AbstractExtendedTokenAnnotation_t } },
+     { DomainAnnotation_t, { AbstractExtendedTokenAnnotation_t,AbstractTokenAnnotation_t } },
      { EnddatetimeFeature_t, { Feature_t } },
      { EntitiesLayer_t, { AbstractAnnotationLayer_t } },
      { Entity_t, { AbstractSpanAnnotation_t } },
      { Entry_t, { AbstractStructureElement_t } },
-     { ErrorDetection_t, { AbstractTokenAnnotation_t,AbstractExtendedTokenAnnotation_t } },
+     { ErrorDetection_t, { AbstractExtendedTokenAnnotation_t,AbstractTokenAnnotation_t } },
      { Event_t, { AbstractStructureElement_t } },
      { Example_t, { AbstractStructureElement_t } },
      { External_t, {  } },
@@ -1107,9 +1113,9 @@ namespace folia {
      { Gap_t, {  } },
      { Head_t, { AbstractStructureElement_t } },
      { HeadFeature_t, { Feature_t } },
-     { Headspan_t, { AbstractSpanAnnotation_t,AbstractSpanRole_t } },
+     { Headspan_t, { AbstractSpanRole_t,AbstractSpanAnnotation_t } },
      { Label_t, { AbstractStructureElement_t } },
-     { LangAnnotation_t, { AbstractTokenAnnotation_t,AbstractExtendedTokenAnnotation_t } },
+     { LangAnnotation_t, { AbstractExtendedTokenAnnotation_t,AbstractTokenAnnotation_t } },
      { LemmaAnnotation_t, { AbstractTokenAnnotation_t } },
      { LevelFeature_t, { Feature_t } },
      { Linebreak_t, { AbstractStructureElement_t } },
