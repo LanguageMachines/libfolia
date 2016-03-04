@@ -592,12 +592,15 @@ namespace folia {
     bool sane = true;
     ElementType et = BASE;
     while ( ++et != LastElement ){
-      string s = toString( et );
-      if ( s.empty() ){
-	cerr << "no string translation for ElementType(" << et << ")" << endl;
+      string s;
+      try {
+	toString( et );
+      }
+      catch (...){
+	cerr << "no string translation for ElementType(" << int(et) << ")" << endl;
 	sane = false;
       }
-      else {
+      if( !s.empty() ){
 	ElementType et2;
 	try {
 	  et2 = stringToET( s );
