@@ -833,6 +833,9 @@ namespace folia {
       AbstractTokenAnnotation( PROPS, d ){ classInit(); };
 
     private:
+      bool has_base( ElementType e ) const {
+        return e == AbstractTokenAnnotation_t;
+      }
       static properties PROPS;
     };
 
