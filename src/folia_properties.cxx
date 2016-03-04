@@ -6,7 +6,7 @@
 #include "libfolia/folia_properties.h"
 
 //foliaspec:header
-//This file was last updated according to the FoLiA specification for version 0.12.2 on 2016-03-04 15:57:14, using foliaspec.py
+//This file was last updated according to the FoLiA specification for version 0.12.2 on 2016-03-04 16:15:56, using foliaspec.py
 //Code blocks after a foliaspec comment (until the next newline) are automatically generated. **DO NOT EDIT THOSE** and **DO NOT REMOVE ANY FOLIASPEC COMMENTS** !!!
 
 namespace folia {
@@ -348,15 +348,15 @@ namespace folia {
 
   //foliaspec:default_ignore
   //Default ignore list for the select() method, do not descend into these
-  const set<ElementType> default_ignore = { Original_t, Suggestion_t, Alternative_t, AlternativeLayers_t };
+  const set<ElementType> default_ignore = { Alternative_t, AlternativeLayers_t, Original_t, Suggestion_t };
 
   //foliaspec:default_ignore_annotations
   //Default ignore list for token annotation
-  const set<ElementType> default_ignore_annotations = { Original_t, Suggestion_t, Alternative_t, AlternativeLayers_t, MorphologyLayer_t, PhonologyLayer_t };
+  const set<ElementType> default_ignore_annotations = { Alternative_t, AlternativeLayers_t, MorphologyLayer_t, Original_t, PhonologyLayer_t, Suggestion_t };
 
   //foliaspec:default_ignore_structure
   //Default ignore list for structure annotation
-  const set<ElementType> default_ignore_structure = { Original_t, Suggestion_t, Alternative_t, AlternativeLayers_t, AbstractAnnotationLayer_t };
+  const set<ElementType> default_ignore_structure = { Alternative_t, AlternativeLayers_t, ChunkingLayer_t, ComplexAlignmentLayer_t, CoreferenceLayer_t, DependenciesLayer_t, EntitiesLayer_t, MorphologyLayer_t, Original_t, PhonologyLayer_t, SemanticRolesLayer_t, Suggestion_t, SyntaxLayer_t, TimingLayer_t };
 
   const set<ElementType> AnnoExcludeSet = { Original_t, Suggestion_t };
 
