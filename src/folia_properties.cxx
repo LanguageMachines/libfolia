@@ -6,7 +6,7 @@
 #include "libfolia/folia_properties.h"
 
 //foliaspec:header
-//This file was last updated according to the FoLiA specification for version 0.12.2 on 2016-03-04 12:47:00, using foliaspec.py
+//This file was last updated according to the FoLiA specification for version 0.12.2 on 2016-03-04 13:59:01, using foliaspec.py
 //Code blocks after a foliaspec comment (until the next newline) are automatically generated. **DO NOT EDIT THOSE** and **DO NOT REMOVE ANY FOLIASPEC COMMENTS** !!!
 
 namespace folia {
@@ -139,12 +139,12 @@ namespace folia {
     { AbstractStructureElement_t,  "_AbstractStructureElement" },
     { AbstractTextMarkup_t,  "_AbstractTextMarkup" },
     { AbstractTokenAnnotation_t,  "_AbstractTokenAnnotation" },
-    { ActorFeature_t,  "_ActorFeature" },
+    { ActorFeature_t,  "actor" },
     { AlignReference_t,  "aref" },
     { Alignment_t,  "alignment" },
     { Alternative_t,  "alt" },
     { AlternativeLayers_t,  "altlayers" },
-    { BegindatetimeFeature_t,  "_BegindatetimeFeature" },
+    { BegindatetimeFeature_t,  "begindatetime" },
     { Caption_t,  "caption" },
     { Cell_t,  "cell" },
     { Chunk_t,  "chunk" },
@@ -164,7 +164,7 @@ namespace folia {
     { Description_t,  "desc" },
     { Division_t,  "div" },
     { DomainAnnotation_t,  "domain" },
-    { EnddatetimeFeature_t,  "_EnddatetimeFeature" },
+    { EnddatetimeFeature_t,  "enddatetime" },
     { EntitiesLayer_t,  "entities" },
     { Entity_t,  "entity" },
     { Entry_t,  "entry" },
@@ -174,20 +174,20 @@ namespace folia {
     { External_t,  "external" },
     { Feature_t,  "feat" },
     { Figure_t,  "figure" },
-    { FunctionFeature_t,  "_FunctionFeature" },
+    { FunctionFeature_t,  "function" },
     { Gap_t,  "gap" },
     { Head_t,  "head" },
-    { HeadFeature_t,  "_HeadFeature" },
+    { HeadFeature_t,  "head" },
     { Headspan_t,  "hd" },
     { Label_t,  "label" },
     { LangAnnotation_t,  "lang" },
     { LemmaAnnotation_t,  "lemma" },
-    { LevelFeature_t,  "_LevelFeature" },
+    { LevelFeature_t,  "level" },
     { Linebreak_t,  "br" },
     { List_t,  "list" },
     { ListItem_t,  "item" },
     { Metric_t,  "metric" },
-    { ModalityFeature_t,  "_ModalityFeature" },
+    { ModalityFeature_t,  "modality" },
     { Morpheme_t,  "morpheme" },
     { MorphologyLayer_t,  "morphology" },
     { New_t,  "new" },
@@ -208,10 +208,10 @@ namespace folia {
     { Sentence_t,  "s" },
     { Speech_t,  "speech" },
     { String_t,  "str" },
-    { StyleFeature_t,  "_StyleFeature" },
+    { StyleFeature_t,  "style" },
     { SubjectivityAnnotation_t,  "subjectivity" },
     { Suggestion_t,  "suggestion" },
-    { SynsetFeature_t,  "_SynsetFeature" },
+    { SynsetFeature_t,  "synset" },
     { SyntacticUnit_t,  "su" },
     { SyntaxLayer_t,  "syntax" },
     { Table_t,  "table" },
@@ -224,11 +224,11 @@ namespace folia {
     { TextMarkupGap_t,  "t-gap" },
     { TextMarkupString_t,  "t-str" },
     { TextMarkupStyle_t,  "t-style" },
-    { TimeFeature_t,  "_TimeFeature" },
+    { TimeFeature_t,  "time" },
     { TimeSegment_t,  "timesegment" },
     { TimingLayer_t,  "timing" },
     { Utterance_t,  "utt" },
-    { ValueFeature_t,  "_ValueFeature" },
+    { ValueFeature_t,  "value" },
     { Whitespace_t,  "whitespace" },
     { Word_t,  "w" },
     { WordReference_t,  "wref" },
@@ -248,12 +248,12 @@ namespace folia {
     { "_AbstractStructureElement", AbstractStructureElement_t  },
     { "_AbstractTextMarkup", AbstractTextMarkup_t  },
     { "_AbstractTokenAnnotation", AbstractTokenAnnotation_t  },
-    { "_ActorFeature", ActorFeature_t  },
+    { "actor", ActorFeature_t  },
     { "aref", AlignReference_t  },
     { "alignment", Alignment_t  },
     { "alt", Alternative_t  },
     { "altlayers", AlternativeLayers_t  },
-    { "_BegindatetimeFeature", BegindatetimeFeature_t  },
+    { "begindatetime", BegindatetimeFeature_t  },
     { "caption", Caption_t  },
     { "cell", Cell_t  },
     { "chunk", Chunk_t  },
@@ -273,7 +273,7 @@ namespace folia {
     { "desc", Description_t  },
     { "div", Division_t  },
     { "domain", DomainAnnotation_t  },
-    { "_EnddatetimeFeature", EnddatetimeFeature_t  },
+    { "enddatetime", EnddatetimeFeature_t  },
     { "entities", EntitiesLayer_t  },
     { "entity", Entity_t  },
     { "entry", Entry_t  },
@@ -283,20 +283,20 @@ namespace folia {
     { "external", External_t  },
     { "feat", Feature_t  },
     { "figure", Figure_t  },
-    { "_FunctionFeature", FunctionFeature_t  },
+    { "function", FunctionFeature_t  },
     { "gap", Gap_t  },
     { "head", Head_t  },
-    { "_HeadFeature", HeadFeature_t  },
+    { "head", HeadFeature_t  },
     { "hd", Headspan_t  },
     { "label", Label_t  },
     { "lang", LangAnnotation_t  },
     { "lemma", LemmaAnnotation_t  },
-    { "_LevelFeature", LevelFeature_t  },
+    { "level", LevelFeature_t  },
     { "br", Linebreak_t  },
     { "list", List_t  },
     { "item", ListItem_t  },
     { "metric", Metric_t  },
-    { "_ModalityFeature", ModalityFeature_t  },
+    { "modality", ModalityFeature_t  },
     { "morpheme", Morpheme_t  },
     { "morphology", MorphologyLayer_t  },
     { "new", New_t  },
@@ -317,10 +317,10 @@ namespace folia {
     { "s", Sentence_t  },
     { "speech", Speech_t  },
     { "str", String_t  },
-    { "_StyleFeature", StyleFeature_t  },
+    { "style", StyleFeature_t  },
     { "subjectivity", SubjectivityAnnotation_t  },
     { "suggestion", Suggestion_t  },
-    { "_SynsetFeature", SynsetFeature_t  },
+    { "synset", SynsetFeature_t  },
     { "su", SyntacticUnit_t  },
     { "syntax", SyntaxLayer_t  },
     { "table", Table_t  },
@@ -333,11 +333,11 @@ namespace folia {
     { "t-gap", TextMarkupGap_t  },
     { "t-str", TextMarkupString_t  },
     { "t-style", TextMarkupStyle_t  },
-    { "_TimeFeature", TimeFeature_t  },
+    { "time", TimeFeature_t  },
     { "timesegment", TimeSegment_t  },
     { "timing", TimingLayer_t  },
     { "utt", Utterance_t  },
-    { "_ValueFeature", ValueFeature_t  },
+    { "value", ValueFeature_t  },
     { "whitespace", Whitespace_t  },
     { "w", Word_t  },
     { "wref", WordReference_t  },
@@ -637,7 +637,7 @@ namespace folia {
     CoreferenceLayer::PROPS.ANNOTATIONTYPE = AnnotationType::COREFERENCE;
     CoreferenceLayer::PROPS.XMLTAG = "coreferences";
 //------ CoreferenceLink -------
-    CoreferenceLink::PROPS = AbstractSpanRole::PROPS;
+    CoreferenceLink::PROPS = AbstractSpanAnnotation::PROPS;
     CoreferenceLink::PROPS.ELEMENT_ID = CoreferenceLink_t;
     CoreferenceLink::PROPS.ACCEPTED_DATA += {Alignment_t, Description_t, Feature_t, Headspan_t, LevelFeature_t, Metric_t, ModalityFeature_t, TimeFeature_t, WordReference_t};
     CoreferenceLink::PROPS.ANNOTATIONTYPE = AnnotationType::COREFERENCE;
@@ -677,7 +677,7 @@ namespace folia {
     Dependency::PROPS.REQUIRED_DATA += {DependencyDependent_t, Headspan_t};
     Dependency::PROPS.XMLTAG = "dependency";
 //------ DependencyDependent -------
-    DependencyDependent::PROPS = AbstractSpanRole::PROPS;
+    DependencyDependent::PROPS = AbstractSpanAnnotation::PROPS;
     DependencyDependent::PROPS.ELEMENT_ID = DependencyDependent_t;
     DependencyDependent::PROPS.XMLTAG = "dep";
 //------ Description -------
@@ -692,7 +692,7 @@ namespace folia {
     Division::PROPS.TEXTDELIMITER = "\n\n\n";
     Division::PROPS.XMLTAG = "div";
 //------ DomainAnnotation -------
-    DomainAnnotation::PROPS = AbstractExtendedTokenAnnotation::PROPS;
+    DomainAnnotation::PROPS = AbstractTokenAnnotation::PROPS;
     DomainAnnotation::PROPS.ELEMENT_ID = DomainAnnotation_t;
     DomainAnnotation::PROPS.ANNOTATIONTYPE = AnnotationType::DOMAIN;
     DomainAnnotation::PROPS.XMLTAG = "domain";
@@ -715,7 +715,7 @@ namespace folia {
     Entry::PROPS.ANNOTATIONTYPE = AnnotationType::ENTRY;
     Entry::PROPS.XMLTAG = "entry";
 //------ ErrorDetection -------
-    ErrorDetection::PROPS = AbstractExtendedTokenAnnotation::PROPS;
+    ErrorDetection::PROPS = AbstractTokenAnnotation::PROPS;
     ErrorDetection::PROPS.ELEMENT_ID = ErrorDetection_t;
     ErrorDetection::PROPS.ANNOTATIONTYPE = AnnotationType::ERRORDETECTION;
     ErrorDetection::PROPS.XMLTAG = "errordetection";
@@ -790,7 +790,7 @@ namespace folia {
     HeadFeature::PROPS.SUBSET = "head";
     HeadFeature::PROPS.XMLTAG = "NONE";
 //------ Headspan -------
-    Headspan::PROPS = AbstractSpanRole::PROPS;
+    Headspan::PROPS = AbstractSpanAnnotation::PROPS;
     Headspan::PROPS.ELEMENT_ID = Headspan_t;
     Headspan::PROPS.XMLTAG = "hd";
 //------ Label -------
@@ -799,7 +799,7 @@ namespace folia {
     Label::PROPS.ACCEPTED_DATA += {AbstractAnnotationLayer_t, AbstractExtendedTokenAnnotation_t, Alignment_t, Alternative_t, AlternativeLayers_t, Correction_t, Description_t, Feature_t, Metric_t, Part_t, PhonContent_t, Reference_t, String_t, TextContent_t, Word_t};
     Label::PROPS.XMLTAG = "label";
 //------ LangAnnotation -------
-    LangAnnotation::PROPS = AbstractExtendedTokenAnnotation::PROPS;
+    LangAnnotation::PROPS = AbstractTokenAnnotation::PROPS;
     LangAnnotation::PROPS.ELEMENT_ID = LangAnnotation_t;
     LangAnnotation::PROPS.ANNOTATIONTYPE = AnnotationType::LANG;
     LangAnnotation::PROPS.XMLTAG = "lang";
@@ -1152,20 +1152,20 @@ namespace folia {
      { ComplexAlignmentLayer_t, { AbstractAnnotationLayer_t } },
      { CoreferenceChain_t, { AbstractSpanAnnotation_t } },
      { CoreferenceLayer_t, { AbstractAnnotationLayer_t } },
-     { CoreferenceLink_t, { AbstractSpanRole_t,AbstractSpanAnnotation_t } },
+     { CoreferenceLink_t, { AbstractSpanAnnotation_t,AbstractSpanRole_t } },
      { Correction_t, {  } },
      { Current_t, { AbstractCorrectionChild_t } },
      { Definition_t, { AbstractStructureElement_t } },
      { DependenciesLayer_t, { AbstractAnnotationLayer_t } },
      { Dependency_t, { AbstractSpanAnnotation_t } },
-     { DependencyDependent_t, { AbstractSpanRole_t,AbstractSpanAnnotation_t } },
+     { DependencyDependent_t, { AbstractSpanAnnotation_t,AbstractSpanRole_t } },
      { Division_t, { AbstractStructureElement_t } },
-     { DomainAnnotation_t, { AbstractExtendedTokenAnnotation_t,AbstractTokenAnnotation_t } },
+     { DomainAnnotation_t, { AbstractTokenAnnotation_t,AbstractExtendedTokenAnnotation_t } },
      { EnddatetimeFeature_t, { Feature_t } },
      { EntitiesLayer_t, { AbstractAnnotationLayer_t } },
      { Entity_t, { AbstractSpanAnnotation_t } },
      { Entry_t, { AbstractStructureElement_t } },
-     { ErrorDetection_t, { AbstractExtendedTokenAnnotation_t,AbstractTokenAnnotation_t } },
+     { ErrorDetection_t, { AbstractTokenAnnotation_t,AbstractExtendedTokenAnnotation_t } },
      { Event_t, { AbstractStructureElement_t } },
      { Example_t, { AbstractStructureElement_t } },
      { External_t, {  } },
@@ -1174,9 +1174,9 @@ namespace folia {
      { Gap_t, {  } },
      { Head_t, { AbstractStructureElement_t } },
      { HeadFeature_t, { Feature_t } },
-     { Headspan_t, { AbstractSpanRole_t,AbstractSpanAnnotation_t } },
+     { Headspan_t, { AbstractSpanAnnotation_t,AbstractSpanRole_t } },
      { Label_t, { AbstractStructureElement_t } },
-     { LangAnnotation_t, { AbstractExtendedTokenAnnotation_t,AbstractTokenAnnotation_t } },
+     { LangAnnotation_t, { AbstractTokenAnnotation_t,AbstractExtendedTokenAnnotation_t } },
      { LemmaAnnotation_t, { AbstractTokenAnnotation_t } },
      { LevelFeature_t, { Feature_t } },
      { Linebreak_t, { AbstractStructureElement_t } },
