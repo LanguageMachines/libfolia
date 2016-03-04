@@ -6,7 +6,7 @@
 #include "libfolia/folia_properties.h"
 
 //foliaspec:header
-//This file was last updated according to the FoLiA specification for version 0.12.2 on 2016-03-04 13:59:01, using foliaspec.py
+//This file was last updated according to the FoLiA specification for version 0.12.2 on 2016-03-04 14:32:25, using foliaspec.py
 //Code blocks after a foliaspec comment (until the next newline) are automatically generated. **DO NOT EDIT THOSE** and **DO NOT REMOVE ANY FOLIASPEC COMMENTS** !!!
 
 namespace folia {
@@ -523,7 +523,7 @@ namespace folia {
 //------ AbstractSpanRole -------
     AbstractSpanRole::PROPS = AbstractSpanAnnotation::PROPS;
     AbstractSpanRole::PROPS.ELEMENT_ID = AbstractSpanRole_t;
-    AbstractSpanRole::PROPS.ACCEPTED_DATA += {Alignment_t, Description_t, Feature_t, Metric_t, WordReference_t};
+    AbstractSpanRole::PROPS.ACCEPTED_DATA += {Alignment_t, Description_t, Feature_t, Metric_t, WordReference_t, Word_t, Morpheme_t, Phoneme_t};
     AbstractSpanRole::PROPS.OPTIONAL_ATTRIBS = ID|ANNOTATOR|N|DATETIME;
 //------ AbstractStructureElement -------
     AbstractStructureElement::PROPS.ELEMENT_ID = AbstractStructureElement_t;
@@ -595,7 +595,7 @@ namespace folia {
 //------ Chunk -------
     Chunk::PROPS = AbstractSpanAnnotation::PROPS;
     Chunk::PROPS.ELEMENT_ID = Chunk_t;
-    Chunk::PROPS.ACCEPTED_DATA += {Alignment_t, Description_t, Feature_t, Metric_t, WordReference_t};
+    Chunk::PROPS.ACCEPTED_DATA += {Alignment_t, Description_t, Feature_t, Metric_t, WordReference_t, Word_t, Morpheme_t, Phoneme_t};
     Chunk::PROPS.ANNOTATIONTYPE = AnnotationType::CHUNKING;
     Chunk::PROPS.XMLTAG = "chunk";
 //------ ChunkingLayer -------
@@ -639,7 +639,7 @@ namespace folia {
 //------ CoreferenceLink -------
     CoreferenceLink::PROPS = AbstractSpanAnnotation::PROPS;
     CoreferenceLink::PROPS.ELEMENT_ID = CoreferenceLink_t;
-    CoreferenceLink::PROPS.ACCEPTED_DATA += {Alignment_t, Description_t, Feature_t, Headspan_t, LevelFeature_t, Metric_t, ModalityFeature_t, TimeFeature_t, WordReference_t};
+    CoreferenceLink::PROPS.ACCEPTED_DATA += {Alignment_t, Description_t, Feature_t, Headspan_t, LevelFeature_t, Metric_t, ModalityFeature_t, TimeFeature_t, WordReference_t, Word_t, Morpheme_t, Phoneme_t};
     CoreferenceLink::PROPS.ANNOTATIONTYPE = AnnotationType::COREFERENCE;
     CoreferenceLink::PROPS.XMLTAG = "coreferencelink";
 //------ Correction -------
@@ -692,7 +692,7 @@ namespace folia {
     Division::PROPS.TEXTDELIMITER = "\n\n\n";
     Division::PROPS.XMLTAG = "div";
 //------ DomainAnnotation -------
-    DomainAnnotation::PROPS = AbstractTokenAnnotation::PROPS;
+    DomainAnnotation::PROPS = AbstractExtendedTokenAnnotation::PROPS;
     DomainAnnotation::PROPS.ELEMENT_ID = DomainAnnotation_t;
     DomainAnnotation::PROPS.ANNOTATIONTYPE = AnnotationType::DOMAIN;
     DomainAnnotation::PROPS.XMLTAG = "domain";
@@ -705,7 +705,7 @@ namespace folia {
 //------ Entity -------
     Entity::PROPS = AbstractSpanAnnotation::PROPS;
     Entity::PROPS.ELEMENT_ID = Entity_t;
-    Entity::PROPS.ACCEPTED_DATA += {Alignment_t, Description_t, Feature_t, Metric_t, WordReference_t};
+    Entity::PROPS.ACCEPTED_DATA += {Alignment_t, Description_t, Feature_t, Metric_t, WordReference_t, Word_t, Morpheme_t, Phoneme_t};
     Entity::PROPS.ANNOTATIONTYPE = AnnotationType::ENTITY;
     Entity::PROPS.XMLTAG = "entity";
 //------ Entry -------
@@ -715,7 +715,7 @@ namespace folia {
     Entry::PROPS.ANNOTATIONTYPE = AnnotationType::ENTRY;
     Entry::PROPS.XMLTAG = "entry";
 //------ ErrorDetection -------
-    ErrorDetection::PROPS = AbstractTokenAnnotation::PROPS;
+    ErrorDetection::PROPS = AbstractExtendedTokenAnnotation::PROPS;
     ErrorDetection::PROPS.ELEMENT_ID = ErrorDetection_t;
     ErrorDetection::PROPS.ANNOTATIONTYPE = AnnotationType::ERRORDETECTION;
     ErrorDetection::PROPS.XMLTAG = "errordetection";
@@ -799,7 +799,7 @@ namespace folia {
     Label::PROPS.ACCEPTED_DATA += {AbstractAnnotationLayer_t, AbstractExtendedTokenAnnotation_t, Alignment_t, Alternative_t, AlternativeLayers_t, Correction_t, Description_t, Feature_t, Metric_t, Part_t, PhonContent_t, Reference_t, String_t, TextContent_t, Word_t};
     Label::PROPS.XMLTAG = "label";
 //------ LangAnnotation -------
-    LangAnnotation::PROPS = AbstractTokenAnnotation::PROPS;
+    LangAnnotation::PROPS = AbstractExtendedTokenAnnotation::PROPS;
     LangAnnotation::PROPS.ELEMENT_ID = LangAnnotation_t;
     LangAnnotation::PROPS.ANNOTATIONTYPE = AnnotationType::LANG;
     LangAnnotation::PROPS.XMLTAG = "lang";
@@ -937,7 +937,7 @@ namespace folia {
 //------ SemanticRole -------
     SemanticRole::PROPS = AbstractSpanAnnotation::PROPS;
     SemanticRole::PROPS.ELEMENT_ID = SemanticRole_t;
-    SemanticRole::PROPS.ACCEPTED_DATA += {Alignment_t, Description_t, Feature_t, Headspan_t, Metric_t, WordReference_t};
+    SemanticRole::PROPS.ACCEPTED_DATA += {Alignment_t, Description_t, Feature_t, Headspan_t, Metric_t, WordReference_t, Word_t, Morpheme_t, Phoneme_t};
     SemanticRole::PROPS.ANNOTATIONTYPE = AnnotationType::SEMROLE;
     SemanticRole::PROPS.REQUIRED_ATTRIBS = CLASS;
     SemanticRole::PROPS.XMLTAG = "semrole";
@@ -998,7 +998,7 @@ namespace folia {
 //------ SyntacticUnit -------
     SyntacticUnit::PROPS = AbstractSpanAnnotation::PROPS;
     SyntacticUnit::PROPS.ELEMENT_ID = SyntacticUnit_t;
-    SyntacticUnit::PROPS.ACCEPTED_DATA += {Alignment_t, Description_t, Feature_t, Metric_t, SyntacticUnit_t, WordReference_t};
+    SyntacticUnit::PROPS.ACCEPTED_DATA += {Alignment_t, Description_t, Feature_t, Metric_t, SyntacticUnit_t, WordReference_t, Word_t, Morpheme_t, Phoneme_t};
     SyntacticUnit::PROPS.ANNOTATIONTYPE = AnnotationType::SYNTAX;
     SyntacticUnit::PROPS.XMLTAG = "su";
 //------ SyntaxLayer -------
@@ -1073,7 +1073,7 @@ namespace folia {
 //------ TimeSegment -------
     TimeSegment::PROPS = AbstractSpanAnnotation::PROPS;
     TimeSegment::PROPS.ELEMENT_ID = TimeSegment_t;
-    TimeSegment::PROPS.ACCEPTED_DATA += {ActorFeature_t, Alignment_t, BegindatetimeFeature_t, Description_t, EnddatetimeFeature_t, Feature_t, Metric_t, WordReference_t};
+    TimeSegment::PROPS.ACCEPTED_DATA += {ActorFeature_t, Alignment_t, BegindatetimeFeature_t, Description_t, EnddatetimeFeature_t, Feature_t, Metric_t, WordReference_t, Word_t, Morpheme_t, Phoneme_t};
     TimeSegment::PROPS.ANNOTATIONTYPE = AnnotationType::TIMESEGMENT;
     TimeSegment::PROPS.XMLTAG = "timesegment";
 //------ TimingLayer -------
@@ -1160,12 +1160,12 @@ namespace folia {
      { Dependency_t, { AbstractSpanAnnotation_t } },
      { DependencyDependent_t, { AbstractSpanAnnotation_t,AbstractSpanRole_t } },
      { Division_t, { AbstractStructureElement_t } },
-     { DomainAnnotation_t, { AbstractTokenAnnotation_t,AbstractExtendedTokenAnnotation_t } },
+     { DomainAnnotation_t, { AbstractExtendedTokenAnnotation_t,AbstractTokenAnnotation_t } },
      { EnddatetimeFeature_t, { Feature_t } },
      { EntitiesLayer_t, { AbstractAnnotationLayer_t } },
      { Entity_t, { AbstractSpanAnnotation_t } },
      { Entry_t, { AbstractStructureElement_t } },
-     { ErrorDetection_t, { AbstractTokenAnnotation_t,AbstractExtendedTokenAnnotation_t } },
+     { ErrorDetection_t, { AbstractExtendedTokenAnnotation_t,AbstractTokenAnnotation_t } },
      { Event_t, { AbstractStructureElement_t } },
      { Example_t, { AbstractStructureElement_t } },
      { External_t, {  } },
@@ -1176,7 +1176,7 @@ namespace folia {
      { HeadFeature_t, { Feature_t } },
      { Headspan_t, { AbstractSpanAnnotation_t,AbstractSpanRole_t } },
      { Label_t, { AbstractStructureElement_t } },
-     { LangAnnotation_t, { AbstractTokenAnnotation_t,AbstractExtendedTokenAnnotation_t } },
+     { LangAnnotation_t, { AbstractExtendedTokenAnnotation_t,AbstractTokenAnnotation_t } },
      { LemmaAnnotation_t, { AbstractTokenAnnotation_t } },
      { LevelFeature_t, { Feature_t } },
      { Linebreak_t, { AbstractStructureElement_t } },
