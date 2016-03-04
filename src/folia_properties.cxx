@@ -6,7 +6,7 @@
 #include "libfolia/folia_properties.h"
 
 //foliaspec:header
-//This file was last updated according to the FoLiA specification for version 0.12.2 on 2016-03-04 12:28:34, using foliaspec.py
+//This file was last updated according to the FoLiA specification for version 0.12.2 on 2016-03-04 12:47:00, using foliaspec.py
 //Code blocks after a foliaspec comment (until the next newline) are automatically generated. **DO NOT EDIT THOSE** and **DO NOT REMOVE ANY FOLIASPEC COMMENTS** !!!
 
 namespace folia {
@@ -86,19 +86,13 @@ namespace folia {
     { "NONE", AnnotationType::NO_ANN },
     { "alignment", AnnotationType::ALIGNMENT },
     { "chunking", AnnotationType::CHUNKING },
-    { "chunking", AnnotationType::CHUNKING },
     { "complexalignment", AnnotationType::COMPLEXALIGNMENT },
-    { "complexalignment", AnnotationType::COMPLEXALIGNMENT },
-    { "coreference", AnnotationType::COREFERENCE },
-    { "coreference", AnnotationType::COREFERENCE },
     { "coreference", AnnotationType::COREFERENCE },
     { "correction", AnnotationType::CORRECTION },
     { "definition", AnnotationType::DEFINITION },
     { "dependency", AnnotationType::DEPENDENCY },
-    { "dependency", AnnotationType::DEPENDENCY },
     { "division", AnnotationType::DIVISION },
     { "domain", AnnotationType::DOMAIN },
-    { "entity", AnnotationType::ENTITY },
     { "entity", AnnotationType::ENTITY },
     { "entry", AnnotationType::ENTRY },
     { "errordetection", AnnotationType::ERRORDETECTION },
@@ -112,31 +106,22 @@ namespace folia {
     { "list", AnnotationType::LIST },
     { "metric", AnnotationType::METRIC },
     { "morphological", AnnotationType::MORPHOLOGICAL },
-    { "morphological", AnnotationType::MORPHOLOGICAL },
     { "note", AnnotationType::NOTE },
     { "paragraph", AnnotationType::PARAGRAPH },
     { "part", AnnotationType::PART },
     { "phon", AnnotationType::PHON },
     { "phonological", AnnotationType::PHONOLOGICAL },
-    { "phonological", AnnotationType::PHONOLOGICAL },
     { "pos", AnnotationType::POS },
-    { "semrole", AnnotationType::SEMROLE },
     { "semrole", AnnotationType::SEMROLE },
     { "sense", AnnotationType::SENSE },
     { "sentence", AnnotationType::SENTENCE },
     { "string", AnnotationType::STRING },
     { "subjectivity", AnnotationType::SUBJECTIVITY },
     { "syntax", AnnotationType::SYNTAX },
-    { "syntax", AnnotationType::SYNTAX },
     { "table", AnnotationType::TABLE },
     { "term", AnnotationType::TERM },
     { "text", AnnotationType::TEXT },
-    { "correction", AnnotationType::CORRECTION },
-    { "errordetection", AnnotationType::ERRORDETECTION },
-    { "gap", AnnotationType::GAP },
-    { "string", AnnotationType::STRING },
     { "style", AnnotationType::STYLE },
-    { "timesegment", AnnotationType::TIMESEGMENT },
     { "timesegment", AnnotationType::TIMESEGMENT },
     { "utterance", AnnotationType::UTTERANCE },
     { "whitespace", AnnotationType::WHITESPACE },
@@ -707,7 +692,7 @@ namespace folia {
     Division::PROPS.TEXTDELIMITER = "\n\n\n";
     Division::PROPS.XMLTAG = "div";
 //------ DomainAnnotation -------
-    DomainAnnotation::PROPS = AbstractTokenAnnotation::PROPS;
+    DomainAnnotation::PROPS = AbstractExtendedTokenAnnotation::PROPS;
     DomainAnnotation::PROPS.ELEMENT_ID = DomainAnnotation_t;
     DomainAnnotation::PROPS.ANNOTATIONTYPE = AnnotationType::DOMAIN;
     DomainAnnotation::PROPS.XMLTAG = "domain";
@@ -730,7 +715,7 @@ namespace folia {
     Entry::PROPS.ANNOTATIONTYPE = AnnotationType::ENTRY;
     Entry::PROPS.XMLTAG = "entry";
 //------ ErrorDetection -------
-    ErrorDetection::PROPS = AbstractTokenAnnotation::PROPS;
+    ErrorDetection::PROPS = AbstractExtendedTokenAnnotation::PROPS;
     ErrorDetection::PROPS.ELEMENT_ID = ErrorDetection_t;
     ErrorDetection::PROPS.ANNOTATIONTYPE = AnnotationType::ERRORDETECTION;
     ErrorDetection::PROPS.XMLTAG = "errordetection";
@@ -814,7 +799,7 @@ namespace folia {
     Label::PROPS.ACCEPTED_DATA += {AbstractAnnotationLayer_t, AbstractExtendedTokenAnnotation_t, Alignment_t, Alternative_t, AlternativeLayers_t, Correction_t, Description_t, Feature_t, Metric_t, Part_t, PhonContent_t, Reference_t, String_t, TextContent_t, Word_t};
     Label::PROPS.XMLTAG = "label";
 //------ LangAnnotation -------
-    LangAnnotation::PROPS = AbstractTokenAnnotation::PROPS;
+    LangAnnotation::PROPS = AbstractExtendedTokenAnnotation::PROPS;
     LangAnnotation::PROPS.ELEMENT_ID = LangAnnotation_t;
     LangAnnotation::PROPS.ANNOTATIONTYPE = AnnotationType::LANG;
     LangAnnotation::PROPS.XMLTAG = "lang";
@@ -1175,12 +1160,12 @@ namespace folia {
      { Dependency_t, { AbstractSpanAnnotation_t } },
      { DependencyDependent_t, { AbstractSpanRole_t,AbstractSpanAnnotation_t } },
      { Division_t, { AbstractStructureElement_t } },
-     { DomainAnnotation_t, { AbstractTokenAnnotation_t,AbstractExtendedTokenAnnotation_t } },
+     { DomainAnnotation_t, { AbstractExtendedTokenAnnotation_t,AbstractTokenAnnotation_t } },
      { EnddatetimeFeature_t, { Feature_t } },
      { EntitiesLayer_t, { AbstractAnnotationLayer_t } },
      { Entity_t, { AbstractSpanAnnotation_t } },
      { Entry_t, { AbstractStructureElement_t } },
-     { ErrorDetection_t, { AbstractTokenAnnotation_t,AbstractExtendedTokenAnnotation_t } },
+     { ErrorDetection_t, { AbstractExtendedTokenAnnotation_t,AbstractTokenAnnotation_t } },
      { Event_t, { AbstractStructureElement_t } },
      { Example_t, { AbstractStructureElement_t } },
      { External_t, {  } },
@@ -1191,7 +1176,7 @@ namespace folia {
      { HeadFeature_t, { Feature_t } },
      { Headspan_t, { AbstractSpanRole_t,AbstractSpanAnnotation_t } },
      { Label_t, { AbstractStructureElement_t } },
-     { LangAnnotation_t, { AbstractTokenAnnotation_t,AbstractExtendedTokenAnnotation_t } },
+     { LangAnnotation_t, { AbstractExtendedTokenAnnotation_t,AbstractTokenAnnotation_t } },
      { LemmaAnnotation_t, { AbstractTokenAnnotation_t } },
      { LevelFeature_t, { Feature_t } },
      { Linebreak_t, { AbstractStructureElement_t } },
