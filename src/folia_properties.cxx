@@ -6,7 +6,7 @@
 #include "libfolia/folia_properties.h"
 
 //foliaspec:header
-//This file was last updated according to the FoLiA specification for version 0.12.2 on 2016-03-04 11:30:32, using foliaspec.py
+//This file was last updated according to the FoLiA specification for version 0.12.2 on 2016-03-04 11:50:12, using foliaspec.py
 //Code blocks after a foliaspec comment (until the next newline) are automatically generated. **DO NOT EDIT THOSE** and **DO NOT REMOVE ANY FOLIASPEC COMMENTS** !!!
 
 namespace folia {
@@ -1124,6 +1124,7 @@ namespace folia {
     Word::PROPS.ELEMENT_ID = Word_t;
     Word::PROPS.ACCEPTED_DATA += {AbstractAnnotationLayer_t, AbstractTokenAnnotation_t, Alignment_t, Alternative_t, AlternativeLayers_t, Correction_t, Description_t, Feature_t, Metric_t, Part_t, PhonContent_t, Reference_t, String_t, TextContent_t};
     Word::PROPS.ANNOTATIONTYPE = AnnotationType::TOKEN;
+    Word::PROPS.TEXTDELIMITER = " ";
     Word::PROPS.XMLTAG = "w";
 //------ WordReference -------
     WordReference::PROPS.ELEMENT_ID = WordReference_t;
