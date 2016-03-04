@@ -230,7 +230,7 @@ namespace folia {
     it = kwargs.find( "set" );
     string def;
     if ( it != kwargs.end() ) {
-      if ( !( (CLASS) & supported ) || !setonly()) {
+      if ( !( (CLASS & supported) || setonly() ) ) {
 	throw ValueError("Set is not supported for " + classname());
       }
       else {
