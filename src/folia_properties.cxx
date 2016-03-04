@@ -6,7 +6,7 @@
 #include "libfolia/folia_properties.h"
 
 //foliaspec:header
-//This file was last updated according to the FoLiA specification for version 0.12.2 on 2016-03-04 15:04:53, using foliaspec.py
+//This file was last updated according to the FoLiA specification for version 0.12.2 on 2016-03-04 15:49:19, using foliaspec.py
 //Code blocks after a foliaspec comment (until the next newline) are automatically generated. **DO NOT EDIT THOSE** and **DO NOT REMOVE ANY FOLIASPEC COMMENTS** !!!
 
 namespace folia {
@@ -747,17 +747,17 @@ namespace folia {
     ActorFeature::PROPS = Feature::PROPS;
     ActorFeature::PROPS.ELEMENT_ID = ActorFeature_t;
     ActorFeature::PROPS.SUBSET = "actor";
-    ActorFeature::PROPS.XMLTAG = "NONE";
+    ActorFeature::PROPS.XMLTAG = "actor";
 //------ BegindatetimeFeature -------
     BegindatetimeFeature::PROPS = Feature::PROPS;
     BegindatetimeFeature::PROPS.ELEMENT_ID = BegindatetimeFeature_t;
     BegindatetimeFeature::PROPS.SUBSET = "begindatetime";
-    BegindatetimeFeature::PROPS.XMLTAG = "NONE";
+    BegindatetimeFeature::PROPS.XMLTAG = "begindatetime";
 //------ EnddatetimeFeature -------
     EnddatetimeFeature::PROPS = Feature::PROPS;
     EnddatetimeFeature::PROPS.ELEMENT_ID = EnddatetimeFeature_t;
     EnddatetimeFeature::PROPS.SUBSET = "enddatetime";
-    EnddatetimeFeature::PROPS.XMLTAG = "NONE";
+    EnddatetimeFeature::PROPS.XMLTAG = "enddatetime";
 //------ Figure -------
     Figure::PROPS = AbstractStructureElement::PROPS;
     Figure::PROPS.ELEMENT_ID = Figure_t;
@@ -770,7 +770,7 @@ namespace folia {
     FunctionFeature::PROPS = Feature::PROPS;
     FunctionFeature::PROPS.ELEMENT_ID = FunctionFeature_t;
     FunctionFeature::PROPS.SUBSET = "function";
-    FunctionFeature::PROPS.XMLTAG = "NONE";
+    FunctionFeature::PROPS.XMLTAG = "function";
 //------ Gap -------
     Gap::PROPS.ELEMENT_ID = Gap_t;
     Gap::PROPS.ACCEPTED_DATA += {Content_t, Description_t, Feature_t, Metric_t, Part_t};
@@ -788,7 +788,7 @@ namespace folia {
     HeadFeature::PROPS = Feature::PROPS;
     HeadFeature::PROPS.ELEMENT_ID = HeadFeature_t;
     HeadFeature::PROPS.SUBSET = "head";
-    HeadFeature::PROPS.XMLTAG = "NONE";
+    HeadFeature::PROPS.XMLTAG = "head";
 //------ Headspan -------
     Headspan::PROPS = AbstractSpanRole::PROPS;
     Headspan::PROPS.ELEMENT_ID = Headspan_t;
@@ -812,7 +812,7 @@ namespace folia {
     LevelFeature::PROPS = Feature::PROPS;
     LevelFeature::PROPS.ELEMENT_ID = LevelFeature_t;
     LevelFeature::PROPS.SUBSET = "level";
-    LevelFeature::PROPS.XMLTAG = "NONE";
+    LevelFeature::PROPS.XMLTAG = "level";
 //------ Linebreak -------
     Linebreak::PROPS = AbstractStructureElement::PROPS;
     Linebreak::PROPS.ELEMENT_ID = Linebreak_t;
@@ -842,7 +842,7 @@ namespace folia {
     ModalityFeature::PROPS = Feature::PROPS;
     ModalityFeature::PROPS.ELEMENT_ID = ModalityFeature_t;
     ModalityFeature::PROPS.SUBSET = "modality";
-    ModalityFeature::PROPS.XMLTAG = "NONE";
+    ModalityFeature::PROPS.XMLTAG = "modality";
 //------ Morpheme -------
     Morpheme::PROPS = AbstractStructureElement::PROPS;
     Morpheme::PROPS.ELEMENT_ID = Morpheme_t;
@@ -978,7 +978,7 @@ namespace folia {
     StyleFeature::PROPS = Feature::PROPS;
     StyleFeature::PROPS.ELEMENT_ID = StyleFeature_t;
     StyleFeature::PROPS.SUBSET = "style";
-    StyleFeature::PROPS.XMLTAG = "NONE";
+    StyleFeature::PROPS.XMLTAG = "style";
 //------ SubjectivityAnnotation -------
     SubjectivityAnnotation::PROPS = AbstractTokenAnnotation::PROPS;
     SubjectivityAnnotation::PROPS.ELEMENT_ID = SubjectivityAnnotation_t;
@@ -994,7 +994,7 @@ namespace folia {
     SynsetFeature::PROPS = Feature::PROPS;
     SynsetFeature::PROPS.ELEMENT_ID = SynsetFeature_t;
     SynsetFeature::PROPS.SUBSET = "synset";
-    SynsetFeature::PROPS.XMLTAG = "NONE";
+    SynsetFeature::PROPS.XMLTAG = "synset";
 //------ SyntacticUnit -------
     SyntacticUnit::PROPS = AbstractSpanAnnotation::PROPS;
     SyntacticUnit::PROPS.ELEMENT_ID = SyntacticUnit_t;
@@ -1069,7 +1069,7 @@ namespace folia {
     TimeFeature::PROPS = Feature::PROPS;
     TimeFeature::PROPS.ELEMENT_ID = TimeFeature_t;
     TimeFeature::PROPS.SUBSET = "time";
-    TimeFeature::PROPS.XMLTAG = "NONE";
+    TimeFeature::PROPS.XMLTAG = "time";
 //------ TimeSegment -------
     TimeSegment::PROPS = AbstractSpanAnnotation::PROPS;
     TimeSegment::PROPS.ELEMENT_ID = TimeSegment_t;
@@ -1093,7 +1093,7 @@ namespace folia {
     ValueFeature::PROPS = Feature::PROPS;
     ValueFeature::PROPS.ELEMENT_ID = ValueFeature_t;
     ValueFeature::PROPS.SUBSET = "value";
-    ValueFeature::PROPS.XMLTAG = "NONE";
+    ValueFeature::PROPS.XMLTAG = "value";
 //------ Whitespace -------
     Whitespace::PROPS = AbstractStructureElement::PROPS;
     Whitespace::PROPS.ELEMENT_ID = Whitespace_t;
@@ -1140,6 +1140,7 @@ namespace folia {
      { AbstractTextMarkup_t, {  } },
      { AbstractTokenAnnotation_t, {  } },
      { ActorFeature_t, { Feature_t } },
+     { AlignReference_t, {  } },
      { Alignment_t, {  } },
      { Alternative_t, {  } },
      { AlternativeLayers_t, {  } },
@@ -1150,6 +1151,7 @@ namespace folia {
      { ChunkingLayer_t, { AbstractAnnotationLayer_t } },
      { ComplexAlignment_t, {  } },
      { ComplexAlignmentLayer_t, { AbstractAnnotationLayer_t } },
+     { Content_t, {  } },
      { CoreferenceChain_t, { AbstractSpanAnnotation_t } },
      { CoreferenceLayer_t, { AbstractAnnotationLayer_t } },
      { CoreferenceLink_t, { AbstractSpanRole_t,AbstractSpanAnnotation_t } },
@@ -1159,6 +1161,7 @@ namespace folia {
      { DependenciesLayer_t, { AbstractAnnotationLayer_t } },
      { Dependency_t, { AbstractSpanAnnotation_t } },
      { DependencyDependent_t, { AbstractSpanRole_t,AbstractSpanAnnotation_t } },
+     { Description_t, {  } },
      { Division_t, { AbstractStructureElement_t } },
      { DomainAnnotation_t, { AbstractExtendedTokenAnnotation_t,AbstractTokenAnnotation_t } },
      { EnddatetimeFeature_t, { Feature_t } },
@@ -1169,6 +1172,7 @@ namespace folia {
      { Event_t, { AbstractStructureElement_t } },
      { Example_t, { AbstractStructureElement_t } },
      { External_t, {  } },
+     { Feature_t, {  } },
      { Figure_t, { AbstractStructureElement_t } },
      { FunctionFeature_t, { Feature_t } },
      { Gap_t, {  } },
@@ -1227,6 +1231,7 @@ namespace folia {
      { ValueFeature_t, { Feature_t } },
      { Whitespace_t, { AbstractStructureElement_t } },
      { Word_t, { AbstractStructureElement_t } },
+     { WordReference_t, {  } },
   };
 
   properties::properties() {
