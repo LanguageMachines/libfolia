@@ -263,6 +263,7 @@ namespace folia {
     case Part_t:
       return new Part( doc );
     case AbstractSpanAnnotation_t:
+    case AbstractSpanRole_t:
     case AbstractAnnotationLayer_t:
     case AbstractTextMarkup_t:
     case AbstractTokenAnnotation_t:
