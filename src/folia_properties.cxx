@@ -6,7 +6,7 @@
 #include "libfolia/folia_properties.h"
 
 //foliaspec:header
-//This file was last updated according to the FoLiA specification for version 0.12.2 on 2016-03-04 15:49:19, using foliaspec.py
+//This file was last updated according to the FoLiA specification for version 0.12.2 on 2016-03-04 15:57:14, using foliaspec.py
 //Code blocks after a foliaspec comment (until the next newline) are automatically generated. **DO NOT EDIT THOSE** and **DO NOT REMOVE ANY FOLIASPEC COMMENTS** !!!
 
 namespace folia {
@@ -737,7 +737,7 @@ namespace folia {
     External::PROPS.AUTH = true;
     External::PROPS.OPTIONAL_ATTRIBS = NO_ATT;
     External::PROPS.PRINTABLE = true;
-    External::PROPS.REQUIRED_ATTRIBS = NO_ATT;
+    External::PROPS.REQUIRED_ATTRIBS = SRC;
     External::PROPS.SPEAKABLE = false;
     External::PROPS.XMLTAG = "external";
 //------ Feature -------
