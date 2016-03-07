@@ -6,7 +6,7 @@
 #include "libfolia/folia_properties.h"
 
 //foliaspec:header
-//This file was last updated according to the FoLiA specification for version 0.12.2 on 2016-03-07 10:52:42, using foliaspec.py
+//This file was last updated according to the FoLiA specification for version 0.12.2 on 2016-03-07 11:28:43, using foliaspec.py
 //Code blocks after a foliaspec comment (until the next newline) are automatically generated. **DO NOT EDIT THOSE** and **DO NOT REMOVE ANY FOLIASPEC COMMENTS** !!!
 
 namespace folia {
@@ -531,6 +531,7 @@ namespace folia {
 //------ AbstractStructureElement -------
     AbstractStructureElement::PROPS.ELEMENT_ID = AbstractStructureElement_t;
     AbstractStructureElement::PROPS.ACCEPTED_DATA += {AbstractAnnotationLayer_t, Alignment_t, Alternative_t, AlternativeLayers_t, Correction_t, Description_t, Feature_t, Metric_t, Part_t};
+    AbstractStructureElement::PROPS.AUTO_GENERATE_ID = true;
     AbstractStructureElement::PROPS.OPTIONAL_ATTRIBS = ID|CLASS|ANNOTATOR|N|CONFIDENCE|DATETIME|SRC|BEGINTIME|ENDTIME|SPEAKER;
     AbstractStructureElement::PROPS.PRINTABLE = true;
     AbstractStructureElement::PROPS.REQUIRED_ATTRIBS = NO_ATT;
@@ -1246,6 +1247,7 @@ namespace folia {
       ACCEPTED_DATA += {Description_t};
       ANNOTATIONTYPE = AnnotationType::NO_ANN;
       AUTH = true;
+      AUTO_GENERATE_ID = false;
       OCCURRENCES = 0;
       OCCURRENCES_PER_SET = 0;
       OPTIONAL_ATTRIBS = NO_ATT;
