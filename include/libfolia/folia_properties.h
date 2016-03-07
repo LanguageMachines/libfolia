@@ -32,6 +32,7 @@ namespace folia {
     bool XLINK;
     bool AUTH;
     bool SETONLY;
+    bool AUTO_GENERATE_ID;
   };
 
   extern const std::set<std::string> AttributeFeatures;

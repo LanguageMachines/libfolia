@@ -113,6 +113,10 @@ namespace folia {
     return _props.SETONLY;
   }
 
+  inline bool FoliaImpl::auto_generate_id() const {
+    return _props.AUTO_GENERATE_ID;
+  }
+
   ostream& operator<<( ostream& os, const FoliaElement& ae ) {
     os << " <" << ae.classname();
     KWargs ats = ae.collectAttributes();
