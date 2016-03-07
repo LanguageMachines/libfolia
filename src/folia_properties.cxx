@@ -6,7 +6,7 @@
 #include "libfolia/folia_properties.h"
 
 //foliaspec:header
-//This file was last updated according to the FoLiA specification for version 0.12.2 on 2016-03-04 17:44:38, using foliaspec.py
+//This file was last updated according to the FoLiA specification for version 0.12.2 on 2016-03-07 10:29:18, using foliaspec.py
 //Code blocks after a foliaspec comment (until the next newline) are automatically generated. **DO NOT EDIT THOSE** and **DO NOT REMOVE ANY FOLIASPEC COMMENTS** !!!
 
 namespace folia {
@@ -184,7 +184,7 @@ namespace folia {
     { FunctionFeature_t,  "function" },
     { Gap_t,  "gap" },
     { Head_t,  "head" },
-    { HeadFeature_t,  "head" },
+    { HeadFeature_t,  "headfeature" },
     { Headspan_t,  "hd" },
     { Label_t,  "label" },
     { LangAnnotation_t,  "lang" },
@@ -293,7 +293,7 @@ namespace folia {
     { "function", FunctionFeature_t  },
     { "gap", Gap_t  },
     { "head", Head_t  },
-    { "head", HeadFeature_t  },
+    { "headfeature", HeadFeature_t },
     { "hd", Headspan_t  },
     { "label", Label_t  },
     { "lang", LangAnnotation_t  },
