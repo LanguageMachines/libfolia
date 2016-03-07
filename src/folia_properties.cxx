@@ -32,6 +32,13 @@ namespace folia {
   const string NSDCOI = "http://lands.let.ru.nl/projects/d-coi/ns/1.0";
   const string NSIMDI = "http://www.mpi.nl/IMDI/Schema/IMDI";
 
+  const set<string> AttributeFeatures = {
+    "actor", "value", "function",
+    "level", "time", "modality",
+    "synset", "begindatetime",
+    "enddatetime", "head", "headfeature"
+  };
+
   //foliaspec:annotationtype_string_map
   //A mapping from annotation types to strings
   const map<AnnotationType::AnnotationType,string> ant_s_map = {

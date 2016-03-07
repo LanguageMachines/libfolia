@@ -464,13 +464,6 @@ namespace folia {
     addFeatureNodes( kwargs );
   }
 
-  const set<string> AttributeFeatures = {
-    "actor", "value", "function",
-    "level", "time", "modality",
-    "synset", "begindatetime",
-    "enddatetime", "head", "headfeature"
-  };
-
   void FoliaImpl::addFeatureNodes( const KWargs& kwargs ) {
     for ( const auto& it: kwargs ) {
       string tag = it.first;
