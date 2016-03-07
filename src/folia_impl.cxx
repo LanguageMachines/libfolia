@@ -488,14 +488,8 @@ namespace folia {
       }
       KWargs newa;
       newa["class"] = it.second;
-      FoliaElement *new_node = 0;
-      if ( tag == "headfeature" ) {
-	new_node = new HeadFeature( mydoc, newa );
-      }
-      else {
-	new_node = createElement( mydoc, tag );
-	new_node->setAttributes( newa );
-      }
+      FoliaElement *new_node = createElement( mydoc, tag );
+      new_node->setAttributes( newa );
       append( new_node );
     }
   }
