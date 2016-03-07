@@ -594,9 +594,20 @@ namespace folia {
     set<FoliaElement *> attribute_elements;
     // nodes that can be represented as attributes are converted to atributes
     // and excluded of 'normal' output.
+
+    map<string,int> af_map;
+    // first we search al features that can be serialized to an attribute
+    // and count them!
     for ( const auto& el : data ) {
       string at = tagToAtt( el );
       if ( !at.empty() ) {
+	++af_map[at];
+      }
+    }
+    // ok, now we create attributes for those that only occur once
+    for ( const auto& el : data ) {
+      string at = tagToAtt( el );
+      if ( !at.empty() && af_map[at] == 1 ) {
 	attribs[at] = el->cls();
 	attribute_elements.insert( el );
       }
