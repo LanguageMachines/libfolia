@@ -471,6 +471,11 @@ namespace folia {
   void FoliaImpl::addFeatureNodes( const KWargs& kwargs ) {
     for ( const auto& it: kwargs ) {
       string tag = it.first;
+      if ( tag == "head" ) {
+	// "head" is special because the tag is "headfeature"
+	// this to avoid conflicts withe the "head" tag!
+	tag = "headfeature";
+      }
       if ( AttributeFeatures.find( tag ) == AttributeFeatures.end() ) {
 	string message = "unsupported attribute: " + tag + "='" + it.second
 	  + "' for node with tag '" + classname() + "'";
@@ -484,9 +489,7 @@ namespace folia {
       KWargs newa;
       newa["class"] = it.second;
       FoliaElement *new_node = 0;
-      if ( tag == "head" ) {
-	// "head" is special because the tag is "headfeature"
-	// this to avoid conflicts withe the "head" tag!
+      if ( tag == "headfeature" ) {
 	new_node = new HeadFeature( mydoc, newa );
       }
       else {
