@@ -449,8 +449,8 @@ namespace folia {
     virtual ~FoliaImpl();
 
     void classInit(){
-      // we could call 'init()' directly, but this is more esthecic
-      // keep in balance with the nect function
+      // we could call 'init()' directly, but this is more esthetic
+      // keep in balance with the next function
       init(); // virtual init
     }
 
@@ -1416,12 +1416,11 @@ namespace folia {
   Alternative( const KWargs& a ):
     AbstractStructureElement( PROPS, 0 ){ classInit( a ); }
   Alternative( Document *d=0 ):
-    AbstractStructureElement( PROPS, d ){ classInit(); }
+    AbstractStructureElement( PROPS, d ){ classInit( KWargs() ); }
   Alternative( Document *d, const KWargs& a ):
     AbstractStructureElement( PROPS, d ){ classInit( a ); }
 
   private:
-    void init();
     static properties PROPS;
   };
 
@@ -1432,12 +1431,11 @@ namespace folia {
   AlternativeLayers( const KWargs& a ):
     FoliaImpl( PROPS, 0 ){ classInit( a ); }
   AlternativeLayers( Document *d = 0 ):
-    FoliaImpl( PROPS, d ){ classInit(); }
+    FoliaImpl( PROPS, d ){ classInit( KWargs() ); }
   AlternativeLayers( Document *d, const KWargs& a ):
     FoliaImpl( PROPS, d ){ classInit( a ); }
 
   private:
-    void init();
     static properties PROPS;
   };
 
@@ -1763,13 +1761,12 @@ namespace folia {
   WordReference( const KWargs& a ):
     FoliaImpl( PROPS, 0 ){ classInit( a ); }
   WordReference( Document *d = 0 ):
-    FoliaImpl( PROPS, d ){ classInit(); }
+    FoliaImpl( PROPS, d ){ classInit( KWargs() ); }
   WordReference( Document *d, const KWargs& a ):
     FoliaImpl( PROPS, d ){ classInit( a ); }
 
   private:
     static properties PROPS;
-    void init();
     FoliaElement* parseXml( const xmlNode *node );
   };
 
@@ -2023,13 +2020,12 @@ namespace folia {
   Original( const KWargs& a ):
     AbstractCorrectionChild( PROPS, 0 ) { classInit( a ); }
   Original( Document *d=0 ):
-    AbstractCorrectionChild( PROPS, d ) { classInit(); }
+    AbstractCorrectionChild( PROPS, d ) { classInit( KWargs() ); }
   Original( Document *d, const KWargs& a ):
     AbstractCorrectionChild( PROPS, d ) { classInit( a ); }
 
   private:
     static properties PROPS;
-    void init();
   };
 
   class Suggestion: public AbstractCorrectionChild {
@@ -2038,13 +2034,12 @@ namespace folia {
   Suggestion( const KWargs& a ):
     AbstractCorrectionChild( PROPS, 0 ) { classInit( a ); }
   Suggestion( Document *d=0 ):
-    AbstractCorrectionChild( PROPS, d ) { classInit(); }
+    AbstractCorrectionChild( PROPS, d ) { classInit( KWargs() ); }
   Suggestion( Document *d, const KWargs& a ):
     AbstractCorrectionChild( PROPS, d ) { classInit( a ); }
 
   private:
     static properties PROPS;
-    void init();
   };
 
   class Description: public FoliaImpl {

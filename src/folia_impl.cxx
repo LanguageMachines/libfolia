@@ -183,14 +183,16 @@ namespace folia {
   void FoliaImpl::setAttributes( const KWargs& kwargs_in ) {
     KWargs kwargs = kwargs_in;
     Attrib supported = required_attributes() | optional_attributes();
-    // if ( element_id() == Feature_t ) {
-    //   cerr << "set attributes: " << kwargs << " on " << classname() << endl;
-    //   cerr << "required = " <<  required_attributes() << endl;
-    //   cerr << "optional = " <<  optional_attributes() << endl;
-    //   cerr << "supported = " << supported << endl;
-    //   cerr << "ID & supported = " << (ID & supported) << endl;
-    //   cerr << "ID & _required = " << (ID & required_attributes() ) << endl;
-    // }
+    //if ( element_id() == Original_t ) {
+    //cerr << "set attributes: " << kwargs << " on " << classname() << endl;
+      //      cerr << "required = " <<  required_attributes() << endl;
+      //      cerr << "optional = " <<  optional_attributes() << endl;
+      //      cerr << "supported = " << supported << endl;
+      //   cerr << "ID & supported = " << (ID & supported) << endl;
+      //   cerr << "ID & _required = " << (ID & required_attributes() ) << endl;
+      //
+    //      cerr << "AUTH : " << _auth << ", default=" << default_auth() << endl;
+    //    }
     if ( mydoc && mydoc->debug > 2 ) {
       cerr << "set attributes: " << kwargs << " on " << classname() << endl;
     }
@@ -461,7 +463,9 @@ namespace folia {
       _auth = stringTo<bool>( it->second );
       kwargs.erase( it );
     }
-
+    else {
+      _auth = default_auth(); // get it from the properties
+    }
     if ( mydoc && !_id.empty() ) {
       mydoc->addDocIndex( this, _id );
     }
@@ -3496,26 +3500,6 @@ namespace folia {
 
   void Word::init() {
     _space = true;
-  }
-
-  void WordReference::init() {
-    _auth = false;
-  }
-
-  void Alternative::init() {
-    _auth = false;
-  }
-
-  void AlternativeLayers::init() {
-    _auth = false;
-  }
-
-  void Original::init() {
-    _auth = false;
-  }
-
-  void Suggestion::init() {
-    _auth = false;
   }
 
 } // namespace folia
