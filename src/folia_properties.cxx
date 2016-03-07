@@ -6,7 +6,7 @@
 #include "libfolia/folia_properties.h"
 
 //foliaspec:header
-//This file was last updated according to the FoLiA specification for version 0.12.2 on 2016-03-07 10:29:18, using foliaspec.py
+//This file was last updated according to the FoLiA specification for version 0.12.2 on 2016-03-07 10:52:42, using foliaspec.py
 //Code blocks after a foliaspec comment (until the next newline) are automatically generated. **DO NOT EDIT THOSE** and **DO NOT REMOVE ANY FOLIASPEC COMMENTS** !!!
 
 namespace folia {
@@ -32,12 +32,8 @@ namespace folia {
   const string NSDCOI = "http://lands.let.ru.nl/projects/d-coi/ns/1.0";
   const string NSIMDI = "http://www.mpi.nl/IMDI/Schema/IMDI";
 
-  const set<string> AttributeFeatures = {
-    "actor", "value", "function",
-    "level", "time", "modality",
-    "synset", "begindatetime",
-    "enddatetime", "head", "headfeature"
-  };
+  //foliaspec:attributefeatures
+  const set<string> AttributeFeatures = { "actor", "begindatetime", "enddatetime", "function", "headfeature", "level", "modality", "style", "synset", "time", "value" };
 
   //foliaspec:annotationtype_string_map
   //A mapping from annotation types to strings
