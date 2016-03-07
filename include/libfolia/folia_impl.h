@@ -1733,7 +1733,6 @@ namespace folia {
       return e == Feature_t;
     }
     static properties PROPS;
-    void init();
   };
 
   class EnddatetimeFeature: public Feature {
@@ -1751,7 +1750,6 @@ namespace folia {
       return e == Feature_t;
     }
     static properties PROPS;
-    void init();
   };
 
   class SynsetFeature: public Feature {
@@ -1769,7 +1767,6 @@ namespace folia {
       return e == Feature_t;
     }
     static properties PROPS;
-    void init();
   };
 
   class ActorFeature: public Feature {
@@ -1787,7 +1784,6 @@ namespace folia {
       return e == Feature_t;
     }
     static properties PROPS;
-    void init();
   };
 
   class HeadFeature: public Feature {
@@ -1805,7 +1801,6 @@ namespace folia {
       return e == Feature_t;
     }
     static properties PROPS;
-    void init();
   };
 
   class ValueFeature: public Feature {
@@ -1823,7 +1818,6 @@ namespace folia {
       return e == Feature_t;
     }
     static properties PROPS;
-    void init();
   };
 
   class FunctionFeature: public Feature {
@@ -1841,7 +1835,6 @@ namespace folia {
       return e == Feature_t;
     }
     static properties PROPS;
-    void init();
   };
 
   class TimeFeature: public Feature {
@@ -1859,7 +1852,6 @@ namespace folia {
       return e == Feature_t;
     }
     static properties PROPS;
-    void init();
   };
 
   class LevelFeature: public Feature {
@@ -1877,7 +1869,6 @@ namespace folia {
       return e == Feature_t;
     }
     static properties PROPS;
-    void init();
   };
 
   class ModalityFeature: public Feature {
@@ -1895,7 +1886,6 @@ namespace folia {
       return e == Feature_t;
     }
     static properties PROPS;
-    void init();
   };
 
   class StyleFeature: public Feature {
@@ -1913,7 +1903,6 @@ namespace folia {
       return e == Feature_t;
     }
     static properties PROPS;
-    void init();
   };
 
   class WordReference: public FoliaImpl {

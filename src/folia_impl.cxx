@@ -464,29 +464,17 @@ namespace folia {
     addFeatureNodes( kwargs );
   }
 
+  const set<string> AttributeFeatures = {
+    "actor", "value", "function",
+    "level", "time", "modality",
+    "synset", "begindatetime",
+    "enddatetime", "head", "headfeature"
+  };
+
   void FoliaImpl::addFeatureNodes( const KWargs& kwargs ) {
     for ( const auto& it: kwargs ) {
       string tag = it.first;
-      if ( tag == "head" ) {
-	// "head" is special because the tag is "headfeature"
-	// this to avoid conflicts withe the "head" tag!
-	KWargs newa;
-	newa["class"] = it.second;
-	FoliaElement *tmp = new HeadFeature();
-	tmp->setAttributes( newa );
-	append( tmp );
-      }
-      else if ( tag == "actor" || tag == "value"|| tag == "function" ||
-		tag == "level" || tag == "time" || tag == "modality" ||
-		tag == "synset" || tag == "begindatetime" ||
-		tag == "enddatetime" ) {
-	KWargs newa;
-	newa["class"] = it.second;
-	FoliaElement *tmp = createElement( mydoc, tag );
-	tmp->setAttributes( newa );
-	append( tmp );
-      }
-      else {
+      if ( AttributeFeatures.find( tag ) == AttributeFeatures.end() ) {
 	string message = "unsupported attribute: " + tag + "='" + it.second
 	  + "' for node with tag '" + classname() + "'";
 	if ( mydoc && mydoc->permissive() ) {
@@ -496,6 +484,19 @@ namespace folia {
 	  throw XmlError( message );
 	}
       }
+      KWargs newa;
+      newa["class"] = it.second;
+      FoliaElement *new_node = 0;
+      if ( tag == "head" ) {
+	// "head" is special because the tag is "headfeature"
+	// this to avoid conflicts withe the "head" tag!
+	new_node = new HeadFeature( mydoc, newa );
+      }
+      else {
+	new_node = createElement( mydoc, tag );
+	new_node->setAttributes( newa );
+      }
+      append( new_node );
     }
   }
 
@@ -3366,9 +3367,11 @@ namespace folia {
     //
     auto it = kwargs.find( "subset" );
     if ( it == kwargs.end() ) {
-      if ( _subset.empty() ) {
+      _subset = default_subset();
+      if ( _subset.empty() ){
 	throw ValueError("subset attribute is required for " + classname() );
       }
+
     }
     else {
       _subset = it->second;
@@ -3508,50 +3511,6 @@ namespace folia {
 
   void Suggestion::init() {
     _auth = false;
-  }
-
-  void BegindatetimeFeature::init() {
-    _subset = "begindatetime";
-  }
-
-  void EnddatetimeFeature::init() {
-    _subset = "enddatetime";
-  }
-
-  void SynsetFeature::init() {
-    _subset = "synset";
-  }
-
-  void ActorFeature::init() {
-    _subset = "actor";
-  }
-
-  void HeadFeature::init() {
-    _subset = "head";
-  }
-
-  void ValueFeature::init() {
-    _subset = "value";
-  }
-
-  void FunctionFeature::init() {
-    _subset = "function";
-  }
-
-  void LevelFeature::init() {
-    _subset = "level";
-  }
-
-  void ModalityFeature::init() {
-    _subset = "modality";
-  }
-
-  void TimeFeature::init() {
-    _subset = "time";
-  }
-
-  void StyleFeature::init() {
-    _subset = "actor";
   }
 
 } // namespace folia
