@@ -316,18 +316,12 @@ namespace folia {
   }
 
   bool Document::save( ostream& os, const string& nsLabel, bool kanon ) {
-    if ( kanon ){
-      throw runtime_error( "canonical output not supported atm" );
-    }
     string s = toXml( nsLabel, kanon );
     os << s << endl;
     return os.good();
   }
 
   bool Document::save( const string& fn, const string& nsLabel, bool kanon ) {
-    if ( kanon ){
-      throw runtime_error( "canonical output not supported atm" );
-    }
     try {
       if ( match_back( fn, ".bz2" ) ){
 	string tmpname = fn.substr( 0, fn.length() - 3 ) + "tmp";

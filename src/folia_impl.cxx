@@ -626,7 +626,7 @@ namespace folia {
       list<FoliaElement *> textelements;
       list<FoliaElement *> otherelements;
       list<FoliaElement *> commentelements;
-      multimap<ElementType, FoliaElement *> otherelementsMap;
+      multimap<ElementType, FoliaElement *, std::greater<ElementType>> otherelementsMap;
       for ( const auto& el : data ) {
 	if ( attribute_elements.find(el) == attribute_elements.end() ) {
 	  if ( el->isinstance(TextContent_t) ) {
@@ -2738,7 +2738,7 @@ namespace folia {
     }
     FoliaElement *res = (*mydoc)[id];
     if ( res ) {
-      // To DO: check type. Word_t and Morpheme_t
+      // To DO: check type. Word_t, Phoneme_t or Morpheme_t??
       res->increfcount();
     }
     else {
@@ -2913,9 +2913,10 @@ namespace folia {
 
   xmlNode *AbstractSpanAnnotation::xml( bool recursive, bool kanon ) const {
     xmlNode *e = FoliaImpl::xml( false, false );
-    // append Word and Morpheme children as WREFS
+    // append Word, Phon and Morpheme children as WREFS
     for ( const auto& el : data ) {
       if ( el->element_id() == Word_t ||
+	   el->element_id() == Phoneme_t ||
 	   el->element_id() == Morpheme_t ) {
 	xmlNode *t = XmlNewNode( foliaNs(), "wref" );
 	KWargs attribs;
@@ -3185,7 +3186,7 @@ namespace folia {
       ElementType et = el->element_id();
       if ( et == Word_t
 	   || et == WordReference_t
-	   //	   || et == Phoneme_t
+	   || et == Phoneme_t
 	   || et == MorphologyLayer_t ) {
 	res.push_back( el );
       }
