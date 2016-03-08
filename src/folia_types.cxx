@@ -79,7 +79,11 @@ namespace folia {
     return result->second;
   }
 
-  ElementType stringToET( const string& tag ){
+  ElementType stringToET( const string& intag ){
+    string tag = intag;
+    if ( tag == "listitem" ){ // erroneous in older FoLiA docs
+      tag = "item";
+    }
     auto result = s_et_map.find(tag);
     if ( result == s_et_map.end() ){
       throw ValueError( "unknown tag <" + tag + ">" );

@@ -1318,6 +1318,16 @@ namespace folia {
     setAttributes( att );
     xmlNode *p = node->children;
     while ( p ) {
+      string pref;
+      string ns = getNS( p, pref );
+      if ( !ns.empty() && ns != NSFOLIA ){
+	// skip alien nodes
+	if ( doc() && doc()->debug > 2 ) {
+	  cerr << "skiping non-FoLiA node: " << pref << ":" << Name(p) << endl;
+	}
+	p = p->next;
+	continue;
+      }
       if ( p->type == XML_ELEMENT_NODE ) {
 	string tag = Name( p );
 	FoliaElement *t = createElement( doc(), tag );
@@ -1332,6 +1342,9 @@ namespace folia {
 	    }
 	    append( t );
 	  }
+	}
+	else if ( mydoc || !mydoc->permissive() ){
+	  throw XmlError( "FoLiA parser terminated" );
 	}
       }
       else if ( p->type == XML_COMMENT_NODE ) {
