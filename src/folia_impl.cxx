@@ -113,6 +113,10 @@ namespace folia {
     return _props.SETONLY;
   }
 
+  inline bool FoliaImpl::auto_generate_id() const {
+    return _props.AUTO_GENERATE_ID;
+  }
+
   ostream& operator<<( ostream& os, const FoliaElement& ae ) {
     os << " <" << ae.classname();
     KWargs ats = ae.collectAttributes();
@@ -179,14 +183,16 @@ namespace folia {
   void FoliaImpl::setAttributes( const KWargs& kwargs_in ) {
     KWargs kwargs = kwargs_in;
     Attrib supported = required_attributes() | optional_attributes();
-    // if ( element_id() == Feature_t ) {
-    //   cerr << "set attributes: " << kwargs << " on " << classname() << endl;
-    //   cerr << "required = " <<  required_attributes() << endl;
-    //   cerr << "optional = " <<  optional_attributes() << endl;
-    //   cerr << "supported = " << supported << endl;
-    //   cerr << "ID & supported = " << (ID & supported) << endl;
-    //   cerr << "ID & _required = " << (ID & required_attributes() ) << endl;
-    // }
+    //if ( element_id() == Original_t ) {
+    //cerr << "set attributes: " << kwargs << " on " << classname() << endl;
+      //      cerr << "required = " <<  required_attributes() << endl;
+      //      cerr << "optional = " <<  optional_attributes() << endl;
+      //      cerr << "supported = " << supported << endl;
+      //   cerr << "ID & supported = " << (ID & supported) << endl;
+      //   cerr << "ID & _required = " << (ID & required_attributes() ) << endl;
+      //
+    //      cerr << "AUTH : " << _auth << ", default=" << default_auth() << endl;
+    //    }
     if ( mydoc && mydoc->debug > 2 ) {
       cerr << "set attributes: " << kwargs << " on " << classname() << endl;
     }
@@ -457,7 +463,9 @@ namespace folia {
       _auth = stringTo<bool>( it->second );
       kwargs.erase( it );
     }
-
+    else {
+      _auth = default_auth(); // get it from the properties
+    }
     if ( mydoc && !_id.empty() ) {
       mydoc->addDocIndex( this, _id );
     }
@@ -470,23 +478,9 @@ namespace folia {
       if ( tag == "head" ) {
 	// "head" is special because the tag is "headfeature"
 	// this to avoid conflicts withe the "head" tag!
-	KWargs newa;
-	newa["class"] = it.second;
-	FoliaElement *tmp = new HeadFeature();
-	tmp->setAttributes( newa );
-	append( tmp );
+	tag = "headfeature";
       }
-      else if ( tag == "actor" || tag == "value"|| tag == "function" ||
-		tag == "level" || tag == "time" || tag == "modality" ||
-		tag == "synset" || tag == "begindatetime" ||
-		tag == "enddatetime" ) {
-	KWargs newa;
-	newa["class"] = it.second;
-	FoliaElement *tmp = createElement( mydoc, tag );
-	tmp->setAttributes( newa );
-	append( tmp );
-      }
-      else {
+      if ( AttributeFeatures.find( tag ) == AttributeFeatures.end() ) {
 	string message = "unsupported attribute: " + tag + "='" + it.second
 	  + "' for node with tag '" + classname() + "'";
 	if ( mydoc && mydoc->permissive() ) {
@@ -496,6 +490,11 @@ namespace folia {
 	  throw XmlError( message );
 	}
       }
+      KWargs newa;
+      newa["class"] = it.second;
+      FoliaElement *new_node = createElement( mydoc, tag );
+      new_node->setAttributes( newa );
+      append( new_node );
     }
   }
 
@@ -600,9 +599,20 @@ namespace folia {
     set<FoliaElement *> attribute_elements;
     // nodes that can be represented as attributes are converted to atributes
     // and excluded of 'normal' output.
+
+    map<string,int> af_map;
+    // first we search al features that can be serialized to an attribute
+    // and count them!
     for ( const auto& el : data ) {
       string at = tagToAtt( el );
       if ( !at.empty() ) {
+	++af_map[at];
+      }
+    }
+    // ok, now we create attributes for those that only occur once
+    for ( const auto& el : data ) {
+      string at = tagToAtt( el );
+      if ( !at.empty() && af_map[at] == 1 ) {
 	attribs[at] = el->cls();
 	attribute_elements.insert( el );
       }
@@ -3366,9 +3376,11 @@ namespace folia {
     //
     auto it = kwargs.find( "subset" );
     if ( it == kwargs.end() ) {
-      if ( _subset.empty() ) {
+      _subset = default_subset();
+      if ( _subset.empty() ){
 	throw ValueError("subset attribute is required for " + classname() );
       }
+
     }
     else {
       _subset = it->second;
@@ -3488,70 +3500,6 @@ namespace folia {
 
   void Word::init() {
     _space = true;
-  }
-
-  void WordReference::init() {
-    _auth = false;
-  }
-
-  void Alternative::init() {
-    _auth = false;
-  }
-
-  void AlternativeLayers::init() {
-    _auth = false;
-  }
-
-  void Original::init() {
-    _auth = false;
-  }
-
-  void Suggestion::init() {
-    _auth = false;
-  }
-
-  void BegindatetimeFeature::init() {
-    _subset = "begindatetime";
-  }
-
-  void EnddatetimeFeature::init() {
-    _subset = "enddatetime";
-  }
-
-  void SynsetFeature::init() {
-    _subset = "synset";
-  }
-
-  void ActorFeature::init() {
-    _subset = "actor";
-  }
-
-  void HeadFeature::init() {
-    _subset = "head";
-  }
-
-  void ValueFeature::init() {
-    _subset = "value";
-  }
-
-  void FunctionFeature::init() {
-    _subset = "function";
-  }
-
-  void LevelFeature::init() {
-    _subset = "level";
-  }
-
-  void ModalityFeature::init() {
-    _subset = "modality";
-  }
-
-  void TimeFeature::init() {
-    _subset = "time";
-  }
-
-  void StyleFeature::init() {
-    _subset = "actor";
   }
 
 } // namespace folia

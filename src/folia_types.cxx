@@ -47,7 +47,11 @@ namespace folia {
     return result->second;
   }
 
-  AnnotationType::AnnotationType stringToAT( const string& s ){
+  AnnotationType::AnnotationType stringToAT( const string& st ){
+    string s = st;
+    if ( s == "div" ){
+      s = "division";  // fix for old (in fact invalid) FoLiA
+    }
     auto result = s_ant_map.find( s );
     if ( result == s_ant_map.end() ){
       throw logic_error( "Unknown translation for annotationtype: '"
