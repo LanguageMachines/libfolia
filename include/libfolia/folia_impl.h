@@ -614,7 +614,6 @@ namespace folia {
     bool printable() const;
     bool speakable() const;
     bool xlink() const;
-    bool default_auth() const;
     bool auth() const;
     bool setonly() const;
     bool auto_generate_id() const;

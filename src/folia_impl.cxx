@@ -109,7 +109,7 @@ namespace folia {
     return _props.XLINK;
   }
 
-  inline bool FoliaImpl::default_auth() const {
+  inline bool FoliaImpl::auth() const {
     return _props.AUTH;
   }
 
@@ -466,9 +466,6 @@ namespace folia {
     if ( it != kwargs.end() ) {
       _auth = stringTo<bool>( it->second );
       kwargs.erase( it );
-    }
-    else {
-      _auth = default_auth(); // get it from the properties
     }
     if ( mydoc && !_id.empty() ) {
       mydoc->addDocIndex( this, _id );
