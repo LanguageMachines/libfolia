@@ -1370,7 +1370,14 @@ namespace folia {
 	  if ( doc() && doc()->debug > 2 ) {
 	    cerr << "created " << t << endl;
 	  }
-	  t = t->parseXml( p );
+	  try {
+	    t = t->parseXml( p );
+	  }
+	  catch ( ValueError& ){
+	    // ignore empty content
+	    delete t;
+	    t = 0;
+	  }
 	  if ( t ) {
 	    if ( doc() && doc()->debug > 2 ) {
 	      cerr << "extend " << this << " met " << t << endl;
@@ -3253,10 +3260,12 @@ namespace folia {
   }
 
   FoliaElement* XmlText::parseXml( const xmlNode *node ) {
+    string tmp;
     if ( node->content ) {
       _value = (const char*)node->content;
+      tmp = trim( _value );
     }
-    if ( _value.empty() ) {
+    if ( tmp.empty() ) {
       throw ValueError( "TextContent may not be empty" );
     }
     return this;
