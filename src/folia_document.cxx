@@ -61,7 +61,7 @@ namespace folia {
     KWargs kwargs = getArgs( args );
     setDocumentProps( kwargs );
     if ( ! foliadoc ){
-      foliadoc = new FoLiA( this, kwargs );
+      foliadoc = new FoLiA( kwargs, this );
     }
   }
 
@@ -876,7 +876,7 @@ namespace folia {
   }
 
   Text* Document::addText( const KWargs& kwargs ){
-    Text *res = new Text( this, kwargs );
+    Text *res = new Text( kwargs, this );
     foliadoc->append( res );
     return res;
   }

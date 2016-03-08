@@ -60,7 +60,7 @@ int main() {
   FoliaElement *text = d.addText( kw );
   kw.clear();
   kw = getArgs( "generate_id='" + text->id() + "'" );
-  FoliaElement *s = new Sentence( &d, kw );
+  FoliaElement *s = new Sentence( kw, &d );
   text->append( s );
   kw.clear();
   kw["text"] = "De";

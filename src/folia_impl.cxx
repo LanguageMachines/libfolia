@@ -1427,7 +1427,7 @@ namespace folia {
       // ok, there is already one, so create an Alternative
       KWargs kw;
       kw["id"] = generateId( newId );
-      Alternative *alt = new Alternative( doc(), kw );
+      Alternative *alt = new Alternative( kw, doc() );
       append( alt );
       return alt->addAnnotation<PosAnnotation>( args );
     }
@@ -1478,7 +1478,7 @@ namespace folia {
       // ok, there is already one, so create an Alternative
       KWargs kw;
       kw["id"] = generateId( newId );
-      Alternative *alt = new Alternative( doc(), kw );
+      Alternative *alt = new Alternative( kw, doc() );
       append( alt );
       return alt->addAnnotation<LemmaAnnotation>( args );
     }
@@ -1529,7 +1529,7 @@ namespace folia {
       // ok, there is already one, so create an Alternative
       KWargs kw;
       kw["id"] = generateId( newId );
-      Alternative *alt = new Alternative( doc(), kw );
+      Alternative *alt = new Alternative( kw, doc() );
       append( alt );
       return alt->addAnnotation<MorphologyLayer>( args );
     }
@@ -1636,7 +1636,7 @@ namespace folia {
       else if ( pnt->isinstance( Sentence_t ) ) {
 	KWargs args;
 	args["text"] = pnt->id();
-	PlaceHolder *p = new PlaceHolder( mydoc, args );
+	PlaceHolder *p = new PlaceHolder( args, mydoc );
 	mydoc->keepForDeletion( p );
 	result.push_back( p );
       }
@@ -2033,7 +2033,7 @@ namespace folia {
     if ( it != args.end() ) {
       KWargs my_args;
       my_args["value"] = it->second;
-      TextContent *t = new TextContent( mydoc, my_args );
+      TextContent *t = new TextContent( my_args, mydoc );
       _new.push_back( t );
       args.erase( it );
     }
@@ -2041,7 +2041,7 @@ namespace folia {
     if ( it != args.end() ) {
       KWargs my_args;
       my_args["value"] = it->second;
-      TextContent *t = new TextContent( mydoc, my_args );
+      TextContent *t = new TextContent( my_args, mydoc );
       suggestions.push_back( t );
       args.erase( it );
     }
@@ -3287,7 +3287,7 @@ namespace folia {
 	      FoliaElement *parent = _parent;
 	      KWargs args = parent->collectAttributes();
 	      args["_id"] = "Arglebargleglop-glyf";
-	      Text *tmp = new Text( mydoc, args );
+	      Text *tmp = new Text( args, mydoc );
 	      tmp->FoliaImpl::parseXml( p );
 	      FoliaElement *old = parent->replace( this, tmp->index(0) );
 	      mydoc->delDocIndex( tmp, "Arglebargleglop-glyf" );
