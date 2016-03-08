@@ -610,6 +610,7 @@ namespace folia {
     const std::string& default_subset() const;
     AnnotationType::AnnotationType annotation_type() const;
     const std::set<ElementType>& accepted_data() const;
+    const std::set<ElementType>& required_data() const;
     bool printable() const;
     bool speakable() const;
     bool xlink() const;
@@ -1416,7 +1417,7 @@ namespace folia {
   Alternative( const KWargs& a ):
     AbstractStructureElement( PROPS, 0 ){ classInit( a ); }
   Alternative( Document *d=0 ):
-    AbstractStructureElement( PROPS, d ){ classInit( KWargs() ); }
+    AbstractStructureElement( PROPS, d ){ classInit(); }
   Alternative( Document *d, const KWargs& a ):
     AbstractStructureElement( PROPS, d ){ classInit( a ); }
 
@@ -1431,7 +1432,7 @@ namespace folia {
   AlternativeLayers( const KWargs& a ):
     FoliaImpl( PROPS, 0 ){ classInit( a ); }
   AlternativeLayers( Document *d = 0 ):
-    FoliaImpl( PROPS, d ){ classInit( KWargs() ); }
+    FoliaImpl( PROPS, d ){ classInit(); }
   AlternativeLayers( Document *d, const KWargs& a ):
     FoliaImpl( PROPS, d ){ classInit( a ); }
 
@@ -1761,7 +1762,7 @@ namespace folia {
   WordReference( const KWargs& a ):
     FoliaImpl( PROPS, 0 ){ classInit( a ); }
   WordReference( Document *d = 0 ):
-    FoliaImpl( PROPS, d ){ classInit( KWargs() ); }
+    FoliaImpl( PROPS, d ){ classInit(); }
   WordReference( Document *d, const KWargs& a ):
     FoliaImpl( PROPS, d ){ classInit( a ); }
 
@@ -2020,7 +2021,7 @@ namespace folia {
   Original( const KWargs& a ):
     AbstractCorrectionChild( PROPS, 0 ) { classInit( a ); }
   Original( Document *d=0 ):
-    AbstractCorrectionChild( PROPS, d ) { classInit( KWargs() ); }
+    AbstractCorrectionChild( PROPS, d ) { classInit(); }
   Original( Document *d, const KWargs& a ):
     AbstractCorrectionChild( PROPS, d ) { classInit( a ); }
 
@@ -2034,7 +2035,7 @@ namespace folia {
   Suggestion( const KWargs& a ):
     AbstractCorrectionChild( PROPS, 0 ) { classInit( a ); }
   Suggestion( Document *d=0 ):
-    AbstractCorrectionChild( PROPS, d ) { classInit( KWargs() ); }
+    AbstractCorrectionChild( PROPS, d ) { classInit(); }
   Suggestion( Document *d, const KWargs& a ):
     AbstractCorrectionChild( PROPS, d ) { classInit( a ); }
 

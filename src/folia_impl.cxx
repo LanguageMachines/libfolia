@@ -93,6 +93,10 @@ namespace folia {
     return _props.ACCEPTED_DATA;
   }
 
+  inline const set<ElementType>& FoliaImpl::required_data() const {
+    return _props.REQUIRED_DATA;
+  }
+
   inline bool FoliaImpl::printable() const {
     return _props.PRINTABLE;
   }
@@ -145,7 +149,7 @@ namespace folia {
 
   FoliaImpl::FoliaImpl( const properties& p, Document *d ) :
     _parent(0),
-    _auth(true),
+    _auth( p.AUTH ),
     mydoc(d),
     _annotator_type(UNDEFINED),
     _confidence(-1),
