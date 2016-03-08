@@ -6,7 +6,7 @@
 #include "libfolia/folia_properties.h"
 
 //foliaspec:header
-//This file was last updated according to the FoLiA specification for version 0.12.2 on 2016-03-07 11:28:43, using foliaspec.py
+//This file was last updated according to the FoLiA specification for version 1.0.0 on 2016-03-08 11:17:36, using foliaspec.py
 //Code blocks after a foliaspec comment (until the next newline) are automatically generated. **DO NOT EDIT THOSE** and **DO NOT REMOVE ANY FOLIASPEC COMMENTS** !!!
 
 namespace folia {
@@ -15,15 +15,15 @@ namespace folia {
 
   //foliaspec:version_major:MAJOR_VERSION
   //The FoLiA version (major)
-  const int MAJOR_VERSION = 0;
+  const int MAJOR_VERSION = 1;
 
   //foliaspec:version_minor:MINOR_VERSION
   //The FoLiA version (minor)
-  const int MINOR_VERSION = 12;
+  const int MINOR_VERSION = 0;
 
   //foliaspec:version_sub:SUB_VERSION
   //The FoLiA version (sub/rev)
-  const int SUB_VERSION = 2;
+  const int SUB_VERSION = 0;
 
   //foliaspec:namespace:NSFOLIA
   //The FoLiA XML namespace
