@@ -1,3 +1,12 @@
+1.0  2016-03-09
+[Ko van der Sloot]
+  * totally reworked the implementation:
+      it is based on code generated from generic definitions that
+      assure that the Python and C++ versions are always inline
+      (Most of that work done by Maarten van Gompel)
+  * simplified and overhauld the class API.
+  * a lot of bug fixes for cornercases
+
 0.13 2016-01-14
 [Ko van der Sloot]
   * repository moved to GitHub

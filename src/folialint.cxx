@@ -29,9 +29,7 @@
 #include <fstream>
 #include <string>
 #include "ticcutils/CommandLine.h"
-#include "libfolia/foliautils.h"
 #include "libfolia/folia.h"
-#include "libfolia/document.h"
 
 using namespace std;
 

@@ -38,9 +38,7 @@
 #include "unicode/regex.h"
 #include "libxml/tree.h"
 #include "libxml/xpath.h"
-
 #include "libfolia/folia.h"
-#include "libfolia/foliautils.h"
 
 namespace folia {
   void initMT();
@@ -55,8 +53,8 @@ namespace folia {
     Pattern( const std::vector<std::string>&,
 	     const ElementType = BASE,
 	     const std::string& = "" );
-    Pattern( const std::vector<std::string>&,
-	     const std::string& );
+    Pattern( const std::vector<std::string>&,  const std::string& );
+
     ~Pattern();
     bool match( const UnicodeString& , size_t&, int&, bool&, bool& ) const;
     size_t size() const { return sequence.size(); };
@@ -214,6 +212,8 @@ namespace folia {
     std::string filename;
     std::string version;
     bool external;
+    Document( const Document& ); // inhibit copies
+    Document& operator=( const Document& ); // inhibit copies
   };
 
   bool operator==( const Document&, const Document& );
