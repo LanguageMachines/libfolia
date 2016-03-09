@@ -671,7 +671,7 @@ namespace folia {
 
   template <typename T1, typename T2>
     bool isSubClass(){
-    T1 t1((Document*)0);
+    T1 t1();
     return dynamic_cast<T2*>(&t1) != 0;
   }
 

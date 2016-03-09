@@ -1265,10 +1265,6 @@ namespace folia {
   }
 
 
-  bool isSubClass( const FoliaElement *e1, const FoliaElement *e2 ){
-    return isSubClass( e1->element_id(), e2->element_id() );
-  }
-
   bool isSubClass( const ElementType e1, const ElementType e2 ){
     if ( e1 == e2 )
       return true;
@@ -1277,6 +1273,10 @@ namespace folia {
       return it->second.find( e2 ) != it->second.end();
     }
     return false;
+  }
+
+  bool isSubClass( const FoliaElement *e1, const FoliaElement *e2 ){
+    return isSubClass( e1->element_id(), e2->element_id() );
   }
 
   bool FoliaElement::isSubClass( ElementType t ) const {
