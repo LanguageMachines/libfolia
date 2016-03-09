@@ -31,6 +31,4 @@
 #include "libfolia/folia_impl.h"
 #include "libfolia/folia_document.h"
 
-#define MetricAnnotation Metric // backward compatibility
-
 #endif
