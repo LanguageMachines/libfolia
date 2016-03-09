@@ -57,10 +57,6 @@ namespace folia {
     return _props.ELEMENT_ID;
   }
 
-  inline const string FoliaImpl::classname() const {
-    return toString(element_id());
-  }
-
   inline size_t FoliaImpl::occurrences() const {
     return _props.OCCURRENCES;
   }

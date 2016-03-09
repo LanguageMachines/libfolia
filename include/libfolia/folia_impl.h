@@ -352,7 +352,6 @@ namespace folia {
     virtual const std::string lemma( const std::string& = "" ) const = 0;
     virtual const std::string cls() const = 0;
     virtual const std::string sett() const = 0;
-    virtual const std::string classname() const = 0;
     virtual const std::string n() const = 0;
     virtual const std::string id() const = 0;
     virtual const std::string begintime() const = 0;
@@ -367,6 +366,7 @@ namespace folia {
     virtual Attrib required_attributes() const = 0;
     virtual Attrib optional_attributes() const = 0;
     virtual const std::string& xmltag() const = 0;
+    const std::string& classname() const { return xmltag(); }; //synomym
     virtual const std::string& default_subset() const = 0;
     virtual const std::string subset() const NOT_IMPLEMENTED;
     virtual bool setonly() const = 0;
@@ -601,7 +601,6 @@ namespace folia {
 
     // generic properties
     ElementType element_id() const;
-    const std::string classname() const;
     size_t occurrences() const;
     size_t occurrences_per_set() const;
     Attrib required_attributes() const;
