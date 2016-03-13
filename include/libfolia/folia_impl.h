@@ -1692,7 +1692,7 @@ namespace folia {
   private:
     static properties PROPS;
     FoliaElement* parseXml( const xmlNode *node );
-    FoliaElement *resolve( const Alignment *ref ) const;
+    FoliaElement *resolve_element( const Alignment *ref ) const;
     std::string refId;
     std::string ref_type;
     std::string _t;

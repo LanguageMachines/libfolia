@@ -2796,7 +2796,7 @@ namespace folia {
     return this;
   }
 
-  FoliaElement *AlignReference::resolve( const Alignment *ref ) const {
+  FoliaElement *AlignReference::resolve_element( const Alignment *ref ) const {
     if ( ref->href().empty() ) {
       return (*mydoc)[refId];
     }
@@ -2807,7 +2807,7 @@ namespace folia {
     vector<FoliaElement*> result;
     vector<AlignReference*> v = FoliaElement::select<AlignReference>();
     for ( const auto& ar : v ){
-      result.push_back( ar->resolve( this ) );
+      result.push_back( ar->resolve_element( this ) );
     }
     return result;
   }
