@@ -53,67 +53,67 @@ namespace folia {
   string VersionName() { return PACKAGE_STRING; }
   string Version() { return VERSION; }
 
-  inline ElementType FoliaImpl::element_id() const {
+  ElementType FoliaImpl::element_id() const {
     return _props.ELEMENT_ID;
   }
 
-  inline size_t FoliaImpl::occurrences() const {
+  size_t FoliaImpl::occurrences() const {
     return _props.OCCURRENCES;
   }
 
-  inline size_t FoliaImpl::occurrences_per_set() const {
+  size_t FoliaImpl::occurrences_per_set() const {
     return _props.OCCURRENCES_PER_SET;
   }
 
-  inline Attrib FoliaImpl::required_attributes() const {
+  Attrib FoliaImpl::required_attributes() const {
     return _props.REQUIRED_ATTRIBS;
   }
 
-  inline Attrib FoliaImpl::optional_attributes() const {
+  Attrib FoliaImpl::optional_attributes() const {
     return _props.OPTIONAL_ATTRIBS;
   }
 
-  inline const string& FoliaImpl::xmltag() const {
+  const string& FoliaImpl::xmltag() const {
     return _props.XMLTAG;
   }
 
-  inline const string& FoliaImpl::default_subset() const {
+  const string& FoliaImpl::default_subset() const {
     return _props.SUBSET;
   }
 
-  inline AnnotationType::AnnotationType FoliaImpl::annotation_type() const {
+  AnnotationType::AnnotationType FoliaImpl::annotation_type() const {
     return _props.ANNOTATIONTYPE;
   }
 
-  inline const set<ElementType>& FoliaImpl::accepted_data() const {
+  const set<ElementType>& FoliaImpl::accepted_data() const {
     return _props.ACCEPTED_DATA;
   }
 
-  inline const set<ElementType>& FoliaImpl::required_data() const {
+  const set<ElementType>& FoliaImpl::required_data() const {
     return _props.REQUIRED_DATA;
   }
 
-  inline bool FoliaImpl::printable() const {
+  bool FoliaImpl::printable() const {
     return _props.PRINTABLE;
   }
 
-  inline bool FoliaImpl::speakable() const {
+  bool FoliaImpl::speakable() const {
     return _props.SPEAKABLE;
   }
 
-  inline bool FoliaImpl::xlink() const {
+  bool FoliaImpl::xlink() const {
     return _props.XLINK;
   }
 
-  inline bool FoliaImpl::auth() const {
+  bool FoliaImpl::auth() const {
     return _props.AUTH;
   }
 
-  inline bool FoliaImpl::setonly() const {
+  bool FoliaImpl::setonly() const {
     return _props.SETONLY;
   }
 
-  inline bool FoliaImpl::auto_generate_id() const {
+  bool FoliaImpl::auto_generate_id() const {
     return _props.AUTO_GENERATE_ID;
   }
 
