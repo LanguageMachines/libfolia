@@ -89,7 +89,7 @@ namespace folia {
       return dynamic_cast<decltype(c)>(this) != 0;
     };
 
-    virtual void fixupDoc( Document* ) = 0;
+    virtual void assignDoc( Document* ) = 0;
     virtual FoliaElement *parent() const = 0;
     virtual void setParent( FoliaElement *p ) = 0;
     virtual bool acceptable( ElementType ) const = 0;
@@ -444,8 +444,8 @@ namespace folia {
     //Constructor
     FoliaImpl( const properties& p, Document* = 0 );
     // static element Constructor
-    static FoliaElement *createElement( Document *, ElementType );
-    static FoliaElement *createElement( Document *, const std::string&  );
+    static FoliaElement *createElement( ElementType, Document * =0 );
+    static FoliaElement *createElement( const std::string&, Document * =0 );
     virtual ~FoliaImpl();
 
     void classInit(){
@@ -476,7 +476,7 @@ namespace folia {
       return element_id() == obj.element_id();
     }
 
-    void fixupDoc( Document* );
+    void assignDoc( Document* );
     FoliaElement *parent() const { return _parent; };
     void setParent( FoliaElement *p ) { _parent = p ; };
     bool acceptable( ElementType ) const;
@@ -651,6 +651,7 @@ namespace folia {
     std::string _href;
     std::string _src;
   private:
+    static FoliaElement *private_createElement( ElementType );
     void addFeatureNodes( const KWargs& args );
     std::string _annotator;
     std::string _n;

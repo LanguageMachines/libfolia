@@ -53,215 +53,200 @@ namespace folia {
     return result;
   }
 
-  FoliaElement *FoliaImpl::createElement( Document *doc,
-					  const string& tag ){
-
-    ElementType et = BASE;
-    try {
-      et = stringToET( tag );
-    }
-    catch ( ValueError& e ){
-      cerr << e.what() << endl;
-      return 0;
-    }
-    return createElement( doc, et );
-  }
-
-  FoliaElement *FoliaImpl::createElement( Document *doc,
-					  ElementType et ){
+  FoliaElement *FoliaImpl::private_createElement( ElementType et ){
     switch ( et ){
     case BASE:
-      return new FoLiA( doc );
+      return new FoLiA();
     case Text_t:
-      return new Text( doc );
+      return new Text();
     case Speech_t:
-      return new Speech( doc );
+      return new Speech();
     case Utterance_t:
-      return new Utterance( doc );
+      return new Utterance();
     case Entry_t:
-      return new Entry( doc );
+      return new Entry();
     case Example_t:
-      return new Example( doc );
+      return new Example();
     case Term_t:
-      return new Term( doc );
+      return new Term();
     case Definition_t:
-      return new Definition( doc );
+      return new Definition();
     case PhonContent_t:
-      return new PhonContent( doc );
+      return new PhonContent();
     case Word_t:
-      return new Word( doc );
+      return new Word();
     case String_t:
-      return new String( doc );
+      return new String();
     case Event_t:
-      return new Event( doc );
+      return new Event();
     case TimeSegment_t:
-      return new TimeSegment( doc );
+      return new TimeSegment();
     case TimingLayer_t:
-      return new TimingLayer( doc );
+      return new TimingLayer();
     case Sentence_t:
-      return new Sentence( doc );
+      return new Sentence();
     case TextContent_t:
-      return new TextContent( doc );
+      return new TextContent();
     case Linebreak_t:
-      return new Linebreak( doc );
+      return new Linebreak();
     case Whitespace_t:
-      return new Whitespace( doc );
+      return new Whitespace();
     case Figure_t:
-      return new Figure( doc );
+      return new Figure();
     case Caption_t:
-      return new Caption( doc );
+      return new Caption();
     case Label_t:
-      return new Label( doc );
+      return new Label();
     case List_t:
-      return new List( doc );
+      return new List();
     case ListItem_t:
-      return new ListItem( doc );
+      return new ListItem();
     case Paragraph_t:
-      return new Paragraph( doc );
+      return new Paragraph();
     case New_t:
-      return new New( doc );
+      return new New();
     case Original_t:
-      return new Original( doc );
+      return new Original();
     case Current_t:
-      return new Current( doc );
+      return new Current();
     case Suggestion_t:
-      return new Suggestion( doc );
+      return new Suggestion();
     case Head_t:
-      return new Head( doc );
+      return new Head();
     case Table_t:
-      return new Table( doc );
+      return new Table();
     case TableHead_t:
-      return new TableHead( doc );
+      return new TableHead();
     case Cell_t:
-      return new Cell( doc );
+      return new Cell();
     case Row_t:
-      return new Row( doc );
+      return new Row();
     case LangAnnotation_t:
-      return new LangAnnotation( doc );
+      return new LangAnnotation();
     case XmlComment_t:
-      return new XmlComment( doc );
+      return new XmlComment();
     case XmlText_t:
-      return new XmlText( doc );
+      return new XmlText();
     case External_t:
-      return new External( doc );
+      return new External();
     case Note_t:
-      return new Note( doc );
+      return new Note();
     case Reference_t:
-      return new Reference( doc );
+      return new Reference();
     case Description_t:
-      return new Description( doc );
+      return new Description();
     case Gap_t:
-      return new Gap( doc );
+      return new Gap();
     case Content_t:
-      return new Content( doc );
+      return new Content();
     case Metric_t:
-      return new Metric( doc );
+      return new Metric();
     case Division_t:
-      return new Division( doc );
+      return new Division();
     case PosAnnotation_t:
-      return new PosAnnotation( doc );
+      return new PosAnnotation();
     case LemmaAnnotation_t:
-      return new LemmaAnnotation( doc );
+      return new LemmaAnnotation();
     case PhonologyLayer_t:
-      return new PhonologyLayer( doc );
+      return new PhonologyLayer();
     case Phoneme_t:
-      return new Phoneme( doc );
+      return new Phoneme();
     case DomainAnnotation_t:
-      return new DomainAnnotation( doc );
+      return new DomainAnnotation();
     case SenseAnnotation_t:
-      return new SenseAnnotation( doc );
+      return new SenseAnnotation();
     case SyntaxLayer_t:
-      return new SyntaxLayer( doc );
+      return new SyntaxLayer();
     case SubjectivityAnnotation_t:
-      return new SubjectivityAnnotation( doc );
+      return new SubjectivityAnnotation();
     case Chunk_t:
-      return new Chunk( doc );
+      return new Chunk();
     case ChunkingLayer_t:
-      return new ChunkingLayer( doc );
+      return new ChunkingLayer();
     case Entity_t:
-      return new Entity( doc );
+      return new Entity();
     case EntitiesLayer_t:
-      return new EntitiesLayer( doc );
+      return new EntitiesLayer();
     case SemanticRolesLayer_t:
-      return new SemanticRolesLayer( doc );
+      return new SemanticRolesLayer();
     case SemanticRole_t:
-      return new SemanticRole( doc );
+      return new SemanticRole();
     case CoreferenceLayer_t:
-      return new CoreferenceLayer( doc );
+      return new CoreferenceLayer();
     case CoreferenceLink_t:
-      return new CoreferenceLink( doc );
+      return new CoreferenceLink();
     case CoreferenceChain_t:
-      return new CoreferenceChain( doc );
+      return new CoreferenceChain();
     case Alternative_t:
-      return new Alternative( doc );
+      return new Alternative();
     case PlaceHolder_t:
       return new PlaceHolder();
     case AlternativeLayers_t:
-      return new AlternativeLayers( doc );
+      return new AlternativeLayers();
     case SyntacticUnit_t:
-      return new SyntacticUnit( doc );
+      return new SyntacticUnit();
     case WordReference_t:
-      return new WordReference( doc );
+      return new WordReference();
     case Correction_t:
-      return new Correction( doc );
+      return new Correction();
     case ErrorDetection_t:
-      return new ErrorDetection( doc );
+      return new ErrorDetection();
     case MorphologyLayer_t:
-      return new MorphologyLayer( doc );
+      return new MorphologyLayer();
     case Morpheme_t:
-      return new Morpheme( doc );
+      return new Morpheme();
     case Feature_t:
-      return new Feature( doc );
+      return new Feature();
     case BegindatetimeFeature_t:
-      return new BegindatetimeFeature( doc );
+      return new BegindatetimeFeature();
     case EnddatetimeFeature_t:
-      return new EnddatetimeFeature( doc );
+      return new EnddatetimeFeature();
     case SynsetFeature_t:
-      return new SynsetFeature( doc );
+      return new SynsetFeature();
     case ActorFeature_t:
-      return new ActorFeature( doc );
+      return new ActorFeature();
     case HeadFeature_t:
-      return new HeadFeature( doc );
+      return new HeadFeature();
     case ValueFeature_t:
-      return new ValueFeature( doc );
+      return new ValueFeature();
     case TimeFeature_t:
-      return new TimeFeature( doc );
+      return new TimeFeature();
     case ModalityFeature_t:
-      return new ModalityFeature( doc );
+      return new ModalityFeature();
     case FunctionFeature_t:
-      return new FunctionFeature( doc );
+      return new FunctionFeature();
     case LevelFeature_t:
-      return new LevelFeature( doc );
+      return new LevelFeature();
     case Quote_t:
-      return new Quote( doc );
+      return new Quote();
     case DependenciesLayer_t:
-      return new DependenciesLayer( doc );
+      return new DependenciesLayer();
     case Dependency_t:
-      return new Dependency( doc );
+      return new Dependency();
     case DependencyDependent_t:
-      return new DependencyDependent( doc );
+      return new DependencyDependent();
     case Headspan_t:
-      return new Headspan( doc );
+      return new Headspan();
     case ComplexAlignmentLayer_t:
-      return new ComplexAlignmentLayer( doc );
+      return new ComplexAlignmentLayer();
     case ComplexAlignment_t:
-      return new ComplexAlignment( doc );
+      return new ComplexAlignment();
     case Alignment_t:
-      return new Alignment( doc );
+      return new Alignment();
     case AlignReference_t:
-      return new AlignReference( doc );
+      return new AlignReference();
     case TextMarkupString_t:
-      return new TextMarkupString( doc );
+      return new TextMarkupString();
     case TextMarkupGap_t:
-      return new TextMarkupGap( doc );
+      return new TextMarkupGap();
     case TextMarkupCorrection_t:
-      return new TextMarkupCorrection( doc );
+      return new TextMarkupCorrection();
     case TextMarkupError_t:
-      return new TextMarkupError( doc );
+      return new TextMarkupError();
     case TextMarkupStyle_t:
-      return new TextMarkupStyle( doc );
+      return new TextMarkupStyle();
     case Part_t:
-      return new Part( doc );
+      return new Part();
     case AbstractSpanAnnotation_t:
     case AbstractSpanRole_t:
     case AbstractAnnotationLayer_t:
@@ -278,6 +263,32 @@ namespace folia {
     return 0;
   }
 
+  FoliaElement *FoliaImpl::createElement( const string& tag,
+					  Document *doc ){
+
+    ElementType et = BASE;
+    try {
+      et = stringToET( tag );
+    }
+    catch ( ValueError& e ){
+      cerr << e.what() << endl;
+      return 0;
+    }
+    FoliaElement *el = private_createElement( et );
+    if ( doc ){
+      el->assignDoc( doc );
+    }
+    return el;
+  }
+
+  FoliaElement *FoliaImpl::createElement( ElementType et,
+					  Document *doc ){
+    FoliaElement *el = private_createElement( et );
+    if ( doc ){
+      el->assignDoc( doc );
+    }
+    return el;
+  }
 
   KWargs getArgs( const string& s ){
     KWargs result;
@@ -619,7 +630,7 @@ namespace folia {
 	}
 	FoliaElement *tmp = 0;
 	try {
-	  tmp = FoliaImpl::createElement( 0, s );
+	  tmp = FoliaImpl::createElement( s );
 	}
 	catch( ValueError &e ){
 	  string err = e.what();

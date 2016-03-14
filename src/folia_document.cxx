@@ -636,7 +636,7 @@ namespace folia {
       return 0;
     }
     setDocumentProps( att );
-    FoliaElement *result = FoliaImpl::createElement( this, Name(root) );
+    FoliaElement *result = FoliaImpl::createElement( Name(root), this );
     if ( debug > 2 )
       cerr << "created " << root << endl;
     result->setAttributes( att );
@@ -690,7 +690,7 @@ namespace folia {
 	else {
 	  if ( p && getNS(p) == NSFOLIA ){
 	    string tag = Name( p );
-	    FoliaElement *t = FoliaImpl::createElement( this, tag );
+	    FoliaElement *t = FoliaImpl::createElement( tag, this );
 	    if ( t ){
 	      if ( debug > 2 )
 		cerr << "created " << t << endl;

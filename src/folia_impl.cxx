@@ -489,7 +489,7 @@ namespace folia {
       }
       KWargs newa;
       newa["class"] = it.second;
-      FoliaElement *new_node = createElement( mydoc, tag );
+      FoliaElement *new_node = createElement( tag, mydoc );
       new_node->setAttributes( newa );
       append( new_node );
     }
@@ -1128,7 +1128,7 @@ namespace folia {
     return true;
   }
 
-  void FoliaImpl::fixupDoc( Document* doc ) {
+  void FoliaImpl::assignDoc( Document* doc ) {
     // attach a document-less FoliaElement (tree) to its doc
     // needs checking for correct annotation_type
     // also register the ID
@@ -1148,7 +1148,7 @@ namespace folia {
       }
       // assume that children also might be doc-less
       for ( const auto& el : data ) {
-	el->fixupDoc( doc );
+	el->assignDoc( doc );
       }
     }
   }
@@ -1221,7 +1221,7 @@ namespace folia {
       throw;
     }
     if ( ok ) {
-      child->fixupDoc( mydoc );
+      child->assignDoc( mydoc );
       data.push_back(child);
       if ( !child->parent() ) {
 	// Only for WordRef and Morpheme
@@ -1326,7 +1326,7 @@ namespace folia {
       }
       if ( p->type == XML_ELEMENT_NODE ) {
 	string tag = Name( p );
-	FoliaElement *t = createElement( doc(), tag );
+	FoliaElement *t = createElement( tag, doc() );
 	if ( t ) {
 	  if ( doc() && doc()->debug > 2 ) {
 	    cerr << "created " << t << endl;
@@ -1345,7 +1345,7 @@ namespace folia {
       }
       else if ( p->type == XML_COMMENT_NODE ) {
 	string tag = "_XmlComment";
-	FoliaElement *t = createElement( doc(), tag );
+	FoliaElement *t = createElement( tag, doc() );
 	if ( t ) {
 	  if ( doc() && doc()->debug > 2 ) {
 	    cerr << "created " << t << endl;
@@ -1361,7 +1361,7 @@ namespace folia {
       }
       else if ( p->type == XML_TEXT_NODE ) {
 	string tag = "_XmlText";
-	FoliaElement *t = createElement( doc(), tag );
+	FoliaElement *t = createElement( tag, doc() );
 	if ( t ) {
 	  if ( doc() && doc()->debug > 2 ) {
 	    cerr << "created " << t << endl;
@@ -2994,7 +2994,7 @@ namespace folia {
       }
       else if ( p->type == XML_COMMENT_NODE ) {
 	string tag = "_XmlComment";
-	FoliaElement *t = createElement( mydoc, tag );
+	FoliaElement *t = createElement( tag, mydoc );
 	if ( t ) {
 	  t = t->parseXml( p );
 	  append( t );
