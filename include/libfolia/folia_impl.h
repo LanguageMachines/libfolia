@@ -1908,7 +1908,7 @@ namespace folia {
   public:
   Description( Document *d=0 ):
     FoliaImpl( PROPS, d ) { classInit(); }
-  Description( const KWargs& a, Document *d ):
+  Description( const KWargs& a, Document *d =0 ):
     FoliaImpl( PROPS, d ) { classInit( a ); }
 
     const std::string description() const { return _value; };
