@@ -80,7 +80,5 @@ namespace folia {
     }
   }
 
-  enum MetaDataType { NATIVE, CMDI, IMDI };
-
 }
 #endif

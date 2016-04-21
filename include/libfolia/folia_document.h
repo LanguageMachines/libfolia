@@ -123,7 +123,7 @@ namespace folia {
     bool toXml( const std::string&,
 		const std::string& ="",
 		bool = false ) const;
-    MetaDataType metadatatype() const { return _metadatatype; };
+    std::string metadatatype() const { return _metadatatype; };
     std::string metadatafile() const { return _metadatafile; };
     void set_metadata( const std::string& type, const std::string& value );
     const std::string get_metadata( const std::string& type ) const;
@@ -198,7 +198,7 @@ namespace folia {
     const xmlChar* _foliaNsIn_href;
     const xmlChar* _foliaNsIn_prefix;
     mutable xmlNs *_foliaNsOut;
-    MetaDataType _metadatatype;
+    std::string _metadatatype;
     xmlNode *_metadata;
     std::string _metadatafile;
     std::string _title;

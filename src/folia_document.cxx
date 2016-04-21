@@ -72,7 +72,7 @@ namespace folia {
   }
 
   void Document::init(){
-    _metadatatype = NATIVE;
+    _metadatatype = "native";
     _metadata = 0;
     _xmldoc = 0;
     foliadoc = 0;
@@ -494,9 +494,9 @@ namespace folia {
 	_publisher = val;
       else if ( type == "licence" )
 	_license = val;
-      else if ( _metadatatype != NATIVE ){
+      else if ( _metadatatype != "native" ){
 	throw runtime_error( "meta tag with id=" + type
-			     + " requires NATIVE metadataype." );
+			     + " requires 'native' metadataype." );
       }
       else if ( meta_atts[type] != "" ){
 	throw runtime_error( "meta tag with id=" + type
@@ -518,9 +518,9 @@ namespace folia {
       _publisher = value;
     else if ( type == "licence" )
       _license = value;
-    else if ( _metadatatype != NATIVE ){
+    else if ( _metadatatype != "native" ){
       throw runtime_error( "meta tag with id=" + type
-			   + " requires NATIVE metadataype." );
+			   + " requires 'native' metadataype." );
     }
     else
       meta_atts[type] = value;
@@ -650,25 +650,21 @@ namespace folia {
 	  KWargs atts = getAttributes( p );
 	  string val = lowercase(atts["type"]);
 	  if ( !val.empty() ){
-	    if ( val == "native" ){
-	      _metadatatype = NATIVE;
-	    }
-	    else if ( val == "imdi" ){
-	      _metadatatype = IMDI;
-	      _metadatafile = atts["src"];
-	    }
-	    else if ( val == "cmdi" ){
-	      _metadatatype = CMDI;
+	    _metadatatype = val;
+	    if ( val == "imdi" || val == "cmdi" ){
 	      _metadatafile = atts["src"];
 	    }
 	  }
 	  xmlNode *m = p->children;
 	  while ( m ){
 	    if ( Name(m)  == "METATRANSCRIPT" ){
-	      if ( !checkNS( m, NSIMDI ) || _metadatatype != IMDI )
+	      if ( !checkNS( m, NSIMDI ) || _metadatatype != "imdi" )
 		throw runtime_error( "imdi != imdi " );
 	      if ( debug > 1 )
 		cerr << "found IMDI" << endl;
+	      if ( _metadata ){
+		throw XmlError( "multiple imdi:METATRANSCRIPT nodes!" );
+	      }
 	      _metadata = xmlCopyNodeList(m);
 	      setimdi( _metadata );
 	    }
@@ -683,6 +679,15 @@ namespace folia {
 	      if ( debug > 1 )
 		cerr << "found meta node" << endl;
 	      parsemeta( m );
+	    }
+	    else if ( Name(m)  == "foreign-data" &&
+		      checkNS( m, NSFOLIA ) ){
+	      if ( debug > 1 )
+		cerr << "found foreign-data" << endl;
+	      if ( _metadata ){
+		throw XmlError( "multiple foreign-data nodes!" );
+	      }
+	      _metadata = xmlCopyNodeList( m );
 	    }
 	    m = m->next;
 	  }
@@ -791,7 +796,7 @@ namespace folia {
 	string ns = getNS( root );
 	if ( ns.empty() ){
 	  if ( mode == "permissive" ){
-	    _foliaNsIn_href = xmlCharStrdup( NSFOLIA.c_str() );;
+	    _foliaNsIn_href = xmlCharStrdup( NSFOLIA.c_str() );
 	    _foliaNsIn_prefix = 0;
 	    xmlNs *defNs = xmlNewNs( root,
 				     _foliaNsIn_href, _foliaNsIn_prefix );
@@ -1042,10 +1047,10 @@ namespace folia {
   }
 
   void Document::setmetadata( xmlNode *node ) const{
-    if ( _metadatatype == NATIVE ){
-      KWargs atts;
-      atts["type"] = "native";
-      addAttributes( node, atts );
+    KWargs atts;
+    atts["type"] = _metadatatype;
+    addAttributes( node, atts );
+    if ( _metadatatype == "native" ){
       if ( !_title.empty() ){
 	xmlNode *m = XmlNewNode( foliaNs(), "meta" );
 	xmlAddChild( m, xmlNewText( (const xmlChar*)_title.c_str()) );
@@ -1095,17 +1100,11 @@ namespace folia {
 	xmlAddChild( node, m );
       }
     }
-    else if ( _metadatatype == IMDI  ||
-	      _metadatatype == CMDI ){
-      KWargs atts;
-      if ( _metadatatype == IMDI )
-	atts["type"] = "imdi";
-      else if ( _metadatatype == CMDI )
-	atts["type"] = "cmdi";
+    else {
       if ( !_metadatafile.empty() )
 	atts["src"] = _metadatafile;
-      addAttributes( node, atts );
       xmlAddChild( node, _metadata );
+      //      xmlReconciliateNs( node->doc, _metadata );
     }
   }
 
