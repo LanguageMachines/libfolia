@@ -1049,6 +1049,9 @@ namespace folia {
   void Document::setmetadata( xmlNode *node ) const{
     KWargs atts;
     atts["type"] = _metadatatype;
+    if ( !_metadatafile.empty() ){
+      atts["src"] = _metadatafile;
+    }
     addAttributes( node, atts );
     if ( _metadatatype == "native" ){
       if ( !_title.empty() ){
@@ -1101,8 +1104,6 @@ namespace folia {
       }
     }
     else {
-      if ( !_metadatafile.empty() )
-	atts["src"] = _metadatafile;
       xmlAddChild( node, _metadata );
       //      xmlReconciliateNs( node->doc, _metadata );
     }
