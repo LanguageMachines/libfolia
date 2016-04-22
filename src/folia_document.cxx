@@ -52,6 +52,22 @@ namespace folia {
     // a NO_OP now
   }
 
+  map<string,string> getNS_definitions( const xmlNode *node ){
+    map<string,string> result;
+    xmlNs *p = node->nsDef;
+    while ( p ){
+      string pre;
+      string val;
+      if ( p->prefix ){
+	pre = (char *)p->prefix;
+      }
+      val = (char *)p->href;
+      result[pre] = val;
+      p = p->next;
+    }
+    return result;
+  }
+
   Document::Document(){
     init();
   }
@@ -622,6 +638,25 @@ namespace folia {
     return result;
   }
 
+  void clean_ns( xmlNode *node, const string& ns ){
+    xmlNs *p = node->nsDef;
+    xmlNs *prev = 0;
+    while ( p ){
+      string val = (char *)p->href;
+      if ( val == ns ){
+	if ( prev ){
+	  prev->next = p->next;
+	}
+	else {
+	  node->nsDef = p->next;
+	}
+	return;
+      }
+      prev = p;
+      p = p->next;
+    }
+  }
+
   FoliaElement* Document::parseFoliaDoc( xmlNode *root ){
     KWargs att = getAttributes( root );
     using TiCC::operator<<;
@@ -688,6 +723,8 @@ namespace folia {
 		throw XmlError( "multiple foreign-data nodes!" );
 	      }
 	      _metadata = xmlCopyNodeList( m );
+	      clean_ns( _metadata, NSFOLIA ); // remove the FOLIA ns-def
+	      // it is already defined higher
 	    }
 	    m = m->next;
 	  }
@@ -784,11 +821,11 @@ namespace folia {
       _foliaNsIn_href = xmlStrdup( root->ns->href );
     }
     if ( debug > 2 ){
-      using TiCC::operator <<;
+      using TiCC::operator<<;
       string dum;
       cerr << "root = " << Name( root ) << endl;
       cerr << "in namespace " << getNS( root, dum ) << endl;
-      cerr << "namespace list" << getNSvalues( root ) << endl;
+      cerr << "namespace list" << getNS_definitions( root ) << endl;
     }
     FoliaElement *result = 0;
     if ( root  ){
@@ -1105,7 +1142,6 @@ namespace folia {
     }
     else {
       xmlAddChild( node, _metadata );
-      //      xmlReconciliateNs( node->doc, _metadata );
     }
   }
 
