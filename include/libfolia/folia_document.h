@@ -102,6 +102,7 @@ namespace folia {
       // almost backward compatible
       return addText(t);
     };
+    void set_foreign_metadata( xmlNode * );
     void addStyle( const std::string&, const std::string& );
     void replaceStyle( const std::string&, const std::string& );
     std::vector<Paragraph*> paragraphs() const;

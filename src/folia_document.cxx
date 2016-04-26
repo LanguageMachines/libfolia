@@ -562,6 +562,16 @@ namespace folia {
     }
   }
 
+  void Document::set_foreign_metadata( xmlNode * node ){
+    if ( _metadata ){
+      throw XmlError( "multiple foreign-data nodes!" );
+    }
+    _metadatatype = "foreign";
+    _metadata = xmlCopyNode( node, 1 );
+    //    clean_ns( _metadata, NSFOLIA ); // remove the FOLIA ns-def
+    // it is already defined higher
+  }
+
   void Document::parseannotations( xmlNode *node ){
     xmlNode *n = node->children;
     while ( n ){
