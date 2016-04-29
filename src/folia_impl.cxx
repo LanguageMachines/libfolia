@@ -1855,6 +1855,32 @@ namespace folia {
     return attribs;
   }
 
+  void Linebreak::setAttributes( const KWargs& args_in ){
+    KWargs args = args_in;
+    auto it = args.find( "pagenr" );
+    if ( it != args.end() ) {
+      _pagenr = it->second;
+      args.erase( it );
+    }
+    it = args.find( "linenr" );
+    if ( it != args.end() ) {
+      _linenr = it->second;
+      args.erase( it );
+    }
+    FoliaImpl::setAttributes( args );
+  }
+
+  KWargs Linebreak::collectAttributes() const {
+    KWargs atts;
+    if ( ! _linenr.empty() ){
+      atts["linenr"] = _linenr;
+    }
+    if ( ! _pagenr.empty() ){
+      atts["pagenr"] = _pagenr;
+    }
+    return atts;
+  }
+
   TextContent *TextContent::postappend() {
     if ( _parent->isinstance( Original_t ) ) {
       if ( _class == "current" ) {
