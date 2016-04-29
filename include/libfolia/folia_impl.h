@@ -1110,9 +1110,11 @@ namespace folia {
     void setAttributes( const KWargs& );
     KWargs collectAttributes() const;
   private:
+    void init();
     static properties PROPS;
     std::string _pagenr;
     std::string _linenr;
+    bool _newpage;
   };
 
   class Whitespace: public AbstractStructureElement {

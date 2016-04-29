@@ -1867,6 +1867,11 @@ namespace folia {
       _linenr = it->second;
       args.erase( it );
     }
+    it = args.find( "newpage" );
+    if ( it != args.end() ) {
+      _newpage = ( it->second == "yes" );
+      args.erase( it );
+    }
     FoliaImpl::setAttributes( args );
   }
 
@@ -1877,6 +1882,9 @@ namespace folia {
     }
     if ( ! _pagenr.empty() ){
       atts["pagenr"] = _pagenr;
+    }
+    if ( _newpage ){
+      atts["newpage"] = "yes";
     }
     return atts;
   }
@@ -3546,6 +3554,10 @@ namespace folia {
 
   void Word::init() {
     _space = true;
+  }
+
+  void Linebreak::init() {
+    _newpage = false;
   }
 
 } // namespace folia
