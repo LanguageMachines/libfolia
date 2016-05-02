@@ -1951,7 +1951,7 @@ namespace folia {
   public:
   XmlText( Document *d = 0 ):
     FoliaImpl( PROPS, d ) { classInit(); }
-  XmlText( const KWargs& a, Document *d ):
+  XmlText( const KWargs& a, Document *d = 0 ):
     FoliaImpl(PROPS, d ) { classInit( a ); }
 
     FoliaElement* parseXml( const xmlNode * );
