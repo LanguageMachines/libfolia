@@ -1131,6 +1131,20 @@ namespace folia {
 	throw ValueError( "attempt to add an empty <t> to word: " + _id );
       }
     }
+    if ( c->element_id() == TextContent_t ){
+      string st = c->sett();
+      vector<TextContent*> tmp = select<TextContent>( st, false );
+      if ( !tmp.empty() ) {
+	string cls = c->cls();
+	for( const auto& t : tmp ){
+	  if ( t->cls() == cls ){
+	    throw DuplicateAnnotationError( "attempt to add <t> with class="
+					    + cls + " to element: " + _id
+					    + " which already has a <t> with that class" );
+	  }
+	}
+      }
+    }
     return true;
   }
 
