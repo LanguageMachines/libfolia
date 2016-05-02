@@ -1679,9 +1679,12 @@ namespace folia {
     FoliaImpl( PROPS, d ){ classInit( a ); }
 
     std::vector<FoliaElement *>resolve() const;
-
+    void setAttributes( const KWargs& );
+    KWargs collectAttributes() const;
   private:
+    void init();
     static properties PROPS;
+    std::string _format;
   };
 
   class AlignReference: public FoliaImpl {

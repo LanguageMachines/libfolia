@@ -2837,6 +2837,24 @@ namespace folia {
     throw NotImplementedError( "AlignReference::resolve() for external doc" );
   }
 
+  void Alignment::setAttributes( const KWargs& kwargsin ) {
+    KWargs kwargs = kwargsin;
+    auto it = kwargs.find( "format" );
+    if ( it != kwargs.end() ) {
+      _format = it->second;
+      kwargs.erase( it );
+    }
+    FoliaImpl::setAttributes(kwargs);
+  }
+
+  KWargs Alignment::collectAttributes() const {
+    KWargs atts = FoliaImpl::collectAttributes();
+    if ( !_format.empty() && _format != "text/folia+xml" ) {
+      atts["format"] = _format;
+    }
+    return atts;
+  }
+
   vector<FoliaElement *> Alignment::resolve() const {
     vector<FoliaElement*> result;
     vector<AlignReference*> v = FoliaElement::select<AlignReference>();
@@ -3558,6 +3576,10 @@ namespace folia {
 
   void Linebreak::init() {
     _newpage = false;
+  }
+
+  void Alignment::init() {
+    _format = "text/folia+xml";
   }
 
 } // namespace folia
