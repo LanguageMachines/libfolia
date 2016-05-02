@@ -619,6 +619,7 @@ namespace folia {
       // append children:
       // we want make sure that text elements are in the right order,
       // in front and the 'current' class first
+      list<FoliaElement *> currenttextelements;
       list<FoliaElement *> textelements;
       list<FoliaElement *> otherelements;
       list<FoliaElement *> commentelements;
@@ -627,7 +628,7 @@ namespace folia {
 	if ( attribute_elements.find(el) == attribute_elements.end() ) {
 	  if ( el->isinstance(TextContent_t) ) {
 	    if ( el->cls() == "current" ) {
-	      textelements.push_front( el );
+	      currenttextelements.push_back( el );
 	    }
 	    else {
 	      textelements.push_back( el );
@@ -638,7 +639,9 @@ namespace folia {
 	      otherelementsMap.insert( make_pair( el->element_id(), el ) );
 	    }
 	    else {
-	      if ( el->isinstance(XmlComment_t) && textelements.empty() ) {
+	      if ( el->isinstance(XmlComment_t)
+		   && currenttextelements.empty()
+		   && textelements.empty() ) {
 		commentelements.push_back( el );
 	      }
 	      else {
@@ -650,6 +653,9 @@ namespace folia {
       }
       for ( const auto& cel : commentelements ) {
 	xmlAddChild( e, cel->xml( recursive, kanon ) );
+      }
+      for ( const auto& tel : currenttextelements ) {
+	xmlAddChild( e, tel->xml( recursive, kanon ) );
       }
       for ( const auto& tel : textelements ) {
 	xmlAddChild( e, tel->xml( recursive, kanon ) );
