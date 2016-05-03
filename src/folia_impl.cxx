@@ -619,6 +619,7 @@ namespace folia {
       // append children:
       // we want make sure that text elements are in the right order,
       // in front and the 'current' class first
+      list<FoliaElement *> currenttextelements;
       list<FoliaElement *> textelements;
       list<FoliaElement *> otherelements;
       list<FoliaElement *> commentelements;
@@ -627,7 +628,7 @@ namespace folia {
 	if ( attribute_elements.find(el) == attribute_elements.end() ) {
 	  if ( el->isinstance(TextContent_t) ) {
 	    if ( el->cls() == "current" ) {
-	      textelements.push_front( el );
+	      currenttextelements.push_back( el );
 	    }
 	    else {
 	      textelements.push_back( el );
@@ -638,7 +639,9 @@ namespace folia {
 	      otherelementsMap.insert( make_pair( el->element_id(), el ) );
 	    }
 	    else {
-	      if ( el->isinstance(XmlComment_t) && textelements.empty() ) {
+	      if ( el->isinstance(XmlComment_t)
+		   && currenttextelements.empty()
+		   && textelements.empty() ) {
 		commentelements.push_back( el );
 	      }
 	      else {
@@ -650,6 +653,9 @@ namespace folia {
       }
       for ( const auto& cel : commentelements ) {
 	xmlAddChild( e, cel->xml( recursive, kanon ) );
+      }
+      for ( const auto& tel : currenttextelements ) {
+	xmlAddChild( e, tel->xml( recursive, kanon ) );
       }
       for ( const auto& tel : textelements ) {
 	xmlAddChild( e, tel->xml( recursive, kanon ) );
@@ -1123,6 +1129,20 @@ namespace folia {
       val = trim( val );
       if ( val.empty() ) {
 	throw ValueError( "attempt to add an empty <t> to word: " + _id );
+      }
+    }
+    if ( c->element_id() == TextContent_t ){
+      string st = c->sett();
+      vector<TextContent*> tmp = select<TextContent>( st, false );
+      if ( !tmp.empty() ) {
+	string cls = c->cls();
+	for( const auto& t : tmp ){
+	  if ( t->cls() == cls ){
+	    throw DuplicateAnnotationError( "attempt to add <t> with class="
+					    + cls + " to element: " + _id
+					    + " which already has a <t> with that class" );
+	  }
+	}
       }
     }
     return true;
@@ -1867,6 +1887,11 @@ namespace folia {
       _linenr = it->second;
       args.erase( it );
     }
+    it = args.find( "newpage" );
+    if ( it != args.end() ) {
+      _newpage = ( it->second == "yes" );
+      args.erase( it );
+    }
     FoliaImpl::setAttributes( args );
   }
 
@@ -1877,6 +1902,9 @@ namespace folia {
     }
     if ( ! _pagenr.empty() ){
       atts["pagenr"] = _pagenr;
+    }
+    if ( _newpage ){
+      atts["newpage"] = "yes";
     }
     return atts;
   }
@@ -2829,6 +2857,24 @@ namespace folia {
     throw NotImplementedError( "AlignReference::resolve() for external doc" );
   }
 
+  void Alignment::setAttributes( const KWargs& kwargsin ) {
+    KWargs kwargs = kwargsin;
+    auto it = kwargs.find( "format" );
+    if ( it != kwargs.end() ) {
+      _format = it->second;
+      kwargs.erase( it );
+    }
+    FoliaImpl::setAttributes(kwargs);
+  }
+
+  KWargs Alignment::collectAttributes() const {
+    KWargs atts = FoliaImpl::collectAttributes();
+    if ( !_format.empty() && _format != "text/folia+xml" ) {
+      atts["format"] = _format;
+    }
+    return atts;
+  }
+
   vector<FoliaElement *> Alignment::resolve() const {
     vector<FoliaElement*> result;
     vector<AlignReference*> v = FoliaElement::select<AlignReference>();
@@ -3546,6 +3592,14 @@ namespace folia {
 
   void Word::init() {
     _space = true;
+  }
+
+  void Linebreak::init() {
+    _newpage = false;
+  }
+
+  void Alignment::init() {
+    _format = "text/folia+xml";
   }
 
 } // namespace folia

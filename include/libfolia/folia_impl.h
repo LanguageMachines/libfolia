@@ -1110,9 +1110,11 @@ namespace folia {
     void setAttributes( const KWargs& );
     KWargs collectAttributes() const;
   private:
+    void init();
     static properties PROPS;
     std::string _pagenr;
     std::string _linenr;
+    bool _newpage;
   };
 
   class Whitespace: public AbstractStructureElement {
@@ -1677,9 +1679,12 @@ namespace folia {
     FoliaImpl( PROPS, d ){ classInit( a ); }
 
     std::vector<FoliaElement *>resolve() const;
-
+    void setAttributes( const KWargs& );
+    KWargs collectAttributes() const;
   private:
+    void init();
     static properties PROPS;
+    std::string _format;
   };
 
   class AlignReference: public FoliaImpl {
@@ -1946,7 +1951,7 @@ namespace folia {
   public:
   XmlText( Document *d = 0 ):
     FoliaImpl( PROPS, d ) { classInit(); }
-  XmlText( const KWargs& a, Document *d ):
+  XmlText( const KWargs& a, Document *d = 0 ):
     FoliaImpl(PROPS, d ) { classInit( a ); }
 
     FoliaElement* parseXml( const xmlNode * );
