@@ -1038,7 +1038,7 @@ namespace folia {
     Text::PROPS.XMLTAG = "text";
 //------ TextContent -------
     TextContent::PROPS.ELEMENT_ID = TextContent_t;
-    TextContent::PROPS.ACCEPTED_DATA += {AbstractTextMarkup_t, Description_t, Linebreak_t, Reference_t, XmlText_t};
+    TextContent::PROPS.ACCEPTED_DATA += {AbstractTextMarkup_t, Description_t, Linebreak_t, XmlText_t};
     TextContent::PROPS.ANNOTATIONTYPE = AnnotationType::TEXT;
     TextContent::PROPS.OCCURRENCES = 0;
     TextContent::PROPS.OPTIONAL_ATTRIBS = CLASS|ANNOTATOR|CONFIDENCE|DATETIME;
