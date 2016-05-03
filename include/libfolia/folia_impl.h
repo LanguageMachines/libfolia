@@ -877,6 +877,8 @@ namespace folia {
   public:
   TextMarkupGap( Document *d=0 ):
     AbstractTextMarkup( PROPS, d ) { classInit(); };
+  TextMarkupGap(  const KWargs& a, Document *d=0 ):
+    AbstractTextMarkup( PROPS, d ) { classInit(a); };
   private:
     static properties PROPS;
   };
@@ -886,6 +888,8 @@ namespace folia {
   public:
   TextMarkupString( Document *d=0 ):
     AbstractTextMarkup( PROPS, d ) { classInit(); };
+  TextMarkupString( const KWargs& a, Document *d=0 ):
+    AbstractTextMarkup( PROPS, d ) { classInit(a); };
   private:
     static properties PROPS;
   };
@@ -895,6 +899,9 @@ namespace folia {
   public:
   TextMarkupCorrection( Document *d=0 ):
     AbstractTextMarkup( PROPS, d ){ classInit(); };
+  TextMarkupCorrection( const KWargs& a, Document *d=0 ):
+    AbstractTextMarkup( PROPS, d ) { classInit(a); };
+
     void setAttributes( const KWargs& );
     KWargs collectAttributes() const;
     const UnicodeString text( const std::string& = "current",
@@ -909,6 +916,9 @@ namespace folia {
   public:
   TextMarkupError( Document *d=0 ):
     AbstractTextMarkup( PROPS, d ){ classInit(); };
+  TextMarkupError( const KWargs& a, Document *d=0 ):
+    AbstractTextMarkup( PROPS, d ) { classInit(a); };
+
   private:
     static properties PROPS;
   };
@@ -918,6 +928,9 @@ namespace folia {
   public:
   TextMarkupStyle( Document *d=0 ):
     AbstractTextMarkup( PROPS, d ){ classInit(); };
+  TextMarkupStyle( const KWargs& a, Document *d=0 ):
+    AbstractTextMarkup( PROPS, d ) { classInit(a); };
+
   private:
     static properties PROPS;
   };

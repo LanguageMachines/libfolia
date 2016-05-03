@@ -762,7 +762,7 @@ namespace folia {
   }
 
   const UnicodeString FoliaImpl::deeptext( const string& cls,
-				     bool retaintok ) const {
+					   bool retaintok ) const {
     // get the UnicodeString value of underlying elements
     // default cls="current"
 #ifdef DEBUG_TEXT
@@ -3542,6 +3542,13 @@ namespace folia {
 	throw ValueError("Both 'id' and 'xml:id found for " + classname() );
       }
       idref = it->second;
+      args.erase( it );
+    }
+    it = args.find( "text" );
+    if ( it != args.end() ) {
+      XmlText *txt = new XmlText();
+      txt->setvalue( it->second );
+      append(txt);
       args.erase( it );
     }
     FoliaImpl::setAttributes( args );
