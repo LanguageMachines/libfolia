@@ -6,7 +6,7 @@
 #include "libfolia/folia_properties.h"
 
 //foliaspec:header
-//This file was last updated according to the FoLiA specification for version 1.0.0 on 2016-03-08 11:17:36, using foliaspec.py
+//This file was last updated according to the FoLiA specification for version 1.2.0 on 2016-05-03 12:27:35, using foliaspec.py
 //Code blocks after a foliaspec comment (until the next newline) are automatically generated. **DO NOT EDIT THOSE** and **DO NOT REMOVE ANY FOLIASPEC COMMENTS** !!!
 
 namespace folia {
@@ -19,7 +19,7 @@ namespace folia {
 
   //foliaspec:version_minor:MINOR_VERSION
   //The FoLiA version (minor)
-  const int MINOR_VERSION = 0;
+  const int MINOR_VERSION = 2;
 
   //foliaspec:version_sub:SUB_VERSION
   //The FoLiA version (sub/rev)
@@ -506,7 +506,7 @@ namespace folia {
 //------ AbstractAnnotationLayer -------
     AbstractAnnotationLayer::PROPS.ELEMENT_ID = AbstractAnnotationLayer_t;
     AbstractAnnotationLayer::PROPS.ACCEPTED_DATA += {Correction_t, Description_t};
-    AbstractAnnotationLayer::PROPS.OPTIONAL_ATTRIBS = ID;
+    AbstractAnnotationLayer::PROPS.OPTIONAL_ATTRIBS = ID|ANNOTATOR|CONFIDENCE|DATETIME|N;
     AbstractAnnotationLayer::PROPS.PRINTABLE = false;
     AbstractAnnotationLayer::PROPS.SETONLY = true;
     AbstractAnnotationLayer::PROPS.SPEAKABLE = false;
@@ -699,6 +699,7 @@ namespace folia {
     DomainAnnotation::PROPS = AbstractExtendedTokenAnnotation::PROPS;
     DomainAnnotation::PROPS.ELEMENT_ID = DomainAnnotation_t;
     DomainAnnotation::PROPS.ANNOTATIONTYPE = AnnotationType::DOMAIN;
+    DomainAnnotation::PROPS.OCCURRENCES_PER_SET = 0;
     DomainAnnotation::PROPS.XMLTAG = "domain";
 //------ EntitiesLayer -------
     EntitiesLayer::PROPS = AbstractAnnotationLayer::PROPS;
@@ -722,6 +723,7 @@ namespace folia {
     ErrorDetection::PROPS = AbstractExtendedTokenAnnotation::PROPS;
     ErrorDetection::PROPS.ELEMENT_ID = ErrorDetection_t;
     ErrorDetection::PROPS.ANNOTATIONTYPE = AnnotationType::ERRORDETECTION;
+    ErrorDetection::PROPS.OCCURRENCES_PER_SET = 0;
     ErrorDetection::PROPS.XMLTAG = "errordetection";
 //------ Event -------
     Event::PROPS = AbstractStructureElement::PROPS;
@@ -929,7 +931,7 @@ namespace folia {
 //------ Reference -------
     Reference::PROPS = AbstractStructureElement::PROPS;
     Reference::PROPS.ELEMENT_ID = Reference_t;
-    Reference::PROPS.ACCEPTED_DATA += {AbstractAnnotationLayer_t, Alignment_t, Alternative_t, AlternativeLayers_t, Correction_t, Description_t, Feature_t, Metric_t, Part_t, PhonContent_t, String_t, TextContent_t};
+    Reference::PROPS.ACCEPTED_DATA += {AbstractAnnotationLayer_t, Alignment_t, Alternative_t, AlternativeLayers_t, Correction_t, Description_t, Feature_t, Metric_t, Paragraph_t, Part_t, PhonContent_t, Quote_t, Sentence_t, String_t, TextContent_t, Utterance_t, Word_t};
     Reference::PROPS.TEXTDELIMITER = "NONE";
     Reference::PROPS.XMLTAG = "ref";
 //------ Row -------
