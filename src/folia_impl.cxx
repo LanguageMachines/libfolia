@@ -2435,28 +2435,24 @@ namespace folia {
     return atts;
   }
 
-  void AlignReference::setAttributes( const KWargs& args ) {
+  void AlignReference::setAttributes( const KWargs& argsin ) {
+    KWargs args = argsin;
     auto it = args.find( "id" );
     if ( it != args.end() ) {
       refId = it->second;
+      args.erase(it);
     }
     it = args.find( "type" );
     if ( it != args.end() ) {
-      try {
-	stringTo<ElementType>( it->second );
-      }
-      catch (...) {
-	throw XmlError( "attribute 'type' must be an Element Type" );
-      }
       ref_type = it->second;
-    }
-    else {
-      throw XmlError( "attribute 'type' required for AlignReference" );
+      args.erase(it);
     }
     it = args.find( "t" );
     if ( it != args.end() ) {
       _t = it->second;
+      args.erase(it);
     }
+    FoliaImpl::setAttributes(args);
   }
 
   void Word::setAttributes( const KWargs& args_in ) {
@@ -2831,18 +2827,7 @@ namespace folia {
     if ( mydoc->debug ) {
       cerr << "Found AlignReference ID " << refId << endl;
     }
-    val = att["type"];
-    if ( val.empty() ) {
-      throw XmlError( "type required for AlignReference" );
-    }
-    try {
-      stringTo<ElementType>( val );
-    }
-    catch (...) {
-      throw XmlError( "AlignReference:type must be an Element Type ("
-		      + val + ")" );
-    }
-    ref_type = val;
+    ref_type = att["type"];
     val = att["t"];
     if ( !val.empty() ) {
       _t = val;
@@ -3446,12 +3431,6 @@ namespace folia {
     }
     it = args.find( "type" );
     if ( it != args.end() ) {
-      try {
-	stringTo<ElementType>( it->second );
-      }
-      catch (...) {
-	throw XmlError( "attribute 'type' must be an Element Type" );
-      }
       ref_type = it->second;
       args.erase( it );
     }
