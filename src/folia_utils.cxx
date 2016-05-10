@@ -399,8 +399,17 @@ namespace folia {
 	if ( a->atype == XML_ATTRIBUTE_ID && string((char*)a->name) == "id" ){
 	  atts["_id"] = (char *)a->children->content;
 	}
-	else {
+	else if ( a->ns == 0 || a->ns->prefix == 0 ){
 	  atts[(char*)a->name] = (char *)a->children->content;
+	}
+	else {
+	  string pref = string( (const char*)a->ns->prefix);
+	  if ( pref == "xlink" ){ // are there others?
+	    atts[(char*)a->name] = (char *)a->children->content;
+	  }
+	  // else {
+	  //   cerr << "attribute PREF=" << pref << endl;
+	  // }
 	}
 	a = a->next;
       }
