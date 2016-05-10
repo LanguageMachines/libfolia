@@ -224,7 +224,13 @@ namespace folia {
 	  throw ValueError("ID is not supported for " + classname() );
 	}
 	else {
-	  isNCName( it->second );
+	  try {
+	    isNCName( it->second );
+	  }
+	  catch ( const XmlError& xe ){
+	    throw ValueError( "while processing a " + classname() + " node:\n"
+			      + xe.what() );
+	  }
 	  _id = it->second;
 	  kwargs.erase( it );
 	}
