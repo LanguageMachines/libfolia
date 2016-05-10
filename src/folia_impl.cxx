@@ -117,6 +117,14 @@ namespace folia {
     return _props.AUTO_GENERATE_ID;
   }
 
+  const string FoliaImpl::href() const {
+    auto it = _xlink.find("href");
+    if ( it != _xlink.end() ){
+      return it->second;
+    }
+    return "";
+  }
+
   ostream& operator<<( ostream& os, const FoliaElement& ae ) {
     os << " <" << ae.classname();
     KWargs ats = ae.collectAttributes();
@@ -228,7 +236,7 @@ namespace folia {
 	    isNCName( it->second );
 	  }
 	  catch ( const XmlError& xe ){
-	    throw ValueError( "while processing a " + classname() + " node:\n"
+	    throw XmlError( "while processing a " + classname() + " node:\n"
 			      + xe.what() );
 	  }
 	  _id = it->second;
@@ -370,7 +378,7 @@ namespace folia {
     if ( xlink() ) {
       it = kwargs.find( "href" );
       if ( it != kwargs.end() ) {
-	_href = it->second;
+	_xlink["href"] = it->second;
 	kwargs.erase( it );
       }
       it = kwargs.find( "type" );
@@ -379,6 +387,7 @@ namespace folia {
 	if ( type != "simple" ) {
 	  throw XmlError( "only xlink:type=\"simple\" is supported!" );
 	}
+	_xlink["type"] = type;
 	kwargs.erase( it );
       }
     }
@@ -523,9 +532,16 @@ namespace folia {
       attribs["annotator"] = _annotator;
     }
     if ( xlink() ) {
-      if ( !_href.empty() ) {
-	attribs["xlink:href"] = _href;
-	attribs["xlink:type"] = "simple";
+      auto it = _xlink.find("href");
+      if ( it != _xlink.end() ){
+	attribs["xlink:href"] = it->second;
+	it = _xlink.find("type");
+	if ( it != _xlink.end() ){
+	  attribs["xlink:type"] = it->second;
+	}
+	else {
+	  attribs["xlink:type"] = "simple";
+	}
       }
     }
     if ( !_datetime.empty() &&

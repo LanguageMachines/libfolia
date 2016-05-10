@@ -590,11 +590,12 @@ namespace folia {
     const std::string sett() const { return _set; };
     const std::string n() const { return _n; };
     const std::string id() const { return _id; };
-    const std::string href() const { return _href; };
     const std::string begintime() const { return _begintime; };
     const std::string endtime() const { return _endtime; };
     const std::string speech_src() const;
     const std::string speech_speaker() const;
+
+    const std::string href() const;
 
     double confidence() const { return _confidence; };
     void confidence( double d ) { _confidence = d; };
@@ -648,7 +649,7 @@ namespace folia {
     std::string _id;
     std::string _class;
     std::string _set;
-    std::string _href;
+    std::map<std::string,std::string> _xlink;
     std::string _src;
   private:
     static FoliaElement *private_createElement( ElementType );
