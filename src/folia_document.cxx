@@ -152,7 +152,7 @@ namespace folia {
     it = kwargs.find( "mode" );
     if ( it != kwargs.end() ){
       mode = it->second;
-      if ( mode != "permissive" ){
+      if ( mode != "permissive" && mode != "strip" ){
 	throw runtime_error( "FoLiA::Document: unsupported mode value: "+mode );
       }
     }
@@ -1196,9 +1196,15 @@ namespace folia {
     xmlSetNs( root, _foliaNsOut );
     KWargs attribs;
     attribs["_id"] = foliadoc->id(); // sort "id" in front!
-    attribs["generator"] = string("libfolia-v") + VERSION;
-    if ( !version.empty() )
-      attribs["version"] = version;
+    if ( mode == "strip" ){
+      attribs["generator"] = "";
+      attribs["version"] = "";
+    }
+    else {
+      attribs["generator"] = string("libfolia-v") + VERSION;
+      if ( !version.empty() )
+	attribs["version"] = version;
+    }
     if ( external )
       attribs["external"] = "yes";
     addAttributes( root, attribs );
