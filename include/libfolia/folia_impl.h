@@ -1862,6 +1862,7 @@ namespace folia {
   public:
     AbstractSpanAnnotation *findspan( const std::vector<FoliaElement*>& ) const;
     FoliaElement *append( FoliaElement * );
+    KWargs collectAttributes() const;
   private:
     static properties PROPS;
     void assignset( FoliaElement * );
@@ -2004,7 +2005,6 @@ namespace folia {
   Note( const KWargs& a, Document *d = 0 ):
     AbstractStructureElement( PROPS, d ){ classInit( a ); }
 
-    KWargs collectAttributes() const;
     void setAttributes( const KWargs& );
   private:
     static properties PROPS;

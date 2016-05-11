@@ -3076,6 +3076,15 @@ namespace folia {
     return child;
   }
 
+  KWargs AbstractAnnotationLayer::collectAttributes() const {
+    KWargs attribs = FoliaImpl::collectAttributes();
+    auto it = attribs.find("set");
+    if ( it != attribs.end() ) {
+      attribs.erase(it);
+    }
+    return attribs;
+  }
+
   xmlNode *AbstractSpanAnnotation::xml( bool recursive, bool kanon ) const {
     xmlNode *e = FoliaImpl::xml( false, false );
     // append Word, Phon and Morpheme children as WREFS
@@ -3489,11 +3498,6 @@ namespace folia {
       kwargs.erase( it );
     }
     FoliaImpl::setAttributes(kwargs);
-  }
-
-  KWargs Note::collectAttributes() const {
-    KWargs attribs = FoliaImpl::collectAttributes();
-    return attribs;
   }
 
   void Note::setAttributes( const KWargs& args ) {
