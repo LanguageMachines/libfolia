@@ -177,7 +177,7 @@ namespace folia {
     };
   private:
     std::map<AnnotationType::AnnotationType,std::multimap<std::string,at_t> > annotationdefaults;
-
+    std::vector<std::pair<AnnotationType::AnnotationType,std::string>> anno_sort;
     FoliaElement* parseFoliaDoc( xmlNode * );
     void parsemeta( xmlNode * );
     void setimdi( xmlNode * );

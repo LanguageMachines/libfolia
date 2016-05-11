@@ -574,6 +574,7 @@ namespace folia {
 
   void Document::parseannotations( xmlNode *node ){
     xmlNode *n = node->children;
+    anno_sort.clear();
     while ( n ){
       string tag = Name( n );
       if ( tag.length() > 11 && tag.substr( tag.length() - 11 ) == "-annotation" ){
@@ -591,6 +592,7 @@ namespace folia {
 	else {
 	  s = "undefined"; // default value
 	}
+	anno_sort.push_back(make_pair(type,s));
 	it = att.find( "annotator" );
 	if ( it != att.end() )
 	  a = it->second;
@@ -1068,27 +1070,32 @@ namespace folia {
   }
 
   void Document::setannotations( xmlNode *node ) const {
-    for ( const auto& mit :  annotationdefaults ){
+    for ( const auto& pair : anno_sort ){
       // Find the 'label'
-      string label = toString( mit.first );
+      AnnotationType::AnnotationType type = pair.first;
+      string label = toString( type );
       label += "-annotation";
-      for ( const auto& it : mit.second ){
+      string sett = pair.second;
+      const auto& mm = annotationdefaults.find(type);
+      auto it = mm->second.lower_bound(sett);
+      while ( it != mm->second.upper_bound(sett) ){
 	KWargs args;
-	string s = it.second.a;
+	string s = it->second.a;
 	if ( !s.empty() )
 	  args["annotator"] = s;
-	s = it.second.t;
+	s = it->second.t;
 	if ( !s.empty() )
 	  args["annotatortype"] = s;
-	s = it.second.d;
+	s = it->second.d;
 	if ( !s.empty() )
 	  args["datetime"] = s;
-	s = it.first;
+	s = it->first;
 	if ( s != "undefined" ) // the default
 	  args["set"] = s;
 	xmlNode *n = XmlNewNode( foliaNs(), label );
 	addAttributes( n, args );
 	xmlAddChild( node, n );
+	++it;
       }
     }
   }
