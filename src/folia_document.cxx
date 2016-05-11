@@ -592,7 +592,6 @@ namespace folia {
 	else {
 	  s = "undefined"; // default value
 	}
-	anno_sort.push_back(make_pair(type,s));
 	it = att.find( "annotator" );
 	if ( it != att.end() )
 	  a = it->second;
@@ -923,6 +922,7 @@ namespace folia {
 	d = getNow();
       }
       annotationdefaults[type].insert( make_pair(s, at_t(a,t,d) ) );
+      anno_sort.push_back(make_pair(type,s));
       //    cerr << "inserted [" << type << "][" << st << "](" << a << "," << t << "," << d ")" << endl;
       //    cerr << "annotation defaults now: " <<  annotationdefaults << endl;
 
