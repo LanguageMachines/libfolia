@@ -376,64 +376,65 @@ namespace folia {
       _n = "";
 
     if ( xlink() ) {
+      string type = "simple";
       it = kwargs.find( "type" );
       if ( it != kwargs.end() ) {
-	string type = it->second;
-	if ( type != "simple" && type != "locator" ) {
-	  throw XmlError( "only xlink:types: 'simple' and 'locator' are supported!" );
-	}
-	_xlink["type"] = type;
+	type = it->second;
 	kwargs.erase( it );
-	it = kwargs.find( "href" );
-	if ( it != kwargs.end() ) {
-	  _xlink["href"] = it->second;
-	  kwargs.erase( it );
+      }
+      if ( type != "simple" && type != "locator" ) {
+	throw XmlError( "only xlink:types: 'simple' and 'locator' are supported!" );
+      }
+      _xlink["type"] = type;
+      it = kwargs.find( "href" );
+      if ( it != kwargs.end() ) {
+	_xlink["href"] = it->second;
+	kwargs.erase( it );
+      }
+      else if ( type == "locator" ){
+	throw XmlError( "xlink:type='locator' requires an 'xlink:href' attribute" );
+      }
+      it = kwargs.find( "role" );
+      if ( it != kwargs.end() ) {
+	_xlink["role"] = it->second;
+	kwargs.erase( it );
+      }
+      it = kwargs.find( "title" );
+      if ( it != kwargs.end() ) {
+	_xlink["title"] = it->second;
+	kwargs.erase( it );
+      }
+      it = kwargs.find( "label" );
+      if ( it != kwargs.end() ) {
+	if ( type == "simple" ){
+	  throw XmlError( "xlink:type='simple' may not have an 'xlink:label' attribute" );
 	}
-	else if ( type == "locator" ){
-	  throw XmlError( "xlink:type='locator' requires an 'xlink:href' attribute" );
+	_xlink["label"] = it->second;
+	kwargs.erase( it );
+      }
+      it = kwargs.find( "arcrole" );
+      if ( it != kwargs.end() ) {
+	if ( type == "locator" ){
+	  throw XmlError( "xlink:type='locator' may not have an 'xlink:arcrole' attribute" );
 	}
-	it = kwargs.find( "role" );
-	if ( it != kwargs.end() ) {
-	  _xlink["role"] = it->second;
-	  kwargs.erase( it );
+	_xlink["arcrole"] = it->second;
+	kwargs.erase( it );
+      }
+      it = kwargs.find( "show" );
+      if ( it != kwargs.end() ) {
+	if ( type == "locator" ){
+	  throw XmlError( "xlink:type='locator' may not have an 'xlink:show' attribute" );
 	}
-	it = kwargs.find( "title" );
-	if ( it != kwargs.end() ) {
-	  _xlink["title"] = it->second;
-	  kwargs.erase( it );
+	_xlink["show"] = it->second;
+	kwargs.erase( it );
+      }
+      it = kwargs.find( "actuate" );
+      if ( it != kwargs.end() ) {
+	if ( type == "locator" ){
+	  throw XmlError( "xlink:type='locator' may not have an 'xlink:actuate' attribute" );
 	}
-	it = kwargs.find( "label" );
-	if ( it != kwargs.end() ) {
-	  if ( type == "simple" ){
-	    throw XmlError( "xlink:type='simple' may not have an 'xlink:label' attribute" );
-	  }
-	  _xlink["label"] = it->second;
-	  kwargs.erase( it );
-	}
-	it = kwargs.find( "arcrole" );
-	if ( it != kwargs.end() ) {
-	  if ( type == "locator" ){
-	    throw XmlError( "xlink:type='locator' may not have an 'xlink:arcrole' attribute" );
-	  }
-	  _xlink["arcrole"] = it->second;
-	  kwargs.erase( it );
-	}
-	it = kwargs.find( "show" );
-	if ( it != kwargs.end() ) {
-	  if ( type == "locator" ){
-	    throw XmlError( "xlink:type='locator' may not have an 'xlink:show' attribute" );
-	  }
-	  _xlink["show"] = it->second;
-	  kwargs.erase( it );
-	}
-	it = kwargs.find( "actuate" );
-	if ( it != kwargs.end() ) {
-	  if ( type == "locator" ){
-	    throw XmlError( "xlink:type='locator' may not have an 'xlink:actuate' attribute" );
-	  }
-	  _xlink["actuate"] = it->second;
-	  kwargs.erase( it );
-	}
+	_xlink["actuate"] = it->second;
+	kwargs.erase( it );
       }
     }
 
