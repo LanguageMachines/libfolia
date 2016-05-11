@@ -577,15 +577,39 @@ namespace folia {
       attribs["annotator"] = _annotator;
     }
     if ( xlink() ) {
-      auto it = _xlink.find("href");
+      auto it = _xlink.find("type");
       if ( it != _xlink.end() ){
-	attribs["xlink:href"] = it->second;
-	it = _xlink.find("type");
-	if ( it != _xlink.end() ){
-	  attribs["xlink:type"] = it->second;
-	}
-	else {
-	  attribs["xlink:type"] = "simple";
+	string type = it->second;
+	if ( type == "simple" || type == "locator" ){
+	  auto it = _xlink.find("href");
+	  if ( it != _xlink.end() ){
+	    attribs["xlink:href"] = it->second;
+	    attribs["xlink:type"] = type;
+	  }
+	  it = _xlink.find("role");
+	  if ( it != _xlink.end() ){
+	    attribs["xlink:role"] = it->second;
+	  }
+	  it = _xlink.find("arcrole");
+	  if ( it != _xlink.end() ){
+	    attribs["xlink:arcrole"] = it->second;
+	  }
+	  it = _xlink.find("show");
+	  if ( it != _xlink.end() ){
+	    attribs["xlink:show"] = it->second;
+	  }
+	  it = _xlink.find("actuate");
+	  if ( it != _xlink.end() ){
+	    attribs["xlink:actuate"] = it->second;
+	  }
+	  it = _xlink.find("title");
+	  if ( it != _xlink.end() ){
+	    attribs["xlink:title"] = it->second;
+	  }
+	  it = _xlink.find("label");
+	  if ( it != _xlink.end() ){
+	    attribs["xlink:label"] = it->second;
+	  }
 	}
       }
     }
