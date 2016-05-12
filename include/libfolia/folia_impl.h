@@ -863,7 +863,7 @@ namespace folia {
     xmlNode *xml( bool, bool=false ) const;
   private:
     static properties PROPS;
-    xmlNode *_data;
+    xmlNode *_foreign_data;
   };
 
   const std::string EMPTY_STRING = "";

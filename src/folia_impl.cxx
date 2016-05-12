@@ -3609,12 +3609,16 @@ namespace folia {
   }
 
   FoliaElement* ForeignData::parseXml( const xmlNode *node ){
-    _data = xmlCopyNode( (xmlNode*)node, 1 );
-    return 0;
+    cerr << "FD parsexml()" << endl;
+    _foreign_data = xmlCopyNodeList( (xmlNode*)node->children );
+    return this;
   }
 
   xmlNode *ForeignData::xml( bool, bool ) const {
-    return _data;
+    cerr << "FD xml()" << endl;
+    xmlNode *e = FoliaImpl::xml( false, false );
+    xmlAddChild( e,  xmlCopyNodeList(_foreign_data) );
+    return e;
   }
 
   KWargs AbstractTextMarkup::collectAttributes() const {
