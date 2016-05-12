@@ -3600,14 +3600,6 @@ namespace folia {
     return "";
   }
 
-  void ForeignData::setAttributes( const KWargs& ){
-  }
-
-  KWargs ForeignData::collectAttributes() const {
-    KWargs args;
-    return args;
-  }
-
   FoliaElement* ForeignData::parseXml( const xmlNode *node ){
     _foreign_data = xmlCopyNodeList( (xmlNode*)node->children );
     xmlNode *p = _foreign_data;
@@ -3626,6 +3618,14 @@ namespace folia {
     xmlNode *e = FoliaImpl::xml( false, false );
     xmlAddChild( e,  xmlCopyNodeList(_foreign_data) );
     return e;
+  }
+
+  void ForeignData::set_data( const xmlNode *node ){
+    parseXml( node );
+  }
+
+  xmlNode* ForeignData::get_data() const {
+    return xmlCopyNodeList(_foreign_data);
   }
 
   KWargs AbstractTextMarkup::collectAttributes() const {

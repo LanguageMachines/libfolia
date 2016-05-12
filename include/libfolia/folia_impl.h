@@ -857,10 +857,10 @@ namespace folia {
   ForeignData( Document *d=0 ):
     FoliaImpl( PROPS, d ){ classInit(); };
 
-    void setAttributes( const KWargs& );
-    KWargs collectAttributes() const;
     FoliaElement* parseXml( const xmlNode * );
     xmlNode *xml( bool, bool=false ) const;
+    void set_data( const xmlNode * );
+    xmlNode* get_data() const;
   private:
     static properties PROPS;
     xmlNode *_foreign_data;
