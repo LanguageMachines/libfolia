@@ -3601,8 +3601,7 @@ namespace folia {
   }
 
   FoliaElement* ForeignData::parseXml( const xmlNode *node ){
-    _foreign_data = xmlCopyNodeList( (xmlNode*)node->children );
-    xmlNode *p = _foreign_data;
+    xmlNode *p = (xmlNode *)node;
     while ( p ){
       string pref;
       string ns = getNS( p, pref );
@@ -3611,6 +3610,7 @@ namespace folia {
       }
       p = p->next;
     }
+    _foreign_data = xmlCopyNodeList( (xmlNode*)node->children );
     return this;
   }
 
@@ -3621,7 +3621,16 @@ namespace folia {
   }
 
   void ForeignData::set_data( const xmlNode *node ){
-    parseXml( node );
+    xmlNode *p = (xmlNode *)node;
+    while ( p ){
+      string pref;
+      string ns = getNS( p, pref );
+      if ( ns == NSFOLIA ){
+	throw XmlError( "ForeignData MAY NOT be in the FoLiA namespace" );
+      }
+      p = p->next;
+    }
+    _foreign_data = xmlCopyNode( (xmlNode*)node, 1 );
   }
 
   xmlNode* ForeignData::get_data() const {
