@@ -1273,6 +1273,120 @@ namespace folia {
 //foliaspec:end:defaultproperties
   }
 
+  FoliaElement *FoliaImpl::private_createElement( ElementType et ){
+    switch ( et ){
+    case BASE: return new FoLiA();
+    case Text_t: return new Text();
+    case Speech_t: return new Speech();
+    case Utterance_t: return new Utterance();
+    case ForeignData_t: return new ForeignData();
+    case Entry_t: return new Entry();
+    case Example_t: return new Example();
+    case Term_t: return new Term();
+    case Definition_t: return new Definition();
+    case PhonContent_t: return new PhonContent();
+    case Word_t: return new Word();
+    case String_t: return new String();
+    case Event_t: return new Event();
+    case TimeSegment_t: return new TimeSegment();
+    case TimingLayer_t: return new TimingLayer();
+    case Sentence_t: return new Sentence();
+    case TextContent_t: return new TextContent();
+    case Linebreak_t: return new Linebreak();
+    case Whitespace_t: return new Whitespace();
+    case Figure_t: return new Figure();
+    case Caption_t: return new Caption();
+    case Label_t: return new Label();
+    case List_t: return new List();
+    case ListItem_t: return new ListItem();
+    case Paragraph_t: return new Paragraph();
+    case New_t: return new New();
+    case Original_t: return new Original();
+    case Current_t: return new Current();
+    case Suggestion_t: return new Suggestion();
+    case Head_t: return new Head();
+    case Table_t: return new Table();
+    case TableHead_t: return new TableHead();
+    case Cell_t: return new Cell();
+    case Row_t: return new Row();
+    case LangAnnotation_t: return new LangAnnotation();
+    case XmlComment_t: return new XmlComment();
+    case XmlText_t: return new XmlText();
+    case External_t: return new External();
+    case Note_t: return new Note();
+    case Reference_t: return new Reference();
+    case Description_t: return new Description();
+    case Gap_t: return new Gap();
+    case Content_t: return new Content();
+    case Metric_t: return new Metric();
+    case Division_t: return new Division();
+    case PosAnnotation_t: return new PosAnnotation();
+    case LemmaAnnotation_t: return new LemmaAnnotation();
+    case PhonologyLayer_t: return new PhonologyLayer();
+    case Phoneme_t: return new Phoneme();
+    case DomainAnnotation_t: return new DomainAnnotation();
+    case SenseAnnotation_t: return new SenseAnnotation();
+    case SyntaxLayer_t: return new SyntaxLayer();
+    case SubjectivityAnnotation_t: return new SubjectivityAnnotation();
+    case Chunk_t: return new Chunk();
+    case ChunkingLayer_t: return new ChunkingLayer();
+    case Entity_t: return new Entity();
+    case EntitiesLayer_t: return new EntitiesLayer();
+    case SemanticRolesLayer_t: return new SemanticRolesLayer();
+    case SemanticRole_t: return new SemanticRole();
+    case CoreferenceLayer_t: return new CoreferenceLayer();
+    case CoreferenceLink_t: return new CoreferenceLink();
+    case CoreferenceChain_t:  return new CoreferenceChain();
+    case Alternative_t: return new Alternative();
+    case PlaceHolder_t: return new PlaceHolder();
+    case AlternativeLayers_t: return new AlternativeLayers();
+    case SyntacticUnit_t: return new SyntacticUnit();
+    case WordReference_t: return new WordReference();
+    case Correction_t: return new Correction();
+    case ErrorDetection_t: return new ErrorDetection();
+    case MorphologyLayer_t: return new MorphologyLayer();
+    case Morpheme_t: return new Morpheme();
+    case Feature_t: return new Feature();
+    case BegindatetimeFeature_t: return new BegindatetimeFeature();
+    case EnddatetimeFeature_t: return new EnddatetimeFeature();
+    case SynsetFeature_t: return new SynsetFeature();
+    case ActorFeature_t: return new ActorFeature();
+    case HeadFeature_t: return new HeadFeature();
+    case ValueFeature_t: return new ValueFeature();
+    case TimeFeature_t: return new TimeFeature();
+    case ModalityFeature_t: return new ModalityFeature();
+    case FunctionFeature_t: return new FunctionFeature();
+    case LevelFeature_t: return new LevelFeature();
+    case Quote_t: return new Quote();
+    case DependenciesLayer_t: return new DependenciesLayer();
+    case Dependency_t: return new Dependency();
+    case DependencyDependent_t: return new DependencyDependent();
+    case Headspan_t: return new Headspan();
+    case ComplexAlignmentLayer_t: return new ComplexAlignmentLayer();
+    case ComplexAlignment_t: return new ComplexAlignment();
+    case Alignment_t: return new Alignment();
+    case AlignReference_t: return new AlignReference();
+    case TextMarkupString_t: return new TextMarkupString();
+    case TextMarkupGap_t: return new TextMarkupGap();
+    case TextMarkupCorrection_t: return new TextMarkupCorrection();
+    case TextMarkupError_t: return new TextMarkupError();
+    case TextMarkupStyle_t: return new TextMarkupStyle();
+    case Part_t: return new Part();
+    case AbstractSpanAnnotation_t:
+    case AbstractSpanRole_t:
+    case AbstractAnnotationLayer_t:
+    case AbstractTextMarkup_t:
+    case AbstractTokenAnnotation_t:
+    case AbstractStructureElement_t:
+    case AbstractCorrectionChild_t:
+      throw ValueError( "you may not create an abstract node of type "
+			+ TiCC::toString(int(et)) + ")" );
+    default:
+      throw ValueError( "createElement: unknown elementtype("
+			+ TiCC::toString(int(et)) + ")" );
+    }
+    return 0;
+  }
 
   bool isSubClass( const ElementType e1, const ElementType e2 ){
     if ( e1 == e2 )
