@@ -63,6 +63,8 @@ namespace folia {
       return new Speech();
     case Utterance_t:
       return new Utterance();
+    case ForeignData_t:
+      return new ForeignData();
     case Entry_t:
       return new Entry();
     case Example_t:

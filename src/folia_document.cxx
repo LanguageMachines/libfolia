@@ -568,8 +568,6 @@ namespace folia {
     }
     _metadatatype = "foreign";
     _metadata = xmlCopyNode( node, 1 );
-    //    clean_ns( _metadata, NSFOLIA ); // remove the FOLIA ns-def
-    // it is already defined higher
   }
 
   void Document::parseannotations( xmlNode *node ){

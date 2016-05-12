@@ -851,12 +851,12 @@ namespace folia {
 
   class ForeignData: public FoliaImpl {
     friend void static_init();
-  protected:
+  public:
   ForeignData( const properties& props, Document *d=0 ):
     FoliaImpl( props, d ){ classInit(); };
   ForeignData( Document *d=0 ):
     FoliaImpl( PROPS, d ){ classInit(); };
-  public:
+
     void setAttributes( const KWargs& );
     KWargs collectAttributes() const;
     FoliaElement* parseXml( const xmlNode * );
