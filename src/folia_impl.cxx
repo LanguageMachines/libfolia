@@ -3610,6 +3610,15 @@ namespace folia {
 
   FoliaElement* ForeignData::parseXml( const xmlNode *node ){
     _foreign_data = xmlCopyNodeList( (xmlNode*)node->children );
+    xmlNode *p = _foreign_data;
+    while ( p ){
+      string pref;
+      string ns = getNS( p, pref );
+      if ( ns == NSFOLIA ){
+	throw XmlError( "ForeignData MAY NOT be in the FoLiA namespace" );
+      }
+      p = p->next;
+    }
     return this;
   }
 
