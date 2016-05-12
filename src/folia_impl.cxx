@@ -3600,6 +3600,22 @@ namespace folia {
     return "";
   }
 
+  void ForeignData::setAttributes( const KWargs& ){
+  }
+
+  KWargs ForeignData::collectAttributes() const {
+    KWargs args;
+    return args;
+  }
+
+  FoliaElement* ForeignData::parseXml( const xmlNode * ){
+    return 0;
+  }
+
+  xmlNode *ForeignData::xml( bool, bool ) const {
+    return 0;
+  }
+
   KWargs AbstractTextMarkup::collectAttributes() const {
     KWargs attribs = FoliaImpl::collectAttributes();
     if ( !idref.empty() ) {

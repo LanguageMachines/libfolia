@@ -849,6 +849,22 @@ namespace folia {
     static properties PROPS;
   };
 
+  class ForeignData: public FoliaImpl {
+    friend void static_init();
+  protected:
+  ForeignData( const properties& props, Document *d=0 ):
+    FoliaImpl( props, d ){ classInit(); };
+  ForeignData( Document *d=0 ):
+    FoliaImpl( PROPS, d ){ classInit(); };
+  public:
+    void setAttributes( const KWargs& );
+    KWargs collectAttributes() const;
+    FoliaElement* parseXml( const xmlNode * );
+    xmlNode *xml( bool, bool=false ) const;
+  private:
+    static properties PROPS;
+    xmlNode *_data;
+  };
 
   const std::string EMPTY_STRING = "";
 
