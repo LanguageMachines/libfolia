@@ -3601,12 +3601,12 @@ namespace folia {
   }
 
   FoliaElement* ForeignData::parseXml( const xmlNode *node ){
-    xmlNode *p = (xmlNode *)node;
+    xmlNode *p = (xmlNode *)node->children;
     while ( p ){
       string pref;
       string ns = getNS( p, pref );
       if ( ns == NSFOLIA ){
-	throw XmlError( "ForeignData MAY NOT be in the FoLiA namespace" );
+	throw XmlError( "ForeignData Children MAY NOT be in the FoLiA namespace" );
       }
       p = p->next;
     }
