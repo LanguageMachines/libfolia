@@ -90,6 +90,7 @@ namespace folia {
   void Document::init(){
     _metadatatype = "native";
     _metadata = 0;
+    _foreigndata = 0;
     _xmldoc = 0;
     foliadoc = 0;
     _foliaNsIn_href = 0;
@@ -562,12 +563,20 @@ namespace folia {
     }
   }
 
-  void Document::set_foreign_metadata( xmlNode * node ){
-    if ( _metadata ){
+  void Document::set_foreign_metadata( xmlNode *node ){
+    if ( _foreigndata ){
       throw XmlError( "multiple foreign-data nodes!" );
     }
-    _metadatatype = "foreign";
-    _metadata = xmlCopyNode( node, 1 );
+    xmlNode *p = (xmlNode *)node;
+    while ( p ){
+      string pref;
+      string ns = getNS( p, pref );
+      if ( ns == NSFOLIA ){
+	throw XmlError( "ForeignData Children MAY NOT be in the FoLiA namespace" );
+      }
+      p = p->next;
+    }
+    _foreigndata = xmlCopyNodeList( (xmlNode*)node );
   }
 
   void Document::parseannotations( xmlNode *node ){
@@ -647,25 +656,6 @@ namespace folia {
     return result;
   }
 
-  void clean_ns( xmlNode *node, const string& ns ){
-    xmlNs *p = node->nsDef;
-    xmlNs *prev = 0;
-    while ( p ){
-      string val = (char *)p->href;
-      if ( val == ns ){
-	if ( prev ){
-	  prev->next = p->next;
-	}
-	else {
-	  node->nsDef = p->next;
-	}
-	return;
-      }
-      prev = p;
-      p = p->next;
-    }
-  }
-
   FoliaElement* Document::parseFoliaDoc( xmlNode *root ){
     KWargs att = getAttributes( root );
     using TiCC::operator<<;
@@ -728,12 +718,10 @@ namespace folia {
 		      checkNS( m, NSFOLIA ) ){
 	      if ( debug > 1 )
 		cerr << "found foreign-data" << endl;
-	      if ( _metadata ){
+	      if ( _foreigndata ){
 		throw XmlError( "multiple foreign-data nodes!" );
 	      }
-	      _metadata = xmlCopyNodeList( m );
-	      clean_ns( _metadata, NSFOLIA ); // remove the FOLIA ns-def
-	      // it is already defined higher
+	      _foreigndata = xmlCopyNode( m->children, 1 );
 	    }
 	    m = m->next;
 	  }
@@ -1157,6 +1145,11 @@ namespace folia {
     }
     else {
       xmlAddChild( node, _metadata );
+    }
+    if ( _foreigndata ){
+      xmlNode *f = XmlNewNode( foliaNs(), "foreign-data" );
+      xmlAddChild( node, f );
+      xmlAddChild( f, xmlCopyNodeList(_foreigndata) );
     }
   }
 
