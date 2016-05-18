@@ -6,7 +6,7 @@
 #include "libfolia/folia_properties.h"
 
 //foliaspec:header
-//This file was last updated according to the FoLiA specification for version 1.2.0 on 2016-05-12 14:17:40, using foliaspec.py
+//This file was last updated according to the FoLiA specification for version 1.2.0 on 2016-05-18 13:42:12, using foliaspec.py
 //Code blocks after a foliaspec comment (until the next newline) are automatically generated. **DO NOT EDIT THOSE** and **DO NOT REMOVE ANY FOLIASPEC COMMENTS** !!!
 
 namespace folia {
@@ -353,7 +353,7 @@ namespace folia {
 
   //foliaspec:default_ignore
   //Default ignore list for the select() method, do not descend into these
-  const set<ElementType> default_ignore = { Alternative_t, AlternativeLayers_t, Original_t, Suggestion_t };
+  const set<ElementType> default_ignore = { Alternative_t, AlternativeLayers_t, ForeignData_t, Original_t, Suggestion_t };
 
   //foliaspec:default_ignore_annotations
   //Default ignore list for token annotation
