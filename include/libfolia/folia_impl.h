@@ -856,14 +856,17 @@ namespace folia {
     FoliaImpl( props, d ){ classInit(); };
   ForeignData( Document *d=0 ):
     FoliaImpl( PROPS, d ){ classInit(); };
+    ~ForeignData();
 
     FoliaElement* parseXml( const xmlNode * );
     xmlNode *xml( bool, bool=false ) const;
     void set_data( const xmlNode * );
     xmlNode* get_data() const;
   private:
+    void init();
     static properties PROPS;
     xmlNode *_foreign_data;
+    xmlNs *_foreign_ns;
   };
 
   const std::string EMPTY_STRING = "";

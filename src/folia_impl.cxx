@@ -3600,14 +3600,25 @@ namespace folia {
     return "";
   }
 
+  ForeignData::~ForeignData(){
+    xmlFreeNode( _foreign_data );
+    xmlFreeNsList( _foreign_ns );
+  }
+
   FoliaElement* ForeignData::parseXml( const xmlNode *node ){
     set_data( node->children );
+    if ( node->nsDef ){
+      _foreign_ns = xmlCopyNamespaceList( node->nsDef );
+    }
     return this;
   }
 
   xmlNode *ForeignData::xml( bool, bool ) const {
     xmlNode *e = FoliaImpl::xml( false, false );
     xmlAddChild( e,  xmlCopyNodeList(_foreign_data) );
+    if ( _foreign_ns ){
+      e->nsDef = xmlCopyNamespaceList( _foreign_ns );
+    }
     return e;
   }
 
@@ -3726,6 +3737,11 @@ namespace folia {
 
   void Reference::init() {
     _format = "text/folia+xml";
+  }
+
+  void ForeignData::init() {
+    _foreign_data = 0;
+    _foreign_ns = 0;
   }
 
 } // namespace folia
