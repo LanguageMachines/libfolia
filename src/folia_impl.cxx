@@ -3613,11 +3613,51 @@ namespace folia {
     return this;
   }
 
+  bool lookup( xmlNs *ns, xmlNs *ns_list ){
+    if ( ns_list == 0 ){
+      return false;
+    }
+    // cerr << "lookup " << (char*)ns->prefix << ":" << (char*)ns->href
+    // 	 << " versus " << (char*)ns_list->prefix << ":" << (char*)ns_list->href
+    // 	 << endl;
+    if ( xmlStrcmp( ns->href, ns_list->href ) == 0
+	 && xmlStrcmp( ns->prefix, ns_list->prefix ) == 0 ){
+      return true;
+    }
+    else
+      return lookup( ns, ns_list->next );
+  }
+
+  void cleanupNs( xmlNode *node ){
+    xmlNs *node_ns = node->nsDef;
+    if ( node_ns == 0 ){
+      return;
+    }
+    xmlNode *p = node->children;
+    while ( p ){
+      xmlNs **my_ns = &(p->nsDef);
+      while ( *my_ns != 0 ){
+	if ( lookup( *my_ns, node_ns ) ){
+	  if ( *my_ns == p->nsDef ){
+	    p->nsDef = (*my_ns)->next;
+	  }
+	  my_ns = &((*my_ns)->next);
+	  break;
+	}
+	else {
+	  my_ns = &((*my_ns)->next);
+	}
+      }
+      p = p->next;
+    }
+  }
+
   xmlNode *ForeignData::xml( bool, bool ) const {
     xmlNode *e = FoliaImpl::xml( false, false );
     xmlAddChild( e,  xmlCopyNodeList(_foreign_data) );
     if ( _foreign_ns ){
       e->nsDef = xmlCopyNamespaceList( _foreign_ns );
+      cleanupNs( e );
     }
     return e;
   }
