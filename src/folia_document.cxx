@@ -108,6 +108,7 @@ namespace folia {
     sindex.clear();
     iindex.clear();
     delete foliadoc;
+    delete _foreigndata;
     for ( const auto& it : delSet ){
       delete it;
     }
