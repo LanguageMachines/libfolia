@@ -576,7 +576,8 @@ namespace folia {
       }
       p = p->next;
     }
-    _foreigndata = xmlCopyNodeList( (xmlNode*)node );
+    _foreigndata = new ForeignData();
+    _foreigndata->set_data( node );
   }
 
   void Document::parseannotations( xmlNode *node ){
@@ -716,12 +717,13 @@ namespace folia {
 	    }
 	    else if ( Name(m)  == "foreign-data" &&
 		      checkNS( m, NSFOLIA ) ){
-	      if ( debug > 1 )
-		cerr << "found foreign-data" << endl;
-	      if ( _foreigndata ){
-		throw XmlError( "multiple foreign-data nodes!" );
+	      FoliaElement *t = FoliaImpl::createElement( "foreign-data", this );
+	      if ( t ){
+		t = t->parseXml( m );
+		if ( t ){
+		  _foreigndata = dynamic_cast<ForeignData *>(t);
+		}
 	      }
-	      _foreigndata = xmlCopyNode( m->children, 1 );
 	    }
 	    m = m->next;
 	  }
@@ -1147,9 +1149,8 @@ namespace folia {
       xmlAddChild( node, _metadata );
     }
     if ( _foreigndata ){
-      xmlNode *f = XmlNewNode( foliaNs(), "foreign-data" );
+      xmlNode *f = _foreigndata->xml( true, false );
       xmlAddChild( node, f );
-      xmlAddChild( f, xmlCopyNodeList(_foreigndata) );
     }
   }
 
