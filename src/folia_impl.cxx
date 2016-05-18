@@ -3641,7 +3641,6 @@ namespace folia {
 	  if ( *my_ns == p->nsDef ){
 	    p->nsDef = (*my_ns)->next;
 	  }
-	  my_ns = &((*my_ns)->next);
 	  break;
 	}
 	else {
