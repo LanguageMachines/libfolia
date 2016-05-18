@@ -3672,7 +3672,7 @@ namespace folia {
       }
       p = p->next;
     }
-    _foreign_data = xmlCopyNode( (xmlNode*)node, 1 );
+    _foreign_data = xmlCopyNodeList( (xmlNode*)node );
   }
 
   xmlNode* ForeignData::get_data() const {
