@@ -569,7 +569,16 @@ namespace folia {
       throw XmlError( "multiple foreign-data nodes!" );
     }
     _foreigndata = new ForeignData();
-    _foreigndata->set_data( node );
+    if ( Name( node ) != "foreign-data" ){
+      // we need an extra layer then
+      xmlNode *n = XmlNewNode( "foreign-data" );
+      xmlAddChild( n, xmlCopyNodeList( node ) );
+      _foreigndata->set_data( n );
+      xmlFreeNode (n );
+    }
+    else {
+      _foreigndata->set_data( node );
+    }
   }
 
   void Document::parseannotations( xmlNode *node ){
