@@ -568,15 +568,6 @@ namespace folia {
     if ( _foreigndata ){
       throw XmlError( "multiple foreign-data nodes!" );
     }
-    xmlNode *p = (xmlNode *)node;
-    while ( p ){
-      string pref;
-      string ns = getNS( p, pref );
-      if ( ns == NSFOLIA ){
-	throw XmlError( "ForeignData Children MAY NOT be in the FoLiA namespace" );
-      }
-      p = p->next;
-    }
     _foreigndata = new ForeignData();
     _foreigndata->set_data( node );
   }

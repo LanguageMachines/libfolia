@@ -3602,67 +3602,19 @@ namespace folia {
 
   ForeignData::~ForeignData(){
     xmlFreeNode( _foreign_data );
-    xmlFreeNsList( _foreign_ns );
   }
 
   FoliaElement* ForeignData::parseXml( const xmlNode *node ){
-    set_data( node->children );
-    if ( node->nsDef ){
-      _foreign_ns = xmlCopyNamespaceList( node->nsDef );
-    }
+    set_data( node );
     return this;
   }
 
-  bool lookup( xmlNs *ns, xmlNs *ns_list ){
-    if ( ns_list == 0 ){
-      return false;
-    }
-    // cerr << "lookup " << (char*)ns->prefix << ":" << (char*)ns->href
-    // 	 << " versus " << (char*)ns_list->prefix << ":" << (char*)ns_list->href
-    // 	 << endl;
-    if ( xmlStrcmp( ns->href, ns_list->href ) == 0
-	 && xmlStrcmp( ns->prefix, ns_list->prefix ) == 0 ){
-      return true;
-    }
-    else
-      return lookup( ns, ns_list->next );
-  }
-
-  void cleanupNs( xmlNode *node ){
-    xmlNs *node_ns = node->nsDef;
-    if ( node_ns == 0 ){
-      return;
-    }
-    xmlNode *p = node->children;
-    while ( p ){
-      xmlNs **my_ns = &(p->nsDef);
-      while ( *my_ns != 0 ){
-	if ( lookup( *my_ns, node_ns ) ){
-	  if ( *my_ns == p->nsDef ){
-	    p->nsDef = (*my_ns)->next;
-	  }
-	  break;
-	}
-	else {
-	  my_ns = &((*my_ns)->next);
-	}
-      }
-      p = p->next;
-    }
-  }
-
   xmlNode *ForeignData::xml( bool, bool ) const {
-    xmlNode *e = FoliaImpl::xml( false, false );
-    xmlAddChild( e,  xmlCopyNodeList(_foreign_data) );
-    if ( _foreign_ns ){
-      e->nsDef = xmlCopyNamespaceList( _foreign_ns );
-      cleanupNs( e );
-    }
-    return e;
+    return get_data();
   }
 
   void ForeignData::set_data( const xmlNode *node ){
-    xmlNode *p = (xmlNode *)node;
+    xmlNode *p = (xmlNode *)node->children;
     while ( p ){
       string pref;
       string ns = getNS( p, pref );
@@ -3674,8 +3626,29 @@ namespace folia {
     _foreign_data = xmlCopyNodeList( (xmlNode*)node );
   }
 
+  void clean_ns( xmlNode *node, const string& ns ){
+    xmlNs *p = node->nsDef;
+    xmlNs *prev = 0;
+    while ( p ){
+      string val = (char *)p->href;
+      if ( val == ns ){
+	if ( prev ){
+	  prev->next = p->next;
+	}
+	else {
+	  node->nsDef = p->next;
+	}
+	return;
+      }
+      prev = p;
+      p = p->next;
+    }
+  }
+
   xmlNode* ForeignData::get_data() const {
-    return xmlCopyNodeList(_foreign_data);
+    xmlNode * result = xmlCopyNodeList(_foreign_data);
+    clean_ns( result, NSFOLIA ); // HACK: remove FoLiA namespace def
+    return result;
   }
 
   KWargs AbstractTextMarkup::collectAttributes() const {
@@ -3780,7 +3753,6 @@ namespace folia {
 
   void ForeignData::init() {
     _foreign_data = 0;
-    _foreign_ns = 0;
   }
 
 } // namespace folia
