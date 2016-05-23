@@ -1075,9 +1075,11 @@ namespace folia {
 	s = it->second.t;
 	if ( !s.empty() )
 	  args["annotatortype"] = s;
-	s = it->second.d;
-	if ( !s.empty() )
-	  args["datetime"] = s;
+	if ( mode != "strip" ){
+	  s = it->second.d;
+	  if ( !s.empty() )
+	    args["datetime"] = s;
+	}
 	s = it->first;
 	if ( s != "undefined" ) // the default
 	  args["set"] = s;
