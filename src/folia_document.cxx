@@ -572,7 +572,7 @@ namespace folia {
     if ( Name( node ) != "foreign-data" ){
       // we need an extra layer then
       xmlNode *n = XmlNewNode( "foreign-data" );
-      xmlAddChild( n, xmlCopyNodeList( node ) );
+      xmlAddChild( n, xmlCopyNode( node, 1 ) );
       _foreigndata->set_data( n );
       xmlFreeNode (n );
     }

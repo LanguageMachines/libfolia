@@ -3623,7 +3623,7 @@ namespace folia {
       }
       p = p->next;
     }
-    _foreign_data = xmlCopyNodeList( (xmlNode*)node );
+    _foreign_data = xmlCopyNode( (xmlNode*)node, 1 );
   }
 
   void clean_ns( xmlNode *node, const string& ns ){
@@ -3646,7 +3646,7 @@ namespace folia {
   }
 
   xmlNode* ForeignData::get_data() const {
-    xmlNode * result = xmlCopyNodeList(_foreign_data);
+    xmlNode * result = xmlCopyNode(_foreign_data, 1 );
     clean_ns( result, NSFOLIA ); // HACK: remove FoLiA namespace def
     return result;
   }
