@@ -34,29 +34,37 @@
 using namespace std;
 
 void usage(){
-  cerr << "usage: folialint [options] <foliafile> [<outputfile>]" << endl;
+  cerr << "usage: folialint [options] <foliafiles>" << endl;
 }
 
 int main( int argc, char* argv[] ){
-  string inputName;
   string outputName;
   bool permissive;
+  bool strip;
+  bool nooutput = false;
   string debug;
   vector<string> fileNames;
   try {
-    TiCC::CL_Options Opts( "hV", "debug:,permissive");
+    TiCC::CL_Options Opts( "hV", "debug:,permissive,strip,output:,nooutput");
     Opts.init(argc, argv );
     if ( Opts.extract( 'h' ) ){
       usage();
       return EXIT_SUCCESS;
     }
     if ( Opts.extract( 'V' ) ){
-      cout << "folialint version 0.2" << endl;
+      cout << "folialint version 0.3" << endl;
       cout << "based on [" << folia::VersionName() << "]" << endl;
       return EXIT_SUCCESS;
     }
     permissive = Opts.extract("permissive");
+    nooutput = Opts.extract("nooutput");
+    strip = Opts.extract("strip");
+    if ( strip && permissive ){
+      cerr << "conflicting options: 'permissive' and 'strip'" << endl;
+      return EXIT_FAILURE;
+    }
     Opts.extract( "debug", debug );
+    Opts.extract("output", outputName);
     if ( !Opts.empty() ){
       cerr << "unsupported option(s): " << Opts.toString() << endl;
       return EXIT_FAILURE;
@@ -66,14 +74,11 @@ int main( int argc, char* argv[] ){
       cerr << "missing input file" << endl;
       return EXIT_FAILURE;
     }
-    if ( fileNames.size() > 2 ){
-      cerr << "expected 1 input file, and 1 output file" << endl;
+    if ( fileNames.size() > 1 && !outputName.empty() ){
+      cerr << "--outputname not supported for more then 1 inputfile" << endl;
       return EXIT_FAILURE;
     }
-    inputName = fileNames[0];
-    if ( fileNames.size() == 2 ){
-      outputName = fileNames[1];
-    }
+    string inputName = fileNames[0];
     if ( inputName == outputName ){
       cerr << "output name cannot be same as input name!" << endl;
       return EXIT_FAILURE;
@@ -83,21 +88,27 @@ int main( int argc, char* argv[] ){
     cerr << "FAIL: " << e.what() << endl;
     exit( EXIT_FAILURE );
   }
-  try {
-    string cmd = "file='" + inputName + "'";
-    if ( !debug.empty() )
-      cmd += ", debug='" + debug + "'";
-    if ( permissive )
-      cmd += ", mode='permissive'";
-    folia::Document d( cmd );
-    if ( !outputName.empty() )
-      d.save( outputName );
-    else
-      cout << d;
-  }
-  catch( exception& e ){
-    cerr << "FAIL: " << e.what() << endl;
-    exit( EXIT_FAILURE );
+  for ( const auto& inputName : fileNames ){
+    try {
+      string cmd = "file='" + inputName + "'";
+      if ( !debug.empty() )
+	cmd += ", debug='" + debug + "'";
+      if ( permissive )
+	cmd += ", mode='permissive'";
+      else if ( strip )
+	cmd += ", mode='strip'";
+      folia::Document d( cmd );
+      if ( !outputName.empty() ){
+	d.save( outputName );
+      }
+      else if ( !nooutput ){
+	cout << d;
+      }
+    }
+    catch( exception& e ){
+      cerr << "FAIL: " << e.what() << endl;
+      exit( EXIT_FAILURE );
+    }
   }
   exit( EXIT_SUCCESS );
 }

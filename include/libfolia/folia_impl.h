@@ -590,11 +590,12 @@ namespace folia {
     const std::string sett() const { return _set; };
     const std::string n() const { return _n; };
     const std::string id() const { return _id; };
-    const std::string href() const { return _href; };
     const std::string begintime() const { return _begintime; };
     const std::string endtime() const { return _endtime; };
     const std::string speech_src() const;
     const std::string speech_speaker() const;
+
+    const std::string href() const;
 
     double confidence() const { return _confidence; };
     void confidence( double d ) { _confidence = d; };
@@ -648,7 +649,7 @@ namespace folia {
     std::string _id;
     std::string _class;
     std::string _set;
-    std::string _href;
+    std::map<std::string,std::string> _xlink;
     std::string _src;
   private:
     static FoliaElement *private_createElement( ElementType );
@@ -848,6 +849,24 @@ namespace folia {
     static properties PROPS;
   };
 
+  class ForeignData: public FoliaImpl {
+    friend void static_init();
+  public:
+  ForeignData( const properties& props, Document *d=0 ):
+    FoliaImpl( props, d ){ classInit(); };
+  ForeignData( Document *d=0 ):
+    FoliaImpl( PROPS, d ){ classInit(); };
+    ~ForeignData();
+
+    FoliaElement* parseXml( const xmlNode * );
+    xmlNode *xml( bool, bool=false ) const;
+    void set_data( const xmlNode * );
+    xmlNode* get_data() const;
+  private:
+    void init();
+    static properties PROPS;
+    xmlNode *_foreign_data;
+  };
 
   const std::string EMPTY_STRING = "";
 
@@ -877,6 +896,8 @@ namespace folia {
   public:
   TextMarkupGap( Document *d=0 ):
     AbstractTextMarkup( PROPS, d ) { classInit(); };
+  TextMarkupGap(  const KWargs& a, Document *d=0 ):
+    AbstractTextMarkup( PROPS, d ) { classInit(a); };
   private:
     static properties PROPS;
   };
@@ -886,6 +907,8 @@ namespace folia {
   public:
   TextMarkupString( Document *d=0 ):
     AbstractTextMarkup( PROPS, d ) { classInit(); };
+  TextMarkupString( const KWargs& a, Document *d=0 ):
+    AbstractTextMarkup( PROPS, d ) { classInit(a); };
   private:
     static properties PROPS;
   };
@@ -895,6 +918,9 @@ namespace folia {
   public:
   TextMarkupCorrection( Document *d=0 ):
     AbstractTextMarkup( PROPS, d ){ classInit(); };
+  TextMarkupCorrection( const KWargs& a, Document *d=0 ):
+    AbstractTextMarkup( PROPS, d ) { classInit(a); };
+
     void setAttributes( const KWargs& );
     KWargs collectAttributes() const;
     const UnicodeString text( const std::string& = "current",
@@ -909,6 +935,9 @@ namespace folia {
   public:
   TextMarkupError( Document *d=0 ):
     AbstractTextMarkup( PROPS, d ){ classInit(); };
+  TextMarkupError( const KWargs& a, Document *d=0 ):
+    AbstractTextMarkup( PROPS, d ) { classInit(a); };
+
   private:
     static properties PROPS;
   };
@@ -918,6 +947,9 @@ namespace folia {
   public:
   TextMarkupStyle( Document *d=0 ):
     AbstractTextMarkup( PROPS, d ){ classInit(); };
+  TextMarkupStyle( const KWargs& a, Document *d=0 ):
+    AbstractTextMarkup( PROPS, d ) { classInit(a); };
+
   private:
     static properties PROPS;
   };
@@ -1848,6 +1880,7 @@ namespace folia {
   public:
     AbstractSpanAnnotation *findspan( const std::vector<FoliaElement*>& ) const;
     FoliaElement *append( FoliaElement * );
+    KWargs collectAttributes() const;
   private:
     static properties PROPS;
     void assignset( FoliaElement * );
@@ -1990,7 +2023,6 @@ namespace folia {
   Note( const KWargs& a, Document *d = 0 ):
     AbstractStructureElement( PROPS, d ){ classInit( a ); }
 
-    KWargs collectAttributes() const;
     void setAttributes( const KWargs& );
   private:
     static properties PROPS;
@@ -2057,9 +2089,11 @@ namespace folia {
     KWargs collectAttributes() const;
     void setAttributes( const KWargs& );
   private:
+    void init();
     static properties PROPS;
     std::string refId;
     std::string ref_type;
+    std::string _format;
   };
 
 

@@ -177,7 +177,7 @@ namespace folia {
     };
   private:
     std::map<AnnotationType::AnnotationType,std::multimap<std::string,at_t> > annotationdefaults;
-
+    std::vector<std::pair<AnnotationType::AnnotationType,std::string>> anno_sort;
     FoliaElement* parseFoliaDoc( xmlNode * );
     void parsemeta( xmlNode * );
     void setimdi( xmlNode * );
@@ -201,6 +201,7 @@ namespace folia {
     mutable xmlNs *_foliaNsOut;
     std::string _metadatatype;
     xmlNode *_metadata;
+    ForeignData *_foreigndata;
     std::string _metadatafile;
     std::string _title;
     std::string _date;

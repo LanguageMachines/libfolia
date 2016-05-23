@@ -90,6 +90,7 @@ namespace folia {
   void Document::init(){
     _metadatatype = "native";
     _metadata = 0;
+    _foreigndata = 0;
     _xmldoc = 0;
     foliadoc = 0;
     _foliaNsIn_href = 0;
@@ -107,6 +108,7 @@ namespace folia {
     sindex.clear();
     iindex.clear();
     delete foliadoc;
+    delete _foreigndata;
     for ( const auto& it : delSet ){
       delete it;
     }
@@ -152,7 +154,7 @@ namespace folia {
     it = kwargs.find( "mode" );
     if ( it != kwargs.end() ){
       mode = it->second;
-      if ( mode != "permissive" ){
+      if ( mode != "permissive" && mode != "strip" ){
 	throw runtime_error( "FoLiA::Document: unsupported mode value: "+mode );
       }
     }
@@ -562,18 +564,26 @@ namespace folia {
     }
   }
 
-  void Document::set_foreign_metadata( xmlNode * node ){
-    if ( _metadata ){
+  void Document::set_foreign_metadata( xmlNode *node ){
+    if ( _foreigndata ){
       throw XmlError( "multiple foreign-data nodes!" );
     }
-    _metadatatype = "foreign";
-    _metadata = xmlCopyNode( node, 1 );
-    //    clean_ns( _metadata, NSFOLIA ); // remove the FOLIA ns-def
-    // it is already defined higher
+    _foreigndata = new ForeignData();
+    if ( Name( node ) != "foreign-data" ){
+      // we need an extra layer then
+      xmlNode *n = XmlNewNode( "foreign-data" );
+      xmlAddChild( n, xmlCopyNode( node, 1 ) );
+      _foreigndata->set_data( n );
+      xmlFreeNode (n );
+    }
+    else {
+      _foreigndata->set_data( node );
+    }
   }
 
   void Document::parseannotations( xmlNode *node ){
     xmlNode *n = node->children;
+    anno_sort.clear();
     while ( n ){
       string tag = Name( n );
       if ( tag.length() > 11 && tag.substr( tag.length() - 11 ) == "-annotation" ){
@@ -648,25 +658,6 @@ namespace folia {
     return result;
   }
 
-  void clean_ns( xmlNode *node, const string& ns ){
-    xmlNs *p = node->nsDef;
-    xmlNs *prev = 0;
-    while ( p ){
-      string val = (char *)p->href;
-      if ( val == ns ){
-	if ( prev ){
-	  prev->next = p->next;
-	}
-	else {
-	  node->nsDef = p->next;
-	}
-	return;
-      }
-      prev = p;
-      p = p->next;
-    }
-  }
-
   FoliaElement* Document::parseFoliaDoc( xmlNode *root ){
     KWargs att = getAttributes( root );
     using TiCC::operator<<;
@@ -727,14 +718,13 @@ namespace folia {
 	    }
 	    else if ( Name(m)  == "foreign-data" &&
 		      checkNS( m, NSFOLIA ) ){
-	      if ( debug > 1 )
-		cerr << "found foreign-data" << endl;
-	      if ( _metadata ){
-		throw XmlError( "multiple foreign-data nodes!" );
+	      FoliaElement *t = FoliaImpl::createElement( "foreign-data", this );
+	      if ( t ){
+		t = t->parseXml( m );
+		if ( t ){
+		  _foreigndata = dynamic_cast<ForeignData *>(t);
+		}
 	      }
-	      _metadata = xmlCopyNodeList( m );
-	      clean_ns( _metadata, NSFOLIA ); // remove the FOLIA ns-def
-	      // it is already defined higher
 	    }
 	    m = m->next;
 	  }
@@ -921,6 +911,7 @@ namespace folia {
 	d = getNow();
       }
       annotationdefaults[type].insert( make_pair(s, at_t(a,t,d) ) );
+      anno_sort.push_back(make_pair(type,s));
       //    cerr << "inserted [" << type << "][" << st << "](" << a << "," << t << "," << d ")" << endl;
       //    cerr << "annotation defaults now: " <<  annotationdefaults << endl;
 
@@ -1068,27 +1059,34 @@ namespace folia {
   }
 
   void Document::setannotations( xmlNode *node ) const {
-    for ( const auto& mit :  annotationdefaults ){
+    for ( const auto& pair : anno_sort ){
       // Find the 'label'
-      string label = toString( mit.first );
+      AnnotationType::AnnotationType type = pair.first;
+      string label = toString( type );
       label += "-annotation";
-      for ( const auto& it : mit.second ){
+      string sett = pair.second;
+      const auto& mm = annotationdefaults.find(type);
+      auto it = mm->second.lower_bound(sett);
+      while ( it != mm->second.upper_bound(sett) ){
 	KWargs args;
-	string s = it.second.a;
+	string s = it->second.a;
 	if ( !s.empty() )
 	  args["annotator"] = s;
-	s = it.second.t;
+	s = it->second.t;
 	if ( !s.empty() )
 	  args["annotatortype"] = s;
-	s = it.second.d;
-	if ( !s.empty() )
-	  args["datetime"] = s;
-	s = it.first;
+	if ( mode != "strip" ){
+	  s = it->second.d;
+	  if ( !s.empty() )
+	    args["datetime"] = s;
+	}
+	s = it->first;
 	if ( s != "undefined" ) // the default
 	  args["set"] = s;
 	xmlNode *n = XmlNewNode( foliaNs(), label );
 	addAttributes( n, args );
 	xmlAddChild( node, n );
+	++it;
       }
     }
   }
@@ -1153,6 +1151,10 @@ namespace folia {
     else {
       xmlAddChild( node, _metadata );
     }
+    if ( _foreigndata ){
+      xmlNode *f = _foreigndata->xml( true, false );
+      xmlAddChild( node, f );
+    }
   }
 
   void Document::setstyles( xmlDoc* doc ) const {
@@ -1189,9 +1191,15 @@ namespace folia {
     xmlSetNs( root, _foliaNsOut );
     KWargs attribs;
     attribs["_id"] = foliadoc->id(); // sort "id" in front!
-    attribs["generator"] = string("libfolia-v") + VERSION;
-    if ( !version.empty() )
-      attribs["version"] = version;
+    if ( mode == "strip" ){
+      attribs["generator"] = "";
+      attribs["version"] = "";
+    }
+    else {
+      attribs["generator"] = string("libfolia-v") + VERSION;
+      if ( !version.empty() )
+	attribs["version"] = version;
+    }
     if ( external )
       attribs["external"] = "yes";
     addAttributes( root, attribs );

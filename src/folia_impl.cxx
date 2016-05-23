@@ -117,6 +117,14 @@ namespace folia {
     return _props.AUTO_GENERATE_ID;
   }
 
+  const string FoliaImpl::href() const {
+    auto it = _xlink.find("href");
+    if ( it != _xlink.end() ){
+      return it->second;
+    }
+    return "";
+  }
+
   ostream& operator<<( ostream& os, const FoliaElement& ae ) {
     os << " <" << ae.classname();
     KWargs ats = ae.collectAttributes();
@@ -224,7 +232,13 @@ namespace folia {
 	  throw ValueError("ID is not supported for " + classname() );
 	}
 	else {
-	  isNCName( it->second );
+	  try {
+	    isNCName( it->second );
+	  }
+	  catch ( const XmlError& xe ){
+	    throw XmlError( "while processing a " + classname() + " node:\n"
+			      + xe.what() );
+	  }
 	  _id = it->second;
 	  kwargs.erase( it );
 	}
@@ -362,17 +376,64 @@ namespace folia {
       _n = "";
 
     if ( xlink() ) {
-      it = kwargs.find( "href" );
-      if ( it != kwargs.end() ) {
-	_href = it->second;
-	kwargs.erase( it );
-      }
+      string type = "simple";
       it = kwargs.find( "type" );
       if ( it != kwargs.end() ) {
-	string type = it->second;
-	if ( type != "simple" ) {
-	  throw XmlError( "only xlink:type=\"simple\" is supported!" );
+	type = it->second;
+	kwargs.erase( it );
+      }
+      if ( type != "simple" && type != "locator" ) {
+	throw XmlError( "only xlink:types: 'simple' and 'locator' are supported!" );
+      }
+      _xlink["type"] = type;
+      it = kwargs.find( "href" );
+      if ( it != kwargs.end() ) {
+	_xlink["href"] = it->second;
+	kwargs.erase( it );
+      }
+      else if ( type == "locator" ){
+	throw XmlError( "xlink:type='locator' requires an 'xlink:href' attribute" );
+      }
+      it = kwargs.find( "role" );
+      if ( it != kwargs.end() ) {
+	_xlink["role"] = it->second;
+	kwargs.erase( it );
+      }
+      it = kwargs.find( "title" );
+      if ( it != kwargs.end() ) {
+	_xlink["title"] = it->second;
+	kwargs.erase( it );
+      }
+      it = kwargs.find( "label" );
+      if ( it != kwargs.end() ) {
+	if ( type == "simple" ){
+	  throw XmlError( "xlink:type='simple' may not have an 'xlink:label' attribute" );
 	}
+	_xlink["label"] = it->second;
+	kwargs.erase( it );
+      }
+      it = kwargs.find( "arcrole" );
+      if ( it != kwargs.end() ) {
+	if ( type == "locator" ){
+	  throw XmlError( "xlink:type='locator' may not have an 'xlink:arcrole' attribute" );
+	}
+	_xlink["arcrole"] = it->second;
+	kwargs.erase( it );
+      }
+      it = kwargs.find( "show" );
+      if ( it != kwargs.end() ) {
+	if ( type == "locator" ){
+	  throw XmlError( "xlink:type='locator' may not have an 'xlink:show' attribute" );
+	}
+	_xlink["show"] = it->second;
+	kwargs.erase( it );
+      }
+      it = kwargs.find( "actuate" );
+      if ( it != kwargs.end() ) {
+	if ( type == "locator" ){
+	  throw XmlError( "xlink:type='locator' may not have an 'xlink:actuate' attribute" );
+	}
+	_xlink["actuate"] = it->second;
 	kwargs.erase( it );
       }
     }
@@ -517,9 +578,40 @@ namespace folia {
       attribs["annotator"] = _annotator;
     }
     if ( xlink() ) {
-      if ( !_href.empty() ) {
-	attribs["xlink:href"] = _href;
-	attribs["xlink:type"] = "simple";
+      auto it = _xlink.find("type");
+      if ( it != _xlink.end() ){
+	string type = it->second;
+	if ( type == "simple" || type == "locator" ){
+	  auto it = _xlink.find("href");
+	  if ( it != _xlink.end() ){
+	    attribs["xlink:href"] = it->second;
+	    attribs["xlink:type"] = type;
+	  }
+	  it = _xlink.find("role");
+	  if ( it != _xlink.end() ){
+	    attribs["xlink:role"] = it->second;
+	  }
+	  it = _xlink.find("arcrole");
+	  if ( it != _xlink.end() ){
+	    attribs["xlink:arcrole"] = it->second;
+	  }
+	  it = _xlink.find("show");
+	  if ( it != _xlink.end() ){
+	    attribs["xlink:show"] = it->second;
+	  }
+	  it = _xlink.find("actuate");
+	  if ( it != _xlink.end() ){
+	    attribs["xlink:actuate"] = it->second;
+	  }
+	  it = _xlink.find("title");
+	  if ( it != _xlink.end() ){
+	    attribs["xlink:title"] = it->second;
+	  }
+	  it = _xlink.find("label");
+	  if ( it != _xlink.end() ){
+	    attribs["xlink:label"] = it->second;
+	  }
+	}
       }
     }
     if ( !_datetime.empty() &&
@@ -762,7 +854,7 @@ namespace folia {
   }
 
   const UnicodeString FoliaImpl::deeptext( const string& cls,
-				     bool retaintok ) const {
+					   bool retaintok ) const {
     // get the UnicodeString value of underlying elements
     // default cls="current"
 #ifdef DEBUG_TEXT
@@ -2435,28 +2527,24 @@ namespace folia {
     return atts;
   }
 
-  void AlignReference::setAttributes( const KWargs& args ) {
+  void AlignReference::setAttributes( const KWargs& argsin ) {
+    KWargs args = argsin;
     auto it = args.find( "id" );
     if ( it != args.end() ) {
       refId = it->second;
+      args.erase(it);
     }
     it = args.find( "type" );
     if ( it != args.end() ) {
-      try {
-	stringTo<ElementType>( it->second );
-      }
-      catch (...) {
-	throw XmlError( "attribute 'type' must be an Element Type" );
-      }
       ref_type = it->second;
-    }
-    else {
-      throw XmlError( "attribute 'type' required for AlignReference" );
+      args.erase(it);
     }
     it = args.find( "t" );
     if ( it != args.end() ) {
       _t = it->second;
+      args.erase(it);
     }
+    FoliaImpl::setAttributes(args);
   }
 
   void Word::setAttributes( const KWargs& args_in ) {
@@ -2831,18 +2919,7 @@ namespace folia {
     if ( mydoc->debug ) {
       cerr << "Found AlignReference ID " << refId << endl;
     }
-    val = att["type"];
-    if ( val.empty() ) {
-      throw XmlError( "type required for AlignReference" );
-    }
-    try {
-      stringTo<ElementType>( val );
-    }
-    catch (...) {
-      throw XmlError( "AlignReference:type must be an Element Type ("
-		      + val + ")" );
-    }
-    ref_type = val;
+    ref_type = att["type"];
     val = att["t"];
     if ( !val.empty() ) {
       _t = val;
@@ -2997,6 +3074,15 @@ namespace folia {
     FoliaImpl::append( child );
     assignset( child );
     return child;
+  }
+
+  KWargs AbstractAnnotationLayer::collectAttributes() const {
+    KWargs attribs = FoliaImpl::collectAttributes();
+    auto it = attribs.find("set");
+    if ( it != attribs.end() ) {
+      attribs.erase(it);
+    }
+    return attribs;
   }
 
   xmlNode *AbstractSpanAnnotation::xml( bool recursive, bool kanon ) const {
@@ -3414,11 +3500,6 @@ namespace folia {
     FoliaImpl::setAttributes(kwargs);
   }
 
-  KWargs Note::collectAttributes() const {
-    KWargs attribs = FoliaImpl::collectAttributes();
-    return attribs;
-  }
-
   void Note::setAttributes( const KWargs& args ) {
     auto it = args.find( "_id" );
     if ( it != args.end() ) {
@@ -3431,24 +3512,30 @@ namespace folia {
     KWargs atts;
     atts["id"] = refId;
     atts["type"] = ref_type;
+    if ( !_format.empty() && _format != "text/folia+xml" ) {
+      atts["format"] = _format;
+    }
     return atts;
   }
 
-  void Reference::setAttributes( const KWargs& args ) {
+  void Reference::setAttributes( const KWargs& argsin ) {
+    KWargs args = argsin;
     auto it = args.find( "id" );
     if ( it != args.end() ) {
       refId = it->second;
+      args.erase( it );
     }
     it = args.find( "type" );
     if ( it != args.end() ) {
-      try {
-	stringTo<ElementType>( it->second );
-      }
-      catch (...) {
-	throw XmlError( "attribute 'type' must be an Element Type" );
-      }
       ref_type = it->second;
+      args.erase( it );
     }
+    it = args.find( "format" );
+    if ( it != args.end() ) {
+      _format = it->second;
+      args.erase( it );
+    }
+    FoliaImpl::setAttributes(args);
   }
 
   xmlNode *XmlComment::xml( bool, bool ) const {
@@ -3513,6 +3600,57 @@ namespace folia {
     return "";
   }
 
+  ForeignData::~ForeignData(){
+    xmlFreeNode( _foreign_data );
+  }
+
+  FoliaElement* ForeignData::parseXml( const xmlNode *node ){
+    set_data( node );
+    return this;
+  }
+
+  xmlNode *ForeignData::xml( bool, bool ) const {
+    return get_data();
+  }
+
+  void ForeignData::set_data( const xmlNode *node ){
+    xmlNode *p = (xmlNode *)node->children;
+    while ( p ){
+      string pref;
+      string ns = getNS( p, pref );
+      if ( ns == NSFOLIA ){
+	throw XmlError( "ForeignData MAY NOT be in the FoLiA namespace" );
+      }
+      p = p->next;
+    }
+    _foreign_data = xmlCopyNode( (xmlNode*)node, 1 );
+  }
+
+  void clean_ns( xmlNode *node, const string& ns ){
+    xmlNs *p = node->nsDef;
+    xmlNs *prev = 0;
+    while ( p ){
+      string val = (char *)p->href;
+      if ( val == ns ){
+	if ( prev ){
+	  prev->next = p->next;
+	}
+	else {
+	  node->nsDef = p->next;
+	}
+	return;
+      }
+      prev = p;
+      p = p->next;
+    }
+  }
+
+  xmlNode* ForeignData::get_data() const {
+    xmlNode * result = xmlCopyNode(_foreign_data, 1 );
+    clean_ns( result, NSFOLIA ); // HACK: remove FoLiA namespace def
+    return result;
+  }
+
   KWargs AbstractTextMarkup::collectAttributes() const {
     KWargs attribs = FoliaImpl::collectAttributes();
     if ( !idref.empty() ) {
@@ -3530,6 +3668,13 @@ namespace folia {
 	throw ValueError("Both 'id' and 'xml:id found for " + classname() );
       }
       idref = it->second;
+      args.erase( it );
+    }
+    it = args.find( "text" );
+    if ( it != args.end() ) {
+      XmlText *txt = new XmlText();
+      txt->setvalue( it->second );
+      append(txt);
       args.erase( it );
     }
     FoliaImpl::setAttributes( args );
@@ -3600,6 +3745,14 @@ namespace folia {
 
   void Alignment::init() {
     _format = "text/folia+xml";
+  }
+
+  void Reference::init() {
+    _format = "text/folia+xml";
+  }
+
+  void ForeignData::init() {
+    _foreign_data = 0;
   }
 
 } // namespace folia
