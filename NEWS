@@ -1,3 +1,21 @@
+1.2  2016-05-23
+[Ko van der Sloot]
+  * now based on Folia spec 1.2
+     - ForeignData node added
+     - Foreign metadata in document
+     - relaxed aref and ref type, implementing full xlink syntax for
+       'simple' and 'locator' type.
+     - Linebreak nows supports 'linenr', 'pagenr' and 'newpage' attributes
+     - enhanced folialint:
+        - added a '--strip' option to strip 'instable'
+          information like dates and version numbers.
+	- added '--output' option to speciy an file
+	- added '--nooutput'option to suppres output
+     - document outputs annotations in same order as read in.
+     - we no longer output the set for AnnotationLayers
+     - alien atributes are totally ignored now.
+     - small bug fixes
+
 1.0  2016-03-09
 [Ko van der Sloot]
   * totally reworked the implementation:
