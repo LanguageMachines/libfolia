@@ -1137,7 +1137,7 @@ namespace folia {
     AbstractStructureElement( PROPS, d ){ classInit( a ); };
     const UnicodeString text( const std::string& = "current",
 			      bool = false, bool = false ) const {
-      return "";
+      return "\n";
     }
     void setAttributes( const KWargs& );
     KWargs collectAttributes() const;

@@ -2044,7 +2044,7 @@ namespace folia {
     for ( const auto& el : data ) {
       // try to get text dynamically from children
 #ifdef DEBUG_TEXT
-      cerr << "TextContent: bekijk node[" << el->str(cls) << endl;
+      cerr << "TextContent: bekijk node[" << el->xmltag() << "]" << endl;
 #endif
       try {
 #ifdef DEBUG_TEXT
