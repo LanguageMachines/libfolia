@@ -2061,7 +2061,6 @@ namespace folia {
 #endif
       }
     }
-    result.trim();
 #ifdef DEBUG_TEXT
     cerr << "TextContent return " << result << endl;
 #endif
