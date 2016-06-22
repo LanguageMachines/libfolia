@@ -45,14 +45,17 @@ int main( int argc, char* argv[] ){
   string debug;
   vector<string> fileNames;
   try {
-    TiCC::CL_Options Opts( "hV", "debug:,permissive,strip,output:,nooutput");
+    TiCC::CL_Options Opts( "hV",
+			   "debug:,permissive,strip,output:,nooutput,help,version");
     Opts.init(argc, argv );
-    if ( Opts.extract( 'h' ) ){
+    if ( Opts.extract( 'h' )
+	 || Opts.extract( "help" ) ){
       usage();
       return EXIT_SUCCESS;
     }
-    if ( Opts.extract( 'V' ) ){
-      cout << "folialint version 0.3" << endl;
+    if ( Opts.extract( 'V' )
+	 || Opts.extract( "version" ) ){
+      cout << "folialint version 0.4" << endl;
       cout << "based on [" << folia::VersionName() << "]" << endl;
       return EXIT_SUCCESS;
     }
