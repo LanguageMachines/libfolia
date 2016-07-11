@@ -3493,7 +3493,7 @@ namespace folia {
     KWargs kwargs = kwargsin;
     auto it = kwargs.find( "include" );
     if ( it != kwargs.end() ) {
-      _include = stringTo<bool>( it->second );
+      _include = TiCC::stringTo<bool>( it->second );
       kwargs.erase( it );
     }
     FoliaImpl::setAttributes(kwargs);

@@ -1,3 +1,9 @@
+1.3  2016-07-11
+[Ko van der Sloot]
+Maintenance release:
+- long options --help aan --version added
+- fix in LineBreak: text() generates a newline
+
 1.2  2016-05-23
 [Ko van der Sloot]
   * now based on Folia spec 1.2
