@@ -9,6 +9,7 @@ Libfolia: FoLiA Library for C++
     Induction of Linguistic Knowledge Research Group, Tilburg University
 
 **Website:** https://proycon.github.io/folia/
+**Source repository:** https://LanguageMachines.github.io/libfolia
 **Contact**: lamasoftware AT science DOT ru DOT nl
 
 This is a C++ Library, developed by Ko van der Sloot, for working with the
