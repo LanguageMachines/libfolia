@@ -2,8 +2,8 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.59)
-AC_INIT([libfolia], [1.4], [lamasoftware@science.ru.nl])
-AM_INIT_AUTOMAKE
+AC_INIT([libfolia], [1.3.1], [lamasoftware@science.ru.nl])
+AM_INIT_AUTOMAKE([foreign])
 AC_CONFIG_SRCDIR([configure.ac])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_HEADER([config.h])
