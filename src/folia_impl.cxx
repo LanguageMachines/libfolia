@@ -3433,7 +3433,7 @@ namespace folia {
     return 1;
   }
 
-  void External::resolve( ) {
+  void External::resolve_external( ) {
     try {
       cerr << "try to resolve: " << _src << endl;
       int cnt = 0;

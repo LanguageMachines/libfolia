@@ -2007,7 +2007,7 @@ namespace folia {
     FoliaImpl( PROPS, d ), _include(false) { classInit( a ); }
 
     FoliaElement* parseXml( const xmlNode * );
-    void resolve();
+    void resolve_external();
     void setAttributes( const KWargs& );
     KWargs collectAttributes() const;
   private:

@@ -652,7 +652,7 @@ namespace folia {
   FoliaElement *Document::resolveExternals( FoliaElement* result ){
     if ( !externals.empty() ){
       for ( const auto& ext : externals ){
-	ext->resolve();
+	ext->resolve_external();
       }
     }
     return result;
