@@ -629,24 +629,40 @@ namespace folia {
     return false;
   }
 
-  bool check_version( const string& vers ){
+  int check_version( const string& vers ){
+    int majVersion = 0;
+    int minVersion = 0;
+    int subVersion = 0;
     vector<string> vec;
-    const int myVersion = MAJOR_VERSION * 10000 + MINOR_VERSION * 100 + SUB_VERSION;
-    int readVersion = 0;
     split_at( vers, vec, "." );
     for ( size_t i=0; i < vec.size(); ++i ){
       int val = stringTo<int>( vec[i] );
       if ( i == 0 )
-	readVersion += 10000 * val;
+	majVersion = val;
       else if ( i == 1 )
-	readVersion += 100 * val;
+	minVersion = val;
       else
-	readVersion += val;
+	subVersion += val;
     }
-    if ( readVersion <= myVersion )
-      return true;
-    else
-      return false;
+    if ( majVersion < MAJOR_VERSION ){
+      return -1;
+    }
+    else if ( majVersion > MAJOR_VERSION ){
+      return 1;
+    }
+    else if ( minVersion < MINOR_VERSION ){
+      return -1;
+    }
+    else if ( minVersion > MINOR_VERSION ){
+      return 1;
+    }
+    else if ( subVersion < SUB_VERSION ){
+      return -1;
+    }
+    else if ( subVersion > SUB_VERSION ){
+      return 1;
+    }
+    return 0;
   }
 
   FoliaElement *Document::resolveExternals( FoliaElement* result ){
@@ -666,10 +682,11 @@ namespace folia {
       return 0;
     }
     string vers = att["version"];
-    if ( !check_version( vers ) ){
-      throw XmlError( "FoLiA Document has unsupported version: " + vers
-		      + " (" + version + " is supported.)" );
-      return 0;
+    if ( check_version( vers ) > 0 ){
+      cerr << "WARNING!!! FoLiA Document is a newer version then this library ("
+	   << vers << " vs " << version
+	   << ")\n\t Any possible subsequent failures in parsing or processing may probably be attributed to this." << endl
+	   << "\t Please upgrade libfolia!" << endl;
     }
     setDocumentProps( att );
     FoliaElement *result = FoliaImpl::createElement( Name(root), this );
