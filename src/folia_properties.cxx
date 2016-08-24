@@ -206,7 +206,7 @@ namespace folia {
     { New_t,  "new" },
     { Note_t,  "note" },
     { Observation_t,  "observation" },
-    { ObservationLayer_t,  "obvervations" },
+    { ObservationLayer_t,  "observations" },
     { Original_t,  "original" },
     { Paragraph_t,  "p" },
     { Part_t,  "part" },
@@ -329,7 +329,7 @@ namespace folia {
     { "new", New_t  },
     { "note", Note_t  },
     { "observation", Observation_t  },
-    { "obvervations", ObservationLayer_t  },
+    { "observations", ObservationLayer_t  },
     { "original", Original_t  },
     { "p", Paragraph_t  },
     { "part", Part_t  },
@@ -943,7 +943,7 @@ namespace folia {
     ObservationLayer::PROPS.ELEMENT_ID = ObservationLayer_t;
     ObservationLayer::PROPS.ACCEPTED_DATA += {Comment_t, Correction_t, Description_t, ForeignData_t, Observation_t};
     ObservationLayer::PROPS.ANNOTATIONTYPE = AnnotationType::OBSERVATION;
-    ObservationLayer::PROPS.XMLTAG = "obvervations";
+    ObservationLayer::PROPS.XMLTAG = "observations";
 //------ Original -------
     Original::PROPS = AbstractCorrectionChild::PROPS;
     Original::PROPS.ELEMENT_ID = Original_t;
