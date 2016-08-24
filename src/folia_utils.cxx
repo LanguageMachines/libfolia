@@ -37,6 +37,7 @@
 #include "ticcutils/XMLtools.h"
 #include "ticcutils/PrettyPrint.h"
 #include "libfolia/folia.h"
+#include "libfolia/folia_properties.h"
 
 using namespace std;
 using namespace TiCC;
@@ -376,14 +377,18 @@ namespace folia {
 
   bool AT_sanity_check(){
     bool sane = true;
-    AnnotationType::AnnotationType at = AnnotationType::NO_ANN;
-    while ( ++at != AnnotationType::LAST_ANN ){
+    size_t dim = s_ant_map.size();
+    if ( dim != ant_s_map.size() ){
+      cerr << "s_ant_map and ant_s_map are different in size!" << endl;
+      return false;
+    }
+    for ( auto const& it : ant_s_map ){
       string s;
       try {
-	s = toString( at );
+	s = toString( it.first );
       }
       catch (...){
-	cerr << "no string translation for AnnotationType(" << int(at) << ")" << endl;
+	cerr << "no string translation for AnnotationType(" << int(it.first) << ")" << endl;
 	sane = false;
       }
       if ( !s.empty() ){
@@ -401,14 +406,25 @@ namespace folia {
 
   bool ET_sanity_check(){
     bool sane = true;
-    ElementType et = BASE;
-    while ( ++et != LastElement ){
+    for ( auto const& it : s_et_map ){
+      ElementType et = it.second;
+      if ( et_s_map.find(et) == et_s_map.end() ){
+	cerr << "no et_s found for ElementType(" << int(et) << ")" << endl;
+	return false;
+      }
+    }
+    for ( auto const& it : et_s_map ){
+      ElementType et = it.first;
+      if ( s_et_map.find(it.second) == s_et_map.end() ){
+	cerr << "no string found for ElementType(" << int(it.first) << ")" << endl;
+	return false;
+      }
       string s;
       try {
-	toString( et );
+	s = toString( et );
       }
       catch (...){
-	cerr << "no string translation for ElementType(" << int(et) << ")" << endl;
+	cerr << "toString failed for ElementType(" << int(et) << ")" << endl;
 	sane = false;
       }
       if( !s.empty() ){
@@ -422,7 +438,7 @@ namespace folia {
 	  continue;
 	}
 	if ( et != et2 ){
-	  cerr << "Argl: toString(ET) doesn't match original:" << s
+	  cerr << "Argl: toString(ET) doesn't match original: " << s
 	       << " vs " << toString(et2) << endl;
 	  sane = false;
 	  continue;
@@ -444,7 +460,7 @@ namespace folia {
 		 << " != " << toString(et) << ")" << endl;
 	    sane = false;
 	  }
-	  if ( s != tmp->xmltag() ){
+	  if ( s != tmp->xmltag() && s != "headfeature" ){
 	    cerr << "the xmltag " << tmp->xmltag() << " != " << s << endl;
 	    sane = false;
 	  }
