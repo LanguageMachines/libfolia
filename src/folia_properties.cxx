@@ -205,7 +205,7 @@ namespace folia {
     { MorphologyLayer_t,  "morphology" },
     { New_t,  "new" },
     { Note_t,  "note" },
-    { Observation_t,  "predicate" },
+    { Observation_t,  "observation" },
     { ObservationLayer_t,  "obvervations" },
     { Original_t,  "original" },
     { Paragraph_t,  "p" },
@@ -328,7 +328,7 @@ namespace folia {
     { "morphology", MorphologyLayer_t  },
     { "new", New_t  },
     { "note", Note_t  },
-    { "predicate", Observation_t  },
+    { "observation", Observation_t  },
     { "obvervations", ObservationLayer_t  },
     { "original", Original_t  },
     { "p", Paragraph_t  },
@@ -937,7 +937,7 @@ namespace folia {
     Observation::PROPS.ELEMENT_ID = Observation_t;
     Observation::PROPS.ACCEPTED_DATA += {AlignReference_t, Alignment_t, Comment_t, Description_t, Feature_t, ForeignData_t, Metric_t, WordReference_t, Word_t, Morpheme_t, Phoneme_t};
     Observation::PROPS.ANNOTATIONTYPE = AnnotationType::OBSERVATION;
-    Observation::PROPS.XMLTAG = "predicate";
+    Observation::PROPS.XMLTAG = "observation";
 //------ ObservationLayer -------
     ObservationLayer::PROPS = AbstractAnnotationLayer::PROPS;
     ObservationLayer::PROPS.ELEMENT_ID = ObservationLayer_t;
@@ -1423,6 +1423,7 @@ namespace folia {
     case TextContent_t: return new TextContent();
     case Linebreak_t: return new Linebreak();
     case Whitespace_t: return new Whitespace();
+    case Comment_t: return new Comment();
     case Figure_t: return new Figure();
     case Caption_t: return new Caption();
     case Label_t: return new Label();
@@ -1501,17 +1502,31 @@ namespace folia {
     case TextMarkupError_t: return new TextMarkupError();
     case TextMarkupStyle_t: return new TextMarkupStyle();
     case Part_t: return new Part();
+    case Observation_t: return new Observation();
+    case ObservationLayer_t: return new ObservationLayer();
+    case PolarityFeature_t: return new PolarityFeature();
+    case Predicate_t: return new Predicate();
+    case Relation_t: return new Relation();
+    case Sentiment_t: return new Sentiment();
+    case SentimentLayer_t: return new SentimentLayer();
+    case Statement_t: return new Statement();
+    case StatementLayer_t: return new StatementLayer();
+    case StrengthFeature_t: return new StrengthFeature();
+    case StyleFeature_t: return new StyleFeature();
+    case Source_t: return new Source();
+    case Target_t: return new Target();
     case AbstractSpanAnnotation_t:
     case AbstractSpanRole_t:
     case AbstractAnnotationLayer_t:
     case AbstractTextMarkup_t:
     case AbstractTokenAnnotation_t:
     case AbstractStructureElement_t:
+    case AbstractExtendedTokenAnnotation_t:
     case AbstractCorrectionChild_t:
       throw ValueError( "you may not create an abstract node of type "
 			+ TiCC::toString(int(et)) + ")" );
     default:
-      throw ValueError( "createElement: unknown elementtype("
+      throw ValueError( "private_createElement: unknown elementtype("
 			+ TiCC::toString(int(et)) + ")" );
     }
     return 0;

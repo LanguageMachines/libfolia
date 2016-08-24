@@ -427,7 +427,7 @@ namespace folia {
 	cerr << "toString failed for ElementType(" << int(et) << ")" << endl;
 	sane = false;
       }
-      if( !s.empty() ){
+      if ( !s.empty() ){
 	ElementType et2;
 	try {
 	  et2 = stringToET( s );
@@ -443,26 +443,40 @@ namespace folia {
 	  sane = false;
 	  continue;
 	}
-	FoliaElement *tmp = 0;
+	FoliaElement *tmp1 = 0;
 	try {
-	  tmp = FoliaImpl::createElement( s );
+	  tmp1 = FoliaImpl::createElement( s );
 	}
 	catch( ValueError &e ){
 	  string err = e.what();
-	  if ( !err.find("abstract" ) ){
+	  if ( err.find("abstract") ==string::npos ){
+	    cerr << "createElement(" << s << ") failed! :" << err << endl;
 	    sane = false;
 	  }
 	}
-	if ( tmp != 0 ) {
-	  if ( et != tmp->element_id() ){
-	    cerr << "the element type " << tmp->element_id() << " of " << tmp
-		 << " != " << et << " (" << toString(tmp->element_id())
-		 << " != " << toString(et) << ")" << endl;
-	    sane = false;
+	if ( sane ){
+	  FoliaElement *tmp2 = 0;
+	  try {
+	    tmp2 = FoliaImpl::createElement( et );
 	  }
-	  if ( s != tmp->xmltag() && s != "headfeature" ){
-	    cerr << "the xmltag " << tmp->xmltag() << " != " << s << endl;
+	  catch( ValueError &e ){
+	    string err = e.what();
+	    if ( err.find("abstract") == string::npos ){
+	      cerr << "createElement(" << int(et) << ") failed! :" << err << endl;
+	      sane = false;
+	    }
+	  }
+	  if ( tmp2 != 0 ) {
+	    if ( et != tmp2->element_id() ){
+	      cerr << "the element type " << tmp2->element_id() << " of " << s
+		   << " != " << et << " (" << toString(tmp2->element_id())
+		   << " != " << toString(et) << ")" << endl;
 	    sane = false;
+	    }
+	    if ( s != tmp2->xmltag() && s != "headfeature" ){
+	      cerr << "the xmltag " << tmp2->xmltag() << " != " << s << endl;
+	    sane = false;
+	    }
 	  }
 	}
       }
