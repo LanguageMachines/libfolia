@@ -3005,6 +3005,30 @@ namespace folia {
     return this;
   }
 
+  void Comment::setAttributes( const KWargs& kwargs ) {
+    auto it = kwargs.find( "value" );
+    if ( it == kwargs.end() ) {
+      throw ValueError("value attribute is required for " + classname() );
+    }
+    _value = it->second;
+  }
+
+  xmlNode *Comment::xml( bool, bool ) const {
+    xmlNode *e = FoliaImpl::xml( false, false );
+    xmlAddChild( e, xmlNewText( (const xmlChar*)_value.c_str()) );
+    return e;
+  }
+
+  FoliaElement* Comment::parseXml( const xmlNode *node ) {
+    KWargs att = getAttributes( node );
+    auto it = att.find("value" );
+    if ( it == att.end() ) {
+      att["value"] = XmlContent( node );
+    }
+    setAttributes( att );
+    return this;
+  }
+
   FoliaElement *AbstractSpanAnnotation::append( FoliaElement *child ) {
     FoliaImpl::append( child );
     if ( child->isinstance(PlaceHolder_t) ) {

@@ -1605,6 +1605,31 @@ namespace folia {
     static properties PROPS;
   };
 
+  class PolarityFeature: public Feature {
+    friend void static_init();
+  public:
+  PolarityFeature( Document *d=0 ):
+    Feature( PROPS, d ){ classInit(); }
+  PolarityFeature( const KWargs& a, Document *d = 0 ):
+    Feature( PROPS, d ){ classInit( a ); }
+
+  private:
+    static properties PROPS;
+  };
+
+  class StrengthFeature: public Feature {
+    friend void static_init();
+  public:
+  StrengthFeature( Document *d=0 ):
+    Feature( PROPS, d ){ classInit(); }
+  StrengthFeature( const KWargs& a, Document *d = 0 ):
+    Feature( PROPS, d ){ classInit( a ); }
+
+  private:
+    static properties PROPS;
+  };
+
+
   class HeadFeature: public Feature {
     friend void static_init();
   public:
@@ -1812,6 +1837,42 @@ namespace folia {
     static properties PROPS;
   };
 
+  class Source: public AbstractSpanRole {
+    friend void static_init();
+  public:
+  Source( Document *d=0 ):
+    AbstractSpanRole( PROPS, d ){ classInit(); }
+  Source( const KWargs& a, Document *d = 0 ):
+    AbstractSpanRole( PROPS, d ){ classInit( a ); }
+
+  private:
+    static properties PROPS;
+  };
+
+  class Target: public AbstractSpanRole {
+    friend void static_init();
+  public:
+  Target( Document *d=0 ):
+    AbstractSpanRole( PROPS, d ){ classInit(); }
+  Target( const KWargs& a, Document *d = 0 ):
+    AbstractSpanRole( PROPS, d ){ classInit( a ); }
+
+  private:
+    static properties PROPS;
+  };
+
+  class Relation: public AbstractSpanRole {
+    friend void static_init();
+  public:
+  Relation( Document *d=0 ):
+    AbstractSpanRole( PROPS, d ){ classInit(); }
+  Relation( const KWargs& a, Document *d = 0 ):
+    AbstractSpanRole( PROPS, d ){ classInit( a ); }
+
+  private:
+    static properties PROPS;
+  };
+
   class Dependency: public AbstractSpanAnnotation {
     friend void static_init();
   public:
@@ -1861,6 +1922,55 @@ namespace folia {
   private:
     static properties PROPS;
   };
+
+  class Predicate: public AbstractSpanAnnotation {
+    friend void static_init();
+  public:
+  Predicate( Document *d=0 ):
+    AbstractSpanAnnotation( PROPS, d ){ classInit(); }
+  Predicate( const KWargs& a, Document *d = 0 ):
+    AbstractSpanAnnotation( PROPS, d ){ classInit( a ); }
+
+  private:
+    static properties PROPS;
+  };
+
+  class Sentiment: public AbstractSpanAnnotation {
+    friend void static_init();
+  public:
+  Sentiment( Document *d=0 ):
+    AbstractSpanAnnotation( PROPS, d ){ classInit(); }
+  Sentiment( const KWargs& a, Document *d = 0 ):
+    AbstractSpanAnnotation( PROPS, d ){ classInit( a ); }
+
+  private:
+    static properties PROPS;
+  };
+
+  class Statement: public AbstractSpanAnnotation {
+    friend void static_init();
+  public:
+  Statement( Document *d=0 ):
+    AbstractSpanAnnotation( PROPS, d ){ classInit(); }
+  Statement( const KWargs& a, Document *d = 0 ):
+    AbstractSpanAnnotation( PROPS, d ){ classInit( a ); }
+
+  private:
+    static properties PROPS;
+  };
+
+  class Observation: public AbstractSpanAnnotation {
+    friend void static_init();
+  public:
+  Observation( Document *d=0 ):
+    AbstractSpanAnnotation( PROPS, d ){ classInit(); }
+  Observation( const KWargs& a, Document *d = 0 ):
+    AbstractSpanAnnotation( PROPS, d ){ classInit( a ); }
+
+  private:
+    static properties PROPS;
+  };
+
 
   class AbstractAnnotationLayer:
     public FoliaImpl,
@@ -1955,6 +2065,24 @@ namespace folia {
     FoliaImpl( PROPS, d ) { classInit( a ); }
 
     const std::string description() const { return _value; };
+    void setAttributes( const KWargs& kwargs );
+    FoliaElement* parseXml( const xmlNode * );
+    xmlNode *xml( bool, bool=false ) const;
+
+  private:
+    static properties PROPS;
+    std::string _value;
+  };
+
+  class Comment: public FoliaImpl {
+    friend void static_init();
+  public:
+  Comment( Document *d=0 ):
+    FoliaImpl( PROPS, d ) { classInit(); }
+  Comment( const KWargs& a, Document *d =0 ):
+    FoliaImpl( PROPS, d ) { classInit( a ); }
+
+    const std::string comment() const { return _value; };
     void setAttributes( const KWargs& kwargs );
     FoliaElement* parseXml( const xmlNode * );
     xmlNode *xml( bool, bool=false ) const;
@@ -2269,6 +2397,39 @@ namespace folia {
     static properties PROPS;
   };
 
+  class StatementLayer: public AbstractAnnotationLayer {
+    friend void static_init();
+  public:
+  StatementLayer( Document *d=0 ):
+    AbstractAnnotationLayer( PROPS, d ){ classInit(); }
+  StatementLayer( const KWargs& a, Document *d = 0 ):
+    AbstractAnnotationLayer( PROPS, d ){ classInit( a ); }
+  private:
+    static properties PROPS;
+  };
+
+  class SentimentLayer: public AbstractAnnotationLayer {
+    friend void static_init();
+  public:
+  SentimentLayer( Document *d=0 ):
+    AbstractAnnotationLayer( PROPS, d ){ classInit(); }
+  SentimentLayer( const KWargs& a, Document *d = 0 ):
+    AbstractAnnotationLayer( PROPS, d ){ classInit( a ); }
+  private:
+    static properties PROPS;
+  };
+
+  class ObservationLayer: public AbstractAnnotationLayer {
+    friend void static_init();
+  public:
+  ObservationLayer( Document *d=0  ):
+    AbstractAnnotationLayer( PROPS, d ){ classInit(); }
+  ObservationLayer( const KWargs& a, Document *d = 0 ):
+    AbstractAnnotationLayer( PROPS, d ){ classInit( a ); }
+  private:
+    static properties PROPS;
+  };
+
   class ComplexAlignmentLayer: public AbstractAnnotationLayer {
     friend void static_init();
   public:
@@ -2276,11 +2437,9 @@ namespace folia {
     AbstractAnnotationLayer( PROPS, d ){ classInit(); }
   ComplexAlignmentLayer( const KWargs& a, Document *d = 0 ):
     AbstractAnnotationLayer( PROPS, d ){ classInit( a ); }
-
   private:
     static properties PROPS;
   };
-
 
   std::string VersionName();
   std::string Version();
