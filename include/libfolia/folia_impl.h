@@ -1759,6 +1759,9 @@ namespace folia {
 
     KWargs collectAttributes() const;
     void setAttributes( const KWargs& );
+    const std::string refid() const { return refId; };
+    const std::string type() const { return ref_type; };
+    const std::string t() const { return _t; };
 
   private:
     static properties PROPS;
