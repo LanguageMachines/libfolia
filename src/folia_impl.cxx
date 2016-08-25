@@ -853,6 +853,34 @@ namespace folia {
     }
   }
 
+  UnicodeString trim_space( const UnicodeString& in ){
+    //    cerr << "in = '" << in << "'" << endl;
+    UnicodeString out;
+    int i = 0;
+    for( ; i < in.length(); ++i ){
+      //      cerr << "bekijk:" << in[i] << endl;
+      if ( in[i] != ' ' ){
+	break;
+      }
+    }
+    int j = in.length()-1;
+    for( ; j >= 0; ++j ){
+      //      cerr << "bekijk:" << in[i] << endl;
+      if ( in[j] != ' ' ){
+	break;
+      }
+    }
+    // cerr << "I=" << i << endl;
+    // cerr << "J=" << j << endl;
+    if ( j < i ){
+      //      cerr << "out = LEEG" << endl;
+      return out;
+    }
+    out = UnicodeString( in, i, j-i+1 );
+    //    cerr << "out = '" << out << "'" << endl;
+    return out;
+  }
+
   const UnicodeString FoliaImpl::deeptext( const string& cls,
 					   bool retaintok ) const {
     // get the UnicodeString value of underlying elements
@@ -882,9 +910,13 @@ namespace folia {
 #ifdef DEBUG_TEXT
 	  cerr << "deeptext found '" << tmp << "'" << endl;
 #endif
-	  if ( !isSubClass(AbstractTextMarkup_t) ) {
-	    tmp.trim();
+	  if ( !isSubClass(AbstractTextMarkup_t) ){
+	    //	    tmp.trim();
+	    tmp = trim_space( tmp );
 	  }
+#ifdef DEBUG_TEXT
+	  cerr << "deeptext trimmed '" << tmp << "'" << endl;
+#endif
 	  parts.push_back(tmp);
 	  // get the delimiter
 	  const string& delim = child->getTextDelimiter( retaintok );

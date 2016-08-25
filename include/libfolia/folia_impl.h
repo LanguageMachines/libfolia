@@ -1157,6 +1157,10 @@ namespace folia {
   Whitespace( const KWargs& a, Document *d = 0 ):
     AbstractStructureElement( PROPS, d ){ classInit( a ); }
 
+    const UnicodeString text( const std::string& = "current",
+			      bool = false, bool = false ) const {
+      return "\n\n";
+    }
   private:
     static properties PROPS;
   };
