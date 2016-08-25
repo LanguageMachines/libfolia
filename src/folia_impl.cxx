@@ -2881,8 +2881,14 @@ namespace folia {
     case Observation_t:
     case ObservationLayer_t:
       return ObservationLayer_t;
+    // case Predicate_t:
+    // case PredicateLayer_t:
+    //   return PredicateLayer_t;
     case SentimentLayer_t:
     case Sentiment_t:
+      return SentimentLayer_t;
+    case StatementLayer_t:
+    case Statement_t:
       return SentimentLayer_t;
     case SemanticRolesLayer_t:
     case SemanticRole_t:
