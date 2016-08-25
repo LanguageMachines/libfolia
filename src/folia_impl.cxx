@@ -2878,6 +2878,12 @@ namespace folia {
     case CoreferenceChain_t:
     case CoreferenceLayer_t:
       return CoreferenceLayer_t;
+    case Observation_t:
+    case ObservationLayer_t:
+      return ObservationLayer_t;
+    case SentimentLayer_t:
+    case Sentiment_t:
+      return SentimentLayer_t;
     case SemanticRolesLayer_t:
     case SemanticRole_t:
       return SemanticRolesLayer_t;
