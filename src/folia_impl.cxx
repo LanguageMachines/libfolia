@@ -1350,6 +1350,9 @@ namespace folia {
   }
 
   FoliaElement *FoliaImpl::append( FoliaElement *child ) {
+    if ( !child ){
+      throw XmlError( "attempt to append an empty node to a " + classname() );
+    }
     bool ok = false;
     try {
       ok = child->checkAtts();
