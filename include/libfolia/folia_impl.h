@@ -2058,9 +2058,12 @@ namespace folia {
     AbstractCorrectionChild( PROPS, d ) { classInit(); }
   Suggestion( const KWargs& a, Document *d = 0 ):
     AbstractCorrectionChild( PROPS, d ) { classInit( a ); }
-
+    void setAttributes( const KWargs& kwargs );
+    KWargs collectAttributes() const;
   private:
     static properties PROPS;
+    std::string _split;
+    std::string _merge;
   };
 
   class Description: public FoliaImpl {

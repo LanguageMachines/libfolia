@@ -454,7 +454,7 @@ namespace folia {
 	    sane = false;
 	  }
 	}
-	if ( sane ){
+	if ( sane && tmp1 ){
 	  FoliaElement *tmp2 = 0;
 	  try {
 	    tmp2 = FoliaImpl::createElement( et );

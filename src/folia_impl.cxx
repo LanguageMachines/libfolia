@@ -3730,6 +3730,33 @@ namespace folia {
     return this;
   }
 
+  KWargs Suggestion::collectAttributes() const {
+    KWargs atts = FoliaImpl::collectAttributes();
+    if ( !_split.empty() ) {
+      atts["split"] = _split;
+    }
+    if ( !_merge.empty() ) {
+      atts["merge"] = _merge;
+    }
+    return atts;
+  }
+
+  void Suggestion::setAttributes( const KWargs& kwargsin ) {
+    KWargs kwargs = kwargsin;
+    auto it = kwargs.find( "split" );
+    if ( it != kwargs.end() ) {
+      _split = it->second;
+      kwargs.erase( it );
+    }
+    it = kwargs.find( "merge" );
+    if ( it != kwargs.end() ) {
+      _merge = it->second;
+      kwargs.erase( it );
+    }
+    FoliaImpl::setAttributes(kwargs);
+  }
+
+
   void Feature::setAttributes( const KWargs& kwargs ) {
     //
     // Feature is special. So DON'T call ::setAttributes
@@ -3819,7 +3846,6 @@ namespace folia {
 	else {
 	  node->nsDef = p->next;
 	}
-	xmlFree( p );
 	return;
       }
       prev = p;
