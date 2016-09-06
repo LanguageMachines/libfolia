@@ -3819,6 +3819,7 @@ namespace folia {
 	else {
 	  node->nsDef = p->next;
 	}
+	xmlFree( p );
 	return;
       }
       prev = p;
@@ -3827,7 +3828,7 @@ namespace folia {
   }
 
   xmlNode* ForeignData::get_data() const {
-    xmlNode * result = xmlCopyNode(_foreign_data, 1 );
+    xmlNode *result = xmlCopyNode(_foreign_data, 1 );
     clean_ns( result, NSFOLIA ); // HACK: remove FoLiA namespace def
     return result;
   }
