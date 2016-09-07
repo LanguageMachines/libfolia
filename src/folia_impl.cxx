@@ -854,19 +854,20 @@ namespace folia {
   }
 
   UnicodeString trim_space( const UnicodeString& in ){
+    UnicodeString cmp = " ";
     //    cerr << "in = '" << in << "'" << endl;
     UnicodeString out;
     int i = 0;
     for( ; i < in.length(); ++i ){
-      //      cerr << "bekijk:" << in[i] << endl;
-      if ( in[i] != ' ' ){
+      //      cerr << "start: bekijk:" << UnicodeString(in[i]) << endl;
+      if ( in[i] != cmp[0] ){
 	break;
       }
     }
     int j = in.length()-1;
-    for( ; j >= 0; ++j ){
-      //      cerr << "bekijk:" << in[i] << endl;
-      if ( in[j] != ' ' ){
+    for( ; j >= 0; --j ){
+      //      cerr << "end: bekijk:" << UnicodeString(in[j]) << endl;
+      if ( in[j] != cmp[0] ){
 	break;
       }
     }
@@ -879,6 +880,23 @@ namespace folia {
     out = UnicodeString( in, i, j-i+1 );
     //    cerr << "out = '" << out << "'" << endl;
     return out;
+  }
+
+  bool check_end( const UnicodeString& us, bool& only ){
+    only = false;
+    string tmp = UnicodeToUTF8( us );
+    int j = tmp.length()-1;
+    size_t found_nl = 0;
+    for ( ; j >=0; --j ){
+      if ( tmp[j] == '\n' ){
+	++found_nl;
+      }
+      else {
+	break;
+      }
+    }
+    only = found_nl == tmp.length();
+    return found_nl > 0;
   }
 
   const UnicodeString FoliaImpl::deeptext( const string& cls,
@@ -935,10 +953,36 @@ namespace folia {
     // now construct the result;
     UnicodeString result;
     for ( size_t i=0; i < parts.size(); ++i ) {
+#ifdef DEBUG_TEXT
+      cerr << "part[" << i << "]='" << parts[i] << "'" << endl;
+      cerr << "sep[" << i << "]='" << seps[i] << "'" << endl;
+#endif
+      bool only_nl = false;
+      bool end_is_nl = check_end( parts[i], only_nl );
+      if ( end_is_nl ){
+#ifdef DEBUG_TEXT
+	cerr << "a newline after: '" << parts[i] << "'" << endl;
+	if ( i < parts.size()-1 ){
+	  cerr << "next sep='" << seps[i+1] << "'" << endl;
+	}
+#endif
+
+	if ( only_nl ){
+	  // only a newline
+	  result = trim_space( result );
+#ifdef DEBUG_TEXT
+	  cerr << "OK it is only newline(s)" << endl;
+	  cerr << "TRIMMED? '" << result << "'" << endl;
+#endif
+	}
+      }
       result += parts[i];
-      if ( i < parts.size()-1 ) {
+      if ( !end_is_nl && i < parts.size()-1 ){
 	result += seps[i];
       }
+#ifdef DEBUG_TEXT
+      cerr << "result='" << result << "'" << endl;
+#endif
     }
 #ifdef DEBUG_TEXT
     cerr << "deeptext() for " << xmltag() << " step 3 " << endl;
