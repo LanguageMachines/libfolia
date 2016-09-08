@@ -41,6 +41,13 @@ AC_TYPE_SIZE_T
 # Checks for library functions.
 AC_CHECK_FUNCS([localtime_r])
 
+ACX_PTHREAD([],[AC_MSG_ERROR([We need pthread support!])])
+
+if test x"$acx_pthread_ok" = xyes; then
+   LIBS="$PTHREAD_LIBS $LIBS" \
+   CXXFLAGS="$CXXFLAGS $PTHREAD_CFLAGS"
+fi
+
 PKG_PROG_PKG_CONFIG
 PKG_CHECK_MODULES([XML2], [libxml-2.0 >= 2.6.16] )
 CXXFLAGS="$CXXFLAGS $XML2_CFLAGS"
