@@ -39,9 +39,9 @@ AC_C_INLINE
 AC_TYPE_SIZE_T
 
 # Checks for library functions.
-ACX_PTHREAD([],[AC_MSG_ERROR([We need pthread support!])])
+AX_PTHREAD([],[AC_MSG_ERROR([We need pthread support!])])
 
-if test x"$acx_pthread_ok" = xyes; then
+if test x"$ax_pthread_ok" = xyes; then
    LIBS="$PTHREAD_LIBS $LIBS" \
    CXXFLAGS="$CXXFLAGS $PTHREAD_CFLAGS"
 fi
