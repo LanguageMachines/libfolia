@@ -6,7 +6,7 @@
 #include "libfolia/folia_properties.h"
 
 //foliaspec:header
-//This file was last updated according to the FoLiA specification for version 1.3.0 on 2016-09-05 15:12:19, using foliaspec.py
+//This file was last updated according to the FoLiA specification for version 1.3.1 on 2016-09-29 13:40:37, using foliaspec.py
 //Code blocks after a foliaspec comment (until the next newline) are automatically generated. **DO NOT EDIT THOSE** and **DO NOT REMOVE ANY FOLIASPEC COMMENTS** !!!
 
 namespace folia {
@@ -23,7 +23,7 @@ namespace folia {
 
   //foliaspec:version_sub:SUB_VERSION
   //The FoLiA version (sub/rev)
-  const int SUB_VERSION = 0;
+  const int SUB_VERSION = 1;
 
   //foliaspec:namespace:NSFOLIA
   //The FoLiA XML namespace
@@ -684,7 +684,7 @@ namespace folia {
 //------ CoreferenceChain -------
     CoreferenceChain::PROPS = AbstractSpanAnnotation::PROPS;
     CoreferenceChain::PROPS.ELEMENT_ID = CoreferenceChain_t;
-    CoreferenceChain::PROPS.ACCEPTED_DATA += {AlignReference_t, Alignment_t, Comment_t, CoreferenceLink_t, Description_t, ForeignData_t, Metric_t};
+    CoreferenceChain::PROPS.ACCEPTED_DATA += {AlignReference_t, Alignment_t, Comment_t, CoreferenceLink_t, Description_t, Feature_t, ForeignData_t, Metric_t};
     CoreferenceChain::PROPS.ANNOTATIONTYPE = AnnotationType::COREFERENCE;
     CoreferenceChain::PROPS.REQUIRED_DATA += {CoreferenceLink_t};
     CoreferenceChain::PROPS.XMLTAG = "coreferencechain";
@@ -1043,6 +1043,7 @@ namespace folia {
     SenseAnnotation::PROPS.ELEMENT_ID = SenseAnnotation_t;
     SenseAnnotation::PROPS.ACCEPTED_DATA += {Comment_t, Description_t, Feature_t, ForeignData_t, Metric_t, SynsetFeature_t};
     SenseAnnotation::PROPS.ANNOTATIONTYPE = AnnotationType::SENSE;
+    SenseAnnotation::PROPS.OCCURRENCES_PER_SET = 0;
     SenseAnnotation::PROPS.XMLTAG = "sense";
 //------ Sentence -------
     Sentence::PROPS = AbstractStructureElement::PROPS;
