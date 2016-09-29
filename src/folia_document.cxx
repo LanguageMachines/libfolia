@@ -578,7 +578,6 @@ namespace folia {
       add->set_data( node );
     }
     _foreigndata.push_back( add );
-    cerr << "\nNU size = " << _foreigndata.size() << endl;
   }
 
   void Document::parseannotations( xmlNode *node ){
@@ -1171,7 +1170,6 @@ namespace folia {
     for ( const auto& foreign : _foreigndata ){
       xmlNode *f = foreign->xml( true, false );
       xmlAddChild( node, f );
-      cerr << "\nAdded a child" << TiCC::Name( f ) << endl;
     }
   }
 
