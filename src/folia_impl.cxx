@@ -191,16 +191,19 @@ namespace folia {
   void FoliaImpl::setAttributes( const KWargs& kwargs_in ) {
     KWargs kwargs = kwargs_in;
     Attrib supported = required_attributes() | optional_attributes();
-    //if ( element_id() == Original_t ) {
-    //cerr << "set attributes: " << kwargs << " on " << classname() << endl;
-      //      cerr << "required = " <<  required_attributes() << endl;
-      //      cerr << "optional = " <<  optional_attributes() << endl;
-      //      cerr << "supported = " << supported << endl;
-      //   cerr << "ID & supported = " << (ID & supported) << endl;
-      //   cerr << "ID & _required = " << (ID & required_attributes() ) << endl;
-      //
-    //      cerr << "AUTH : " << _auth << ", default=" << default_auth() << endl;
-    //    }
+    // if ( element_id() == Reference_t ) {
+    //   cerr << "set attributes: " << kwargs << " on " << classname() << endl;
+    //   cerr << "required = " <<  required_attributes() << endl;
+    //   cerr << "optional = " <<  optional_attributes() << endl;
+    //   cerr << "supported = " << supported << endl;
+    //   cerr << "ID & supported = " << (ID & supported) << endl;
+    //   cerr << "ID & _required = " << (ID & required_attributes() ) << endl;
+    //   cerr << "_id=" << _id << endl;
+    //   Reference*ref=dynamic_cast<Reference*>(this);
+    //   cerr << "id=" << ref->refId << endl;
+
+    //   //   cerr << "AUTH : " << _auth << ", default=" << default_auth() << endl;
+    // }
     if ( mydoc && mydoc->debug > 2 ) {
       cerr << "set attributes: " << kwargs << " on " << classname() << endl;
     }
@@ -243,8 +246,6 @@ namespace folia {
 	  kwargs.erase( it );
 	}
       }
-      else
-	_id = "";
     }
 
     it = kwargs.find( "set" );
@@ -3737,7 +3738,10 @@ namespace folia {
   }
 
   KWargs Reference::collectAttributes() const {
-    KWargs atts;
+    KWargs atts = FoliaImpl::collectAttributes();
+    if ( !_id.empty() ){
+      atts["_id"] = _id;
+    }
     atts["id"] = refId;
     atts["type"] = ref_type;
     if ( !_format.empty() && _format != "text/folia+xml" ) {
@@ -3747,9 +3751,13 @@ namespace folia {
   }
 
   void Reference::setAttributes( const KWargs& argsin ) {
-    //    cerr << "REFERENCE argsin: " << argsin << endl;
     KWargs args = argsin;
-    auto it = args.find( "id" );
+    auto it = args.find( "_id" );
+    if ( it != args.end() ) {
+      _id = it->second;
+      args.erase( it );
+    }
+    it = args.find( "id" );
     if ( it != args.end() ) {
       refId = it->second;
       args.erase( it );
@@ -3764,10 +3772,7 @@ namespace folia {
       _format = it->second;
       args.erase( it );
     }
-    //    cerr << "REFERENCE args: " << args << endl;
-    //    cerr << "REFERENCE: " << this << endl;
     FoliaImpl::setAttributes(args);
-    //    cerr << "REFERENCE: " << this << endl;
   }
 
   xmlNode *XmlComment::xml( bool, bool ) const {
