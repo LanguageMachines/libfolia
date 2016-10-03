@@ -129,7 +129,7 @@ namespace folia {
     os << " <" << ae.classname();
     KWargs ats = ae.collectAttributes();
     if ( !ae.id().empty() ) {
-      ats["id"] = ae.id();
+      ats["_id"] = ae.id();
     }
     for ( const auto& it: ats ) {
       os << " " << it.first << "='" << it.second << "'";
