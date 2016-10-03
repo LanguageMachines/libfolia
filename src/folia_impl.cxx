@@ -1413,7 +1413,9 @@ namespace folia {
       throw;
     }
     if ( ok ) {
-      child->assignDoc( mydoc );
+      if ( mydoc ){
+	child->assignDoc( mydoc );
+      }
       data.push_back(child);
       if ( !child->parent() ) {
 	// Only for WordRef and Morpheme
