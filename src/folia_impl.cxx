@@ -3207,12 +3207,15 @@ namespace folia {
     return this;
   }
 
-  void Comment::setAttributes( const KWargs& kwargs ) {
+  void Comment::setAttributes( const KWargs& kwargsin ) {
+    KWargs kwargs = kwargsin;
     auto it = kwargs.find( "value" );
     if ( it == kwargs.end() ) {
       throw ValueError("value attribute is required for " + classname() );
     }
     _value = it->second;
+    kwargs.erase( it );
+    FoliaImpl::setAttributes( kwargs );
   }
 
   xmlNode *Comment::xml( bool, bool ) const {
@@ -3744,6 +3747,7 @@ namespace folia {
   }
 
   void Reference::setAttributes( const KWargs& argsin ) {
+    //    cerr << "REFERENCE argsin: " << argsin << endl;
     KWargs args = argsin;
     auto it = args.find( "id" );
     if ( it != args.end() ) {
@@ -3760,7 +3764,10 @@ namespace folia {
       _format = it->second;
       args.erase( it );
     }
+    //    cerr << "REFERENCE args: " << args << endl;
+    //    cerr << "REFERENCE: " << this << endl;
     FoliaImpl::setAttributes(args);
+    //    cerr << "REFERENCE: " << this << endl;
   }
 
   xmlNode *XmlComment::xml( bool, bool ) const {
