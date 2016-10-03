@@ -90,7 +90,6 @@ namespace folia {
   void Document::init(){
     _metadatatype = "native";
     _metadata = 0;
-    _foreigndata = 0;
     _xmldoc = 0;
     foliadoc = 0;
     _foliaNsIn_href = 0;
@@ -108,7 +107,9 @@ namespace folia {
     sindex.clear();
     iindex.clear();
     delete foliadoc;
-    delete _foreigndata;
+    for ( const auto& it : _foreigndata ){
+      delete it;
+    }
     for ( const auto& it : delSet ){
       delete it;
     }
@@ -565,20 +566,18 @@ namespace folia {
   }
 
   void Document::set_foreign_metadata( xmlNode *node ){
-    if ( _foreigndata ){
-      throw XmlError( "multiple foreign-data nodes!" );
-    }
-    _foreigndata = new ForeignData();
+    ForeignData *add = new ForeignData();
     if ( Name( node ) != "foreign-data" ){
       // we need an extra layer then
       xmlNode *n = XmlNewNode( "foreign-data" );
       xmlAddChild( n, xmlCopyNode( node, 1 ) );
-      _foreigndata->set_data( n );
+      add->set_data( n );
       xmlFreeNode (n );
     }
     else {
-      _foreigndata->set_data( node );
+      add->set_data( node );
     }
+    _foreigndata.push_back( add );
   }
 
   void Document::parseannotations( xmlNode *node ){
@@ -739,7 +738,7 @@ namespace folia {
 	      if ( t ){
 		t = t->parseXml( m );
 		if ( t ){
-		  _foreigndata = dynamic_cast<ForeignData *>(t);
+		  _foreigndata.push_back( dynamic_cast<ForeignData *>(t) );
 		}
 	      }
 	    }
@@ -1168,8 +1167,8 @@ namespace folia {
     else {
       xmlAddChild( node, _metadata );
     }
-    if ( _foreigndata ){
-      xmlNode *f = _foreigndata->xml( true, false );
+    for ( const auto& foreign : _foreigndata ){
+      xmlNode *f = foreign->xml( true, false );
       xmlAddChild( node, f );
     }
   }

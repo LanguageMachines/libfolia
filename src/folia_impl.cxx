@@ -129,7 +129,7 @@ namespace folia {
     os << " <" << ae.classname();
     KWargs ats = ae.collectAttributes();
     if ( !ae.id().empty() ) {
-      ats["id"] = ae.id();
+      ats["_id"] = ae.id();
     }
     for ( const auto& it: ats ) {
       os << " " << it.first << "='" << it.second << "'";
@@ -191,16 +191,19 @@ namespace folia {
   void FoliaImpl::setAttributes( const KWargs& kwargs_in ) {
     KWargs kwargs = kwargs_in;
     Attrib supported = required_attributes() | optional_attributes();
-    //if ( element_id() == Original_t ) {
-    //cerr << "set attributes: " << kwargs << " on " << classname() << endl;
-      //      cerr << "required = " <<  required_attributes() << endl;
-      //      cerr << "optional = " <<  optional_attributes() << endl;
-      //      cerr << "supported = " << supported << endl;
-      //   cerr << "ID & supported = " << (ID & supported) << endl;
-      //   cerr << "ID & _required = " << (ID & required_attributes() ) << endl;
-      //
-    //      cerr << "AUTH : " << _auth << ", default=" << default_auth() << endl;
-    //    }
+    // if ( element_id() == Reference_t ) {
+    //   cerr << "set attributes: " << kwargs << " on " << classname() << endl;
+    //   cerr << "required = " <<  required_attributes() << endl;
+    //   cerr << "optional = " <<  optional_attributes() << endl;
+    //   cerr << "supported = " << supported << endl;
+    //   cerr << "ID & supported = " << (ID & supported) << endl;
+    //   cerr << "ID & _required = " << (ID & required_attributes() ) << endl;
+    //   cerr << "_id=" << _id << endl;
+    //   Reference*ref=dynamic_cast<Reference*>(this);
+    //   cerr << "id=" << ref->refId << endl;
+
+    //   //   cerr << "AUTH : " << _auth << ", default=" << default_auth() << endl;
+    // }
     if ( mydoc && mydoc->debug > 2 ) {
       cerr << "set attributes: " << kwargs << " on " << classname() << endl;
     }
@@ -243,8 +246,6 @@ namespace folia {
 	  kwargs.erase( it );
 	}
       }
-      else
-	_id = "";
     }
 
     it = kwargs.find( "set" );
@@ -853,6 +854,52 @@ namespace folia {
     }
   }
 
+  UnicodeString trim_space( const UnicodeString& in ){
+    UnicodeString cmp = " ";
+    //    cerr << "in = '" << in << "'" << endl;
+    UnicodeString out;
+    int i = 0;
+    for( ; i < in.length(); ++i ){
+      //      cerr << "start: bekijk:" << UnicodeString(in[i]) << endl;
+      if ( in[i] != cmp[0] ){
+	break;
+      }
+    }
+    int j = in.length()-1;
+    for( ; j >= 0; --j ){
+      //      cerr << "end: bekijk:" << UnicodeString(in[j]) << endl;
+      if ( in[j] != cmp[0] ){
+	break;
+      }
+    }
+    // cerr << "I=" << i << endl;
+    // cerr << "J=" << j << endl;
+    if ( j < i ){
+      //      cerr << "out = LEEG" << endl;
+      return out;
+    }
+    out = UnicodeString( in, i, j-i+1 );
+    //    cerr << "out = '" << out << "'" << endl;
+    return out;
+  }
+
+  bool check_end( const UnicodeString& us, bool& only ){
+    only = false;
+    string tmp = UnicodeToUTF8( us );
+    int j = tmp.length()-1;
+    size_t found_nl = 0;
+    for ( ; j >=0; --j ){
+      if ( tmp[j] == '\n' ){
+	++found_nl;
+      }
+      else {
+	break;
+      }
+    }
+    only = found_nl == tmp.length();
+    return found_nl > 0;
+  }
+
   const UnicodeString FoliaImpl::deeptext( const string& cls,
 					   bool retaintok ) const {
     // get the UnicodeString value of underlying elements
@@ -882,9 +929,13 @@ namespace folia {
 #ifdef DEBUG_TEXT
 	  cerr << "deeptext found '" << tmp << "'" << endl;
 #endif
-	  if ( !isSubClass(AbstractTextMarkup_t) ) {
-	    tmp.trim();
+	  if ( !isSubClass(AbstractTextMarkup_t) ){
+	    //	    tmp.trim();
+	    tmp = trim_space( tmp );
 	  }
+#ifdef DEBUG_TEXT
+	  cerr << "deeptext trimmed '" << tmp << "'" << endl;
+#endif
 	  parts.push_back(tmp);
 	  // get the delimiter
 	  const string& delim = child->getTextDelimiter( retaintok );
@@ -903,10 +954,36 @@ namespace folia {
     // now construct the result;
     UnicodeString result;
     for ( size_t i=0; i < parts.size(); ++i ) {
+#ifdef DEBUG_TEXT
+      cerr << "part[" << i << "]='" << parts[i] << "'" << endl;
+      cerr << "sep[" << i << "]='" << seps[i] << "'" << endl;
+#endif
+      bool only_nl = false;
+      bool end_is_nl = check_end( parts[i], only_nl );
+      if ( end_is_nl ){
+#ifdef DEBUG_TEXT
+	cerr << "a newline after: '" << parts[i] << "'" << endl;
+	if ( i < parts.size()-1 ){
+	  cerr << "next sep='" << seps[i+1] << "'" << endl;
+	}
+#endif
+
+	if ( only_nl ){
+	  // only a newline
+	  result = trim_space( result );
+#ifdef DEBUG_TEXT
+	  cerr << "OK it is only newline(s)" << endl;
+	  cerr << "TRIMMED? '" << result << "'" << endl;
+#endif
+	}
+      }
       result += parts[i];
-      if ( i < parts.size()-1 ) {
+      if ( !end_is_nl && i < parts.size()-1 ){
 	result += seps[i];
       }
+#ifdef DEBUG_TEXT
+      cerr << "result='" << result << "'" << endl;
+#endif
     }
 #ifdef DEBUG_TEXT
     cerr << "deeptext() for " << xmltag() << " step 3 " << endl;
@@ -1318,6 +1395,9 @@ namespace folia {
   }
 
   FoliaElement *FoliaImpl::append( FoliaElement *child ) {
+    if ( !child ){
+      throw XmlError( "attempt to append an empty node to a " + classname() );
+    }
     bool ok = false;
     try {
       ok = child->checkAtts();
@@ -1333,7 +1413,9 @@ namespace folia {
       throw;
     }
     if ( ok ) {
-      child->assignDoc( mydoc );
+      if ( mydoc ){
+	child->assignDoc( mydoc );
+      }
       data.push_back(child);
       if ( !child->parent() ) {
 	// Only for WordRef and Morpheme
@@ -1354,6 +1436,9 @@ namespace folia {
     if ( del ) {
       delete child;
     }
+    else {
+      child->setParent(0);
+    }
   }
 
   void FoliaImpl::remove( size_t pos, bool del ) {
@@ -1365,6 +1450,9 @@ namespace folia {
       }
       if ( del ) {
 	delete *it;
+      }
+      else {
+	(*it)->setParent(0);
       }
       data.erase(it);
     }
@@ -1842,6 +1930,7 @@ namespace folia {
     ov.push_back( *it );
     vector<FoliaElement *> nv;
     nv.push_back( w );
+    // so we attempt to 'correct' the dummy word into w
     return correctWords( ov, nv, getArgs(args) );
   }
 
@@ -2156,23 +2245,27 @@ namespace folia {
     return res;
   }
 
+  //#define DEBUG_CORRECT 1
+
   Correction * AllowCorrection::correct( const vector<FoliaElement*>& _original,
 					 const vector<FoliaElement*>& current,
 					 const vector<FoliaElement*>& _newv,
 					 const vector<FoliaElement*>& _suggestions,
 					 const KWargs& args_in ) {
-    // cerr << "correct " << this << endl;
-    // cerr << "original= " << original << endl;
-    // cerr << "current = " << current << endl;
-    // cerr << "new     = " << _new << endl;
-    // cerr << "suggestions     = " << suggestions << endl;
-    //  cerr << "args in     = " << args_in << endl;
+#ifdef DEBUG_CORRECT
+    cerr << "correct " << this << endl;
+    cerr << "original= " << _original << endl;
+    cerr << "current = " << current << endl;
+    cerr << "new     = " << _newv << endl;
+    cerr << "suggestions     = " << _suggestions << endl;
+    cerr << "args in     = " << args_in << endl;
+#endif
     // Apply a correction
     Document *mydoc = doc();
-    Correction *c = 0;
+    Correction *corr = 0;
     bool suggestionsonly = false;
     bool hooked = false;
-    FoliaElement * addnew = 0;
+    New *addnew = 0;
     KWargs args = args_in;
     vector<FoliaElement*> original = _original;
     vector<FoliaElement*> _new = _newv;
@@ -2197,26 +2290,28 @@ namespace folia {
     if ( it != args.end() ) {
       // reuse an existing correction instead of making a new one
       try {
-	c = dynamic_cast<Correction*>(mydoc->index(it->second));
+	corr = dynamic_cast<Correction*>(mydoc->index(it->second));
       }
       catch ( exception& e ) {
 	throw ValueError("reuse= must point to an existing correction id!");
       }
-      if ( !c->isinstance( Correction_t ) ) {
+      if ( !corr->isinstance( Correction_t ) ) {
 	throw ValueError("reuse= must point to an existing correction id!");
       }
       hooked = true;
-      suggestionsonly = (!c->hasNew() && !c->hasOriginal() && c->hasSuggestions() );
-      if ( !_new.empty() && c->hasCurrent() ) {
+      suggestionsonly = (!corr->hasNew()
+			 && !corr->hasOriginal()
+			 && corr->hasSuggestions() );
+      if ( !_new.empty() && corr->hasCurrent() ) {
 	// can't add new if there's current, so first set original to current, and then delete current
 
 	if ( !current.empty() ) {
 	  throw runtime_error( "Can't set both new= and current= !");
 	}
 	if ( original.empty() ) {
-	  FoliaElement *cur = c->getCurrent();
+	  FoliaElement *cur = corr->getCurrent();
 	  original.push_back( cur );
-	  c->remove( cur, false );
+	  corr->remove( cur, false );
 	}
       }
     }
@@ -2226,10 +2321,12 @@ namespace folia {
       args2.erase("suggestions" );
       string id = generateId( "correction" );
       args2["id"] = id;
-      c = new Correction(mydoc );
-      c->setAttributes( args2 );
+      corr = new Correction(mydoc );
+      corr->setAttributes( args2 );
     }
-
+#ifdef DEBUG_CORRECT
+    cerr << "now corr= " << corr << endl;
+#endif
     if ( !current.empty() ) {
       if ( !original.empty() || !_new.empty() ) {
 	throw runtime_error("When setting current=, original= and new= can not be set!");
@@ -2238,52 +2335,92 @@ namespace folia {
 	FoliaElement *add = new Current( mydoc );
 	cur->setParent(0);
 	add->append( cur );
-	c->replace( add );
+	corr->replace( add );
 	if ( !hooked ) {
 	  for ( size_t i=0; i < size(); ++i ) {
 	    if ( index(i) == cur ) {
-	      replace( index(i), c );
+	      replace( index(i), corr );
 	      hooked = true;
 	    }
 	  }
 	}
       }
+#ifdef DEBUG_CORRECT
+      cerr << "now corr= " << corr << endl;
+#endif
     }
     if ( !_new.empty() ) {
-      //    cerr << "there is new! " << endl;
+#ifdef DEBUG_CORRECT
+      cerr << "there is new! " << endl;
+#endif
       addnew = new New( mydoc );
-      c->append(addnew);
+      corr->append(addnew);
       for ( const auto& nw : _new ) {
 	nw->setParent(0);
 	addnew->append( nw );
       }
-      //    cerr << "after adding " << c << endl;
-      vector<Current*> v = c->FoliaElement::select<Current>();
+#ifdef DEBUG_CORRECT
+      cerr << "after adding " << corr << endl;
+#endif
+      vector<Current*> v = corr->FoliaElement::select<Current>();
       //delete current if present
       for ( const auto& cur:v ) {
-	c->remove( cur, false );
+	corr->remove( cur, false );
       }
+#ifdef DEBUG_CORRECT
+      cerr << "after removing cur " << corr << endl;
+#endif
     }
     if ( !original.empty() ) {
+#ifdef DEBUG_CORRECT
+      cerr << "there is original! " << endl;
+#endif
       FoliaElement *add = new Original( mydoc );
-      c->replace(add);
+      corr->replace(add);
+#ifdef DEBUG_CORRECT
+      cerr << " corr after replace " << corr << endl;
+      cerr << " new original= " << add << endl;
+#endif
       for ( const auto& org: original ) {
+#ifdef DEBUG_CORRECT
+	cerr << " examine org " << org << endl;
+#endif
 	bool dummyNode = ( org->id() == "dummy" );
 	if ( !dummyNode ) {
 	  org->setParent(0);
 	  add->append( org );
 	}
+#ifdef DEBUG_CORRECT
+	cerr << " NOW original= " << add << endl;
+#endif
 	for ( size_t i=0; i < size(); ++i ) {
+#ifdef DEBUG_CORRECT
+	  cerr << "in loop, bekijk " << index(i) << endl;
+#endif
 	  if ( index(i) == org ) {
+#ifdef DEBUG_CORRECT
+	    cerr << "OK hit on ORG" << endl;
+#endif
 	    if ( !hooked ) {
-	      FoliaElement *tmp = replace( index(i), c );
-	      if ( dummyNode ) {
-		delete tmp;
-	      }
+#ifdef DEBUG_CORRECT
+	      cerr << "it isn't hooked!" << endl;
+	      FoliaElement * tmp = replace( index(i), corr );
+	      cerr << " corr after replace " << corr << endl;
+	      cerr << " replaced " << tmp << endl;
+#else
+	      replace( index(i), corr );
+#endif
 	      hooked = true;
 	    }
 	    else {
+#ifdef DEBUG_CORRECT
+	      cerr << " corr before remove " << corr << endl;
+	      cerr << " remove  " << org << endl;
+#endif
 	      remove( org, false );
+#ifdef DEBUG_CORRECT
+	      cerr << " corr after remove " << corr << endl;
+#endif
 	    }
 	  }
 	}
@@ -2292,10 +2429,14 @@ namespace folia {
     else if ( addnew ) {
       // original not specified, find automagically:
       vector<FoliaElement *> orig;
-      //    cerr << "start to look for original " << endl;
+#ifdef DEBUG_CORRECT
+      cerr << "start to look for original " << endl;
+#endif
       for ( size_t i=0; i < len(addnew); ++ i ) {
 	FoliaElement *p = addnew->index(i);
-	//      cerr << "bekijk " << p << endl;
+#ifdef DEBUG_CORRECT
+	cerr << "bekijk " << p << endl;
+#endif
 	vector<FoliaElement*> v = p->findreplacables( this );
 	for ( const auto& el: v ) {
 	  orig.push_back( el );
@@ -2305,52 +2446,104 @@ namespace folia {
 	throw runtime_error( "No original= specified and unable to automatically infer");
       }
       else {
-	//      cerr << "we seem to have some originals! " << endl;
+#ifdef DEBUG_CORRECT
+	cerr << "we seem to have some originals! " << endl;
+#endif
 	FoliaElement *add = new Original( mydoc );
-	c->replace(add);
+#ifdef DEBUG_CORRECT
+	cerr << "corr before adding new original! " << corr << endl;
+#endif
+	corr->replace(add);
+#ifdef DEBUG_CORRECT
+	cerr << "corr after adding new original! " << corr << endl;
+	cerr << "now parent = " << add->parent() << endl;
+#endif
+
 	for ( const auto& org: orig ) {
-	  //	cerr << " an original is : " << *oit << endl;
-	  org->setParent( 0 );
-	  add->append( org );
+#ifdef DEBUG_CORRECT
+	  cerr << " examine original : " << org << endl;
+	  cerr << "with parent = " << org->parent() << endl;
+#endif
+	  // first we lookup org in our data and remove it there
 	  for ( size_t i=0; i < size(); ++i ) {
+#ifdef DEBUG_CORRECT
+	    cerr << "in loop, bekijk " << index(i) << endl;
+#endif
 	    if ( index(i) == org ) {
+#ifdef DEBUG_CORRECT
+	      cerr << "found original " << endl;
+#endif
 	      if ( !hooked ) {
-		replace( index(i), c );
+#ifdef DEBUG_CORRECT
+		cerr << "it isn't hooked!" << endl;
+		FoliaElement *tmp = replace( index(i), corr );
+		cerr << " corr after replace " << corr << endl;
+		cerr << " replaced " << tmp << endl;
+#else
+		replace( index(i), corr );
+#endif
+
 		hooked = true;
 	      }
-	      else
+	      else {
+#ifdef DEBUG_CORRECT
+		cerr << " corr before remove " << corr << endl;
+		cerr << " remove  " << org << endl;
+#endif
 		remove( org, false );
+#ifdef DEBUG_CORRECT
+		cerr << " corr after remove " << corr << endl;
+#endif
+	      }
 	    }
 	  }
+	  // now we conect org to the new original node
+	  org->setParent( 0 );
+	  add->append( org );
+#ifdef DEBUG_CORRECT
+	  cerr << " add after append : " << add << endl;
+	  cerr << "parent = " << org->parent() << endl;
+#endif
 	}
-	vector<Current*> v = c->FoliaElement::select<Current>();
+	vector<Current*> v = corr->FoliaElement::select<Current>();
 	//delete current if present
 	for ( const auto& cur: v ) {
+#ifdef DEBUG_CORRECT
+	  cerr << " remove cur=" << cur << endl;
+#endif
 	  remove( cur, false );
 	}
       }
     }
-
+#ifdef DEBUG_CORRECT
+    cerr << " corr after edits " << corr << endl;
+#endif
     if ( addnew ) {
       for ( const auto& org : original ) {
-	c->remove( org, false );
+#ifdef DEBUG_CORRECT
+	cerr << " remove  " << org << endl;
+#endif
+	bool dummyNode = ( org->id() == "dummy" );
+	corr->remove( org, dummyNode );
       }
     }
-
+#ifdef DEBUG_CORRECT
+    cerr << " corr after removes " << corr << endl;
+#endif
     if ( !suggestions.empty() ) {
       if ( !hooked ) {
-	append(c);
+	append(corr);
       }
       for ( const auto& sug : suggestions ) {
 	if ( sug->isinstance( Suggestion_t ) ) {
 	  sug->setParent(0);
-	  c->append( sug );
+	  corr->append( sug );
 	}
 	else {
 	  FoliaElement *add = new Suggestion( mydoc );
 	  sug->setParent(0);
 	  add->append( sug );
-	  c->append( add );
+	  corr->append( add );
 	}
       }
     }
@@ -2358,30 +2551,30 @@ namespace folia {
     it = args.find("reuse");
     if ( it != args.end() ) {
       if ( addnew && suggestionsonly ) {
-	vector<Suggestion*> sv = c->suggestions();
+	vector<Suggestion*> sv = corr->suggestions();
 	for ( const auto& sug : sv ){
-	  if ( !c->annotator().empty() && sug->annotator().empty() ) {
-	    sug->annotator( c->annotator() );
+	  if ( !corr->annotator().empty() && sug->annotator().empty() ) {
+	    sug->annotator( corr->annotator() );
 	  }
-	  if ( !(c->annotatortype() == UNDEFINED) &&
+	  if ( !(corr->annotatortype() == UNDEFINED) &&
 	       (sug->annotatortype() == UNDEFINED ) ) {
-	    sug->annotatortype( c->annotatortype() );
+	    sug->annotatortype( corr->annotatortype() );
 	  }
 	}
       }
       it = args.find("annotator");
       if ( it != args.end() ) {
-	c->annotator( it->second );
+	corr->annotator( it->second );
       }
       it = args.find("annotatortype");
       if ( it != args.end() )
-	c->annotatortype( stringTo<AnnotatorType>(it->second) );
+	corr->annotatortype( stringTo<AnnotatorType>(it->second) );
       it = args.find("confidence");
       if ( it != args.end() ) {
-	c->confidence( stringTo<double>(it->second) );
+	corr->confidence( stringTo<double>(it->second) );
       }
     }
-    return c;
+    return corr;
   }
 
   Correction *AllowCorrection::correct( const string& s ) {
@@ -2846,6 +3039,18 @@ namespace folia {
     case CoreferenceChain_t:
     case CoreferenceLayer_t:
       return CoreferenceLayer_t;
+    case Observation_t:
+    case ObservationLayer_t:
+      return ObservationLayer_t;
+    // case Predicate_t:
+    // case PredicateLayer_t:
+    //   return PredicateLayer_t;
+    case SentimentLayer_t:
+    case Sentiment_t:
+      return SentimentLayer_t;
+    case StatementLayer_t:
+    case Statement_t:
+      return SentimentLayer_t;
     case SemanticRolesLayer_t:
     case SemanticRole_t:
       return SemanticRolesLayer_t;
@@ -2996,6 +3201,33 @@ namespace folia {
   }
 
   FoliaElement* Description::parseXml( const xmlNode *node ) {
+    KWargs att = getAttributes( node );
+    auto it = att.find("value" );
+    if ( it == att.end() ) {
+      att["value"] = XmlContent( node );
+    }
+    setAttributes( att );
+    return this;
+  }
+
+  void Comment::setAttributes( const KWargs& kwargsin ) {
+    KWargs kwargs = kwargsin;
+    auto it = kwargs.find( "value" );
+    if ( it == kwargs.end() ) {
+      throw ValueError("value attribute is required for " + classname() );
+    }
+    _value = it->second;
+    kwargs.erase( it );
+    FoliaImpl::setAttributes( kwargs );
+  }
+
+  xmlNode *Comment::xml( bool, bool ) const {
+    xmlNode *e = FoliaImpl::xml( false, false );
+    xmlAddChild( e, xmlNewText( (const xmlChar*)_value.c_str()) );
+    return e;
+  }
+
+  FoliaElement* Comment::parseXml( const xmlNode *node ) {
     KWargs att = getAttributes( node );
     auto it = att.find("value" );
     if ( it == att.end() ) {
@@ -3508,7 +3740,10 @@ namespace folia {
   }
 
   KWargs Reference::collectAttributes() const {
-    KWargs atts;
+    KWargs atts = FoliaImpl::collectAttributes();
+    if ( !_id.empty() ){
+      atts["_id"] = _id;
+    }
     atts["id"] = refId;
     atts["type"] = ref_type;
     if ( !_format.empty() && _format != "text/folia+xml" ) {
@@ -3519,7 +3754,12 @@ namespace folia {
 
   void Reference::setAttributes( const KWargs& argsin ) {
     KWargs args = argsin;
-    auto it = args.find( "id" );
+    auto it = args.find( "_id" );
+    if ( it != args.end() ) {
+      _id = it->second;
+      args.erase( it );
+    }
+    it = args.find( "id" );
     if ( it != args.end() ) {
       refId = it->second;
       args.erase( it );
@@ -3547,6 +3787,33 @@ namespace folia {
     }
     return this;
   }
+
+  KWargs Suggestion::collectAttributes() const {
+    KWargs atts = FoliaImpl::collectAttributes();
+    if ( !_split.empty() ) {
+      atts["split"] = _split;
+    }
+    if ( !_merge.empty() ) {
+      atts["merge"] = _merge;
+    }
+    return atts;
+  }
+
+  void Suggestion::setAttributes( const KWargs& kwargsin ) {
+    KWargs kwargs = kwargsin;
+    auto it = kwargs.find( "split" );
+    if ( it != kwargs.end() ) {
+      _split = it->second;
+      kwargs.erase( it );
+    }
+    it = kwargs.find( "merge" );
+    if ( it != kwargs.end() ) {
+      _merge = it->second;
+      kwargs.erase( it );
+    }
+    FoliaImpl::setAttributes(kwargs);
+  }
+
 
   void Feature::setAttributes( const KWargs& kwargs ) {
     //
@@ -3645,7 +3912,7 @@ namespace folia {
   }
 
   xmlNode* ForeignData::get_data() const {
-    xmlNode * result = xmlCopyNode(_foreign_data, 1 );
+    xmlNode *result = xmlCopyNode(_foreign_data, 1 );
     clean_ns( result, NSFOLIA ); // HACK: remove FoLiA namespace def
     return result;
   }

@@ -37,6 +37,7 @@
 #include "ticcutils/XMLtools.h"
 #include "ticcutils/PrettyPrint.h"
 #include "libfolia/folia.h"
+#include "libfolia/folia_properties.h"
 
 using namespace std;
 using namespace TiCC;
@@ -376,14 +377,18 @@ namespace folia {
 
   bool AT_sanity_check(){
     bool sane = true;
-    AnnotationType::AnnotationType at = AnnotationType::NO_ANN;
-    while ( ++at != AnnotationType::LAST_ANN ){
+    size_t dim = s_ant_map.size();
+    if ( dim != ant_s_map.size() ){
+      cerr << "s_ant_map and ant_s_map are different in size!" << endl;
+      return false;
+    }
+    for ( auto const& it : ant_s_map ){
       string s;
       try {
-	s = toString( at );
+	s = toString( it.first );
       }
       catch (...){
-	cerr << "no string translation for AnnotationType(" << int(at) << ")" << endl;
+	cerr << "no string translation for AnnotationType(" << int(it.first) << ")" << endl;
 	sane = false;
       }
       if ( !s.empty() ){
@@ -401,17 +406,28 @@ namespace folia {
 
   bool ET_sanity_check(){
     bool sane = true;
-    ElementType et = BASE;
-    while ( ++et != LastElement ){
+    for ( auto const& it : s_et_map ){
+      ElementType et = it.second;
+      if ( et_s_map.find(et) == et_s_map.end() ){
+	cerr << "no et_s found for ElementType(" << int(et) << ")" << endl;
+	return false;
+      }
+    }
+    for ( auto const& it : et_s_map ){
+      ElementType et = it.first;
+      if ( s_et_map.find(it.second) == s_et_map.end() ){
+	cerr << "no string found for ElementType(" << int(it.first) << ")" << endl;
+	return false;
+      }
       string s;
       try {
-	toString( et );
+	s = toString( et );
       }
       catch (...){
-	cerr << "no string translation for ElementType(" << int(et) << ")" << endl;
+	cerr << "toString failed for ElementType(" << int(et) << ")" << endl;
 	sane = false;
       }
-      if( !s.empty() ){
+      if ( !s.empty() ){
 	ElementType et2;
 	try {
 	  et2 = stringToET( s );
@@ -422,31 +438,45 @@ namespace folia {
 	  continue;
 	}
 	if ( et != et2 ){
-	  cerr << "Argl: toString(ET) doesn't match original:" << s
+	  cerr << "Argl: toString(ET) doesn't match original: " << s
 	       << " vs " << toString(et2) << endl;
 	  sane = false;
 	  continue;
 	}
-	FoliaElement *tmp = 0;
+	FoliaElement *tmp1 = 0;
 	try {
-	  tmp = FoliaImpl::createElement( s );
+	  tmp1 = FoliaImpl::createElement( s );
 	}
 	catch( ValueError &e ){
 	  string err = e.what();
-	  if ( !err.find("abstract" ) ){
+	  if ( err.find("abstract") ==string::npos ){
+	    cerr << "createElement(" << s << ") failed! :" << err << endl;
 	    sane = false;
 	  }
 	}
-	if ( tmp != 0 ) {
-	  if ( et != tmp->element_id() ){
-	    cerr << "the element type " << tmp->element_id() << " of " << tmp
-		 << " != " << et << " (" << toString(tmp->element_id())
-		 << " != " << toString(et) << ")" << endl;
-	    sane = false;
+	if ( sane && tmp1 ){
+	  FoliaElement *tmp2 = 0;
+	  try {
+	    tmp2 = FoliaImpl::createElement( et );
 	  }
-	  if ( s != tmp->xmltag() ){
-	    cerr << "the xmltag " << tmp->xmltag() << " != " << s << endl;
+	  catch( ValueError &e ){
+	    string err = e.what();
+	    if ( err.find("abstract") == string::npos ){
+	      cerr << "createElement(" << int(et) << ") failed! :" << err << endl;
+	      sane = false;
+	    }
+	  }
+	  if ( tmp2 != 0 ) {
+	    if ( et != tmp2->element_id() ){
+	      cerr << "the element type " << tmp2->element_id() << " of " << s
+		   << " != " << et << " (" << toString(tmp2->element_id())
+		   << " != " << toString(et) << ")" << endl;
 	    sane = false;
+	    }
+	    if ( s != tmp2->xmltag() && s != "headfeature" ){
+	      cerr << "the xmltag " << tmp2->xmltag() << " != " << s << endl;
+	    sane = false;
+	    }
 	  }
 	}
       }
