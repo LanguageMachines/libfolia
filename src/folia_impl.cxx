@@ -792,6 +792,18 @@ namespace folia {
     return "";
   }
 
+  const string FoliaImpl::language( const string& st ) const {
+    try {
+      std::set<ElementType> exclude;
+      vector<LangAnnotation*> v = select<LangAnnotation>( st, exclude, false );
+      return v[0]->cls();
+    }
+    catch ( NoSuchAnnotation ){
+      return _parent->language();
+    }
+    return "";
+  }
+
   bool FoliaElement::hastext( const string& cls ) const {
     // does this element have a TextContent with class 'cls'
     // Default is class="current"

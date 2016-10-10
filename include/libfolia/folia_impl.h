@@ -358,6 +358,7 @@ namespace folia {
     virtual const std::string endtime() const = 0;
     virtual const std::string speech_src() const = 0;
     virtual const std::string speech_speaker() const = 0;
+    virtual const std::string language( const std::string& = "" ) const = 0;
     virtual double confidence() const = 0;
     virtual void confidence( double ) = 0;
     virtual ElementType element_id() const = 0;
@@ -594,7 +595,7 @@ namespace folia {
     const std::string endtime() const { return _endtime; };
     const std::string speech_src() const;
     const std::string speech_speaker() const;
-
+    const std::string language( const std::string& = "" ) const;
     const std::string href() const;
 
     double confidence() const { return _confidence; };
