@@ -154,6 +154,7 @@ namespace folia {
     FoliaElement* parseXml( );
 
     std::string id() const { return _id; };
+    std::string language() const { return _language; };
     void declare( AnnotationType::AnnotationType,
 		  const std::string&,
 		  const std::string& = "" );

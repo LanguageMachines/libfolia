@@ -793,15 +793,17 @@ namespace folia {
   }
 
   const string FoliaImpl::language( const string& st ) const {
-    try {
-      std::set<ElementType> exclude;
-      vector<LangAnnotation*> v = select<LangAnnotation>( st, exclude, false );
+    std::set<ElementType> exclude;
+    vector<LangAnnotation*> v = select<LangAnnotation>( st, exclude, false );
+    if ( v.size() > 0 ){
       return v[0]->cls();
     }
-    catch ( NoSuchAnnotation ){
-      return _parent->language();
+    else if ( _parent ){
+	return _parent->language( st );
     }
-    return "";
+    else {
+      return doc()->language();
+    }
   }
 
   bool FoliaElement::hastext( const string& cls ) const {
