@@ -799,7 +799,7 @@ namespace folia {
       return v[0]->cls();
     }
     else if ( _parent ){
-	return _parent->language( st );
+      return _parent->language( st );
     }
     else {
       return doc()->language();

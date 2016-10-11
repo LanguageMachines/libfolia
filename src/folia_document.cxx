@@ -503,16 +503,21 @@ namespace folia {
       KWargs att = getAttributes( node );
       string type = att["id"];
       string val = XmlContent( node );
-      if ( type == "title" )
+      if ( type == "title" ){
 	_title = val;
-      else if ( type == "date" )
+      }
+      else if ( type == "date" ){
 	_date = val;
-      else if ( type == "language" )
+      }
+      else if ( type == "language" ){
 	_language = val;
-      else if ( type == "publisher" )
+      }
+      else if ( type == "publisher" ){
 	_publisher = val;
-      else if ( type == "licence" )
+      }
+      else if ( type == "licence" ){
 	_license = val;
+      }
       else if ( _metadatatype != "native" ){
 	throw runtime_error( "meta tag with id=" + type
 			     + " requires 'native' metadataype." );
