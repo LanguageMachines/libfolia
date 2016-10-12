@@ -6,7 +6,7 @@
 #include "libfolia/folia_properties.h"
 
 //foliaspec:header
-//This file was last updated according to the FoLiA specification for version 1.3.1 on 2016-09-29 13:40:37, using foliaspec.py
+//This file was last updated according to the FoLiA specification for version 1.3.2 on 2016-10-12 11:19:21, using foliaspec.py
 //Code blocks after a foliaspec comment (until the next newline) are automatically generated. **DO NOT EDIT THOSE** and **DO NOT REMOVE ANY FOLIASPEC COMMENTS** !!!
 
 namespace folia {
@@ -23,7 +23,7 @@ namespace folia {
 
   //foliaspec:version_sub:SUB_VERSION
   //The FoLiA version (sub/rev)
-  const int SUB_VERSION = 1;
+  const int SUB_VERSION = 2;
 
   //foliaspec:namespace:NSFOLIA
   //The FoLiA XML namespace
