@@ -1,5 +1,6 @@
 README
 INSTALL
+ChangeLog
 Makefile
 Makefile.in
 aclocal.m4
@@ -33,6 +34,7 @@ m4/ltsugar.m4
 m4/ltversion.m4
 m4/lt~obsolete.m4
 m4/pkg.m4
+m4/ax_pthread.m4
 missing
 src/.deps/
 src/.libs/
