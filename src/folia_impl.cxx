@@ -767,9 +767,23 @@ namespace folia {
     return e;
   }
 
-  const string FoliaImpl::str( const string& ) const {
-    cerr << "Impl::str()" << endl;
-    return xmltag();
+  const string FoliaImpl::str( const string& cls ) const {
+    // if this is a TextContent or it may contain TextContent
+    // then return the associated text()
+    // otherwise fallback to the stagname.
+    if ( element_id() == TextContent_t ){
+      return UnicodeToUTF8(text(cls));
+    }
+    else {
+      auto it = accepted_data().find( TextContent_t );
+      if ( it == accepted_data().end() ) {
+	// No TextContent allowed
+	return xmltag();
+      }
+      else {
+	return UnicodeToUTF8(text(cls));
+      }
+    }
   }
 
   const string FoliaImpl::speech_src() const {
@@ -2127,14 +2141,6 @@ namespace folia {
     return result;
   }
 
-
-  const string TextContent::str( const string& cls ) const{
-#ifdef DEBUG_TEXT
-    cerr << "textContent::str(" << cls << ") this=" << this << endl;
-#endif
-    return UnicodeToUTF8(text(cls));
-  }
-
   const UnicodeString TextContent::text( const string& cls,
 					 bool retaintok,
 					 bool ) const {
@@ -2616,11 +2622,6 @@ namespace folia {
     Correction *tmp = correct( ov, nil, nv, sugg, args );
     //    cerr << xmltag() << "::correct() ==> " << this << endl;
     return tmp;
-  }
-
-  const string AbstractStructureElement::str( const string& cls ) const{
-    UnicodeString result = text( cls );
-    return UnicodeToUTF8(result);
   }
 
   FoliaElement *AbstractStructureElement::append( FoliaElement *child ) {

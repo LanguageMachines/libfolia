@@ -764,7 +764,6 @@ namespace folia {
     AbstractStructureElement( Document *d=0 ):
       FoliaImpl( PROPS, d ) { classInit(); };
     public:
-      const std::string str( const std::string& = "current" ) const;
       std::vector<Alternative *> alternatives( ElementType = BASE,
 					       const std::string& = "" ) const;
 
@@ -964,7 +963,6 @@ namespace folia {
     FoliaImpl( PROPS, d ){ classInit(a); }
     void setAttributes( const KWargs& );
     KWargs collectAttributes() const;
-    const std::string str( const std::string& = "current" ) const;
     const UnicodeString text( const std::string& = "current",
 			      bool = false, bool = false ) const;
     int offset() const { return _offset; };
@@ -1230,7 +1228,6 @@ namespace folia {
     AbstractTokenAnnotation( PROPS, d ){ classInit(); }
   String( const KWargs& a, Document *d =0 ):
     AbstractTokenAnnotation( PROPS, d ){ classInit( a ); }
-
   private:
     static properties PROPS;
     };
