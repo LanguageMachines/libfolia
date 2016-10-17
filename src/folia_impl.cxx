@@ -770,20 +770,23 @@ namespace folia {
   const string FoliaImpl::str( const string& cls ) const {
     // if this is a TextContent or it may contain TextContent
     // then return the associated text()
-    // otherwise fallback to the stagname.
-    if ( element_id() == TextContent_t ){
-      return UnicodeToUTF8(text(cls));
+    // if this is a PhonContent or it may contain PhonContent
+    // then return the associated phon()
+    // otherwise fallback to the tagname.
+    UnicodeString us;
+    try {
+      us = text(cls);
     }
-    else {
-      auto it = accepted_data().find( TextContent_t );
-      if ( it == accepted_data().end() ) {
-	// No TextContent allowed
-	return xmltag();
+    catch( NoSuchText& e ){
+      try {
+	us = phon(cls);
       }
-      else {
-	return UnicodeToUTF8(text(cls));
+      catch( NoSuchText& e ){
+	// No TextContent or Phone allowed
+	us = xmltag().c_str();
       }
     }
+    return UnicodeToUTF8( us );
   }
 
   const string FoliaImpl::speech_src() const {
