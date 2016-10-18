@@ -1,16 +1,16 @@
 1.4  2016-10-18
 [Ko van der Sloot]
 * Now fully implements Folia spec 1.3.2
-   - multiple ForeignData noded
+   - multiple ForeignData nodes
    - added more Feature nodes, like Polarity, Strenght
    - Source, Target, Relation, Predicate, Sentiment Statement,
      Observation Annotations and Layers.
    - Comment node
-   - better version checking.(and a bit relaxed tot)
+   - better version checking.(and a bit relaxed too)
 * some bug fixes and code improvement.
   - str() works more as expected
   - fixup ref 'id' vs. 'xml:id'
-  - improved sanity check to test errors in the specs better.
+  - improved sanity check to better test errors in the specs.
 
 * added language getter and setter.
 
