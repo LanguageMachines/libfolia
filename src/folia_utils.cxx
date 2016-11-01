@@ -485,24 +485,12 @@ namespace folia {
   }
 
   bool isNCName( const string& s ){
-    const string extra=".-_";
-    if ( s.empty() ){
-      throw XmlError( "an empty string is not a valid NCName." );
-    }
-    else if ( !isalpha(s[0]) ){
+    int test = xmlValidateNCName( (const xmlChar*)s.c_str(), 0 );
+    if ( test != 0 ){
       throw XmlError( "'"
 		      + s
-		      + "' is not a valid NCName. (must start with character)." );
-    }
-    else {
-      for ( const auto& let : s ){
-	if ( !isalnum(let) &&
-	     extra.find(let) == string::npos ){
-	  throw XmlError( "'" + s
-			  + "' is not a valid NCName.(invalid '"
-			  + char(let) + "' found" );
-	}
-      }
+		      + "' is not a valid NCName." );
+      return false;
     }
     return true;
   }
