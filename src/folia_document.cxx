@@ -368,8 +368,8 @@ namespace folia {
 	return toXml( fn, nsLabel, kanon );
       }
     }
-    catch ( ... ){
-      throw runtime_error( "saving to file " + fn + " failed" );
+    catch ( const exception& e ){
+      throw runtime_error( "saving to file " + fn + " failed: " + e.what() );
       return false;
     }
   }
