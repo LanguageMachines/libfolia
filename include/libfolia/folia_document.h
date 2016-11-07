@@ -105,9 +105,9 @@ namespace folia {
     void set_foreign_metadata( xmlNode * );
     void addStyle( const std::string&, const std::string& );
     void replaceStyle( const std::string&, const std::string& );
-    std::string text( const std::string& = "current",
-		      bool = false,
-		      bool = false ) const;
+    UnicodeString text( const std::string& = "current",
+			bool = false,
+			bool = false ) const;
     std::vector<Paragraph*> paragraphs() const;
     std::vector<Sentence*> sentences() const;
     std::vector<Sentence*> sentenceParts() const;
