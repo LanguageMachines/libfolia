@@ -403,9 +403,9 @@ namespace folia {
   }
 
   UnicodeString Document::text( const std::string& cls,
-				bool retainttok,
+				bool retaintok,
 				bool strict ) const {
-    return "Document::text() not implemented yet";
+    return foliadoc->text( cls, retaintok, strict );
   }
 
   vector<Paragraph*> Document::paragraphs() const {

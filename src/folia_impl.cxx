@@ -900,6 +900,26 @@ namespace folia {
     }
   }
 
+  const UnicodeString FoLiA::text( const string& cls,
+				   bool retaintok,
+				   bool strict ) const {
+#ifdef DEBUG_TEXT
+    cerr << "FoLiA::TEXT(" << cls << ")" << endl;
+#endif
+    UnicodeString result;
+    for ( const auto& d : data ){
+      if ( !result.isEmpty() ){
+	const string& delim = d->getTextDelimiter( retaintok );
+	result += UTF8ToUnicode(delim);
+      }
+      result += d->text( cls, retaintok, strict );
+    }
+#ifdef DEBUG_TEXT
+    cerr << "FoLiA::TEXT returnes '" << result << "'" << endl;
+#endif
+    return result;
+  }
+
   UnicodeString trim_space( const UnicodeString& in ){
     UnicodeString cmp = " ";
     //    cerr << "in = '" << in << "'" << endl;
