@@ -882,8 +882,6 @@ namespace folia {
     void setAttributes( const KWargs& );
     KWargs collectAttributes() const;
     const FoliaElement* resolveid() const;
-    const UnicodeString text( const std::string& = "current",
-			      bool = false, bool = false ) const;
   protected:
     const std::string& getTextDelimiter( bool ) const { return EMPTY_STRING; };
     std::string idref;
@@ -963,8 +961,6 @@ namespace folia {
     FoliaImpl( PROPS, d ){ classInit(a); }
     void setAttributes( const KWargs& );
     KWargs collectAttributes() const;
-    const UnicodeString text( const std::string& = "current",
-			      bool = false, bool = false ) const;
     int offset() const { return _offset; };
     TextContent *postappend();
     std::vector<FoliaElement*> findreplacables( FoliaElement * ) const;

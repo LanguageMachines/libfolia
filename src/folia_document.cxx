@@ -402,6 +402,12 @@ namespace folia {
       throw range_error( "Document index out of range" );
   }
 
+  UnicodeString Document::text( const std::string& cls,
+				bool retainttok,
+				bool strict ) const {
+    return "Document::text() not implemented yet";
+  }
+
   vector<Paragraph*> Document::paragraphs() const {
     return foliadoc->select<Paragraph>();
   }

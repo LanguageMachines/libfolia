@@ -870,6 +870,21 @@ namespace folia {
     if ( strict ) {
       return textcontent(cls)->text();
     }
+    else if ( element_id() == TextContent_t
+	      || element_id() == AbstractTextMarkup_t ){ // TEXTCONTAINER property
+      UnicodeString result;
+      for ( const auto& d : data ){
+	if ( !result.isEmpty() ){
+	  const string& delim = d->getTextDelimiter( retaintok );
+	  result += UTF8ToUnicode(delim);
+	}
+	result += d->text( cls );
+      }
+#ifdef DEBUG_TEXT
+      cerr << "TEXT op a textcontainer :" << xmltag() << " returned '" << result << "'" << endl;
+#endif
+      return result;
+    }
     else if ( !printable() ) {
       throw NoSuchText( "NON printable element: " + xmltag() );
     }
@@ -2141,41 +2156,6 @@ namespace folia {
       }
     }
     //  cerr << "TextContent::findreplacable resultaat " << v << endl;
-    return result;
-  }
-
-  const UnicodeString TextContent::text( const string& cls,
-					 bool retaintok,
-					 bool ) const {
-    // get the UnicodeString value of underlying elements
-    // default cls="current"
-#ifdef DEBUG_TEXT
-    cerr << "TextContent::TEXT(" << cls << ") " << endl;
-#endif
-    UnicodeString result;
-    for ( const auto& el : data ) {
-      // try to get text dynamically from children
-#ifdef DEBUG_TEXT
-      cerr << "TextContent: bekijk node[" << el->xmltag() << "]" << endl;
-#endif
-      try {
-#ifdef DEBUG_TEXT
-	cerr << "roep text(" << cls << ") aan op " << el << endl;
-#endif
-	UnicodeString tmp = el->text( cls, retaintok );
-#ifdef DEBUG_TEXT
-	cerr << "TextContent found '" << tmp << "'" << endl;
-#endif
-	result += tmp;
-      } catch ( NoSuchText& e ) {
-#ifdef DEBUG_TEXT
-	cerr << "TextContent::HELAAS" << endl;
-#endif
-      }
-    }
-#ifdef DEBUG_TEXT
-    cerr << "TextContent return " << result << endl;
-#endif
     return result;
   }
 
@@ -3985,12 +3965,6 @@ namespace folia {
       argl.erase( it );
     }
     FoliaImpl::setAttributes( argl );
-  }
-
-  const UnicodeString AbstractTextMarkup::text( const string& cls,
-						bool, bool ) const {
-    // we assume al TextMarkup to be tokenized already
-    return FoliaImpl::text( cls, true );
   }
 
   const UnicodeString TextMarkupCorrection::text( const string& cls,
