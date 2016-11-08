@@ -180,7 +180,9 @@ namespace folia {
 	_id = it->second;
       }
       else {
-	// isNCName throws
+	throw XmlError( "'"
+			+ it->second
+			+ "' is not a valid NCName." );
       }
       happy = true;
     }
@@ -875,7 +877,10 @@ namespace folia {
 	    if ( isNCName( result->id() ) )
 	      _id = result->id();
 	    else {
-	      // isNCName throws
+	      // can this ever happen? parseFoliaDoc should fail
+	      throw XmlError( "'"
+			      + result->id()
+			      + "' is not a valid NCName." );
 	    }
 	  }
 	}

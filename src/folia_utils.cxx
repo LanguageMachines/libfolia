@@ -487,9 +487,6 @@ namespace folia {
   bool isNCName( const string& s ){
     int test = xmlValidateNCName( (const xmlChar*)s.c_str(), 0 );
     if ( test != 0 ){
-      throw XmlError( "'"
-		      + s
-		      + "' is not a valid NCName." );
       return false;
     }
     return true;

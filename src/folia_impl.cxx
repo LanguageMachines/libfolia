@@ -235,15 +235,15 @@ namespace folia {
 	  throw ValueError("ID is not supported for " + classname() );
 	}
 	else {
-	  try {
-	    isNCName( it->second );
+	  if ( isNCName( it->second ) ){
+	    _id = it->second;
+	    kwargs.erase( it );
 	  }
-	  catch ( const XmlError& xe ){
-	    throw XmlError( "while processing a " + classname() + " node:\n"
-			      + xe.what() );
+	  else {
+	    throw XmlError( "'"
+			    + it->second
+			    + "' is not a valid NCName." );
 	  }
-	  _id = it->second;
-	  kwargs.erase( it );
 	}
       }
     }
