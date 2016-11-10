@@ -3843,14 +3843,19 @@ namespace folia {
       if ( _subset.empty() ){
 	throw ValueError("subset attribute is required for " + classname() );
       }
-
     }
     else {
+      if ( it->second.empty() ) {
+	throw ValueError("subset attribute may never be empty: " + classname() );
+      }
       _subset = it->second;
     }
     it = kwargs.find( "class" );
     if ( it == kwargs.end() ) {
       throw ValueError("class attribute is required for " + classname() );
+    }
+    if ( it->second.empty() ) {
+      throw ValueError("class attribute may never be empty: " + classname() );
     }
     _class = it->second;
   }
