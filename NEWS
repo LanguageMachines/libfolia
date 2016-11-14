@@ -1,3 +1,12 @@
+1.5  2016-11-14
+[Ko van der Sloot]
+* Bumped the .so name. Should have been done in 1.4!
+* addition: text() mebmer for document-
+* minor bug fixes:
+  - isNCname test now conforms to XML definition
+  - improved am error messag in Document
+  - check empty attributes in Feature() construction
+
 1.4  2016-10-18
 [Ko van der Sloot]
 * Now fully implements Folia spec 1.3.2
