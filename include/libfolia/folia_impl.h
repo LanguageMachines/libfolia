@@ -716,6 +716,7 @@ namespace folia {
     }
   private:
     std::string IDgen( const std::string&, const FoliaElement* );
+    std::string IDgen( const std::string&, FoliaElement* );
     std::map<std::string, int> id_map;
   };
 

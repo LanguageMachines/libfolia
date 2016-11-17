@@ -2215,21 +2215,30 @@ namespace folia {
   }
 
   string AllowGenerateID::IDgen( const string& tag,
-				 const FoliaElement* parent ) {
+				 FoliaElement *parent ) {
+    FoliaElement *p = parent;
     string nodeId = parent->id();
-    if ( nodeId.empty() ) {
-      // search nearest parent WITH an id
-      const FoliaElement *p = parent;
-      while ( p && p->id().empty() )
-	p = p->parent();
-      nodeId = p->id();
+    // search nearest parent WITH an id
+    while ( p && p->id().empty() ){
+      p = p->parent();
     }
+    nodeId = p->id();
     //    cerr << "generateId," << tag << " nodeId = " << nodeId << endl;
-    int max = getMaxId(tag);
+    AllowGenerateID* ag = dynamic_cast<AllowGenerateID*>( p );
+    if ( ag == 0 ){
+      throw( XmlError( "unable to generate and ID. No StructureElement parent found?" ) );
+    }
+    int max = ag->getMaxId(tag);
     //    cerr << "MAX = " << max << endl;
-    string id = nodeId + '.' + tag + '.' +  TiCC::toString( max + 1 );
+    string id = nodeId + '.' + tag + '.' +  TiCC::toString( max );
     //    cerr << "new id = " << id << endl;
     return id;
+  }
+
+  string AllowGenerateID::IDgen( const string&,
+				 const FoliaElement * ) {
+    throw( XmlError( "DO NOT CALL" ) );
+    return "hah";
   }
 
   void AllowGenerateID::setMaxId( FoliaElement *child ) {
@@ -2262,8 +2271,7 @@ namespace folia {
   int AllowGenerateID::getMaxId( const string& xmltag ) {
     int res = 0;
     if ( !xmltag.empty() ) {
-      res = id_map[xmltag];
-      ++id_map[xmltag];
+      res = ++id_map[xmltag];
     }
     return res;
   }
