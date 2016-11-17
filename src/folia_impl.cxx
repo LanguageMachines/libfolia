@@ -2235,10 +2235,10 @@ namespace folia {
     return id;
   }
 
-  string AllowGenerateID::IDgen( const string&,
-				 const FoliaElement * ) {
-    throw( XmlError( "DO NOT CALL" ) );
-    return "hah";
+  string AllowGenerateID::IDgen( const string& tag,
+				 const FoliaElement *parent ) {
+    FoliaElement *bah = const_cast<FoliaElement *>( parent );
+    return IDgen( tag, bah );
   }
 
   void AllowGenerateID::setMaxId( FoliaElement *child ) {

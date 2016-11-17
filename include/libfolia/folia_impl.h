@@ -715,7 +715,10 @@ namespace folia {
       return IDgen( tag, this );
     }
   private:
+    // remove this ASAP
+    // but breaks ABI
     std::string IDgen( const std::string&, const FoliaElement* );
+    // ^^^^^^^^^^^^^^^^
     std::string IDgen( const std::string&, FoliaElement* );
     std::map<std::string, int> id_map;
   };
