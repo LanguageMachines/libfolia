@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2006 - 2016
+  Copyright (c) 2006 - 2017
   CLST  - Radboud University
   ILK   - Tilburg University
 
@@ -1335,7 +1335,7 @@ namespace folia {
 	      tmp1 = matched;
 	    vector<Word*> tmp2;
 	    if ( rightcontext > 0 ){
-	      tmp2 = matched[matched.size()-1]->rightcontext(rightcontext);
+	      tmp2 = matched.back()->rightcontext(rightcontext);
 	      //	    cerr << "findnodes() tmp2 ==> " << tmp2 << endl;
 	      copy( tmp2.begin(), tmp2.end(), back_inserter(tmp1) );
 	      //	    cerr << "findnodes() tmp2 na copy ==> " << tmp2 << endl;
