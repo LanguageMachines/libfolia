@@ -2216,6 +2216,11 @@ namespace folia {
 
   string AllowGenerateID::IDgen( const string& tag,
 				 FoliaElement *parent ) {
+    // this is quite ugly code to keep ABI intact
+    // if the 'parent' does not have an ID, we should call
+    // generateID on its parent.
+    // atm that is impossible: generateID is defined on FoliaImpl,
+    // NOT FoliaElement
     FoliaElement *p = parent;
     string nodeId = parent->id();
     // search nearest parent WITH an id
