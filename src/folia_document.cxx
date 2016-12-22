@@ -155,7 +155,8 @@ namespace folia {
     it = kwargs.find( "mode" );
     if ( it != kwargs.end() ){
       mode = it->second;
-      if ( mode != "permissive" && mode != "strip" ){
+      if ( mode != "permissive"
+	   && mode != "strip" ){
 	throw runtime_error( "FoLiA::Document: unsupported mode value: "+mode );
       }
     }
@@ -327,7 +328,7 @@ namespace folia {
 
   ostream& operator<<( ostream& os, const Document *d ){
     if ( d ){
-      string s = d->toXml();
+      string s = d->toXml( "", (d->mode == "strip") );
       os << s << endl;
     }
     else {
@@ -337,7 +338,7 @@ namespace folia {
   }
 
   bool Document::save( ostream& os, const string& nsLabel, bool kanon ) {
-    string s = toXml( nsLabel, kanon );
+    string s = toXml( nsLabel, ( kanon || (mode == "strip") ) );
     os << s << endl;
     return os.good();
   }
@@ -346,7 +347,7 @@ namespace folia {
     try {
       if ( match_back( fn, ".bz2" ) ){
 	string tmpname = fn.substr( 0, fn.length() - 3 ) + "tmp";
-	if ( toXml( tmpname, nsLabel, kanon ) ){
+	if ( toXml( tmpname, nsLabel, ( kanon || mode == "strip" ) ) ){
 	  bool stat = bz2Compress( tmpname, fn );
 	  remove( tmpname.c_str() );
 	  return stat;
@@ -357,7 +358,7 @@ namespace folia {
       }
       else  if ( match_back( fn, ".gz" ) ){
 	string tmpname = fn.substr( 0, fn.length() - 2 ) + "tmp";
-	if ( toXml( tmpname, nsLabel, kanon ) ){
+	if ( toXml( tmpname, nsLabel,  ( kanon || mode == "strip" ) ) ){
 	  bool stat = gzCompress( tmpname, fn );
 	  remove( tmpname.c_str() );
 	  return stat;
@@ -367,7 +368,7 @@ namespace folia {
 	}
       }
       else {
-	return toXml( fn, nsLabel, kanon );
+	return toXml( fn, nsLabel,  ( kanon || mode == "strip" ) );
       }
     }
     catch ( const exception& e ){
