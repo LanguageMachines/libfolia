@@ -102,7 +102,8 @@ int main( int argc, char* argv[] ){
 	cmd += ", mode='strip'";
       folia::Document d( cmd );
       if ( !outputName.empty() ){
-	d.save( outputName );
+	d.save( outputName, "", strip );
+	// strip implies kanon. makes foliadiff easy
       }
       else if ( !nooutput ){
 	cout << d;
