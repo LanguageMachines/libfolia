@@ -710,16 +710,8 @@ namespace folia {
   class AllowGenerateID: public virtual FoliaElement {
   public:
     void setMaxId( FoliaElement * );
-    int getMaxId( const std::string& );
-    const std::string generateId( const std::string& tag ){
-      return IDgen( tag, this );
-    }
+    const std::string generateId( const std::string& tag );
   private:
-    // remove this ASAP
-    // but breaks ABI
-    std::string IDgen( const std::string&, const FoliaElement* );
-    // ^^^^^^^^^^^^^^^^
-    std::string IDgen( const std::string&, FoliaElement* );
     std::map<std::string, int> id_map;
   };
 

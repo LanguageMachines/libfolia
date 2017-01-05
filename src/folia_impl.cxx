@@ -2214,36 +2214,30 @@ namespace folia {
     return result;
   }
 
-  string AllowGenerateID::IDgen( const string& tag,
-				 FoliaElement *parent ) {
-    // this is quite ugly code to keep ABI intact
-    // if the 'parent' does not have an ID, we should call
-    // generateID on its parent.
-    // atm that is impossible: generateID is defined on FoliaImpl,
-    // NOT FoliaElement
-    FoliaElement *p = parent;
-    string nodeId = parent->id();
-    // search nearest parent WITH an id
-    while ( p && p->id().empty() ){
-      p = p->parent();
+  const string AllowGenerateID::generateId( const string& tag ){
+    // generate an new ID using my ID
+    // if ni ID, look upward.
+    string nodeId = id();
+    // cerr << "node: " << this << endl;
+    // cerr << "ID=" << nodeId << endl;
+    if ( nodeId.empty() ){
+      FoliaElement *par = parent();
+      if ( !par ){
+	throw XmlError( "unable to generate an ID. No StructureElement parent found?" );
+      }
+      // cerr << "call on parent:" << parent << endl;
+      return par->generateId( tag );
     }
-    nodeId = p->id();
-    //    cerr << "generateId," << tag << " nodeId = " << nodeId << endl;
-    AllowGenerateID* ag = dynamic_cast<AllowGenerateID*>( p );
-    if ( ag == 0 ){
-      throw( XmlError( "unable to generate and ID. No StructureElement parent found?" ) );
+    else {
+      int max = 0;
+      if ( !tag.empty() ) {
+	max = ++id_map[tag];
+      }
+      // cerr << "MAX = " << max << endl;
+      string id = nodeId + '.' + tag + '.' +  TiCC::toString( max );
+      // cerr << "new id = " << id << endl;
+      return id;
     }
-    int max = ag->getMaxId(tag);
-    //    cerr << "MAX = " << max << endl;
-    string id = nodeId + '.' + tag + '.' +  TiCC::toString( max );
-    //    cerr << "new id = " << id << endl;
-    return id;
-  }
-
-  string AllowGenerateID::IDgen( const string& tag,
-				 const FoliaElement *parent ) {
-    FoliaElement *bah = const_cast<FoliaElement *>( parent );
-    return IDgen( tag, bah );
   }
 
   void AllowGenerateID::setMaxId( FoliaElement *child ) {
@@ -2271,14 +2265,6 @@ namespace folia {
 	}
       }
     }
-  }
-
-  int AllowGenerateID::getMaxId( const string& xmltag ) {
-    int res = 0;
-    if ( !xmltag.empty() ) {
-      res = ++id_map[xmltag];
-    }
-    return res;
   }
 
   //#define DEBUG_CORRECT 1
