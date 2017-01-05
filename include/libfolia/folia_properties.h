@@ -27,12 +27,15 @@ namespace folia {
     size_t OCCURRENCES;
     size_t OCCURRENCES_PER_SET;
     std::string TEXTDELIMITER;
-    bool PRINTABLE;
-    bool SPEAKABLE;
+    bool PRINTABLE; // does text() work on this element
+    bool SPEAKABLE; // does phon() work on this element
     bool XLINK;
     bool AUTH;
     bool SETONLY;
     bool AUTO_GENERATE_ID;
+    bool TEXTCONTAINER;
+    bool PHONCONTAINER;
+    std::string LABEL;
   };
 
   extern const std::set<std::string> AttributeFeatures;
