@@ -1,9 +1,9 @@
-1.6  2016-01-05
+1.6  2017-01-05
 * We now implement FoLiA spec 1.4
 * ABI breakage. .so name bumped to 6.0.0
   reason:
   - new properties added
-  - implementation of generateId() is chaneged
+  - implementation of generateId() is changed
 * enhancements to folialint. Saving a document with --strip also
   implies canonical output
 * some bug fixes
