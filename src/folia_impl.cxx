@@ -101,6 +101,14 @@ namespace folia {
     return _props.SPEAKABLE;
   }
 
+  bool FoliaImpl::is_textcontainer() const {
+    return _props.TEXTCONTAINER;
+  }
+
+  bool FoliaImpl::is_phoncontainer() const {
+    return _props.PHONCONTAINER;
+  }
+
   bool FoliaImpl::xlink() const {
     return _props.XLINK;
   }
@@ -870,8 +878,7 @@ namespace folia {
     if ( strict ) {
       return textcontent(cls)->text();
     }
-    else if ( element_id() == TextContent_t
-	      || element_id() == AbstractTextMarkup_t ){ // TEXTCONTAINER property
+    else if ( is_textcontainer() ){
       UnicodeString result;
       for ( const auto& d : data ){
 	if ( !result.isEmpty() ){

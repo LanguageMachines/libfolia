@@ -614,6 +614,8 @@ namespace folia {
     const std::set<ElementType>& required_data() const;
     bool printable() const;
     bool speakable() const;
+    bool is_textcontainer() const;
+    bool is_phoncontainer() const;
     bool xlink() const;
     bool auth() const;
     bool setonly() const;
