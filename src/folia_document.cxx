@@ -280,7 +280,7 @@ namespace folia {
       foliadoc = parseXml();
       if ( debug ){
 	if ( foliadoc ){
-	  cout << "succesful parsed the doc" << endl;
+	  cout << "successful parsed the doc" << endl;
 	}
 	else
 	  cout << "failed to parse the doc" << endl;
@@ -312,7 +312,7 @@ namespace folia {
       foliadoc = parseXml();
       if ( debug ){
 	if ( foliadoc ){
-	  cout << "succesful parsed the doc" << endl;
+	  cout << "successful parsed the doc" << endl;
 	}
 	else
 	  cout << "failed to parse the doc" << endl;

@@ -1585,7 +1585,7 @@ namespace folia {
       if ( !ns.empty() && ns != NSFOLIA ){
 	// skip alien nodes
 	if ( doc() && doc()->debug > 2 ) {
-	  cerr << "skiping non-FoLiA node: " << pref << ":" << Name(p) << endl;
+	  cerr << "skipping non-FoLiA node: " << pref << ":" << Name(p) << endl;
 	}
 	p = p->next;
 	continue;
