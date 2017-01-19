@@ -86,7 +86,6 @@ namespace folia {
     bool quoted = false;
     bool parseatt = true;
     bool escaped = false;
-    vector<string> parts;
     string att;
     string val;
     for ( const auto& let : s ){
@@ -236,9 +235,8 @@ namespace folia {
   }
 
   int toMonth( const string& ms ){
-    int result = 0;
     try {
-      result = stringTo<int>( ms );
+      int result = stringTo<int>( ms );
       return result - 1;
     }
     catch( exception ){
@@ -350,11 +348,11 @@ namespace folia {
     }
     //    cerr << "try to read a time " << s << endl;
     vector<string> time_parts;
-    string mil = "000";
     tm *time = new tm();
     int num = TiCC::split_at( s, time_parts, ":" );
     if ( num != 3 ){
       cerr << "failed to read a time " << s << endl;
+      delete time;
       return "";
     }
     time->tm_min = stringTo<int>( time_parts[1] );

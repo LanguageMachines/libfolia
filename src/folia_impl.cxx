@@ -1250,7 +1250,7 @@ namespace folia {
       throw runtime_error( "Unable to replace. Multiple candidates found, unable to choose." );
     }
     else {
-      remove( replace[0], true );
+      this->remove( replace[0], true );
       append( child );
     }
   }
@@ -1474,7 +1474,7 @@ namespace folia {
     bool ok = false;
     try {
       ok = child->checkAtts();
-      ok = addable( child );
+      ok &= addable( child );
     }
     catch ( XmlError& ) {
       // don't delete the offending child in case of illegal reconnection
@@ -1852,7 +1852,7 @@ namespace folia {
     }
     catch( DuplicateIDError& e ) {
       delete res;
-      throw e;
+      throw;
     }
     append( res );
     return res;
@@ -1870,7 +1870,7 @@ namespace folia {
     }
     catch( DuplicateIDError& e ) {
       delete res;
-      throw e;
+      throw;
     }
     append( res );
     return res;
@@ -2446,7 +2446,7 @@ namespace folia {
 	      cerr << " corr before remove " << corr << endl;
 	      cerr << " remove  " << org << endl;
 #endif
-	      remove( org, false );
+	      this->remove( org, false );
 #ifdef DEBUG_CORRECT
 	      cerr << " corr after remove " << corr << endl;
 #endif
@@ -2519,7 +2519,7 @@ namespace folia {
 		cerr << " corr before remove " << corr << endl;
 		cerr << " remove  " << org << endl;
 #endif
-		remove( org, false );
+		this->remove( org, false );
 #ifdef DEBUG_CORRECT
 		cerr << " corr after remove " << corr << endl;
 #endif
@@ -2540,7 +2540,7 @@ namespace folia {
 #ifdef DEBUG_CORRECT
 	  cerr << " remove cur=" << cur << endl;
 #endif
-	  remove( cur, false );
+	  this->remove( cur, false );
 	}
       }
     }
