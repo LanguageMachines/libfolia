@@ -1,5 +1,5 @@
 AM_CPPFLAGS = -I@top_srcdir@/include
-AM_CXXFLAGS = -std=c++0x -g -O3 # -Weffc++
+AM_CXXFLAGS = -std=c++0x -g -O3 -W -Wall -pedantic
 
 
 LDADD = libfolia.la

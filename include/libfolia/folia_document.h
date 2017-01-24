@@ -81,7 +81,7 @@ namespace folia {
     friend std::ostream& operator<<( std::ostream&, const Document * );
   public:
     Document();
-    Document( const std::string& );
+    explicit Document( const std::string& );
     ~Document();
     void init();
     bool readFromFile( const std::string& );

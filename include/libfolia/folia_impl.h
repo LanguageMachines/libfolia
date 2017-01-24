@@ -759,7 +759,7 @@ namespace folia {
       // DO NOT USE AbstractStructureElement as a real node!!
     AbstractStructureElement( const properties& props, Document *d=0 ):
       FoliaImpl( props, d ){ classInit(); };
-    AbstractStructureElement( Document *d=0 ):
+      explicit AbstractStructureElement( Document *d=0 ):
       FoliaImpl( PROPS, d ) { classInit(); };
     public:
       std::vector<Alternative *> alternatives( ElementType = BASE,
@@ -789,7 +789,7 @@ namespace folia {
     // DO NOT USE AbstractTokenAnnotation as a real node!!
     AbstractTokenAnnotation( const properties& props, Document *d=0 ):
       FoliaImpl( props, d ){ classInit(); };
-    AbstractTokenAnnotation( Document *d=0 ):
+      explicit AbstractTokenAnnotation( Document *d=0 ):
       FoliaImpl( PROPS, d ){ classInit(); };
 
     private:
@@ -808,7 +808,7 @@ namespace folia {
       // DO NOT USE AbstractSpanAnnotation as a real node!!
     AbstractSpanAnnotation( const properties& props, Document *d=0 ):
       FoliaImpl( props, d ){ classInit(); };
-    AbstractSpanAnnotation( Document *d=0 ):
+      explicit AbstractSpanAnnotation( Document *d=0 ):
       FoliaImpl( PROPS, d ){ classInit(); };
     public:
       xmlNode *xml( bool, bool=false ) const;
@@ -825,10 +825,10 @@ namespace folia {
     {
       friend void static_init();
     protected:
-    // DO NOT USE AbstractExtendedTokenAnnotation as a real node!!
+      // DO NOT USE AbstractExtendedTokenAnnotation as a real node!!
     AbstractExtendedTokenAnnotation( const properties& props, Document *d=0 ):
       AbstractTokenAnnotation( props, d ){ classInit(); };
-    AbstractExtendedTokenAnnotation( Document *d=0 ):
+      explicit AbstractExtendedTokenAnnotation( Document *d=0 ):
       AbstractTokenAnnotation( PROPS, d ){ classInit(); };
 
     private:
@@ -838,7 +838,7 @@ namespace folia {
   class ComplexAlignment: public FoliaImpl {
     friend void static_init();
   public:
-  ComplexAlignment( Document *d=0 ):
+    explicit ComplexAlignment( Document *d=0 ):
     FoliaImpl( PROPS, d ){ classInit(); }
   ComplexAlignment( const KWargs& a, Document *d=0 ):
     FoliaImpl( PROPS, d ){ classInit( a ); }
@@ -850,10 +850,10 @@ namespace folia {
   class ForeignData: public FoliaImpl {
     friend void static_init();
   public:
+    explicit ForeignData( Document *d=0 ):
+    FoliaImpl( PROPS, d ){ classInit(); };
   ForeignData( const properties& props, Document *d=0 ):
     FoliaImpl( props, d ){ classInit(); };
-  ForeignData( Document *d=0 ):
-    FoliaImpl( PROPS, d ){ classInit(); };
     ~ForeignData();
 
     FoliaElement* parseXml( const xmlNode * );
@@ -874,7 +874,7 @@ namespace folia {
     // DO NOT USE AbstractTextMarkup as a real node!!
   AbstractTextMarkup( const properties& props, Document *d=0 ):
     FoliaImpl( props, d ){ classInit(); };
-  AbstractTextMarkup( Document *d=0 ):
+    explicit AbstractTextMarkup( Document *d=0 ):
     FoliaImpl( PROPS, d ){ classInit(); };
   public:
     void setAttributes( const KWargs& );
@@ -890,7 +890,7 @@ namespace folia {
   class TextMarkupGap: public AbstractTextMarkup {
     friend void static_init();
   public:
-  TextMarkupGap( Document *d=0 ):
+    explicit TextMarkupGap( Document *d=0 ):
     AbstractTextMarkup( PROPS, d ) { classInit(); };
   TextMarkupGap(  const KWargs& a, Document *d=0 ):
     AbstractTextMarkup( PROPS, d ) { classInit(a); };
@@ -901,7 +901,7 @@ namespace folia {
   class TextMarkupString: public AbstractTextMarkup {
     friend void static_init();
   public:
-  TextMarkupString( Document *d=0 ):
+  explicit TextMarkupString( Document *d=0 ):
     AbstractTextMarkup( PROPS, d ) { classInit(); };
   TextMarkupString( const KWargs& a, Document *d=0 ):
     AbstractTextMarkup( PROPS, d ) { classInit(a); };
@@ -912,7 +912,7 @@ namespace folia {
   class TextMarkupCorrection: public AbstractTextMarkup {
     friend void static_init();
   public:
-  TextMarkupCorrection( Document *d=0 ):
+    explicit TextMarkupCorrection( Document *d=0 ):
     AbstractTextMarkup( PROPS, d ){ classInit(); };
   TextMarkupCorrection( const KWargs& a, Document *d=0 ):
     AbstractTextMarkup( PROPS, d ) { classInit(a); };
@@ -929,7 +929,7 @@ namespace folia {
   class TextMarkupError: public AbstractTextMarkup {
     friend void static_init();
   public:
-  TextMarkupError( Document *d=0 ):
+    explicit TextMarkupError( Document *d=0 ):
     AbstractTextMarkup( PROPS, d ){ classInit(); };
   TextMarkupError( const KWargs& a, Document *d=0 ):
     AbstractTextMarkup( PROPS, d ) { classInit(a); };
@@ -941,7 +941,7 @@ namespace folia {
   class TextMarkupStyle: public AbstractTextMarkup {
     friend void static_init();
   public:
-  TextMarkupStyle( Document *d=0 ):
+    explicit TextMarkupStyle( Document *d=0 ):
     AbstractTextMarkup( PROPS, d ){ classInit(); };
   TextMarkupStyle( const KWargs& a, Document *d=0 ):
     AbstractTextMarkup( PROPS, d ) { classInit(a); };
@@ -953,7 +953,7 @@ namespace folia {
   class TextContent: public FoliaImpl {
     friend void static_init();
   public:
-  TextContent( Document *d = 0 ):
+    explicit TextContent( Document *d = 0 ):
     FoliaImpl( PROPS, d ){ classInit(); }
   TextContent( const KWargs& a, Document *d=0 ):
     FoliaImpl( PROPS, d ){ classInit(a); }
@@ -971,7 +971,7 @@ namespace folia {
   class PhonContent: public FoliaImpl {
     friend void static_init();
   public:
-  PhonContent( Document *d = 0 ):
+  explicit PhonContent( Document *d = 0 ):
     FoliaImpl(PROPS,d){ classInit(); }
   PhonContent( const KWargs& a, Document *d = 0 ):
     FoliaImpl(PROPS,d){ classInit( a ); }
@@ -989,7 +989,7 @@ namespace folia {
   class FoLiA: public FoliaImpl {
     friend void static_init();
   public:
-  FoLiA( Document *d = 0 ):
+    explicit FoLiA( Document *d = 0 ):
     FoliaImpl( PROPS,d) { classInit(); }
   FoLiA( const KWargs& a, Document *d = 0 ):
     FoliaImpl( PROPS, d ) { classInit( a ); }
@@ -1002,7 +1002,7 @@ namespace folia {
   class DCOI: public FoliaImpl {
     friend void static_init();
   public:
-  DCOI( Document *d = 0 ):
+    explicit DCOI( Document *d = 0 ):
     FoliaImpl( PROPS, d ) { classInit( ); }
   DCOI( const KWargs& a, Document *d = 0 ):
     FoliaImpl( PROPS, d ) { classInit( a ); }
@@ -1014,7 +1014,7 @@ namespace folia {
   class Head: public AbstractStructureElement {
     friend void static_init();
   public:
-  Head( Document *d = 0 ):
+  explicit Head( Document *d = 0 ):
     AbstractStructureElement( PROPS, d ) {  classInit(); }
   Head( const KWargs& a, Document *d = 0 ):
     AbstractStructureElement( PROPS, d ) {  classInit( a ); }
@@ -1026,7 +1026,7 @@ namespace folia {
   class TableHead: public AbstractStructureElement {
     friend void static_init();
   public:
-  TableHead( Document *d = 0 ):
+  explicit TableHead( Document *d = 0 ):
     AbstractStructureElement( PROPS, d ) {  classInit( ); }
   TableHead( const KWargs& a, Document *d = 0 ):
     AbstractStructureElement( PROPS, d ) {  classInit( a ); }
@@ -1038,7 +1038,7 @@ namespace folia {
   class Table: public AbstractStructureElement {
     friend void static_init();
   public:
-  Table( Document *d = 0 ):
+  explicit Table( Document *d = 0 ):
     AbstractStructureElement( PROPS, d ) {  classInit(); };
   Table( const KWargs& a, Document *d = 0  ):
     AbstractStructureElement( PROPS, d ) {  classInit( a ); };
@@ -1049,7 +1049,7 @@ namespace folia {
   class Row: public AbstractStructureElement {
     friend void static_init();
   public:
-  Row( Document *d = 0 ):
+  explicit Row( Document *d = 0 ):
     AbstractStructureElement( PROPS, d ) {  classInit(); };
   Row( const KWargs& a, Document *d = 0 ):
     AbstractStructureElement( PROPS, d ) {  classInit( a ); };
@@ -1060,7 +1060,7 @@ namespace folia {
   class Cell: public AbstractStructureElement {
     friend void static_init();
   public:
-  Cell( Document *d = 0 ):
+    explicit Cell( Document *d = 0 ):
     AbstractStructureElement( PROPS, d ) {  classInit(); };
   Cell( const KWargs& a, Document *d ):
     AbstractStructureElement( PROPS, d ) {  classInit( a ); };
@@ -1071,7 +1071,7 @@ namespace folia {
   class Gap: public FoliaImpl {
     friend void static_init();
   public:
-  Gap( Document *d = 0 ):
+    explicit Gap( Document *d = 0 ):
     FoliaImpl( PROPS, d ) { classInit(); }
   Gap( const KWargs& a, Document *d = 0 ):
     FoliaImpl( PROPS, d ) { classInit( a ); }
@@ -1084,7 +1084,7 @@ namespace folia {
   class Content: public FoliaImpl {
     friend void static_init();
   public:
-  Content( Document *d = 0 ):
+    explicit Content( Document *d = 0 ):
     FoliaImpl( PROPS, d ) { classInit(); }
   Content( const KWargs& a, Document *d = 0 ):
     FoliaImpl( PROPS, d ) { classInit( a ); }
@@ -1101,7 +1101,7 @@ namespace folia {
   class Metric: public FoliaImpl {
     friend void static_init();
   public:
-  Metric( Document *d = 0 ):
+  explicit Metric( Document *d = 0 ):
     FoliaImpl( PROPS, d ) { classInit(); }
   Metric( const KWargs& a, Document *d = 0 ):
     FoliaImpl( PROPS, d ) { classInit( a ); }
@@ -1113,7 +1113,7 @@ namespace folia {
   class Division: public AbstractStructureElement {
     friend void static_init();
   public:
-  Division( Document *d=0 ):
+    explicit Division( Document *d=0 ):
     AbstractStructureElement( PROPS, d ) { classInit(); };
   Division( const KWargs& a, Document *d = 0 ):
     AbstractStructureElement( PROPS, d ) { classInit( a ); };
@@ -1125,7 +1125,7 @@ namespace folia {
   class Linebreak: public AbstractStructureElement {
     friend void static_init();
   public:
-  Linebreak( Document *d=0 ):
+    explicit Linebreak( Document *d=0 ):
     AbstractStructureElement( PROPS, d ){ classInit(); };
   Linebreak( const KWargs& a, Document *d = 0 ):
     AbstractStructureElement( PROPS, d ){ classInit( a ); };
@@ -1146,7 +1146,7 @@ namespace folia {
   class Whitespace: public AbstractStructureElement {
     friend void static_init();
   public:
-  Whitespace( Document *d=0 ):
+    explicit Whitespace( Document *d=0 ):
     AbstractStructureElement( PROPS, d ){ classInit(); }
   Whitespace( const KWargs& a, Document *d = 0 ):
     AbstractStructureElement( PROPS, d ){ classInit( a ); }
@@ -1162,7 +1162,7 @@ namespace folia {
   class Word: public AbstractStructureElement {
     friend void static_init();
   public:
-  Word( Document *d = 0 ):
+    explicit Word( Document *d = 0 ):
     AbstractStructureElement(PROPS, d ) { classInit(); }
   Word( const properties& p, Document *d=0 ):
     AbstractStructureElement( p, d ) { classInit(); }
@@ -1204,7 +1204,7 @@ namespace folia {
   class Part: public AbstractStructureElement {
     friend void static_init();
   public:
-  Part( Document *d=0 ):
+    explicit Part( Document *d=0 ):
     AbstractStructureElement( PROPS, d ){ classInit(); }
   Part( const KWargs& a, Document *d = 0 ):
     AbstractStructureElement( PROPS, d ){ classInit( a ); }
@@ -1219,7 +1219,7 @@ namespace folia {
     public AllowCorrection {
     friend void static_init();
   public:
-  String( Document *d=0 ):
+    explicit String( Document *d=0 ):
     AbstractTokenAnnotation( PROPS, d ){ classInit(); }
   String( const KWargs& a, Document *d =0 ):
     AbstractTokenAnnotation( PROPS, d ){ classInit( a ); }
@@ -1230,7 +1230,7 @@ namespace folia {
   class PlaceHolder: public Word {
     friend void static_init();
   public:
-  PlaceHolder( Document *d=0 ):
+    explicit PlaceHolder( Document *d=0 ):
     Word( PROPS, d ){ classInit(); }
   PlaceHolder( const KWargs& a, Document *d = 0 ):
     Word( PROPS, d ){ classInit( a ); }
@@ -1243,7 +1243,7 @@ namespace folia {
   class Sentence: public AbstractStructureElement {
     friend void static_init();
   public:
-  Sentence( Document *d=0 ):
+    explicit Sentence( Document *d=0 ):
     AbstractStructureElement( PROPS, d ){ classInit(); }
   Sentence( const KWargs& a, Document *d =0 ):
     AbstractStructureElement( PROPS, d ){ classInit( a ); }
@@ -1267,7 +1267,7 @@ namespace folia {
   class Speech: public AbstractStructureElement {
     friend void static_init();
   public:
-  Speech( Document *d=0 ):
+    explicit Speech( Document *d=0 ):
     AbstractStructureElement( PROPS, d ){ classInit(); }
   Speech( const KWargs& a, Document *d = 0 ):
     AbstractStructureElement( PROPS, d ){ classInit( a ); }
@@ -1279,7 +1279,7 @@ namespace folia {
   class Text: public AbstractStructureElement {
     friend void static_init();
   public:
-  Text( Document *d=0 ):
+    explicit Text( Document *d=0 ):
     AbstractStructureElement( PROPS, d ){ classInit(); }
   Text( const KWargs& a, Document *d = 0 ):
     AbstractStructureElement( PROPS, d ){ classInit( a ); }
@@ -1291,7 +1291,7 @@ namespace folia {
   class Utterance: public AbstractStructureElement {
     friend void static_init();
   public:
-  Utterance( Document *d=0 ):
+    explicit Utterance( Document *d=0 ):
     AbstractStructureElement( PROPS, d ){ classInit(); }
   Utterance( const KWargs& a, Document *d = 0 ):
     AbstractStructureElement( PROPS, d ){ classInit( a ); }
@@ -1303,7 +1303,7 @@ namespace folia {
   class Event: public AbstractStructureElement {
     friend void static_init();
   public:
-  Event( Document *d=0 ):
+    explicit Event( Document *d=0 ):
     AbstractStructureElement( PROPS, d ){ classInit(); }
   Event( const KWargs& a, Document *d = 0 ):
     AbstractStructureElement( PROPS, d ){ classInit( a ); }
@@ -1315,7 +1315,7 @@ namespace folia {
   class Caption: public AbstractStructureElement {
     friend void static_init();
   public:
-  Caption( Document *d=0 ):
+    explicit Caption( Document *d=0 ):
     AbstractStructureElement( PROPS, d ){ classInit(); }
   Caption( const KWargs& a, Document *d = 0 ):
     AbstractStructureElement( PROPS, d ){ classInit( a ); }
@@ -1327,7 +1327,7 @@ namespace folia {
   class Label: public AbstractStructureElement {
     friend void static_init();
   public:
-  Label( Document *d=0 ):
+   explicit Label( Document *d=0 ):
     AbstractStructureElement( PROPS, d ){ classInit(); }
   Label( const KWargs& a, Document *d = 0 ):
     AbstractStructureElement( PROPS, d ){ classInit( a ); }
@@ -1338,7 +1338,7 @@ namespace folia {
   class ListItem: public AbstractStructureElement {
     friend void static_init();
   public:
-  ListItem( Document *d=0 ):
+    explicit ListItem( Document *d=0 ):
     AbstractStructureElement( PROPS, d ){ classInit(); }
   ListItem( const KWargs& a, Document *d = 0 ):
     AbstractStructureElement( PROPS, d ){ classInit( a ); }
@@ -1350,7 +1350,7 @@ namespace folia {
   class List: public AbstractStructureElement {
     friend void static_init();
   public:
-  List( Document *d=0 ):
+    explicit List( Document *d=0 ):
     AbstractStructureElement( PROPS, d ){ classInit(); }
   List( const KWargs& a, Document *d = 0 ):
     AbstractStructureElement( PROPS, d ){ classInit( a ); }
@@ -1362,7 +1362,7 @@ namespace folia {
   class Figure: public AbstractStructureElement {
     friend void static_init();
   public:
-  Figure( Document *d=0 ):
+    explicit Figure( Document *d=0 ):
     AbstractStructureElement( PROPS, d ){ classInit(); }
   Figure( const KWargs& a, Document *d = 0 ):
     AbstractStructureElement( PROPS, d ){ classInit( a ); }
@@ -1376,7 +1376,7 @@ namespace folia {
   class Paragraph: public AbstractStructureElement {
     friend void static_init();
   public:
-  Paragraph( Document *d=0 ):
+    explicit Paragraph( Document *d=0 ):
     AbstractStructureElement( PROPS, d ){ classInit(); }
   Paragraph( const KWargs& a, Document *d = 0 ):
     AbstractStructureElement( PROPS, d ){ classInit( a ); }
@@ -1388,7 +1388,7 @@ namespace folia {
   class Alternative: public AbstractStructureElement {
     friend void static_init();
   public:
-  Alternative( Document *d=0 ):
+    explicit Alternative( Document *d=0 ):
     AbstractStructureElement( PROPS, d ){ classInit(); }
   Alternative( const KWargs& a, Document *d = 0 ):
     AbstractStructureElement( PROPS, d ){ classInit( a ); }
@@ -1401,7 +1401,7 @@ namespace folia {
   class AlternativeLayers: public FoliaImpl {
     friend void static_init();
   public:
-  AlternativeLayers( Document *d = 0 ):
+    explicit AlternativeLayers( Document *d = 0 ):
     FoliaImpl( PROPS, d ){ classInit(); }
   AlternativeLayers( const KWargs& a, Document *d = 0 ):
     FoliaImpl( PROPS, d ){ classInit( a ); }
@@ -1438,7 +1438,7 @@ namespace folia {
   class PosAnnotation: public AbstractTokenAnnotation {
     friend void static_init();
   public:
-  PosAnnotation( Document *d=0 ):
+    explicit PosAnnotation( Document *d=0 ):
     AbstractTokenAnnotation( PROPS, d ){ classInit(); }
   PosAnnotation( const KWargs& a, Document *d = 0 ):
     AbstractTokenAnnotation( PROPS, d ){ classInit( a ); }
@@ -1450,7 +1450,7 @@ namespace folia {
   class LemmaAnnotation: public AbstractTokenAnnotation {
     friend void static_init();
   public:
-  LemmaAnnotation( Document *d=0 ):
+    explicit LemmaAnnotation( Document *d=0 ):
     AbstractTokenAnnotation( PROPS, d ){ classInit(); }
   LemmaAnnotation( const KWargs& a, Document *d = 0 ):
     AbstractTokenAnnotation( PROPS, d ){ classInit( a ); }
@@ -1462,7 +1462,7 @@ namespace folia {
   class LangAnnotation: public AbstractExtendedTokenAnnotation {
     friend void static_init();
   public:
-  LangAnnotation( Document *d=0 ):
+    explicit LangAnnotation( Document *d=0 ):
     AbstractExtendedTokenAnnotation( PROPS, d ){ classInit(); }
   LangAnnotation( const KWargs& a, Document *d = 0 ):
     AbstractExtendedTokenAnnotation( PROPS, d ){ classInit( a ); }
@@ -1474,7 +1474,7 @@ namespace folia {
   class Phoneme: public AbstractTokenAnnotation {
     friend void static_init();
   public:
-  Phoneme( Document *d=0 ):
+    explicit Phoneme( Document *d=0 ):
     AbstractTokenAnnotation( PROPS, d ){ classInit(); }
   Phoneme( const KWargs& a, Document *d = 0 ):
     AbstractTokenAnnotation( PROPS, d ){ classInit( a ); }
@@ -1486,7 +1486,7 @@ namespace folia {
   class DomainAnnotation: public AbstractExtendedTokenAnnotation {
     friend void static_init();
   public:
-  DomainAnnotation( Document *d=0 ):
+    explicit DomainAnnotation( Document *d=0 ):
     AbstractExtendedTokenAnnotation( PROPS, d ){ classInit(); }
   DomainAnnotation( const KWargs& a, Document *d = 0 ):
     AbstractExtendedTokenAnnotation( PROPS, d ){ classInit( a ); }
@@ -1498,7 +1498,7 @@ namespace folia {
   class SenseAnnotation: public AbstractTokenAnnotation {
     friend void static_init();
   public:
-  SenseAnnotation( Document *d=0 ):
+    explicit SenseAnnotation( Document *d=0 ):
     AbstractTokenAnnotation( PROPS, d ){ classInit(); }
   SenseAnnotation( const KWargs& a, Document *d = 0 ):
     AbstractTokenAnnotation( PROPS, d ){ classInit( a ); }
@@ -1510,7 +1510,7 @@ namespace folia {
   class SubjectivityAnnotation: public AbstractTokenAnnotation {
     friend void static_init();
   public:
-  SubjectivityAnnotation( Document *d=0 ):
+    explicit SubjectivityAnnotation( Document *d=0 ):
     AbstractTokenAnnotation( PROPS, d ){ classInit(); }
   SubjectivityAnnotation( const KWargs& a, Document *d = 0 ):
     AbstractTokenAnnotation( PROPS, d ){ classInit( a ); }
@@ -1522,7 +1522,7 @@ namespace folia {
   class Quote: public AbstractStructureElement {
     friend void static_init();
   public:
-  Quote( Document *d=0 ):
+    explicit Quote( Document *d=0 ):
     AbstractStructureElement( PROPS, d ){ classInit(); };
   Quote( const KWargs& a, Document *d = 0 ):
     AbstractStructureElement( PROPS, d ){ classInit( a ); };
@@ -1536,10 +1536,10 @@ namespace folia {
   class Feature: public FoliaImpl {
     friend void static_init();
   public:
+    explicit Feature( Document *d = 0 ):
+    FoliaImpl( PROPS, d ){ classInit(); }
   Feature( const properties&p, Document *d = 0 ):
     FoliaImpl( p, d ){ classInit(); }
-  Feature( Document *d = 0 ):
-    FoliaImpl( PROPS, d ){ classInit(); }
   Feature( const KWargs& a, Document *d = 0 ):
     FoliaImpl( PROPS, d ){ classInit( a ); }
 
@@ -1557,7 +1557,7 @@ namespace folia {
   class BegindatetimeFeature: public Feature {
     friend void static_init();
   public:
-  BegindatetimeFeature( Document *d=0 ):
+    explicit BegindatetimeFeature( Document *d=0 ):
     Feature( PROPS, d ){ classInit(); }
   BegindatetimeFeature( const KWargs& a, Document *d = 0 ):
     Feature( PROPS, d ){ classInit( a ); }
@@ -1569,7 +1569,7 @@ namespace folia {
   class EnddatetimeFeature: public Feature {
     friend void static_init();
   public:
-  EnddatetimeFeature( Document *d=0 ):
+  explicit EnddatetimeFeature( Document *d=0 ):
     Feature( PROPS, d ){ classInit(); }
   EnddatetimeFeature( const KWargs& a, Document *d = 0 ):
     Feature( PROPS, d ){ classInit( a ); }
@@ -1581,7 +1581,7 @@ namespace folia {
   class SynsetFeature: public Feature {
     friend void static_init();
   public:
-  SynsetFeature( Document *d=0 ):
+  explicit SynsetFeature( Document *d=0 ):
     Feature( PROPS, d ){ classInit(); }
   SynsetFeature( const KWargs& a, Document *d = 0 ):
     Feature( PROPS, d ){ classInit( a ); }
@@ -1593,7 +1593,7 @@ namespace folia {
   class ActorFeature: public Feature {
     friend void static_init();
   public:
-  ActorFeature( Document *d=0 ):
+    explicit ActorFeature( Document *d=0 ):
     Feature( PROPS, d ){ classInit(); }
   ActorFeature( const KWargs& a, Document *d = 0 ):
     Feature( PROPS, d ){ classInit( a ); }
@@ -1605,7 +1605,7 @@ namespace folia {
   class PolarityFeature: public Feature {
     friend void static_init();
   public:
-  PolarityFeature( Document *d=0 ):
+    explicit PolarityFeature( Document *d=0 ):
     Feature( PROPS, d ){ classInit(); }
   PolarityFeature( const KWargs& a, Document *d = 0 ):
     Feature( PROPS, d ){ classInit( a ); }
@@ -1617,7 +1617,7 @@ namespace folia {
   class StrengthFeature: public Feature {
     friend void static_init();
   public:
-  StrengthFeature( Document *d=0 ):
+    explicit StrengthFeature( Document *d=0 ):
     Feature( PROPS, d ){ classInit(); }
   StrengthFeature( const KWargs& a, Document *d = 0 ):
     Feature( PROPS, d ){ classInit( a ); }
@@ -1630,7 +1630,7 @@ namespace folia {
   class HeadFeature: public Feature {
     friend void static_init();
   public:
-  HeadFeature( Document *d=0 ):
+    explicit HeadFeature( Document *d=0 ):
     Feature( PROPS, d ){ classInit(); }
   HeadFeature( const KWargs& a, Document *d = 0 ):
     Feature( PROPS, d ){ classInit( a ); }
@@ -1642,7 +1642,7 @@ namespace folia {
   class ValueFeature: public Feature {
     friend void static_init();
   public:
-  ValueFeature( Document *d=0 ):
+    explicit ValueFeature( Document *d=0 ):
     Feature( PROPS, d ){ classInit(); }
   ValueFeature( const KWargs& a, Document *d = 0 ):
     Feature( PROPS, d ){ classInit( a ); }
@@ -1654,7 +1654,7 @@ namespace folia {
   class FunctionFeature: public Feature {
     friend void static_init();
   public:
-  FunctionFeature( Document *d=0 ):
+    explicit FunctionFeature( Document *d=0 ):
     Feature( PROPS, d ){ classInit(); }
   FunctionFeature( const KWargs& a, Document *d = 0 ):
     Feature( PROPS, d ){ classInit( a ); }
@@ -1666,7 +1666,7 @@ namespace folia {
   class TimeFeature: public Feature {
     friend void static_init();
   public:
-  TimeFeature( Document *d=0 ):
+    explicit TimeFeature( Document *d=0 ):
     Feature( PROPS, d ){ classInit(); }
   TimeFeature( const KWargs& a, Document *d = 0 ):
     Feature( PROPS, d ){ classInit( a ); }
@@ -1678,7 +1678,7 @@ namespace folia {
   class LevelFeature: public Feature {
     friend void static_init();
   public:
-  LevelFeature( Document *d=0 ):
+    explicit LevelFeature( Document *d=0 ):
     Feature( PROPS, d ){ classInit(); }
   LevelFeature( const KWargs& a, Document *d = 0 ):
     Feature( PROPS, d ){ classInit( a ); }
@@ -1690,7 +1690,7 @@ namespace folia {
   class ModalityFeature: public Feature {
     friend void static_init();
   public:
-  ModalityFeature( Document *d=0 ):
+    explicit ModalityFeature( Document *d=0 ):
     Feature( PROPS, d ){ classInit(); }
   ModalityFeature( const KWargs& a, Document *d = 0 ):
     Feature( PROPS, d ){ classInit( a ); }
@@ -1702,7 +1702,7 @@ namespace folia {
   class StyleFeature: public Feature {
     friend void static_init();
   public:
-  StyleFeature( Document *d=0 ):
+    explicit StyleFeature( Document *d=0 ):
     Feature( PROPS, d ){ classInit(); }
   StyleFeature( const KWargs& a, Document *d = 0 ):
     Feature( PROPS, d ){ classInit( a ); }
@@ -1714,7 +1714,7 @@ namespace folia {
   class WordReference: public FoliaImpl {
     friend void static_init();
   public:
-  WordReference( Document *d = 0 ):
+    explicit WordReference( Document *d = 0 ):
     FoliaImpl( PROPS, d ){ classInit(); }
   WordReference( const KWargs& a, Document *d = 0 ):
     FoliaImpl( PROPS, d ){ classInit( a ); }
@@ -1727,7 +1727,7 @@ namespace folia {
   class Alignment: public FoliaImpl {
     friend void static_init();
   public:
-  Alignment( Document *d = 0 ):
+    explicit Alignment( Document *d = 0 ):
     FoliaImpl( PROPS, d ){ classInit(); }
   Alignment( const KWargs& a, Document *d = 0 ):
     FoliaImpl( PROPS, d ){ classInit( a ); }
@@ -1745,7 +1745,7 @@ namespace folia {
     friend void static_init();
     friend class Alignment;
   public:
-  AlignReference( Document *d = 0 ):
+    explicit AlignReference( Document *d = 0 ):
     FoliaImpl( PROPS, d ){ classInit(); }
   AlignReference( const KWargs& a, Document *d = 0 ):
     FoliaImpl( PROPS, d ){ classInit( a ); }
@@ -1768,7 +1768,7 @@ namespace folia {
   class SyntacticUnit: public AbstractSpanAnnotation {
     friend void static_init();
   public:
-  SyntacticUnit( Document *d = 0 ):
+    explicit SyntacticUnit( Document *d = 0 ):
     AbstractSpanAnnotation( PROPS, d ){ classInit(); }
   SyntacticUnit( const KWargs& a, Document *d = 0 ):
     AbstractSpanAnnotation( PROPS, d ){ classInit( a ); }
@@ -1780,7 +1780,7 @@ namespace folia {
   class Chunk: public AbstractSpanAnnotation {
     friend void static_init();
   public:
-  Chunk( Document *d=0 ):
+    explicit Chunk( Document *d=0 ):
     AbstractSpanAnnotation( PROPS, d ){ classInit(); }
   Chunk( const KWargs& a, Document *d = 0 ):
     AbstractSpanAnnotation( PROPS, d ){ classInit( a ); }
@@ -1792,7 +1792,7 @@ namespace folia {
   class Entity: public AbstractSpanAnnotation {
     friend void static_init();
   public:
-  Entity( Document *d=0 ):
+    explicit Entity( Document *d=0 ):
     AbstractSpanAnnotation( PROPS, d ){ classInit(); }
   Entity( const KWargs& a, Document *d = 0 ):
     AbstractSpanAnnotation( PROPS, d ){ classInit( a ); }
@@ -1801,13 +1801,13 @@ namespace folia {
     static properties PROPS;
   };
 
-    class AbstractSpanRole: public AbstractSpanAnnotation {
+  class AbstractSpanRole: public AbstractSpanAnnotation {
     friend void static_init();
   public:
+    explicit AbstractSpanRole( Document *d=0 ):
+    AbstractSpanAnnotation( PROPS, d ){ classInit(); }
   AbstractSpanRole( const properties& props, Document *d=0 ):
     AbstractSpanAnnotation( props, d ){ classInit(); }
-  AbstractSpanRole( Document *d=0 ):
-    AbstractSpanAnnotation( PROPS, d ){ classInit(); }
 
   private:
     static properties PROPS;
@@ -1816,7 +1816,7 @@ namespace folia {
   class Headspan: public AbstractSpanRole {
     friend void static_init();
   public:
-  Headspan( Document *d=0 ):
+    explicit Headspan( Document *d=0 ):
     AbstractSpanRole( PROPS, d ){ classInit(); }
   Headspan( const KWargs& a, Document *d = 0 ):
     AbstractSpanRole( PROPS, d ){ classInit( a ); }
@@ -1828,7 +1828,7 @@ namespace folia {
   class DependencyDependent: public AbstractSpanRole {
     friend void static_init();
   public:
-  DependencyDependent( Document *d=0 ):
+    explicit DependencyDependent( Document *d=0 ):
     AbstractSpanRole( PROPS, d ){ classInit(); }
   DependencyDependent( const KWargs& a, Document *d = 0 ):
     AbstractSpanRole( PROPS, d ){ classInit( a ); }
@@ -1840,7 +1840,7 @@ namespace folia {
   class Source: public AbstractSpanRole {
     friend void static_init();
   public:
-  Source( Document *d=0 ):
+    explicit Source( Document *d=0 ):
     AbstractSpanRole( PROPS, d ){ classInit(); }
   Source( const KWargs& a, Document *d = 0 ):
     AbstractSpanRole( PROPS, d ){ classInit( a ); }
@@ -1852,7 +1852,7 @@ namespace folia {
   class Target: public AbstractSpanRole {
     friend void static_init();
   public:
-  Target( Document *d=0 ):
+    explicit Target( Document *d=0 ):
     AbstractSpanRole( PROPS, d ){ classInit(); }
   Target( const KWargs& a, Document *d = 0 ):
     AbstractSpanRole( PROPS, d ){ classInit( a ); }
@@ -1864,7 +1864,7 @@ namespace folia {
   class Relation: public AbstractSpanRole {
     friend void static_init();
   public:
-  Relation( Document *d=0 ):
+    explicit Relation( Document *d=0 ):
     AbstractSpanRole( PROPS, d ){ classInit(); }
   Relation( const KWargs& a, Document *d = 0 ):
     AbstractSpanRole( PROPS, d ){ classInit( a ); }
@@ -1876,7 +1876,7 @@ namespace folia {
   class Dependency: public AbstractSpanAnnotation {
     friend void static_init();
   public:
-  Dependency( Document *d=0 ):
+    explicit Dependency( Document *d=0 ):
     AbstractSpanAnnotation( PROPS, d ){ classInit(); }
   Dependency( const KWargs& a, Document *d = 0 ):
     AbstractSpanAnnotation( PROPS, d ){ classInit( a ); }
@@ -1890,7 +1890,7 @@ namespace folia {
   class CoreferenceLink: public AbstractSpanRole {
     friend void static_init();
   public:
-  CoreferenceLink( Document *d=0 ):
+    explicit CoreferenceLink( Document *d=0 ):
     AbstractSpanRole( PROPS, d ){ classInit(); }
   CoreferenceLink( const KWargs& a, Document *d = 0 ):
     AbstractSpanRole( PROPS, d ){ classInit( a ); }
@@ -1902,7 +1902,7 @@ namespace folia {
   class CoreferenceChain: public AbstractSpanAnnotation {
     friend void static_init();
   public:
-  CoreferenceChain( Document *d=0 ):
+    explicit CoreferenceChain( Document *d=0 ):
     AbstractSpanAnnotation( PROPS, d ){ classInit(); }
   CoreferenceChain( const KWargs& a, Document *d = 0 ):
     AbstractSpanAnnotation( PROPS, d ){ classInit( a ); }
@@ -1914,7 +1914,7 @@ namespace folia {
   class SemanticRole: public AbstractSpanAnnotation {
     friend void static_init();
   public:
-  SemanticRole( Document *d=0 ):
+    explicit SemanticRole( Document *d=0 ):
     AbstractSpanAnnotation( PROPS, d ){ classInit(); }
   SemanticRole( const KWargs& a, Document *d = 0 ):
     AbstractSpanAnnotation( PROPS, d ){ classInit( a ); }
@@ -1926,7 +1926,7 @@ namespace folia {
   class Predicate: public AbstractSpanAnnotation {
     friend void static_init();
   public:
-  Predicate( Document *d=0 ):
+    explicit Predicate( Document *d=0 ):
     AbstractSpanAnnotation( PROPS, d ){ classInit(); }
   Predicate( const KWargs& a, Document *d = 0 ):
     AbstractSpanAnnotation( PROPS, d ){ classInit( a ); }
@@ -1938,7 +1938,7 @@ namespace folia {
   class Sentiment: public AbstractSpanAnnotation {
     friend void static_init();
   public:
-  Sentiment( Document *d=0 ):
+    explicit Sentiment( Document *d=0 ):
     AbstractSpanAnnotation( PROPS, d ){ classInit(); }
   Sentiment( const KWargs& a, Document *d = 0 ):
     AbstractSpanAnnotation( PROPS, d ){ classInit( a ); }
@@ -1950,7 +1950,7 @@ namespace folia {
   class Statement: public AbstractSpanAnnotation {
     friend void static_init();
   public:
-  Statement( Document *d=0 ):
+    explicit Statement( Document *d=0 ):
     AbstractSpanAnnotation( PROPS, d ){ classInit(); }
   Statement( const KWargs& a, Document *d = 0 ):
     AbstractSpanAnnotation( PROPS, d ){ classInit( a ); }
@@ -1962,7 +1962,7 @@ namespace folia {
   class Observation: public AbstractSpanAnnotation {
     friend void static_init();
   public:
-  Observation( Document *d=0 ):
+    explicit Observation( Document *d=0 ):
     AbstractSpanAnnotation( PROPS, d ){ classInit(); }
   Observation( const KWargs& a, Document *d = 0 ):
     AbstractSpanAnnotation( PROPS, d ){ classInit( a ); }
@@ -1981,7 +1981,7 @@ namespace folia {
       friend void static_init();
     protected:
       // DO NOT USE AbstractAnnotationLayer as a real node!!
-    AbstractAnnotationLayer( Document *d = 0 ):
+      explicit AbstractAnnotationLayer( Document *d = 0 ):
       FoliaImpl( PROPS, d ) { classInit(); };
     AbstractAnnotationLayer( const properties& props, Document *d = 0 ):
       FoliaImpl( props, d ) { classInit(); };
@@ -2002,7 +2002,7 @@ namespace folia {
     // DO NOT USE AbstractCorrectionChild as a real node!!
   AbstractCorrectionChild( const properties& props, Document *d=0 ):
     FoliaImpl( props, d ){ classInit(); };
-  AbstractCorrectionChild( Document *d=0 ):
+    explicit AbstractCorrectionChild( Document *d=0 ):
     FoliaImpl( PROPS, d ){ classInit(); };
   private:
     static properties PROPS;
@@ -2011,7 +2011,7 @@ namespace folia {
   class New: public AbstractCorrectionChild {
     friend void static_init();
   public:
-  New( Document *d=0 ):
+  explicit New( Document *d=0 ):
     AbstractCorrectionChild( PROPS, d ) { classInit(); }
   New( const KWargs& a, Document *d = 0 ):
     AbstractCorrectionChild( PROPS, d ) { classInit( a ); }
@@ -2023,7 +2023,7 @@ namespace folia {
   class Current: public AbstractCorrectionChild {
     friend void static_init();
   public:
-  Current( Document *d=0 ):
+  explicit Current( Document *d=0 ):
     AbstractCorrectionChild( PROPS, d ) { classInit(); }
   Current( const KWargs& a, Document *d = 0 ):
     AbstractCorrectionChild( PROPS, d ) { classInit( a ); }
@@ -2035,7 +2035,7 @@ namespace folia {
   class Original: public AbstractCorrectionChild {
     friend void static_init();
   public:
-  Original( Document *d=0 ):
+  explicit Original( Document *d=0 ):
     AbstractCorrectionChild( PROPS, d ) { classInit(); }
   Original( const KWargs& a, Document *d = 0 ):
     AbstractCorrectionChild( PROPS, d ) { classInit( a ); }
@@ -2047,7 +2047,7 @@ namespace folia {
   class Suggestion: public AbstractCorrectionChild {
     friend void static_init();
   public:
-  Suggestion( Document *d=0 ):
+  explicit Suggestion( Document *d=0 ):
     AbstractCorrectionChild( PROPS, d ) { classInit(); }
   Suggestion( const KWargs& a, Document *d = 0 ):
     AbstractCorrectionChild( PROPS, d ) { classInit( a ); }
@@ -2062,7 +2062,7 @@ namespace folia {
   class Description: public FoliaImpl {
     friend void static_init();
   public:
-  Description( Document *d=0 ):
+  explicit Description( Document *d=0 ):
     FoliaImpl( PROPS, d ) { classInit(); }
   Description( const KWargs& a, Document *d =0 ):
     FoliaImpl( PROPS, d ) { classInit( a ); }
@@ -2080,7 +2080,7 @@ namespace folia {
   class Comment: public FoliaImpl {
     friend void static_init();
   public:
-  Comment( Document *d=0 ):
+  explicit Comment( Document *d=0 ):
     FoliaImpl( PROPS, d ) { classInit(); }
   Comment( const KWargs& a, Document *d =0 ):
     FoliaImpl( PROPS, d ) { classInit( a ); }
@@ -2098,7 +2098,7 @@ namespace folia {
   class XmlComment: public FoliaImpl {
     friend void static_init();
   public:
-  XmlComment( Document *d=0 ):
+  explicit XmlComment( Document *d=0 ):
     FoliaImpl( PROPS, d ) { classInit(); }
   XmlComment( const KWargs& a, Document *d = 0 ):
     FoliaImpl( PROPS, d ) { classInit( a ); }
@@ -2113,7 +2113,7 @@ namespace folia {
   class XmlText: public FoliaImpl {
     friend void static_init();
   public:
-  XmlText( Document *d = 0 ):
+  explicit XmlText( Document *d = 0 ):
     FoliaImpl( PROPS, d ) { classInit(); }
   XmlText( const KWargs& a, Document *d = 0 ):
     FoliaImpl(PROPS, d ) { classInit( a ); }
@@ -2132,7 +2132,7 @@ namespace folia {
   class External: public FoliaImpl {
     friend void static_init();
   public:
-  External( Document *d = 0 ):
+  explicit External( Document *d = 0 ):
     FoliaImpl( PROPS, d ), _include(false) { classInit(); }
   External( const KWargs& a, Document *d = 0 ):
     FoliaImpl( PROPS, d ), _include(false) { classInit( a ); }
@@ -2149,7 +2149,7 @@ namespace folia {
   class Note: public AbstractStructureElement {
     friend void static_init();
   public:
-  Note( Document *d=0 ):
+  explicit Note( Document *d=0 ):
     AbstractStructureElement( PROPS, d ){ classInit(); }
   Note( const KWargs& a, Document *d = 0 ):
     AbstractStructureElement( PROPS, d ){ classInit( a ); }
@@ -2163,7 +2163,7 @@ namespace folia {
   class Definition: public AbstractStructureElement {
     friend void static_init();
   public:
-  Definition( Document *d=0 ):
+  explicit Definition( Document *d=0 ):
     AbstractStructureElement( PROPS, d ){ classInit(); }
   Definition( const KWargs& a, Document *d = 0 ):
     AbstractStructureElement( PROPS, d ){ classInit( a ); }
@@ -2175,7 +2175,7 @@ namespace folia {
   class Term: public AbstractStructureElement {
     friend void static_init();
   public:
-  Term( Document *d=0 ):
+  explicit Term( Document *d=0 ):
     AbstractStructureElement( PROPS, d ){ classInit(); }
   Term( const KWargs& a, Document *d = 0 ):
     AbstractStructureElement( PROPS, d ){ classInit( a ); }
@@ -2187,7 +2187,7 @@ namespace folia {
   class Example: public AbstractStructureElement {
     friend void static_init();
   public:
-  Example( Document *d=0 ):
+  explicit Example( Document *d=0 ):
     AbstractStructureElement( PROPS, d ){ classInit(); }
   Example( const KWargs& a, Document *d = 0 ):
     AbstractStructureElement( PROPS, d ){ classInit( a ); }
@@ -2199,7 +2199,7 @@ namespace folia {
   class Entry: public AbstractStructureElement {
     friend void static_init();
   public:
-  Entry( Document *d=0 ):
+  explicit Entry( Document *d=0 ):
     AbstractStructureElement( PROPS, d ){ classInit(); }
   Entry( const KWargs& a, Document *d = 0 ):
     AbstractStructureElement( PROPS, d ){ classInit( a ); }
@@ -2212,7 +2212,7 @@ namespace folia {
     friend void static_init();
     friend class Note;
   public:
-  Reference( Document *d=0 ):
+  explicit Reference( Document *d=0 ):
     AbstractStructureElement( PROPS, d ){ classInit(); }
   Reference( const KWargs& a, Document *d = 0 ):
     AbstractStructureElement( PROPS, d ){ classInit( a ); }
@@ -2231,7 +2231,7 @@ namespace folia {
   class Correction: public AbstractTokenAnnotation {
     friend void static_init();
   public:
-  Correction( Document *d=0 ):
+  explicit Correction( Document *d=0 ):
     AbstractTokenAnnotation( PROPS, d ){ classInit(); }
   Correction( const KWargs& a, Document *d = 0 ):
     AbstractTokenAnnotation( PROPS, d ){ classInit( a ); }
@@ -2260,7 +2260,7 @@ namespace folia {
   class ErrorDetection: public AbstractExtendedTokenAnnotation  {
     friend void static_init();
   public:
-  ErrorDetection( Document *d=0 ):
+  explicit ErrorDetection( Document *d=0 ):
     AbstractExtendedTokenAnnotation( PROPS, d ){ classInit(); }
   ErrorDetection( const KWargs& a, Document *d = 0 ):
     AbstractExtendedTokenAnnotation( PROPS, d ){ classInit( a ); }
@@ -2272,7 +2272,7 @@ namespace folia {
   class TimeSegment: public AbstractSpanAnnotation {
     friend void static_init();
   public:
-  TimeSegment( Document *d=0 ):
+  explicit TimeSegment( Document *d=0 ):
     AbstractSpanAnnotation( PROPS, d ){ classInit(); }
   TimeSegment( const KWargs& a, Document *d = 0 ):
     AbstractSpanAnnotation( PROPS, d ){ classInit( a ); }
@@ -2284,7 +2284,7 @@ namespace folia {
   class Morpheme: public AbstractStructureElement {
     friend void static_init();
   public:
-  Morpheme( Document *d=0 ):
+    explicit Morpheme( Document *d=0 ):
     AbstractStructureElement( PROPS, d ){ classInit(); }
   Morpheme( const KWargs& a, Document *d = 0 ):
     AbstractStructureElement( PROPS, d ){ classInit( a ); }
@@ -2296,7 +2296,7 @@ namespace folia {
   class SyntaxLayer: public AbstractAnnotationLayer {
     friend void static_init();
   public:
-  SyntaxLayer( Document *d=0 ):
+    explicit SyntaxLayer( Document *d=0 ):
     AbstractAnnotationLayer( PROPS, d ){ classInit(); }
   SyntaxLayer( const KWargs& a, Document *d = 0 ):
     AbstractAnnotationLayer( PROPS, d ){ classInit( a ); }
@@ -2308,7 +2308,7 @@ namespace folia {
   class ChunkingLayer: public AbstractAnnotationLayer {
     friend void static_init();
   public:
-  ChunkingLayer( Document *d=0 ):
+    explicit ChunkingLayer( Document *d=0 ):
     AbstractAnnotationLayer( PROPS, d ){ classInit(); }
   ChunkingLayer( const KWargs& a, Document *d = 0 ):
     AbstractAnnotationLayer( PROPS, d ){ classInit( a ); }
@@ -2320,7 +2320,7 @@ namespace folia {
   class EntitiesLayer: public AbstractAnnotationLayer {
     friend void static_init();
   public:
-  EntitiesLayer( Document *d=0 ):
+    explicit EntitiesLayer( Document *d=0 ):
     AbstractAnnotationLayer( PROPS, d ){ classInit(); }
   EntitiesLayer( const KWargs& a, Document *d = 0 ):
     AbstractAnnotationLayer( PROPS, d ){ classInit( a ); }
@@ -2332,7 +2332,7 @@ namespace folia {
   class TimingLayer: public AbstractAnnotationLayer {
     friend void static_init();
   public:
-  TimingLayer( Document *d=0 ):
+    explicit TimingLayer( Document *d=0 ):
     AbstractAnnotationLayer( PROPS, d ){ classInit(); }
   TimingLayer( const KWargs& a, Document *d = 0 ):
     AbstractAnnotationLayer( PROPS, d ){ classInit( a ); }
@@ -2344,7 +2344,7 @@ namespace folia {
   class MorphologyLayer: public AbstractAnnotationLayer {
     friend void static_init();
   public:
-  MorphologyLayer( Document *d=0 ):
+    explicit MorphologyLayer( Document *d=0 ):
     AbstractAnnotationLayer( PROPS, d ){ classInit(); }
   MorphologyLayer( const KWargs& a, Document *d = 0 ):
     AbstractAnnotationLayer( PROPS, d ){ classInit( a ); }
@@ -2356,7 +2356,7 @@ namespace folia {
   class PhonologyLayer: public AbstractAnnotationLayer {
     friend void static_init();
   public:
-  PhonologyLayer( Document *d=0 ):
+    explicit PhonologyLayer( Document *d=0 ):
     AbstractAnnotationLayer( PROPS, d ){ classInit(); }
   PhonologyLayer( const KWargs& a, Document *d = 0 ):
     AbstractAnnotationLayer( PROPS, d ){ classInit( a ); }
@@ -2368,7 +2368,7 @@ namespace folia {
   class DependenciesLayer: public AbstractAnnotationLayer {
     friend void static_init();
   public:
-  DependenciesLayer( Document *d=0 ):
+    explicit DependenciesLayer( Document *d=0 ):
     AbstractAnnotationLayer( PROPS, d ){ classInit(); }
   DependenciesLayer( const KWargs& a, Document *d = 0 ):
     AbstractAnnotationLayer( PROPS, d ){ classInit( a ); }
@@ -2380,7 +2380,7 @@ namespace folia {
   class CoreferenceLayer: public AbstractAnnotationLayer {
     friend void static_init();
   public:
-  CoreferenceLayer( Document *d=0 ):
+    explicit CoreferenceLayer( Document *d=0 ):
     AbstractAnnotationLayer( PROPS, d ){ classInit(); }
   CoreferenceLayer( const KWargs& a, Document *d = 0 ):
     AbstractAnnotationLayer( PROPS, d ){ classInit( a ); }
@@ -2392,7 +2392,7 @@ namespace folia {
   class SemanticRolesLayer: public AbstractAnnotationLayer {
     friend void static_init();
   public:
-  SemanticRolesLayer( Document *d=0 ):
+    explicit SemanticRolesLayer( Document *d=0 ):
     AbstractAnnotationLayer( PROPS, d ){ classInit(); }
   SemanticRolesLayer( const KWargs& a, Document *d = 0 ):
     AbstractAnnotationLayer( PROPS, d ){ classInit( a ); }
@@ -2403,7 +2403,7 @@ namespace folia {
   class StatementLayer: public AbstractAnnotationLayer {
     friend void static_init();
   public:
-  StatementLayer( Document *d=0 ):
+    explicit StatementLayer( Document *d=0 ):
     AbstractAnnotationLayer( PROPS, d ){ classInit(); }
   StatementLayer( const KWargs& a, Document *d = 0 ):
     AbstractAnnotationLayer( PROPS, d ){ classInit( a ); }
@@ -2414,7 +2414,7 @@ namespace folia {
   class SentimentLayer: public AbstractAnnotationLayer {
     friend void static_init();
   public:
-  SentimentLayer( Document *d=0 ):
+    explicit SentimentLayer( Document *d=0 ):
     AbstractAnnotationLayer( PROPS, d ){ classInit(); }
   SentimentLayer( const KWargs& a, Document *d = 0 ):
     AbstractAnnotationLayer( PROPS, d ){ classInit( a ); }
@@ -2425,7 +2425,7 @@ namespace folia {
   class ObservationLayer: public AbstractAnnotationLayer {
     friend void static_init();
   public:
-  ObservationLayer( Document *d=0  ):
+    explicit ObservationLayer( Document *d=0  ):
     AbstractAnnotationLayer( PROPS, d ){ classInit(); }
   ObservationLayer( const KWargs& a, Document *d = 0 ):
     AbstractAnnotationLayer( PROPS, d ){ classInit( a ); }
@@ -2436,7 +2436,7 @@ namespace folia {
   class ComplexAlignmentLayer: public AbstractAnnotationLayer {
     friend void static_init();
   public:
-  ComplexAlignmentLayer( Document *d=0  ):
+    explicit ComplexAlignmentLayer( Document *d=0  ):
     AbstractAnnotationLayer( PROPS, d ){ classInit(); }
   ComplexAlignmentLayer( const KWargs& a, Document *d = 0 ):
     AbstractAnnotationLayer( PROPS, d ){ classInit( a ); }
