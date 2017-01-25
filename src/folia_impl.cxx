@@ -1612,7 +1612,7 @@ namespace folia {
 	    append( t );
 	  }
 	}
-	else if ( mydoc || !mydoc->permissive() ){
+	else if ( mydoc && !mydoc->permissive() ){
 	  throw XmlError( "FoLiA parser terminated" );
 	}
       }
@@ -1982,15 +1982,15 @@ namespace folia {
     if ( !w || !w->isinstance( Word_t ) ) {
       throw runtime_error( "insertword(): new word is not a Word " );
     }
-    KWargs kwargs;
-    kwargs["text"] = "dummy";
-    kwargs["id"] = "dummy";
-    Word *tmp = new Word( kwargs );
-    tmp->setParent( this ); // we create a dummy Word as member of the
-    // Sentence. This makes correctWords() happy
     auto it = data.begin();
     while ( it != data.end() ) {
       if ( *it == p ) {
+	KWargs kwargs;
+	kwargs["text"] = "dummy";
+	kwargs["id"] = "dummy";
+	Word *tmp = new Word( kwargs );
+	tmp->setParent( this ); // we create a dummy Word as member of the
+	// Sentence. This makes correctWords() happy
 	it = data.insert( ++it, tmp );
 	break;
       }

@@ -285,7 +285,7 @@ namespace folia {
       }
     }
     //    cerr << "found " << num << " parts" << endl;
-    tm *time = new tm();
+    tm time = tm();
     if ( num == 1 || num == 2 ){
       //      cerr << "parse date " << date_time[0] << endl;
       vector<string> date_parts;
@@ -293,15 +293,15 @@ namespace folia {
       switch ( dnum ){
       case 3: {
 	int mday = stringTo<int>( date_parts[2] );
-	time->tm_mday = mday;
+	time.tm_mday = mday;
       }
       case 2: {
 	int mon = toMonth( date_parts[1] );
-	time->tm_mon = mon;
+	time.tm_mon = mon;
       }
       case 1: {
 	int year = stringTo<int>( date_parts[0] );
-	time->tm_year = year-1900;
+	time.tm_year = year-1900;
       }
 	break;
       default:
@@ -319,15 +319,15 @@ namespace folia {
 	// ignore
       case 3: {
 	int sec = stringTo<int>( date_parts[2] );
-	time->tm_sec = sec;
+	time.tm_sec = sec;
       }
       case 2: {
 	int min = stringTo<int>( date_parts[1] );
-	time->tm_min = min;
+	time.tm_min = min;
       }
       case 1: {
 	int hour = stringTo<int>( date_parts[0] );
-	time->tm_hour = hour;
+	time.tm_hour = hour;
       }
 	break;
       default:
@@ -337,8 +337,7 @@ namespace folia {
     }
     // cerr << "read _date time = " << toString(time) << endl;
     char buf[100];
-    strftime( buf, 100, "%Y-%m-%dT%X", time );
-    delete time;
+    strftime( buf, 100, "%Y-%m-%dT%X", &time );
     return buf;
   }
 
@@ -348,25 +347,23 @@ namespace folia {
     }
     //    cerr << "try to read a time " << s << endl;
     vector<string> time_parts;
-    tm *time = new tm();
+    tm time = tm();
     int num = TiCC::split_at( s, time_parts, ":" );
     if ( num != 3 ){
       cerr << "failed to read a time " << s << endl;
-      delete time;
       return "";
     }
-    time->tm_min = stringTo<int>( time_parts[1] );
-    time->tm_hour = stringTo<int>( time_parts[0] );
+    time.tm_min = stringTo<int>( time_parts[1] );
+    time.tm_hour = stringTo<int>( time_parts[0] );
     string secs = time_parts[2];
     num = TiCC::split_at( secs, time_parts, "." );
-    time->tm_sec = stringTo<int>( time_parts[0] );
+    time.tm_sec = stringTo<int>( time_parts[0] );
     string mil_sec = "000";
     if ( num == 2 ){
       mil_sec = time_parts[1];
     }
     char buf[100];
-    strftime( buf, 100, "%X", time );
-    delete time;
+    strftime( buf, 100, "%X", &time );
     string result = buf;
     result += "." + mil_sec;
     //    cerr << "formatted time = " << result << endl;
