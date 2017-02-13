@@ -780,7 +780,7 @@ namespace folia {
     // then return the associated text()
     // if this is a PhonContent or it may contain PhonContent
     // then return the associated phon()
-    // otherwise fallback to the tagname.
+    // otherwise return empty string
     UnicodeString us;
     try {
       us = text(cls);
@@ -789,9 +789,8 @@ namespace folia {
       try {
 	us = phon(cls);
       }
-      catch( NoSuchText& e ){
+      catch( NoSuchPhon& e ){
 	// No TextContent or Phone allowed
-	us = xmltag().c_str();
       }
     }
     return UnicodeToUTF8( us );
@@ -1118,7 +1117,6 @@ namespace folia {
     // Does not recurse into children
     // with sole exception of Correction
     // Raises NoSuchPhon exception if not found.
-
     if ( !speakable() ) {
       throw NoSuchPhon( "non-speakable element: " + xmltag() );
     }
@@ -1141,7 +1139,7 @@ namespace folia {
   //#define DEBUG_PHON
 
   const UnicodeString FoliaImpl::phon( const string& cls,
-				 bool strict ) const {
+				       bool strict ) const {
     // get the UnicodeString value of underlying elements
     // default cls="current"
 #ifdef DEBUG_PHON
@@ -1220,7 +1218,11 @@ namespace folia {
     cerr << "deepphon() for " << xmltag() << " step 3 " << endl;
 #endif
     if ( result.isEmpty() ) {
-      result = phoncontent(cls)->phon();
+      try {
+	result = phoncontent(cls)->phon();
+      }
+      catch ( ... ) {
+      }
     }
 #ifdef DEBUG_TEXT
     cerr << "deepphontext() for " << xmltag() << " result= '" << result << "'" << endl;
