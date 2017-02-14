@@ -951,6 +951,31 @@ namespace folia {
     }
   }
 
+  void Document::un_declare( AnnotationType::AnnotationType type,
+			     const string& s ){
+    auto const adt = annotationdefaults.find(type);
+    if ( adt != annotationdefaults.end() ){
+      auto it = adt->second.begin();
+      while ( it != adt->second.end() ){
+	if ( it->first == s ){
+	  it = adt->second.erase(it);
+	}
+	else {
+	  ++it;
+	}
+      }
+      auto it2 = anno_sort.begin();
+      while ( it2 != anno_sort.end() ){
+	if ( it2->first == type && it2->second == s ){
+	  it2 = anno_sort.erase( it2 );
+	}
+	else {
+	  ++it2;
+	}
+      }
+    }
+  }
+
   Text* Document::addText( const KWargs& kwargs ){
     Text *res = new Text( kwargs, this );
     foliadoc->append( res );

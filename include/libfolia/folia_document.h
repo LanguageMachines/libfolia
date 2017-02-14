@@ -164,6 +164,8 @@ namespace folia {
     void declare( AnnotationType::AnnotationType,
 		  const std::string&, const std::string&,
 		  const std::string&, const std::string& );
+    void un_declare( AnnotationType::AnnotationType,
+		     const std::string& );
     xmlDoc *XmlDoc() const { return _xmldoc; };
     xmlNs *foliaNs() const { return _foliaNsOut; };
     void keepForDeletion( FoliaElement *p ) { delSet.insert( p ); };
