@@ -953,6 +953,10 @@ namespace folia {
 
   void Document::un_declare( AnnotationType::AnnotationType type,
 			     const string& s ){
+    if (  annotationrefs[type][s] != 0 ){
+      throw XmlError( "unable to undeclare " + toString(type) + "-type("
+		      + s + ") (references remain)" );
+    }
     auto const adt = annotationdefaults.find(type);
     if ( adt != annotationdefaults.end() ){
       auto it = adt->second.begin();
@@ -1009,6 +1013,20 @@ namespace folia {
       }
     }
     return false;
+  }
+
+  void Document::incrRef( AnnotationType::AnnotationType type,
+			  const string& s ){
+    if ( type != AnnotationType::NO_ANN ){
+      ++annotationrefs[type][s];
+    }
+  }
+
+  void Document::decrRef( AnnotationType::AnnotationType type,
+			  const string& s ){
+    if ( type != AnnotationType::NO_ANN ){
+      --annotationrefs[type][s];
+    }
   }
 
   bool Document::isDeclared( AnnotationType::AnnotationType type,

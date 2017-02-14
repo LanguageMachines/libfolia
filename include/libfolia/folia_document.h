@@ -181,9 +181,12 @@ namespace folia {
       std::string t;
       std::string d;
     };
+    void incrRef( AnnotationType::AnnotationType, const std::string& );
+    void decrRef( AnnotationType::AnnotationType, const std::string& );
   private:
     std::map<AnnotationType::AnnotationType,std::multimap<std::string,at_t> > annotationdefaults;
     std::vector<std::pair<AnnotationType::AnnotationType,std::string>> anno_sort;
+    std::map<AnnotationType::AnnotationType,std::map<std::string,int> > annotationrefs;
     FoliaElement* parseFoliaDoc( xmlNode * );
     void parsemeta( xmlNode * );
     void setimdi( xmlNode * );

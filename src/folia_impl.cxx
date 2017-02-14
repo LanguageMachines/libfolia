@@ -186,6 +186,7 @@ namespace folia {
     //	 << (void*)this << " datasize= " << data.size() << endl;
     if ( mydoc ) {
       mydoc->delDocIndex( this, _id );
+      mydoc->incrRef( annotation_type(), _set );
     }
   }
 
@@ -272,6 +273,7 @@ namespace folia {
 	throw ValueError( "Set " + _set + " is used but has no declaration " +
 			  "for " + toString( annotation_type() ) + "-annotation" );
       }
+      mydoc->incrRef( annotation_type(), _set );
       kwargs.erase( it );
     }
     else if ( mydoc && ( def = mydoc->defaultset( annotation_type() )) != "" ) {
@@ -296,6 +298,7 @@ namespace folia {
 	  throw ValueError( "Class " + _class + " is used but has no default declaration " +
 			    "for " + toString( annotation_type() ) + "-annotation" );
 	}
+	mydoc->incrRef( annotation_type(), _set );
       }
       kwargs.erase( it );
     }
@@ -1407,6 +1410,7 @@ namespace folia {
 			  + "element: " + myid + " but has no declaration " +
 			  "for " + toString( annotation_type() ) + "-annotation" );
       }
+      mydoc->incrRef( annotation_type(), _set );
       if ( !myid.empty() ) {
 	doc->addDocIndex( this, myid );
       }
