@@ -1018,7 +1018,12 @@ namespace folia {
   void Document::incrRef( AnnotationType::AnnotationType type,
 			  const string& s ){
     if ( type != AnnotationType::NO_ANN ){
-      ++annotationrefs[type][s];
+      string st = s;
+      if ( st.empty() ){
+	st = defaultset(type);
+      }
+      ++annotationrefs[type][st];
+      //      cerr << "increment " << toString(type) << "(" << st << ")" << endl;
     }
   }
 
@@ -1026,6 +1031,7 @@ namespace folia {
 			  const string& s ){
     if ( type != AnnotationType::NO_ANN ){
       --annotationrefs[type][s];
+      //      cerr << "decrement " << toString(type) << "(" << s << ")" << endl;
     }
   }
 
