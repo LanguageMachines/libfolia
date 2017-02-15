@@ -957,11 +957,12 @@ namespace folia {
       throw XmlError( "unable to undeclare " + toString(type) + "-type("
 		      + s + ") (references remain)" );
     }
+    //    cerr << "UN-declare " << toString(type) << "(" << s << ")" << endl;
     auto const adt = annotationdefaults.find(type);
     if ( adt != annotationdefaults.end() ){
       auto it = adt->second.begin();
       while ( it != adt->second.end() ){
-	if ( it->first == s ){
+	if ( s.empty() || it->first == s ){
 	  it = adt->second.erase(it);
 	}
 	else {
