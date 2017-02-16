@@ -359,6 +359,7 @@ namespace folia {
     virtual const std::string speech_src() const = 0;
     virtual const std::string speech_speaker() const = 0;
     virtual const std::string language( const std::string& = "" ) const = 0;
+    virtual const std::string set_to_current() NOT_IMPLEMENTED;
     virtual double confidence() const = 0;
     virtual void confidence( double ) = 0;
     virtual ElementType element_id() const = 0;
@@ -962,6 +963,11 @@ namespace folia {
     int offset() const { return _offset; };
     TextContent *postappend();
     std::vector<FoliaElement*> findreplacables( FoliaElement * ) const;
+    const std::string set_to_current() { // Don't use without thinking twice!
+      std::string res = _class;
+      _class="current";
+      return res;
+    }
   private:
     void init();
     static properties PROPS;

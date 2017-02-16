@@ -287,7 +287,7 @@ namespace folia {
 	throw ValueError("Class is not supported for " + classname() );
       }
       _class = it->second;
-      if ( element_id() != TextContent_t ) {
+      if ( element_id() != TextContent_t && element_id() != PhonContent_t ) {
 	if ( !mydoc ) {
 	  throw ValueError( "Class=" + _class + " is used on a node without a document." );
 	}
@@ -1178,7 +1178,7 @@ namespace folia {
     vector<UnicodeString> seps;
     for ( const auto& child : data ) {
       // try to get text dynamically from children
-      // skip TextContent elements
+      // skip PhonContent elements
 #ifdef DEBUG_PHON
       if ( !child->speakable() ) {
 	cerr << "deepphon: node[" << child->xmltag() << "] NOT SPEAKABLE! " << endl;
