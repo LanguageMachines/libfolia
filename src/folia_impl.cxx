@@ -273,7 +273,6 @@ namespace folia {
 	throw ValueError( "Set " + _set + " is used but has no declaration " +
 			  "for " + toString( annotation_type() ) + "-annotation" );
       }
-      mydoc->incrRef( annotation_type(), _set );
       kwargs.erase( it );
     }
     else if ( mydoc && ( def = mydoc->defaultset( annotation_type() )) != "" ) {
@@ -288,7 +287,7 @@ namespace folia {
 	throw ValueError("Class is not supported for " + classname() );
       }
       _class = it->second;
-      if ( element_id() != TextContent_t ) {
+      if ( element_id() != TextContent_t && element_id() != PhonContent_t ) {
 	if ( !mydoc ) {
 	  throw ValueError( "Class=" + _class + " is used on a node without a document." );
 	}
@@ -298,9 +297,7 @@ namespace folia {
 	  throw ValueError( "Class " + _class + " is used but has no default declaration " +
 			    "for " + toString( annotation_type() ) + "-annotation" );
 	}
-	if ( _set.empty() ){
-	  mydoc->incrRef( annotation_type(), _set );
-	}
+	mydoc->incrRef( annotation_type(), _set );
       }
       kwargs.erase( it );
     }
@@ -1181,7 +1178,7 @@ namespace folia {
     vector<UnicodeString> seps;
     for ( const auto& child : data ) {
       // try to get text dynamically from children
-      // skip TextContent elements
+      // skip PhonContent elements
 #ifdef DEBUG_PHON
       if ( !child->speakable() ) {
 	cerr << "deepphon: node[" << child->xmltag() << "] NOT SPEAKABLE! " << endl;
@@ -1411,9 +1408,6 @@ namespace folia {
 	throw ValueError( "Set " + _set + " is used in " + xmltag()
 			  + "element: " + myid + " but has no declaration " +
 			  "for " + toString( annotation_type() ) + "-annotation" );
-      }
-      if ( _set.empty() ){
-	mydoc->incrRef( annotation_type(), _set );
       }
       if ( !myid.empty() ) {
 	doc->addDocIndex( this, myid );
@@ -3280,7 +3274,7 @@ namespace folia {
   }
 
   void AbstractAnnotationLayer::assignset( FoliaElement *child ) {
-    // If there is no set (yet), try to get the set form the child
+    // If there is no set (yet), try to get the set from the child
     // but not if it is the default set.
     // for a Correction child, we look deeper.
     if ( _set.empty() ) {
@@ -3289,6 +3283,7 @@ namespace folia {
 	if ( !st.empty()
 	     && mydoc->defaultset( child->annotation_type() ) != st ) {
 	  _set = st;
+	  mydoc->incrRef( child->annotation_type(), _set );
 	}
       }
       else if ( child->isinstance(Correction_t) ) {
@@ -3301,6 +3296,7 @@ namespace folia {
 	      if ( !st.empty()
 		   && mydoc->defaultset( el->annotation_type() ) != st ) {
 		_set = st;
+		mydoc->incrRef( el->annotation_type(), _set );
 		return;
 	      }
 	    }
@@ -3315,6 +3311,7 @@ namespace folia {
 	      if ( !st.empty()
 		   && mydoc->defaultset( el->annotation_type() ) != st ) {
 		_set = st;
+		mydoc->incrRef( el->annotation_type(), _set );
 		return;
 	      }
 	    }
@@ -3327,6 +3324,7 @@ namespace folia {
 	    if ( !st.empty()
 		 && mydoc->defaultset( el->annotation_type() ) != st ) {
 	      _set = st;
+	      mydoc->incrRef( el->annotation_type(), _set );
 	      return;
 	    }
 	  }

@@ -35,6 +35,15 @@ using namespace std;
 
 void usage(){
   cerr << "usage: folialint [options] <foliafiles>" << endl;
+  cerr << "options are" << endl;
+  cerr << "\t-h or --help\t\t This help" << endl;
+  cerr << "\t-V or --version\t\t Show versions" << endl;
+  cerr << "\t--strip\t\t\t strip variable items from the FoLiA. Like all dates." << endl;
+  cerr << "\t\t\t\t This is usefull to generate FoLiA that can be diffed." << endl;
+  cerr << "\t--output='file'\t\t name an outputfile. (default is stdout)" << endl;
+  cerr << "\t--nooutput\t\t Suppress output. Only warnings/errors are displayed." << endl;
+  cerr << "\t--debug=value\t\t Run more verbose." << endl;
+  cerr << "\t--permissive\t\t Accept some unwise constructions." << endl;
 }
 
 int main( int argc, char* argv[] ){
