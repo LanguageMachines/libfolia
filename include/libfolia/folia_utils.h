@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2006 - 2016
+  Copyright (c) 2006 - 2017
   CLST  - Radboud University
   ILK   - Tilburg University
 
@@ -50,58 +50,58 @@ namespace folia {
 
   class ArgsError: public std::runtime_error {
   public:
-  ArgsError( const std::string& s ): std::runtime_error( "error in argument list: " + s  ){};
+    explicit ArgsError( const std::string& s ): std::runtime_error( "error in argument list: " + s  ){};
   };
 
   class KeyError: public std::out_of_range {
   public:
-  KeyError(): std::out_of_range( "key out of range" ){};
+    explicit KeyError(): std::out_of_range( "key out of range" ){};
   };
 
   class NotImplementedError: public std::runtime_error {
   public:
-  NotImplementedError( const std::string& s ):
+    explicit NotImplementedError( const std::string& s ):
     std::runtime_error( "NOT IMPLEMENTED: " + s ){};
   };
 
   class ValueError: public std::runtime_error {
   public:
-  ValueError( const std::string& s ): std::runtime_error( s ){};
+    explicit ValueError( const std::string& s ): std::runtime_error( s ){};
   };
 
   class XmlError: public std::runtime_error {
   public:
-  XmlError( const std::string& s ): std::runtime_error( "XML error: " + s ){};
+    explicit XmlError( const std::string& s ): std::runtime_error( "XML error: " + s ){};
   };
 
   class NoSuchAnnotation: public std::runtime_error {
   public:
-  NoSuchAnnotation( const std::string& s ): std::runtime_error( "no such annotation: " + s ){};
+    explicit NoSuchAnnotation( const std::string& s ): std::runtime_error( "no such annotation: " + s ){};
   };
 
   class NoSuchText: public std::runtime_error {
   public:
-  NoSuchText( const std::string& s ): std::runtime_error( "no such text: " + s ){};
+    explicit NoSuchText( const std::string& s ): std::runtime_error( "no such text: " + s ){};
   };
 
   class NoSuchPhon: public std::runtime_error {
   public:
-  NoSuchPhon( const std::string& s ): std::runtime_error( "no such phoneme: " + s ){};
+    explicit NoSuchPhon( const std::string& s ): std::runtime_error( "no such phoneme: " + s ){};
   };
 
   class DuplicateAnnotationError: public std::runtime_error {
   public:
-  DuplicateAnnotationError( const std::string& s ): std::runtime_error( s ){};
+    explicit DuplicateAnnotationError( const std::string& s ): std::runtime_error( s ){};
   };
 
   class DuplicateIDError: public std::runtime_error {
   public:
-  DuplicateIDError( const std::string& s ): std::runtime_error( "duplicate ID : " + s ){};
+    explicit DuplicateIDError( const std::string& s ): std::runtime_error( "duplicate ID : " + s ){};
   };
 
   class NoDefaultError: public std::runtime_error {
   public:
-  NoDefaultError( const std::string& s ): std::runtime_error( "No Default found: " + s ){};
+    explicit NoDefaultError( const std::string& s ): std::runtime_error( "No Default found: " + s ){};
   };
 
   UnicodeString UTF8ToUnicode( const std::string& );

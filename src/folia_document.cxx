@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2006 - 2016
+  Copyright (c) 2006 - 2017
   CLST  - Radboud University
   ILK   - Tilburg University
 
@@ -155,7 +155,8 @@ namespace folia {
     it = kwargs.find( "mode" );
     if ( it != kwargs.end() ){
       mode = it->second;
-      if ( mode != "permissive" && mode != "strip" ){
+      if ( mode != "permissive"
+	   && mode != "strip" ){
 	throw runtime_error( "FoLiA::Document: unsupported mode value: "+mode );
       }
     }
@@ -279,7 +280,7 @@ namespace folia {
       foliadoc = parseXml();
       if ( debug ){
 	if ( foliadoc ){
-	  cout << "succesful parsed the doc" << endl;
+	  cout << "successful parsed the doc" << endl;
 	}
 	else
 	  cout << "failed to parse the doc" << endl;
@@ -311,7 +312,7 @@ namespace folia {
       foliadoc = parseXml();
       if ( debug ){
 	if ( foliadoc ){
-	  cout << "succesful parsed the doc" << endl;
+	  cout << "successful parsed the doc" << endl;
 	}
 	else
 	  cout << "failed to parse the doc" << endl;
@@ -327,7 +328,7 @@ namespace folia {
 
   ostream& operator<<( ostream& os, const Document *d ){
     if ( d ){
-      string s = d->toXml();
+      string s = d->toXml( "", (d->mode == "strip") );
       os << s << endl;
     }
     else {
@@ -337,7 +338,7 @@ namespace folia {
   }
 
   bool Document::save( ostream& os, const string& nsLabel, bool kanon ) {
-    string s = toXml( nsLabel, kanon );
+    string s = toXml( nsLabel, ( kanon || (mode == "strip") ) );
     os << s << endl;
     return os.good();
   }
@@ -346,7 +347,7 @@ namespace folia {
     try {
       if ( match_back( fn, ".bz2" ) ){
 	string tmpname = fn.substr( 0, fn.length() - 3 ) + "tmp";
-	if ( toXml( tmpname, nsLabel, kanon ) ){
+	if ( toXml( tmpname, nsLabel, ( kanon || mode == "strip" ) ) ){
 	  bool stat = bz2Compress( tmpname, fn );
 	  remove( tmpname.c_str() );
 	  return stat;
@@ -357,7 +358,7 @@ namespace folia {
       }
       else  if ( match_back( fn, ".gz" ) ){
 	string tmpname = fn.substr( 0, fn.length() - 2 ) + "tmp";
-	if ( toXml( tmpname, nsLabel, kanon ) ){
+	if ( toXml( tmpname, nsLabel,  ( kanon || mode == "strip" ) ) ){
 	  bool stat = gzCompress( tmpname, fn );
 	  remove( tmpname.c_str() );
 	  return stat;
@@ -367,7 +368,7 @@ namespace folia {
 	}
       }
       else {
-	return toXml( fn, nsLabel, kanon );
+	return toXml( fn, nsLabel,  ( kanon || mode == "strip" ) );
       }
     }
     catch ( const exception& e ){
@@ -950,6 +951,36 @@ namespace folia {
     }
   }
 
+  void Document::un_declare( AnnotationType::AnnotationType type,
+			     const string& s ){
+    if (  annotationrefs[type][s] != 0 ){
+      throw XmlError( "unable to undeclare " + toString(type) + "-type("
+		      + s + ") (references remain)" );
+    }
+    //    cerr << "UN-declare " << toString(type) << "(" << s << ")" << endl;
+    auto const adt = annotationdefaults.find(type);
+    if ( adt != annotationdefaults.end() ){
+      auto it = adt->second.begin();
+      while ( it != adt->second.end() ){
+	if ( s.empty() || it->first == s ){
+	  it = adt->second.erase(it);
+	}
+	else {
+	  ++it;
+	}
+      }
+      auto it2 = anno_sort.begin();
+      while ( it2 != anno_sort.end() ){
+	if ( it2->first == type && it2->second == s ){
+	  it2 = anno_sort.erase( it2 );
+	}
+	else {
+	  ++it2;
+	}
+      }
+    }
+  }
+
   Text* Document::addText( const KWargs& kwargs ){
     Text *res = new Text( kwargs, this );
     foliadoc->append( res );
@@ -983,6 +1014,26 @@ namespace folia {
       }
     }
     return false;
+  }
+
+  void Document::incrRef( AnnotationType::AnnotationType type,
+			  const string& s ){
+    if ( type != AnnotationType::NO_ANN ){
+      string st = s;
+      if ( st.empty() ){
+	st = defaultset(type);
+      }
+      ++annotationrefs[type][st];
+      //      cerr << "increment " << toString(type) << "(" << st << ")" << endl;
+    }
+  }
+
+  void Document::decrRef( AnnotationType::AnnotationType type,
+			  const string& s ){
+    if ( type != AnnotationType::NO_ANN ){
+      --annotationrefs[type][s];
+      //      cerr << "decrement " << toString(type) << "(" << s << ")" << endl;
+    }
   }
 
   bool Document::isDeclared( AnnotationType::AnnotationType type,
@@ -1335,7 +1386,7 @@ namespace folia {
 	      tmp1 = matched;
 	    vector<Word*> tmp2;
 	    if ( rightcontext > 0 ){
-	      tmp2 = matched[matched.size()-1]->rightcontext(rightcontext);
+	      tmp2 = matched.back()->rightcontext(rightcontext);
 	      //	    cerr << "findnodes() tmp2 ==> " << tmp2 << endl;
 	      copy( tmp2.begin(), tmp2.end(), back_inserter(tmp1) );
 	      //	    cerr << "findnodes() tmp2 na copy ==> " << tmp2 << endl;

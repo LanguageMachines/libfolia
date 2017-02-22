@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2006 - 2016
+  Copyright (c) 2006 - 2017
   CLST  - Radboud University
   ILK   - Tilburg University
 
@@ -81,7 +81,7 @@ namespace folia {
     friend std::ostream& operator<<( std::ostream&, const Document * );
   public:
     Document();
-    Document( const std::string& );
+    explicit Document( const std::string& );
     ~Document();
     void init();
     bool readFromFile( const std::string& );
@@ -164,6 +164,8 @@ namespace folia {
     void declare( AnnotationType::AnnotationType,
 		  const std::string&, const std::string&,
 		  const std::string&, const std::string& );
+    void un_declare( AnnotationType::AnnotationType,
+		     const std::string& );
     xmlDoc *XmlDoc() const { return _xmldoc; };
     xmlNs *foliaNs() const { return _foliaNsOut; };
     void keepForDeletion( FoliaElement *p ) { delSet.insert( p ); };
@@ -179,9 +181,12 @@ namespace folia {
       std::string t;
       std::string d;
     };
+    void incrRef( AnnotationType::AnnotationType, const std::string& );
+    void decrRef( AnnotationType::AnnotationType, const std::string& );
   private:
     std::map<AnnotationType::AnnotationType,std::multimap<std::string,at_t> > annotationdefaults;
     std::vector<std::pair<AnnotationType::AnnotationType,std::string>> anno_sort;
+    std::map<AnnotationType::AnnotationType,std::map<std::string,int> > annotationrefs;
     FoliaElement* parseFoliaDoc( xmlNode * );
     void parsemeta( xmlNode * );
     void setimdi( xmlNode * );

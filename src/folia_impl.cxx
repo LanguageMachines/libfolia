@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2006 - 2016
+  Copyright (c) 2006 - 2017
   CLST  - Radboud University
   ILK   - Tilburg University
 
@@ -101,6 +101,14 @@ namespace folia {
     return _props.SPEAKABLE;
   }
 
+  bool FoliaImpl::is_textcontainer() const {
+    return _props.TEXTCONTAINER;
+  }
+
+  bool FoliaImpl::is_phoncontainer() const {
+    return _props.PHONCONTAINER;
+  }
+
   bool FoliaImpl::xlink() const {
     return _props.XLINK;
   }
@@ -178,6 +186,7 @@ namespace folia {
     //	 << (void*)this << " datasize= " << data.size() << endl;
     if ( mydoc ) {
       mydoc->delDocIndex( this, _id );
+      mydoc->decrRef( annotation_type(), _set );
     }
   }
 
@@ -278,7 +287,7 @@ namespace folia {
 	throw ValueError("Class is not supported for " + classname() );
       }
       _class = it->second;
-      if ( element_id() != TextContent_t ) {
+      if ( element_id() != TextContent_t && element_id() != PhonContent_t ) {
 	if ( !mydoc ) {
 	  throw ValueError( "Class=" + _class + " is used on a node without a document." );
 	}
@@ -288,6 +297,7 @@ namespace folia {
 	  throw ValueError( "Class " + _class + " is used but has no default declaration " +
 			    "for " + toString( annotation_type() ) + "-annotation" );
 	}
+	mydoc->incrRef( annotation_type(), _set );
       }
       kwargs.erase( it );
     }
@@ -772,7 +782,7 @@ namespace folia {
     // then return the associated text()
     // if this is a PhonContent or it may contain PhonContent
     // then return the associated phon()
-    // otherwise fallback to the tagname.
+    // otherwise return empty string
     UnicodeString us;
     try {
       us = text(cls);
@@ -781,9 +791,8 @@ namespace folia {
       try {
 	us = phon(cls);
       }
-      catch( NoSuchText& e ){
+      catch( NoSuchPhon& e ){
 	// No TextContent or Phone allowed
-	us = xmltag().c_str();
       }
     }
     return UnicodeToUTF8( us );
@@ -870,8 +879,7 @@ namespace folia {
     if ( strict ) {
       return textcontent(cls)->text();
     }
-    else if ( element_id() == TextContent_t
-	      || element_id() == AbstractTextMarkup_t ){ // TEXTCONTAINER property
+    else if ( is_textcontainer() ){
       UnicodeString result;
       for ( const auto& d : data ){
 	if ( !result.isEmpty() ){
@@ -1111,7 +1119,6 @@ namespace folia {
     // Does not recurse into children
     // with sole exception of Correction
     // Raises NoSuchPhon exception if not found.
-
     if ( !speakable() ) {
       throw NoSuchPhon( "non-speakable element: " + xmltag() );
     }
@@ -1134,7 +1141,7 @@ namespace folia {
   //#define DEBUG_PHON
 
   const UnicodeString FoliaImpl::phon( const string& cls,
-				 bool strict ) const {
+				       bool strict ) const {
     // get the UnicodeString value of underlying elements
     // default cls="current"
 #ifdef DEBUG_PHON
@@ -1171,7 +1178,7 @@ namespace folia {
     vector<UnicodeString> seps;
     for ( const auto& child : data ) {
       // try to get text dynamically from children
-      // skip TextContent elements
+      // skip PhonContent elements
 #ifdef DEBUG_PHON
       if ( !child->speakable() ) {
 	cerr << "deepphon: node[" << child->xmltag() << "] NOT SPEAKABLE! " << endl;
@@ -1213,7 +1220,11 @@ namespace folia {
     cerr << "deepphon() for " << xmltag() << " step 3 " << endl;
 #endif
     if ( result.isEmpty() ) {
-      result = phoncontent(cls)->phon();
+      try {
+	result = phoncontent(cls)->phon();
+      }
+      catch ( ... ) {
+      }
     }
 #ifdef DEBUG_TEXT
     cerr << "deepphontext() for " << xmltag() << " result= '" << result << "'" << endl;
@@ -1243,7 +1254,7 @@ namespace folia {
       throw runtime_error( "Unable to replace. Multiple candidates found, unable to choose." );
     }
     else {
-      remove( replace[0], true );
+      this->remove( replace[0], true );
       append( child );
     }
   }
@@ -1467,7 +1478,7 @@ namespace folia {
     bool ok = false;
     try {
       ok = child->checkAtts();
-      ok = addable( child );
+      ok &= addable( child );
     }
     catch ( XmlError& ) {
       // don't delete the offending child in case of illegal reconnection
@@ -1585,7 +1596,7 @@ namespace folia {
       if ( !ns.empty() && ns != NSFOLIA ){
 	// skip alien nodes
 	if ( doc() && doc()->debug > 2 ) {
-	  cerr << "skiping non-FoLiA node: " << pref << ":" << Name(p) << endl;
+	  cerr << "skipping non-FoLiA node: " << pref << ":" << Name(p) << endl;
 	}
 	p = p->next;
 	continue;
@@ -1605,7 +1616,7 @@ namespace folia {
 	    append( t );
 	  }
 	}
-	else if ( mydoc || !mydoc->permissive() ){
+	else if ( mydoc && !mydoc->permissive() ){
 	  throw XmlError( "FoLiA parser terminated" );
 	}
       }
@@ -1845,7 +1856,7 @@ namespace folia {
     }
     catch( DuplicateIDError& e ) {
       delete res;
-      throw e;
+      throw;
     }
     append( res );
     return res;
@@ -1863,7 +1874,7 @@ namespace folia {
     }
     catch( DuplicateIDError& e ) {
       delete res;
-      throw e;
+      throw;
     }
     append( res );
     return res;
@@ -1975,15 +1986,15 @@ namespace folia {
     if ( !w || !w->isinstance( Word_t ) ) {
       throw runtime_error( "insertword(): new word is not a Word " );
     }
-    KWargs kwargs;
-    kwargs["text"] = "dummy";
-    kwargs["id"] = "dummy";
-    Word *tmp = new Word( kwargs );
-    tmp->setParent( this ); // we create a dummy Word as member of the
-    // Sentence. This makes correctWords() happy
     auto it = data.begin();
     while ( it != data.end() ) {
       if ( *it == p ) {
+	KWargs kwargs;
+	kwargs["text"] = "dummy";
+	kwargs["id"] = "dummy";
+	Word *tmp = new Word( kwargs );
+	tmp->setParent( this ); // we create a dummy Word as member of the
+	// Sentence. This makes correctWords() happy
 	it = data.insert( ++it, tmp );
 	break;
       }
@@ -2214,22 +2225,30 @@ namespace folia {
     return result;
   }
 
-  string AllowGenerateID::IDgen( const string& tag,
-				 const FoliaElement* parent ) {
-    string nodeId = parent->id();
-    if ( nodeId.empty() ) {
-      // search nearest parent WITH an id
-      const FoliaElement *p = parent;
-      while ( p && p->id().empty() )
-	p = p->parent();
-      nodeId = p->id();
+  const string AllowGenerateID::generateId( const string& tag ){
+    // generate an new ID using my ID
+    // if ni ID, look upward.
+    string nodeId = id();
+    // cerr << "node: " << this << endl;
+    // cerr << "ID=" << nodeId << endl;
+    if ( nodeId.empty() ){
+      FoliaElement *par = parent();
+      if ( !par ){
+	throw XmlError( "unable to generate an ID. No StructureElement parent found?" );
+      }
+      // cerr << "call on parent:" << parent << endl;
+      return par->generateId( tag );
     }
-    //    cerr << "generateId," << tag << " nodeId = " << nodeId << endl;
-    int max = getMaxId(tag);
-    //    cerr << "MAX = " << max << endl;
-    string id = nodeId + '.' + tag + '.' +  TiCC::toString( max + 1 );
-    //    cerr << "new id = " << id << endl;
-    return id;
+    else {
+      int max = 0;
+      if ( !tag.empty() ) {
+	max = ++id_map[tag];
+      }
+      // cerr << "MAX = " << max << endl;
+      string id = nodeId + '.' + tag + '.' +  TiCC::toString( max );
+      // cerr << "new id = " << id << endl;
+      return id;
+    }
   }
 
   void AllowGenerateID::setMaxId( FoliaElement *child ) {
@@ -2257,15 +2276,6 @@ namespace folia {
 	}
       }
     }
-  }
-
-  int AllowGenerateID::getMaxId( const string& xmltag ) {
-    int res = 0;
-    if ( !xmltag.empty() ) {
-      res = id_map[xmltag];
-      ++id_map[xmltag];
-    }
-    return res;
   }
 
   //#define DEBUG_CORRECT 1
@@ -2440,7 +2450,7 @@ namespace folia {
 	      cerr << " corr before remove " << corr << endl;
 	      cerr << " remove  " << org << endl;
 #endif
-	      remove( org, false );
+	      this->remove( org, false );
 #ifdef DEBUG_CORRECT
 	      cerr << " corr after remove " << corr << endl;
 #endif
@@ -2513,7 +2523,7 @@ namespace folia {
 		cerr << " corr before remove " << corr << endl;
 		cerr << " remove  " << org << endl;
 #endif
-		remove( org, false );
+		this->remove( org, false );
 #ifdef DEBUG_CORRECT
 		cerr << " corr after remove " << corr << endl;
 #endif
@@ -2534,7 +2544,7 @@ namespace folia {
 #ifdef DEBUG_CORRECT
 	  cerr << " remove cur=" << cur << endl;
 #endif
-	  remove( cur, false );
+	  this->remove( cur, false );
 	}
       }
     }
@@ -3264,7 +3274,7 @@ namespace folia {
   }
 
   void AbstractAnnotationLayer::assignset( FoliaElement *child ) {
-    // If there is no set (yet), try to get the set form the child
+    // If there is no set (yet), try to get the set from the child
     // but not if it is the default set.
     // for a Correction child, we look deeper.
     if ( _set.empty() ) {
@@ -3273,6 +3283,7 @@ namespace folia {
 	if ( !st.empty()
 	     && mydoc->defaultset( child->annotation_type() ) != st ) {
 	  _set = st;
+	  mydoc->incrRef( child->annotation_type(), _set );
 	}
       }
       else if ( child->isinstance(Correction_t) ) {
@@ -3285,6 +3296,7 @@ namespace folia {
 	      if ( !st.empty()
 		   && mydoc->defaultset( el->annotation_type() ) != st ) {
 		_set = st;
+		mydoc->incrRef( el->annotation_type(), _set );
 		return;
 	      }
 	    }
@@ -3299,6 +3311,7 @@ namespace folia {
 	      if ( !st.empty()
 		   && mydoc->defaultset( el->annotation_type() ) != st ) {
 		_set = st;
+		mydoc->incrRef( el->annotation_type(), _set );
 		return;
 	      }
 	    }
@@ -3311,6 +3324,7 @@ namespace folia {
 	    if ( !st.empty()
 		 && mydoc->defaultset( el->annotation_type() ) != st ) {
 	      _set = st;
+	      mydoc->incrRef( el->annotation_type(), _set );
 	      return;
 	    }
 	  }
@@ -3843,14 +3857,19 @@ namespace folia {
       if ( _subset.empty() ){
 	throw ValueError("subset attribute is required for " + classname() );
       }
-
     }
     else {
+      if ( it->second.empty() ) {
+	throw ValueError("subset attribute may never be empty: " + classname() );
+      }
       _subset = it->second;
     }
     it = kwargs.find( "class" );
     if ( it == kwargs.end() ) {
       throw ValueError("class attribute is required for " + classname() );
+    }
+    if ( it->second.empty() ) {
+      throw ValueError("class attribute may never be empty: " + classname() );
     }
     _class = it->second;
   }
