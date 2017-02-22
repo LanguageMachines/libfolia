@@ -24,7 +24,7 @@ libfolia is distributed under the GNU Public Licence v3 (see the file COPYING).
 Installation
 -----------------------------------------------------------------------
 
-This software has been tested to compile with Gcc or Clang, and runs on the
+This software has been tested to compile with GCC > 4.9 or Clang, and runs on the
 following platforms:
 - Intel platforms running several versions of Linux, including Ubuntu, Debian,
   Arch Linux, Fedora (both 32 and 64 bits)
@@ -41,7 +41,7 @@ To be able to succesfully build libfolia from source, you need the following dep
 - [ticcutils](https://github.com/LanguageMachines/ticcutils)
 - ``libxml2-dev`` (use your distribution's package manager)
 - ``libicu-dev``
-- A sane C++ build environment with autoconf, automake, autoconf-archive, make, gcc or clang, libtool, pkg-config
+- A sane C++ build environment with autoconf, automake, autoconf-archive, make, gcc 4.9 or higher or clang, libtool, pkg-config
 
 To install libfolia, *first consult whether your distribution's package manager
 has an up-to-date package for it*.  If not, for easy installation of libfolia
