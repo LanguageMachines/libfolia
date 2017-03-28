@@ -6,7 +6,7 @@
 #include "libfolia/folia_properties.h"
 
 //foliaspec:header
-//This file was last updated according to the FoLiA specification for version 1.4.1 on 2017-03-28 12:31:15, using foliaspec.py
+//This file was last updated according to the FoLiA specification for version 1.4.1 on 2017-03-28 12:39:45, using foliaspec.py
 //Code blocks after a foliaspec comment (until the next newline) are automatically generated. **DO NOT EDIT THOSE** and **DO NOT REMOVE ANY FOLIASPEC COMMENTS** !!!
 
 namespace folia {
@@ -918,6 +918,7 @@ namespace folia {
     Linebreak::PROPS.ANNOTATIONTYPE = AnnotationType::LINEBREAK;
     Linebreak::PROPS.LABEL = "Linebreak";
     Linebreak::PROPS.TEXTDELIMITER = "";
+    Linebreak::PROPS.XLINK = true;
     Linebreak::PROPS.XMLTAG = "br";
 //------ List -------
     List::PROPS = AbstractStructureElement::PROPS;
