@@ -696,7 +696,7 @@ namespace folia {
     }
     string vers = att["version"];
     if ( check_version( vers ) > 0 ){
-      cerr << "WARNING!!! FoLiA Document is a newer version then this library ("
+      cerr << "WARNING!!! FoLiA Document is a newer version than this library ("
 	   << vers << " vs " << version
 	   << ")\n\t Any possible subsequent failures in parsing or processing may probably be attributed to this." << endl
 	   << "\t Please upgrade libfolia!" << endl;
