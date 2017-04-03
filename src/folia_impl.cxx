@@ -1093,7 +1093,14 @@ namespace folia {
     // Does not recurse into children
     // with sole exception of Correction
     // Raises NoSuchText exception if not found.
-
+    if ( isinstance(TextContent_t) ){
+      if  ( this->cls() == cls ) {
+	return const_cast<TextContent*>(dynamic_cast<const TextContent*>(this));
+      }
+      else {
+	throw NoSuchText( xmltag() + "::textcontent(" + cls + ")" );
+      }
+    }
     if ( !printable() ) {
       throw NoSuchText( "non-printable element: " +  xmltag() );
     }
@@ -1109,7 +1116,7 @@ namespace folia {
 	}
       }
     }
-    throw NoSuchText( xmltag() + "::textcontent()" );
+    throw NoSuchText( xmltag() + "::textcontent(" + cls + ")" );
   }
 
   PhonContent *FoliaImpl::phoncontent( const string& cls ) const {
