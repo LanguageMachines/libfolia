@@ -334,7 +334,7 @@ namespace folia {
     virtual Correction *correct( const std::string& = "" ) NOT_IMPLEMENTED;
 
     // TextContent
-    virtual TextContent *textcontent( const std::string& = "current" ) const = 0;
+    virtual const TextContent *textcontent( const std::string& = "current" ) const = 0;
     TextContent *settext( const std::string&, const std::string& = "current" );
     TextContent *settext( const std::string&, int , const std::string& = "current" );
     TextContent *setutext( const UnicodeString&, const std::string& = "current" );
@@ -342,7 +342,7 @@ namespace folia {
     virtual int offset() const NOT_IMPLEMENTED;
 
     // PhonContent
-    virtual PhonContent *phoncontent( const std::string& = "current" ) const = 0;
+    virtual const PhonContent *phoncontent( const std::string& = "current" ) const = 0;
 
     // properties
     virtual const std::string& getTextDelimiter( bool retaintok=false ) const = 0;
@@ -578,9 +578,9 @@ namespace folia {
     Word *addWord( const KWargs& );
 
     // TextContent
-    TextContent *textcontent( const std::string& = "current" ) const;
+    const TextContent *textcontent( const std::string& = "current" ) const;
     // PhonContent
-    PhonContent *phoncontent( const std::string& = "current" ) const;
+    const PhonContent *phoncontent( const std::string& = "current" ) const;
 
     // properties
     const std::string& getTextDelimiter( bool retaintok=false ) const;
@@ -2256,8 +2256,8 @@ namespace folia {
     Suggestion *suggestions( size_t ) const;
     const UnicodeString text( const std::string& = "current",
 			      bool = false, bool = false ) const;
-    TextContent *textcontent( const std::string& = "current" ) const;
-    PhonContent *phoncontent( const std::string& = "current" ) const;
+    const TextContent *textcontent( const std::string& = "current" ) const;
+    const PhonContent *phoncontent( const std::string& = "current" ) const;
     const std::string& getTextDelimiter( bool=false) const;
   private:
     static properties PROPS;

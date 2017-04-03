@@ -1086,16 +1086,17 @@ namespace folia {
     return this->text(cls, true, false );
   }
 
-  TextContent *FoliaImpl::textcontent( const string& cls ) const {
+  const TextContent *FoliaImpl::textcontent( const string& cls ) const {
     // Get the text explicitly associated with this element
     // (of the specified class) the default class is 'current'
     // Returns the TextContent instance rather than the actual text.
+    // (so it might return iself.. ;)
     // Does not recurse into children
     // with sole exception of Correction
     // Raises NoSuchText exception if not found.
     if ( isinstance(TextContent_t) ){
       if  ( this->cls() == cls ) {
-	return const_cast<TextContent*>(dynamic_cast<const TextContent*>(this));
+	return dynamic_cast<const TextContent*>(this);
       }
       else {
 	throw NoSuchText( xmltag() + "::textcontent(" + cls + ")" );
@@ -1119,13 +1120,21 @@ namespace folia {
     throw NoSuchText( xmltag() + "::textcontent(" + cls + ")" );
   }
 
-  PhonContent *FoliaImpl::phoncontent( const string& cls ) const {
+  const PhonContent *FoliaImpl::phoncontent( const string& cls ) const {
     // Get the phon explicitly associated with this element
     // (of the specified class) the default class is 'current'
     // Returns the PhonContent instance rather than the actual phoneme.
     // Does not recurse into children
     // with sole exception of Correction
     // Raises NoSuchPhon exception if not found.
+    if ( isinstance(PhonContent_t) ){
+      if  ( this->cls() == cls ) {
+	return dynamic_cast<const PhonContent*>(this);
+      }
+      else {
+	throw NoSuchPhon( xmltag() + "::phoncontent(" + cls + ")" );
+      }
+    }
     if ( !speakable() ) {
       throw NoSuchPhon( "non-speakable element: " + xmltag() );
     }
@@ -1142,7 +1151,7 @@ namespace folia {
 	}
       }
     }
-    throw NoSuchPhon( xmltag() + "::phoncontent()" );
+    throw NoSuchPhon( xmltag() + "::phoncontent(" + cls + ")" );
   }
 
   //#define DEBUG_PHON
@@ -3474,7 +3483,7 @@ namespace folia {
     return EMPTY_STRING;
   }
 
-  TextContent *Correction::textcontent( const string& cls ) const {
+  const TextContent *Correction::textcontent( const string& cls ) const {
     if ( cls == "current" ) {
       for ( const auto& el : data ) {
 	if ( el->isinstance( New_t ) || el->isinstance( Current_t ) ) {
@@ -3492,7 +3501,7 @@ namespace folia {
     throw NoSuchText("wrong cls");
   }
 
-  PhonContent *Correction::phoncontent( const string& cls ) const {
+  const PhonContent *Correction::phoncontent( const string& cls ) const {
     if ( cls == "current" ) {
       for ( const auto& el: data ) {
 	if ( el->isinstance( New_t ) || el->isinstance( Current_t ) ) {
