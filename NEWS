@@ -1,3 +1,19 @@
+1.7  2017-04-04
+[Ko van der Sloot]
+* textcontent() and phoncontent() return const pointers, and also
+  work for TexContent adn PhonContent elements now
+* some reactoring, as suggested by CPPCHECK
+* typos
+* added dangerous functions to manipulate the class of a TextContent
+* added reference countion on annotations.
+  This allows to remove unneeded declarations.
+* small bug fixes:
+  - str() should never throw.
+  - avoid memory leak
+
+[maarten van Gompel]
+* fixes in folia_properties for FoliA spec 1.4.1
+
 1.6  2017-01-05
 * We now implement FoLiA spec 1.4
 * ABI breakage. .so name bumped to 6.0.0
