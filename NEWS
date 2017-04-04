@@ -1,4 +1,5 @@
 1.7  2017-04-04
+API chaned so bumped library version to 6.1.0
 [Ko van der Sloot]
 * textcontent() and phoncontent() return const pointers, and also
   work for TexContent adn PhonContent elements now
