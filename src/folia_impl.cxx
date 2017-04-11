@@ -1685,6 +1685,20 @@ namespace folia {
       }
       p = p->next;
     }
+    if ( false && is_structure( this ) ){
+      UnicodeString s1, s2;
+      try {
+	s1 = text( "current", false, false ); // no retain, no strict
+	s2 = text( "current", false, true );  // no retain, strict
+      }
+      catch (...){
+      }
+      if ( !s1.isEmpty() && !s2.isEmpty() && s1 != s2 ){
+	cerr << endl << "s1='" << s1 << "'" << endl
+	     << "s2='" << s2 << "'" << endl;
+	//	throw( XmlError( "the textcontent \n'" + UnicodeToUTF8(s2) + "'\ndoesn't reflect the deeper text: \n'" + UnicodeToUTF8(s1) + "'" ) );
+      }
+    }
     return this;
   }
 
