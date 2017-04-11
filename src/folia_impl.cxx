@@ -125,6 +125,10 @@ namespace folia {
     return _props.AUTO_GENERATE_ID;
   }
 
+  bool is_structure( const FoliaElement *el ){
+    return dynamic_cast<const AbstractStructureElement*>( el ) != 0;
+  }
+
   const string FoliaImpl::href() const {
     auto it = _xlink.find("href");
     if ( it != _xlink.end() ){
@@ -843,8 +847,8 @@ namespace folia {
     }
   }
 
-  //#define DEBUG_TEXT
-  //#define DEBUG_TEXT_DEL
+  //  #define DEBUG_TEXT
+  //  #define DEBUG_TEXT_DEL
 
   const string& FoliaImpl::getTextDelimiter( bool retaintok ) const {
 #ifdef DEBUG_TEXT_DEL
@@ -979,7 +983,7 @@ namespace folia {
     // get the UnicodeString value of underlying elements
     // default cls="current"
 #ifdef DEBUG_TEXT
-    cerr << "deepTEXT(" << cls << ") op node : " << xmltag() << " id(" << id() << ")" << endl;
+    cerr << "deepTEXT(" << cls << ") op node : " << xmltag() << " id(" << id() << ") cls=" << this->cls() << ")" << endl;
 #endif
 #ifdef DEBUG_TEXT
     cerr << "deeptext: node has " << data.size() << " children." << endl;
@@ -994,7 +998,11 @@ namespace folia {
 	cerr << "deeptext: node[" << child->xmltag() << "] NOT PRINTABLE! " << endl;
       }
 #endif
-      if ( child->printable() && !child->isinstance( TextContent_t ) ) {
+      if ( child->printable()
+	   && ( is_structure( child )
+		|| child->isSubClass( AbstractSpanAnnotation_t )
+		|| child->isinstance( Correction_t ) )
+	   && !child->isinstance( TextContent_t ) ) {
 #ifdef DEBUG_TEXT
 	cerr << "deeptext:bekijk node[" << child->xmltag() << "]"<< endl;
 #endif
