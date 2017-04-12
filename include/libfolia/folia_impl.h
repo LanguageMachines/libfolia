@@ -961,7 +961,6 @@ namespace folia {
     void setAttributes( const KWargs& );
     KWargs collectAttributes() const;
     int offset() const { return _offset; };
-    TextContent *postappend();
     std::vector<FoliaElement*> findreplacables( FoliaElement * ) const;
     const std::string set_to_current() { // Don't use without thinking twice!
       std::string res = _class;

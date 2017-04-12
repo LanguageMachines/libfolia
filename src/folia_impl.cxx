@@ -1685,18 +1685,24 @@ namespace folia {
       }
       p = p->next;
     }
-    if ( false && is_structure( this ) ){
+    if ( is_structure( this ) ){
       UnicodeString s1, s2;
       try {
-	s1 = text( "current", false, false ); // no retain, no strict
-	s2 = text( "current", false, true );  // no retain, strict
+	s1 = text( "current", false, true );  // no retain, strict
       }
       catch (...){
       }
-      if ( !s1.isEmpty() && !s2.isEmpty() && s1 != s2 ){
-	cerr << endl << "s1='" << s1 << "'" << endl
-	     << "s2='" << s2 << "'" << endl;
-	//	throw( XmlError( "the textcontent \n'" + UnicodeToUTF8(s2) + "'\ndoesn't reflect the deeper text: \n'" + UnicodeToUTF8(s1) + "'" ) );
+      if ( !s1.isEmpty() ){
+	try {
+	  s2 = text( "current", false, false ); // no retain, no strict
+	}
+	catch (...){
+	}
+	if ( !s2.isEmpty() && s1 != s2 ){
+	  cerr << endl << "s1='" << s1 << "'" << endl
+	       << "s2='" << s2 << "'" << endl;
+	  //	throw( XmlError( "the textcontent \n'" + UnicodeToUTF8(s1) + "'\ndoesn't reflect the deeper text: \n'" + UnicodeToUTF8(s2) + "'" ) );
+	}
       }
     }
     return this;
@@ -2150,9 +2156,9 @@ namespace folia {
     if ( _class == "current" ) {
       attribs.erase( "class" );
     }
-    else if ( _class == "original" && parent() && parent()->isinstance( Original_t ) ) {
-      attribs.erase( "class" );
-    }
+    // else if ( _class == "original" && parent() && parent()->isinstance( Original_t ) ) {
+    //   attribs.erase( "class" );
+    // }
 
     if ( _offset >= 0 ) {
       attribs["offset"] = TiCC::toString( _offset );
@@ -2203,15 +2209,6 @@ namespace folia {
       atts["newpage"] = "yes";
     }
     return atts;
-  }
-
-  TextContent *TextContent::postappend() {
-    if ( _parent->isinstance( Original_t ) ) {
-      if ( _class == "current" ) {
-	_class = "original";
-      }
-    }
-    return this;
   }
 
   vector<FoliaElement *>TextContent::findreplacables( FoliaElement *par ) const {
@@ -3473,27 +3470,7 @@ namespace folia {
 #ifdef DEBUG_TEXT
     cerr << "TEXT(" << cls << ") op node : " << xmltag() << " id ( " << id() << ")" << endl;
 #endif
-    if ( cls == "current" ) {
-      for ( const auto& el : data ) {
-#ifdef DEBUG_TEXT
-	cerr << "data=" << el << endl;
-#endif
-	if ( el->isinstance( New_t ) || el->isinstance( Current_t ) ) {
-	  return el->text( cls, retaintok );
-	}
-      }
-    }
-    else if ( cls == "original" ) {
-      for ( const auto& el : data ) {
-#ifdef DEBUG_TEXT
-	cerr << "data=" << el << endl;
-#endif
-	if ( el->isinstance( Original_t ) ) {
-	  return el->text( cls, retaintok );
-	}
-      }
-    }
-    throw NoSuchText("wrong cls");
+    return textcontent( cls )->text( cls, retaintok );
   }
 
   const string& Correction::getTextDelimiter( bool retaintok ) const {
@@ -3506,16 +3483,17 @@ namespace folia {
   }
 
   const TextContent *Correction::textcontent( const string& cls ) const {
-    if ( cls == "current" ) {
-      for ( const auto& el : data ) {
-	if ( el->isinstance( New_t ) || el->isinstance( Current_t ) ) {
+    // TODO: this implements correctionhandling::EITHER only
+    for ( const auto& el : data ) {
+      if ( el->isinstance( New_t ) || el->isinstance( Current_t ) ) {
+	if ( el->hastext( cls ) ){
 	  return el->textcontent( cls );
 	}
       }
     }
-    else if ( cls == "original" ) {
-      for ( const auto& el : data ) {
-	if ( el->isinstance( Original_t ) ) {
+    for ( const auto& el : data ) {
+      if ( el->isinstance( Original_t ) ) {
+	if ( el->hastext( cls ) ){
 	  return el->textcontent( cls );
 	}
       }
@@ -3524,18 +3502,15 @@ namespace folia {
   }
 
   const PhonContent *Correction::phoncontent( const string& cls ) const {
-    if ( cls == "current" ) {
-      for ( const auto& el: data ) {
-	if ( el->isinstance( New_t ) || el->isinstance( Current_t ) ) {
-	  return el->phoncontent( cls );
-	}
+    // TODO: this implements correctionhandling::EITHER only
+    for ( const auto& el: data ) {
+      if ( el->isinstance( New_t ) || el->isinstance( Current_t ) ) {
+	return el->phoncontent( cls );
       }
     }
-    else if ( cls == "original" ) {
-      for ( const auto& el: data ) {
-	if ( el->isinstance( Original_t ) ) {
-	  return el->phoncontent( cls );
-	}
+    for ( const auto& el: data ) {
+      if ( el->isinstance( Original_t ) ) {
+	return el->phoncontent( cls );
       }
     }
     throw NoSuchPhon("wrong cls");
