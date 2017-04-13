@@ -1170,7 +1170,7 @@ namespace folia {
 	s = it->second.t;
 	if ( !s.empty() )
 	  args["annotatortype"] = s;
-	if ( strip() ){
+	if ( !strip() ){
 	  s = it->second.d;
 	  if ( !s.empty() )
 	    args["datetime"] = s;
