@@ -3515,11 +3515,9 @@ namespace folia {
     cerr << "zoek cls=" << cls << endl;
     for ( const auto& el : data ) {
       if ( el->isinstance( New_t ) || el->isinstance( Current_t ) ) {
-	cerr << "\nNEW or CURRENT" << el << endl;
 	const TextContent *res = 0;
 	try {
 	  res = el->textcontent( cls );
-	  cerr << "text= " << res->text()<< endl;
 	  return res;
 	}
 	catch (...){
@@ -3529,10 +3527,8 @@ namespace folia {
     for ( const auto& el : data ) {
       if ( el->isinstance( Original_t ) ) {
 	const TextContent *res = 0;
-	cerr << "\nORIGINAL" << endl;
 	try {
 	  res =  el->textcontent( cls );
-	  cerr << "text= " << res->text()<< endl;
 	  return res;
 	}
 	catch ( ... ){

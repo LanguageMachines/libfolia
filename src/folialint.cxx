@@ -109,17 +109,22 @@ int main( int argc, char* argv[] ){
       if ( !debug.empty() )
 	cmd += ", debug='" + debug + "'";
       string mode;
-      if ( permissive )
-	mode = ", mode='permissive'";
-      else if ( strip )
-	mode = ", mode='strip'";
+      if ( permissive ){
+	mode = ", mode='permissive";
+      }
+      else if ( strip ){
+	mode = ", mode='strip";
+      }
       if ( checktext ){
 	if ( mode.empty() ){
 	  mode = ", mode='checktext'";
 	}
 	else {
-	  mode += ",'checktext'";
+	  mode += ",checktext'";
 	}
+      }
+      else if ( !mode.empty() ){
+	mode += "'";
       }
       cmd += mode;
       folia::Document d( cmd );
