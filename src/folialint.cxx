@@ -103,6 +103,7 @@ int main( int argc, char* argv[] ){
     cerr << "FAIL: " << e.what() << endl;
     exit( EXIT_FAILURE );
   }
+
   for ( const auto& inputName : fileNames ){
     try {
       string cmd = "file='" + inputName + "'";
@@ -136,8 +137,8 @@ int main( int argc, char* argv[] ){
       }
     }
     catch( exception& e ){
-      cerr << "FAIL: " << e.what() << endl;
-      exit( EXIT_FAILURE );
+      cerr << inputName << " failed: " << endl << e.what() << endl;
+      //      exit( EXIT_FAILURE );
     }
   }
   exit( EXIT_SUCCESS );
