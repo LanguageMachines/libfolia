@@ -1685,23 +1685,32 @@ namespace folia {
       }
       p = p->next;
     }
-    if ( is_structure( this ) ){
-      UnicodeString s1, s2;
-      try {
-	s1 = text( "current", false, true );  // no retain, strict
+    if ( doc() && doc()->checktext() && is_structure( this ) ){
+      vector<TextContent*> tv = select<TextContent>( false );
+      set<string> cls;
+      for ( const auto& it : tv ){
+	cls.insert( it->cls() );
       }
-      catch (...){
-      }
-      if ( !s1.isEmpty() ){
+      for ( const auto& st : cls ){
+	UnicodeString s1, s2;
 	try {
-	  s2 = text( "current", false, false ); // no retain, no strict
+	  s1 = text( st, false, true );  // no retain, strict
 	}
 	catch (...){
 	}
-	if ( !s2.isEmpty() && s1 != s2 ){
-	  cerr << endl << "s1='" << s1 << "'" << endl
-	       << "s2='" << s2 << "'" << endl;
-	  //	throw( XmlError( "the textcontent \n'" + UnicodeToUTF8(s1) + "'\ndoesn't reflect the deeper text: \n'" + UnicodeToUTF8(s2) + "'" ) );
+	if ( !s1.isEmpty() ){
+	  try {
+	    s2 = text( st, false, false ); // no retain, no strict
+	  }
+	  catch (...){
+	  }
+	  if ( !s2.isEmpty() && s1 != s2 ){
+	    cerr << endl << "node " << xmltag() << "(" << id()
+		 << ") has a mismatch for text set=" << st << endl
+		 << "s1='" << s1 << "'" << endl
+		 << "s2='" << s2 << "'" << endl;
+	    //	throw( XmlError( "the textcontent \n'" + UnicodeToUTF8(s1) + "'\ndoesn't reflect the deeper text: \n'" + UnicodeToUTF8(s2) + "'" ) );
+	  }
 	}
       }
     }
@@ -3495,6 +3504,10 @@ namespace folia {
       if ( el->isinstance( Original_t ) ) {
 	if ( el->hastext( cls ) ){
 	  return el->textcontent( cls );
+	}
+	else if ( cls == "current" && el->hastext( "original" ) ){
+	  // hack for old and erroneous beheviour
+	  return el->textcontent( "original" );
 	}
       }
     }

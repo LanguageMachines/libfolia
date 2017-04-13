@@ -42,6 +42,7 @@ void usage(){
   cerr << "\t\t\t\t This is usefull to generate FoLiA that can be diffed." << endl;
   cerr << "\t--output='file'\t\t name an outputfile. (default is stdout)" << endl;
   cerr << "\t--nooutput\t\t Suppress output. Only warnings/errors are displayed." << endl;
+  cerr << "\t--checktext check if text is consistent inside structure tags" << endl;
   cerr << "\t--debug=value\t\t Run more verbose." << endl;
   cerr << "\t--permissive\t\t Accept some unwise constructions." << endl;
 }
@@ -51,11 +52,12 @@ int main( int argc, char* argv[] ){
   bool permissive;
   bool strip;
   bool nooutput = false;
+  bool checktext = false;
   string debug;
   vector<string> fileNames;
   try {
     TiCC::CL_Options Opts( "hV",
-			   "debug:,permissive,strip,output:,nooutput,help,version");
+			   "checktext,debug:,permissive,strip,output:,nooutput,help,version");
     Opts.init(argc, argv );
     if ( Opts.extract( 'h' )
 	 || Opts.extract( "help" ) ){
@@ -70,6 +72,7 @@ int main( int argc, char* argv[] ){
     }
     permissive = Opts.extract("permissive");
     nooutput = Opts.extract("nooutput");
+    checktext = Opts.extract("checktext");
     strip = Opts.extract("strip");
     if ( strip && permissive ){
       cerr << "conflicting options: 'permissive' and 'strip'" << endl;
@@ -105,10 +108,20 @@ int main( int argc, char* argv[] ){
       string cmd = "file='" + inputName + "'";
       if ( !debug.empty() )
 	cmd += ", debug='" + debug + "'";
+      string mode;
       if ( permissive )
-	cmd += ", mode='permissive'";
+	mode = ", mode='permissive'";
       else if ( strip )
-	cmd += ", mode='strip'";
+	mode = ", mode='strip'";
+      if ( checktext ){
+	if ( mode.empty() ){
+	  mode = ", mode='checktext'";
+	}
+	else {
+	  mode += ",'checktext'";
+	}
+      }
+      cmd += mode;
       folia::Document d( cmd );
       if ( !outputName.empty() ){
 	d.save( outputName );

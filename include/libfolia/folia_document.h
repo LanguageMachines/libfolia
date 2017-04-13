@@ -76,6 +76,8 @@ namespace folia {
   class Sentence;
   class Paragraph;
 
+  enum Mode { NOMODE=0, PERMISSIVE=1, CHECKTEXT=2, STRIP=4 };
+
   class Document {
     friend bool operator==( const Document&, const Document& );
     friend std::ostream& operator<<( std::ostream&, const Document * );
@@ -172,7 +174,9 @@ namespace folia {
     void addExternal( External *p ) { externals.push_back( p ); };
     FoliaElement *resolveExternals( FoliaElement* );
     int debug;
-    bool permissive() const { return mode == "permissive"; };
+    bool permissive() const { return mode && PERMISSIVE; };
+    bool checktext() const { return mode && CHECKTEXT; };
+    bool strip() const { return mode && STRIP; };
     class at_t {
       friend std::ostream& operator<<( std::ostream&, const at_t& );
     public:
@@ -219,7 +223,7 @@ namespace folia {
     std::string _license;
     std::map<std::string,std::string> meta_atts;
     std::multimap<std::string,std::string> styles;
-    std::string mode;
+    Mode mode;
     std::string filename;
     std::string version;
     bool external;

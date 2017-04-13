@@ -96,6 +96,7 @@ namespace folia {
     _foliaNsIn_prefix = 0;
     _foliaNsOut = 0;
     debug = 0;
+    mode = NOMODE;
     version = versionstring();
     external = false;
   }
@@ -154,10 +155,21 @@ namespace folia {
       debug = stringTo<int>( it->second );
     it = kwargs.find( "mode" );
     if ( it != kwargs.end() ){
-      mode = it->second;
-      if ( mode != "permissive"
-	   && mode != "strip" ){
-	throw runtime_error( "FoLiA::Document: unsupported mode value: "+mode );
+      vector<string> modev;
+      TiCC::split_at( it->second, modev, "," );
+      for ( const auto& mod : modev ){
+	if ( mod == "permissive" ){
+	  mode = Mode( (int)mode | PERMISSIVE );
+	}
+	else if ( mod == "strip" ){
+	  mode = Mode( (int)mode | STRIP );
+	}
+	else if ( mod == "checktext" ){
+	  mode = Mode( int(mode) | CHECKTEXT );
+	}
+	else {
+	  throw runtime_error( "FoLiA::Document: unsupported mode value: "+ mod );
+	}
       }
     }
     it = kwargs.find( "external" );
@@ -328,7 +340,7 @@ namespace folia {
 
   ostream& operator<<( ostream& os, const Document *d ){
     if ( d ){
-      string s = d->toXml( "", (d->mode == "strip") );
+      string s = d->toXml( "", d->strip() );
       os << s << endl;
     }
     else {
@@ -338,7 +350,7 @@ namespace folia {
   }
 
   bool Document::save( ostream& os, const string& nsLabel, bool kanon ) {
-    string s = toXml( nsLabel, ( kanon || (mode == "strip") ) );
+    string s = toXml( nsLabel, ( kanon || strip() ) );
     os << s << endl;
     return os.good();
   }
@@ -347,7 +359,7 @@ namespace folia {
     try {
       if ( match_back( fn, ".bz2" ) ){
 	string tmpname = fn.substr( 0, fn.length() - 3 ) + "tmp";
-	if ( toXml( tmpname, nsLabel, ( kanon || mode == "strip" ) ) ){
+	if ( toXml( tmpname, nsLabel, ( kanon || strip() ) ) ){
 	  bool stat = bz2Compress( tmpname, fn );
 	  remove( tmpname.c_str() );
 	  return stat;
@@ -358,7 +370,7 @@ namespace folia {
       }
       else  if ( match_back( fn, ".gz" ) ){
 	string tmpname = fn.substr( 0, fn.length() - 2 ) + "tmp";
-	if ( toXml( tmpname, nsLabel,  ( kanon || mode == "strip" ) ) ){
+	if ( toXml( tmpname, nsLabel,  ( kanon || strip() ) ) ){
 	  bool stat = gzCompress( tmpname, fn );
 	  remove( tmpname.c_str() );
 	  return stat;
@@ -368,7 +380,7 @@ namespace folia {
 	}
       }
       else {
-	return toXml( fn, nsLabel,  ( kanon || mode == "strip" ) );
+	return toXml( fn, nsLabel,  ( kanon || strip() ) );
       }
     }
     catch ( const exception& e ){
@@ -862,7 +874,7 @@ namespace folia {
       if ( Name( root ) == "FoLiA" ){
 	string ns = getNS( root );
 	if ( ns.empty() ){
-	  if ( mode == "permissive" ){
+	  if ( permissive() ){
 	    _foliaNsIn_href = xmlCharStrdup( NSFOLIA.c_str() );
 	    _foliaNsIn_prefix = 0;
 	    xmlNs *defNs = xmlNewNs( root,
@@ -1158,7 +1170,7 @@ namespace folia {
 	s = it->second.t;
 	if ( !s.empty() )
 	  args["annotatortype"] = s;
-	if ( mode != "strip" ){
+	if ( strip() ){
 	  s = it->second.d;
 	  if ( !s.empty() )
 	    args["datetime"] = s;
@@ -1274,7 +1286,7 @@ namespace folia {
     xmlSetNs( root, _foliaNsOut );
     KWargs attribs;
     attribs["_id"] = foliadoc->id(); // sort "id" in front!
-    if ( mode == "strip" ){
+    if ( strip() ){
       attribs["generator"] = "";
       attribs["version"] = "";
     }
