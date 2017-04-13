@@ -76,11 +76,11 @@ namespace folia {
   class Sentence;
   class Paragraph;
 
-  enum Mode { NOMODE=0, PERMISSIVE=1, CHECKTEXT=2, STRIP=4 };
-
   class Document {
     friend bool operator==( const Document&, const Document& );
     friend std::ostream& operator<<( std::ostream&, const Document * );
+    enum Mode { NOMODE=0, PERMISSIVE=1, CHECKTEXT=2, STRIP=4 };
+
   public:
     Document();
     explicit Document( const std::string& );
