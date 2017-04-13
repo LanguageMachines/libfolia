@@ -847,8 +847,8 @@ namespace folia {
     }
   }
 
-  //  #define DEBUG_TEXT
-  //  #define DEBUG_TEXT_DEL
+  //#define DEBUG_TEXT
+  //#define DEBUG_TEXT_DEL
 
   const string& FoliaImpl::getTextDelimiter( bool retaintok ) const {
 #ifdef DEBUG_TEXT_DEL
@@ -3479,7 +3479,26 @@ namespace folia {
 #ifdef DEBUG_TEXT
     cerr << "TEXT(" << cls << ") op node : " << xmltag() << " id ( " << id() << ")" << endl;
 #endif
-    return textcontent( cls )->text( cls, retaintok );
+    // we cannot use textcontent() on New, Origibal or Current,
+    // because texcontent doesn't recurse!
+    for ( const auto& el : data ) {
+#ifdef DEBUG_TEXT
+      cerr << "data=" << el << endl;
+#endif
+       if ( el->isinstance( New_t ) || el->isinstance( Current_t ) ) {
+         return el->text( cls, retaintok );
+       }
+    }
+//     // not New or Current. retry for Original
+//     for ( const auto& el : data ) {
+//       if ( el->isinstance( Original_t ) ) {
+// #ifdef DEBUG_TEXT
+// 	cerr << "data=" << el << endl;
+// #endif
+// 	return el->text( cls, retaintok );
+//       }
+//     }
+    throw NoSuchText( "cls=" + cls );
   }
 
   const string& Correction::getTextDelimiter( bool retaintok ) const {
@@ -3493,22 +3512,36 @@ namespace folia {
 
   const TextContent *Correction::textcontent( const string& cls ) const {
     // TODO: this implements correctionhandling::EITHER only
+    cerr << "zoek cls=" << cls << endl;
     for ( const auto& el : data ) {
       if ( el->isinstance( New_t ) || el->isinstance( Current_t ) ) {
-	if ( el->hastext( cls ) ){
-	  return el->textcontent( cls );
+	cerr << "\nNEW or CURRENT" << el << endl;
+	const TextContent *res = 0;
+	try {
+	  res = el->textcontent( cls );
+	  cerr << "text= " << res->text()<< endl;
+	  return res;
+	}
+	catch (...){
 	}
       }
     }
     for ( const auto& el : data ) {
       if ( el->isinstance( Original_t ) ) {
-	if ( el->hastext( cls ) ){
-	  return el->textcontent( cls );
+	const TextContent *res = 0;
+	cerr << "\nORIGINAL" << endl;
+	try {
+	  res =  el->textcontent( cls );
+	  cerr << "text= " << res->text()<< endl;
+	  return res;
 	}
-	else if ( cls == "current" && el->hastext( "original" ) ){
-	  // hack for old and erroneous beheviour
-	  return el->textcontent( "original" );
+	catch ( ... ){
 	}
+      }
+      else if ( cls == "current" && el->hastext( "original" ) ){
+	cerr << "text(original)= " << el->textcontent( cls )->text()<< endl;
+	// hack for old and erroneous behaviour
+	return el->textcontent( "original" );
       }
     }
     throw NoSuchText("wrong cls");
