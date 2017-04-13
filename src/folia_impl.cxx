@@ -3512,7 +3512,6 @@ namespace folia {
 
   const TextContent *Correction::textcontent( const string& cls ) const {
     // TODO: this implements correctionhandling::EITHER only
-    cerr << "zoek cls=" << cls << endl;
     for ( const auto& el : data ) {
       if ( el->isinstance( New_t ) || el->isinstance( Current_t ) ) {
 	const TextContent *res = 0;
