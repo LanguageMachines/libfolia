@@ -762,10 +762,12 @@ namespace folia {
 	xmlAddChild( e, cel->xml( recursive, kanon ) );
       }
       for ( const auto& tel : currenttextelements ) {
-	xmlAddChild( e, tel->xml( recursive, kanon ) );
+	xmlAddChild( e, tel->xml( recursive, false ) );
+	// don't change the internal sequences of TextContent elements
       }
       for ( const auto& tel : textelements ) {
-	xmlAddChild( e, tel->xml( recursive, kanon ) );
+	xmlAddChild( e, tel->xml( recursive, false ) );
+	// don't change the internal sequences of TextContent elements
       }
       if ( !kanon ) {
 	for ( const auto& oel : otherelements ) {
@@ -1302,6 +1304,18 @@ namespace folia {
 				      const string& cls ) {
     // create a TextContent child of class 'cls'
     // Default cls="current"
+    if ( doc() && doc()->checktext() ){
+      string deeper;
+      try {
+	deeper = UnicodeToUTF8(text( cls, false, false ) );
+	// get deep original text: no retain tokenization, no strict
+      }
+      catch (...){
+      }
+      if ( !deeper.empty() && txt != deeper ){
+	throw XmlError( "settext(cls=" + cls + "): deeper text differs from attempted\ndeeper='" + deeper + "'\nattempted='" + txt + "'" );
+      }
+    }
     KWargs args;
     args["value"] = txt;
     args["class"] = cls;
@@ -1325,6 +1339,18 @@ namespace folia {
     // create a TextContent child of class 'cls'
     // Default cls="current"
     // sets the offset attribute.
+    if ( doc() && doc()->checktext() ){
+      string deeper;
+      try {
+	deeper = UnicodeToUTF8(text( cls, false, false ) );
+	// get deep original text: no retain tokenization, no strict
+      }
+      catch (...){
+      }
+      if ( !deeper.empty() && txt != deeper ){
+	throw XmlError( "settext(cls=" + cls + "): deeper text differs from attempted\ndeeper='" + deeper + "'\nattempted='" + txt + "'" );
+      }
+    }
     KWargs args;
     args["value"] = txt;
     args["class"] = cls;
@@ -1687,29 +1713,32 @@ namespace folia {
     }
     if ( doc() && doc()->checktext() && is_structure( this ) ){
       vector<TextContent*> tv = select<TextContent>( false );
+      // first see which text classes ar present
       set<string> cls;
       for ( const auto& it : tv ){
 	cls.insert( it->cls() );
       }
+      // check the text for every text class
       for ( const auto& st : cls ){
 	UnicodeString s1, s2;
 	try {
-	  s1 = text( st, false, true );  // no retain, strict
+	  s1 = text( st, false, true );  // no retain tokenization, strict
 	}
 	catch (...){
 	}
 	if ( !s1.isEmpty() ){
 	  try {
-	    s2 = text( st, false, false ); // no retain, no strict
+	    s2 = text( st, false, false ); // no retain tokenization, no strict
 	  }
 	  catch (...){
 	  }
 	  if ( !s2.isEmpty() && s1 != s2 ){
-	    cerr << endl << "node " << xmltag() << "(" << id()
-		 << ") has a mismatch for text set=" << st << endl
-		 << "s1='" << s1 << "'" << endl
-		 << "s2='" << s2 << "'" << endl;
-	    //	throw( XmlError( "the textcontent \n'" + UnicodeToUTF8(s1) + "'\ndoesn't reflect the deeper text: \n'" + UnicodeToUTF8(s2) + "'" ) );
+	    string mess = "node " + xmltag() + "(" + id()
+	      + ") has a mismatch for the text in set:" + st
+	      + "\nthe element text ='" + UnicodeToUTF8(s1)
+	      + "'\n" + "the deeper text='" + UnicodeToUTF8(s2) + "'";
+	    cerr << endl << mess << endl;
+	    throw( XmlError( mess ) );
 	  }
 	}
       }
