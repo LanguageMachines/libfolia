@@ -1713,7 +1713,8 @@ namespace folia {
       }
       p = p->next;
     }
-    if ( doc() && doc()->checktext() && is_structure( this ) ){
+    if ( doc() && doc()->checktext() && is_structure( this )
+	 && !isSubClass( Morpheme_t ) && !isSubClass( Phoneme_t) ){
       vector<TextContent*> tv = select<TextContent>( false );
       // first see which text classes ar present
       set<string> cls;
