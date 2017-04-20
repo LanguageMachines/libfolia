@@ -96,7 +96,7 @@ namespace folia {
     _foliaNsIn_prefix = 0;
     _foliaNsOut = 0;
     debug = 0;
-    mode = NOMODE;
+    mode = CHECKTEXT; //NOMODE;
     version = versionstring();
     external = false;
   }

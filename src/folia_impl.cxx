@@ -1304,7 +1304,8 @@ namespace folia {
 				      const string& cls ) {
     // create a TextContent child of class 'cls'
     // Default cls="current"
-    if ( doc() && doc()->checktext() ){
+    if ( doc() && doc()->checktext()
+	 && !isSubClass( Morpheme_t ) && !isSubClass( Phoneme_t) ){
       string deeper;
       try {
 	deeper = UnicodeToUTF8(text( cls, false, false ) );
@@ -1339,7 +1340,8 @@ namespace folia {
     // create a TextContent child of class 'cls'
     // Default cls="current"
     // sets the offset attribute.
-    if ( doc() && doc()->checktext() ){
+    if ( doc() && doc()->checktext()
+	 && !isSubClass( Morpheme_t ) && !isSubClass( Phoneme_t) ){
       string deeper;
       try {
 	deeper = UnicodeToUTF8(text( cls, false, false ) );
