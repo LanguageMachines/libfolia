@@ -42,7 +42,7 @@ void usage(){
   cerr << "\t\t\t\t This is usefull to generate FoLiA that can be diffed." << endl;
   cerr << "\t--output='file'\t\t name an outputfile. (default is stdout)" << endl;
   cerr << "\t--nooutput\t\t Suppress output. Only warnings/errors are displayed." << endl;
-  cerr << "\t--checktext check if text is consistent inside structure tags" << endl;
+  cerr << "\t--nochecktext DO NOT check if text is consistent inside structure tags. Default is to do so." << endl;
   cerr << "\t--debug=value\t\t Run more verbose." << endl;
   cerr << "\t--permissive\t\t Accept some unwise constructions." << endl;
 }
@@ -52,12 +52,12 @@ int main( int argc, char* argv[] ){
   bool permissive;
   bool strip;
   bool nooutput = false;
-  bool checktext = false;
+  bool checktext = true;
   string debug;
   vector<string> fileNames;
   try {
     TiCC::CL_Options Opts( "hV",
-			   "checktext,debug:,permissive,strip,output:,nooutput,help,version");
+			   "nochecktext,debug:,permissive,strip,output:,nooutput,help,version");
     Opts.init(argc, argv );
     if ( Opts.extract( 'h' )
 	 || Opts.extract( "help" ) ){
@@ -66,13 +66,15 @@ int main( int argc, char* argv[] ){
     }
     if ( Opts.extract( 'V' )
 	 || Opts.extract( "version" ) ){
-      cout << "folialint version 0.4" << endl;
+      cout << "folialint version 0.5" << endl;
       cout << "based on [" << folia::VersionName() << "]" << endl;
       return EXIT_SUCCESS;
     }
     permissive = Opts.extract("permissive");
     nooutput = Opts.extract("nooutput");
-    checktext = Opts.extract("checktext");
+    if ( Opts.extract("nochecktext") ){
+      checktext = false;
+    }
     strip = Opts.extract("strip");
     if ( strip && permissive ){
       cerr << "conflicting options: 'permissive' and 'strip'" << endl;
