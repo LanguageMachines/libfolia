@@ -903,6 +903,9 @@ namespace folia {
 	    }
 	  }
 	}
+	catch ( XmlError& e ){
+	  throw;
+	}
 	catch ( exception& e ){
 	  throw XmlError( e.what() );
 	}
