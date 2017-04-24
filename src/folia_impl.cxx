@@ -1740,7 +1740,7 @@ namespace folia {
 	      + ") has a mismatch for the text in set:" + st
 	      + "\nthe element text ='" + UnicodeToUTF8(s1)
 	      + "'\n" + "the deeper text='" + UnicodeToUTF8(s2) + "'";
-	    cerr << endl << mess << endl;
+	    //	    cerr << endl << mess << endl;
 	    throw( XmlError( mess ) );
 	  }
 	}
