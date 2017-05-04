@@ -96,7 +96,7 @@ namespace folia {
     _foliaNsIn_prefix = 0;
     _foliaNsOut = 0;
     debug = 0;
-    mode = NOMODE; // CHECKTEXT;
+    mode = CHECKTEXT;
     version = versionstring();
     external = false;
   }
@@ -164,8 +164,8 @@ namespace folia {
 	else if ( mod == "strip" ){
 	  mode = Mode( (int)mode | STRIP );
 	}
-	else if ( mod == "checktext" ){
-	  mode = Mode( int(mode) | CHECKTEXT );
+	else if ( mod == "nochecktext" ){
+	  mode = Mode( int(mode) | ~CHECKTEXT );
 	}
 	else {
 	  throw runtime_error( "FoLiA::Document: unsupported mode value: "+ mod );

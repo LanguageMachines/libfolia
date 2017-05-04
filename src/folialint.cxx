@@ -52,7 +52,7 @@ int main( int argc, char* argv[] ){
   bool permissive;
   bool strip;
   bool nooutput = false;
-  bool checktext = true;
+  bool nochecktext = false;
   string debug;
   vector<string> fileNames;
   try {
@@ -73,7 +73,7 @@ int main( int argc, char* argv[] ){
     permissive = Opts.extract("permissive");
     nooutput = Opts.extract("nooutput");
     if ( Opts.extract("nochecktext") ){
-      checktext = false;
+      nochecktext = true;
     }
     strip = Opts.extract("strip");
     if ( strip && permissive ){
@@ -118,12 +118,12 @@ int main( int argc, char* argv[] ){
       else if ( strip ){
 	mode = ", mode='strip";
       }
-      if ( checktext ){
+      if ( nochecktext ){
 	if ( mode.empty() ){
-	  mode = ", mode='checktext'";
+	  mode = ", mode='nochecktext'";
 	}
 	else {
-	  mode += ",checktext'";
+	  mode += ",nochecktext'";
 	}
       }
       else if ( !mode.empty() ){
