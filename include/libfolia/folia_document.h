@@ -79,7 +79,7 @@ namespace folia {
   class Document {
     friend bool operator==( const Document&, const Document& );
     friend std::ostream& operator<<( std::ostream&, const Document * );
-    enum Mode { NOMODE=0, PERMISSIVE=1, CHECKTEXT=2, STRIP=4 };
+    enum Mode { NOMODE=0, PERMISSIVE=1, NOCHECKTEXT=2, STRIP=4 };
 
   public:
     Document();
@@ -175,7 +175,9 @@ namespace folia {
     FoliaElement *resolveExternals( FoliaElement* );
     int debug;
     bool permissive() const { return mode & PERMISSIVE; };
-    bool checktext() const { return mode & CHECKTEXT; };
+    bool checktext() const {
+      return !(mode & NOCHECKTEXT);
+    };
     bool strip() const { return mode & STRIP; };
     class at_t {
       friend std::ostream& operator<<( std::ostream&, const at_t& );

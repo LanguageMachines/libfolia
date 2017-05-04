@@ -96,7 +96,7 @@ namespace folia {
     _foliaNsIn_prefix = 0;
     _foliaNsOut = 0;
     debug = 0;
-    mode = CHECKTEXT;
+    mode = NOMODE;
     version = versionstring();
     external = false;
   }
@@ -150,6 +150,15 @@ namespace folia {
 
   void Document::setDocumentProps( KWargs& kwargs ){
     bool happy = false;
+    const char *env = getenv( "FOLIA_TEXT_CHECK" );
+    checktext();
+    if ( env ){
+      string e = env;
+      if ( e == "NO" ){
+	mode = Mode( int(mode) | NOCHECKTEXT );
+      }
+    }
+    checktext();
     auto it = kwargs.find( "debug" );
     if ( it != kwargs.end() )
       debug = stringTo<int>( it->second );
@@ -165,7 +174,7 @@ namespace folia {
 	  mode = Mode( (int)mode | STRIP );
 	}
 	else if ( mod == "nochecktext" ){
-	  mode = Mode( int(mode) | ~CHECKTEXT );
+	  mode = Mode( int(mode) | NOCHECKTEXT );
 	}
 	else {
 	  throw runtime_error( "FoLiA::Document: unsupported mode value: "+ mod );
