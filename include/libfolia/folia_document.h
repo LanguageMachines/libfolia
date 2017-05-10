@@ -196,7 +196,7 @@ namespace folia {
     FoliaElement* parseFoliaDoc( xmlNode * );
     void parsemeta( xmlNode * );
     void setimdi( xmlNode * );
-    void setDocumentProps( KWargs&  );
+    void setDocumentProps( KWargs&, bool );
     void parseannotations( xmlNode * );
     void getstyles();
     void setannotations( xmlNode *) const;

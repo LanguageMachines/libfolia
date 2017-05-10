@@ -75,8 +75,8 @@ namespace folia {
   Document::Document( const string& args ) {
     init();
     KWargs kwargs = getArgs( args );
-    setDocumentProps( kwargs );
-    if ( ! foliadoc ){
+    setDocumentProps( kwargs, false );
+    if ( !foliadoc ){
       foliadoc = new FoLiA( kwargs, this );
     }
   }
@@ -148,17 +148,22 @@ namespace folia {
     return true;
   }
 
-  void Document::setDocumentProps( KWargs& kwargs ){
+  void Document::setDocumentProps( KWargs& kwargs, bool no_textcheck ){
     bool happy = false;
+    if ( no_textcheck ){
+      mode = Mode( int(mode) | NOCHECKTEXT );
+    }
+    // but override wtih environment var
     const char *env = getenv( "FOLIA_TEXT_CHECK" );
-    checktext();
     if ( env ){
       string e = env;
       if ( e == "NO" ){
 	mode = Mode( int(mode) | NOCHECKTEXT );
       }
+      else {
+	mode = Mode( int(mode) & ~NOCHECKTEXT );
+      }
     }
-    checktext();
     auto it = kwargs.find( "debug" );
     if ( it != kwargs.end() )
       debug = stringTo<int>( it->second );
@@ -663,7 +668,8 @@ namespace folia {
     return false;
   }
 
-  int check_version( const string& vers ){
+  int check_version( const string& vers, bool& no_textcheck ){
+    no_textcheck = false;
     int majVersion = 0;
     int minVersion = 0;
     int subVersion = 0;
@@ -677,6 +683,10 @@ namespace folia {
 	minVersion = val;
       else
 	subVersion += val;
+    }
+    if ( majVersion <=1 && minVersion < 5 ){
+      // don't check text consistency for older documents
+      no_textcheck = true;
     }
     if ( majVersion < MAJOR_VERSION ){
       return -1;
@@ -716,13 +726,14 @@ namespace folia {
       return 0;
     }
     string vers = att["version"];
-    if ( check_version( vers ) > 0 ){
+    bool no_textcheck = false;
+    if ( check_version( vers, no_textcheck ) > 0 ){
       cerr << "WARNING!!! FoLiA Document is a newer version than this library ("
 	   << vers << " vs " << version
 	   << ")\n\t Any possible subsequent failures in parsing or processing may probably be attributed to this." << endl
 	   << "\t Please upgrade libfolia!" << endl;
     }
-    setDocumentProps( att );
+    setDocumentProps( att, no_textcheck );
     FoliaElement *result = FoliaImpl::createElement( Name(root), this );
     if ( debug > 2 )
       cerr << "created " << root << endl;
