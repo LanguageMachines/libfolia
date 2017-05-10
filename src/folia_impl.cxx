@@ -980,6 +980,20 @@ namespace folia {
     return found_nl > 0;
   }
 
+  bool no_space_at_end( FoliaElement *s ){
+    bool result = false;
+    //    cerr << "no space? s: " << s << endl;
+    if ( s ){
+      vector<Word*> words = s->select<Word>(false);
+      if ( !words.empty() ){
+	Word *last = words.back();
+	//	cerr << "no space? last: " << last << endl;
+	return !last->space();
+      }
+    }
+    return result;
+  }
+
   const UnicodeString FoliaImpl::deeptext( const string& cls,
 					   bool retaintok ) const {
     // get the UnicodeString value of underlying elements
@@ -1021,12 +1035,23 @@ namespace folia {
 	  cerr << "deeptext trimmed '" << tmp << "'" << endl;
 #endif
 	  parts.push_back(tmp);
-	  // get the delimiter
-	  const string& delim = child->getTextDelimiter( retaintok );
+	  if ( child->isinstance( Sentence_t )
+	       && no_space_at_end(child) ){
+	    const string& delim = "";
 #ifdef DEBUG_TEXT
-	  cerr << "deeptext:delimiter van "<< child->xmltag() << " ='" << delim << "'" << endl;
+	    cerr << "deeptext: no delimiter van "<< child->xmltag() << " on"
+		 << " last w of s" << endl;
 #endif
-	  seps.push_back(UTF8ToUnicode(delim));
+	    seps.push_back(UTF8ToUnicode(delim));
+	  }
+	  else {
+	    // get the delimiter
+	    const string& delim = child->getTextDelimiter( retaintok );
+#ifdef DEBUG_TEXT
+	    cerr << "deeptext:delimiter van "<< child->xmltag() << " ='" << delim << "'" << endl;
+#endif
+	    seps.push_back(UTF8ToUnicode(delim));
+	  }
 	} catch ( NoSuchText& e ) {
 #ifdef DEBUG_TEXT
 	  cerr << "HELAAS" << endl;

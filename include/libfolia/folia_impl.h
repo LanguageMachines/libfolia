@@ -1200,6 +1200,7 @@ namespace folia {
     MorphologyLayer *addMorphologyLayer( const KWargs& );
     MorphologyLayer *getMorphologyLayers( const std::string&,
 					  std::vector<MorphologyLayer*>& ) const;
+    bool space() const { return _space; };
   private:
     void init();
     static properties PROPS;
