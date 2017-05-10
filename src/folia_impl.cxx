@@ -1326,10 +1326,12 @@ namespace folia {
   }
 
   TextContent *FoliaElement::settext( const string& txt,
-				      const string& cls ) {
+				      const string& cls,
+				      bool override ) {
     // create a TextContent child of class 'cls'
     // Default cls="current"
-    if ( doc() && doc()->checktext()
+    // if 'override' dont check consistency!
+    if ( !override && doc() && doc()->checktext()
 	 && !isSubClass( Morpheme_t ) && !isSubClass( Phoneme_t) ){
       string deeper;
       try {
@@ -1352,20 +1354,23 @@ namespace folia {
   }
 
   TextContent *FoliaElement::setutext( const UnicodeString& txt,
-				       const string& cls ) {
+				       const string& cls,
+				       bool override ) {
     // create a TextContent child of class 'cls'
     // Default cls="current"
     string utf8 = UnicodeToUTF8(txt);
-    return settext( utf8, cls );
+    return settext( utf8, cls, override );
   }
 
   TextContent *FoliaElement::settext( const string& txt,
 				      int offset,
-				      const string& cls ) {
+				      const string& cls,
+				      bool override ) {
     // create a TextContent child of class 'cls'
     // Default cls="current"
     // sets the offset attribute.
-    if ( doc() && doc()->checktext()
+    // if 'override' dont check consistency!
+    if ( !override && doc() && doc()->checktext()
 	 && !isSubClass( Morpheme_t ) && !isSubClass( Phoneme_t) ){
       string deeper;
       try {
@@ -1390,11 +1395,12 @@ namespace folia {
 
   TextContent *FoliaElement::setutext( const UnicodeString& txt,
 				       int offset,
-				       const string& cls ) {
+				       const string& cls,
+				       bool override ) {
     // create a TextContent child of class 'cls'
     // Default cls="current"
     string utf8 = UnicodeToUTF8(txt);
-    return settext( utf8, offset, cls );
+    return settext( utf8, offset, cls, override );
   }
 
   const string FoliaElement::description() const {

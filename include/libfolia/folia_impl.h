@@ -335,10 +335,20 @@ namespace folia {
 
     // TextContent
     virtual const TextContent *textcontent( const std::string& = "current" ) const = 0;
-    TextContent *settext( const std::string&, const std::string& = "current" );
-    TextContent *settext( const std::string&, int , const std::string& = "current" );
-    TextContent *setutext( const UnicodeString&, const std::string& = "current" );
-    TextContent *setutext( const UnicodeString&, int , const std::string& = "current" );
+    TextContent *settext( const std::string&,
+			  const std::string& = "current",
+			  bool = false );
+    TextContent *settext( const std::string&,
+			  int,
+			  const std::string& = "current",
+			  bool = false );
+    TextContent *setutext( const UnicodeString&,
+			   const std::string& = "current",
+			   bool = false );
+    TextContent *setutext( const UnicodeString&,
+			   int ,
+			   const std::string& = "current",
+			   bool = false );
     virtual int offset() const NOT_IMPLEMENTED;
 
     // PhonContent
