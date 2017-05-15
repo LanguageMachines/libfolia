@@ -149,17 +149,6 @@ namespace folia {
   }
 
   void Document::setmode( const string& ms ){
-    // override CHECKTEXT with environment var
-    const char *env = getenv( "FOLIA_TEXT_CHECK" );
-    if ( env ){
-      string e = env;
-      if ( e == "NO" ){
-	mode = Mode( int(mode) & ~CHECKTEXT );
-      }
-      else {
-	mode = Mode( int(mode) | CHECKTEXT );
-      }
-    }
     vector<string> modev;
     TiCC::split_at( ms, modev, "," );
     for ( const auto& mod : modev ){
@@ -179,6 +168,34 @@ namespace folia {
 	throw runtime_error( "FoLiA::Document: unsupported mode value: "+ mod );
       }
     }
+    // override CHECKTEXT with environment var
+    const char *env = getenv( "FOLIA_TEXT_CHECK" );
+    if ( env ){
+      string e = env;
+      if ( e == "NO" ){
+	mode = Mode( int(mode) & ~CHECKTEXT );
+      }
+      else {
+	mode = Mode( int(mode) | CHECKTEXT );
+      }
+    }
+  }
+
+  string Document::getmode() const{
+    string result = "mode=";
+    if ( mode == PERMISSIVE ){
+      result += "permissive,";
+    }
+    if ( mode == STRIP ){
+      result += "strip,";
+    }
+    if ( mode == CHECKTEXT ){
+      result += "checktext,";
+    }
+    if ( mode == FIXTEXT ){
+      result += "fixtext,";
+    }
+    return result;
   }
 
   void Document::setDocumentProps( KWargs& kwargs ){

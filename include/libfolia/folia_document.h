@@ -193,6 +193,7 @@ namespace folia {
     void incrRef( AnnotationType::AnnotationType, const std::string& );
     void decrRef( AnnotationType::AnnotationType, const std::string& );
     void setmode( const std::string& );
+    std::string getmode() const;
   private:
     std::map<AnnotationType::AnnotationType,std::multimap<std::string,at_t> > annotationdefaults;
     std::vector<std::pair<AnnotationType::AnnotationType,std::string>> anno_sort;

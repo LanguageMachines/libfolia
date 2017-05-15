@@ -176,7 +176,7 @@ namespace folia {
 
   FoliaImpl::~FoliaImpl( ) {
     // cerr << "delete element id=" << _id << " tag = " << xmltag() << " *= "
-    //  	 << (void*)this << " datasize= " << data.size() << endl;
+    // 	 << (void*)this << " datasize= " << data.size() << endl;
     for ( const auto& el : data ) {
       if ( el->refcount() == 0 ) {
 	// probably only != 0 for words
@@ -1767,7 +1767,12 @@ namespace folia {
 	  catch (...){
 	  }
 	  if ( !s2.isEmpty() && s1 != s2 ){
+	    string mess = "node " + xmltag() + "(" + id()
+	      + ") has a mismatch for the text in set:" + st
+	      + "\nthe element text ='" + UnicodeToUTF8(s1)
+	      + "'\n" + "the deeper text ='" + UnicodeToUTF8(s2) + "'";
 	    if ( doc()->fixtext() ){
+	      //	      cerr << "FIX: " << mess << endl;
 	      KWargs args;
 	      args["value"] = UnicodeToUTF8(s2);
 	      args["class"] = st;
@@ -1775,10 +1780,6 @@ namespace folia {
 	      this->replace( node );
 	    }
 	    else {
-	      string mess = "node " + xmltag() + "(" + id()
-		+ ") has a mismatch for the text in set:" + st
-		+ "\nthe element text ='" + UnicodeToUTF8(s1)
-		+ "'\n" + "the deeper text ='" + UnicodeToUTF8(s2) + "'";
 	      throw( XmlError( mess ) );
 	    }
 	  }
