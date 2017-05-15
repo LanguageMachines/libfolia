@@ -75,7 +75,7 @@ namespace folia {
   Document::Document( const string& args ) {
     init();
     KWargs kwargs = getArgs( args );
-    setDocumentProps( kwargs, false );
+    setDocumentProps( kwargs );
     if ( !foliadoc ){
       foliadoc = new FoLiA( kwargs, this );
     }
@@ -96,7 +96,7 @@ namespace folia {
     _foliaNsIn_prefix = 0;
     _foliaNsOut = 0;
     debug = 0;
-    mode = NOMODE;
+    mode = CHECKTEXT;
     version = versionstring();
     external = false;
   }
@@ -148,43 +148,48 @@ namespace folia {
     return true;
   }
 
-  void Document::setDocumentProps( KWargs& kwargs, bool no_textcheck ){
-    bool happy = false;
-    if ( no_textcheck ){
-      mode = Mode( int(mode) | NOCHECKTEXT );
-    }
-    // but override wtih environment var
+  void Document::setmode( const string& ms ){
+    // override CHECKTEXT with environment var
     const char *env = getenv( "FOLIA_TEXT_CHECK" );
     if ( env ){
       string e = env;
       if ( e == "NO" ){
-	mode = Mode( int(mode) | NOCHECKTEXT );
+	mode = Mode( int(mode) & ~CHECKTEXT );
       }
       else {
-	mode = Mode( int(mode) & ~NOCHECKTEXT );
+	mode = Mode( int(mode) | CHECKTEXT );
       }
     }
+    vector<string> modev;
+    TiCC::split_at( ms, modev, "," );
+    for ( const auto& mod : modev ){
+      if ( mod == "permissive" ){
+	mode = Mode( (int)mode | PERMISSIVE );
+      }
+      else if ( mod == "strip" ){
+	mode = Mode( (int)mode | STRIP );
+      }
+      else if ( mod == "nochecktext" ){
+	mode = Mode( int(mode) & ~CHECKTEXT );
+      }
+      else if ( mod == "fixtext" ){
+	mode = Mode( int(mode) | FIXTEXT );
+      }
+      else {
+	throw runtime_error( "FoLiA::Document: unsupported mode value: "+ mod );
+      }
+    }
+  }
+
+  void Document::setDocumentProps( KWargs& kwargs ){
+    bool happy = false;
     auto it = kwargs.find( "debug" );
-    if ( it != kwargs.end() )
+    if ( it != kwargs.end() ){
       debug = stringTo<int>( it->second );
+    }
     it = kwargs.find( "mode" );
     if ( it != kwargs.end() ){
-      vector<string> modev;
-      TiCC::split_at( it->second, modev, "," );
-      for ( const auto& mod : modev ){
-	if ( mod == "permissive" ){
-	  mode = Mode( (int)mode | PERMISSIVE );
-	}
-	else if ( mod == "strip" ){
-	  mode = Mode( (int)mode | STRIP );
-	}
-	else if ( mod == "nochecktext" ){
-	  mode = Mode( int(mode) | NOCHECKTEXT );
-	}
-	else {
-	  throw runtime_error( "FoLiA::Document: unsupported mode value: "+ mod );
-	}
-      }
+      setmode( it->second );
     }
     it = kwargs.find( "external" );
     if ( it != kwargs.end() ){
@@ -733,7 +738,10 @@ namespace folia {
 	   << ")\n\t Any possible subsequent failures in parsing or processing may probably be attributed to this." << endl
 	   << "\t Please upgrade libfolia!" << endl;
     }
-    setDocumentProps( att, no_textcheck );
+    if ( no_textcheck ){
+      setmode( "nochecktext" );
+    }
+    setDocumentProps( att );
     FoliaElement *result = FoliaImpl::createElement( Name(root), this );
     if ( debug > 2 )
       cerr << "created " << root << endl;

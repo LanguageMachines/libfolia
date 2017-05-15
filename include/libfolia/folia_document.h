@@ -79,7 +79,7 @@ namespace folia {
   class Document {
     friend bool operator==( const Document&, const Document& );
     friend std::ostream& operator<<( std::ostream&, const Document * );
-    enum Mode { NOMODE=0, PERMISSIVE=1, NOCHECKTEXT=2, STRIP=4 };
+    enum Mode { NOMODE=0, PERMISSIVE=1, CHECKTEXT=2, FIXTEXT=4, STRIP=8 };
 
   public:
     Document();
@@ -176,7 +176,10 @@ namespace folia {
     int debug;
     bool permissive() const { return mode & PERMISSIVE; };
     bool checktext() const {
-      return !(mode & NOCHECKTEXT);
+      return mode & CHECKTEXT;
+    };
+    bool fixtext() const {
+      return mode & FIXTEXT;
     };
     bool strip() const { return mode & STRIP; };
     class at_t {
@@ -196,7 +199,8 @@ namespace folia {
     FoliaElement* parseFoliaDoc( xmlNode * );
     void parsemeta( xmlNode * );
     void setimdi( xmlNode * );
-    void setDocumentProps( KWargs&, bool );
+    void setmode( const std::string& );
+    void setDocumentProps( KWargs& );
     void parseannotations( xmlNode * );
     void getstyles();
     void setannotations( xmlNode *) const;

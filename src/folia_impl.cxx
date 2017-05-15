@@ -1330,7 +1330,7 @@ namespace folia {
 				      bool override ) {
     // create a TextContent child of class 'cls'
     // Default cls="current"
-    // if 'override' dont check consistency!
+    // if 'override' don't check consistency with deeper levels!
     if ( !override && doc() && doc()->checktext()
 	 && !isSubClass( Morpheme_t ) && !isSubClass( Phoneme_t) ){
       string deeper;
@@ -1341,14 +1341,13 @@ namespace folia {
       catch (...){
       }
       if ( !deeper.empty() && txt != deeper ){
-	throw XmlError( "settext(cls=" + cls + "): deeper text differs from attempted\ndeeper='" + deeper + "'\nattempted='" + txt + "'" );
+	throw XmlError( "settext(cls=" + cls + "): deeper text differs from attempted\ndeeper  ='" + deeper + "'\nattempted='" + txt + "'" );
       }
     }
     KWargs args;
     args["value"] = txt;
     args["class"] = cls;
-    TextContent *node = new TextContent( doc() );
-    node->setAttributes( args );
+    TextContent *node = new TextContent( args, doc() );
     replace( node );
     return node;
   }
@@ -1369,7 +1368,7 @@ namespace folia {
     // create a TextContent child of class 'cls'
     // Default cls="current"
     // sets the offset attribute.
-    // if 'override' dont check consistency!
+    // if 'override' dont check consistency with deeper levels!
     if ( !override && doc() && doc()->checktext()
 	 && !isSubClass( Morpheme_t ) && !isSubClass( Phoneme_t) ){
       string deeper;
@@ -1380,7 +1379,7 @@ namespace folia {
       catch (...){
       }
       if ( !deeper.empty() && txt != deeper ){
-	throw XmlError( "settext(cls=" + cls + "): deeper text differs from attempted\ndeeper='" + deeper + "'\nattempted='" + txt + "'" );
+	throw XmlError( "settext(cls=" + cls + "): deeper text differs from attempted\ndeeper=  '" + deeper + "'\nattempted='" + txt + "'" );
       }
     }
     KWargs args;
@@ -1744,7 +1743,8 @@ namespace folia {
       }
       p = p->next;
     }
-    if ( doc() && doc()->checktext() && is_structure( this )
+    if ( doc() && ( doc()->checktext() || doc()->fixtext() )
+	 && is_structure( this )
 	 && !isSubClass( Morpheme_t ) && !isSubClass( Phoneme_t) ){
       vector<TextContent*> tv = select<TextContent>( false );
       // first see which text classes ar present
@@ -1767,12 +1767,20 @@ namespace folia {
 	  catch (...){
 	  }
 	  if ( !s2.isEmpty() && s1 != s2 ){
-	    string mess = "node " + xmltag() + "(" + id()
-	      + ") has a mismatch for the text in set:" + st
-	      + "\nthe element text ='" + UnicodeToUTF8(s1)
-	      + "'\n" + "the deeper text='" + UnicodeToUTF8(s2) + "'";
-	    //	    cerr << endl << mess << endl;
-	    throw( XmlError( mess ) );
+	    if ( doc()->fixtext() ){
+	      KWargs args;
+	      args["value"] = UnicodeToUTF8(s2);
+	      args["class"] = st;
+	      TextContent *node = new TextContent( args, doc() );
+	      this->replace( node );
+	    }
+	    else {
+	      string mess = "node " + xmltag() + "(" + id()
+		+ ") has a mismatch for the text in set:" + st
+		+ "\nthe element text ='" + UnicodeToUTF8(s1)
+		+ "'\n" + "the deeper text ='" + UnicodeToUTF8(s2) + "'";
+	      throw( XmlError( mess ) );
+	    }
 	  }
 	}
       }
@@ -2461,8 +2469,7 @@ namespace folia {
       args2.erase("suggestions" );
       string id = generateId( "correction" );
       args2["id"] = id;
-      corr = new Correction(mydoc );
-      corr->setAttributes( args2 );
+      corr = new Correction( args2, mydoc );
     }
 #ifdef DEBUG_CORRECT
     cerr << "now corr= " << corr << endl;
@@ -3552,15 +3559,6 @@ namespace folia {
          return el->text( cls, retaintok );
        }
     }
-//     // not New or Current. retry for Original
-//     for ( const auto& el : data ) {
-//       if ( el->isinstance( Original_t ) ) {
-// #ifdef DEBUG_TEXT
-// 	cerr << "data=" << el << endl;
-// #endif
-// 	return el->text( cls, retaintok );
-//       }
-//     }
     throw NoSuchText( "cls=" + cls );
   }
 
