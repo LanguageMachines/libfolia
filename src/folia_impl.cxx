@@ -3784,6 +3784,11 @@ namespace folia {
     return 0;
   }
 
+  bool XmlText::setvalue( const std::string& s ){
+    _value = s;
+    return true;
+  }
+
   const UnicodeString XmlText::text( const string&, bool, bool ) const {
     return UTF8ToUnicode(_value);
   }

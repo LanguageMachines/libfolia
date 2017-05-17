@@ -2136,7 +2136,7 @@ namespace folia {
 
     FoliaElement* parseXml( const xmlNode * );
     xmlNode *xml( bool, bool=false ) const;
-    bool setvalue( const std::string& s ) { _value = s; return true; };
+    bool setvalue( const std::string& );
     const std::string& getTextDelimiter( bool ) const { return EMPTY_STRING; };
     const UnicodeString text( const std::string& = "current",
 			      bool = false, bool = false ) const;
