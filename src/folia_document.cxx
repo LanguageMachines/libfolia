@@ -706,7 +706,8 @@ namespace folia {
       else
 	subVersion += val;
     }
-    if ( majVersion <=1 && minVersion < 5 ){
+    if ( ( majVersion < 1 )
+	 || (majVersion == 1 && minVersion < 5 ) ){
       // don't check text consistency for older documents
       no_textcheck = true;
     }
