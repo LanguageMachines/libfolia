@@ -1326,12 +1326,10 @@ namespace folia {
   }
 
   TextContent *FoliaElement::settext( const string& txt,
-				      const string& cls,
-				      bool override ) {
+				      const string& cls ){
     // create a TextContent child of class 'cls'
     // Default cls="current"
-    // if 'override' don't check consistency with deeper levels!
-    if ( !override && doc() && doc()->checktext()
+    if ( doc() && doc()->checktext()
 	 && !isSubClass( Morpheme_t ) && !isSubClass( Phoneme_t) ){
       string deeper;
       try {
@@ -1353,23 +1351,20 @@ namespace folia {
   }
 
   TextContent *FoliaElement::setutext( const UnicodeString& txt,
-				       const string& cls,
-				       bool override ) {
+				       const string& cls ){
     // create a TextContent child of class 'cls'
     // Default cls="current"
     string utf8 = UnicodeToUTF8(txt);
-    return settext( utf8, cls, override );
+    return settext( utf8, cls );
   }
 
   TextContent *FoliaElement::settext( const string& txt,
 				      int offset,
-				      const string& cls,
-				      bool override ) {
+				      const string& cls ){
     // create a TextContent child of class 'cls'
     // Default cls="current"
     // sets the offset attribute.
-    // if 'override' dont check consistency with deeper levels!
-    if ( !override && doc() && doc()->checktext()
+    if ( doc() && doc()->checktext()
 	 && !isSubClass( Morpheme_t ) && !isSubClass( Phoneme_t) ){
       string deeper;
       try {
@@ -1394,12 +1389,11 @@ namespace folia {
 
   TextContent *FoliaElement::setutext( const UnicodeString& txt,
 				       int offset,
-				       const string& cls,
-				       bool override ) {
+				       const string& cls ){
     // create a TextContent child of class 'cls'
     // Default cls="current"
     string utf8 = UnicodeToUTF8(txt);
-    return settext( utf8, offset, cls, override );
+    return settext( utf8, offset, cls );
   }
 
   const string FoliaElement::description() const {
@@ -1460,16 +1454,31 @@ namespace folia {
       }
     }
     if ( c->element_id() == TextContent_t ){
+      string cls = c->cls();
       string st = c->sett();
       vector<TextContent*> tmp = select<TextContent>( st, false );
       if ( !tmp.empty() ) {
-	string cls = c->cls();
 	for( const auto& t : tmp ){
 	  if ( t->cls() == cls ){
 	    throw DuplicateAnnotationError( "attempt to add <t> with class="
 					    + cls + " to element: " + _id
 					    + " which already has a <t> with that class" );
 	  }
+	}
+      }
+      FoliaElement *parent = this->parent();
+      if ( parent && parent->element_id() != Correction_t
+	   && parent->hastext( cls ) ){
+	UnicodeString s1 = parent->text( cls, false, true );  // no retain tokenization, strict
+
+	UnicodeString s2 =c->text( cls, false, true );
+	if ( s1.indexOf( s2 ) < 0 ) {
+	  throw XmlError( "attempt to add <t> with class="
+			  + cls + " and text '" + UnicodeToUTF8(s1)
+			  + "' to element: " + _id + " with parent "
+			  + parent->id()
+			  + " which already has a <t> with that class and text: '"
+			  + UnicodeToUTF8(s2) + "'" );
 	}
       }
     }
