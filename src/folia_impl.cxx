@@ -1469,16 +1469,39 @@ namespace folia {
       FoliaElement *parent = this->parent();
       if ( parent && parent->element_id() != Correction_t
 	   && parent->hastext( cls ) ){
+	// check text consistency
 	UnicodeString s1 = parent->text( cls, false, true );  // no retain tokenization, strict
 
 	UnicodeString s2 =c->text( cls, false, true );
-	if ( s1.indexOf( s2 ) < 0 ) {
+	int pos = s1.indexOf( s2 );
+	bool failed = false;
+	if ( c->element_id() == Word_t ){
+	  if ( pos < 0 ){
+	    failed = true;
+	  }
+	}
+	else {
+	  if ( pos < 0 ){
+	    // so our text is not exactly found.
+	    // be forgivingly and smash all whitespace
+	    UnicodeString s3 = s1;
+	    s2.findAndReplace( "\n", "" );
+	    s2.findAndReplace( " ", "" );
+	    s3.findAndReplace( "\n", "" );
+	    s3.findAndReplace( " ", "" );
+	    if ( s3.indexOf( s2 ) < 0 ) {
+	    // still not ok
+	      failed = true;
+	    }
+	  }
+	}
+	if ( failed ){
 	  throw XmlError( "attempt to add <t> with class="
-			  + cls + " and text '" + UnicodeToUTF8(s1)
+			  + cls + " and text '" + UnicodeToUTF8(s2)
 			  + "' to element: " + _id + " with parent "
 			  + parent->id()
 			  + " which already has a <t> with that class and text: '"
-			  + UnicodeToUTF8(s2) + "'" );
+			  + UnicodeToUTF8(s1) + "'" );
 	}
       }
     }
