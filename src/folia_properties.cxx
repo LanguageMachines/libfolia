@@ -6,7 +6,7 @@
 #include "libfolia/folia_properties.h"
 
 //foliaspec:header
-//This file was last updated according to the FoLiA specification for version 1.4.1 on 2017-03-28 12:39:45, using foliaspec.py
+//This file was last updated according to the FoLiA specification for version 1.4.2 on 2017-07-12 12:10:35, using foliaspec.py
 //Code blocks after a foliaspec comment (until the next newline) are automatically generated. **DO NOT EDIT THOSE** and **DO NOT REMOVE ANY FOLIASPEC COMMENTS** !!!
 
 namespace folia {
@@ -23,7 +23,7 @@ namespace folia {
 
   //foliaspec:version_sub:SUB_VERSION
   //The FoLiA version (sub/rev)
-  const int SUB_VERSION = 1;
+  const int SUB_VERSION = 2;
 
   //foliaspec:namespace:NSFOLIA
   //The FoLiA XML namespace
@@ -806,7 +806,7 @@ namespace folia {
 //------ Event -------
     Event::PROPS = AbstractStructureElement::PROPS;
     Event::PROPS.ELEMENT_ID = Event_t;
-    Event::PROPS.ACCEPTED_DATA += {AbstractAnnotationLayer_t, AbstractExtendedTokenAnnotation_t, ActorFeature_t, Alignment_t, Alternative_t, AlternativeLayers_t, BegindatetimeFeature_t, Comment_t, Correction_t, Description_t, Division_t, EnddatetimeFeature_t, Event_t, Example_t, Feature_t, Figure_t, ForeignData_t, Head_t, Linebreak_t, List_t, Metric_t, Paragraph_t, Part_t, PhonContent_t, Reference_t, Sentence_t, String_t, Table_t, TextContent_t, Utterance_t, Whitespace_t, Word_t};
+    Event::PROPS.ACCEPTED_DATA += {AbstractAnnotationLayer_t, AbstractExtendedTokenAnnotation_t, ActorFeature_t, Alignment_t, Alternative_t, AlternativeLayers_t, BegindatetimeFeature_t, Comment_t, Correction_t, Description_t, Division_t, EnddatetimeFeature_t, Entry_t, Event_t, Example_t, Feature_t, Figure_t, ForeignData_t, Gap_t, Head_t, Linebreak_t, List_t, Metric_t, Note_t, Paragraph_t, Part_t, PhonContent_t, Quote_t, Reference_t, Sentence_t, String_t, Table_t, TextContent_t, Utterance_t, Whitespace_t, Word_t};
     Event::PROPS.ANNOTATIONTYPE = AnnotationType::EVENT;
     Event::PROPS.LABEL = "Event";
     Event::PROPS.XMLTAG = "event";
