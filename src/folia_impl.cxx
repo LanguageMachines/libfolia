@@ -1426,7 +1426,7 @@ namespace folia {
       vector<FoliaElement*> v = select( c->element_id(), false );
       size_t count = v.size();
       if ( count >= c->occurrences() ) {
-	throw DuplicateAnnotationError( "Unable to add another object of type " + c->classname() + " to " + classname() + ". There are already " + TiCC::toString(count) + " instances of this class, which is the maximum." );
+	throw DuplicateAnnotationError( "Unable to add another object of type " + c->classname() + " to " + classname() + ". There are already " + TiCC::toString(count) + " instances of this type, which is the maximum." );
       }
     }
     if ( c->occurrences_per_set() > 0 &&
@@ -1434,7 +1434,7 @@ namespace folia {
       vector<FoliaElement*> v = select( c->element_id(), c->sett(), false );
       size_t count = v.size();
       if ( count >= c->occurrences_per_set() ) {
-	throw DuplicateAnnotationError( "Unable to add another object of type " + c->classname() + " to " + classname() + ". There are already " + TiCC::toString(count) + " instances of this class, which is the maximum." );
+	throw DuplicateAnnotationError( "Unable to add another object of type " + c->classname() + " to " + classname() + ". There are already " + TiCC::toString(count) + " instances of this type and set, which is the maximum." );
       }
     }
     if ( c->parent() &&
