@@ -1468,7 +1468,7 @@ namespace folia {
       }
       FoliaElement *parent = this->parent();
       if ( parent && parent->element_id() != Correction_t
-	   && !(parent->doc() != 0 && parent->doc()->checktext() )
+	   && !(parent->doc() != 0 && !parent->doc()->checktext() )
 	   && parent->hastext( cls ) ){
 	// check text consistency
 	UnicodeString s1 = parent->text( cls, false, true );
