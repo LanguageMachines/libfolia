@@ -490,7 +490,7 @@ namespace folia {
     bool acceptable( ElementType ) const;
     bool addable( const FoliaElement * ) const;
     FoliaElement *append( FoliaElement* );
-    FoliaElement *postappend( ) { return this; };
+    FoliaElement *postappend( );
     void remove( size_t, bool = true );
     void remove( FoliaElement *, bool = true );
     std::vector<FoliaElement*> findreplacables( FoliaElement * ) const;

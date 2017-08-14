@@ -230,8 +230,9 @@ namespace folia {
       if ( e ) {
 	_id = e->generateId( xmltag() );
       }
-      else
+      else {
 	throw ValueError("Unable to generate an id from ID= " + it->second );
+      }
       kwargs.erase( it );
     }
     else {
@@ -1600,6 +1601,12 @@ namespace folia {
     return 0;
   }
 
+  FoliaElement *FoliaImpl::postappend( ) {
+    if ( id().empty() && (ID & required_attributes()) && auto_generate_id() ){
+      _id = generateId( xmltag() );
+    }
+    return this;
+  }
 
   void FoliaImpl::remove( FoliaElement *child, bool del ) {
     auto it = std::remove( data.begin(), data.end(), child );
@@ -2355,7 +2362,7 @@ namespace folia {
 
   const string AllowGenerateID::generateId( const string& tag ){
     // generate an new ID using my ID
-    // if ni ID, look upward.
+    // if no ID, look upward.
     string nodeId = id();
     // cerr << "node: " << this << endl;
     // cerr << "ID=" << nodeId << endl;
@@ -2364,7 +2371,7 @@ namespace folia {
       if ( !par ){
 	throw XmlError( "unable to generate an ID. No StructureElement parent found?" );
       }
-      // cerr << "call on parent:" << parent << endl;
+      // cerr << "call on parent:" << par << endl;
       return par->generateId( tag );
     }
     else {
