@@ -600,6 +600,7 @@ namespace folia {
     const std::string id() const { return _id; };
     const std::string begintime() const { return _begintime; };
     const std::string endtime() const { return _endtime; };
+    const std::string textclass() const { return _textclass; };
     const std::string speech_src() const;
     const std::string speech_speaker() const;
     const std::string language( const std::string& = "" ) const;
@@ -670,6 +671,7 @@ namespace folia {
     std::string _begintime;
     std::string _endtime;
     std::string _speaker;
+    std::string _textclass;
     AnnotatorType _annotator_type;
     double _confidence;
     int _refcount;

@@ -381,7 +381,7 @@ namespace folia {
     it = kwargs.find( "n" );
     if ( it != kwargs.end() ) {
       if ( !(N & supported) ) {
-	throw ValueError("N is not supported for " + classname() );
+	throw ValueError("N attribute is not supported for " + classname() );
       }
       else {
 	_n = it->second;
@@ -457,7 +457,7 @@ namespace folia {
     it = kwargs.find( "datetime" );
     if ( it != kwargs.end() ) {
       if ( !(DATETIME & supported) ) {
-	throw ValueError("datetime is not supported for " + classname() );
+	throw ValueError("datetime attribute is not supported for " + classname() );
       }
       else {
 	string time = parseDate( it->second );
@@ -477,7 +477,7 @@ namespace folia {
     it = kwargs.find( "begintime" );
     if ( it != kwargs.end() ) {
       if ( !(BEGINTIME & supported) ) {
-	throw ValueError( "begintime is not supported for " + classname() );
+	throw ValueError( "begintime attribute is not supported for " + classname() );
       }
       else {
 	string time = parseTime( it->second );
@@ -494,7 +494,7 @@ namespace folia {
     it = kwargs.find( "endtime" );
     if ( it != kwargs.end() ) {
       if ( !(ENDTIME & supported) ) {
-	throw ValueError( "endtime is not supported for " + classname() );
+	throw ValueError( "endtime attribute is not supported for " + classname() );
       }
       else {
 	string time = parseTime( it->second );
@@ -512,7 +512,7 @@ namespace folia {
     it = kwargs.find( "src" );
     if ( it != kwargs.end() ) {
       if ( !(SRC & supported) ) {
-	throw ValueError( "src is not supported for " + classname() );
+	throw ValueError( "src attribute is not supported for " + classname() );
       }
       else {
 	_src = it->second;
@@ -525,7 +525,7 @@ namespace folia {
     it = kwargs.find( "speaker" );
     if ( it != kwargs.end() ) {
       if ( !(SPEAKER & supported) ) {
-	throw ValueError( "speaker is not supported for " + classname() );
+	throw ValueError( "speaker attibute is not supported for " + classname() );
       }
       else {
 	_speaker = it->second;
@@ -535,6 +535,21 @@ namespace folia {
     else {
       _speaker.clear();
     }
+
+    it = kwargs.find( "textclass" );
+    if ( it != kwargs.end() ) {
+      if ( !(TEXTCLASS & supported) ) {
+	throw ValueError( "textclass attribute is not supported for " + classname() );
+      }
+      else {
+	_textclass = it->second;
+      }
+      kwargs.erase( it );
+    }
+    else {
+      _textclass = "current";
+    }
+
     it = kwargs.find( "auth" );
     if ( it != kwargs.end() ) {
       _auth = stringTo<bool>( it->second );
@@ -645,6 +660,9 @@ namespace folia {
     }
     if ( !_speaker.empty() ) {
       attribs["speaker"] = _speaker;
+    }
+    if ( !_textclass.empty() && _textclass != "current" ){
+      attribs["textclass"] = _textclass;
     }
     if ( _annotator_type != UNDEFINED ) {
       AnnotatorType at = stringTo<AnnotatorType>( mydoc->defaultannotatortype( annotation_type(), _set ) );
