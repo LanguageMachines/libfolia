@@ -1,5 +1,16 @@
+1.8  2017-00-16
+Implements FoLiA spec 1.4.3
+* adding textclass attribute
+API changed. Bumped library version to 6.2.0
+[Ko van der Sloot]
+* added experimental textchecking code. only working for FoLiA documents
+  according to spec 1.5. NOT RELEASED YET!
+  Work in Progress
+* fix in generate_id. AUTO_GENERATE_ID property was ignored.
+* numereous bug fixes
+
 1.7  2017-04-04
-API chaned so bumped library version to 6.1.0
+API changed so bumped library version to 6.1.0
 [Ko van der Sloot]
 * textcontent() and phoncontent() return const pointers, and also
   work for TexContent adn PhonContent elements now
