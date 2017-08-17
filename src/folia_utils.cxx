@@ -487,4 +487,26 @@ namespace folia {
     return true;
   }
 
+  UnicodeString normalize( const UnicodeString& input ){
+    // substitute \n \r \t by spaces AND all multiple spaces by 1
+    // als trims at back and front.
+    UnicodeString result;
+    bool is_space = false;
+    for ( int i=0; i < input.length(); ++i ){
+      if ( u_isspace( input[i] ) ){
+	if ( is_space ){
+	  continue;
+	}
+	is_space = true;
+	result += " ";
+      }
+      else {
+	is_space = false;
+	result += input[i];
+      }
+    }
+    result.trim(); // remove leading and trailing whitespace;
+    return result;
+  }
+
 } //namespace folia

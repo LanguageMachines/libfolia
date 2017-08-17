@@ -138,6 +138,8 @@ namespace folia {
 
   bool isNCName( const std::string& );
 
+  UnicodeString normalize( const UnicodeString& );
+
 } // namespace folia
 
 namespace TiCC {
