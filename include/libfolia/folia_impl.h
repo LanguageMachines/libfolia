@@ -2119,6 +2119,8 @@ namespace folia {
 
     FoliaElement* parseXml( const xmlNode * );
     xmlNode *xml( bool, bool=false ) const;
+    const UnicodeString text( const std::string& = "current",
+			      bool = false, bool = false ) const { return ""; };
   private:
     static properties PROPS;
     std::string _value;

@@ -1221,7 +1221,7 @@ namespace folia {
       return phoncontent(cls)->phon();
     }
     else if ( !speakable() ) {
-      throw NoSuchText( "NON speakable element: " + xmltag() );
+      throw NoSuchPhon( "NON speakable element: " + xmltag() );
     }
     else {
       UnicodeString result = deepphon( cls );
