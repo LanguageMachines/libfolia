@@ -1350,15 +1350,18 @@ namespace folia {
     // Default cls="current"
     if ( doc() && doc()->checktext()
 	 && !isSubClass( Morpheme_t ) && !isSubClass( Phoneme_t) ){
-      string deeper;
+      UnicodeString deeper_u;
       try {
-	deeper = UnicodeToUTF8(text( cls, false, false ) );
+	deeper_u = text( cls, false, false );
 	// get deep original text: no retain tokenization, no strict
       }
       catch (...){
       }
-      if ( !deeper.empty() && txt != deeper ){
-	throw XmlError( "settext(cls=" + cls + "): deeper text differs from attempted\ndeeper  ='" + deeper + "'\nattempted='" + txt + "'" );
+      deeper_u = normalize( deeper_u );
+      UnicodeString txt_u = UTF8ToUnicode( txt );
+      txt_u = normalize( txt_u );
+      if ( !deeper_u.isEmpty() && txt_u != deeper_u ){
+	throw XmlError( "settext(cls=" + cls + "): deeper text differs from attempted\ndeeper='" + UnicodeToUTF8(deeper_u) + "'\nattempted='" + txt + "'" );
       }
     }
     KWargs args;
@@ -1385,15 +1388,18 @@ namespace folia {
     // sets the offset attribute.
     if ( doc() && doc()->checktext()
 	 && !isSubClass( Morpheme_t ) && !isSubClass( Phoneme_t) ){
-      string deeper;
+      UnicodeString deeper_u;
       try {
-	deeper = UnicodeToUTF8(text( cls, false, false ) );
+	deeper_u = text( cls, false, false );
 	// get deep original text: no retain tokenization, no strict
       }
       catch (...){
       }
-      if ( !deeper.empty() && txt != deeper ){
-	throw XmlError( "settext(cls=" + cls + "): deeper text differs from attempted\ndeeper=  '" + deeper + "'\nattempted='" + txt + "'" );
+      deeper_u = normalize( deeper_u );
+      UnicodeString txt_u = UTF8ToUnicode( txt );
+      txt_u = normalize( txt_u );
+      if ( !deeper_u.isEmpty() && txt_u != deeper_u ){
+	throw XmlError( "settext(cls=" + cls + "): deeper text differs from attempted\ndeeper='" + UnicodeToUTF8(deeper_u) + "'\nattempted='" + txt + "'" );
       }
     }
     KWargs args;
@@ -1487,12 +1493,14 @@ namespace folia {
       }
       FoliaElement *parent = this->parent();
       if ( parent && parent->element_id() != Correction_t
-	   && !(parent->doc() != 0 && !parent->doc()->checktext() )
+	   && ( parent->doc() != 0 && parent->doc()->checktext() )
 	   && parent->hastext( cls ) ){
 	// check text consistency
 	UnicodeString s1 = parent->text( cls, false, true );
 	UnicodeString s2 = c->text( cls, false, true );
 	// no retain tokenization, strict for both
+	s1 = normalize( s1 );
+	s2 = normalize( s2 );
 	int pos = s1.indexOf( s2 );
 	if ( pos < 0 ){
 	  throw XmlError( "attempt to add <t> with class="
@@ -1803,11 +1811,9 @@ namespace folia {
 	  }
 	  catch (...){
 	  }
+	  s1 = normalize( s1 );
+	  s2 = normalize( s2 );
 	  if ( !s2.isEmpty() && s1 != s2 ){
-	    string mess = "node " + xmltag() + "(" + id()
-	      + ") has a mismatch for the text in set:" + st
-	      + "\nthe element text ='" + UnicodeToUTF8(s1)
-	      + "'\n" + "the deeper text ='" + UnicodeToUTF8(s2) + "'";
 	    if ( doc()->fixtext() ){
 	      //	      cerr << "FIX: " << mess << endl;
 	      KWargs args;
@@ -1817,6 +1823,10 @@ namespace folia {
 	      this->replace( node );
 	    }
 	    else {
+	      string mess = "node " + xmltag() + "(" + id()
+		+ ") has a mismatch for the text in set:" + st
+		+ "\nthe element text ='" + UnicodeToUTF8(s1)
+		+ "'\n" + "the deeper text ='" + UnicodeToUTF8(s2) + "'";
 	      throw( XmlError( mess ) );
 	    }
 	  }
