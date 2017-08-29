@@ -1009,7 +1009,27 @@ namespace folia {
 			  const string& annotator_type,
 			  const string& date_time,
 			  const string& alias ){
+    if ( !alias.empty() ){
+      if ( !set_alias[setname].empty()
+	   && set_alias[setname] != alias ){
+	throw XmlError( "setname: " + setname + " already has an alias: "
+			+ set_alias[setname] );
+      }
+      if ( !set_alias[alias].empty()
+	   && set_alias[alias] != alias ){
+	throw XmlError( "alias: " + alias + " is also in us as a setname" );
+      }
+      if ( !alias_set[alias].empty()
+	   && alias_set[alias] != setname ){
+	throw XmlError( "alias: " + alias + " already used for setname: "
+			+ alias_set[alias] );
+      }
+    }
     if ( !isDeclared( type, setname, annotator, annotator_type ) ){
+      if ( !alias_set[setname].empty()
+	   && alias_set[setname] != setname ){
+	throw XmlError( "setname: " + setname + " is also in use as an alias" );
+      }
       string d = date_time;
       if ( d == "now()" ){
 	d = getNow();
