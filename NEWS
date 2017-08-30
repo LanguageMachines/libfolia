@@ -1,3 +1,10 @@
+1.9  2017-08-30
+Bug fix release
+* accept ICU 50 too (was 52) to make CentOS happy
+* XmlComment INSIDE <t> lead to crashes. fixed.
+* code changes in code that is only executed for documents in folia 1.5 format
+  (that shouldn't exist in the wild)
+
 1.8  2017-00-16
 Implements FoLiA spec 1.4.3
 * adding textclass attribute
