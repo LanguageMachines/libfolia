@@ -1003,6 +1003,22 @@ namespace folia {
     return res;
   }
 
+  string Document::unalias( const string& alias ) const {
+    const auto& sti = alias_set.find( alias );
+    if ( sti != alias_set.end() ){
+      return sti->second;
+    }
+    return "";
+  }
+
+  string Document::alias( const string& st ) const {
+    const auto& ali = set_alias.find( st );
+    if ( ali != set_alias.end() ){
+      return ali->second;
+    }
+    return "";
+  }
+
   void Document::declare( AnnotationType::AnnotationType type,
 			  const string& setname,
 			  const string& annotator,
