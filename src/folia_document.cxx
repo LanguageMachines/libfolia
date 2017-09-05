@@ -1034,21 +1034,26 @@ namespace folia {
 			  const string& date_time,
 			  const string& _alias ){
     if ( !_alias.empty() ){
-      if ( !alias(type,setname).empty()
-	   && alias(type,setname) != _alias ){
-	throw XmlError( "setname: " + setname + " already has an alias: "
-			+ alias(type,setname) );
+      string set_ali = alias(type,setname);
+      if ( !set_ali.empty() ){
+	if ( set_ali != _alias ){
+	  throw XmlError( "setname: " + setname + " already has an alias: "
+			  + set_ali );
+	}
       }
-      if ( !alias(type,_alias).empty()
-	   && alias(type,_alias) != _alias ){
-	throw XmlError( "alias: " + _alias +
-			" is also in use as a setname for set:'"
-			+ unalias(type,_alias) + "'" );
+      string ali_ali = alias(type,_alias);
+      string ali_set = unalias(type,_alias);
+      if ( !ali_ali.empty() ){
+	if( ali_ali != _alias ){
+	  throw XmlError( "alias: " + _alias +
+			  " is also in use as a setname for set:'"
+			  + ali_set + "'" );
+	}
       }
-      if ( !unalias(type,_alias).empty()
-	   && unalias(type,_alias) != setname ){
+      if ( !ali_set.empty()
+	   && ali_set != setname ){
 	throw XmlError( "alias: " + _alias + " already used for setname: "
-			+ unalias(type,_alias) );
+			+ ali_set );
       }
     }
     if ( !isDeclared( type, setname, annotator, annotator_type ) ){
