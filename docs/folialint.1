@@ -1,0 +1,89 @@
+.TH folialint 1 "2017 apr 24"
+
+.SH NAME
+folialint \(hy check validity of FoLiA documents
+
+.SH SYNOPSYS
+folialint [options] FILE(S)
+
+.SH DESCRIPTION
+
+.B folialint
+will check the validity of FoLiA files on a surface level:
+
+\(hy Is the tag structure according to the definition?
+
+\(hy Are all required elements and attributes present?
+
+\(hy Are the attributes and values valid?
+
+\(hy Are all annotations correctly declared?
+
+\(hy Is all text consistent?
+
+.SH OPTIONS
+
+.B --output
+file
+.RS
+write output to 'file'. (default is stdout).
+Assumes only 1 inputfile.
+.RE
+
+.B --nooutput
+.RS
+suppress al output except errors
+.RE
+
+.B --nochecktext
+.RS
+Disable checking text consistency. (for older FoLiA versions this wasn't forced to be so. Which is
+.B wrong
+)
+.RE
+
+.B --strip
+.RS
+strip all information from the file that makes comparison hard.
+Notably date/time information.
+
+This also guaratees a 'canonical' output, meaning that otherwise unsorted tags
+are output in the same order every time.
+
+.RE
+
+.B --permissive
+.RS
+Accept documents with missing namespace declarations.
+.RE
+
+.B --debug
+value
+.RS
+Run more verbose
+.RE
+
+.B -v
+.RS
+be more verbose.
+.RE
+
+.B -V
+or
+.B --version
+.RS
+Show VERSION
+.RE
+
+.B -h
+or
+.B --help
+.RS
+Show some help
+.RE
+
+.SH BUGS
+possible
+
+.SH AUTHORS
+Ko van der Sloot: lamasoftware@science.ru.nl

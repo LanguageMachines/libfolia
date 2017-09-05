@@ -334,15 +334,21 @@ namespace folia {
     virtual Correction *correct( const std::string& = "" ) NOT_IMPLEMENTED;
 
     // TextContent
-    virtual TextContent *textcontent( const std::string& = "current" ) const = 0;
-    TextContent *settext( const std::string&, const std::string& = "current" );
-    TextContent *settext( const std::string&, int , const std::string& = "current" );
-    TextContent *setutext( const UnicodeString&, const std::string& = "current" );
-    TextContent *setutext( const UnicodeString&, int , const std::string& = "current" );
+    virtual const TextContent *textcontent( const std::string& = "current" ) const = 0;
+    TextContent *settext( const std::string&,
+			  const std::string& = "current" );
+    TextContent *settext( const std::string&,
+			  int,
+			  const std::string& = "current" );
+    TextContent *setutext( const UnicodeString&,
+			   const std::string& = "current" );
+    TextContent *setutext( const UnicodeString&,
+			   int ,
+			   const std::string& = "current" );
     virtual int offset() const NOT_IMPLEMENTED;
 
     // PhonContent
-    virtual PhonContent *phoncontent( const std::string& = "current" ) const = 0;
+    virtual const PhonContent *phoncontent( const std::string& = "current" ) const = 0;
 
     // properties
     virtual const std::string& getTextDelimiter( bool retaintok=false ) const = 0;
@@ -484,7 +490,7 @@ namespace folia {
     bool acceptable( ElementType ) const;
     bool addable( const FoliaElement * ) const;
     FoliaElement *append( FoliaElement* );
-    FoliaElement *postappend( ) { return this; };
+    FoliaElement *postappend( );
     void remove( size_t, bool = true );
     void remove( FoliaElement *, bool = true );
     std::vector<FoliaElement*> findreplacables( FoliaElement * ) const;
@@ -578,9 +584,9 @@ namespace folia {
     Word *addWord( const KWargs& );
 
     // TextContent
-    TextContent *textcontent( const std::string& = "current" ) const;
+    const TextContent *textcontent( const std::string& = "current" ) const;
     // PhonContent
-    PhonContent *phoncontent( const std::string& = "current" ) const;
+    const PhonContent *phoncontent( const std::string& = "current" ) const;
 
     // properties
     const std::string& getTextDelimiter( bool retaintok=false ) const;
@@ -594,6 +600,7 @@ namespace folia {
     const std::string id() const { return _id; };
     const std::string begintime() const { return _begintime; };
     const std::string endtime() const { return _endtime; };
+    const std::string textclass() const { return _textclass; };
     const std::string speech_src() const;
     const std::string speech_speaker() const;
     const std::string language( const std::string& = "" ) const;
@@ -664,6 +671,7 @@ namespace folia {
     std::string _begintime;
     std::string _endtime;
     std::string _speaker;
+    std::string _textclass;
     AnnotatorType _annotator_type;
     double _confidence;
     int _refcount;
@@ -961,7 +969,6 @@ namespace folia {
     void setAttributes( const KWargs& );
     KWargs collectAttributes() const;
     int offset() const { return _offset; };
-    TextContent *postappend();
     std::vector<FoliaElement*> findreplacables( FoliaElement * ) const;
     const std::string set_to_current() { // Don't use without thinking twice!
       std::string res = _class;
@@ -1201,6 +1208,7 @@ namespace folia {
     MorphologyLayer *addMorphologyLayer( const KWargs& );
     MorphologyLayer *getMorphologyLayers( const std::string&,
 					  std::vector<MorphologyLayer*>& ) const;
+    bool space() const { return _space; };
   private:
     void init();
     static properties PROPS;
@@ -2111,6 +2119,8 @@ namespace folia {
 
     FoliaElement* parseXml( const xmlNode * );
     xmlNode *xml( bool, bool=false ) const;
+    const UnicodeString text( const std::string& = "current",
+			      bool = false, bool = false ) const { return ""; };
   private:
     static properties PROPS;
     std::string _value;
@@ -2126,7 +2136,7 @@ namespace folia {
 
     FoliaElement* parseXml( const xmlNode * );
     xmlNode *xml( bool, bool=false ) const;
-    bool setvalue( const std::string& s ) { _value = s; return true; };
+    bool setvalue( const std::string& );
     const std::string& getTextDelimiter( bool ) const { return EMPTY_STRING; };
     const UnicodeString text( const std::string& = "current",
 			      bool = false, bool = false ) const;
@@ -2256,8 +2266,8 @@ namespace folia {
     Suggestion *suggestions( size_t ) const;
     const UnicodeString text( const std::string& = "current",
 			      bool = false, bool = false ) const;
-    TextContent *textcontent( const std::string& = "current" ) const;
-    PhonContent *phoncontent( const std::string& = "current" ) const;
+    const TextContent *textcontent( const std::string& = "current" ) const;
+    const PhonContent *phoncontent( const std::string& = "current" ) const;
     const std::string& getTextDelimiter( bool=false) const;
   private:
     static properties PROPS;

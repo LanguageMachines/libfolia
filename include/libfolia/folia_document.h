@@ -79,6 +79,8 @@ namespace folia {
   class Document {
     friend bool operator==( const Document&, const Document& );
     friend std::ostream& operator<<( std::ostream&, const Document * );
+    enum Mode { NOMODE=0, PERMISSIVE=1, CHECKTEXT=2, FIXTEXT=4, STRIP=8 };
+
   public:
     Document();
     explicit Document( const std::string& );
@@ -172,7 +174,14 @@ namespace folia {
     void addExternal( External *p ) { externals.push_back( p ); };
     FoliaElement *resolveExternals( FoliaElement* );
     int debug;
-    bool permissive() const { return mode == "permissive"; };
+    bool permissive() const { return mode & PERMISSIVE; };
+    bool checktext() const {
+      return mode & CHECKTEXT;
+    };
+    bool fixtext() const {
+      return mode & FIXTEXT;
+    };
+    bool strip() const { return mode & STRIP; };
     class at_t {
       friend std::ostream& operator<<( std::ostream&, const at_t& );
     public:
@@ -183,6 +192,8 @@ namespace folia {
     };
     void incrRef( AnnotationType::AnnotationType, const std::string& );
     void decrRef( AnnotationType::AnnotationType, const std::string& );
+    void setmode( const std::string& );
+    std::string getmode() const;
   private:
     std::map<AnnotationType::AnnotationType,std::multimap<std::string,at_t> > annotationdefaults;
     std::vector<std::pair<AnnotationType::AnnotationType,std::string>> anno_sort;
@@ -190,7 +201,7 @@ namespace folia {
     FoliaElement* parseFoliaDoc( xmlNode * );
     void parsemeta( xmlNode * );
     void setimdi( xmlNode * );
-    void setDocumentProps( KWargs&  );
+    void setDocumentProps( KWargs& );
     void parseannotations( xmlNode * );
     void getstyles();
     void setannotations( xmlNode *) const;
@@ -219,7 +230,7 @@ namespace folia {
     std::string _license;
     std::map<std::string,std::string> meta_atts;
     std::multimap<std::string,std::string> styles;
-    std::string mode;
+    Mode mode;
     std::string filename;
     std::string version;
     bool external;

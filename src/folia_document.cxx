@@ -76,7 +76,7 @@ namespace folia {
     init();
     KWargs kwargs = getArgs( args );
     setDocumentProps( kwargs );
-    if ( ! foliadoc ){
+    if ( !foliadoc ){
       foliadoc = new FoLiA( kwargs, this );
     }
   }
@@ -96,6 +96,7 @@ namespace folia {
     _foliaNsIn_prefix = 0;
     _foliaNsOut = 0;
     debug = 0;
+    mode = CHECKTEXT;
     version = versionstring();
     external = false;
   }
@@ -147,18 +148,65 @@ namespace folia {
     return true;
   }
 
+  void Document::setmode( const string& ms ){
+    vector<string> modev;
+    TiCC::split_at( ms, modev, "," );
+    for ( const auto& mod : modev ){
+      if ( mod == "permissive" ){
+	mode = Mode( (int)mode | PERMISSIVE );
+      }
+      else if ( mod == "strip" ){
+	mode = Mode( (int)mode | STRIP );
+      }
+      else if ( mod == "nochecktext" ){
+	mode = Mode( int(mode) & ~CHECKTEXT );
+      }
+      else if ( mod == "fixtext" ){
+	mode = Mode( int(mode) | FIXTEXT );
+      }
+      else {
+	throw runtime_error( "FoLiA::Document: unsupported mode value: "+ mod );
+      }
+    }
+    // override CHECKTEXT with environment var
+    const char *env = getenv( "FOLIA_TEXT_CHECK" );
+    if ( env ){
+      string e = env;
+      if ( e == "NO" ){
+	mode = Mode( int(mode) & ~CHECKTEXT );
+      }
+      else {
+	mode = Mode( int(mode) | CHECKTEXT );
+      }
+    }
+  }
+
+  string Document::getmode() const{
+    string result = "mode=";
+    if ( mode == PERMISSIVE ){
+      result += "permissive,";
+    }
+    if ( mode == STRIP ){
+      result += "strip,";
+    }
+    if ( mode == CHECKTEXT ){
+      result += "checktext,";
+    }
+    if ( mode == FIXTEXT ){
+      result += "fixtext,";
+    }
+    return result;
+  }
+
   void Document::setDocumentProps( KWargs& kwargs ){
     bool happy = false;
     auto it = kwargs.find( "debug" );
-    if ( it != kwargs.end() )
+    if ( it != kwargs.end() ){
       debug = stringTo<int>( it->second );
+    }
     it = kwargs.find( "mode" );
     if ( it != kwargs.end() ){
-      mode = it->second;
-      if ( mode != "permissive"
-	   && mode != "strip" ){
-	throw runtime_error( "FoLiA::Document: unsupported mode value: "+mode );
-      }
+      setmode( it->second );
     }
     it = kwargs.find( "external" );
     if ( it != kwargs.end() ){
@@ -328,7 +376,7 @@ namespace folia {
 
   ostream& operator<<( ostream& os, const Document *d ){
     if ( d ){
-      string s = d->toXml( "", (d->mode == "strip") );
+      string s = d->toXml( "", d->strip() );
       os << s << endl;
     }
     else {
@@ -338,7 +386,7 @@ namespace folia {
   }
 
   bool Document::save( ostream& os, const string& nsLabel, bool kanon ) {
-    string s = toXml( nsLabel, ( kanon || (mode == "strip") ) );
+    string s = toXml( nsLabel, ( kanon || strip() ) );
     os << s << endl;
     return os.good();
   }
@@ -347,7 +395,7 @@ namespace folia {
     try {
       if ( match_back( fn, ".bz2" ) ){
 	string tmpname = fn.substr( 0, fn.length() - 3 ) + "tmp";
-	if ( toXml( tmpname, nsLabel, ( kanon || mode == "strip" ) ) ){
+	if ( toXml( tmpname, nsLabel, ( kanon || strip() ) ) ){
 	  bool stat = bz2Compress( tmpname, fn );
 	  remove( tmpname.c_str() );
 	  return stat;
@@ -358,7 +406,7 @@ namespace folia {
       }
       else  if ( match_back( fn, ".gz" ) ){
 	string tmpname = fn.substr( 0, fn.length() - 2 ) + "tmp";
-	if ( toXml( tmpname, nsLabel,  ( kanon || mode == "strip" ) ) ){
+	if ( toXml( tmpname, nsLabel,  ( kanon || strip() ) ) ){
 	  bool stat = gzCompress( tmpname, fn );
 	  remove( tmpname.c_str() );
 	  return stat;
@@ -368,7 +416,7 @@ namespace folia {
 	}
       }
       else {
-	return toXml( fn, nsLabel,  ( kanon || mode == "strip" ) );
+	return toXml( fn, nsLabel,  ( kanon || strip() ) );
       }
     }
     catch ( const exception& e ){
@@ -642,7 +690,8 @@ namespace folia {
     return false;
   }
 
-  int check_version( const string& vers ){
+  int check_version( const string& vers, bool& no_textcheck ){
+    no_textcheck = false;
     int majVersion = 0;
     int minVersion = 0;
     int subVersion = 0;
@@ -656,6 +705,11 @@ namespace folia {
 	minVersion = val;
       else
 	subVersion += val;
+    }
+    if ( ( majVersion < 1 )
+	 || (majVersion == 1 && minVersion < 5 ) ){
+      // don't check text consistency for older documents
+      no_textcheck = true;
     }
     if ( majVersion < MAJOR_VERSION ){
       return -1;
@@ -695,11 +749,15 @@ namespace folia {
       return 0;
     }
     string vers = att["version"];
-    if ( check_version( vers ) > 0 ){
-      cerr << "WARNING!!! FoLiA Document is a newer version then this library ("
+    bool no_textcheck = false;
+    if ( check_version( vers, no_textcheck ) > 0 ){
+      cerr << "WARNING!!! FoLiA Document is a newer version than this library ("
 	   << vers << " vs " << version
 	   << ")\n\t Any possible subsequent failures in parsing or processing may probably be attributed to this." << endl
 	   << "\t Please upgrade libfolia!" << endl;
+    }
+    if ( no_textcheck ){
+      setmode( "nochecktext" );
     }
     setDocumentProps( att );
     FoliaElement *result = FoliaImpl::createElement( Name(root), this );
@@ -862,7 +920,7 @@ namespace folia {
       if ( Name( root ) == "FoLiA" ){
 	string ns = getNS( root );
 	if ( ns.empty() ){
-	  if ( mode == "permissive" ){
+	  if ( permissive() ){
 	    _foliaNsIn_href = xmlCharStrdup( NSFOLIA.c_str() );
 	    _foliaNsIn_prefix = 0;
 	    xmlNs *defNs = xmlNewNs( root,
@@ -890,6 +948,9 @@ namespace folia {
 			      + "' is not a valid NCName." );
 	    }
 	  }
+	}
+	catch ( XmlError& e ){
+	  throw;
 	}
 	catch ( exception& e ){
 	  throw XmlError( e.what() );
@@ -1158,7 +1219,7 @@ namespace folia {
 	s = it->second.t;
 	if ( !s.empty() )
 	  args["annotatortype"] = s;
-	if ( mode != "strip" ){
+	if ( !strip() ){
 	  s = it->second.d;
 	  if ( !s.empty() )
 	    args["datetime"] = s;
@@ -1274,7 +1335,7 @@ namespace folia {
     xmlSetNs( root, _foliaNsOut );
     KWargs attribs;
     attribs["_id"] = foliadoc->id(); // sort "id" in front!
-    if ( mode == "strip" ){
+    if ( strip() ){
       attribs["generator"] = "";
       attribs["version"] = "";
     }

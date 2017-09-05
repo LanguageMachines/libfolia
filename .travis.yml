@@ -1,21 +1,27 @@
 sudo: required
 dist: trusty
+group: edge
+
 
 # whitelist
 branches:
   only:
     - master
 
+notifications:
+  irc:
+    channels:
+      - "irc.uvt.nl#gitlama"
+    template:
+      - "%{repository_slug}#%{build_number} %{message} --> %{build_url}"
+    skip_join: true
+
 language: cpp
 matrix:
   include:
     - os: linux
       compiler: gcc
-      addons:
-        apt:
-          sources: ['ubuntu-toolchain-r-test']
-          packages: ['g++-4.9']
-      env: COMPILER=g++-4.9
+      env: COMPILER=g++
 
 #    - os: linux
 #      compiler: gcc
@@ -29,13 +35,16 @@ matrix:
       compiler: clang
       addons:
         apt:
-          sources: ['ubuntu-toolchain-r-test', 'llvm-toolchain-precise-3.7']
-          packages: ['clang-3.7']
-      env: COMPILER=clang++-3.7
+          packages:
+            - libiomp-dev
+
+      env:
+      - COMPILER=clang++
+      - CXXFLAGS="-fopenmp=libiomp5"
 
 before_install:
     - sudo apt-get update
-    - sudo apt-get install pkg-config autoconf-archive libicu-dev libxml2-dev libtar-dev libbz2-dev zlib1g-dev xmldiff
+    - sudo apt-get install pkg-config autoconf-archive libicu-dev libxml2-dev libtar-dev libbz2-dev zlib1g-dev xmldiff libboost-dev libboost-regex-dev
     - git clone https://github.com/proycon/ticcutils
     - cd ticcutils
     - bash bootstrap.sh

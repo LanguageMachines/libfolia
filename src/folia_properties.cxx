@@ -6,7 +6,7 @@
 #include "libfolia/folia_properties.h"
 
 //foliaspec:header
-//This file was last updated according to the FoLiA specification for version 1.4.0 on 2017-01-05 13:17:58, using foliaspec.py
+//This file was last updated according to the FoLiA specification for version 1.4.3 on 2017-08-14 09:36:07, using foliaspec.py
 //Code blocks after a foliaspec comment (until the next newline) are automatically generated. **DO NOT EDIT THOSE** and **DO NOT REMOVE ANY FOLIASPEC COMMENTS** !!!
 
 namespace folia {
@@ -23,7 +23,7 @@ namespace folia {
 
   //foliaspec:version_sub:SUB_VERSION
   //The FoLiA version (sub/rev)
-  const int SUB_VERSION = 0;
+  const int SUB_VERSION = 3;
 
   //foliaspec:namespace:NSFOLIA
   //The FoLiA XML namespace
@@ -556,7 +556,7 @@ namespace folia {
 //------ AbstractAnnotationLayer -------
     AbstractAnnotationLayer::PROPS.ELEMENT_ID = AbstractAnnotationLayer_t;
     AbstractAnnotationLayer::PROPS.ACCEPTED_DATA += {Comment_t, Correction_t, Description_t, ForeignData_t};
-    AbstractAnnotationLayer::PROPS.OPTIONAL_ATTRIBS = ID|ANNOTATOR|CONFIDENCE|DATETIME|N;
+    AbstractAnnotationLayer::PROPS.OPTIONAL_ATTRIBS = ID|ANNOTATOR|CONFIDENCE|DATETIME|N|TEXTCLASS;
     AbstractAnnotationLayer::PROPS.PRINTABLE = false;
     AbstractAnnotationLayer::PROPS.SETONLY = true;
     AbstractAnnotationLayer::PROPS.SPEAKABLE = false;
@@ -570,7 +570,7 @@ namespace folia {
 //------ AbstractSpanAnnotation -------
     AbstractSpanAnnotation::PROPS.ELEMENT_ID = AbstractSpanAnnotation_t;
     AbstractSpanAnnotation::PROPS.ACCEPTED_DATA += {AlignReference_t, Alignment_t, Comment_t, Description_t, ForeignData_t, Metric_t};
-    AbstractSpanAnnotation::PROPS.OPTIONAL_ATTRIBS = ID|CLASS|ANNOTATOR|N|CONFIDENCE|DATETIME|SRC|BEGINTIME|ENDTIME|SPEAKER;
+    AbstractSpanAnnotation::PROPS.OPTIONAL_ATTRIBS = ID|CLASS|ANNOTATOR|N|CONFIDENCE|DATETIME|SRC|BEGINTIME|ENDTIME|SPEAKER|TEXTCLASS;
     AbstractSpanAnnotation::PROPS.PRINTABLE = true;
     AbstractSpanAnnotation::PROPS.SPEAKABLE = true;
 //------ AbstractSpanRole -------
@@ -589,7 +589,7 @@ namespace folia {
     AbstractStructureElement::PROPS.TEXTDELIMITER = "\n\n";
 //------ AbstractTextMarkup -------
     AbstractTextMarkup::PROPS.ELEMENT_ID = AbstractTextMarkup_t;
-    AbstractTextMarkup::PROPS.ACCEPTED_DATA += {AbstractTextMarkup_t, Comment_t, Description_t, XmlText_t};
+    AbstractTextMarkup::PROPS.ACCEPTED_DATA += {AbstractTextMarkup_t, Comment_t, Description_t, Linebreak_t, XmlText_t};
     AbstractTextMarkup::PROPS.OPTIONAL_ATTRIBS = ID|CLASS|ANNOTATOR|N|CONFIDENCE|DATETIME|SRC|BEGINTIME|ENDTIME|SPEAKER;
     AbstractTextMarkup::PROPS.PRINTABLE = true;
     AbstractTextMarkup::PROPS.TEXTCONTAINER = true;
@@ -599,7 +599,7 @@ namespace folia {
     AbstractTokenAnnotation::PROPS.ELEMENT_ID = AbstractTokenAnnotation_t;
     AbstractTokenAnnotation::PROPS.ACCEPTED_DATA += {Comment_t, Description_t, Feature_t, ForeignData_t, Metric_t};
     AbstractTokenAnnotation::PROPS.OCCURRENCES_PER_SET = 1;
-    AbstractTokenAnnotation::PROPS.OPTIONAL_ATTRIBS = ID|CLASS|ANNOTATOR|N|CONFIDENCE|DATETIME|SRC|BEGINTIME|ENDTIME|SPEAKER;
+    AbstractTokenAnnotation::PROPS.OPTIONAL_ATTRIBS = ID|CLASS|ANNOTATOR|N|CONFIDENCE|DATETIME|SRC|BEGINTIME|ENDTIME|SPEAKER|TEXTCLASS;
     AbstractTokenAnnotation::PROPS.REQUIRED_ATTRIBS = CLASS;
 //------ AbstractExtendedTokenAnnotation -------
     AbstractExtendedTokenAnnotation::PROPS = AbstractTokenAnnotation::PROPS;
@@ -806,7 +806,7 @@ namespace folia {
 //------ Event -------
     Event::PROPS = AbstractStructureElement::PROPS;
     Event::PROPS.ELEMENT_ID = Event_t;
-    Event::PROPS.ACCEPTED_DATA += {AbstractAnnotationLayer_t, AbstractExtendedTokenAnnotation_t, ActorFeature_t, Alignment_t, Alternative_t, AlternativeLayers_t, BegindatetimeFeature_t, Comment_t, Correction_t, Description_t, Division_t, EnddatetimeFeature_t, Event_t, Example_t, Feature_t, Figure_t, ForeignData_t, Head_t, Linebreak_t, List_t, Metric_t, Paragraph_t, Part_t, PhonContent_t, Reference_t, Sentence_t, String_t, Table_t, TextContent_t, Utterance_t, Whitespace_t, Word_t};
+    Event::PROPS.ACCEPTED_DATA += {AbstractAnnotationLayer_t, AbstractExtendedTokenAnnotation_t, ActorFeature_t, Alignment_t, Alternative_t, AlternativeLayers_t, BegindatetimeFeature_t, Comment_t, Correction_t, Description_t, Division_t, EnddatetimeFeature_t, Entry_t, Event_t, Example_t, Feature_t, Figure_t, ForeignData_t, Gap_t, Head_t, Linebreak_t, List_t, Metric_t, Note_t, Paragraph_t, Part_t, PhonContent_t, Quote_t, Reference_t, Sentence_t, String_t, Table_t, TextContent_t, Utterance_t, Whitespace_t, Word_t};
     Event::PROPS.ANNOTATIONTYPE = AnnotationType::EVENT;
     Event::PROPS.LABEL = "Event";
     Event::PROPS.XMLTAG = "event";
@@ -918,6 +918,7 @@ namespace folia {
     Linebreak::PROPS.ANNOTATIONTYPE = AnnotationType::LINEBREAK;
     Linebreak::PROPS.LABEL = "Linebreak";
     Linebreak::PROPS.TEXTDELIMITER = "";
+    Linebreak::PROPS.XLINK = true;
     Linebreak::PROPS.XMLTAG = "br";
 //------ List -------
     List::PROPS = AbstractStructureElement::PROPS;
@@ -930,7 +931,7 @@ namespace folia {
 //------ ListItem -------
     ListItem::PROPS = AbstractStructureElement::PROPS;
     ListItem::PROPS.ELEMENT_ID = ListItem_t;
-    ListItem::PROPS.ACCEPTED_DATA += {AbstractAnnotationLayer_t, AbstractExtendedTokenAnnotation_t, Alignment_t, Alternative_t, AlternativeLayers_t, Comment_t, Correction_t, Description_t, Event_t, Feature_t, ForeignData_t, Gap_t, Label_t, Linebreak_t, List_t, Metric_t, Note_t, Part_t, PhonContent_t, Reference_t, Sentence_t, String_t, TextContent_t, Whitespace_t};
+    ListItem::PROPS.ACCEPTED_DATA += {AbstractAnnotationLayer_t, AbstractExtendedTokenAnnotation_t, Alignment_t, Alternative_t, AlternativeLayers_t, Comment_t, Correction_t, Description_t, Event_t, Feature_t, ForeignData_t, Gap_t, Label_t, Linebreak_t, List_t, Metric_t, Note_t, Part_t, PhonContent_t, Reference_t, Sentence_t, String_t, TextContent_t, Whitespace_t, Word_t};
     ListItem::PROPS.LABEL = "List Item";
     ListItem::PROPS.TEXTDELIMITER = "\n";
     ListItem::PROPS.XMLTAG = "item";

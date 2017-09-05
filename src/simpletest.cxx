@@ -83,5 +83,12 @@ int main() {
     return EXIT_FAILURE;
   }
   cout << s->text() << endl;
+  UnicodeString dirty = "    A    dir\ty \n  string\r.\n   ";
+  UnicodeString clean = normalize( dirty );
+  UnicodeString wanted = "A dirty string.";
+  if ( clean != wanted ){
+    cerr << "string normalize failed: got:'" << clean << "'"
+	 << "                but expected:'" << wanted << "'" << endl;
+  }
   return EXIT_SUCCESS;
 }

@@ -125,6 +125,10 @@ namespace folia {
     return _props.AUTO_GENERATE_ID;
   }
 
+  bool is_structure( const FoliaElement *el ){
+    return dynamic_cast<const AbstractStructureElement*>( el ) != 0;
+  }
+
   const string FoliaImpl::href() const {
     auto it = _xlink.find("href");
     if ( it != _xlink.end() ){
@@ -172,7 +176,7 @@ namespace folia {
 
   FoliaImpl::~FoliaImpl( ) {
     // cerr << "delete element id=" << _id << " tag = " << xmltag() << " *= "
-    //  	 << (void*)this << " datasize= " << data.size() << endl;
+    // 	 << (void*)this << " datasize= " << data.size() << endl;
     for ( const auto& el : data ) {
       if ( el->refcount() == 0 ) {
 	// probably only != 0 for words
@@ -226,8 +230,9 @@ namespace folia {
       if ( e ) {
 	_id = e->generateId( xmltag() );
       }
-      else
+      else {
 	throw ValueError("Unable to generate an id from ID= " + it->second );
+      }
       kwargs.erase( it );
     }
     else {
@@ -376,7 +381,7 @@ namespace folia {
     it = kwargs.find( "n" );
     if ( it != kwargs.end() ) {
       if ( !(N & supported) ) {
-	throw ValueError("N is not supported for " + classname() );
+	throw ValueError("N attribute is not supported for " + classname() );
       }
       else {
 	_n = it->second;
@@ -452,7 +457,7 @@ namespace folia {
     it = kwargs.find( "datetime" );
     if ( it != kwargs.end() ) {
       if ( !(DATETIME & supported) ) {
-	throw ValueError("datetime is not supported for " + classname() );
+	throw ValueError("datetime attribute is not supported for " + classname() );
       }
       else {
 	string time = parseDate( it->second );
@@ -472,7 +477,7 @@ namespace folia {
     it = kwargs.find( "begintime" );
     if ( it != kwargs.end() ) {
       if ( !(BEGINTIME & supported) ) {
-	throw ValueError( "begintime is not supported for " + classname() );
+	throw ValueError( "begintime attribute is not supported for " + classname() );
       }
       else {
 	string time = parseTime( it->second );
@@ -489,7 +494,7 @@ namespace folia {
     it = kwargs.find( "endtime" );
     if ( it != kwargs.end() ) {
       if ( !(ENDTIME & supported) ) {
-	throw ValueError( "endtime is not supported for " + classname() );
+	throw ValueError( "endtime attribute is not supported for " + classname() );
       }
       else {
 	string time = parseTime( it->second );
@@ -507,7 +512,7 @@ namespace folia {
     it = kwargs.find( "src" );
     if ( it != kwargs.end() ) {
       if ( !(SRC & supported) ) {
-	throw ValueError( "src is not supported for " + classname() );
+	throw ValueError( "src attribute is not supported for " + classname() );
       }
       else {
 	_src = it->second;
@@ -520,7 +525,7 @@ namespace folia {
     it = kwargs.find( "speaker" );
     if ( it != kwargs.end() ) {
       if ( !(SPEAKER & supported) ) {
-	throw ValueError( "speaker is not supported for " + classname() );
+	throw ValueError( "speaker attibute is not supported for " + classname() );
       }
       else {
 	_speaker = it->second;
@@ -530,6 +535,21 @@ namespace folia {
     else {
       _speaker.clear();
     }
+
+    it = kwargs.find( "textclass" );
+    if ( it != kwargs.end() ) {
+      if ( !(TEXTCLASS & supported) ) {
+	throw ValueError( "textclass attribute is not supported for " + classname() );
+      }
+      else {
+	_textclass = it->second;
+      }
+      kwargs.erase( it );
+    }
+    else {
+      _textclass = "current";
+    }
+
     it = kwargs.find( "auth" );
     if ( it != kwargs.end() ) {
       _auth = stringTo<bool>( it->second );
@@ -640,6 +660,9 @@ namespace folia {
     }
     if ( !_speaker.empty() ) {
       attribs["speaker"] = _speaker;
+    }
+    if ( !_textclass.empty() && _textclass != "current" ){
+      attribs["textclass"] = _textclass;
     }
     if ( _annotator_type != UNDEFINED ) {
       AnnotatorType at = stringTo<AnnotatorType>( mydoc->defaultannotatortype( annotation_type(), _set ) );
@@ -758,10 +781,12 @@ namespace folia {
 	xmlAddChild( e, cel->xml( recursive, kanon ) );
       }
       for ( const auto& tel : currenttextelements ) {
-	xmlAddChild( e, tel->xml( recursive, kanon ) );
+	xmlAddChild( e, tel->xml( recursive, false ) );
+	// don't change the internal sequences of TextContent elements
       }
       for ( const auto& tel : textelements ) {
-	xmlAddChild( e, tel->xml( recursive, kanon ) );
+	xmlAddChild( e, tel->xml( recursive, false ) );
+	// don't change the internal sequences of TextContent elements
       }
       if ( !kanon ) {
 	for ( const auto& oel : otherelements ) {
@@ -974,12 +999,26 @@ namespace folia {
     return found_nl > 0;
   }
 
+  bool no_space_at_end( FoliaElement *s ){
+    bool result = false;
+    //    cerr << "no space? s: " << s << endl;
+    if ( s ){
+      vector<Word*> words = s->select<Word>(false);
+      if ( !words.empty() ){
+	Word *last = words.back();
+	//	cerr << "no space? last: " << last << endl;
+	return !last->space();
+      }
+    }
+    return result;
+  }
+
   const UnicodeString FoliaImpl::deeptext( const string& cls,
 					   bool retaintok ) const {
     // get the UnicodeString value of underlying elements
     // default cls="current"
 #ifdef DEBUG_TEXT
-    cerr << "deepTEXT(" << cls << ") op node : " << xmltag() << " id(" << id() << ")" << endl;
+    cerr << "deepTEXT(" << cls << ") op node : " << xmltag() << " id(" << id() << ") cls=" << this->cls() << ")" << endl;
 #endif
 #ifdef DEBUG_TEXT
     cerr << "deeptext: node has " << data.size() << " children." << endl;
@@ -994,7 +1033,11 @@ namespace folia {
 	cerr << "deeptext: node[" << child->xmltag() << "] NOT PRINTABLE! " << endl;
       }
 #endif
-      if ( child->printable() && !child->isinstance( TextContent_t ) ) {
+      if ( child->printable()
+	   && ( is_structure( child )
+		|| child->isSubClass( AbstractSpanAnnotation_t )
+		|| child->isinstance( Correction_t ) )
+	   && !child->isinstance( TextContent_t ) ) {
 #ifdef DEBUG_TEXT
 	cerr << "deeptext:bekijk node[" << child->xmltag() << "]"<< endl;
 #endif
@@ -1011,12 +1054,23 @@ namespace folia {
 	  cerr << "deeptext trimmed '" << tmp << "'" << endl;
 #endif
 	  parts.push_back(tmp);
-	  // get the delimiter
-	  const string& delim = child->getTextDelimiter( retaintok );
+	  if ( child->isinstance( Sentence_t )
+	       && no_space_at_end(child) ){
+	    const string& delim = "";
 #ifdef DEBUG_TEXT
-	  cerr << "deeptext:delimiter van "<< child->xmltag() << " ='" << delim << "'" << endl;
+	    cerr << "deeptext: no delimiter van "<< child->xmltag() << " on"
+		 << " last w of s" << endl;
 #endif
-	  seps.push_back(UTF8ToUnicode(delim));
+	    seps.push_back(UTF8ToUnicode(delim));
+	  }
+	  else {
+	    // get the delimiter
+	    const string& delim = child->getTextDelimiter( retaintok );
+#ifdef DEBUG_TEXT
+	    cerr << "deeptext:delimiter van "<< child->xmltag() << " ='" << delim << "'" << endl;
+#endif
+	    seps.push_back(UTF8ToUnicode(delim));
+	  }
 	} catch ( NoSuchText& e ) {
 #ifdef DEBUG_TEXT
 	  cerr << "HELAAS" << endl;
@@ -1086,14 +1140,22 @@ namespace folia {
     return this->text(cls, true, false );
   }
 
-  TextContent *FoliaImpl::textcontent( const string& cls ) const {
+  const TextContent *FoliaImpl::textcontent( const string& cls ) const {
     // Get the text explicitly associated with this element
     // (of the specified class) the default class is 'current'
     // Returns the TextContent instance rather than the actual text.
+    // (so it might return iself.. ;)
     // Does not recurse into children
     // with sole exception of Correction
     // Raises NoSuchText exception if not found.
-
+    if ( isinstance(TextContent_t) ){
+      if  ( this->cls() == cls ) {
+	return dynamic_cast<const TextContent*>(this);
+      }
+      else {
+	throw NoSuchText( xmltag() + "::textcontent(" + cls + ")" );
+      }
+    }
     if ( !printable() ) {
       throw NoSuchText( "non-printable element: " +  xmltag() );
     }
@@ -1109,16 +1171,24 @@ namespace folia {
 	}
       }
     }
-    throw NoSuchText( xmltag() + "::textcontent()" );
+    throw NoSuchText( xmltag() + "::textcontent(" + cls + ")" );
   }
 
-  PhonContent *FoliaImpl::phoncontent( const string& cls ) const {
+  const PhonContent *FoliaImpl::phoncontent( const string& cls ) const {
     // Get the phon explicitly associated with this element
     // (of the specified class) the default class is 'current'
     // Returns the PhonContent instance rather than the actual phoneme.
     // Does not recurse into children
     // with sole exception of Correction
     // Raises NoSuchPhon exception if not found.
+    if ( isinstance(PhonContent_t) ){
+      if  ( this->cls() == cls ) {
+	return dynamic_cast<const PhonContent*>(this);
+      }
+      else {
+	throw NoSuchPhon( xmltag() + "::phoncontent(" + cls + ")" );
+      }
+    }
     if ( !speakable() ) {
       throw NoSuchPhon( "non-speakable element: " + xmltag() );
     }
@@ -1135,7 +1205,7 @@ namespace folia {
 	}
       }
     }
-    throw NoSuchPhon( xmltag() + "::phoncontent()" );
+    throw NoSuchPhon( xmltag() + "::phoncontent(" + cls + ")" );
   }
 
   //#define DEBUG_PHON
@@ -1151,7 +1221,7 @@ namespace folia {
       return phoncontent(cls)->phon();
     }
     else if ( !speakable() ) {
-      throw NoSuchText( "NON speakable element: " + xmltag() );
+      throw NoSuchPhon( "NON speakable element: " + xmltag() );
     }
     else {
       UnicodeString result = deepphon( cls );
@@ -1275,20 +1345,35 @@ namespace folia {
   }
 
   TextContent *FoliaElement::settext( const string& txt,
-				      const string& cls ) {
+				      const string& cls ){
     // create a TextContent child of class 'cls'
     // Default cls="current"
+    if ( doc() && doc()->checktext()
+	 && !isSubClass( Morpheme_t ) && !isSubClass( Phoneme_t) ){
+      UnicodeString deeper_u;
+      try {
+	deeper_u = text( cls, false, false );
+	// get deep original text: no retain tokenization, no strict
+      }
+      catch (...){
+      }
+      deeper_u = normalize( deeper_u );
+      UnicodeString txt_u = UTF8ToUnicode( txt );
+      txt_u = normalize( txt_u );
+      if ( !deeper_u.isEmpty() && txt_u != deeper_u ){
+	throw XmlError( "settext(cls=" + cls + "): deeper text differs from attempted\ndeeper='" + UnicodeToUTF8(deeper_u) + "'\nattempted='" + txt + "'" );
+      }
+    }
     KWargs args;
     args["value"] = txt;
     args["class"] = cls;
-    TextContent *node = new TextContent( doc() );
-    node->setAttributes( args );
+    TextContent *node = new TextContent( args, doc() );
     replace( node );
     return node;
   }
 
   TextContent *FoliaElement::setutext( const UnicodeString& txt,
-				       const string& cls ) {
+				       const string& cls ){
     // create a TextContent child of class 'cls'
     // Default cls="current"
     string utf8 = UnicodeToUTF8(txt);
@@ -1297,10 +1382,26 @@ namespace folia {
 
   TextContent *FoliaElement::settext( const string& txt,
 				      int offset,
-				      const string& cls ) {
+				      const string& cls ){
     // create a TextContent child of class 'cls'
     // Default cls="current"
     // sets the offset attribute.
+    if ( doc() && doc()->checktext()
+	 && !isSubClass( Morpheme_t ) && !isSubClass( Phoneme_t) ){
+      UnicodeString deeper_u;
+      try {
+	deeper_u = text( cls, false, false );
+	// get deep original text: no retain tokenization, no strict
+      }
+      catch (...){
+      }
+      deeper_u = normalize( deeper_u );
+      UnicodeString txt_u = UTF8ToUnicode( txt );
+      txt_u = normalize( txt_u );
+      if ( !deeper_u.isEmpty() && txt_u != deeper_u ){
+	throw XmlError( "settext(cls=" + cls + "): deeper text differs from attempted\ndeeper='" + UnicodeToUTF8(deeper_u) + "'\nattempted='" + txt + "'" );
+      }
+    }
     KWargs args;
     args["value"] = txt;
     args["class"] = cls;
@@ -1313,7 +1414,7 @@ namespace folia {
 
   TextContent *FoliaElement::setutext( const UnicodeString& txt,
 				       int offset,
-				       const string& cls ) {
+				       const string& cls ){
     // create a TextContent child of class 'cls'
     // Default cls="current"
     string utf8 = UnicodeToUTF8(txt);
@@ -1350,7 +1451,7 @@ namespace folia {
       vector<FoliaElement*> v = select( c->element_id(), false );
       size_t count = v.size();
       if ( count >= c->occurrences() ) {
-	throw DuplicateAnnotationError( "Unable to add another object of type " + c->classname() + " to " + classname() + ". There are already " + TiCC::toString(count) + " instances of this class, which is the maximum." );
+	throw DuplicateAnnotationError( "Unable to add another object of type " + c->classname() + " to " + classname() + ". There are already " + TiCC::toString(count) + " instances of this type, which is the maximum." );
       }
     }
     if ( c->occurrences_per_set() > 0 &&
@@ -1358,7 +1459,7 @@ namespace folia {
       vector<FoliaElement*> v = select( c->element_id(), c->sett(), false );
       size_t count = v.size();
       if ( count >= c->occurrences_per_set() ) {
-	throw DuplicateAnnotationError( "Unable to add another object of type " + c->classname() + " to " + classname() + ". There are already " + TiCC::toString(count) + " instances of this class, which is the maximum." );
+	throw DuplicateAnnotationError( "Unable to add another object of type " + c->classname() + " to " + classname() + ". There are already " + TiCC::toString(count) + " instances of this type and set, which is the maximum." );
       }
     }
     if ( c->parent() &&
@@ -1378,16 +1479,36 @@ namespace folia {
       }
     }
     if ( c->element_id() == TextContent_t ){
+      string cls = c->cls();
       string st = c->sett();
       vector<TextContent*> tmp = select<TextContent>( st, false );
       if ( !tmp.empty() ) {
-	string cls = c->cls();
 	for( const auto& t : tmp ){
 	  if ( t->cls() == cls ){
 	    throw DuplicateAnnotationError( "attempt to add <t> with class="
 					    + cls + " to element: " + _id
 					    + " which already has a <t> with that class" );
 	  }
+	}
+      }
+      FoliaElement *parent = this->parent();
+      if ( parent && parent->element_id() != Correction_t
+	   && ( parent->doc() != 0 && parent->doc()->checktext() )
+	   && parent->hastext( cls ) ){
+	// check text consistency
+	UnicodeString s1 = parent->text( cls, false, true );
+	UnicodeString s2 = c->text( cls, false, true );
+	// no retain tokenization, strict for both
+	s1 = normalize( s1 );
+	s2 = normalize( s2 );
+	int pos = s1.indexOf( s2 );
+	if ( pos < 0 ){
+	  throw XmlError( "attempt to add <t> with class="
+			  + cls + " and text '" + UnicodeToUTF8(s2)
+			  + "' to element: " + _id + " with parent "
+			  + parent->id()
+			  + " which already has a <t> with that class and text: '"
+			  + UnicodeToUTF8(s1) + "'" );
 	}
       }
     }
@@ -1506,6 +1627,12 @@ namespace folia {
     return 0;
   }
 
+  FoliaElement *FoliaImpl::postappend( ) {
+    if ( id().empty() && (ID & required_attributes()) && auto_generate_id() ){
+      _id = generateId( xmltag() );
+    }
+    return this;
+  }
 
   void FoliaImpl::remove( FoliaElement *child, bool del ) {
     auto it = std::remove( data.begin(), data.end(), child );
@@ -1660,6 +1787,51 @@ namespace folia {
 	}
       }
       p = p->next;
+    }
+    if ( doc() && ( doc()->checktext() || doc()->fixtext() )
+	 && is_structure( this )
+	 && !isSubClass( Morpheme_t ) && !isSubClass( Phoneme_t) ){
+      vector<TextContent*> tv = select<TextContent>( false );
+      // first see which text classes ar present
+      set<string> cls;
+      for ( const auto& it : tv ){
+	cls.insert( it->cls() );
+      }
+      // check the text for every text class
+      for ( const auto& st : cls ){
+	UnicodeString s1, s2;
+	try {
+	  s1 = text( st, false, true );  // no retain tokenization, strict
+	}
+	catch (...){
+	}
+	if ( !s1.isEmpty() ){
+	  try {
+	    s2 = text( st, false, false ); // no retain tokenization, no strict
+	  }
+	  catch (...){
+	  }
+	  s1 = normalize( s1 );
+	  s2 = normalize( s2 );
+	  if ( !s2.isEmpty() && s1 != s2 ){
+	    if ( doc()->fixtext() ){
+	      //	      cerr << "FIX: " << mess << endl;
+	      KWargs args;
+	      args["value"] = UnicodeToUTF8(s2);
+	      args["class"] = st;
+	      TextContent *node = new TextContent( args, doc() );
+	      this->replace( node );
+	    }
+	    else {
+	      string mess = "node " + xmltag() + "(" + id()
+		+ ") has a mismatch for the text in set:" + st
+		+ "\nthe element text ='" + UnicodeToUTF8(s1)
+		+ "'\n" + "the deeper text ='" + UnicodeToUTF8(s2) + "'";
+	      throw( XmlError( mess ) );
+	    }
+	  }
+	}
+      }
     }
     return this;
   }
@@ -2112,9 +2284,9 @@ namespace folia {
     if ( _class == "current" ) {
       attribs.erase( "class" );
     }
-    else if ( _class == "original" && parent() && parent()->isinstance( Original_t ) ) {
-      attribs.erase( "class" );
-    }
+    // else if ( _class == "original" && parent() && parent()->isinstance( Original_t ) ) {
+    //   attribs.erase( "class" );
+    // }
 
     if ( _offset >= 0 ) {
       attribs["offset"] = TiCC::toString( _offset );
@@ -2165,15 +2337,6 @@ namespace folia {
       atts["newpage"] = "yes";
     }
     return atts;
-  }
-
-  TextContent *TextContent::postappend() {
-    if ( _parent->isinstance( Original_t ) ) {
-      if ( _class == "current" ) {
-	_class = "original";
-      }
-    }
-    return this;
   }
 
   vector<FoliaElement *>TextContent::findreplacables( FoliaElement *par ) const {
@@ -2227,7 +2390,7 @@ namespace folia {
 
   const string AllowGenerateID::generateId( const string& tag ){
     // generate an new ID using my ID
-    // if ni ID, look upward.
+    // if no ID, look upward.
     string nodeId = id();
     // cerr << "node: " << this << endl;
     // cerr << "ID=" << nodeId << endl;
@@ -2236,7 +2399,7 @@ namespace folia {
       if ( !par ){
 	throw XmlError( "unable to generate an ID. No StructureElement parent found?" );
       }
-      // cerr << "call on parent:" << parent << endl;
+      // cerr << "call on parent:" << par << endl;
       return par->generateId( tag );
     }
     else {
@@ -2354,8 +2517,7 @@ namespace folia {
       args2.erase("suggestions" );
       string id = generateId( "correction" );
       args2["id"] = id;
-      corr = new Correction(mydoc );
-      corr->setAttributes( args2 );
+      corr = new Correction( args2, mydoc );
     }
 #ifdef DEBUG_CORRECT
     cerr << "now corr= " << corr << endl;
@@ -3435,27 +3597,17 @@ namespace folia {
 #ifdef DEBUG_TEXT
     cerr << "TEXT(" << cls << ") op node : " << xmltag() << " id ( " << id() << ")" << endl;
 #endif
-    if ( cls == "current" ) {
-      for ( const auto& el : data ) {
+    // we cannot use textcontent() on New, Origibal or Current,
+    // because texcontent doesn't recurse!
+    for ( const auto& el : data ) {
 #ifdef DEBUG_TEXT
-	cerr << "data=" << el << endl;
+      cerr << "data=" << el << endl;
 #endif
-	if ( el->isinstance( New_t ) || el->isinstance( Current_t ) ) {
-	  return el->text( cls, retaintok );
-	}
-      }
+       if ( el->isinstance( New_t ) || el->isinstance( Current_t ) ) {
+         return el->text( cls, retaintok );
+       }
     }
-    else if ( cls == "original" ) {
-      for ( const auto& el : data ) {
-#ifdef DEBUG_TEXT
-	cerr << "data=" << el << endl;
-#endif
-	if ( el->isinstance( Original_t ) ) {
-	  return el->text( cls, retaintok );
-	}
-      }
-    }
-    throw NoSuchText("wrong cls");
+    throw NoSuchText( "cls=" + cls );
   }
 
   const string& Correction::getTextDelimiter( bool retaintok ) const {
@@ -3467,37 +3619,48 @@ namespace folia {
     return EMPTY_STRING;
   }
 
-  TextContent *Correction::textcontent( const string& cls ) const {
-    if ( cls == "current" ) {
-      for ( const auto& el : data ) {
-	if ( el->isinstance( New_t ) || el->isinstance( Current_t ) ) {
-	  return el->textcontent( cls );
+  const TextContent *Correction::textcontent( const string& cls ) const {
+    // TODO: this implements correctionhandling::EITHER only
+    for ( const auto& el : data ) {
+      if ( el->isinstance( New_t ) || el->isinstance( Current_t ) ) {
+	const TextContent *res = 0;
+	try {
+	  res = el->textcontent( cls );
+	  return res;
+	}
+	catch (...){
 	}
       }
     }
-    else if ( cls == "original" ) {
-      for ( const auto& el : data ) {
-	if ( el->isinstance( Original_t ) ) {
-	  return el->textcontent( cls );
+    for ( const auto& el : data ) {
+      if ( el->isinstance( Original_t ) ) {
+	const TextContent *res = 0;
+	try {
+	  res =  el->textcontent( cls );
+	  return res;
 	}
+	catch ( ... ){
+	}
+      }
+      else if ( cls == "current" && el->hastext( "original" ) ){
+	cerr << "text(original)= " << el->textcontent( cls )->text()<< endl;
+	// hack for old and erroneous behaviour
+	return el->textcontent( "original" );
       }
     }
     throw NoSuchText("wrong cls");
   }
 
-  PhonContent *Correction::phoncontent( const string& cls ) const {
-    if ( cls == "current" ) {
-      for ( const auto& el: data ) {
-	if ( el->isinstance( New_t ) || el->isinstance( Current_t ) ) {
-	  return el->phoncontent( cls );
-	}
+  const PhonContent *Correction::phoncontent( const string& cls ) const {
+    // TODO: this implements correctionhandling::EITHER only
+    for ( const auto& el: data ) {
+      if ( el->isinstance( New_t ) || el->isinstance( Current_t ) ) {
+	return el->phoncontent( cls );
       }
     }
-    else if ( cls == "original" ) {
-      for ( const auto& el: data ) {
-	if ( el->isinstance( Original_t ) ) {
-	  return el->phoncontent( cls );
-	}
+    for ( const auto& el: data ) {
+      if ( el->isinstance( Original_t ) ) {
+	return el->phoncontent( cls );
       }
     }
     throw NoSuchPhon("wrong cls");
@@ -3666,6 +3829,11 @@ namespace folia {
       }
     }
     return 0;
+  }
+
+  bool XmlText::setvalue( const std::string& s ){
+    _value = s;
+    return true;
   }
 
   const UnicodeString XmlText::text( const string&, bool, bool ) const {

@@ -42,6 +42,7 @@ void usage(){
   cerr << "\t\t\t\t This is usefull to generate FoLiA that can be diffed." << endl;
   cerr << "\t--output='file'\t\t name an outputfile. (default is stdout)" << endl;
   cerr << "\t--nooutput\t\t Suppress output. Only warnings/errors are displayed." << endl;
+  cerr << "\t--nochecktext DO NOT check if text is consistent inside structure tags. Default is to do so." << endl;
   cerr << "\t--debug=value\t\t Run more verbose." << endl;
   cerr << "\t--permissive\t\t Accept some unwise constructions." << endl;
 }
@@ -51,11 +52,12 @@ int main( int argc, char* argv[] ){
   bool permissive;
   bool strip;
   bool nooutput = false;
+  bool nochecktext = false;
   string debug;
   vector<string> fileNames;
   try {
     TiCC::CL_Options Opts( "hV",
-			   "debug:,permissive,strip,output:,nooutput,help,version");
+			   "nochecktext,debug:,permissive,strip,output:,nooutput,help,version");
     Opts.init(argc, argv );
     if ( Opts.extract( 'h' )
 	 || Opts.extract( "help" ) ){
@@ -64,12 +66,15 @@ int main( int argc, char* argv[] ){
     }
     if ( Opts.extract( 'V' )
 	 || Opts.extract( "version" ) ){
-      cout << "folialint version 0.4" << endl;
+      cout << "folialint version 0.5" << endl;
       cout << "based on [" << folia::VersionName() << "]" << endl;
       return EXIT_SUCCESS;
     }
     permissive = Opts.extract("permissive");
     nooutput = Opts.extract("nooutput");
+    if ( Opts.extract("nochecktext") ){
+      nochecktext = true;
+    }
     strip = Opts.extract("strip");
     if ( strip && permissive ){
       cerr << "conflicting options: 'permissive' and 'strip'" << endl;
@@ -100,15 +105,31 @@ int main( int argc, char* argv[] ){
     cerr << "FAIL: " << e.what() << endl;
     exit( EXIT_FAILURE );
   }
+
   for ( const auto& inputName : fileNames ){
     try {
       string cmd = "file='" + inputName + "'";
       if ( !debug.empty() )
 	cmd += ", debug='" + debug + "'";
-      if ( permissive )
-	cmd += ", mode='permissive'";
-      else if ( strip )
-	cmd += ", mode='strip'";
+      string mode;
+      if ( permissive ){
+	mode = ", mode='permissive";
+      }
+      else if ( strip ){
+	mode = ", mode='strip";
+      }
+      if ( nochecktext ){
+	if ( mode.empty() ){
+	  mode = ", mode='nochecktext'";
+	}
+	else {
+	  mode += ",nochecktext'";
+	}
+      }
+      else if ( !mode.empty() ){
+	mode += "'";
+      }
+      cmd += mode;
       folia::Document d( cmd );
       if ( !outputName.empty() ){
 	d.save( outputName );
@@ -118,8 +139,8 @@ int main( int argc, char* argv[] ){
       }
     }
     catch( exception& e ){
-      cerr << "FAIL: " << e.what() << endl;
-      exit( EXIT_FAILURE );
+      cerr << inputName << " failed: " << endl << e.what() << endl;
+      //      exit( EXIT_FAILURE );
     }
   }
   exit( EXIT_SUCCESS );
