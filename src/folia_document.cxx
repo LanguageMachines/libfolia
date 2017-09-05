@@ -1003,18 +1003,26 @@ namespace folia {
     return res;
   }
 
-  string Document::unalias( const string& alias ) const {
-    const auto& sti = alias_set.find( alias );
-    if ( sti != alias_set.end() ){
-      return sti->second;
+  string Document::unalias( AnnotationType::AnnotationType type,
+			    const string& alias ) const {
+    const auto& ti = alias_set.find(type);
+    if ( ti != alias_set.end() ){
+      const auto& sti = ti->second.find( alias );
+      if ( sti != ti->second.end() ){
+	return sti->second;
+      }
     }
     return "";
   }
 
-  string Document::alias( const string& st ) const {
-    const auto& ali = set_alias.find( st );
-    if ( ali != set_alias.end() ){
-      return ali->second;
+  string Document::alias( AnnotationType::AnnotationType type,
+			  const string& st ) const {
+    const auto& ti = set_alias.find(type);
+    if ( ti != set_alias.end() ){
+      const auto& ali = ti->second.find( st );
+      if ( ali != ti->second.end() ){
+	return ali->second;
+      }
     }
     return "";
   }
@@ -1024,26 +1032,28 @@ namespace folia {
 			  const string& annotator,
 			  const string& annotator_type,
 			  const string& date_time,
-			  const string& alias ){
-    if ( !alias.empty() ){
-      if ( !set_alias[setname].empty()
-	   && set_alias[setname] != alias ){
+			  const string& _alias ){
+    if ( !_alias.empty() ){
+      if ( !alias(type,setname).empty()
+	   && alias(type,setname) != _alias ){
 	throw XmlError( "setname: " + setname + " already has an alias: "
-			+ set_alias[setname] );
+			+ alias(type,setname) );
       }
-      if ( !set_alias[alias].empty()
-	   && set_alias[alias] != alias ){
-	throw XmlError( "alias: " + alias + " is also in us as a setname" );
+      if ( !alias(type,_alias).empty()
+	   && alias(type,_alias) != _alias ){
+	throw XmlError( "alias: " + _alias +
+			" is also in use as a setname for set:'"
+			+ unalias(type,_alias) + "'" );
       }
-      if ( !alias_set[alias].empty()
-	   && alias_set[alias] != setname ){
-	throw XmlError( "alias: " + alias + " already used for setname: "
-			+ alias_set[alias] );
+      if ( !unalias(type,_alias).empty()
+	   && unalias(type,_alias) != setname ){
+	throw XmlError( "alias: " + _alias + " already used for setname: "
+			+ unalias(type,_alias) );
       }
     }
     if ( !isDeclared( type, setname, annotator, annotator_type ) ){
-      if ( !alias_set[setname].empty()
-	   && alias_set[setname] != setname ){
+      if ( !unalias(type,setname).empty()
+	   && unalias(type,setname) != setname ){
 	throw XmlError( "setname: " + setname + " is also in use as an alias" );
       }
       string d = date_time;
@@ -1053,20 +1063,20 @@ namespace folia {
       annotationdefaults[type].insert( make_pair( setname,
 						  at_t(annotator,annotator_type,date_time) ) );
       anno_sort.push_back(make_pair(type,setname));
-      if ( !alias.empty() ){
-	alias_set[alias] = setname;
-	set_alias[setname] = alias;
+      if ( !_alias.empty() ){
+	alias_set[type][_alias] = setname;
+	set_alias[type][setname] = _alias;
       }
       else {
-	alias_set[setname] = setname;
-	set_alias[setname] = setname;
+	alias_set[type][setname] = setname;
+	set_alias[type][setname] = setname;
       }
     }
   }
 
   void Document::un_declare( AnnotationType::AnnotationType type,
 			     const string& set_name ){
-    string setname = alias_set[set_name];
+    string setname = unalias(type,set_name);
     if (  annotationrefs[type][setname] != 0 ){
       throw XmlError( "unable to undeclare " + toString(type) + "-type("
 		      + setname + ") (references remain)" );
@@ -1091,19 +1101,19 @@ namespace folia {
 	  ++it2;
 	}
       }
-      auto it3 = alias_set.begin();
-      while ( it3 != alias_set.end() ){
+      auto it3 = alias_set[type].begin();
+      while ( it3 != alias_set[type].end() ){
 	if ( it3->first == setname || it3->second == setname ){
-	  it3 = alias_set.erase( it3 );
+	  it3 = alias_set[type].erase( it3 );
 	}
 	else {
 	  ++it3;
 	}
       }
-      auto it4 = set_alias.begin();
-      while ( it4 != set_alias.end() ){
+      auto it4 = set_alias[type].begin();
+      while ( it4 != set_alias[type].end() ){
 	if ( it4->first == setname || it4->second == setname ){
-	  it4 = set_alias.erase( it4 );
+	  it4 = set_alias[type].erase( it4 );
 	}
 	else {
 	  ++it4;
@@ -1133,10 +1143,10 @@ namespace folia {
     if ( set_name.empty() ){
 	throw runtime_error("isDeclared called with empty set.");
     }
-    string setname = alias_set[set_name];
     if ( type == AnnotationType::NO_ANN ){
       return true;
     }
+    string setname = unalias(type,set_name);
 
     const auto& it1 = annotationdefaults.find(type);
     if ( it1 != annotationdefaults.end() ){
@@ -1300,9 +1310,12 @@ namespace folia {
 	s = it->first;
 	if ( s != "undefined" ) // the default
 	  args["set"] = s;
-	const auto& alias = set_alias.find(s);
-	if ( alias->second != s ){
-	  args["alias"] = alias->second;
+	const auto& ti = set_alias.find(type);
+	if ( ti != set_alias.end() ){
+	  const auto& alias = ti->second.find(s);
+	  if ( alias->second != s ){
+	    args["alias"] = alias->second;
+	  }
 	}
 	xmlNode *n = XmlNewNode( foliaNs(), label );
 	addAttributes( n, args );

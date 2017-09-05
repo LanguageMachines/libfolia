@@ -272,7 +272,7 @@ namespace folia {
 	throw ValueError("Set is not supported for " + classname());
       }
       else {
-	string st = mydoc->unalias(it->second);
+	string st = mydoc->unalias( annotation_type(), it->second);
 	if ( st.empty() ){
 	  _set = it->second;
 	}
@@ -604,7 +604,7 @@ namespace folia {
     if ( !_set.empty() &&
 	 _set != mydoc->defaultset( annotation_type() ) ) {
       isDefaultSet = false;
-      string ali = mydoc->alias(_set );
+      string ali = mydoc->alias( annotation_type(), _set );
       if ( ali.empty() ){
 	attribs["set"] = _set;
       }
