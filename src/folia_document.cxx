@@ -766,16 +766,18 @@ namespace folia {
     }
     setDocumentProps( att );
     FoliaElement *result = FoliaImpl::createElement( Name(root), this );
-    if ( debug > 2 )
+    if ( debug > 2 ){
       cerr << "created " << root << endl;
+    }
     result->setAttributes( att );
     xmlNode *p = root->children;
     while ( p ){
       if ( p->type == XML_ELEMENT_NODE ){
 	if ( Name(p) == "metadata" &&
 	     checkNS( p, NSFOLIA ) ){
-	  if ( debug > 1 )
+	  if ( debug > 1 ){
 	    cerr << "Found metadata" << endl;
+	  }
 	  KWargs atts = getAttributes( p );
 	  string val = lowercase(atts["type"]);
 	  if ( !val.empty() ){
@@ -789,8 +791,9 @@ namespace folia {
 	    if ( Name(m)  == "METATRANSCRIPT" ){
 	      if ( !checkNS( m, NSIMDI ) || _metadatatype != "imdi" )
 		throw runtime_error( "imdi != imdi " );
-	      if ( debug > 1 )
+	      if ( debug > 1 ){
 		cerr << "found IMDI" << endl;
+	      }
 	      if ( _metadata ){
 		throw XmlError( "multiple imdi:METATRANSCRIPT nodes!" );
 	      }
@@ -799,14 +802,16 @@ namespace folia {
 	    }
 	    else if ( Name( m ) == "annotations" &&
 		      checkNS( m, NSFOLIA ) ){
-	      if ( debug > 1 )
+	      if ( debug > 1 ){
 		cerr << "found annotations" << endl;
+	      }
 	      parseannotations( m );
 	    }
 	    else if ( Name( m ) == "meta" &&
 		      checkNS( m, NSFOLIA ) ){
-	      if ( debug > 1 )
+	      if ( debug > 1 ){
 		cerr << "found meta node" << endl;
+	      }
 	      parsemeta( m );
 	    }
 	    else if ( Name(m)  == "foreign-data" &&
@@ -827,12 +832,14 @@ namespace folia {
 	    string tag = Name( p );
 	    FoliaElement *t = FoliaImpl::createElement( tag, this );
 	    if ( t ){
-	      if ( debug > 2 )
+	      if ( debug > 2 ){
 		cerr << "created " << t << endl;
+	      }
 	      t = t->parseXml( p );
 	      if ( t ){
-		if ( debug > 2 )
+		if ( debug > 2 ){
 		  cerr << "extend " << result << " met " << tag << endl;
+		}
 		result->append( t );
 	      }
 	    }
@@ -1066,7 +1073,7 @@ namespace folia {
 	d = getNow();
       }
       annotationdefaults[type].insert( make_pair( setname,
-						  at_t(annotator,annotator_type,date_time) ) );
+						  at_t(annotator,annotator_type,d) ) );
       anno_sort.push_back(make_pair(type,setname));
       if ( !_alias.empty() ){
 	alias_set[type][_alias] = setname;
