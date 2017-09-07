@@ -655,6 +655,7 @@ namespace folia {
 	string a;
 	string t;
 	string d;
+	string alias;
 	auto it = att.find("set" );
 	if ( it != att.end() ){
 	  s = it->second;
@@ -673,7 +674,11 @@ namespace folia {
 	if ( it != att.end() ){
 	  d = parseDate( it->second );
 	}
-	declare( type, s, a, t, d );
+	it = att.find( "alias" );
+	if ( it != att.end() ){
+	  alias = it->second;
+	}
+	declare( type, s, a, t, d, alias );
       }
       n = n->next;
     }
@@ -976,13 +981,15 @@ namespace folia {
     string a = kw["annotator"];
     string t = kw["annotatortype"];
     string d = kw["datetime"];
+    string alias = kw["alias"];
     kw.erase("annotator");
     kw.erase("annotatortype");
     kw.erase("datetime");
+    kw.erase("alias");
     if ( kw.size() != 0 ){
-      throw XmlError( "declaration: expected 'annotator', 'annotatortype' or 'datetime', got '" + kw.begin()->first + "'" );
+      throw XmlError( "declaration: expected 'annotator', 'annotatortype', 'alias' or 'datetime', got '" + kw.begin()->first + "'" );
     }
-    declare( type, st, a, t, d );
+    declare( type, st, a, t, d, alias );
   }
 
   string getNow() {
@@ -996,34 +1003,94 @@ namespace folia {
     return res;
   }
 
+  string Document::unalias( AnnotationType::AnnotationType type,
+			    const string& alias ) const {
+    const auto& ti = alias_set.find(type);
+    if ( ti != alias_set.end() ){
+      const auto& sti = ti->second.find( alias );
+      if ( sti != ti->second.end() ){
+	return sti->second;
+      }
+    }
+    return "";
+  }
+
+  string Document::alias( AnnotationType::AnnotationType type,
+			  const string& st ) const {
+    const auto& ti = set_alias.find(type);
+    if ( ti != set_alias.end() ){
+      const auto& ali = ti->second.find( st );
+      if ( ali != ti->second.end() ){
+	return ali->second;
+      }
+    }
+    return "";
+  }
+
   void Document::declare( AnnotationType::AnnotationType type,
-			  const string& s, const string& a,
-			  const string& t, const string& ds ){
-    if ( !isDeclared( type, s, a, t ) ){
-      string d = ds;
+			  const string& setname,
+			  const string& annotator,
+			  const string& annotator_type,
+			  const string& date_time,
+			  const string& _alias ){
+    if ( !_alias.empty() ){
+      string set_ali = alias(type,setname);
+      if ( !set_ali.empty() ){
+	if ( set_ali != _alias ){
+	  throw XmlError( "setname: " + setname + " already has an alias: "
+			  + set_ali );
+	}
+      }
+      string ali_ali = alias(type,_alias);
+      string ali_set = unalias(type,_alias);
+      if ( !ali_ali.empty() ){
+	if( ali_ali != _alias ){
+	  throw XmlError( "alias: " + _alias +
+			  " is also in use as a setname for set:'"
+			  + ali_set + "'" );
+	}
+      }
+      if ( !ali_set.empty()
+	   && ali_set != setname ){
+	throw XmlError( "alias: " + _alias + " already used for setname: "
+			+ ali_set );
+      }
+    }
+    if ( !isDeclared( type, setname, annotator, annotator_type ) ){
+      if ( !unalias(type,setname).empty()
+	   && unalias(type,setname) != setname ){
+	throw XmlError( "setname: " + setname + " is also in use as an alias" );
+      }
+      string d = date_time;
       if ( d == "now()" ){
 	d = getNow();
       }
-      annotationdefaults[type].insert( make_pair(s, at_t(a,t,d) ) );
-      anno_sort.push_back(make_pair(type,s));
-      //    cerr << "inserted [" << type << "][" << st << "](" << a << "," << t << "," << d ")" << endl;
-      //    cerr << "annotation defaults now: " <<  annotationdefaults << endl;
-
+      annotationdefaults[type].insert( make_pair( setname,
+						  at_t(annotator,annotator_type,date_time) ) );
+      anno_sort.push_back(make_pair(type,setname));
+      if ( !_alias.empty() ){
+	alias_set[type][_alias] = setname;
+	set_alias[type][setname] = _alias;
+      }
+      else {
+	alias_set[type][setname] = setname;
+	set_alias[type][setname] = setname;
+      }
     }
   }
 
   void Document::un_declare( AnnotationType::AnnotationType type,
-			     const string& s ){
-    if (  annotationrefs[type][s] != 0 ){
+			     const string& set_name ){
+    string setname = unalias(type,set_name);
+    if (  annotationrefs[type][setname] != 0 ){
       throw XmlError( "unable to undeclare " + toString(type) + "-type("
-		      + s + ") (references remain)" );
+		      + setname + ") (references remain)" );
     }
-    //    cerr << "UN-declare " << toString(type) << "(" << s << ")" << endl;
     auto const adt = annotationdefaults.find(type);
     if ( adt != annotationdefaults.end() ){
       auto it = adt->second.begin();
       while ( it != adt->second.end() ){
-	if ( s.empty() || it->first == s ){
+	if ( setname.empty() || it->first == setname ){
 	  it = adt->second.erase(it);
 	}
 	else {
@@ -1032,11 +1099,29 @@ namespace folia {
       }
       auto it2 = anno_sort.begin();
       while ( it2 != anno_sort.end() ){
-	if ( it2->first == type && it2->second == s ){
+	if ( it2->first == type && it2->second == setname ){
 	  it2 = anno_sort.erase( it2 );
 	}
 	else {
 	  ++it2;
+	}
+      }
+      auto it3 = alias_set[type].begin();
+      while ( it3 != alias_set[type].end() ){
+	if ( it3->first == setname || it3->second == setname ){
+	  it3 = alias_set[type].erase( it3 );
+	}
+	else {
+	  ++it3;
+	}
+      }
+      auto it4 = set_alias[type].begin();
+      while ( it4 != set_alias[type].end() ){
+	if ( it4->first == setname || it4->second == setname ){
+	  it4 = set_alias[type].erase( it4 );
+	}
+	else {
+	  ++it4;
 	}
       }
     }
@@ -1054,22 +1139,25 @@ namespace folia {
   }
 
   bool Document::isDeclared( AnnotationType::AnnotationType type,
-			     const string& s,
-			     const string& a,
-			     const string& t){
+			     const string& set_name,
+			     const string& annotator,
+			     const string& annotator_type){
     //
     // We DO NOT check the date. if all parameters match, it is OK
     //
+    if ( set_name.empty() ){
+	throw runtime_error("isDeclared called with empty set.");
+    }
     if ( type == AnnotationType::NO_ANN ){
       return true;
     }
+    string setname = unalias(type,set_name);
+
     const auto& it1 = annotationdefaults.find(type);
     if ( it1 != annotationdefaults.end() ){
-      if ( s.empty() )
-	throw runtime_error("isDeclared with empty set.");
-      auto mit2 = it1->second.lower_bound(s);
-      while ( mit2 != it1->second.upper_bound(s) ){
-	if ( mit2->second.a == a && mit2->second.t == t )
+      auto mit2 = it1->second.lower_bound(setname);
+      while ( mit2 != it1->second.upper_bound(setname) ){
+	if ( mit2->second.a == annotator && mit2->second.t == annotator_type )
 	  return true;
 	++mit2;
       }
@@ -1098,15 +1186,15 @@ namespace folia {
   }
 
   bool Document::isDeclared( AnnotationType::AnnotationType type,
-			     const string& s ){
+			     const string& setname ){
     if ( type == AnnotationType::NO_ANN ){
       return true;
     }
     const auto& mit1 = annotationdefaults.find(type);
     if ( mit1 != annotationdefaults.end() ){
-      if ( s.empty() )
+      if ( setname.empty() )
 	return true;
-      const auto& mit2 = mit1->second.find(s);
+      const auto& mit2 = mit1->second.find(setname);
       return mit2 != mit1->second.end();
     }
     return false;
@@ -1227,6 +1315,13 @@ namespace folia {
 	s = it->first;
 	if ( s != "undefined" ) // the default
 	  args["set"] = s;
+	const auto& ti = set_alias.find(type);
+	if ( ti != set_alias.end() ){
+	  const auto& alias = ti->second.find(s);
+	  if ( alias->second != s ){
+	    args["alias"] = alias->second;
+	  }
+	}
 	xmlNode *n = XmlNewNode( foliaNs(), label );
 	addAttributes( n, args );
 	xmlAddChild( node, n );

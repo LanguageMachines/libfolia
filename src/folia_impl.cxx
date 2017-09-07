@@ -265,14 +265,20 @@ namespace folia {
     it = kwargs.find( "set" );
     string def;
     if ( it != kwargs.end() ) {
+      if ( !mydoc ) {
+	throw ValueError( "Set=" + _set + " is used on a node without a document." );
+      }
       if ( !( (CLASS & supported) || setonly() ) ) {
 	throw ValueError("Set is not supported for " + classname());
       }
       else {
-	_set = it->second;
-      }
-      if ( !mydoc ) {
-	throw ValueError( "Set=" + _set + " is used on a node without a document." );
+	string st = mydoc->unalias( annotation_type(), it->second);
+	if ( st.empty() ){
+	  _set = it->second;
+	}
+	else {
+	  _set = st;
+	}
       }
       if ( !mydoc->isDeclared( annotation_type(), _set ) ) {
 	throw ValueError( "Set " + _set + " is used but has no declaration " +
@@ -598,7 +604,13 @@ namespace folia {
     if ( !_set.empty() &&
 	 _set != mydoc->defaultset( annotation_type() ) ) {
       isDefaultSet = false;
-      attribs["set"] = _set;
+      string ali = mydoc->alias( annotation_type(), _set );
+      if ( ali.empty() ){
+	attribs["set"] = _set;
+      }
+      else {
+	attribs["set"] = ali;
+      }
     }
     if ( !_class.empty() ) {
       attribs["class"] = _class;

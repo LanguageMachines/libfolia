@@ -146,6 +146,10 @@ namespace folia {
 		     const std::string&,
 		     const std::string& );
     bool isDeclared( AnnotationType::AnnotationType, const std::string& = "" );
+    std::string unalias( AnnotationType::AnnotationType,
+			 const std::string& ) const;
+    std::string alias( AnnotationType::AnnotationType,
+		       const std::string& ) const;
     std::string defaultset( AnnotationType::AnnotationType ) const;
 
     std::string defaultannotator( AnnotationType::AnnotationType,
@@ -165,7 +169,8 @@ namespace folia {
 		  const std::string& = "" );
     void declare( AnnotationType::AnnotationType,
 		  const std::string&, const std::string&,
-		  const std::string&, const std::string& );
+		  const std::string&, const std::string&,
+		  const std::string& = "" );
     void un_declare( AnnotationType::AnnotationType,
 		     const std::string& );
     xmlDoc *XmlDoc() const { return _xmldoc; };
@@ -198,6 +203,9 @@ namespace folia {
     std::map<AnnotationType::AnnotationType,std::multimap<std::string,at_t> > annotationdefaults;
     std::vector<std::pair<AnnotationType::AnnotationType,std::string>> anno_sort;
     std::map<AnnotationType::AnnotationType,std::map<std::string,int> > annotationrefs;
+    std::map<AnnotationType::AnnotationType,std::map<std::string,std::string>> alias_set;
+    std::map<AnnotationType::AnnotationType,std::map<std::string,std::string>> set_alias;
+
     FoliaElement* parseFoliaDoc( xmlNode * );
     void parsemeta( xmlNode * );
     void setimdi( xmlNode * );
