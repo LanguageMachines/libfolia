@@ -293,7 +293,7 @@ namespace folia {
     virtual std::vector<Word*> rightcontext( size_t,
 					     const std::string& ="" ) const NOT_IMPLEMENTED;
     virtual Word *addWord( const KWargs& ) = 0;
-    Word *addWord( const std::string& s ){
+    Word *addWord( const std::string& s="" ){
       return addWord( getArgs(s) );
     }
 
