@@ -43,7 +43,7 @@ namespace folia {
 
   //foliaspec:attributes
   //Defines all common FoLiA attributes (as part of the Attrib enumeration)
-  enum Attrib : int { NO_ATT=0, ID=1, CLASS=2, ANNOTATOR=4, CONFIDENCE=8, N=16, DATETIME=32, BEGINTIME=64, ENDTIME=128, SRC=256, SPEAKER=512, TEXTCLASS=1024, ALL=2048 };
+  enum Attrib : int { NO_ATT=0, ID=1, CLASS=2, ANNOTATOR=4, CONFIDENCE=8, N=16, DATETIME=32, BEGINTIME=64, ENDTIME=128, SRC=256, SPEAKER=512, TEXTCLASS=1024, METADATA=2048, ALL=4096 };
 
   inline Attrib& operator++( Attrib & a ){
     return a = ( SPEAKER == a )
