@@ -489,7 +489,7 @@ namespace folia {
 
   UnicodeString normalize( const UnicodeString& input ){
     // substitute \n \r \t by spaces AND all multiple spaces by 1
-    // als trims at back and front.
+    // also trims at back and front.
     UnicodeString result;
     bool is_space = false;
     for ( int i=0; i < input.length(); ++i ){
