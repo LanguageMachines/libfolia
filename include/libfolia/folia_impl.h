@@ -464,7 +464,7 @@ namespace folia {
 
     void classInit( const KWargs& a ){
       // this funcion is needed because calling the virtual function
-      // setAttributes from the constuctor will NOT call the right version
+      // setAttributes from the constructor will NOT call the right version
       // THIS IS BY DESIGN.
       init(); // virtual init
       setAttributes( a ); // also virtual!
@@ -672,6 +672,7 @@ namespace folia {
     std::string _endtime;
     std::string _speaker;
     std::string _textclass;
+    std::string _metadata;
     AnnotatorType _annotator_type;
     double _confidence;
     int _refcount;
@@ -873,6 +874,41 @@ namespace folia {
     void init();
     static properties PROPS;
     xmlNode *_foreign_data;
+  };
+
+#define META_NOT_IMPLEMENTED {						\
+    throw NotImplementedError( "MetaTags::" + std::string(__func__) ); \
+  }
+
+  class BaseMetaData {
+  public:
+    virtual ~BaseMetaData(){};
+    virtual void add_node( const std::string&, const std::string& ) META_NOT_IMPLEMENTED;
+    virtual void add_foreign( xmlNode * ) META_NOT_IMPLEMENTED;
+  };
+
+  class NativeMetaData: public BaseMetaData {
+  public:
+    explicit NativeMetaData(): BaseMetaData() {};
+  void add_node( const std::string& a, const std::string& v )
+    { attrib[a] = v; };
+  private:
+    std::map<std::string,std::string> attrib;
+  };
+
+  class ForeignMetaData: public BaseMetaData {
+  public:
+  ForeignMetaData( ): BaseMetaData() {};
+    void add_foreign( const xmlNode * );
+  private:
+    std::vector<FoliaElement*> foreigners;
+  };
+
+  class ExternalMetaData: public BaseMetaData {
+  public:
+  ExternalMetaData( const std::string& src ): BaseMetaData() { _src = src; };
+  private:
+    std::string _src;
   };
 
   const std::string EMPTY_STRING = "";

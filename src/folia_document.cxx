@@ -52,6 +52,17 @@ namespace folia {
     // a NO_OP now
   }
 
+  bool checkNS( xmlNode *n, const string& ns ){
+    string tns = getNS(n);
+    if ( tns == ns )
+      return true;
+    else
+      throw runtime_error( "namespace conflict for tag:" + Name(n)
+			   + ", wanted:" + ns
+			   + " got:" + tns );
+    return false;
+  }
+
   map<string,string> getNS_definitions( const xmlNode *node ){
     map<string,string> result;
     xmlNs *p = node->nsDef;
@@ -684,15 +695,62 @@ namespace folia {
     }
   }
 
-  bool checkNS( xmlNode *n, const string& ns ){
-    string tns = getNS(n);
-    if ( tns == ns )
-      return true;
-    else
-      throw runtime_error( "namespace conflict for tag:" + Name(n)
-			   + ", wanted:" + ns
-			   + " got:" + tns );
-    return false;
+  void Document::parsesubmeta( xmlNode *node ){
+    using TiCC::operator<<;
+    if ( node ){
+      KWargs att = getAttributes( node );
+      string id = att["_id"];
+      if ( id.empty() ){
+	throw MetaDataError( "submetadata without xml:id" );
+      }
+      string type = att["type"];
+      if ( !type.empty() ){
+	submetadatatype[id] = type;
+      }
+      else {
+	submetadatatype[id] = "native";
+      }
+      string src = att["src"];
+      if ( !src.empty() ){
+	submetadata[id] = new ExternalMetaData( src );
+      }
+      else if ( submetadatatype[id] == "native" ){
+	submetadata[id] = new NativeMetaData();
+      }
+      else {
+	submetadata[id] = 0;
+      }
+      xmlNode *p = node->children;
+      while ( p ){
+	if ( p->type == XML_ELEMENT_NODE ){
+	  if ( Name(p) == "meta" &&
+	       checkNS( p, NSFOLIA ) ){
+	    if ( submetadatatype[id] == "native" ){
+	      string txt = XmlContent( p );
+	      KWargs att = getAttributes( p );
+	      string sid = att["_id"];
+	      if ( !txt.empty() ){
+		submetadata[id]->add_node( sid, txt );
+	      }
+	    }
+	    else {
+	      throw MetaDataError("Encountered a meta element but metadata type is not native!");
+	    }
+	  }
+	  else if ( Name(p) == "foreign-data" &&
+		    checkNS( p, NSFOLIA ) ){
+	    if ( submetadatatype[id] == "native" ){
+	      throw MetaDataError("Encountered a foreign-data element but metadata type is not native!");
+	    }
+	    else if ( submetadata[id] == 0 ){
+	      submetadata[id] = new ForeignMetaData();
+	    }
+	    submetadata[id]->add_foreign( p );
+	  }
+	}
+	p = p->next;
+      }
+    }
   }
 
   int check_version( const string& vers, bool& no_textcheck ){
@@ -823,6 +881,10 @@ namespace folia {
 		  _foreigndata.push_back( dynamic_cast<ForeignData *>(t) );
 		}
 	      }
+	    }
+	    else if ( Name(m)  == "submetadata" &&
+		      checkNS( m, NSFOLIA ) ){
+	      parsesubmeta( m );
 	    }
 	    m = m->next;
 	  }

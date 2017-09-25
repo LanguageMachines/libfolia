@@ -211,6 +211,7 @@ namespace folia {
     void setimdi( xmlNode * );
     void setDocumentProps( KWargs& );
     void parseannotations( xmlNode * );
+    void parsesubmeta( xmlNode * );
     void getstyles();
     void setannotations( xmlNode *) const;
     void setmetadata( xmlNode * ) const;
@@ -229,6 +230,8 @@ namespace folia {
     mutable xmlNs *_foliaNsOut;
     std::string _metadatatype;
     xmlNode *_metadata;
+    std::map<std::string,std::string> submetadatatype;
+    std::map<std::string,BaseMetaData *> submetadata;
     std::vector<ForeignData *> _foreigndata;
     std::string _metadatafile;
     std::string _title;

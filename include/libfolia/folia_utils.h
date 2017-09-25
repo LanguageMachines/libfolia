@@ -74,6 +74,11 @@ namespace folia {
     explicit XmlError( const std::string& s ): std::runtime_error( "XML error: " + s ){};
   };
 
+  class MetaDataError: public std::runtime_error {
+  public:
+    explicit MetaDataError( const std::string& s ): std::runtime_error( "MetaData problem: " + s ){};
+  };
+
   class NoSuchAnnotation: public std::runtime_error {
   public:
     explicit NoSuchAnnotation( const std::string& s ): std::runtime_error( "no such annotation: " + s ){};

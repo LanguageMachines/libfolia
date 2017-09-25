@@ -528,6 +528,19 @@ namespace folia {
     else
       _src.clear();
 
+    it = kwargs.find( "metadata" );
+    if ( it != kwargs.end() ) {
+      if ( !(METADATA & supported) ) {
+	throw ValueError( "metadata attribute is not supported for " + classname() );
+      }
+      else {
+	_metadata = it->second;
+      }
+      kwargs.erase( it );
+    }
+    else
+      _metadata.clear();
+
     it = kwargs.find( "speaker" );
     if ( it != kwargs.end() ) {
       if ( !(SPEAKER & supported) ) {
@@ -669,6 +682,9 @@ namespace folia {
     }
     if ( !_src.empty() ) {
       attribs["src"] = _src;
+    }
+    if ( !_metadata.empty() ) {
+      attribs["metadata"] = _metadata;
     }
     if ( !_speaker.empty() ) {
       attribs["speaker"] = _speaker;
@@ -1596,6 +1612,10 @@ namespace folia {
     if ( _src.empty()
 	 && ( SRC & required_attributes() ) ) {
       throw ValueError( "attribute 'src' is required for " + classname() );
+    }
+    if ( _metadata.empty()
+	 && ( METADATA & required_attributes() ) ) {
+      throw ValueError( "attribute 'metadata' is required for " + classname() );
     }
     if ( _speaker.empty()
 	 && ( SPEAKER & required_attributes() ) ) {
@@ -4081,6 +4101,12 @@ namespace folia {
       }
     }
     return "";
+  }
+
+  void ForeignMetaData::add_foreign( const xmlNode *node ){
+    ForeignData *fd = new ForeignData();
+    fd->set_data( node );
+    foreigners.push_back( fd );
   }
 
   ForeignData::~ForeignData(){

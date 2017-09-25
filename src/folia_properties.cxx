@@ -382,7 +382,7 @@ namespace folia {
     { "wref", WordReference_t  },
     { "_PlaceHolder", PlaceHolder_t  },
     { "_XmlComment", XmlComment_t  },
-    { "_XmlText", XmlText_t  }
+    { "_XmlText", XmlText_t  },
   };
 
   //foliaspec:default_ignore
