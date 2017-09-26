@@ -56,6 +56,7 @@ namespace folia {
   class DependencyDependent;
   class Paragraph;
   class Morpheme;
+  class BaseMetaData;
 
   class properties;
   extern const std::set<ElementType> default_ignore_annotations;
@@ -200,6 +201,9 @@ namespace folia {
 						  std::vector<LemmaAnnotation*>& ) const NOT_IMPLEMENTED;
     virtual MorphologyLayer *getMorphologyLayers( const std::string&,
 						  std::vector<MorphologyLayer*>& ) const NOT_IMPLEMENTED;
+
+    virtual const BaseMetaData *getmetadata() const = 0;
+    virtual const std::string getmetadata( const std::string& ) const = 0;
 
     template <typename F>
       std::vector<F*> annotations( const std::string& s = "" ) const {
@@ -499,6 +503,10 @@ namespace folia {
 
     // Sentences
     Sentence *addSentence( const KWargs& );
+
+    const BaseMetaData *getmetadata() const;
+    const std::string getmetadata( const std::string&  ) const;
+
 
     // Selections
     template <typename F>
@@ -888,7 +896,7 @@ namespace folia {
     virtual void add_foreign( const xmlNode * ) META_NOT_IMPLEMENTED;
     virtual std::string type() const { return "BaseMetaData"; };
     virtual std::string src() const META_NOT_IMPLEMENTED;
-    virtual const std::vector<FoliaElement*> get_foreign() const META_NOT_IMPLEMENTED;
+    virtual const std::vector<FoliaElement*> get_foreigners() const META_NOT_IMPLEMENTED;
   };
 
   class NativeMetaData: public BaseMetaData {
@@ -913,7 +921,7 @@ namespace folia {
   ForeignMetaData( ): BaseMetaData() {};
     void add_foreign( const xmlNode * );
     std::string type() const { return "ForeignMetaData"; };
-    const std::vector<FoliaElement*> get_foreign() const { return foreigners;};
+    const std::vector<FoliaElement*> get_foreigners() const { return foreigners;};
   private:
     std::vector<FoliaElement*> foreigners;
   };

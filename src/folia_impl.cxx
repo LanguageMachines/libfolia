@@ -4162,6 +4162,39 @@ namespace folia {
     return result;
   }
 
+  const BaseMetaData* FoliaImpl::getmetadata() const {
+    // Get the metadata that applies to this element,
+    // automatically inherited from parent elements
+    if ( !_metadata.empty() && doc() ){
+      return doc()->search_submetadata(_metadata);
+    }
+    else if ( parent() ){
+      return parent()->getmetadata();
+    }
+    else {
+      return 0;
+    }
+  }
+
+  const string FoliaImpl::getmetadata( const std::string& key ) const {
+    // Get the metadata that applies to this element,
+    // automatically inherited from parent elements
+    if ( !_metadata.empty() && doc() ){
+      const BaseMetaData *what = doc()->search_submetadata(_metadata);
+      if ( what && what->type() == "NativeMetaData" && !key.empty() ){
+	KWargs att = what->get_nodes();
+	return att[key];
+      }
+      return "";
+    }
+    else if ( parent() ){
+      return parent()->getmetadata( key );
+    }
+    else {
+      return "";
+    }
+  }
+
   KWargs AbstractTextMarkup::collectAttributes() const {
     KWargs attribs = FoliaImpl::collectAttributes();
     if ( !idref.empty() ) {

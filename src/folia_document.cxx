@@ -1440,7 +1440,7 @@ namespace folia {
 	addAttributes( sm, args );
       }
       else if ( md->type() == "ForeignMetaData" ){
-	for ( const auto& foreign : md->get_foreign() ) {
+	for ( const auto& foreign : md->get_foreigners() ) {
 	  xmlNode *f = foreign->xml( true, false );
 	  xmlAddChild( sm, f );
 	}
