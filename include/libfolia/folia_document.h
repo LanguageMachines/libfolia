@@ -199,7 +199,7 @@ namespace folia {
     void decrRef( AnnotationType::AnnotationType, const std::string& );
     void setmode( const std::string& );
     std::string getmode() const;
-    const BaseMetaData *search_submetadata( const std::string& m ){
+    const MetaData *get_submetadata( const std::string& m ){
       const auto& it = submetadata.find( m );
       if ( it == submetadata.end() ){
 	return 0;
@@ -240,7 +240,7 @@ namespace folia {
     std::string _metadatatype;
     xmlNode *_metadata;
     std::map<std::string,std::string> submetadatatype;
-    std::map<std::string,BaseMetaData *> submetadata;
+    std::map<std::string,MetaData *> submetadata;
     std::vector<ForeignData *> _foreigndata;
     std::string _metadatafile;
     std::string _title;

@@ -56,7 +56,7 @@ namespace folia {
   class DependencyDependent;
   class Paragraph;
   class Morpheme;
-  class BaseMetaData;
+  class MetaData;
 
   class properties;
   extern const std::set<ElementType> default_ignore_annotations;
@@ -202,7 +202,7 @@ namespace folia {
     virtual MorphologyLayer *getMorphologyLayers( const std::string&,
 						  std::vector<MorphologyLayer*>& ) const NOT_IMPLEMENTED;
 
-    virtual const BaseMetaData *getmetadata() const = 0;
+    virtual const MetaData *getmetadata() const = 0;
     virtual const std::string getmetadata( const std::string& ) const = 0;
 
     template <typename F>
@@ -504,7 +504,7 @@ namespace folia {
     // Sentences
     Sentence *addSentence( const KWargs& );
 
-    const BaseMetaData *getmetadata() const;
+    const MetaData *getmetadata() const;
     const std::string getmetadata( const std::string&  ) const;
 
 
@@ -888,48 +888,44 @@ namespace folia {
     throw NotImplementedError( "MetaTags::" + std::string(__func__) ); \
   }
 
-  class BaseMetaData {
+  class MetaData {
   public:
-    virtual ~BaseMetaData(){};
+    virtual ~MetaData(){};
     virtual void add_node( const std::string&, const std::string& ) META_NOT_IMPLEMENTED;
-    virtual KWargs get_nodes() const META_NOT_IMPLEMENTED;
+    virtual const KWargs get_nodes() const META_NOT_IMPLEMENTED;
     virtual void add_foreign( const xmlNode * ) META_NOT_IMPLEMENTED;
     virtual std::string type() const { return "BaseMetaData"; };
     virtual std::string src() const META_NOT_IMPLEMENTED;
     virtual const std::vector<FoliaElement*> get_foreigners() const META_NOT_IMPLEMENTED;
   };
 
-  class NativeMetaData: public BaseMetaData {
+  class NativeMetaData: public MetaData {
   public:
-    explicit NativeMetaData(): BaseMetaData() {};
-  void add_node( const std::string& a, const std::string& v )
+    explicit NativeMetaData(): MetaData() {};
+    void add_node( const std::string& a, const std::string& v )
     { _attribs[a] = v; };
-  KWargs get_nodes() const {
-    KWargs result;
-    for ( const auto& it: _attribs ){
-      result[it.first] = it.second;
+    const KWargs get_nodes() const {
+      return _attribs;
     }
-    return result;
-  }
-  std::string type() const { return "NativeMetaData"; };
+    std::string type() const { return "native"; };
   private:
-    std::map<std::string,std::string> _attribs;
+    KWargs _attribs;
   };
 
-  class ForeignMetaData: public BaseMetaData {
+  class ForeignMetaData: public MetaData {
   public:
-  ForeignMetaData( ): BaseMetaData() {};
+  ForeignMetaData( ): MetaData() {};
     void add_foreign( const xmlNode * );
-    std::string type() const { return "ForeignMetaData"; };
+    std::string type() const { return "foreign"; };
     const std::vector<FoliaElement*> get_foreigners() const { return foreigners;};
   private:
     std::vector<FoliaElement*> foreigners;
   };
 
-  class ExternalMetaData: public BaseMetaData {
+  class ExternalMetaData: public MetaData {
   public:
-  ExternalMetaData( const std::string& src ): BaseMetaData() { _src = src; };
-    std::string type() const { return "ExternalMetaData"; };
+  ExternalMetaData( const std::string& src ): MetaData() { _src = src; };
+    std::string type() const { return "external"; };
     std::string src() const { return _src; };
   private:
     std::string _src;

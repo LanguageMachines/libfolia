@@ -534,7 +534,7 @@ namespace folia {
       }
       else {
 	_metadata = it->second;
-	if ( mydoc && mydoc->search_submetadata( _metadata ) == 0 ){
+	if ( mydoc && mydoc->get_submetadata( _metadata ) == 0 ){
 	  throw KeyError( "No such metadata defined: " + _metadata );
 	}
       }
@@ -4162,11 +4162,11 @@ namespace folia {
     return result;
   }
 
-  const BaseMetaData* FoliaImpl::getmetadata() const {
+  const MetaData* FoliaImpl::getmetadata() const {
     // Get the metadata that applies to this element,
     // automatically inherited from parent elements
     if ( !_metadata.empty() && doc() ){
-      return doc()->search_submetadata(_metadata);
+      return doc()->get_submetadata(_metadata);
     }
     else if ( parent() ){
       return parent()->getmetadata();
@@ -4180,8 +4180,8 @@ namespace folia {
     // Get the metadata that applies to this element,
     // automatically inherited from parent elements
     if ( !_metadata.empty() && doc() ){
-      const BaseMetaData *what = doc()->search_submetadata(_metadata);
-      if ( what && what->type() == "NativeMetaData" && !key.empty() ){
+      const MetaData *what = doc()->get_submetadata(_metadata);
+      if ( what && what->type() == "native" && !key.empty() ){
 	KWargs att = what->get_nodes();
 	return att[key];
       }

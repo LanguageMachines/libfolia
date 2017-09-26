@@ -1416,7 +1416,7 @@ namespace folia {
       atts["xml:id"] = it.first;
       addAttributes( sm, atts );
       string type = submetadatatype.find(it.first)->second;
-      BaseMetaData *md = submetadata.find(it.first)->second;
+      MetaData *md = submetadata.find(it.first)->second;
       atts.clear();
       atts["type"] = type;
       addAttributes( sm, atts );
@@ -1434,12 +1434,12 @@ namespace folia {
 	  xmlAddChild( sm, m );
 	}
       }
-      else if ( md->type() == "ExternalMetaData" ){
+      else if ( md->type() == "external" ){
 	KWargs args;
 	args["src"] = md->src();
 	addAttributes( sm, args );
       }
-      else if ( md->type() == "ForeignMetaData" ){
+      else if ( md->type() == "foreign" ){
 	for ( const auto& foreign : md->get_foreigners() ) {
 	  xmlNode *f = foreign->xml( true, false );
 	  xmlAddChild( sm, f );
