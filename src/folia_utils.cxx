@@ -295,10 +295,12 @@ namespace folia {
 	int mday = stringTo<int>( date_parts[2] );
 	time.tm_mday = mday;
       }
+	// fall through
       case 2: {
 	int mon = toMonth( date_parts[1] );
 	time.tm_mon = mon;
       }
+	// fall through
       case 1: {
 	int year = stringTo<int>( date_parts[0] );
 	time.tm_year = year-1900;
@@ -321,10 +323,12 @@ namespace folia {
 	int sec = stringTo<int>( date_parts[2] );
 	time.tm_sec = sec;
       }
+	// fall through
       case 2: {
 	int min = stringTo<int>( date_parts[1] );
 	time.tm_min = min;
       }
+	// fall through
       case 1: {
 	int hour = stringTo<int>( date_parts[0] );
 	time.tm_hour = hour;

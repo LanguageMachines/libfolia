@@ -199,6 +199,14 @@ namespace folia {
     void decrRef( AnnotationType::AnnotationType, const std::string& );
     void setmode( const std::string& );
     std::string getmode() const;
+    const BaseMetaData *search_submetadata( const std::string& m ){
+      const auto& it = submetadata.find( m );
+      if ( it == submetadata.end() ){
+	return 0;
+      } else {
+	return it->second;
+      }
+    }
   private:
     std::map<AnnotationType::AnnotationType,std::multimap<std::string,at_t> > annotationdefaults;
     std::vector<std::pair<AnnotationType::AnnotationType,std::string>> anno_sort;
@@ -215,6 +223,7 @@ namespace folia {
     void getstyles();
     void setannotations( xmlNode *) const;
     void setmetadata( xmlNode * ) const;
+    void addsubmetadata( xmlNode *) const;
     void setstyles( xmlDoc* ) const;
     xmlDoc *to_xmlDoc( const std::string& ="", bool=false ) const;
     std::map<std::string, FoliaElement* > sindex;

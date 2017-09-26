@@ -703,6 +703,7 @@ namespace folia {
       if ( id.empty() ){
 	throw MetaDataError( "submetadata without xml:id" );
       }
+      //      cerr << "parse submetadata, id=" << id << endl;
       string type = att["type"];
       if ( !type.empty() ){
 	submetadatatype[id] = type;
@@ -710,15 +711,19 @@ namespace folia {
       else {
 	submetadatatype[id] = "native";
       }
+      //      cerr << "parse submetadata, type=" << type << endl;
       string src = att["src"];
       if ( !src.empty() ){
 	submetadata[id] = new ExternalMetaData( src );
+	//	cerr << "created External metadata, id=" << id << endl;
       }
       else if ( submetadatatype[id] == "native" ){
 	submetadata[id] = new NativeMetaData();
+	//	cerr << "created Native metadata, id=" << id << endl;
       }
       else {
 	submetadata[id] = 0;
+	//	cerr << "set metadata to 0, id=" << id << endl;
       }
       xmlNode *p = node->children;
       while ( p ){
@@ -728,9 +733,11 @@ namespace folia {
 	    if ( submetadatatype[id] == "native" ){
 	      string txt = XmlContent( p );
 	      KWargs att = getAttributes( p );
-	      string sid = att["_id"];
+	      string sid = att["id"];
 	      if ( !txt.empty() ){
 		submetadata[id]->add_node( sid, txt );
+		// cerr << "added node to id=" << id
+		//      << "(" << sid << "," << txt << ")" << endl;
 	      }
 	    }
 	    else {
@@ -739,13 +746,14 @@ namespace folia {
 	  }
 	  else if ( Name(p) == "foreign-data" &&
 		    checkNS( p, NSFOLIA ) ){
-	    if ( submetadatatype[id] == "native" ){
+	    if ( submetadatatype[id] != "native" ){
 	      throw MetaDataError("Encountered a foreign-data element but metadata type is not native!");
 	    }
 	    else if ( submetadata[id] == 0 ){
 	      submetadata[id] = new ForeignMetaData();
 	    }
 	    submetadata[id]->add_foreign( p );
+	    cerr << "added a foreign id=" << id << endl;
 	  }
 	}
 	p = p->next;
@@ -1399,6 +1407,33 @@ namespace folia {
     }
   }
 
+  void Document::addsubmetadata( xmlNode *node ) const {
+    for ( const auto& it : submetadata ){
+      xmlNode *sm = XmlNewNode( foliaNs(), "submetadata" );
+      KWargs atts;
+      atts["xml:id"] = it.first;
+      addAttributes( sm, atts );
+      string type =  submetadatatype.find(it.first)->second;
+      atts.clear();
+      atts["type"] = type;
+      addAttributes( sm, atts );
+      xmlAddChild( node, sm );
+      if ( type == "native" ){
+	atts = it.second->get_nodes();
+	// using TiCC::operator<<;
+	// cerr << "atts: " << atts << endl;
+	for ( const auto& av : atts ){
+	  xmlNode *m = XmlNewNode( foliaNs(), "meta" );
+	  KWargs args;
+	  args["id"] = av.first;
+	  addAttributes( m, args );
+	  xmlAddChild( m, xmlNewText( (const xmlChar*)av.second.c_str()) );
+	  xmlAddChild( sm, m );
+	}
+      }
+    }
+  }
+
   void Document::setmetadata( xmlNode *node ) const{
     KWargs atts;
     atts["type"] = _metadatatype;
@@ -1459,6 +1494,7 @@ namespace folia {
     else {
       xmlAddChild( node, _metadata );
     }
+    addsubmetadata( node );
     for ( const auto& foreign : _foreigndata ){
       xmlNode *f = foreign->xml( true, false );
       xmlAddChild( node, f );

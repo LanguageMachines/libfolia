@@ -56,6 +56,7 @@ namespace folia {
   class KeyError: public std::out_of_range {
   public:
     explicit KeyError(): std::out_of_range( "key out of range" ){};
+    KeyError( const std::string& s ): std::out_of_range( "key out of range: " + s ){};
   };
 
   class NotImplementedError: public std::runtime_error {

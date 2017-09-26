@@ -204,7 +204,7 @@ namespace folia {
   void FoliaImpl::setAttributes( const KWargs& kwargs_in ) {
     KWargs kwargs = kwargs_in;
     Attrib supported = required_attributes() | optional_attributes();
-    // if ( element_id() == Reference_t ) {
+    // if ( element_id() == Division_t ) {
     //   cerr << "set attributes: " << kwargs << " on " << classname() << endl;
     //   cerr << "required = " <<  required_attributes() << endl;
     //   cerr << "optional = " <<  optional_attributes() << endl;
@@ -214,8 +214,7 @@ namespace folia {
     //   cerr << "_id=" << _id << endl;
     //   Reference*ref=dynamic_cast<Reference*>(this);
     //   cerr << "id=" << ref->refId << endl;
-
-    //   //   cerr << "AUTH : " << _auth << ", default=" << default_auth() << endl;
+    //   cerr << "AUTH : " << _auth << ", default=" << default_auth() << endl;
     // }
     if ( mydoc && mydoc->debug > 2 ) {
       cerr << "set attributes: " << kwargs << " on " << classname() << endl;
@@ -531,10 +530,13 @@ namespace folia {
     it = kwargs.find( "metadata" );
     if ( it != kwargs.end() ) {
       if ( !(METADATA & supported) ) {
-	throw ValueError( "metadata attribute is not supported for " + classname() );
+	throw ValueError( "Metadata attribute is not supported for " + classname() );
       }
       else {
 	_metadata = it->second;
+	if ( mydoc && mydoc->search_submetadata( _metadata ) == 0 ){
+	  throw KeyError( "No such metadata defined: " + _metadata );
+	}
       }
       kwargs.erase( it );
     }
@@ -2358,7 +2360,7 @@ namespace folia {
   }
 
   KWargs Linebreak::collectAttributes() const {
-    KWargs atts;
+    KWargs atts = FoliaImpl::collectAttributes();
     if ( ! _linenr.empty() ){
       atts["linenr"] = _linenr;
     }

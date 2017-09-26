@@ -884,22 +884,33 @@ namespace folia {
   public:
     virtual ~BaseMetaData(){};
     virtual void add_node( const std::string&, const std::string& ) META_NOT_IMPLEMENTED;
+    virtual KWargs get_nodes() const META_NOT_IMPLEMENTED;
     virtual void add_foreign( xmlNode * ) META_NOT_IMPLEMENTED;
+    virtual std::string type() const { return "BaseMeta"; };
   };
 
   class NativeMetaData: public BaseMetaData {
   public:
     explicit NativeMetaData(): BaseMetaData() {};
   void add_node( const std::string& a, const std::string& v )
-    { attrib[a] = v; };
+    { _attribs[a] = v; };
+  KWargs get_nodes() const {
+    KWargs result;
+    for ( const auto& it: _attribs ){
+      result[it.first] = it.second;
+    }
+    return result;
+  }
+  std::string type() const { return "NativeMeta"; };
   private:
-    std::map<std::string,std::string> attrib;
+    std::map<std::string,std::string> _attribs;
   };
 
   class ForeignMetaData: public BaseMetaData {
   public:
   ForeignMetaData( ): BaseMetaData() {};
     void add_foreign( const xmlNode * );
+    std::string type() const { return "ForeignMeta"; };
   private:
     std::vector<FoliaElement*> foreigners;
   };
@@ -907,6 +918,7 @@ namespace folia {
   class ExternalMetaData: public BaseMetaData {
   public:
   ExternalMetaData( const std::string& src ): BaseMetaData() { _src = src; };
+    std::string type() const { return "ExternalMeta"; };
   private:
     std::string _src;
   };
