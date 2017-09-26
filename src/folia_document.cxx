@@ -746,14 +746,16 @@ namespace folia {
 	  }
 	  else if ( Name(p) == "foreign-data" &&
 		    checkNS( p, NSFOLIA ) ){
-	    if ( submetadatatype[id] != "native" ){
-	      throw MetaDataError("Encountered a foreign-data element but metadata type is not native!");
+	    if ( submetadatatype[id] == "native" ){
+	      throw MetaDataError("Encountered a foreign-data element but metadata type is native!");
 	    }
 	    else if ( submetadata[id] == 0 ){
 	      submetadata[id] = new ForeignMetaData();
+	      //	      cerr << "add new Foreign " << id << endl;
 	    }
+	    //	    cerr << "in  Foreign " << submetadata[id]->type() << endl;
 	    submetadata[id]->add_foreign( p );
-	    cerr << "added a foreign id=" << id << endl;
+	    //	    cerr << "added a foreign id=" << id << endl;
 	  }
 	}
 	p = p->next;
@@ -1413,7 +1415,8 @@ namespace folia {
       KWargs atts;
       atts["xml:id"] = it.first;
       addAttributes( sm, atts );
-      string type =  submetadatatype.find(it.first)->second;
+      string type = submetadatatype.find(it.first)->second;
+      BaseMetaData *md = submetadata.find(it.first)->second;
       atts.clear();
       atts["type"] = type;
       addAttributes( sm, atts );
@@ -1429,6 +1432,17 @@ namespace folia {
 	  addAttributes( m, args );
 	  xmlAddChild( m, xmlNewText( (const xmlChar*)av.second.c_str()) );
 	  xmlAddChild( sm, m );
+	}
+      }
+      else if ( md->type() == "ExternalMetaData" ){
+	KWargs args;
+	args["src"] = md->src();
+	addAttributes( sm, args );
+      }
+      else if ( md->type() == "ForeignMetaData" ){
+	for ( const auto& foreign : md->get_foreign() ) {
+	  xmlNode *f = foreign->xml( true, false );
+	  xmlAddChild( sm, f );
 	}
       }
     }
