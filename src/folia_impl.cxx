@@ -2338,7 +2338,7 @@ namespace folia {
   }
 
   KWargs Linebreak::collectAttributes() const {
-    KWargs atts;
+    KWargs atts = FoliaImpl::collectAttributes();
     if ( ! _linenr.empty() ){
       atts["linenr"] = _linenr;
     }
