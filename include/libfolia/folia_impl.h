@@ -894,7 +894,9 @@ namespace folia {
     virtual ~MetaData(){};
     virtual void add_av( const std::string&, const std::string& ) META_NOT_IMPLEMENTED;
     virtual const KWargs& get_avs() const META_NOT_IMPLEMENTED;
-    virtual const std::string get_val( const std::string& ) const META_NOT_IMPLEMENTED;
+    virtual const std::string get_val( const std::string& ) const {
+      return "";
+    }
     virtual void add_foreign( const xmlNode * ) META_NOT_IMPLEMENTED;
     virtual std::string datatype() const { return "BaseMetaData"; };
     std::string type() const { return _type; };
