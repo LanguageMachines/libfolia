@@ -237,9 +237,7 @@ namespace folia {
     const xmlChar* _foliaNsIn_href;
     const xmlChar* _foliaNsIn_prefix;
     mutable xmlNs *_foliaNsOut;
-    std::string _metadatatype;
-    xmlNode *_metadata;
-    MetaData *_metadatA;
+    MetaData *_metadata;
     std::map<std::string,std::string> submetadatatype;
     std::map<std::string,MetaData *> submetadata;
     std::multimap<std::string,std::string> styles;
