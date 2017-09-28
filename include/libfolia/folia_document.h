@@ -242,7 +242,6 @@ namespace folia {
     MetaData *_metadatA;
     std::map<std::string,std::string> submetadatatype;
     std::map<std::string,MetaData *> submetadata;
-    std::vector<ForeignData *> _foreigndata;
     std::multimap<std::string,std::string> styles;
     Mode mode;
     std::string filename;

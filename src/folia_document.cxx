@@ -121,9 +121,6 @@ namespace folia {
     sindex.clear();
     iindex.clear();
     delete foliadoc;
-    for ( const auto& it : _foreigndata ){
-      delete it;
-    }
     for ( const auto& it : delSet ){
       delete it;
     }
@@ -609,18 +606,22 @@ namespace folia {
   }
 
   void Document::set_foreign_metadata( xmlNode *node ){
+    if ( !_metadatA ){
+      _metadatA = new ForeignMetaData( "foreign" );
+    }
     ForeignData *add = new ForeignData();
     if ( Name( node ) != "foreign-data" ){
       // we need an extra layer then
       xmlNode *n = XmlNewNode( "foreign-data" );
       xmlAddChild( n, xmlCopyNode( node, 1 ) );
       add->set_data( n );
+      _metadatA->add_foreign( n );
       xmlFreeNode (n );
     }
     else {
       add->set_data( node );
+      _metadatA->add_foreign( node );
     }
-    _foreigndata.push_back( add );
   }
 
   void Document::parseannotations( xmlNode *node ){
@@ -688,7 +689,7 @@ namespace folia {
 	//	cerr << "created External metadata, id=" << id << endl;
       }
       else if ( submetadatatype[id] == "native" ){
-	submetadata[id] = new NativeMetaData( "type" );
+	submetadata[id] = new NativeMetaData( type );
 	//	cerr << "created Native metadata, id=" << id << endl;
       }
       else {
@@ -826,8 +827,11 @@ namespace folia {
 	  if ( !src.empty() ){
 	    _metadatA = new ExternalMetaData( type, src );
 	  }
-	  else {
+	  else if ( type == "native" ){
 	    _metadatA = new NativeMetaData( type );
+	  }
+	  else {
+	    _metadatA = 0;
 	  }
 	  xmlNode *m = p->children;
 	  while ( m ){
@@ -840,8 +844,12 @@ namespace folia {
 	      if ( _metadata ){
 		throw XmlError( "multiple imdi:METATRANSCRIPT nodes!" );
 	      }
-	      _metadata = xmlCopyNode(m,1);
-	      setimdi( _metadata );
+	      //	      _metadata = xmlCopyNode(m,1);
+	      //      	      setimdi( _metadata );
+	      if ( !_metadatA ){
+		_metadatA = new ForeignMetaData( "imdi" );
+	      }
+	      _metadatA->add_foreign( xmlCopyNode(m,1) );
 	    }
 	    else if ( Name( m ) == "annotations" &&
 		      checkNS( m, NSFOLIA ) ){
@@ -863,7 +871,18 @@ namespace folia {
 	      if ( t ){
 		t = t->parseXml( m );
 		if ( t ){
-		  _foreigndata.push_back( dynamic_cast<ForeignData *>(t) );
+		  if ( _metadatA && _metadatA->datatype() == "NativeMetaData" ){
+		    cerr << "WARNING: foreign-data found in metadata of type 'native'"  << endl;
+		    cerr << "changing type to 'foreign'" << endl;
+		    type = "foreign";
+		    delete _metadatA;
+		    _metadatA = new ForeignMetaData( type );
+		    _metadatatype = type;
+		  }
+		  if ( !_metadatA ){
+		    _metadatA = new ForeignMetaData( type );
+		  }
+		  _metadatA->add_foreign( m );
 		}
 	      }
 	    }
@@ -1425,16 +1444,19 @@ namespace folia {
 
   void Document::setmetadata( xmlNode *node ) const{
     if ( _metadatA ){
-      KWargs atts;
-      atts["type"] = _metadatatype;
       if ( _metadatA->datatype() == "ExternalMetaData" ){
+	KWargs atts;
+	atts["type"] = _metadatatype;
 	string src = _metadatA->src();
 	if ( !src.empty() ){
 	  atts["src"] = src;
 	}
+	addAttributes( node, atts );
       }
-      addAttributes( node, atts );
-      if ( _metadatatype == "native" ){
+      else if ( _metadatA->datatype() == "NativeMetaData" ){
+	KWargs atts;
+	atts["type"] = "native";
+	addAttributes( node, atts );
 	for ( const auto& it : _metadatA->get_avs() ){
 	  xmlNode *m = XmlNewNode( foliaNs(), "meta" );
 	  xmlAddChild( m, xmlNewText( (const xmlChar*)it.second.c_str()) );
@@ -1444,15 +1466,23 @@ namespace folia {
 	  xmlAddChild( node, m );
 	}
       }
+      else if ( _metadatA->datatype() == "ForeignMetaData" ){
+	KWargs atts;
+	atts["type"] = _metadatA->type();
+	addAttributes( node, atts );
+	for ( const auto& foreign : _metadatA->get_foreigners() ) {
+	  xmlNode *f = foreign->xml( true, false );
+	  xmlAddChild( node, f );
+	}
+      }
       else {
+	KWargs atts;
+	atts["type"] = "imdi";
+	addAttributes( node, atts );
 	xmlAddChild( node, _metadata );
       }
     }
     addsubmetadata( node );
-    for ( const auto& foreign : _foreigndata ){
-      xmlNode *f = foreign->xml( true, false );
-      xmlAddChild( node, f );
-    }
   }
 
   void Document::setstyles( xmlDoc* doc ) const {
