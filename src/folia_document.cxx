@@ -599,6 +599,14 @@ namespace folia {
   }
 
   void Document::set_metadata( const string& type, const string& value ){
+    if ( !_metadata ){
+      _metadata = new NativeMetaData( "native" );
+    }
+    else if ( _metadata->datatype() != "NativeMetaData" ){
+      throw MetaDataError( "cannot set '" + type + "=" + value +
+			   "' on MetaData of type " +  _metadata->datatype());
+
+    }
     _metadata->add_av( type, value );
   }
 
@@ -1469,6 +1477,11 @@ namespace folia {
 	  xmlAddChild( node, f );
 	}
       }
+    }
+    else {
+      KWargs atts;
+      atts["type"] = "native";
+      addAttributes( node, atts );
     }
     addsubmetadata( node );
   }
