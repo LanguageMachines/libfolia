@@ -890,33 +890,45 @@ namespace folia {
 
   class MetaData {
   public:
+  MetaData( const std::string& type ): _type(type){};
     virtual ~MetaData(){};
-    virtual void add_node( const std::string&, const std::string& ) META_NOT_IMPLEMENTED;
-    virtual const KWargs get_nodes() const META_NOT_IMPLEMENTED;
+    virtual void add_av( const std::string&, const std::string& ) META_NOT_IMPLEMENTED;
+    virtual const KWargs& get_avs() const META_NOT_IMPLEMENTED;
+    virtual const std::string get_val( const std::string& ) const META_NOT_IMPLEMENTED;
     virtual void add_foreign( const xmlNode * ) META_NOT_IMPLEMENTED;
-    virtual std::string type() const { return "BaseMetaData"; };
+    virtual std::string datatype() const { return "BaseMetaData"; };
+    std::string type() const { return _type; };
     virtual std::string src() const META_NOT_IMPLEMENTED;
     virtual const std::vector<FoliaElement*> get_foreigners() const META_NOT_IMPLEMENTED;
+  private:
+    std::string _type;
   };
 
   class NativeMetaData: public MetaData {
   public:
-    explicit NativeMetaData(): MetaData() {};
-    void add_node( const std::string& a, const std::string& v )
+    explicit NativeMetaData( const std::string& t ): MetaData(t) {};
+    void add_av( const std::string& a, const std::string& v )
     { _attribs[a] = v; };
-    const KWargs get_nodes() const {
+    const KWargs& get_avs() const {
       return _attribs;
     }
-    std::string type() const { return "native"; };
+    const std::string get_val( const std::string& at ) const {
+      auto const& it = _attribs.find( at );
+      if ( it != _attribs.end() ){
+	return it->second;
+      }
+      return "";
+    }
+    std::string datatype() const { return "NativeMetaData"; };
   private:
     KWargs _attribs;
   };
 
   class ForeignMetaData: public MetaData {
   public:
-  ForeignMetaData( ): MetaData() {};
+  ForeignMetaData( const std::string& t ): MetaData(t) {};
     void add_foreign( const xmlNode * );
-    std::string type() const { return "foreign"; };
+    std::string datatype() const { return "ForeignMetaData"; };
     const std::vector<FoliaElement*> get_foreigners() const { return foreigners;};
   private:
     std::vector<FoliaElement*> foreigners;
@@ -924,8 +936,9 @@ namespace folia {
 
   class ExternalMetaData: public MetaData {
   public:
-  ExternalMetaData( const std::string& src ): MetaData() { _src = src; };
-    std::string type() const { return "external"; };
+  ExternalMetaData( const std::string& t,
+		    const std::string& src ): MetaData(t) { _src = src; };
+    std::string datatype() const { return "ExternalMetaData"; };
     std::string src() const { return _src; };
   private:
     std::string _src;

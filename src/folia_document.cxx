@@ -23,6 +23,7 @@
   or send mail to:
       lamasoftware (at ) science.ru.nl
 */
+#include <cassert>
 #include <cstdlib>
 #include <iostream>
 #include <fstream>
@@ -101,6 +102,7 @@ namespace folia {
   void Document::init(){
     _metadatatype = "native";
     _metadata = 0;
+    _metadatA = 0;
     _xmldoc = 0;
     foliadoc = 0;
     _foliaNsIn_href = 0;
@@ -542,28 +544,46 @@ namespace folia {
       throw range_error( "rparagraphs() index out of range" );
   }
 
+  std::string Document::language() const {
+    string result;
+    if ( _metadatA ){
+      result = _metadatA->get_val("language");
+    }
+    return result;
+  }
+
+  std::string Document::metadatatype() const {
+    return _metadatatype;
+  }
+
+  std::string Document::metadatafile() const {
+    if ( _metadatA && _metadatA->datatype() == "ExternalMetaData" ){
+      return _metadatA->src();
+    }
+    return "";
+  }
+
   void Document::setimdi( xmlNode *node ){
     xmlNode *n = xPath( node, "//imdi:Session/imdi:Title" );
     if ( n ){
-      _title = XmlContent( n );
+      _metadatA->add_av( "title", XmlContent( n ) );
     }
     n = xPath( node, "//imdi:Session/imdi:Date" );
     if ( n ){
-      _date = XmlContent( n);
+      _metadatA->add_av( "date", XmlContent( n ) );
     }
-
     n = xPath( node, "//imdi:Source/imdi:Access/imdi:Publisher" );
     if ( n ){
-      _publisher = XmlContent( n );
+      _metadatA->add_av( "publisher", XmlContent( n ) );
     }
-
     n = xPath( node, "//imdi:Source/imdi:Access/imdi:Availability" );
     if ( n ){
-      _license = XmlContent( n );
+      _metadatA->add_av( "licence", XmlContent( n ) );
     }
     n = xPath( node, "//imdi:Languages/imdi:Language/imdi:ID" );
-    if ( n )
-      _language = XmlContent( n );
+    if ( n ){
+      _metadatA->add_av( "language", XmlContent( n ) );
+    }
   }
 
   void Document::parsemeta( xmlNode *node ){
@@ -571,71 +591,21 @@ namespace folia {
       KWargs att = getAttributes( node );
       string type = att["id"];
       string val = XmlContent( node );
-      if ( type == "title" ){
-	_title = val;
-      }
-      else if ( type == "date" ){
-	_date = val;
-      }
-      else if ( type == "language" ){
-	_language = val;
-      }
-      else if ( type == "publisher" ){
-	_publisher = val;
-      }
-      else if ( type == "licence" ){
-	_license = val;
-      }
-      else if ( _metadatatype != "native" ){
-	throw runtime_error( "meta tag with id=" + type
-			     + " requires 'native' metadataype." );
-      }
-      else if ( meta_atts[type] != "" ){
+      string get = _metadatA->get_val( type );
+      if ( !get.empty() ){
 	throw runtime_error( "meta tag with id=" + type
 			     + " is defined more then once " );
       }
-      else
-	meta_atts[type] = val;
+      _metadatA->add_av( type, val );
     }
   }
 
   void Document::set_metadata( const string& type, const string& value ){
-    if ( type == "title" )
-      _title = value;
-    else if ( type == "date" )
-      _date = value;
-    else if ( type == "language" )
-      _language = value;
-    else if ( type == "publisher" )
-      _publisher = value;
-    else if ( type == "licence" )
-      _license = value;
-    else if ( _metadatatype != "native" ){
-      throw runtime_error( "meta tag with id=" + type
-			   + " requires 'native' metadataype." );
-    }
-    else
-      meta_atts[type] = value;
+    _metadatA->add_av( type, value );
   }
 
   const string Document::get_metadata( const string& type ) const {
-    if ( type == "title" )
-      return _title;
-    else if ( type == "date" )
-      return _date;
-    else if ( type == "language" )
-      return _language;
-    else if ( type == "publisher" )
-      return _publisher;
-    else if ( type == "licence" )
-      return _license;
-    else {
-      const auto& it = meta_atts.find( type );
-      if ( it != meta_atts.end() )
-	return it->second;
-      else
-	return "";
-    }
+    return _metadatA->get_val( type );
   }
 
   void Document::set_foreign_metadata( xmlNode *node ){
@@ -714,11 +684,11 @@ namespace folia {
       //      cerr << "parse submetadata, type=" << type << endl;
       string src = att["src"];
       if ( !src.empty() ){
-	submetadata[id] = new ExternalMetaData( src );
+	submetadata[id] = new ExternalMetaData( type, src );
 	//	cerr << "created External metadata, id=" << id << endl;
       }
       else if ( submetadatatype[id] == "native" ){
-	submetadata[id] = new NativeMetaData();
+	submetadata[id] = new NativeMetaData( "type" );
 	//	cerr << "created Native metadata, id=" << id << endl;
       }
       else {
@@ -735,7 +705,7 @@ namespace folia {
 	      KWargs att = getAttributes( p );
 	      string sid = att["id"];
 	      if ( !txt.empty() ){
-		submetadata[id]->add_node( sid, txt );
+		submetadata[id]->add_av( sid, txt );
 		// cerr << "added node to id=" << id
 		//      << "(" << sid << "," << txt << ")" << endl;
 	      }
@@ -750,7 +720,7 @@ namespace folia {
 	      throw MetaDataError("Encountered a foreign-data element but metadata type is native!");
 	    }
 	    else if ( submetadata[id] == 0 ){
-	      submetadata[id] = new ForeignMetaData();
+	      submetadata[id] = new ForeignMetaData( type );
 	      //	      cerr << "add new Foreign " << id << endl;
 	    }
 	    //	    cerr << "in  Foreign " << submetadata[id]->type() << endl;
@@ -847,17 +817,22 @@ namespace folia {
 	    cerr << "Found metadata" << endl;
 	  }
 	  KWargs atts = getAttributes( p );
-	  string val = lowercase(atts["type"]);
-	  if ( !val.empty() ){
-	    _metadatatype = val;
-	    if ( val == "imdi" || val == "cmdi" ){
-	      _metadatafile = atts["src"];
-	    }
+	  string type = lowercase(atts["type"]);
+	  if ( type.empty() ){
+	    type = "native";
+	  }
+	  _metadatatype = type;
+	  string src = atts["src"];
+	  if ( !src.empty() ){
+	    _metadatA = new ExternalMetaData( type, src );
+	  }
+	  else {
+	    _metadatA = new NativeMetaData( type );
 	  }
 	  xmlNode *m = p->children;
 	  while ( m ){
 	    if ( Name(m)  == "METATRANSCRIPT" ){
-	      if ( !checkNS( m, NSIMDI ) || _metadatatype != "imdi" )
+	      if ( !checkNS( m, NSIMDI ) || type != "imdi" )
 		throw runtime_error( "imdi != imdi " );
 	      if ( debug > 1 ){
 		cerr << "found IMDI" << endl;
@@ -865,7 +840,7 @@ namespace folia {
 	      if ( _metadata ){
 		throw XmlError( "multiple imdi:METATRANSCRIPT nodes!" );
 	      }
-	      _metadata = xmlCopyNodeList(m);
+	      _metadata = xmlCopyNode(m,1);
 	      setimdi( _metadata );
 	    }
 	    else if ( Name( m ) == "annotations" &&
@@ -1422,7 +1397,7 @@ namespace folia {
       addAttributes( sm, atts );
       xmlAddChild( node, sm );
       if ( type == "native" ){
-	atts = it.second->get_nodes();
+	atts = it.second->get_avs();
 	// using TiCC::operator<<;
 	// cerr << "atts: " << atts << endl;
 	for ( const auto& av : atts ){
@@ -1434,12 +1409,12 @@ namespace folia {
 	  xmlAddChild( sm, m );
 	}
       }
-      else if ( md->type() == "external" ){
+      else if ( md->datatype() == "ExternalMetaData" ){
 	KWargs args;
 	args["src"] = md->src();
 	addAttributes( sm, args );
       }
-      else if ( md->type() == "foreign" ){
+      else if ( md->datatype() == "ForeignMetaData" ){
 	for ( const auto& foreign : md->get_foreigners() ) {
 	  xmlNode *f = foreign->xml( true, false );
 	  xmlAddChild( sm, f );
@@ -1449,64 +1424,29 @@ namespace folia {
   }
 
   void Document::setmetadata( xmlNode *node ) const{
-    KWargs atts;
-    atts["type"] = _metadatatype;
-    if ( !_metadatafile.empty() ){
-      atts["src"] = _metadatafile;
-    }
-    addAttributes( node, atts );
-    if ( _metadatatype == "native" ){
-      if ( !_title.empty() ){
-	xmlNode *m = XmlNewNode( foliaNs(), "meta" );
-	xmlAddChild( m, xmlNewText( (const xmlChar*)_title.c_str()) );
-	KWargs atts;
-	atts["id"] = "title";
-	addAttributes( m, atts );
-	xmlAddChild( node, m );
+    if ( _metadatA ){
+      KWargs atts;
+      atts["type"] = _metadatatype;
+      if ( _metadatA->datatype() == "ExternalMetaData" ){
+	string src = _metadatA->src();
+	if ( !src.empty() ){
+	  atts["src"] = src;
+	}
       }
-      if ( !_date.empty() ){
-	xmlNode *m = XmlNewNode( foliaNs(), "meta" );
-	xmlAddChild( m, xmlNewText( (const xmlChar*)_date.c_str()) );
-	KWargs atts;
-	atts["id"] = "date";
-	addAttributes( m, atts );
-	xmlAddChild( node, m );
+      addAttributes( node, atts );
+      if ( _metadatatype == "native" ){
+	for ( const auto& it : _metadatA->get_avs() ){
+	  xmlNode *m = XmlNewNode( foliaNs(), "meta" );
+	  xmlAddChild( m, xmlNewText( (const xmlChar*)it.second.c_str()) );
+	  KWargs atts;
+	  atts["id"] = it.first;
+	  addAttributes( m, atts );
+	  xmlAddChild( node, m );
+	}
       }
-      if ( !_language.empty() ){
-	xmlNode *m = XmlNewNode( foliaNs(), "meta" );
-	xmlAddChild( m, xmlNewText( (const xmlChar*)_language.c_str()) );
-	KWargs atts;
-	atts["id"] = "language";
-	addAttributes( m, atts );
-	xmlAddChild( node, m );
+      else {
+	xmlAddChild( node, _metadata );
       }
-      if ( !_license.empty() ){
-	xmlNode *m = XmlNewNode( foliaNs(), "meta" );
-	xmlAddChild( m, xmlNewText( (const xmlChar*)_license.c_str()) );
-	KWargs atts;
-	atts["id"] = "license";
-	addAttributes( m, atts );
-	xmlAddChild( node, m );
-      }
-      if ( !_publisher.empty() ){
-	xmlNode *m = XmlNewNode( foliaNs(), "meta" );
-	xmlAddChild( m, xmlNewText( (const xmlChar*)_publisher.c_str()) );
-	KWargs atts;
-	atts["id"] = "publisher";
-	addAttributes( m, atts );
-	xmlAddChild( node, m );
-      }
-      for ( const auto& it : meta_atts ){
-	xmlNode *m = XmlNewNode( foliaNs(), "meta" );
-	xmlAddChild( m, xmlNewText( (const xmlChar*)it.second.c_str()) );
-	KWargs atts;
-	atts["id"] = it.first;
-	addAttributes( m, atts );
-	xmlAddChild( node, m );
-      }
-    }
-    else {
-      xmlAddChild( node, _metadata );
     }
     addsubmetadata( node );
     for ( const auto& foreign : _foreigndata ){

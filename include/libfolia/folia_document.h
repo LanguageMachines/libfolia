@@ -129,8 +129,8 @@ namespace folia {
     bool toXml( const std::string&,
 		const std::string& ="",
 		bool = false ) const;
-    std::string metadatatype() const { return _metadatatype; };
-    std::string metadatafile() const { return _metadatafile; };
+    std::string metadatatype() const;
+    std::string metadatafile() const;
     void set_metadata( const std::string& type, const std::string& value );
     const std::string get_metadata( const std::string& type ) const;
 
@@ -163,7 +163,7 @@ namespace folia {
     FoliaElement* parseXml( );
 
     std::string id() const { return _id; };
-    std::string language() const { return _language; };
+    std::string language() const;
     void declare( AnnotationType::AnnotationType,
 		  const std::string&,
 		  const std::string& = "" );
@@ -239,16 +239,10 @@ namespace folia {
     mutable xmlNs *_foliaNsOut;
     std::string _metadatatype;
     xmlNode *_metadata;
+    MetaData *_metadatA;
     std::map<std::string,std::string> submetadatatype;
     std::map<std::string,MetaData *> submetadata;
     std::vector<ForeignData *> _foreigndata;
-    std::string _metadatafile;
-    std::string _title;
-    std::string _date;
-    std::string _language;
-    std::string _publisher;
-    std::string _license;
-    std::map<std::string,std::string> meta_atts;
     std::multimap<std::string,std::string> styles;
     Mode mode;
     std::string filename;

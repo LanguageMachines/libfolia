@@ -4181,9 +4181,8 @@ namespace folia {
     // automatically inherited from parent elements
     if ( !_metadata.empty() && doc() ){
       const MetaData *what = doc()->get_submetadata(_metadata);
-      if ( what && what->type() == "native" && !key.empty() ){
-	KWargs att = what->get_nodes();
-	return att[key];
+      if ( what && what->datatype() == "NativeMetaData" && !key.empty() ){
+	return what->get_val( key );
       }
       return "";
     }
