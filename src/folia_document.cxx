@@ -122,6 +122,10 @@ namespace folia {
     for ( const auto& it : delSet ){
       delete it;
     }
+    delete _metadata;
+    for ( const auto& it : submetadata ){
+      delete it.second;
+    }
   }
 
   bool operator==( const Document& d1, const Document& d2 ){
