@@ -57,6 +57,11 @@ else
    export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:$prefix/lib/pkgconfig"
 fi
 
+AC_ARG_WITH(icu,
+       [  --with-icu=DIR       use icu installed in <DIR>],
+       [PKG_CONFIG_PATH="$PKG_CONFIG_PATH:$withval/lib/pkgconfig"],
+       [])
+
 AC_MSG_NOTICE( [pkg-config search path: $PKG_CONFIG_PATH] )
 
 PKG_PROG_PKG_CONFIG
