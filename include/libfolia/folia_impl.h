@@ -930,6 +930,7 @@ namespace folia {
   class ForeignMetaData: public MetaData {
   public:
   ForeignMetaData( const std::string& t ): MetaData(t) {};
+    ~ForeignMetaData();
     void add_foreign( const xmlNode * );
     std::string datatype() const { return "ForeignMetaData"; };
     const std::vector<FoliaElement*> get_foreigners() const { return foreigners;};

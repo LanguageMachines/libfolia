@@ -4117,6 +4117,12 @@ namespace folia {
     return "";
   }
 
+  ForeignMetaData::~ForeignMetaData(){
+    for ( const auto& it : foreigners ){
+      delete it;
+    }
+  }
+
   void ForeignMetaData::add_foreign( const xmlNode *node ){
     ForeignData *fd = new ForeignData();
     fd->set_data( node );
