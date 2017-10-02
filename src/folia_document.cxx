@@ -551,7 +551,7 @@ namespace folia {
     if ( _metadata ){
       return _metadata->type();
     }
-    return "";
+    return "native";
   }
 
   std::string Document::metadatafile() const {
