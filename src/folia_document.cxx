@@ -619,6 +619,12 @@ namespace folia {
     if ( !_metadata ){
       _metadata = new ForeignMetaData( "foreign" );
     }
+    else {
+      if ( _metadata->datatype() != "ForeignMetaData" ){
+	throw MetaDataError( "set_foreign_metadata now allowed for "
+			     + _metadata->datatype() );
+      }
+    }
     ForeignData *add = new ForeignData();
     if ( Name( node ) != "foreign-data" ){
       // we need an extra layer then
@@ -686,19 +692,16 @@ namespace folia {
       }
       //      cerr << "parse submetadata, id=" << id << endl;
       string type = att["type"];
-      if ( !type.empty() ){
-	submetadatatype[id] = type;
-      }
-      else {
-	submetadatatype[id] = "native";
-      }
       //      cerr << "parse submetadata, type=" << type << endl;
+      if ( type.empty() ){
+	type = "native";
+      }
       string src = att["src"];
       if ( !src.empty() ){
 	submetadata[id] = new ExternalMetaData( type, src );
 	//	cerr << "created External metadata, id=" << id << endl;
       }
-      else if ( submetadatatype[id] == "native" ){
+      else if ( type == "native" ){
 	submetadata[id] = new NativeMetaData( type );
 	//	cerr << "created Native metadata, id=" << id << endl;
       }
@@ -711,7 +714,7 @@ namespace folia {
 	if ( p->type == XML_ELEMENT_NODE ){
 	  if ( Name(p) == "meta" &&
 	       checkNS( p, NSFOLIA ) ){
-	    if ( submetadatatype[id] == "native" ){
+	    if ( type == "native" ){
 	      string txt = XmlContent( p );
 	      KWargs att = getAttributes( p );
 	      string sid = att["id"];
@@ -727,7 +730,7 @@ namespace folia {
 	  }
 	  else if ( Name(p) == "foreign-data" &&
 		    checkNS( p, NSFOLIA ) ){
-	    if ( submetadatatype[id] == "native" ){
+	    if ( type == "native" ){
 	      throw MetaDataError("Encountered a foreign-data element but metadata type is native!");
 	    }
 	    else if ( submetadata[id] == 0 ){
@@ -1412,8 +1415,8 @@ namespace folia {
       KWargs atts;
       atts["xml:id"] = it.first;
       addAttributes( sm, atts );
-      string type = submetadatatype.find(it.first)->second;
       MetaData *md = submetadata.find(it.first)->second;
+      string type = md->type();
       atts.clear();
       atts["type"] = type;
       addAttributes( sm, atts );
