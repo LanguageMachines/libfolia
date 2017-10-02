@@ -604,7 +604,8 @@ namespace folia {
     }
     else if ( _metadata->datatype() != "NativeMetaData" ){
       throw MetaDataError( "cannot set '" + type + "=" + value +
-			   "' on MetaData of type " +  _metadata->datatype());
+			   "' on " +  _metadata->datatype() + "(" +
+			   _metadata->type() + ")" );
 
     }
     _metadata->add_av( type, value );
