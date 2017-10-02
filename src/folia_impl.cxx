@@ -1374,6 +1374,18 @@ namespace folia {
     return 0;
   }
 
+  void FoliaElement::cleartextcontent( const string& textclass ){
+    for ( size_t i=0; i < size(); ++i ){
+      FoliaElement *p = index(i);
+      if ( p->element_id() == TextContent_t ) {
+	if ( p->cls() == textclass ){
+	  remove(p,true);
+	  break;
+	}
+      }
+    }
+  }
+
   TextContent *FoliaElement::settext( const string& txt,
 				      const string& cls ){
     // create a TextContent child of class 'cls'
