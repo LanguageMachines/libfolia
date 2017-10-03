@@ -902,6 +902,10 @@ namespace folia {
 	    }
 	    m = m->next;
 	  }
+	  if ( _metadata == 0 && type == "imdi" ){
+	    // imdi missing all further info
+	    _metadata = new NativeMetaData( type );
+	  }
 	}
 	else {
 	  if ( p && getNS(p) == NSFOLIA ){
@@ -1465,7 +1469,7 @@ namespace folia {
       }
       else if ( _metadata->datatype() == "NativeMetaData" ){
 	KWargs atts;
-	atts["type"] = "native";
+	atts["type"] = _metadata->type();
 	addAttributes( node, atts );
 	for ( const auto& it : _metadata->get_avs() ){
 	  xmlNode *m = XmlNewNode( foliaNs(), "meta" );
