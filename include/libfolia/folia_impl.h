@@ -1048,6 +1048,7 @@ namespace folia {
       _class="current";
       return res;
     }
+    FoliaElement *postappend();
   private:
     void init();
     static properties PROPS;

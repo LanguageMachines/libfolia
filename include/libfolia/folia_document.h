@@ -207,12 +207,18 @@ namespace folia {
 	return it->second;
       }
     }
+    void cache_textcontent( TextContent *tc ){
+      offset_validation_buffer.push_back( tc );
+    }
+    int cache_size() const { return  offset_validation_buffer.size(); };
+    bool validate_offsets() const;
   private:
     std::map<AnnotationType::AnnotationType,std::multimap<std::string,at_t> > annotationdefaults;
     std::vector<std::pair<AnnotationType::AnnotationType,std::string>> anno_sort;
     std::map<AnnotationType::AnnotationType,std::map<std::string,int> > annotationrefs;
     std::map<AnnotationType::AnnotationType,std::map<std::string,std::string>> alias_set;
     std::map<AnnotationType::AnnotationType,std::map<std::string,std::string>> set_alias;
+    std::vector<TextContent*> offset_validation_buffer;
 
     FoliaElement* parseFoliaDoc( xmlNode * );
     void parsemeta( xmlNode * );

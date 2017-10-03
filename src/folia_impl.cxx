@@ -1448,8 +1448,7 @@ namespace folia {
     args["value"] = txt;
     args["class"] = cls;
     args["offset"] = TiCC::toString(offset);
-    TextContent *node = new TextContent( doc() );
-    node->setAttributes( args );
+    TextContent *node = new TextContent( args, doc() );
     replace( node );
     return node;
   }
@@ -1676,6 +1675,15 @@ namespace folia {
   FoliaElement *FoliaImpl::postappend( ) {
     if ( id().empty() && (ID & required_attributes()) && auto_generate_id() ){
       _id = generateId( xmltag() );
+    }
+    return this;
+  }
+
+  FoliaElement *TextContent::postappend( ) {
+    if ( mydoc ){
+      if ( mydoc->checktext() && _offset != -1 ){
+	mydoc->cache_textcontent(this);
+      }
     }
     return this;
   }
@@ -2291,6 +2299,10 @@ namespace folia {
     if ( it != kwargs.end() ) {
       _offset = stringTo<int>(it->second);
       kwargs.erase(it);
+      // if ( doc() && doc()->checktext() ){
+      // 	cerr << "ANOTHER cache " << this << endl;
+      // 	doc()->cache_textcontent(this);
+      // }
     }
     else
       _offset = -1;

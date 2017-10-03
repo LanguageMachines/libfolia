@@ -338,6 +338,9 @@ namespace folia {
       if ( debug )
 	cout << "read a doc from " << s << endl;
       foliadoc = parseXml();
+      if ( !validate_offsets() ){
+	throw InconsistentText("MEH");
+      }
       if ( debug ){
 	if ( foliadoc ){
 	  cout << "successful parsed the doc" << endl;
@@ -370,6 +373,9 @@ namespace folia {
       if ( debug )
 	cout << "read a doc from string" << endl;
       foliadoc = parseXml();
+      if ( !validate_offsets() ){
+	throw InconsistentText("MEH");
+      }
       if ( debug ){
 	if ( foliadoc ){
 	  cout << "successful parsed the doc" << endl;
@@ -990,6 +996,32 @@ namespace folia {
       fixupNs( p->children, ns );
       p = p->next;
     }
+  }
+
+  bool Document::validate_offsets() const {
+    int pos = -1;
+    set<TextContent*> done;
+    for ( const auto& txt : offset_validation_buffer ){
+      if ( done.find( txt ) != done.end() ){
+	continue;
+      }
+      done.insert(txt);
+      int offset = txt->offset();
+      if ( txt->parent()->parent() ){
+	UnicodeString pt = txt->parent()->parent()->text( txt->cls(), false, true );
+	UnicodeString mt = txt->text( txt->cls(), false, true );
+	//	cerr << "zoek " << mt << " IN " << pt << endl;
+	pos = pt.indexOf( mt, pos+1  );
+	//	cerr << "found at " << pos << endl;
+	if ( pos != offset ){
+	  throw InconsistentText( "expected offset " + TiCC::toString(offset)
+				  + " for '" + UnicodeToUTF8(mt) + "' in '"
+				  + UnicodeToUTF8(pt) + "', but found "
+				  + TiCC::toString(pos) );
+	}
+      }
+    }
+    return true;
   }
 
   FoliaElement* Document::parseXml( ){
