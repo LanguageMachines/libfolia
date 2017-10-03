@@ -1403,7 +1403,7 @@ namespace folia {
       UnicodeString txt_u = UTF8ToUnicode( txt );
       txt_u = normalize( txt_u );
       if ( !deeper_u.isEmpty() && txt_u != deeper_u ){
-	throw XmlError( "settext(cls=" + cls + "): deeper text differs from attempted\ndeeper='" + UnicodeToUTF8(deeper_u) + "'\nattempted='" + txt + "'" );
+	throw InconsistentText( "settext(cls=" + cls + "): deeper text differs from attempted\ndeeper='" + UnicodeToUTF8(deeper_u) + "'\nattempted='" + txt + "'" );
       }
     }
     KWargs args;
@@ -1441,7 +1441,7 @@ namespace folia {
       UnicodeString txt_u = UTF8ToUnicode( txt );
       txt_u = normalize( txt_u );
       if ( !deeper_u.isEmpty() && txt_u != deeper_u ){
-	throw XmlError( "settext(cls=" + cls + "): deeper text differs from attempted\ndeeper='" + UnicodeToUTF8(deeper_u) + "'\nattempted='" + txt + "'" );
+	throw InconsistentText( "settext(cls=" + cls + "): deeper text differs from attempted\ndeeper='" + UnicodeToUTF8(deeper_u) + "'\nattempted='" + txt + "'" );
       }
     }
     KWargs args;
@@ -1545,12 +1545,12 @@ namespace folia {
 	s2 = normalize( s2 );
 	int pos = s1.indexOf( s2 );
 	if ( pos < 0 ){
-	  throw XmlError( "attempt to add <t> with class="
-			  + cls + " and text '" + UnicodeToUTF8(s2)
-			  + "' to element: " + _id + " with parent "
-			  + parent->id()
-			  + " which already has a <t> with that class and text: '"
-			  + UnicodeToUTF8(s1) + "'" );
+	  throw InconsistentText( "attempt to add <t> with class="
+				  + cls + " and text '" + UnicodeToUTF8(s2)
+				  + "' to element: " + _id + " with parent "
+				  + parent->id()
+				  + " which already has a <t> with that class and text: '"
+				  + UnicodeToUTF8(s1) + "'" );
 	}
       }
     }
@@ -1873,7 +1873,7 @@ namespace folia {
 		+ ") has a mismatch for the text in set:" + st
 		+ "\nthe element text ='" + UnicodeToUTF8(s1)
 		+ "'\n" + "the deeper text ='" + UnicodeToUTF8(s2) + "'";
-	      throw( XmlError( mess ) );
+	      throw( InconsistentText( mess ) );
 	    }
 	  }
 	}

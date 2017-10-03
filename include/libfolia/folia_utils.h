@@ -110,6 +110,12 @@ namespace folia {
     explicit NoDefaultError( const std::string& s ): std::runtime_error( "No Default found: " + s ){};
   };
 
+  class InconsistentText: public std::runtime_error {
+  public:
+    explicit InconsistentText( const std::string& s ): std::runtime_error( "inconsistent text: " + s ){};
+  };
+
+
   UnicodeString UTF8ToUnicode( const std::string& );
   std::string UnicodeToUTF8( const UnicodeString& );
 

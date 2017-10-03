@@ -1041,6 +1041,9 @@ namespace folia {
 	    }
 	  }
 	}
+	catch ( InconsistentText& e ){
+	  throw;
+	}
 	catch ( XmlError& e ){
 	  throw;
 	}
