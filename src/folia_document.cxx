@@ -999,22 +999,48 @@ namespace folia {
   }
 
   bool Document::validate_offsets() const {
-    set<TextContent*> done;
-    for ( const auto& txt : offset_validation_buffer ){
-      if ( done.find( txt ) != done.end() ){
+    set<TextContent*> t_done;
+    for ( const auto& txt : t_offset_validation_buffer ){
+      if ( t_done.find( txt ) != t_done.end() ){
 	continue;
       }
-      done.insert(txt);
+      t_done.insert(txt);
       int offset = txt->offset();
       if ( offset != -1 ){
 	try {
 	  txt->getreference();
 	}
 	catch( UnresolvableTextContent ){
-	  string msg = "Text for " + txt->parent()->xmltag() + ", ID "
-	    + txt->id() + ", textclass " + txt->cls()
-	    + ", has incorrect offset " + TiCC::toString(offset)
-	    + " or invalid reference";
+	  string msg = "Text for " + txt->parent()->xmltag() + ", ID="
+	    + txt->parent()->id() + ", textclass='" + txt->cls()
+	    + "', has incorrect offset " + TiCC::toString(offset);
+	  string ref = txt->ref();
+	  if ( !ref.empty() ){
+	    msg += " or invalid reference:" + ref;
+	  }
+	  throw UnresolvableTextContent( msg );
+	}
+      }
+    }
+    set<PhonContent*> p_done;
+    for ( const auto& phon : p_offset_validation_buffer ){
+      if ( p_done.find( phon ) != p_done.end() ){
+	continue;
+      }
+      p_done.insert(phon);
+      int offset = phon->offset();
+      if ( offset != -1 ){
+	try {
+	  phon->getreference();
+	}
+	catch( UnresolvableTextContent ){
+	  string msg = "Phoneme for " + phon->parent()->xmltag() + ", ID="
+	    + phon->parent()->id() + ", textclass='" + phon->cls()
+	    + "', has incorrect offset " + TiCC::toString(offset);
+	  string ref = phon->ref();
+	  if ( !ref.empty() ){
+	    msg += " or invalid reference:" + ref;
+	  }
 	  throw UnresolvableTextContent( msg );
 	}
       }

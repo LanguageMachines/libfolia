@@ -898,6 +898,17 @@ namespace folia {
     }
   }
 
+  bool FoliaElement::hasphon( const string& cls ) const {
+    // does this element have a TextContent with class 'cls'
+    // Default is class="current"
+    try {
+      this->phoncontent(cls);
+      return true;
+    } catch (NoSuchPhon& e ) {
+      return false;
+    }
+  }
+
   //#define DEBUG_TEXT
   //#define DEBUG_TEXT_DEL
 
@@ -1688,6 +1699,15 @@ namespace folia {
     return this;
   }
 
+  FoliaElement *PhonContent::postappend( ) {
+    if ( mydoc ){
+      if ( mydoc->checktext() && _offset != -1 ){
+	mydoc->cache_phoncontent(this);
+      }
+    }
+    return this;
+  }
+
   void FoliaImpl::remove( FoliaElement *child, bool del ) {
     auto it = std::remove( data.begin(), data.end(), child );
     data.erase( it, data.end() );
@@ -2379,9 +2399,11 @@ namespace folia {
       UnicodeString pt = ref->text( this->cls(), false, true );
       UnicodeString sub( pt, this->offset(), mt.length() );
       if ( mt != sub ){
-	throw InconsistentText(  UnicodeToUTF8(mt) + " not found in "
-				 + UnicodeToUTF8(pt) + " at offset "
-				 + TiCC::toString(offset()) );
+	throw UnresolvableTextContent( "Reference (ID " + ref->id() + ",class="
+				       + cls() + " found, but no text match at "
+				       + "offset=" + TiCC::toString(offset())
+				       + " Expected " + UnicodeToUTF8(mt)
+				       + " but got " +  UnicodeToUTF8(sub) );
       }
     }
     return ref;
@@ -2400,6 +2422,57 @@ namespace folia {
       attribs["offset"] = TiCC::toString( _offset );
     }
     return attribs;
+  }
+
+  FoliaElement *PhonContent::finddefaultreference() const {
+    int depth = 0;
+    FoliaElement *p = parent();
+    while ( p ){
+      if ( p->isSubClass( AbstractStructureElement_t )
+	   || p->isSubClass( AbstractTokenAnnotation_t ) ){
+	if ( ++depth == 2 ){
+	  return p;
+	}
+      }
+      p = p->parent();
+    }
+    return 0;
+  }
+
+   FoliaElement *PhonContent::getreference() const {
+    FoliaElement *ref = 0;
+    if ( _offset == -1 ){
+      return 0;
+    }
+    else if ( !_ref.empty() ){
+      try{
+	ref = (*mydoc)[_ref];
+      }
+      catch (...){
+      }
+    }
+    else {
+      ref = finddefaultreference();
+    }
+    if ( !ref ){
+      throw UnresolvableTextContent( "Default reference for phonetic content not found!" );
+    }
+    else if ( !ref->hasphon( _class ) ){
+      throw UnresolvableTextContent( "Reference (ID " + _ref + ") has no such phonetic content (class=" + _class + ")" );
+    }
+    else if ( mydoc->checktext() ){
+      UnicodeString mt = this->phon( this->cls(), false );
+      UnicodeString pt = ref->phon( this->cls(), false );
+      UnicodeString sub( pt, this->offset(), mt.length() );
+      if ( mt != sub ){
+	throw UnresolvableTextContent( "Reference (ID " + ref->id() + ",class="
+				       + cls() + " found, but no text match at "
+				       + "offset=" + TiCC::toString(offset())
+				       + " Expected " + UnicodeToUTF8(mt)
+				       + " but got " +  UnicodeToUTF8(sub) );
+      }
+    }
+    return ref;
   }
 
   KWargs PhonContent::collectAttributes() const {

@@ -208,9 +208,11 @@ namespace folia {
       }
     }
     void cache_textcontent( TextContent *tc ){
-      offset_validation_buffer.push_back( tc );
+      t_offset_validation_buffer.push_back( tc );
     }
-    int cache_size() const { return  offset_validation_buffer.size(); };
+    void cache_phoncontent( PhonContent *tc ){
+      p_offset_validation_buffer.push_back( tc );
+    }
     bool validate_offsets() const;
   private:
     std::map<AnnotationType::AnnotationType,std::multimap<std::string,at_t> > annotationdefaults;
@@ -218,7 +220,8 @@ namespace folia {
     std::map<AnnotationType::AnnotationType,std::map<std::string,int> > annotationrefs;
     std::map<AnnotationType::AnnotationType,std::map<std::string,std::string>> alias_set;
     std::map<AnnotationType::AnnotationType,std::map<std::string,std::string>> set_alias;
-    std::vector<TextContent*> offset_validation_buffer;
+    std::vector<TextContent*> t_offset_validation_buffer;
+    std::vector<PhonContent*> p_offset_validation_buffer;
 
     FoliaElement* parseFoliaDoc( xmlNode * );
     void parsemeta( xmlNode * );

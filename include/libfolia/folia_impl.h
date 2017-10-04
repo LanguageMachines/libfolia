@@ -274,6 +274,7 @@ namespace folia {
 
     // text/string content
     bool hastext( const std::string& = "current" ) const;
+    bool hasphon( const std::string& = "current" ) const;
 
     virtual const std::string str( const std::string& = "current" ) const = 0;
     const UnicodeString unicode( const std::string& cls = "current" ) const { return text( cls ); };
@@ -1050,6 +1051,7 @@ namespace folia {
     }
     FoliaElement *postappend();
     FoliaElement *getreference() const;
+    std::string ref() const { return _ref; };
   private:
     void init();
     FoliaElement *finddefaultreference() const;
@@ -1070,10 +1072,15 @@ namespace folia {
     const UnicodeString phon( const std::string& = "current",
 			      bool = false ) const;
     int offset() const { return _offset; };
+    FoliaElement *postappend();
+    FoliaElement *getreference() const;
+    std::string ref() const { return _ref; };
   private:
     void init();
+    FoliaElement *finddefaultreference() const;
     static properties PROPS;
     int _offset;
+    std::string _ref;
   };
 
   class FoLiA: public FoliaImpl {
