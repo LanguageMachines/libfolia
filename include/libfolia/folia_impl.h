@@ -1049,10 +1049,13 @@ namespace folia {
       return res;
     }
     FoliaElement *postappend();
+    FoliaElement *getreference() const;
   private:
     void init();
+    FoliaElement *finddefaultreference() const;
     static properties PROPS;
     int _offset;
+    std::string _ref;
   };
 
   class PhonContent: public FoliaImpl {

@@ -1183,7 +1183,7 @@ namespace folia {
 	return dynamic_cast<const TextContent*>(this);
       }
       else {
-	throw NoSuchText( xmltag() + "::textcontent(" + cls + ")" );
+	throw NoSuchText( "TextContent::textcontent(" + cls + ")" );
       }
     }
     if ( !printable() ) {
@@ -2308,7 +2308,8 @@ namespace folia {
       _offset = -1;
     it = kwargs.find( "ref" );
     if ( it != kwargs.end() ) {
-      throw NotImplementedError( "ref attribute in TextContent" );
+      _ref = it->second;
+      kwargs.erase(it);
     }
     it = kwargs.find( "class" );
     if ( it == kwargs.end() ) {
@@ -2335,6 +2336,55 @@ namespace folia {
       kwargs["class"] = "current";
     }
     FoliaImpl::setAttributes(kwargs);
+  }
+
+  FoliaElement *TextContent::finddefaultreference() const {
+    int depth = 0;
+    FoliaElement *p = parent();
+    while ( p ){
+      if ( p->isSubClass( AbstractStructureElement_t )
+	   || p->isSubClass( AbstractTokenAnnotation_t ) ){
+	if ( ++depth == 2 ){
+	  return p;
+	}
+      }
+      p = p->parent();
+    }
+    return 0;
+  }
+
+  FoliaElement *TextContent::getreference() const {
+    FoliaElement *ref = 0;
+    if ( _offset == -1 ){
+      return 0;
+    }
+    else if ( !_ref.empty() ){
+      try{
+	ref = (*mydoc)[_ref];
+      }
+      catch (...){
+      }
+    }
+    else {
+      ref = finddefaultreference();
+    }
+    if ( !ref ){
+      throw UnresolvableTextContent( "Default reference for textcontent not found!" );
+    }
+    else if ( !ref->hastext( _class ) ){
+      throw UnresolvableTextContent( "Reference (ID " + _ref + ") has no such text (class=" + _class + ")" );
+    }
+    else if ( mydoc->checktext() ){
+      UnicodeString mt = this->text( this->cls(), false, true );
+      UnicodeString pt = ref->text( this->cls(), false, true );
+      UnicodeString sub( pt, this->offset(), mt.length() );
+      if ( mt != sub ){
+	throw InconsistentText(  UnicodeToUTF8(mt) + " not found in "
+				 + UnicodeToUTF8(pt) + " at offset "
+				 + TiCC::toString(offset()) );
+      }
+    }
+    return ref;
   }
 
   KWargs TextContent::collectAttributes() const {

@@ -999,7 +999,6 @@ namespace folia {
   }
 
   bool Document::validate_offsets() const {
-    int pos = -1;
     set<TextContent*> done;
     for ( const auto& txt : offset_validation_buffer ){
       if ( done.find( txt ) != done.end() ){
@@ -1007,17 +1006,16 @@ namespace folia {
       }
       done.insert(txt);
       int offset = txt->offset();
-      if ( txt->parent()->parent() ){
-	UnicodeString pt = txt->parent()->parent()->text( txt->cls(), false, true );
-	UnicodeString mt = txt->text( txt->cls(), false, true );
-	//	cerr << "zoek " << mt << " IN " << pt << endl;
-	pos = pt.indexOf( mt, pos+1  );
-	//	cerr << "found at " << pos << endl;
-	if ( pos != offset ){
-	  throw InconsistentText( "expected offset " + TiCC::toString(offset)
-				  + " for '" + UnicodeToUTF8(mt) + "' in '"
-				  + UnicodeToUTF8(pt) + "', but found "
-				  + TiCC::toString(pos) );
+      if ( offset != -1 ){
+	try {
+	  txt->getreference();
+	}
+	catch( UnresolvableTextContent ){
+	  string msg = "Text for " + txt->parent()->xmltag() + ", ID "
+	    + txt->id() + ", textclass " + txt->cls()
+	    + ", has incorrect offset " + TiCC::toString(offset)
+	    + " or invalid reference";
+	  throw UnresolvableTextContent( msg );
 	}
       }
     }

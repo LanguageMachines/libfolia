@@ -115,6 +115,10 @@ namespace folia {
     explicit InconsistentText( const std::string& s ): std::runtime_error( "inconsistent text: " + s ){};
   };
 
+  class UnresolvableTextContent: public std::runtime_error {
+  public:
+    explicit UnresolvableTextContent( const std::string& s ): std::runtime_error( "Unresolvable text: " + s ){};
+  };
 
   UnicodeString UTF8ToUnicode( const std::string& );
   std::string UnicodeToUTF8( const UnicodeString& );
