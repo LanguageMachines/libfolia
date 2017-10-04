@@ -2399,8 +2399,8 @@ namespace folia {
       UnicodeString pt = ref->text( this->cls(), false, true );
       UnicodeString sub( pt, this->offset(), mt.length() );
       if ( mt != sub ){
-	throw UnresolvableTextContent( "Reference (ID " + ref->id() + ",class="
-				       + cls() + " found, but no text match at "
+	throw UnresolvableTextContent( "Reference (ID " + ref->id() + ",class='"
+				       + cls() + "') found, but no text match at "
 				       + "offset=" + TiCC::toString(offset())
 				       + " Expected " + UnicodeToUTF8(mt)
 				       + " but got " +  UnicodeToUTF8(sub) );

@@ -1010,14 +1010,16 @@ namespace folia {
 	try {
 	  txt->getreference();
 	}
-	catch( UnresolvableTextContent ){
+	catch( UnresolvableTextContent& e ){
 	  string msg = "Text for " + txt->parent()->xmltag() + ", ID="
 	    + txt->parent()->id() + ", textclass='" + txt->cls()
-	    + "', has incorrect offset " + TiCC::toString(offset);
+	    + "'), has incorrect offset " + TiCC::toString(offset);
 	  string ref = txt->ref();
 	  if ( !ref.empty() ){
 	    msg += " or invalid reference:" + ref;
 	  }
+	  msg += "\n\toriginal msg=";
+	  msg += e.what();
 	  throw UnresolvableTextContent( msg );
 	}
       }
@@ -1033,7 +1035,7 @@ namespace folia {
 	try {
 	  phon->getreference();
 	}
-	catch( UnresolvableTextContent ){
+	catch( UnresolvableTextContent& e ){
 	  string msg = "Phoneme for " + phon->parent()->xmltag() + ", ID="
 	    + phon->parent()->id() + ", textclass='" + phon->cls()
 	    + "', has incorrect offset " + TiCC::toString(offset);
@@ -1041,6 +1043,8 @@ namespace folia {
 	  if ( !ref.empty() ){
 	    msg += " or invalid reference:" + ref;
 	  }
+	  msg += "\n\toriginal msg=";
+	  msg += e.what();
 	  throw UnresolvableTextContent( msg );
 	}
       }
