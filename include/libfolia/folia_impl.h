@@ -351,7 +351,6 @@ namespace folia {
 			   int ,
 			   const std::string& = "current" );
     virtual int offset() const NOT_IMPLEMENTED;
-    void cleartextcontent( const std::string& = "current" );
 
     void cleartextcontent( const std::string& = "current" );
     // PhonContent
