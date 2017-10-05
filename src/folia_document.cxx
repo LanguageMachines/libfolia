@@ -260,9 +260,15 @@ namespace folia {
 	   << e << "'"<< endl;
       if ( e == "NO" ){
 	mode = Mode( int(mode) & ~CHECKTEXT );
+	cerr << "FOLIA_TEXT_CHECK disabled" << endl;
+      }
+      else if ( e == "YES" ){
+	mode = Mode( int(mode) | CHECKTEXT );
+	cerr << "FOLIA_TEXT_CHECK enabled" << endl;
       }
       else {
-	mode = Mode( int(mode) | CHECKTEXT );
+	cerr << "FOLIA_TEXT_CHECK unchanged:" << (checktext()?"YES":"NO")
+	     << endl;
       }
     }
   }
