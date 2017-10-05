@@ -129,8 +129,8 @@ namespace folia {
     bool toXml( const std::string&,
 		const std::string& ="",
 		bool = false ) const;
-    std::string metadatatype() const { return _metadatatype; };
-    std::string metadatafile() const { return _metadatafile; };
+    std::string metadatatype() const;
+    std::string metadatafile() const;
     void set_metadata( const std::string& type, const std::string& value );
     const std::string get_metadata( const std::string& type ) const;
 
@@ -163,7 +163,7 @@ namespace folia {
     FoliaElement* parseXml( );
 
     std::string id() const { return _id; };
-    std::string language() const { return _language; };
+    std::string language() const;
     void declare( AnnotationType::AnnotationType,
 		  const std::string&,
 		  const std::string& = "" );
@@ -199,21 +199,40 @@ namespace folia {
     void decrRef( AnnotationType::AnnotationType, const std::string& );
     void setmode( const std::string& );
     std::string getmode() const;
+    const MetaData *get_submetadata( const std::string& m ){
+      const auto& it = submetadata.find( m );
+      if ( it == submetadata.end() ){
+	return 0;
+      } else {
+	return it->second;
+      }
+    }
+    void cache_textcontent( TextContent *tc ){
+      t_offset_validation_buffer.push_back( tc );
+    }
+    void cache_phoncontent( PhonContent *tc ){
+      p_offset_validation_buffer.push_back( tc );
+    }
+    bool validate_offsets() const;
   private:
     std::map<AnnotationType::AnnotationType,std::multimap<std::string,at_t> > annotationdefaults;
     std::vector<std::pair<AnnotationType::AnnotationType,std::string>> anno_sort;
     std::map<AnnotationType::AnnotationType,std::map<std::string,int> > annotationrefs;
     std::map<AnnotationType::AnnotationType,std::map<std::string,std::string>> alias_set;
     std::map<AnnotationType::AnnotationType,std::map<std::string,std::string>> set_alias;
+    std::vector<TextContent*> t_offset_validation_buffer;
+    std::vector<PhonContent*> p_offset_validation_buffer;
 
     FoliaElement* parseFoliaDoc( xmlNode * );
     void parsemeta( xmlNode * );
     void setimdi( xmlNode * );
     void setDocumentProps( KWargs& );
     void parseannotations( xmlNode * );
+    void parsesubmeta( xmlNode * );
     void getstyles();
     void setannotations( xmlNode *) const;
     void setmetadata( xmlNode * ) const;
+    void addsubmetadata( xmlNode *) const;
     void setstyles( xmlDoc* ) const;
     xmlDoc *to_xmlDoc( const std::string& ="", bool=false ) const;
     std::map<std::string, FoliaElement* > sindex;
@@ -227,16 +246,8 @@ namespace folia {
     const xmlChar* _foliaNsIn_href;
     const xmlChar* _foliaNsIn_prefix;
     mutable xmlNs *_foliaNsOut;
-    std::string _metadatatype;
-    xmlNode *_metadata;
-    std::vector<ForeignData *> _foreigndata;
-    std::string _metadatafile;
-    std::string _title;
-    std::string _date;
-    std::string _language;
-    std::string _publisher;
-    std::string _license;
-    std::map<std::string,std::string> meta_atts;
+    MetaData *_metadata;
+    std::map<std::string,MetaData *> submetadata;
     std::multimap<std::string,std::string> styles;
     Mode mode;
     std::string filename;
