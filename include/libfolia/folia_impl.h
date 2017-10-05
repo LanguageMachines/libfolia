@@ -447,6 +447,7 @@ namespace folia {
     virtual void setAttributes( const KWargs& ) = 0;
     virtual KWargs collectAttributes() const = 0;
     virtual void setAuth( bool b ) = 0;
+    virtual bool auth( ) const = 0;
     virtual const std::string generateId( const std::string& ) NOT_IMPLEMENTED;
   };
 

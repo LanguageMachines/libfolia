@@ -1692,7 +1692,9 @@ namespace folia {
 
   FoliaElement *TextContent::postappend( ) {
     if ( mydoc ){
-      if ( mydoc->checktext() && _offset != -1 ){
+      if ( mydoc->checktext()
+	   && _offset != -1
+	   && ( _parent && parent()->auth() ) ){
 	mydoc->cache_textcontent(this);
       }
     }
@@ -3785,9 +3787,18 @@ namespace folia {
 #ifdef DEBUG_TEXT
       cerr << "data=" << el << endl;
 #endif
-       if ( el->isinstance( New_t ) || el->isinstance( Current_t ) ) {
-         return el->text( cls, retaintok );
-       }
+      if ( el->isinstance( New_t )
+	   ||( el->isinstance( Original_t ) && cls != "current" )
+	   || el->isinstance( Current_t ) ){
+	UnicodeString result;
+	try {
+	  result = el->text( cls, retaintok );
+	  return result;
+	}
+	catch ( ... ){
+	  // try other nodes
+	}
+      }
     }
     throw NoSuchText( "cls=" + cls );
   }
