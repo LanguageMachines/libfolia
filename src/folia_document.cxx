@@ -180,17 +180,6 @@ namespace folia {
 	throw runtime_error( "FoLiA::Document: unsupported mode value: "+ mod );
       }
     }
-    // override CHECKTEXT with environment var
-    const char *env = getenv( "FOLIA_TEXT_CHECK" );
-    if ( env ){
-      string e = env;
-      if ( e == "NO" ){
-	mode = Mode( int(mode) & ~CHECKTEXT );
-      }
-      else {
-	mode = Mode( int(mode) | CHECKTEXT );
-      }
-    }
   }
 
   string Document::getmode() const{
@@ -264,6 +253,18 @@ namespace folia {
     if ( !happy )
       throw runtime_error( "No ID, valid filename or string specified" );
     kwargs.erase( "generator" ); // also delete unused att-val(s)
+    const char *env = getenv( "FOLIA_TEXT_CHECK" );
+    if ( env ){
+      string e = env;
+      cerr << "DETECTED FOLIA_TEXT_CHECK environment variable, value ='"
+	   << e << "'"<< endl;
+      if ( e == "NO" ){
+	mode = Mode( int(mode) & ~CHECKTEXT );
+      }
+      else {
+	mode = Mode( int(mode) | CHECKTEXT );
+      }
+    }
   }
 
   void Document::addDocIndex( FoliaElement* el, const string& s ){
