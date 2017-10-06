@@ -410,13 +410,13 @@ namespace folia {
     return os;
   }
 
-  bool Document::save( ostream& os, const string& nsLabel, bool kanon ) {
+  bool Document::save( ostream& os, const string& nsLabel, bool kanon ) const {
     string s = toXml( nsLabel, ( kanon || strip() ) );
     os << s << endl;
     return os.good();
   }
 
-  bool Document::save( const string& fn, const string& nsLabel, bool kanon ) {
+  bool Document::save( const string& fn, const string& nsLabel, bool kanon ) const {
     try {
       if ( match_back( fn, ".bz2" ) ){
 	string tmpname = fn.substr( 0, fn.length() - 3 ) + "tmp";
@@ -448,6 +448,17 @@ namespace folia {
       throw runtime_error( "saving to file " + fn + " failed: " + e.what() );
       return false;
     }
+  }
+
+  string Document::xmlstring( bool k ) const {
+    xmlDoc *outDoc = to_xmlDoc( "", k );
+    xmlChar *buf; int size;
+    xmlDocDumpFormatMemoryEnc( outDoc, &buf, &size, "UTF-8", 0 ); // no formatting
+    string result = string( (const char *)buf, size );
+    xmlFree( buf );
+    xmlFreeDoc( outDoc );
+    _foliaNsOut = 0;
+    return result;
   }
 
   int Document::size() const {

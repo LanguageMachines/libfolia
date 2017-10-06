@@ -88,14 +88,15 @@ namespace folia {
     void init();
     bool readFromFile( const std::string& );
     bool readFromString( const std::string& );
-    bool save( std::ostream&, const std::string&, bool = false );
-    bool save( std::ostream& os, bool kanon = false ){
+    bool save( std::ostream&, const std::string&, bool = false ) const;
+    bool save( std::ostream& os, bool kanon = false ) const {
       return save( os, "", kanon );
     }
-    bool save( const std::string&, const std::string&, bool = false );
-    bool save( const std::string& s, bool kanon = false ){
+    bool save( const std::string&, const std::string&, bool = false ) const ;
+    bool save( const std::string& s, bool kanon = false ) const {
       return save( s, "", kanon );
     }
+    std::string xmlstring( bool k = false ) const;
     int size() const;
     FoliaElement* doc() const { return foliadoc; }
     Text* addText( const KWargs& );
