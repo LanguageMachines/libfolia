@@ -235,6 +235,7 @@ namespace folia {
     void setmetadata( xmlNode * ) const;
     void addsubmetadata( xmlNode *) const;
     void setstyles( xmlDoc* ) const;
+    std::string update_version();
     xmlDoc *to_xmlDoc( const std::string& ="", bool=false ) const;
     std::map<std::string, FoliaElement* > sindex;
     std::vector<FoliaElement* > iindex;

@@ -99,6 +99,14 @@ namespace folia {
     return ss.str();
   }
 
+  string Document::update_version(){
+    // override the document version with the current library version
+    // return the old value
+    string old = version;
+    version = versionstring();
+    return old;
+  }
+
   void Document::init(){
     _metadata = 0;
     _xmldoc = 0;
