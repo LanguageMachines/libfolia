@@ -215,6 +215,10 @@ namespace folia {
       p_offset_validation_buffer.push_back( tc );
     }
     bool validate_offsets() const;
+    static int compare_to_lib_version( const std::string& );
+    static std::string library_version();
+    std::string version() const { return _version; };
+    std::string update_version();
   private:
     std::map<AnnotationType::AnnotationType,std::multimap<std::string,at_t> > annotationdefaults;
     std::vector<std::pair<AnnotationType::AnnotationType,std::string>> anno_sort;
@@ -235,7 +239,6 @@ namespace folia {
     void setmetadata( xmlNode * ) const;
     void addsubmetadata( xmlNode *) const;
     void setstyles( xmlDoc* ) const;
-    std::string update_version();
     xmlDoc *to_xmlDoc( const std::string& ="", bool=false ) const;
     std::map<std::string, FoliaElement* > sindex;
     std::vector<FoliaElement* > iindex;
@@ -253,7 +256,7 @@ namespace folia {
     std::multimap<std::string,std::string> styles;
     Mode mode;
     std::string filename;
-    std::string version;
+    std::string _version;
     bool external;
     Document( const Document& ); // inhibit copies
     Document& operator=( const Document& ); // inhibit copies

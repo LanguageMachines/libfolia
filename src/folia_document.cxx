@@ -93,7 +93,7 @@ namespace folia {
     }
   }
 
-  string versionstring(){
+  string Document::library_version(){
     stringstream ss;
     ss << MAJOR_VERSION << "." << MINOR_VERSION << "." << SUB_VERSION;
     return ss.str();
@@ -102,8 +102,8 @@ namespace folia {
   string Document::update_version(){
     // override the document version with the current library version
     // return the old value
-    string old = version;
-    version = versionstring();
+    string old = _version;
+    _version = library_version();
     return old;
   }
 
@@ -116,7 +116,7 @@ namespace folia {
     _foliaNsOut = 0;
     debug = 0;
     mode = CHECKTEXT;
-    version = versionstring();
+    _version = library_version();
     external = false;
   }
 
@@ -226,7 +226,7 @@ namespace folia {
       external = false;
     it = kwargs.find( "version" );
     if ( it != kwargs.end() ){
-      version = it->second;
+      _version = it->second;
       kwargs.erase( it );
     }
     it = kwargs.find( "_id" );
@@ -783,6 +783,42 @@ namespace folia {
     }
   }
 
+  int Document::compare_to_lib_version( const string& vers ){
+    int majVersion = 0;
+    int minVersion = 0;
+    int subVersion = 0;
+    vector<string> vec;
+    split_at( vers, vec, "." );
+    for ( size_t i=0; i < vec.size(); ++i ){
+      int val = stringTo<int>( vec[i] );
+      if ( i == 0 )
+	majVersion = val;
+      else if ( i == 1 )
+	minVersion = val;
+      else
+	subVersion += val;
+    }
+    if ( majVersion < MAJOR_VERSION ){
+      return -1;
+    }
+    else if ( majVersion > MAJOR_VERSION ){
+      return 1;
+    }
+    else if ( minVersion < MINOR_VERSION ){
+      return -1;
+    }
+    else if ( minVersion > MINOR_VERSION ){
+      return 1;
+    }
+    else if ( subVersion < SUB_VERSION ){
+      return -1;
+    }
+    else if ( subVersion > SUB_VERSION ){
+      return 1;
+    }
+    return 0;
+  }
+
   int check_version( const string& vers, bool& no_textcheck ){
     no_textcheck = false;
     int majVersion = 0;
@@ -845,7 +881,7 @@ namespace folia {
     bool no_textcheck = false;
     if ( check_version( vers, no_textcheck ) > 0 ){
       cerr << "WARNING!!! FoLiA Document is a newer version than this library ("
-	   << vers << " vs " << version
+	   << vers << " vs " << _version
 	   << ")\n\t Any possible subsequent failures in parsing or processing may probably be attributed to this." << endl
 	   << "\t Please upgrade libfolia!" << endl;
     }
@@ -1627,8 +1663,8 @@ namespace folia {
     }
     else {
       attribs["generator"] = string("libfolia-v") + VERSION;
-      if ( !version.empty() )
-	attribs["version"] = version;
+      if ( !_version.empty() )
+	attribs["version"] = _version;
     }
     if ( external )
       attribs["external"] = "yes";

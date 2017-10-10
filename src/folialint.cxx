@@ -137,6 +137,11 @@ int main( int argc, char* argv[] ){
       else if ( !nooutput ){
 	cout << d;
       }
+      if ( folia::Document::compare_to_lib_version(d.version()) ){
+	cerr << "WARNING: the document had version: " << d.version()
+	     << " and the library is at version: "
+	     <<  folia::Document::library_version() << endl;
+      }
     }
     catch( exception& e ){
       cerr << inputName << " failed: " << endl << e.what() << endl;
