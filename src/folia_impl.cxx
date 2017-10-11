@@ -1839,20 +1839,35 @@ namespace folia {
 	  }
 	}
       }
-      else if ( p->type == XML_TEXT_NODE ) {
-	string tag = "_XmlText";
-	FoliaElement *t = createElement( tag, doc() );
-	if ( t ) {
+      else if ( p->type == XML_TEXT_NODE ){
+	if ( this->isSubClass( TextContent_t )
+	     || this->isSubClass( PhonContent_t )
+	     || this->isSubClass( AbstractTextMarkup_t ) ){
+	  XmlText *t = new XmlText();
+	  if ( p->content ) {
+	    t->setvalue( (const char*)p->content );
+	  }
 	  if ( doc() && doc()->debug > 2 ) {
-	    cerr << "created " << t << endl;
+	    cerr << "created " << t << "(" << t->text() << ")" << endl;
+	    cerr << "extend " << this << " met " << t << endl;
 	  }
-	  try {
-	    t = t->parseXml( p );
-	  }
-	  catch ( ValueError& ){
-	    // ignore empty content
-	    delete t;
-	    t = 0;
+	  append( t );
+	}
+	else {
+	  //most probably this always 'empty space'
+	  string tag = "_XmlText";
+	  FoliaElement *t = createElement( tag, doc() );
+	  if ( t ) {
+	    if ( doc() && doc()->debug > 2 ) {
+	      cerr << "created " << t << endl;
+	    }
+	    try {
+	      t = t->parseXml( p );
+	    }
+	    catch ( ValueError& e ){
+	      delete t;
+	      t = 0;
+	    }
 	  }
 	  if ( t ) {
 	    if ( doc() && doc()->debug > 2 ) {
@@ -4038,12 +4053,11 @@ namespace folia {
   }
 
   FoliaElement* XmlText::parseXml( const xmlNode *node ) {
-    string tmp;
     if ( node->content ) {
       _value = (const char*)node->content;
-      tmp = trim( _value );
+      _value = trim( _value );
     }
-    if ( tmp.empty() ) {
+    if ( _value.empty() ) {
       throw ValueError( "TextContent may not be empty" );
     }
     return this;

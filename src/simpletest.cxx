@@ -90,5 +90,19 @@ int main() {
     cerr << "string normalize failed: got:'" << clean << "'"
 	 << "                but expected:'" << wanted << "'" << endl;
   }
+  dirty = "\n";
+  clean = normalize( dirty );
+  wanted = " ";
+  if ( clean != wanted ){
+    cerr << "string normalize failed: got:'" << clean << "'"
+	 << "                but expected:'" << wanted << "'" << endl;
+  }
+  dirty = "\r    ";
+  clean = normalize( dirty );
+  wanted = " ";
+  if ( clean != wanted ){
+    cerr << "string normalize failed: got:'" << clean << "'"
+	 << "                but expected:'" << wanted << "'" << endl;
+  }
   return EXIT_SUCCESS;
 }
