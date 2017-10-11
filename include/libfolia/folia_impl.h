@@ -286,6 +286,8 @@ namespace folia {
 				bool = false ) const = 0;
     virtual bool printable() const = 0;
     virtual bool speakable() const = 0;
+    virtual bool is_textcontainer() const = 0;
+    virtual bool is_phoncontainer() const = 0;
 
     // Word
     virtual Word *previous() const NOT_IMPLEMENTED;
