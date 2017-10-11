@@ -746,6 +746,32 @@ namespace folia {
     return att;
   }
 
+  void check_consistency( const FoliaElement *par,
+			  const FoliaElement *child,
+			  const string& cls ){
+    FoliaElement *parent = par->parent();
+    if ( parent
+	 && parent->element_id() != Correction_t
+	 && parent->hastext( cls ) ){
+      // check text consistency
+      UnicodeString s1 = parent->text( cls, false, true );
+      UnicodeString s2 = child->text( cls, false, true );
+      // no retain tokenization, strict for both
+      s1 = normalize( s1 );
+      s2 = normalize( s2 );
+      if ( s1.indexOf( s2 ) < 0 ){
+	throw InconsistentText( "attempt to add text (class="
+				+ cls + ") from node: " + child->xmltag()
+				+ "(" + child->id() + ")"
+				+ " with value '" + UnicodeToUTF8(s2)
+				+ "' to element: " + parent->xmltag() +
+				+ "(" + parent->id() + ") which already has "
+				+ "text in that class and value: '"
+				+ UnicodeToUTF8(s1) + "'" );
+      }
+    }
+  }
+
   xmlNode *FoliaImpl::xml( bool recursive, bool kanon ) const {
     xmlNode *e = XmlNewNode( foliaNs(), xmltag() );
     KWargs attribs = collectAttributes();
@@ -811,20 +837,32 @@ namespace folia {
 	xmlAddChild( e, cel->xml( recursive, kanon ) );
       }
       for ( const auto& tel : currenttextelements ) {
+	if ( mydoc->checktext() ){
+	  check_consistency( this, tel, tel->cls() );
+	}
 	xmlAddChild( e, tel->xml( recursive, false ) );
 	// don't change the internal sequences of TextContent elements
       }
       for ( const auto& tel : textelements ) {
+	if ( mydoc->checktext() ){
+	  check_consistency( this, tel, tel->cls() );
+	}
 	xmlAddChild( e, tel->xml( recursive, false ) );
 	// don't change the internal sequences of TextContent elements
       }
       if ( !kanon ) {
 	for ( const auto& oel : otherelements ) {
+	  if ( mydoc->checktext() ){
+	    check_consistency( this, oel, "current" );
+	  }
 	  xmlAddChild( e, oel->xml( recursive, kanon ) );
 	}
       }
       else {
 	for ( const auto& oem : otherelementsMap ) {
+	  if ( mydoc->checktext() ){
+	    check_consistency( this, oem.second, "current" );
+	  }
 	  xmlAddChild( e, oem.second->xml( recursive, kanon ) );
 	}
       }
