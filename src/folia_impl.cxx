@@ -783,10 +783,12 @@ namespace folia {
       bool test_fail = false;
       if ( isSubClass( Word_t )
 	   || isSubClass( String_t )
+	   || parent->isSubClass( Division_t )
+	   || parent->isSubClass( Text_t )
 	   || child->isSubClass( Word_t )
 	   || child->isSubClass( String_t ) ){
 	// Words and Strings are 'per definition' PART of there parents
-	test_fail = ( s1.indexOf( s2 ) < 0 ); // arn't they?
+	test_fail = ( s1.indexOf( s2 ) < 0 ); // aren't they?
       }
       else {
 	// otherwise an exacte match is needed
