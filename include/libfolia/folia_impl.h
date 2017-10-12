@@ -275,6 +275,7 @@ namespace folia {
     // text/string content
     bool hastext( const std::string& = "current" ) const;
     bool hasphon( const std::string& = "current" ) const;
+    void check_text_consistency( const FoliaElement * ) const;
 
     virtual const std::string str( const std::string& = "current" ) const = 0;
     const UnicodeString unicode( const std::string& cls = "current" ) const { return text( cls ); };

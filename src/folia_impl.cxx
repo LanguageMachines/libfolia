@@ -746,9 +746,8 @@ namespace folia {
     return att;
   }
 
-  void check_consistency( const FoliaElement *par,
-			  const FoliaElement *child ){
-    if ( par->isSubClass( TextContent_t ) ){
+  void FoliaElement::check_text_consistency( const FoliaElement *child ) const {
+    if ( isSubClass( TextContent_t ) ){
       // modifications within a textcontent are possible
       // like building from t-style parts
       return;
@@ -764,7 +763,7 @@ namespace folia {
       // no use to proceed. not adding text
       return;
     }
-    FoliaElement *parent = par->parent();
+    FoliaElement *parent = this->parent();
     if ( parent
 	 && parent->element_id() != Correction_t
 	 && parent->hastext( cls ) ){
@@ -776,8 +775,8 @@ namespace folia {
       s1 = normalize( s1 );
       s2 = normalize( s2 );
       bool test_fail = false;
-      if ( par->isSubClass( Word_t )
-	   || par->isSubClass( String_t )
+      if ( isSubClass( Word_t )
+	   || isSubClass( String_t )
 	   || child->isSubClass( Word_t )
 	   || child->isSubClass( String_t ) ){
 	// Words and Strings are 'per definition' PART of there parents
@@ -866,14 +865,14 @@ namespace folia {
       }
       for ( const auto& tel : currenttextelements ) {
 	if ( mydoc->checktext() ){
-	  check_consistency( this, tel );
+	  check_text_consistency( tel );
 	}
 	xmlAddChild( e, tel->xml( recursive, false ) );
 	// don't change the internal sequences of TextContent elements
       }
       for ( const auto& tel : textelements ) {
 	if ( mydoc->checktext() ){
-	  check_consistency( this, tel );
+	  check_text_consistency( tel );
 	}
 	xmlAddChild( e, tel->xml( recursive, false ) );
 	// don't change the internal sequences of TextContent elements
@@ -881,7 +880,7 @@ namespace folia {
       if ( !kanon ) {
 	for ( const auto& oel : otherelements ) {
 	  if ( mydoc->checktext() ){
-	    check_consistency( this, oel );
+	    check_text_consistency( oel );
 	  }
 	  xmlAddChild( e, oel->xml( recursive, kanon ) );
 	}
@@ -889,7 +888,7 @@ namespace folia {
       else {
 	for ( const auto& oem : otherelementsMap ) {
 	  if ( mydoc->checktext() ){
-	    check_consistency( this, oem.second );
+	    check_text_consistency( oem.second );
 	  }
 	  xmlAddChild( e, oem.second->xml( recursive, kanon ) );
 	}
@@ -1609,26 +1608,7 @@ namespace folia {
 	  }
 	}
       }
-      FoliaElement *parent = this->parent();
-      if ( parent && parent->element_id() != Correction_t
-	   && ( parent->doc() != 0 && parent->doc()->checktext() )
-	   && parent->hastext( cls ) ){
-	// check text consistency
-	UnicodeString s1 = parent->text( cls, false, true );
-	UnicodeString s2 = c->text( cls, false, true );
-	// no retain tokenization, strict for both
-	s1 = normalize( s1 );
-	s2 = normalize( s2 );
-	int pos = s1.indexOf( s2 );
-	if ( pos < 0 ){
-	  throw InconsistentText( "attempt to add <t> with class="
-				  + cls + " and text '" + UnicodeToUTF8(s2)
-				  + "' to element: " + _id + " with parent "
-				  + parent->id()
-				  + " which already has a <t> with that class and text: '"
-				  + UnicodeToUTF8(s1) + "'" );
-	}
-      }
+      check_text_consistency( c );
     }
     return true;
   }
