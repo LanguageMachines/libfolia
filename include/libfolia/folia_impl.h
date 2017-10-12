@@ -275,7 +275,7 @@ namespace folia {
     // text/string content
     bool hastext( const std::string& = "current" ) const;
     bool hasphon( const std::string& = "current" ) const;
-    void check_text_consistency( const FoliaElement * ) const;
+    virtual void check_text_consistency( const FoliaElement * ) const = 0;
 
     virtual const std::string str( const std::string& = "current" ) const = 0;
     const UnicodeString unicode( const std::string& cls = "current" ) const { return text( cls ); };
@@ -646,6 +646,7 @@ namespace folia {
     Document *doc() const { return mydoc; };
 
     bool checkAtts();
+    void check_text_consistency( const FoliaElement * ) const;
 
     std::vector<FoliaElement*> select( ElementType elementtype,
 				       bool = true ) const;

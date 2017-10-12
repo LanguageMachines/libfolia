@@ -746,7 +746,10 @@ namespace folia {
     return att;
   }
 
-  void FoliaElement::check_text_consistency( const FoliaElement *child ) const {
+  void FoliaImpl::check_text_consistency( const FoliaElement *child ) const {
+    if ( !mydoc || !mydoc->checktext() ){
+      return;
+    }
     if ( isSubClass( TextContent_t ) ){
       // modifications within a textcontent are possible
       // like building from t-style parts
@@ -864,32 +867,24 @@ namespace folia {
 	xmlAddChild( e, cel->xml( recursive, kanon ) );
       }
       for ( const auto& tel : currenttextelements ) {
-	if ( mydoc->checktext() ){
-	  check_text_consistency( tel );
-	}
+	check_text_consistency( tel );
 	xmlAddChild( e, tel->xml( recursive, false ) );
 	// don't change the internal sequences of TextContent elements
       }
       for ( const auto& tel : textelements ) {
-	if ( mydoc->checktext() ){
-	  check_text_consistency( tel );
-	}
+	check_text_consistency( tel );
 	xmlAddChild( e, tel->xml( recursive, false ) );
 	// don't change the internal sequences of TextContent elements
       }
       if ( !kanon ) {
 	for ( const auto& oel : otherelements ) {
-	  if ( mydoc->checktext() ){
-	    check_text_consistency( oel );
-	  }
+	  check_text_consistency( oel );
 	  xmlAddChild( e, oel->xml( recursive, kanon ) );
 	}
       }
       else {
 	for ( const auto& oem : otherelementsMap ) {
-	  if ( mydoc->checktext() ){
-	    check_text_consistency( oem.second );
-	  }
+	  check_text_consistency( oem.second );
 	  xmlAddChild( e, oem.second->xml( recursive, kanon ) );
 	}
       }
