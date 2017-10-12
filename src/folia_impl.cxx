@@ -750,9 +750,12 @@ namespace folia {
     if ( !mydoc || !mydoc->checktext() ){
       return;
     }
-    if ( isSubClass( TextContent_t ) ){
+    if ( isSubClass( TextContent_t )
+	 || isSubClass( Morpheme_t )
+	 || isSubClass( Phoneme_t ) ){
       // modifications within a textcontent are possible
       // like building from t-style parts
+      // also Morphemes and Phonemes don't realy 'fit' in their parents
       return;
     }
     string cls;
