@@ -746,25 +746,11 @@ namespace folia {
     return att;
   }
 
-  void FoliaImpl::check_text_consistency( const FoliaElement *child ) const {
+  void FoliaImpl::check_append_text_consistency( const FoliaElement *child ) const {
     if ( !mydoc || !mydoc->checktext() ){
       return;
     }
-    if ( isSubClass( TextContent_t )
-	 || isSubClass( Morpheme_t )
-	 || isSubClass( Phoneme_t ) ){
-      // modifications within a textcontent are possible
-      // like building from t-style parts
-      // also Morphemes and Phonemes don't realy 'fit' in their parents
-      return;
-    }
-    string cls;
-    if ( child->isSubClass( AbstractTextMarkup_t ) ){
-      cls = "current"; // par->cls() ??
-    }
-    else {
-      cls = child->cls();
-    }
+    string cls = child->cls();
     if ( !child->hastext( cls ) ){
       // no use to proceed. not adding text
       return;
@@ -782,11 +768,7 @@ namespace folia {
       s2 = normalize( s2 );
       bool test_fail = false;
       if ( isSubClass( Word_t )
-	   || isSubClass( String_t )
-	   || parent->isSubClass( Division_t )
-	   || parent->isSubClass( Text_t )
-	   || child->isSubClass( Word_t )
-	   || child->isSubClass( String_t ) ){
+	   || isSubClass( String_t ) ){
 	// Words and Strings are 'per definition' PART of there parents
 	test_fail = ( s1.indexOf( s2 ) < 0 ); // aren't they?
       }
@@ -798,6 +780,49 @@ namespace folia {
 	throw InconsistentText( "text (class="
 				+ cls + ") from node: " + child->xmltag()
 				+ "(" + child->id() + ")"
+				+ " with value '" + UnicodeToUTF8(s2)
+				+ "' to element: " + parent->xmltag() +
+				+ "(" + parent->id() + ") which already has "
+				+ "text in that class and value: '"
+				+ UnicodeToUTF8(s1) + "'" );
+      }
+    }
+  }
+
+  void FoliaImpl::check_text_consistency( ) const {
+    if ( !mydoc || !mydoc->checktext() ){
+      return;
+    }
+    // check if the text associated with all children is compatible with the
+    // parents parental text.
+
+    string cls = this->cls();
+    FoliaElement *parent = this->parent();
+    if ( parent
+	 && parent->element_id() != Correction_t
+	 && parent->hastext( cls ) ){
+      // check text consistency for parents with text
+      // but SKIP Corrections
+      UnicodeString s1 = parent->text( cls, false, true );
+      UnicodeString s2 = this->text( cls, false, false );
+      // no retain tokenization, strict for parent, deeper for child
+      s1 = normalize( s1 );
+      s2 = normalize( s2 );
+      bool test_fail = false;
+      test_fail = ( s1 != s2 );
+      if ( isSubClass( Word_t )
+	   || isSubClass( String_t ) ) {
+	// Words and Strings are 'per definition' PART of there parents
+	test_fail = ( s1.indexOf( s2 ) < 0 ); // aren't they?
+      }
+      else {
+	// otherwise an exacte match is needed
+	test_fail = ( s1 != s2 );
+      }
+     if ( test_fail ){
+	throw InconsistentText( "text (class="
+				+ cls + ") from node: " + xmltag()
+				+ "(" + id() + ")"
 				+ " with value '" + UnicodeToUTF8(s2)
 				+ "' to element: " + parent->xmltag() +
 				+ "(" + parent->id() + ") which already has "
@@ -872,27 +897,24 @@ namespace folia {
 	xmlAddChild( e, cel->xml( recursive, kanon ) );
       }
       for ( const auto& tel : currenttextelements ) {
-	check_text_consistency( tel );
 	xmlAddChild( e, tel->xml( recursive, false ) );
 	// don't change the internal sequences of TextContent elements
       }
       for ( const auto& tel : textelements ) {
-	check_text_consistency( tel );
 	xmlAddChild( e, tel->xml( recursive, false ) );
 	// don't change the internal sequences of TextContent elements
       }
       if ( !kanon ) {
 	for ( const auto& oel : otherelements ) {
-	  check_text_consistency( oel );
 	  xmlAddChild( e, oel->xml( recursive, kanon ) );
 	}
       }
       else {
 	for ( const auto& oem : otherelementsMap ) {
-	  check_text_consistency( oem.second );
 	  xmlAddChild( e, oem.second->xml( recursive, kanon ) );
 	}
       }
+      check_text_consistency();
     }
     return e;
   }
@@ -1608,7 +1630,7 @@ namespace folia {
 	  }
 	}
       }
-      check_text_consistency( c );
+      check_append_text_consistency( c );
     }
     return true;
   }
