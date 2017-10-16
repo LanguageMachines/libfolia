@@ -28,6 +28,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <map>
 #include "ticcutils/CommandLine.h"
 #include "libfolia/folia.h"
 
@@ -50,6 +51,7 @@ void usage(){
 int main( int argc, char* argv[] ){
   string outputName;
   bool permissive;
+  bool warn;
   bool strip;
   bool nooutput = false;
   bool nochecktext = false;
@@ -57,7 +59,7 @@ int main( int argc, char* argv[] ){
   vector<string> fileNames;
   try {
     TiCC::CL_Options Opts( "hV",
-			   "nochecktext,debug:,permissive,strip,output:,nooutput,help,version");
+			   "nochecktext,debug:,permissive,strip,output:,nooutput,help,warn,version");
     Opts.init(argc, argv );
     if ( Opts.extract( 'h' )
 	 || Opts.extract( "help" ) ){
@@ -71,6 +73,7 @@ int main( int argc, char* argv[] ){
       return EXIT_SUCCESS;
     }
     permissive = Opts.extract("permissive");
+    warn = Opts.extract("warn");
     nooutput = Opts.extract("nooutput");
     if ( Opts.extract("nochecktext") ){
       nochecktext = true;
@@ -137,11 +140,20 @@ int main( int argc, char* argv[] ){
       else if ( !nooutput ){
 	cout << d;
       }
-      // if ( folia::Document::compare_to_lib_version(d.version()) ){
-      // 	cerr << "WARNING: the document had version: " << d.version()
-      // 	     << " and the library is at version: "
-      // 	     <<  folia::Document::library_version() << endl;
-      // }
+      if ( warn ){
+	if ( folia::Document::compare_to_lib_version(d.version()) ){
+	  cerr << "WARNING: the document had version: " << d.version()
+	       << " and the library is at version: "
+	       <<  folia::Document::library_version() << endl;
+	}
+	multimap<folia::AnnotationType::AnnotationType, string> und = d.unused_declarations();
+	if ( !und.empty() ){
+	  cerr << "the folowing annotationsets are declared but unused: " << endl;
+	  for ( const auto& it : und ){
+	    cerr << folia::toString( it.first )<< "-annotation, set=" << it.second << endl;
+	  }
+	}
+      }
     }
     catch( exception& e ){
       cerr << inputName << " failed: " << endl << e.what() << endl;

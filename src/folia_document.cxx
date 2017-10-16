@@ -1280,6 +1280,7 @@ namespace folia {
       annotationdefaults[type].insert( make_pair( setname,
 						  at_t(annotator,annotator_type,d) ) );
       anno_sort.push_back(make_pair(type,setname));
+      annotationrefs[type][setname] = 0;
       if ( !_alias.empty() ){
 	alias_set[type][_alias] = setname;
 	set_alias[type][setname] = _alias;
@@ -1337,6 +1338,18 @@ namespace folia {
 	}
       }
     }
+  }
+
+  multimap<AnnotationType::AnnotationType, string> Document::unused_declarations( ) const {
+    multimap<AnnotationType::AnnotationType,string> result;
+    for ( const auto& tit : annotationrefs ){
+      for ( const auto& mit : tit.second ){
+	if ( mit.second == 0 ){
+	  result.insert( make_pair(tit.first, mit.first ) );
+	}
+      }
+    }
+    return result;
   }
 
   Text* Document::addText( const KWargs& kwargs ){

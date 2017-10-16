@@ -200,7 +200,8 @@ namespace folia {
     void decrRef( AnnotationType::AnnotationType, const std::string& );
     void setmode( const std::string& );
     std::string getmode() const;
-    const MetaData *get_submetadata( const std::string& m ){
+    std::multimap<AnnotationType::AnnotationType,std::string> unused_declarations( ) const;
+      const MetaData *get_submetadata( const std::string& m ){
       const auto& it = submetadata.find( m );
       if ( it == submetadata.end() ){
 	return 0;
