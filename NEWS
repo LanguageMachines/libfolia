@@ -1,3 +1,18 @@
+1.10 2017-10-17
+Major Release, implementing FoLiA spec 1.5
+* added text checking for all 1.5 documents and up
+* added offset and ref checking for Text in all 1.5 documents and up
+* 'empty' text inside TextContent, PhonContent and Textmarkup is significamt
+* better version checking
+* text checking can be dis/enabled using FOLIA_TEXT_CHECK environment variable
+* added submetadata mechanism
+* implemented aliasses for annotation setnames
+* added an xmlstring() serializer for Document
+* bug fixes:
+  - in LineBreak serializing
+  - XmlComment is textless.
+  - miscelaneous small fixes
+
 1.9  2017-08-30
 Bug fix release
 * accept ICU 50 too (was 52) to make CentOS happy
