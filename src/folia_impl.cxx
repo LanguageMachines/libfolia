@@ -3787,7 +3787,7 @@ namespace folia {
 	xmlNode *t = XmlNewNode( foliaNs(), "wref" );
 	KWargs attribs;
 	attribs["id"] = el->id();
-	string txt = el->str();
+	string txt = el->str( textclass() );
 	if ( !txt.empty() ) {
 	  attribs["t"] = txt;
 	}
