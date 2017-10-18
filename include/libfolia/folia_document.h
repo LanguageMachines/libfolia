@@ -198,7 +198,7 @@ namespace folia {
     };
     void incrRef( AnnotationType::AnnotationType, const std::string& );
     void decrRef( AnnotationType::AnnotationType, const std::string& );
-    void setmode( const std::string& );
+    void setmode( const std::string& ) const;
     std::string getmode() const;
     std::multimap<AnnotationType::AnnotationType,std::string> unused_declarations( ) const;
       const MetaData *get_submetadata( const std::string& m ){
@@ -255,7 +255,7 @@ namespace folia {
     MetaData *_metadata;
     std::map<std::string,MetaData *> submetadata;
     std::multimap<std::string,std::string> styles;
-    Mode mode;
+    mutable Mode mode;
     std::string filename;
     std::string _version;
     bool external;

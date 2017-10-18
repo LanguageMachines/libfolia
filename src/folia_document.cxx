@@ -168,7 +168,8 @@ namespace folia {
     return true;
   }
 
-  void Document::setmode( const string& ms ){
+  void Document::setmode( const string& ms ) const {
+    // mode is mutable, so this even sets mode on CONST documents!
     vector<string> modev;
     TiCC::split_at( ms, modev, "," );
     for ( const auto& mod : modev ){
@@ -192,16 +193,16 @@ namespace folia {
 
   string Document::getmode() const{
     string result = "mode=";
-    if ( mode == PERMISSIVE ){
+    if ( mode & PERMISSIVE ){
       result += "permissive,";
     }
-    if ( mode == STRIP ){
+    if ( mode & STRIP ){
       result += "strip,";
     }
-    if ( mode == CHECKTEXT ){
+    if ( mode & CHECKTEXT ){
       result += "checktext,";
     }
-    if ( mode == FIXTEXT ){
+    if ( mode & FIXTEXT ){
       result += "fixtext,";
     }
     return result;
