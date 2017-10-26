@@ -3706,31 +3706,31 @@ namespace folia {
     // If there is no set (yet), try to get the set from the child
     // but not if it is the default set.
     // for a Correction child, we look deeper.
-    if ( _set.empty() ) {
-      if ( child->isSubClass( AbstractSpanAnnotation_t ) ) {
-	string st = child->sett();
-	if ( !st.empty()
-	     && mydoc->defaultset( child->annotation_type() ) != st ) {
-	  _set = st;
-	  mydoc->incrRef( child->annotation_type(), _set );
-	}
+    // BARF when the sets are incompatible.
+    string c_set;
+    if ( child->isSubClass( AbstractSpanAnnotation_t ) ) {
+      string st = child->sett();
+      if ( !st.empty()
+	   && mydoc->defaultset( child->annotation_type() ) != st ) {
+	c_set = st;
       }
-      else if ( child->isinstance(Correction_t) ) {
-	Original *org = child->getOriginal();
-	if ( org ) {
-	  for ( size_t i=0; i < org->size(); ++i ) {
-	    FoliaElement *el = org->index(i);
-	    if ( el->isSubClass( AbstractSpanAnnotation_t ) ) {
-	      string st = el->sett();
-	      if ( !st.empty()
-		   && mydoc->defaultset( el->annotation_type() ) != st ) {
-		_set = st;
-		mydoc->incrRef( el->annotation_type(), _set );
-		return;
-	      }
+    }
+    else if ( child->isinstance(Correction_t) ) {
+      Original *org = child->getOriginal();
+      if ( org ) {
+	for ( size_t i=0; i < org->size(); ++i ) {
+	  FoliaElement *el = org->index(i);
+	  if ( el->isSubClass( AbstractSpanAnnotation_t ) ) {
+	    string st = el->sett();
+	    if ( !st.empty()
+		 && mydoc->defaultset( el->annotation_type() ) != st ) {
+	      c_set = st;
+	      break;
 	    }
 	  }
 	}
+      }
+      if ( c_set.empty() ){
 	New *nw = child->getNew();
 	if ( nw ) {
 	  for ( size_t i=0; i < nw->size(); ++i ) {
@@ -3739,25 +3739,39 @@ namespace folia {
 	      string st = el->sett();
 	      if ( !st.empty()
 		   && mydoc->defaultset( el->annotation_type() ) != st ) {
-		_set = st;
-		mydoc->incrRef( el->annotation_type(), _set );
-		return;
+		c_set = st;
+		break;
 	      }
 	    }
 	  }
 	}
+      }
+      if ( c_set.empty() ){
 	auto v = child->suggestions();
 	for ( const auto& el : v ) {
 	  if ( el->isSubClass( AbstractSpanAnnotation_t ) ) {
 	    string st = el->sett();
 	    if ( !st.empty()
 		 && mydoc->defaultset( el->annotation_type() ) != st ) {
-	      _set = st;
-	      mydoc->incrRef( el->annotation_type(), _set );
-	      return;
+	      c_set = st;
+	      break;
 	    }
 	  }
 	}
+      }
+    }
+    if ( c_set.empty() ){
+      return;
+    }
+    if ( _set.empty() ) {
+      _set = c_set;
+      mydoc->incrRef( child->annotation_type(), _set );
+    }
+    else {
+      if ( _set != c_set ){
+	throw XmlError( "appending child: " + child->xmltag() + " with set='"
+			+  c_set + "' to " + xmltag()
+			+ " failed while it already has set='" + _set + "'" );
       }
     }
   }
