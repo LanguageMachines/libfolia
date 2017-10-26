@@ -3767,17 +3767,18 @@ namespace folia {
       _set = c_set;
     }
     else if ( _set != c_set ){
-      throw XmlError( "appending child: " + child->xmltag() + " with set='"
-		      +  c_set + "' to " + xmltag()
-		      + " failed while it already has set='" + _set + "'" );
+      throw DuplicateAnnotationError( "appending child: " + child->xmltag()
+				      + " with set='"
+				      +  c_set + "' to " + xmltag()
+				      + " failed while it already has set='"
+				      + _set + "'" );
     }
     mydoc->incrRef( child->annotation_type(), _set );
   }
 
   FoliaElement *AbstractAnnotationLayer::append( FoliaElement *child ) {
-    FoliaImpl::append( child );
     assignset( child );
-    return child;
+    return FoliaImpl::append( child );
   }
 
   KWargs AbstractAnnotationLayer::collectAttributes() const {
