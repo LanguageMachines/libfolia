@@ -3765,15 +3765,13 @@ namespace folia {
     }
     if ( _set.empty() ) {
       _set = c_set;
-      mydoc->incrRef( child->annotation_type(), _set );
     }
-    else {
-      if ( _set != c_set ){
-	throw XmlError( "appending child: " + child->xmltag() + " with set='"
-			+  c_set + "' to " + xmltag()
-			+ " failed while it already has set='" + _set + "'" );
-      }
+    else if ( _set != c_set ){
+      throw XmlError( "appending child: " + child->xmltag() + " with set='"
+		      +  c_set + "' to " + xmltag()
+		      + " failed while it already has set='" + _set + "'" );
     }
+    mydoc->incrRef( child->annotation_type(), _set );
   }
 
   FoliaElement *AbstractAnnotationLayer::append( FoliaElement *child ) {
