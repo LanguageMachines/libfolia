@@ -2390,24 +2390,20 @@ namespace folia {
     KWargs kwargs = args; // need to copy
     auto it = kwargs.find( "value" );
     if ( it != kwargs.end() ) {
-      XmlText *t = new XmlText();
       string value = it->second;
+      kwargs.erase(it);
       if ( value.empty() ) {
 	// can this ever happen?
 	throw ValueError( "TextContent: 'value' attribute may not be empty." );
       }
+      XmlText *t = new XmlText();
       t->setvalue( value );
       append( t );
-      kwargs.erase(it);
     }
     it = kwargs.find( "offset" );
     if ( it != kwargs.end() ) {
       _offset = stringTo<int>(it->second);
       kwargs.erase(it);
-      // if ( doc() && doc()->checktext() ){
-      // 	cerr << "ANOTHER cache " << this << endl;
-      // 	doc()->cache_textcontent(this);
-      // }
     }
     else
       _offset = -1;
@@ -2692,7 +2688,7 @@ namespace folia {
 	  i = stringTo<int>( val );
 	}
 	catch ( exception ) {
-	  // no number, so assume so user defined id
+	  // no number, so assume some user defined id
 	  return;
 	}
 	const auto& it = id_map.find( child->xmltag() );
