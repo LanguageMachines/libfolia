@@ -1,3 +1,7 @@
+1.10.1 2017-11-06
+Minor fix
+* bumped the .so version to 7.0
+
 1.10 2017-10-17
 Major Release, implementing FoLiA spec 1.5
 * added text checking for all 1.5 documents and up
