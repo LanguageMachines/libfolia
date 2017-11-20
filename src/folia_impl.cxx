@@ -790,7 +790,7 @@ namespace folia {
   }
 
   void FoliaImpl::check_text_consistency( ) const {
-    if ( !mydoc || !mydoc->checktext() ){
+    if ( !mydoc || !mydoc->checktext() || ! printable() ){
       return;
     }
     // check if the text associated with all children is compatible with the
@@ -1948,7 +1948,7 @@ namespace folia {
       p = p->next;
     }
     if ( doc() && ( doc()->checktext() || doc()->fixtext() )
-	 && is_structure( this )
+	 && this->printable()
 	 && !isSubClass( Morpheme_t ) && !isSubClass( Phoneme_t) ){
       vector<TextContent*> tv = select<TextContent>( false );
       // first see which text classes ar present
