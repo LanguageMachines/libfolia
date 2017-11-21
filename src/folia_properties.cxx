@@ -670,6 +670,7 @@ namespace folia {
     Comment::PROPS.LABEL = "Comment";
     Comment::PROPS.OPTIONAL_ATTRIBS = ID|ANNOTATOR|CONFIDENCE|DATETIME|N|METADATA;
     Comment::PROPS.XMLTAG = "comment";
+    Comment::PROPS.PRINTABLE = false;
 //------ ComplexAlignment -------
     ComplexAlignment::PROPS.ELEMENT_ID = ComplexAlignment_t;
     ComplexAlignment::PROPS.ACCEPTED_DATA += {Alignment_t, Comment_t, Description_t, Feature_t, ForeignData_t, Metric_t};

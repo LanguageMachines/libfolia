@@ -1035,11 +1035,13 @@ namespace folia {
     else if ( is_textcontainer() ){
       UnicodeString result;
       for ( const auto& d : data ){
-	if ( !result.isEmpty() ){
-	  const string& delim = d->getTextDelimiter( retaintok );
-	  result += UTF8ToUnicode(delim);
+	if ( d->printable() ){
+	  if ( !result.isEmpty() ){
+	    const string& delim = d->getTextDelimiter( retaintok );
+	    result += UTF8ToUnicode(delim);
+	  }
+	  result += d->text( cls );
 	}
-	result += d->text( cls );
       }
 #ifdef DEBUG_TEXT
       cerr << "TEXT op a textcontainer :" << xmltag() << " returned '" << result << "'" << endl;
@@ -1076,7 +1078,7 @@ namespace folia {
       result += d->text( cls, retaintok, strict );
     }
 #ifdef DEBUG_TEXT
-    cerr << "FoLiA::TEXT returnes '" << result << "'" << endl;
+    cerr << "FoLiA::TEXT returns '" << result << "'" << endl;
 #endif
     return result;
   }
@@ -3560,7 +3562,7 @@ namespace folia {
       if ( mydoc->debug ) {
 	cerr << "...Unresolvable id: " << id << endl;
       }
-      throw XmlError( "Unresolvable id " + id + "in WordReference" );
+      throw XmlError( "Unresolvable id " + id + " in WordReference" );
     }
     delete this;
     return res;
