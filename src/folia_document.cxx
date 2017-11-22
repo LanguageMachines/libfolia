@@ -286,21 +286,33 @@ namespace folia {
     if ( s.empty() ) {
       return;
     }
-    // cerr << _id << "-add docindex " << el << " (" << s << ")" << endl;
-    // using TiCC::operator <<;
-    // cerr << "VOOR: " << sindex << endl;
-    if ( sindex.find( s ) == sindex.end() ){
+    auto it = sindex.find( s );
+    if ( it == sindex.end() ){
       sindex[s] = el;
       iindex.push_back( el );
     }
-    else
+    else if ( it->second->xmltag() == "wref" ){
+      // assume forward reference
+      // replace by the real thing
+      sindex[s] = el;
+      auto pos = iindex.begin();
+      while( pos != iindex.end() ){
+	if ( *pos == it->second ){
+	  *pos = el;
+	return;
+      }
+      ++pos;
+    }
+      el->increfcount();
+    }
+    else {
       throw DuplicateIDError( s );
-    //    cerr << "NA  : " << sindex << endl;
+    }
   }
 
   void Document::delDocIndex( const FoliaElement* el, const string& s ){
     if ( sindex.empty() ){
-      // only when ~~Document is in progress
+      // only when ~Document is in progress
       return;
     }
     if ( s.empty() ) {

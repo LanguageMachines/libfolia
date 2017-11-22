@@ -1604,11 +1604,13 @@ namespace folia {
       }
     }
     if ( c->parent() &&
-	 !( c->element_id() == Word_t
+	 !( c->element_id() == WordReference_t
+	    || c->element_id() == Word_t
 	    || c->element_id() == Morpheme_t
 	    || c->element_id() == Phoneme_t ) ) {
-      throw XmlError( "attempt to reconnect node " + c->classname()
-		      + " to a " + classname() + " node, id=" + _id
+      throw XmlError( "attempt to reconnect node " + c->classname() + "("
+		      + c->id()
+		      + ") to a " + classname() + " node, id=" + _id
 		      + ", it was already connected to a "
 		      +  c->parent()->classname() + " id=" + c->parent()->id() );
     }
@@ -3545,8 +3547,8 @@ namespace folia {
   }
 
   FoliaElement* WordReference::parseXml( const xmlNode *node ) {
-    KWargs att = getAttributes( node );
-    string id = att["id"];
+    KWargs atts = getAttributes( node );
+    string id = atts["id"];
     if ( id.empty() ) {
       throw XmlError( "empty id in WordReference" );
     }
@@ -3559,10 +3561,14 @@ namespace folia {
       res->increfcount();
     }
     else {
-      if ( mydoc->debug ) {
-	cerr << "...Unresolvable id: " << id << endl;
+      auto it = atts.find("t");
+      if ( it != atts.end() ){
+	// word ref cannot store the 't' attribute.
+	// just HOPE it is the same the referenced word shows up
+	atts.erase(it);
       }
-      throw XmlError( "Unresolvable id " + id + " in WordReference" );
+      this->setAttributes( atts );
+      return this;
     }
     delete this;
     return res;
@@ -3793,12 +3799,20 @@ namespace folia {
     // append Word, Phon and Morpheme children as WREFS
     for ( const auto& el : data ) {
       if ( el->element_id() == Word_t ||
+	   el->element_id() == WordReference_t ||
 	   el->element_id() == Phoneme_t ||
 	   el->element_id() == Morpheme_t ) {
 	xmlNode *t = XmlNewNode( foliaNs(), "wref" );
 	KWargs attribs;
 	attribs["id"] = el->id();
-	string txt = el->str( textclass() );
+	string txt;
+	if ( el->element_id() == WordReference_t ){
+	  FoliaElement *ref = mydoc->index(el->id());
+	  txt = ref->str( textclass() );
+	}
+	else {
+	  txt = el->str( textclass() );
+	}
 	if ( !txt.empty() ) {
 	  attribs["t"] = txt;
 	}
