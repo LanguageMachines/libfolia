@@ -3555,16 +3555,31 @@ namespace folia {
     if ( mydoc->debug ) {
       cerr << "Found word reference" << id << endl;
     }
-    FoliaElement *res = (*mydoc)[id];
-    if ( res ) {
-      // To DO: check type. Word_t, Phoneme_t or Morpheme_t??
-      res->increfcount();
+    FoliaElement *ref = (*mydoc)[id];
+    if ( ref ) {
+      if ( ref->element_id() != Word_t
+	   && ref->element_id() != Phoneme_t
+	   && ref->element_id() != Morpheme_t ) {
+	throw XmlError( "WordRefence id=" + id + " refers a non-word: "
+			+ ref->xmltag() );
+      }
+      string tval = atts["t"];
+      if ( !tval.empty() ){
+	string tc = ref->textclass();
+	string rtval = ref->str(tc);
+	if ( tval != rtval ){
+	  throw XmlError( "WordRefence id=" + id + " has another value for "
+			  + " the t attribute them it's reference. ("
+			  + tval + " versus " + rtval + ")" );
+	}
+      }
+      ref->increfcount();
     }
     else {
       throw XmlError( "Unresolvable id " + id + " in WordReference" );
     }
     delete this;
-    return res;
+    return ref;
   }
 
   FoliaElement* AlignReference::parseXml( const xmlNode *node ) {

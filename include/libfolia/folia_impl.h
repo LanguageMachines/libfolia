@@ -453,6 +453,7 @@ namespace folia {
     virtual void setAuth( bool b ) = 0;
     virtual bool auth( ) const = 0;
     virtual const std::string generateId( const std::string& ) NOT_IMPLEMENTED;
+    virtual const std::string textclass() const NOT_IMPLEMENTED;
   };
 
   class FoliaImpl: public virtual FoliaElement {
