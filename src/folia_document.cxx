@@ -291,20 +291,6 @@ namespace folia {
       sindex[s] = el;
       iindex.push_back( el );
     }
-    else if ( it->second->xmltag() == "wref" ){
-      // assume forward reference
-      // replace by the real thing
-      sindex[s] = el;
-      auto pos = iindex.begin();
-      while( pos != iindex.end() ){
-	if ( *pos == it->second ){
-	  *pos = el;
-	return;
-      }
-      ++pos;
-    }
-      el->increfcount();
-    }
     else {
       throw DuplicateIDError( s );
     }

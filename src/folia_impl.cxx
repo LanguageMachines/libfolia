@@ -3561,14 +3561,7 @@ namespace folia {
       res->increfcount();
     }
     else {
-      auto it = atts.find("t");
-      if ( it != atts.end() ){
-	// word ref cannot store the 't' attribute.
-	// just HOPE it is the same the referenced word shows up
-	atts.erase(it);
-      }
-      this->setAttributes( atts );
-      return this;
+      throw XmlError( "Unresolvable id " + id + " in WordReference" );
     }
     delete this;
     return res;
@@ -3799,20 +3792,12 @@ namespace folia {
     // append Word, Phon and Morpheme children as WREFS
     for ( const auto& el : data ) {
       if ( el->element_id() == Word_t ||
-	   el->element_id() == WordReference_t ||
 	   el->element_id() == Phoneme_t ||
 	   el->element_id() == Morpheme_t ) {
 	xmlNode *t = XmlNewNode( foliaNs(), "wref" );
 	KWargs attribs;
 	attribs["id"] = el->id();
-	string txt;
-	if ( el->element_id() == WordReference_t ){
-	  FoliaElement *ref = mydoc->index(el->id());
-	  txt = ref->str( textclass() );
-	}
-	else {
-	  txt = el->str( textclass() );
-	}
+	string txt = el->str( textclass() );
 	if ( !txt.empty() ) {
 	  attribs["t"] = txt;
 	}
