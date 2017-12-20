@@ -204,7 +204,7 @@ namespace folia {
   void FoliaImpl::setAttributes( const KWargs& kwargs_in ) {
     KWargs kwargs = kwargs_in;
     Attrib supported = required_attributes() | optional_attributes();
-    // if ( element_id() == Reference_t ) {
+    // if ( element_id() == Division_t ) {
     //   cerr << "set attributes: " << kwargs << " on " << classname() << endl;
     //   cerr << "required = " <<  required_attributes() << endl;
     //   cerr << "optional = " <<  optional_attributes() << endl;
@@ -214,8 +214,7 @@ namespace folia {
     //   cerr << "_id=" << _id << endl;
     //   Reference*ref=dynamic_cast<Reference*>(this);
     //   cerr << "id=" << ref->refId << endl;
-
-    //   //   cerr << "AUTH : " << _auth << ", default=" << default_auth() << endl;
+    //   cerr << "AUTH : " << _auth << ", default=" << default_auth() << endl;
     // }
     if ( mydoc && mydoc->debug > 2 ) {
       cerr << "set attributes: " << kwargs << " on " << classname() << endl;
@@ -265,14 +264,20 @@ namespace folia {
     it = kwargs.find( "set" );
     string def;
     if ( it != kwargs.end() ) {
+      if ( !mydoc ) {
+	throw ValueError( "Set=" + _set + " is used on a node without a document." );
+      }
       if ( !( (CLASS & supported) || setonly() ) ) {
 	throw ValueError("Set is not supported for " + classname());
       }
       else {
-	_set = it->second;
-      }
-      if ( !mydoc ) {
-	throw ValueError( "Set=" + _set + " is used on a node without a document." );
+	string st = mydoc->unalias( annotation_type(), it->second);
+	if ( st.empty() ){
+	  _set = it->second;
+	}
+	else {
+	  _set = st;
+	}
       }
       if ( !mydoc->isDeclared( annotation_type(), _set ) ) {
 	throw ValueError( "Set " + _set + " is used but has no declaration " +
@@ -522,6 +527,22 @@ namespace folia {
     else
       _src.clear();
 
+    it = kwargs.find( "metadata" );
+    if ( it != kwargs.end() ) {
+      if ( !(METADATA & supported) ) {
+	throw ValueError( "Metadata attribute is not supported for " + classname() );
+      }
+      else {
+	_metadata = it->second;
+	if ( mydoc && mydoc->get_submetadata( _metadata ) == 0 ){
+	  throw KeyError( "No such metadata defined: " + _metadata );
+	}
+      }
+      kwargs.erase( it );
+    }
+    else
+      _metadata.clear();
+
     it = kwargs.find( "speaker" );
     if ( it != kwargs.end() ) {
       if ( !(SPEAKER & supported) ) {
@@ -598,7 +619,13 @@ namespace folia {
     if ( !_set.empty() &&
 	 _set != mydoc->defaultset( annotation_type() ) ) {
       isDefaultSet = false;
-      attribs["set"] = _set;
+      string ali = mydoc->alias( annotation_type(), _set );
+      if ( ali.empty() ){
+	attribs["set"] = _set;
+      }
+      else {
+	attribs["set"] = ali;
+      }
     }
     if ( !_class.empty() ) {
       attribs["class"] = _class;
@@ -658,6 +685,9 @@ namespace folia {
     if ( !_src.empty() ) {
       attribs["src"] = _src;
     }
+    if ( !_metadata.empty() ) {
+      attribs["metadata"] = _metadata;
+    }
     if ( !_speaker.empty() ) {
       attribs["speaker"] = _speaker;
     }
@@ -714,6 +744,92 @@ namespace folia {
       }
     }
     return att;
+  }
+
+  void FoliaImpl::check_append_text_consistency( const FoliaElement *child ) const {
+    if ( !mydoc || !mydoc->checktext() ){
+      return;
+    }
+    string cls = child->cls();
+    if ( !child->hastext( cls ) ){
+      // no use to proceed. not adding text
+      return;
+    }
+    FoliaElement *parent = this->parent();
+    if ( parent
+	 && parent->element_id() != Correction_t
+	 && parent->hastext( cls ) ){
+      // check text consistency for parents with text
+      // but SKIP Corrections
+      UnicodeString s1 = parent->text( cls, false, true );
+      UnicodeString s2 = child->text( cls, false, true );
+      // no retain tokenization, strict for both
+      s1 = normalize( s1 );
+      s2 = normalize( s2 );
+      bool test_fail = false;
+      if ( isSubClass( Word_t )
+	   || isSubClass( String_t ) ){
+	// Words and Strings are 'per definition' PART of there parents
+	test_fail = ( s1.indexOf( s2 ) < 0 ); // aren't they?
+      }
+      else {
+	// otherwise an exacte match is needed
+	test_fail = ( s1 != s2 );
+      }
+      if ( test_fail ){
+	throw InconsistentText( "text (class="
+				+ cls + ") from node: " + child->xmltag()
+				+ "(" + child->id() + ")"
+				+ " with value '" + UnicodeToUTF8(s2)
+				+ "' to element: " + parent->xmltag() +
+				+ "(" + parent->id() + ") which already has "
+				+ "text in that class and value: '"
+				+ UnicodeToUTF8(s1) + "'" );
+      }
+    }
+  }
+
+  void FoliaImpl::check_text_consistency( ) const {
+    if ( !mydoc || !mydoc->checktext() || ! printable() ){
+      return;
+    }
+    // check if the text associated with all children is compatible with the
+    // parents parental text.
+
+    string cls = this->cls();
+    FoliaElement *parent = this->parent();
+    if ( parent
+	 && parent->element_id() != Correction_t
+	 && parent->hastext( cls ) ){
+      // check text consistency for parents with text
+      // but SKIP Corrections
+      UnicodeString s1 = parent->text( cls, false, true );
+      UnicodeString s2 = this->text( cls, false, false );
+      // no retain tokenization, strict for parent, deeper for child
+      s1 = normalize( s1 );
+      s2 = normalize( s2 );
+      bool test_fail = false;
+      test_fail = ( s1 != s2 );
+      if ( isSubClass( Word_t )
+	   || isSubClass( String_t ) ) {
+	// Words and Strings are 'per definition' PART of there parents
+	test_fail = ( s1.indexOf( s2 ) < 0 ); // aren't they?
+      }
+      else {
+	// otherwise an exacte match is needed
+	test_fail = ( s1 != s2 );
+      }
+     if ( test_fail ){
+	throw InconsistentText( "text (class="
+				+ cls + ") from node: " + xmltag()
+				+ "(" + id() + ")"
+				+ " with value '" + UnicodeToUTF8(s2)
+				+ "' to element: " + parent->xmltag() +
+				+ "(" + parent->id() + ") which already has "
+				+ "text in that class and value: '"
+				+ UnicodeToUTF8(s1) + "'" );
+      }
+    }
   }
 
   xmlNode *FoliaImpl::xml( bool recursive, bool kanon ) const {
@@ -798,6 +914,7 @@ namespace folia {
 	  xmlAddChild( e, oem.second->xml( recursive, kanon ) );
 	}
       }
+      check_text_consistency();
     }
     return e;
   }
@@ -868,6 +985,17 @@ namespace folia {
     }
   }
 
+  bool FoliaElement::hasphon( const string& cls ) const {
+    // does this element have a TextContent with class 'cls'
+    // Default is class="current"
+    try {
+      this->phoncontent(cls);
+      return true;
+    } catch (NoSuchPhon& e ) {
+      return false;
+    }
+  }
+
   //#define DEBUG_TEXT
   //#define DEBUG_TEXT_DEL
 
@@ -907,11 +1035,13 @@ namespace folia {
     else if ( is_textcontainer() ){
       UnicodeString result;
       for ( const auto& d : data ){
-	if ( !result.isEmpty() ){
-	  const string& delim = d->getTextDelimiter( retaintok );
-	  result += UTF8ToUnicode(delim);
+	if ( d->printable() ){
+	  if ( !result.isEmpty() ){
+	    const string& delim = d->getTextDelimiter( retaintok );
+	    result += UTF8ToUnicode(delim);
+	  }
+	  result += d->text( cls );
 	}
-	result += d->text( cls );
       }
 #ifdef DEBUG_TEXT
       cerr << "TEXT op a textcontainer :" << xmltag() << " returned '" << result << "'" << endl;
@@ -948,7 +1078,7 @@ namespace folia {
       result += d->text( cls, retaintok, strict );
     }
 #ifdef DEBUG_TEXT
-    cerr << "FoLiA::TEXT returnes '" << result << "'" << endl;
+    cerr << "FoLiA::TEXT returns '" << result << "'" << endl;
 #endif
     return result;
   }
@@ -1153,7 +1283,7 @@ namespace folia {
 	return dynamic_cast<const TextContent*>(this);
       }
       else {
-	throw NoSuchText( xmltag() + "::textcontent(" + cls + ")" );
+	throw NoSuchText( "TextContent::textcontent(" + cls + ")" );
       }
     }
     if ( !printable() ) {
@@ -1344,6 +1474,18 @@ namespace folia {
     return 0;
   }
 
+  void FoliaElement::cleartextcontent( const string& textclass ){
+    for ( size_t i=0; i < size(); ++i ){
+      FoliaElement *p = index(i);
+      if ( p->element_id() == TextContent_t ) {
+	if ( p->cls() == textclass ){
+	  remove(p,true);
+	  break;
+	}
+      }
+    }
+  }
+
   TextContent *FoliaElement::settext( const string& txt,
 				      const string& cls ){
     // create a TextContent child of class 'cls'
@@ -1361,7 +1503,7 @@ namespace folia {
       UnicodeString txt_u = UTF8ToUnicode( txt );
       txt_u = normalize( txt_u );
       if ( !deeper_u.isEmpty() && txt_u != deeper_u ){
-	throw XmlError( "settext(cls=" + cls + "): deeper text differs from attempted\ndeeper='" + UnicodeToUTF8(deeper_u) + "'\nattempted='" + txt + "'" );
+	throw InconsistentText( "settext(cls=" + cls + "): deeper text differs from attempted\ndeeper='" + UnicodeToUTF8(deeper_u) + "'\nattempted='" + txt + "'" );
       }
     }
     KWargs args;
@@ -1399,15 +1541,14 @@ namespace folia {
       UnicodeString txt_u = UTF8ToUnicode( txt );
       txt_u = normalize( txt_u );
       if ( !deeper_u.isEmpty() && txt_u != deeper_u ){
-	throw XmlError( "settext(cls=" + cls + "): deeper text differs from attempted\ndeeper='" + UnicodeToUTF8(deeper_u) + "'\nattempted='" + txt + "'" );
+	throw InconsistentText( "settext(cls=" + cls + "): deeper text differs from attempted\ndeeper='" + UnicodeToUTF8(deeper_u) + "'\nattempted='" + txt + "'" );
       }
     }
     KWargs args;
     args["value"] = txt;
     args["class"] = cls;
     args["offset"] = TiCC::toString(offset);
-    TextContent *node = new TextContent( doc() );
-    node->setAttributes( args );
+    TextContent *node = new TextContent( args, doc() );
     replace( node );
     return node;
   }
@@ -1463,11 +1604,13 @@ namespace folia {
       }
     }
     if ( c->parent() &&
-	 !( c->element_id() == Word_t
+	 !( c->element_id() == WordReference_t
+	    || c->element_id() == Word_t
 	    || c->element_id() == Morpheme_t
 	    || c->element_id() == Phoneme_t ) ) {
-      throw XmlError( "attempt to reconnect node " + c->classname()
-		      + " to a " + classname() + " node, id=" + _id
+      throw XmlError( "attempt to reconnect node " + c->classname() + "("
+		      + c->id()
+		      + ") to a " + classname() + " node, id=" + _id
 		      + ", it was already connected to a "
 		      +  c->parent()->classname() + " id=" + c->parent()->id() );
     }
@@ -1491,26 +1634,7 @@ namespace folia {
 	  }
 	}
       }
-      FoliaElement *parent = this->parent();
-      if ( parent && parent->element_id() != Correction_t
-	   && ( parent->doc() != 0 && parent->doc()->checktext() )
-	   && parent->hastext( cls ) ){
-	// check text consistency
-	UnicodeString s1 = parent->text( cls, false, true );
-	UnicodeString s2 = c->text( cls, false, true );
-	// no retain tokenization, strict for both
-	s1 = normalize( s1 );
-	s2 = normalize( s2 );
-	int pos = s1.indexOf( s2 );
-	if ( pos < 0 ){
-	  throw XmlError( "attempt to add <t> with class="
-			  + cls + " and text '" + UnicodeToUTF8(s2)
-			  + "' to element: " + _id + " with parent "
-			  + parent->id()
-			  + " which already has a <t> with that class and text: '"
-			  + UnicodeToUTF8(s1) + "'" );
-	}
-      }
+      check_append_text_consistency( c );
     }
     return true;
   }
@@ -1585,6 +1709,10 @@ namespace folia {
 	 && ( SRC & required_attributes() ) ) {
       throw ValueError( "attribute 'src' is required for " + classname() );
     }
+    if ( _metadata.empty()
+	 && ( METADATA & required_attributes() ) ) {
+      throw ValueError( "attribute 'metadata' is required for " + classname() );
+    }
     if ( _speaker.empty()
 	 && ( SPEAKER & required_attributes() ) ) {
       throw ValueError( "attribute 'speaker' is required for " + classname() );
@@ -1630,6 +1758,26 @@ namespace folia {
   FoliaElement *FoliaImpl::postappend( ) {
     if ( id().empty() && (ID & required_attributes()) && auto_generate_id() ){
       _id = generateId( xmltag() );
+    }
+    return this;
+  }
+
+  FoliaElement *TextContent::postappend( ) {
+    if ( mydoc ){
+      if ( mydoc->checktext()
+	   && _offset != -1
+	   && ( _parent && parent()->auth() ) ){
+	mydoc->cache_textcontent(this);
+      }
+    }
+    return this;
+  }
+
+  FoliaElement *PhonContent::postappend( ) {
+    if ( mydoc ){
+      if ( mydoc->checktext() && _offset != -1 ){
+	mydoc->cache_phoncontent(this);
+      }
     }
     return this;
   }
@@ -1763,20 +1911,35 @@ namespace folia {
 	  }
 	}
       }
-      else if ( p->type == XML_TEXT_NODE ) {
-	string tag = "_XmlText";
-	FoliaElement *t = createElement( tag, doc() );
-	if ( t ) {
+      else if ( p->type == XML_TEXT_NODE ){
+	if ( this->isSubClass( TextContent_t )
+	     || this->isSubClass( PhonContent_t )
+	     || this->isSubClass( AbstractTextMarkup_t ) ){
+	  XmlText *t = new XmlText();
+	  if ( p->content ) {
+	    t->setvalue( (const char*)p->content );
+	  }
 	  if ( doc() && doc()->debug > 2 ) {
-	    cerr << "created " << t << endl;
+	    cerr << "created " << t << "(" << t->text() << ")" << endl;
+	    cerr << "extend " << this << " met " << t << endl;
 	  }
-	  try {
-	    t = t->parseXml( p );
-	  }
-	  catch ( ValueError& ){
-	    // ignore empty content
-	    delete t;
-	    t = 0;
+	  append( t );
+	}
+	else {
+	  //most probably this always 'empty space'
+	  string tag = "_XmlText";
+	  FoliaElement *t = createElement( tag, doc() );
+	  if ( t ) {
+	    if ( doc() && doc()->debug > 2 ) {
+	      cerr << "created " << t << endl;
+	    }
+	    try {
+	      t = t->parseXml( p );
+	    }
+	    catch ( ValueError& e ){
+	      delete t;
+	      t = 0;
+	    }
 	  }
 	  if ( t ) {
 	    if ( doc() && doc()->debug > 2 ) {
@@ -1789,7 +1952,7 @@ namespace folia {
       p = p->next;
     }
     if ( doc() && ( doc()->checktext() || doc()->fixtext() )
-	 && is_structure( this )
+	 && this->printable()
 	 && !isSubClass( Morpheme_t ) && !isSubClass( Phoneme_t) ){
       vector<TextContent*> tv = select<TextContent>( false );
       // first see which text classes ar present
@@ -1827,7 +1990,7 @@ namespace folia {
 		+ ") has a mismatch for the text in set:" + st
 		+ "\nthe element text ='" + UnicodeToUTF8(s1)
 		+ "'\n" + "the deeper text ='" + UnicodeToUTF8(s2) + "'";
-	      throw( XmlError( mess ) );
+	      throw( InconsistentText( mess ) );
 	    }
 	  }
 	}
@@ -2231,15 +2394,15 @@ namespace folia {
     KWargs kwargs = args; // need to copy
     auto it = kwargs.find( "value" );
     if ( it != kwargs.end() ) {
-      XmlText *t = new XmlText();
       string value = it->second;
+      kwargs.erase(it);
       if ( value.empty() ) {
 	// can this ever happen?
 	throw ValueError( "TextContent: 'value' attribute may not be empty." );
       }
+      XmlText *t = new XmlText();
       t->setvalue( value );
       append( t );
-      kwargs.erase(it);
     }
     it = kwargs.find( "offset" );
     if ( it != kwargs.end() ) {
@@ -2250,7 +2413,8 @@ namespace folia {
       _offset = -1;
     it = kwargs.find( "ref" );
     if ( it != kwargs.end() ) {
-      throw NotImplementedError( "ref attribute in TextContent" );
+      _ref = it->second;
+      kwargs.erase(it);
     }
     it = kwargs.find( "class" );
     if ( it == kwargs.end() ) {
@@ -2279,6 +2443,58 @@ namespace folia {
     FoliaImpl::setAttributes(kwargs);
   }
 
+  FoliaElement *TextContent::finddefaultreference() const {
+    int depth = 0;
+    FoliaElement *p = parent();
+    while ( p ){
+      if ( p->isSubClass( String_t )
+	   || p->isSubClass( AbstractStructureElement_t )
+	   || p->isSubClass( AbstractTokenAnnotation_t ) ){
+	if ( ++depth == 2 ){
+	  return p;
+	}
+      }
+      p = p->parent();
+    }
+    return 0;
+  }
+
+  FoliaElement *TextContent::getreference() const {
+    FoliaElement *ref = 0;
+    if ( _offset == -1 ){
+      return 0;
+    }
+    else if ( !_ref.empty() ){
+      try{
+	ref = (*mydoc)[_ref];
+      }
+      catch (...){
+      }
+    }
+    else {
+      ref = finddefaultreference();
+    }
+    if ( !ref ){
+      throw UnresolvableTextContent( "Default reference for textcontent not found!" );
+    }
+    else if ( !ref->hastext( _class ) ){
+      throw UnresolvableTextContent( "Reference (ID " + _ref + ") has no such text (class=" + _class + ")" );
+    }
+    else if ( mydoc->checktext() ){
+      UnicodeString mt = this->text( this->cls(), false, true );
+      UnicodeString pt = ref->text( this->cls(), false, true );
+      UnicodeString sub( pt, this->offset(), mt.length() );
+      if ( mt != sub ){
+	throw UnresolvableTextContent( "Reference (ID " + ref->id() + ",class='"
+				       + cls() + "') found, but no text match at "
+				       + "offset=" + TiCC::toString(offset())
+				       + " Expected " + UnicodeToUTF8(mt)
+				       + " but got " +  UnicodeToUTF8(sub) );
+      }
+    }
+    return ref;
+  }
+
   KWargs TextContent::collectAttributes() const {
     KWargs attribs = FoliaImpl::collectAttributes();
     if ( _class == "current" ) {
@@ -2292,6 +2508,57 @@ namespace folia {
       attribs["offset"] = TiCC::toString( _offset );
     }
     return attribs;
+  }
+
+  FoliaElement *PhonContent::finddefaultreference() const {
+    int depth = 0;
+    FoliaElement *p = parent();
+    while ( p ){
+      if ( p->isSubClass( AbstractStructureElement_t )
+	   || p->isSubClass( AbstractTokenAnnotation_t ) ){
+	if ( ++depth == 2 ){
+	  return p;
+	}
+      }
+      p = p->parent();
+    }
+    return 0;
+  }
+
+   FoliaElement *PhonContent::getreference() const {
+    FoliaElement *ref = 0;
+    if ( _offset == -1 ){
+      return 0;
+    }
+    else if ( !_ref.empty() ){
+      try{
+	ref = (*mydoc)[_ref];
+      }
+      catch (...){
+      }
+    }
+    else {
+      ref = finddefaultreference();
+    }
+    if ( !ref ){
+      throw UnresolvableTextContent( "Default reference for phonetic content not found!" );
+    }
+    else if ( !ref->hasphon( _class ) ){
+      throw UnresolvableTextContent( "Reference (ID " + _ref + ") has no such phonetic content (class=" + _class + ")" );
+    }
+    else if ( mydoc->checktext() ){
+      UnicodeString mt = this->phon( this->cls(), false );
+      UnicodeString pt = ref->phon( this->cls(), false );
+      UnicodeString sub( pt, this->offset(), mt.length() );
+      if ( mt != sub ){
+	throw UnresolvableTextContent( "Reference (ID " + ref->id() + ",class="
+				       + cls() + " found, but no text match at "
+				       + "offset=" + TiCC::toString(offset())
+				       + " Expected " + UnicodeToUTF8(mt)
+				       + " but got " +  UnicodeToUTF8(sub) );
+      }
+    }
+    return ref;
   }
 
   KWargs PhonContent::collectAttributes() const {
@@ -2326,7 +2593,7 @@ namespace folia {
   }
 
   KWargs Linebreak::collectAttributes() const {
-    KWargs atts;
+    KWargs atts = FoliaImpl::collectAttributes();
     if ( ! _linenr.empty() ){
       atts["linenr"] = _linenr;
     }
@@ -2425,7 +2692,7 @@ namespace folia {
 	  i = stringTo<int>( val );
 	}
 	catch ( exception ) {
-	  // no number, so assume so user defined id
+	  // no number, so assume some user defined id
 	  return;
 	}
 	const auto& it = id_map.find( child->xmltag() );
@@ -3280,27 +3547,39 @@ namespace folia {
   }
 
   FoliaElement* WordReference::parseXml( const xmlNode *node ) {
-    KWargs att = getAttributes( node );
-    string id = att["id"];
+    KWargs atts = getAttributes( node );
+    string id = atts["id"];
     if ( id.empty() ) {
       throw XmlError( "empty id in WordReference" );
     }
     if ( mydoc->debug ) {
       cerr << "Found word reference" << id << endl;
     }
-    FoliaElement *res = (*mydoc)[id];
-    if ( res ) {
-      // To DO: check type. Word_t, Phoneme_t or Morpheme_t??
-      res->increfcount();
+    FoliaElement *ref = (*mydoc)[id];
+    if ( ref ) {
+      if ( ref->element_id() != Word_t
+	   && ref->element_id() != Phoneme_t
+	   && ref->element_id() != Morpheme_t ) {
+	throw XmlError( "WordRefence id=" + id + " refers a non-word: "
+			+ ref->xmltag() );
+      }
+      string tval = atts["t"];
+      if ( !tval.empty() ){
+	string tc = ref->textclass();
+	string rtval = ref->str(tc);
+	if ( tval != rtval ){
+	  throw XmlError( "WordRefence id=" + id + " has another value for "
+			  + " the t attribute them it's reference. ("
+			  + tval + " versus " + rtval + ")" );
+	}
+      }
+      ref->increfcount();
     }
     else {
-      if ( mydoc->debug ) {
-	cerr << "...Unresolvable id: " << id << endl;
-      }
-      throw XmlError( "Unresolvable id " + id + "in WordReference" );
+      throw XmlError( "Unresolvable id " + id + " in WordReference" );
     }
     delete this;
-    return res;
+    return ref;
   }
 
   FoliaElement* AlignReference::parseXml( const xmlNode *node ) {
@@ -3439,31 +3718,31 @@ namespace folia {
     // If there is no set (yet), try to get the set from the child
     // but not if it is the default set.
     // for a Correction child, we look deeper.
-    if ( _set.empty() ) {
-      if ( child->isSubClass( AbstractSpanAnnotation_t ) ) {
-	string st = child->sett();
-	if ( !st.empty()
-	     && mydoc->defaultset( child->annotation_type() ) != st ) {
-	  _set = st;
-	  mydoc->incrRef( child->annotation_type(), _set );
-	}
+    // BARF when the sets are incompatible.
+    string c_set;
+    if ( child->isSubClass( AbstractSpanAnnotation_t ) ) {
+      string st = child->sett();
+      if ( !st.empty()
+	   && mydoc->defaultset( child->annotation_type() ) != st ) {
+	c_set = st;
       }
-      else if ( child->isinstance(Correction_t) ) {
-	Original *org = child->getOriginal();
-	if ( org ) {
-	  for ( size_t i=0; i < org->size(); ++i ) {
-	    FoliaElement *el = org->index(i);
-	    if ( el->isSubClass( AbstractSpanAnnotation_t ) ) {
-	      string st = el->sett();
-	      if ( !st.empty()
-		   && mydoc->defaultset( el->annotation_type() ) != st ) {
-		_set = st;
-		mydoc->incrRef( el->annotation_type(), _set );
-		return;
-	      }
+    }
+    else if ( child->isinstance(Correction_t) ) {
+      Original *org = child->getOriginal();
+      if ( org ) {
+	for ( size_t i=0; i < org->size(); ++i ) {
+	  FoliaElement *el = org->index(i);
+	  if ( el->isSubClass( AbstractSpanAnnotation_t ) ) {
+	    string st = el->sett();
+	    if ( !st.empty()
+		 && mydoc->defaultset( el->annotation_type() ) != st ) {
+	      c_set = st;
+	      break;
 	    }
 	  }
 	}
+      }
+      if ( c_set.empty() ){
 	New *nw = child->getNew();
 	if ( nw ) {
 	  for ( size_t i=0; i < nw->size(); ++i ) {
@@ -3472,33 +3751,46 @@ namespace folia {
 	      string st = el->sett();
 	      if ( !st.empty()
 		   && mydoc->defaultset( el->annotation_type() ) != st ) {
-		_set = st;
-		mydoc->incrRef( el->annotation_type(), _set );
-		return;
+		c_set = st;
+		break;
 	      }
 	    }
 	  }
 	}
+      }
+      if ( c_set.empty() ){
 	auto v = child->suggestions();
 	for ( const auto& el : v ) {
 	  if ( el->isSubClass( AbstractSpanAnnotation_t ) ) {
 	    string st = el->sett();
 	    if ( !st.empty()
 		 && mydoc->defaultset( el->annotation_type() ) != st ) {
-	      _set = st;
-	      mydoc->incrRef( el->annotation_type(), _set );
-	      return;
+	      c_set = st;
+	      break;
 	    }
 	  }
 	}
       }
     }
+    if ( c_set.empty() ){
+      return;
+    }
+    if ( _set.empty() ) {
+      _set = c_set;
+    }
+    else if ( _set != c_set ){
+      throw DuplicateAnnotationError( "appending child: " + child->xmltag()
+				      + " with set='"
+				      +  c_set + "' to " + xmltag()
+				      + " failed while it already has set='"
+				      + _set + "'" );
+    }
+    mydoc->incrRef( child->annotation_type(), _set );
   }
 
   FoliaElement *AbstractAnnotationLayer::append( FoliaElement *child ) {
-    FoliaImpl::append( child );
     assignset( child );
-    return child;
+    return FoliaImpl::append( child );
   }
 
   KWargs AbstractAnnotationLayer::collectAttributes() const {
@@ -3520,7 +3812,7 @@ namespace folia {
 	xmlNode *t = XmlNewNode( foliaNs(), "wref" );
 	KWargs attribs;
 	attribs["id"] = el->id();
-	string txt = el->str();
+	string txt = el->str( textclass() );
 	if ( !txt.empty() ) {
 	  attribs["t"] = txt;
 	}
@@ -3603,9 +3895,18 @@ namespace folia {
 #ifdef DEBUG_TEXT
       cerr << "data=" << el << endl;
 #endif
-       if ( el->isinstance( New_t ) || el->isinstance( Current_t ) ) {
-         return el->text( cls, retaintok );
-       }
+      if ( el->isinstance( New_t )
+	   ||( el->isinstance( Original_t ) && cls != "current" )
+	   || el->isinstance( Current_t ) ){
+	UnicodeString result;
+	try {
+	  result = el->text( cls, retaintok );
+	  return result;
+	}
+	catch ( ... ){
+	  // try other nodes
+	}
+      }
     }
     throw NoSuchText( "cls=" + cls );
   }
@@ -3845,12 +4146,11 @@ namespace folia {
   }
 
   FoliaElement* XmlText::parseXml( const xmlNode *node ) {
-    string tmp;
     if ( node->content ) {
       _value = (const char*)node->content;
-      tmp = trim( _value );
+      _value = trim( _value );
     }
-    if ( tmp.empty() ) {
+    if ( _value.empty() ) {
       throw ValueError( "TextContent may not be empty" );
     }
     return this;
@@ -4071,6 +4371,18 @@ namespace folia {
     return "";
   }
 
+  ForeignMetaData::~ForeignMetaData(){
+    for ( const auto& it : foreigners ){
+      delete it;
+    }
+  }
+
+  void ForeignMetaData::add_foreign( const xmlNode *node ){
+    ForeignData *fd = new ForeignData();
+    fd->set_data( node );
+    foreigners.push_back( fd );
+  }
+
   ForeignData::~ForeignData(){
     xmlFreeNode( _foreign_data );
   }
@@ -4120,6 +4432,38 @@ namespace folia {
     xmlNode *result = xmlCopyNode(_foreign_data, 1 );
     clean_ns( result, NSFOLIA ); // HACK: remove FoLiA namespace def
     return result;
+  }
+
+  const MetaData* FoliaImpl::getmetadata() const {
+    // Get the metadata that applies to this element,
+    // automatically inherited from parent elements
+    if ( !_metadata.empty() && doc() ){
+      return doc()->get_submetadata(_metadata);
+    }
+    else if ( parent() ){
+      return parent()->getmetadata();
+    }
+    else {
+      return 0;
+    }
+  }
+
+  const string FoliaImpl::getmetadata( const std::string& key ) const {
+    // Get the metadata that applies to this element,
+    // automatically inherited from parent elements
+    if ( !_metadata.empty() && doc() ){
+      const MetaData *what = doc()->get_submetadata(_metadata);
+      if ( what && what->datatype() == "NativeMetaData" && !key.empty() ){
+	return what->get_val( key );
+      }
+      return "";
+    }
+    else if ( parent() ){
+      return parent()->getmetadata( key );
+    }
+    else {
+      return "";
+    }
   }
 
   KWargs AbstractTextMarkup::collectAttributes() const {

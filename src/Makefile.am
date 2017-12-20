@@ -1,11 +1,11 @@
 AM_CPPFLAGS = -I@top_srcdir@/include
-AM_CXXFLAGS = -std=c++0x -g -O3 -W -Wall -pedantic
+AM_CXXFLAGS = -std=c++11 -g -O3 -W -Wall -pedantic
 
 
 LDADD = libfolia.la
 
 lib_LTLIBRARIES = libfolia.la
-libfolia_la_LDFLAGS = -version-info 6:2:0
+libfolia_la_LDFLAGS = -version-info 7:0:0
 
 libfolia_la_SOURCES = folia_impl.cxx folia_document.cxx folia_utils.cxx \
 	folia_types.cxx folia_properties.cxx

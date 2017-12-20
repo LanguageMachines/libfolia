@@ -56,6 +56,7 @@ namespace folia {
   class DependencyDependent;
   class Paragraph;
   class Morpheme;
+  class MetaData;
 
   class properties;
   extern const std::set<ElementType> default_ignore_annotations;
@@ -201,6 +202,9 @@ namespace folia {
     virtual MorphologyLayer *getMorphologyLayers( const std::string&,
 						  std::vector<MorphologyLayer*>& ) const NOT_IMPLEMENTED;
 
+    virtual const MetaData *getmetadata() const = 0;
+    virtual const std::string getmetadata( const std::string& ) const = 0;
+
     template <typename F>
       std::vector<F*> annotations( const std::string& s = "" ) const {
       if ( allowannotations() ){
@@ -270,6 +274,9 @@ namespace folia {
 
     // text/string content
     bool hastext( const std::string& = "current" ) const;
+    bool hasphon( const std::string& = "current" ) const;
+    virtual void check_text_consistency() const = 0;
+    virtual void check_append_text_consistency( const FoliaElement * ) const = 0;
 
     virtual const std::string str( const std::string& = "current" ) const = 0;
     const UnicodeString unicode( const std::string& cls = "current" ) const { return text( cls ); };
@@ -281,6 +288,8 @@ namespace folia {
 				bool = false ) const = 0;
     virtual bool printable() const = 0;
     virtual bool speakable() const = 0;
+    virtual bool is_textcontainer() const = 0;
+    virtual bool is_phoncontainer() const = 0;
 
     // Word
     virtual Word *previous() const NOT_IMPLEMENTED;
@@ -293,7 +302,7 @@ namespace folia {
     virtual std::vector<Word*> rightcontext( size_t,
 					     const std::string& ="" ) const NOT_IMPLEMENTED;
     virtual Word *addWord( const KWargs& ) = 0;
-    Word *addWord( const std::string& s ){
+    Word *addWord( const std::string& s="" ){
       return addWord( getArgs(s) );
     }
 
@@ -347,6 +356,7 @@ namespace folia {
 			   const std::string& = "current" );
     virtual int offset() const NOT_IMPLEMENTED;
 
+    void cleartextcontent( const std::string& = "current" );
     // PhonContent
     virtual const PhonContent *phoncontent( const std::string& = "current" ) const = 0;
 
@@ -441,7 +451,9 @@ namespace folia {
     virtual void setAttributes( const KWargs& ) = 0;
     virtual KWargs collectAttributes() const = 0;
     virtual void setAuth( bool b ) = 0;
+    virtual bool auth( ) const = 0;
     virtual const std::string generateId( const std::string& ) NOT_IMPLEMENTED;
+    virtual const std::string textclass() const NOT_IMPLEMENTED;
   };
 
   class FoliaImpl: public virtual FoliaElement {
@@ -464,7 +476,7 @@ namespace folia {
 
     void classInit( const KWargs& a ){
       // this funcion is needed because calling the virtual function
-      // setAttributes from the constuctor will NOT call the right version
+      // setAttributes from the constructor will NOT call the right version
       // THIS IS BY DESIGN.
       init(); // virtual init
       setAttributes( a ); // also virtual!
@@ -499,6 +511,10 @@ namespace folia {
 
     // Sentences
     Sentence *addSentence( const KWargs& );
+
+    const MetaData *getmetadata() const;
+    const std::string getmetadata( const std::string&  ) const;
+
 
     // Selections
     template <typename F>
@@ -632,6 +648,8 @@ namespace folia {
     Document *doc() const { return mydoc; };
 
     bool checkAtts();
+    void check_text_consistency() const;
+    void check_append_text_consistency( const FoliaElement * ) const;
 
     std::vector<FoliaElement*> select( ElementType elementtype,
 				       bool = true ) const;
@@ -672,6 +690,7 @@ namespace folia {
     std::string _endtime;
     std::string _speaker;
     std::string _textclass;
+    std::string _metadata;
     AnnotatorType _annotator_type;
     double _confidence;
     int _refcount;
@@ -875,6 +894,69 @@ namespace folia {
     xmlNode *_foreign_data;
   };
 
+#define META_NOT_IMPLEMENTED {						\
+    throw NotImplementedError( "MetaTags::" + std::string(__func__) ); \
+  }
+
+  class MetaData {
+  public:
+  MetaData( const std::string& type ): _type(type){};
+    virtual ~MetaData(){};
+    virtual void add_av( const std::string&, const std::string& ) META_NOT_IMPLEMENTED;
+    virtual const KWargs& get_avs() const META_NOT_IMPLEMENTED;
+    virtual const std::string get_val( const std::string& ) const {
+      return "";
+    }
+    virtual void add_foreign( const xmlNode * ) META_NOT_IMPLEMENTED;
+    virtual std::string datatype() const { return "BaseMetaData"; };
+    std::string type() const { return _type; };
+    virtual std::string src() const META_NOT_IMPLEMENTED;
+    virtual const std::vector<FoliaElement*> get_foreigners() const META_NOT_IMPLEMENTED;
+  private:
+    std::string _type;
+  };
+
+  class NativeMetaData: public MetaData {
+  public:
+    explicit NativeMetaData( const std::string& t ): MetaData(t) {};
+    void add_av( const std::string& a, const std::string& v )
+    { _attribs[a] = v; };
+    const KWargs& get_avs() const {
+      return _attribs;
+    }
+    const std::string get_val( const std::string& at ) const {
+      auto const& it = _attribs.find( at );
+      if ( it != _attribs.end() ){
+	return it->second;
+      }
+      return "";
+    }
+    std::string datatype() const { return "NativeMetaData"; };
+  private:
+    KWargs _attribs;
+  };
+
+  class ForeignMetaData: public MetaData {
+  public:
+  ForeignMetaData( const std::string& t ): MetaData(t) {};
+    ~ForeignMetaData();
+    void add_foreign( const xmlNode * );
+    std::string datatype() const { return "ForeignMetaData"; };
+    const std::vector<FoliaElement*> get_foreigners() const { return foreigners;};
+  private:
+    std::vector<FoliaElement*> foreigners;
+  };
+
+  class ExternalMetaData: public MetaData {
+  public:
+  ExternalMetaData( const std::string& t,
+		    const std::string& src ): MetaData(t) { _src = src; };
+    std::string datatype() const { return "ExternalMetaData"; };
+    std::string src() const { return _src; };
+  private:
+    std::string _src;
+  };
+
   const std::string EMPTY_STRING = "";
 
   class AbstractTextMarkup: public FoliaImpl {
@@ -975,10 +1057,15 @@ namespace folia {
       _class="current";
       return res;
     }
+    FoliaElement *postappend();
+    FoliaElement *getreference() const;
+    std::string ref() const { return _ref; };
   private:
     void init();
+    FoliaElement *finddefaultreference() const;
     static properties PROPS;
     int _offset;
+    std::string _ref;
   };
 
   class PhonContent: public FoliaImpl {
@@ -993,10 +1080,15 @@ namespace folia {
     const UnicodeString phon( const std::string& = "current",
 			      bool = false ) const;
     int offset() const { return _offset; };
+    FoliaElement *postappend();
+    FoliaElement *getreference() const;
+    std::string ref() const { return _ref; };
   private:
     void init();
+    FoliaElement *finddefaultreference() const;
     static properties PROPS;
     int _offset;
+    std::string _ref;
   };
 
   class FoLiA: public FoliaImpl {

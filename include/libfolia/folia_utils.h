@@ -56,6 +56,7 @@ namespace folia {
   class KeyError: public std::out_of_range {
   public:
     explicit KeyError(): std::out_of_range( "key out of range" ){};
+    KeyError( const std::string& s ): std::out_of_range( "key out of range: " + s ){};
   };
 
   class NotImplementedError: public std::runtime_error {
@@ -72,6 +73,11 @@ namespace folia {
   class XmlError: public std::runtime_error {
   public:
     explicit XmlError( const std::string& s ): std::runtime_error( "XML error: " + s ){};
+  };
+
+  class MetaDataError: public std::runtime_error {
+  public:
+    explicit MetaDataError( const std::string& s ): std::runtime_error( "MetaData problem: " + s ){};
   };
 
   class NoSuchAnnotation: public std::runtime_error {
@@ -102,6 +108,16 @@ namespace folia {
   class NoDefaultError: public std::runtime_error {
   public:
     explicit NoDefaultError( const std::string& s ): std::runtime_error( "No Default found: " + s ){};
+  };
+
+  class InconsistentText: public std::runtime_error {
+  public:
+    explicit InconsistentText( const std::string& s ): std::runtime_error( "inconsistent text: " + s ){};
+  };
+
+  class UnresolvableTextContent: public std::runtime_error {
+  public:
+    explicit UnresolvableTextContent( const std::string& s ): std::runtime_error( "Unresolvable text: " + s ){};
   };
 
   UnicodeString UTF8ToUnicode( const std::string& );
