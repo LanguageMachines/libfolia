@@ -50,12 +50,17 @@ if test $prefix = "NONE"; then
 fi
 
 PKG_PROG_PKG_CONFIG
+if test "x$prefix" = "xNONE"; then
+   prefix="/usr/local"
+fi
 
 if test "x$PKG_CONFIG_PATH" = x; then
-   export PKG_CONFIG_PATH="$prefix/lib/pkgconfig"
+    export PKG_CONFIG_PATH="$prefix/lib/pkgconfig"
 else
-   export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:$prefix/lib/pkgconfig"
+    export PKG_CONFIG_PATH="$prefix/lib/pkgconfig:$PKG_CONFIG_PATH"
 fi
+
+AC_OSX_PKG( [icu4c] )
 
 AC_ARG_WITH(icu,
        [  --with-icu=DIR       use icu installed in <DIR>],
