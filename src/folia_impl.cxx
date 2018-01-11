@@ -40,6 +40,7 @@
 #include "ticcutils/PrettyPrint.h"
 #include "ticcutils/StringOps.h"
 #include "ticcutils/XMLtools.h"
+#include "ticcutils/Unicode.h"
 #include "libfolia/folia.h"
 #include "libfolia/folia_properties.h"
 #include "config.h"
@@ -4133,7 +4134,10 @@ namespace folia {
   }
 
   bool XmlText::setvalue( const std::string& s ){
-    _value = s;
+    static TiCC::UnicodeNormalizer norm;
+    UnicodeString us = UTF8ToUnicode(s);
+    us = norm.normalize( us );
+    _value = UnicodeToUTF8( us );
     return true;
   }
 
@@ -4147,7 +4151,7 @@ namespace folia {
 
   FoliaElement* XmlText::parseXml( const xmlNode *node ) {
     if ( node->content ) {
-      _value = (const char*)node->content;
+      setvalue( (const char*)node->content );
       _value = trim( _value );
     }
     if ( _value.empty() ) {
