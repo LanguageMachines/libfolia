@@ -154,7 +154,7 @@ namespace folia {
 
   bool isNCName( const std::string& );
 
-  UnicodeString normalize( const UnicodeString& );
+  UnicodeString normalize_spaces( const UnicodeString& );
 
 } // namespace folia
 

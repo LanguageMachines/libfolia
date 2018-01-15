@@ -765,8 +765,8 @@ namespace folia {
       UnicodeString s1 = parent->text( cls, false, true );
       UnicodeString s2 = child->text( cls, false, true );
       // no retain tokenization, strict for both
-      s1 = normalize( s1 );
-      s2 = normalize( s2 );
+      s1 = normalize_spaces( s1 );
+      s2 = normalize_spaces( s2 );
       bool test_fail = false;
       if ( isSubClass( Word_t )
 	   || isSubClass( String_t ) ){
@@ -807,8 +807,8 @@ namespace folia {
       UnicodeString s1 = parent->text( cls, false, true );
       UnicodeString s2 = this->text( cls, false, false );
       // no retain tokenization, strict for parent, deeper for child
-      s1 = normalize( s1 );
-      s2 = normalize( s2 );
+      s1 = normalize_spaces( s1 );
+      s2 = normalize_spaces( s2 );
       bool test_fail = false;
       test_fail = ( s1 != s2 );
       if ( isSubClass( Word_t )
@@ -1500,9 +1500,9 @@ namespace folia {
       }
       catch (...){
       }
-      deeper_u = normalize( deeper_u );
+      deeper_u = normalize_spaces( deeper_u );
       UnicodeString txt_u = UTF8ToUnicode( txt );
-      txt_u = normalize( txt_u );
+      txt_u = normalize_spaces( txt_u );
       if ( !deeper_u.isEmpty() && txt_u != deeper_u ){
 	throw InconsistentText( "settext(cls=" + cls + "): deeper text differs from attempted\ndeeper='" + UnicodeToUTF8(deeper_u) + "'\nattempted='" + txt + "'" );
       }
@@ -1538,9 +1538,9 @@ namespace folia {
       }
       catch (...){
       }
-      deeper_u = normalize( deeper_u );
+      deeper_u = normalize_spaces( deeper_u );
       UnicodeString txt_u = UTF8ToUnicode( txt );
-      txt_u = normalize( txt_u );
+      txt_u = normalize_spaces( txt_u );
       if ( !deeper_u.isEmpty() && txt_u != deeper_u ){
 	throw InconsistentText( "settext(cls=" + cls + "): deeper text differs from attempted\ndeeper='" + UnicodeToUTF8(deeper_u) + "'\nattempted='" + txt + "'" );
       }
@@ -1975,8 +1975,8 @@ namespace folia {
 	  }
 	  catch (...){
 	  }
-	  s1 = normalize( s1 );
-	  s2 = normalize( s2 );
+	  s1 = normalize_spaces( s1 );
+	  s2 = normalize_spaces( s2 );
 	  if ( !s2.isEmpty() && s1 != s2 ){
 	    if ( doc()->fixtext() ){
 	      //	      cerr << "FIX: " << mess << endl;
@@ -4134,7 +4134,7 @@ namespace folia {
   }
 
   bool XmlText::setvalue( const std::string& s ){
-    static TiCC::UnicodeNormalizer norm;
+    static TiCC::UnicodeNormalizer norm;  // defaults to a NFC normalizer
     UnicodeString us = UTF8ToUnicode(s);
     us = norm.normalize( us );
     _value = UnicodeToUTF8( us );
