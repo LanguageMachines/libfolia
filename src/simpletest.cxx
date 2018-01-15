@@ -84,25 +84,25 @@ int main() {
   }
   cout << s->text() << endl;
   UnicodeString dirty = "    A    dir\ty \n  string\r.\n   ";
-  UnicodeString clean = normalize( dirty );
+  UnicodeString clean = normalize_spaces( dirty );
   UnicodeString wanted = "A dirty string.";
   if ( clean != wanted ){
-    cerr << "string normalize failed: got:'" << clean << "'"
-	 << "                but expected:'" << wanted << "'" << endl;
+    cerr << "normalize_space() failed: got:'" << clean << "'"
+	 << "                 but expected:'" << wanted << "'" << endl;
   }
   dirty = "\n";
-  clean = normalize( dirty );
+  clean = normalize_spaces( dirty );
   wanted = " ";
   if ( clean != wanted ){
-    cerr << "string normalize failed: got:'" << clean << "'"
-	 << "                but expected:'" << wanted << "'" << endl;
+    cerr << "normalize_space() failed: got:'" << clean << "'"
+	 << "                 but expected:'" << wanted << "'" << endl;
   }
   dirty = "\r    ";
-  clean = normalize( dirty );
+  clean = normalize_spaces( dirty );
   wanted = " ";
   if ( clean != wanted ){
-    cerr << "string normalize failed: got:'" << clean << "'"
-	 << "                but expected:'" << wanted << "'" << endl;
+    cerr << "normalize_space() failed: got:'" << clean << "'"
+	 << "                 but expected:'" << wanted << "'" << endl;
   }
   return EXIT_SUCCESS;
 }
