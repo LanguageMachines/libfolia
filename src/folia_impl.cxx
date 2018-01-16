@@ -2460,7 +2460,7 @@ namespace folia {
     return 0;
   }
 
-  FoliaElement *TextContent::getreference() const {
+  FoliaElement *TextContent::getreference() {
     FoliaElement *ref = 0;
     if ( _offset == -1 ){
       return 0;
@@ -2481,16 +2481,32 @@ namespace folia {
     else if ( !ref->hastext( _class ) ){
       throw UnresolvableTextContent( "Reference (ID " + _ref + ") has no such text (class=" + _class + ")" );
     }
-    else if ( mydoc->checktext() ){
+    else if ( mydoc->checktext() || mydoc->fixtext() ){
       UnicodeString mt = this->text( this->cls(), false, true );
       UnicodeString pt = ref->text( this->cls(), false, true );
       UnicodeString sub( pt, this->offset(), mt.length() );
       if ( mt != sub ){
-	throw UnresolvableTextContent( "Reference (ID " + ref->id() + ",class='"
-				       + cls() + "') found, but no text match at "
-				       + "offset=" + TiCC::toString(offset())
-				       + " Expected " + UnicodeToUTF8(mt)
-				       + " but got " +  UnicodeToUTF8(sub) );
+	if ( mydoc->fixtext() ){
+	  int pos = pt.indexOf( mt );
+	  if ( pos < 0 ){
+	    throw UnresolvableTextContent( "Reference (ID " + ref->id() +
+					   ",class=" + cls()
+					   + " found, but no substring match "
+					   + UnicodeToUTF8(mt)
+					   + " in " +  UnicodeToUTF8(pt) );
+	  }
+	  else {
+	    this->set_offset( pos );
+	  }
+	}
+	else {
+	  throw UnresolvableTextContent( "Reference (ID " + ref->id() +
+					 ",class='" + cls()
+					 + "') found, but no text match at "
+					 + "offset=" + TiCC::toString(offset())
+					 + " Expected " + UnicodeToUTF8(mt)
+					 + " but got " +  UnicodeToUTF8(sub) );
+	}
       }
     }
     return ref;
@@ -2526,7 +2542,7 @@ namespace folia {
     return 0;
   }
 
-   FoliaElement *PhonContent::getreference() const {
+   FoliaElement *PhonContent::getreference() {
     FoliaElement *ref = 0;
     if ( _offset == -1 ){
       return 0;
@@ -2547,16 +2563,32 @@ namespace folia {
     else if ( !ref->hasphon( _class ) ){
       throw UnresolvableTextContent( "Reference (ID " + _ref + ") has no such phonetic content (class=" + _class + ")" );
     }
-    else if ( mydoc->checktext() ){
+    else if ( mydoc->checktext() || mydoc->fixtext() ){
       UnicodeString mt = this->phon( this->cls(), false );
       UnicodeString pt = ref->phon( this->cls(), false );
       UnicodeString sub( pt, this->offset(), mt.length() );
       if ( mt != sub ){
-	throw UnresolvableTextContent( "Reference (ID " + ref->id() + ",class="
-				       + cls() + " found, but no text match at "
-				       + "offset=" + TiCC::toString(offset())
-				       + " Expected " + UnicodeToUTF8(mt)
-				       + " but got " +  UnicodeToUTF8(sub) );
+	if ( mydoc->fixtext() ){
+	  int pos = pt.indexOf( mt );
+	  if ( pos < 0 ){
+	    throw UnresolvableTextContent( "Reference (ID " + ref->id() +
+					   ",class=" + cls()
+					   + " found, but no substring match "
+					   + UnicodeToUTF8(mt)
+					   + " in " +  UnicodeToUTF8(pt) );
+	  }
+	  else {
+	    this->set_offset( pos );
+	  }
+	}
+	else {
+	  throw UnresolvableTextContent( "Reference (ID " + ref->id() +
+					 ",class=" + cls()
+					 + " found, but no text match at "
+					 + "offset=" + TiCC::toString(offset())
+					 + " Expected " + UnicodeToUTF8(mt)
+					 + " but got " +  UnicodeToUTF8(sub) );
+	}
       }
     }
     return ref;
