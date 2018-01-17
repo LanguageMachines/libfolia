@@ -2460,7 +2460,7 @@ namespace folia {
     return 0;
   }
 
-  FoliaElement *TextContent::getreference() {
+  FoliaElement *TextContent::getreference() const {
     FoliaElement *ref = 0;
     if ( _offset == -1 ){
       return 0;
@@ -2542,7 +2542,7 @@ namespace folia {
     return 0;
   }
 
-   FoliaElement *PhonContent::getreference() {
+   FoliaElement *PhonContent::getreference() const {
     FoliaElement *ref = 0;
     if ( _offset == -1 ){
       return 0;

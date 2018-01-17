@@ -355,7 +355,7 @@ namespace folia {
 			   int ,
 			   const std::string& = "current" );
     virtual int offset() const NOT_IMPLEMENTED;
-    virtual void set_offset( int ) NOT_IMPLEMENTED;
+    virtual void set_offset( int ) const NOT_IMPLEMENTED;
 
     void cleartextcontent( const std::string& = "current" );
     // PhonContent
@@ -1052,7 +1052,6 @@ namespace folia {
     void setAttributes( const KWargs& );
     KWargs collectAttributes() const;
     int offset() const { return _offset; };
-    void set_offset( int o ) { _offset = o; };
     std::vector<FoliaElement*> findreplacables( FoliaElement * ) const;
     const std::string set_to_current() { // Don't use without thinking twice!
       std::string res = _class;
@@ -1060,13 +1059,16 @@ namespace folia {
       return res;
     }
     FoliaElement *postappend();
-    FoliaElement *getreference();
+    FoliaElement *getreference() const;
     std::string ref() const { return _ref; };
   private:
     void init();
     FoliaElement *finddefaultreference() const;
+    void set_offset( int o ) const { _offset = o; }; // this MUST be const,
+    // only used for 'fixing up' invalid offsets. keep it private!
+    // therefore _offset  has to be mutable!
     static properties PROPS;
-    int _offset;
+    mutable int _offset;
     std::string _ref;
   };
 
@@ -1082,15 +1084,17 @@ namespace folia {
     const UnicodeString phon( const std::string& = "current",
 			      bool = false ) const;
     int offset() const { return _offset; };
-    void set_offset( int o ) { _offset = o; };
     FoliaElement *postappend();
-    FoliaElement *getreference();
+    FoliaElement *getreference() const;
     std::string ref() const { return _ref; };
   private:
     void init();
     FoliaElement *finddefaultreference() const;
+    void set_offset( int o ) const { _offset = o; }; // this MUST be const,
+    // only used for 'fixing up' invalid offsets. keep it private!
+    // therefore _offset  has to be mutable!
     static properties PROPS;
-    int _offset;
+    mutable int _offset;
     std::string _ref;
   };
 
