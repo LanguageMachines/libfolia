@@ -305,8 +305,12 @@ namespace folia {
 	else if ( _set == "" &&
 		  mydoc->defaultset( annotation_type() ) == "" &&
 		  mydoc->isDeclared( annotation_type() ) ) {
+	  string at =  toString(annotation_type());
+	  if ( at == "NONE" ){
+	    at = xmltag();
+	  }
 	  throw ValueError( "Class " + _class + " is used but has no default declaration " +
-			    "for " + toString( annotation_type() ) + "-annotation" );
+			    "for " + at + "-annotation" );
 	}
 	mydoc->incrRef( annotation_type(), _set );
       }
