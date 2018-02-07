@@ -20,23 +20,16 @@ language: cpp
 matrix:
   include:
     - os: linux
-      compiler: gcc
-      env: COMPILER=g++
+      compiler: g++
 
     - os: linux
-      compiler: clang
-      addons:
-        apt:
-          packages:
-            - libiomp-dev
-
+      compiler: clang++
       env:
-      - COMPILER=clang++
-      - CXXFLAGS="-fopenmp=libiomp5"
+        - OPENMPFLAG=--disable-openmp
+
 
     - os: osx
       compiler: clang
-      env: COMPILER=clang++
 
 before_install:
     - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
@@ -58,14 +51,14 @@ before_install:
     - git clone https://github.com/proycon/ticcutils
     - cd ticcutils
     - bash bootstrap.sh
-    - ./configure
-    - make CXX=$COMPILER
-    - sudo make CXX=$COMPILER install
+    - ./configure $OPENMPFLAG
+    - make
+    - sudo make install
     - cd ..
 install:
     - bash bootstrap.sh
-    - ./configure
-    - make CXX=$COMPILER
-    - sudo make CXX=$COMPILER install
+    - ./configure $OPENMPFLAG
+    - make
+    - sudo make install
 script:
-    - LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib make CXX=$COMPILER check
+    - LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib make check

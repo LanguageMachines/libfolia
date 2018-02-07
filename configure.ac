@@ -62,13 +62,6 @@ fi
 
 AC_OSX_PKG( [icu4c] )
 
-AC_ARG_WITH(icu,
-       [  --with-icu=DIR       use icu installed in <DIR>],
-       [PKG_CONFIG_PATH="$PKG_CONFIG_PATH:$withval/lib/pkgconfig"],
-       [])
-
-AC_MSG_NOTICE( [pkg-config search path: $PKG_CONFIG_PATH] )
-
 PKG_PROG_PKG_CONFIG
 PKG_CHECK_MODULES([XML2], [libxml-2.0 >= 2.6.16] )
 CXXFLAGS="$CXXFLAGS $XML2_CFLAGS"
