@@ -1,8 +1,8 @@
 1.12 2018-02-19
 * configuration cleanup. MacOSX is better supported now.
 * folialint now supports --fixtext (handle with care!)
-* library version bumped to 8.0, dus to chanhes in API
-* regenerated folia properties (to FoLiA version 1.5.1)
+* library version bumped to 8.0, due to changes in the API
+* regenerated FoLiA properties (to FoLiA version 1.5.1)
 * several small bug fixes
 
 1.11 2017-12-04
