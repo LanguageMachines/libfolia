@@ -813,8 +813,7 @@ namespace folia {
       // no retain tokenization, strict for parent, deeper for child
       s1 = normalize_spaces( s1 );
       s2 = normalize_spaces( s2 );
-      bool test_fail = false;
-      test_fail = ( s1 != s2 );
+      bool test_fail = ( s1 != s2 );
       if ( isSubClass( Word_t )
 	   || isSubClass( String_t ) ) {
 	// Words and Strings are 'per definition' PART of there parents
@@ -1484,7 +1483,7 @@ namespace folia {
       FoliaElement *p = index(i);
       if ( p->element_id() == TextContent_t ) {
 	if ( p->cls() == textclass ){
-	  remove(p,true);
+	  this->remove(p,true);
 	  break;
 	}
       }
@@ -3961,9 +3960,8 @@ namespace folia {
     // TODO: this implements correctionhandling::EITHER only
     for ( const auto& el : data ) {
       if ( el->isinstance( New_t ) || el->isinstance( Current_t ) ) {
-	const TextContent *res = 0;
 	try {
-	  res = el->textcontent( cls );
+	  const TextContent *res = el->textcontent( cls );
 	  return res;
 	}
 	catch (...){
@@ -3972,9 +3970,8 @@ namespace folia {
     }
     for ( const auto& el : data ) {
       if ( el->isinstance( Original_t ) ) {
-	const TextContent *res = 0;
 	try {
-	  res =  el->textcontent( cls );
+	  const TextContent *res = el->textcontent( cls );
 	  return res;
 	}
 	catch ( ... ){
