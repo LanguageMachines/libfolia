@@ -54,6 +54,7 @@ before_install:
         brew outdated || brew install zlib;
         brew install libtar;
         brew install cppcheck;
+        brew install ccache;
         brew outdated boost || brew upgrade boost;
       fi
 
@@ -75,5 +76,9 @@ install:
     - $SCAN --status-bugs make
     - make
     - sudo make install
+
 script:
     - LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib make check
+
+after_failure:
+   - cat src/test_suite.log
