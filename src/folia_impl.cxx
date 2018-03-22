@@ -771,7 +771,7 @@ namespace folia {
       // no retain tokenization, strict for both
       s1 = normalize_spaces( s1 );
       s2 = normalize_spaces( s2 );
-      bool test_fail = false;
+      bool test_fail;
       if ( isSubClass( Word_t )
 	   || isSubClass( String_t ) ){
 	// Words and Strings are 'per definition' PART of there parents
@@ -813,7 +813,7 @@ namespace folia {
       // no retain tokenization, strict for parent, deeper for child
       s1 = normalize_spaces( s1 );
       s2 = normalize_spaces( s2 );
-      bool test_fail = ( s1 != s2 );
+      bool test_fail;
       if ( isSubClass( Word_t )
 	   || isSubClass( String_t ) ) {
 	// Words and Strings are 'per definition' PART of there parents
@@ -823,7 +823,7 @@ namespace folia {
 	// otherwise an exacte match is needed
 	test_fail = ( s1 != s2 );
       }
-     if ( test_fail ){
+      if ( test_fail ){
 	throw InconsistentText( "text (class="
 				+ cls + ") from node: " + xmltag()
 				+ "(" + id() + ")"
