@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2006 - 2017
+  Copyright (c) 2006 - 2018
   CLST  - Radboud University
   ILK   - Tilburg University
 
@@ -279,12 +279,12 @@ namespace folia {
     virtual void check_append_text_consistency( const FoliaElement * ) const = 0;
 
     virtual const std::string str( const std::string& = "current" ) const = 0;
-    const UnicodeString unicode( const std::string& cls = "current" ) const { return text( cls ); };
-    virtual const UnicodeString text( const std::string& = "current",
+    const icu::UnicodeString unicode( const std::string& cls = "current" ) const { return text( cls ); };
+    virtual const icu::UnicodeString text( const std::string& = "current",
 				bool = false, bool = false ) const = 0;
-    const UnicodeString stricttext( const std::string& = "current" ) const;
-    const UnicodeString toktext( const std::string& = "current" ) const;
-    virtual const UnicodeString phon( const std::string& = "current",
+    const icu::UnicodeString stricttext( const std::string& = "current" ) const;
+    const icu::UnicodeString toktext( const std::string& = "current" ) const;
+    virtual const icu::UnicodeString phon( const std::string& = "current",
 				bool = false ) const = 0;
     virtual bool printable() const = 0;
     virtual bool speakable() const = 0;
@@ -349,12 +349,13 @@ namespace folia {
     TextContent *settext( const std::string&,
 			  int,
 			  const std::string& = "current" );
-    TextContent *setutext( const UnicodeString&,
+    TextContent *setutext( const icu::UnicodeString&,
 			   const std::string& = "current" );
-    TextContent *setutext( const UnicodeString&,
+    TextContent *setutext( const icu::UnicodeString&,
 			   int ,
 			   const std::string& = "current" );
     virtual int offset() const NOT_IMPLEMENTED;
+    virtual void set_offset( int ) const NOT_IMPLEMENTED;
 
     void cleartextcontent( const std::string& = "current" );
     // PhonContent
@@ -427,7 +428,7 @@ namespace folia {
 
     virtual const std::string content() const NOT_IMPLEMENTED;
     virtual const std::string src() const NOT_IMPLEMENTED;
-    virtual const UnicodeString caption() const NOT_IMPLEMENTED;
+    virtual const icu::UnicodeString caption() const NOT_IMPLEMENTED;
     virtual std::vector<FoliaElement *> resolve() const NOT_IMPLEMENTED;
     virtual const FoliaElement* resolveid() const NOT_IMPLEMENTED;
     virtual bool checkAtts() = 0;
@@ -586,14 +587,14 @@ namespace folia {
     // text/string content
 
     const std::string str( const std::string& = "current" ) const;
-    const UnicodeString text( const std::string& = "current",
+    const icu::UnicodeString text( const std::string& = "current",
 			      bool = false, bool = false ) const;
 
-    const UnicodeString phon( const std::string& = "current",
+    const icu::UnicodeString phon( const std::string& = "current",
 			      bool = false ) const;
-    const UnicodeString deeptext( const std::string& = "current",
+    const icu::UnicodeString deeptext( const std::string& = "current",
 				  bool = false ) const;
-    const UnicodeString deepphon( const std::string& = "current" ) const;
+    const icu::UnicodeString deepphon( const std::string& = "current" ) const;
 
     // Word
     const Word* resolveword( const std::string& ) const { return 0; };
@@ -723,7 +724,7 @@ namespace folia {
 				const std::string& cls = "current" ) {
     return e->str( cls ); }
 
-  inline const UnicodeString text( const FoliaElement *e,
+  inline const icu::UnicodeString text( const FoliaElement *e,
 				   const std::string& cls = "current" ) {
     if ( e )
       return e->text( cls );
@@ -731,7 +732,7 @@ namespace folia {
       throw ValueError( "text() for empty element" );
   }
 
-  inline const UnicodeString unicode( const FoliaElement *e ) {
+  inline const icu::UnicodeString unicode( const FoliaElement *e ) {
     return e->unicode(); }
 
   inline bool isinstance( const FoliaElement *e, ElementType t ) {
@@ -1010,7 +1011,7 @@ namespace folia {
 
     void setAttributes( const KWargs& );
     KWargs collectAttributes() const;
-    const UnicodeString text( const std::string& = "current",
+    const icu::UnicodeString text( const std::string& = "current",
 			      bool = false, bool = false ) const;
   private:
     static properties PROPS;
@@ -1063,8 +1064,11 @@ namespace folia {
   private:
     void init();
     FoliaElement *finddefaultreference() const;
+    void set_offset( int o ) const { _offset = o; }; // this MUST be const,
+    // only used for 'fixing up' invalid offsets. keep it private!
+    // therefore _offset  has to be mutable!
     static properties PROPS;
-    int _offset;
+    mutable int _offset;
     std::string _ref;
   };
 
@@ -1077,7 +1081,7 @@ namespace folia {
     FoliaImpl(PROPS,d){ classInit( a ); }
     void setAttributes( const KWargs& );
     KWargs collectAttributes() const;
-    const UnicodeString phon( const std::string& = "current",
+    const icu::UnicodeString phon( const std::string& = "current",
 			      bool = false ) const;
     int offset() const { return _offset; };
     FoliaElement *postappend();
@@ -1086,8 +1090,11 @@ namespace folia {
   private:
     void init();
     FoliaElement *finddefaultreference() const;
+    void set_offset( int o ) const { _offset = o; }; // this MUST be const,
+    // only used for 'fixing up' invalid offsets. keep it private!
+    // therefore _offset  has to be mutable!
     static properties PROPS;
-    int _offset;
+    mutable int _offset;
     std::string _ref;
   };
 
@@ -1098,7 +1105,7 @@ namespace folia {
     FoliaImpl( PROPS,d) { classInit(); }
   FoLiA( const KWargs& a, Document *d = 0 ):
     FoliaImpl( PROPS, d ) { classInit( a ); }
-    const UnicodeString text( const std::string& = "current",
+    const icu::UnicodeString text( const std::string& = "current",
 			      bool = false, bool = false ) const;
   private:
     static properties PROPS;
@@ -1234,7 +1241,7 @@ namespace folia {
     AbstractStructureElement( PROPS, d ){ classInit(); };
   Linebreak( const KWargs& a, Document *d = 0 ):
     AbstractStructureElement( PROPS, d ){ classInit( a ); };
-    const UnicodeString text( const std::string& = "current",
+    const icu::UnicodeString text( const std::string& = "current",
 			      bool = false, bool = false ) const {
       return "\n";
     }
@@ -1256,7 +1263,7 @@ namespace folia {
   Whitespace( const KWargs& a, Document *d = 0 ):
     AbstractStructureElement( PROPS, d ){ classInit( a ); }
 
-    const UnicodeString text( const std::string& = "current",
+    const icu::UnicodeString text( const std::string& = "current",
 			      bool = false, bool = false ) const {
       return "\n\n";
     }
@@ -1474,7 +1481,7 @@ namespace folia {
     AbstractStructureElement( PROPS, d ){ classInit( a ); }
 
     const std::string src() const { return _src; };
-    const UnicodeString caption() const;
+    const icu::UnicodeString caption() const;
   private:
     static properties PROPS;
   };
@@ -2211,7 +2218,7 @@ namespace folia {
 
     FoliaElement* parseXml( const xmlNode * );
     xmlNode *xml( bool, bool=false ) const;
-    const UnicodeString text( const std::string& = "current",
+    const icu::UnicodeString text( const std::string& = "current",
 			      bool = false, bool = false ) const { return ""; };
   private:
     static properties PROPS;
@@ -2230,7 +2237,7 @@ namespace folia {
     xmlNode *xml( bool, bool=false ) const;
     bool setvalue( const std::string& );
     const std::string& getTextDelimiter( bool ) const { return EMPTY_STRING; };
-    const UnicodeString text( const std::string& = "current",
+    const icu::UnicodeString text( const std::string& = "current",
 			      bool = false, bool = false ) const;
   private:
     static properties PROPS;
@@ -2356,7 +2363,7 @@ namespace folia {
     FoliaElement *getCurrent( size_t ) const;
     std::vector<Suggestion*> suggestions() const;
     Suggestion *suggestions( size_t ) const;
-    const UnicodeString text( const std::string& = "current",
+    const icu::UnicodeString text( const std::string& = "current",
 			      bool = false, bool = false ) const;
     const TextContent *textcontent( const std::string& = "current" ) const;
     const PhonContent *phoncontent( const std::string& = "current" ) const;

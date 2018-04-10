@@ -1,6 +1,3 @@
-# $Id: bootstrap 8036 2011-01-27 11:56:11Z joostvb $
-# $URL: https://ilk.uvt.nl/svn/trunk/sources/ucto/trunk/bootstrap $
-
 # bootstrap - script to bootstrap the distribution rolling engine
 
 # usage:

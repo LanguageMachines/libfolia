@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2006 - 2017
+  Copyright (c) 2006 - 2018
   CLST  - Radboud University
   ILK   - Tilburg University
 
@@ -44,6 +44,7 @@ void usage(){
   cerr << "\t--output='file'\t\t name an outputfile. (default is stdout)" << endl;
   cerr << "\t--nooutput\t\t Suppress output. Only warnings/errors are displayed." << endl;
   cerr << "\t--nochecktext DO NOT check if text is consistent inside structure tags. Default is to do so." << endl;
+  cerr << "\t--fixtext. Try to fixup text errors like wrong offsets. Default is to DONT DO THAT." << endl;
   cerr << "\t--debug=value\t\t Run more verbose." << endl;
   cerr << "\t--permissive\t\t Accept some unwise constructions." << endl;
 }
@@ -52,14 +53,15 @@ int main( int argc, char* argv[] ){
   string outputName;
   bool permissive;
   bool warn;
-  bool strip;
+  bool strip ;
   bool nooutput = false;
   bool nochecktext = false;
+  bool fixtext = false;
   string debug;
   vector<string> fileNames;
   try {
     TiCC::CL_Options Opts( "hV",
-			   "nochecktext,debug:,permissive,strip,output:,nooutput,help,warn,version");
+			   "nochecktext,debug:,permissive,strip,output:,nooutput,help,fixtext,warn,version");
     Opts.init(argc, argv );
     if ( Opts.extract( 'h' )
 	 || Opts.extract( "help" ) ){
@@ -75,6 +77,7 @@ int main( int argc, char* argv[] ){
     permissive = Opts.extract("permissive");
     warn = Opts.extract("warn");
     nooutput = Opts.extract("nooutput");
+    fixtext = Opts.extract("fixtext");
     if ( Opts.extract("nochecktext") ){
       nochecktext = true;
     }
@@ -120,6 +123,9 @@ int main( int argc, char* argv[] ){
       }
       else if ( strip ){
 	mode = ", mode='strip";
+      }
+      else if ( fixtext ){
+	mode = ", mode='fixtext";
       }
       if ( nochecktext ){
 	if ( mode.empty() ){

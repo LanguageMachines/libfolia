@@ -6,7 +6,7 @@
 #include "libfolia/folia_properties.h"
 
 //foliaspec:header
-//This file was last updated according to the FoLiA specification for version 1.5.0 on 2017-09-29 20:10:33, using foliaspec.py
+//This file was last updated according to the FoLiA specification for version 1.5.1 on 2018-01-02 10:37:19, using foliaspec.py
 //Code blocks after a foliaspec comment (until the next newline) are automatically generated. **DO NOT EDIT THOSE** and **DO NOT REMOVE ANY FOLIASPEC COMMENTS** !!!
 
 namespace folia {
@@ -23,7 +23,7 @@ namespace folia {
 
   //foliaspec:version_sub:SUB_VERSION
   //The FoLiA version (sub/rev)
-  const int SUB_VERSION = 0;
+  const int SUB_VERSION = 1;
 
   //foliaspec:namespace:NSFOLIA
   //The FoLiA XML namespace
@@ -669,8 +669,8 @@ namespace folia {
     Comment::PROPS.ELEMENT_ID = Comment_t;
     Comment::PROPS.LABEL = "Comment";
     Comment::PROPS.OPTIONAL_ATTRIBS = ID|ANNOTATOR|CONFIDENCE|DATETIME|N|METADATA;
-    Comment::PROPS.XMLTAG = "comment";
     Comment::PROPS.PRINTABLE = false;
+    Comment::PROPS.XMLTAG = "comment";
 //------ ComplexAlignment -------
     ComplexAlignment::PROPS.ELEMENT_ID = ComplexAlignment_t;
     ComplexAlignment::PROPS.ACCEPTED_DATA += {Alignment_t, Comment_t, Description_t, Feature_t, ForeignData_t, Metric_t};

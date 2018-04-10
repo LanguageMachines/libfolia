@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2006 - 2017
+  Copyright (c) 2006 - 2018
   CLST  - Radboud University
   ILK   - Tilburg University
 
@@ -120,9 +120,6 @@ namespace folia {
     explicit UnresolvableTextContent( const std::string& s ): std::runtime_error( "Unresolvable text: " + s ){};
   };
 
-  UnicodeString UTF8ToUnicode( const std::string& );
-  std::string UnicodeToUTF8( const UnicodeString& );
-
   std::string toString( const AnnotationType::AnnotationType& );
   AnnotationType::AnnotationType stringToAT( const std::string& );
 
@@ -154,7 +151,7 @@ namespace folia {
 
   bool isNCName( const std::string& );
 
-  UnicodeString normalize( const UnicodeString& );
+  icu::UnicodeString normalize_spaces( const icu::UnicodeString& );
 
 } // namespace folia
 
