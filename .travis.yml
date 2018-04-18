@@ -20,42 +20,65 @@ language: cpp
 matrix:
   include:
     - os: linux
-      compiler: gcc
-      env: COMPILER=g++
-
-#    - os: linux
-#      compiler: gcc
-#      addons:
-#        apt:
-#          sources: ['ubuntu-toolchain-r-test']
-#          packages: ['g++-5']
-#      env: COMPILER=g++-5
+      cache: ccache
+      compiler: g++
+      env:
+        - SCAN=echo
 
     - os: linux
-      compiler: clang
-      addons:
-        apt:
-          packages:
-            - libiomp-dev
-
+      cache: ccache
+      compiler: clang++
       env:
-      - COMPILER=clang++
-      - CXXFLAGS="-fopenmp=libiomp5"
+        - SCAN=scan-build
+        - OPENMPFLAG=--disable-openmp
+
+
+    - os: osx
+      cache: ccache
+      compiler: clang
+      env:
+        - SCAN=echo
 
 before_install:
-    - sudo apt-get update
-    - sudo apt-get install pkg-config autoconf-archive libicu-dev libxml2-dev libtar-dev libbz2-dev zlib1g-dev xmldiff libboost-dev libboost-regex-dev
+    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+        sudo apt-get update;
+        sudo apt-get install pkg-config autoconf-archive ccache cppcheck libicu-dev libxml2-dev libbz2-dev zlib1g-dev libboost-dev libboost-regex-dev libtar-dev;
+      fi
+    - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+        brew update;
+        brew install pkg-config;
+        brew install autoconf-archive;
+        brew outdated || brew upgrade icu4c;
+        brew outdated || brew upgrade libxml2;
+        brew outdated || brew install bzip2;
+        brew outdated || brew install zlib;
+        brew install libtar;
+        brew install cppcheck;
+        brew install ccache;
+        brew outdated boost || brew upgrade boost;
+      fi
+
+    - export PATH="/usr/lib/ccache/bin/:$PATH"
+
     - git clone https://github.com/proycon/ticcutils
     - cd ticcutils
     - bash bootstrap.sh
-    - ./configure
-    - make CXX=$COMPILER
-    - sudo make CXX=$COMPILER install
+    - ./configure $OPENMPFLAG
+    - make
+    - sudo make install
     - cd ..
+
 install:
     - bash bootstrap.sh
-    - ./configure
-    - make CXX=$COMPILER
-    - sudo make CXX=$COMPILER install
+    - ./configure $OPENMPFLAG
+    - cppcheck --enable=all --quiet --error-exitcode=0 .
+    - $SCAN --status-bugs ./configure
+    - $SCAN --status-bugs make
+    - make
+    - sudo make install
+
 script:
-    - LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib make CXX=$COMPILER check
+    - LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib make check
+
+after_failure:
+   - cat src/test_suite.log

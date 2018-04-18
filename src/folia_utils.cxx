@@ -36,6 +36,7 @@
 #include "ticcutils/StringOps.h"
 #include "ticcutils/XMLtools.h"
 #include "ticcutils/PrettyPrint.h"
+#include "ticcutils/Unicode.h"
 #include "libfolia/folia.h"
 #include "libfolia/folia_properties.h"
 
@@ -43,16 +44,6 @@ using namespace std;
 using namespace TiCC;
 
 namespace folia {
-
-  UnicodeString UTF8ToUnicode( const string& s ){
-    return UnicodeString::fromUTF8( s );
-  }
-
-  string UnicodeToUTF8( const UnicodeString& s ){
-    string result;
-    s.toUTF8String(result);
-    return result;
-  }
 
   FoliaElement *FoliaImpl::createElement( const string& tag,
 					  Document *doc ){
@@ -491,10 +482,10 @@ namespace folia {
     return true;
   }
 
-  UnicodeString normalize( const UnicodeString& input ){
+  icu::UnicodeString normalize_spaces( const icu::UnicodeString& input ){
     // substitute \n \r \t by spaces AND all multiple spaces by 1
     // also trims at back and front.
-    UnicodeString result;
+    icu::UnicodeString result;
     bool is_space = false;
     for ( int i=0; i < input.length(); ++i ){
       if ( u_isspace( input[i] ) ){

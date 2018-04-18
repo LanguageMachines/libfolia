@@ -39,13 +39,13 @@
 #include "ticcutils/PrettyPrint.h"
 #include "ticcutils/XMLtools.h"
 #include "ticcutils/StringOps.h"
+#include "ticcutils/Unicode.h"
 #include "ticcutils/zipper.h"
 #include "libfolia/folia.h"
 #include "libfolia/folia_properties.h"
 #include "libxml/xmlstring.h"
 
 using namespace std;
-using namespace TiCC;
 
 namespace folia {
 
@@ -54,11 +54,11 @@ namespace folia {
   }
 
   bool checkNS( xmlNode *n, const string& ns ){
-    string tns = getNS(n);
+    string tns = TiCC::getNS(n);
     if ( tns == ns )
       return true;
     else
-      throw runtime_error( "namespace conflict for tag:" + Name(n)
+      throw runtime_error( "namespace conflict for tag:" + TiCC::Name(n)
 			   + ", wanted:" + ns
 			   + " got:" + tns );
     return false;
@@ -212,7 +212,7 @@ namespace folia {
     bool happy = false;
     auto it = kwargs.find( "debug" );
     if ( it != kwargs.end() ){
-      debug = stringTo<int>( it->second );
+      debug = TiCC::stringTo<int>( it->second );
     }
     it = kwargs.find( "mode" );
     if ( it != kwargs.end() ){
@@ -220,7 +220,7 @@ namespace folia {
     }
     it = kwargs.find( "external" );
     if ( it != kwargs.end() ){
-      external = stringTo<bool>( it->second );
+      external = TiCC::stringTo<bool>( it->second );
       kwargs.erase( it );
     }
     else
@@ -334,12 +334,12 @@ namespace folia {
       throw runtime_error( "Document is already initialized" );
       return false;
     }
-    if ( match_back( s, ".bz2" ) ){
-      string buffer = bz2ReadFile( s );
+    if ( TiCC::match_back( s, ".bz2" ) ){
+      string buffer = TiCC::bz2ReadFile( s );
       return readFromString( buffer );
     }
-    else if ( match_back( s, ".gz" ) ) {
-      string buffer = gzReadFile( s );
+    else if ( TiCC::match_back( s, ".gz" ) ) {
+      string buffer = TiCC::gzReadFile( s );
       return readFromString( buffer );
     }
     int cnt = 0;
@@ -425,10 +425,10 @@ namespace folia {
 
   bool Document::save( const string& fn, const string& nsLabel, bool kanon ) const {
     try {
-      if ( match_back( fn, ".bz2" ) ){
+      if ( TiCC::match_back( fn, ".bz2" ) ){
 	string tmpname = fn.substr( 0, fn.length() - 3 ) + "tmp";
 	if ( toXml( tmpname, nsLabel, ( kanon || strip() ) ) ){
-	  bool stat = bz2Compress( tmpname, fn );
+	  bool stat = TiCC::bz2Compress( tmpname, fn );
 	  remove( tmpname.c_str() );
 	  return stat;
 	}
@@ -436,10 +436,10 @@ namespace folia {
 	  return false;
 	}
       }
-      else  if ( match_back( fn, ".gz" ) ){
+      else  if ( TiCC::match_back( fn, ".gz" ) ){
 	string tmpname = fn.substr( 0, fn.length() - 2 ) + "tmp";
 	if ( toXml( tmpname, nsLabel,  ( kanon || strip() ) ) ){
-	  bool stat = gzCompress( tmpname, fn );
+	  bool stat = TiCC::gzCompress( tmpname, fn );
 	  remove( tmpname.c_str() );
 	  return stat;
 	}
@@ -494,7 +494,7 @@ namespace folia {
       throw range_error( "Document index out of range" );
   }
 
-  UnicodeString Document::text( const std::string& cls,
+  icu::UnicodeString Document::text( const std::string& cls,
 				bool retaintok,
 				bool strict ) const {
     return foliadoc->text( cls, retaintok, strict );
@@ -597,25 +597,25 @@ namespace folia {
   }
 
   void Document::setimdi( xmlNode *node ){
-    xmlNode *n = xPath( node, "//imdi:Session/imdi:Title" );
+    xmlNode *n = TiCC::xPath( node, "//imdi:Session/imdi:Title" );
     if ( n ){
-      _metadata->add_av( "title", XmlContent( n ) );
+      _metadata->add_av( "title", TiCC::XmlContent( n ) );
     }
-    n = xPath( node, "//imdi:Session/imdi:Date" );
+    n = TiCC::xPath( node, "//imdi:Session/imdi:Date" );
     if ( n ){
-      _metadata->add_av( "date", XmlContent( n ) );
+      _metadata->add_av( "date", TiCC::XmlContent( n ) );
     }
-    n = xPath( node, "//imdi:Source/imdi:Access/imdi:Publisher" );
+    n = TiCC::xPath( node, "//imdi:Source/imdi:Access/imdi:Publisher" );
     if ( n ){
-      _metadata->add_av( "publisher", XmlContent( n ) );
+      _metadata->add_av( "publisher", TiCC::XmlContent( n ) );
     }
-    n = xPath( node, "//imdi:Source/imdi:Access/imdi:Availability" );
+    n = TiCC::xPath( node, "//imdi:Source/imdi:Access/imdi:Availability" );
     if ( n ){
-      _metadata->add_av( "licence", XmlContent( n ) );
+      _metadata->add_av( "licence", TiCC::XmlContent( n ) );
     }
-    n = xPath( node, "//imdi:Languages/imdi:Language/imdi:ID" );
+    n = TiCC::xPath( node, "//imdi:Languages/imdi:Language/imdi:ID" );
     if ( n ){
-      _metadata->add_av( "language", XmlContent( n ) );
+      _metadata->add_av( "language", TiCC::XmlContent( n ) );
     }
   }
 
@@ -623,7 +623,7 @@ namespace folia {
     if ( node ){
       KWargs att = getAttributes( node );
       string type = att["id"];
-      string val = XmlContent( node );
+      string val = TiCC::XmlContent( node );
       string get = _metadata->get_val( type );
       if ( !get.empty() ){
 	throw runtime_error( "meta tag with id=" + type
@@ -661,9 +661,9 @@ namespace folia {
       }
     }
     ForeignData *add = new ForeignData();
-    if ( Name( node ) != "foreign-data" ){
+    if ( TiCC::Name( node ) != "foreign-data" ){
       // we need an extra layer then
-      xmlNode *n = XmlNewNode( "foreign-data" );
+      xmlNode *n = TiCC::XmlNewNode( "foreign-data" );
       xmlAddChild( n, xmlCopyNode( node, 1 ) );
       add->set_data( n );
       _metadata->add_foreign( n );
@@ -679,7 +679,7 @@ namespace folia {
     xmlNode *n = node->children;
     anno_sort.clear();
     while ( n ){
-      string tag = Name( n );
+      string tag = TiCC::Name( n );
       if ( tag.length() > 11 && tag.substr( tag.length() - 11 ) == "-annotation" ){
 	string prefix = tag.substr( 0,  tag.length() - 11 );
 	AnnotationType::AnnotationType type = stringToAT( prefix );
@@ -747,10 +747,10 @@ namespace folia {
       xmlNode *p = node->children;
       while ( p ){
 	if ( p->type == XML_ELEMENT_NODE ){
-	  if ( Name(p) == "meta" &&
+	  if ( TiCC::Name(p) == "meta" &&
 	       checkNS( p, NSFOLIA ) ){
 	    if ( type == "native" ){
-	      string txt = XmlContent( p );
+	      string txt = TiCC::XmlContent( p );
 	      KWargs att = getAttributes( p );
 	      string sid = att["id"];
 	      if ( !txt.empty() ){
@@ -763,7 +763,7 @@ namespace folia {
 	      throw MetaDataError("Encountered a meta element but metadata type is not native!");
 	    }
 	  }
-	  else if ( Name(p) == "foreign-data" &&
+	  else if ( TiCC::Name(p) == "foreign-data" &&
 		    checkNS( p, NSFOLIA ) ){
 	    if ( type == "native" ){
 	      throw MetaDataError("Encountered a foreign-data element but metadata type is native!");
@@ -787,9 +787,9 @@ namespace folia {
     int minVersion = 0;
     int subVersion = 0;
     vector<string> vec;
-    split_at( vers, vec, "." );
+    TiCC::split_at( vers, vec, "." );
     for ( size_t i=0; i < vec.size(); ++i ){
-      int val = stringTo<int>( vec[i] );
+      int val = TiCC::stringTo<int>( vec[i] );
       if ( i == 0 )
 	majVersion = val;
       else if ( i == 1 )
@@ -824,9 +824,9 @@ namespace folia {
     int minVersion = 0;
     int subVersion = 0;
     vector<string> vec;
-    split_at( vers, vec, "." );
+    TiCC::split_at( vers, vec, "." );
     for ( size_t i=0; i < vec.size(); ++i ){
-      int val = stringTo<int>( vec[i] );
+      int val = TiCC::stringTo<int>( vec[i] );
       if ( i == 0 )
 	majVersion = val;
       else if ( i == 1 )
@@ -888,7 +888,7 @@ namespace folia {
       setmode( "nochecktext" );
     }
     setDocumentProps( att );
-    FoliaElement *result = FoliaImpl::createElement( Name(root), this );
+    FoliaElement *result = FoliaImpl::createElement( TiCC::Name(root), this );
     if ( debug > 2 ){
       cerr << "created " << root << endl;
     }
@@ -896,13 +896,13 @@ namespace folia {
     xmlNode *p = root->children;
     while ( p ){
       if ( p->type == XML_ELEMENT_NODE ){
-	if ( Name(p) == "metadata" &&
+	if ( TiCC::Name(p) == "metadata" &&
 	     checkNS( p, NSFOLIA ) ){
 	  if ( debug > 1 ){
 	    cerr << "Found metadata" << endl;
 	  }
 	  KWargs atts = getAttributes( p );
-	  string type = lowercase(atts["type"]);
+	  string type = TiCC::lowercase(atts["type"]);
 	  if ( type.empty() ){
 	    type = "native";
 	  }
@@ -918,7 +918,7 @@ namespace folia {
 	  }
 	  xmlNode *m = p->children;
 	  while ( m ){
-	    if ( Name(m)  == "METATRANSCRIPT" ){
+	    if ( TiCC::Name(m)  == "METATRANSCRIPT" ){
 	      if ( !checkNS( m, NSIMDI ) || type != "imdi" )
 		throw runtime_error( "imdi != imdi " );
 	      if ( debug > 1 ){
@@ -929,21 +929,21 @@ namespace folia {
 	      }
 	      _metadata->add_foreign( xmlCopyNode(m,1) );
 	    }
-	    else if ( Name( m ) == "annotations" &&
+	    else if ( TiCC::Name( m ) == "annotations" &&
 		      checkNS( m, NSFOLIA ) ){
 	      if ( debug > 1 ){
 		cerr << "found annotations" << endl;
 	      }
 	      parseannotations( m );
 	    }
-	    else if ( Name( m ) == "meta" &&
+	    else if ( TiCC::Name( m ) == "meta" &&
 		      checkNS( m, NSFOLIA ) ){
 	      if ( debug > 1 ){
 		cerr << "found meta node" << endl;
 	      }
 	      parsemeta( m );
 	    }
-	    else if ( Name(m)  == "foreign-data" &&
+	    else if ( TiCC::Name(m)  == "foreign-data" &&
 		      checkNS( m, NSFOLIA ) ){
 	      FoliaElement *t = FoliaImpl::createElement( "foreign-data", this );
 	      if ( t ){
@@ -963,7 +963,7 @@ namespace folia {
 		}
 	      }
 	    }
-	    else if ( Name(m)  == "submetadata" &&
+	    else if ( TiCC::Name(m)  == "submetadata" &&
 		      checkNS( m, NSFOLIA ) ){
 	      parsesubmeta( m );
 	    }
@@ -975,8 +975,8 @@ namespace folia {
 	  }
 	}
 	else {
-	  if ( p && getNS(p) == NSFOLIA ){
-	    string tag = Name( p );
+	  if ( p && TiCC::getNS(p) == NSFOLIA ){
+	    string tag = TiCC::Name( p );
 	    FoliaElement *t = FoliaImpl::createElement( tag, this );
 	    if ( t ){
 	      if ( debug > 2 ){
@@ -1022,20 +1022,20 @@ namespace folia {
   void Document::getstyles(){
     xmlNode *pnt = _xmldoc->children;
     while ( pnt ){
-      if ( pnt->type == XML_PI_NODE && Name(pnt) == "xml-stylesheet" ){
+      if ( pnt->type == XML_PI_NODE && TiCC::Name(pnt) == "xml-stylesheet" ){
 	string content = (const char*)pnt->content;
 	string type;
 	string href;
 	vector<string> v;
-	split( content, v );
+	TiCC::split( content, v );
 	if ( v.size() == 2 ){
 	  vector<string> w;
-	  split_at( v[0], w, "=" );
+	  TiCC::split_at( v[0], w, "=" );
 	  if ( w.size() == 2 && w[0] == "type" ){
 	    type = w[1].substr(1,w[1].length()-2);
 	  }
 	  w.clear();
-	  split_at( v[1], w, "=" );
+	  TiCC::split_at( v[1], w, "=" );
 	  if ( w.size() == 2 && w[0] == "href" ){
 	    href = w[1].substr(1,w[1].length()-2);
 	  }
@@ -1124,14 +1124,14 @@ namespace folia {
     if ( debug > 2 ){
       using TiCC::operator<<;
       string dum;
-      cerr << "root = " << Name( root ) << endl;
-      cerr << "in namespace " << getNS( root, dum ) << endl;
+      cerr << "root = " << TiCC::Name( root ) << endl;
+      cerr << "in namespace " << TiCC::getNS( root, dum ) << endl;
       cerr << "namespace list" << getNS_definitions( root ) << endl;
     }
     FoliaElement *result = 0;
     if ( root  ){
-      if ( Name( root ) == "FoLiA" ){
-	string ns = getNS( root );
+      if ( TiCC::Name( root ) == "FoLiA" ){
+	string ns = TiCC::getNS( root );
 	if ( ns.empty() ){
 	  if ( permissive() ){
 	    _foliaNsIn_href = xmlCharStrdup( NSFOLIA.c_str() );
@@ -1172,7 +1172,7 @@ namespace folia {
 	  throw XmlError( e.what() );
 	}
       }
-      else if ( Name( root ) == "DCOI" &&
+      else if ( TiCC::Name( root ) == "DCOI" &&
 		checkNS( root, NSDCOI ) ){
 	throw XmlError( "DCOI format not supported" );
       }
@@ -1546,7 +1546,7 @@ namespace folia {
 	    args["alias"] = alias->second;
 	  }
 	}
-	xmlNode *n = XmlNewNode( foliaNs(), label );
+	xmlNode *n = TiCC::XmlNewNode( foliaNs(), label );
 	addAttributes( n, args );
 	xmlAddChild( node, n );
 	++it;
@@ -1556,7 +1556,7 @@ namespace folia {
 
   void Document::addsubmetadata( xmlNode *node ) const {
     for ( const auto& it : submetadata ){
-      xmlNode *sm = XmlNewNode( foliaNs(), "submetadata" );
+      xmlNode *sm = TiCC::XmlNewNode( foliaNs(), "submetadata" );
       KWargs atts;
       atts["xml:id"] = it.first;
       addAttributes( sm, atts );
@@ -1571,7 +1571,7 @@ namespace folia {
 	// using TiCC::operator<<;
 	// cerr << "atts: " << atts << endl;
 	for ( const auto& av : atts ){
-	  xmlNode *m = XmlNewNode( foliaNs(), "meta" );
+	  xmlNode *m = TiCC::XmlNewNode( foliaNs(), "meta" );
 	  KWargs args;
 	  args["id"] = av.first;
 	  addAttributes( m, args );
@@ -1609,7 +1609,7 @@ namespace folia {
 	atts["type"] = _metadata->type();
 	addAttributes( node, atts );
 	for ( const auto& it : _metadata->get_avs() ){
-	  xmlNode *m = XmlNewNode( foliaNs(), "meta" );
+	  xmlNode *m = TiCC::XmlNewNode( foliaNs(), "meta" );
 	  xmlAddChild( m, xmlNewText( (const xmlChar*)it.second.c_str()) );
 	  KWargs atts;
 	  atts["id"] = it.first;
@@ -1682,8 +1682,8 @@ namespace folia {
       attribs["external"] = "yes";
     addAttributes( root, attribs );
 
-    xmlNode *md = xmlAddChild( root, XmlNewNode( foliaNs(), "metadata" ) );
-    xmlNode *an = xmlAddChild( md, XmlNewNode( foliaNs(), "annotations" ) );
+    xmlNode *md = xmlAddChild( root, TiCC::XmlNewNode( foliaNs(), "metadata" ) );
+    xmlNode *an = xmlAddChild( md, TiCC::XmlNewNode( foliaNs(), "annotations" ) );
     setannotations( an );
     setmetadata( md );
     for ( size_t i=0; i < foliadoc->size(); ++i ){
@@ -1732,10 +1732,10 @@ namespace folia {
     KWargs kw = getArgs( args );
     string val = kw["leftcontext"];
     if ( !val.empty() )
-      leftcontext = stringTo<size_t>(val);
+      leftcontext = TiCC::stringTo<size_t>(val);
     val = kw["rightcontext"];
     if ( !val.empty() )
-      rightcontext = stringTo<size_t>(val);
+      rightcontext = TiCC::stringTo<size_t>(val);
     vector<vector<Word*> > result;
     vector<Word*> matched;
     if ( pat.regexp )
@@ -1749,7 +1749,7 @@ namespace folia {
       bool goon = true;
       for ( size_t i = startpos; i < mywords.size() && goon ; ++i ){
 	//      cerr << "inner LOOP I = " << i << " myword=" << mywords[i] << endl;
-	UnicodeString value;
+	icu::UnicodeString value;
 	if ( pat.matchannotation == BASE )
 	  value = mywords[i]->text();
 	else {
@@ -1757,7 +1757,7 @@ namespace folia {
 	  if ( v.size() != 1 ){
 	    continue;
 	  }
-	  value = UTF8ToUnicode(v[0]->cls());
+	  value = TiCC::UnicodeFromUTF8(v[0]->cls());
 	}
 	bool done = false;
 	bool flag = false;
@@ -1866,20 +1866,20 @@ namespace folia {
     KWargs kw = getArgs( args );
     matchannotationset = kw["matchannotationset"];
     if (kw["regexp"] != "" )
-      regexp = stringTo<bool>( kw["regexp"] );
+      regexp = TiCC::stringTo<bool>( kw["regexp"] );
     if (kw["maxgapsize"] != "" )
-      maxgapsize = stringTo<int>( kw["maxgapsize"] );
+      maxgapsize = TiCC::stringTo<int>( kw["maxgapsize"] );
     else
       maxgapsize = 10;
     if ( kw["casesensitive"] != "" )
-      case_sensitive = stringTo<bool>( kw["casesensitive"] );
+      case_sensitive = TiCC::stringTo<bool>( kw["casesensitive"] );
     for ( const auto& pat : pat_vec ){
       if ( pat.find( "regexp('" ) == 0 &&
 	   pat.rfind( "')" ) == pat.length()-2 ){
 	string tmp = pat.substr( 8, pat.length() - 10 );
-	UnicodeString us = UTF8ToUnicode( tmp );
+	icu::UnicodeString us = TiCC::UnicodeFromUTF8( tmp );
 	UErrorCode u_stat = U_ZERO_ERROR;
-	RegexMatcher *matcher = new RegexMatcher(us, 0, u_stat);
+	icu::RegexMatcher *matcher = new icu::RegexMatcher(us, 0, u_stat);
 	if ( U_FAILURE(u_stat) ){
 	  throw runtime_error( "failed to create a regexp matcher with '" + tmp + "'" );
 	}
@@ -1887,7 +1887,7 @@ namespace folia {
 	sequence.push_back( "" );
       }
       else {
-	sequence.push_back( UTF8ToUnicode(pat) );
+	sequence.push_back( TiCC::UnicodeFromUTF8(pat) );
 	matchers.push_back( 0 );
 	if ( !case_sensitive ){
 	  sequence.back().toLower();
@@ -1903,20 +1903,20 @@ namespace folia {
     KWargs kw = getArgs( args );
     matchannotationset = kw["matchannotationset"];
     if (kw["regexp"] != "" )
-      regexp = stringTo<bool>( kw["regexp"] );
+      regexp = TiCC::stringTo<bool>( kw["regexp"] );
     if (kw["maxgapsize"] != "" )
-      maxgapsize = stringTo<int>( kw["maxgapsize"] );
+      maxgapsize = TiCC::stringTo<int>( kw["maxgapsize"] );
     else
       maxgapsize = 10;
     if ( kw["casesensitive"] != "" )
-      case_sensitive = stringTo<bool>( kw["casesensitive"] );
+      case_sensitive = TiCC::stringTo<bool>( kw["casesensitive"] );
     for ( const auto& pat : pat_vec ){
       if ( pat.find( "regexp('" ) == 0 &&
 	   pat.rfind( "')" ) == pat.length()-2 ){
 	string tmp = pat.substr( 8, pat.length() - 10 );
-	UnicodeString us = UTF8ToUnicode( tmp );
+	icu::UnicodeString us = TiCC::UnicodeFromUTF8( tmp );
 	UErrorCode u_stat = U_ZERO_ERROR;
-	RegexMatcher *matcher = new RegexMatcher(us, 0, u_stat);
+	icu::RegexMatcher *matcher = new icu::RegexMatcher(us, 0, u_stat);
 	if ( U_FAILURE(u_stat) ){
 	  throw runtime_error( "failed to create a regexp matcher with '" + tmp + "'" );
 	}
@@ -1924,7 +1924,7 @@ namespace folia {
 	sequence.push_back( "" );
       }
       else {
-	sequence.push_back( UTF8ToUnicode(pat) );
+	sequence.push_back( TiCC::UnicodeFromUTF8(pat) );
 	matchers.push_back( 0 );
 	if ( !case_sensitive ){
 	  sequence.back().toLower();
@@ -1945,9 +1945,9 @@ namespace folia {
     return os;
   }
 
-  bool Pattern::match( const UnicodeString& us, size_t& pos, int& gap,
+  bool Pattern::match( const icu::UnicodeString& us, size_t& pos, int& gap,
 		       bool& done, bool& flag ) const {
-    UnicodeString s = us;
+    icu::UnicodeString s = us;
     //  cerr << "gap = " << gap << "cursor=" << pos << " vergelijk '" <<  sequence[pos] << "' met '" << us << "'" << endl;
     if ( matchers[pos] ){
       matchers[pos]->reset( s );
