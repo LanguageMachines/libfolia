@@ -79,7 +79,7 @@
 	"contIntegration": "https://travis-ci.org/LanguageMachines/libfolia",
 	"releaseNotes": "https://github.com/LanguageMachines/libfolia/releases",
 	"developmentStatus": "active",
-	"keywords":  [ "nlp", "natural language processing" ],
+	"keywords":  [ "nlp", "natural language processing", "folia", "xml", "linguistic annotation" ],
     "referencePublication": [
 		{
 			"@type": "ScholarlyArticle",
