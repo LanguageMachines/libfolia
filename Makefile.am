@@ -2,7 +2,7 @@ ACLOCAL_AMFLAGS = -I m4 --install
 
 SUBDIRS = src include m4
 
-EXTRA_DIST = bootstrap.sh AUTHORS TODO NEWS README.md folia.pc.in
+EXTRA_DIST = bootstrap.sh AUTHORS TODO NEWS README.md folia.pc.in codemeta.json
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = folia.pc
