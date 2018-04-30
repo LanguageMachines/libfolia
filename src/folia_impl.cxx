@@ -3596,7 +3596,7 @@ namespace folia {
       if ( ref->element_id() != Word_t
 	   && ref->element_id() != Phoneme_t
 	   && ref->element_id() != Morpheme_t ) {
-	throw XmlError( "WordRefence id=" + id + " refers a non-word: "
+	throw XmlError( "WordReference id=" + id + " refers to a non-word: "
 			+ ref->xmltag() );
       }
       string tval = atts["t"];
@@ -3604,8 +3604,8 @@ namespace folia {
 	string tc = ref->textclass();
 	string rtval = ref->str(tc);
 	if ( tval != rtval ){
-	  throw XmlError( "WordRefence id=" + id + " has another value for "
-			  + " the t attribute them it's reference. ("
+	  throw XmlError( "WordReference id=" + id + " has another value for "
+			  + " the t attribute than it's reference. ("
 			  + tval + " versus " + rtval + ")" );
 	}
       }
