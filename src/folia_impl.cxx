@@ -1618,6 +1618,18 @@ namespace folia {
 		      + ", it was already connected to a "
 		      +  c->parent()->classname() + " id=" + c->parent()->id() );
     }
+    if ( c->element_id() == WordReference_t ){
+      // string tval = atts["t"];
+      // if ( !tval.empty() ){
+      // 	string tc = ref->textclass();
+      // 	string rtval = ref->str(tc);
+      // 	if ( tval != rtval ){
+      // 	  throw XmlError( "WordReference id=" + id + " has another value for "
+      // 			  + "the t attribute than it's reference. ("
+      // 			  + tval + " versus " + rtval + ")" );
+      // 	}
+      // }
+    }
     if ( c->element_id() == TextContent_t && element_id() == Word_t ) {
       string val = c->str();
       val = trim( val );
@@ -3599,16 +3611,21 @@ namespace folia {
 	throw XmlError( "WordReference id=" + id + " refers to a non-word: "
 			+ ref->xmltag() );
       }
-      string tval = atts["t"];
-      if ( !tval.empty() ){
-	string tc = ref->textclass();
-	string rtval = ref->str(tc);
-	if ( tval != rtval ){
-	  throw XmlError( "WordReference id=" + id + " has another value for "
-			  + " the t attribute than it's reference. ("
-			  + tval + " versus " + rtval + ")" );
-	}
-      }
+      // Disabled test! should consider the textclas of the yet unknown
+      // parent!
+      // addable() should check this. But that is impossible!
+      // we don't return a WordReference but the ref to the word!
+      //
+      // string tval = atts["t"];
+      // if ( !tval.empty() ){
+      // 	string tc = ref->textclass();
+      // 	string rtval = ref->str(tc);
+      // 	if ( tval != rtval ){
+      // 	  throw XmlError( "WordReference id=" + id + " has another value for "
+      // 			  + "the t attribute than it's reference. ("
+      // 			  + tval + " versus " + rtval + ")" );
+      // 	}
+      // }
       ref->increfcount();
     }
     else {
