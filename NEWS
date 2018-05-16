@@ -1,3 +1,12 @@
+1.13 2018-05-16
+[Ko van der Sloot]
+* disabled WordRefrence test. It was incomplete, and hard to do
+* use icu:: namespace
+
+[Maarten van Gompel]
+* added codemeta.json
+* fix spelling errors in error messages
+
 1.12 2018-02-19
 * configuration cleanup. MacOSX is better supported now.
 * folialint now supports --fixtext (handle with care!)
