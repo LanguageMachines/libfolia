@@ -2539,6 +2539,9 @@ namespace folia {
     if ( _offset >= 0 ) {
       attribs["offset"] = TiCC::toString( _offset );
     }
+    if ( !_ref.empty() ){
+      attribs["ref"] = _ref;
+    }
     return attribs;
   }
 
@@ -2557,7 +2560,7 @@ namespace folia {
     return 0;
   }
 
-   FoliaElement *PhonContent::getreference() const {
+  FoliaElement *PhonContent::getreference() const {
     FoliaElement *ref = 0;
     if ( _offset == -1 ){
       return 0;
