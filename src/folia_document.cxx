@@ -1072,7 +1072,7 @@ namespace folia {
 	  txt->getreference();
 	}
 	catch( UnresolvableTextContent& e ){
-	  string msg = "Text for " + txt->parent()->xmltag() + ", ID="
+	  string msg = "Text for " + txt->parent()->xmltag() + "(ID="
 	    + txt->parent()->id() + ", textclass='" + txt->cls()
 	    + "'), has incorrect offset " + TiCC::toString(offset);
 	  string ref = txt->ref();
