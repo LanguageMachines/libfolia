@@ -122,7 +122,7 @@ namespace folia {
     }
     size_t len = root_node->size();
     for ( size_t i=0; i < len; ++i ){
-      _os << root_node->index(i)->xmlstring() << endl;
+      _os << "    " << root_node->index(i)->xmlstring(true,2) << endl;
     }
     for ( size_t i=0; i < len; ++i ){
       root_node->remove( i, true );
