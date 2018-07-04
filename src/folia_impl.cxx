@@ -735,6 +735,19 @@ namespace folia {
     return result;
   }
 
+  const string FoliaElement::xmlstring( bool format, int indent ) const{
+    // serialize to a string (XML fragment)
+    xmlNode *n = xml( true, false );
+    xmlSetNs( n, xmlNewNs( n, (const xmlChar *)NSFOLIA.c_str(), 0 ) );
+    xmlBuffer *buf = xmlBufferCreate();
+    //    xmlKeepBlanksDefault(0);
+    xmlNodeDump( buf, 0, n, indent, (format?1:0) );
+    string result = (const char*)xmlBufferContent( buf );
+    xmlBufferFree( buf );
+    xmlFreeNode( n );
+    return result;
+  }
+
   string tagToAtt( const FoliaElement* c ) {
     string att;
     if ( c->isSubClass( Feature_t ) ) {

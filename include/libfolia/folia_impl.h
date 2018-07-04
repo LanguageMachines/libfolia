@@ -270,6 +270,7 @@ namespace folia {
     //XML (de)serialisation
     virtual FoliaElement* parseXml( const xmlNode * ) = 0;
     const std::string xmlstring() const; // serialize to a string (XML fragment)
+    const std::string xmlstring( bool, int=0 ) const; // serialize to a string (XML fragment)
     virtual xmlNode *xml( bool, bool = false ) const = 0; //serialize to XML
 
     // text/string content
