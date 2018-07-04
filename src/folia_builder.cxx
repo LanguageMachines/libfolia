@@ -36,50 +36,75 @@ using namespace std;
 
 namespace folia {
 
-  Reader::Reader( std::ostream& os, const std::string& id ):
+  Builder::Builder( std::ostream& os, const std::string& id ):
     _os(os),
-    _id(id),
     header_done(false),
     finished(false)
   {
+    string arg = "id='"+id+"'";
+    cerr << "create builder: " << arg << endl;
+    _doc = new Document(arg);
+    KWargs args;
+    args["id"] = id + ".text";
+    Text *t = new Text( args );
+    _doc->append( t );
+    root_node = t;
   }
 
-  Reader::~Reader(){
+  Builder::~Builder(){
     output_footer();
   }
 
-  bool Reader::add( FoliaElement *el ){
+  bool Builder::add( FoliaElement *el ){
     try {
       root_node->append( el );
     }
     catch ( exception& e ){
-      cerr << "folia::Reader(): " << e.what() << endl;
+      cerr << "folia::Builder(): " << e.what() << endl;
       return false;
     }
     return true;
   }
 
-  bool Reader::output_header(){
+  bool Builder::output_header(){
     if ( finished ){
-      cerr << "folia::Reader(): output_header is called on finished reader." << endl;
-      return false;
+      return true;
     }
     else if ( header_done ){
-      cerr << "folia::Reader(): output_header is called twice!" << endl;
+      cerr << "folia::Builder(): output_header is called twice!" << endl;
       return false;
     }
     header_done = true;
-    _os << "HEADER" << endl;
+    stringstream ss;
+    _doc->save( ss );
+    string data = ss.str();
+    string::size_type pos1 = data.find("<text");
+    string::size_type pos2;
+    if ( root_node->size() == 0 ){
+      pos2 = data.find( "/>" , pos1 );
+    }
+    else {
+      pos2 = data.find( ">" , pos1 );
+    }
+    string head = data.substr( 0, pos2 ) + ">";
+    if ( root_node->size() == 0 ){
+      pos2 += 2;
+    }
+    else {
+      pos2 = data.find( "</text>" , pos1 );
+      pos2 += 6;
+    }
+    _footer = "  </text>" + data.substr( pos2 );
+    _os << head << endl;
     return true;
   }
 
-  bool Reader::output_footer(){
+  bool Builder::output_footer(){
     if ( finished ){
-      cerr << "folia::Reader(): output_footer is called on finished reader." << endl;
-      return false;
+      return true;
     }
     else if ( flush() ){
-      _os << "FOOTER" << endl;
+      _os << _footer << endl;
       finished = true;
       return true;
     }
@@ -88,18 +113,27 @@ namespace folia {
     }
   }
 
-  bool Reader::flush() {
+  bool Builder::flush() {
     if ( finished ){
-      cerr << "folia::Reader(): flush() is called on finished reader." << endl;
-      return false;
+      return true;
     }
     else if ( !header_done ){
       output_header();
     }
-    _os << root_node->xmlstring() << endl;
-    delete root_node;
-    root_node = 0;
+    size_t len = root_node->size();
+    for ( size_t i=0; i < len; ++i ){
+      _os << root_node->index(i)->xmlstring() << endl;
+    }
+    for ( size_t i=0; i < len; ++i ){
+      root_node->remove( i, true );
+    }
     return true;
   }
 
+  bool Builder::finish() {
+    if ( finished ){
+      return true;
+    }
+    return output_footer();
+  }
 } // namespace folia

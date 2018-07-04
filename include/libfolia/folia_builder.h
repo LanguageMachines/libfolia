@@ -25,8 +25,8 @@
 
 */
 
-#ifndef FOLIA_READER_H
-#define FOLIA_READER_H
+#ifndef FOLIA_BUILDER_H
+#define FOLIA_BUILDER_H
 
 #include <string>
 #include <iostream>
@@ -34,24 +34,26 @@
 
 namespace folia {
 
-  class Reader {
+  class Builder {
   public:
-    Reader( std::ostream&, const std::string& );
-    ~Reader();
+    Builder( std::ostream&, const std::string& );
+    ~Builder();
     Document *doc() const { return _doc; }
     bool add( FoliaElement * );
     bool output_header();
     bool output_footer();
     bool flush();
-
+    bool finish();
   private:
     Document *_doc;
     FoliaElement *root_node;
     std::ostream& _os;
-    const std::string& _id;
+    std::string _footer;
     bool header_done;
     bool finished;
+  protected:
+    Builder();
   };
 
 }
-#endif // FOLIA_READER_H
+#endif // FOLIA_BUILDER_H
