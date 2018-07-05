@@ -53,6 +53,7 @@ namespace folia {
 
   Builder::~Builder(){
     output_footer();
+    delete _doc;
   }
 
   bool Builder::add( FoliaElement *el ){
