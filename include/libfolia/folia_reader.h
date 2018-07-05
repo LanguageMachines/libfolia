@@ -22,15 +22,29 @@
       https://github.com/LanguageMachines/ticcutils/issues
   or send mail to:
       lamasoftware (at ) science.ru.nl
+
 */
-#ifndef FOLIA_H
-#define FOLIA_H
 
-#include "libfolia/folia_types.h"
-#include "libfolia/folia_utils.h"
-#include "libfolia/folia_impl.h"
-#include "libfolia/folia_document.h"
-#include "libfolia/folia_builder.h"
-#include "libfolia/folia_reader.h"
+#ifndef FOLIA_READER_H
+#define FOLIA_READER_H
 
-#endif
+#include <string>
+#include <iostream>
+#include "libfolia/folia.h"
+#include "libxml/xmlreader.h"
+
+namespace folia {
+
+  class Reader {
+  public:
+    Reader( const std::string&, const std::string& );
+    ~Reader();
+    xmlNode *get_node( const std::string& );
+  private:
+    xmlTextReader *_TR;
+  protected:
+    Reader();
+  };
+
+}
+#endif // FOLIA_READER_H

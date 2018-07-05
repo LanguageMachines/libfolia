@@ -23,14 +23,41 @@
   or send mail to:
       lamasoftware (at ) science.ru.nl
 */
-#ifndef FOLIA_H
-#define FOLIA_H
+#include <cassert>
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <stdexcept>
+#include "libfolia/folia.h"
 
-#include "libfolia/folia_types.h"
-#include "libfolia/folia_utils.h"
-#include "libfolia/folia_impl.h"
-#include "libfolia/folia_document.h"
-#include "libfolia/folia_builder.h"
-#include "libfolia/folia_reader.h"
+using namespace std;
 
-#endif
+namespace folia {
+
+  Reader::Reader( const std::string& file_name, const std::string& id )
+  {
+    _TR = xmlNewTextReaderFilename( file_name.c_str() );
+    if ( _TR == 0 ){
+      throw( runtime_error( "folia::Reader(), init failed on '" + file_name
+			    + "'" ) );
+    }
+  }
+
+  xmlNode *Reader::get_node( const string& tag ){
+    int ret = xmlTextReaderRead(_TR);
+    while ( ret ){
+      string local_name = (const char*)xmlTextReaderLocalName(_TR);
+      if ( local_name == tag
+	   && xmlTextReaderNodeType(_TR) == 1 ){
+	return xmlTextReaderExpand(_TR);
+      }
+      ret = xmlTextReaderRead(_TR);
+    }
+    return 0;
+  }
+
+  Reader::~Reader(){
+    xmlFreeTextReader( _TR );
+  }
+
+} // namespace folia
