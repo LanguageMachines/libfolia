@@ -1,0 +1,126 @@
+{
+    "@context": [
+        "https://doi.org/10.5063/schema/codemeta-2.0",
+        "http://schema.org",
+        {
+            "entryPoints": { "@reverse": "schema:actionApplication" },
+            "interfaceType": { "@id": "codemeta:interfaceType" }
+        }
+    ],
+    "@type": "SoftwareSourceCode",
+    "identifier": "libfolia",
+    "name": "libfolia",
+    "version": "1.14",
+    "description": "This is a C++ Library for working with the Format for Linguistic Annotation (FoLiA).",
+    "license": "https://spdx.org/licenses/GPL-3.0",
+	"url": "https://github.com/LanguageMachines/libfolia",
+    "producer": {
+        "@id": "https://www.ru.nl/clst",
+        "@type": "Organization",
+        "name": "Centre for Language and Speech Technology",
+        "url": "https://www.ru.nl/clst",
+        "parentOrganization": {
+            "@id": "https://www.ru.nl/cls",
+            "@type": "Organization",
+            "name": "Centre for Language Studies",
+            "url": "https://www.ru.nl/cls",
+            "parentOrganization": {
+                "@id": "https://www.ru.nl",
+                "name": "Radboud University",
+                "@type": "Organization",
+                "url": "https://www.ru.nl",
+                "location": {
+                    "@type": "Place",
+                    "name": "Nijmegen"
+                }
+            }
+
+        }
+    },
+    "author": [
+		{
+			"@type": "Person",
+			"givenName": "Ko",
+			"familyName": "van der Sloot",
+			"email": "ko.vandersloot@let.ru.nl",
+			"affiliation": { "@id": "https://www.ru.nl/clst" }
+		},
+		{
+			"@id": "https://orcid.org/0000-0002-1046-0006",
+			"@type": "Person",
+			"givenName": "Maarten",
+			"familyName": "van Gompel",
+			"email": "proycon@anaproy.nl",
+			"affiliation": { "@id": "https://www.ru.nl/clst" }
+		}
+	],
+	"sourceOrganization": { "@id": "https://www.ru.nl/clst" },
+	"programmingLanguage": {
+		"@type": "ComputerLanguage",
+		"identifier": "c++",
+		"name": "C++"
+	},
+	"operatingSystem": "POSIX",
+	"codeRepository": "https://github.com/LanguageMachines/libfolia",
+    "softwareRequirements": [
+        {
+			"@type": "SoftwareApplication",
+			"identifier": "icu",
+			"name": "icu"
+		},
+        {
+			"@type": "SoftwareApplication",
+			"identifier": "libxml2",
+			"name": "libxml2"
+		},
+        {
+			"@type": "SoftwareApplication",
+			"identifier": "ticcutils",
+			"name": "ticcutils"
+		}
+	],
+	"readme": "https://github.com/LanguageMachines/libfolia/blob/master/README.md",
+	"issueTracker": "https://github.com/LanguageMachines/libfolia/issues",
+	"contIntegration": "https://travis-ci.org/LanguageMachines/libfolia",
+	"releaseNotes": "https://github.com/LanguageMachines/libfolia/releases",
+	"developmentStatus": "active",
+	"keywords":  [ "nlp", "natural language processing", "folia", "xml", "linguistic annotation" ],
+    "referencePublication": [
+		{
+			"@type": "ScholarlyArticle",
+			"name": "FoLiA: A practical XML format for linguistic annotation - a descriptive and comparative study",
+			"author": [ "Maarten van Gompel", "Martin Reynaert" ],
+			"pageStart": 63,
+			"pageEnd": 81,
+			"isPartOf": {
+				"@type": "PublicationIssue",
+				"datePublised": "2014",
+				"name": "Computational Linguistics in the Netherlands Journal",
+				"issue": "3"
+			},
+			"url": "http://www.clinjournal.org/sites/clinjournal.org/files/05-vanGompel-Reynaert-CLIN2013.pdf"
+		},
+		{
+			"@type": "TechArticle",
+			"name": "FoLiA: Format for Linguistic Annotation, Documentation",
+			"author": [ "Maarten van Gompel" ],
+			"isPartOf": {
+				"@type": "PublicationIssue",
+				"datePublised": "2014",
+				"name": "Language and Speech Technology Technical Report Series",
+				"issue": "14-01",
+				"location": "Nijmegen, the Netherlands"
+			},
+			"url": "https://github.com/proycon/folia/raw/master/docs/folia.pdf"
+		}
+    ],
+    "entryPoints": [
+        {
+            "@type": "EntryPoint",
+            "name": "folialint",
+            "urlTemplate": "file:///folialint",
+            "description": "FoLiA validation tool",
+            "interfaceType": "CLI"
+        }
+    ]
+}

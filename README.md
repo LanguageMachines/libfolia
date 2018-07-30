@@ -1,6 +1,5 @@
-[![Build Status](https://travis-ci.org/LanguageMachines/libfolia.svg?branch=master)](https://travis-ci.org/LanguageMachines/libfolia) [![Language Machines Badge](http://applejack.science.ru.nl/lamabadge.php/ticcutils)](http://applejack.science.ru.nl/languagemachines/) 
+[![Build Status](https://travis-ci.org/LanguageMachines/libfolia.svg?branch=master)](https://travis-ci.org/LanguageMachines/libfolia) [![Language Machines Badge](http://applejack.science.ru.nl/lamabadge.php/ticcutils)](http://applejack.science.ru.nl/languagemachines/)
 
-===================================
 Libfolia: FoLiA Library for C++
 ===================================
 
@@ -20,7 +19,6 @@ necessary dependency for various other tools that use FoLiA.
 
 libfolia is distributed under the GNU Public Licence v3 (see the file COPYING).
 
------------------------------------------------------------------------
 Installation
 -----------------------------------------------------------------------
 
@@ -59,14 +57,12 @@ dependencies installed:
 and, optionally:
     $ make check
 
------------------------------------------------------------------------
 Documentation
 -----------------------------------------------------------------------
 
 An API reference or tutorial is currently lacking. Contact us if you're
 intending to use libfolia and are in need of documentation.
 
------------------------------------------------------------------------
 Related software
 -----------------------------------------------------------------------
 
@@ -86,7 +82,6 @@ Libfolia is tested (unit and integration tests) using the following extensive te
 
 For more information on FoLiA itself, consult the [FoLiA website](https://proycon.github.io/folia/)
 
------------------------------------------------------------------------
 Acknowledgements
 -----------------------------------------------------------------------
 

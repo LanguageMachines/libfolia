@@ -1000,8 +1000,8 @@ namespace folia {
     }
   }
 
-  //#define DEBUG_TEXT
-  //#define DEBUG_TEXT_DEL
+  //  #define DEBUG_TEXT
+  //  #define DEBUG_TEXT_DEL
 
   const string& FoliaImpl::getTextDelimiter( bool retaintok ) const {
 #ifdef DEBUG_TEXT_DEL
@@ -1617,6 +1617,18 @@ namespace folia {
 		      + ") to a " + classname() + " node, id=" + _id
 		      + ", it was already connected to a "
 		      +  c->parent()->classname() + " id=" + c->parent()->id() );
+    }
+    if ( c->element_id() == WordReference_t ){
+      // string tval = atts["t"];
+      // if ( !tval.empty() ){
+      // 	string tc = ref->textclass();
+      // 	string rtval = ref->str(tc);
+      // 	if ( tval != rtval ){
+      // 	  throw XmlError( "WordReference id=" + id + " has another value for "
+      // 			  + "the t attribute than it's reference. ("
+      // 			  + tval + " versus " + rtval + ")" );
+      // 	}
+      // }
     }
     if ( c->element_id() == TextContent_t && element_id() == Word_t ) {
       string val = c->str();
@@ -2507,8 +2519,8 @@ namespace folia {
 					 ",class='" + cls()
 					 + "') found, but no text match at "
 					 + "offset=" + TiCC::toString(offset())
-					 + " Expected " + TiCC::UnicodeToUTF8(mt)
-					 + " but got " +  TiCC::UnicodeToUTF8(sub) );
+					 + " Expected '" + TiCC::UnicodeToUTF8(mt)
+					 + "' but got '" +  TiCC::UnicodeToUTF8(sub) + "'" );
 	}
       }
     }
@@ -2526,6 +2538,9 @@ namespace folia {
 
     if ( _offset >= 0 ) {
       attribs["offset"] = TiCC::toString( _offset );
+    }
+    if ( !_ref.empty() ){
+      attribs["ref"] = _ref;
     }
     return attribs;
   }
@@ -2545,7 +2560,7 @@ namespace folia {
     return 0;
   }
 
-   FoliaElement *PhonContent::getreference() const {
+  FoliaElement *PhonContent::getreference() const {
     FoliaElement *ref = 0;
     if ( _offset == -1 ){
       return 0;
@@ -3596,19 +3611,24 @@ namespace folia {
       if ( ref->element_id() != Word_t
 	   && ref->element_id() != Phoneme_t
 	   && ref->element_id() != Morpheme_t ) {
-	throw XmlError( "WordRefence id=" + id + " refers a non-word: "
+	throw XmlError( "WordReference id=" + id + " refers to a non-word: "
 			+ ref->xmltag() );
       }
-      string tval = atts["t"];
-      if ( !tval.empty() ){
-	string tc = ref->textclass();
-	string rtval = ref->str(tc);
-	if ( tval != rtval ){
-	  throw XmlError( "WordRefence id=" + id + " has another value for "
-			  + " the t attribute them it's reference. ("
-			  + tval + " versus " + rtval + ")" );
-	}
-      }
+      // Disabled test! should consider the textclas of the yet unknown
+      // parent!
+      // addable() should check this. But that is impossible!
+      // we don't return a WordReference but the ref to the word!
+      //
+      // string tval = atts["t"];
+      // if ( !tval.empty() ){
+      // 	string tc = ref->textclass();
+      // 	string rtval = ref->str(tc);
+      // 	if ( tval != rtval ){
+      // 	  throw XmlError( "WordReference id=" + id + " has another value for "
+      // 			  + "the t attribute than it's reference. ("
+      // 			  + tval + " versus " + rtval + ")" );
+      // 	}
+      // }
       ref->increfcount();
     }
     else {
