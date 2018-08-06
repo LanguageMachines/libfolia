@@ -67,7 +67,7 @@ namespace folia {
     bool case_sensitive;
     int maxgapsize;
     std::vector<icu::UnicodeString> sequence;
-    std::vector<RegexMatcher*> matchers;
+    std::vector<icu::RegexMatcher*> matchers;
     std::string matchannotationset;
   };
 
