@@ -37,7 +37,7 @@ namespace folia {
 
   class Reader {
   public:
-    Reader( const std::string&, const std::string& );
+    Reader( const std::string& );
     ~Reader();
     xmlNode *get_node( const std::string& );
   private:

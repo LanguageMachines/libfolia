@@ -32,5 +32,6 @@
 #include "libfolia/folia_document.h"
 #include "libfolia/folia_builder.h"
 #include "libfolia/folia_reader.h"
+#include "libfolia/folia_processor.h"
 
 #endif

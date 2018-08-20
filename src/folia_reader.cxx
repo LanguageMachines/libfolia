@@ -34,8 +34,7 @@ using namespace std;
 
 namespace folia {
 
-  Reader::Reader( const std::string& file_name, const std::string& id )
-  {
+  Reader::Reader( const string& file_name ){
     _TR = xmlNewTextReaderFilename( file_name.c_str() );
     if ( _TR == 0 ){
       throw( runtime_error( "folia::Reader(), init failed on '" + file_name

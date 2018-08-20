@@ -9,7 +9,7 @@ libfolia_la_LDFLAGS = -version-info 8:0:0
 
 libfolia_la_SOURCES = folia_impl.cxx folia_document.cxx folia_utils.cxx \
 	folia_types.cxx folia_properties.cxx \
-	folia_builder.cxx folia_reader.cxx
+	folia_builder.cxx folia_reader.cxx folia_processor.cxx
 
 bin_PROGRAMS = folialint
 folialint_SOURCES = folialint.cxx
