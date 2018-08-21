@@ -56,6 +56,7 @@ namespace folia {
     FoliaElement *root_node;
     FoliaElement *current_node;
     FoliaElement *last_added;
+    int last_depth;
     std::ostream *_os;
     std::string _footer;
     bool header_done;

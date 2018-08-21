@@ -582,7 +582,14 @@ namespace folia {
       kwargs.erase( it );
     }
     if ( mydoc && !_id.empty() ) {
-      mydoc->addDocIndex( this, _id );
+      try {
+	mydoc->addDocIndex( this, _id );
+      }
+      catch ( DuplicateIDError& e ){
+	if ( element_id() != WordReference_t ){
+	  throw e;
+	}
+      }
     }
     addFeatureNodes( kwargs );
   }
@@ -784,25 +791,27 @@ namespace folia {
       // no retain tokenization, strict for both
       s1 = normalize_spaces( s1 );
       s2 = normalize_spaces( s2 );
-      bool test_fail;
-      if ( isSubClass( Word_t )
-	   || isSubClass( String_t ) ){
-	// Words and Strings are 'per definition' PART of there parents
-	test_fail = ( s1.indexOf( s2 ) < 0 ); // aren't they?
-      }
-      else {
-	// otherwise an exacte match is needed
-	test_fail = ( s1 != s2 );
-      }
-      if ( test_fail ){
-	throw InconsistentText( "text (class="
-				+ cls + ") from node: " + child->xmltag()
-				+ "(" + child->id() + ")"
-				+ " with value '" + TiCC::UnicodeToUTF8(s2)
-				+ "' to element: " + parent->xmltag() +
-				+ "(" + parent->id() + ") which already has "
-				+ "text in that class and value: '"
-				+ TiCC::UnicodeToUTF8(s1) + "'" );
+      if ( !s1.isEmpty() && !s2.isEmpty() ){
+	bool test_fail;
+	if ( isSubClass( Word_t )
+	     || isSubClass( String_t ) ){
+	  // Words and Strings are 'per definition' PART of there parents
+	  test_fail = ( s1.indexOf( s2 ) < 0 ); // aren't they?
+	}
+	else {
+	  // otherwise an exacte match is needed
+	  test_fail = ( s1 != s2 );
+	}
+	if ( test_fail ){
+	  throw InconsistentText( "text (class="
+				  + cls + ") from node: " + child->xmltag()
+				  + "(" + child->id() + ")"
+				  + " with value '" + TiCC::UnicodeToUTF8(s2)
+				  + "' to element: " + parent->xmltag() +
+				  + "(" + parent->id() + ") which already has "
+				  + "text in that class and value: '"
+				  + TiCC::UnicodeToUTF8(s1) + "'" );
+	}
       }
     }
   }
@@ -1643,13 +1652,13 @@ namespace folia {
       // 	}
       // }
     }
-    if ( c->element_id() == TextContent_t && element_id() == Word_t ) {
-      string val = c->str();
-      val = trim( val );
-      if ( val.empty() ) {
-	throw ValueError( "attempt to add an empty <t> to word: " + _id );
-      }
-    }
+    // if ( c->element_id() == TextContent_t && element_id() == Word_t ) {
+    //   string val = c->str();
+    //   val = trim( val );
+    //   if ( val.empty() ) {
+    // 	throw ValueError( "attempt to add an empty <t> to word: " + _id );
+    //   }
+    // }
     if ( c->element_id() == TextContent_t ){
       string cls = c->cls();
       string st = c->sett();
@@ -3607,6 +3616,16 @@ namespace folia {
     return result;
   }
 
+  void WordReference::setAttributes( const KWargs& kwargsin ) {
+    KWargs kwargs = kwargsin;
+    auto it = kwargs.find( "t" );
+    if ( it != kwargs.end() ) {
+      kwargs.erase( it );
+    }
+    FoliaImpl::setAttributes( kwargs );
+  }
+
+
   FoliaElement* WordReference::parseXml( const xmlNode *node ) {
     KWargs atts = getAttributes( node );
     string id = atts["id"];
@@ -3624,7 +3643,7 @@ namespace folia {
 	throw XmlError( "WordReference id=" + id + " refers to a non-word: "
 			+ ref->xmltag() );
       }
-      // Disabled test! should consider the textclas of the yet unknown
+      // Disabled test! should consider the textclass of the yet unknown
       // parent!
       // addable() should check this. But that is impossible!
       // we don't return a WordReference but the ref to the word!
@@ -4039,7 +4058,7 @@ namespace folia {
   New *Correction::getNew() const {
     vector<New*> v = FoliaElement::select<New>( false );
     if ( v.empty() ) {
-      throw NoSuchAnnotation( "new" );
+      return 0;
     }
     return v[0];
   }
@@ -4057,7 +4076,7 @@ namespace folia {
   Original *Correction::getOriginal() const {
     vector<Original*> v = FoliaElement::select<Original>( false );
     if ( v.empty() ) {
-      throw NoSuchAnnotation( "original" );
+      return 0;
     }
     return v[0];
   }

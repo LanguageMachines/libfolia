@@ -1832,7 +1832,7 @@ namespace folia {
     FoliaImpl( PROPS, d ){ classInit(); }
   WordReference( const KWargs& a, Document *d = 0 ):
     FoliaImpl( PROPS, d ){ classInit( a ); }
-
+    void setAttributes( const KWargs& );
   private:
     static properties PROPS;
     FoliaElement* parseXml( const xmlNode *node );
