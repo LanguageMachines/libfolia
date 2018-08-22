@@ -794,6 +794,7 @@ namespace folia {
       if ( !s1.isEmpty() && !s2.isEmpty() ){
 	bool test_fail;
 	if ( isSubClass( Word_t )
+	     || child->isSubClass( TextContent_t )
 	     || isSubClass( String_t ) ){
 	  // Words and Strings are 'per definition' PART of there parents
 	  test_fail = ( s1.indexOf( s2 ) < 0 ); // aren't they?
@@ -806,11 +807,11 @@ namespace folia {
 	  throw InconsistentText( "text (class="
 				  + cls + ") from node: " + child->xmltag()
 				  + "(" + child->id() + ")"
-				  + " with value '" + TiCC::UnicodeToUTF8(s2)
-				  + "' to element: " + parent->xmltag() +
+				  + " with value\n'" + TiCC::UnicodeToUTF8(s2)
+				  + "'\n to element: " + parent->xmltag() +
 				  + "(" + parent->id() + ") which already has "
-				  + "text in that class and value: '"
-				  + TiCC::UnicodeToUTF8(s1) + "'" );
+				  + "text in that class and value: \n'"
+				  + TiCC::UnicodeToUTF8(s1) + "'\n" );
 	}
       }
     }
@@ -849,11 +850,11 @@ namespace folia {
 	throw InconsistentText( "text (class="
 				+ cls + ") from node: " + xmltag()
 				+ "(" + id() + ")"
-				+ " with value '" + TiCC::UnicodeToUTF8(s2)
-				+ "' to element: " + parent->xmltag() +
+				+ " with value\n'" + TiCC::UnicodeToUTF8(s2)
+				+ "'n to element: " + parent->xmltag() +
 				+ "(" + parent->id() + ") which already has "
-				+ "text in that class and value: '"
-				+ TiCC::UnicodeToUTF8(s1) + "'" );
+				+ "text in that class and value: \n'"
+				+ TiCC::UnicodeToUTF8(s1) + "'\n" );
       }
     }
   }
@@ -1652,13 +1653,13 @@ namespace folia {
       // 	}
       // }
     }
-    // if ( c->element_id() == TextContent_t && element_id() == Word_t ) {
-    //   string val = c->str();
-    //   val = trim( val );
-    //   if ( val.empty() ) {
-    // 	throw ValueError( "attempt to add an empty <t> to word: " + _id );
-    //   }
-    // }
+    if ( c->element_id() == TextContent_t && element_id() == Word_t ) {
+      string val = c->str();
+      val = trim( val );
+      if ( val.empty() ) {
+     	throw ValueError( "attempt to add an empty <t> to word: " + _id );
+      }
+    }
     if ( c->element_id() == TextContent_t ){
       string cls = c->cls();
       string st = c->sett();
@@ -2027,7 +2028,7 @@ namespace folia {
 	      string mess = "node " + xmltag() + "(" + id()
 		+ ") has a mismatch for the text in set:" + st
 		+ "\nthe element text ='" + TiCC::UnicodeToUTF8(s1)
-		+ "'\n" + "the deeper text ='" + TiCC::UnicodeToUTF8(s2) + "'";
+		+ "'\n" + " the deeper text ='" + TiCC::UnicodeToUTF8(s2) + "'";
 	      throw( InconsistentText( mess ) );
 	    }
 	  }
@@ -2560,6 +2561,9 @@ namespace folia {
 
     if ( _offset >= 0 ) {
       attribs["offset"] = TiCC::toString( _offset );
+    }
+    if ( !_ref.empty() ) {
+      attribs["ref"] = _ref;
     }
     return attribs;
   }
@@ -3929,6 +3933,16 @@ namespace folia {
 				      (const xmlChar*)value.c_str() ,
 				      value.length() ) );
     return e;
+  }
+
+  void Content::setAttributes( const KWargs& args ){
+    KWargs atts = args;
+    auto it = atts.find( "value" );
+    if ( it != atts.end() ) {
+      value = it->second;
+      atts.erase( it );
+    }
+    FoliaImpl::setAttributes( atts );
   }
 
   FoliaElement* Content::parseXml( const xmlNode *node ) {

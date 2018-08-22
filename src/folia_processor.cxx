@@ -83,7 +83,7 @@ namespace folia {
 	string att = (const char*)xmlTextReaderName(tr);
 	string val = (const char*)xmlTextReaderValue(tr);
 	if ( att == "xml:id" ){
-	  att = "id";
+	  att = "_id";
 	}
 	else if ( att == "xlink:href" ){
 	  att = "href";
@@ -93,6 +93,9 @@ namespace folia {
 	}
 	else if ( att == "xlink:role" ){
 	  att = "role";
+	}
+	else if ( att == "xlink:title" ){
+	  att = "title";
 	}
 	result[att] = val;
       }
@@ -132,7 +135,7 @@ namespace folia {
 	  KWargs in_args = get_attributes( _in_doc );
 	  string id;
 	  if ( !in_args.empty() ){
-	    id = in_args["id"];
+	    id = in_args["_id"];
 	  }
 	  if ( !id.empty() ){
 	    KWargs out_args;
@@ -195,7 +198,7 @@ namespace folia {
 	  }
 	}
 	else if ( name == "text" ){
-	  KWargs args;
+	  KWargs args = get_attributes(_in_doc);
 	  Text *text = new Text( args, _out_doc );
 	  _out_doc->append( text );
 	  root_node = text;
@@ -229,6 +232,32 @@ namespace folia {
     return xmlTextReaderNext(_in_doc);
   }
 
+  void Processor::append_node( FoliaElement *t, int new_depth ){
+    if ( new_depth == last_depth ){
+      cerr << "GELIJK: current node = " << current_node << endl;
+      cerr << "last node = " << last_added << endl;
+      current_node->append( t );
+    }
+    else if ( new_depth > last_depth ){
+      cerr << "DIEPER: current node = " << current_node << endl;
+      current_node = last_added;
+      cerr << "Dus nu: current node = " << current_node << endl;
+      current_node->append( t );
+      last_depth = new_depth;
+    }
+    else if ( new_depth < last_depth  ){
+      cerr << "OMHOOG current node = " << current_node << endl;
+      cerr << "last node = " << last_added << endl;
+      for ( int i=0; i < last_depth-new_depth; ++i ){
+	cerr << "last node = " << last_added << endl;
+	current_node = current_node->parent();
+      }
+      cerr << "NU current node = " << current_node << endl;
+      current_node->append( t );
+      last_depth = new_depth;
+    }
+  }
+
   xmlNode *Processor::get_node( const string& tag ){
     int ret = xmlTextReaderRead(_in_doc);
     while ( ret ){
@@ -245,34 +274,24 @@ namespace folia {
 	  string name = (const char*)xmlTextReaderName(_in_doc);
 	  KWargs atts = get_attributes( _in_doc );
 	  cerr << "name=" << name << " atts=" << toString(atts) << endl;
-	  if ( name == "foreign-data" ){
-	    cerr << "ADD FOREOIGN! "<< endl;
+	  if ( name == "wref" ){
+	    FoliaElement *ref = (*_out_doc)[atts["id"]];
+	    ref->increfcount();
+	    append_node( ref, new_depth );
+	  }
+	  else if ( name == "foreign-data" ){
 	    FoliaElement *t = FoliaImpl::createElement( name, _out_doc );
 	    xmlNode *fd = xmlTextReaderExpand(_in_doc);
 	    t->parseXml( fd );
-	    if ( new_depth == last_depth ){
-	      cerr << "GELIJK: current node = " << current_node << endl;
-	      cerr << "last node = " << last_added << endl;
-	      current_node->append( t );
-	    }
-	    else if ( new_depth > last_depth ){
-	      cerr << "DIEPER: current node = " << current_node << endl;
-	      current_node = last_added;
-	      cerr << "Dus nu: current node = " << current_node << endl;
-	      current_node->append( t );
-	      last_depth = new_depth;
-	    }
-	    else if ( new_depth < last_depth  ){
-	      cerr << "OMHOOG current node = " << current_node << endl;
-	      cerr << "last node = " << last_added << endl;
-	      for ( int i=0; i < last_depth-new_depth; ++i ){
-		cerr << "last node = " << last_added << endl;
-		current_node = current_node->parent();
-	      }
-	      cerr << "NU current node = " << current_node << endl;
-	      current_node->append( t );
-	      last_depth = new_depth;
-	    }
+	    append_node( t, new_depth );
+	    xmlTextReaderNext(_in_doc);
+	  }
+	  else if ( name == "t" ){
+	    cerr << "ADD text!! "<< endl;
+	    FoliaElement *t = FoliaImpl::createElement( name, _out_doc );
+	    xmlNode *fd = xmlTextReaderExpand(_in_doc);
+	    t->parseXml( fd );
+	    append_node( t, new_depth );
 	    xmlTextReaderNext(_in_doc);
 	  }
 	  else {
@@ -287,11 +306,12 @@ namespace folia {
 	      FoliaElement *t = FoliaImpl::createElement( name, _out_doc );
 	      cerr << "created name=" << name << endl;
 	      if ( name == "desc"
+		   || name == "content"
 		   || name == "comment" ){
 		ret = xmlTextReaderRead(_in_doc);
 		const char *val = (const char*)xmlTextReaderValue(_in_doc);
 		if ( val ) {
-		  string value = TiCC::trim(val);
+		  string value = val;
 		  if ( !value.empty() ) {
 		    cerr << "Node VALUE = '" << value << "'" << endl;
 		    atts["value"] = value;
@@ -299,36 +319,17 @@ namespace folia {
 		}
 	      }
 	      t->setAttributes( atts );
-	      if ( new_depth == last_depth ){
-		cerr << "GELIJK: current node = " << current_node << endl;
-		cerr << "last node = " << last_added << endl;
-		current_node->append( t );
-	      }
-	      else if ( new_depth > last_depth ){
-		cerr << "DIEPER: current node = " << current_node << endl;
-		current_node = last_added;
-		cerr << "Dus nu: current node = " << current_node << endl;
-		current_node->append( t );
-		last_depth = new_depth;
-	      }
-	      else if ( new_depth < last_depth  ){
-		cerr << "OMHOOG current node = " << current_node << endl;
-		cerr << "last node = " << last_added << endl;
-		for ( int i=0; i < last_depth-new_depth; ++i ){
-		  cerr << "last node = " << last_added << endl;
-		  current_node = current_node->parent();
-		}
-		cerr << "NU current node = " << current_node << endl;
-		current_node->append( t );
-		last_depth = new_depth;
-	      }
+	      append_node( t, new_depth );
 	      last_added = t;
 	      cerr << "einde current node = " << current_node << endl;
 	      cerr << "last node = " << last_added << endl;
 	    }
 	    else {
-	      // just ignore!
-	      cerr << "ignore this node: '" << nsu << "'" << endl;
+	      // just take as is...
+	      FoliaElement *t = FoliaImpl::createElement( name, _out_doc );
+	      xmlNode *fd = xmlTextReaderExpand(_in_doc);
+	      t->parseXml( fd );
+	      append_node( t, new_depth );
 	      xmlTextReaderNext(_in_doc);
 	    }
 	  }
@@ -336,24 +337,12 @@ namespace folia {
       }
       else if ( type == XML_TEXT_NODE ){
 	XmlText *txt = new XmlText();
-	string value = TiCC::trim((const char*)xmlTextReaderValue(_in_doc));
+	string value = (const char*)xmlTextReaderValue(_in_doc);
 	cerr << "TXT VALUE = '" << value << "'" << endl;
-	if ( value.empty() ) {
-	  txt->setvalue( value );
-	}
+	txt->setvalue( value );
 	int new_depth = xmlTextReaderDepth(_in_doc);
 	cerr << "TEXT last depth=" << last_depth << " new=" << new_depth << endl;
-	if ( last_depth == new_depth ){
-	  current_node->append( txt );
-	}
-	else if ( last_depth > new_depth ){
-	  current_node = current_node->parent();
-	  current_node->append( txt );
-	}
-	else {
-	  current_node = last_added;
-	  current_node->append( txt );
-	}
+	append_node( txt, new_depth );
 	last_added = txt;
 	cerr << "einde current node = " << current_node << endl;
 	cerr << "last node = " << last_added << endl;

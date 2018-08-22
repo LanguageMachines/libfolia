@@ -1205,7 +1205,7 @@ namespace folia {
     FoliaElement* parseXml( const xmlNode * );
     xmlNode *xml( bool, bool = false ) const;
     const std::string content() const { return value; };
-
+    void setAttributes( const KWargs& );
   private:
     static properties PROPS;
     std::string value;

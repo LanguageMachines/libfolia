@@ -51,6 +51,7 @@ namespace folia {
     bool flush();
     bool finish();
   private:
+    void append_node( FoliaElement*, int  );
     xmlTextReader *_in_doc;
     Document *_out_doc;
     FoliaElement *root_node;
