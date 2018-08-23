@@ -40,11 +40,11 @@ namespace folia {
     _in_doc(0),
     _out_doc(0),
     root_node(0),
+    external_node(0),
     current_node(0),
     last_added(0),
     last_depth(2),
     _os(0),
-    paused(false),
     header_done(false),
     finished(false)
   {
@@ -261,8 +261,8 @@ namespace folia {
 
   FoliaElement *Processor::get_node( const string& tag ){
     int ret = 0;
-    if ( paused ){
-      paused = false;
+    if ( external_node != 0 ){
+      external_node = 0;
       ret = 1;
     }
     else {
@@ -284,7 +284,7 @@ namespace folia {
 	  t->parseXml( fd );
 	  append_node( t, new_depth );
 	  xmlTextReaderNext(_in_doc);
-	  paused = true;
+	  external_node = t;
 	  return t;
 	}
 	else {
@@ -372,17 +372,6 @@ namespace folia {
       ret = xmlTextReaderRead(_in_doc);
     }
     return 0;
-  }
-
-  bool Processor::add( FoliaElement *el ){
-    try {
-      root_node->append( el );
-    }
-    catch ( exception& e ){
-      cerr << "folia::Processor(): " << e.what() << endl;
-      return false;
-    }
-    return true;
   }
 
   bool Processor::output_header(){
