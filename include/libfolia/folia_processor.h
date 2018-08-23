@@ -43,15 +43,16 @@ namespace folia {
     Document *init_doc( const std::string&, const std::string& );
     ~Processor();
     Document *doc() const { return _out_doc; };
-    xmlNode *get_node( const std::string& );
+    FoliaElement *get_node( const std::string& );
     int next();
     bool add( FoliaElement * );
+    void append( FoliaElement* );
+    void append_node( FoliaElement *, int );
     bool output_header();
     bool output_footer();
     bool flush();
     bool finish();
   private:
-    void append_node( FoliaElement*, int  );
     xmlTextReader *_in_doc;
     Document *_out_doc;
     FoliaElement *root_node;
@@ -60,6 +61,7 @@ namespace folia {
     int last_depth;
     std::ostream *_os;
     std::string _footer;
+    bool paused;
     bool header_done;
     bool finished;
   };

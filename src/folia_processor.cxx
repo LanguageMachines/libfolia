@@ -44,6 +44,7 @@ namespace folia {
     last_added(0),
     last_depth(2),
     _os(0),
+    paused(false),
     header_done(false),
     finished(false)
   {
@@ -258,18 +259,35 @@ namespace folia {
     }
   }
 
-  xmlNode *Processor::get_node( const string& tag ){
-    int ret = xmlTextReaderRead(_in_doc);
+  FoliaElement *Processor::get_node( const string& tag ){
+    int ret = 0;
+    if ( paused ){
+      paused = false;
+      ret = 1;
+    }
+    else {
+      ret = xmlTextReaderRead(_in_doc);
+    }
     while ( ret ){
       int type = xmlTextReaderNodeType(_in_doc);
       if ( type == XML_ELEMENT_NODE ){
-	string local_name = (const char*)xmlTextReaderLocalName(_in_doc);
-	cerr << "get node name=" << local_name << endl;
-	if ( local_name == tag ){
-	  return xmlTextReaderExpand(_in_doc);
+	string name = (const char*)xmlTextReaderLocalName(_in_doc);
+	int new_depth = xmlTextReaderDepth(_in_doc);
+	cerr << "get node name=" << name << " (" << new_depth << ")" << endl;
+	if ( name == tag ){
+	  cerr << "matched search tag: " << tag << endl;
+	  KWargs atts = get_attributes( _in_doc );
+	  cerr << "name=" << name << " atts=" << toString(atts) << endl;
+	  FoliaElement *t = FoliaImpl::createElement( name, _out_doc );
+	  cerr << "created name=" << name << endl;
+	  xmlNode *fd = xmlTextReaderExpand(_in_doc);
+	  t->parseXml( fd );
+	  append_node( t, new_depth );
+	  xmlTextReaderNext(_in_doc);
+	  paused = true;
+	  return t;
 	}
 	else {
-	  int new_depth = xmlTextReaderDepth(_in_doc);
 	  cerr << "last depth=" << last_depth << " new=" << new_depth << endl;
 	  string name = (const char*)xmlTextReaderName(_in_doc);
 	  KWargs atts = get_attributes( _in_doc );
