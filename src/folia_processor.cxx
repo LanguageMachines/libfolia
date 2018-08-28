@@ -195,7 +195,7 @@ namespace folia {
 	  if ( !src.empty() ){
 	    _out_doc->_metadata = new ExternalMetaData( type, src );
 	  }
-	  else if ( type == "native" ){
+	  else if ( type == "native" || type == "imdi" ){
 	    _out_doc->_metadata = new NativeMetaData( type );
 	  }
 	  else {
