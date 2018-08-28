@@ -338,10 +338,6 @@ namespace folia {
       string buffer = TiCC::bz2ReadFile( s );
       return readFromString( buffer );
     }
-    else if ( TiCC::match_back( s, ".gz" ) ) {
-      string buffer = TiCC::gzReadFile( s );
-      return readFromString( buffer );
-    }
     int cnt = 0;
     xmlSetStructuredErrorFunc( &cnt, (xmlStructuredErrorFunc)error_sink );
     _xmldoc = xmlReadFile( s.c_str(), 0, XML_PARSE_HUGE );
@@ -351,6 +347,7 @@ namespace folia {
       }
       if ( debug )
 	cout << "read a doc from " << s << endl;
+      cout << "COMPRESSIE=" <<xmlGetDocCompressMode(_xmldoc);
       foliadoc = parseXml();
       if ( !validate_offsets() ){
 	throw InconsistentText("MEH");
@@ -429,17 +426,6 @@ namespace folia {
 	string tmpname = fn.substr( 0, fn.length() - 3 ) + "tmp";
 	if ( toXml( tmpname, nsLabel, ( kanon || strip() ) ) ){
 	  bool stat = TiCC::bz2Compress( tmpname, fn );
-	  remove( tmpname.c_str() );
-	  return stat;
-	}
-	else {
-	  return false;
-	}
-      }
-      else  if ( TiCC::match_back( fn, ".gz" ) ){
-	string tmpname = fn.substr( 0, fn.length() - 2 ) + "tmp";
-	if ( toXml( tmpname, nsLabel,  ( kanon || strip() ) ) ){
-	  bool stat = TiCC::gzCompress( tmpname, fn );
 	  remove( tmpname.c_str() );
 	  return stat;
 	}
@@ -1709,11 +1695,15 @@ namespace folia {
     return result;
   }
 
-  bool Document::toXml( const string& filename,
+  bool Document::toXml( const string& file_name,
 			const string& nsLabel, bool kanon ) const {
     if ( foliadoc ){
       xmlDoc *outDoc = to_xmlDoc( nsLabel, kanon );
-      long int res = xmlSaveFormatFileEnc( filename.c_str(), outDoc, "UTF-8", 1 );
+      if ( TiCC::match_back( file_name, ".gz" ) ){
+	xmlSetDocCompressMode(outDoc,9);
+      }
+      long int res = xmlSaveFormatFileEnc( file_name.c_str(), outDoc,
+					   "UTF-8", 1 );
       xmlFreeDoc( outDoc );
       _foliaNsOut = 0;
       if ( res == -1 )
