@@ -39,19 +39,52 @@ namespace folia {
   Processor::Processor():
     _in_doc(0),
     _out_doc(0),
-    root_node(0),
-    external_node(0),
-    current_node(0),
-    last_added(0),
-    last_depth(2),
+    _root_node(0),
+    _external_node(0),
+    _current_node(0),
+    _last_added(0),
+    _last_depth(2),
     _os(0),
-    header_done(false),
-    finished(false)
+    _header_done(false),
+    _finished(false),
+    _ok(false),
+    _debug(false)
   {
   }
 
   Processor::~Processor(){
     xmlFreeTextReader( _in_doc );
+  }
+
+  void Processor::declare( AnnotationType::AnnotationType at,
+			   const string& setname,
+			   const string& args ) {
+    if ( !ok() ){
+      throw logic_error( "declare() called on invalid processor!" );
+    }
+    else if ( _header_done ){
+      throw logic_error( "declare() called on already (partially) saved document!" );
+    }
+    else {
+      _out_doc->declare( at, setname, args );
+    }
+  }
+
+  void Processor::declare( AnnotationType::AnnotationType at,
+			   const string& setname,
+			   const string& annotator,
+			   const string& annotator_type,
+			   const string& time,
+			   const string& args ) {
+    if ( !ok() ){
+      throw logic_error( "declare() called on invalid processor!" );
+    }
+    else if ( _header_done ){
+      throw logic_error( "declare() called on already (partially) saved document!" );
+    }
+    else {
+      _out_doc->declare( at, setname, annotator, annotator_type, time, args );
+    }
   }
 
   pair<string,string> extract_style( const string& value ){
@@ -105,8 +138,9 @@ namespace folia {
     return result;
   }
 
-  Document *Processor::init_doc( const string& file_name,
-				 const string& out_name ){
+  bool Processor::init_doc( const string& file_name,
+			    const string& out_name ){
+    _ok = false;
     _out_doc = new Document();;
     _in_doc = xmlNewTextReaderFilename( file_name.c_str() );
     if ( _in_doc == 0 ){
@@ -202,9 +236,10 @@ namespace folia {
 	  KWargs args = get_attributes(_in_doc);
 	  Text *text = new Text( args, _out_doc );
 	  _out_doc->append( text );
-	  root_node = text;
-	  current_node = text;
-	  return _out_doc;
+	  _root_node = text;
+	  _current_node = text;
+	  _ok = true;
+	  return _ok;
 	}
 	break;
       case 7:
@@ -226,7 +261,8 @@ namespace folia {
       };
       ret = xmlTextReaderRead(_in_doc);
     }
-    return _out_doc;
+    _ok = true;
+    return _ok;
   }
 
   int Processor::next(){
@@ -234,35 +270,47 @@ namespace folia {
   }
 
   void Processor::append_node( FoliaElement *t, int new_depth ){
-    if ( new_depth == last_depth ){
-      cerr << "GELIJK: current node = " << current_node << endl;
-      cerr << "last node = " << last_added << endl;
-      current_node->append( t );
-    }
-    else if ( new_depth > last_depth ){
-      cerr << "DIEPER: current node = " << current_node << endl;
-      current_node = last_added;
-      cerr << "Dus nu: current node = " << current_node << endl;
-      current_node->append( t );
-      last_depth = new_depth;
-    }
-    else if ( new_depth < last_depth  ){
-      cerr << "OMHOOG current node = " << current_node << endl;
-      cerr << "last node = " << last_added << endl;
-      for ( int i=0; i < last_depth-new_depth; ++i ){
-	cerr << "last node = " << last_added << endl;
-	current_node = current_node->parent();
+    if ( new_depth == _last_depth ){
+      if ( _debug ){
+	cerr << "GELIJK: current node = " << _current_node << endl;
+	cerr << "last node = " << _last_added << endl;
       }
-      cerr << "NU current node = " << current_node << endl;
-      current_node->append( t );
-      last_depth = new_depth;
+      _current_node->append( t );
+    }
+    else if ( new_depth > _last_depth ){
+      if ( _debug ){
+	cerr << "DIEPER: current node = " << _current_node << endl;
+      }
+      _current_node = _last_added;
+      if ( _debug ){
+	cerr << "Dus nu: current node = " << _current_node << endl;
+      }
+      _current_node->append( t );
+      _last_depth = new_depth;
+    }
+    else if ( new_depth < _last_depth  ){
+      if ( _debug ){
+	cerr << "OMHOOG current node = " << _current_node << endl;
+	cerr << "last node = " << _last_added << endl;
+      }
+      for ( int i=0; i < _last_depth-new_depth; ++i ){
+	if ( _debug ){
+	  cerr << "up node = " << _current_node << endl;
+	}
+	_current_node = _current_node->parent();
+      }
+      if ( _debug ){
+	cerr << "NU current node = " << _current_node << endl;
+      }
+      _current_node->append( t );
+      _last_depth = new_depth;
     }
   }
 
   FoliaElement *Processor::get_node( const string& tag ){
     int ret = 0;
-    if ( external_node != 0 ){
-      external_node = 0;
+    if ( _external_node != 0 ){
+      _external_node = 0;
       ret = 1;
     }
     else {
@@ -273,25 +321,33 @@ namespace folia {
       if ( type == XML_ELEMENT_NODE ){
 	string name = (const char*)xmlTextReaderLocalName(_in_doc);
 	int new_depth = xmlTextReaderDepth(_in_doc);
-	cerr << "get node name=" << name << " (" << new_depth << ")" << endl;
+	if ( _debug ){
+	  cerr << "get node name=" << name
+	       << " depth " << _last_depth << " ==> " << new_depth << endl;
+	}
 	if ( name == tag ){
-	  cerr << "matched search tag: " << tag << endl;
 	  KWargs atts = get_attributes( _in_doc );
-	  cerr << "name=" << name << " atts=" << toString(atts) << endl;
+	  if ( _debug ){
+	    cerr << "matched search tag: " << tag
+		 << " atts=" << toString(atts) << endl;
+	  }
 	  FoliaElement *t = FoliaImpl::createElement( name, _out_doc );
-	  cerr << "created name=" << name << endl;
+	  if ( _debug ){
+	    cerr << "created FoliaElement: name=" << name << endl;
+	  }
 	  xmlNode *fd = xmlTextReaderExpand(_in_doc);
 	  t->parseXml( fd );
 	  append_node( t, new_depth );
 	  xmlTextReaderNext(_in_doc);
-	  external_node = t;
+	  _external_node = t;
 	  return t;
 	}
 	else {
-	  cerr << "last depth=" << last_depth << " new=" << new_depth << endl;
 	  string name = (const char*)xmlTextReaderName(_in_doc);
 	  KWargs atts = get_attributes( _in_doc );
-	  cerr << "name=" << name << " atts=" << toString(atts) << endl;
+	  if ( _debug ){
+	    cerr << "name=" << name << " atts=" << toString(atts) << endl;
+	  }
 	  if ( name == "wref" ){
 	    FoliaElement *ref = (*_out_doc)[atts["id"]];
 	    ref->increfcount();
@@ -305,7 +361,6 @@ namespace folia {
 	    xmlTextReaderNext(_in_doc);
 	  }
 	  else if ( name == "t" ){
-	    cerr << "ADD text!! "<< endl;
 	    FoliaElement *t = FoliaImpl::createElement( name, _out_doc );
 	    xmlNode *fd = xmlTextReaderExpand(_in_doc);
 	    t->parseXml( fd );
@@ -322,7 +377,6 @@ namespace folia {
 	    }
 	    if ( nsu.empty() || nsu == NSFOLIA ){
 	      FoliaElement *t = FoliaImpl::createElement( name, _out_doc );
-	      cerr << "created name=" << name << endl;
 	      if ( name == "desc"
 		   || name == "content"
 		   || name == "comment" ){
@@ -331,16 +385,17 @@ namespace folia {
 		if ( val ) {
 		  string value = val;
 		  if ( !value.empty() ) {
-		    cerr << "Node VALUE = '" << value << "'" << endl;
 		    atts["value"] = value;
 		  }
 		}
 	      }
 	      t->setAttributes( atts );
 	      append_node( t, new_depth );
-	      last_added = t;
-	      cerr << "einde current node = " << current_node << endl;
-	      cerr << "last node = " << last_added << endl;
+	      _last_added = t;
+	      if ( _debug ){
+		cerr << "einde current node = " << _current_node << endl;
+		cerr << "last node = " << _last_added << endl;
+	      }
 	    }
 	    else {
 	      // just take as is...
@@ -356,15 +411,18 @@ namespace folia {
       else if ( type == XML_TEXT_NODE ){
 	XmlText *txt = new XmlText();
 	string value = (const char*)xmlTextReaderValue(_in_doc);
-	cerr << "TXT VALUE = '" << value << "'" << endl;
+	if ( _debug ){
+	  cerr << "TXT VALUE = '" << value << "'" << endl;
+	}
 	txt->setvalue( value );
 	int new_depth = xmlTextReaderDepth(_in_doc);
-	cerr << "TEXT last depth=" << last_depth << " new=" << new_depth << endl;
 	append_node( txt, new_depth );
-	last_added = txt;
-	cerr << "einde current node = " << current_node << endl;
-	cerr << "last node = " << last_added << endl;
-	last_depth = xmlTextReaderDepth(_in_doc);
+	_last_added = txt;
+	if ( _debug ){
+	  cerr << "einde current node = " << _current_node << endl;
+	  cerr << "last node = " << _last_added << endl;
+	}
+	_last_depth = xmlTextReaderDepth(_in_doc);
       }
       else if ( type == XML_COMMENT_NODE ){
 	cerr << "SKIP comment!" << endl;
@@ -375,28 +433,30 @@ namespace folia {
   }
 
   bool Processor::output_header(){
-    cerr << "Processor::output_header()" << endl;
-    if ( finished ){
+    if ( _debug ){
+      cerr << "Processor::output_header()" << endl;
+    }
+    if ( _finished ){
       return true;
     }
-    else if ( header_done ){
+    else if ( _header_done ){
       cerr << "folia::Processor(): output_header is called twice!" << endl;
       return false;
     }
-    header_done = true;
+    _header_done = true;
     stringstream ss;
     _out_doc->save( ss );
     string data = ss.str();
     string::size_type pos1 = data.find("<text");
     string::size_type pos2;
-    if ( root_node->size() == 0 ){
+    if ( _root_node->size() == 0 ){
       pos2 = data.find( "/>" , pos1 );
     }
     else {
       pos2 = data.find( ">" , pos1 );
     }
     string head = data.substr( 0, pos2 ) + ">";
-    if ( root_node->size() == 0 ){
+    if ( _root_node->size() == 0 ){
       pos2 += 2;
     }
     else {
@@ -409,13 +469,15 @@ namespace folia {
   }
 
   bool Processor::output_footer(){
-    cerr << "Processor::output_footer()" << endl;
-    if ( finished ){
+    if ( _debug ){
+      cerr << "Processor::output_footer()" << endl;
+    }
+    if ( _finished ){
       return true;
     }
     else if ( flush() ){
       *_os << _footer << endl;
-      finished = true;
+      _finished = true;
       return true;
     }
     else {
@@ -424,26 +486,30 @@ namespace folia {
   }
 
   bool Processor::flush() {
-    cerr << "Processor::flush()" << endl;
-    if ( finished ){
+    if ( _debug ){
+      cerr << "Processor::flush()" << endl;
+    }
+    if ( _finished ){
       return true;
     }
-    else if ( !header_done ){
+    else if ( !_header_done ){
       output_header();
     }
-    size_t len = root_node->size();
+    size_t len = _root_node->size();
     for ( size_t i=0; i < len; ++i ){
-      *_os << "    " << root_node->index(i)->xmlstring(true,2) << endl;
+      *_os << "    " << _root_node->index(i)->xmlstring(true,2) << endl;
     }
     for ( size_t i=0; i < len; ++i ){
-      root_node->remove( i, true );
+      _root_node->remove( i, true );
     }
     return true;
   }
 
   bool Processor::finish() {
-    cerr << "Processor::finish()" << endl;
-    if ( finished ){
+    if ( _debug ){
+      cerr << "Processor::finish()" << endl;
+    }
+    if ( _finished ){
       return true;
     }
     return output_footer();

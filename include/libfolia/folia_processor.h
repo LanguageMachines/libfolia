@@ -40,9 +40,8 @@ namespace folia {
     Processor();
   Processor( const std::string& i, const std::string& o ):
     Processor() { init_doc(i,o); };
-    Document *init_doc( const std::string&, const std::string& );
+    bool init_doc( const std::string&, const std::string& );
     ~Processor();
-    Document *doc() const { return _out_doc; };
     FoliaElement *get_node( const std::string& );
     int next();
     void append_node( FoliaElement *, int );
@@ -50,19 +49,29 @@ namespace folia {
     bool output_footer();
     bool flush();
     bool finish();
+    bool ok() const { return _ok; };
+    void declare( AnnotationType::AnnotationType,
+		  const std::string&,
+		  const std::string& = "" );
+    void declare( AnnotationType::AnnotationType,
+		  const std::string&, const std::string&,
+		  const std::string&, const std::string&,
+		  const std::string& = "" );
   private:
     xmlTextReader *_in_doc;
     Document *_out_doc;
-    FoliaElement *root_node;
-    FoliaElement *external_node;
-    FoliaElement *current_node;
-    FoliaElement *last_added;
-    int last_depth;
+    FoliaElement *_root_node;
+    FoliaElement *_external_node;
+    FoliaElement *_current_node;
+    FoliaElement *_last_added;
+    int _last_depth;
     std::ostream *_os;
     std::string _footer;
-    bool paused;
-    bool header_done;
-    bool finished;
+    bool _paused;
+    bool _header_done;
+    bool _finished;
+    bool _ok;
+    bool _debug;
   };
 
 }
