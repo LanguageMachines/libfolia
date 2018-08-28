@@ -38,13 +38,14 @@ namespace folia {
   class Processor {
   public:
     Processor();
-  Processor( const std::string& i, const std::string& o ):
+  Processor( const std::string& i, const std::string& o="" ):
     Processor() { init_doc(i,o); };
-    bool init_doc( const std::string&, const std::string& );
+    bool init_doc( const std::string&, const std::string& ="" );
     ~Processor();
     FoliaElement *get_node( const std::string& );
     int next();
     void append_node( FoliaElement *, int );
+    void save( const std::string& );
     bool output_header();
     bool output_footer();
     bool flush();

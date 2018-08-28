@@ -141,13 +141,15 @@ namespace folia {
   bool Processor::init_doc( const string& file_name,
 			    const string& out_name ){
     _ok = false;
-    _out_doc = new Document();;
+    _out_doc = new Document();
+    if ( !out_name.empty() ){
+      _os = new ofstream( out_name );
+    }
     _in_doc = xmlNewTextReaderFilename( file_name.c_str() );
     if ( _in_doc == 0 ){
       throw( runtime_error( "folia::Processor(), init failed on '" + file_name
 			    + "'" ) );
     }
-    _os =  new ofstream( out_name );
     int ret = xmlTextReaderRead(_in_doc);
     while ( ret ){
       int type =  xmlTextReaderNodeType(_in_doc );
@@ -436,11 +438,15 @@ namespace folia {
     if ( _debug ){
       cerr << "Processor::output_header()" << endl;
     }
+    if ( !_os ){
+      throw logic_error( "folia::Processor::output_header() impossible. No output file specified!" );
+      return false;
+    }
     if ( _finished ){
       return true;
     }
     else if ( _header_done ){
-      cerr << "folia::Processor(): output_header is called twice!" << endl;
+      throw logic_error( "folia::Processor::output_header() is called twice!" );
       return false;
     }
     _header_done = true;
@@ -475,6 +481,10 @@ namespace folia {
     if ( _finished ){
       return true;
     }
+    if ( !_os ){
+      throw logic_error( "folia::Processor::output_footer() impossible. No output file specified!" );
+      return false;
+    }
     else if ( flush() ){
       *_os << _footer << endl;
       _finished = true;
@@ -488,6 +498,10 @@ namespace folia {
   bool Processor::flush() {
     if ( _debug ){
       cerr << "Processor::flush()" << endl;
+    }
+    if ( !_os ){
+      throw logic_error( "folia::Processor::flush() impossible. No outputfile specified!" );
+      return false;
     }
     if ( _finished ){
       return true;
@@ -509,10 +523,22 @@ namespace folia {
     if ( _debug ){
       cerr << "Processor::finish()" << endl;
     }
+    if ( !_os ){
+      throw logic_error( "folia::Processor::finish() impossible. No outputfile specified!" );
+      return false;
+    }
     if ( _finished ){
       return true;
     }
     return output_footer();
+  }
+
+  void Processor::save( const string& name ){
+    if ( _os ){
+      throw logic_error( "folia::Processor::save() impossible. Already connected to a stream!" );
+    }
+    _os = new ofstream( name );
+    finish();
   }
 
 } // namespace folia
