@@ -320,6 +320,11 @@ namespace folia {
     else {
       ret = xmlTextReaderRead(_in_doc);
     }
+    vector<string> tv = TiCC::split_at( tag, "|" );
+    set<string> tags;
+    for ( const auto& t : tv ){
+      tags.insert(t);
+    }
     while ( ret ){
       int type = xmlTextReaderNodeType(_in_doc);
       if ( type == XML_ELEMENT_NODE ){
@@ -329,10 +334,10 @@ namespace folia {
 	  cerr << "get node name=" << name
 	       << " depth " << _last_depth << " ==> " << new_depth << endl;
 	}
-	if ( name == tag ){
+	if ( tags.find(name) != tags.end() ){
 	  KWargs atts = get_attributes( _in_doc );
 	  if ( _debug ){
-	    cerr << "matched search tag: " << tag
+	    cerr << "matched search tag: " << name
 		 << " atts=" << toString(atts) << endl;
 	  }
 	  FoliaElement *t = FoliaImpl::createElement( name, _out_doc );

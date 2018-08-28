@@ -58,6 +58,7 @@ namespace folia {
 		  const std::string&, const std::string&,
 		  const std::string&, const std::string&,
 		  const std::string& = "" );
+    bool set_debug( bool d ) { bool res = _debug; _debug = d; return res; };
   private:
     xmlTextReader *_in_doc;
     Document *_out_doc;
