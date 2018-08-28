@@ -54,6 +54,8 @@ namespace folia {
 
   Processor::~Processor(){
     xmlFreeTextReader( _in_doc );
+    delete _out_doc;
+    delete _os;
   }
 
   void Processor::declare( AnnotationType::AnnotationType at,
@@ -114,8 +116,8 @@ namespace folia {
     if ( xmlTextReaderHasAttributes(tr) ){
       xmlTextReaderMoveToFirstAttribute(tr);
       do {
-	string att = (const char*)xmlTextReaderName(tr);
-	string val = (const char*)xmlTextReaderValue(tr);
+	string att = (const char*)xmlTextReaderConstName(tr);
+	string val = (const char*)xmlTextReaderConstValue(tr);
 	if ( att == "xml:id" ){
 	  att = "_id";
 	}
@@ -153,8 +155,8 @@ namespace folia {
     int ret = xmlTextReaderRead(_in_doc);
     while ( ret ){
       int type =  xmlTextReaderNodeType(_in_doc );
-      string name = (const char*)xmlTextReaderName(_in_doc );
-      string local_name = (const char*)xmlTextReaderLocalName(_in_doc );
+      string name = (const char*)xmlTextReaderConstName(_in_doc );
+      string local_name = (const char*)xmlTextReaderConstLocalName(_in_doc );
       //      cerr << "node type = " << type << " name: " << local_name << endl;
       switch ( type ){
       case 1:
@@ -165,7 +167,7 @@ namespace folia {
 	  if ( pnt ){
 	    prefix = string((const char*)pnt);
 	  }
-	  string uri = (const char*)xmlTextReaderNamespaceUri(_in_doc);
+	  string uri = (const char*)xmlTextReaderConstNamespaceUri(_in_doc);
 	  if ( local_name != name ){
 	    throw XmlError( "Processor: cannot handle FoLiA with prefix namespace" );
 	  }
@@ -247,7 +249,7 @@ namespace folia {
       case 7:
 	// A PI
 	if ( name == "xml-stylesheet" ){
-	  string sv = (const char*)xmlTextReaderValue(_in_doc);
+	  string sv = (const char*)xmlTextReaderConstValue(_in_doc);
 	  pair<string,string> p = extract_style( sv );
 	  _out_doc->addStyle( p.first, p.second );
 	}
@@ -321,7 +323,7 @@ namespace folia {
     while ( ret ){
       int type = xmlTextReaderNodeType(_in_doc);
       if ( type == XML_ELEMENT_NODE ){
-	string name = (const char*)xmlTextReaderLocalName(_in_doc);
+	string name = (const char*)xmlTextReaderConstLocalName(_in_doc);
 	int new_depth = xmlTextReaderDepth(_in_doc);
 	if ( _debug ){
 	  cerr << "get node name=" << name
@@ -345,7 +347,7 @@ namespace folia {
 	  return t;
 	}
 	else {
-	  string name = (const char*)xmlTextReaderName(_in_doc);
+	  string name = (const char*)xmlTextReaderConstName(_in_doc);
 	  KWargs atts = get_attributes( _in_doc );
 	  if ( _debug ){
 	    cerr << "name=" << name << " atts=" << toString(atts) << endl;
@@ -383,7 +385,7 @@ namespace folia {
 		   || name == "content"
 		   || name == "comment" ){
 		ret = xmlTextReaderRead(_in_doc);
-		const char *val = (const char*)xmlTextReaderValue(_in_doc);
+		const char *val = (const char*)xmlTextReaderConstValue(_in_doc);
 		if ( val ) {
 		  string value = val;
 		  if ( !value.empty() ) {
@@ -412,7 +414,7 @@ namespace folia {
       }
       else if ( type == XML_TEXT_NODE ){
 	XmlText *txt = new XmlText();
-	string value = (const char*)xmlTextReaderValue(_in_doc);
+	string value = (const char*)xmlTextReaderConstValue(_in_doc);
 	if ( _debug ){
 	  cerr << "TXT VALUE = '" << value << "'" << endl;
 	}
