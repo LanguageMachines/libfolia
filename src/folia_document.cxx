@@ -347,7 +347,6 @@ namespace folia {
       }
       if ( debug )
 	cout << "read a doc from " << s << endl;
-      cout << "COMPRESSIE=" <<xmlGetDocCompressMode(_xmldoc);
       foliadoc = parseXml();
       if ( !validate_offsets() ){
 	throw InconsistentText("MEH");
