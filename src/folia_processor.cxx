@@ -146,6 +146,7 @@ namespace folia {
     _out_doc = new Document();
     if ( !out_name.empty() ){
       _os = new ofstream( out_name );
+      _out_name = out_name;
     }
     _in_doc = xmlNewTextReaderFilename( file_name.c_str() );
     if ( _in_doc == 0 ){
@@ -541,11 +542,10 @@ namespace folia {
   }
 
   void Processor::save( const string& name ){
-    if ( _os ){
-      throw logic_error( "folia::Processor::save() impossible. Already connected to a stream!" );
+    if ( _os && name == _out_name ){
+      throw logic_error( "folia::Processor::save() impossible. Already connected to a stream withe the same name (" + name + ")" );
     }
-    _os = new ofstream( name );
-    finish();
+    _out_doc->save( name );
   }
 
 } // namespace folia
