@@ -164,14 +164,17 @@ namespace folia {
 	if ( local_name == "FoLiA" ){
 	  // found the root
 	  string prefix;
-	  unsigned char *pnt = xmlTextReaderPrefix(_in_doc);
+	  const xmlChar *pnt = xmlTextReaderConstPrefix(_in_doc);
 	  if ( pnt ){
-	    prefix = string((const char*)pnt);
+	    _out_doc->_foliaNsIn_prefix = xmlStrdup(pnt );
 	  }
-	  string uri = (const char*)xmlTextReaderConstNamespaceUri(_in_doc);
-	  if ( local_name != name ){
-	    throw XmlError( "Processor: cannot handle FoLiA with prefix namespace" );
+	  pnt = xmlTextReaderConstNamespaceUri(_in_doc);
+	  if ( pnt ){
+	    _out_doc->_foliaNsIn_href = xmlStrdup(pnt);
 	  }
+	  // if ( local_name != name ){
+	  //   throw XmlError( "Processor: cannot handle FoLiA with prefix namespace" );
+	  // }
 	  KWargs in_args = get_attributes( _in_doc );
 	  string id;
 	  if ( !in_args.empty() ){
@@ -205,7 +208,13 @@ namespace folia {
 	  xmlNode *node = xmlTextReaderExpand(_in_doc);
 	  xmlNode *m = node->children;
 	  while ( m ){
-	    if ( TiCC::Name( m ) == "annotations" ){
+	    if ( TiCC::Name( m ) == "METATRANSCRIPT" ){
+	      //	      if ( !_out_doc->_metadata ){
+		_out_doc->_metadata = new ForeignMetaData( "imdi" );
+		//	      }
+	      _out_doc->_metadata->add_foreign( xmlCopyNode(m,1) );
+	    }
+	    else if ( TiCC::Name( m ) == "annotations" ){
 	      _out_doc->parseannotations( m );
 	    }
 	    else if ( TiCC::Name( m ) == "meta" ){
@@ -237,7 +246,7 @@ namespace folia {
 	    m = m->next;
 	  }
 	}
-	else if ( name == "text" ){
+	else if ( local_name == "text" ){
 	  KWargs args = get_attributes(_in_doc);
 	  Text *text = new Text( args, _out_doc );
 	  _out_doc->append( text );
@@ -329,21 +338,21 @@ namespace folia {
     while ( ret ){
       int type = xmlTextReaderNodeType(_in_doc);
       if ( type == XML_ELEMENT_NODE ){
-	string name = (const char*)xmlTextReaderConstLocalName(_in_doc);
+	string local_name = (const char*)xmlTextReaderConstLocalName(_in_doc);
 	int new_depth = xmlTextReaderDepth(_in_doc);
 	if ( _debug ){
-	  cerr << "get node name=" << name
+	  cerr << "get node name=" << local_name
 	       << " depth " << _last_depth << " ==> " << new_depth << endl;
 	}
-	if ( tags.find(name) != tags.end() ){
+	if ( tags.find(local_name) != tags.end() ){
 	  KWargs atts = get_attributes( _in_doc );
 	  if ( _debug ){
-	    cerr << "matched search tag: " << name
+	    cerr << "matched search tag: " << local_name
 		 << " atts=" << toString(atts) << endl;
 	  }
-	  FoliaElement *t = FoliaImpl::createElement( name, _out_doc );
+	  FoliaElement *t = FoliaImpl::createElement( local_name, _out_doc );
 	  if ( _debug ){
-	    cerr << "created FoliaElement: name=" << name << endl;
+	    cerr << "created FoliaElement: name=" << local_name << endl;
 	  }
 	  xmlNode *fd = xmlTextReaderExpand(_in_doc);
 	  t->parseXml( fd );
@@ -353,25 +362,24 @@ namespace folia {
 	  return t;
 	}
 	else {
-	  string name = (const char*)xmlTextReaderConstName(_in_doc);
 	  KWargs atts = get_attributes( _in_doc );
 	  if ( _debug ){
-	    cerr << "name=" << name << " atts=" << toString(atts) << endl;
+	    cerr << "name=" << local_name << " atts=" << toString(atts) << endl;
 	  }
-	  if ( name == "wref" ){
+	  if ( local_name == "wref" ){
 	    FoliaElement *ref = (*_out_doc)[atts["id"]];
 	    ref->increfcount();
 	    append_node( ref, new_depth );
 	  }
-	  else if ( name == "foreign-data" ){
-	    FoliaElement *t = FoliaImpl::createElement( name, _out_doc );
+	  else if ( local_name == "foreign-data" ){
+	    FoliaElement *t = FoliaImpl::createElement( local_name, _out_doc );
 	    xmlNode *fd = xmlTextReaderExpand(_in_doc);
 	    t->parseXml( fd );
 	    append_node( t, new_depth );
 	    xmlTextReaderNext(_in_doc);
 	  }
-	  else if ( name == "t" ){
-	    FoliaElement *t = FoliaImpl::createElement( name, _out_doc );
+	  else if ( local_name == "t" ){
+	    FoliaElement *t = FoliaImpl::createElement( local_name, _out_doc );
 	    xmlNode *fd = xmlTextReaderExpand(_in_doc);
 	    t->parseXml( fd );
 	    append_node( t, new_depth );
@@ -386,10 +394,10 @@ namespace folia {
 	      }
 	    }
 	    if ( nsu.empty() || nsu == NSFOLIA ){
-	      FoliaElement *t = FoliaImpl::createElement( name, _out_doc );
-	      if ( name == "desc"
-		   || name == "content"
-		   || name == "comment" ){
+	      FoliaElement *t = FoliaImpl::createElement( local_name, _out_doc );
+	      if ( local_name == "desc"
+		   || local_name == "content"
+		   || local_name == "comment" ){
 		ret = xmlTextReaderRead(_in_doc);
 		const char *val = (const char*)xmlTextReaderConstValue(_in_doc);
 		if ( val ) {
@@ -409,7 +417,8 @@ namespace folia {
 	    }
 	    else {
 	      // just take as is...
-	      FoliaElement *t = FoliaImpl::createElement( name, _out_doc );
+	      FoliaElement *t = FoliaImpl::createElement( local_name,
+							  _out_doc );
 	      xmlNode *fd = xmlTextReaderExpand(_in_doc);
 	      t->parseXml( fd );
 	      append_node( t, new_depth );
