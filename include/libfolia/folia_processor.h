@@ -70,6 +70,7 @@ namespace folia {
     std::ostream *_os;
     std::string _footer;
     std::string _out_name;
+    std::string ns_prefix;
     bool _paused;
     bool _header_done;
     bool _finished;

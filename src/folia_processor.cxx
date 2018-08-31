@@ -163,10 +163,10 @@ namespace folia {
       case 1:
 	if ( local_name == "FoLiA" ){
 	  // found the root
-	  string prefix;
 	  const xmlChar *pnt = xmlTextReaderConstPrefix(_in_doc);
 	  if ( pnt ){
 	    _out_doc->_foliaNsIn_prefix = xmlStrdup(pnt );
+	    ns_prefix = (const char*)pnt;
 	  }
 	  pnt = xmlTextReaderConstNamespaceUri(_in_doc);
 	  if ( pnt ){
@@ -470,7 +470,14 @@ namespace folia {
     stringstream ss;
     _out_doc->save( ss );
     string data = ss.str();
-    string::size_type pos1 = data.find("<text");
+    string search_b = "<text";
+    string search_e = "</text";
+    if ( !ns_prefix.empty() ){
+      search_b = "<" + ns_prefix + ":" + "text";
+      search_e = "</" + ns_prefix + ":" + "text";
+    }
+    int add = search_e.size();
+    string::size_type pos1 = data.find( search_b );
     string::size_type pos2;
     if ( _root_node->size() == 0 ){
       pos2 = data.find( "/>" , pos1 );
@@ -483,10 +490,10 @@ namespace folia {
       pos2 += 2;
     }
     else {
-      pos2 = data.find( "</text>" , pos1 );
-      pos2 += 6;
+      pos2 = data.find( search_e, pos1 );
+      pos2 += add;
     }
-    _footer = "  </text>" + data.substr( pos2 );
+    _footer = "  " + search_e + data.substr( pos2 );
     *_os << head << endl;
     return true;
   }
