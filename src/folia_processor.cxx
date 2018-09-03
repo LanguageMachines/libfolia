@@ -72,6 +72,16 @@ namespace folia {
     }
   }
 
+  bool Processor::is_declared( AnnotationType::AnnotationType at,
+			       const string& setname ) const {
+    if ( !ok() ){
+      throw logic_error( "is_declared() called on invalid processor!" );
+    }
+    else {
+      return _out_doc->isDeclared( at, setname );
+    }
+  }
+
   void Processor::declare( AnnotationType::AnnotationType at,
 			   const string& setname,
 			   const string& annotator,
@@ -86,6 +96,28 @@ namespace folia {
     }
     else {
       _out_doc->declare( at, setname, annotator, annotator_type, time, args );
+    }
+  }
+
+  bool Processor::is_declared( AnnotationType::AnnotationType at,
+			       const string& setname,
+			       const string& annotator,
+			       const string& annotator_type ) const {
+    if ( !ok() ){
+      throw logic_error( "is_declared() called on invalid processor!" );
+    }
+    else {
+      return _out_doc->isDeclared( at, setname, annotator, annotator_type );
+    }
+  }
+
+  void Processor::set_metadata( const std::string& att,
+				const std::string& val){
+    if ( !ok() ){
+      throw logic_error( "set_metadata() called on invalid processor!" );
+    }
+    else {
+      return _out_doc->set_metadata( att, val );
     }
   }
 

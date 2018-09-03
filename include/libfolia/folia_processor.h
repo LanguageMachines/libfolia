@@ -54,11 +54,18 @@ namespace folia {
     void declare( AnnotationType::AnnotationType,
 		  const std::string&,
 		  const std::string& = "" );
+    bool is_declared( AnnotationType::AnnotationType,
+		      const std::string& = "" ) const;
     void declare( AnnotationType::AnnotationType,
 		  const std::string&, const std::string&,
 		  const std::string&, const std::string&,
 		  const std::string& = "" );
+    bool is_declared( AnnotationType::AnnotationType,
+		      const std::string&, const std::string&,
+		      const std::string& ) const;
+    void set_metadata( const std::string&, const std::string& );
     bool set_debug( bool d ) { bool res = _debug; _debug = d; return res; };
+    Document *doc() { return _out_doc; };
   private:
     xmlTextReader *_in_doc;
     Document *_out_doc;
