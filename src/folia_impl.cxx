@@ -1023,8 +1023,8 @@ namespace folia {
     }
   }
 
-  //#define DEBUG_TEXT
-  //#define DEBUG_TEXT_DEL
+  //  #define DEBUG_TEXT
+  //  #define DEBUG_TEXT_DEL
 
   const string& FoliaImpl::getTextDelimiter( bool retaintok ) const {
 #ifdef DEBUG_TEXT_DEL
@@ -2542,8 +2542,8 @@ namespace folia {
 					 ",class='" + cls()
 					 + "') found, but no text match at "
 					 + "offset=" + TiCC::toString(offset())
-					 + " Expected " + TiCC::UnicodeToUTF8(mt)
-					 + " but got " +  TiCC::UnicodeToUTF8(sub) );
+					 + " Expected '" + TiCC::UnicodeToUTF8(mt)
+					 + "' but got '" +  TiCC::UnicodeToUTF8(sub) + "'" );
 	}
       }
     }
@@ -2583,7 +2583,7 @@ namespace folia {
     return 0;
   }
 
-   FoliaElement *PhonContent::getreference() const {
+  FoliaElement *PhonContent::getreference() const {
     FoliaElement *ref = 0;
     if ( _offset == -1 ){
       return 0;

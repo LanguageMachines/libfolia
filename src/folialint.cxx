@@ -147,10 +147,10 @@ int main( int argc, char* argv[] ){
 	cout << d;
       }
       if ( warn ){
-	if ( folia::Document::compare_to_lib_version(d.version()) ){
+	if ( d.compare_to_lib_version() ){
 	  cerr << "WARNING: the document had version: " << d.version()
 	       << " and the library is at version: "
-	       <<  folia::Document::library_version() << endl;
+	       <<  folia::library_version() << endl;
 	}
 	multimap<folia::AnnotationType::AnnotationType, string> und = d.unused_declarations();
 	if ( !und.empty() ){
