@@ -204,18 +204,17 @@ namespace folia {
 	  if ( pnt ){
 	    _out_doc->_foliaNsIn_href = xmlStrdup(pnt);
 	  }
-	  // if ( local_name != name ){
-	  //   throw XmlError( "Processor: cannot handle FoLiA with prefix namespace" );
-	  // }
 	  KWargs in_args = get_attributes( _in_doc );
 	  string id;
 	  if ( !in_args.empty() ){
 	    id = in_args["_id"];
 	  }
 	  if ( !id.empty() ){
+	    _out_doc->setDocumentProps( in_args );
 	    KWargs out_args;
 	    out_args["id"] = id;
-	    _out_doc->foliadoc = new FoLiA( out_args, _out_doc );
+	    FoliaElement *root = new FoLiA( out_args, _out_doc );
+	    _out_doc->foliadoc = root;
 	  }
 	  else {
 	    throw XmlError( "Processor: invalid FoLiA. missing ID" );
@@ -380,7 +379,7 @@ namespace folia {
 	  KWargs atts = get_attributes( _in_doc );
 	  if ( _debug ){
 	    cerr << "matched search tag: " << local_name
-		 << " atts=" << toString(atts) << endl;
+		 << " atts=" << atts << endl;
 	  }
 	  FoliaElement *t = FoliaImpl::createElement( local_name, _out_doc );
 	  if ( _debug ){
@@ -396,7 +395,7 @@ namespace folia {
 	else {
 	  KWargs atts = get_attributes( _in_doc );
 	  if ( _debug ){
-	    cerr << "name=" << local_name << " atts=" << toString(atts) << endl;
+	    cerr << "name=" << local_name << " atts=" << atts << endl;
 	  }
 	  if ( local_name == "wref" ){
 	    FoliaElement *ref = (*_out_doc)[atts["id"]];
@@ -448,12 +447,16 @@ namespace folia {
 	      }
 	    }
 	    else {
+	      if ( _debug ){
+		cerr << "a node in alien namespace'" << atts["xmlns:"]
+		     << " SKIPPED!" << endl;
+	      }
 	      // just take as is...
 	      FoliaElement *t = FoliaImpl::createElement( local_name,
-							  _out_doc );
+	       						  _out_doc );
+	      append_node( t, new_depth );
 	      xmlNode *fd = xmlTextReaderExpand(_in_doc);
 	      t->parseXml( fd );
-	      append_node( t, new_depth );
 	      xmlTextReaderNext(_in_doc);
 	    }
 	  }
@@ -500,7 +503,7 @@ namespace folia {
     }
     _header_done = true;
     stringstream ss;
-    _out_doc->save( ss );
+    _out_doc->save( ss, ns_prefix );
     string data = ss.str();
     string search_b = "<text";
     string search_e = "</text";
@@ -567,7 +570,7 @@ namespace folia {
     }
     size_t len = _root_node->size();
     for ( size_t i=0; i < len; ++i ){
-      *_os << "    " << _root_node->index(i)->xmlstring(true,2) << endl;
+      *_os << "    " << _root_node->index(i)->xmlstring(true,2,false) << endl;
     }
     for ( size_t i=0; i < len; ++i ){
       _root_node->remove( i, true );
@@ -593,7 +596,7 @@ namespace folia {
     if ( _os && name == _out_name ){
       throw logic_error( "folia::Processor::save() impossible. Already connected to a stream withe the same name (" + name + ")" );
     }
-    _out_doc->save( name );
+    _out_doc->save( name, ns_prefix );
   }
 
 } // namespace folia

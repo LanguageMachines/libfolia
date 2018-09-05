@@ -730,10 +730,12 @@ namespace folia {
     return attribs;
   }
 
-  const string FoliaElement::xmlstring() const{
+  const string FoliaElement::xmlstring( bool add_ns ) const{
     // serialize to a string (XML fragment)
     xmlNode *n = xml( true, false );
-    xmlSetNs( n, xmlNewNs( n, (const xmlChar *)NSFOLIA.c_str(), 0 ) );
+    if ( add_ns ){
+      xmlSetNs( n, xmlNewNs( n, (const xmlChar *)NSFOLIA.c_str(), 0 ) );
+    }
     xmlBuffer *buf = xmlBufferCreate();
     xmlNodeDump( buf, 0, n, 0, 0 );
     string result = (const char*)xmlBufferContent( buf );
@@ -742,10 +744,14 @@ namespace folia {
     return result;
   }
 
-  const string FoliaElement::xmlstring( bool format, int indent ) const{
+  const string FoliaElement::xmlstring( bool format,
+					int indent,
+					bool add_ns ) const{
     // serialize to a string (XML fragment)
     xmlNode *n = xml( true, false );
-    xmlSetNs( n, xmlNewNs( n, (const xmlChar *)NSFOLIA.c_str(), 0 ) );
+    if ( add_ns ){
+      xmlSetNs( n, xmlNewNs( n, (const xmlChar *)NSFOLIA.c_str(), 0 ) );
+    }
     xmlBuffer *buf = xmlBufferCreate();
     //    xmlKeepBlanksDefault(0);
     xmlNodeDump( buf, 0, n, indent, (format?1:0) );
