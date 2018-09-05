@@ -216,10 +216,10 @@ namespace folia {
       p_offset_validation_buffer.push_back( tc );
     }
     bool validate_offsets() const;
-    static int compare_to_lib_version( const std::string& );
-    static std::string library_version();
-    std::string version() const { return _version; };
+    int compare_to_lib_version() const;
+    std::string version() const { return _version_string; };
     std::string update_version();
+    bool version_below( int, int );
   private:
     std::map<AnnotationType::AnnotationType,std::multimap<std::string,at_t> > annotationdefaults;
     std::vector<std::pair<AnnotationType::AnnotationType,std::string>> anno_sort;
@@ -257,7 +257,11 @@ namespace folia {
     std::multimap<std::string,std::string> styles;
     mutable Mode mode;
     std::string filename;
-    std::string _version;
+    std::string _version_string;
+    int major_version;
+    int minor_version;
+    int sub_version;
+    std::string patch_version;
     bool external;
     Document( const Document& ); // inhibit copies
     Document& operator=( const Document& ); // inhibit copies
@@ -278,6 +282,11 @@ namespace folia {
     os << "<" << at.a << "," << at.t << "," << at.d << ">";
     return os;
   }
+
+  void expand_version_string( const std::string&,
+			      int&, int&, int&, std::string& );
+
+  std::string library_version();
 
 } // namespace folia
 

@@ -93,7 +93,7 @@ namespace folia {
     }
   }
 
-  string Document::library_version(){
+  string library_version(){
     stringstream ss;
     ss << MAJOR_VERSION << "." << MINOR_VERSION << "." << SUB_VERSION;
     return ss.str();
@@ -102,8 +102,8 @@ namespace folia {
   string Document::update_version(){
     // override the document version with the current library version
     // return the old value
-    string old = _version;
-    _version = library_version();
+    string old = _version_string;
+    _version_string = library_version();
     return old;
   }
 
@@ -116,7 +116,7 @@ namespace folia {
     _foliaNsOut = 0;
     debug = 0;
     mode = CHECKTEXT;
-    _version = library_version();
+    _version_string = library_version();
     external = false;
   }
 
@@ -227,7 +227,12 @@ namespace folia {
       external = false;
     it = kwargs.find( "version" );
     if ( it != kwargs.end() ){
-      _version = it->second;
+      _version_string = it->second;
+      expand_version_string( _version_string,
+			     major_version,
+			     minor_version,
+			     sub_version,
+			     patch_version );
       kwargs.erase( it );
     }
     it = kwargs.find( "_id" );
@@ -693,8 +698,12 @@ namespace folia {
 	if ( it != att.end() ){
 	  s = it->second;
 	}
-	else {
+	else if ( version_below( 1, 6 ) ){
 	  s = "undefined"; // default value
+	}
+	else {
+	  throw XmlError( "setname may not be empty for " + prefix
+			  + "-annotation" );
 	}
 	it = att.find( "annotator" );
 	if ( it != att.end() )
@@ -782,82 +791,103 @@ namespace folia {
     }
   }
 
-  int Document::compare_to_lib_version( const string& vers ){
-    int majVersion = 0;
-    int minVersion = 0;
-    int subVersion = 0;
-    vector<string> vec;
-    TiCC::split_at( vers, vec, "." );
+  bool is_number( const string& s ){
+    for ( const auto& c : s ){
+      if ( !isdigit(c) ){
+	return false;
+      }
+    }
+    return true;
+  }
+
+  void expand_version_string( const string& vs,
+			      int& major,
+			      int& minor,
+			      int& sub,
+			      string& patch ){
+    // expand string @vs into int major, minor and subvalue
+    major = 0;
+    minor = 0;
+    sub = 0;
+    patch.clear();
+    vector<string> vec = TiCC::split_at( vs, ".", 3 );
     for ( size_t i=0; i < vec.size(); ++i ){
-      int val = TiCC::stringTo<int>( vec[i] );
-      if ( i == 0 )
-	majVersion = val;
-      else if ( i == 1 )
-	minVersion = val;
-      else
-	subVersion += val;
+      if ( i == 0 ){
+	int val = 0;
+	if ( !TiCC::stringTo( vec[i], val ) ){
+	  throw XmlError( "unable to extract major-version from: " + vs );
+	}
+	major= val;
+      }
+      else if ( i == 1 ){
+	int val = 0;
+	if ( !TiCC::stringTo( vec[i], val ) ){
+	  throw XmlError( "unable to extract minor-version from: " + vs );
+	}
+	minor = val;
+      }
+      else if ( i == 2 ){
+	if ( is_number( vec[i] ) ){
+	  TiCC::stringTo( vec[i], sub );
+	}
+	else {
+	  vector<string> v2 = TiCC::split_at( vec[i], "-", 2 );
+	  if ( v2.size() != 2 ){
+	    throw XmlError( "invalid sub-version or patch-version in: " + vs );
+	  }
+	  else {
+	    int val = 0;
+	    if ( !TiCC::stringTo( v2[0], val ) ){
+	      throw XmlError( "unable to extract sub-version from: " + vs );
+	    }
+	    sub = val;
+	    patch = "-" + v2[1]; // include the hyphen
+	  }
+	}
+      }
     }
-    if ( majVersion < MAJOR_VERSION ){
+  }
+
+  int check_version( const string& vers ){
+    int maj = 0;
+    int min = 0;
+    int sub = 0;
+    string patch;
+    expand_version_string( vers, maj, min, sub, patch );
+    if ( maj < MAJOR_VERSION ){
       return -1;
     }
-    else if ( majVersion > MAJOR_VERSION ){
+    else if ( maj > MAJOR_VERSION ){
       return 1;
     }
-    else if ( minVersion < MINOR_VERSION ){
+    else if ( min < MINOR_VERSION ){
       return -1;
     }
-    else if ( minVersion > MINOR_VERSION ){
+    else if ( min > MINOR_VERSION ){
       return 1;
     }
-    else if ( subVersion < SUB_VERSION ){
+    else if ( sub < SUB_VERSION ){
       return -1;
     }
-    else if ( subVersion > SUB_VERSION ){
+    else if ( sub > SUB_VERSION ){
       return 1;
     }
     return 0;
   }
 
-  int check_version( const string& vers, bool& no_textcheck ){
-    no_textcheck = false;
-    int majVersion = 0;
-    int minVersion = 0;
-    int subVersion = 0;
-    vector<string> vec;
-    TiCC::split_at( vers, vec, "." );
-    for ( size_t i=0; i < vec.size(); ++i ){
-      int val = TiCC::stringTo<int>( vec[i] );
-      if ( i == 0 )
-	majVersion = val;
-      else if ( i == 1 )
-	minVersion = val;
-      else
-	subVersion += val;
+  int Document::compare_to_lib_version() const {
+    return check_version( version() );
+  }
+
+  bool Document::version_below( int major, int minor ){
+    // check if current ducument version is strict < major.minor
+    if ( major_version < major ){
+      return true;
     }
-    if ( ( majVersion < 1 )
-	 || (majVersion == 1 && minVersion < 5 ) ){
-      // don't check text consistency for older documents
-      no_textcheck = true;
+    else if ( major_version == major ){
+      return minor_version < minor;
     }
-    if ( majVersion < MAJOR_VERSION ){
-      return -1;
-    }
-    else if ( majVersion > MAJOR_VERSION ){
-      return 1;
-    }
-    else if ( minVersion < MINOR_VERSION ){
-      return -1;
-    }
-    else if ( minVersion > MINOR_VERSION ){
-      return 1;
-    }
-    else if ( subVersion < SUB_VERSION ){
-      return -1;
-    }
-    else if ( subVersion > SUB_VERSION ){
-      return 1;
-    }
-    return 0;
+    return false;
   }
 
   FoliaElement *Document::resolveExternals( FoliaElement* result ){
@@ -877,17 +907,17 @@ namespace folia {
       return 0;
     }
     string vers = att["version"];
-    bool no_textcheck = false;
-    if ( check_version( vers, no_textcheck ) > 0 ){
+    if ( check_version( vers ) > 0 ){
       cerr << "WARNING!!! FoLiA Document is a newer version than this library ("
-	   << vers << " vs " << _version
+	   << vers << " vs " << _version_string
 	   << ")\n\t Any possible subsequent failures in parsing or processing may probably be attributed to this." << endl
 	   << "\t Please upgrade libfolia!" << endl;
     }
-    if ( no_textcheck ){
+    setDocumentProps( att );
+    if ( version_below( 1, 5 ) ){
+      // don't check text consistency for older documents
       setmode( "nochecktext" );
     }
-    setDocumentProps( att );
     FoliaElement *result = FoliaImpl::createElement( TiCC::Name(root), this );
     if ( debug > 2 ){
       cerr << "created " << root << endl;
@@ -1186,8 +1216,15 @@ namespace folia {
   void Document::declare( AnnotationType::AnnotationType type,
 			  const string& setname, const string& args ){
     string st = setname;
-    if ( st.empty() )
-      st = "undefined";
+    if ( st.empty() ){
+      if ( version_below( 1, 6 ) ){
+	st = "undefined";
+      }
+      else {
+	throw XmlError( "setname may not be empty for " + toString(type)
+			+ "-annotation" );
+      }
+    }
     KWargs kw = getArgs( args );
     string a = kw["annotator"];
     string t = kw["annotatortype"];
@@ -1675,8 +1712,8 @@ namespace folia {
     }
     else {
       attribs["generator"] = string("libfolia-v") + VERSION;
-      if ( !_version.empty() )
-	attribs["version"] = _version;
+      if ( !_version_string.empty() )
+	attribs["version"] = _version_string;
     }
     if ( external )
       attribs["external"] = "yes";
