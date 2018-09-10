@@ -48,6 +48,7 @@ namespace folia {
     _header_done(false),
     _finished(false),
     _ok(false),
+    _done(false),
     _debug(false)
   {
   }
@@ -310,8 +311,13 @@ namespace folia {
     return _ok;
   }
 
-  int Processor::next(){
-    return xmlTextReaderNext(_in_doc);
+  bool Processor::next(){
+    if ( _done ){
+      return false;
+    }
+    else {
+      return xmlTextReaderNext(_in_doc) == 1;
+    }
   }
 
   void Processor::append_node( FoliaElement *t, int new_depth ){
@@ -353,13 +359,31 @@ namespace folia {
   }
 
   FoliaElement *Processor::get_node( const string& tag ){
+    if ( _done ){
+      if ( _debug ){
+	cerr << "get node name(). processor is done" << endl;
+      }
+      return 0;
+    }
+    if ( _debug ){
+      cerr << "get node name, for tag=" << tag << endl;
+    }
     int ret = 0;
     if ( _external_node != 0 ){
       _external_node = 0;
       ret = 1;
+      if ( _debug ){
+	cerr << "get node name, add external node, read on" << endl;
+      }
     }
     else {
       ret = xmlTextReaderRead(_in_doc);
+    }
+    if ( ret == 0 ){
+      if ( _debug ){
+	cerr << "get node name, DONE" << endl;
+      }
+      return 0;
     }
     vector<string> tv = TiCC::split_at( tag, "|" );
     set<string> tags;
@@ -388,7 +412,8 @@ namespace folia {
 	  xmlNode *fd = xmlTextReaderExpand(_in_doc);
 	  t->parseXml( fd );
 	  append_node( t, new_depth );
-	  xmlTextReaderNext(_in_doc);
+	  ret = xmlTextReaderNext(_in_doc);
+	  _done = (ret == 0);
 	  _external_node = t;
 	  return t;
 	}
@@ -407,14 +432,14 @@ namespace folia {
 	    xmlNode *fd = xmlTextReaderExpand(_in_doc);
 	    t->parseXml( fd );
 	    append_node( t, new_depth );
-	    xmlTextReaderNext(_in_doc);
+	    ret = xmlTextReaderNext(_in_doc);
 	  }
 	  else if ( local_name == "t" ){
 	    FoliaElement *t = FoliaImpl::createElement( local_name, _out_doc );
 	    xmlNode *fd = xmlTextReaderExpand(_in_doc);
 	    t->parseXml( fd );
 	    append_node( t, new_depth );
-	    xmlTextReaderNext(_in_doc);
+	    ret = xmlTextReaderNext(_in_doc);
 	  }
 	  else {
 	    string nsu;
@@ -457,7 +482,7 @@ namespace folia {
 	      append_node( t, new_depth );
 	      xmlNode *fd = xmlTextReaderExpand(_in_doc);
 	      t->parseXml( fd );
-	      xmlTextReaderNext(_in_doc);
+	      ret = xmlTextReaderNext(_in_doc);
 	    }
 	  }
 	}
@@ -483,6 +508,7 @@ namespace folia {
       }
       ret = xmlTextReaderRead(_in_doc);
     }
+    _done = true;
     return 0;
   }
 
@@ -592,11 +618,11 @@ namespace folia {
     return output_footer();
   }
 
-  void Processor::save( const string& name ){
+  void Processor::save( const string& name, bool do_kanon ){
     if ( _os && name == _out_name ){
       throw logic_error( "folia::Processor::save() impossible. Already connected to a stream withe the same name (" + name + ")" );
     }
-    _out_doc->save( name, ns_prefix );
+    _out_doc->save( name, ns_prefix, do_kanon );
   }
 
 } // namespace folia

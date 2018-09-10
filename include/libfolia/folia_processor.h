@@ -43,9 +43,9 @@ namespace folia {
     bool init_doc( const std::string&, const std::string& ="" );
     ~Processor();
     FoliaElement *get_node( const std::string& );
-    int next();
+    bool next();
     void append_node( FoliaElement *, int );
-    void save( const std::string& );
+    void save( const std::string&, bool=false );
     bool output_header();
     bool output_footer();
     bool flush();
@@ -82,6 +82,7 @@ namespace folia {
     bool _header_done;
     bool _finished;
     bool _ok;
+    bool _done;
     bool _debug;
   };
 
