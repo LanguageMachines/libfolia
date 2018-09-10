@@ -220,12 +220,13 @@ namespace folia {
     std::string version() const { return _version_string; };
     std::string update_version();
     bool version_below( int, int );
+    std::map<AnnotationType::AnnotationType,std::multimap<std::string,at_t> > annotationdefaults() const { return _annotationdefaults; };
   private:
-    std::map<AnnotationType::AnnotationType,std::multimap<std::string,at_t> > annotationdefaults;
-    std::vector<std::pair<AnnotationType::AnnotationType,std::string>> anno_sort;
-    std::map<AnnotationType::AnnotationType,std::map<std::string,int> > annotationrefs;
-    std::map<AnnotationType::AnnotationType,std::map<std::string,std::string>> alias_set;
-    std::map<AnnotationType::AnnotationType,std::map<std::string,std::string>> set_alias;
+    std::map<AnnotationType::AnnotationType,std::multimap<std::string,at_t> > _annotationdefaults;
+    std::vector<std::pair<AnnotationType::AnnotationType,std::string>> _anno_sort;
+    std::map<AnnotationType::AnnotationType,std::map<std::string,int> > _annotationrefs;
+    std::map<AnnotationType::AnnotationType,std::map<std::string,std::string>> _alias_set;
+    std::map<AnnotationType::AnnotationType,std::map<std::string,std::string>> _set_alias;
     std::vector<TextContent*> t_offset_validation_buffer;
     std::vector<PhonContent*> p_offset_validation_buffer;
 
