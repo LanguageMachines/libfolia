@@ -30,6 +30,7 @@
 #include <stdexcept>
 #include "ticcutils/PrettyPrint.h"
 #include "ticcutils/XMLtools.h"
+#include "ticcutils/zipper.h"
 #include "libfolia/folia.h"
 
 using namespace std;
@@ -181,7 +182,17 @@ namespace folia {
       _os = new ofstream( out_name );
       _out_name = out_name;
     }
-    _in_doc = xmlNewTextReaderFilename( file_name.c_str() );
+    if ( TiCC::match_back( file_name, ".bz2" ) ){
+      string buffer = TiCC::bz2ReadFile( file_name );
+      string tmp_file = tmpnam(0);
+      ofstream os( tmp_file );
+      os << buffer << endl;
+      _in_doc = xmlNewTextReaderFilename( tmp_file.c_str() );
+    }
+    else {
+      // can handle .xml and .xml.gz
+      _in_doc = xmlNewTextReaderFilename( file_name.c_str() );
+    }
     if ( _in_doc == 0 ){
       throw( runtime_error( "folia::Processor(), init failed on '" + file_name
 			    + "'" ) );
