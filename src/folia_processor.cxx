@@ -636,4 +636,8 @@ namespace folia {
     _out_doc->save( name, ns_prefix, do_kanon );
   }
 
+  void Processor::save( ostream& os, bool do_kanon ){
+    _out_doc->save( os, ns_prefix, do_kanon );
+  }
+
 } // namespace folia

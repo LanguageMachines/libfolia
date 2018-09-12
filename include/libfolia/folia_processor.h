@@ -46,6 +46,7 @@ namespace folia {
     bool next();
     void append_node( FoliaElement *, int );
     void save( const std::string&, bool=false );
+    void save( std::ostream&, bool=false );
     bool output_header();
     bool output_footer();
     bool flush();
