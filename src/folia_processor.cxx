@@ -26,6 +26,7 @@
 #include <cassert>
 #include <iostream>
 #include <fstream>
+#include <cstring>
 #include <string>
 #include <stdexcept>
 #include "ticcutils/PrettyPrint.h"
@@ -184,9 +185,14 @@ namespace folia {
     }
     if ( TiCC::match_back( file_name, ".bz2" ) ){
       string buffer = TiCC::bz2ReadFile( file_name );
+      if ( buffer.empty() ){
+	throw( runtime_error( "folia::Processor(), empty file? (" + file_name
+			      + ")" ) );
+      }
       string tmp_file = tmpnam(0);
       ofstream os( tmp_file );
       os << buffer << endl;
+      os.close();
       _in_doc = xmlNewTextReaderFilename( tmp_file.c_str() );
     }
     else {
@@ -198,7 +204,7 @@ namespace folia {
 			    + "'" ) );
     }
     int ret = xmlTextReaderRead(_in_doc);
-    while ( ret ){
+    while ( ret > 0 ){
       int type =  xmlTextReaderNodeType(_in_doc );
       string name = (const char*)xmlTextReaderConstName(_in_doc );
       string local_name = (const char*)xmlTextReaderConstLocalName(_in_doc );
