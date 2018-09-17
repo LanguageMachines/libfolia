@@ -638,7 +638,6 @@ namespace folia {
       }
       ret = xmlTextReaderRead(_in_doc);
     }
-    print ( cerr, records );
     return records;
   }
 
