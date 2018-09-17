@@ -29,11 +29,16 @@
 #define FOLIA_PROCESSOR_H
 
 #include <string>
+#include <set>
+#include <vector>
 #include <iostream>
 #include "libfolia/folia.h"
 #include "libxml/xmlreader.h"
 
 namespace folia {
+
+  struct my_rec;
+  void print( std::ostream&, my_rec* );
 
   class Processor {
   public:
@@ -43,6 +48,8 @@ namespace folia {
     bool init_doc( const std::string&, const std::string& ="" );
     ~Processor();
     FoliaElement *get_node( const std::string& );
+    my_rec *create_simple_tree() const;
+    FoliaElement *next_text_parent();
     bool next();
     void append_node( FoliaElement *, int );
     void save( const std::string&, bool=false );
@@ -79,6 +86,7 @@ namespace folia {
     std::string _footer;
     std::string _out_name;
     std::string ns_prefix;
+    std::set<int> text_parent_set;
     bool _paused;
     bool _header_done;
     bool _finished;

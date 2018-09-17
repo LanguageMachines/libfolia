@@ -35,9 +35,11 @@
 #include "libfolia/folia.h"
 
 using namespace std;
-using TiCC::operator<<;
 
 namespace folia {
+
+  using TiCC::operator<<;
+
   Processor::Processor():
     _in_doc(0),
     _out_doc(0),
@@ -528,6 +530,266 @@ namespace folia {
     _done = true;
     return 0;
   }
+
+  struct my_rec {
+    my_rec( int d, int i, const string& t ):
+      depth(d),
+      index(i),
+      tag(t),
+      parent(0),
+      link(0),
+      next(0)
+    {};
+    int depth;
+    int index;
+    string tag;
+    my_rec *parent;
+    my_rec *link;
+    my_rec *next;
+  };
+
+  void print( ostream& os, my_rec* recs ){
+    my_rec *rec_pnt = recs;
+    while ( rec_pnt ){
+      os << rec_pnt->index << string( rec_pnt->depth, ' ' )
+	 << rec_pnt->tag << endl;
+      print( os, rec_pnt->link );
+      rec_pnt = rec_pnt->next;
+    }
+  }
+
+  my_rec *Processor::create_simple_tree() const {
+    ///
+    /// Loop over the full input, creating a lightweight tree for
+    /// enumerating all XML_ELEMENTS encountered
+    ///
+    if ( _done ){
+      throw runtime_error( "enumerate_nodes() called on a done processor" );
+    }
+    if ( _debug ){
+      cerr << "enumerate_nodes()" << endl;
+    }
+    int ret = xmlTextReaderRead(_in_doc);
+    if ( ret == 0 ){
+      throw runtime_error( "enumerate_nodes() could not start" );
+    }
+    my_rec *records = 0;
+    my_rec *rec_pnt = 0;
+    int index = 0;
+    int current_depth = 0;
+    while ( ret ){
+      int type = xmlTextReaderNodeType(_in_doc);
+      if ( type == XML_ELEMENT_NODE ){
+	string local_name = (const char*)xmlTextReaderConstLocalName(_in_doc);
+	KWargs atts = get_attributes( _in_doc );
+	string nsu;
+	for ( auto const& v : atts ){
+	  if ( v.first.find("xmlns:") == 0 ){
+	    nsu = v.second;
+	    break;
+	  }
+	}
+	if ( nsu.empty() || nsu == NSFOLIA ){
+	  int depth = xmlTextReaderDepth(_in_doc);
+	  my_rec *add_rec = new my_rec( depth, index, local_name );
+	  cerr << "new record " << index << " " << local_name << " ("
+	       << depth << ")" << endl;
+	  if ( rec_pnt == 0 ){
+	    records = add_rec;
+	    rec_pnt = records;
+	  }
+	  else if ( depth == current_depth ){
+	    add_rec->parent = rec_pnt->parent;
+	    rec_pnt->next = add_rec;
+	    rec_pnt = rec_pnt->next;
+	  }
+	  else if ( depth > current_depth ){
+	    add_rec->parent = rec_pnt->parent;
+	    rec_pnt->link = add_rec;
+	    rec_pnt = rec_pnt->link;
+	  }
+	  else { // depth < current_depth
+	    while ( rec_pnt && rec_pnt->depth > depth ){
+	      rec_pnt = rec_pnt->parent;
+	    }
+	    if ( rec_pnt == 0 ){
+	      rec_pnt = records;
+	    }
+	    while ( rec_pnt->next ){
+	      rec_pnt = rec_pnt->next;
+	    }
+	    add_rec->parent = rec_pnt->parent;
+	    rec_pnt->next = add_rec;
+	    rec_pnt = rec_pnt->next;
+	  }
+	  current_depth = rec_pnt->depth;
+	  ++index;
+	}
+	else {
+	  if ( _debug ){
+	    cerr << "name=" << local_name << " atts=" << atts << endl;
+	  }
+	  if ( _debug ){
+	    cerr << "enumerate_nodes() node in alien namespace'"
+		 << atts["xmlns:"]
+		 << " is SKIPPED!" << endl;
+	  }
+	}
+      }
+      ret = xmlTextReaderRead(_in_doc);
+    }
+    print ( cerr, records );
+    return records;
+  }
+
+  FoliaElement *Processor::next_text_parent( ){
+    if ( _done ){
+      if ( _debug ){
+	cerr << "next_text_parent(). processor is done" << endl;
+      }
+      return 0;
+    }
+    int ret = 0;
+    if ( _external_node != 0 ){
+      _external_node = 0;
+      ret = 1;
+      if ( _debug ){
+	cerr << "next text_parent() at external node, read on" << endl;
+      }
+    }
+    else {
+      ret = xmlTextReaderRead(_in_doc);
+    }
+    if ( ret == 0 ){
+      if ( _debug ){
+	cerr << "next_text_parent(), DONE" << endl;
+      }
+      return 0;
+    }
+    int node_count = 0;
+    while ( ret ){
+      int type = xmlTextReaderNodeType(_in_doc);
+      if ( type == XML_ELEMENT_NODE ){
+	string local_name = (const char*)xmlTextReaderConstLocalName(_in_doc);
+	int new_depth = xmlTextReaderDepth(_in_doc);
+	if ( text_parent_set.find( node_count ) != text_parent_set.end() ){
+	  // HIT!
+	  if ( _debug ){
+	    cerr << "next_text_parent() hit a =" << local_name << endl;
+	  }
+	  KWargs atts = get_attributes( _in_doc );
+	  if ( _debug ){
+	    cerr << "matched search tag: " << local_name
+		 << " atts=" << atts << endl;
+	  }
+	  FoliaElement *t = FoliaImpl::createElement( local_name, _out_doc );
+	  if ( _debug ){
+	    cerr << "created FoliaElement: name=" << local_name << endl;
+	  }
+	  xmlNode *fd = xmlTextReaderExpand(_in_doc);
+	  t->parseXml( fd );
+	  append_node( t, new_depth );
+	  ret = xmlTextReaderNext(_in_doc);
+	  _done = (ret == 0);
+	  _external_node = t;
+	  return t;
+	}
+	else {
+	  KWargs atts = get_attributes( _in_doc );
+	  if ( _debug ){
+	    cerr << "name=" << local_name << " atts=" << atts << endl;
+	  }
+	  if ( local_name == "wref" ){
+	    FoliaElement *ref = (*_out_doc)[atts["id"]];
+	    ref->increfcount();
+	    append_node( ref, new_depth );
+	  }
+	  else if ( local_name == "foreign-data" ){
+	    FoliaElement *t = FoliaImpl::createElement( local_name, _out_doc );
+	    xmlNode *fd = xmlTextReaderExpand(_in_doc);
+	    t->parseXml( fd );
+	    append_node( t, new_depth );
+	    ret = xmlTextReaderNext(_in_doc);
+	  }
+	  else if ( local_name == "t" ){
+	    FoliaElement *t = FoliaImpl::createElement( local_name, _out_doc );
+	    xmlNode *fd = xmlTextReaderExpand(_in_doc);
+	    t->parseXml( fd );
+	    append_node( t, new_depth );
+	    ret = xmlTextReaderNext(_in_doc);
+	  }
+	  else {
+	    string nsu;
+	    for ( auto const& v : atts ){
+	      if ( v.first.find("xmlns:") == 0 ){
+		nsu = v.second;
+		break;
+	      }
+	    }
+	    if ( nsu.empty() || nsu == NSFOLIA ){
+	      FoliaElement *t = FoliaImpl::createElement( local_name, _out_doc );
+	      if ( local_name == "desc"
+		   || local_name == "content"
+		   || local_name == "comment" ){
+		ret = xmlTextReaderRead(_in_doc);
+		const char *val = (const char*)xmlTextReaderConstValue(_in_doc);
+		if ( val ) {
+		  string value = val;
+		  if ( !value.empty() ) {
+		    atts["value"] = value;
+		  }
+		}
+	      }
+	      t->setAttributes( atts );
+	      append_node( t, new_depth );
+	      _last_added = t;
+	      if ( _debug ){
+		cerr << "einde current node = " << _current_node << endl;
+		cerr << "last node = " << _last_added << endl;
+	      }
+	    }
+	    else {
+	      if ( _debug ){
+		cerr << "a node in alien namespace'" << atts["xmlns:"]
+		     << " SKIPPED!" << endl;
+	      }
+	      // just take as is...
+	      FoliaElement *t = FoliaImpl::createElement( local_name,
+	       						  _out_doc );
+	      append_node( t, new_depth );
+	      xmlNode *fd = xmlTextReaderExpand(_in_doc);
+	      t->parseXml( fd );
+	      ret = xmlTextReaderNext(_in_doc);
+	    }
+	  }
+	}
+      }
+      else if ( type == XML_TEXT_NODE ){
+	XmlText *txt = new XmlText();
+	string value = (const char*)xmlTextReaderConstValue(_in_doc);
+	if ( _debug ){
+	  cerr << "TXT VALUE = '" << value << "'" << endl;
+	}
+	txt->setvalue( value );
+	int new_depth = xmlTextReaderDepth(_in_doc);
+	append_node( txt, new_depth );
+	_last_added = txt;
+	if ( _debug ){
+	  cerr << "einde current node = " << _current_node << endl;
+	  cerr << "last node = " << _last_added << endl;
+	}
+	_last_depth = xmlTextReaderDepth(_in_doc);
+      }
+      else if ( type == XML_COMMENT_NODE ){
+	cerr << "SKIP comment!" << endl;
+      }
+      ret = xmlTextReaderRead(_in_doc);
+      ++node_count;
+    }
+    _done = true;
+    return 0;
+  }
+
 
   bool Processor::output_header(){
     if ( _debug ){
