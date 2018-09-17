@@ -592,8 +592,10 @@ namespace folia {
 	if ( nsu.empty() || nsu == NSFOLIA ){
 	  int depth = xmlTextReaderDepth(_in_doc);
 	  my_rec *add_rec = new my_rec( depth, index, local_name );
-	  cerr << "new record " << index << " " << local_name << " ("
-	       << depth << ")" << endl;
+	  if ( _debug ){
+	    cerr << "new record " << index << " " << local_name << " ("
+		 << depth << ")" << endl;
+	  }
 	  if ( rec_pnt == 0 ){
 	    records = add_rec;
 	    rec_pnt = records;
