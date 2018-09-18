@@ -639,7 +639,6 @@ namespace folia {
 	    rec_pnt = rec_pnt->next;
 	  }
 	  current_depth = rec_pnt->depth;
-	  ++index;
 	}
 	else {
 	  if ( _debug ){
@@ -651,6 +650,7 @@ namespace folia {
 		 << " is SKIPPED!" << endl;
 	  }
 	}
+	++index;
       }
       ret = xmlTextReaderRead(_in_doc);
     }
@@ -715,13 +715,15 @@ namespace folia {
     return result;
   }
 
-  FoliaElement *Processor::next_text_parent( ){
+  FoliaElement *Processor::next_text_parent( const string& textclass ){
     if ( _done ){
       if ( _debug ){
 	cerr << "next_text_parent(). processor is done" << endl;
       }
       return 0;
     }
+    text_parent_set = enumerate_text_parents( textclass );
+    ///
     int ret = 0;
     if ( _external_node != 0 ){
       _external_node = 0;
@@ -836,6 +838,7 @@ namespace folia {
 	    }
 	  }
 	}
+	++node_count;
       }
       else if ( type == XML_TEXT_NODE ){
 	XmlText *txt = new XmlText();
@@ -857,7 +860,6 @@ namespace folia {
 	cerr << "SKIP comment!" << endl;
       }
       ret = xmlTextReaderRead(_in_doc);
-      ++node_count;
     }
     _done = true;
     return 0;
