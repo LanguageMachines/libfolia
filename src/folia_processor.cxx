@@ -25,6 +25,7 @@
 */
 #include <cassert>
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 #include <cstring>
 #include <string>
@@ -553,7 +554,7 @@ namespace folia {
   void print( ostream& os, my_rec* recs ){
     my_rec *rec_pnt = recs;
     while ( rec_pnt ){
-      os << rec_pnt->index << string( rec_pnt->depth, ' ' )
+      os << setw(10) << rec_pnt->index << string( rec_pnt->depth, ' ' )
 	 << rec_pnt->tag;
       if ( rec_pnt->textclass.empty() ){
 	os << endl;
@@ -587,6 +588,7 @@ namespace folia {
     int current_depth = 0;
     while ( ret ){
       int type = xmlTextReaderNodeType(_in_doc);
+      int depth = xmlTextReaderDepth(_in_doc);
       if ( type == XML_ELEMENT_NODE ){
 	string local_name = (const char*)xmlTextReaderConstLocalName(_in_doc);
 	KWargs atts = get_attributes( _in_doc );
@@ -603,7 +605,6 @@ namespace folia {
 	  }
 	}
 	if ( nsu.empty() || nsu == NSFOLIA ){
-	  int depth = xmlTextReaderDepth(_in_doc);
 	  my_rec *add_rec = new my_rec( depth, index, local_name, txt_class );
 	  if ( _debug ){
 	    cerr << "new record " << index << " " << local_name << " ("
@@ -619,7 +620,7 @@ namespace folia {
 	    rec_pnt = rec_pnt->next;
 	  }
 	  else if ( depth > current_depth ){
-	    add_rec->parent = rec_pnt->parent;
+	    add_rec->parent = rec_pnt;
 	    rec_pnt->link = add_rec;
 	    rec_pnt = rec_pnt->link;
 	  }
@@ -656,6 +657,33 @@ namespace folia {
     return records;
   }
 
+  set<int> search_text_parents( my_rec* start, const string& textclass ){
+    set<int> result;
+    my_rec *pnt = start;
+    while ( pnt ){
+      set<int> deeper = search_text_parents( pnt->link, textclass );
+      if ( !deeper.empty() ){
+	//	cerr << "deeper we found: " << deeper << endl;
+	result.insert( deeper.begin(), deeper.end() );
+      }
+      pnt = pnt->next;
+    }
+    if ( result.empty() ){
+      my_rec *pnt = start;
+      while ( pnt ){
+	if ( pnt->tag == "t" && pnt->textclass == textclass ){
+	  result.insert( pnt->parent->index );
+	  break;
+	}
+	pnt = pnt->next;
+      }
+    }
+    if ( !result.empty() ){
+      //      cerr << "return " << result << " for " << start->parent->tag << endl;
+    }
+    return result;
+  }
+
   set<int> Processor::enumerate_text_parents( const string& textclass ) const {
     ///
     /// Loop over the full input, looking for textnodes in class 'texclass'
@@ -679,6 +707,11 @@ namespace folia {
     // if is a <t>, the remember the index of its parent
     set<int> result;
     my_rec *rec_pnt = tree;
+    while ( rec_pnt ){
+      set<int> deeper = search_text_parents( rec_pnt->link, textclass );
+      result.insert( deeper.begin(), deeper.end() );
+      rec_pnt = rec_pnt->next;
+    }
     return result;
   }
 
