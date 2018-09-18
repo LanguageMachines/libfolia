@@ -49,6 +49,7 @@ namespace folia {
     ~Processor();
     FoliaElement *get_node( const std::string& );
     my_rec *create_simple_tree() const;
+    std::set<int> enumerate_text_parents( const std::string& ="" ) const;
     FoliaElement *next_text_parent();
     bool next();
     void append_node( FoliaElement *, int );

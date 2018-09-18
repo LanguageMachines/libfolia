@@ -532,10 +532,11 @@ namespace folia {
   }
 
   struct my_rec {
-    my_rec( int d, int i, const string& t ):
+    my_rec( int d, int i, const string& t, const string& c ):
       depth(d),
       index(i),
       tag(t),
+      textclass(c),
       parent(0),
       link(0),
       next(0)
@@ -543,6 +544,7 @@ namespace folia {
     int depth;
     int index;
     string tag;
+    string textclass;
     my_rec *parent;
     my_rec *link;
     my_rec *next;
@@ -552,7 +554,13 @@ namespace folia {
     my_rec *rec_pnt = recs;
     while ( rec_pnt ){
       os << rec_pnt->index << string( rec_pnt->depth, ' ' )
-	 << rec_pnt->tag << endl;
+	 << rec_pnt->tag;
+      if ( rec_pnt->textclass.empty() ){
+	os << endl;
+      }
+      else {
+	os << " (" << rec_pnt->textclass << ")" << endl;
+      }
       print( os, rec_pnt->link );
       rec_pnt = rec_pnt->next;
     }
@@ -564,14 +572,14 @@ namespace folia {
     /// enumerating all XML_ELEMENTS encountered
     ///
     if ( _done ){
-      throw runtime_error( "enumerate_nodes() called on a done processor" );
+      throw runtime_error( "create_simple_tree() called on a done processor" );
     }
     if ( _debug ){
       cerr << "enumerate_nodes()" << endl;
     }
     int ret = xmlTextReaderRead(_in_doc);
     if ( ret == 0 ){
-      throw runtime_error( "enumerate_nodes() could not start" );
+      throw runtime_error( "create_simple_tree() could not start" );
     }
     my_rec *records = 0;
     my_rec *rec_pnt = 0;
@@ -583,15 +591,20 @@ namespace folia {
 	string local_name = (const char*)xmlTextReaderConstLocalName(_in_doc);
 	KWargs atts = get_attributes( _in_doc );
 	string nsu;
+	string txt_class;
 	for ( auto const& v : atts ){
 	  if ( v.first.find("xmlns:") == 0 ){
 	    nsu = v.second;
 	    break;
 	  }
+	  if ( v.first == "textclass"
+	       || ( local_name == "t" && v.first == "class" ) ){
+	    txt_class = v.second;
+	  }
 	}
 	if ( nsu.empty() || nsu == NSFOLIA ){
 	  int depth = xmlTextReaderDepth(_in_doc);
-	  my_rec *add_rec = new my_rec( depth, index, local_name );
+	  my_rec *add_rec = new my_rec( depth, index, local_name, txt_class );
 	  if ( _debug ){
 	    cerr << "new record " << index << " " << local_name << " ("
 		 << depth << ")" << endl;
@@ -632,7 +645,7 @@ namespace folia {
 	    cerr << "name=" << local_name << " atts=" << atts << endl;
 	  }
 	  if ( _debug ){
-	    cerr << "enumerate_nodes() node in alien namespace'"
+	    cerr << "create_simple_tree() node in alien namespace'"
 		 << atts["xmlns:"]
 		 << " is SKIPPED!" << endl;
 	  }
@@ -641,6 +654,32 @@ namespace folia {
       ret = xmlTextReaderRead(_in_doc);
     }
     return records;
+  }
+
+  set<int> Processor::enumerate_text_parents( const string& textclass ) const {
+    ///
+    /// Loop over the full input, looking for textnodes in class 'texclass'
+    /// for the DEEPEST text possible, enumerate their parents
+    ///
+    if ( _done ){
+      throw runtime_error( "enumerate_text_parents() called on a done processor" );
+    }
+    if ( _debug ){
+      cerr << "enumerate_nodes()" << endl;
+    }
+    int ret = xmlTextReaderRead(_in_doc);
+    if ( ret == 0 ){
+      throw runtime_error( "enumerate_text_parents() could not start" );
+    }
+    //
+    // we start by creating a tree of all nodes
+    my_rec *tree = create_simple_tree();
+    //
+    // now search that tree for nodes in 'textclass'
+    // if is a <t>, the remember the index of its parent
+    set<int> result;
+    my_rec *rec_pnt = tree;
+    return result;
   }
 
   FoliaElement *Processor::next_text_parent( ){
