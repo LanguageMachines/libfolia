@@ -756,14 +756,14 @@ namespace folia {
       if ( type == XML_ELEMENT_NODE ){
 	string local_name = (const char*)xmlTextReaderConstLocalName(_in_doc);
 	int new_depth = xmlTextReaderDepth(_in_doc);
-	cerr << _text_node_count << " next_text_parent() :" << local_name << endl;
+	//	cerr << _text_node_count << " next_text_parent() :" << local_name << endl;
 	if ( text_parent_set.find( _text_node_count ) != text_parent_set.end() ){
 	  // HIT!
 	  KWargs atts = get_attributes( _in_doc );
-	  //	  if ( _debug ){
+	  if ( _debug ){
 	    cerr << "matched search tag: " << local_name
 		 << " atts=" << atts << endl;
-	    //	  }
+	  }
 	  FoliaElement *t = FoliaImpl::createElement( local_name, _out_doc );
 	  if ( _debug ){
 	    cerr << "created FoliaElement: name=" << local_name << endl;
