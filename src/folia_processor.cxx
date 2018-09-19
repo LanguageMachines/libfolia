@@ -49,6 +49,7 @@ namespace folia {
     _current_node(0),
     _last_added(0),
     _last_depth(2),
+    _text_node_count(0),
     _os(0),
     _header_done(false),
     _finished(false),
@@ -180,6 +181,7 @@ namespace folia {
 
   bool Processor::init_doc( const string& file_name,
 			    const string& out_name ){
+    _in_file = file_name;
     _ok = false;
     _out_doc = new Document();
     if ( !out_name.empty() ){
@@ -196,6 +198,7 @@ namespace folia {
       ofstream os( tmp_file );
       os << buffer << endl;
       os.close();
+      _in_file = tmp_file; // DANGEROUS, how long wil it live?
       _in_doc = xmlNewTextReaderFilename( tmp_file.c_str() );
     }
     else {
@@ -207,6 +210,7 @@ namespace folia {
 			    + "'" ) );
     }
     int ret = xmlTextReaderRead(_in_doc);
+    int index = 0;
     while ( ret > 0 ){
       int type =  xmlTextReaderNodeType(_in_doc );
       string name = (const char*)xmlTextReaderConstName(_in_doc );
@@ -214,6 +218,7 @@ namespace folia {
       //      cerr << "node type = " << type << " name: " << local_name << endl;
       switch ( type ){
       case 1:
+	++index;
 	if ( local_name == "FoLiA" ){
 	  // found the root
 	  const xmlChar *pnt = xmlTextReaderConstPrefix(_in_doc);
@@ -305,6 +310,7 @@ namespace folia {
 	  _root_node = text;
 	  _current_node = text;
 	  _ok = true;
+	  _start_index = index;
 	  return _ok;
 	}
 	break;
@@ -569,16 +575,15 @@ namespace folia {
 
   my_rec *Processor::create_simple_tree() const {
     ///
-    /// Loop over the full input, creating a lightweight tree for
+    /// create a copy of the current xmlReader and use that to
+    /// loop over the full input, creating a lightweight tree for
     /// enumerating all XML_ELEMENTS encountered
     ///
-    if ( _done ){
-      throw runtime_error( "create_simple_tree() called on a done processor" );
-    }
+    xmlTextReader *tmp_doc = xmlNewTextReaderFilename( _in_file.c_str() );
     if ( _debug ){
       cerr << "enumerate_nodes()" << endl;
     }
-    int ret = xmlTextReaderRead(_in_doc);
+    int ret = xmlTextReaderRead(tmp_doc);
     if ( ret == 0 ){
       throw runtime_error( "create_simple_tree() could not start" );
     }
@@ -587,11 +592,11 @@ namespace folia {
     int index = 0;
     int current_depth = 0;
     while ( ret ){
-      int type = xmlTextReaderNodeType(_in_doc);
-      int depth = xmlTextReaderDepth(_in_doc);
+      int type = xmlTextReaderNodeType(tmp_doc);
+      int depth = xmlTextReaderDepth(tmp_doc);
       if ( type == XML_ELEMENT_NODE ){
-	string local_name = (const char*)xmlTextReaderConstLocalName(_in_doc);
-	KWargs atts = get_attributes( _in_doc );
+	string local_name = (const char*)xmlTextReaderConstLocalName(tmp_doc);
+	KWargs atts = get_attributes( tmp_doc );
 	string nsu;
 	string txt_class;
 	for ( auto const& v : atts ){
@@ -652,7 +657,7 @@ namespace folia {
 	}
 	++index;
       }
-      ret = xmlTextReaderRead(_in_doc);
+      ret = xmlTextReaderRead(tmp_doc);
     }
     return records;
   }
@@ -695,10 +700,6 @@ namespace folia {
     if ( _debug ){
       cerr << "enumerate_nodes()" << endl;
     }
-    int ret = xmlTextReaderRead(_in_doc);
-    if ( ret == 0 ){
-      throw runtime_error( "enumerate_text_parents() could not start" );
-    }
     //
     // we start by creating a tree of all nodes
     my_rec *tree = create_simple_tree();
@@ -712,6 +713,9 @@ namespace folia {
       result.insert( deeper.begin(), deeper.end() );
       rec_pnt = rec_pnt->next;
     }
+    cerr << "complete tree: " << endl;
+    print( cerr, tree );
+    cerr << "Search set = " << result << endl;
     return result;
   }
 
@@ -722,7 +726,13 @@ namespace folia {
       }
       return 0;
     }
-    text_parent_set = enumerate_text_parents( textclass );
+    if ( text_parent_set.empty() ){
+      text_parent_set = enumerate_text_parents( textclass );
+      _text_node_count = _start_index;
+    }
+    if ( text_parent_set.empty() ){
+      return 0;
+    }
     ///
     int ret = 0;
     if ( _external_node != 0 ){
@@ -741,22 +751,19 @@ namespace folia {
       }
       return 0;
     }
-    int node_count = 0;
     while ( ret ){
       int type = xmlTextReaderNodeType(_in_doc);
       if ( type == XML_ELEMENT_NODE ){
 	string local_name = (const char*)xmlTextReaderConstLocalName(_in_doc);
 	int new_depth = xmlTextReaderDepth(_in_doc);
-	if ( text_parent_set.find( node_count ) != text_parent_set.end() ){
+	cerr << _text_node_count << " next_text_parent() :" << local_name << endl;
+	if ( text_parent_set.find( _text_node_count ) != text_parent_set.end() ){
 	  // HIT!
-	  if ( _debug ){
-	    cerr << "next_text_parent() hit a =" << local_name << endl;
-	  }
 	  KWargs atts = get_attributes( _in_doc );
-	  if ( _debug ){
+	  //	  if ( _debug ){
 	    cerr << "matched search tag: " << local_name
 		 << " atts=" << atts << endl;
-	  }
+	    //	  }
 	  FoliaElement *t = FoliaImpl::createElement( local_name, _out_doc );
 	  if ( _debug ){
 	    cerr << "created FoliaElement: name=" << local_name << endl;
@@ -767,6 +774,7 @@ namespace folia {
 	  ret = xmlTextReaderNext(_in_doc);
 	  _done = (ret == 0);
 	  _external_node = t;
+	  ++_text_node_count;
 	  return t;
 	}
 	else {
@@ -838,7 +846,7 @@ namespace folia {
 	    }
 	  }
 	}
-	++node_count;
+	++_text_node_count;
       }
       else if ( type == XML_TEXT_NODE ){
 	XmlText *txt = new XmlText();

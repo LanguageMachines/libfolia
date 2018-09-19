@@ -83,6 +83,9 @@ namespace folia {
     FoliaElement *_current_node;
     FoliaElement *_last_added;
     int _last_depth;
+    int _start_index;
+    int _text_node_count;
+    std::string _in_file;
     std::ostream *_os;
     std::string _footer;
     std::string _out_name;
