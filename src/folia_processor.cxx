@@ -662,11 +662,11 @@ namespace folia {
     return records;
   }
 
-  set<int> search_text_parents( my_rec* start, const string& textclass ){
-    set<int> result;
+  map<int,int> search_text_parents( my_rec* start, const string& textclass ){
+    map<int,int> result;
     my_rec *pnt = start;
     while ( pnt ){
-      set<int> deeper = search_text_parents( pnt->link, textclass );
+      map<int,int> deeper = search_text_parents( pnt->link, textclass );
       if ( !deeper.empty() ){
 	//	cerr << "deeper we found: " << deeper << endl;
 	result.insert( deeper.begin(), deeper.end() );
@@ -677,7 +677,18 @@ namespace folia {
       my_rec *pnt = start;
       while ( pnt ){
 	if ( pnt->tag == "t" && pnt->textclass == textclass ){
-	  result.insert( pnt->parent->index );
+	  int index = pnt->parent->index;
+	  int next = INT_MAX;
+	  if ( pnt->parent->next ){
+	    next = pnt->parent->next->index;
+	  }
+	  else if ( pnt->parent->parent->next ){
+	    next = pnt->parent->parent->next->index;
+	  }
+	  else {
+
+	  }
+	  result[index] = next;
 	  break;
 	}
 	pnt = pnt->next;
@@ -689,7 +700,7 @@ namespace folia {
     return result;
   }
 
-  set<int> Processor::enumerate_text_parents( const string& textclass ) const {
+  map<int,int> Processor::enumerate_text_parents( const string& textclass ) const {
     ///
     /// Loop over the full input, looking for textnodes in class 'texclass'
     /// for the DEEPEST text possible, enumerate their parents
@@ -706,16 +717,16 @@ namespace folia {
     //
     // now search that tree for nodes in 'textclass'
     // if is a <t>, the remember the index of its parent
-    set<int> result;
+    map<int,int> result;
     my_rec *rec_pnt = tree;
     while ( rec_pnt ){
-      set<int> deeper = search_text_parents( rec_pnt->link, textclass );
+      map<int,int> deeper = search_text_parents( rec_pnt->link, textclass );
       result.insert( deeper.begin(), deeper.end() );
       rec_pnt = rec_pnt->next;
     }
-    cerr << "complete tree: " << endl;
-    print( cerr, tree );
-    cerr << "Search set = " << result << endl;
+    // cerr << "complete tree: " << endl;
+    // print( cerr, tree );
+    // cerr << "Search map = " << result << endl;
     return result;
   }
 
@@ -726,11 +737,11 @@ namespace folia {
       }
       return 0;
     }
-    if ( text_parent_set.empty() ){
-      text_parent_set = enumerate_text_parents( textclass );
+    if ( text_parent_map.empty() ){
+      text_parent_map = enumerate_text_parents( textclass );
       _text_node_count = _start_index;
     }
-    if ( text_parent_set.empty() ){
+    if ( text_parent_map.empty() ){
       return 0;
     }
     ///
@@ -757,7 +768,7 @@ namespace folia {
 	string local_name = (const char*)xmlTextReaderConstLocalName(_in_doc);
 	int new_depth = xmlTextReaderDepth(_in_doc);
 	//	cerr << _text_node_count << " next_text_parent() :" << local_name << endl;
-	if ( text_parent_set.find( _text_node_count ) != text_parent_set.end() ){
+	if ( text_parent_map.find( _text_node_count ) != text_parent_map.end() ){
 	  // HIT!
 	  KWargs atts = get_attributes( _in_doc );
 	  if ( _debug ){
@@ -774,7 +785,7 @@ namespace folia {
 	  ret = xmlTextReaderNext(_in_doc);
 	  _done = (ret == 0);
 	  _external_node = t;
-	  ++_text_node_count;
+	  _text_node_count = text_parent_map[_text_node_count];
 	  return t;
 	}
 	else {
