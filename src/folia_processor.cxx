@@ -49,7 +49,6 @@ namespace folia {
     _current_node(0),
     _last_added(0),
     _last_depth(2),
-    _text_node_count(0),
     _os(0),
     _header_done(false),
     _finished(false),
@@ -63,6 +62,19 @@ namespace folia {
     xmlFreeTextReader( _in_doc );
     delete _out_doc;
     delete _os;
+  }
+
+  bool TextProcessor::init_doc( const string& i, const string& o ){
+    _in_file = i;
+    _is_setup = false;
+    return Processor::init_doc( i, o );
+  }
+
+  void TextProcessor::setup( const string& textclass ){
+    _text_node_count = 0;
+    text_parent_map = enumerate_text_parents( textclass );
+    _text_node_count = _start_index;
+    _is_setup = true;
   }
 
   void Processor::declare( AnnotationType::AnnotationType at,
@@ -181,7 +193,6 @@ namespace folia {
 
   bool Processor::init_doc( const string& file_name,
 			    const string& out_name ){
-    _in_file = file_name;
     _ok = false;
     _out_doc = new Document();
     if ( !out_name.empty() ){
@@ -198,7 +209,6 @@ namespace folia {
       ofstream os( tmp_file );
       os << buffer << endl;
       os.close();
-      _in_file = tmp_file; // DANGEROUS, how long wil it live?
       _in_doc = xmlNewTextReaderFilename( tmp_file.c_str() );
     }
     else {
@@ -573,13 +583,12 @@ namespace folia {
     }
   }
 
-  my_rec *Processor::create_simple_tree() const {
+  my_rec *Processor::create_simple_tree( const string& in_file ) const {
     ///
-    /// create a copy of the current xmlReader and use that to
-    /// loop over the full input, creating a lightweight tree for
-    /// enumerating all XML_ELEMENTS encountered
+    /// create an xmlReader and use that to loop over the full input,
+    /// creating a lightweight tree for enumerating all XML_ELEMENTS encountered
     ///
-    xmlTextReader *tmp_doc = xmlNewTextReaderFilename( _in_file.c_str() );
+    xmlTextReader *tmp_doc = xmlNewTextReaderFilename( in_file.c_str() );
     if ( _debug ){
       cerr << "enumerate_nodes()" << endl;
     }
@@ -700,7 +709,7 @@ namespace folia {
     return result;
   }
 
-  map<int,int> Processor::enumerate_text_parents( const string& textclass ) const {
+  map<int,int> TextProcessor::enumerate_text_parents( const string& textclass ) const {
     ///
     /// Loop over the full input, looking for textnodes in class 'texclass'
     /// for the DEEPEST text possible, enumerate their parents
@@ -709,11 +718,11 @@ namespace folia {
       throw runtime_error( "enumerate_text_parents() called on a done processor" );
     }
     if ( _debug ){
-      cerr << "enumerate_nodes()" << endl;
+      cerr << "enumerate_text_parents(" << textclass << ")" << endl;
     }
     //
     // we start by creating a tree of all nodes
-    my_rec *tree = create_simple_tree();
+    my_rec *tree = create_simple_tree(_in_file);
     //
     // now search that tree for nodes in 'textclass'
     // if is a <t>, the remember the index of its parent
@@ -730,18 +739,20 @@ namespace folia {
     return result;
   }
 
-  FoliaElement *Processor::next_text_parent( const string& textclass ){
+  FoliaElement *TextProcessor::next_text_parent(){
     if ( _done ){
       if ( _debug ){
 	cerr << "next_text_parent(). processor is done" << endl;
       }
       return 0;
     }
-    if ( text_parent_map.empty() ){
-      text_parent_map = enumerate_text_parents( textclass );
-      _text_node_count = _start_index;
+    if ( !_is_setup ){
+      throw runtime_error( "TextProcessor: not setup yet!" );
     }
     if ( text_parent_map.empty() ){
+      if ( _debug ){
+	cerr << "next_text_parent(). the parent map is empty." << endl;
+      }
       return 0;
     }
     ///

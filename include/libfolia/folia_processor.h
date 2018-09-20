@@ -45,12 +45,9 @@ namespace folia {
     Processor();
   Processor( const std::string& i, const std::string& o="" ):
     Processor() { init_doc(i,o); };
-    bool init_doc( const std::string&, const std::string& ="" );
-    ~Processor();
+    virtual bool init_doc( const std::string&, const std::string& ="" );
+    virtual ~Processor();
     FoliaElement *get_node( const std::string& );
-    my_rec *create_simple_tree() const;
-    std::map<int,int> enumerate_text_parents( const std::string& ="" ) const;
-    FoliaElement *next_text_parent( const std::string& ="" );
     bool next();
     void append_node( FoliaElement *, int );
     void save( const std::string&, bool=false );
@@ -75,7 +72,8 @@ namespace folia {
     void set_metadata( const std::string&, const std::string& );
     bool set_debug( bool d ) { bool res = _debug; _debug = d; return res; };
     Document *doc() { return _out_doc; };
-  private:
+    my_rec *create_simple_tree( const std::string& ) const;
+  protected:
     xmlTextReader *_in_doc;
     Document *_out_doc;
     FoliaElement *_root_node;
@@ -84,19 +82,34 @@ namespace folia {
     FoliaElement *_last_added;
     int _last_depth;
     int _start_index;
-    int _text_node_count;
-    std::string _in_file;
     std::ostream *_os;
     std::string _footer;
     std::string _out_name;
     std::string ns_prefix;
-    std::map<int,int> text_parent_map;
     bool _paused;
     bool _header_done;
     bool _finished;
     bool _ok;
     bool _done;
     bool _debug;
+  };
+
+  class TextProcessor: public Processor {
+  public:
+  TextProcessor(): Processor(){};
+  TextProcessor( const std::string& i, const std::string& o="" ):
+    TextProcessor(){
+      init_doc( i, o );
+    }
+    bool init_doc( const std::string&, const std::string& ="" );
+    void setup( const std::string& ="" );
+    std::map<int,int> enumerate_text_parents( const std::string& ="" ) const;
+    FoliaElement *next_text_parent();
+  private:
+    int _text_node_count;
+    std::string _in_file;
+    std::map<int,int> text_parent_map;
+    bool _is_setup;
   };
 
 }
