@@ -93,17 +93,21 @@ namespace folia {
     }
   }
 
-  string library_version(){
+  string folia_version(){
     stringstream ss;
     ss << MAJOR_VERSION << "." << MINOR_VERSION << "." << SUB_VERSION;
     return ss.str();
   }
 
+  string library_version(){
+    return VERSION;
+  }
+
   string Document::update_version(){
-    // override the document version with the current library version
+    // override the document version with the current folia version
     // return the old value
     string old = _version_string;
-    _version_string = library_version();
+    _version_string = folia_version();
     return old;
   }
 
@@ -116,7 +120,7 @@ namespace folia {
     _foliaNsOut = 0;
     debug = 0;
     mode = CHECKTEXT;
-    _version_string = library_version();
+    _version_string = folia_version();
     external = false;
   }
 
@@ -1696,7 +1700,7 @@ namespace folia {
       attribs["version"] = "";
     }
     else {
-      attribs["generator"] = string("libfolia-v") + VERSION;
+      attribs["generator"] = "libfolia-v" + library_version();
       if ( !_version_string.empty() )
 	attribs["version"] = _version_string;
     }

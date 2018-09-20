@@ -288,6 +288,7 @@ namespace folia {
 			      int&, int&, int&, std::string& );
 
   std::string library_version();
+  std::string folia_version();
 
 } // namespace folia
 
