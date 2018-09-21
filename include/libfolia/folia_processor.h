@@ -37,8 +37,28 @@
 
 namespace folia {
 
-  struct my_rec;
-  void print( std::ostream&, my_rec* );
+  class xml_tree {
+  public:
+  xml_tree( int d, int i, const std::string& t, const std::string& c ):
+    depth(d),
+      index(i),
+      tag(t),
+      textclass(c),
+      parent(0),
+      link(0),
+      next(0)
+    {};
+    ~xml_tree();
+    int depth;
+    int index;
+    std::string tag;
+    std::string textclass;
+    xml_tree *parent;
+    xml_tree *link;
+    xml_tree *next;
+  };
+
+  void print( std::ostream&, xml_tree* );
 
   class Processor {
   public:
@@ -72,7 +92,7 @@ namespace folia {
     void set_metadata( const std::string&, const std::string& );
     bool set_debug( bool d ) { bool res = _debug; _debug = d; return res; };
     Document *doc() { return _out_doc; };
-    my_rec *create_simple_tree( const std::string& ) const;
+    xml_tree *create_simple_tree( const std::string& ) const;
   protected:
     xmlTextReader *_in_doc;
     Document *_out_doc;

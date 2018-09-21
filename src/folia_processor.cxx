@@ -548,27 +548,17 @@ namespace folia {
     return 0;
   }
 
-  struct my_rec {
-    my_rec( int d, int i, const string& t, const string& c ):
-      depth(d),
-      index(i),
-      tag(t),
-      textclass(c),
-      parent(0),
-      link(0),
-      next(0)
-    {};
-    int depth;
-    int index;
-    string tag;
-    string textclass;
-    my_rec *parent;
-    my_rec *link;
-    my_rec *next;
-  };
+  xml_tree::~xml_tree() {
+    if ( link ){
+      delete link;
+    }
+    if ( next ){
+      delete next;
+    }
+  }
 
-  void print( ostream& os, my_rec* recs ){
-    my_rec *rec_pnt = recs;
+  void print( ostream& os, xml_tree* recs ){
+    xml_tree *rec_pnt = recs;
     while ( rec_pnt ){
       os << setw(10) << rec_pnt->index << string( rec_pnt->depth, ' ' )
 	 << rec_pnt->tag;
@@ -583,7 +573,7 @@ namespace folia {
     }
   }
 
-  my_rec *Processor::create_simple_tree( const string& in_file ) const {
+  xml_tree *Processor::create_simple_tree( const string& in_file ) const {
     ///
     /// create an xmlReader and use that to loop over the full input,
     /// creating a lightweight tree for enumerating all XML_ELEMENTS encountered
@@ -596,8 +586,8 @@ namespace folia {
     if ( ret == 0 ){
       throw runtime_error( "create_simple_tree() could not start" );
     }
-    my_rec *records = 0;
-    my_rec *rec_pnt = 0;
+    xml_tree *records = 0;
+    xml_tree *rec_pnt = 0;
     int index = 0;
     int current_depth = 0;
     while ( ret ){
@@ -619,7 +609,7 @@ namespace folia {
 	  }
 	}
 	if ( nsu.empty() || nsu == NSFOLIA ){
-	  my_rec *add_rec = new my_rec( depth, index, local_name, txt_class );
+	  xml_tree *add_rec = new xml_tree( depth, index, local_name, txt_class );
 	  if ( _debug ){
 	    cerr << "new record " << index << " " << local_name << " ("
 		 << depth << ")" << endl;
@@ -668,12 +658,13 @@ namespace folia {
       }
       ret = xmlTextReaderRead(tmp_doc);
     }
+    xmlFreeTextReader( tmp_doc );
     return records;
   }
 
-  map<int,int> search_text_parents( my_rec* start, const string& textclass ){
+  map<int,int> search_text_parents( xml_tree* start, const string& textclass ){
     map<int,int> result;
-    my_rec *pnt = start;
+    xml_tree *pnt = start;
     while ( pnt ){
       map<int,int> deeper = search_text_parents( pnt->link, textclass );
       if ( !deeper.empty() ){
@@ -683,7 +674,7 @@ namespace folia {
       pnt = pnt->next;
     }
     if ( result.empty() ){
-      my_rec *pnt = start;
+      xml_tree *pnt = start;
       while ( pnt ){
 	if ( pnt->tag == "t" && pnt->textclass == textclass ){
 	  int index = pnt->parent->index;
@@ -722,12 +713,12 @@ namespace folia {
     }
     //
     // we start by creating a tree of all nodes
-    my_rec *tree = create_simple_tree(_in_file);
+    xml_tree *tree = create_simple_tree(_in_file);
     //
     // now search that tree for nodes in 'textclass'
     // if is a <t>, the remember the index of its parent
     map<int,int> result;
-    my_rec *rec_pnt = tree;
+    xml_tree *rec_pnt = tree;
     while ( rec_pnt ){
       map<int,int> deeper = search_text_parents( rec_pnt->link, textclass );
       result.insert( deeper.begin(), deeper.end() );
@@ -736,6 +727,7 @@ namespace folia {
     // cerr << "complete tree: " << endl;
     // print( cerr, tree );
     // cerr << "Search map = " << result << endl;
+    delete tree;
     return result;
   }
 
