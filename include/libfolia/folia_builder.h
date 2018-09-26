@@ -36,7 +36,8 @@ namespace folia {
 
   class Builder {
   public:
-    Builder( std::ostream&, const std::string& );
+    enum doctype {TEXT,SPEECH};
+    Builder( std::ostream&, const std::string&, doctype = TEXT );
     ~Builder();
     Document *doc() const { return _doc; }
     bool add( FoliaElement * );
@@ -46,6 +47,7 @@ namespace folia {
     bool finish();
   private:
     Document *_doc;
+    doctype _doc_type;
     FoliaElement *root_node;
     std::ostream& _os;
     std::string _footer;

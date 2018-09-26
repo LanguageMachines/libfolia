@@ -36,17 +36,24 @@ using namespace std;
 
 namespace folia {
 
-  Builder::Builder( std::ostream& os, const std::string& id ):
+  Builder::Builder( std::ostream& os, const std::string& id, doctype dt ):
+    _doc_type( dt ),
     _os(os),
     header_done(false),
     finished(false)
   {
     string arg = "id='"+id+"'";
-    cerr << "create builder: " << arg << endl;
     _doc = new Document(arg);
     KWargs args;
-    args["id"] = id + ".text";
-    Text *t = new Text( args );
+    FoliaElement *t;
+    if ( dt == TEXT ){
+      args["id"] = id + ".text";
+      t = new Text( args );
+    }
+    else {
+      args["id"] = id + ".speech";
+      t = new Speech( args );
+    }
     _doc->append( t );
     root_node = t;
   }
@@ -79,7 +86,13 @@ namespace folia {
     stringstream ss;
     _doc->save( ss );
     string data = ss.str();
-    string::size_type pos1 = data.find("<text");
+    string::size_type pos1;
+    if ( _doc_type == TEXT ){
+      pos1 = data.find("<text");
+    }
+    else {
+      pos1 = data.find("<speech");
+    }
     string::size_type pos2;
     if ( root_node->size() == 0 ){
       pos2 = data.find( "/>" , pos1 );
@@ -92,10 +105,22 @@ namespace folia {
       pos2 += 2;
     }
     else {
-      pos2 = data.find( "</text>" , pos1 );
-      pos2 += 6;
+      if ( _doc_type == TEXT ){
+	pos2 = data.find( "</text>" , pos1 );
+	pos2 += 6;
+      }
+      else {
+	pos2 = data.find( "</speech>" , pos1 );
+	pos2 += 8;
+      }
     }
-    _footer = "  </text>" + data.substr( pos2 );
+    if ( _doc_type == TEXT ){
+      _footer = "  </text>";
+    }
+    else {
+      _footer = "  </speech>";
+    }
+    _footer += data.substr( pos2 );
     _os << head << endl;
     return true;
   }

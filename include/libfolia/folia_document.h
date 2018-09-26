@@ -101,10 +101,9 @@ namespace folia {
     FoliaElement* doc() const { return foliadoc; }
     Text* addText( const KWargs& );
     Text* addText( Text * );
-    FoliaElement* append( Text *t ){
-      // almost backward compatible
-      return addText(t);
-    };
+    Speech* addSpeech( const KWargs& );
+    Speech* addSpeech( Speech * );
+    FoliaElement* append( FoliaElement *t );
     void set_foreign_metadata( xmlNode * );
     void addStyle( const std::string&, const std::string& );
     void replaceStyle( const std::string&, const std::string& );

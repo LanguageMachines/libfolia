@@ -1383,9 +1383,30 @@ namespace folia {
     return res;
   }
 
+  Speech* Document::addSpeech( const KWargs& kwargs ){
+    Speech *res = new Speech( kwargs, this );
+    foliadoc->append( res );
+    return res;
+  }
+
   Text* Document::addText( Text *t ){
     foliadoc->append( t );
     return t;
+  }
+
+  Speech* Document::addSpeech( Speech *t ){
+    foliadoc->append( t );
+    return t;
+  }
+
+  FoliaElement* Document::append( FoliaElement *t ) {
+    if ( t->element_id() == Text_t ){
+      return addText(dynamic_cast<Text*>(t) );
+    }
+    else if ( t->element_id() == Speech_t ){
+      return addSpeech(dynamic_cast<Speech*>(t) );
+    }
+    throw XmlError( "Only can append 'text' or 'speech' as root of a Document." );
   }
 
   bool Document::isDeclared( AnnotationType::AnnotationType type,
