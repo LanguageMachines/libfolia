@@ -49,6 +49,7 @@ namespace folia {
     _current_node(0),
     _last_added(0),
     _last_depth(2),
+    _doc_type( TEXT ),
     _os(0),
     _header_done(false),
     _finished(false),
@@ -316,9 +317,21 @@ namespace folia {
 	else if ( local_name == "text" ){
 	  KWargs args = get_attributes(_in_doc);
 	  Text *text = new Text( args, _out_doc );
+	  _doc_type = TEXT;
 	  _out_doc->append( text );
 	  _root_node = text;
 	  _current_node = text;
+	  _ok = true;
+	  _start_index = index;
+	  return _ok;
+	}
+	else if ( local_name == "speech" ){
+	  KWargs args = get_attributes(_in_doc);
+	  Speech *sp = new Speech( args, _out_doc );
+	  _doc_type = SPEECH;
+	  _out_doc->append( sp );
+	  _root_node = sp;
+	  _current_node = sp;
 	  _ok = true;
 	  _start_index = index;
 	  return _ok;
@@ -907,11 +920,27 @@ namespace folia {
     stringstream ss;
     _out_doc->save( ss, ns_prefix );
     string data = ss.str();
-    string search_b = "<text";
-    string search_e = "</text";
-    if ( !ns_prefix.empty() ){
-      search_b = "<" + ns_prefix + ":" + "text";
-      search_e = "</" + ns_prefix + ":" + "text";
+    string search_b;
+    string search_e;
+    if ( _doc_type == TEXT ){
+      if ( !ns_prefix.empty() ){
+	search_b = "<" + ns_prefix + ":" + "text";
+	search_e = "</" + ns_prefix + ":" + "text";
+      }
+      else {
+	search_b = "<text";
+	search_e = "</text";
+      }
+    }
+    else {
+      if ( !ns_prefix.empty() ){
+	search_b = "<" + ns_prefix + ":" + "speech";
+	search_e = "</" + ns_prefix + ":" + "speech";
+      }
+      else {
+	search_b = "<speech";
+	search_e = "</speech";
+      }
     }
     int add = search_e.size();
     string::size_type pos1 = data.find( search_b );

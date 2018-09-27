@@ -62,6 +62,7 @@ namespace folia {
 
   class Processor {
   public:
+    enum doctype { TEXT, SPEECH };
     Processor();
   Processor( const std::string& i, const std::string& o="" ):
     Processor() { init_doc(i,o); };
@@ -102,6 +103,7 @@ namespace folia {
     FoliaElement *_last_added;
     int _last_depth;
     int _start_index;
+    doctype _doc_type;
     std::ostream *_os;
     std::string _footer;
     std::string _out_name;

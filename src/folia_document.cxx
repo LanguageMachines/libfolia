@@ -93,6 +93,15 @@ namespace folia {
     }
   }
 
+  Document::Document( const KWargs& args ) {
+    init();
+    KWargs kwargs = args;
+    setDocumentProps( kwargs );
+    if ( !foliadoc ){
+      foliadoc = new FoLiA( kwargs, this );
+    }
+  }
+
   string folia_version(){
     stringstream ss;
     ss << MAJOR_VERSION << "." << MINOR_VERSION << "." << SUB_VERSION;

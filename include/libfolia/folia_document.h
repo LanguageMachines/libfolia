@@ -84,6 +84,7 @@ namespace folia {
   public:
     Document();
     explicit Document( const std::string& );
+    explicit Document( const KWargs& );
     ~Document();
     void init();
     bool readFromFile( const std::string& );

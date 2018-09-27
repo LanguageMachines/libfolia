@@ -42,9 +42,9 @@ namespace folia {
     header_done(false),
     finished(false)
   {
-    string arg = "id='"+id+"'";
-    _doc = new Document(arg);
     KWargs args;
+    args["id"] = id;
+    _doc = new Document(args);
     FoliaElement *t;
     if ( dt == TEXT ){
       args["id"] = id + ".text";
