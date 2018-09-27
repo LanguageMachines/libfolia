@@ -595,7 +595,22 @@ namespace folia {
     /// create an xmlReader and use that to loop over the full input,
     /// creating a lightweight tree for enumerating all XML_ELEMENTS encountered
     ///
-    xmlTextReader *tmp_doc = xmlNewTextReaderFilename( in_file.c_str() );
+    xmlTextReader *tmp_doc;
+    if ( TiCC::match_back( in_file, ".bz2" ) ){
+      string buffer = TiCC::bz2ReadFile( in_file );
+      if ( buffer.empty() ){
+	throw( runtime_error( "folia::Processor(), empty file? (" + in_file
+			      + ")" ) );
+      }
+      string tmp_file = tmpnam(0);
+      ofstream os( tmp_file );
+      os << buffer << endl;
+      os.close();
+      tmp_doc = xmlNewTextReaderFilename( tmp_file.c_str() );
+    }
+    else {
+      tmp_doc = xmlNewTextReaderFilename( in_file.c_str() );
+    }
     if ( _debug ){
       cerr << "enumerate_nodes()" << endl;
     }
