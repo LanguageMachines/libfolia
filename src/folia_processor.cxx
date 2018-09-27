@@ -315,10 +315,10 @@ namespace folia {
 	  }
 	}
 	else if ( local_name == "text" ){
+	  _doc_type = TEXT;
 	  KWargs args = get_attributes(_in_doc);
 	  Text *text = new Text( args, _out_doc );
-	  _doc_type = TEXT;
-	  _out_doc->append( text );
+	  _out_doc->setRoot( text );
 	  _root_node = text;
 	  _current_node = text;
 	  _ok = true;
@@ -326,10 +326,10 @@ namespace folia {
 	  return _ok;
 	}
 	else if ( local_name == "speech" ){
+	  _doc_type = SPEECH;
 	  KWargs args = get_attributes(_in_doc);
 	  Speech *sp = new Speech( args, _out_doc );
-	  _doc_type = SPEECH;
-	  _out_doc->append( sp );
+	  _out_doc->setRoot( sp );
 	  _root_node = sp;
 	  _current_node = sp;
 	  _ok = true;

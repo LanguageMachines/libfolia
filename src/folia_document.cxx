@@ -1408,7 +1408,7 @@ namespace folia {
     return t;
   }
 
-  FoliaElement* Document::append( FoliaElement *t ) {
+  FoliaElement* Document::setRoot( FoliaElement *t ) {
     if ( t->element_id() == Text_t ){
       return addText(dynamic_cast<Text*>(t) );
     }
@@ -1416,6 +1416,12 @@ namespace folia {
       return addSpeech(dynamic_cast<Speech*>(t) );
     }
     throw XmlError( "Only can append 'text' or 'speech' as root of a Document." );
+  }
+
+  FoliaElement* Document::append( FoliaElement *t ){  // OBSOLETE
+    cerr << "\nWARNING!! Obsolete Document::append() function is used. "
+	 << "Please replace by Document::setRoot() ASAP." << endl;
+    return setRoot(t);
   }
 
   bool Document::isDeclared( AnnotationType::AnnotationType type,

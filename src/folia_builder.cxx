@@ -54,7 +54,7 @@ namespace folia {
       args["id"] = id + ".speech";
       t = new Speech( args );
     }
-    _doc->append( t );
+    _doc->setRoot( t );
     root_node = t;
   }
 

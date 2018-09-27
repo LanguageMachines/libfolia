@@ -104,7 +104,8 @@ namespace folia {
     Text* addText( Text * );
     Speech* addSpeech( const KWargs& );
     Speech* addSpeech( Speech * );
-    FoliaElement* append( FoliaElement *t );
+    FoliaElement* append( FoliaElement *t ); // OBSOLETE
+    FoliaElement* setRoot( FoliaElement * );
     void set_foreign_metadata( xmlNode * );
     void addStyle( const std::string&, const std::string& );
     void replaceStyle( const std::string&, const std::string& );
