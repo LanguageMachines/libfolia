@@ -72,8 +72,12 @@ namespace folia {
   }
 
   void TextProcessor::setup( const string& textclass ){
+    string txtc = textclass;
+    if ( txtc == "current" ){
+      txtc.clear();
+    }
     _text_node_count = 0;
-    text_parent_map = enumerate_text_parents( textclass );
+    text_parent_map = enumerate_text_parents( txtc );
     _text_node_count = _start_index;
     _is_setup = true;
   }
