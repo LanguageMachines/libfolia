@@ -124,8 +124,9 @@ namespace folia {
       init_doc( i, o );
     }
     bool init_doc( const std::string&, const std::string& ="" );
-    void setup( const std::string& ="" );
-    std::map<int,int> enumerate_text_parents( const std::string& ="" ) const;
+    void setup( const std::string& ="", bool = false );
+    std::map<int,int> enumerate_text_parents( const std::string& ="",
+					      bool = false ) const;
     FoliaElement *next_text_parent();
   private:
     int _text_node_count;

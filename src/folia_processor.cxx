@@ -71,13 +71,13 @@ namespace folia {
     return Processor::init_doc( i, o );
   }
 
-  void TextProcessor::setup( const string& textclass ){
+  void TextProcessor::setup( const string& textclass, bool prefer_sent ){
     string txtc = textclass;
     if ( txtc == "current" ){
       txtc.clear();
     }
     _text_node_count = 0;
-    text_parent_map = enumerate_text_parents( txtc );
+    text_parent_map = enumerate_text_parents( txtc, prefer_sent );
     _text_node_count = _start_index;
     _is_setup = true;
   }
@@ -694,11 +694,13 @@ namespace folia {
     return records;
   }
 
-  map<int,int> search_text_parents( xml_tree* start, const string& textclass ){
+  map<int,int> search_text_parents( xml_tree* start,
+				    const string& textclass,
+				    bool prefer_sentences ){
     map<int,int> result;
     xml_tree *pnt = start;
     while ( pnt ){
-      map<int,int> deeper = search_text_parents( pnt->link, textclass );
+      map<int,int> deeper = search_text_parents( pnt->link, textclass, prefer_sentences );
       if ( !deeper.empty() ){
 	//	cerr << "deeper we found: " << deeper << endl;
 	result.insert( deeper.begin(), deeper.end() );
@@ -709,19 +711,30 @@ namespace folia {
       xml_tree *pnt = start;
       while ( pnt ){
 	if ( pnt->tag == "t" && pnt->textclass == textclass ){
-	  int index = pnt->parent->index;
-	  int next = INT_MAX;
-	  if ( pnt->parent->next ){
-	    next = pnt->parent->next->index;
-	  }
-	  else if ( pnt->parent->parent->next ){
-	    next = pnt->parent->parent->next->index;
+	  if ( prefer_sentences && pnt->parent->tag == "w" ){
+	    int index = pnt->parent->parent->index;
+	    int next = INT_MAX;
+	    if ( pnt->parent->parent->next ){
+	      next = pnt->parent->parent->next->index;
+	    }
+	    else if ( pnt->parent->parent->parent->next ){
+	      next = pnt->parent->parent->parent->next->index;
+	    }
+	    result[index] = next;
+	    break;
 	  }
 	  else {
-
+	    int index = pnt->parent->index;
+	    int next = INT_MAX;
+	    if ( pnt->parent->next ){
+	      next = pnt->parent->next->index;
+	    }
+	    else if ( pnt->parent->parent->next ){
+	    next = pnt->parent->parent->next->index;
+	    }
+	    result[index] = next;
+	    break;
 	  }
-	  result[index] = next;
-	  break;
 	}
 	pnt = pnt->next;
       }
@@ -732,11 +745,13 @@ namespace folia {
     return result;
   }
 
-  map<int,int> TextProcessor::enumerate_text_parents( const string& textclass ) const {
+  map<int,int> TextProcessor::enumerate_text_parents( const string& textclass,
+						      bool prefer_sent ) const {
     ///
     /// Loop over the full input, looking for textnodes in class 'texclass'
     /// for the DEEPEST text possible, enumerate their parents
-    ///
+    /// when skip_words eqs true, prefer sentences over the words within
+    /// the sentence
     if ( _done ){
       throw runtime_error( "enumerate_text_parents() called on a done processor" );
     }
@@ -749,10 +764,12 @@ namespace folia {
     //
     // now search that tree for nodes in 'textclass'
     // if is a <t>, the remember the index of its parent
+    // but when 'prefer_sent' is specified, return the direct sentence above
+    // when present.
     map<int,int> result;
     xml_tree *rec_pnt = tree;
     while ( rec_pnt ){
-      map<int,int> deeper = search_text_parents( rec_pnt->link, textclass );
+      map<int,int> deeper = search_text_parents( rec_pnt->link, textclass, prefer_sent );
       result.insert( deeper.begin(), deeper.end() );
       rec_pnt = rec_pnt->next;
     }
