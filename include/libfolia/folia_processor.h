@@ -32,6 +32,7 @@
 #include <set>
 #include <vector>
 #include <iostream>
+#include "ticcutils/LogStream.h"
 #include "libfolia/folia.h"
 #include "libxml/xmlreader.h"
 
@@ -91,7 +92,8 @@ namespace folia {
 		      const std::string&, const std::string&,
 		      const std::string& ) const;
     void set_metadata( const std::string&, const std::string& );
-    bool set_debug( bool d ) { bool res = _debug; _debug = d; return res; };
+    bool set_debug( bool d );
+    void set_dbg_stream( TiCC::LogStream * );
     Document *doc() { return _out_doc; };
     xml_tree *create_simple_tree( const std::string& ) const;
   protected:
@@ -104,6 +106,7 @@ namespace folia {
     int _last_depth;
     int _start_index;
     doctype _doc_type;
+    TiCC::LogStream *_dbg_file;
     std::ostream *_os;
     std::string _footer;
     std::string _out_name;

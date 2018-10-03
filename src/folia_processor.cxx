@@ -37,6 +37,8 @@
 
 using namespace std;
 
+#define DBG *TiCC::Log(_dbg_file)
+
 namespace folia {
 
   using TiCC::operator<<;
@@ -50,6 +52,7 @@ namespace folia {
     _last_added(0),
     _last_depth(2),
     _doc_type( TEXT ),
+    _dbg_file(0),
     _os(0),
     _header_done(false),
     _finished(false),
@@ -63,6 +66,25 @@ namespace folia {
     xmlFreeTextReader( _in_doc );
     delete _out_doc;
     delete _os;
+  }
+
+  bool Processor::set_debug( bool d ) {
+    bool res = _debug;
+    if ( d ){
+      if ( !_dbg_file ){
+	_dbg_file
+	  = new TiCC::LogStream( cerr, "folia-processsor", StampMessage );
+      }
+    }
+    _debug = d;
+    return res;
+  }
+
+  void Processor::set_dbg_stream( TiCC::LogStream *ls ){
+    if ( _dbg_file ){
+      delete _dbg_file;
+    }
+    _dbg_file = ls;
   }
 
   bool TextProcessor::init_doc( const string& i, const string& o ){
@@ -230,7 +252,6 @@ namespace folia {
       int type =  xmlTextReaderNodeType(_in_doc );
       string name = (const char*)xmlTextReaderConstName(_in_doc );
       string local_name = (const char*)xmlTextReaderConstLocalName(_in_doc );
-      //      cerr << "node type = " << type << " name: " << local_name << endl;
       switch ( type ){
       case 1:
 	++index;
@@ -376,35 +397,35 @@ namespace folia {
   void Processor::append_node( FoliaElement *t, int new_depth ){
     if ( new_depth == _last_depth ){
       if ( _debug ){
-	cerr << "GELIJK: current node = " << _current_node << endl;
-	cerr << "last node = " << _last_added << endl;
+	DBG << "GELIJK: current node = " << _current_node << endl;
+	DBG << "last node = " << _last_added << endl;
       }
       _current_node->append( t );
     }
     else if ( new_depth > _last_depth ){
       if ( _debug ){
-	cerr << "DIEPER: current node = " << _current_node << endl;
+	DBG << "DIEPER: current node = " << _current_node << endl;
       }
       _current_node = _last_added;
       if ( _debug ){
-	cerr << "Dus nu: current node = " << _current_node << endl;
+	DBG << "Dus nu: current node = " << _current_node << endl;
       }
       _current_node->append( t );
       _last_depth = new_depth;
     }
     else if ( new_depth < _last_depth  ){
       if ( _debug ){
-	cerr << "OMHOOG current node = " << _current_node << endl;
-	cerr << "last node = " << _last_added << endl;
+	DBG << "OMHOOG current node = " << _current_node << endl;
+	DBG << "last node = " << _last_added << endl;
       }
       for ( int i=0; i < _last_depth-new_depth; ++i ){
 	if ( _debug ){
-	  cerr << "up node = " << _current_node << endl;
+	  DBG << "up node = " << _current_node << endl;
 	}
 	_current_node = _current_node->parent();
       }
       if ( _debug ){
-	cerr << "NU current node = " << _current_node << endl;
+	DBG << "NU current node = " << _current_node << endl;
       }
       _current_node->append( t );
       _last_depth = new_depth;
@@ -414,19 +435,19 @@ namespace folia {
   FoliaElement *Processor::get_node( const string& tag ){
     if ( _done ){
       if ( _debug ){
-	cerr << "get node name(). processor is done" << endl;
+	DBG << "get node name(). processor is done" << endl;
       }
       return 0;
     }
     if ( _debug ){
-      cerr << "get node name, for tag=" << tag << endl;
+      DBG << "get node name, for tag=" << tag << endl;
     }
     int ret = 0;
     if ( _external_node != 0 ){
       _external_node = 0;
       ret = 1;
       if ( _debug ){
-	cerr << "get node name, add external node, read on" << endl;
+	DBG << "get node name, add external node, read on" << endl;
       }
     }
     else {
@@ -434,7 +455,7 @@ namespace folia {
     }
     if ( ret == 0 ){
       if ( _debug ){
-	cerr << "get node name, DONE" << endl;
+	DBG << "get node name, DONE" << endl;
       }
       return 0;
     }
@@ -449,18 +470,18 @@ namespace folia {
 	string local_name = (const char*)xmlTextReaderConstLocalName(_in_doc);
 	int new_depth = xmlTextReaderDepth(_in_doc);
 	if ( _debug ){
-	  cerr << "get node name=" << local_name
-	       << " depth " << _last_depth << " ==> " << new_depth << endl;
+	  DBG << "get node name=" << local_name
+	      << " depth " << _last_depth << " ==> " << new_depth << endl;
 	}
 	if ( tags.find(local_name) != tags.end() ){
 	  KWargs atts = get_attributes( _in_doc );
 	  if ( _debug ){
-	    cerr << "matched search tag: " << local_name
-		 << " atts=" << atts << endl;
+	    DBG << "matched search tag: " << local_name
+		<< " atts=" << atts << endl;
 	  }
 	  FoliaElement *t = FoliaImpl::createElement( local_name, _out_doc );
 	  if ( _debug ){
-	    cerr << "created FoliaElement: name=" << local_name << endl;
+	    DBG << "created FoliaElement: name=" << local_name << endl;
 	  }
 	  xmlNode *fd = xmlTextReaderExpand(_in_doc);
 	  t->parseXml( fd );
@@ -473,7 +494,7 @@ namespace folia {
 	else {
 	  KWargs atts = get_attributes( _in_doc );
 	  if ( _debug ){
-	    cerr << "name=" << local_name << " atts=" << atts << endl;
+	    DBG << "name=" << local_name << " atts=" << atts << endl;
 	  }
 	  if ( local_name == "wref" ){
 	    FoliaElement *ref = (*_out_doc)[atts["id"]];
@@ -520,14 +541,14 @@ namespace folia {
 	      append_node( t, new_depth );
 	      _last_added = t;
 	      if ( _debug ){
-		cerr << "einde current node = " << _current_node << endl;
-		cerr << "last node = " << _last_added << endl;
+		DBG << "einde current node = " << _current_node << endl;
+		DBG << "last node = " << _last_added << endl;
 	      }
 	    }
 	    else {
 	      if ( _debug ){
-		cerr << "a node in alien namespace'" << atts["xmlns:"]
-		     << " SKIPPED!" << endl;
+		DBG << "a node in alien namespace'" << atts["xmlns:"]
+		    << " SKIPPED!" << endl;
 	      }
 	      // just take as is...
 	      FoliaElement *t = FoliaImpl::createElement( local_name,
@@ -544,15 +565,15 @@ namespace folia {
 	XmlText *txt = new XmlText();
 	string value = (const char*)xmlTextReaderConstValue(_in_doc);
 	if ( _debug ){
-	  cerr << "TXT VALUE = '" << value << "'" << endl;
+	  DBG << "TXT VALUE = '" << value << "'" << endl;
 	}
 	txt->setvalue( value );
 	int new_depth = xmlTextReaderDepth(_in_doc);
 	append_node( txt, new_depth );
 	_last_added = txt;
 	if ( _debug ){
-	  cerr << "einde current node = " << _current_node << endl;
-	  cerr << "last node = " << _last_added << endl;
+	  DBG << "einde current node = " << _current_node << endl;
+	  DBG << "last node = " << _last_added << endl;
 	}
 	_last_depth = xmlTextReaderDepth(_in_doc);
       }
@@ -612,7 +633,7 @@ namespace folia {
       tmp_doc = xmlNewTextReaderFilename( in_file.c_str() );
     }
     if ( _debug ){
-      cerr << "enumerate_nodes()" << endl;
+      DBG << "enumerate_nodes()" << endl;
     }
     int ret = xmlTextReaderRead(tmp_doc);
     if ( ret == 0 ){
@@ -643,8 +664,8 @@ namespace folia {
 	if ( nsu.empty() || nsu == NSFOLIA ){
 	  xml_tree *add_rec = new xml_tree( depth, index, local_name, txt_class );
 	  if ( _debug ){
-	    cerr << "new record " << index << " " << local_name << " ("
-		 << depth << ")" << endl;
+	    DBG << "new record " << index << " " << local_name << " ("
+		<< depth << ")" << endl;
 	  }
 	  if ( rec_pnt == 0 ){
 	    records = add_rec;
@@ -678,12 +699,10 @@ namespace folia {
 	}
 	else {
 	  if ( _debug ){
-	    cerr << "name=" << local_name << " atts=" << atts << endl;
-	  }
-	  if ( _debug ){
-	    cerr << "create_simple_tree() node in alien namespace'"
-		 << atts["xmlns:"]
-		 << " is SKIPPED!" << endl;
+	    DBG << "name=" << local_name << " atts=" << atts << endl;
+	    DBG << "create_simple_tree() node in alien namespace'"
+		<< atts["xmlns:"]
+		<< " is SKIPPED!" << endl;
 	  }
 	}
 	++index;
@@ -756,7 +775,7 @@ namespace folia {
       throw runtime_error( "enumerate_text_parents() called on a done processor" );
     }
     if ( _debug ){
-      cerr << "enumerate_text_parents(" << textclass << ")" << endl;
+      DBG << "enumerate_text_parents(" << textclass << ")" << endl;
     }
     //
     // we start by creating a tree of all nodes
@@ -783,7 +802,7 @@ namespace folia {
   FoliaElement *TextProcessor::next_text_parent(){
     if ( _done ){
       if ( _debug ){
-	cerr << "next_text_parent(). processor is done" << endl;
+	DBG << "next_text_parent(). processor is done" << endl;
       }
       return 0;
     }
@@ -792,7 +811,7 @@ namespace folia {
     }
     if ( text_parent_map.empty() ){
       if ( _debug ){
-	cerr << "next_text_parent(). the parent map is empty." << endl;
+	DBG << "next_text_parent(). the parent map is empty." << endl;
       }
       return 0;
     }
@@ -802,7 +821,7 @@ namespace folia {
       _external_node = 0;
       ret = 1;
       if ( _debug ){
-	cerr << "next text_parent() at external node, read on" << endl;
+	DBG << "next text_parent() at external node, read on" << endl;
       }
     }
     else {
@@ -810,7 +829,7 @@ namespace folia {
     }
     if ( ret == 0 ){
       if ( _debug ){
-	cerr << "next_text_parent(), DONE" << endl;
+	DBG << "next_text_parent(), DONE" << endl;
       }
       return 0;
     }
@@ -824,12 +843,12 @@ namespace folia {
 	  // HIT!
 	  KWargs atts = get_attributes( _in_doc );
 	  if ( _debug ){
-	    cerr << "matched search tag: " << local_name
+	    DBG << "matched search tag: " << local_name
 		 << " atts=" << atts << endl;
 	  }
 	  FoliaElement *t = FoliaImpl::createElement( local_name, _out_doc );
 	  if ( _debug ){
-	    cerr << "created FoliaElement: name=" << local_name << endl;
+	    DBG << "created FoliaElement: name=" << local_name << endl;
 	  }
 	  xmlNode *fd = xmlTextReaderExpand(_in_doc);
 	  t->parseXml( fd );
@@ -843,7 +862,7 @@ namespace folia {
 	else {
 	  KWargs atts = get_attributes( _in_doc );
 	  if ( _debug ){
-	    cerr << "name=" << local_name << " atts=" << atts << endl;
+	    DBG << "name=" << local_name << " atts=" << atts << endl;
 	  }
 	  if ( local_name == "wref" ){
 	    FoliaElement *ref = (*_out_doc)[atts["id"]];
@@ -890,14 +909,14 @@ namespace folia {
 	      append_node( t, new_depth );
 	      _last_added = t;
 	      if ( _debug ){
-		cerr << "einde current node = " << _current_node << endl;
-		cerr << "last node = " << _last_added << endl;
+		DBG << "einde current node = " << _current_node << endl;
+		DBG << "last node = " << _last_added << endl;
 	      }
 	    }
 	    else {
 	      if ( _debug ){
-		cerr << "a node in alien namespace'" << atts["xmlns:"]
-		     << " SKIPPED!" << endl;
+		DBG << "a node in alien namespace'" << atts["xmlns:"]
+		    << " SKIPPED!" << endl;
 	      }
 	      // just take as is...
 	      FoliaElement *t = FoliaImpl::createElement( local_name,
@@ -915,15 +934,15 @@ namespace folia {
 	XmlText *txt = new XmlText();
 	string value = (const char*)xmlTextReaderConstValue(_in_doc);
 	if ( _debug ){
-	  cerr << "TXT VALUE = '" << value << "'" << endl;
+	  DBG << "TXT VALUE = '" << value << "'" << endl;
 	}
 	txt->setvalue( value );
 	int new_depth = xmlTextReaderDepth(_in_doc);
 	append_node( txt, new_depth );
 	_last_added = txt;
 	if ( _debug ){
-	  cerr << "einde current node = " << _current_node << endl;
-	  cerr << "last node = " << _last_added << endl;
+	  DBG << "einde current node = " << _current_node << endl;
+	  DBG << "last node = " << _last_added << endl;
 	}
 	_last_depth = xmlTextReaderDepth(_in_doc);
       }
@@ -939,7 +958,7 @@ namespace folia {
 
   bool Processor::output_header(){
     if ( _debug ){
-      cerr << "Processor::output_header()" << endl;
+      DBG << "Processor::output_header()" << endl;
     }
     if ( !_os ){
       throw logic_error( "folia::Processor::output_header() impossible. No output file specified!" );
@@ -1002,7 +1021,7 @@ namespace folia {
 
   bool Processor::output_footer(){
     if ( _debug ){
-      cerr << "Processor::output_footer()" << endl;
+      DBG << "Processor::output_footer()" << endl;
     }
     if ( _finished ){
       return true;
@@ -1023,7 +1042,7 @@ namespace folia {
 
   bool Processor::flush() {
     if ( _debug ){
-      cerr << "Processor::flush()" << endl;
+      DBG << "Processor::flush()" << endl;
     }
     if ( !_os ){
       throw logic_error( "folia::Processor::flush() impossible. No outputfile specified!" );
@@ -1047,7 +1066,7 @@ namespace folia {
 
   bool Processor::finish() {
     if ( _debug ){
-      cerr << "Processor::finish()" << endl;
+      DBG << "Processor::finish()" << endl;
     }
     if ( !_os ){
       throw logic_error( "folia::Processor::finish() impossible. No outputfile specified!" );
