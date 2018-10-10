@@ -40,20 +40,13 @@ namespace folia {
 
   class xml_tree {
   public:
-  xml_tree( int d, int i, const std::string& t, const std::string& c ):
-    depth(d),
-      index(i),
-      tag(t),
-      textclass(c),
-      parent(0),
-      link(0),
-      next(0)
-    {};
+    xml_tree( int, int, const std::string&, const std::string& );
     ~xml_tree();
     int depth;
     int index;
     std::string tag;
     std::string textclass;
+    bool is_layer;
     xml_tree *parent;
     xml_tree *link;
     xml_tree *next;

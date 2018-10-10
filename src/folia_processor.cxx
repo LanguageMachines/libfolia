@@ -586,6 +586,34 @@ namespace folia {
     return 0;
   }
 
+  xml_tree::xml_tree( int d, int i, const std::string& t, const std::string& c ):
+    depth(d),
+    index(i),
+    tag(t),
+    textclass(c),
+    is_layer(false),
+    parent(0),
+    link(0),
+    next(0)
+  {
+    if ( tag == "altlayers"
+	 || tag == "chunking"
+	 || tag == "complexalignments"
+	 || tag == "coreferences"
+	 || tag ==  "dependencies"
+	 || tag ==   "entities"
+	 || tag ==   "morphology"
+	 || tag ==   "observations"
+	 || tag ==   "phonology"
+	 || tag ==   "semroles"
+	 || tag ==   "sentiments"
+	 || tag ==   "statements"
+	 || tag ==   "syntax"
+	 || tag ==   "timing" ){
+      is_layer = true;
+    }
+  }
+
   xml_tree::~xml_tree() {
     if ( link ){
       delete link;
@@ -729,6 +757,10 @@ namespace folia {
     if ( result.empty() ){
       xml_tree *pnt = start;
       while ( pnt ){
+	if ( pnt->is_layer ){
+	  pnt = pnt->next;
+	  continue;
+	}
 	if ( pnt->tag == "t" && pnt->textclass == textclass ){
 	  if ( prefer_sentences && pnt->parent->tag == "w" ){
 	    int index = pnt->parent->parent->index;
