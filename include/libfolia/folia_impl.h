@@ -397,7 +397,7 @@ namespace folia {
     virtual Division *division() const NOT_IMPLEMENTED;
     virtual std::vector<Paragraph*> paragraphs() const NOT_IMPLEMENTED;
     virtual std::vector<Sentence*> sentences() const NOT_IMPLEMENTED;
-    virtual std::vector<Word*> words() const NOT_IMPLEMENTED;
+    virtual std::vector<Word*> words( const std::string& ="" ) const NOT_IMPLEMENTED;
     virtual std::vector<FoliaElement*> wrefs() const NOT_IMPLEMENTED;
     virtual FoliaElement* wrefs( size_t ) const NOT_IMPLEMENTED;
 
@@ -407,9 +407,9 @@ namespace folia {
     virtual Sentence *rsentences( size_t ) const NOT_IMPLEMENTED;
     virtual Paragraph *paragraphs( size_t ) const NOT_IMPLEMENTED;
     virtual Paragraph *rparagraphs( size_t ) const NOT_IMPLEMENTED;
-    virtual Word *words( size_t ) const NOT_IMPLEMENTED;
+    virtual Word *words( size_t, const std::string& ="" ) const NOT_IMPLEMENTED;
     virtual std::vector<Word *> wordParts() const NOT_IMPLEMENTED;
-    virtual Word *rwords( size_t ) const NOT_IMPLEMENTED;
+    virtual Word *rwords( size_t, const std::string& ="" ) const NOT_IMPLEMENTED;
 
     virtual DependencyDependent *dependent() const NOT_IMPLEMENTED;
 
@@ -798,13 +798,13 @@ namespace folia {
       FoliaElement *append( FoliaElement* );
       std::vector<Paragraph*> paragraphs() const;
       std::vector<Sentence*> sentences() const;
-      std::vector<Word*> words() const;
+      std::vector<Word*> words( const std::string& ="" ) const;
       Sentence *sentences( size_t ) const;
       Sentence *rsentences( size_t ) const;
       Paragraph *paragraphs( size_t ) const;
       Paragraph *rparagraphs( size_t ) const;
-      Word *words( size_t ) const;
-      Word *rwords( size_t ) const;
+      Word *words( size_t, const std::string& ="" ) const;
+      Word *rwords( size_t, const std::string& ="" ) const;
       const Word* resolveword( const std::string& ) const;
   private:
       static properties PROPS;

@@ -3160,8 +3160,8 @@ namespace folia {
     return FoliaElement::select<Sentence>( default_ignore_structure );
   }
 
-  vector<Word*> AbstractStructureElement::words() const{
-    return FoliaElement::select<Word>( default_ignore_structure );
+  vector<Word*> AbstractStructureElement::words( const string& st ) const{
+    return FoliaElement::select<Word>( st, default_ignore_structure );
   }
 
   Sentence *AbstractStructureElement::sentences( size_t index ) const {
@@ -3196,16 +3196,18 @@ namespace folia {
     throw range_error( "rparagraphs(): index out of range" );
   }
 
-  Word *AbstractStructureElement::words( size_t index ) const {
-    vector<Word*> v = words();
+  Word *AbstractStructureElement::words( size_t index,
+					 const string& st ) const {
+    vector<Word*> v = words(st);
     if ( index < v.size() ) {
       return v[index];
     }
     throw range_error( "words(): index out of range" );
   }
 
-  Word *AbstractStructureElement::rwords( size_t index ) const {
-    vector<Word*> v = words();
+  Word *AbstractStructureElement::rwords( size_t index,
+					  const string& st ) const {
+    vector<Word*> v = words(st);
     if ( index < v.size() ) {
       return v[v.size()-1-index];
     }
