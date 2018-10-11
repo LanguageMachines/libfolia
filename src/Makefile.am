@@ -14,7 +14,11 @@ libfolia_la_SOURCES = folia_impl.cxx folia_document.cxx folia_utils.cxx \
 bin_PROGRAMS = folialint
 folialint_SOURCES = folialint.cxx
 
+bin_SCRIPTS = foliadiff.sh
+
 check_PROGRAMS = simpletest
 TESTS = $(check_PROGRAMS)
 simpletest_SOURCES = simpletest.cxx
 CLEANFILES = simpletest.out
+
+EXTRA_DIST = foliadiff.sh
