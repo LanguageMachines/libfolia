@@ -762,7 +762,8 @@ namespace folia {
 	  continue;
 	}
 	if ( pnt->tag == "t" && pnt->textclass == textclass ){
-	  if ( prefer_sentences && pnt->parent->tag == "w" ){
+	  if ( prefer_sentences
+	       && (pnt->parent->tag == "w" || pnt->parent->tag == "str" ) ){
 	    int index = pnt->parent->parent->index;
 	    int next = INT_MAX;
 	    if ( pnt->parent->parent->next ){
@@ -801,8 +802,8 @@ namespace folia {
     ///
     /// Loop over the full input, looking for textnodes in class 'texclass'
     /// for the DEEPEST text possible, enumerate their parents
-    /// when skip_words eqs true, prefer sentences over the words within
-    /// the sentence
+    /// when prefer_sent eqs true, prefer sentences over the words or
+    /// strings within the sentence
     if ( _done ){
       throw runtime_error( "enumerate_text_parents() called on a done processor" );
     }
@@ -814,7 +815,7 @@ namespace folia {
     xml_tree *tree = create_simple_tree(_in_file);
     //
     // now search that tree for nodes in 'textclass'
-    // if is a <t>, the remember the index of its parent
+    // if is a <t>, then remember the index of its parent
     // but when 'prefer_sent' is specified, return the direct sentence above
     // when present.
     map<int,int> result;
