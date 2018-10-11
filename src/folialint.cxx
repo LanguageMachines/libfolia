@@ -57,11 +57,12 @@ int main( int argc, char* argv[] ){
   bool nooutput = false;
   bool nochecktext = false;
   bool fixtext = false;
+  bool kanon = false;
   string debug;
   vector<string> fileNames;
   try {
     TiCC::CL_Options Opts( "hV",
-			   "nochecktext,debug:,permissive,strip,output:,nooutput,help,fixtext,warn,version");
+			   "nochecktext,debug:,permissive,strip,output:,nooutput,help,fixtext,warn,version,KANON");
     Opts.init(argc, argv );
     if ( Opts.extract( 'h' )
 	 || Opts.extract( "help" ) ){
@@ -78,6 +79,7 @@ int main( int argc, char* argv[] ){
     warn = Opts.extract("warn");
     nooutput = Opts.extract("nooutput");
     fixtext = Opts.extract("fixtext");
+    kanon = Opts.extract("KANON");
     if ( Opts.extract("nochecktext") ){
       nochecktext = true;
     }
@@ -87,7 +89,7 @@ int main( int argc, char* argv[] ){
       return EXIT_FAILURE;
     }
     Opts.extract( "debug", debug );
-    Opts.extract("output", outputName);
+    Opts.extract( "output", outputName );
     if ( !Opts.empty() ){
       cerr << "unsupported option(s): " << Opts.toString() << endl;
       return EXIT_FAILURE;
@@ -141,7 +143,7 @@ int main( int argc, char* argv[] ){
       cmd += mode;
       folia::Document d( cmd );
       if ( !outputName.empty() ){
-	d.save( outputName );
+	d.save( outputName, kanon );
       }
       else if ( !nooutput ){
 	cout << d;
