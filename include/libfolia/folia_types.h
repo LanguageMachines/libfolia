@@ -60,6 +60,8 @@ namespace folia {
     return a1;
   }
 
+  std::string toString( const Attrib );
+  std::ostream& operator<<( std::ostream&, const Attrib );
 #undef DOMAIN // ugly hack but GCC screws up
 
   /*
