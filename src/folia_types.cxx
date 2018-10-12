@@ -131,10 +131,10 @@ namespace folia {
     }
   }
 
-  ostream& operator<<( ostream& os, const Attrib attribs ){
+  ostream& operator<<( ostream& os, const Attrib& attribs ){
     enum Attrib at = NO_ATT;
     while ( at != ALL ){
-      if ( attribs && at ){
+      if ( attribs & at ){
 	os << toString( at ) << "|";
       }
       ++at;
