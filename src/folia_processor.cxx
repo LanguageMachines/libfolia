@@ -741,15 +741,26 @@ namespace folia {
     return records;
   }
 
-  map<int,int> search_text_parents( xml_tree* start,
-				    const string& textclass,
-				    bool prefer_sentences ){
+  map<int,int> TextProcessor::search_text_parents( xml_tree* start,
+						   const string& textclass,
+						   bool prefer_sentences ) const{
     map<int,int> result;
     xml_tree *pnt = start;
     while ( pnt ){
-      map<int,int> deeper = search_text_parents( pnt->link, textclass, prefer_sentences );
+      if ( _debug ){
+	DBG << "bekijk:" << pnt->tag << "-" << pnt->index << endl;
+      }
+      // if ( pnt->tag == "t" ){
+      // 	pnt = pnt->next;
+      // 	continue;
+      // }
+      map<int,int> deeper = search_text_parents( pnt->link,
+						 textclass,
+						 prefer_sentences );
       if ( !deeper.empty() ){
-	//	cerr << "deeper we found: " << deeper << endl;
+	if ( _debug ){
+	  DBG << "deeper we found: " << deeper << endl;
+	}
 	result.insert( deeper.begin(), deeper.end() );
       }
       pnt = pnt->next;
@@ -782,7 +793,7 @@ namespace folia {
 	      next = pnt->parent->next->index;
 	    }
 	    else if ( pnt->parent->parent->next ){
-	    next = pnt->parent->parent->next->index;
+	      next = pnt->parent->parent->next->index;
 	    }
 	    result[index] = next;
 	    break;
@@ -791,8 +802,8 @@ namespace folia {
 	pnt = pnt->next;
       }
     }
-    if ( !result.empty() ){
-      //      cerr << "return " << result << " for " << start->parent->tag << endl;
+    if ( _debug && !result.empty() ){
+      DBG << "return " << result << " for " << start->parent->tag << endl;
     }
     return result;
   }
@@ -800,7 +811,7 @@ namespace folia {
   map<int,int> TextProcessor::enumerate_text_parents( const string& textclass,
 						      bool prefer_sent ) const {
     ///
-    /// Loop over the full input, looking for textnodes in class 'texclass'
+    /// Loop over the full input, looking for textnodes in class 'textclass'
     /// for the DEEPEST text possible, enumerate their parents
     /// when prefer_sent eqs true, prefer sentences over the words or
     /// strings within the sentence
@@ -821,13 +832,29 @@ namespace folia {
     map<int,int> result;
     xml_tree *rec_pnt = tree;
     while ( rec_pnt ){
-      map<int,int> deeper = search_text_parents( rec_pnt->link, textclass, prefer_sent );
+      map<int,int> deeper = search_text_parents( rec_pnt->link,
+						 textclass,
+						 prefer_sent );
       result.insert( deeper.begin(), deeper.end() );
       rec_pnt = rec_pnt->next;
     }
-    // cerr << "complete tree: " << endl;
-    // print( cerr, tree );
-    // cerr << "Search map = " << result << endl;
+    if ( _debug ){
+      DBG << "complete tree: " << endl;
+      print( DBG, tree );
+      DBG << "Search map = " << result << endl;
+    }
+    // for ( auto it = result.begin(); it != result.end(); ++it ){
+    //   auto nit = it;
+    //   ++nit;
+    //   if ( nit != result.end() ){
+    // 	if ( nit->first > it->second ){
+    // 	  it->second = nit->first;
+    // 	}
+    //   }
+    // }
+    // if ( _debug ){
+    //   DBG << "Reduced Search map = " << result << endl;
+    // }
     delete tree;
     return result;
   }
@@ -868,16 +895,17 @@ namespace folia {
     }
     while ( ret ){
       int type = xmlTextReaderNodeType(_in_doc);
+      if ( _debug ){
+	DBG << "MAIN LOOP search next_text_parent() : " << _text_node_count << endl;
+      }
       if ( type == XML_ELEMENT_NODE ){
 	string local_name = (const char*)xmlTextReaderConstLocalName(_in_doc);
 	int new_depth = xmlTextReaderDepth(_in_doc);
-	//	cerr << _text_node_count << " next_text_parent() :" << local_name << endl;
 	if ( text_parent_map.find( _text_node_count ) != text_parent_map.end() ){
 	  // HIT!
-	  KWargs atts = get_attributes( _in_doc );
 	  if ( _debug ){
 	    DBG << "matched search tag: " << local_name
-		 << " atts=" << atts << endl;
+		<< " (" <<  _text_node_count << ")" << endl;
 	  }
 	  FoliaElement *t = FoliaImpl::createElement( local_name, _out_doc );
 	  if ( _debug ){
@@ -890,9 +918,16 @@ namespace folia {
 	  _done = (ret == 0);
 	  _external_node = t;
 	  _text_node_count = text_parent_map[_text_node_count];
+	  if ( _debug ){
+	    DBG << "  MAIN LOOP will continue looking for: "
+		<< _text_node_count << endl;
+	  }
 	  return t;
 	}
 	else {
+	  if ( _debug ){
+	    DBG << "   some node : " << local_name << endl;
+	  }
 	  KWargs atts = get_attributes( _in_doc );
 	  if ( _debug ){
 	    DBG << "name=" << local_name << " atts=" << atts << endl;
