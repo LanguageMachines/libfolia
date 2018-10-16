@@ -766,15 +766,21 @@ namespace folia {
       pnt = pnt->next;
     }
     if ( result.empty() ){
+      // so no deeper text found
+      // lets see at this level....
       xml_tree *pnt = start;
       while ( pnt ){
 	if ( pnt->is_layer ){
+	  // skip layers
 	  pnt = pnt->next;
 	  continue;
 	}
 	if ( pnt->tag == "t" && pnt->textclass == textclass ){
+	  // OK text in the right textclass
 	  if ( prefer_sentences
 	       && (pnt->parent->tag == "w" || pnt->parent->tag == "str" ) ){
+	    // the parent is a word or string fragment.
+	    // we have to get higher then
 	    int index = pnt->parent->parent->index;
 	    int next = INT_MAX;
 	    if ( pnt->parent->parent->next ){
