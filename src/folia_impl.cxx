@@ -587,7 +587,7 @@ namespace folia {
       }
       catch ( DuplicateIDError& e ){
 	if ( element_id() != WordReference_t ){
-	  throw e;
+	  throw;
 	}
       }
     }
