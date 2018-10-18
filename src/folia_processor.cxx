@@ -101,8 +101,6 @@ namespace folia {
     _text_node_count = 0;
     text_parent_map = enumerate_text_parents( txtc, prefer_sent );
     _text_node_count = _start_index;
-    _element_cnt = _start_index;
-    _next_text_pos = _start_index;
     _is_setup = true;
   }
 
@@ -909,7 +907,7 @@ namespace folia {
       if ( type == XML_ELEMENT_NODE ){
 	string local_name = (const char*)xmlTextReaderConstLocalName(_in_doc);
 	if ( _debug ){
-	  DBG << "next element: " << local_name << " cnt =" << _element_cnt << endl;
+	  DBG << "next element: " << local_name << " cnt =" << _text_node_count << endl;
 	}
 	int new_depth = xmlTextReaderDepth(_in_doc);
 	if ( text_parent_map.find( _text_node_count ) != text_parent_map.end() ){
@@ -928,7 +926,6 @@ namespace folia {
 	  ret = xmlTextReaderNext(_in_doc);
 	  _done = (ret == 0);
 	  _external_node = t;
-	  _element_cnt = text_parent_map[_text_node_count];
 	  _text_node_count = text_parent_map[_text_node_count];
 	  if ( _debug ){
 	    DBG << "  MAIN LOOP will continue looking for: "
@@ -937,7 +934,6 @@ namespace folia {
 	  return t;
 	}
 	else {
-	  ++_element_cnt;
 	  if ( _debug ){
 	    DBG << "   some node : " << local_name << endl;
 	  }
