@@ -560,6 +560,9 @@ namespace folia {
 	    }
 	  }
 	}
+	if ( ret == 0 && _debug ){
+	  DBG << "node Premtaure ending?!" << endl;
+	}
       }
       else if ( type == XML_TEXT_NODE ){
 	XmlText *txt = new XmlText();
@@ -998,7 +1001,9 @@ namespace folia {
 	    }
 	  }
 	}
-	++_text_node_count;
+	if ( ret != 0 ){
+	  ++_text_node_count;
+	}
       }
       else if ( type == XML_TEXT_NODE ){
 	XmlText *txt = new XmlText();
