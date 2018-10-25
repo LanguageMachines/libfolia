@@ -70,6 +70,7 @@ namespace folia {
     bool output_header();
     bool output_footer();
     bool flush();
+    bool flush( FoliaElement * );
     bool finish();
     bool ok() const { return _ok; };
     void declare( AnnotationType::AnnotationType,
