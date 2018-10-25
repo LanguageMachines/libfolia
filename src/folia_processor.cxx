@@ -1141,7 +1141,7 @@ namespace folia {
 
   bool Processor::flush( FoliaElement *root ) {
     if ( _debug ){
-      DBG << "Processor::flush()" << endl;
+      DBG << "Processor::flush( " << root->xmltag() << " )" << endl;
     }
     if ( !_os ){
       throw logic_error( "folia::Processor::flush() impossible. No outputfile specified!" );
