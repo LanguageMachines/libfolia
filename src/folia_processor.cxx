@@ -250,10 +250,9 @@ namespace folia {
     int index = 0;
     while ( ret > 0 ){
       int type =  xmlTextReaderNodeType(_in_doc );
-      string name = (const char*)xmlTextReaderConstName(_in_doc );
       string local_name = (const char*)xmlTextReaderConstLocalName(_in_doc );
       switch ( type ){
-      case 1:
+      case XML_ELEMENT_NODE:
 	++index;
 	if ( local_name == "FoLiA" ){
 	  // found the root
@@ -288,64 +287,8 @@ namespace folia {
 	  }
 	}
 	else if ( local_name == "metadata" ) {
-	  KWargs atts = get_attributes( _in_doc );
-	  string type = TiCC::lowercase(atts["type"]);
-	  if ( type.empty() ){
-	    type = "native";
-	  }
-	  string src = atts["src"];
-	  if ( !src.empty() ){
-	    _out_doc->_metadata = new ExternalMetaData( type, src );
-	  }
-	  else if ( type == "native" || type == "imdi" ){
-	    _out_doc->_metadata = new NativeMetaData( type );
-	  }
-	  else {
-	    _out_doc->_metadata = 0;
-	  }
 	  xmlNode *node = xmlTextReaderExpand(_in_doc);
-	  xmlNode *m = node->children;
-	  while ( m ){
-	    if ( TiCC::Name( m ) == "METATRANSCRIPT" ){
-	      //	      if ( !_out_doc->_metadata ){
-		_out_doc->_metadata = new ForeignMetaData( "imdi" );
-		//	      }
-	      _out_doc->_metadata->add_foreign( xmlCopyNode(m,1) );
-	    }
-	    else if ( TiCC::Name( m ) == "annotations" ){
-	      _out_doc->parseannotations( m );
-	    }
-	    else if ( TiCC::Name( m ) == "meta" ){
-	      _out_doc->parsemeta( m );
-	    }
-	    else if ( TiCC::Name(m)  == "foreign-data"){
-	      FoliaElement *t = FoliaImpl::createElement( "foreign-data", _out_doc );
-	      if ( t ){
-		t = t->parseXml( m );
-		if ( t ){
-		  if ( _out_doc->_metadata
-		       && _out_doc->_metadata->datatype() == "NativeMetaData" ){
-		    cerr << "WARNING: foreign-data found in metadata of type 'native'"  << endl;
-		    cerr << "changing type to 'foreign'" << endl;
-		    type = "foreign";
-		    delete _out_doc->_metadata;
-		    _out_doc->_metadata = new ForeignMetaData( type );
-		  }
-		  if ( ! _out_doc->_metadata ){
-		     _out_doc->_metadata = new ForeignMetaData( type );
-		  }
-		  _out_doc->_metadata->add_foreign( m );
-		}
-	      }
-	      else if ( !_out_doc->permissive() ){
-		throw XmlError( "FoLiA processor terminated" );
-	      }
-	    }
-	    else if ( TiCC::Name(m)  == "submetadata" ){
-	      _out_doc->parsesubmeta( m );
-	    }
-	    m = m->next;
-	  }
+	  _out_doc->_metadata = _out_doc->parse_metadata( node );
 	}
 	else if ( local_name == "text" ){
 	  _doc_type = TEXT;
@@ -370,19 +313,16 @@ namespace folia {
 	  return _ok;
 	}
 	break;
-      case 7:
+      case XML_PI_NODE:
 	// A PI
-	if ( name == "xml-stylesheet" ){
+	if ( local_name == "xml-stylesheet" ){
 	  string sv = (const char*)xmlTextReaderConstValue(_in_doc);
 	  pair<string,string> p = extract_style( sv );
 	  _out_doc->addStyle( p.first, p.second );
 	}
 	else {
-	  cerr << "unhandled PI: " << xmlTextReaderLocalName(_in_doc ) << endl;
+	  cerr << "unhandled PI: " << local_name << endl;
 	}
-	break;
-      case 14:
-	// an DTD node
 	break;
       default:
 	break;
