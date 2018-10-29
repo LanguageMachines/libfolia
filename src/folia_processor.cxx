@@ -626,7 +626,6 @@ namespace folia {
 	for ( auto const& v : atts ){
 	  if ( v.first.find("xmlns:") == 0 ){
 	    nsu = v.second;
-	    break;
 	  }
 	  if ( v.first == "textclass"
 	       || ( local_name == "t" && v.first == "class" ) ){
