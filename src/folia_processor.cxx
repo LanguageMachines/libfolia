@@ -567,8 +567,8 @@ namespace folia {
     }
   }
 
-  void print( ostream& os, xml_tree* recs ){
-    xml_tree *rec_pnt = recs;
+  void print( ostream& os, const xml_tree* recs ){
+    const xml_tree *rec_pnt = recs;
     while ( rec_pnt ){
       os << setw(10) << rec_pnt->index << string( rec_pnt->depth, ' ' )
 	 << rec_pnt->tag;
@@ -685,11 +685,11 @@ namespace folia {
     return records;
   }
 
-  map<int,int> TextProcessor::search_text_parents( xml_tree* start,
+  map<int,int> TextProcessor::search_text_parents( const xml_tree* start,
 						   const string& textclass,
 						   bool prefer_sentences ) const{
     map<int,int> result;
-    xml_tree *pnt = start;
+    const xml_tree *pnt = start;
     while ( pnt ){
       if ( _debug ){
 	DBG << "bekijk:" << pnt->tag << "-" << pnt->index << endl;
@@ -712,7 +712,7 @@ namespace folia {
     if ( result.empty() ){
       // so no deeper text found
       // lets see at this level....
-      xml_tree *pnt = start;
+      const xml_tree *pnt = start;
       while ( pnt ){
 	if ( pnt->tag == "wref" ){
 	  pnt = pnt->next;

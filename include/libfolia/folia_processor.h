@@ -51,7 +51,7 @@ namespace folia {
     xml_tree *next;
   };
 
-  void print( std::ostream&, xml_tree* );
+  void print( std::ostream&, const xml_tree* );
 
   class Processor {
   public:
@@ -128,7 +128,7 @@ namespace folia {
     int _text_node_count;
     std::string _in_file;
     std::map<int,int> text_parent_map;
-    std::map<int,int> search_text_parents( xml_tree*,
+    std::map<int,int> search_text_parents( const xml_tree*,
 					   const std::string&, bool ) const;
     bool _is_setup;
   };
