@@ -624,20 +624,6 @@ namespace folia {
     }
   }
 
-  void Document::parsemeta( xmlNode *node ){
-    if ( node ){
-      KWargs att = getAttributes( node );
-      string type = att["id"];
-      string val = TiCC::XmlContent( node );
-      string get = _metadata->get_val( type );
-      if ( !get.empty() ){
-	throw runtime_error( "meta tag with id=" + type
-			     + " is defined more then once " );
-      }
-      _metadata->add_av( type, val );
-    }
-  }
-
   void Document::set_metadata( const string& type, const string& value ){
     if ( !_metadata ){
       _metadata = new NativeMetaData( "native" );
@@ -680,7 +666,7 @@ namespace folia {
     }
   }
 
-  void Document::parseannotations( xmlNode *node ){
+  void Document::parseannotations( const xmlNode *node ){
     xmlNode *n = node->children;
     anno_sort.clear();
     while ( n ){
@@ -726,7 +712,7 @@ namespace folia {
     }
   }
 
-  void Document::parsesubmeta( xmlNode *node ){
+  void Document::parsesubmeta( const xmlNode *node ){
     using TiCC::operator<<;
     if ( node ){
       KWargs att = getAttributes( node );
@@ -899,7 +885,89 @@ namespace folia {
     return result;
   }
 
-  FoliaElement* Document::parseFoliaDoc( xmlNode *root ){
+  MetaData *Document::parse_metadata( const xmlNode *p ){
+    MetaData *result = 0;
+    KWargs atts = getAttributes( p );
+    string type = TiCC::lowercase(atts["type"]);
+    if ( type.empty() ){
+      type = "native";
+    }
+    string src = atts["src"];
+    if ( !src.empty() ){
+      result = new ExternalMetaData( type, src );
+    }
+    else if ( type == "native" ){
+      result = new NativeMetaData( type );
+    }
+    xmlNode *m = p->children;
+    while ( m ){
+      if ( TiCC::Name(m)  == "METATRANSCRIPT" ){
+	if ( !checkNS( m, NSIMDI ) || type != "imdi" )
+	  throw runtime_error( "imdi != imdi " );
+	if ( debug > 1 ){
+	  cerr << "found IMDI" << endl;
+	}
+	if ( !result ){
+	  result = new ForeignMetaData( "imdi" );
+	}
+	result->add_foreign( xmlCopyNode(m,1) );
+      }
+      else if ( TiCC::Name( m ) == "annotations" &&
+		checkNS( m, NSFOLIA ) ){
+	if ( debug > 1 ){
+	  cerr << "found annotations" << endl;
+	}
+	parseannotations( m );
+      }
+      else if ( TiCC::Name( m ) == "meta" &&
+		checkNS( m, NSFOLIA ) ){
+	if ( debug > 1 ){
+	  cerr << "found meta node" << endl;
+	}
+	KWargs att = getAttributes( m );
+	string type = att["id"];
+	string val = TiCC::XmlContent( m );
+	string get = result->get_val( type );
+	if ( !get.empty() ){
+	  throw runtime_error( "meta tag with id=" + type
+			       + " is defined more then once " );
+	}
+	result->add_av( type, val );
+      }
+      else if ( TiCC::Name(m)  == "foreign-data" &&
+		checkNS( m, NSFOLIA ) ){
+	FoliaElement *t = FoliaImpl::createElement( "foreign-data", this );
+	if ( t ){
+	  t = t->parseXml( m );
+	  if ( t ){
+	    if ( result && result->datatype() == "NativeMetaData" ){
+	      cerr << "WARNING: foreign-data found in metadata of type 'native'"  << endl;
+	      cerr << "changing type to 'foreign'" << endl;
+	      type = "foreign";
+	      delete result;
+	      result = new ForeignMetaData( type );
+	    }
+	    if ( !result ){
+	      result = new ForeignMetaData( type );
+	    }
+	    result->add_foreign( m );
+	  }
+	}
+      }
+      else if ( TiCC::Name(m)  == "submetadata" &&
+		checkNS( m, NSFOLIA ) ){
+	parsesubmeta( m );
+      }
+      m = m->next;
+    }
+    if ( result == 0 && type == "imdi" ){
+      // imdi missing all further info
+      result = new NativeMetaData( type );
+    }
+    return result;
+  }
+
+  FoliaElement* Document::parseFoliaDoc( const xmlNode *root ){
     KWargs att = getAttributes( root );
     using TiCC::operator<<;
     if ( att["_id"] == "" ){
@@ -931,78 +999,7 @@ namespace folia {
 	  if ( debug > 1 ){
 	    cerr << "Found metadata" << endl;
 	  }
-	  KWargs atts = getAttributes( p );
-	  string type = TiCC::lowercase(atts["type"]);
-	  if ( type.empty() ){
-	    type = "native";
-	  }
-	  string src = atts["src"];
-	  if ( !src.empty() ){
-	    _metadata = new ExternalMetaData( type, src );
-	  }
-	  else if ( type == "native" ){
-	    _metadata = new NativeMetaData( type );
-	  }
-	  else {
-	    _metadata = 0;
-	  }
-	  xmlNode *m = p->children;
-	  while ( m ){
-	    if ( TiCC::Name(m)  == "METATRANSCRIPT" ){
-	      if ( !checkNS( m, NSIMDI ) || type != "imdi" )
-		throw runtime_error( "imdi != imdi " );
-	      if ( debug > 1 ){
-		cerr << "found IMDI" << endl;
-	      }
-	      if ( !_metadata ){
-		_metadata = new ForeignMetaData( "imdi" );
-	      }
-	      _metadata->add_foreign( xmlCopyNode(m,1) );
-	    }
-	    else if ( TiCC::Name( m ) == "annotations" &&
-		      checkNS( m, NSFOLIA ) ){
-	      if ( debug > 1 ){
-		cerr << "found annotations" << endl;
-	      }
-	      parseannotations( m );
-	    }
-	    else if ( TiCC::Name( m ) == "meta" &&
-		      checkNS( m, NSFOLIA ) ){
-	      if ( debug > 1 ){
-		cerr << "found meta node" << endl;
-	      }
-	      parsemeta( m );
-	    }
-	    else if ( TiCC::Name(m)  == "foreign-data" &&
-		      checkNS( m, NSFOLIA ) ){
-	      FoliaElement *t = FoliaImpl::createElement( "foreign-data", this );
-	      if ( t ){
-		t = t->parseXml( m );
-		if ( t ){
-		  if ( _metadata && _metadata->datatype() == "NativeMetaData" ){
-		    cerr << "WARNING: foreign-data found in metadata of type 'native'"  << endl;
-		    cerr << "changing type to 'foreign'" << endl;
-		    type = "foreign";
-		    delete _metadata;
-		    _metadata = new ForeignMetaData( type );
-		  }
-		  if ( !_metadata ){
-		    _metadata = new ForeignMetaData( type );
-		  }
-		  _metadata->add_foreign( m );
-		}
-	      }
-	    }
-	    else if ( TiCC::Name(m)  == "submetadata" &&
-		      checkNS( m, NSFOLIA ) ){
-	      parsesubmeta( m );
-	    }
-	    m = m->next;
-	  }
-	  if ( _metadata == 0 && type == "imdi" ){
-	    // imdi missing all further info
-	    _metadata = new NativeMetaData( type );
-	  }
+	  _metadata = parse_metadata( p );
 	}
 	else {
 	  if ( p && TiCC::getNS(p) == NSFOLIA ){
