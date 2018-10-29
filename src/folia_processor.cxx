@@ -265,6 +265,11 @@ namespace folia {
 	  pnt = xmlTextReaderConstNamespaceUri(_in_doc);
 	  if ( pnt ){
 	    _out_doc->_foliaNsIn_href = xmlStrdup(pnt);
+	    string ns = (const char*)_out_doc->_foliaNsIn_href;
+	    if ( ns != NSFOLIA ){
+	      throw XmlError( "Folia Document should have namespace declaration "
+			      + NSFOLIA + " but found: " + ns );
+	    }
 	  }
 	  KWargs in_args = get_attributes( _in_doc );
 	  string id;
@@ -496,7 +501,8 @@ namespace folia {
 	    return t;
 	  }
 	  else if ( !_out_doc->permissive() ){
-	    throw XmlError( "FoLiA processor terminated" );
+	    throw XmlError( "folia::processor failed to create node: "
+			    + local_name );
 	  }
 	}
 	else {
@@ -512,8 +518,7 @@ namespace folia {
 	  else {
 	    FoliaElement *t = FoliaImpl::createElement( local_name, _out_doc );
 	    if ( t ) {
-	      if ( local_name == "foreign-data"
-		   || local_name == "t" ){
+	      if ( local_name == "foreign-data" ){
 		xmlNode *fd = xmlTextReaderExpand(_in_doc);
 		t->parseXml( fd );
 		append_node( t, new_depth );
@@ -529,6 +534,7 @@ namespace folia {
 		}
 		if ( nsu.empty() || nsu == NSFOLIA ){
 		  if ( local_name == "desc"
+		       || local_name == "t"
 		       || local_name == "content"
 		       || local_name == "comment" ){
 		    ret = xmlTextReaderRead(_in_doc);
@@ -951,13 +957,11 @@ namespace folia {
 	    return t;
 	  }
 	  else {
-	    throw XmlError( "folia::textprocessor failed to create node: " + local_name );
+	    throw XmlError( "folia::textprocessor failed to create node: "
+			    + local_name );
 	  }
 	}
 	else {
-	  if ( _debug ){
-	    DBG << "   some node : " << local_name << endl;
-	  }
 	  KWargs atts = get_attributes( _in_doc );
 	  if ( _debug ){
 	    DBG << "name=" << local_name << " atts=" << atts << endl;
@@ -987,6 +991,7 @@ namespace folia {
 		if ( nsu.empty() || nsu == NSFOLIA ){
 		  if ( local_name == "desc"
 		       || local_name == "content"
+		       || local_name == "t"
 		       || local_name == "comment" ){
 		    ret = xmlTextReaderRead(_in_doc);
 		    const char *val = (const char*)xmlTextReaderConstValue(_in_doc);
