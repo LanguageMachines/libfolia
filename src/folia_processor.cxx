@@ -907,12 +907,12 @@ namespace folia {
       if ( _debug ){
 	DBG << "MAIN LOOP search next_text_parent() : " << _text_node_count << endl;
       }
+      int new_depth = xmlTextReaderDepth(_in_doc);
       if ( type == XML_ELEMENT_NODE ){
 	string local_name = (const char*)xmlTextReaderConstLocalName(_in_doc);
 	if ( _debug ){
 	  DBG << "next element: " << local_name << " cnt =" << _text_node_count << endl;
 	}
-	int new_depth = xmlTextReaderDepth(_in_doc);
 	if ( text_parent_map.find( _text_node_count ) != text_parent_map.end() ){
 	  // HIT!
 	  if ( _debug ){
@@ -1022,7 +1022,14 @@ namespace folia {
 	_last_depth = xmlTextReaderDepth(_in_doc);
       }
       else if ( type == XML_COMMENT_NODE ){
-	cerr << "SKIP comment!" << endl;
+	string tag = "_XmlComment";
+	FoliaElement *t = FoliaImpl::createElement( tag, _out_doc );
+	append_node( t, new_depth );
+	_last_added = t;
+	if ( _debug ){
+	  DBG << "einde current node = " << _current_node << endl;
+	  DBG << "last node = " << _last_added << endl;
+	}
       }
       ret = xmlTextReaderRead(_in_doc);
     }
