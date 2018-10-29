@@ -46,7 +46,6 @@ namespace folia {
     int index;
     std::string tag;
     std::string textclass;
-    bool is_layer;
     xml_tree *parent;
     xml_tree *link;
     xml_tree *next;

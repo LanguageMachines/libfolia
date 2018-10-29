@@ -553,28 +553,10 @@ namespace folia {
     index(i),
     tag(t),
     textclass(c),
-    is_layer(false),
     parent(0),
     link(0),
     next(0)
-  {
-    if ( tag == "altlayers"
-	 || tag == "chunking"
-	 || tag == "complexalignments"
-	 || tag == "coreferences"
-	 || tag ==  "dependencies"
-	 || tag ==   "entities"
-	 || tag ==   "morphology"
-	 || tag ==   "observations"
-	 || tag ==   "phonology"
-	 || tag ==   "semroles"
-	 || tag ==   "sentiments"
-	 || tag ==   "statements"
-	 || tag ==   "syntax"
-	 || tag ==   "timing" ){
-      is_layer = true;
-    }
-  }
+  {}
 
   xml_tree::~xml_tree() {
     if ( link ){
@@ -732,8 +714,7 @@ namespace folia {
       // lets see at this level....
       xml_tree *pnt = start;
       while ( pnt ){
-	if ( pnt->is_layer ){
-	  // skip layers
+	if ( pnt->tag == "wref" ){
 	  pnt = pnt->next;
 	  continue;
 	}
