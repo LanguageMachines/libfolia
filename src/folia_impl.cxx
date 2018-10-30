@@ -3902,10 +3902,12 @@ namespace folia {
   xmlNode *AbstractSpanAnnotation::xml( bool recursive, bool kanon ) const {
     xmlNode *e = FoliaImpl::xml( false, false );
     // append Word, Phon and Morpheme children as WREFS
+    //  EXCEPT when there are NO references to it
     for ( const auto& el : data ) {
-      if ( el->element_id() == Word_t ||
-	   el->element_id() == Phoneme_t ||
-	   el->element_id() == Morpheme_t ) {
+      if ( ( el->element_id() == Word_t ||
+	     el->element_id() == Phoneme_t ||
+	     el->element_id() == Morpheme_t )
+	   && el->refcount() > 0 ){
 	xmlNode *t = XmlNewNode( foliaNs(), "wref" );
 	KWargs attribs;
 	attribs["id"] = el->id();
