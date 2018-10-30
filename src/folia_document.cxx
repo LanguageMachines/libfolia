@@ -324,7 +324,8 @@ namespace folia {
   static int error_sink(void *mydata, xmlError *error ){
     int *cnt = (int*)mydata;
     if ( *cnt == 0 ){
-      cerr << "\nXML-error: " << error->message << endl;
+      cerr << "\n" << error->file << ":" << error->line << ": XML-error: "
+	   << error->message << endl;
     }
     (*cnt)++;
     return 1;
@@ -373,7 +374,7 @@ namespace folia {
     }
     if ( debug )
       cout << "Failed to read a doc from " << s << endl;
-    throw XmlError( "No XML document read" );
+    throw XmlError( "No valid FoLiA read" );
   }
 
   bool Document::readFromString( const string& s ){

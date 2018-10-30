@@ -164,7 +164,7 @@ int main( int argc, char* argv[] ){
       }
     }
     catch( exception& e ){
-      cerr << inputName << " failed: " << endl << e.what() << endl;
+      cerr << inputName << " failed: " << e.what() << endl;
       //      exit( EXIT_FAILURE );
     }
   }
