@@ -324,8 +324,15 @@ namespace folia {
   static int error_sink(void *mydata, xmlError *error ){
     int *cnt = (int*)mydata;
     if ( *cnt == 0 ){
-      cerr << "\n" << error->file << ":" << error->line << ": XML-error: "
-	   << error->message << endl;
+      string line = "\n";
+      if ( error->file ){
+	line += string(error->file) + ":";
+	if ( error->line > 0 ){
+	  line += TiCC::toString(error->line) + ":";
+	}
+      }
+      line += " XML-error: " + string(error->message);
+      cerr << line << endl;
     }
     (*cnt)++;
     return 1;
