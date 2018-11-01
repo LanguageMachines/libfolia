@@ -1927,6 +1927,17 @@ namespace folia {
 	  }
 	}
       }
+      else if ( p->type == XML_ENTITY_REF_NODE ){
+	XmlText *t = new XmlText();
+	if ( p->content ) {
+	  t->setvalue( (const char*)p->content );
+	}
+	if ( doc() && doc()->debug > 2 ) {
+	  cerr << "created " << t << "(" << t->text() << ")" << endl;
+	  cerr << "extend " << this << " met " << t << endl;
+	}
+	append( t );
+      }
       else if ( p->type == XML_TEXT_NODE ){
 	if ( this->isSubClass( TextContent_t )
 	     || this->isSubClass( PhonContent_t )
