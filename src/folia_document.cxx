@@ -909,6 +909,10 @@ namespace folia {
   }
 
   FoliaElement* FoLiA::parseXml( const xmlNode *node ){
+    ///
+    /// recursively parse a complete FoLiA tree from @node
+    /// the topnode is special, as it carries the main document properties
+    ///
     if ( !mydoc ){
       throw logic_error( "FoLiA root without Document" );
     }
@@ -1032,16 +1036,6 @@ namespace folia {
   }
 
   FoliaElement* Document::parseFoliaDoc( const xmlNode *root ){
-    if ( TiCC::Name(root) != "FoLiA" ){
-      if ( TiCC::Name( root ) == "DCOI" &&
-	   checkNS( root, NSDCOI ) ){
-	throw XmlError( "DCOI format not supported" );
-      }
-      else {
-	throw XmlError( "root node must be FoLiA, found: "
-			+ TiCC::Name(root)  );
-      }
-    }
     KWargs args;
     FoLiA *folia = new FoLiA( args, this );
     if ( debug > 2 ){
