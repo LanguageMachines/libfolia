@@ -900,44 +900,42 @@ namespace folia {
     }
   }
 
-  FoliaElement *Document::resolveExternals( FoliaElement* result ){
+  void Document::resolveExternals(){
     if ( !externals.empty() ){
       for ( const auto& ext : externals ){
 	ext->resolve_external();
       }
     }
-    return result;
   }
 
-  FoliaElement* FoLiA::parseXml( const xmlNode *node, Document *doc ){
+  FoliaElement* FoLiA::parseXml( const xmlNode *node ){
+    if ( !mydoc ){
+      throw logic_error( "FoLiA root without Document" );
+    }
     KWargs att = getAttributes( node );
-    doc->setDocumentProps( att );
-    // if ( doc->version_below( 1, 5 ) ){
-    //   // don't check text consistency for older documents
-    //   doc->setmode( "nochecktext" );
-    // }
+    mydoc->setDocumentProps( att );
     setAttributes( att );
     xmlNode *p = node->children;
     while ( p ){
       if ( p->type == XML_ELEMENT_NODE ){
 	if ( TiCC::Name(p) == "metadata" &&
 	     checkNS( p, NSFOLIA ) ){
-	  if ( doc->debug > 1 ){
+	  if ( mydoc->debug > 1 ){
 	    cerr << "Found metadata" << endl;
 	  }
-	  doc->parse_metadata( p );
+	  mydoc->parse_metadata( p );
 	}
 	else {
 	  if ( p && TiCC::getNS(p) == NSFOLIA ){
 	    string tag = TiCC::Name( p );
-	    FoliaElement *t = FoliaImpl::createElement( tag, doc );
+	    FoliaElement *t = FoliaImpl::createElement( tag, mydoc );
 	    if ( t ){
-	      if ( doc->debug > 2 ){
+	      if ( mydoc->debug > 2 ){
 		cerr << "created " << t << endl;
 	      }
 	      t = t->parseXml( p );
 	      if ( t ){
-		if ( doc->debug > 2 ){
+		if ( mydoc->debug > 2 ){
 		  cerr << "extend " << this << " met " << tag << endl;
 		}
 		this->append( t );
@@ -1044,13 +1042,13 @@ namespace folia {
 			+ TiCC::Name(root)  );
       }
     }
-    FoliaElement *result = FoliaImpl::createElement( TiCC::Name(root), this );
+    KWargs args;
+    FoLiA *folia = new FoLiA( args, this );
     if ( debug > 2 ){
       cerr << "created Root" << endl;
     }
-    FoLiA *folia = dynamic_cast<FoLiA*>( result );
-    result = folia->parseXml( root, this );
-    result = resolveExternals( result );
+    FoliaElement *result = folia->parseXml( root );
+    resolveExternals();
     return result;
   }
 

@@ -178,7 +178,7 @@ namespace folia {
     xmlNs *foliaNs() const { return _foliaNsOut; };
     void keepForDeletion( FoliaElement *p ) { delSet.insert( p ); };
     void addExternal( External *p ) { externals.push_back( p ); };
-    FoliaElement *resolveExternals( FoliaElement* );
+    void resolveExternals();
     int debug;
     bool permissive() const { return mode & PERMISSIVE; };
     bool checktext() const {
