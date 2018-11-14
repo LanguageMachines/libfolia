@@ -29,6 +29,7 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <bitset>
 #include <set>
 #include <list>
 #include <vector>
@@ -806,15 +807,27 @@ namespace folia {
   }
 
   void Document::setDocumentProps( KWargs& kwargs ){
-    string vers = kwargs["version"];
-    if ( check_version( vers ) > 0 ){
+    auto it = kwargs.find( "version" );
+    if ( it != kwargs.end() ){
+      _version_string = it->second;
+      kwargs.erase( it );
+    }
+    else {
+      _version_string = library_version();
+    }
+    expand_version_string( _version_string,
+			   major_version,
+			   minor_version,
+			   sub_version,
+			   patch_version );
+    if ( check_version( _version_string ) > 0 ){
       cerr << "WARNING!!! FoLiA Document is a newer version than this library ("
-	   << vers << " vs " << _version_string
+	   << _version_string << " vs " << library_version()
 	   << ")\n\t Any possible subsequent failures in parsing or processing may probably be attributed to this." << endl
 	   << "\t Please upgrade libfolia!" << endl;
     }
     bool happy = false;
-    auto it = kwargs.find( "debug" );
+    it = kwargs.find( "debug" );
     if ( it != kwargs.end() ){
       debug = TiCC::stringTo<int>( it->second );
     }
@@ -827,17 +840,8 @@ namespace folia {
       external = TiCC::stringTo<bool>( it->second );
       kwargs.erase( it );
     }
-    else
+    else {
       external = false;
-    it = kwargs.find( "version" );
-    if ( it != kwargs.end() ){
-      _version_string = it->second;
-      expand_version_string( _version_string,
-			     major_version,
-			     minor_version,
-			     sub_version,
-			     patch_version );
-      kwargs.erase( it );
     }
     it = kwargs.find( "_id" );
     if ( it == kwargs.end() ){
@@ -868,8 +872,9 @@ namespace folia {
 	}
       }
     }
-    if ( !happy )
+    if ( !happy ){
       throw runtime_error( "No ID, valid filename or string specified" );
+    }
     kwargs.erase( "generator" ); // also delete unused att-val(s)
     const char *env = getenv( "FOLIA_TEXT_CHECK" );
     if ( env ){
@@ -889,6 +894,10 @@ namespace folia {
 	     << endl;
       }
     }
+    if ( version_below( 1, 5 ) ){
+      // don't check text consistency for older documents
+      mode = Mode( int(mode) & ~CHECKTEXT );
+    }
   }
 
   FoliaElement *Document::resolveExternals( FoliaElement* result ){
@@ -903,6 +912,10 @@ namespace folia {
   FoliaElement* FoLiA::parseXml( const xmlNode *node, Document *doc ){
     KWargs att = getAttributes( node );
     doc->setDocumentProps( att );
+    // if ( doc->version_below( 1, 5 ) ){
+    //   // don't check text consistency for older documents
+    //   doc->setmode( "nochecktext" );
+    // }
     setAttributes( att );
     xmlNode *p = node->children;
     while ( p ){
@@ -934,10 +947,6 @@ namespace folia {
 	}
       }
       p = p->next;
-    }
-    if ( doc->version_below( 1, 5 ) ){
-      // don't check text consistency for older documents
-      doc->setmode( "nochecktext" );
     }
     return this;
   }
