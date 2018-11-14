@@ -992,6 +992,9 @@ namespace folia {
 	if ( debug > 1 ){
 	  cerr << "found meta node" << endl;
 	}
+	if ( !result ){
+	  throw runtime_error( "'meta' tag found outside a metadata block" );
+	}
 	KWargs att = getAttributes( m );
 	string type = att["id"];
 	string val = TiCC::XmlContent( m );
