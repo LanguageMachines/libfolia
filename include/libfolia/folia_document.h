@@ -179,7 +179,7 @@ namespace folia {
     xmlNs *foliaNs() const { return _foliaNsOut; };
     void keepForDeletion( FoliaElement *p ) { delSet.insert( p ); };
     void addExternal( External *p ) { externals.push_back( p ); };
-    FoliaElement *resolveExternals( FoliaElement* );
+    void resolveExternals();
     int debug;
     bool permissive() const { return mode & PERMISSIVE; };
     bool checktext() const {
@@ -222,6 +222,8 @@ namespace folia {
     std::string update_version();
     bool version_below( int, int );
     std::map<AnnotationType::AnnotationType,std::multimap<std::string,at_t> > annotationdefaults() const { return _annotationdefaults; };
+    void parse_metadata( const xmlNode * );
+    void setDocumentProps( KWargs& );
   private:
     std::map<AnnotationType::AnnotationType,std::multimap<std::string,at_t> > _annotationdefaults;
     std::vector<std::pair<AnnotationType::AnnotationType,std::string>> _anno_sort;
@@ -232,9 +234,7 @@ namespace folia {
     std::vector<PhonContent*> p_offset_validation_buffer;
 
     FoliaElement* parseFoliaDoc( const xmlNode * );
-    MetaData *parse_metadata( const xmlNode * );
     void setimdi( xmlNode * );
-    void setDocumentProps( KWargs& );
     void parseannotations( const xmlNode * );
     void parsesubmeta( const xmlNode * );
     void getstyles();

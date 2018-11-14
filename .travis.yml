@@ -31,7 +31,7 @@ matrix:
       compiler: clang++
       env:
         - SCAN=scan-build
-        - OPENMPFLAG=--disable-openmp
+#        - OPENMPFLAG=--disable-openmp
 
 
     - os: osx

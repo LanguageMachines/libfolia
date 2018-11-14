@@ -288,7 +288,7 @@ namespace folia {
 	}
 	else if ( local_name == "metadata" ) {
 	  xmlNode *node = xmlTextReaderExpand(_in_doc);
-	  _out_doc->_metadata = _out_doc->parse_metadata( node );
+	  _out_doc->parse_metadata( node );
 	}
 	else if ( local_name == "text" ){
 	  _doc_type = TEXT;
