@@ -53,7 +53,7 @@ namespace folia {
     // a NO_OP now
   }
 
-  bool checkNS( xmlNode *n, const string& ns ){
+  bool checkNS( const xmlNode *n, const string& ns ){
     string tns = TiCC::getNS(n);
     if ( tns == ns )
       return true;
@@ -206,85 +206,6 @@ namespace folia {
       result += "fixtext,";
     }
     return result;
-  }
-
-  void Document::setDocumentProps( KWargs& kwargs ){
-    bool happy = false;
-    auto it = kwargs.find( "debug" );
-    if ( it != kwargs.end() ){
-      debug = TiCC::stringTo<int>( it->second );
-    }
-    it = kwargs.find( "mode" );
-    if ( it != kwargs.end() ){
-      setmode( it->second );
-    }
-    it = kwargs.find( "external" );
-    if ( it != kwargs.end() ){
-      external = TiCC::stringTo<bool>( it->second );
-      kwargs.erase( it );
-    }
-    else
-      external = false;
-    it = kwargs.find( "version" );
-    if ( it != kwargs.end() ){
-      _version_string = it->second;
-      expand_version_string( _version_string,
-			     major_version,
-			     minor_version,
-			     sub_version,
-			     patch_version );
-      kwargs.erase( it );
-    }
-    it = kwargs.find( "_id" );
-    if ( it == kwargs.end() ){
-      it = kwargs.find( "id" );
-    }
-    if ( it != kwargs.end() ){
-      if ( isNCName( it->second ) ){
-	_id = it->second;
-      }
-      else {
-	throw XmlError( "'"
-			+ it->second
-			+ "' is not a valid NCName." );
-      }
-      happy = true;
-    }
-    else {
-      it = kwargs.find( "file" );
-      if ( it != kwargs.end() ){
-	filename = it->second;
-	happy = readFromFile(filename);
-      }
-      else {
-	it = kwargs.find( "string" );
-	if ( it != kwargs.end() ){
-	  string s = it->second;
-	  happy = readFromString( s );
-	}
-      }
-    }
-    if ( !happy )
-      throw runtime_error( "No ID, valid filename or string specified" );
-    kwargs.erase( "generator" ); // also delete unused att-val(s)
-    const char *env = getenv( "FOLIA_TEXT_CHECK" );
-    if ( env ){
-      string e = env;
-      cerr << "DETECTED FOLIA_TEXT_CHECK environment variable, value ='"
-	   << e << "'"<< endl;
-      if ( e == "NO" ){
-	mode = Mode( int(mode) & ~CHECKTEXT );
-	cerr << "FOLIA_TEXT_CHECK disabled" << endl;
-      }
-      else if ( e == "YES" ){
-	mode = Mode( int(mode) | CHECKTEXT );
-	cerr << "FOLIA_TEXT_CHECK enabled" << endl;
-      }
-      else {
-	cerr << "FOLIA_TEXT_CHECK unchanged:" << (checktext()?"YES":"NO")
-	     << endl;
-      }
-    }
   }
 
   void Document::addDocIndex( FoliaElement* el, const string& s ){
@@ -884,6 +805,92 @@ namespace folia {
     return false;
   }
 
+  void Document::setDocumentProps( KWargs& kwargs ){
+    string vers = kwargs["version"];
+    if ( check_version( vers ) > 0 ){
+      cerr << "WARNING!!! FoLiA Document is a newer version than this library ("
+	   << vers << " vs " << _version_string
+	   << ")\n\t Any possible subsequent failures in parsing or processing may probably be attributed to this." << endl
+	   << "\t Please upgrade libfolia!" << endl;
+    }
+    bool happy = false;
+    auto it = kwargs.find( "debug" );
+    if ( it != kwargs.end() ){
+      debug = TiCC::stringTo<int>( it->second );
+    }
+    it = kwargs.find( "mode" );
+    if ( it != kwargs.end() ){
+      setmode( it->second );
+    }
+    it = kwargs.find( "external" );
+    if ( it != kwargs.end() ){
+      external = TiCC::stringTo<bool>( it->second );
+      kwargs.erase( it );
+    }
+    else
+      external = false;
+    it = kwargs.find( "version" );
+    if ( it != kwargs.end() ){
+      _version_string = it->second;
+      expand_version_string( _version_string,
+			     major_version,
+			     minor_version,
+			     sub_version,
+			     patch_version );
+      kwargs.erase( it );
+    }
+    it = kwargs.find( "_id" );
+    if ( it == kwargs.end() ){
+      it = kwargs.find( "id" );
+    }
+    if ( it != kwargs.end() ){
+      if ( isNCName( it->second ) ){
+	_id = it->second;
+      }
+      else {
+	throw XmlError( "'"
+			+ it->second
+			+ "' is not a valid NCName." );
+      }
+      happy = true;
+    }
+    else {
+      it = kwargs.find( "file" );
+      if ( it != kwargs.end() ){
+	filename = it->second;
+	happy = readFromFile(filename);
+      }
+      else {
+	it = kwargs.find( "string" );
+	if ( it != kwargs.end() ){
+	  string s = it->second;
+	  happy = readFromString( s );
+	}
+      }
+    }
+    if ( !happy )
+      throw runtime_error( "No ID, valid filename or string specified" );
+    kwargs.erase( "generator" ); // also delete unused att-val(s)
+    const char *env = getenv( "FOLIA_TEXT_CHECK" );
+    if ( env ){
+      string e = env;
+      cerr << "DETECTED FOLIA_TEXT_CHECK environment variable, value ='"
+	   << e << "'"<< endl;
+      if ( e == "NO" ){
+	mode = Mode( int(mode) & ~CHECKTEXT );
+	cerr << "FOLIA_TEXT_CHECK disabled" << endl;
+      }
+      else if ( e == "YES" ){
+	mode = Mode( int(mode) | CHECKTEXT );
+	cerr << "FOLIA_TEXT_CHECK enabled" << endl;
+      }
+      else {
+	cerr << "FOLIA_TEXT_CHECK unchanged:" << (checktext()?"YES":"NO")
+	     << endl;
+      }
+    }
+  }
+
   FoliaElement *Document::resolveExternals( FoliaElement* result ){
     if ( !externals.empty() ){
       for ( const auto& ext : externals ){
@@ -893,7 +900,49 @@ namespace folia {
     return result;
   }
 
-  MetaData *Document::parse_metadata( const xmlNode *p ){
+  FoliaElement* FoLiA::parseXml( const xmlNode *node, Document *doc ){
+    KWargs att = getAttributes( node );
+    doc->setDocumentProps( att );
+    setAttributes( att );
+    xmlNode *p = node->children;
+    while ( p ){
+      if ( p->type == XML_ELEMENT_NODE ){
+	if ( TiCC::Name(p) == "metadata" &&
+	     checkNS( p, NSFOLIA ) ){
+	  if ( doc->debug > 1 ){
+	    cerr << "Found metadata" << endl;
+	  }
+	  doc->parse_metadata( p );
+	}
+	else {
+	  if ( p && TiCC::getNS(p) == NSFOLIA ){
+	    string tag = TiCC::Name( p );
+	    FoliaElement *t = FoliaImpl::createElement( tag, doc );
+	    if ( t ){
+	      if ( doc->debug > 2 ){
+		cerr << "created " << t << endl;
+	      }
+	      t = t->parseXml( p );
+	      if ( t ){
+		if ( doc->debug > 2 ){
+		  cerr << "extend " << this << " met " << tag << endl;
+		}
+		this->append( t );
+	      }
+	    }
+	  }
+	}
+      }
+      p = p->next;
+    }
+    if ( doc->version_below( 1, 5 ) ){
+      // don't check text consistency for older documents
+      doc->setmode( "nochecktext" );
+    }
+    return this;
+  }
+
+  void Document::parse_metadata( const xmlNode *p ){
     MetaData *result = 0;
     KWargs atts = getAttributes( p );
     string type = TiCC::lowercase(atts["type"]);
@@ -972,64 +1021,26 @@ namespace folia {
       // imdi missing all further info
       result = new NativeMetaData( type );
     }
-    return result;
+    _metadata = result;
   }
 
   FoliaElement* Document::parseFoliaDoc( const xmlNode *root ){
-    KWargs att = getAttributes( root );
-    using TiCC::operator<<;
-    if ( att["_id"] == "" ){
-      throw XmlError("FoLiA Document has no ID!");
-      return 0;
-    }
-    string vers = att["version"];
-    if ( check_version( vers ) > 0 ){
-      cerr << "WARNING!!! FoLiA Document is a newer version than this library ("
-	   << vers << " vs " << _version_string
-	   << ")\n\t Any possible subsequent failures in parsing or processing may probably be attributed to this." << endl
-	   << "\t Please upgrade libfolia!" << endl;
-    }
-    setDocumentProps( att );
-    if ( version_below( 1, 5 ) ){
-      // don't check text consistency for older documents
-      setmode( "nochecktext" );
+    if ( TiCC::Name(root) != "FoLiA" ){
+      if ( TiCC::Name( root ) == "DCOI" &&
+	   checkNS( root, NSDCOI ) ){
+	throw XmlError( "DCOI format not supported" );
+      }
+      else {
+	throw XmlError( "root node must be FoLiA, found: "
+			+ TiCC::Name(root)  );
+      }
     }
     FoliaElement *result = FoliaImpl::createElement( TiCC::Name(root), this );
     if ( debug > 2 ){
-      cerr << "created " << root << endl;
+      cerr << "created Root" << endl;
     }
-    result->setAttributes( att );
-    xmlNode *p = root->children;
-    while ( p ){
-      if ( p->type == XML_ELEMENT_NODE ){
-	if ( TiCC::Name(p) == "metadata" &&
-	     checkNS( p, NSFOLIA ) ){
-	  if ( debug > 1 ){
-	    cerr << "Found metadata" << endl;
-	  }
-	  _metadata = parse_metadata( p );
-	}
-	else {
-	  if ( p && TiCC::getNS(p) == NSFOLIA ){
-	    string tag = TiCC::Name( p );
-	    FoliaElement *t = FoliaImpl::createElement( tag, this );
-	    if ( t ){
-	      if ( debug > 2 ){
-		cerr << "created " << t << endl;
-	      }
-	      t = t->parseXml( p );
-	      if ( t ){
-		if ( debug > 2 ){
-		  cerr << "extend " << result << " met " << tag << endl;
-		}
-		result->append( t );
-	      }
-	    }
-	  }
-	}
-      }
-      p = p->next;
-    }
+    FoLiA *folia = dynamic_cast<FoLiA*>( result );
+    result = folia->parseXml( root, this );
     result = resolveExternals( result );
     return result;
   }

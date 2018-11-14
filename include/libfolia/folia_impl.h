@@ -1105,10 +1105,13 @@ namespace folia {
     FoliaImpl( PROPS,d) { classInit(); }
   FoLiA( const KWargs& a, Document *d = 0 ):
     FoliaImpl( PROPS, d ) { classInit( a ); }
+
+    FoliaElement* parseXml( const xmlNode *, Document * );
     const icu::UnicodeString text( const std::string& = "current",
 			      bool = false, bool = false ) const;
   private:
     static properties PROPS;
+
   };
 
   class DCOI: public FoliaImpl {

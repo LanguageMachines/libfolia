@@ -220,6 +220,8 @@ namespace folia {
     std::string version() const { return _version_string; };
     std::string update_version();
     bool version_below( int, int );
+    void parse_metadata( const xmlNode * );
+    void setDocumentProps( KWargs& );
   private:
     std::map<AnnotationType::AnnotationType,std::multimap<std::string,at_t> > annotationdefaults;
     std::vector<std::pair<AnnotationType::AnnotationType,std::string>> anno_sort;
@@ -230,9 +232,7 @@ namespace folia {
     std::vector<PhonContent*> p_offset_validation_buffer;
 
     FoliaElement* parseFoliaDoc( const xmlNode * );
-    MetaData *parse_metadata( const xmlNode * );
     void setimdi( xmlNode * );
-    void setDocumentProps( KWargs& );
     void parseannotations( const xmlNode * );
     void parsesubmeta( const xmlNode * );
     void getstyles();
