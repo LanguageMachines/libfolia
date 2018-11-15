@@ -86,32 +86,23 @@ namespace folia {
     init();
   }
 
-  Document::Document( const string& args ) {
+  Document::Document( const KWargs& kwargs ) {
     init();
-    KWargs kwargs = getArgs( args );
-    auto it = kwargs.find( "file" );
-    if ( it != kwargs.end() ){
+    KWargs args = kwargs;
+    auto it = args.find( "file" );
+    if ( it != args.end() ){
       // extract a Document from a file
       readFromFile( it->second );
-      kwargs.erase(it);
+      args.erase(it);
     }
     else {
-      it = kwargs.find( "string" );
-      if ( it != kwargs.end() ){
+      it = args.find( "string" );
+      if ( it != args.end() ){
 	// extract a Document from a string
 	readFromString( it->second );
-	kwargs.erase(it);
+	args.erase(it);
       }
     }
-    if ( !foliadoc ){
-      // so NO 'file' or 'string' argument.
-      // create an 'empty' document, with a FoLiA root node.
-      foliadoc = new FoLiA( kwargs, this );
-    }
-  }
-
-  Document::Document( const KWargs& args ) {
-    init();
     if ( !foliadoc ){
       foliadoc = new FoLiA( args, this );
     }

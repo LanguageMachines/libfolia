@@ -83,8 +83,8 @@ namespace folia {
     friend class Processor;
   public:
     Document();
-    explicit Document( const std::string& );
     explicit Document( const KWargs& );
+    explicit Document( const std::string& s): Document( getArgs(s) ){};
     ~Document();
     void init();
     bool readFromFile( const std::string& );
