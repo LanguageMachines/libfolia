@@ -46,6 +46,7 @@
 #include "config.h"
 
 using namespace std;
+using namespace icu;
 using namespace TiCC;
 
 namespace folia {
@@ -792,8 +793,8 @@ namespace folia {
 	 && parent->hastext( cls ) ){
       // check text consistency for parents with text
       // but SKIP Corrections
-      icu::UnicodeString s1 = parent->text( cls, false, true );
-      icu::UnicodeString s2 = child->text( cls, false, true );
+      UnicodeString s1 = parent->text( cls, false, true );
+      UnicodeString s2 = child->text( cls, false, true );
       // no retain tokenization, strict for both
       s1 = normalize_spaces( s1 );
       s2 = normalize_spaces( s2 );
@@ -837,8 +838,8 @@ namespace folia {
 	 && parent->hastext( cls ) ){
       // check text consistency for parents with text
       // but SKIP Corrections
-      icu::UnicodeString s1 = parent->text( cls, false, true );
-      icu::UnicodeString s2 = this->text( cls, false, false );
+      UnicodeString s1 = parent->text( cls, false, true );
+      UnicodeString s2 = this->text( cls, false, false );
       // no retain tokenization, strict for parent, deeper for child
       s1 = normalize_spaces( s1 );
       s2 = normalize_spaces( s2 );
@@ -958,7 +959,7 @@ namespace folia {
     // if this is a PhonContent or it may contain PhonContent
     // then return the associated phon()
     // otherwise return empty string
-    icu::UnicodeString us;
+    UnicodeString us;
     try {
       us = text(cls);
     }
@@ -1054,10 +1055,10 @@ namespace folia {
     return _props.TEXTDELIMITER;
   }
 
-  const icu::UnicodeString FoliaImpl::text( const string& cls,
+  const UnicodeString FoliaImpl::text( const string& cls,
 				       bool retaintok,
 				       bool strict ) const {
-    // get the icu::UnicodeString value of underlying elements
+    // get the UnicodeString value of underlying elements
     // default cls="current"
 #ifdef DEBUG_TEXT
     cerr << "TEXT(" << cls << ") op node : " << xmltag() << " id ( " << id() << ")" << endl;
@@ -1066,7 +1067,7 @@ namespace folia {
       return textcontent(cls)->text();
     }
     else if ( is_textcontainer() ){
-      icu::UnicodeString result;
+      UnicodeString result;
       for ( const auto& d : data ){
 	if ( d->printable() ){
 	  if ( !result.isEmpty() ){
@@ -1085,7 +1086,7 @@ namespace folia {
       throw NoSuchText( "NON printable element: " + xmltag() );
     }
     else {
-      icu::UnicodeString result = deeptext( cls, retaintok );
+      UnicodeString result = deeptext( cls, retaintok );
       if ( result.isEmpty() ) {
 	result = stricttext( cls );
       }
@@ -1096,13 +1097,13 @@ namespace folia {
     }
   }
 
-  const icu::UnicodeString FoLiA::text( const string& cls,
+  const UnicodeString FoLiA::text( const string& cls,
 				   bool retaintok,
 				   bool strict ) const {
 #ifdef DEBUG_TEXT
     cerr << "FoLiA::TEXT(" << cls << ")" << endl;
 #endif
-    icu::UnicodeString result;
+    UnicodeString result;
     for ( const auto& d : data ){
       if ( !result.isEmpty() ){
 	const string& delim = d->getTextDelimiter( retaintok );
@@ -1116,20 +1117,20 @@ namespace folia {
     return result;
   }
 
-  icu::UnicodeString trim_space( const icu::UnicodeString& in ){
-    icu::UnicodeString cmp = " ";
+  UnicodeString trim_space( const UnicodeString& in ){
+    UnicodeString cmp = " ";
     //    cerr << "in = '" << in << "'" << endl;
-    icu::UnicodeString out;
+    UnicodeString out;
     int i = 0;
     for( ; i < in.length(); ++i ){
-      //      cerr << "start: bekijk:" << icu::UnicodeString(in[i]) << endl;
+      //      cerr << "start: bekijk:" << UnicodeString(in[i]) << endl;
       if ( in[i] != cmp[0] ){
 	break;
       }
     }
     int j = in.length()-1;
     for( ; j >= 0; --j ){
-      //      cerr << "end: bekijk:" << icu::UnicodeString(in[j]) << endl;
+      //      cerr << "end: bekijk:" << UnicodeString(in[j]) << endl;
       if ( in[j] != cmp[0] ){
 	break;
       }
@@ -1140,12 +1141,12 @@ namespace folia {
       //      cerr << "out = LEEG" << endl;
       return out;
     }
-    out = icu::UnicodeString( in, i, j-i+1 );
+    out = UnicodeString( in, i, j-i+1 );
     //    cerr << "out = '" << out << "'" << endl;
     return out;
   }
 
-  bool check_end( const icu::UnicodeString& us, bool& only ){
+  bool check_end( const UnicodeString& us, bool& only ){
     only = false;
     string tmp = TiCC::UnicodeToUTF8( us );
     int j = tmp.length()-1;
@@ -1176,9 +1177,9 @@ namespace folia {
     return result;
   }
 
-  const icu::UnicodeString FoliaImpl::deeptext( const string& cls,
+  const UnicodeString FoliaImpl::deeptext( const string& cls,
 					   bool retaintok ) const {
-    // get the icu::UnicodeString value of underlying elements
+    // get the UnicodeString value of underlying elements
     // default cls="current"
 #ifdef DEBUG_TEXT
     cerr << "deepTEXT(" << cls << ") op node : " << xmltag() << " id(" << id() << ") cls=" << this->cls() << ")" << endl;
@@ -1186,8 +1187,8 @@ namespace folia {
 #ifdef DEBUG_TEXT
     cerr << "deeptext: node has " << data.size() << " children." << endl;
 #endif
-    vector<icu::UnicodeString> parts;
-    vector<icu::UnicodeString> seps;
+    vector<UnicodeString> parts;
+    vector<UnicodeString> seps;
     for ( const auto& child : data ) {
       // try to get text dynamically from children
       // skip TextContent elements
@@ -1205,7 +1206,7 @@ namespace folia {
 	cerr << "deeptext:bekijk node[" << child->xmltag() << "]"<< endl;
 #endif
 	try {
-	  icu::UnicodeString tmp = child->text( cls, retaintok, false );
+	  UnicodeString tmp = child->text( cls, retaintok, false );
 #ifdef DEBUG_TEXT
 	  cerr << "deeptext found '" << tmp << "'" << endl;
 #endif
@@ -1243,7 +1244,7 @@ namespace folia {
     }
 
     // now construct the result;
-    icu::UnicodeString result;
+    UnicodeString result;
     for ( size_t i=0; i < parts.size(); ++i ) {
 #ifdef DEBUG_TEXT
       cerr << "part[" << i << "]='" << parts[i] << "'" << endl;
@@ -1291,14 +1292,14 @@ namespace folia {
     return result;
   }
 
-  const icu::UnicodeString FoliaElement::stricttext( const string& cls ) const {
-    // get icu::UnicodeString content of TextContent children only
+  const UnicodeString FoliaElement::stricttext( const string& cls ) const {
+    // get UnicodeString content of TextContent children only
     // default cls="current"
     return this->text(cls, false, true );
   }
 
-  const icu::UnicodeString FoliaElement::toktext( const string& cls ) const {
-    // get icu::UnicodeString content of TextContent children only
+  const UnicodeString FoliaElement::toktext( const string& cls ) const {
+    // get UnicodeString content of TextContent children only
     // default cls="current"
     return this->text(cls, true, false );
   }
@@ -1373,9 +1374,9 @@ namespace folia {
 
   //#define DEBUG_PHON
 
-  const icu::UnicodeString FoliaImpl::phon( const string& cls,
+  const UnicodeString FoliaImpl::phon( const string& cls,
 				       bool strict ) const {
-    // get the icu::UnicodeString value of underlying elements
+    // get the UnicodeString value of underlying elements
     // default cls="current"
 #ifdef DEBUG_PHON
     cerr << "PHON(" << cls << ") op node : " << xmltag() << " id ( " << id() << ")" << endl;
@@ -1387,7 +1388,7 @@ namespace folia {
       throw NoSuchPhon( "NON speakable element: " + xmltag() );
     }
     else {
-      icu::UnicodeString result = deepphon( cls );
+      UnicodeString result = deepphon( cls );
       if ( result.isEmpty() ) {
 	result = phoncontent(cls)->phon();
       }
@@ -1398,8 +1399,8 @@ namespace folia {
     }
   }
 
-  const icu::UnicodeString FoliaImpl::deepphon( const string& cls ) const {
-    // get the icu::UnicodeString value of underlying elements
+  const UnicodeString FoliaImpl::deepphon( const string& cls ) const {
+    // get the UnicodeString value of underlying elements
     // default cls="current"
 #ifdef DEBUG_PHON
     cerr << "deepPHON(" << cls << ") op node : " << xmltag() << " id(" << id() << ")" << endl;
@@ -1407,8 +1408,8 @@ namespace folia {
 #ifdef DEBUG_PHON
     cerr << "deepphon: node has " << data.size() << " children." << endl;
 #endif
-    vector<icu::UnicodeString> parts;
-    vector<icu::UnicodeString> seps;
+    vector<UnicodeString> parts;
+    vector<UnicodeString> seps;
     for ( const auto& child : data ) {
       // try to get text dynamically from children
       // skip PhonContent elements
@@ -1422,7 +1423,7 @@ namespace folia {
 	cerr << "deepphon:bekijk node[" << child->xmltag() << "]" << endl;
 #endif
 	try {
-	  icu::UnicodeString tmp = child->phon( cls, false );
+	  UnicodeString tmp = child->phon( cls, false );
 #ifdef DEBUG_PHON
 	  cerr << "deepphon found '" << tmp << "'" << endl;
 #endif
@@ -1442,7 +1443,7 @@ namespace folia {
     }
 
     // now construct the result;
-    icu::UnicodeString result;
+    UnicodeString result;
     for ( size_t i=0; i < parts.size(); ++i ) {
       result += parts[i];
       if ( i < parts.size()-1 ) {
@@ -1525,7 +1526,7 @@ namespace folia {
     // Default cls="current"
     if ( doc() && doc()->checktext()
 	 && !isSubClass( Morpheme_t ) && !isSubClass( Phoneme_t) ){
-      icu::UnicodeString deeper_u;
+      UnicodeString deeper_u;
       try {
 	deeper_u = text( cls, false, false );
 	// get deep original text: no retain tokenization, no strict
@@ -1533,7 +1534,7 @@ namespace folia {
       catch (...){
       }
       deeper_u = normalize_spaces( deeper_u );
-      icu::UnicodeString txt_u = TiCC::UnicodeFromUTF8( txt );
+      UnicodeString txt_u = TiCC::UnicodeFromUTF8( txt );
       txt_u = normalize_spaces( txt_u );
       if ( !deeper_u.isEmpty() && txt_u != deeper_u ){
 	throw InconsistentText( "settext(cls=" + cls + "): deeper text differs from attempted\ndeeper='" + TiCC::UnicodeToUTF8(deeper_u) + "'\nattempted='" + txt + "'" );
@@ -1547,7 +1548,7 @@ namespace folia {
     return node;
   }
 
-  TextContent *FoliaElement::setutext( const icu::UnicodeString& txt,
+  TextContent *FoliaElement::setutext( const UnicodeString& txt,
 				       const string& cls ){
     // create a TextContent child of class 'cls'
     // Default cls="current"
@@ -1563,7 +1564,7 @@ namespace folia {
     // sets the offset attribute.
     if ( doc() && doc()->checktext()
 	 && !isSubClass( Morpheme_t ) && !isSubClass( Phoneme_t) ){
-      icu::UnicodeString deeper_u;
+      UnicodeString deeper_u;
       try {
 	deeper_u = text( cls, false, false );
 	// get deep original text: no retain tokenization, no strict
@@ -1571,7 +1572,7 @@ namespace folia {
       catch (...){
       }
       deeper_u = normalize_spaces( deeper_u );
-      icu::UnicodeString txt_u = TiCC::UnicodeFromUTF8( txt );
+      UnicodeString txt_u = TiCC::UnicodeFromUTF8( txt );
       txt_u = normalize_spaces( txt_u );
       if ( !deeper_u.isEmpty() && txt_u != deeper_u ){
 	throw InconsistentText( "settext(cls=" + cls + "): deeper text differs from attempted\ndeeper='" + TiCC::UnicodeToUTF8(deeper_u) + "'\nattempted='" + txt + "'" );
@@ -1586,7 +1587,7 @@ namespace folia {
     return node;
   }
 
-  TextContent *FoliaElement::setutext( const icu::UnicodeString& txt,
+  TextContent *FoliaElement::setutext( const UnicodeString& txt,
 				       int offset,
 				       const string& cls ){
     // create a TextContent child of class 'cls'
@@ -2018,7 +2019,7 @@ namespace folia {
       }
       // check the text for every text class
       for ( const auto& st : cls ){
-	icu::UnicodeString s1, s2;
+	UnicodeString s1, s2;
 	try {
 	  s1 = text( st, false, true );  // no retain tokenization, strict
 	}
@@ -2539,9 +2540,9 @@ namespace folia {
       throw UnresolvableTextContent( "Reference (ID " + _ref + ") has no such text (class=" + _class + ")" );
     }
     else if ( mydoc->checktext() || mydoc->fixtext() ){
-      icu::UnicodeString mt = this->text( this->cls(), false, true );
-      icu::UnicodeString pt = ref->text( this->cls(), false, true );
-      icu::UnicodeString sub( pt, this->offset(), mt.length() );
+      UnicodeString mt = this->text( this->cls(), false, true );
+      UnicodeString pt = ref->text( this->cls(), false, true );
+      UnicodeString sub( pt, this->offset(), mt.length() );
       if ( mt != sub ){
 	if ( mydoc->fixtext() ){
 	  int pos = pt.indexOf( mt );
@@ -2624,9 +2625,9 @@ namespace folia {
       throw UnresolvableTextContent( "Reference (ID " + _ref + ") has no such phonetic content (class=" + _class + ")" );
     }
     else if ( mydoc->checktext() || mydoc->fixtext() ){
-      icu::UnicodeString mt = this->phon( this->cls(), false );
-      icu::UnicodeString pt = ref->phon( this->cls(), false );
-      icu::UnicodeString sub( pt, this->offset(), mt.length() );
+      UnicodeString mt = this->phon( this->cls(), false );
+      UnicodeString pt = ref->phon( this->cls(), false );
+      UnicodeString sub( pt, this->offset(), mt.length() );
       if ( mt != sub ){
 	if ( mydoc->fixtext() ){
 	  int pos = pt.indexOf( mt );
@@ -2713,14 +2714,14 @@ namespace folia {
     return result;
   }
 
-  const icu::UnicodeString PhonContent::phon( const string& cls,
+  const UnicodeString PhonContent::phon( const string& cls,
 					 bool ) const {
-    // get the icu::UnicodeString value of underlying elements
+    // get the UnicodeString value of underlying elements
     // default cls="current"
 #ifdef DEBUG_PHON
     cerr << "PhonContent::PHON(" << cls << ") " << endl;
 #endif
-    icu::UnicodeString result;
+    UnicodeString result;
     for ( const auto& el : data ) {
       // try to get text dynamically from children
 #ifdef DEBUG_PHON
@@ -2730,7 +2731,7 @@ namespace folia {
 #ifdef DEBUG_PHON
 	cerr << "roep text(" << cls << ") aan op " << el << endl;
 #endif
-	icu::UnicodeString tmp = el->text( cls );
+	UnicodeString tmp = el->text( cls );
 #ifdef DEBUG_PHON
 	cerr << "PhonContent found '" << tmp << "'" << endl;
 #endif
@@ -3755,7 +3756,7 @@ namespace folia {
     Word::setAttributes( args );
   }
 
-  const icu::UnicodeString Figure::caption() const {
+  const UnicodeString Figure::caption() const {
     vector<FoliaElement *> v = select(Caption_t);
     if ( v.empty() ) {
       throw NoSuchText("caption");
@@ -4005,7 +4006,7 @@ namespace folia {
     return this;
   }
 
-  const icu::UnicodeString Correction::text( const string& cls,
+  const UnicodeString Correction::text( const string& cls,
 					bool retaintok,
 					bool ) const {
 #ifdef DEBUG_TEXT
@@ -4020,7 +4021,7 @@ namespace folia {
       if ( el->isinstance( New_t )
 	   ||( el->isinstance( Original_t ) && cls != "current" )
 	   || el->isinstance( Current_t ) ){
-	icu::UnicodeString result;
+	UnicodeString result;
 	try {
 	  result = el->text( cls, retaintok );
 	  return result;
@@ -4254,13 +4255,13 @@ namespace folia {
 
   bool XmlText::setvalue( const std::string& s ){
     static TiCC::UnicodeNormalizer norm;  // defaults to a NFC normalizer
-    icu::UnicodeString us = TiCC::UnicodeFromUTF8(s);
+    UnicodeString us = TiCC::UnicodeFromUTF8(s);
     us = norm.normalize( us );
     _value = TiCC::UnicodeToUTF8( us );
     return true;
   }
 
-  const icu::UnicodeString XmlText::text( const string&, bool, bool ) const {
+  const UnicodeString XmlText::text( const string&, bool, bool ) const {
     return TiCC::UnicodeFromUTF8(_value);
   }
 
@@ -4641,9 +4642,9 @@ namespace folia {
     FoliaImpl::setAttributes( argl );
   }
 
-  const icu::UnicodeString TextMarkupCorrection::text( const string& cls,
-						       bool ret,
-						       bool strict ) const{
+  const UnicodeString TextMarkupCorrection::text( const string& cls,
+						  bool ret,
+						  bool strict ) const{
     if ( cls == "original" ) {
       return TiCC::UnicodeFromUTF8(_original);
     }

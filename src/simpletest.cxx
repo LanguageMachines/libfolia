@@ -32,6 +32,7 @@
 #include "libfolia/folia.h"
 
 using namespace std;
+using namespace icu;
 using namespace folia;
 
 int main() {
@@ -77,15 +78,15 @@ int main() {
     cout << " Unexpected sentence size, " <<  d[id+".s.1"]->size() << ", expected 5" << endl;
     return EXIT_FAILURE;
   }
-  icu::UnicodeString txt = s->text();
+  UnicodeString txt = s->text();
   if ( txt != "De site staat online ." ) {
     cout << " Text does not match reference: '" << txt << "' vs reference: 'De site staat online .'" << endl;
     return EXIT_FAILURE;
   }
   cout << s->text() << endl;
-  icu::UnicodeString dirty = "    A    dir\ty \n  string\r.\n   ";
-  icu::UnicodeString clean = normalize_spaces( dirty );
-  icu::UnicodeString wanted = "A dirty string.";
+  UnicodeString dirty = "    A    dir\ty \n  string\r.\n   ";
+  UnicodeString clean = normalize_spaces( dirty );
+  UnicodeString wanted = "A dirty string.";
   if ( clean != wanted ){
     cerr << "normalize_space() failed: got:'" << clean << "'"
 	 << "                 but expected:'" << wanted << "'" << endl;
