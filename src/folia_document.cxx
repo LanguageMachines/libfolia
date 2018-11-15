@@ -853,6 +853,7 @@ namespace folia {
       debug = TiCC::stringTo<int>( it->second );
       kwargs.erase(it);
     }
+    it = kwargs.find( "mode" );
     if ( it != kwargs.end() ){
       setmode( it->second );
       kwargs.erase(it);
