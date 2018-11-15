@@ -86,41 +86,45 @@ namespace folia {
     init();
   }
 
-  Document::Document( const string& args ) {
+  Document::Document( const KWargs& kwargs ) {
     init();
-    KWargs kwargs = getArgs( args );
-    auto it = kwargs.find( "file" );
-    if ( it != kwargs.end() ){
+    KWargs args = kwargs;
+    auto it = args.find( "file" );
+    if ( it != args.end() ){
       // extract a Document from a file
       readFromFile( it->second );
-      kwargs.erase(it);
+      args.erase(it);
     }
     else {
-      it = kwargs.find( "string" );
-      if ( it != kwargs.end() ){
+      it = args.find( "string" );
+      if ( it != args.end() ){
 	// extract a Document from a string
 	readFromString( it->second );
-	kwargs.erase(it);
+	args.erase(it);
       }
     }
     if ( !foliadoc ){
       // so NO 'file' or 'string' argument.
       // create an 'empty' document, with a FoLiA root node.
-      foliadoc = new FoLiA( kwargs, this );
+      foliadoc = new FoLiA( args, this );
     }
   }
 
-  string library_version(){
+  string folia_version(){
     stringstream ss;
     ss << MAJOR_VERSION << "." << MINOR_VERSION << "." << SUB_VERSION;
     return ss.str();
+  }
+
+  string library_version(){
+    return VERSION;
   }
 
   string Document::update_version(){
     // override the document version with the current library version
     // return the old value
     string old = _version_string;
-    _version_string = library_version();
+    _version_string = folia_version();
     return old;
   }
 
@@ -133,7 +137,7 @@ namespace folia {
     _foliaNsOut = 0;
     debug = 0;
     mode = CHECKTEXT;
-    _version_string = library_version();
+    _version_string = folia_version();
     external = false;
   }
 
@@ -830,7 +834,7 @@ namespace folia {
       kwargs.erase( it );
     }
     else {
-      _version_string = library_version();
+      _version_string = folia_version();
     }
     expand_version_string( _version_string,
 			   major_version,
@@ -839,7 +843,7 @@ namespace folia {
 			   patch_version );
     if ( check_version( _version_string ) > 0 ){
       cerr << "WARNING!!! FoLiA Document is a newer version than this library ("
-	   << _version_string << " vs " << library_version()
+	   << _version_string << " vs " << folia_version()
 	   << ")\n\t Any possible subsequent failures in parsing or processing may probably be attributed to this." << endl
 	   << "\t Please upgrade libfolia!" << endl;
     }

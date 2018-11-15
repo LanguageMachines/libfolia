@@ -83,7 +83,8 @@ namespace folia {
 
   public:
     Document();
-    explicit Document( const std::string& );
+    explicit Document( const KWargs& );
+    explicit Document( const std::string& s): Document( getArgs(s) ){};
     ~Document();
     void init();
     bool readFromFile( const std::string& );
@@ -286,6 +287,7 @@ namespace folia {
 			      int&, int&, int&, std::string& );
 
   std::string library_version();
+  std::string folia_version();
 
 } // namespace folia
 
