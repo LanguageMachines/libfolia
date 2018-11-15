@@ -40,6 +40,8 @@
 #include "libxml/xpath.h"
 #include "libfolia/folia.h"
 
+using namespace icu;
+
 namespace folia {
   void initMT();
 
@@ -56,7 +58,7 @@ namespace folia {
     Pattern( const std::vector<std::string>&,  const std::string& );
 
     ~Pattern();
-    bool match( const icu::UnicodeString& , size_t&, int&, bool&, bool& ) const;
+    bool match( const UnicodeString& , size_t&, int&, bool&, bool& ) const;
     size_t size() const { return sequence.size(); };
     void unsetwild();
     bool variablesize() const;
@@ -66,8 +68,8 @@ namespace folia {
   private:
     bool case_sensitive;
     int maxgapsize;
-    std::vector<icu::UnicodeString> sequence;
-    std::vector<icu::RegexMatcher*> matchers;
+    std::vector<UnicodeString> sequence;
+    std::vector<RegexMatcher*> matchers;
     std::string matchannotationset;
   };
 
@@ -109,9 +111,9 @@ namespace folia {
     void set_foreign_metadata( xmlNode * );
     void addStyle( const std::string&, const std::string& );
     void replaceStyle( const std::string&, const std::string& );
-    icu::UnicodeString text( const std::string& = "current",
-			     bool = false,
-			     bool = false ) const;
+    UnicodeString text( const std::string& = "current",
+			bool = false,
+			bool = false ) const;
     std::vector<Paragraph*> paragraphs() const;
     std::vector<Sentence*> sentences() const;
     std::vector<Sentence*> sentenceParts() const;

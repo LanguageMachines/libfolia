@@ -47,6 +47,7 @@
 #include "libxml/xmlstring.h"
 
 using namespace std;
+using namespace icu;
 
 namespace folia {
   using TiCC::operator<<;
@@ -453,7 +454,7 @@ namespace folia {
       throw range_error( "Document index out of range" );
   }
 
-  icu::UnicodeString Document::text( const std::string& cls,
+  UnicodeString Document::text( const std::string& cls,
 				bool retaintok,
 				bool strict ) const {
     return foliadoc->text( cls, retaintok, strict );
@@ -1810,7 +1811,7 @@ namespace folia {
       bool goon = true;
       for ( size_t i = startpos; i < mywords.size() && goon ; ++i ){
 	//      cerr << "inner LOOP I = " << i << " myword=" << mywords[i] << endl;
-	icu::UnicodeString value;
+	UnicodeString value;
 	if ( pat.matchannotation == BASE )
 	  value = mywords[i]->text();
 	else {
@@ -1938,9 +1939,9 @@ namespace folia {
       if ( pat.find( "regexp('" ) == 0 &&
 	   pat.rfind( "')" ) == pat.length()-2 ){
 	string tmp = pat.substr( 8, pat.length() - 10 );
-	icu::UnicodeString us = TiCC::UnicodeFromUTF8( tmp );
+	UnicodeString us = TiCC::UnicodeFromUTF8( tmp );
 	UErrorCode u_stat = U_ZERO_ERROR;
-	icu::RegexMatcher *matcher = new icu::RegexMatcher(us, 0, u_stat);
+	RegexMatcher *matcher = new RegexMatcher(us, 0, u_stat);
 	if ( U_FAILURE(u_stat) ){
 	  throw runtime_error( "failed to create a regexp matcher with '" + tmp + "'" );
 	}
@@ -1975,9 +1976,9 @@ namespace folia {
       if ( pat.find( "regexp('" ) == 0 &&
 	   pat.rfind( "')" ) == pat.length()-2 ){
 	string tmp = pat.substr( 8, pat.length() - 10 );
-	icu::UnicodeString us = TiCC::UnicodeFromUTF8( tmp );
+	UnicodeString us = TiCC::UnicodeFromUTF8( tmp );
 	UErrorCode u_stat = U_ZERO_ERROR;
-	icu::RegexMatcher *matcher = new icu::RegexMatcher(us, 0, u_stat);
+	RegexMatcher *matcher = new RegexMatcher(us, 0, u_stat);
 	if ( U_FAILURE(u_stat) ){
 	  throw runtime_error( "failed to create a regexp matcher with '" + tmp + "'" );
 	}
@@ -2006,9 +2007,9 @@ namespace folia {
     return os;
   }
 
-  bool Pattern::match( const icu::UnicodeString& us, size_t& pos, int& gap,
+  bool Pattern::match( const UnicodeString& us, size_t& pos, int& gap,
 		       bool& done, bool& flag ) const {
-    icu::UnicodeString s = us;
+    UnicodeString s = us;
     //  cerr << "gap = " << gap << "cursor=" << pos << " vergelijk '" <<  sequence[pos] << "' met '" << us << "'" << endl;
     if ( matchers[pos] ){
       matchers[pos]->reset( s );

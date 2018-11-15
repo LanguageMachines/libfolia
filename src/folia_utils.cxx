@@ -42,6 +42,7 @@
 
 using namespace std;
 using namespace TiCC;
+using namespace icu;
 
 namespace folia {
 
@@ -482,10 +483,10 @@ namespace folia {
     return true;
   }
 
-  icu::UnicodeString normalize_spaces( const icu::UnicodeString& input ){
+  UnicodeString normalize_spaces( const UnicodeString& input ){
     // substitute \n \r \t by spaces AND all multiple spaces by 1
     // also trims at back and front.
-    icu::UnicodeString result;
+    UnicodeString result;
     bool is_space = false;
     for ( int i=0; i < input.length(); ++i ){
       if ( u_isspace( input[i] ) ){
