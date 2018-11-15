@@ -2025,16 +2025,18 @@ namespace folia {
 	catch (...){
 	}
 	if ( !s1.isEmpty() ){
+	  //	  cerr << "S1: " << s1 << endl;
 	  try {
 	    s2 = text( st, false, false ); // no retain tokenization, no strict
 	  }
 	  catch (...){
 	  }
+	  //	  cerr << "S2: " << s2 << endl;
 	  s1 = normalize_spaces( s1 );
 	  s2 = normalize_spaces( s2 );
 	  if ( !s2.isEmpty() && s1 != s2 ){
 	    if ( doc()->fixtext() ){
-	      //	      cerr << "FIX: " << mess << endl;
+	      //	      cerr << "FIX: " << s1 << "==>" << s2 << endl;
 	      KWargs args;
 	      args["value"] = TiCC::UnicodeToUTF8(s2);
 	      args["class"] = st;

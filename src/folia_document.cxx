@@ -89,6 +89,7 @@ namespace folia {
   Document::Document( const KWargs& kwargs ) {
     init();
     KWargs args = kwargs;
+    setDocumentProps( args );
     auto it = args.find( "file" );
     if ( it != args.end() ){
       // extract a Document from a file
@@ -835,6 +836,7 @@ namespace folia {
       debug = TiCC::stringTo<int>( it->second );
       kwargs.erase(it);
     }
+    it = kwargs.find( "mode" );
     if ( it != kwargs.end() ){
       setmode( it->second );
       kwargs.erase(it);
@@ -863,6 +865,10 @@ namespace folia {
       }
       happy = true;
     }
+    if ( kwargs.find("string") != kwargs.end()
+	 || kwargs.find("file") != kwargs.end() ){
+      happy = true;
+    }
     if ( !foliadoc && !happy ){
       throw runtime_error( "No Document ID specified" );
     }
@@ -885,7 +891,7 @@ namespace folia {
 	     << endl;
       }
     }
-    if ( version_below( 1, 5 ) ){
+    if ( !( mode & FIXTEXT) && version_below( 1, 5 ) ){
       // don't check text consistency for older documents
       mode = Mode( int(mode) & ~CHECKTEXT );
     }
