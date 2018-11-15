@@ -256,7 +256,7 @@ namespace folia {
     std::map<std::string,MetaData *> submetadata;
     std::multimap<std::string,std::string> styles;
     mutable Mode mode;
-    std::string filename;
+    std::string _source_filename;
     std::string _version_string;
     int major_version;
     int minor_version;

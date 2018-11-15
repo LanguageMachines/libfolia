@@ -3615,7 +3615,7 @@ namespace folia {
       throw XmlError( "empty id in WordReference" );
     }
     if ( mydoc->debug ) {
-      cerr << "Found word reference" << id << endl;
+      cerr << "Found word reference: " << id << endl;
     }
     FoliaElement *ref = (*mydoc)[id];
     if ( ref ) {

@@ -1107,6 +1107,7 @@ namespace folia {
     FoliaImpl( PROPS, d ) { classInit( a ); }
 
     FoliaElement* parseXml( const xmlNode * );
+    void setAttributes( const KWargs& );
     const icu::UnicodeString text( const std::string& = "current",
 			      bool = false, bool = false ) const;
   private:

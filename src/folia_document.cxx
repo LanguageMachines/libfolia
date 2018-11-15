@@ -49,6 +49,7 @@
 using namespace std;
 
 namespace folia {
+  using TiCC::operator<<;
 
   void initMT(){
     // a NO_OP now
@@ -88,6 +89,20 @@ namespace folia {
   Document::Document( const string& args ) {
     init();
     KWargs kwargs = getArgs( args );
+    auto it = kwargs.find( "file" );
+    if ( it != kwargs.end() ){
+      string s = it->second;
+      readFromFile( s );
+      kwargs.erase(it);
+    }
+    else {
+      it = kwargs.find( "string" );
+      if ( it != kwargs.end() ){
+	string s = it->second;
+	readFromString( s );
+	kwargs.erase(it);
+      }
+    }
     setDocumentProps( kwargs );
     if ( !foliadoc ){
       foliadoc = new FoLiA( kwargs, this );
@@ -269,6 +284,7 @@ namespace folia {
       throw runtime_error( "Document is already initialized" );
       return false;
     }
+    _source_filename = s;
     if ( TiCC::match_back( s, ".bz2" ) ){
       string buffer = TiCC::bz2ReadFile( s );
       return readFromString( buffer );
@@ -292,10 +308,11 @@ namespace folia {
       }
       if ( debug ){
 	if ( foliadoc ){
-	  cout << "successful parsed the doc" << endl;
+	  cout << "successful parsed the doc from: " << s << endl;
 	}
-	else
-	  cout << "failed to parse the doc" << endl;
+	else {
+	  cout << "failed to parse the doc from: " << s << endl;
+	}
       }
       xmlFreeDoc( _xmldoc );
       _xmldoc = 0;
@@ -643,7 +660,6 @@ namespace folia {
   }
 
   void Document::parsesubmeta( const xmlNode *node ){
-    using TiCC::operator<<;
     if ( node ){
       KWargs att = getAttributes( node );
       string id = att["_id"];
@@ -830,10 +846,11 @@ namespace folia {
     it = kwargs.find( "debug" );
     if ( it != kwargs.end() ){
       debug = TiCC::stringTo<int>( it->second );
+      kwargs.erase(it);
     }
-    it = kwargs.find( "mode" );
     if ( it != kwargs.end() ){
       setmode( it->second );
+      kwargs.erase(it);
     }
     it = kwargs.find( "external" );
     if ( it != kwargs.end() ){
@@ -858,21 +875,7 @@ namespace folia {
       }
       happy = true;
     }
-    else {
-      it = kwargs.find( "file" );
-      if ( it != kwargs.end() ){
-	filename = it->second;
-	happy = readFromFile(filename);
-      }
-      else {
-	it = kwargs.find( "string" );
-	if ( it != kwargs.end() ){
-	  string s = it->second;
-	  happy = readFromString( s );
-	}
-      }
-    }
-    if ( !happy ){
+   if ( !foliadoc && !happy ){
       throw runtime_error( "No ID, valid filename or string specified" );
     }
     kwargs.erase( "generator" ); // also delete unused att-val(s)
@@ -908,6 +911,26 @@ namespace folia {
     }
   }
 
+  void FoLiA::setAttributes( const KWargs& args ){
+    KWargs atts = args;
+    auto it = atts.find( "file" );
+    if ( it != atts.end() ){
+      string s = it->second;
+      mydoc->readFromFile( s );
+      atts.erase(it);
+    }
+    else {
+      it = atts.find( "string" );
+      if ( it != atts.end() ){
+	string s = it->second;
+	mydoc->readFromString( s );
+	atts.erase(it);
+      }
+    }
+    mydoc->setDocumentProps( atts );
+    FoliaImpl::setAttributes( atts );
+  }
+
   FoliaElement* FoLiA::parseXml( const xmlNode *node ){
     ///
     /// recursively parse a complete FoLiA tree from @node
@@ -916,9 +939,8 @@ namespace folia {
     if ( !mydoc ){
       throw logic_error( "FoLiA root without Document" );
     }
-    KWargs att = getAttributes( node );
-    mydoc->setDocumentProps( att );
-    setAttributes( att );
+    KWargs atts = getAttributes( node );
+    setAttributes( atts );
     xmlNode *p = node->children;
     while ( p ){
       if ( p->type == XML_ELEMENT_NODE ){
@@ -1039,8 +1061,7 @@ namespace folia {
   }
 
   FoliaElement* Document::parseFoliaDoc( const xmlNode *root ){
-    KWargs args;
-    FoLiA *folia = new FoLiA( args, this );
+    FoLiA *folia = new FoLiA( this );
     if ( debug > 2 ){
       cerr << "created Root" << endl;
     }
