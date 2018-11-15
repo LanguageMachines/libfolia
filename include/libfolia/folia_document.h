@@ -233,7 +233,6 @@ namespace folia {
     std::vector<TextContent*> t_offset_validation_buffer;
     std::vector<PhonContent*> p_offset_validation_buffer;
 
-    FoliaElement* parseFoliaDoc( const xmlNode * );
     void setimdi( xmlNode * );
     void parseannotations( const xmlNode * );
     void parsesubmeta( const xmlNode * );
@@ -258,7 +257,7 @@ namespace folia {
     std::map<std::string,MetaData *> submetadata;
     std::multimap<std::string,std::string> styles;
     mutable Mode mode;
-    std::string filename;
+    std::string _source_filename;
     std::string _version_string;
     int major_version;
     int minor_version;
