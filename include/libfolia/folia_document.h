@@ -231,7 +231,6 @@ namespace folia {
     std::vector<TextContent*> t_offset_validation_buffer;
     std::vector<PhonContent*> p_offset_validation_buffer;
 
-    FoliaElement* parseFoliaDoc( const xmlNode * );
     void setimdi( xmlNode * );
     void parseannotations( const xmlNode * );
     void parsesubmeta( const xmlNode * );

@@ -91,20 +91,21 @@ namespace folia {
     KWargs kwargs = getArgs( args );
     auto it = kwargs.find( "file" );
     if ( it != kwargs.end() ){
-      string s = it->second;
-      readFromFile( s );
+      // extract a Document from a file
+      readFromFile( it->second );
       kwargs.erase(it);
     }
     else {
       it = kwargs.find( "string" );
       if ( it != kwargs.end() ){
-	string s = it->second;
-	readFromString( s );
+	// extract a Document from a string
+	readFromString( it->second );
 	kwargs.erase(it);
       }
     }
-    setDocumentProps( kwargs );
     if ( !foliadoc ){
+      // so NO 'file' or 'string' argument.
+      // create an 'empty' document, with a FoLiA root node.
       foliadoc = new FoLiA( kwargs, this );
     }
   }
@@ -1049,16 +1050,6 @@ namespace folia {
     _metadata = result;
   }
 
-  FoliaElement* Document::parseFoliaDoc( const xmlNode *root ){
-    FoLiA *folia = new FoLiA( this );
-    if ( debug > 2 ){
-      cerr << "created Root" << endl;
-    }
-    FoliaElement *result = folia->parseXml( root );
-    resolveExternals();
-    return result;
-  }
-
   void Document::addStyle( const string& type, const string& href ){
     if ( type == "text/xsl" ){
       const auto& it = styles.find( type );
@@ -1210,17 +1201,9 @@ namespace folia {
 			  + NSFOLIA + " but found: " + ns );
 	}
 	try {
-	  result = parseFoliaDoc( root );
-	  if ( result ){
-	    if ( isNCName( result->id() ) )
-	      _id = result->id();
-	    else {
-	      // can this ever happen? parseFoliaDoc should fail
-	      throw XmlError( "'"
-			      + result->id()
-			      + "' is not a valid NCName." );
-	    }
-	  }
+	  FoLiA *folia = new FoLiA( this );
+	  result = folia->parseXml( root );
+	  resolveExternals();
 	}
 	catch ( InconsistentText& e ){
 	  throw;
