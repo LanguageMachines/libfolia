@@ -842,7 +842,6 @@ namespace folia {
 	   << ")\n\t Any possible subsequent failures in parsing or processing may probably be attributed to this." << endl
 	   << "\t Please upgrade libfolia!" << endl;
     }
-    bool happy = false;
     it = kwargs.find( "debug" );
     if ( it != kwargs.end() ){
       debug = TiCC::stringTo<int>( it->second );
@@ -860,6 +859,7 @@ namespace folia {
     else {
       external = false;
     }
+    bool happy = false;
     it = kwargs.find( "_id" );
     if ( it == kwargs.end() ){
       it = kwargs.find( "id" );
@@ -913,7 +913,10 @@ namespace folia {
 
   void FoLiA::setAttributes( const KWargs& args ){
     KWargs atts = args;
+    // we store some attributes in the document itself
     mydoc->setDocumentProps( atts );
+    // use remaining attributes for the FoLiA node
+    // probably onlye the ID
     FoliaImpl::setAttributes( atts );
   }
 
