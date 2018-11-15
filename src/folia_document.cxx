@@ -89,7 +89,8 @@ namespace folia {
   Document::Document( const KWargs& kwargs ) {
     init();
     KWargs args = kwargs;
-    setDocumentProps( args );
+    setDocumentProps( args ); // sets things like 'mode' for the document
+                              // this cannot wait. needed for parsing
     auto it = args.find( "file" );
     if ( it != args.end() ){
       // extract a Document from a file
