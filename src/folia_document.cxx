@@ -875,8 +875,8 @@ namespace folia {
       }
       happy = true;
     }
-   if ( !foliadoc && !happy ){
-      throw runtime_error( "No ID, valid filename or string specified" );
+    if ( !foliadoc && !happy ){
+      throw runtime_error( "No Document ID specified" );
     }
     kwargs.erase( "generator" ); // also delete unused att-val(s)
     const char *env = getenv( "FOLIA_TEXT_CHECK" );
@@ -913,20 +913,6 @@ namespace folia {
 
   void FoLiA::setAttributes( const KWargs& args ){
     KWargs atts = args;
-    auto it = atts.find( "file" );
-    if ( it != atts.end() ){
-      string s = it->second;
-      mydoc->readFromFile( s );
-      atts.erase(it);
-    }
-    else {
-      it = atts.find( "string" );
-      if ( it != atts.end() ){
-	string s = it->second;
-	mydoc->readFromString( s );
-	atts.erase(it);
-      }
-    }
     mydoc->setDocumentProps( atts );
     FoliaImpl::setAttributes( atts );
   }
@@ -936,10 +922,10 @@ namespace folia {
     /// recursively parse a complete FoLiA tree from @node
     /// the topnode is special, as it carries the main document properties
     ///
+    KWargs atts = getAttributes( node );
     if ( !mydoc ){
       throw logic_error( "FoLiA root without Document" );
     }
-    KWargs atts = getAttributes( node );
     setAttributes( atts );
     xmlNode *p = node->children;
     while ( p ){
