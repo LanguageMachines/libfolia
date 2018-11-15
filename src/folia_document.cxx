@@ -89,6 +89,7 @@ namespace folia {
   Document::Document( const KWargs& kwargs ) {
     init();
     KWargs args = kwargs;
+    setDocumentProps( args );
     auto it = args.find( "file" );
     if ( it != args.end() ){
       // extract a Document from a file
@@ -878,6 +879,10 @@ namespace folia {
 			+ it->second
 			+ "' is not a valid NCName." );
       }
+      happy = true;
+    }
+    if ( kwargs.find("string") != kwargs.end()
+	 || kwargs.find("file") != kwargs.end() ){
       happy = true;
     }
     if ( !foliadoc && !happy ){
