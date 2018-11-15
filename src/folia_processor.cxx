@@ -275,11 +275,17 @@ namespace folia {
 	  if ( !in_args.empty() ){
 	    id = in_args["_id"];
 	  }
+	  for ( auto it =in_args.begin(); it != in_args.end();  ){
+	    // remove all xmlns: attributes
+	    if ( it->first.find( "xmlns" ) == 0 ){
+	      it = in_args.erase( it );
+	    }
+	    else {
+	      ++it;
+	    }
+	  }
 	  if ( !id.empty() ){
-	    _out_doc->setDocumentProps( in_args );
-	    KWargs out_args;
-	    out_args["id"] = id;
-	    FoliaElement *root = new FoLiA( out_args, _out_doc );
+	    FoliaElement *root = new FoLiA( in_args, _out_doc );
 	    _out_doc->foliadoc = root;
 	  }
 	  else {

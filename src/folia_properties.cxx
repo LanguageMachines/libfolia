@@ -19,7 +19,7 @@ namespace folia {
 
   //foliaspec:version_minor:MINOR_VERSION
   //The FoLiA version (minor)
-  const int MINOR_VERSION = 20;
+  const int MINOR_VERSION = 5;
 
   //foliaspec:version_sub:SUB_VERSION
   //The FoLiA version (sub/rev)

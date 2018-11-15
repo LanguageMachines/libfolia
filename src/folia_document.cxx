@@ -112,10 +112,8 @@ namespace folia {
 
   Document::Document( const KWargs& args ) {
     init();
-    KWargs kwargs = args;
-    setDocumentProps( kwargs );
     if ( !foliadoc ){
-      foliadoc = new FoLiA( kwargs, this );
+      foliadoc = new FoLiA( args, this );
     }
   }
 
@@ -828,7 +826,7 @@ namespace folia {
       kwargs.erase( it );
     }
     else {
-      _version_string = library_version();
+      _version_string = folia_version();
     }
     expand_version_string( _version_string,
 			   major_version,
@@ -837,7 +835,7 @@ namespace folia {
 			   patch_version );
     if ( check_version( _version_string ) > 0 ){
       cerr << "WARNING!!! FoLiA Document is a newer version than this library ("
-	   << _version_string << " vs " << library_version()
+	   << _version_string << " vs " << folia_version()
 	   << ")\n\t Any possible subsequent failures in parsing or processing may probably be attributed to this." << endl
 	   << "\t Please upgrade libfolia!" << endl;
     }
