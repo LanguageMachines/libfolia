@@ -1429,8 +1429,8 @@ namespace folia {
   }
 
   FoliaElement* Document::append( FoliaElement *t ){  // OBSOLETE
-    cerr << "\nWARNING!! Obsolete Document::append() function is used. "
-	 << "Please replace by Document::setRoot() ASAP." << endl;
+    // cerr << "\nWARNING!! Obsolete Document::append() function is used. "
+    // 	 << "Please replace by Document::setRoot() ASAP." << endl;
     return setRoot(t);
   }
 
