@@ -231,7 +231,7 @@ namespace folia {
       int result = stringTo<int>( ms );
       return result - 1;
     }
-    catch( exception ){
+    catch( const exception& ){
       string m = TiCC::lowercase( ms );
       if ( m == "jan" )
 	return 0;
