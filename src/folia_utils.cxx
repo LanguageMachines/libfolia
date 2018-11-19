@@ -53,7 +53,7 @@ namespace folia {
     try {
       et = stringToET( tag );
     }
-    catch ( ValueError& e ){
+    catch ( const ValueError& e ){
       cerr << e.what() << endl;
       return 0;
     }
@@ -231,7 +231,7 @@ namespace folia {
       int result = stringTo<int>( ms );
       return result - 1;
     }
-    catch( exception ){
+    catch( const exception& ){
       string m = TiCC::lowercase( ms );
       if ( m == "jan" )
 	return 0;
@@ -386,7 +386,7 @@ namespace folia {
 	try {
 	  stringTo<AnnotationType::AnnotationType>( s );
 	}
-	catch ( ValueError& e ){
+	catch ( const ValueError& e ){
 	  cerr << "no AnnotationType found for string '" << s << "'" << endl;
 	  sane = false;
 	}
@@ -423,7 +423,7 @@ namespace folia {
 	try {
 	  et2 = stringToET( s );
 	}
-	catch ( ValueError& e ){
+	catch ( const ValueError& e ){
 	  cerr << "no element type found for string '" << s << "'" << endl;
 	  sane = false;
 	  continue;
@@ -438,7 +438,7 @@ namespace folia {
 	try {
 	  tmp1 = FoliaImpl::createElement( s );
 	}
-	catch( ValueError &e ){
+	catch( const ValueError &e ){
 	  string err = e.what();
 	  if ( err.find("abstract") ==string::npos ){
 	    cerr << "createElement(" << s << ") failed! :" << err << endl;
@@ -450,7 +450,7 @@ namespace folia {
 	  try {
 	    tmp2 = FoliaImpl::createElement( et );
 	  }
-	  catch( ValueError &e ){
+	  catch( const ValueError &e ){
 	    string err = e.what();
 	    if ( err.find("abstract") == string::npos ){
 	      cerr << "createElement(" << int(et) << ") failed! :" << err << endl;

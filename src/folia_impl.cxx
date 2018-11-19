@@ -934,11 +934,11 @@ namespace folia {
     try {
       us = text(cls);
     }
-    catch( NoSuchText& e ){
+    catch( const NoSuchText& e ){
       try {
 	us = phon(cls);
       }
-      catch( NoSuchPhon& e ){
+      catch( const NoSuchPhon& e ){
 	// No TextContent or Phone allowed
       }
     }
@@ -985,7 +985,7 @@ namespace folia {
     try {
       this->textcontent(cls);
       return true;
-    } catch (NoSuchText& e ) {
+    } catch (const NoSuchText& e ) {
       return false;
     }
   }
@@ -996,7 +996,7 @@ namespace folia {
     try {
       this->phoncontent(cls);
       return true;
-    } catch (NoSuchPhon& e ) {
+    } catch ( const NoSuchPhon& e ) {
       return false;
     }
   }
@@ -1206,7 +1206,7 @@ namespace folia {
 #endif
 	    seps.push_back(TiCC::UnicodeFromUTF8(delim));
 	  }
-	} catch ( NoSuchText& e ) {
+	} catch ( const NoSuchText& e ) {
 #ifdef DEBUG_TEXT
 	  cerr << "HELAAS" << endl;
 #endif
@@ -1301,7 +1301,7 @@ namespace folia {
       else if ( el->element_id() == Correction_t) {
 	try {
 	  return el->textcontent(cls);
-	} catch ( NoSuchText& e ) {
+	} catch ( const NoSuchText& e ) {
 	  // continue search for other Corrections or a TextContent
 	}
       }
@@ -1335,7 +1335,7 @@ namespace folia {
       else if ( el->element_id() == Correction_t) {
 	try {
 	  return el->phoncontent(cls);
-	} catch ( NoSuchPhon& e ) {
+	} catch ( const NoSuchPhon& e ) {
 	  // continue search for other Corrections or a TextContent
 	}
       }
@@ -1405,7 +1405,7 @@ namespace folia {
 	  cerr << "deepphon:delimiter van "<< child->xmltag() << " ='" << delim << "'" << endl;
 #endif
 	  seps.push_back(TiCC::UnicodeFromUTF8(delim));
-	} catch ( NoSuchPhon& e ) {
+	} catch ( const NoSuchPhon& e ) {
 #ifdef DEBUG_PHON
 	  cerr << "HELAAS" << endl;
 #endif
@@ -1746,12 +1746,12 @@ namespace folia {
       ok = child->checkAtts();
       ok &= addable( child );
     }
-    catch ( XmlError& ) {
+    catch ( const XmlError& ) {
       // don't delete the offending child in case of illegal reconnection
       // it will be deleted by the true parent
       throw;
     }
-    catch ( exception& ) {
+    catch ( const exception& ) {
       delete child;
       throw;
     }
@@ -1964,7 +1964,7 @@ namespace folia {
 	    try {
 	      t = t->parseXml( p );
 	    }
-	    catch ( ValueError& e ){
+	    catch ( const ValueError& e ){
 	      delete t;
 	      t = 0;
 	    }
@@ -2086,7 +2086,7 @@ namespace folia {
     try {
       res = annotation<PosAnnotation>( st );
     }
-    catch( NoSuchAnnotation& e ) {
+    catch( const NoSuchAnnotation& e ) {
       res = 0;
     }
     // now search for alternatives
@@ -2137,7 +2137,7 @@ namespace folia {
     try {
       res = annotation<LemmaAnnotation>( st );
     }
-    catch( NoSuchAnnotation& e ) {
+    catch( const NoSuchAnnotation& e ) {
       // ok
       res = 0;
     }
@@ -2188,7 +2188,7 @@ namespace folia {
     try {
       res = annotation<MorphologyLayer>( st );
     }
-    catch( NoSuchAnnotation& e ) {
+    catch( const NoSuchAnnotation& e ) {
       // ok
       res = 0;
     }
@@ -2217,7 +2217,7 @@ namespace folia {
     try {
       res->setAttributes( kw );
     }
-    catch( DuplicateIDError& e ) {
+    catch( const DuplicateIDError& e ) {
       delete res;
       throw;
     }
@@ -2235,7 +2235,7 @@ namespace folia {
     try {
       res->setAttributes( kw );
     }
-    catch( DuplicateIDError& e ) {
+    catch( const DuplicateIDError& e ) {
       delete res;
       throw;
     }
@@ -2705,7 +2705,7 @@ namespace folia {
 	cerr << "PhonContent found '" << tmp << "'" << endl;
 #endif
 	result += tmp;
-      } catch ( NoSuchPhon& e ) {
+      } catch ( const NoSuchPhon& e ) {
 #ifdef DEBUG_TEXT
 	cerr << "PhonContent::HELAAS" << endl;
 #endif
@@ -2754,7 +2754,7 @@ namespace folia {
 	try {
 	  i = stringTo<int>( val );
 	}
-	catch ( exception ) {
+	catch ( const exception& ) {
 	  // no number, so assume some user defined id
 	  return;
 	}
@@ -2818,7 +2818,7 @@ namespace folia {
       try {
 	corr = dynamic_cast<Correction*>(mydoc->index(it->second));
       }
-      catch ( exception& e ) {
+      catch ( const exception& e ) {
 	throw ValueError("reuse= must point to an existing correction id!");
       }
       if ( !corr->isinstance( Correction_t ) ) {
@@ -4227,13 +4227,12 @@ namespace folia {
     return this;
   }
 
-  static int error_sink(void *mydata, xmlError *error ) {
+  static void error_sink(void *mydata, xmlError *error ) {
     int *cnt = (int*)mydata;
     if ( *cnt == 0 ) {
       cerr << "\nXML-error: " << error->message << endl;
     }
     (*cnt)++;
-    return 1;
   }
 
   void External::resolve_external( ) {
