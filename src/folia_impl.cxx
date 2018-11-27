@@ -46,6 +46,7 @@
 #include "config.h"
 
 using namespace std;
+using namespace icu;
 using namespace TiCC;
 using namespace icu;
 
@@ -583,7 +584,14 @@ namespace folia {
       kwargs.erase( it );
     }
     if ( mydoc && !_id.empty() ) {
-      mydoc->addDocIndex( this, _id );
+      try {
+	mydoc->addDocIndex( this, _id );
+      }
+      catch ( const DuplicateIDError& e ){
+	if ( element_id() != WordReference_t ){
+	  throw;
+	}
+      }
     }
     addFeatureNodes( kwargs );
   }
@@ -724,12 +732,31 @@ namespace folia {
     return attribs;
   }
 
-  const string FoliaElement::xmlstring() const{
+  const string FoliaElement::xmlstring( bool add_ns ) const{
     // serialize to a string (XML fragment)
     xmlNode *n = xml( true, false );
-    xmlSetNs( n, xmlNewNs( n, (const xmlChar *)NSFOLIA.c_str(), 0 ) );
+    if ( add_ns ){
+      xmlSetNs( n, xmlNewNs( n, (const xmlChar *)NSFOLIA.c_str(), 0 ) );
+    }
     xmlBuffer *buf = xmlBufferCreate();
     xmlNodeDump( buf, 0, n, 0, 0 );
+    string result = (const char*)xmlBufferContent( buf );
+    xmlBufferFree( buf );
+    xmlFreeNode( n );
+    return result;
+  }
+
+  const string FoliaElement::xmlstring( bool format,
+					int indent,
+					bool add_ns ) const{
+    // serialize to a string (XML fragment)
+    xmlNode *n = xml( true, false );
+    if ( add_ns ){
+      xmlSetNs( n, xmlNewNs( n, (const xmlChar *)NSFOLIA.c_str(), 0 ) );
+    }
+    xmlBuffer *buf = xmlBufferCreate();
+    //    xmlKeepBlanksDefault(0);
+    xmlNodeDump( buf, 0, n, indent, (format?1:0) );
     string result = (const char*)xmlBufferContent( buf );
     xmlBufferFree( buf );
     xmlFreeNode( n );
@@ -772,25 +799,28 @@ namespace folia {
       // no retain tokenization, strict for both
       s1 = normalize_spaces( s1 );
       s2 = normalize_spaces( s2 );
-      bool test_fail;
-      if ( isSubClass( Word_t )
-	   || isSubClass( String_t ) ){
-	// Words and Strings are 'per definition' PART of there parents
-	test_fail = ( s1.indexOf( s2 ) < 0 ); // aren't they?
-      }
-      else {
-	// otherwise an exacte match is needed
-	test_fail = ( s1 != s2 );
-      }
-      if ( test_fail ){
-	throw InconsistentText( "text (class="
-				+ cls + ") from node: " + child->xmltag()
-				+ "(" + child->id() + ")"
-				+ " with value '" + TiCC::UnicodeToUTF8(s2)
-				+ "' to element: " + parent->xmltag() +
-				+ "(" + parent->id() + ") which already has "
-				+ "text in that class and value: '"
-				+ TiCC::UnicodeToUTF8(s1) + "'" );
+      if ( !s1.isEmpty() && !s2.isEmpty() ){
+	bool test_fail;
+	if ( isSubClass( Word_t )
+	     || child->isSubClass( TextContent_t )
+	     || isSubClass( String_t ) ){
+	  // Words and Strings are 'per definition' PART of there parents
+	  test_fail = ( s1.indexOf( s2 ) < 0 ); // aren't they?
+	}
+	else {
+	  // otherwise an exacte match is needed
+	  test_fail = ( s1 != s2 );
+	}
+	if ( test_fail ){
+	  throw InconsistentText( "text (class="
+				  + cls + ") from node: " + child->xmltag()
+				  + "(" + child->id() + ")"
+				  + " with value\n'" + TiCC::UnicodeToUTF8(s2)
+				  + "'\n to element: " + parent->xmltag() +
+				  + "(" + parent->id() + ") which already has "
+				  + "text in that class and value: \n'"
+				  + TiCC::UnicodeToUTF8(s1) + "'\n" );
+	}
       }
     }
   }
@@ -828,11 +858,11 @@ namespace folia {
 	throw InconsistentText( "text (class="
 				+ cls + ") from node: " + xmltag()
 				+ "(" + id() + ")"
-				+ " with value '" + TiCC::UnicodeToUTF8(s2)
-				+ "' to element: " + parent->xmltag() +
+				+ " with value\n'" + TiCC::UnicodeToUTF8(s2)
+				+ "'n to element: " + parent->xmltag() +
 				+ "(" + parent->id() + ") which already has "
-				+ "text in that class and value: '"
-				+ TiCC::UnicodeToUTF8(s1) + "'" );
+				+ "text in that class and value: \n'"
+				+ TiCC::UnicodeToUTF8(s1) + "'\n" );
       }
     }
   }
@@ -985,7 +1015,7 @@ namespace folia {
     try {
       this->textcontent(cls);
       return true;
-    } catch (const NoSuchText& e ) {
+    } catch ( const NoSuchText& e ) {
       return false;
     }
   }
@@ -1635,7 +1665,7 @@ namespace folia {
       string val = c->str();
       val = trim( val );
       if ( val.empty() ) {
-	throw ValueError( "attempt to add an empty <t> to word: " + _id );
+     	throw ValueError( "attempt to add an empty <t> to word: " + _id );
       }
     }
     if ( c->element_id() == TextContent_t ){
@@ -1997,16 +2027,18 @@ namespace folia {
 	catch (...){
 	}
 	if ( !s1.isEmpty() ){
+	  //	  cerr << "S1: " << s1 << endl;
 	  try {
 	    s2 = text( st, false, false ); // no retain tokenization, no strict
 	  }
 	  catch (...){
 	  }
+	  //	  cerr << "S2: " << s2 << endl;
 	  s1 = normalize_spaces( s1 );
 	  s2 = normalize_spaces( s2 );
 	  if ( !s2.isEmpty() && s1 != s2 ){
 	    if ( doc()->fixtext() ){
-	      //	      cerr << "FIX: " << mess << endl;
+	      //	      cerr << "FIX: " << s1 << "==>" << s2 << endl;
 	      KWargs args;
 	      args["value"] = TiCC::UnicodeToUTF8(s2);
 	      args["class"] = st;
@@ -2017,7 +2049,7 @@ namespace folia {
 	      string mess = "node " + xmltag() + "(" + id()
 		+ ") has a mismatch for the text in set:" + st
 		+ "\nthe element text ='" + TiCC::UnicodeToUTF8(s1)
-		+ "'\n" + "the deeper text ='" + TiCC::UnicodeToUTF8(s2) + "'";
+		+ "'\n" + " the deeper text ='" + TiCC::UnicodeToUTF8(s2) + "'";
 	      throw( InconsistentText( mess ) );
 	    }
 	  }
@@ -2551,7 +2583,7 @@ namespace folia {
     if ( _offset >= 0 ) {
       attribs["offset"] = TiCC::toString( _offset );
     }
-    if ( !_ref.empty() ){
+    if ( !_ref.empty() ) {
       attribs["ref"] = _ref;
     }
     return attribs;
@@ -3143,8 +3175,8 @@ namespace folia {
     return FoliaElement::select<Sentence>( default_ignore_structure );
   }
 
-  vector<Word*> AbstractStructureElement::words() const{
-    return FoliaElement::select<Word>( default_ignore_structure );
+  vector<Word*> AbstractStructureElement::words( const string& st ) const{
+    return FoliaElement::select<Word>( st, default_ignore_structure );
   }
 
   Sentence *AbstractStructureElement::sentences( size_t index ) const {
@@ -3179,16 +3211,18 @@ namespace folia {
     throw range_error( "rparagraphs(): index out of range" );
   }
 
-  Word *AbstractStructureElement::words( size_t index ) const {
-    vector<Word*> v = words();
+  Word *AbstractStructureElement::words( size_t index,
+					 const string& st ) const {
+    vector<Word*> v = words(st);
     if ( index < v.size() ) {
       return v[index];
     }
     throw range_error( "words(): index out of range" );
   }
 
-  Word *AbstractStructureElement::rwords( size_t index ) const {
-    vector<Word*> v = words();
+  Word *AbstractStructureElement::rwords( size_t index,
+					  const string& st ) const {
+    vector<Word*> v = words(st);
     if ( index < v.size() ) {
       return v[v.size()-1-index];
     }
@@ -3609,6 +3643,16 @@ namespace folia {
     return result;
   }
 
+  void WordReference::setAttributes( const KWargs& kwargsin ) {
+    KWargs kwargs = kwargsin;
+    auto it = kwargs.find( "t" );
+    if ( it != kwargs.end() ) {
+      kwargs.erase( it );
+    }
+    FoliaImpl::setAttributes( kwargs );
+  }
+
+
   FoliaElement* WordReference::parseXml( const xmlNode *node ) {
     KWargs atts = getAttributes( node );
     string id = atts["id"];
@@ -3626,7 +3670,7 @@ namespace folia {
 	throw XmlError( "WordReference id=" + id + " refers to a non-word: "
 			+ ref->xmltag() );
       }
-      // Disabled test! should consider the textclas of the yet unknown
+      // Disabled test! should consider the textclass of the yet unknown
       // parent!
       // addable() should check this. But that is impossible!
       // we don't return a WordReference but the ref to the word!
@@ -3916,6 +3960,16 @@ namespace folia {
     return e;
   }
 
+  void Content::setAttributes( const KWargs& args ){
+    KWargs atts = args;
+    auto it = atts.find( "value" );
+    if ( it != atts.end() ) {
+      value = it->second;
+      atts.erase( it );
+    }
+    FoliaImpl::setAttributes( atts );
+  }
+
   FoliaElement* Content::parseXml( const xmlNode *node ) {
     KWargs att = getAttributes( node );
     setAttributes( att );
@@ -4043,7 +4097,7 @@ namespace folia {
   New *Correction::getNew() const {
     vector<New*> v = FoliaElement::select<New>( false );
     if ( v.empty() ) {
-      throw NoSuchAnnotation( "new" );
+      return 0;
     }
     return v[0];
   }
@@ -4061,7 +4115,7 @@ namespace folia {
   Original *Correction::getOriginal() const {
     vector<Original*> v = FoliaElement::select<Original>( false );
     if ( v.empty() ) {
-      throw NoSuchAnnotation( "original" );
+      return 0;
     }
     return v[0];
   }

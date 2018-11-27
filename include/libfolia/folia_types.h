@@ -26,6 +26,7 @@
 
 #ifndef TYPES_H
 #define TYPES_H
+#include <string>
 
 namespace folia {
 
@@ -46,7 +47,7 @@ namespace folia {
   enum Attrib : int { NO_ATT=0, ID=1, CLASS=2, ANNOTATOR=4, CONFIDENCE=8, N=16, DATETIME=32, BEGINTIME=64, ENDTIME=128, SRC=256, SPEAKER=512, TEXTCLASS=1024, METADATA=2048, ALL=4096 };
 
   inline Attrib& operator++( Attrib & a ){
-    return a = ( SPEAKER == a )
+    return a = ( METADATA < a )
       ? NO_ATT
       : ( NO_ATT == a ? ID : Attrib(a<<1) );
   }
@@ -59,6 +60,9 @@ namespace folia {
     a1 = (a1 | a2);
     return a1;
   }
+
+  std::string toString( const Attrib );
+  std::ostream& operator<<( std::ostream&, const Attrib& );
 
 #undef DOMAIN // ugly hack but GCC screws up
 

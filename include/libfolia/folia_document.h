@@ -82,7 +82,7 @@ namespace folia {
     friend bool operator==( const Document&, const Document& );
     friend std::ostream& operator<<( std::ostream&, const Document * );
     enum Mode { NOMODE=0, PERMISSIVE=1, CHECKTEXT=2, FIXTEXT=4, STRIP=8 };
-
+    friend class Processor;
   public:
     Document();
     explicit Document( const KWargs& );
@@ -104,10 +104,10 @@ namespace folia {
     FoliaElement* doc() const { return foliadoc; }
     Text* addText( const KWargs& );
     Text* addText( Text * );
-    FoliaElement* append( Text *t ){
-      // almost backward compatible
-      return addText(t);
-    };
+    Speech* addSpeech( const KWargs& );
+    Speech* addSpeech( Speech * );
+    FoliaElement* append( FoliaElement *t ); // OBSOLETE
+    FoliaElement* setRoot( FoliaElement * );
     void set_foreign_metadata( xmlNode * );
     void addStyle( const std::string&, const std::string& );
     void replaceStyle( const std::string&, const std::string& );
@@ -223,14 +223,15 @@ namespace folia {
     std::string version() const { return _version_string; };
     std::string update_version();
     bool version_below( int, int );
+    std::map<AnnotationType::AnnotationType,std::multimap<std::string,at_t> > annotationdefaults() const { return _annotationdefaults; };
     void parse_metadata( const xmlNode * );
     void setDocumentProps( KWargs& );
   private:
-    std::map<AnnotationType::AnnotationType,std::multimap<std::string,at_t> > annotationdefaults;
-    std::vector<std::pair<AnnotationType::AnnotationType,std::string>> anno_sort;
-    std::map<AnnotationType::AnnotationType,std::map<std::string,int> > annotationrefs;
-    std::map<AnnotationType::AnnotationType,std::map<std::string,std::string>> alias_set;
-    std::map<AnnotationType::AnnotationType,std::map<std::string,std::string>> set_alias;
+    std::map<AnnotationType::AnnotationType,std::multimap<std::string,at_t> > _annotationdefaults;
+    std::vector<std::pair<AnnotationType::AnnotationType,std::string>> _anno_sort;
+    std::map<AnnotationType::AnnotationType,std::map<std::string,int> > _annotationrefs;
+    std::map<AnnotationType::AnnotationType,std::map<std::string,std::string>> _alias_set;
+    std::map<AnnotationType::AnnotationType,std::map<std::string,std::string>> _set_alias;
     std::vector<TextContent*> t_offset_validation_buffer;
     std::vector<PhonContent*> p_offset_validation_buffer;
 

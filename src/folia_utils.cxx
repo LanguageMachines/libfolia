@@ -41,6 +41,7 @@
 #include "libfolia/folia_properties.h"
 
 using namespace std;
+using namespace icu;
 using namespace TiCC;
 using namespace icu;
 

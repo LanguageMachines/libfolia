@@ -124,7 +124,7 @@ namespace folia {
   }
 
   string Document::update_version(){
-    // override the document version with the current library version
+    // override the document version with the current folia version
     // return the old value
     string old = _version_string;
     _version_string = folia_version();
@@ -297,10 +297,6 @@ namespace folia {
       string buffer = TiCC::bz2ReadFile( s );
       return readFromString( buffer );
     }
-    else if ( TiCC::match_back( s, ".gz" ) ) {
-      string buffer = TiCC::gzReadFile( s );
-      return readFromString( buffer );
-    }
     int cnt = 0;
     xmlSetStructuredErrorFunc( &cnt, (xmlStructuredErrorFunc)error_sink );
     _xmldoc = xmlReadFile( s.c_str(), 0, XML_PARSE_HUGE );
@@ -389,17 +385,6 @@ namespace folia {
 	string tmpname = fn.substr( 0, fn.length() - 3 ) + "tmp";
 	if ( toXml( tmpname, nsLabel, ( kanon || strip() ) ) ){
 	  bool stat = TiCC::bz2Compress( tmpname, fn );
-	  remove( tmpname.c_str() );
-	  return stat;
-	}
-	else {
-	  return false;
-	}
-      }
-      else  if ( TiCC::match_back( fn, ".gz" ) ){
-	string tmpname = fn.substr( 0, fn.length() - 2 ) + "tmp";
-	if ( toXml( tmpname, nsLabel,  ( kanon || strip() ) ) ){
-	  bool stat = TiCC::gzCompress( tmpname, fn );
 	  remove( tmpname.c_str() );
 	  return stat;
 	}
@@ -623,7 +608,7 @@ namespace folia {
 
   void Document::parseannotations( const xmlNode *node ){
     xmlNode *n = node->children;
-    anno_sort.clear();
+    _anno_sort.clear();
     while ( n ){
       string tag = TiCC::Name( n );
       if ( tag.length() > 11 && tag.substr( tag.length() - 11 ) == "-annotation" ){
@@ -910,7 +895,7 @@ namespace folia {
 	     << endl;
       }
     }
-    if ( version_below( 1, 5 ) ){
+    if ( !( mode & FIXTEXT) && version_below( 1, 5 ) ){
       // don't check text consistency for older documents
       mode = Mode( int(mode) & ~CHECKTEXT );
     }
@@ -1278,8 +1263,8 @@ namespace folia {
 
   string Document::unalias( AnnotationType::AnnotationType type,
 			    const string& alias ) const {
-    const auto& ti = alias_set.find(type);
-    if ( ti != alias_set.end() ){
+    const auto& ti = _alias_set.find(type);
+    if ( ti != _alias_set.end() ){
       const auto& sti = ti->second.find( alias );
       if ( sti != ti->second.end() ){
 	return sti->second;
@@ -1290,8 +1275,8 @@ namespace folia {
 
   string Document::alias( AnnotationType::AnnotationType type,
 			  const string& st ) const {
-    const auto& ti = set_alias.find(type);
-    if ( ti != set_alias.end() ){
+    const auto& ti = _set_alias.find(type);
+    if ( ti != _set_alias.end() ){
       const auto& ali = ti->second.find( st );
       if ( ali != ti->second.end() ){
 	return ali->second;
@@ -1338,17 +1323,17 @@ namespace folia {
       if ( d == "now()" ){
 	d = getNow();
       }
-      annotationdefaults[type].insert( make_pair( setname,
-						  at_t(annotator,annotator_type,d) ) );
-      anno_sort.push_back(make_pair(type,setname));
-      annotationrefs[type][setname] = 0;
+      _annotationdefaults[type].insert( make_pair( setname,
+						   at_t(annotator,annotator_type,d) ) );
+      _anno_sort.push_back(make_pair(type,setname));
+      _annotationrefs[type][setname] = 0;
       if ( !_alias.empty() ){
-	alias_set[type][_alias] = setname;
-	set_alias[type][setname] = _alias;
+	_alias_set[type][_alias] = setname;
+	_set_alias[type][setname] = _alias;
       }
       else {
-	alias_set[type][setname] = setname;
-	set_alias[type][setname] = setname;
+	_alias_set[type][setname] = setname;
+	_set_alias[type][setname] = setname;
       }
     }
   }
@@ -1356,12 +1341,12 @@ namespace folia {
   void Document::un_declare( AnnotationType::AnnotationType type,
 			     const string& set_name ){
     string setname = unalias(type,set_name);
-    if (  annotationrefs[type][setname] != 0 ){
+    if ( _annotationrefs[type][setname] != 0 ){
       throw XmlError( "unable to undeclare " + toString(type) + "-type("
 		      + setname + ") (references remain)" );
     }
-    auto const adt = annotationdefaults.find(type);
-    if ( adt != annotationdefaults.end() ){
+    auto const adt = _annotationdefaults.find(type);
+    if ( adt != _annotationdefaults.end() ){
       auto it = adt->second.begin();
       while ( it != adt->second.end() ){
 	if ( setname.empty() || it->first == setname ){
@@ -1371,28 +1356,28 @@ namespace folia {
 	  ++it;
 	}
       }
-      auto it2 = anno_sort.begin();
-      while ( it2 != anno_sort.end() ){
+      auto it2 = _anno_sort.begin();
+      while ( it2 != _anno_sort.end() ){
 	if ( it2->first == type && it2->second == setname ){
-	  it2 = anno_sort.erase( it2 );
+	  it2 = _anno_sort.erase( it2 );
 	}
 	else {
 	  ++it2;
 	}
       }
-      auto it3 = alias_set[type].begin();
-      while ( it3 != alias_set[type].end() ){
+      auto it3 = _alias_set[type].begin();
+      while ( it3 != _alias_set[type].end() ){
 	if ( it3->first == setname || it3->second == setname ){
-	  it3 = alias_set[type].erase( it3 );
+	  it3 = _alias_set[type].erase( it3 );
 	}
 	else {
 	  ++it3;
 	}
       }
-      auto it4 = set_alias[type].begin();
-      while ( it4 != set_alias[type].end() ){
+      auto it4 = _set_alias[type].begin();
+      while ( it4 != _set_alias[type].end() ){
 	if ( it4->first == setname || it4->second == setname ){
-	  it4 = set_alias[type].erase( it4 );
+	  it4 = _set_alias[type].erase( it4 );
 	}
 	else {
 	  ++it4;
@@ -1403,7 +1388,7 @@ namespace folia {
 
   multimap<AnnotationType::AnnotationType, string> Document::unused_declarations( ) const {
     multimap<AnnotationType::AnnotationType,string> result;
-    for ( const auto& tit : annotationrefs ){
+    for ( const auto& tit : _annotationrefs ){
       for ( const auto& mit : tit.second ){
 	if ( mit.second == 0 ){
 	  result.insert( make_pair(tit.first, mit.first ) );
@@ -1419,9 +1404,36 @@ namespace folia {
     return res;
   }
 
+  Speech* Document::addSpeech( const KWargs& kwargs ){
+    Speech *res = new Speech( kwargs, this );
+    foliadoc->append( res );
+    return res;
+  }
+
   Text* Document::addText( Text *t ){
     foliadoc->append( t );
     return t;
+  }
+
+  Speech* Document::addSpeech( Speech *t ){
+    foliadoc->append( t );
+    return t;
+  }
+
+  FoliaElement* Document::setRoot( FoliaElement *t ) {
+    if ( t->element_id() == Text_t ){
+      return addText(dynamic_cast<Text*>(t) );
+    }
+    else if ( t->element_id() == Speech_t ){
+      return addSpeech(dynamic_cast<Speech*>(t) );
+    }
+    throw XmlError( "Only can append 'text' or 'speech' as root of a Document." );
+  }
+
+  FoliaElement* Document::append( FoliaElement *t ){  // OBSOLETE
+    // cerr << "\nWARNING!! Obsolete Document::append() function is used. "
+    // 	 << "Please replace by Document::setRoot() ASAP." << endl;
+    return setRoot(t);
   }
 
   bool Document::isDeclared( AnnotationType::AnnotationType type,
@@ -1439,8 +1451,8 @@ namespace folia {
     }
     string setname = unalias(type,set_name);
 
-    const auto& it1 = annotationdefaults.find(type);
-    if ( it1 != annotationdefaults.end() ){
+    const auto& it1 = _annotationdefaults.find(type);
+    if ( it1 != _annotationdefaults.end() ){
       auto mit2 = it1->second.lower_bound(setname);
       while ( mit2 != it1->second.upper_bound(setname) ){
 	if ( mit2->second.a == annotator && mit2->second.t == annotator_type )
@@ -1458,7 +1470,7 @@ namespace folia {
       if ( st.empty() ){
 	st = defaultset(type);
       }
-      ++annotationrefs[type][st];
+      ++_annotationrefs[type][st];
       //      cerr << "increment " << toString(type) << "(" << st << ")" << endl;
     }
   }
@@ -1466,7 +1478,7 @@ namespace folia {
   void Document::decrRef( AnnotationType::AnnotationType type,
 			  const string& s ){
     if ( type != AnnotationType::NO_ANN ){
-      --annotationrefs[type][s];
+      --_annotationrefs[type][s];
       //      cerr << "decrement " << toString(type) << "(" << s << ")" << endl;
     }
   }
@@ -1476,8 +1488,8 @@ namespace folia {
     if ( type == AnnotationType::NO_ANN ){
       return true;
     }
-    const auto& mit1 = annotationdefaults.find(type);
-    if ( mit1 != annotationdefaults.end() ){
+    const auto& mit1 = _annotationdefaults.find(type);
+    if ( mit1 != _annotationdefaults.end() ){
       if ( setname.empty() )
 	return true;
       const auto& mit2 = mit1->second.find(setname);
@@ -1490,10 +1502,10 @@ namespace folia {
     if ( type == AnnotationType::NO_ANN )
       return "";
     // search a set. it must be unique. Otherwise return ""
-    //    cerr << "zoek '" << type << "' default set " <<  annotationdefaults << endl;
+    //    cerr << "zoek '" << type << "' default set " <<  _annotationdefaults << endl;
     string result;
-    const auto& mit1 = annotationdefaults.find(type);
-    if ( mit1 != annotationdefaults.end() ){
+    const auto& mit1 = _annotationdefaults.find(type);
+    if ( mit1 != _annotationdefaults.end() ){
       //      cerr << "vind tussen " <<  mit1->second << endl;
       if ( mit1->second.size() == 1 )
 	result = mit1->second.begin()->first;
@@ -1508,11 +1520,11 @@ namespace folia {
       return "";
     }
     // if ( !st.empty() ){
-    //   cerr << "zoek '" << st << "' default annotator " <<  annotationdefaults << endl;
+    //   cerr << "zoek '" << st << "' default annotator " <<  _annotationdefaults << endl;
     // }
-    const auto& mit1 = annotationdefaults.find(type);
+    const auto& mit1 = _annotationdefaults.find(type);
     string result;
-    if ( mit1 != annotationdefaults.end() ){
+    if ( mit1 != _annotationdefaults.end() ){
       //      cerr << "vind tussen " <<  mit1->second << endl;
       if ( st.empty() ){
 	if ( mit1->second.size() == 1 ){
@@ -1536,9 +1548,9 @@ namespace folia {
     if ( type == AnnotationType::NO_ANN ){
       return "";
     }
-    const auto& mit1 = annotationdefaults.find(type);
+    const auto& mit1 = _annotationdefaults.find(type);
     string result;
-    if ( mit1 != annotationdefaults.end() ){
+    if ( mit1 != _annotationdefaults.end() ){
       if ( st.empty() ){
 	if ( mit1->second.size() == 1 )
 	  result = mit1->second.begin()->second.t;
@@ -1557,9 +1569,9 @@ namespace folia {
 
   string Document::defaultdatetime( AnnotationType::AnnotationType type,
 				    const string& st ) const {
-    const auto& mit1 = annotationdefaults.find(type);
+    const auto& mit1 = _annotationdefaults.find(type);
     string result;
-    if ( mit1 != annotationdefaults.end() ){
+    if ( mit1 != _annotationdefaults.end() ){
       if ( st.empty() ){
 	if ( mit1->second.size() == 1 )
 	  result = mit1->second.begin()->second.d;
@@ -1577,13 +1589,13 @@ namespace folia {
   }
 
   void Document::setannotations( xmlNode *node ) const {
-    for ( const auto& pair : anno_sort ){
+    for ( const auto& pair : _anno_sort ){
       // Find the 'label'
       AnnotationType::AnnotationType type = pair.first;
       string label = toString( type );
       label += "-annotation";
       string sett = pair.second;
-      const auto& mm = annotationdefaults.find(type);
+      const auto& mm = _annotationdefaults.find(type);
       auto it = mm->second.lower_bound(sett);
       while ( it != mm->second.upper_bound(sett) ){
 	KWargs args;
@@ -1601,8 +1613,8 @@ namespace folia {
 	s = it->first;
 	if ( s != "undefined" ) // the default
 	  args["set"] = s;
-	const auto& ti = set_alias.find(type);
-	if ( ti != set_alias.end() ){
+	const auto& ti = _set_alias.find(type);
+	if ( ti != _set_alias.end() ){
 	  const auto& alias = ti->second.find(s);
 	  if ( alias->second != s ){
 	    args["alias"] = alias->second;
@@ -1736,7 +1748,7 @@ namespace folia {
       attribs["version"] = "";
     }
     else {
-      attribs["generator"] = string("libfolia-v") + VERSION;
+      attribs["generator"] = "libfolia-v" + library_version();
       if ( !_version_string.empty() )
 	attribs["version"] = _version_string;
     }
@@ -1771,11 +1783,15 @@ namespace folia {
     return result;
   }
 
-  bool Document::toXml( const string& filename,
+  bool Document::toXml( const string& file_name,
 			const string& nsLabel, bool kanon ) const {
     if ( foliadoc ){
       xmlDoc *outDoc = to_xmlDoc( nsLabel, kanon );
-      long int res = xmlSaveFormatFileEnc( filename.c_str(), outDoc, "UTF-8", 1 );
+      if ( TiCC::match_back( file_name, ".gz" ) ){
+	xmlSetDocCompressMode(outDoc,9);
+      }
+      long int res = xmlSaveFormatFileEnc( file_name.c_str(), outDoc,
+					   "UTF-8", 1 );
       xmlFreeDoc( outDoc );
       _foliaNsOut = 0;
       if ( res == -1 )

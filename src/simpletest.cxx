@@ -32,6 +32,7 @@
 #include "libfolia/folia.h"
 
 using namespace std;
+using namespace icu;
 using namespace folia;
 using namespace icu;
 
