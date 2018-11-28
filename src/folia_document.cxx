@@ -805,7 +805,7 @@ namespace folia {
   }
 
   bool Document::version_below( int major, int minor ){
-    // check if current ducument version is strict < major.minor
+    // check if current document version is strict < major.minor
     if ( major_version < major ){
       return true;
     }
@@ -835,6 +835,7 @@ namespace folia {
 	   << ")\n\t Any possible subsequent failures in parsing or processing may probably be attributed to this." << endl
 	   << "\t Please upgrade libfolia!" << endl;
     }
+    cerr << "reading a " << major_version << "." << minor_version << "." << subversion << " document" << endl;
     it = kwargs.find( "debug" );
     if ( it != kwargs.end() ){
       debug = TiCC::stringTo<int>( it->second );
