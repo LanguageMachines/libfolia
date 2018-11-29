@@ -1,5 +1,5 @@
 sudo: required
-dist: xenial
+dist: trusty
 group: edge
 
 
@@ -61,7 +61,7 @@ before_install:
 
     - export PATH="/usr/lib/ccache/bin/:$PATH"
 
-    - git clone https://github.com/proycon/ticcutils
+    - git clone https://github.com/LanguageMachines/ticcutils
     - cd ticcutils
     - bash bootstrap.sh
     - ./configure $OPENMPFLAG
