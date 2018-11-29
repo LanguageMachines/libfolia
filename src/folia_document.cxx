@@ -835,11 +835,13 @@ namespace folia {
 	   << ")\n\t Any possible subsequent failures in parsing or processing may probably be attributed to this." << endl
 	   << "\t Please upgrade libfolia!" << endl;
     }
-    cerr << "reading a " << major_version << "." << minor_version << "." << sub_version << " document" << endl;
     it = kwargs.find( "debug" );
     if ( it != kwargs.end() ){
       debug = TiCC::stringTo<int>( it->second );
       kwargs.erase(it);
+    }
+    if ( debug > 1 ){
+      cerr << "reading a " << major_version << "." << minor_version << "." << sub_version << " document" << endl;
     }
     it = kwargs.find( "mode" );
     if ( it != kwargs.end() ){
