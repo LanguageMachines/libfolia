@@ -28,7 +28,7 @@ matrix:
 
     - os: linux
       cache: ccache
-      compiler: clang++-5.0
+      compiler: clang++-6.0
       env:
         - SCAN=scan-build
 #        - OPENMPFLAG=--disable-openmp
