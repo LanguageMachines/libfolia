@@ -1,5 +1,5 @@
 sudo: required
-dist: xenial
+dist: trusty
 group: edge
 
 
@@ -28,7 +28,7 @@ matrix:
 
     - os: linux
       cache: ccache
-      compiler: clang++-6.0
+      compiler: clang++
       env:
         - SCAN=scan-build
 #        - OPENMPFLAG=--disable-openmp
