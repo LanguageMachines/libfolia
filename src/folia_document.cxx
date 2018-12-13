@@ -822,7 +822,7 @@ namespace folia {
       kwargs.erase( it );
     }
     else {
-      _version_string = folia_version();
+      _version_string = "1.4.987"; // assign a 'random' version, but PRE 1.5
     }
     expand_version_string( _version_string,
 			   major_version,
@@ -830,7 +830,7 @@ namespace folia {
 			   sub_version,
 			   patch_version );
     if ( check_version( _version_string ) > 0 ){
-      cerr << "WARNING!!! FoLiA Document is a newer version than this library ("
+      cerr << "WARNING!!! the Document is created for newer FoLiA version than this library ("
 	   << _version_string << " vs " << folia_version()
 	   << ")\n\t Any possible subsequent failures in parsing or processing may probably be attributed to this." << endl
 	   << "\t Please upgrade libfolia!" << endl;
