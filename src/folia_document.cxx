@@ -140,7 +140,6 @@ namespace folia {
     _foliaNsOut = 0;
     debug = 0;
     mode = CHECKTEXT;
-    _version_string = folia_version();
     external = false;
   }
 
@@ -266,7 +265,7 @@ namespace folia {
     }
   }
 
-  static int error_sink(void *mydata, xmlError *error ){
+  static void error_sink(void *mydata, xmlError *error ){
     int *cnt = (int*)mydata;
     if ( *cnt == 0 ){
       string line = "\n";
@@ -280,7 +279,7 @@ namespace folia {
       cerr << line << endl;
     }
     (*cnt)++;
-    return 1;
+    return;
   }
 
   bool Document::readFromFile( const string& s ){
@@ -819,10 +818,12 @@ namespace folia {
     auto it = kwargs.find( "version" );
     if ( it != kwargs.end() ){
       _version_string = it->second;
+      //      cerr << "So we found version " << _version_string << endl;
       kwargs.erase( it );
     }
-    else {
+    else if ( _version_string.empty() ){
       _version_string = "1.4.987"; // assign a 'random' version, but PRE 1.5
+      //      cerr << "NO VERSION version " << _version_string << endl;
     }
     expand_version_string( _version_string,
 			   major_version,
@@ -901,6 +902,9 @@ namespace folia {
     if ( !( mode & FIXTEXT) && version_below( 1, 5 ) ){
       // don't check text consistency for older documents
       mode = Mode( int(mode) & ~CHECKTEXT );
+    }
+    else if ( !env) {
+      mode = Mode( int(mode) | CHECKTEXT );
     }
   }
 
