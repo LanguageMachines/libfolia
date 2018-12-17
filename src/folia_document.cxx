@@ -162,6 +162,9 @@ namespace folia {
     debug = 0;
     mode = CHECKTEXT;
     external = false;
+    major_version = 0;
+    minor_version = 0;
+    sub_version = 0;
   }
 
   Document::~Document(){
@@ -1518,15 +1521,16 @@ namespace folia {
     if ( type == AnnotationType::NO_ANN )
       return "";
     // search a set. it must be unique. Otherwise return ""
-    //    cerr << "zoek '" << type << "' default set " <<  _annotationdefaults << endl;
+    // cerr << "document: " << doc_version() << endl;
+    // cerr << "zoek '" << type << "' default set " <<  _annotationdefaults << endl;
     string result;
     const auto& mit1 = _annotationdefaults.find(type);
     if ( mit1 != _annotationdefaults.end() ){
-      //      cerr << "vind tussen " <<  mit1->second << endl;
+      // cerr << "vind tussen " <<  mit1->second << endl;
       if ( mit1->second.size() == 1 )
 	result = mit1->second.begin()->first;
     }
-    //    cerr << "defaultset ==> " << result << endl;
+    // cerr << "defaultset ==> " << result << endl;
     return result;
   }
 
