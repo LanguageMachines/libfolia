@@ -221,12 +221,14 @@ namespace folia {
     bool validate_offsets() const;
     int compare_to_lib_version() const;
     std::string version() const { return _version_string; };
+    std::string doc_version() const;
     std::string update_version();
     bool version_below( int, int );
     std::map<AnnotationType::AnnotationType,std::multimap<std::string,at_t> > annotationdefaults() const { return _annotationdefaults; };
     void parse_metadata( const xmlNode * );
     void setDocumentProps( KWargs& );
   private:
+    void adjustTextMode();
     std::map<AnnotationType::AnnotationType,std::multimap<std::string,at_t> > _annotationdefaults;
     std::vector<std::pair<AnnotationType::AnnotationType,std::string>> _anno_sort;
     std::map<AnnotationType::AnnotationType,std::map<std::string,int> > _annotationrefs;

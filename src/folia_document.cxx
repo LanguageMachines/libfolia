@@ -90,9 +90,18 @@ namespace folia {
   Document::Document( const KWargs& kwargs ) {
     init();
     KWargs args = kwargs;
-    setDocumentProps( args ); // sets things like 'mode' for the document
-                              // this cannot wait. needed for parsing
-    auto it = args.find( "file" );
+    auto it = args.find( "debug" );
+    if ( it != args.end() ){
+      debug = TiCC::stringTo<int>( it->second );
+      args.erase(it);
+    }
+    it = args.find( "mode" );
+    if ( it != args.end() ){
+      setmode( it->second );
+      args.erase(it);
+    }
+    adjustTextMode();
+    it = args.find( "file" );
     if ( it != args.end() ){
       // extract a Document from a file
       readFromFile( it->second );
@@ -108,7 +117,13 @@ namespace folia {
     }
     if ( !foliadoc ){
       // so NO 'file' or 'string' argument.
+      // (readFromFile/readFromString throw on error)
       // create an 'empty' document, with a FoLiA root node.
+      it = args.find( "version" );
+      if ( it == args.end() ){
+	// no version attribute. set it to the current default
+	args["version"] = folia_version();
+      }
       foliadoc = new FoLiA( args, this );
     }
   }
@@ -116,6 +131,12 @@ namespace folia {
   string folia_version(){
     stringstream ss;
     ss << MAJOR_VERSION << "." << MINOR_VERSION << "." << SUB_VERSION;
+    return ss.str();
+  }
+
+  string Document::doc_version() const {
+    stringstream ss;
+    ss << major_version << "." << minor_version << "." << sub_version;
     return ss.str();
   }
 
@@ -814,73 +835,7 @@ namespace folia {
     return false;
   }
 
-  void Document::setDocumentProps( KWargs& kwargs ){
-    auto it = kwargs.find( "version" );
-    if ( it != kwargs.end() ){
-      _version_string = it->second;
-      //      cerr << "So we found version " << _version_string << endl;
-      kwargs.erase( it );
-    }
-    else if ( _version_string.empty() ){
-      _version_string = "1.4.987"; // assign a 'random' version, but PRE 1.5
-      //      cerr << "NO VERSION version " << _version_string << endl;
-    }
-    expand_version_string( _version_string,
-			   major_version,
-			   minor_version,
-			   sub_version,
-			   patch_version );
-    if ( check_version( _version_string ) > 0 ){
-      cerr << "WARNING!!! the Document is created for newer FoLiA version than this library ("
-	   << _version_string << " vs " << folia_version()
-	   << ")\n\t Any possible subsequent failures in parsing or processing may probably be attributed to this." << endl
-	   << "\t Please upgrade libfolia!" << endl;
-    }
-    it = kwargs.find( "debug" );
-    if ( it != kwargs.end() ){
-      debug = TiCC::stringTo<int>( it->second );
-      kwargs.erase(it);
-    }
-    if ( debug > 1 ){
-      cerr << "reading a " << major_version << "." << minor_version << "." << sub_version << " document" << endl;
-    }
-    it = kwargs.find( "mode" );
-    if ( it != kwargs.end() ){
-      setmode( it->second );
-      kwargs.erase(it);
-    }
-    it = kwargs.find( "external" );
-    if ( it != kwargs.end() ){
-      external = TiCC::stringTo<bool>( it->second );
-      kwargs.erase( it );
-    }
-    else {
-      external = false;
-    }
-    bool happy = false;
-    it = kwargs.find( "_id" );
-    if ( it == kwargs.end() ){
-      it = kwargs.find( "id" );
-    }
-    if ( it != kwargs.end() ){
-      if ( isNCName( it->second ) ){
-	_id = it->second;
-      }
-      else {
-	throw XmlError( "'"
-			+ it->second
-			+ "' is not a valid NCName." );
-      }
-      happy = true;
-    }
-    if ( kwargs.find("string") != kwargs.end()
-	 || kwargs.find("file") != kwargs.end() ){
-      happy = true;
-    }
-    if ( !foliadoc && !happy ){
-      throw runtime_error( "No Document ID specified" );
-    }
-    kwargs.erase( "generator" ); // also delete unused att-val(s)
+  void Document::adjustTextMode(){
     const char *env = getenv( "FOLIA_TEXT_CHECK" );
     if ( env ){
       string e = env;
@@ -908,6 +863,60 @@ namespace folia {
     }
   }
 
+  void Document::setDocumentProps( KWargs& kwargs ){
+    auto it = kwargs.find( "version" );
+    if ( it != kwargs.end() ){
+      _version_string = it->second;
+      //      cerr << "So we found version " << _version_string << endl;
+      kwargs.erase( it );
+    }
+    else {
+      // assign a 'random' version, but PRE 1.5
+      _version_string = "1.4.987";
+      //      cerr << "NO VERSION version " << _version_string << endl;
+    }
+    expand_version_string( _version_string,
+			   major_version,
+			   minor_version,
+			   sub_version,
+			   patch_version );
+    if ( check_version( _version_string ) > 0 ){
+      cerr << "WARNING!!! the Document is created for newer FoLiA version than this library ("
+	   << _version_string << " vs " << folia_version()
+	   << ")\n\t Any possible subsequent failures in parsing or processing may probably be attributed to this." << endl
+	   << "\t Please upgrade libfolia!" << endl;
+    }
+    adjustTextMode();
+    it = kwargs.find( "external" );
+    if ( it != kwargs.end() ){
+      external = TiCC::stringTo<bool>( it->second );
+      kwargs.erase( it );
+    }
+    else {
+      external = false;
+    }
+    bool happy = false;
+    it = kwargs.find( "_id" );
+    if ( it == kwargs.end() ){
+      it = kwargs.find( "id" );
+    }
+    if ( it != kwargs.end() ){
+      if ( isNCName( it->second ) ){
+	_id = it->second;
+      }
+      else {
+	throw XmlError( "'"
+			+ it->second
+			+ "' is not a valid NCName." );
+      }
+      happy = true;
+    }
+    if ( !foliadoc && !happy ){
+      throw runtime_error( "No Document ID specified" );
+    }
+    kwargs.erase( "generator" ); // also delete unused att-val(s)
+  }
+
   void Document::resolveExternals(){
     if ( !externals.empty() ){
       for ( const auto& ext : externals ){
@@ -921,7 +930,7 @@ namespace folia {
     // we store some attributes in the document itself
     mydoc->setDocumentProps( atts );
     // use remaining attributes for the FoLiA node
-    // probably onlye the ID
+    // probably only the ID
     FoliaImpl::setAttributes( atts );
   }
 
