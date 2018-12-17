@@ -2013,7 +2013,7 @@ namespace folia {
 	 && this->printable()
 	 && !isSubClass( Morpheme_t ) && !isSubClass( Phoneme_t) ){
       vector<TextContent*> tv = select<TextContent>( false );
-      // first see which text classes ar present
+      // first see which text classes are present
       set<string> cls;
       for ( const auto& it : tv ){
 	cls.insert( it->cls() );
