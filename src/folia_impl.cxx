@@ -178,19 +178,31 @@ namespace folia {
   }
 
   FoliaImpl::~FoliaImpl( ) {
-    // cerr << "delete element id=" << _id << " tag = " << xmltag() << " *= "
-    // 	 << (void*)this << " datasize= " << data.size() << endl;
+    // if ( xmltag() == "w"
+    // 	 || xmltag() == "chunk"
+    // 	 || xmltag() == "chunking" ){
+    //   cerr << "delete " << xmltag() << " id=" << _id << " *= "
+    // 	   << (void*)this << " datasize= " << data.size() << endl;
+    //   cerr << "REFCOUNT = " << refcount() << endl;
+    // }
     for ( const auto& el : data ) {
       if ( el->refcount() == 0 ) {
 	// probably only != 0 for words
 	delete el;
       }
       else if ( mydoc ) {
+	// cerr << "\t\tnot realy deleting element id=" << _id << " tag = "
+	//      << xmltag() << " *= "
+	//      << (void*)this << " datasize= " << data.size() << endl;
 	mydoc->keepForDeletion( el );
       }
     }
-    //    cerr << "\t\tdelete element id=" << _id << " tag = " << xmltag() << " *= "
-    //	 << (void*)this << " datasize= " << data.size() << endl;
+    // if ( xmltag() == "w"
+    // 	 || xmltag() == "chunk"
+    // 	 || xmltag() == "chunking" ){
+    //   cerr << "\t\tsucces deleting element id=" << _id << " tag = " << xmltag() << " *= "
+    // 	   << (void*)this << " datasize= " << data.size() << endl;
+    // }
     if ( mydoc ) {
       mydoc->delDocIndex( this, _id );
       mydoc->decrRef( annotation_type(), _set );
@@ -1833,7 +1845,13 @@ namespace folia {
     auto it = std::remove( data.begin(), data.end(), child );
     data.erase( it, data.end() );
     if ( del ) {
-      delete child;
+      if ( child->refcount() > 0 ){
+	// dont really delete yet!
+	mydoc->keepForDeletion( child );
+      }
+      else {
+	delete child;
+      }
     }
     else {
       child->setParent(0);
@@ -1848,7 +1866,13 @@ namespace folia {
 	--pos;
       }
       if ( del ) {
-	delete *it;
+	if ( (*it)->refcount() > 0 ){
+	  // dont really delete yet!
+	  mydoc->keepForDeletion( *it );
+	}
+	else {
+	  delete *it;
+	}
       }
       else {
 	(*it)->setParent(0);
