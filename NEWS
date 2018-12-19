@@ -1,3 +1,16 @@
+1.15 2018-11-29
+[Ko van der Sloot]
+* added (still experimental) code for a FoLiA Builder, Processor and
+  TextProcessor class.
+  Use with care. The API may change unannounced!
+* a foliadiff script (using folialint) is installed now
+* several refactorings, to make the code more clear.
+* the 'ref' attribute was not serialized for TextContent
+* several smaller small bug fixes
+* the .so version is bumped to 9 because of a lot of API/ABI changes
+
+1.14 never released
+
 1.13 2018-05-16
 [Ko van der Sloot]
 * disabled WordRefrence test. It was incomplete, and hard to do

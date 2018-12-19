@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2006 - 2018
+  Copyright (c) 2006 - 2019
   CLST  - Radboud University
   ILK   - Tilburg University
 
@@ -86,5 +86,59 @@ namespace folia {
       throw ValueError( "unknown tag <" + tag + ">" );
     }
     return result->second;
+  }
+
+  string toString( const Attrib at ){
+    switch ( at ){
+    case ID:
+      return "ID";
+      break;
+    case CLASS:
+      return "CLASS";
+      break;
+    case ANNOTATOR:
+      return "ANNOTATOR";
+      break;
+    case CONFIDENCE:
+      return "CONFIDENCE";
+      break;
+    case N:
+      return "N";
+      break;
+    case DATETIME:
+      return "DATETIME";
+      break;
+    case BEGINTIME:
+      return "BEGINTIME";
+      break;
+    case ENDTIME:
+      return "ENDTIME";
+      break;
+    case SRC:
+      return "SRC";
+      break;
+    case SPEAKER:
+      return "SPEAKER";
+      break;
+    case TEXTCLASS:
+      return "TEXTCLASS";
+      break;
+    case METADATA:
+      return "METADATA";
+      break;
+    default:
+      return "";
+    }
+  }
+
+  ostream& operator<<( ostream& os, const Attrib& attribs ){
+    enum Attrib at = NO_ATT;
+    while ( at != ALL ){
+      if ( attribs & at ){
+	os << toString( at ) << "|";
+      }
+      ++at;
+    }
+    return os;
   }
 }

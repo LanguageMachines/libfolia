@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2006 - 2018
+  Copyright (c) 2006 - 2019
   CLST  - Radboud University
   ILK   - Tilburg University
 
@@ -29,6 +29,7 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <bitset>
 #include <set>
 #include <list>
 #include <vector>
@@ -46,14 +47,16 @@
 #include "libxml/xmlstring.h"
 
 using namespace std;
+using namespace icu;
 
 namespace folia {
+  using TiCC::operator<<;
 
   void initMT(){
     // a NO_OP now
   }
 
-  bool checkNS( xmlNode *n, const string& ns ){
+  bool checkNS( const xmlNode *n, const string& ns ){
     string tns = TiCC::getNS(n);
     if ( tns == ns )
       return true;
@@ -84,26 +87,68 @@ namespace folia {
     init();
   }
 
-  Document::Document( const string& args ) {
+  Document::Document( const KWargs& kwargs ) {
     init();
-    KWargs kwargs = getArgs( args );
-    setDocumentProps( kwargs );
+    KWargs args = kwargs;
+    auto it = args.find( "debug" );
+    if ( it != args.end() ){
+      debug = TiCC::stringTo<int>( it->second );
+      args.erase(it);
+    }
+    it = args.find( "mode" );
+    if ( it != args.end() ){
+      setmode( it->second );
+      args.erase(it);
+    }
+    adjustTextMode();
+    it = args.find( "file" );
+    if ( it != args.end() ){
+      // extract a Document from a file
+      readFromFile( it->second );
+      args.erase(it);
+    }
+    else {
+      it = args.find( "string" );
+      if ( it != args.end() ){
+	// extract a Document from a string
+	readFromString( it->second );
+	args.erase(it);
+      }
+    }
     if ( !foliadoc ){
-      foliadoc = new FoLiA( kwargs, this );
+      // so NO 'file' or 'string' argument.
+      // (readFromFile/readFromString throw on error)
+      // create an 'empty' document, with a FoLiA root node.
+      it = args.find( "version" );
+      if ( it == args.end() ){
+	// no version attribute. set it to the current default
+	args["version"] = folia_version();
+      }
+      foliadoc = new FoLiA( args, this );
     }
   }
 
-  string Document::library_version(){
+  string folia_version(){
     stringstream ss;
     ss << MAJOR_VERSION << "." << MINOR_VERSION << "." << SUB_VERSION;
     return ss.str();
   }
 
+  string Document::doc_version() const {
+    stringstream ss;
+    ss << major_version << "." << minor_version << "." << sub_version;
+    return ss.str();
+  }
+
+  string library_version(){
+    return VERSION;
+  }
+
   string Document::update_version(){
-    // override the document version with the current library version
+    // override the document version with the current folia version
     // return the old value
-    string old = _version;
-    _version = library_version();
+    string old = _version_string;
+    _version_string = folia_version();
     return old;
   }
 
@@ -116,8 +161,10 @@ namespace folia {
     _foliaNsOut = 0;
     debug = 0;
     mode = CHECKTEXT;
-    _version = library_version();
     external = false;
+    major_version = 0;
+    minor_version = 0;
+    sub_version = 0;
   }
 
   Document::~Document(){
@@ -208,80 +255,6 @@ namespace folia {
     return result;
   }
 
-  void Document::setDocumentProps( KWargs& kwargs ){
-    bool happy = false;
-    auto it = kwargs.find( "debug" );
-    if ( it != kwargs.end() ){
-      debug = TiCC::stringTo<int>( it->second );
-    }
-    it = kwargs.find( "mode" );
-    if ( it != kwargs.end() ){
-      setmode( it->second );
-    }
-    it = kwargs.find( "external" );
-    if ( it != kwargs.end() ){
-      external = TiCC::stringTo<bool>( it->second );
-      kwargs.erase( it );
-    }
-    else
-      external = false;
-    it = kwargs.find( "version" );
-    if ( it != kwargs.end() ){
-      _version = it->second;
-      kwargs.erase( it );
-    }
-    it = kwargs.find( "_id" );
-    if ( it == kwargs.end() ){
-      it = kwargs.find( "id" );
-    }
-    if ( it != kwargs.end() ){
-      if ( isNCName( it->second ) ){
-	_id = it->second;
-      }
-      else {
-	throw XmlError( "'"
-			+ it->second
-			+ "' is not a valid NCName." );
-      }
-      happy = true;
-    }
-    else {
-      it = kwargs.find( "file" );
-      if ( it != kwargs.end() ){
-	filename = it->second;
-	happy = readFromFile(filename);
-      }
-      else {
-	it = kwargs.find( "string" );
-	if ( it != kwargs.end() ){
-	  string s = it->second;
-	  happy = readFromString( s );
-	}
-      }
-    }
-    if ( !happy )
-      throw runtime_error( "No ID, valid filename or string specified" );
-    kwargs.erase( "generator" ); // also delete unused att-val(s)
-    const char *env = getenv( "FOLIA_TEXT_CHECK" );
-    if ( env ){
-      string e = env;
-      cerr << "DETECTED FOLIA_TEXT_CHECK environment variable, value ='"
-	   << e << "'"<< endl;
-      if ( e == "NO" ){
-	mode = Mode( int(mode) & ~CHECKTEXT );
-	cerr << "FOLIA_TEXT_CHECK disabled" << endl;
-      }
-      else if ( e == "YES" ){
-	mode = Mode( int(mode) | CHECKTEXT );
-	cerr << "FOLIA_TEXT_CHECK enabled" << endl;
-      }
-      else {
-	cerr << "FOLIA_TEXT_CHECK unchanged:" << (checktext()?"YES":"NO")
-	     << endl;
-      }
-    }
-  }
-
   void Document::addDocIndex( FoliaElement* el, const string& s ){
     if ( s.empty() ) {
       return;
@@ -316,13 +289,21 @@ namespace folia {
     }
   }
 
-  static int error_sink(void *mydata, xmlError *error ){
+  static void error_sink(void *mydata, xmlError *error ){
     int *cnt = (int*)mydata;
     if ( *cnt == 0 ){
-      cerr << "\nXML-error: " << error->message << endl;
+      string line = "\n";
+      if ( error->file ){
+	line += string(error->file) + ":";
+	if ( error->line > 0 ){
+	  line += TiCC::toString(error->line) + ":";
+	}
+      }
+      line += " XML-error: " + string(error->message);
+      cerr << line << endl;
     }
     (*cnt)++;
-    return 1;
+    return;
   }
 
   bool Document::readFromFile( const string& s ){
@@ -334,12 +315,9 @@ namespace folia {
       throw runtime_error( "Document is already initialized" );
       return false;
     }
+    _source_filename = s;
     if ( TiCC::match_back( s, ".bz2" ) ){
       string buffer = TiCC::bz2ReadFile( s );
-      return readFromString( buffer );
-    }
-    else if ( TiCC::match_back( s, ".gz" ) ) {
-      string buffer = TiCC::gzReadFile( s );
       return readFromString( buffer );
     }
     int cnt = 0;
@@ -357,10 +335,11 @@ namespace folia {
       }
       if ( debug ){
 	if ( foliadoc ){
-	  cout << "successful parsed the doc" << endl;
+	  cout << "successful parsed the doc from: " << s << endl;
 	}
-	else
-	  cout << "failed to parse the doc" << endl;
+	else {
+	  cout << "failed to parse the doc from: " << s << endl;
+	}
       }
       xmlFreeDoc( _xmldoc );
       _xmldoc = 0;
@@ -368,7 +347,7 @@ namespace folia {
     }
     if ( debug )
       cout << "Failed to read a doc from " << s << endl;
-    throw XmlError( "No XML document read" );
+    throw XmlError( "No valid FoLiA read" );
   }
 
   bool Document::readFromString( const string& s ){
@@ -436,17 +415,6 @@ namespace folia {
 	  return false;
 	}
       }
-      else  if ( TiCC::match_back( fn, ".gz" ) ){
-	string tmpname = fn.substr( 0, fn.length() - 2 ) + "tmp";
-	if ( toXml( tmpname, nsLabel,  ( kanon || strip() ) ) ){
-	  bool stat = TiCC::gzCompress( tmpname, fn );
-	  remove( tmpname.c_str() );
-	  return stat;
-	}
-	else {
-	  return false;
-	}
-      }
       else {
 	return toXml( fn, nsLabel,  ( kanon || strip() ) );
       }
@@ -494,7 +462,7 @@ namespace folia {
       throw range_error( "Document index out of range" );
   }
 
-  icu::UnicodeString Document::text( const std::string& cls,
+  UnicodeString Document::text( const std::string& cls,
 				bool retaintok,
 				bool strict ) const {
     return foliadoc->text( cls, retaintok, strict );
@@ -619,20 +587,6 @@ namespace folia {
     }
   }
 
-  void Document::parsemeta( xmlNode *node ){
-    if ( node ){
-      KWargs att = getAttributes( node );
-      string type = att["id"];
-      string val = TiCC::XmlContent( node );
-      string get = _metadata->get_val( type );
-      if ( !get.empty() ){
-	throw runtime_error( "meta tag with id=" + type
-			     + " is defined more then once " );
-      }
-      _metadata->add_av( type, val );
-    }
-  }
-
   void Document::set_metadata( const string& type, const string& value ){
     if ( !_metadata ){
       _metadata = new NativeMetaData( "native" );
@@ -675,9 +629,9 @@ namespace folia {
     }
   }
 
-  void Document::parseannotations( xmlNode *node ){
+  void Document::parseannotations( const xmlNode *node ){
     xmlNode *n = node->children;
-    anno_sort.clear();
+    _anno_sort.clear();
     while ( n ){
       string tag = TiCC::Name( n );
       if ( tag.length() > 11 && tag.substr( tag.length() - 11 ) == "-annotation" ){
@@ -693,8 +647,12 @@ namespace folia {
 	if ( it != att.end() ){
 	  s = it->second;
 	}
-	else {
+	else if ( version_below( 1, 6 ) ){
 	  s = "undefined"; // default value
+	}
+	else {
+	  throw XmlError( "setname may not be empty for " + prefix
+			  + "-annotation" );
 	}
 	it = att.find( "annotator" );
 	if ( it != att.end() )
@@ -717,8 +675,7 @@ namespace folia {
     }
   }
 
-  void Document::parsesubmeta( xmlNode *node ){
-    using TiCC::operator<<;
+  void Document::parsesubmeta( const xmlNode *node ){
     if ( node ){
       KWargs att = getAttributes( node );
       string id = att["_id"];
@@ -782,212 +739,238 @@ namespace folia {
     }
   }
 
-  int Document::compare_to_lib_version( const string& vers ){
-    int majVersion = 0;
-    int minVersion = 0;
-    int subVersion = 0;
-    vector<string> vec;
-    TiCC::split_at( vers, vec, "." );
+  bool is_number( const string& s ){
+    for ( const auto& c : s ){
+      if ( !isdigit(c) ){
+	return false;
+      }
+    }
+    return true;
+  }
+
+  void expand_version_string( const string& vs,
+			      int& major,
+			      int& minor,
+			      int& sub,
+			      string& patch ){
+    // expand string @vs into int major, minor and subvalue
+    major = 0;
+    minor = 0;
+    sub = 0;
+    patch.clear();
+    vector<string> vec = TiCC::split_at( vs, ".", 3 );
     for ( size_t i=0; i < vec.size(); ++i ){
-      int val = TiCC::stringTo<int>( vec[i] );
-      if ( i == 0 )
-	majVersion = val;
-      else if ( i == 1 )
-	minVersion = val;
-      else
-	subVersion += val;
+      if ( i == 0 ){
+	int val = 0;
+	if ( !TiCC::stringTo( vec[i], val ) ){
+	  throw XmlError( "unable to extract major-version from: " + vs );
+	}
+	major= val;
+      }
+      else if ( i == 1 ){
+	int val = 0;
+	if ( !TiCC::stringTo( vec[i], val ) ){
+	  throw XmlError( "unable to extract minor-version from: " + vs );
+	}
+	minor = val;
+      }
+      else if ( i == 2 ){
+	if ( is_number( vec[i] ) ){
+	  TiCC::stringTo( vec[i], sub );
+	}
+	else {
+	  vector<string> v2 = TiCC::split_at( vec[i], "-", 2 );
+	  if ( v2.size() != 2 ){
+	    throw XmlError( "invalid sub-version or patch-version in: " + vs );
+	  }
+	  else {
+	    int val = 0;
+	    if ( !TiCC::stringTo( v2[0], val ) ){
+	      throw XmlError( "unable to extract sub-version from: " + vs );
+	    }
+	    sub = val;
+	    patch = "-" + v2[1]; // include the hyphen
+	  }
+	}
+      }
     }
-    if ( majVersion < MAJOR_VERSION ){
+  }
+
+  int check_version( const string& vers ){
+    int maj = 0;
+    int min = 0;
+    int sub = 0;
+    string patch;
+    expand_version_string( vers, maj, min, sub, patch );
+    if ( maj < MAJOR_VERSION ){
       return -1;
     }
-    else if ( majVersion > MAJOR_VERSION ){
+    else if ( maj > MAJOR_VERSION ){
       return 1;
     }
-    else if ( minVersion < MINOR_VERSION ){
+    else if ( min < MINOR_VERSION ){
       return -1;
     }
-    else if ( minVersion > MINOR_VERSION ){
+    else if ( min > MINOR_VERSION ){
       return 1;
     }
-    else if ( subVersion < SUB_VERSION ){
+    else if ( sub < SUB_VERSION ){
       return -1;
     }
-    else if ( subVersion > SUB_VERSION ){
+    else if ( sub > SUB_VERSION ){
       return 1;
     }
     return 0;
   }
 
-  int check_version( const string& vers, bool& no_textcheck ){
-    no_textcheck = false;
-    int majVersion = 0;
-    int minVersion = 0;
-    int subVersion = 0;
-    vector<string> vec;
-    TiCC::split_at( vers, vec, "." );
-    for ( size_t i=0; i < vec.size(); ++i ){
-      int val = TiCC::stringTo<int>( vec[i] );
-      if ( i == 0 )
-	majVersion = val;
-      else if ( i == 1 )
-	minVersion = val;
-      else
-	subVersion += val;
+  int Document::compare_to_lib_version() const {
+    return check_version( version() );
+  }
+
+  bool Document::version_below( int major, int minor ){
+    // check if current document version is strict < major.minor
+    if ( major_version < major ){
+      return true;
     }
-    if ( ( majVersion < 1 )
-	 || (majVersion == 1 && minVersion < 5 ) ){
+    else if ( major_version == major ){
+      return minor_version < minor;
+    }
+    return false;
+  }
+
+  void Document::adjustTextMode(){
+    const char *env = getenv( "FOLIA_TEXT_CHECK" );
+    if ( env ){
+      string e = env;
+      cerr << "DETECTED FOLIA_TEXT_CHECK environment variable, value ='"
+	   << e << "'"<< endl;
+      if ( e == "NO" ){
+	mode = Mode( int(mode) & ~CHECKTEXT );
+	cerr << "FOLIA_TEXT_CHECK disabled" << endl;
+      }
+      else if ( e == "YES" ){
+	mode = Mode( int(mode) | CHECKTEXT );
+	cerr << "FOLIA_TEXT_CHECK enabled" << endl;
+      }
+      else {
+	cerr << "FOLIA_TEXT_CHECK unchanged:" << (checktext()?"YES":"NO")
+	     << endl;
+      }
+    }
+    if ( !( mode & FIXTEXT) && version_below( 1, 5 ) ){
       // don't check text consistency for older documents
-      no_textcheck = true;
+      mode = Mode( int(mode) & ~CHECKTEXT );
     }
-    if ( majVersion < MAJOR_VERSION ){
-      return -1;
+    else if ( !env) {
+      mode = Mode( int(mode) | CHECKTEXT );
     }
-    else if ( majVersion > MAJOR_VERSION ){
-      return 1;
-    }
-    else if ( minVersion < MINOR_VERSION ){
-      return -1;
-    }
-    else if ( minVersion > MINOR_VERSION ){
-      return 1;
-    }
-    else if ( subVersion < SUB_VERSION ){
-      return -1;
-    }
-    else if ( subVersion > SUB_VERSION ){
-      return 1;
-    }
-    return 0;
   }
 
-  FoliaElement *Document::resolveExternals( FoliaElement* result ){
+  void Document::setDocumentProps( KWargs& kwargs ){
+    auto it = kwargs.find( "version" );
+    if ( it != kwargs.end() ){
+      _version_string = it->second;
+      //      cerr << "So we found version " << _version_string << endl;
+      kwargs.erase( it );
+    }
+    else {
+      // assign a 'random' version, but PRE 1.5
+      _version_string = "1.4.987";
+      //      cerr << "NO VERSION version " << _version_string << endl;
+    }
+    expand_version_string( _version_string,
+			   major_version,
+			   minor_version,
+			   sub_version,
+			   patch_version );
+    if ( check_version( _version_string ) > 0 ){
+      cerr << "WARNING!!! the Document is created for newer FoLiA version than this library ("
+	   << _version_string << " vs " << folia_version()
+	   << ")\n\t Any possible subsequent failures in parsing or processing may probably be attributed to this." << endl
+	   << "\t Please upgrade libfolia!" << endl;
+    }
+    adjustTextMode();
+    it = kwargs.find( "external" );
+    if ( it != kwargs.end() ){
+      external = TiCC::stringTo<bool>( it->second );
+      kwargs.erase( it );
+    }
+    else {
+      external = false;
+    }
+    bool happy = false;
+    it = kwargs.find( "_id" );
+    if ( it == kwargs.end() ){
+      it = kwargs.find( "id" );
+    }
+    if ( it != kwargs.end() ){
+      if ( isNCName( it->second ) ){
+	_id = it->second;
+      }
+      else {
+	throw XmlError( "'"
+			+ it->second
+			+ "' is not a valid NCName." );
+      }
+      happy = true;
+    }
+    if ( !foliadoc && !happy ){
+      throw runtime_error( "No Document ID specified" );
+    }
+    kwargs.erase( "generator" ); // also delete unused att-val(s)
+  }
+
+  void Document::resolveExternals(){
     if ( !externals.empty() ){
       for ( const auto& ext : externals ){
 	ext->resolve_external();
       }
     }
-    return result;
   }
 
-  FoliaElement* Document::parseFoliaDoc( xmlNode *root ){
-    KWargs att = getAttributes( root );
-    using TiCC::operator<<;
-    if ( att["_id"] == "" ){
-      throw XmlError("FoLiA Document has no ID!");
-      return 0;
+  void FoLiA::setAttributes( const KWargs& args ){
+    KWargs atts = args;
+    // we store some attributes in the document itself
+    mydoc->setDocumentProps( atts );
+    // use remaining attributes for the FoLiA node
+    // probably only the ID
+    FoliaImpl::setAttributes( atts );
+  }
+
+  FoliaElement* FoLiA::parseXml( const xmlNode *node ){
+    ///
+    /// recursively parse a complete FoLiA tree from @node
+    /// the topnode is special, as it carries the main document properties
+    ///
+    KWargs atts = getAttributes( node );
+    if ( !mydoc ){
+      throw logic_error( "FoLiA root without Document" );
     }
-    string vers = att["version"];
-    bool no_textcheck = false;
-    if ( check_version( vers, no_textcheck ) > 0 ){
-      cerr << "WARNING!!! FoLiA Document is a newer version than this library ("
-	   << vers << " vs " << _version
-	   << ")\n\t Any possible subsequent failures in parsing or processing may probably be attributed to this." << endl
-	   << "\t Please upgrade libfolia!" << endl;
-    }
-    if ( no_textcheck ){
-      setmode( "nochecktext" );
-    }
-    setDocumentProps( att );
-    FoliaElement *result = FoliaImpl::createElement( TiCC::Name(root), this );
-    if ( debug > 2 ){
-      cerr << "created " << root << endl;
-    }
-    result->setAttributes( att );
-    xmlNode *p = root->children;
+    setAttributes( atts );
+    xmlNode *p = node->children;
     while ( p ){
       if ( p->type == XML_ELEMENT_NODE ){
 	if ( TiCC::Name(p) == "metadata" &&
 	     checkNS( p, NSFOLIA ) ){
-	  if ( debug > 1 ){
+	  if ( mydoc->debug > 1 ){
 	    cerr << "Found metadata" << endl;
 	  }
-	  KWargs atts = getAttributes( p );
-	  string type = TiCC::lowercase(atts["type"]);
-	  if ( type.empty() ){
-	    type = "native";
-	  }
-	  string src = atts["src"];
-	  if ( !src.empty() ){
-	    _metadata = new ExternalMetaData( type, src );
-	  }
-	  else if ( type == "native" ){
-	    _metadata = new NativeMetaData( type );
-	  }
-	  else {
-	    _metadata = 0;
-	  }
-	  xmlNode *m = p->children;
-	  while ( m ){
-	    if ( TiCC::Name(m)  == "METATRANSCRIPT" ){
-	      if ( !checkNS( m, NSIMDI ) || type != "imdi" )
-		throw runtime_error( "imdi != imdi " );
-	      if ( debug > 1 ){
-		cerr << "found IMDI" << endl;
-	      }
-	      if ( !_metadata ){
-		_metadata = new ForeignMetaData( "imdi" );
-	      }
-	      _metadata->add_foreign( xmlCopyNode(m,1) );
-	    }
-	    else if ( TiCC::Name( m ) == "annotations" &&
-		      checkNS( m, NSFOLIA ) ){
-	      if ( debug > 1 ){
-		cerr << "found annotations" << endl;
-	      }
-	      parseannotations( m );
-	    }
-	    else if ( TiCC::Name( m ) == "meta" &&
-		      checkNS( m, NSFOLIA ) ){
-	      if ( debug > 1 ){
-		cerr << "found meta node" << endl;
-	      }
-	      parsemeta( m );
-	    }
-	    else if ( TiCC::Name(m)  == "foreign-data" &&
-		      checkNS( m, NSFOLIA ) ){
-	      FoliaElement *t = FoliaImpl::createElement( "foreign-data", this );
-	      if ( t ){
-		t = t->parseXml( m );
-		if ( t ){
-		  if ( _metadata && _metadata->datatype() == "NativeMetaData" ){
-		    cerr << "WARNING: foreign-data found in metadata of type 'native'"  << endl;
-		    cerr << "changing type to 'foreign'" << endl;
-		    type = "foreign";
-		    delete _metadata;
-		    _metadata = new ForeignMetaData( type );
-		  }
-		  if ( !_metadata ){
-		    _metadata = new ForeignMetaData( type );
-		  }
-		  _metadata->add_foreign( m );
-		}
-	      }
-	    }
-	    else if ( TiCC::Name(m)  == "submetadata" &&
-		      checkNS( m, NSFOLIA ) ){
-	      parsesubmeta( m );
-	    }
-	    m = m->next;
-	  }
-	  if ( _metadata == 0 && type == "imdi" ){
-	    // imdi missing all further info
-	    _metadata = new NativeMetaData( type );
-	  }
+	  mydoc->parse_metadata( p );
 	}
 	else {
 	  if ( p && TiCC::getNS(p) == NSFOLIA ){
 	    string tag = TiCC::Name( p );
-	    FoliaElement *t = FoliaImpl::createElement( tag, this );
+	    FoliaElement *t = FoliaImpl::createElement( tag, mydoc );
 	    if ( t ){
-	      if ( debug > 2 ){
+	      if ( mydoc->debug > 2 ){
 		cerr << "created " << t << endl;
 	      }
 	      t = t->parseXml( p );
 	      if ( t ){
-		if ( debug > 2 ){
-		  cerr << "extend " << result << " met " << tag << endl;
+		if ( mydoc->debug > 2 ){
+		  cerr << "extend " << this << " met " << tag << endl;
 		}
-		result->append( t );
+		this->append( t );
 	      }
 	    }
 	  }
@@ -995,8 +978,92 @@ namespace folia {
       }
       p = p->next;
     }
-    result = resolveExternals( result );
-    return result;
+    return this;
+  }
+
+  void Document::parse_metadata( const xmlNode *p ){
+    MetaData *result = 0;
+    KWargs atts = getAttributes( p );
+    string type = TiCC::lowercase(atts["type"]);
+    if ( type.empty() ){
+      type = "native";
+    }
+    string src = atts["src"];
+    if ( !src.empty() ){
+      result = new ExternalMetaData( type, src );
+    }
+    else if ( type == "native" ){
+      result = new NativeMetaData( type );
+    }
+    xmlNode *m = p->children;
+    while ( m ){
+      if ( TiCC::Name(m)  == "METATRANSCRIPT" ){
+	if ( !checkNS( m, NSIMDI ) || type != "imdi" )
+	  throw runtime_error( "imdi != imdi " );
+	if ( debug > 1 ){
+	  cerr << "found IMDI" << endl;
+	}
+	if ( !result ){
+	  result = new ForeignMetaData( "imdi" );
+	}
+	result->add_foreign( xmlCopyNode(m,1) );
+      }
+      else if ( TiCC::Name( m ) == "annotations" &&
+		checkNS( m, NSFOLIA ) ){
+	if ( debug > 1 ){
+	  cerr << "found annotations" << endl;
+	}
+	parseannotations( m );
+      }
+      else if ( TiCC::Name( m ) == "meta" &&
+		checkNS( m, NSFOLIA ) ){
+	if ( debug > 1 ){
+	  cerr << "found meta node" << endl;
+	}
+	if ( !result ){
+	  throw runtime_error( "'meta' tag found outside a metadata block" );
+	}
+	KWargs att = getAttributes( m );
+	string type = att["id"];
+	string val = TiCC::XmlContent( m );
+	string get = result->get_val( type );
+	if ( !get.empty() ){
+	  throw runtime_error( "meta tag with id=" + type
+			       + " is defined more then once " );
+	}
+	result->add_av( type, val );
+      }
+      else if ( TiCC::Name(m)  == "foreign-data" &&
+		checkNS( m, NSFOLIA ) ){
+	FoliaElement *t = FoliaImpl::createElement( "foreign-data", this );
+	if ( t ){
+	  t = t->parseXml( m );
+	  if ( t ){
+	    if ( result && result->datatype() == "NativeMetaData" ){
+	      cerr << "WARNING: foreign-data found in metadata of type 'native'"  << endl;
+	      cerr << "changing type to 'foreign'" << endl;
+	      type = "foreign";
+	      delete result;
+	      result = new ForeignMetaData( type );
+	    }
+	    if ( !result ){
+	      result = new ForeignMetaData( type );
+	    }
+	    result->add_foreign( m );
+	  }
+	}
+      }
+      else if ( TiCC::Name(m)  == "submetadata" &&
+		checkNS( m, NSFOLIA ) ){
+	parsesubmeta( m );
+      }
+      m = m->next;
+    }
+    if ( result == 0 && type == "imdi" ){
+      // imdi missing all further info
+      result = new NativeMetaData( type );
+    }
+    _metadata = result;
   }
 
   void Document::addStyle( const string& type, const string& href ){
@@ -1150,17 +1217,9 @@ namespace folia {
 			  + NSFOLIA + " but found: " + ns );
 	}
 	try {
-	  result = parseFoliaDoc( root );
-	  if ( result ){
-	    if ( isNCName( result->id() ) )
-	      _id = result->id();
-	    else {
-	      // can this ever happen? parseFoliaDoc should fail
-	      throw XmlError( "'"
-			      + result->id()
-			      + "' is not a valid NCName." );
-	    }
-	  }
+	  FoLiA *folia = new FoLiA( this );
+	  result = folia->parseXml( root );
+	  resolveExternals();
 	}
 	catch ( InconsistentText& e ){
 	  throw;
@@ -1186,8 +1245,15 @@ namespace folia {
   void Document::declare( AnnotationType::AnnotationType type,
 			  const string& setname, const string& args ){
     string st = setname;
-    if ( st.empty() )
-      st = "undefined";
+    if ( st.empty() ){
+      if ( version_below( 1, 6 ) ){
+	st = "undefined";
+      }
+      else {
+	throw XmlError( "setname may not be empty for " + toString(type)
+			+ "-annotation" );
+      }
+    }
     KWargs kw = getArgs( args );
     string a = kw["annotator"];
     string t = kw["annotatortype"];
@@ -1216,8 +1282,8 @@ namespace folia {
 
   string Document::unalias( AnnotationType::AnnotationType type,
 			    const string& alias ) const {
-    const auto& ti = alias_set.find(type);
-    if ( ti != alias_set.end() ){
+    const auto& ti = _alias_set.find(type);
+    if ( ti != _alias_set.end() ){
       const auto& sti = ti->second.find( alias );
       if ( sti != ti->second.end() ){
 	return sti->second;
@@ -1228,8 +1294,8 @@ namespace folia {
 
   string Document::alias( AnnotationType::AnnotationType type,
 			  const string& st ) const {
-    const auto& ti = set_alias.find(type);
-    if ( ti != set_alias.end() ){
+    const auto& ti = _set_alias.find(type);
+    if ( ti != _set_alias.end() ){
       const auto& ali = ti->second.find( st );
       if ( ali != ti->second.end() ){
 	return ali->second;
@@ -1276,17 +1342,17 @@ namespace folia {
       if ( d == "now()" ){
 	d = getNow();
       }
-      annotationdefaults[type].insert( make_pair( setname,
-						  at_t(annotator,annotator_type,d) ) );
-      anno_sort.push_back(make_pair(type,setname));
-      annotationrefs[type][setname] = 0;
+      _annotationdefaults[type].insert( make_pair( setname,
+						   at_t(annotator,annotator_type,d) ) );
+      _anno_sort.push_back(make_pair(type,setname));
+      _annotationrefs[type][setname] = 0;
       if ( !_alias.empty() ){
-	alias_set[type][_alias] = setname;
-	set_alias[type][setname] = _alias;
+	_alias_set[type][_alias] = setname;
+	_set_alias[type][setname] = _alias;
       }
       else {
-	alias_set[type][setname] = setname;
-	set_alias[type][setname] = setname;
+	_alias_set[type][setname] = setname;
+	_set_alias[type][setname] = setname;
       }
     }
   }
@@ -1294,12 +1360,12 @@ namespace folia {
   void Document::un_declare( AnnotationType::AnnotationType type,
 			     const string& set_name ){
     string setname = unalias(type,set_name);
-    if (  annotationrefs[type][setname] != 0 ){
+    if ( _annotationrefs[type][setname] != 0 ){
       throw XmlError( "unable to undeclare " + toString(type) + "-type("
 		      + setname + ") (references remain)" );
     }
-    auto const adt = annotationdefaults.find(type);
-    if ( adt != annotationdefaults.end() ){
+    auto const adt = _annotationdefaults.find(type);
+    if ( adt != _annotationdefaults.end() ){
       auto it = adt->second.begin();
       while ( it != adt->second.end() ){
 	if ( setname.empty() || it->first == setname ){
@@ -1309,28 +1375,28 @@ namespace folia {
 	  ++it;
 	}
       }
-      auto it2 = anno_sort.begin();
-      while ( it2 != anno_sort.end() ){
+      auto it2 = _anno_sort.begin();
+      while ( it2 != _anno_sort.end() ){
 	if ( it2->first == type && it2->second == setname ){
-	  it2 = anno_sort.erase( it2 );
+	  it2 = _anno_sort.erase( it2 );
 	}
 	else {
 	  ++it2;
 	}
       }
-      auto it3 = alias_set[type].begin();
-      while ( it3 != alias_set[type].end() ){
+      auto it3 = _alias_set[type].begin();
+      while ( it3 != _alias_set[type].end() ){
 	if ( it3->first == setname || it3->second == setname ){
-	  it3 = alias_set[type].erase( it3 );
+	  it3 = _alias_set[type].erase( it3 );
 	}
 	else {
 	  ++it3;
 	}
       }
-      auto it4 = set_alias[type].begin();
-      while ( it4 != set_alias[type].end() ){
+      auto it4 = _set_alias[type].begin();
+      while ( it4 != _set_alias[type].end() ){
 	if ( it4->first == setname || it4->second == setname ){
-	  it4 = set_alias[type].erase( it4 );
+	  it4 = _set_alias[type].erase( it4 );
 	}
 	else {
 	  ++it4;
@@ -1341,7 +1407,7 @@ namespace folia {
 
   multimap<AnnotationType::AnnotationType, string> Document::unused_declarations( ) const {
     multimap<AnnotationType::AnnotationType,string> result;
-    for ( const auto& tit : annotationrefs ){
+    for ( const auto& tit : _annotationrefs ){
       for ( const auto& mit : tit.second ){
 	if ( mit.second == 0 ){
 	  result.insert( make_pair(tit.first, mit.first ) );
@@ -1357,9 +1423,36 @@ namespace folia {
     return res;
   }
 
+  Speech* Document::addSpeech( const KWargs& kwargs ){
+    Speech *res = new Speech( kwargs, this );
+    foliadoc->append( res );
+    return res;
+  }
+
   Text* Document::addText( Text *t ){
     foliadoc->append( t );
     return t;
+  }
+
+  Speech* Document::addSpeech( Speech *t ){
+    foliadoc->append( t );
+    return t;
+  }
+
+  FoliaElement* Document::setRoot( FoliaElement *t ) {
+    if ( t->element_id() == Text_t ){
+      return addText(dynamic_cast<Text*>(t) );
+    }
+    else if ( t->element_id() == Speech_t ){
+      return addSpeech(dynamic_cast<Speech*>(t) );
+    }
+    throw XmlError( "Only can append 'text' or 'speech' as root of a Document." );
+  }
+
+  FoliaElement* Document::append( FoliaElement *t ){  // OBSOLETE
+    // cerr << "\nWARNING!! Obsolete Document::append() function is used. "
+    // 	 << "Please replace by Document::setRoot() ASAP." << endl;
+    return setRoot(t);
   }
 
   bool Document::isDeclared( AnnotationType::AnnotationType type,
@@ -1377,8 +1470,8 @@ namespace folia {
     }
     string setname = unalias(type,set_name);
 
-    const auto& it1 = annotationdefaults.find(type);
-    if ( it1 != annotationdefaults.end() ){
+    const auto& it1 = _annotationdefaults.find(type);
+    if ( it1 != _annotationdefaults.end() ){
       auto mit2 = it1->second.lower_bound(setname);
       while ( mit2 != it1->second.upper_bound(setname) ){
 	if ( mit2->second.a == annotator && mit2->second.t == annotator_type )
@@ -1396,7 +1489,7 @@ namespace folia {
       if ( st.empty() ){
 	st = defaultset(type);
       }
-      ++annotationrefs[type][st];
+      ++_annotationrefs[type][st];
       //      cerr << "increment " << toString(type) << "(" << st << ")" << endl;
     }
   }
@@ -1404,7 +1497,7 @@ namespace folia {
   void Document::decrRef( AnnotationType::AnnotationType type,
 			  const string& s ){
     if ( type != AnnotationType::NO_ANN ){
-      --annotationrefs[type][s];
+      --_annotationrefs[type][s];
       //      cerr << "decrement " << toString(type) << "(" << s << ")" << endl;
     }
   }
@@ -1414,8 +1507,8 @@ namespace folia {
     if ( type == AnnotationType::NO_ANN ){
       return true;
     }
-    const auto& mit1 = annotationdefaults.find(type);
-    if ( mit1 != annotationdefaults.end() ){
+    const auto& mit1 = _annotationdefaults.find(type);
+    if ( mit1 != _annotationdefaults.end() ){
       if ( setname.empty() )
 	return true;
       const auto& mit2 = mit1->second.find(setname);
@@ -1428,15 +1521,16 @@ namespace folia {
     if ( type == AnnotationType::NO_ANN )
       return "";
     // search a set. it must be unique. Otherwise return ""
-    //    cerr << "zoek '" << type << "' default set " <<  annotationdefaults << endl;
+    // cerr << "document: " << doc_version() << endl;
+    // cerr << "zoek '" << type << "' default set " <<  _annotationdefaults << endl;
     string result;
-    const auto& mit1 = annotationdefaults.find(type);
-    if ( mit1 != annotationdefaults.end() ){
-      //      cerr << "vind tussen " <<  mit1->second << endl;
+    const auto& mit1 = _annotationdefaults.find(type);
+    if ( mit1 != _annotationdefaults.end() ){
+      // cerr << "vind tussen " <<  mit1->second << endl;
       if ( mit1->second.size() == 1 )
 	result = mit1->second.begin()->first;
     }
-    //    cerr << "defaultset ==> " << result << endl;
+    // cerr << "defaultset ==> " << result << endl;
     return result;
   }
 
@@ -1446,11 +1540,11 @@ namespace folia {
       return "";
     }
     // if ( !st.empty() ){
-    //   cerr << "zoek '" << st << "' default annotator " <<  annotationdefaults << endl;
+    //   cerr << "zoek '" << st << "' default annotator " <<  _annotationdefaults << endl;
     // }
-    const auto& mit1 = annotationdefaults.find(type);
+    const auto& mit1 = _annotationdefaults.find(type);
     string result;
-    if ( mit1 != annotationdefaults.end() ){
+    if ( mit1 != _annotationdefaults.end() ){
       //      cerr << "vind tussen " <<  mit1->second << endl;
       if ( st.empty() ){
 	if ( mit1->second.size() == 1 ){
@@ -1474,9 +1568,9 @@ namespace folia {
     if ( type == AnnotationType::NO_ANN ){
       return "";
     }
-    const auto& mit1 = annotationdefaults.find(type);
+    const auto& mit1 = _annotationdefaults.find(type);
     string result;
-    if ( mit1 != annotationdefaults.end() ){
+    if ( mit1 != _annotationdefaults.end() ){
       if ( st.empty() ){
 	if ( mit1->second.size() == 1 )
 	  result = mit1->second.begin()->second.t;
@@ -1495,9 +1589,9 @@ namespace folia {
 
   string Document::defaultdatetime( AnnotationType::AnnotationType type,
 				    const string& st ) const {
-    const auto& mit1 = annotationdefaults.find(type);
+    const auto& mit1 = _annotationdefaults.find(type);
     string result;
-    if ( mit1 != annotationdefaults.end() ){
+    if ( mit1 != _annotationdefaults.end() ){
       if ( st.empty() ){
 	if ( mit1->second.size() == 1 )
 	  result = mit1->second.begin()->second.d;
@@ -1515,13 +1609,13 @@ namespace folia {
   }
 
   void Document::setannotations( xmlNode *node ) const {
-    for ( const auto& pair : anno_sort ){
+    for ( const auto& pair : _anno_sort ){
       // Find the 'label'
       AnnotationType::AnnotationType type = pair.first;
       string label = toString( type );
       label += "-annotation";
       string sett = pair.second;
-      const auto& mm = annotationdefaults.find(type);
+      const auto& mm = _annotationdefaults.find(type);
       auto it = mm->second.lower_bound(sett);
       while ( it != mm->second.upper_bound(sett) ){
 	KWargs args;
@@ -1539,8 +1633,8 @@ namespace folia {
 	s = it->first;
 	if ( s != "undefined" ) // the default
 	  args["set"] = s;
-	const auto& ti = set_alias.find(type);
-	if ( ti != set_alias.end() ){
+	const auto& ti = _set_alias.find(type);
+	if ( ti != _set_alias.end() ){
 	  const auto& alias = ti->second.find(s);
 	  if ( alias->second != s ){
 	    args["alias"] = alias->second;
@@ -1674,9 +1768,9 @@ namespace folia {
       attribs["version"] = "";
     }
     else {
-      attribs["generator"] = string("libfolia-v") + VERSION;
-      if ( !_version.empty() )
-	attribs["version"] = _version;
+      attribs["generator"] = "libfolia-v" + library_version();
+      if ( !_version_string.empty() )
+	attribs["version"] = _version_string;
     }
     if ( external )
       attribs["external"] = "yes";
@@ -1709,11 +1803,15 @@ namespace folia {
     return result;
   }
 
-  bool Document::toXml( const string& filename,
+  bool Document::toXml( const string& file_name,
 			const string& nsLabel, bool kanon ) const {
     if ( foliadoc ){
       xmlDoc *outDoc = to_xmlDoc( nsLabel, kanon );
-      long int res = xmlSaveFormatFileEnc( filename.c_str(), outDoc, "UTF-8", 1 );
+      if ( TiCC::match_back( file_name, ".gz" ) ){
+	xmlSetDocCompressMode(outDoc,9);
+      }
+      long int res = xmlSaveFormatFileEnc( file_name.c_str(), outDoc,
+					   "UTF-8", 1 );
       xmlFreeDoc( outDoc );
       _foliaNsOut = 0;
       if ( res == -1 )
@@ -1749,7 +1847,7 @@ namespace folia {
       bool goon = true;
       for ( size_t i = startpos; i < mywords.size() && goon ; ++i ){
 	//      cerr << "inner LOOP I = " << i << " myword=" << mywords[i] << endl;
-	icu::UnicodeString value;
+	UnicodeString value;
 	if ( pat.matchannotation == BASE )
 	  value = mywords[i]->text();
 	else {
@@ -1877,9 +1975,9 @@ namespace folia {
       if ( pat.find( "regexp('" ) == 0 &&
 	   pat.rfind( "')" ) == pat.length()-2 ){
 	string tmp = pat.substr( 8, pat.length() - 10 );
-	icu::UnicodeString us = TiCC::UnicodeFromUTF8( tmp );
+	UnicodeString us = TiCC::UnicodeFromUTF8( tmp );
 	UErrorCode u_stat = U_ZERO_ERROR;
-	icu::RegexMatcher *matcher = new icu::RegexMatcher(us, 0, u_stat);
+	RegexMatcher *matcher = new RegexMatcher(us, 0, u_stat);
 	if ( U_FAILURE(u_stat) ){
 	  throw runtime_error( "failed to create a regexp matcher with '" + tmp + "'" );
 	}
@@ -1914,9 +2012,9 @@ namespace folia {
       if ( pat.find( "regexp('" ) == 0 &&
 	   pat.rfind( "')" ) == pat.length()-2 ){
 	string tmp = pat.substr( 8, pat.length() - 10 );
-	icu::UnicodeString us = TiCC::UnicodeFromUTF8( tmp );
+	UnicodeString us = TiCC::UnicodeFromUTF8( tmp );
 	UErrorCode u_stat = U_ZERO_ERROR;
-	icu::RegexMatcher *matcher = new icu::RegexMatcher(us, 0, u_stat);
+	RegexMatcher *matcher = new RegexMatcher(us, 0, u_stat);
 	if ( U_FAILURE(u_stat) ){
 	  throw runtime_error( "failed to create a regexp matcher with '" + tmp + "'" );
 	}
@@ -1945,9 +2043,9 @@ namespace folia {
     return os;
   }
 
-  bool Pattern::match( const icu::UnicodeString& us, size_t& pos, int& gap,
+  bool Pattern::match( const UnicodeString& us, size_t& pos, int& gap,
 		       bool& done, bool& flag ) const {
-    icu::UnicodeString s = us;
+    UnicodeString s = us;
     //  cerr << "gap = " << gap << "cursor=" << pos << " vergelijk '" <<  sequence[pos] << "' met '" << us << "'" << endl;
     if ( matchers[pos] ){
       matchers[pos]->reset( s );

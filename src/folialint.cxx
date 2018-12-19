@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2006 - 2018
+  Copyright (c) 2006 - 2019
   CLST  - Radboud University
   ILK   - Tilburg University
 
@@ -57,11 +57,12 @@ int main( int argc, char* argv[] ){
   bool nooutput = false;
   bool nochecktext = false;
   bool fixtext = false;
+  bool kanon = false;
   string debug;
   vector<string> fileNames;
   try {
     TiCC::CL_Options Opts( "hV",
-			   "nochecktext,debug:,permissive,strip,output:,nooutput,help,fixtext,warn,version");
+			   "nochecktext,debug:,permissive,strip,output:,nooutput,help,fixtext,warn,version,KANON");
     Opts.init(argc, argv );
     if ( Opts.extract( 'h' )
 	 || Opts.extract( "help" ) ){
@@ -78,6 +79,7 @@ int main( int argc, char* argv[] ){
     warn = Opts.extract("warn");
     nooutput = Opts.extract("nooutput");
     fixtext = Opts.extract("fixtext");
+    kanon = Opts.extract("KANON");
     if ( Opts.extract("nochecktext") ){
       nochecktext = true;
     }
@@ -87,7 +89,7 @@ int main( int argc, char* argv[] ){
       return EXIT_FAILURE;
     }
     Opts.extract( "debug", debug );
-    Opts.extract("output", outputName);
+    Opts.extract( "output", outputName );
     if ( !Opts.empty() ){
       cerr << "unsupported option(s): " << Opts.toString() << endl;
       return EXIT_FAILURE;
@@ -141,16 +143,16 @@ int main( int argc, char* argv[] ){
       cmd += mode;
       folia::Document d( cmd );
       if ( !outputName.empty() ){
-	d.save( outputName );
+	d.save( outputName, kanon );
       }
       else if ( !nooutput ){
 	cout << d;
       }
       if ( warn ){
-	if ( folia::Document::compare_to_lib_version(d.version()) ){
+	if ( d.compare_to_lib_version() ){
 	  cerr << "WARNING: the document had version: " << d.version()
 	       << " and the library is at version: "
-	       <<  folia::Document::library_version() << endl;
+	       <<  folia::library_version() << endl;
 	}
 	multimap<folia::AnnotationType::AnnotationType, string> und = d.unused_declarations();
 	if ( !und.empty() ){
@@ -162,7 +164,7 @@ int main( int argc, char* argv[] ){
       }
     }
     catch( exception& e ){
-      cerr << inputName << " failed: " << endl << e.what() << endl;
+      cerr << inputName << " failed: " << e.what() << endl;
       //      exit( EXIT_FAILURE );
     }
   }

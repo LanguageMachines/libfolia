@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.59)
-AC_INIT([libfolia], [1.14], [lamasoftware@science.ru.nl]) #also adapt in codemeta.json!
+AC_INIT([libfolia], [1.16], [lamasoftware@science.ru.nl]) #also adapt in codemeta.json!
 AM_INIT_AUTOMAKE([foreign])
 AC_CONFIG_SRCDIR([configure.ac])
 AC_CONFIG_MACRO_DIR([m4])
@@ -45,9 +45,14 @@ AX_PTHREAD([],[AC_MSG_ERROR([We need pthread support!])])
 LIBS="$PTHREAD_LIBS $LIBS"
 CXXFLAGS="$CXXFLAGS $PTHREAD_CFLAGS"
 
-if test $prefix = "NONE"; then
-   prefix="$ac_default_prefix"
-fi
+# for now we demand boost, because on some systems gcc4.8 is installed still
+# and that fails on regex.
+
+AX_BOOST_BASE( [1.50],
+	       [AX_BOOST_REGEX
+	        LIBS="$LIBS $BOOST_REGEX_LIB"
+                AC_DEFINE(HAVE_BOOST_REGEX, 1 , [Define to 1 if you have boost regular expresions] )],
+               [AC_MSG_ERROR([No Regular expression support available. Please install libboost-regex-dev])])
 
 PKG_PROG_PKG_CONFIG
 if test "x$prefix" = "xNONE"; then

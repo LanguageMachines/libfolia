@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2006 - 2018
+  Copyright (c) 2006 - 2019
   CLST  - Radboud University
   ILK   - Tilburg University
 
@@ -40,6 +40,8 @@
 #include "libxml/xpath.h"
 #include "libfolia/folia.h"
 
+using namespace icu;
+
 namespace folia {
   void initMT();
 
@@ -56,7 +58,7 @@ namespace folia {
     Pattern( const std::vector<std::string>&,  const std::string& );
 
     ~Pattern();
-    bool match( const icu::UnicodeString& , size_t&, int&, bool&, bool& ) const;
+    bool match( const UnicodeString& , size_t&, int&, bool&, bool& ) const;
     size_t size() const { return sequence.size(); };
     void unsetwild();
     bool variablesize() const;
@@ -66,7 +68,7 @@ namespace folia {
   private:
     bool case_sensitive;
     int maxgapsize;
-    std::vector<icu::UnicodeString> sequence;
+    std::vector<UnicodeString> sequence;
     std::vector<RegexMatcher*> matchers;
     std::string matchannotationset;
   };
@@ -80,10 +82,11 @@ namespace folia {
     friend bool operator==( const Document&, const Document& );
     friend std::ostream& operator<<( std::ostream&, const Document * );
     enum Mode { NOMODE=0, PERMISSIVE=1, CHECKTEXT=2, FIXTEXT=4, STRIP=8 };
-
+    friend class Processor;
   public:
     Document();
-    explicit Document( const std::string& );
+    explicit Document( const KWargs& );
+    explicit Document( const std::string& s): Document( getArgs(s) ){};
     ~Document();
     void init();
     bool readFromFile( const std::string& );
@@ -101,16 +104,16 @@ namespace folia {
     FoliaElement* doc() const { return foliadoc; }
     Text* addText( const KWargs& );
     Text* addText( Text * );
-    FoliaElement* append( Text *t ){
-      // almost backward compatible
-      return addText(t);
-    };
+    Speech* addSpeech( const KWargs& );
+    Speech* addSpeech( Speech * );
+    FoliaElement* append( FoliaElement *t ); // OBSOLETE
+    FoliaElement* setRoot( FoliaElement * );
     void set_foreign_metadata( xmlNode * );
     void addStyle( const std::string&, const std::string& );
     void replaceStyle( const std::string&, const std::string& );
-    icu::UnicodeString text( const std::string& = "current",
-			     bool = false,
-			     bool = false ) const;
+    UnicodeString text( const std::string& = "current",
+			bool = false,
+			bool = false ) const;
     std::vector<Paragraph*> paragraphs() const;
     std::vector<Sentence*> sentences() const;
     std::vector<Sentence*> sentenceParts() const;
@@ -178,7 +181,7 @@ namespace folia {
     xmlNs *foliaNs() const { return _foliaNsOut; };
     void keepForDeletion( FoliaElement *p ) { delSet.insert( p ); };
     void addExternal( External *p ) { externals.push_back( p ); };
-    FoliaElement *resolveExternals( FoliaElement* );
+    void resolveExternals();
     int debug;
     bool permissive() const { return mode & PERMISSIVE; };
     bool checktext() const {
@@ -216,25 +219,27 @@ namespace folia {
       p_offset_validation_buffer.push_back( tc );
     }
     bool validate_offsets() const;
-    static int compare_to_lib_version( const std::string& );
-    static std::string library_version();
-    std::string version() const { return _version; };
+    int compare_to_lib_version() const;
+    std::string version() const { return _version_string; };
+    std::string doc_version() const;
     std::string update_version();
+    bool version_below( int, int );
+    std::map<AnnotationType::AnnotationType,std::multimap<std::string,at_t> > annotationdefaults() const { return _annotationdefaults; };
+    void parse_metadata( const xmlNode * );
+    void setDocumentProps( KWargs& );
   private:
-    std::map<AnnotationType::AnnotationType,std::multimap<std::string,at_t> > annotationdefaults;
-    std::vector<std::pair<AnnotationType::AnnotationType,std::string>> anno_sort;
-    std::map<AnnotationType::AnnotationType,std::map<std::string,int> > annotationrefs;
-    std::map<AnnotationType::AnnotationType,std::map<std::string,std::string>> alias_set;
-    std::map<AnnotationType::AnnotationType,std::map<std::string,std::string>> set_alias;
+    void adjustTextMode();
+    std::map<AnnotationType::AnnotationType,std::multimap<std::string,at_t> > _annotationdefaults;
+    std::vector<std::pair<AnnotationType::AnnotationType,std::string>> _anno_sort;
+    std::map<AnnotationType::AnnotationType,std::map<std::string,int> > _annotationrefs;
+    std::map<AnnotationType::AnnotationType,std::map<std::string,std::string>> _alias_set;
+    std::map<AnnotationType::AnnotationType,std::map<std::string,std::string>> _set_alias;
     std::vector<TextContent*> t_offset_validation_buffer;
     std::vector<PhonContent*> p_offset_validation_buffer;
 
-    FoliaElement* parseFoliaDoc( xmlNode * );
-    void parsemeta( xmlNode * );
     void setimdi( xmlNode * );
-    void setDocumentProps( KWargs& );
-    void parseannotations( xmlNode * );
-    void parsesubmeta( xmlNode * );
+    void parseannotations( const xmlNode * );
+    void parsesubmeta( const xmlNode * );
     void getstyles();
     void setannotations( xmlNode *) const;
     void setmetadata( xmlNode * ) const;
@@ -256,8 +261,12 @@ namespace folia {
     std::map<std::string,MetaData *> submetadata;
     std::multimap<std::string,std::string> styles;
     mutable Mode mode;
-    std::string filename;
-    std::string _version;
+    std::string _source_filename;
+    std::string _version_string;
+    int major_version;
+    int minor_version;
+    int sub_version;
+    std::string patch_version;
     bool external;
     Document( const Document& ); // inhibit copies
     Document& operator=( const Document& ); // inhibit copies
@@ -278,6 +287,12 @@ namespace folia {
     os << "<" << at.a << "," << at.t << "," << at.d << ">";
     return os;
   }
+
+  void expand_version_string( const std::string&,
+			      int&, int&, int&, std::string& );
+
+  std::string library_version();
+  std::string folia_version();
 
 } // namespace folia
 

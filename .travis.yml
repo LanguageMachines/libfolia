@@ -7,13 +7,14 @@ group: edge
 branches:
   only:
     - master
+    - foliareader
 
 notifications:
   irc:
     channels:
       - "irc.uvt.nl#gitlama"
     template:
-      - "%{repository_slug}#%{build_number} %{message} --> %{build_url}"
+      - "%{repository_slug}#%{build_number}-%{branch} :  %{message} --> %{build_url}"
     skip_join: true
 
 language: cpp
@@ -30,7 +31,7 @@ matrix:
       compiler: clang++
       env:
         - SCAN=scan-build
-        - OPENMPFLAG=--disable-openmp
+#        - OPENMPFLAG=--disable-openmp
 
 
     - os: osx
@@ -60,7 +61,7 @@ before_install:
 
     - export PATH="/usr/lib/ccache/bin/:$PATH"
 
-    - git clone https://github.com/proycon/ticcutils
+    - git clone https://github.com/LanguageMachines/ticcutils
     - cd ticcutils
     - bash bootstrap.sh
     - ./configure $OPENMPFLAG

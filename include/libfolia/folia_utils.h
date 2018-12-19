@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2006 - 2018
+  Copyright (c) 2006 - 2019
   CLST  - Radboud University
   ILK   - Tilburg University
 
@@ -132,6 +132,12 @@ namespace folia {
 
   KWargs getArgs( const std::string& );
   std::string toString( const KWargs& );
+
+  inline std::ostream& operator<<( std::ostream& os,
+				   const KWargs& ats ){
+    os << toString( ats );
+    return os;
+  }
 
   inline std::ostream& operator<<( std::ostream& os,
 				   const AnnotationType::AnnotationType& at ){

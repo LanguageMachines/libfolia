@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2006 - 2018
+  Copyright (c) 2006 - 2019
   CLST  - Radboud University
   ILK   - Tilburg University
 
@@ -41,7 +41,9 @@
 #include "libfolia/folia_properties.h"
 
 using namespace std;
+using namespace icu;
 using namespace TiCC;
+using namespace icu;
 
 namespace folia {
 
@@ -52,7 +54,7 @@ namespace folia {
     try {
       et = stringToET( tag );
     }
-    catch ( ValueError& e ){
+    catch ( const ValueError& e ){
       cerr << e.what() << endl;
       return 0;
     }
@@ -230,7 +232,7 @@ namespace folia {
       int result = stringTo<int>( ms );
       return result - 1;
     }
-    catch( exception ){
+    catch( const exception& ){
       string m = TiCC::lowercase( ms );
       if ( m == "jan" )
 	return 0;
@@ -385,7 +387,7 @@ namespace folia {
 	try {
 	  stringTo<AnnotationType::AnnotationType>( s );
 	}
-	catch ( ValueError& e ){
+	catch ( const ValueError& e ){
 	  cerr << "no AnnotationType found for string '" << s << "'" << endl;
 	  sane = false;
 	}
@@ -422,7 +424,7 @@ namespace folia {
 	try {
 	  et2 = stringToET( s );
 	}
-	catch ( ValueError& e ){
+	catch ( const ValueError& e ){
 	  cerr << "no element type found for string '" << s << "'" << endl;
 	  sane = false;
 	  continue;
@@ -437,7 +439,7 @@ namespace folia {
 	try {
 	  tmp1 = FoliaImpl::createElement( s );
 	}
-	catch( ValueError &e ){
+	catch( const ValueError &e ){
 	  string err = e.what();
 	  if ( err.find("abstract") ==string::npos ){
 	    cerr << "createElement(" << s << ") failed! :" << err << endl;
@@ -449,7 +451,7 @@ namespace folia {
 	  try {
 	    tmp2 = FoliaImpl::createElement( et );
 	  }
-	  catch( ValueError &e ){
+	  catch( const ValueError &e ){
 	    string err = e.what();
 	    if ( err.find("abstract") == string::npos ){
 	      cerr << "createElement(" << int(et) << ") failed! :" << err << endl;
@@ -482,10 +484,10 @@ namespace folia {
     return true;
   }
 
-  icu::UnicodeString normalize_spaces( const icu::UnicodeString& input ){
+  UnicodeString normalize_spaces( const UnicodeString& input ){
     // substitute \n \r \t by spaces AND all multiple spaces by 1
     // also trims at back and front.
-    icu::UnicodeString result;
+    UnicodeString result;
     bool is_space = false;
     for ( int i=0; i < input.length(); ++i ){
       if ( u_isspace( input[i] ) ){

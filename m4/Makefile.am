@@ -1,4 +1,1 @@
-# $Id: $
-# $URL: $
-
-extra_DIST = ax_icu_check.m4
+extra_DIST = ac_osx_pkg.m4

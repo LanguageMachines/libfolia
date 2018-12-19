@@ -22,15 +22,40 @@
       https://github.com/LanguageMachines/ticcutils/issues
   or send mail to:
       lamasoftware (at ) science.ru.nl
+
 */
-#ifndef FOLIA_H
-#define FOLIA_H
 
-#include "libfolia/folia_types.h"
-#include "libfolia/folia_utils.h"
-#include "libfolia/folia_impl.h"
-#include "libfolia/folia_document.h"
-#include "libfolia/folia_builder.h"
-#include "libfolia/folia_processor.h"
+#ifndef FOLIA_BUILDER_H
+#define FOLIA_BUILDER_H
 
-#endif
+#include <string>
+#include <iostream>
+#include "libfolia/folia.h"
+
+namespace folia {
+
+  class Builder {
+  public:
+    enum doctype {TEXT,SPEECH};
+    Builder( std::ostream&, const std::string&, doctype = TEXT );
+    ~Builder();
+    Document *doc() const { return _doc; }
+    bool add( FoliaElement * );
+    bool output_header();
+    bool output_footer();
+    bool flush();
+    bool finish();
+  private:
+    Document *_doc;
+    doctype _doc_type;
+    FoliaElement *root_node;
+    std::ostream& _os;
+    std::string _footer;
+    bool header_done;
+    bool finished;
+  protected:
+    Builder();
+  };
+
+}
+#endif // FOLIA_BUILDER_H
