@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2006 - 2019
+  Copyright (c) 2006 - 2018
   CLST  - Radboud University
   ILK   - Tilburg University
 
@@ -915,10 +915,11 @@ namespace folia {
 		  }
 		}
 		if ( nsu.empty() || nsu == NSFOLIA ){
-		  if ( local_name == "desc"
-		       || local_name == "content"
-		       || local_name == "t"
-		       || local_name == "comment" ){
+		  if ( local_name == "t" ){
+		  }
+		  else if ( local_name == "desc"
+			    || local_name == "content"
+			    || local_name == "comment" ){
 		    ret = xmlTextReaderRead(_in_doc);
 		    const char *val = (const char*)xmlTextReaderConstValue(_in_doc);
 		    if ( val ) {
