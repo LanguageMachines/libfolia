@@ -276,7 +276,7 @@ namespace folia {
 	    id = in_args["_id"];
 	  }
 	  for ( auto it =in_args.begin(); it != in_args.end();  ){
-	    // remove all xmlns: attributes
+	    // remove all xmlns attributes
 	    if ( it->first.find( "xmlns" ) == 0 ){
 	      it = in_args.erase( it );
 	    }
@@ -502,7 +502,7 @@ namespace folia {
 		}
 		else {
 		  if ( _debug ){
-		    DBG << "a node in alien namespace'" << atts["xmlns:"] << endl;
+		    DBG << "a node in alien namespace'" << nsu << endl;
 		  }
 		  // just take as is...
 		  append_node( t, new_depth );
@@ -630,7 +630,11 @@ namespace folia {
 	string nsu;
 	string txt_class;
 	for ( auto const& v : atts ){
-	  if ( v.first.find("xmlns:") == 0 ){
+	  if ( v.first == "xmlns:xlink" ){
+	    // only at top level
+	    continue;
+	  }
+	  if ( v.first.find("xmlns") == 0 ){
 	    nsu = v.second;
 	  }
 	  if ( v.first == "textclass"
@@ -677,9 +681,8 @@ namespace folia {
 	else {
 	  if ( _debug ){
 	    DBG << "name=" << local_name << " atts=" << atts << endl;
-	    DBG << "create_simple_tree() node in alien namespace'"
-		<< atts["xmlns:"]
-		<< " is SKIPPED!" << endl;
+	    DBG << "create_simple_tree() node in alien namespace '"
+		<< nsu << "' is SKIPPED!" << endl;
 	  }
 	}
 	++index;
@@ -797,18 +800,18 @@ namespace folia {
       print( DBG, tree );
       DBG << "Search map = " << result << endl;
     }
-    // for ( auto it = result.begin(); it != result.end(); ++it ){
-    //   auto nit = it;
-    //   ++nit;
-    //   if ( nit != result.end() ){
-    // 	if ( nit->first > it->second ){
-    // 	  it->second = nit->first;
-    // 	}
-    //   }
-    // }
-    // if ( _debug ){
-    //   DBG << "Reduced Search map = " << result << endl;
-    // }
+    for ( auto it = result.begin(); it != result.end(); ++it ){
+      auto nit = it;
+      ++nit;
+      if ( nit != result.end() ){
+    	if ( it->second == INT_MAX ){
+    	  it->second = nit->first;
+    	}
+      }
+    }
+    if ( _debug ){
+      DBG << "Reduced Search map = " << result << endl;
+    }
     delete tree;
     return result;
   }
@@ -850,7 +853,8 @@ namespace folia {
     while ( ret ){
       int type = xmlTextReaderNodeType(_in_doc);
       if ( _debug ){
-	DBG << "MAIN LOOP search next_text_parent() : " << _text_node_count << endl;
+	DBG << "MAIN LOOP search next_text_parent(), type=" << type
+	    << " search node_count=" << _text_node_count << endl;
       }
       int new_depth = xmlTextReaderDepth(_in_doc);
       if ( type == XML_ELEMENT_NODE ){
@@ -866,6 +870,7 @@ namespace folia {
 	  }
 	  FoliaElement *t = FoliaImpl::createElement( local_name, _out_doc );
 	  if ( t ){
+
 	    if ( _debug ){
 	      DBG << "created FoliaElement: name=" << local_name << endl;
 	    }
@@ -939,7 +944,7 @@ namespace folia {
 		}
 		else {
 		  if ( _debug ){
-		    DBG << "a node in alien namespace'" << atts["xmlns:"]
+		    DBG << "a node in alien namespace'" << nsu
 			<< endl;
 		  }
 		  // just take as is...
