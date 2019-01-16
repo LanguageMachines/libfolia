@@ -98,9 +98,12 @@ namespace folia {
     if ( txtc == "current" ){
       txtc.clear();
     }
-    _text_node_count = 0;
     text_parent_map = enumerate_text_parents( txtc, prefer_sent );
-    _text_node_count = _start_index;
+    _next_text_node = _start_index;
+    if ( !text_parent_map.empty() ){
+      _next_text_node = text_parent_map.begin()->first;
+    }
+    _node_count = _start_index;
     _is_setup = true;
   }
 
@@ -589,6 +592,12 @@ namespace folia {
     }
   }
 
+  ostream& operator<<( ostream& os, const xml_tree* xt ){
+    os << endl;
+    print( os, xt );
+    return os;
+  }
+
   xml_tree *Processor::create_simple_tree( const string& in_file ) const {
     ///
     /// create an xmlReader and use that to loop over the full input,
@@ -804,15 +813,30 @@ namespace folia {
       auto nit = it;
       ++nit;
       if ( nit != result.end() ){
-    	if ( it->second == INT_MAX ){
-    	  it->second = nit->first;
-    	}
+	it->second = nit->first;
       }
     }
     if ( _debug ){
       DBG << "Reduced Search map = " << result << endl;
     }
     delete tree;
+    return result;
+  }
+
+  int depth( FoliaElement *fe ){
+    int result = 0;
+    //    cerr << "DEPTH " << fe << endl;
+    if ( fe && fe->xmltag() != "_XmlText" ){
+      result += 1;
+      if ( fe->size() > 0 ){
+	//	cerr << "size=" << fe->size() << endl;
+	for ( size_t i=0; i < fe->size(); ++i ){
+	  //	  cerr << "i=" << i << endl;
+	  result += depth( fe->index(i) );
+	}
+      }
+    }
+    //    cerr << "return DEPTH " << fe << " ="  << result << endl;
     return result;
   }
 
@@ -854,19 +878,20 @@ namespace folia {
       int type = xmlTextReaderNodeType(_in_doc);
       if ( _debug ){
 	DBG << "MAIN LOOP search next_text_parent(), type=" << type
-	    << " search node_count=" << _text_node_count << endl;
+	    << " current node=" << _node_count
+	    << " search for node=" << _next_text_node << endl;
       }
       int new_depth = xmlTextReaderDepth(_in_doc);
       if ( type == XML_ELEMENT_NODE ){
 	string local_name = (const char*)xmlTextReaderConstLocalName(_in_doc);
 	if ( _debug ){
-	  DBG << "next element: " << local_name << " cnt =" << _text_node_count << endl;
+	  DBG << "next element: " << local_name << " cnt =" << _node_count << endl;
 	}
-	if ( text_parent_map.find( _text_node_count ) != text_parent_map.end() ){
+	if ( _node_count == _next_text_node  ){
 	  // HIT!
 	  if ( _debug ){
 	    DBG << "matched search tag: " << local_name
-		<< " (" <<  _text_node_count << ")" << endl;
+		<< " (" <<  _node_count << ")" << endl;
 	  }
 	  FoliaElement *t = FoliaImpl::createElement( local_name, _out_doc );
 	  if ( t ){
@@ -880,11 +905,16 @@ namespace folia {
 	    ret = xmlTextReaderNext(_in_doc);
 	    _done = (ret == 0);
 	    _external_node = t;
-	    _text_node_count = text_parent_map[_text_node_count];
+	    _next_text_node = text_parent_map[_next_text_node];
 	    if ( _debug ){
 	      DBG << "  MAIN LOOP will continue looking for: "
-		  << _text_node_count << endl;
+		  << _next_text_node << endl;
 	    }
+	    int dp = depth( t );
+	    if ( _debug ){
+	      DBG << " adjusted _node_count with: " << dp << endl;
+	    }
+	    _node_count += dp;
 	    return t;
 	  }
 	  else {
@@ -962,7 +992,7 @@ namespace folia {
 	  }
 	}
 	if ( ret != 0 ){
-	  ++_text_node_count;
+	  ++_node_count;
 	}
       }
       else if ( type == XML_TEXT_NODE ){

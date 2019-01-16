@@ -1987,11 +1987,12 @@ namespace folia {
 	if ( p->content ) {
 	  t->setvalue( (const char*)p->content );
 	}
+	append( t );
 	if ( doc() && doc()->debug > 2 ) {
 	  cerr << "created " << t << "(" << t->text() << ")" << endl;
-	  cerr << "extend " << this << " met " << t << endl;
+	  cerr << "extended " << this << " met " << t << endl;
+	  cerr << "this.size()= " << size() << " t.size()=" << t->size() << endl;
 	}
-	append( t );
       }
       else if ( p->type == XML_TEXT_NODE ){
 	if ( this->isSubClass( TextContent_t )
@@ -2001,11 +2002,12 @@ namespace folia {
 	  if ( p->content ) {
 	    t->setvalue( (const char*)p->content );
 	  }
+	  append( t );
 	  if ( doc() && doc()->debug > 2 ) {
 	    cerr << "created " << t << "(" << t->text() << ")" << endl;
-	    cerr << "extend " << this << " met " << t << endl;
+	    cerr << "extended " << this << " met " << t << endl;
+	    cerr << "this.size()= " << size() << " t.size()=" << t->size() << endl;
 	  }
-	  append( t );
 	}
 	else {
 	  //most probably this always 'empty space'

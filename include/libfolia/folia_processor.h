@@ -125,7 +125,8 @@ namespace folia {
 					      bool = false ) const;
     FoliaElement *next_text_parent();
   private:
-    int _text_node_count;
+    int _next_text_node;
+    int _node_count;
     std::string _in_file;
     std::map<int,int> text_parent_map;
     std::map<int,int> search_text_parents( const xml_tree*,
