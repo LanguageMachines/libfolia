@@ -706,6 +706,7 @@ namespace folia {
     if ( pnt->parent->tag == "s"
 	 || pnt->parent->tag == "p"
 	 || pnt->parent->tag == "note"
+	 || pnt->parent->tag == "div"
 	 || pnt->parent->tag == "head" ){
       return pnt->parent;
     }
