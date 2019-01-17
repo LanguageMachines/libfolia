@@ -711,10 +711,16 @@ namespace folia {
       if ( _debug ){
 	DBG << "bekijk:" << pnt->tag << "-" << pnt->index << endl;
       }
-      // if ( pnt->tag == "t" ){
-      // 	pnt = pnt->next;
-      // 	continue;
-      // }
+      if ( pnt->tag == "wref"
+	   || pnt->tag == "original" ){
+	//
+	// DON'T sea a wref as a valid textparent.
+	// The word is connected elsewhere too
+	// Also an 'original' node is assumed to be part of a correction
+	// so hope for a 'new' node to be found!
+	pnt = pnt->next;
+	continue;
+      }
       map<int,int> deeper = search_text_parents( pnt->link,
 						 textclass,
 						 prefer_sentences );
@@ -731,10 +737,6 @@ namespace folia {
       // lets see at this level....
       const xml_tree *pnt = start;
       while ( pnt ){
-	if ( pnt->tag == "wref" ){
-	  pnt = pnt->next;
-	  continue;
-	}
 	if ( pnt->tag == "t" && pnt->textclass == textclass ){
 	  // OK text in the right textclass
 	  if ( prefer_sentences
