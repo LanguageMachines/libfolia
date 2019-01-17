@@ -705,6 +705,7 @@ namespace folia {
   xml_tree *get_sentence( const xml_tree *pnt ){
     if ( pnt->parent->tag == "s"
 	 || pnt->parent->tag == "p"
+	 || pnt->parent->tag == "note"
 	 || pnt->parent->tag == "head" ){
       return pnt->parent;
     }
