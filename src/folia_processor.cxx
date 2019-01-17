@@ -702,6 +702,17 @@ namespace folia {
     return records;
   }
 
+  xml_tree *get_sentence( const xml_tree *pnt ){
+    if ( pnt->parent->tag == "s"
+	 || pnt->parent->tag == "p"
+	 || pnt->parent->tag == "head" ){
+      return pnt->parent;
+    }
+    else {
+      return get_sentence( pnt->parent );
+    }
+  }
+
   map<int,int> TextProcessor::search_text_parents( const xml_tree* start,
 						   const string& textclass,
 						   bool prefer_sentences ) const{
@@ -739,17 +750,12 @@ namespace folia {
       while ( pnt ){
 	if ( pnt->tag == "t" && pnt->textclass == textclass ){
 	  // OK text in the right textclass
-	  if ( prefer_sentences
-	       && (pnt->parent->tag == "w" || pnt->parent->tag == "str" ) ){
-	    // the parent is a word or string fragment.
-	    // we have to get higher then
-	    int index = pnt->parent->parent->index;
+	  if ( prefer_sentences ){
+	    xml_tree *par = get_sentence( pnt );
+	    int index = par->index;
 	    int next = INT_MAX;
-	    if ( pnt->parent->parent->next ){
-	      next = pnt->parent->parent->next->index;
-	    }
-	    else if ( pnt->parent->parent->parent->next ){
-	      next = pnt->parent->parent->parent->next->index;
+	    if ( par->next ){
+	      next = par->index;
 	    }
 	    result[index] = next;
 	    break;
