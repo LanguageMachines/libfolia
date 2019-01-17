@@ -3845,6 +3845,13 @@ namespace folia {
   }
 
   FoliaElement *AbstractSpanAnnotation::append( FoliaElement *child ) {
+    if ( this->element_id() == Entity_t && child->element_id() == Word_t ){
+      // cerr << "append a word: " << child << " to " << this << endl;
+      // cerr << "refcnt=" << child->refcount() << endl;
+      // if ( child->refcount() == 0 ){
+      // 	throw XmlError( "connecting a <w> to an <entity> is forbidden, use <wref>" );
+      // }
+    }
     FoliaImpl::append( child );
     if ( child->isinstance(PlaceHolder_t) ) {
       child->increfcount();
