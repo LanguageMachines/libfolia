@@ -192,7 +192,9 @@ namespace folia {
       cerr << "REFCOUNT = " << refcount() << endl;
     }
     if ( refcount() > 0 ){
-      mydoc->keepForDeletion( this );
+      if ( mydoc ) {
+	mydoc->keepForDeletion( this );
+      }
     }
     else {
       for ( const auto& el : data ) {
