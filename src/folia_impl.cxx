@@ -178,31 +178,45 @@ namespace folia {
   }
 
   FoliaImpl::~FoliaImpl( ) {
-    // if ( xmltag() == "w"
-    // 	 || xmltag() == "chunk"
-    // 	 || xmltag() == "chunking" ){
-    //   cerr << "delete " << xmltag() << " id=" << _id << " *= "
-    // 	   << (void*)this << " datasize= " << data.size() << endl;
-    //   cerr << "REFCOUNT = " << refcount() << endl;
-    // }
-    for ( const auto& el : data ) {
-      if ( el->refcount() == 0 ) {
-	// probably only != 0 for words
-	delete el;
-      }
-      else if ( mydoc ) {
-	// cerr << "\t\tnot realy deleting element id=" << _id << " tag = "
-	//      << xmltag() << " *= "
-	//      << (void*)this << " datasize= " << data.size() << endl;
-	mydoc->keepForDeletion( el );
+    bool debug = false;
+    if ( xmltag() == "w"
+    	 || xmltag() == "entity"
+    	 || xmltag() == "entities"
+    	 || xmltag() == "morpheme"
+    	 || xmltag() == "morphology" ){
+      debug = false;
+    }
+    if (debug ){
+      cerr << "delete " << xmltag() << " id=" << _id << " class= "
+    	   << cls() << " datasize= " << data.size() << endl;
+      cerr << "REFCOUNT = " << refcount() << endl;
+    }
+    if ( refcount() > 0 ){
+      if ( mydoc ) {
+	mydoc->keepForDeletion( this );
       }
     }
-    // if ( xmltag() == "w"
-    // 	 || xmltag() == "chunk"
-    // 	 || xmltag() == "chunking" ){
-    //   cerr << "\t\tsucces deleting element id=" << _id << " tag = " << xmltag() << " *= "
-    // 	   << (void*)this << " datasize= " << data.size() << endl;
-    // }
+    else {
+      for ( const auto& el : data ) {
+	if ( el->refcount() == 0 ) {
+	  if ( debug ){
+	    cerr << "dus delete: " << el << endl;
+	  }
+	  // probably only != 0 for words
+	  delete el;
+	}
+	else if ( mydoc ) {
+	  if ( debug ){
+	    cerr << "dus KEEP: " << el << endl;
+	  }
+	  mydoc->keepForDeletion( el );
+	}
+      }
+    }
+    if ( debug ){
+      cerr << "\t\tsucces deleting element id=" << _id << " tag = " << xmltag() << " class= "
+     	   << cls() << " datasize= " << data.size() << endl;
+    }
     if ( mydoc ) {
       mydoc->delDocIndex( this, _id );
       mydoc->decrRef( annotation_type(), _set );
@@ -1803,10 +1817,10 @@ namespace folia {
       }
       data.push_back(child);
       if ( !child->parent() ) {
-	// Only for WordRef and Morpheme
 	child->setParent(this);
       }
-      else {
+      if ( child->xmltag() == "w"
+	   || child->xmltag() == "morpheme" ){
 	child->increfcount();
       }
       return child->postappend();
@@ -1987,11 +2001,12 @@ namespace folia {
 	if ( p->content ) {
 	  t->setvalue( (const char*)p->content );
 	}
+	append( t );
 	if ( doc() && doc()->debug > 2 ) {
 	  cerr << "created " << t << "(" << t->text() << ")" << endl;
-	  cerr << "extend " << this << " met " << t << endl;
+	  cerr << "extended " << this << " met " << t << endl;
+	  cerr << "this.size()= " << size() << " t.size()=" << t->size() << endl;
 	}
-	append( t );
       }
       else if ( p->type == XML_TEXT_NODE ){
 	if ( this->isSubClass( TextContent_t )
@@ -2001,11 +2016,12 @@ namespace folia {
 	  if ( p->content ) {
 	    t->setvalue( (const char*)p->content );
 	  }
+	  append( t );
 	  if ( doc() && doc()->debug > 2 ) {
 	    cerr << "created " << t << "(" << t->text() << ")" << endl;
-	    cerr << "extend " << this << " met " << t << endl;
+	    cerr << "extended " << this << " met " << t << endl;
+	    cerr << "this.size()= " << size() << " t.size()=" << t->size() << endl;
 	  }
-	  append( t );
 	}
 	else {
 	  //most probably this always 'empty space'
@@ -3843,6 +3859,16 @@ namespace folia {
   }
 
   FoliaElement *AbstractSpanAnnotation::append( FoliaElement *child ) {
+    if ( child->element_id() == Word_t
+	 || child->element_id() == Phoneme_t
+	 || child->element_id() == Morpheme_t){
+      // cerr << "append a word: " << child << " to " << this << endl;
+      // cerr << "refcnt=" << child->refcount() << endl;
+      if ( child->refcount() == 0 ){
+	throw XmlError( "connecting a <w> to an <" + xmltag()
+       			+ "> is forbidden, use <wref>" );
+      }
+    }
     FoliaImpl::append( child );
     if ( child->isinstance(PlaceHolder_t) ) {
       child->increfcount();
@@ -4234,7 +4260,7 @@ namespace folia {
       if ( et == Word_t
 	   || et == WordReference_t
 	   || et == Phoneme_t
-	   || et == MorphologyLayer_t ) {
+	   || et == Morpheme_t ) {
 	res.push_back( el );
       }
       else {

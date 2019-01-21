@@ -98,9 +98,12 @@ namespace folia {
     if ( txtc == "current" ){
       txtc.clear();
     }
-    _text_node_count = 0;
     text_parent_map = enumerate_text_parents( txtc, prefer_sent );
-    _text_node_count = _start_index;
+    _next_text_node = _start_index;
+    if ( !text_parent_map.empty() ){
+      _next_text_node = text_parent_map.begin()->first;
+    }
+    _node_count = _start_index;
     _is_setup = true;
   }
 
@@ -276,7 +279,7 @@ namespace folia {
 	    id = in_args["_id"];
 	  }
 	  for ( auto it =in_args.begin(); it != in_args.end();  ){
-	    // remove all xmlns: attributes
+	    // remove all xmlns attributes
 	    if ( it->first.find( "xmlns" ) == 0 ){
 	      it = in_args.erase( it );
 	    }
@@ -502,7 +505,7 @@ namespace folia {
 		}
 		else {
 		  if ( _debug ){
-		    DBG << "a node in alien namespace'" << atts["xmlns:"] << endl;
+		    DBG << "a node in alien namespace'" << nsu << endl;
 		  }
 		  // just take as is...
 		  append_node( t, new_depth );
@@ -589,6 +592,12 @@ namespace folia {
     }
   }
 
+  ostream& operator<<( ostream& os, const xml_tree* xt ){
+    os << endl;
+    print( os, xt );
+    return os;
+  }
+
   xml_tree *Processor::create_simple_tree( const string& in_file ) const {
     ///
     /// create an xmlReader and use that to loop over the full input,
@@ -630,7 +639,11 @@ namespace folia {
 	string nsu;
 	string txt_class;
 	for ( auto const& v : atts ){
-	  if ( v.first.find("xmlns:") == 0 ){
+	  if ( v.first == "xmlns:xlink" ){
+	    // only at top level
+	    continue;
+	  }
+	  if ( v.first.find("xmlns") == 0 ){
 	    nsu = v.second;
 	  }
 	  if ( v.first == "textclass"
@@ -677,9 +690,8 @@ namespace folia {
 	else {
 	  if ( _debug ){
 	    DBG << "name=" << local_name << " atts=" << atts << endl;
-	    DBG << "create_simple_tree() node in alien namespace'"
-		<< atts["xmlns:"]
-		<< " is SKIPPED!" << endl;
+	    DBG << "create_simple_tree() node in alien namespace '"
+		<< nsu << "' is SKIPPED!" << endl;
 	  }
 	}
 	++index;
@@ -688,6 +700,19 @@ namespace folia {
     }
     xmlFreeTextReader( tmp_doc );
     return records;
+  }
+
+  xml_tree *get_sentence( const xml_tree *pnt ){
+    if ( pnt->parent->tag == "s"
+	 || pnt->parent->tag == "p"
+	 || pnt->parent->tag == "note"
+	 || pnt->parent->tag == "div"
+	 || pnt->parent->tag == "head" ){
+      return pnt->parent;
+    }
+    else {
+      return get_sentence( pnt->parent );
+    }
   }
 
   map<int,int> TextProcessor::search_text_parents( const xml_tree* start,
@@ -699,10 +724,16 @@ namespace folia {
       if ( _debug ){
 	DBG << "bekijk:" << pnt->tag << "-" << pnt->index << endl;
       }
-      // if ( pnt->tag == "t" ){
-      // 	pnt = pnt->next;
-      // 	continue;
-      // }
+      if ( pnt->tag == "wref"
+	   || pnt->tag == "original" ){
+	//
+	// DON'T sea a wref as a valid textparent.
+	// The word is connected elsewhere too
+	// Also an 'original' node is assumed to be part of a correction
+	// so hope for a 'new' node to be found!
+	pnt = pnt->next;
+	continue;
+      }
       map<int,int> deeper = search_text_parents( pnt->link,
 						 textclass,
 						 prefer_sentences );
@@ -719,23 +750,14 @@ namespace folia {
       // lets see at this level....
       const xml_tree *pnt = start;
       while ( pnt ){
-	if ( pnt->tag == "wref" ){
-	  pnt = pnt->next;
-	  continue;
-	}
 	if ( pnt->tag == "t" && pnt->textclass == textclass ){
 	  // OK text in the right textclass
-	  if ( prefer_sentences
-	       && (pnt->parent->tag == "w" || pnt->parent->tag == "str" ) ){
-	    // the parent is a word or string fragment.
-	    // we have to get higher then
-	    int index = pnt->parent->parent->index;
+	  if ( prefer_sentences ){
+	    xml_tree *par = get_sentence( pnt );
+	    int index = par->index;
 	    int next = INT_MAX;
-	    if ( pnt->parent->parent->next ){
-	      next = pnt->parent->parent->next->index;
-	    }
-	    else if ( pnt->parent->parent->parent->next ){
-	      next = pnt->parent->parent->parent->next->index;
+	    if ( par->next ){
+	      next = par->index;
 	    }
 	    result[index] = next;
 	    break;
@@ -797,19 +819,34 @@ namespace folia {
       print( DBG, tree );
       DBG << "Search map = " << result << endl;
     }
-    // for ( auto it = result.begin(); it != result.end(); ++it ){
-    //   auto nit = it;
-    //   ++nit;
-    //   if ( nit != result.end() ){
-    // 	if ( nit->first > it->second ){
-    // 	  it->second = nit->first;
-    // 	}
-    //   }
-    // }
-    // if ( _debug ){
-    //   DBG << "Reduced Search map = " << result << endl;
-    // }
+    for ( auto it = result.begin(); it != result.end(); ++it ){
+      auto nit = it;
+      ++nit;
+      if ( nit != result.end() ){
+	it->second = nit->first;
+      }
+    }
+    if ( _debug ){
+      DBG << "Reduced Search map = " << result << endl;
+    }
     delete tree;
+    return result;
+  }
+
+  int depth( FoliaElement *fe ){
+    int result = 0;
+    //    cerr << "DEPTH " << fe << endl;
+    if ( fe && fe->xmltag() != "_XmlText" ){
+      result += 1;
+      if ( fe->size() > 0 ){
+	//	cerr << "size=" << fe->size() << endl;
+	for ( size_t i=0; i < fe->size(); ++i ){
+	  //	  cerr << "i=" << i << endl;
+	  result += depth( fe->index(i) );
+	}
+      }
+    }
+    //    cerr << "return DEPTH " << fe << " ="  << result << endl;
     return result;
   }
 
@@ -850,22 +887,25 @@ namespace folia {
     while ( ret ){
       int type = xmlTextReaderNodeType(_in_doc);
       if ( _debug ){
-	DBG << "MAIN LOOP search next_text_parent() : " << _text_node_count << endl;
+	DBG << "MAIN LOOP search next_text_parent(), type=" << type
+	    << " current node=" << _node_count
+	    << " search for node=" << _next_text_node << endl;
       }
       int new_depth = xmlTextReaderDepth(_in_doc);
       if ( type == XML_ELEMENT_NODE ){
 	string local_name = (const char*)xmlTextReaderConstLocalName(_in_doc);
 	if ( _debug ){
-	  DBG << "next element: " << local_name << " cnt =" << _text_node_count << endl;
+	  DBG << "next element: " << local_name << " cnt =" << _node_count << endl;
 	}
-	if ( text_parent_map.find( _text_node_count ) != text_parent_map.end() ){
+	if ( _node_count == _next_text_node  ){
 	  // HIT!
 	  if ( _debug ){
 	    DBG << "matched search tag: " << local_name
-		<< " (" <<  _text_node_count << ")" << endl;
+		<< " (" <<  _node_count << ")" << endl;
 	  }
 	  FoliaElement *t = FoliaImpl::createElement( local_name, _out_doc );
 	  if ( t ){
+
 	    if ( _debug ){
 	      DBG << "created FoliaElement: name=" << local_name << endl;
 	    }
@@ -875,11 +915,16 @@ namespace folia {
 	    ret = xmlTextReaderNext(_in_doc);
 	    _done = (ret == 0);
 	    _external_node = t;
-	    _text_node_count = text_parent_map[_text_node_count];
+	    _next_text_node = text_parent_map[_next_text_node];
 	    if ( _debug ){
 	      DBG << "  MAIN LOOP will continue looking for: "
-		  << _text_node_count << endl;
+		  << _next_text_node << endl;
 	    }
+	    int dp = depth( t );
+	    if ( _debug ){
+	      DBG << " adjusted _node_count with: " << dp << endl;
+	    }
+	    _node_count += dp;
 	    return t;
 	  }
 	  else {
@@ -939,7 +984,7 @@ namespace folia {
 		}
 		else {
 		  if ( _debug ){
-		    DBG << "a node in alien namespace'" << atts["xmlns:"]
+		    DBG << "a node in alien namespace'" << nsu
 			<< endl;
 		  }
 		  // just take as is...
@@ -957,7 +1002,7 @@ namespace folia {
 	  }
 	}
 	if ( ret != 0 ){
-	  ++_text_node_count;
+	  ++_node_count;
 	}
       }
       else if ( type == XML_TEXT_NODE ){
