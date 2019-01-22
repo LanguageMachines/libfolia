@@ -901,7 +901,7 @@ namespace folia {
     bool happy = false;
     it = kwargs.find( "_id" );
     if ( it == kwargs.end() ){
-      it = kwargs.find( "id" );
+      it = kwargs.find( "xml:id" );
     }
     if ( it != kwargs.end() ){
       if ( isNCName( it->second ) ){

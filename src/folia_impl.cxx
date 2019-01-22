@@ -265,16 +265,19 @@ namespace folia {
     }
     else {
       it = kwargs.find( "_id" );
-      auto it2 = kwargs.find( "id" );
       if ( it == kwargs.end() ) {
-	it = it2;
+	it = kwargs.find( "xml:id" );
       }
-      else if ( it2 != kwargs.end() ) {
-	throw ValueError("Both 'id' and 'xml:id found for " + classname() );
-      }
+      // auto it2 = kwargs.find( "id" );
+      // if ( it == kwargs.end() ) {
+      // 	it = it2;
+      // }
+      // else if ( it2 != kwargs.end() ) {
+      // 	throw ValueError("Both 'id' and 'xml:id found for " + classname() );
+      // }
       if ( it != kwargs.end() ) {
 	if ( (!ID) & supported ) {
-	  throw ValueError("ID is not supported for " + classname() );
+	  throw ValueError("xml:id is not supported for " + classname() );
 	}
 	else {
 	  if ( isNCName( it->second ) ){
@@ -627,12 +630,15 @@ namespace folia {
       string tag = it.first;
       if ( tag == "head" ) {
 	// "head" is special because the tag is "headfeature"
-	// this to avoid conflicts withe the "head" tag!
+	// this to avoid conflicts with the "head" tag!
 	tag = "headfeature";
       }
       if ( AttributeFeatures.find( tag ) == AttributeFeatures.end() ) {
 	string message = "unsupported attribute: " + tag + "='" + it.second
 	  + "' for node with tag '" + classname() + "'";
+	if ( tag == "id" ){
+	  message += "\ndid you mean xml:id?";
+	}
 	if ( mydoc && mydoc->permissive() ) {
 	  cerr << message << endl;
 	}
@@ -2141,7 +2147,7 @@ namespace folia {
     if ( hasannotation<PosAnnotation>( st ) > 0 ) {
       // ok, there is already one, so create an Alternative
       KWargs kw;
-      kw["id"] = generateId( newId );
+      kw["_id"] = generateId( newId );
       Alternative *alt = new Alternative( kw, doc() );
       append( alt );
       return alt->addAnnotation<PosAnnotation>( args );
@@ -2192,7 +2198,7 @@ namespace folia {
     if ( hasannotation<LemmaAnnotation>( st ) > 0 ) {
       // ok, there is already one, so create an Alternative
       KWargs kw;
-      kw["id"] = generateId( newId );
+      kw["_id"] = generateId( newId );
       Alternative *alt = new Alternative( kw, doc() );
       append( alt );
       return alt->addAnnotation<LemmaAnnotation>( args );
@@ -2243,7 +2249,7 @@ namespace folia {
     if ( hasannotation<MorphologyLayer>( st ) > 0 ) {
       // ok, there is already one, so create an Alternative
       KWargs kw;
-      kw["id"] = generateId( newId );
+      kw["_id"] = generateId( newId );
       Alternative *alt = new Alternative( kw, doc() );
       append( alt );
       return alt->addAnnotation<MorphologyLayer>( args );
@@ -2282,9 +2288,9 @@ namespace folia {
   Sentence *FoliaImpl::addSentence( const KWargs& args ) {
     Sentence *res = new Sentence( mydoc );
     KWargs kw = args;
-    if ( kw["id"].empty() ) {
+    if ( kw["_id"].empty() ) {
       string id = generateId( "s" );
-      kw["id"] = id;
+      kw["_id"] = id;
     }
     try {
       res->setAttributes( kw );
@@ -2300,9 +2306,9 @@ namespace folia {
   Word *FoliaImpl::addWord( const KWargs& args ) {
     Word *res = new Word( mydoc );
     KWargs kw = args;
-    if ( kw["id"].empty() ) {
+    if ( kw["_id"].empty() ) {
       string id = generateId( "w" );
-      kw["id"] = id;
+      kw["_id"] = id;
     }
     try {
       res->setAttributes( kw );
@@ -2426,7 +2432,7 @@ namespace folia {
       if ( *it == p ) {
 	KWargs kwargs;
 	kwargs["text"] = "dummy";
-	kwargs["id"] = "dummy";
+	kwargs["_id"] = "dummy";
 	Word *tmp = new Word( kwargs );
 	tmp->setParent( this ); // we create a dummy Word as member of the
 	// Sentence. This makes correctWords() happy
@@ -2918,7 +2924,7 @@ namespace folia {
       args2.erase("suggestion" );
       args2.erase("suggestions" );
       string id = generateId( "correction" );
-      args2["id"] = id;
+      args2["_id"] = id;
       corr = new Correction( args2, mydoc );
     }
 #ifdef DEBUG_CORRECT
