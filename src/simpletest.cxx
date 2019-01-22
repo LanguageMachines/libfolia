@@ -49,7 +49,7 @@ int main() {
     return EXIT_FAILURE;
   }
   cout << " Creating a document from scratch: ";
-  Document d( "id='example'" );
+  Document d( "xml:id='example'" );
   d.declare( AnnotationType::TOKEN, "adhocset", "annotator='proycon'" );
   if ( d.defaultset(AnnotationType::TOKEN) != "adhocset"
        ||
@@ -58,7 +58,7 @@ int main() {
     return EXIT_FAILURE;
   }
   string id = d.id() + ".text.1";
-  KWargs kw = getArgs( "id='" + id + "'" );
+  KWargs kw = getArgs( "xml:id='" + id + "'" );
   FoliaElement *text = d.addText( kw );
   kw.clear();
   kw = getArgs( "generate_id='" + text->id() + "'" );
