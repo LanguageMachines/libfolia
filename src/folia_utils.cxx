@@ -74,8 +74,12 @@ namespace folia {
     return el;
   }
 
-  KWargs getArgs( const string& s ){
-    KWargs result;
+  KWargs::KWargs( const std::string& s ){
+    init( s );
+  }
+
+  void KWargs::init( const string& s ){
+    clear();
     bool quoted = false;
     bool parseatt = true;
     bool escaped = false;
@@ -107,7 +111,7 @@ namespace folia {
 	    if ( att.empty() || val.empty() ){
 	      throw ArgsError( s + ", (''?)" );
 	    }
-	    result[att] = val;
+	    (*this)[att] = val;
 	    att.clear();
 	    val.clear();
 	    quoted = false;
@@ -159,6 +163,14 @@ namespace folia {
     }
     if ( quoted )
       throw ArgsError( s + ", unbalanced '?" );
+  }
+
+  bool KWargs::is_present( const std::string& att ){
+    return find(att) != end();
+  }
+
+  KWargs getArgs( const string& s ){
+    KWargs result( s );
     return result;
   }
 
