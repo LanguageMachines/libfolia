@@ -233,7 +233,7 @@ namespace folia {
   void FoliaImpl::setAttributes( const KWargs& kwargs_in ) {
     KWargs kwargs = kwargs_in;
     Attrib supported = required_attributes() | optional_attributes();
-    // if ( element_id() == Division_t ) {
+    // if ( element_id() == Word_t ) {
     //   cerr << "set attributes: " << kwargs << " on " << classname() << endl;
     //   cerr << "required = " <<  required_attributes() << endl;
     //   cerr << "optional = " <<  optional_attributes() << endl;
@@ -268,13 +268,6 @@ namespace folia {
       if ( it == kwargs.end() ) {
 	it = kwargs.find( "xml:id" );
       }
-      // auto it2 = kwargs.find( "id" );
-      // if ( it == kwargs.end() ) {
-      // 	it = it2;
-      // }
-      // else if ( it2 != kwargs.end() ) {
-      // 	throw ValueError("Both 'id' and 'xml:id found for " + classname() );
-      // }
       if ( it != kwargs.end() ) {
 	if ( (!ID) & supported ) {
 	  throw ValueError("xml:id is not supported for " + classname() );
@@ -2286,14 +2279,16 @@ namespace folia {
   }
 
   Sentence *FoliaImpl::addSentence( const KWargs& args ) {
-    Sentence *res = new Sentence( mydoc );
+    Sentence *res = 0;
     KWargs kw = args;
-    if ( kw["_id"].empty() ) {
+    if ( kw.find("xml:id") == kw.end()
+	 && kw.find("_id") == kw.end() ){
       string id = generateId( "s" );
-      kw["_id"] = id;
+      kw["xml:id"] = id;
     }
     try {
-      res->setAttributes( kw );
+      cerr << "VOOR new Sentence(" << kw << endl;
+      res = new Sentence( kw, mydoc );
     }
     catch( const DuplicateIDError& e ) {
       delete res;
@@ -2306,9 +2301,10 @@ namespace folia {
   Word *FoliaImpl::addWord( const KWargs& args ) {
     Word *res = new Word( mydoc );
     KWargs kw = args;
-    if ( kw["_id"].empty() ) {
+    if ( kw.find("xml:id") == kw.end()
+	 && kw.find("_id") == kw.end() ){
       string id = generateId( "w" );
-      kw["_id"] = id;
+      kw["xml:id"] = id;
     }
     try {
       res->setAttributes( kw );
