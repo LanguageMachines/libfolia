@@ -249,56 +249,50 @@ namespace folia {
       cerr << "set attributes: " << kwargs << " on " << classname() << endl;
     }
 
-    auto it = kwargs.find( "generate_id" );
-    if ( it != kwargs.end() ) {
+    string val = kwargs.extract( "generate_id" );
+    if ( !val.empty() ) {
       if ( !mydoc ) {
 	throw runtime_error( "can't generate an ID without a doc" );
       }
-      FoliaElement *e = (*mydoc)[it->second];
+      FoliaElement *e = (*mydoc)[val];
       if ( e ) {
 	_id = e->generateId( xmltag() );
       }
       else {
-	throw ValueError("Unable to generate an id from ID= " + it->second );
+	throw ValueError("Unable to generate an id from ID= " + val );
       }
-      kwargs.erase( it );
     }
     else {
-      it = kwargs.find( "_id" );
-      if ( it == kwargs.end() ) {
-	it = kwargs.find( "xml:id" );
+      string val = kwargs.extract( "_id" );
+      if ( val.empty() ) {
+	val = kwargs.extract( "xml:id" );
       }
-      if ( it != kwargs.end() ) {
+      if ( !val.empty() ) {
 	if ( (!ID) & supported ) {
 	  throw ValueError("xml:id is not supported for " + classname() );
 	}
+	else if ( isNCName( val ) ){
+	  _id = val;
+	}
 	else {
-	  if ( isNCName( it->second ) ){
-	    _id = it->second;
-	    kwargs.erase( it );
-	  }
-	  else {
-	    throw XmlError( "'"
-			    + it->second
-			    + "' is not a valid NCName." );
-	  }
+	  throw XmlError( "'" + val + "' is not a valid NCName." );
 	}
       }
     }
 
-    it = kwargs.find( "set" );
-    string def;
-    if ( it != kwargs.end() ) {
+    _set.clear();
+    val = kwargs.extract( "set" );
+    if ( !val.empty() ) {
       if ( !mydoc ) {
-	throw ValueError( "Set=" + _set + " is used on a node without a document." );
+	throw ValueError( "attribute set=" + val + " is used on a node without a document." );
       }
       if ( !( (CLASS & supported) || setonly() ) ) {
-	throw ValueError("Set is not supported for " + classname());
+	throw ValueError("attribute 'set' is not supported for " + classname());
       }
       else {
-	string st = mydoc->unalias( annotation_type(), it->second);
+	string st = mydoc->unalias( annotation_type(), val );
 	if ( st.empty() ){
-	  _set = it->second;
+	  _set = val;
 	}
 	else {
 	  _set = st;
@@ -308,20 +302,20 @@ namespace folia {
 	throw ValueError( "Set " + _set + " is used but has no declaration " +
 			  "for " + toString( annotation_type() ) + "-annotation" );
       }
-      kwargs.erase( it );
-    }
-    else if ( mydoc && ( def = mydoc->defaultset( annotation_type() )) != "" ) {
-      _set = def;
     }
     else {
-      _set = "";
+      string def;
+      if ( mydoc && ( def = mydoc->defaultset( annotation_type() )) != "" ) {
+	_set = def;
+      }
     }
-    it = kwargs.find( "class" );
-    if ( it != kwargs.end() ) {
+
+    _class.clear();
+    val = kwargs.extract( "class" );
+    if ( !val.empty() ) {
       if ( !( CLASS & supported ) ) {
 	throw ValueError("Class is not supported for " + classname() );
       }
-      _class = it->second;
       if ( element_id() != TextContent_t && element_id() != PhonContent_t ) {
 	if ( !mydoc ) {
 	  throw ValueError( "Class=" + _class + " is used on a node without a document." );
@@ -338,10 +332,8 @@ namespace folia {
 	}
 	mydoc->incrRef( annotation_type(), _set );
       }
-      kwargs.erase( it );
+      _class = val;
     }
-    else
-      _class = "";
 
     if ( element_id() != TextContent_t && element_id() != PhonContent_t ) {
       if ( !_class.empty() && _set.empty() ) {
@@ -349,57 +341,59 @@ namespace folia {
 			 " class=\"" + _class + "\"> assigned without set."  );
       }
     }
-    it = kwargs.find( "annotator" );
-    if ( it != kwargs.end() ) {
+
+    _annotator.clear();
+    val = kwargs.extract( "annotator" );
+    if ( !val.empty() ) {
       if ( !(ANNOTATOR & supported) ) {
 	throw ValueError("Annotator is not supported for " + classname() );
       }
       else {
-	_annotator = it->second;
+	_annotator = val;
       }
-      kwargs.erase( it );
-    }
-    else if ( mydoc &&
-	      (def = mydoc->defaultannotator( annotation_type(), _set )) != "" ) {
-      _annotator = def;
     }
     else {
-      _annotator = "";
+      string def;
+      if ( mydoc &&
+	   (def = mydoc->defaultannotator( annotation_type(), _set )) != "" ) {
+	_annotator = def;
+      }
     }
 
-    it = kwargs.find( "annotatortype" );
-    if ( it != kwargs.end() ) {
+    _annotator_type = UNDEFINED;
+    val = kwargs.extract( "annotatortype" );
+    if ( !val.empty() ) {
       if ( ! (ANNOTATOR & supported) ) {
 	throw ValueError("Annotatortype is not supported for " + classname() );
       }
       else {
-	_annotator_type = stringTo<AnnotatorType>( it->second );
+	_annotator_type = stringTo<AnnotatorType>( val );
 	if ( _annotator_type == UNDEFINED ) {
 	  throw ValueError( "annotatortype must be 'auto' or 'manual', got '"
-			    + it->second + "'" );
+			    + val + "'" );
 	}
-      }
-      kwargs.erase( it );
-    }
-    else if ( mydoc &&
-	      (def = mydoc->defaultannotatortype( annotation_type(), _set ) ) != ""  ) {
-      _annotator_type = stringTo<AnnotatorType>( def );
-      if ( _annotator_type == UNDEFINED ) {
-	throw ValueError("annotatortype must be 'auto' or 'manual'");
       }
     }
     else {
-      _annotator_type = UNDEFINED;
+      string def;
+      if ( mydoc &&
+	   (def = mydoc->defaultannotatortype( annotation_type(), _set ) ) != ""  ) {
+	_annotator_type = stringTo<AnnotatorType>( def );
+	if ( _annotator_type == UNDEFINED ) {
+	  throw ValueError("annotatortype must be 'auto' or 'manual'");
+	}
+      }
     }
 
-    it = kwargs.find( "confidence" );
-    if ( it != kwargs.end() ) {
+    _confidence = -1;
+    val = kwargs.extract( "confidence" );
+    if ( !val.empty() ) {
       if ( !(CONFIDENCE & supported) ) {
 	throw ValueError("Confidence is not supported for " + classname() );
       }
       else {
 	try {
-	  _confidence = stringTo<double>(it->second);
+	  _confidence = stringTo<double>(val);
 	  if ( _confidence < 0 || _confidence > 1.0 )
 	    throw ValueError("Confidence must be a floating point number between 0 and 1, got " + TiCC::toString(_confidence) );
 	}
@@ -407,88 +401,76 @@ namespace folia {
 	  throw ValueError("invalid Confidence value, (not a number?)");
 	}
       }
-      kwargs.erase( it );
     }
-    else {
-      _confidence = -1;
-    }
-    it = kwargs.find( "n" );
-    if ( it != kwargs.end() ) {
+
+    _n = "";
+    val = kwargs.extract( "n" );
+    if ( !val.empty() ) {
       if ( !(N & supported) ) {
 	throw ValueError("N attribute is not supported for " + classname() );
       }
       else {
-	_n = it->second;
+	_n = val;
       }
-      kwargs.erase( it );
     }
-    else
-      _n = "";
 
     if ( xlink() ) {
       string type = "simple";
-      it = kwargs.find( "type" );
-      if ( it != kwargs.end() ) {
-	type = it->second;
-	kwargs.erase( it );
+      string val = kwargs.extract( "type" );
+      if ( !val.empty() ) {
+	type = val;
       }
       if ( type != "simple" && type != "locator" ) {
 	throw XmlError( "only xlink:types: 'simple' and 'locator' are supported!" );
       }
       _xlink["type"] = type;
-      it = kwargs.find( "href" );
-      if ( it != kwargs.end() ) {
-	_xlink["href"] = it->second;
-	kwargs.erase( it );
+      val = kwargs.extract( "href" );
+      if ( !val.empty() ) {
+	_xlink["href"] = val;
       }
       else if ( type == "locator" ){
 	throw XmlError( "xlink:type='locator' requires an 'xlink:href' attribute" );
       }
-      it = kwargs.find( "role" );
-      if ( it != kwargs.end() ) {
-	_xlink["role"] = it->second;
-	kwargs.erase( it );
+      val = kwargs.extract( "role" );
+      if ( !val.empty() ) {
+	_xlink["role"] = val;
       }
-      it = kwargs.find( "title" );
-      if ( it != kwargs.end() ) {
-	_xlink["title"] = it->second;
-	kwargs.erase( it );
+      val = kwargs.extract( "title" );
+      if ( !val.empty() ) {
+	_xlink["title"] = val;
       }
-      it = kwargs.find( "label" );
-      if ( it != kwargs.end() ) {
+      val = kwargs.extract( "label" );
+      if ( !val.empty() ) {
 	if ( type == "simple" ){
 	  throw XmlError( "xlink:type='simple' may not have an 'xlink:label' attribute" );
 	}
-	_xlink["label"] = it->second;
-	kwargs.erase( it );
+	_xlink["label"] = val;
       }
-      it = kwargs.find( "arcrole" );
-      if ( it != kwargs.end() ) {
+      val = kwargs.extract( "arcrole" );
+      if ( !val.empty() ) {
 	if ( type == "locator" ){
 	  throw XmlError( "xlink:type='locator' may not have an 'xlink:arcrole' attribute" );
 	}
-	_xlink["arcrole"] = it->second;
-	kwargs.erase( it );
+	_xlink["arcrole"] = val;
       }
-      it = kwargs.find( "show" );
-      if ( it != kwargs.end() ) {
+      val = kwargs.extract( "show" );
+      if ( !val.empty() ) {
 	if ( type == "locator" ){
 	  throw XmlError( "xlink:type='locator' may not have an 'xlink:show' attribute" );
 	}
-	_xlink["show"] = it->second;
-	kwargs.erase( it );
+	_xlink["show"] = val;
       }
-      it = kwargs.find( "actuate" );
-      if ( it != kwargs.end() ) {
+      val = kwargs.extract( "actuate" );
+      if ( !val.empty() ) {
 	if ( type == "locator" ){
 	  throw XmlError( "xlink:type='locator' may not have an 'xlink:actuate' attribute" );
 	}
-	_xlink["actuate"] = it->second;
-	kwargs.erase( it );
+	_xlink["actuate"] = val;
       }
     }
 
-    it = kwargs.find( "datetime" );
+    _datetime.clear();
+    auto it = kwargs.find( "datetime" );
     if ( it != kwargs.end() ) {
       if ( !(DATETIME & supported) ) {
 	throw ValueError("datetime attribute is not supported for " + classname() );
@@ -501,12 +483,12 @@ namespace folia {
       }
       kwargs.erase( it );
     }
-    else if ( mydoc &&
-	      (def = mydoc->defaultdatetime( annotation_type(), _set )) != "" ) {
-      _datetime = def;
-    }
     else {
-      _datetime.clear();
+      string def;
+      if ( mydoc &&
+	   (def = mydoc->defaultdatetime( annotation_type(), _set )) != "" ) {
+	_datetime = def;
+      }
     }
     it = kwargs.find( "begintime" );
     if ( it != kwargs.end() ) {
