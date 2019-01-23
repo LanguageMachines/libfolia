@@ -165,8 +165,18 @@ namespace folia {
       throw ArgsError( s + ", unbalanced '?" );
   }
 
-  bool KWargs::is_present( const std::string& att ){
+  bool KWargs::is_present( const string& att ) const {
     return find(att) != end();
+  }
+
+  string KWargs::extract( const string& att ){
+    string result;
+    auto it = find(att);
+    if ( it != end() ){
+      result = it->second;
+      erase(it);
+    }
+    return result;
   }
 
   KWargs getArgs( const string& s ){

@@ -2281,13 +2281,12 @@ namespace folia {
   Sentence *FoliaImpl::addSentence( const KWargs& args ) {
     Sentence *res = 0;
     KWargs kw = args;
-    if ( kw.find("xml:id") == kw.end()
-	 && kw.find("_id") == kw.end() ){
+    if ( !kw.is_present("xml:id")
+	 && !kw.is_present("_id") ){
       string id = generateId( "s" );
       kw["xml:id"] = id;
     }
     try {
-      cerr << "VOOR new Sentence(" << kw << endl;
       res = new Sentence( kw, mydoc );
     }
     catch( const DuplicateIDError& e ) {
@@ -2301,8 +2300,8 @@ namespace folia {
   Word *FoliaImpl::addWord( const KWargs& args ) {
     Word *res = new Word( mydoc );
     KWargs kw = args;
-    if ( kw.find("xml:id") == kw.end()
-	 && kw.find("_id") == kw.end() ){
+    if ( !kw.is_present("xml:id")
+	 && !kw.is_present("_id") ){
       string id = generateId( "w" );
       kw["xml:id"] = id;
     }
@@ -2534,12 +2533,10 @@ namespace folia {
     }
     else
       _offset = -1;
-    it = kwargs.find( "ref" );
-    if ( it != kwargs.end() ) {
+    if ( kwargs.is_present( "ref" ) ) {
       throw NotImplementedError( "ref attribute in PhonContent" );
     }
-    it = kwargs.find( "class" );
-    if ( it == kwargs.end() ) {
+    if ( !kwargs.is_present( "class" ) ){
       kwargs["class"] = "current";
     }
     FoliaImpl::setAttributes(kwargs);
@@ -3789,8 +3786,7 @@ namespace folia {
   }
 
   void PlaceHolder::setAttributes( const KWargs& args ) {
-    auto it = args.find( "text" );
-    if ( it == args.end() ) {
+    if ( !args.is_present("text") ) {
       throw ValueError("text attribute is required for " + classname() );
     }
     else if ( args.size() != 1 ) {
@@ -3825,8 +3821,7 @@ namespace folia {
 
   FoliaElement* Description::parseXml( const xmlNode *node ) {
     KWargs att = getAttributes( node );
-    auto it = att.find("value" );
-    if ( it == att.end() ) {
+    if ( !att.is_present("value") ) {
       att["value"] = XmlContent( node );
     }
     setAttributes( att );
@@ -3852,8 +3847,7 @@ namespace folia {
 
   FoliaElement* Comment::parseXml( const xmlNode *node ) {
     KWargs att = getAttributes( node );
-    auto it = att.find("value" );
-    if ( it == att.end() ) {
+    if ( !att.is_present("value") ) {
       att["value"] = XmlContent( node );
     }
     setAttributes( att );
