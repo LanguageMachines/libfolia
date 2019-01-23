@@ -4408,11 +4408,13 @@ namespace folia {
   }
 
   void Note::setAttributes( const KWargs& args ) {
-    auto it = args.find( "_id" );
-    if ( it != args.end() ) {
+    KWargs a = args;
+    auto it = a.find( "id" );
+    if ( it != a.end() ) {
       refId = it->second;
+      a.erase( it );
     }
-    FoliaImpl::setAttributes( args );
+    FoliaImpl::setAttributes( a );
   }
 
   KWargs Reference::collectAttributes() const {
