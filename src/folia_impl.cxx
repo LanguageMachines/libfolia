@@ -265,7 +265,7 @@ namespace folia {
     else {
       string val = kwargs.extract( "xml:id" );
       if ( val.empty() ) {
-	val = kwargs.extract( "xml:id" );
+	val = kwargs.extract( "_id" ); // for backward compatibility
       }
       if ( !val.empty() ) {
 	if ( (!ID) & supported ) {
