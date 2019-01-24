@@ -239,11 +239,11 @@ namespace folia {
       ofstream os( tmp_file );
       os << buffer << endl;
       os.close();
-      _in_doc = xmlNewTextReaderFilename( tmp_file.c_str() );
+      _in_doc = xmlReaderForFile( tmp_file.c_str(), 0, XML_PARSE_HUGE );
     }
     else {
       // can handle .xml and .xml.gz
-      _in_doc = xmlNewTextReaderFilename( file_name.c_str() );
+      _in_doc = xmlReaderForFile( file_name.c_str(), 0, XML_PARSE_HUGE );
     }
     if ( _in_doc == 0 ){
       throw( runtime_error( "folia::Processor(), init failed on '" + file_name

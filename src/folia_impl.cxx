@@ -4322,7 +4322,7 @@ namespace folia {
       cerr << "try to resolve: " << _src << endl;
       int cnt = 0;
       xmlSetStructuredErrorFunc( &cnt, (xmlStructuredErrorFunc)error_sink );
-      xmlDoc *extdoc = xmlReadFile( _src.c_str(), 0, XML_PARSE_NOBLANKS|XML_PARSE_HUGE );
+      xmlDoc *extdoc = xmlReadFile( _src.c_str(), 0, XML_PARSE_NSCLEAN|XML_PARSE_HUGE );
       if ( extdoc ) {
 	xmlNode *root = xmlDocGetRootElement( extdoc );
 	xmlNode *p = root->children;
@@ -4341,8 +4341,8 @@ namespace folia {
 	      delete tmp;
 	      delete old;
 	    }
-	    p = p->next;
 	  }
+	  p = p->next;
 	}
 	xmlFreeDoc( extdoc );
       }
