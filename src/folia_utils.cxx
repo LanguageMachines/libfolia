@@ -202,7 +202,7 @@ namespace folia {
       xmlAttr *a = node->properties;
       while ( a ){
 	if ( a->atype == XML_ATTRIBUTE_ID && string((char*)a->name) == "id" ){
-	  atts["_id"] = (char *)a->children->content;
+	  atts["xml:id"] = (char *)a->children->content;
 	}
 	else if ( a->ns == 0 || a->ns->prefix == 0 ){
 	  atts[(char*)a->name] = (char *)a->children->content;
@@ -225,8 +225,8 @@ namespace folia {
 
   void addAttributes( xmlNode *node, const KWargs& atts ){
     KWargs attribs = atts;
-    auto it = attribs.find("_id");
-    if ( it != attribs.end() ){ // _id is special for xml:id
+    auto it = attribs.find("xml:id");
+    if ( it != attribs.end() ){ // xml:id is special
       xmlSetProp( node, XML_XML_ID, (const xmlChar *)it->second.c_str() );
       attribs.erase(it);
     }
@@ -236,7 +236,7 @@ namespace folia {
       attribs.erase(it);
     }
     it = attribs.find("id");
-    if ( it != attribs.end() ){ // id is te be sorted before the rest
+    if ( it != attribs.end() ){
       xmlSetProp( node, (const xmlChar*)("id"), (const xmlChar *)it->second.c_str() );
       attribs.erase(it);
     }

@@ -144,7 +144,7 @@ namespace folia {
     os << " <" << ae.classname();
     KWargs ats = ae.collectAttributes();
     if ( !ae.id().empty() ) {
-      ats["_id"] = ae.id();
+      os << " xml:id=" << ae.id();
     }
     for ( const auto& it: ats ) {
       os << " " << it.first << "='" << it.second << "'";
@@ -263,7 +263,7 @@ namespace folia {
       }
     }
     else {
-      string val = kwargs.extract( "_id" );
+      string val = kwargs.extract( "xml:id" );
       if ( val.empty() ) {
 	val = kwargs.extract( "xml:id" );
       }
@@ -635,7 +635,7 @@ namespace folia {
     bool isDefaultAnn = true;
 
     if ( !_id.empty() ) {
-      attribs["_id"] = _id; // sort "id" as first!
+      attribs["xml:id"] = _id;
     }
     if ( !_set.empty() &&
 	 _set != mydoc->defaultset( annotation_type() ) ) {
@@ -2122,7 +2122,7 @@ namespace folia {
     if ( hasannotation<PosAnnotation>( st ) > 0 ) {
       // ok, there is already one, so create an Alternative
       KWargs kw;
-      kw["_id"] = generateId( newId );
+      kw["xml:id"] = generateId( newId );
       Alternative *alt = new Alternative( kw, doc() );
       append( alt );
       return alt->addAnnotation<PosAnnotation>( args );
@@ -2173,7 +2173,7 @@ namespace folia {
     if ( hasannotation<LemmaAnnotation>( st ) > 0 ) {
       // ok, there is already one, so create an Alternative
       KWargs kw;
-      kw["_id"] = generateId( newId );
+      kw["xml:id"] = generateId( newId );
       Alternative *alt = new Alternative( kw, doc() );
       append( alt );
       return alt->addAnnotation<LemmaAnnotation>( args );
@@ -2224,7 +2224,7 @@ namespace folia {
     if ( hasannotation<MorphologyLayer>( st ) > 0 ) {
       // ok, there is already one, so create an Alternative
       KWargs kw;
-      kw["_id"] = generateId( newId );
+      kw["xml:id"] = generateId( newId );
       Alternative *alt = new Alternative( kw, doc() );
       append( alt );
       return alt->addAnnotation<MorphologyLayer>( args );
@@ -2263,8 +2263,7 @@ namespace folia {
   Sentence *FoliaImpl::addSentence( const KWargs& args ) {
     Sentence *res = 0;
     KWargs kw = args;
-    if ( !kw.is_present("xml:id")
-	 && !kw.is_present("_id") ){
+    if ( !kw.is_present("xml:id") ){
       string id = generateId( "s" );
       kw["xml:id"] = id;
     }
@@ -2282,8 +2281,7 @@ namespace folia {
   Word *FoliaImpl::addWord( const KWargs& args ) {
     Word *res = new Word( mydoc );
     KWargs kw = args;
-    if ( !kw.is_present("xml:id")
-	 && !kw.is_present("_id") ){
+    if ( !kw.is_present("xml:id") ){
       string id = generateId( "w" );
       kw["xml:id"] = id;
     }
@@ -2409,7 +2407,7 @@ namespace folia {
       if ( *it == p ) {
 	KWargs kwargs;
 	kwargs["text"] = "dummy";
-	kwargs["_id"] = "dummy";
+	kwargs["xml:id"] = "dummy";
 	Word *tmp = new Word( kwargs );
 	tmp->setParent( this ); // we create a dummy Word as member of the
 	// Sentence. This makes correctWords() happy
@@ -2899,7 +2897,7 @@ namespace folia {
       args2.erase("suggestion" );
       args2.erase("suggestions" );
       string id = generateId( "correction" );
-      args2["_id"] = id;
+      args2["xml:id"] = id;
       corr = new Correction( args2, mydoc );
     }
 #ifdef DEBUG_CORRECT
@@ -4330,13 +4328,14 @@ namespace folia {
 	  if ( p->type == XML_ELEMENT_NODE ) {
 	    string tag = Name( p );
 	    if ( tag == "text" ) {
+	      const string bogus_id = "Arglebargleglop-glyf";
 	      FoliaElement *parent = _parent;
 	      KWargs args = parent->collectAttributes();
-	      args["_id"] = "Arglebargleglop-glyf";
+	      args["xml:id"] = bogus_id;
 	      Text *tmp = new Text( args, mydoc );
 	      tmp->FoliaImpl::parseXml( p );
 	      FoliaElement *old = parent->replace( this, tmp->index(0) );
-	      mydoc->delDocIndex( tmp, "Arglebargleglop-glyf" );
+	      mydoc->delDocIndex( tmp, bogus_id );
 	      tmp->remove( (size_t)0, false );
 	      delete tmp;
 	      delete old;
@@ -4396,7 +4395,7 @@ namespace folia {
   KWargs Reference::collectAttributes() const {
     KWargs atts = FoliaImpl::collectAttributes();
     if ( !_id.empty() ){
-      atts["_id"] = _id;
+      atts["xml:id"] = _id;
     }
     atts["id"] = refId;
     atts["type"] = ref_type;
@@ -4408,7 +4407,7 @@ namespace folia {
 
   void Reference::setAttributes( const KWargs& argsin ) {
     KWargs args = argsin;
-    auto it = args.find( "_id" );
+    auto it = args.find( "xml:id" );
     if ( it != args.end() ) {
       _id = it->second;
       args.erase( it );
@@ -4632,7 +4631,7 @@ namespace folia {
     KWargs args = atts;
     auto it = args.find( "id" );
     if ( it != args.end() ) {
-      auto it2 = args.find( "_id" );
+      auto it2 = args.find( "xml:id" );
       if ( it2 != args.end() ) {
 	throw ValueError("Both 'id' and 'xml:id found for " + classname() );
       }

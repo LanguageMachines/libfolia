@@ -680,7 +680,7 @@ namespace folia {
   void Document::parsesubmeta( const xmlNode *node ){
     if ( node ){
       KWargs att = getAttributes( node );
-      string id = att["_id"];
+      string id = att["xml:id"];
       if ( id.empty() ){
 	throw MetaDataError( "submetadata without xml:id" );
       }
@@ -901,10 +901,7 @@ namespace folia {
       external = false;
     }
     bool happy = false;
-    it = kwargs.find( "_id" );
-    if ( it == kwargs.end() ){
-      it = kwargs.find( "xml:id" );
-    }
+    it = kwargs.find( "xml:id" );
     if ( it != kwargs.end() ){
       if ( isNCName( it->second ) ){
 	_id = it->second;
@@ -1764,7 +1761,7 @@ namespace folia {
     }
     xmlSetNs( root, _foliaNsOut );
     KWargs attribs;
-    attribs["_id"] = foliadoc->id(); // sort "id" in front!
+    attribs["xml:id"] = foliadoc->id();
     if ( strip() ){
       attribs["generator"] = "";
       attribs["version"] = "";

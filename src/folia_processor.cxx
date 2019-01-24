@@ -199,10 +199,7 @@ namespace folia {
       do {
 	string att = (const char*)xmlTextReaderConstName(tr);
 	string val = (const char*)xmlTextReaderConstValue(tr);
-	if ( att == "xml:id" ){
-	  att = "_id";
-	}
-	else if ( att == "xlink:href" ){
+	if ( att == "xlink:href" ){
 	  att = "href";
 	}
 	else if ( att == "xlink:type" ){
@@ -276,7 +273,7 @@ namespace folia {
 	  KWargs in_args = get_attributes( _in_doc );
 	  string id;
 	  if ( !in_args.empty() ){
-	    id = in_args["_id"];
+	    id = in_args["xml:id"];
 	  }
 	  for ( auto it =in_args.begin(); it != in_args.end();  ){
 	    // remove all xmlns attributes
