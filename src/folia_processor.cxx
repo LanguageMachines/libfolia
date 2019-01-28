@@ -58,7 +58,8 @@ namespace folia {
     _finished(false),
     _ok(false),
     _done(false),
-    _debug(false)
+    _debug(false),
+    _text_context(false)
   {
   }
 
@@ -423,8 +424,12 @@ namespace folia {
       int new_depth = xmlTextReaderDepth(_in_doc);
       if ( type == XML_ELEMENT_NODE ){
 	string local_name = (const char*)xmlTextReaderConstLocalName(_in_doc);
+	if ( local_name == "t" || local_name == "ph" ){
+	  // a <t> or a <ph> node starts. We have a text_context
+	  _text_context = true;
+	}
 	if ( _debug ){
-	  DBG << "get node name=" << local_name
+	  DBG << "get node XML_ELEMENT name=" << local_name
 	      << " depth " << _last_depth << " ==> " << new_depth << endl;
 	}
 	if ( tags.find(local_name) != tags.end() ){
@@ -526,6 +531,8 @@ namespace folia {
 	XmlText *txt = new XmlText();
 	string value = (const char*)xmlTextReaderConstValue(_in_doc);
 	if ( _debug ){
+	  DBG << "get node XML_TEXT depth="
+	      << _last_depth << " ==> " << new_depth << endl;
 	  DBG << "TXT VALUE = '" << value << "'" << endl;
 	}
 	txt->setvalue( value );
@@ -539,6 +546,9 @@ namespace folia {
 	_last_depth = xmlTextReaderDepth(_in_doc);
       }
       else if ( type == XML_COMMENT_NODE ){
+	if ( _debug ){
+	  DBG << "get node XML_COMMENT depth " << _last_depth << " ==> " << new_depth << endl;
+	}
 	string tag = "_XmlComment";
 	FoliaElement *t = FoliaImpl::createElement( tag, _out_doc );
 	append_node( t, new_depth );
@@ -546,6 +556,37 @@ namespace folia {
 	if ( _debug ){
 	  DBG << "einde current node = " << _current_node << endl;
 	  DBG << "last node = " << _last_added << endl;
+	}
+      }
+      else {
+	string local_name = (const char*)xmlTextReaderConstLocalName(_in_doc);
+	if ( local_name == "t" || local_name == "ph" ){
+	  // so we are AT THE END of a <t> or <ph> !
+	  _text_context = false;
+	}
+	if ( _debug ){
+	  DBG << "get node " << type <<  " name=" << local_name
+	      << " depth " << _last_depth << " ==> " << new_depth << endl;
+	}
+	if ( _text_context ){
+	  const char *val = (const char*)xmlTextReaderConstValue(_in_doc);
+	  if ( val ){
+	    // when inside a text_context, ALL text is relevant! add it
+	    if ( _debug ){
+	      DBG << "ADD extra tekst " << val << " TO TEXT " << endl;
+	    }
+	    XmlText *txt = new XmlText();
+	    string value = val;
+	    txt->setvalue( value );
+	    int new_depth = xmlTextReaderDepth(_in_doc);
+	    append_node( txt, new_depth );
+	    _last_added = txt;
+	    if ( _debug ){
+	      DBG << "einde current node = " << _current_node << endl;
+	      DBG << "last node = " << _last_added << endl;
+	    }
+	    _last_depth = xmlTextReaderDepth(_in_doc);
+	  }
 	}
       }
       ret = xmlTextReaderRead(_in_doc);
@@ -894,6 +935,10 @@ namespace folia {
 	if ( _debug ){
 	  DBG << "next element: " << local_name << " cnt =" << _node_count << endl;
 	}
+	if ( local_name == "t" || local_name == "ph" ){
+	  // a <t> or a <ph> node starts. We have a text_context
+	  _text_context = true;
+	}
 	if ( _node_count == _next_text_node  ){
 	  // HIT!
 	  if ( _debug ){
@@ -1026,6 +1071,37 @@ namespace folia {
 	if ( _debug ){
 	  DBG << "einde current node = " << _current_node << endl;
 	  DBG << "last node = " << _last_added << endl;
+	}
+      }
+      else {
+	string local_name = (const char*)xmlTextReaderConstLocalName(_in_doc);
+	if ( local_name == "t" || local_name == "ph" ){
+	  // so we are AT THE END of a <t> or <ph> !
+	  _text_context = false;
+	}
+	if ( _debug ){
+	  DBG << "get node " << type <<  " name=" << local_name
+	      << " depth " << _last_depth << " ==> " << new_depth << endl;
+	}
+	if ( _text_context ){
+	  const char *val = (const char*)xmlTextReaderConstValue(_in_doc);
+	  if ( val ){
+	    // when inside a text_context, ALL text is relevant! add it
+	    if ( _debug ){
+	      DBG << "ADD extra tekst " << val << " TO TEXT " << endl;
+	    }
+	    XmlText *txt = new XmlText();
+	    string value = val;
+	    txt->setvalue( value );
+	    int new_depth = xmlTextReaderDepth(_in_doc);
+	    append_node( txt, new_depth );
+	    _last_added = txt;
+	    if ( _debug ){
+	      DBG << "einde current node = " << _current_node << endl;
+	      DBG << "last node = " << _last_added << endl;
+	    }
+	    _last_depth = xmlTextReaderDepth(_in_doc);
+	  }
 	}
       }
       ret = xmlTextReaderRead(_in_doc);
