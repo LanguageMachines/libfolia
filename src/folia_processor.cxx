@@ -611,10 +611,10 @@ namespace folia {
       ofstream os( tmp_file );
       os << buffer << endl;
       os.close();
-      tmp_doc = xmlNewTextReaderFilename( tmp_file.c_str() );
+      tmp_doc = xmlReaderForFile( tmp_file.c_str(), 0, XML_PARSE_HUGE );
     }
     else {
-      tmp_doc = xmlNewTextReaderFilename( in_file.c_str() );
+      tmp_doc = xmlReaderForFile( in_file.c_str(), 0, XML_PARSE_HUGE );
     }
     if ( _debug ){
       DBG << "enumerate_nodes()" << endl;
