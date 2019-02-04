@@ -573,7 +573,7 @@ namespace folia {
 	  if ( val ){
 	    // when inside a text_context, ALL text is relevant! add it
 	    if ( _debug ){
-	      DBG << "ADD extra tekst " << val << " TO TEXT " << endl;
+	      DBG << "ADD extra tekst '" << val << "' TO TEXT " << endl;
 	    }
 	    XmlText *txt = new XmlText();
 	    string value = val;
@@ -1088,7 +1088,7 @@ namespace folia {
 	  if ( val ){
 	    // when inside a text_context, ALL text is relevant! add it
 	    if ( _debug ){
-	      DBG << "ADD extra tekst " << val << " TO TEXT " << endl;
+	      DBG << "ADD extra tekst '" << val << "' TO TEXT " << endl;
 	    }
 	    XmlText *txt = new XmlText();
 	    string value = val;
