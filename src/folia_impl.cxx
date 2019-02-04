@@ -1627,8 +1627,12 @@ namespace folia {
 
   bool FoliaImpl::addable( const FoliaElement *c ) const {
     if ( !acceptable( c->element_id() ) ) {
-      throw ValueError( "Unable to append object of type " + c->classname()
-			+ " to a " + classname() );
+      string mess = "Unable to append object of type " + c->classname()
+	+ " to a <" + classname() + ">";
+      if ( !_id.empty() ){
+	mess += " (id=" + _id + ")";
+      }
+      throw ValueError( mess );
     }
     if ( c->occurrences() > 0 ) {
       vector<FoliaElement*> v = select( c->element_id(), false );
