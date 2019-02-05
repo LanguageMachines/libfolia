@@ -1633,6 +1633,9 @@ namespace folia {
     return folia::isSubClass( element_id(), t );
   }
 
+  bool isAttributeFeature( const string& tag ){
+    return AttributeFeatures.find( tag ) != AttributeFeatures.end();
+  }
 
   void print_type_hierarchy( ostream& os ){
     for ( auto const& top : typeHierarchy ){

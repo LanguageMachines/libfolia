@@ -874,7 +874,10 @@ namespace folia {
   int depth( FoliaElement *fe ){
     int result = 0;
     //    cerr << "DEPTH " << fe << endl;
-    if ( fe && fe->xmltag() != "_XmlText" ){
+    if ( fe
+	 && fe->xmltag() != "_XmlText"
+	 && fe->element_id() != HeadFeature_t
+	 && !isAttributeFeature(fe->xmltag()) ){
       result += 1;
       if ( fe->size() > 0 ){
 	//	cerr << "size=" << fe->size() << endl;

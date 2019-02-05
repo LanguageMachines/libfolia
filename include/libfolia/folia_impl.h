@@ -2566,6 +2566,8 @@ namespace folia {
     static properties PROPS;
   };
 
+  bool isAttributeFeature( const std::string& );
+
   std::string VersionName();
   std::string Version();
 
