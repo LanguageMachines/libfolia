@@ -43,15 +43,15 @@ namespace folia {
     finished(false)
   {
     KWargs args;
-    args["id"] = id;
+    args["xml:id"] = id;
     _doc = new Document(args);
     FoliaElement *t;
     if ( dt == TEXT ){
-      args["id"] = id + ".text";
+      args["xml:id"] = id + ".text";
       t = new Text( args );
     }
     else {
-      args["id"] = id + ".speech";
+      args["xml:id"] = id + ".speech";
       t = new Speech( args );
     }
     _doc->setRoot( t );

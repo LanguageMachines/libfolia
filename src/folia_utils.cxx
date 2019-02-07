@@ -74,8 +74,12 @@ namespace folia {
     return el;
   }
 
-  KWargs getArgs( const string& s ){
-    KWargs result;
+  KWargs::KWargs( const std::string& s ){
+    init( s );
+  }
+
+  void KWargs::init( const string& s ){
+    clear();
     bool quoted = false;
     bool parseatt = true;
     bool escaped = false;
@@ -107,7 +111,7 @@ namespace folia {
 	    if ( att.empty() || val.empty() ){
 	      throw ArgsError( s + ", (''?)" );
 	    }
-	    result[att] = val;
+	    (*this)[att] = val;
 	    att.clear();
 	    val.clear();
 	    quoted = false;
@@ -159,6 +163,24 @@ namespace folia {
     }
     if ( quoted )
       throw ArgsError( s + ", unbalanced '?" );
+  }
+
+  bool KWargs::is_present( const string& att ) const {
+    return find(att) != end();
+  }
+
+  string KWargs::extract( const string& att ){
+    string result;
+    auto it = find(att);
+    if ( it != end() ){
+      result = it->second;
+      erase(it);
+    }
+    return result;
+  }
+
+  KWargs getArgs( const string& s ){
+    KWargs result( s );
     return result;
   }
 
@@ -180,15 +202,16 @@ namespace folia {
       xmlAttr *a = node->properties;
       while ( a ){
 	if ( a->atype == XML_ATTRIBUTE_ID && string((char*)a->name) == "id" ){
-	  atts["_id"] = (char *)a->children->content;
+	  atts["xml:id"] = (char *)a->children->content;
 	}
 	else if ( a->ns == 0 || a->ns->prefix == 0 ){
 	  atts[(char*)a->name] = (char *)a->children->content;
 	}
 	else {
 	  string pref = string( (const char*)a->ns->prefix);
-	  if ( pref == "xlink" ){ // are there others?
-	    atts[(char*)a->name] = (char *)a->children->content;
+	  string att  = string( (const char*)a->name);
+	  if ( pref == "xlink" ){
+	    atts[att] = (char *)a->children->content;
 	  }
 	  // else {
 	  //   cerr << "attribute PREF=" << pref << endl;
@@ -202,8 +225,8 @@ namespace folia {
 
   void addAttributes( xmlNode *node, const KWargs& atts ){
     KWargs attribs = atts;
-    auto it = attribs.find("_id");
-    if ( it != attribs.end() ){ // _id is special for xml:id
+    auto it = attribs.find("xml:id");
+    if ( it != attribs.end() ){ // xml:id is special
       xmlSetProp( node, XML_XML_ID, (const xmlChar *)it->second.c_str() );
       attribs.erase(it);
     }
@@ -213,7 +236,7 @@ namespace folia {
       attribs.erase(it);
     }
     it = attribs.find("id");
-    if ( it != attribs.end() ){ // id is te be sorted before the rest
+    if ( it != attribs.end() ){
       xmlSetProp( node, (const xmlChar*)("id"), (const xmlChar *)it->second.c_str() );
       attribs.erase(it);
     }

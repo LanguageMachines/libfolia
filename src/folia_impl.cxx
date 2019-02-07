@@ -144,7 +144,7 @@ namespace folia {
     os << " <" << ae.classname();
     KWargs ats = ae.collectAttributes();
     if ( !ae.id().empty() ) {
-      ats["_id"] = ae.id();
+      os << " xml:id=" << ae.id();
     }
     for ( const auto& it: ats ) {
       os << " " << it.first << "='" << it.second << "'";
@@ -233,7 +233,7 @@ namespace folia {
   void FoliaImpl::setAttributes( const KWargs& kwargs_in ) {
     KWargs kwargs = kwargs_in;
     Attrib supported = required_attributes() | optional_attributes();
-    // if ( element_id() == Division_t ) {
+    // if ( element_id() == Word_t ) {
     //   cerr << "set attributes: " << kwargs << " on " << classname() << endl;
     //   cerr << "required = " <<  required_attributes() << endl;
     //   cerr << "optional = " <<  optional_attributes() << endl;
@@ -249,60 +249,50 @@ namespace folia {
       cerr << "set attributes: " << kwargs << " on " << classname() << endl;
     }
 
-    auto it = kwargs.find( "generate_id" );
-    if ( it != kwargs.end() ) {
+    string val = kwargs.extract( "generate_id" );
+    if ( !val.empty() ) {
       if ( !mydoc ) {
 	throw runtime_error( "can't generate an ID without a doc" );
       }
-      FoliaElement *e = (*mydoc)[it->second];
+      FoliaElement *e = (*mydoc)[val];
       if ( e ) {
 	_id = e->generateId( xmltag() );
       }
       else {
-	throw ValueError("Unable to generate an id from ID= " + it->second );
+	throw ValueError("Unable to generate an id from ID= " + val );
       }
-      kwargs.erase( it );
     }
     else {
-      it = kwargs.find( "_id" );
-      auto it2 = kwargs.find( "id" );
-      if ( it == kwargs.end() ) {
-	it = it2;
+      string val = kwargs.extract( "xml:id" );
+      if ( val.empty() ) {
+	val = kwargs.extract( "_id" ); // for backward compatibility
       }
-      else if ( it2 != kwargs.end() ) {
-	throw ValueError("Both 'id' and 'xml:id found for " + classname() );
-      }
-      if ( it != kwargs.end() ) {
+      if ( !val.empty() ) {
 	if ( (!ID) & supported ) {
-	  throw ValueError("ID is not supported for " + classname() );
+	  throw ValueError("xml:id is not supported for " + classname() );
+	}
+	else if ( isNCName( val ) ){
+	  _id = val;
 	}
 	else {
-	  if ( isNCName( it->second ) ){
-	    _id = it->second;
-	    kwargs.erase( it );
-	  }
-	  else {
-	    throw XmlError( "'"
-			    + it->second
-			    + "' is not a valid NCName." );
-	  }
+	  throw XmlError( "'" + val + "' is not a valid NCName." );
 	}
       }
     }
 
-    it = kwargs.find( "set" );
-    string def;
-    if ( it != kwargs.end() ) {
+    _set.clear();
+    val = kwargs.extract( "set" );
+    if ( !val.empty() ) {
       if ( !mydoc ) {
-	throw ValueError( "Set=" + _set + " is used on a node without a document." );
+	throw ValueError( "attribute set=" + val + " is used on a node without a document." );
       }
       if ( !( (CLASS & supported) || setonly() ) ) {
-	throw ValueError("Set is not supported for " + classname());
+	throw ValueError("attribute 'set' is not supported for " + classname());
       }
       else {
-	string st = mydoc->unalias( annotation_type(), it->second);
+	string st = mydoc->unalias( annotation_type(), val );
 	if ( st.empty() ){
-	  _set = it->second;
+	  _set = val;
 	}
 	else {
 	  _set = st;
@@ -312,20 +302,20 @@ namespace folia {
 	throw ValueError( "Set " + _set + " is used but has no declaration " +
 			  "for " + toString( annotation_type() ) + "-annotation" );
       }
-      kwargs.erase( it );
-    }
-    else if ( mydoc && ( def = mydoc->defaultset( annotation_type() )) != "" ) {
-      _set = def;
     }
     else {
-      _set = "";
+      string def;
+      if ( mydoc && ( def = mydoc->defaultset( annotation_type() )) != "" ) {
+	_set = def;
+      }
     }
-    it = kwargs.find( "class" );
-    if ( it != kwargs.end() ) {
+
+    _class.clear();
+    val = kwargs.extract( "class" );
+    if ( !val.empty() ) {
       if ( !( CLASS & supported ) ) {
 	throw ValueError("Class is not supported for " + classname() );
       }
-      _class = it->second;
       if ( element_id() != TextContent_t && element_id() != PhonContent_t ) {
 	if ( !mydoc ) {
 	  throw ValueError( "Class=" + _class + " is used on a node without a document." );
@@ -342,10 +332,8 @@ namespace folia {
 	}
 	mydoc->incrRef( annotation_type(), _set );
       }
-      kwargs.erase( it );
+      _class = val;
     }
-    else
-      _class = "";
 
     if ( element_id() != TextContent_t && element_id() != PhonContent_t ) {
       if ( !_class.empty() && _set.empty() ) {
@@ -353,57 +341,59 @@ namespace folia {
 			 " class=\"" + _class + "\"> assigned without set."  );
       }
     }
-    it = kwargs.find( "annotator" );
-    if ( it != kwargs.end() ) {
+
+    _annotator.clear();
+    val = kwargs.extract( "annotator" );
+    if ( !val.empty() ) {
       if ( !(ANNOTATOR & supported) ) {
 	throw ValueError("Annotator is not supported for " + classname() );
       }
       else {
-	_annotator = it->second;
+	_annotator = val;
       }
-      kwargs.erase( it );
-    }
-    else if ( mydoc &&
-	      (def = mydoc->defaultannotator( annotation_type(), _set )) != "" ) {
-      _annotator = def;
     }
     else {
-      _annotator = "";
+      string def;
+      if ( mydoc &&
+	   (def = mydoc->defaultannotator( annotation_type(), _set )) != "" ) {
+	_annotator = def;
+      }
     }
 
-    it = kwargs.find( "annotatortype" );
-    if ( it != kwargs.end() ) {
+    _annotator_type = UNDEFINED;
+    val = kwargs.extract( "annotatortype" );
+    if ( !val.empty() ) {
       if ( ! (ANNOTATOR & supported) ) {
 	throw ValueError("Annotatortype is not supported for " + classname() );
       }
       else {
-	_annotator_type = stringTo<AnnotatorType>( it->second );
+	_annotator_type = stringTo<AnnotatorType>( val );
 	if ( _annotator_type == UNDEFINED ) {
 	  throw ValueError( "annotatortype must be 'auto' or 'manual', got '"
-			    + it->second + "'" );
+			    + val + "'" );
 	}
-      }
-      kwargs.erase( it );
-    }
-    else if ( mydoc &&
-	      (def = mydoc->defaultannotatortype( annotation_type(), _set ) ) != ""  ) {
-      _annotator_type = stringTo<AnnotatorType>( def );
-      if ( _annotator_type == UNDEFINED ) {
-	throw ValueError("annotatortype must be 'auto' or 'manual'");
       }
     }
     else {
-      _annotator_type = UNDEFINED;
+      string def;
+      if ( mydoc &&
+	   (def = mydoc->defaultannotatortype( annotation_type(), _set ) ) != ""  ) {
+	_annotator_type = stringTo<AnnotatorType>( def );
+	if ( _annotator_type == UNDEFINED ) {
+	  throw ValueError("annotatortype must be 'auto' or 'manual'");
+	}
+      }
     }
 
-    it = kwargs.find( "confidence" );
-    if ( it != kwargs.end() ) {
+    _confidence = -1;
+    val = kwargs.extract( "confidence" );
+    if ( !val.empty() ) {
       if ( !(CONFIDENCE & supported) ) {
 	throw ValueError("Confidence is not supported for " + classname() );
       }
       else {
 	try {
-	  _confidence = stringTo<double>(it->second);
+	  _confidence = stringTo<double>(val);
 	  if ( _confidence < 0 || _confidence > 1.0 )
 	    throw ValueError("Confidence must be a floating point number between 0 and 1, got " + TiCC::toString(_confidence) );
 	}
@@ -411,88 +401,76 @@ namespace folia {
 	  throw ValueError("invalid Confidence value, (not a number?)");
 	}
       }
-      kwargs.erase( it );
     }
-    else {
-      _confidence = -1;
-    }
-    it = kwargs.find( "n" );
-    if ( it != kwargs.end() ) {
+
+    _n = "";
+    val = kwargs.extract( "n" );
+    if ( !val.empty() ) {
       if ( !(N & supported) ) {
 	throw ValueError("N attribute is not supported for " + classname() );
       }
       else {
-	_n = it->second;
+	_n = val;
       }
-      kwargs.erase( it );
     }
-    else
-      _n = "";
 
     if ( xlink() ) {
       string type = "simple";
-      it = kwargs.find( "type" );
-      if ( it != kwargs.end() ) {
-	type = it->second;
-	kwargs.erase( it );
+      string val = kwargs.extract( "type" );
+      if ( !val.empty() ) {
+	type = val;
       }
       if ( type != "simple" && type != "locator" ) {
 	throw XmlError( "only xlink:types: 'simple' and 'locator' are supported!" );
       }
       _xlink["type"] = type;
-      it = kwargs.find( "href" );
-      if ( it != kwargs.end() ) {
-	_xlink["href"] = it->second;
-	kwargs.erase( it );
+      val = kwargs.extract( "href" );
+      if ( !val.empty() ) {
+	_xlink["href"] = val;
       }
       else if ( type == "locator" ){
 	throw XmlError( "xlink:type='locator' requires an 'xlink:href' attribute" );
       }
-      it = kwargs.find( "role" );
-      if ( it != kwargs.end() ) {
-	_xlink["role"] = it->second;
-	kwargs.erase( it );
+      val = kwargs.extract( "role" );
+      if ( !val.empty() ) {
+	_xlink["role"] = val;
       }
-      it = kwargs.find( "title" );
-      if ( it != kwargs.end() ) {
-	_xlink["title"] = it->second;
-	kwargs.erase( it );
+      val = kwargs.extract( "title" );
+      if ( !val.empty() ) {
+	_xlink["title"] = val;
       }
-      it = kwargs.find( "label" );
-      if ( it != kwargs.end() ) {
+      val = kwargs.extract( "label" );
+      if ( !val.empty() ) {
 	if ( type == "simple" ){
 	  throw XmlError( "xlink:type='simple' may not have an 'xlink:label' attribute" );
 	}
-	_xlink["label"] = it->second;
-	kwargs.erase( it );
+	_xlink["label"] = val;
       }
-      it = kwargs.find( "arcrole" );
-      if ( it != kwargs.end() ) {
+      val = kwargs.extract( "arcrole" );
+      if ( !val.empty() ) {
 	if ( type == "locator" ){
 	  throw XmlError( "xlink:type='locator' may not have an 'xlink:arcrole' attribute" );
 	}
-	_xlink["arcrole"] = it->second;
-	kwargs.erase( it );
+	_xlink["arcrole"] = val;
       }
-      it = kwargs.find( "show" );
-      if ( it != kwargs.end() ) {
+      val = kwargs.extract( "show" );
+      if ( !val.empty() ) {
 	if ( type == "locator" ){
 	  throw XmlError( "xlink:type='locator' may not have an 'xlink:show' attribute" );
 	}
-	_xlink["show"] = it->second;
-	kwargs.erase( it );
+	_xlink["show"] = val;
       }
-      it = kwargs.find( "actuate" );
-      if ( it != kwargs.end() ) {
+      val = kwargs.extract( "actuate" );
+      if ( !val.empty() ) {
 	if ( type == "locator" ){
 	  throw XmlError( "xlink:type='locator' may not have an 'xlink:actuate' attribute" );
 	}
-	_xlink["actuate"] = it->second;
-	kwargs.erase( it );
+	_xlink["actuate"] = val;
       }
     }
 
-    it = kwargs.find( "datetime" );
+    _datetime.clear();
+    auto it = kwargs.find( "datetime" );
     if ( it != kwargs.end() ) {
       if ( !(DATETIME & supported) ) {
 	throw ValueError("datetime attribute is not supported for " + classname() );
@@ -505,12 +483,12 @@ namespace folia {
       }
       kwargs.erase( it );
     }
-    else if ( mydoc &&
-	      (def = mydoc->defaultdatetime( annotation_type(), _set )) != "" ) {
-      _datetime = def;
-    }
     else {
-      _datetime.clear();
+      string def;
+      if ( mydoc &&
+	   (def = mydoc->defaultdatetime( annotation_type(), _set )) != "" ) {
+	_datetime = def;
+      }
     }
     it = kwargs.find( "begintime" );
     if ( it != kwargs.end() ) {
@@ -627,12 +605,15 @@ namespace folia {
       string tag = it.first;
       if ( tag == "head" ) {
 	// "head" is special because the tag is "headfeature"
-	// this to avoid conflicts withe the "head" tag!
+	// this to avoid conflicts with the "head" tag!
 	tag = "headfeature";
       }
       if ( AttributeFeatures.find( tag ) == AttributeFeatures.end() ) {
 	string message = "unsupported attribute: " + tag + "='" + it.second
 	  + "' for node with tag '" + classname() + "'";
+	if ( tag == "id" ){
+	  message += "\ndid you mean xml:id?";
+	}
 	if ( mydoc && mydoc->permissive() ) {
 	  cerr << message << endl;
 	}
@@ -654,7 +635,7 @@ namespace folia {
     bool isDefaultAnn = true;
 
     if ( !_id.empty() ) {
-      attribs["_id"] = _id; // sort "id" as first!
+      attribs["xml:id"] = _id;
     }
     if ( !_set.empty() &&
 	 _set != mydoc->defaultset( annotation_type() ) ) {
@@ -1646,8 +1627,12 @@ namespace folia {
 
   bool FoliaImpl::addable( const FoliaElement *c ) const {
     if ( !acceptable( c->element_id() ) ) {
-      throw ValueError( "Unable to append object of type " + c->classname()
-			+ " to a " + classname() );
+      string mess = "Unable to append object of type " + c->classname()
+	+ " to a <" + classname() + ">";
+      if ( !_id.empty() ){
+	mess += " (id=" + _id + ")";
+      }
+      throw ValueError( mess );
     }
     if ( c->occurrences() > 0 ) {
       vector<FoliaElement*> v = select( c->element_id(), false );
@@ -2141,7 +2126,7 @@ namespace folia {
     if ( hasannotation<PosAnnotation>( st ) > 0 ) {
       // ok, there is already one, so create an Alternative
       KWargs kw;
-      kw["id"] = generateId( newId );
+      kw["xml:id"] = generateId( newId );
       Alternative *alt = new Alternative( kw, doc() );
       append( alt );
       return alt->addAnnotation<PosAnnotation>( args );
@@ -2192,7 +2177,7 @@ namespace folia {
     if ( hasannotation<LemmaAnnotation>( st ) > 0 ) {
       // ok, there is already one, so create an Alternative
       KWargs kw;
-      kw["id"] = generateId( newId );
+      kw["xml:id"] = generateId( newId );
       Alternative *alt = new Alternative( kw, doc() );
       append( alt );
       return alt->addAnnotation<LemmaAnnotation>( args );
@@ -2243,7 +2228,7 @@ namespace folia {
     if ( hasannotation<MorphologyLayer>( st ) > 0 ) {
       // ok, there is already one, so create an Alternative
       KWargs kw;
-      kw["id"] = generateId( newId );
+      kw["xml:id"] = generateId( newId );
       Alternative *alt = new Alternative( kw, doc() );
       append( alt );
       return alt->addAnnotation<MorphologyLayer>( args );
@@ -2280,14 +2265,14 @@ namespace folia {
   }
 
   Sentence *FoliaImpl::addSentence( const KWargs& args ) {
-    Sentence *res = new Sentence( mydoc );
+    Sentence *res = 0;
     KWargs kw = args;
-    if ( kw["id"].empty() ) {
+    if ( !kw.is_present("xml:id") ){
       string id = generateId( "s" );
-      kw["id"] = id;
+      kw["xml:id"] = id;
     }
     try {
-      res->setAttributes( kw );
+      res = new Sentence( kw, mydoc );
     }
     catch( const DuplicateIDError& e ) {
       delete res;
@@ -2300,9 +2285,9 @@ namespace folia {
   Word *FoliaImpl::addWord( const KWargs& args ) {
     Word *res = new Word( mydoc );
     KWargs kw = args;
-    if ( kw["id"].empty() ) {
+    if ( !kw.is_present("xml:id") ){
       string id = generateId( "w" );
-      kw["id"] = id;
+      kw["xml:id"] = id;
     }
     try {
       res->setAttributes( kw );
@@ -2426,7 +2411,7 @@ namespace folia {
       if ( *it == p ) {
 	KWargs kwargs;
 	kwargs["text"] = "dummy";
-	kwargs["id"] = "dummy";
+	kwargs["xml:id"] = "dummy";
 	Word *tmp = new Word( kwargs );
 	tmp->setParent( this ); // we create a dummy Word as member of the
 	// Sentence. This makes correctWords() happy
@@ -2532,12 +2517,10 @@ namespace folia {
     }
     else
       _offset = -1;
-    it = kwargs.find( "ref" );
-    if ( it != kwargs.end() ) {
+    if ( kwargs.is_present( "ref" ) ) {
       throw NotImplementedError( "ref attribute in PhonContent" );
     }
-    it = kwargs.find( "class" );
-    if ( it == kwargs.end() ) {
+    if ( !kwargs.is_present( "class" ) ){
       kwargs["class"] = "current";
     }
     FoliaImpl::setAttributes(kwargs);
@@ -2918,7 +2901,7 @@ namespace folia {
       args2.erase("suggestion" );
       args2.erase("suggestions" );
       string id = generateId( "correction" );
-      args2["id"] = id;
+      args2["xml:id"] = id;
       corr = new Correction( args2, mydoc );
     }
 #ifdef DEBUG_CORRECT
@@ -3787,8 +3770,7 @@ namespace folia {
   }
 
   void PlaceHolder::setAttributes( const KWargs& args ) {
-    auto it = args.find( "text" );
-    if ( it == args.end() ) {
+    if ( !args.is_present("text") ) {
       throw ValueError("text attribute is required for " + classname() );
     }
     else if ( args.size() != 1 ) {
@@ -3823,8 +3805,7 @@ namespace folia {
 
   FoliaElement* Description::parseXml( const xmlNode *node ) {
     KWargs att = getAttributes( node );
-    auto it = att.find("value" );
-    if ( it == att.end() ) {
+    if ( !att.is_present("value") ) {
       att["value"] = XmlContent( node );
     }
     setAttributes( att );
@@ -3850,8 +3831,7 @@ namespace folia {
 
   FoliaElement* Comment::parseXml( const xmlNode *node ) {
     KWargs att = getAttributes( node );
-    auto it = att.find("value" );
-    if ( it == att.end() ) {
+    if ( !att.is_present("value") ) {
       att["value"] = XmlContent( node );
     }
     setAttributes( att );
@@ -4344,7 +4324,7 @@ namespace folia {
       cerr << "try to resolve: " << _src << endl;
       int cnt = 0;
       xmlSetStructuredErrorFunc( &cnt, (xmlStructuredErrorFunc)error_sink );
-      xmlDoc *extdoc = xmlReadFile( _src.c_str(), 0, XML_PARSE_NOBLANKS|XML_PARSE_HUGE );
+      xmlDoc *extdoc = xmlReadFile( _src.c_str(), 0, XML_PARSE_NSCLEAN|XML_PARSE_HUGE );
       if ( extdoc ) {
 	xmlNode *root = xmlDocGetRootElement( extdoc );
 	xmlNode *p = root->children;
@@ -4352,19 +4332,20 @@ namespace folia {
 	  if ( p->type == XML_ELEMENT_NODE ) {
 	    string tag = Name( p );
 	    if ( tag == "text" ) {
+	      const string bogus_id = "Arglebargleglop-glyf";
 	      FoliaElement *parent = _parent;
 	      KWargs args = parent->collectAttributes();
-	      args["_id"] = "Arglebargleglop-glyf";
+	      args["xml:id"] = bogus_id;
 	      Text *tmp = new Text( args, mydoc );
 	      tmp->FoliaImpl::parseXml( p );
 	      FoliaElement *old = parent->replace( this, tmp->index(0) );
-	      mydoc->delDocIndex( tmp, "Arglebargleglop-glyf" );
+	      mydoc->delDocIndex( tmp, bogus_id );
 	      tmp->remove( (size_t)0, false );
 	      delete tmp;
 	      delete old;
 	    }
-	    p = p->next;
 	  }
+	  p = p->next;
 	}
 	xmlFreeDoc( extdoc );
       }
@@ -4406,17 +4387,19 @@ namespace folia {
   }
 
   void Note::setAttributes( const KWargs& args ) {
-    auto it = args.find( "_id" );
-    if ( it != args.end() ) {
+    KWargs a = args;
+    auto it = a.find( "id" );
+    if ( it != a.end() ) {
       refId = it->second;
+      a.erase( it );
     }
-    FoliaImpl::setAttributes( args );
+    FoliaImpl::setAttributes( a );
   }
 
   KWargs Reference::collectAttributes() const {
     KWargs atts = FoliaImpl::collectAttributes();
     if ( !_id.empty() ){
-      atts["_id"] = _id;
+      atts["xml:id"] = _id;
     }
     atts["id"] = refId;
     atts["type"] = ref_type;
@@ -4428,7 +4411,7 @@ namespace folia {
 
   void Reference::setAttributes( const KWargs& argsin ) {
     KWargs args = argsin;
-    auto it = args.find( "_id" );
+    auto it = args.find( "xml:id" );
     if ( it != args.end() ) {
       _id = it->second;
       args.erase( it );
@@ -4652,7 +4635,7 @@ namespace folia {
     KWargs args = atts;
     auto it = args.find( "id" );
     if ( it != args.end() ) {
-      auto it2 = args.find( "_id" );
+      auto it2 = args.find( "xml:id" );
       if ( it2 != args.end() ) {
 	throw ValueError("Both 'id' and 'xml:id found for " + classname() );
       }

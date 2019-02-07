@@ -128,7 +128,16 @@ namespace folia {
   std::string toString( const ElementType& );
   ElementType stringToET( const std::string& );
 
-  typedef std::map<std::string, std::string> KWargs;
+  typedef std::map<std::string, std::string> Arguments;
+
+  class KWargs : public Arguments {
+  public:
+    KWargs( const std::string& ="" );
+    std::string toString();
+    void init( const std::string& );
+    bool is_present( const std::string& ) const;
+    std::string extract( const std::string& );
+  };
 
   KWargs getArgs( const std::string& );
   std::string toString( const KWargs& );

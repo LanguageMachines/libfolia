@@ -110,6 +110,7 @@ namespace folia {
     bool _ok;
     bool _done;
     bool _debug;
+    bool _text_context;
   };
 
   class TextProcessor: public Processor {
