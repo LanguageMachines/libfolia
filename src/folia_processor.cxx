@@ -176,13 +176,11 @@ namespace folia {
     string href;
     vector<string> v = TiCC::split( value );
     if ( v.size() == 2 ){
-      vector<string> w;
-      TiCC::split_at( v[0], w, "=" );
+      vector<string> w = TiCC::split_at( v[0], "=" );
       if ( w.size() == 2 && w[0] == "type" ){
 	type = w[1].substr(1,w[1].length()-2);
       }
-      w.clear();
-      TiCC::split_at( v[1], w, "=" );
+      w = TiCC::split_at( v[1], "=" );
       if ( w.size() == 2 && w[0] == "href" ){
 	href = w[1].substr(1,w[1].length()-2);
       }
