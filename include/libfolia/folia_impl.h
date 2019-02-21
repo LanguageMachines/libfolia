@@ -435,6 +435,9 @@ namespace folia {
     virtual std::vector<FoliaElement *> resolve() const NOT_IMPLEMENTED;
     virtual const FoliaElement* resolveid() const NOT_IMPLEMENTED;
     virtual bool checkAtts() = 0;
+    virtual const UnicodeString deeptext( const std::string& = "current",
+					  bool = false ) const NOT_IMPLEMENTED;
+    virtual const UnicodeString deepphon( const std::string& = "current" ) const NOT_IMPLEMENTED;
 
 
     virtual std::vector<FoliaElement*> select( ElementType elementtype,
