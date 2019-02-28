@@ -330,9 +330,9 @@ namespace folia {
     if ( num == 2 ){
       //      cerr << "parse time " << date_time[1] << endl;
       vector<string> date_parts;
-      num = TiCC::split_at( date_time[1], date_parts, ":" );
+      size_t dnum = TiCC::split_at( date_time[1], date_parts, ":" );
       //      cerr << "parts " << date_parts << endl;
-      switch ( num ){
+      switch ( dnum ){
       case 4:
 	// ignore
       case 3: {

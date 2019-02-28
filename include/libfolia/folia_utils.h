@@ -142,6 +142,14 @@ namespace folia {
   KWargs getArgs( const std::string& );
   std::string toString( const KWargs& );
 
+
+  inline std::ostream& operator<<( std::ostream& os,
+				   const ElementType& el ){
+    os << toString( el );
+    return os;
+  }
+
+
   inline std::ostream& operator<<( std::ostream& os,
 				   const KWargs& ats ){
     os << toString( ats );

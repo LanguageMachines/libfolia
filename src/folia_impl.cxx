@@ -2801,10 +2801,9 @@ namespace folia {
 
   void AllowGenerateID::setMaxId( FoliaElement *child ) {
     if ( !child->id().empty() && !child->xmltag().empty() ) {
-      vector<string> parts;
-      size_t num = TiCC::split_at( child->id(), parts, "." );
-      if ( num > 0 ) {
-	string val = parts[num-1];
+      vector<string> parts = TiCC::split_at( child->id(), "." );
+      if ( !parts.empty() ) {
+	string val = parts.back();
 	int i;
 	try {
 	  i = stringTo<int>( val );
