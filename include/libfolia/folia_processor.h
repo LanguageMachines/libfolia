@@ -87,7 +87,7 @@ namespace folia {
     void set_metadata( const std::string&, const std::string& );
     bool set_debug( bool d );
     void set_dbg_stream( TiCC::LogStream * );
-    Document *doc() { return _out_doc; };
+    Document *doc( bool=false ); // returns the doc. may disconnect
     xml_tree *create_simple_tree( const std::string& ) const;
   protected:
     xmlTextReader *_in_doc;

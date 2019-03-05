@@ -69,6 +69,16 @@ namespace folia {
     delete _os;
   }
 
+  Document *Processor::doc( bool disconnect ){
+    // returns the FoLiA document. (assumes it is complete!)
+    // may disconnect it from the processor. The caller has to delete it later
+    Document *result = _out_doc;
+    if ( disconnect ){
+      _out_doc = 0;
+    }
+    return result;
+  }
+
   bool Processor::set_debug( bool d ) {
     bool res = _debug;
     if ( d ){
@@ -669,7 +679,7 @@ namespace folia {
     while ( ret ){
       int type = xmlTextReaderNodeType(tmp_doc);
       int depth = xmlTextReaderDepth(tmp_doc);
-      if ( type == XML_ELEMENT_NODE ){
+      if ( type == XML_ELEMENT_NODE || type == XML_COMMENT_NODE ){
 	string local_name = (const char*)xmlTextReaderConstLocalName(tmp_doc);
 	KWargs atts = get_attributes( tmp_doc );
 	string nsu;
@@ -741,6 +751,8 @@ namespace folia {
   xml_tree *get_sentence( const xml_tree *pnt ){
     if ( pnt->parent->tag == "s"
 	 || pnt->parent->tag == "p"
+	 || pnt->parent->tag == "utt"
+	 || pnt->parent->tag == "event"
 	 || pnt->parent->tag == "note"
 	 || pnt->parent->tag == "div"
 	 || pnt->parent->tag == "head" ){
