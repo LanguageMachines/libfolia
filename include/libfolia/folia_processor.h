@@ -110,6 +110,10 @@ namespace folia {
     bool _done;
     bool _debug;
     bool _text_context;
+    int handle_this_or_that( const std::string&, int );
+    void add_default_node( int );
+    void add_comment( int );
+    void add_text( int );
   };
 
   class TextProcessor: public Processor {
