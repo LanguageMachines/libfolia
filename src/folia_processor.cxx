@@ -532,70 +532,7 @@ namespace folia {
 	  }
 	}
 	else {
-	  KWargs atts = get_attributes( _reader );
-	  if ( _debug ){
-	    DBG << "name=" << local_name << " atts=" << atts << endl;
-	  }
-	  if ( local_name == "wref" ){
-	    FoliaElement *ref = (*_out_doc)[atts["id"]];
-	    ref->increfcount();
-	    append_node( ref, new_depth );
-	  }
-	  else {
-	    FoliaElement *t = FoliaImpl::createElement( local_name, _out_doc );
-	    if ( t ) {
-	      if ( local_name == "foreign-data" ){
-		xmlNode *fd = xmlTextReaderExpand(_reader);
-		t->parseXml( fd );
-		append_node( t, new_depth );
-		ret = xmlTextReaderNext(_reader);
-	      }
-	      else {
-		string nsu;
-		for ( auto const& v : atts ){
-		  if ( v.first.find("xmlns:") == 0 ){
-		    nsu = v.second;
-		    break;
-		  }
-		}
-		if ( nsu.empty() || nsu == NSFOLIA ){
-		  if ( local_name == "desc"
-		       || local_name == "t"
-		       || local_name == "content"
-		       || local_name == "comment" ){
-		    ret = xmlTextReaderRead(_reader);
-		    const char *val = (const char*)xmlTextReaderConstValue(_reader);
-		    if ( val ) {
-		      string value = val;
-		      if ( !value.empty() ) {
-			atts["value"] = value;
-		      }
-		    }
-		  }
-		  t->setAttributes( atts );
-		  append_node( t, new_depth );
-		  if ( _debug ){
-		    DBG << "einde current node = " << _current_node << endl;
-		    DBG << "last node = " << _last_added << endl;
-		  }
-		}
-		else {
-		  if ( _debug ){
-		    DBG << "a node in alien namespace'" << nsu << endl;
-		  }
-		  // just take as is...
-		  append_node( t, new_depth );
-		  xmlNode *fd = xmlTextReaderExpand(_reader);
-		  t->parseXml( fd );
-		  ret = xmlTextReaderNext(_reader);
-		}
-	      }
-	    }
-	    else {
-	      throw XmlError( "folia::processor failed to create node "
-			      + local_name );
-	    }
-	  }
+	  ret = handle_element( local_name, new_depth, false );
 	}
 	if ( ret == 0 && _debug ){
 	  DBG << "node Premature ending?!" << endl;
@@ -904,8 +841,9 @@ namespace folia {
     return result;
   }
 
-  int Processor::handle_this_or_that( const string& local_name,
-				       int new_depth ){
+  int Processor::handle_element( const string& local_name,
+				 int new_depth,
+				 bool skip_t ){
     int result = -1;
     KWargs atts = get_attributes( _reader );
     if ( _debug ){
@@ -934,9 +872,10 @@ namespace folia {
 	    }
 	  }
 	  if ( nsu.empty() || nsu == NSFOLIA ){
-	    if ( local_name == "t" ){
+	    if ( skip_t && local_name == "t" ){
 	    }
-	    else if ( local_name == "desc"
+	    else if ( (!skip_t && local_name == "t" )
+		      || local_name == "desc"
 		      || local_name == "content"
 		      || local_name == "comment" ){
 	      result = xmlTextReaderRead(_reader);
@@ -1063,7 +1002,7 @@ namespace folia {
 	  }
 	}
 	else {
-	  ret = handle_this_or_that( local_name, new_depth );
+	  ret = handle_element( local_name, new_depth, true );
 	}
 	if ( ret != 0 ){
 	  ++_node_count;

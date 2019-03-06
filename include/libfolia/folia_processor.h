@@ -110,7 +110,7 @@ namespace folia {
     bool _done;
     bool _debug;
     bool _text_context;
-    int handle_this_or_that( const std::string&, int );
+    int handle_element( const std::string&, int, bool );
     void add_default_node( int );
     void add_comment( int );
     void add_text( int );
