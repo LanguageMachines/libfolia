@@ -397,6 +397,7 @@ namespace folia {
       _current_node->append( t );
       _last_depth = new_depth;
     }
+    _last_added = t;
   }
 
   FoliaElement *Processor::get_node( const string& tag ){
@@ -434,7 +435,8 @@ namespace folia {
     while ( ret ){
       int type = xmlTextReaderNodeType(_reader);
       int new_depth = xmlTextReaderDepth(_reader);
-      if ( type == XML_ELEMENT_NODE ){
+      switch ( type ){
+      case XML_ELEMENT_NODE: {
 	string local_name = (const char*)xmlTextReaderConstLocalName(_reader);
 	if ( local_name == "t" || local_name == "ph" ){
 	  // a <t> or a <ph> node starts. We have a text_context
@@ -511,7 +513,6 @@ namespace folia {
 		  }
 		  t->setAttributes( atts );
 		  append_node( t, new_depth );
-		  _last_added = t;
 		  if ( _debug ){
 		    DBG << "einde current node = " << _current_node << endl;
 		    DBG << "last node = " << _last_added << endl;
@@ -539,7 +540,8 @@ namespace folia {
 	  DBG << "node Premature ending?!" << endl;
 	}
       }
-      else if ( type == XML_TEXT_NODE ){
+	break;
+      case XML_TEXT_NODE: {
 	XmlText *txt = new XmlText();
 	string value = (const char*)xmlTextReaderConstValue(_reader);
 	if ( _debug ){
@@ -550,27 +552,27 @@ namespace folia {
 	txt->setvalue( value );
 	int new_depth = xmlTextReaderDepth(_reader);
 	append_node( txt, new_depth );
-	_last_added = txt;
 	if ( _debug ){
 	  DBG << "einde current node = " << _current_node << endl;
 	  DBG << "last node = " << _last_added << endl;
 	}
 	_last_depth = xmlTextReaderDepth(_reader);
       }
-      else if ( type == XML_COMMENT_NODE ){
+	break;
+      case XML_COMMENT_NODE: {
 	if ( _debug ){
 	  DBG << "get node XML_COMMENT depth " << _last_depth << " ==> " << new_depth << endl;
 	}
 	string tag = "_XmlComment";
 	FoliaElement *t = FoliaImpl::createElement( tag, _out_doc );
 	append_node( t, new_depth );
-	_last_added = t;
 	if ( _debug ){
 	  DBG << "einde current node = " << _current_node << endl;
 	  DBG << "last node = " << _last_added << endl;
 	}
       }
-      else {
+	break;
+      default: {
 	string local_name = (const char*)xmlTextReaderConstLocalName(_reader);
 	if ( local_name == "t" || local_name == "ph" ){
 	  // so we are AT THE END of a <t> or <ph> !
@@ -592,7 +594,6 @@ namespace folia {
 	    txt->setvalue( value );
 	    int new_depth = xmlTextReaderDepth(_reader);
 	    append_node( txt, new_depth );
-	    _last_added = txt;
 	    if ( _debug ){
 	      DBG << "einde current node = " << _current_node << endl;
 	      DBG << "last node = " << _last_added << endl;
@@ -600,6 +601,8 @@ namespace folia {
 	    _last_depth = xmlTextReaderDepth(_reader);
 	  }
 	}
+      }
+	break;
       }
       ret = xmlTextReaderRead(_reader);
     }
@@ -932,7 +935,8 @@ namespace folia {
 	    << " search for node=" << _next_text_node << endl;
       }
       int new_depth = xmlTextReaderDepth(_reader);
-      if ( type == XML_ELEMENT_NODE ){
+      switch ( type ){
+      case XML_ELEMENT_NODE: {
 	string local_name = (const char*)xmlTextReaderConstLocalName(_reader);
 	if ( _debug ){
 	  DBG << "next element: " << local_name << " cnt =" << _node_count << endl;
@@ -1019,7 +1023,6 @@ namespace folia {
 		  }
 		  t->setAttributes( atts );
 		  append_node( t, new_depth );
-		  _last_added = t;
 		  if ( _debug ){
 		    DBG << "einde current node = " << _current_node << endl;
 		    DBG << "last node = " << _last_added << endl;
@@ -1048,7 +1051,8 @@ namespace folia {
 	  ++_node_count;
 	}
       }
-      else if ( type == XML_TEXT_NODE ){
+	break;
+      case XML_TEXT_NODE: {
 	XmlText *txt = new XmlText();
 	string value = (const char*)xmlTextReaderConstValue(_reader);
 	if ( _debug ){
@@ -1057,24 +1061,24 @@ namespace folia {
 	txt->setvalue( value );
 	int new_depth = xmlTextReaderDepth(_reader);
 	append_node( txt, new_depth );
-	_last_added = txt;
 	if ( _debug ){
 	  DBG << "einde current node = " << _current_node << endl;
 	  DBG << "last node = " << _last_added << endl;
 	}
 	_last_depth = xmlTextReaderDepth(_reader);
       }
-      else if ( type == XML_COMMENT_NODE ){
+	break;
+      case XML_COMMENT_NODE: {
 	string tag = "_XmlComment";
 	FoliaElement *t = FoliaImpl::createElement( tag, _out_doc );
 	append_node( t, new_depth );
-	_last_added = t;
 	if ( _debug ){
 	  DBG << "einde current node = " << _current_node << endl;
 	  DBG << "last node = " << _last_added << endl;
 	}
       }
-      else {
+	break;
+      default: {
 	string local_name = (const char*)xmlTextReaderConstLocalName(_reader);
 	if ( local_name == "t" || local_name == "ph" ){
 	  // so we are AT THE END of a <t> or <ph> !
@@ -1096,7 +1100,6 @@ namespace folia {
 	    txt->setvalue( value );
 	    int new_depth = xmlTextReaderDepth(_reader);
 	    append_node( txt, new_depth );
-	    _last_added = txt;
 	    if ( _debug ){
 	      DBG << "einde current node = " << _current_node << endl;
 	      DBG << "last node = " << _last_added << endl;
@@ -1104,6 +1107,8 @@ namespace folia {
 	    _last_depth = xmlTextReaderDepth(_reader);
 	  }
 	}
+      }
+	break;
       }
       ret = xmlTextReaderRead(_reader);
     }
