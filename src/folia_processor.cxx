@@ -653,11 +653,11 @@ namespace folia {
     /// create an xmlReader and use that to loop over the full input,
     /// creating a lightweight tree for enumerating all XML_ELEMENTS encountered
     ///
-    xmlTextReader *tmp_doc = text_reader_from_file( in_file );
+    xmlTextReader *cur_reader = text_reader_from_file( in_file );
     if ( _debug ){
       DBG << "enumerate_nodes()" << endl;
     }
-    int ret = xmlTextReaderRead(tmp_doc);
+    int ret = xmlTextReaderRead(cur_reader);
     if ( ret == 0 ){
       throw runtime_error( "create_simple_tree() could not start" );
     }
@@ -666,11 +666,11 @@ namespace folia {
     int index = 0;
     int current_depth = 0;
     while ( ret ){
-      int type = xmlTextReaderNodeType(tmp_doc);
-      int depth = xmlTextReaderDepth(tmp_doc);
+      int depth = xmlTextReaderDepth(cur_reader);
+      int type = xmlTextReaderNodeType(cur_reader);
       if ( type == XML_ELEMENT_NODE || type == XML_COMMENT_NODE ){
-	string local_name = (const char*)xmlTextReaderConstLocalName(tmp_doc);
-	KWargs atts = get_attributes( tmp_doc );
+	string local_name = (const char*)xmlTextReaderConstLocalName(cur_reader);
+	KWargs atts = get_attributes( cur_reader );
 	string nsu;
 	string txt_class;
 	for ( auto const& v : atts ){
@@ -731,20 +731,15 @@ namespace folia {
 	}
 	++index;
       }
-      ret = xmlTextReaderRead(tmp_doc);
+      ret = xmlTextReaderRead(cur_reader);
     }
-    xmlFreeTextReader( tmp_doc );
+    xmlFreeTextReader( cur_reader );
     return records;
   }
 
   xml_tree *get_sentence( const xml_tree *pnt ){
-    if ( pnt->parent->tag == "s"
-	 || pnt->parent->tag == "p"
-	 || pnt->parent->tag == "utt"
-	 || pnt->parent->tag == "event"
-	 || pnt->parent->tag == "note"
-	 || pnt->parent->tag == "div"
-	 || pnt->parent->tag == "head" ){
+    if ( pnt->parent->tag != "w"
+	 && isSubClass( stringToET(pnt->parent->tag), AbstractStructureElement_t ) ){
       return pnt->parent;
     }
     else {
@@ -790,6 +785,7 @@ namespace folia {
 	if ( pnt->tag == "t" && pnt->textclass == textclass ){
 	  // OK text in the right textclass
 	  if ( prefer_sentences ){
+	    // search for a non-word parent
 	    xml_tree *par = get_sentence( pnt );
 	    int index = par->index;
 	    int next = INT_MAX;
