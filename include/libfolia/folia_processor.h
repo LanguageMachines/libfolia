@@ -90,7 +90,7 @@ namespace folia {
     Document *doc( bool=false ); // returns the doc. may disconnect
     xml_tree *create_simple_tree( const std::string& ) const;
   protected:
-    xmlTextReader *_in_doc;
+    xmlTextReader *_reader;
     Document *_out_doc;
     FoliaElement *_root_node;
     FoliaElement *_external_node;
@@ -104,7 +104,6 @@ namespace folia {
     std::string _footer;
     std::string _out_name;
     std::string ns_prefix;
-    bool _paused;
     bool _header_done;
     bool _finished;
     bool _ok;

@@ -44,7 +44,7 @@ namespace folia {
   using TiCC::operator<<;
 
   Processor::Processor():
-    _in_doc(0),
+    _reader(0),
     _out_doc(0),
     _root_node(0),
     _external_node(0),
@@ -64,7 +64,7 @@ namespace folia {
   }
 
   Processor::~Processor(){
-    xmlFreeTextReader( _in_doc );
+    xmlFreeTextReader( _reader );
     delete _out_doc;
     delete _os;
   }
@@ -254,27 +254,27 @@ namespace folia {
       _os = new ofstream( out_name );
       _out_name = out_name;
     }
-    _in_doc = text_reader_from_file( file_name );
-    if ( _in_doc == 0 ){
+    _reader = text_reader_from_file( file_name );
+    if ( _reader == 0 ){
       throw( runtime_error( "folia::Processor(), init failed on '" + file_name
 			    + "'" ) );
     }
-    int ret = xmlTextReaderRead(_in_doc);
+    int ret = xmlTextReaderRead(_reader);
     int index = 0;
     while ( ret > 0 ){
-      int type =  xmlTextReaderNodeType(_in_doc );
-      string local_name = (const char*)xmlTextReaderConstLocalName(_in_doc );
+      int type =  xmlTextReaderNodeType(_reader );
+      string local_name = (const char*)xmlTextReaderConstLocalName(_reader );
       switch ( type ){
       case XML_ELEMENT_NODE:
 	++index;
 	if ( local_name == "FoLiA" ){
 	  // found the root
-	  const xmlChar *pnt = xmlTextReaderConstPrefix(_in_doc);
+	  const xmlChar *pnt = xmlTextReaderConstPrefix(_reader);
 	  if ( pnt ){
 	    _out_doc->_foliaNsIn_prefix = xmlStrdup(pnt );
 	    ns_prefix = (const char*)pnt;
 	  }
-	  pnt = xmlTextReaderConstNamespaceUri(_in_doc);
+	  pnt = xmlTextReaderConstNamespaceUri(_reader);
 	  if ( pnt ){
 	    _out_doc->_foliaNsIn_href = xmlStrdup(pnt);
 	    string ns = (const char*)_out_doc->_foliaNsIn_href;
@@ -283,7 +283,7 @@ namespace folia {
 			      + NSFOLIA + " but found: " + ns );
 	    }
 	  }
-	  KWargs in_args = get_attributes( _in_doc );
+	  KWargs in_args = get_attributes( _reader );
 	  string id;
 	  if ( !in_args.empty() ){
 	    id = in_args["xml:id"];
@@ -306,12 +306,12 @@ namespace folia {
 	  }
 	}
 	else if ( local_name == "metadata" ) {
-	  xmlNode *node = xmlTextReaderExpand(_in_doc);
+	  xmlNode *node = xmlTextReaderExpand(_reader);
 	  _out_doc->parse_metadata( node );
 	}
 	else if ( local_name == "text" ){
 	  _doc_type = TEXT;
-	  KWargs args = get_attributes(_in_doc);
+	  KWargs args = get_attributes(_reader);
 	  Text *text = new Text( args, _out_doc );
 	  _out_doc->setRoot( text );
 	  _root_node = text;
@@ -322,7 +322,7 @@ namespace folia {
 	}
 	else if ( local_name == "speech" ){
 	  _doc_type = SPEECH;
-	  KWargs args = get_attributes(_in_doc);
+	  KWargs args = get_attributes(_reader);
 	  Speech *sp = new Speech( args, _out_doc );
 	  _out_doc->setRoot( sp );
 	  _root_node = sp;
@@ -335,7 +335,7 @@ namespace folia {
       case XML_PI_NODE:
 	// A PI
 	if ( local_name == "xml-stylesheet" ){
-	  string sv = (const char*)xmlTextReaderConstValue(_in_doc);
+	  string sv = (const char*)xmlTextReaderConstValue(_reader);
 	  pair<string,string> p = extract_style( sv );
 	  _out_doc->addStyle( p.first, p.second );
 	}
@@ -346,7 +346,7 @@ namespace folia {
       default:
 	break;
       };
-      ret = xmlTextReaderRead(_in_doc);
+      ret = xmlTextReaderRead(_reader);
     }
     _ok = true;
     return _ok;
@@ -357,7 +357,7 @@ namespace folia {
       return false;
     }
     else {
-      return xmlTextReaderNext(_in_doc) == 1;
+      return xmlTextReaderNext(_reader) == 1;
     }
   }
 
@@ -418,7 +418,7 @@ namespace folia {
       }
     }
     else {
-      ret = xmlTextReaderRead(_in_doc);
+      ret = xmlTextReaderRead(_reader);
     }
     if ( ret == 0 ){
       if ( _debug ){
@@ -432,10 +432,10 @@ namespace folia {
       tags.insert(t);
     }
     while ( ret ){
-      int type = xmlTextReaderNodeType(_in_doc);
-      int new_depth = xmlTextReaderDepth(_in_doc);
+      int type = xmlTextReaderNodeType(_reader);
+      int new_depth = xmlTextReaderDepth(_reader);
       if ( type == XML_ELEMENT_NODE ){
-	string local_name = (const char*)xmlTextReaderConstLocalName(_in_doc);
+	string local_name = (const char*)xmlTextReaderConstLocalName(_reader);
 	if ( local_name == "t" || local_name == "ph" ){
 	  // a <t> or a <ph> node starts. We have a text_context
 	  _text_context = true;
@@ -445,7 +445,7 @@ namespace folia {
 	      << " depth " << _last_depth << " ==> " << new_depth << endl;
 	}
 	if ( tags.find(local_name) != tags.end() ){
-	  KWargs atts = get_attributes( _in_doc );
+	  KWargs atts = get_attributes( _reader );
 	  if ( _debug ){
 	    DBG << "matched search tag: " << local_name
 		<< " atts=" << atts << endl;
@@ -455,10 +455,10 @@ namespace folia {
 	    if ( _debug ){
 	      DBG << "created FoliaElement: name=" << local_name << endl;
 	    }
-	    xmlNode *fd = xmlTextReaderExpand(_in_doc);
+	    xmlNode *fd = xmlTextReaderExpand(_reader);
 	    t->parseXml( fd );
 	    append_node( t, new_depth );
-	    ret = xmlTextReaderNext(_in_doc);
+	    ret = xmlTextReaderNext(_reader);
 	    _done = (ret == 0);
 	    _external_node = t;
 	    return t;
@@ -469,7 +469,7 @@ namespace folia {
 	  }
 	}
 	else {
-	  KWargs atts = get_attributes( _in_doc );
+	  KWargs atts = get_attributes( _reader );
 	  if ( _debug ){
 	    DBG << "name=" << local_name << " atts=" << atts << endl;
 	  }
@@ -482,10 +482,10 @@ namespace folia {
 	    FoliaElement *t = FoliaImpl::createElement( local_name, _out_doc );
 	    if ( t ) {
 	      if ( local_name == "foreign-data" ){
-		xmlNode *fd = xmlTextReaderExpand(_in_doc);
+		xmlNode *fd = xmlTextReaderExpand(_reader);
 		t->parseXml( fd );
 		append_node( t, new_depth );
-		ret = xmlTextReaderNext(_in_doc);
+		ret = xmlTextReaderNext(_reader);
 	      }
 	      else {
 		string nsu;
@@ -500,8 +500,8 @@ namespace folia {
 		       || local_name == "t"
 		       || local_name == "content"
 		       || local_name == "comment" ){
-		    ret = xmlTextReaderRead(_in_doc);
-		    const char *val = (const char*)xmlTextReaderConstValue(_in_doc);
+		    ret = xmlTextReaderRead(_reader);
+		    const char *val = (const char*)xmlTextReaderConstValue(_reader);
 		    if ( val ) {
 		      string value = val;
 		      if ( !value.empty() ) {
@@ -523,9 +523,9 @@ namespace folia {
 		  }
 		  // just take as is...
 		  append_node( t, new_depth );
-		  xmlNode *fd = xmlTextReaderExpand(_in_doc);
+		  xmlNode *fd = xmlTextReaderExpand(_reader);
 		  t->parseXml( fd );
-		  ret = xmlTextReaderNext(_in_doc);
+		  ret = xmlTextReaderNext(_reader);
 		}
 	      }
 	    }
@@ -541,21 +541,21 @@ namespace folia {
       }
       else if ( type == XML_TEXT_NODE ){
 	XmlText *txt = new XmlText();
-	string value = (const char*)xmlTextReaderConstValue(_in_doc);
+	string value = (const char*)xmlTextReaderConstValue(_reader);
 	if ( _debug ){
 	  DBG << "get node XML_TEXT depth="
 	      << _last_depth << " ==> " << new_depth << endl;
 	  DBG << "TXT VALUE = '" << value << "'" << endl;
 	}
 	txt->setvalue( value );
-	int new_depth = xmlTextReaderDepth(_in_doc);
+	int new_depth = xmlTextReaderDepth(_reader);
 	append_node( txt, new_depth );
 	_last_added = txt;
 	if ( _debug ){
 	  DBG << "einde current node = " << _current_node << endl;
 	  DBG << "last node = " << _last_added << endl;
 	}
-	_last_depth = xmlTextReaderDepth(_in_doc);
+	_last_depth = xmlTextReaderDepth(_reader);
       }
       else if ( type == XML_COMMENT_NODE ){
 	if ( _debug ){
@@ -571,7 +571,7 @@ namespace folia {
 	}
       }
       else {
-	string local_name = (const char*)xmlTextReaderConstLocalName(_in_doc);
+	string local_name = (const char*)xmlTextReaderConstLocalName(_reader);
 	if ( local_name == "t" || local_name == "ph" ){
 	  // so we are AT THE END of a <t> or <ph> !
 	  _text_context = false;
@@ -581,7 +581,7 @@ namespace folia {
 	      << " depth " << _last_depth << " ==> " << new_depth << endl;
 	}
 	if ( _text_context ){
-	  const char *val = (const char*)xmlTextReaderConstValue(_in_doc);
+	  const char *val = (const char*)xmlTextReaderConstValue(_reader);
 	  if ( val ){
 	    // when inside a text_context, ALL text is relevant! add it
 	    if ( _debug ){
@@ -590,18 +590,18 @@ namespace folia {
 	    XmlText *txt = new XmlText();
 	    string value = val;
 	    txt->setvalue( value );
-	    int new_depth = xmlTextReaderDepth(_in_doc);
+	    int new_depth = xmlTextReaderDepth(_reader);
 	    append_node( txt, new_depth );
 	    _last_added = txt;
 	    if ( _debug ){
 	      DBG << "einde current node = " << _current_node << endl;
 	      DBG << "last node = " << _last_added << endl;
 	    }
-	    _last_depth = xmlTextReaderDepth(_in_doc);
+	    _last_depth = xmlTextReaderDepth(_reader);
 	  }
 	}
       }
-      ret = xmlTextReaderRead(_in_doc);
+      ret = xmlTextReaderRead(_reader);
     }
     _done = true;
     return 0;
@@ -737,13 +737,14 @@ namespace folia {
     return records;
   }
 
-  xml_tree *get_sentence( const xml_tree *pnt ){
+  xml_tree *get_structure_parent( const xml_tree *pnt ){
     if ( pnt->parent->tag != "w"
-	 && isSubClass( stringToET(pnt->parent->tag), AbstractStructureElement_t ) ){
+	 && isSubClass( stringToET(pnt->parent->tag),
+			AbstractStructureElement_t ) ){
       return pnt->parent;
     }
     else {
-      return get_sentence( pnt->parent );
+      return get_structure_parent( pnt->parent );
     }
   }
 
@@ -786,7 +787,7 @@ namespace folia {
 	  // OK text in the right textclass
 	  if ( prefer_sentences ){
 	    // search for a non-word parent
-	    xml_tree *par = get_sentence( pnt );
+	    xml_tree *par = get_structure_parent( pnt );
 	    int index = par->index;
 	    int next = INT_MAX;
 	    if ( par->next ){
@@ -822,8 +823,8 @@ namespace folia {
     ///
     /// Loop over the full input, looking for textnodes in class 'textclass'
     /// for the DEEPEST text possible, enumerate their parents
-    /// when prefer_sent eqs true, prefer sentences over the words or
-    /// strings within the sentence
+    /// when prefer_sent eqs true, prefer structure elements over the words or
+    /// strings within
     if ( _done ){
       throw runtime_error( "enumerate_text_parents() called on a done processor" );
     }
@@ -836,7 +837,7 @@ namespace folia {
     //
     // now search that tree for nodes in 'textclass'
     // if is a <t>, then remember the index of its parent
-    // but when 'prefer_sent' is specified, return the direct sentence above
+    // but when 'prefer_sent' is specified, return the direct structure above
     // when present.
     map<int,int> result;
     xml_tree *rec_pnt = tree;
@@ -867,6 +868,9 @@ namespace folia {
   }
 
   int depth( FoliaElement *fe ){
+    // count all 'real' FoliaElements including and below this one
+    // so this is the 'size' of the subtree
+    // we need this number to know where te proceed
     int result = 0;
     //    cerr << "DEPTH " << fe << endl;
     if ( fe
@@ -912,7 +916,7 @@ namespace folia {
       }
     }
     else {
-      ret = xmlTextReaderRead(_in_doc);
+      ret = xmlTextReaderRead(_reader);
     }
     if ( ret == 0 ){
       if ( _debug ){
@@ -921,15 +925,15 @@ namespace folia {
       return 0;
     }
     while ( ret ){
-      int type = xmlTextReaderNodeType(_in_doc);
+      int type = xmlTextReaderNodeType(_reader);
       if ( _debug ){
 	DBG << "MAIN LOOP search next_text_parent(), type=" << type
 	    << " current node=" << _node_count
 	    << " search for node=" << _next_text_node << endl;
       }
-      int new_depth = xmlTextReaderDepth(_in_doc);
+      int new_depth = xmlTextReaderDepth(_reader);
       if ( type == XML_ELEMENT_NODE ){
-	string local_name = (const char*)xmlTextReaderConstLocalName(_in_doc);
+	string local_name = (const char*)xmlTextReaderConstLocalName(_reader);
 	if ( _debug ){
 	  DBG << "next element: " << local_name << " cnt =" << _node_count << endl;
 	}
@@ -949,22 +953,21 @@ namespace folia {
 	    if ( _debug ){
 	      DBG << "created FoliaElement: name=" << local_name << endl;
 	    }
-	    xmlNode *fd = xmlTextReaderExpand(_in_doc);
+	    xmlNode *fd = xmlTextReaderExpand(_reader);
 	    t->parseXml( fd );
 	    append_node( t, new_depth );
-	    ret = xmlTextReaderNext(_in_doc);
+	    ret = xmlTextReaderNext(_reader);
 	    _done = (ret == 0);
 	    _external_node = t;
+	    int dp = depth( t ); // we are to output a tree of dp nodes
+	    _node_count += dp; // so next time we resume with this count
 	    _next_text_node = text_parent_map[_next_text_node];
+	    // and we have to search for _next_text_node
 	    if ( _debug ){
-	      DBG << "  MAIN LOOP will continue looking for: "
+	      DBG << " increment _node_count with: " << dp << " to "
+		  << _node_count << " searching for: "
 		  << _next_text_node << endl;
 	    }
-	    int dp = depth( t );
-	    if ( _debug ){
-	      DBG << " adjusted _node_count with: " << dp << endl;
-	    }
-	    _node_count += dp;
 	    return t;
 	  }
 	  else {
@@ -973,7 +976,7 @@ namespace folia {
 	  }
 	}
 	else {
-	  KWargs atts = get_attributes( _in_doc );
+	  KWargs atts = get_attributes( _reader );
 	  if ( _debug ){
 	    DBG << "name=" << local_name << " atts=" << atts << endl;
 	  }
@@ -986,10 +989,10 @@ namespace folia {
 	    FoliaElement *t = FoliaImpl::createElement( local_name, _out_doc );
 	    if ( t ){
 	      if ( local_name == "foreign-data" ){
-		xmlNode *fd = xmlTextReaderExpand(_in_doc);
+		xmlNode *fd = xmlTextReaderExpand(_reader);
 		t->parseXml( fd );
 		append_node( t, new_depth );
-		ret = xmlTextReaderNext(_in_doc);
+		ret = xmlTextReaderNext(_reader);
 	      }
 	      else {
 		string nsu;
@@ -1005,8 +1008,8 @@ namespace folia {
 		  else if ( local_name == "desc"
 			    || local_name == "content"
 			    || local_name == "comment" ){
-		    ret = xmlTextReaderRead(_in_doc);
-		    const char *val = (const char*)xmlTextReaderConstValue(_in_doc);
+		    ret = xmlTextReaderRead(_reader);
+		    const char *val = (const char*)xmlTextReaderConstValue(_reader);
 		    if ( val ) {
 		      string value = val;
 		      if ( !value.empty() ) {
@@ -1029,9 +1032,9 @@ namespace folia {
 		  }
 		  // just take as is...
 		  append_node( t, new_depth );
-		  xmlNode *fd = xmlTextReaderExpand(_in_doc);
+		  xmlNode *fd = xmlTextReaderExpand(_reader);
 		  t->parseXml( fd );
-		  ret = xmlTextReaderNext(_in_doc);
+		  ret = xmlTextReaderNext(_reader);
 		}
 	      }
 	    }
@@ -1047,19 +1050,19 @@ namespace folia {
       }
       else if ( type == XML_TEXT_NODE ){
 	XmlText *txt = new XmlText();
-	string value = (const char*)xmlTextReaderConstValue(_in_doc);
+	string value = (const char*)xmlTextReaderConstValue(_reader);
 	if ( _debug ){
 	  DBG << "TXT VALUE = '" << value << "'" << endl;
 	}
 	txt->setvalue( value );
-	int new_depth = xmlTextReaderDepth(_in_doc);
+	int new_depth = xmlTextReaderDepth(_reader);
 	append_node( txt, new_depth );
 	_last_added = txt;
 	if ( _debug ){
 	  DBG << "einde current node = " << _current_node << endl;
 	  DBG << "last node = " << _last_added << endl;
 	}
-	_last_depth = xmlTextReaderDepth(_in_doc);
+	_last_depth = xmlTextReaderDepth(_reader);
       }
       else if ( type == XML_COMMENT_NODE ){
 	string tag = "_XmlComment";
@@ -1072,7 +1075,7 @@ namespace folia {
 	}
       }
       else {
-	string local_name = (const char*)xmlTextReaderConstLocalName(_in_doc);
+	string local_name = (const char*)xmlTextReaderConstLocalName(_reader);
 	if ( local_name == "t" || local_name == "ph" ){
 	  // so we are AT THE END of a <t> or <ph> !
 	  _text_context = false;
@@ -1082,7 +1085,7 @@ namespace folia {
 	      << " depth " << _last_depth << " ==> " << new_depth << endl;
 	}
 	if ( _text_context ){
-	  const char *val = (const char*)xmlTextReaderConstValue(_in_doc);
+	  const char *val = (const char*)xmlTextReaderConstValue(_reader);
 	  if ( val ){
 	    // when inside a text_context, ALL text is relevant! add it
 	    if ( _debug ){
@@ -1091,18 +1094,18 @@ namespace folia {
 	    XmlText *txt = new XmlText();
 	    string value = val;
 	    txt->setvalue( value );
-	    int new_depth = xmlTextReaderDepth(_in_doc);
+	    int new_depth = xmlTextReaderDepth(_reader);
 	    append_node( txt, new_depth );
 	    _last_added = txt;
 	    if ( _debug ){
 	      DBG << "einde current node = " << _current_node << endl;
 	      DBG << "last node = " << _last_added << endl;
 	    }
-	    _last_depth = xmlTextReaderDepth(_in_doc);
+	    _last_depth = xmlTextReaderDepth(_reader);
 	  }
 	}
       }
-      ret = xmlTextReaderRead(_in_doc);
+      ret = xmlTextReaderRead(_reader);
     }
     _done = true;
     return 0;
