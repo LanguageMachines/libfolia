@@ -227,6 +227,25 @@ namespace folia {
     return result;
   }
 
+
+  xmlTextReader *text_reader_from_file( const string& file_name ){
+    string fn = file_name;
+    if ( TiCC::match_back( fn, ".bz2" ) ){
+      string buffer = TiCC::bz2ReadFile( fn );
+      if ( buffer.empty() ){
+	throw( runtime_error( "folia::Processor(), empty file? (" + fn
+			      + ")" ) );
+      }
+      string tmp_file = tmpnam(0);
+      ofstream os( tmp_file );
+      os << buffer << endl;
+      os.close();
+      fn = tmp_file;
+    }
+    // libxml2 can handle .xml and .xml.gz
+    return xmlReaderForFile( fn.c_str(), 0, XML_PARSE_HUGE );
+  }
+
   bool Processor::init_doc( const string& file_name,
 			    const string& out_name ){
     _ok = false;
@@ -235,22 +254,7 @@ namespace folia {
       _os = new ofstream( out_name );
       _out_name = out_name;
     }
-    if ( TiCC::match_back( file_name, ".bz2" ) ){
-      string buffer = TiCC::bz2ReadFile( file_name );
-      if ( buffer.empty() ){
-	throw( runtime_error( "folia::Processor(), empty file? (" + file_name
-			      + ")" ) );
-      }
-      string tmp_file = tmpnam(0);
-      ofstream os( tmp_file );
-      os << buffer << endl;
-      os.close();
-      _in_doc = xmlReaderForFile( tmp_file.c_str(), 0, XML_PARSE_HUGE );
-    }
-    else {
-      // can handle .xml and .xml.gz
-      _in_doc = xmlReaderForFile( file_name.c_str(), 0, XML_PARSE_HUGE );
-    }
+    _in_doc = text_reader_from_file( file_name );
     if ( _in_doc == 0 ){
       throw( runtime_error( "folia::Processor(), init failed on '" + file_name
 			    + "'" ) );
@@ -649,22 +653,7 @@ namespace folia {
     /// create an xmlReader and use that to loop over the full input,
     /// creating a lightweight tree for enumerating all XML_ELEMENTS encountered
     ///
-    xmlTextReader *tmp_doc;
-    if ( TiCC::match_back( in_file, ".bz2" ) ){
-      string buffer = TiCC::bz2ReadFile( in_file );
-      if ( buffer.empty() ){
-	throw( runtime_error( "folia::Processor(), empty file? (" + in_file
-			      + ")" ) );
-      }
-      string tmp_file = tmpnam(0);
-      ofstream os( tmp_file );
-      os << buffer << endl;
-      os.close();
-      tmp_doc = xmlReaderForFile( tmp_file.c_str(), 0, XML_PARSE_HUGE );
-    }
-    else {
-      tmp_doc = xmlReaderForFile( in_file.c_str(), 0, XML_PARSE_HUGE );
-    }
+    xmlTextReader *tmp_doc = text_reader_from_file( in_file );
     if ( _debug ){
       DBG << "enumerate_nodes()" << endl;
     }
