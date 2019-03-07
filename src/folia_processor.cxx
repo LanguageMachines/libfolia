@@ -227,25 +227,27 @@ namespace folia {
     return result;
   }
 
-  xmlTextReader *create_text_reader( const string& buffer ){
-    if ( buffer.find("<?xml ") == 0 ){
-      return xmlReaderForMemory( buffer.c_str(), buffer.size(),
+  xmlTextReader *create_text_reader( const string& buf ){
+    if ( buf.find("<?xml ") == 0 ){
+      return xmlReaderForMemory( buf.c_str(), buf.size(),
 				 "input_buffer", 0, XML_PARSE_HUGE );
     }
-    else {
-      string fn = buffer;
-      if ( TiCC::match_back( fn, ".bz2" ) ){
-	string input_buffer = TiCC::bz2ReadFile( fn );
-	if ( input_buffer.empty() ){
-	  throw( runtime_error( "folia::Processor(), empty file? (" + fn
-				+ ")" ) );
-	}
-	return xmlReaderForMemory( input_buffer.c_str(), input_buffer.size(),
-				   buffer.c_str(), 0, XML_PARSE_HUGE );
+    else if ( TiCC::match_back( buf, ".bz2" ) ){
+      string buffer = TiCC::bz2ReadFile( buf );
+      if ( buffer.empty() ){
+	throw( runtime_error( "folia::Processor(), empty file? (" + buf
+			      + ")" ) );
       }
-      // libxml2 can handle .xml and .xml.gz
-      return xmlReaderForFile( fn.c_str(), 0, XML_PARSE_HUGE );
+      // return xmlReaderForMemory( buffer.c_str(), buffer.size(),
+      // 				 buf.c_str(), 0, XML_PARSE_HUGE );
+      string tmp_file = tmpnam(0);
+      ofstream os( tmp_file );
+      os << buffer << endl;
+      os.close();
+      return xmlReaderForFile( tmp_file.c_str(), 0, XML_PARSE_HUGE );
     }
+    // libxml2 can handle .xml and .xml.gz
+    return xmlReaderForFile( buf.c_str(), 0, XML_PARSE_HUGE );
   }
 
   void Processor::add_text( int depth ){
@@ -502,7 +504,7 @@ namespace folia {
 	  return _external_node;
 	}
 	else {
-	  ret = handle_element( local_name, new_depth, false );
+	  handle_element( local_name, new_depth, false );
 	}
       }
 	break;
@@ -833,10 +835,9 @@ namespace folia {
     }
   }
 
-  int Processor::handle_element( const string& local_name,
+  void Processor::handle_element( const string& local_name,
 				 int depth,
 				 bool skip_t ){
-    int result = -1;
     KWargs atts = get_attributes( _reader );
     if ( _debug ){
       DBG << "name=" << local_name << " atts=" << atts << endl;
@@ -862,7 +863,7 @@ namespace folia {
 	  t->parseXml( fd );
 	  append_node( t, depth );
 	  // skip subtree
-	  result = xmlTextReaderNext(_reader);
+	  xmlTextReaderNext(_reader);
 	}
 	else {
 	  string nsu;
@@ -879,7 +880,7 @@ namespace folia {
 		      || local_name == "desc"
 		      || local_name == "content"
 		      || local_name == "comment" ){
-	      result = xmlTextReaderRead(_reader);
+	      xmlTextReaderRead(_reader);
 	      const char *val = (const char*)xmlTextReaderConstValue(_reader);
 	      if ( val ) {
 		atts["value"] = val;
@@ -897,7 +898,7 @@ namespace folia {
 	    xmlNode *fd = xmlTextReaderExpand(_reader);
 	    t->parseXml( fd );
 	    // skip subtree
-	    result = xmlTextReaderNext(_reader);
+	    xmlTextReaderNext(_reader);
 	  }
 	}
       }
@@ -906,7 +907,6 @@ namespace folia {
 			+ local_name );
       }
     }
-    return result;
   }
 
   FoliaElement *TextProcessor::next_text_parent(){
@@ -978,7 +978,7 @@ namespace folia {
 	  return _external_node;
 	}
 	else {
-	  ret = handle_element( local_name, new_depth, true );
+	  handle_element( local_name, new_depth, true );
 	  ++_node_count;
 	}
       }
