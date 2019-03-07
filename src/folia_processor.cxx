@@ -246,37 +246,26 @@ namespace folia {
     return xmlReaderForFile( fn.c_str(), 0, XML_PARSE_HUGE );
   }
 
-  void Processor::add_text( int new_depth ){
-    XmlText *txt = new XmlText();
+  void Processor::add_text( int depth ){
     string value = (const char*)xmlTextReaderConstValue(_reader);
     if ( _debug ){
-      DBG << "add node XML_TEXT: '" << value << "' depth="
-	  << _last_depth << " ==> " << new_depth << endl;
+      DBG << "add_text(" << value << ") depth=" << depth << endl;
     }
+    XmlText *txt = new XmlText();
     txt->setvalue( value );
-    //    int new_depth = xmlTextReaderDepth(_reader);
-    append_node( txt, new_depth );
-    if ( _debug ){
-      DBG << "einde current node = " << _current_node << endl;
-      DBG << "last node = " << _last_added << endl;
-    }
-    _last_depth = xmlTextReaderDepth(_reader);
+    append_node( txt, depth );
   }
 
-  void Processor::add_comment( int new_depth ){
+  void Processor::add_comment( int depth ){
     if ( _debug ){
-      DBG << "add node XML_COMMENT depth " << _last_depth << " ==> " << new_depth << endl;
+      DBG << "add_comment " << endl;
     }
     string tag = "_XmlComment";
     FoliaElement *t = FoliaImpl::createElement( tag, _out_doc );
-    append_node( t, new_depth );
-    if ( _debug ){
-      DBG << "einde current node = " << _current_node << endl;
-      DBG << "last node = " << _last_added << endl;
-    }
+    append_node( t, depth );
   }
 
-  void Processor::add_default_node( int new_depth ){
+  void Processor::add_default_node( int depth ){
     string local_name = (const char*)xmlTextReaderConstLocalName(_reader);
     if ( local_name == "t" || local_name == "ph" ){
       // so we are AT THE END of a <t> or <ph> !
@@ -284,25 +273,20 @@ namespace folia {
     }
     if ( _debug ){
       int type = xmlTextReaderNodeType(_reader);
-      DBG << "get node " << type <<  " name=" << local_name
-	  << " depth " << _last_depth << " ==> " << new_depth << endl;
+      DBG << "add_node " << type <<  " name=" << local_name
+	  << " depth " << _last_depth << " ==> " << depth << endl;
     }
     if ( _text_context ){
       const char *val = (const char*)xmlTextReaderConstValue(_reader);
       if ( val ){
 	// when inside a text_context, ALL text is relevant! add it
+	string value = val;
 	if ( _debug ){
-	  DBG << "ADD extra tekst '" << val << "' TO TEXT " << endl;
+	  DBG << "ADD extra tekst '" << value << "' TO TEXT " << endl;
 	}
 	XmlText *txt = new XmlText();
-	string value = val;
 	txt->setvalue( value );
-	append_node( txt, new_depth );
-	if ( _debug ){
-	  DBG << "einde current node = " << _current_node << endl;
-	  DBG << "last node = " << _last_added << endl;
-	}
-	_last_depth = xmlTextReaderDepth(_reader);
+	append_node( txt, depth );
       }
     }
   }
@@ -425,14 +409,14 @@ namespace folia {
   void Processor::append_node( FoliaElement *t, int new_depth ){
     if ( new_depth == _last_depth ){
       if ( _debug ){
-	DBG << "GELIJK: current node = " << _current_node << endl;
+	DBG << "append_node(): EQUAL: current node = " << _current_node << endl;
 	DBG << "last node = " << _last_added << endl;
       }
       _current_node->append( t );
     }
     else if ( new_depth > _last_depth ){
       if ( _debug ){
-	DBG << "DIEPER: current node = " << _current_node << endl;
+	DBG << "append_node(): DEEPER: current node = " << _current_node << endl;
       }
       _current_node = _last_added;
       if ( _debug ){
@@ -443,17 +427,17 @@ namespace folia {
     }
     else if ( new_depth < _last_depth  ){
       if ( _debug ){
-	DBG << "OMHOOG current node = " << _current_node << endl;
+	DBG << "append_node(): UP current node = " << _current_node << endl;
 	DBG << "last node = " << _last_added << endl;
       }
       for ( int i=0; i < _last_depth-new_depth; ++i ){
+	_current_node = _current_node->parent();
 	if ( _debug ){
 	  DBG << "up node = " << _current_node << endl;
 	}
-	_current_node = _current_node->parent();
       }
       if ( _debug ){
-	DBG << "NU current node = " << _current_node << endl;
+	DBG << "so now: current node = " << _current_node << endl;
       }
       _current_node->append( t );
       _last_depth = new_depth;
@@ -473,19 +457,20 @@ namespace folia {
     }
     int ret = 0;
     if ( _external_node != 0 ){
+      // so our last action was to output a pointer to a subtree.
+      // continue with the next node, avoiding the subtree
       _external_node = 0;
-      ret = 1;
-      if ( _debug ){
-	DBG << "get node name, add external node, read on" << endl;
-      }
+      ret = xmlTextReaderNext(_reader);
     }
     else {
+      // so we are the first time here, just get the first node
       ret = xmlTextReaderRead(_reader);
     }
     if ( ret == 0 ){
       if ( _debug ){
 	DBG << "get node name, DONE" << endl;
       }
+      _done = true;
       return 0;
     }
     vector<string> tv = TiCC::split_at( tag, "|" );
@@ -508,34 +493,14 @@ namespace folia {
 	      << " depth " << _last_depth << " ==> " << new_depth << endl;
 	}
 	if ( tags.find(local_name) != tags.end() ){
-	  KWargs atts = get_attributes( _reader );
 	  if ( _debug ){
-	    DBG << "matched search tag: " << local_name
-		<< " atts=" << atts << endl;
+	    DBG << "matched search tag: " << local_name << endl;
 	  }
-	  FoliaElement *t = FoliaImpl::createElement( local_name, _out_doc );
-	  if ( t ){
-	    if ( _debug ){
-	      DBG << "created FoliaElement: name=" << local_name << endl;
-	    }
-	    xmlNode *fd = xmlTextReaderExpand(_reader);
-	    t->parseXml( fd );
-	    append_node( t, new_depth );
-	    ret = xmlTextReaderNext(_reader);
-	    _done = (ret == 0);
-	    _external_node = t;
-	    return t;
-	  }
-	  else if ( !_out_doc->permissive() ){
-	    throw XmlError( "folia::processor failed to create node: "
-			    + local_name );
-	  }
+	  _external_node = handle_match( local_name, new_depth );
+	  return _external_node;
 	}
 	else {
 	  ret = handle_element( local_name, new_depth, false );
-	}
-	if ( ret == 0 && _debug ){
-	  DBG << "node Premature ending?!" << endl;
 	}
       }
 	break;
@@ -818,7 +783,7 @@ namespace folia {
     return result;
   }
 
-  int depth( FoliaElement *fe ){
+  int count_nodes( FoliaElement *fe ){
     // count all 'real' FoliaElements including and below this one
     // so this is the 'size' of the subtree
     // we need this number to know where te proceed
@@ -833,7 +798,7 @@ namespace folia {
 	//	cerr << "size=" << fe->size() << endl;
 	for ( size_t i=0; i < fe->size(); ++i ){
 	  //	  cerr << "i=" << i << endl;
-	  result += depth( fe->index(i) );
+	  result += count_nodes( fe->index(i) );
 	}
       }
     }
@@ -841,8 +806,33 @@ namespace folia {
     return result;
   }
 
+  FoliaElement *Processor::handle_match( const string& local_name,
+					 int depth ){
+    FoliaElement *t = FoliaImpl::createElement( local_name, _out_doc );
+    if ( t ){
+      if ( _debug ){
+	DBG << "created FoliaElement: name=" << local_name << endl;
+      }
+      xmlNode *fd = xmlTextReaderExpand(_reader);
+      t->parseXml( fd );
+      append_node( t, depth );
+      _external_node = t;
+      if ( _debug ){
+	DBG << "expose external node: " << t << endl;
+      }
+      return t;
+    }
+    else if ( !_out_doc->permissive() ){
+      throw XmlError( "folia::processor failed to create node: "
+		      + local_name );
+    }
+    else {
+      return 0;
+    }
+  }
+
   int Processor::handle_element( const string& local_name,
-				 int new_depth,
+				 int depth,
 				 bool skip_t ){
     int result = -1;
     KWargs atts = get_attributes( _reader );
@@ -850,9 +840,17 @@ namespace folia {
       DBG << "name=" << local_name << " atts=" << atts << endl;
     }
     if ( local_name == "wref" ){
-      FoliaElement *ref = (*_out_doc)[atts["id"]];
+      string id = atts["id"];
+      if ( id.empty() ){
+	throw XmlError( "folia::processor, reference missing an 'id'" );
+      }
+      FoliaElement *ref = (*_out_doc)[id];
+      if ( !ref ){
+	throw XmlError( "folia::processor, unresolvable reference: "
+			+ id );
+      }
       ref->increfcount();
-      append_node( ref, new_depth );
+      append_node( ref, depth );
     }
     else {
       FoliaElement *t = FoliaImpl::createElement( local_name, _out_doc );
@@ -860,7 +858,8 @@ namespace folia {
 	if ( local_name == "foreign-data" ){
 	  xmlNode *fd = xmlTextReaderExpand(_reader);
 	  t->parseXml( fd );
-	  append_node( t, new_depth );
+	  append_node( t, depth );
+	  // skip subtree
 	  result = xmlTextReaderNext(_reader);
 	}
 	else {
@@ -874,41 +873,34 @@ namespace folia {
 	  if ( nsu.empty() || nsu == NSFOLIA ){
 	    if ( skip_t && local_name == "t" ){
 	    }
-	    else if ( (!skip_t && local_name == "t" )
+	    else if ( ( !skip_t && local_name == "t" )
 		      || local_name == "desc"
 		      || local_name == "content"
 		      || local_name == "comment" ){
 	      result = xmlTextReaderRead(_reader);
 	      const char *val = (const char*)xmlTextReaderConstValue(_reader);
 	      if ( val ) {
-		string value = val;
-		if ( !value.empty() ) {
-		  atts["value"] = value;
-		}
+		atts["value"] = val;
 	      }
 	    }
 	    t->setAttributes( atts );
-	    append_node( t, new_depth );
-	    if ( _debug ){
-	      DBG << "einde current node = " << _current_node << endl;
-	      DBG << "last node = " << _last_added << endl;
-	    }
+	    append_node( t, depth );
 	  }
 	  else {
 	    if ( _debug ){
-	      DBG << "a node in alien namespace'" << nsu
-		  << endl;
+	      DBG << "a node in an alien namespace'" << nsu << endl;
 	    }
 	    // just take as is...
-	    append_node( t, new_depth );
+	    append_node( t, depth );
 	    xmlNode *fd = xmlTextReaderExpand(_reader);
 	    t->parseXml( fd );
+	    // skip subtree
 	    result = xmlTextReaderNext(_reader);
 	  }
 	}
       }
       else {
-	throw XmlError( "folia::textprocessor failed to create node: "
+	throw XmlError( "folia::processor failed to create node: "
 			+ local_name );
       }
     }
@@ -934,19 +926,20 @@ namespace folia {
     ///
     int ret = 0;
     if ( _external_node != 0 ){
+      // so our last action was to output a pointer to a subtree.
+      // continue with the next node, avoiding the subtree
       _external_node = 0;
-      ret = 1;
-      if ( _debug ){
-	DBG << "next text_parent() at external node, read on" << endl;
-      }
+      ret = xmlTextReaderNext(_reader);
     }
     else {
+      // so we are the first time here, get first result
       ret = xmlTextReaderRead(_reader);
     }
     if ( ret == 0 ){
       if ( _debug ){
 	DBG << "next_text_parent(), DONE" << endl;
       }
+      _done = true;
       return 0;
     }
     while ( ret ){
@@ -969,42 +962,21 @@ namespace folia {
 	}
 	if ( _node_count == _next_text_node  ){
 	  // HIT!
+	  _external_node = handle_match( local_name, new_depth );
+	  int skips = count_nodes( _external_node );
+	  // we are to output a tree of skips nodes
+	  _node_count += skips; // so next time we resume with this count
+	  _next_text_node = text_parent_map[_next_text_node];
+	  // and we have to search for _next_text_node
 	  if ( _debug ){
-	    DBG << "matched search tag: " << local_name
-		<< " (" <<  _node_count << ")" << endl;
+	    DBG << " increment _node_count with: " << skips << " to "
+		<< _node_count << " searching for: "
+		<< _next_text_node << endl;
 	  }
-	  FoliaElement *t = FoliaImpl::createElement( local_name, _out_doc );
-	  if ( t ){
-
-	    if ( _debug ){
-	      DBG << "created FoliaElement: name=" << local_name << endl;
-	    }
-	    xmlNode *fd = xmlTextReaderExpand(_reader);
-	    t->parseXml( fd );
-	    append_node( t, new_depth );
-	    ret = xmlTextReaderNext(_reader);
-	    _done = (ret == 0);
-	    _external_node = t;
-	    int dp = depth( t ); // we are to output a tree of dp nodes
-	    _node_count += dp; // so next time we resume with this count
-	    _next_text_node = text_parent_map[_next_text_node];
-	    // and we have to search for _next_text_node
-	    if ( _debug ){
-	      DBG << " increment _node_count with: " << dp << " to "
-		  << _node_count << " searching for: "
-		  << _next_text_node << endl;
-	    }
-	    return t;
-	  }
-	  else {
-	    throw XmlError( "folia::textprocessor failed to create node: "
-			    + local_name );
-	  }
+	  return _external_node;
 	}
 	else {
 	  ret = handle_element( local_name, new_depth, true );
-	}
-	if ( ret != 0 ){
 	  ++_node_count;
 	}
       }
