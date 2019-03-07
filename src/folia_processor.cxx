@@ -227,23 +227,25 @@ namespace folia {
     return result;
   }
 
-
-  xmlTextReader *text_reader_from_file( const string& file_name ){
-    string fn = file_name;
-    if ( TiCC::match_back( fn, ".bz2" ) ){
-      string buffer = TiCC::bz2ReadFile( fn );
-      if ( buffer.empty() ){
-	throw( runtime_error( "folia::Processor(), empty file? (" + fn
-			      + ")" ) );
-      }
-      string tmp_file = tmpnam(0);
-      ofstream os( tmp_file );
-      os << buffer << endl;
-      os.close();
-      fn = tmp_file;
+  xmlTextReader *create_text_reader( const string& buffer ){
+    if ( buffer.find("<?xml ") == 0 ){
+      return xmlReaderForMemory( buffer.c_str(), buffer.size(),
+				 "input_buffer", 0, XML_PARSE_HUGE );
     }
-    // libxml2 can handle .xml and .xml.gz
-    return xmlReaderForFile( fn.c_str(), 0, XML_PARSE_HUGE );
+    else {
+      string fn = buffer;
+      if ( TiCC::match_back( fn, ".bz2" ) ){
+	string input_buffer = TiCC::bz2ReadFile( fn );
+	if ( input_buffer.empty() ){
+	  throw( runtime_error( "folia::Processor(), empty file? (" + fn
+				+ ")" ) );
+	}
+	return xmlReaderForMemory( input_buffer.c_str(), input_buffer.size(),
+				   buffer.c_str(), 0, XML_PARSE_HUGE );
+      }
+      // libxml2 can handle .xml and .xml.gz
+      return xmlReaderForFile( fn.c_str(), 0, XML_PARSE_HUGE );
+    }
   }
 
   void Processor::add_text( int depth ){
@@ -299,7 +301,7 @@ namespace folia {
       _os = new ofstream( out_name );
       _out_name = out_name;
     }
-    _reader = text_reader_from_file( file_name );
+    _reader = create_text_reader( file_name );
     if ( _reader == 0 ){
       throw( runtime_error( "folia::Processor(), init failed on '" + file_name
 			    + "'" ) );
@@ -569,7 +571,7 @@ namespace folia {
     /// create an xmlReader and use that to loop over the full input,
     /// creating a lightweight tree for enumerating all XML_ELEMENTS encountered
     ///
-    xmlTextReader *cur_reader = text_reader_from_file( in_file );
+    xmlTextReader *cur_reader = create_text_reader( in_file );
     if ( _debug ){
       DBG << "enumerate_nodes()" << endl;
     }
