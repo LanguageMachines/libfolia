@@ -389,7 +389,7 @@ namespace folia {
   ostream& operator<<( ostream& os, const Document *d ){
     if ( d ){
       string s = d->toXml( "", d->strip() );
-      os << s << endl;
+      os << s; // the string already ends with a newline (i hope....)
     }
     else {
       os << "MISSING DOCUMENT" << endl;
@@ -1187,7 +1187,6 @@ namespace folia {
       _foliaNsIn_href = xmlStrdup( root->ns->href );
     }
     if ( debug > 2 ){
-      using TiCC::operator<<;
       string dum;
       cerr << "root = " << TiCC::Name( root ) << endl;
       cerr << "in namespace " << TiCC::getNS( root, dum ) << endl;
@@ -1660,7 +1659,6 @@ namespace folia {
       xmlAddChild( node, sm );
       if ( type == "native" ){
 	atts = it.second->get_avs();
-	// using TiCC::operator<<;
 	// cerr << "atts: " << atts << endl;
 	for ( const auto& av : atts ){
 	  xmlNode *m = TiCC::XmlNewNode( foliaNs(), "meta" );
