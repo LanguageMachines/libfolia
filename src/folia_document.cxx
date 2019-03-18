@@ -694,6 +694,39 @@ namespace folia {
 	  case AnnotationType::PHON:
 	    tag = "ph";
 	    break;
+	  case AnnotationType::HYPHENATION:
+	    tag = "t-hbr";
+	    break;
+	  case AnnotationType::HEAD:
+	    tag = "head";
+	    break;
+	  case AnnotationType::HIDDENTOKEN:
+	    tag = "hiddenw";
+	    break;
+	  case AnnotationType::SPANRELATION:
+	    tag = "spanrelation";
+	    break;
+	  case AnnotationType::RELATION:
+	    tag = "relation";
+	    break;
+	  case AnnotationType::DESCRIPTION:
+	    tag = "desc";
+	    break;
+	  case AnnotationType::REFERENCE:
+	    tag = "ref";
+	    break;
+	  case AnnotationType::COMMENT:
+	    tag = "comment";
+	    break;
+	  case AnnotationType::FIGURE:
+	    tag = "figure";
+	    break;
+	  case AnnotationType::QUOTE:
+	    tag = "quote";
+	    break;
+	  case AnnotationType::RAWCONTENT:
+	    tag = "content";
+	    break;
 	  default:
 	    break;
 	  }

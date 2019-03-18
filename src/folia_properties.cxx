@@ -1804,10 +1804,9 @@ namespace folia {
     case Dependency_t: return new Dependency();
     case DependencyDependent_t: return new DependencyDependent();
     case Headspan_t: return new Headspan();
-    case ComplexAlignmentLayer_t: return new ComplexAlignmentLayer();
-    case ComplexAlignment_t: return new ComplexAlignment();
-    case Alignment_t: return new Alignment();
-    case AlignReference_t: return new AlignReference();
+    case SpanRelationLayer_t: return new SpanRelationLayer();
+    case SpanRelation_t: return new SpanRelation();
+    case LinkReference_t: return new LinkReference();
     case TextMarkupString_t: return new TextMarkupString();
     case TextMarkupGap_t: return new TextMarkupGap();
     case TextMarkupCorrection_t: return new TextMarkupCorrection();
@@ -1822,18 +1821,23 @@ namespace folia {
     case Sentiment_t: return new Sentiment();
     case SentimentLayer_t: return new SentimentLayer();
     case Statement_t: return new Statement();
+    case StatementRelation_t: return new StatementRelation();
     case StatementLayer_t: return new StatementLayer();
     case StrengthFeature_t: return new StrengthFeature();
     case StyleFeature_t: return new StyleFeature();
     case Source_t: return new Source();
     case Target_t: return new Target();
+    case Hiddenword_t: return new Hiddenword();
+    case Hyphbreak_t: return new Hyphbreak();
+    case AbstractContentAnnotation_t:
+    case AbstractHigherOrderAnnotation_t:
+    case AbstractSubtokenAnnotation_t:
     case AbstractSpanAnnotation_t:
     case AbstractSpanRole_t:
     case AbstractAnnotationLayer_t:
     case AbstractTextMarkup_t:
-    case AbstractTokenAnnotation_t:
+    case AbstractInlineAnnotation_t:
     case AbstractStructureElement_t:
-    case AbstractExtendedTokenAnnotation_t:
     case AbstractCorrectionChild_t:
       throw ValueError( "you may not create an abstract node of type "
 			+ TiCC::toString(int(et)) + ")" );

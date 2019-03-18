@@ -49,6 +49,10 @@ namespace folia {
 
   AnnotationType::AnnotationType stringToAT( const string& st ){
     string s = st;
+    auto const tr = oldtags.find(st);
+    if ( tr != oldtags.end() ){
+      s = tr->second;
+    }
     auto result = s_ant_map.find( s );
     if ( result == s_ant_map.end() ){
       throw logic_error( "Unknown translation for annotationtype: '"
@@ -78,8 +82,9 @@ namespace folia {
 
   ElementType stringToET( const string& intag ){
     string tag = intag;
-    if ( tag == "listitem" ){ // erroneous in older FoLiA docs
-      tag = "item";
+    auto const tr = oldtags.find(intag);
+    if ( tr != oldtags.end() ){
+      tag = tr->second;
     }
     auto result = s_et_map.find(tag);
     if ( result == s_et_map.end() ){

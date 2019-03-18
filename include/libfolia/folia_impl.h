@@ -1049,13 +1049,39 @@ namespace folia {
     static properties PROPS;
   };
 
-  class TextContent: public FoliaImpl {
+  class Hyphbreak: public AbstractTextMarkup {
+    friend void static_init();
+  public:
+    explicit Hyphbreak( Document *d=0 ):
+    AbstractTextMarkup( PROPS, d ){ classInit(); };
+  Hyphbreak( const KWargs& a, Document *d=0 ):
+    AbstractTextMarkup( PROPS, d ) { classInit(a); };
+
+  private:
+    static properties PROPS;
+  };
+
+  class AbstractContentAnnotation: public FoliaImpl {
+    friend void static_init();
+  protected:
+  AbstractContentAnnotation( const properties& props, Document *d=0 ):
+    FoliaImpl( props, d ){ classInit(); };
+    explicit AbstractContentAnnotation( Document *d = 0 ):
+    FoliaImpl( PROPS, d ) {  classInit(); }
+  AbstractContentAnnotation( const KWargs& a, Document *d = 0 ):
+    FoliaImpl( PROPS, d ) {  classInit( a ); }
+  private:
+    static properties PROPS;
+  };
+
+
+  class TextContent: public AbstractContentAnnotation {
     friend void static_init();
   public:
     explicit TextContent( Document *d = 0 ):
-    FoliaImpl( PROPS, d ){ classInit(); }
+    AbstractContentAnnotation( PROPS, d ){ classInit(); }
   TextContent( const KWargs& a, Document *d=0 ):
-    FoliaImpl( PROPS, d ){ classInit(a); }
+    AbstractContentAnnotation( PROPS, d ){ classInit(a); }
     void setAttributes( const KWargs& );
     KWargs collectAttributes() const;
     int offset() const { return _offset; };
@@ -1079,13 +1105,13 @@ namespace folia {
     std::string _ref;
   };
 
-  class PhonContent: public FoliaImpl {
+  class PhonContent: public AbstractContentAnnotation {
     friend void static_init();
   public:
   explicit PhonContent( Document *d = 0 ):
-    FoliaImpl(PROPS,d){ classInit(); }
+    AbstractContentAnnotation(PROPS,d){ classInit(); }
   PhonContent( const KWargs& a, Document *d = 0 ):
-    FoliaImpl(PROPS,d){ classInit( a ); }
+    AbstractContentAnnotation(PROPS,d){ classInit( a ); }
     void setAttributes( const KWargs& );
     KWargs collectAttributes() const;
     const UnicodeString phon( const std::string& = "current",
@@ -1129,6 +1155,18 @@ namespace folia {
     FoliaImpl( PROPS, d ) { classInit( ); }
   DCOI( const KWargs& a, Document *d = 0 ):
     FoliaImpl( PROPS, d ) { classInit( a ); }
+
+  private:
+    static properties PROPS;
+  };
+
+  class AbstractSubtokenAnnotation: public AbstractStructureElement {
+    friend void static_init();
+  public:
+    explicit AbstractSubtokenAnnotation( Document *d = 0 ):
+    AbstractStructureElement( PROPS, d ) {  classInit(); }
+  AbstractSubtokenAnnotation( const KWargs& a, Document *d = 0 ):
+    AbstractStructureElement( PROPS, d ) {  classInit( a ); }
 
   private:
     static properties PROPS;
@@ -1323,6 +1361,18 @@ namespace folia {
     void init();
     static properties PROPS;
     bool _space;
+  };
+
+  class Hiddenword: public Word {
+    friend void static_init();
+  public:
+    explicit Hiddenword( Document *d=0 ):
+    Word( PROPS, d ){ classInit(); }
+  Hiddenword( const KWargs& a, Document *d = 0 ):
+    Word( PROPS, d ){ classInit( a ); }
+
+  private:
+    static properties PROPS;
   };
 
   class Part: public AbstractStructureElement {
@@ -1985,17 +2035,17 @@ namespace folia {
     static properties PROPS;
   };
 
-  /* class Relation: public AbstractSpanRole { */
-  /*   friend void static_init(); */
-  /* public: */
-  /*   explicit Relation( Document *d=0 ): */
-  /*   AbstractSpanRole( PROPS, d ){ classInit(); } */
-  /* Relation( const KWargs& a, Document *d = 0 ): */
-  /*   AbstractSpanRole( PROPS, d ){ classInit( a ); } */
+  class StatementRelation: public AbstractSpanRole {
+    friend void static_init();
+  public:
+    explicit StatementRelation( Document *d=0 ):
+    AbstractSpanRole( PROPS, d ){ classInit(); }
+  StatementRelation( const KWargs& a, Document *d = 0 ):
+    AbstractSpanRole( PROPS, d ){ classInit( a ); }
 
-  /* private: */
-  /*   static properties PROPS; */
-  /* }; */
+  private:
+    static properties PROPS;
+  };
 
   class Dependency: public AbstractSpanAnnotation {
     friend void static_init();
