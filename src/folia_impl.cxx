@@ -104,6 +104,10 @@ namespace folia {
     return _props.SPEAKABLE;
   }
 
+  bool FoliaImpl::referable() const {
+    return _props.WREFABLE;
+  }
+
   bool FoliaImpl::is_textcontainer() const {
     return _props.TEXTCONTAINER;
   }
@@ -1655,9 +1659,7 @@ namespace folia {
     }
     if ( c->parent() &&
 	 !( c->element_id() == WordReference_t
-	    || c->element_id() == Word_t
-	    || c->element_id() == Morpheme_t
-	    || c->element_id() == Phoneme_t ) ) {
+	    || c->referable() ) ){
       throw XmlError( "attempt to reconnect node " + c->classname() + "("
 		      + c->id()
 		      + ") to a " + classname() + " node, id=" + _id
@@ -3690,10 +3692,8 @@ namespace folia {
     }
     FoliaElement *ref = (*mydoc)[id];
     if ( ref ) {
-      if ( ref->element_id() != Word_t
-	   && ref->element_id() != Phoneme_t
-	   && ref->element_id() != Morpheme_t ) {
-	throw XmlError( "WordReference id=" + id + " refers to a non-word: "
+      if ( !ref->referable() ){
+	throw XmlError( "WordReference id=" + id + " refers to a non-referable word: "
 			+ ref->xmltag() );
       }
       // Disabled test! should consider the textclass of the yet unknown
@@ -3842,9 +3842,7 @@ namespace folia {
   }
 
   FoliaElement *AbstractSpanAnnotation::append( FoliaElement *child ) {
-    if ( child->element_id() == Word_t
-	 || child->element_id() == Phoneme_t
-	 || child->element_id() == Morpheme_t){
+    if ( child->referable() ){
       // cerr << "append a word: " << child << " to " << this << endl;
       // cerr << "refcnt=" << child->refcount() << endl;
       if ( child->refcount() == 0 ){
@@ -3952,9 +3950,7 @@ namespace folia {
     // append Word, Phon and Morpheme children as WREFS
     //  EXCEPT when there are NO references to it
     for ( const auto& el : data ) {
-      if ( ( el->element_id() == Word_t ||
-	     el->element_id() == Phoneme_t ||
-	     el->element_id() == Morpheme_t )
+      if ( el-referable()
 	   && el->refcount() > 0 ){
 	xmlNode *t = XmlNewNode( foliaNs(), "wref" );
 	KWargs attribs;
@@ -4240,10 +4236,8 @@ namespace folia {
     vector<FoliaElement*> res;
     for ( const auto& el : data ) {
       ElementType et = el->element_id();
-      if ( et == Word_t
-	   || et == WordReference_t
-	   || et == Phoneme_t
-	   || et == Morpheme_t ) {
+      if ( el->referable()
+	   || et == WordReference_t ){
 	res.push_back( el );
       }
       else {

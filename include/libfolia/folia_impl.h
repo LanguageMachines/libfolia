@@ -291,6 +291,7 @@ namespace folia {
 				bool = false ) const = 0;
     virtual bool printable() const = 0;
     virtual bool speakable() const = 0;
+    virtual bool referable() const = 0;
     virtual bool is_textcontainer() const = 0;
     virtual bool is_phoncontainer() const = 0;
 
@@ -645,6 +646,7 @@ namespace folia {
     const std::set<ElementType>& required_data() const;
     bool printable() const;
     bool speakable() const;
+    bool referable() const;
     bool is_textcontainer() const;
     bool is_phoncontainer() const;
     bool xlink() const;
