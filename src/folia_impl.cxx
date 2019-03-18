@@ -2536,7 +2536,7 @@ namespace folia {
     while ( p ){
       if ( p->isSubClass( String_t )
 	   || p->isSubClass( AbstractStructureElement_t )
-	   || p->isSubClass( AbstractTokenAnnotation_t ) ){
+	   || p->isSubClass( AbstractInlineAnnotation_t ) ){
 	if ( ++depth == 2 ){
 	  return p;
 	}
@@ -2621,7 +2621,7 @@ namespace folia {
     FoliaElement *p = parent();
     while ( p ){
       if ( p->isSubClass( AbstractStructureElement_t )
-	   || p->isSubClass( AbstractTokenAnnotation_t ) ){
+	   || p->isSubClass( AbstractInlineAnnotation_t ) ){
 	if ( ++depth == 2 ){
 	  return p;
 	}
