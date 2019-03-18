@@ -3289,7 +3289,7 @@ namespace folia {
     }
   }
 
-  KWargs AlignReference::collectAttributes() const {
+  KWargs LinkReference::collectAttributes() const {
     KWargs atts;
     atts["id"] = refId;
     atts["type"] = ref_type;
@@ -3299,7 +3299,7 @@ namespace folia {
     return atts;
   }
 
-  void AlignReference::setAttributes( const KWargs& argsin ) {
+  void LinkReference::setAttributes( const KWargs& argsin ) {
     KWargs args = argsin;
     auto it = args.find( "id" );
     if ( it != args.end() ) {
@@ -3720,15 +3720,15 @@ namespace folia {
     return ref;
   }
 
-  FoliaElement* AlignReference::parseXml( const xmlNode *node ) {
+  FoliaElement* LinkReference::parseXml( const xmlNode *node ) {
     KWargs att = getAttributes( node );
     string val = att["id"];
     if ( val.empty() ) {
-      throw XmlError( "ID required for AlignReference" );
+      throw XmlError( "ID required for LinkReference" );
     }
     refId = val;
     if ( mydoc->debug ) {
-      cerr << "Found AlignReference ID " << refId << endl;
+      cerr << "Found LinkReference ID " << refId << endl;
     }
     ref_type = att["type"];
     val = att["t"];
@@ -3738,14 +3738,14 @@ namespace folia {
     return this;
   }
 
-  FoliaElement *AlignReference::resolve_element( const Alignment *ref ) const {
+  FoliaElement *LinkReference::resolve_element( const Relation *ref ) const {
     if ( ref->href().empty() ) {
       return (*mydoc)[refId];
     }
-    throw NotImplementedError( "AlignReference::resolve() for external doc" );
+    throw NotImplementedError( "LinkReference::resolve() for external doc" );
   }
 
-  void Alignment::setAttributes( const KWargs& kwargsin ) {
+  void Relation::setAttributes( const KWargs& kwargsin ) {
     KWargs kwargs = kwargsin;
     auto it = kwargs.find( "format" );
     if ( it != kwargs.end() ) {
@@ -3755,7 +3755,7 @@ namespace folia {
     FoliaImpl::setAttributes(kwargs);
   }
 
-  KWargs Alignment::collectAttributes() const {
+  KWargs Relation::collectAttributes() const {
     KWargs atts = FoliaImpl::collectAttributes();
     if ( !_format.empty() && _format != "text/folia+xml" ) {
       atts["format"] = _format;
@@ -3763,9 +3763,9 @@ namespace folia {
     return atts;
   }
 
-  vector<FoliaElement *> Alignment::resolve() const {
+  vector<FoliaElement *> Relation::resolve() const {
     vector<FoliaElement*> result;
-    vector<AlignReference*> v = FoliaElement::select<AlignReference>();
+    vector<LinkReference*> v = FoliaElement::select<LinkReference>();
     for ( const auto& ar : v ){
       result.push_back( ar->resolve_element( this ) );
     }
@@ -4712,7 +4712,7 @@ namespace folia {
     _newpage = false;
   }
 
-  void Alignment::init() {
+  void Relation::init() {
     _format = "text/folia+xml";
   }
 
