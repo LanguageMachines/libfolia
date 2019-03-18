@@ -652,8 +652,64 @@ namespace folia {
 	  s = "undefined"; // default value
 	}
 	else {
-	  throw XmlError( "setname may not be empty for " + prefix
-			  + "-annotation" );
+	  FoliaElement *tmp = 0;
+	  string tag;
+	  switch( type ){
+	  case AnnotationType::SENTENCE:
+	    tag = "s";
+	    break;
+	  case AnnotationType::PARAGRAPH:
+	    tag = "p";
+	    break;
+	  case AnnotationType::TEXT:
+	    tag = "t";
+	    break;
+	  case AnnotationType::WHITESPACE:
+	    tag = "whitespace";
+	    break;
+	  case AnnotationType::LINEBREAK:
+	    tag = "whitespace";
+	    break;
+	  case AnnotationType::UTTERANCE:
+	    tag = "utt";
+	    break;
+	  case AnnotationType::TOKEN:
+	    tag = "w";
+	    break;
+	  case AnnotationType::STRING:
+	    tag = "str";
+	    break;
+	  case AnnotationType::TABLE:
+	    tag = "table";
+	    break;
+	  case AnnotationType::PART:
+	    tag = "part";
+	    break;
+	  case AnnotationType::ENTITY:
+	    tag = "entity";
+	    break;
+	  case AnnotationType::LIST:
+	    tag = "list";
+	    break;
+	  case AnnotationType::PHON:
+	    tag = "ph";
+	    break;
+	  default:
+	    break;
+	  }
+	  if ( !tag.empty() ){
+	    tmp = FoliaImpl::createElement( tag );
+	    if ( tmp->required_attributes() & Attrib::CLASS ) {
+	      delete tmp;
+	      throw XmlError( "setname may not be empty for " + prefix
+			      + "-annotation" );
+	    }
+	    delete tmp;
+	  }
+	  else {
+	    throw XmlError( "setname may not be empty for " + prefix
+			    + "-annotation" );
+	  }
 	}
 	it = att.find( "annotator" );
 	if ( it != att.end() )
@@ -1460,7 +1516,8 @@ namespace folia {
     // We DO NOT check the date. if all parameters match, it is OK
     //
     if ( set_name.empty() ){
-	throw runtime_error("isDeclared called with empty set.");
+      return true;
+      throw runtime_error("isDeclared called with empty set.");
     }
     if ( type == AnnotationType::NO_ANN ){
       return true;

@@ -498,7 +498,7 @@ namespace folia {
       else {
 	string time = parseTime( it->second );
 	if ( time.empty() ) {
-	  throw ValueError( "invalid begintime, must be in HH:MM:SS:mmmm format: " + it->second );
+	  throw ValueError( "invalid begintime, must be in HH:MM:SS.mmm format: " + it->second );
 	}
 	_begintime = time;
       }
@@ -515,7 +515,7 @@ namespace folia {
       else {
 	string time = parseTime( it->second );
 	if ( time.empty() ) {
-	  throw ValueError( "invalid endtime, must be in HH:MM:SS:mmmm format: " + it->second );
+	  throw ValueError( "invalid endtime, must be in HH:MM:SS.mmm format: " + it->second );
 	}
 	_endtime = time;
       }
@@ -603,6 +603,10 @@ namespace folia {
   void FoliaImpl::addFeatureNodes( const KWargs& kwargs ) {
     for ( const auto& it: kwargs ) {
       string tag = it.first;
+      if ( tag == "processor" ){
+	// forward compatability to FoLiA 2.0 Just discard
+	continue;
+      }
       if ( tag == "head" ) {
 	// "head" is special because the tag is "headfeature"
 	// this to avoid conflicts with the "head" tag!
