@@ -815,16 +815,31 @@ namespace folia {
       static properties PROPS;
     };
 
-  class AbstractTokenAnnotation:
+  class AbstractInlineAnnotation:
     public FoliaImpl,
     public AllowGenerateID
     {
       friend void static_init();
     protected:
-    // DO NOT USE AbstractTokenAnnotation as a real node!!
-    AbstractTokenAnnotation( const properties& props, Document *d=0 ):
+      // DO NOT USE AbstractInlineAnnotation as a real node!!
+    AbstractInlineAnnotation( const properties& props, Document *d=0 ):
       FoliaImpl( props, d ){ classInit(); };
-      explicit AbstractTokenAnnotation( Document *d=0 ):
+      explicit AbstractInlineAnnotation( Document *d=0 ):
+      FoliaImpl( PROPS, d ){ classInit(); };
+
+    private:
+      static properties PROPS;
+    };
+
+  class AbstractHigherOrderAnnotation:
+    public FoliaImpl
+    {
+      friend void static_init();
+    protected:
+      // DO NOT USE AbstractHigherOrderAnnotation as a real node!!
+    AbstractHigherOrderAnnotation( const properties& props, Document *d=0 ):
+      FoliaImpl( props, d ){ classInit(); };
+      explicit AbstractHigherOrderAnnotation( Document *d=0 ):
       FoliaImpl( PROPS, d ){ classInit(); };
 
     private:
@@ -856,15 +871,15 @@ namespace folia {
       static properties PROPS;
     };
 
-  class AbstractExtendedTokenAnnotation: public AbstractTokenAnnotation
+  class AbstractExtendedInlineAnnotation: public AbstractInlineAnnotation
     {
       friend void static_init();
     protected:
-      // DO NOT USE AbstractExtendedTokenAnnotation as a real node!!
-    AbstractExtendedTokenAnnotation( const properties& props, Document *d=0 ):
-      AbstractTokenAnnotation( props, d ){ classInit(); };
-      explicit AbstractExtendedTokenAnnotation( Document *d=0 ):
-      AbstractTokenAnnotation( PROPS, d ){ classInit(); };
+      // DO NOT USE AbstractExtendedInlineAnnotation as a real node!!
+    AbstractExtendedInlineAnnotation( const properties& props, Document *d=0 ):
+      AbstractInlineAnnotation( props, d ){ classInit(); };
+      explicit AbstractExtendedInlineAnnotation( Document *d=0 ):
+      AbstractInlineAnnotation( PROPS, d ){ classInit(); };
 
     private:
       static properties PROPS;
@@ -1337,15 +1352,15 @@ namespace folia {
   };
 
   class String:
-    public AbstractTokenAnnotation,
+    public AbstractInlineAnnotation,
     public AllowAnnotation,
     public AllowCorrection {
     friend void static_init();
   public:
     explicit String( Document *d=0 ):
-    AbstractTokenAnnotation( PROPS, d ){ classInit(); }
+    AbstractInlineAnnotation( PROPS, d ){ classInit(); }
   String( const KWargs& a, Document *d =0 ):
-    AbstractTokenAnnotation( PROPS, d ){ classInit( a ); }
+    AbstractInlineAnnotation( PROPS, d ){ classInit( a ); }
   private:
     static properties PROPS;
     };
@@ -1508,13 +1523,13 @@ namespace folia {
     static properties PROPS;
   };
 
-  class Alternative: public AbstractStructureElement {
+  class Alternative: public AbstractHigherOrderAnnotation {
     friend void static_init();
   public:
     explicit Alternative( Document *d=0 ):
-    AbstractStructureElement( PROPS, d ){ classInit(); }
+    AbstractHigherOrderAnnotation( PROPS, d ){ classInit(); }
   Alternative( const KWargs& a, Document *d = 0 ):
-    AbstractStructureElement( PROPS, d ){ classInit( a ); }
+    AbstractHigherOrderAnnotation( PROPS, d ){ classInit( a ); }
 
   private:
     static properties PROPS;
@@ -1558,85 +1573,85 @@ namespace folia {
     return addAlternative<F>( numb );
   }
 
-  class PosAnnotation: public AbstractTokenAnnotation {
+  class PosAnnotation: public AbstractInlineAnnotation {
     friend void static_init();
   public:
     explicit PosAnnotation( Document *d=0 ):
-    AbstractTokenAnnotation( PROPS, d ){ classInit(); }
+    AbstractInlineAnnotation( PROPS, d ){ classInit(); }
   PosAnnotation( const KWargs& a, Document *d = 0 ):
-    AbstractTokenAnnotation( PROPS, d ){ classInit( a ); }
+    AbstractInlineAnnotation( PROPS, d ){ classInit( a ); }
 
   private:
     static properties PROPS;
   };
 
-  class LemmaAnnotation: public AbstractTokenAnnotation {
+  class LemmaAnnotation: public AbstractInlineAnnotation {
     friend void static_init();
   public:
     explicit LemmaAnnotation( Document *d=0 ):
-    AbstractTokenAnnotation( PROPS, d ){ classInit(); }
+    AbstractInlineAnnotation( PROPS, d ){ classInit(); }
   LemmaAnnotation( const KWargs& a, Document *d = 0 ):
-    AbstractTokenAnnotation( PROPS, d ){ classInit( a ); }
+    AbstractInlineAnnotation( PROPS, d ){ classInit( a ); }
 
   private:
     static properties PROPS;
   };
 
-  class LangAnnotation: public AbstractExtendedTokenAnnotation {
+  class LangAnnotation: public AbstractExtendedInlineAnnotation {
     friend void static_init();
   public:
     explicit LangAnnotation( Document *d=0 ):
-    AbstractExtendedTokenAnnotation( PROPS, d ){ classInit(); }
+    AbstractExtendedInlineAnnotation( PROPS, d ){ classInit(); }
   LangAnnotation( const KWargs& a, Document *d = 0 ):
-    AbstractExtendedTokenAnnotation( PROPS, d ){ classInit( a ); }
+    AbstractExtendedInlineAnnotation( PROPS, d ){ classInit( a ); }
 
   private:
     static properties PROPS;
   };
 
-  class Phoneme: public AbstractTokenAnnotation {
+  class Phoneme: public AbstractInlineAnnotation {
     friend void static_init();
   public:
     explicit Phoneme( Document *d=0 ):
-    AbstractTokenAnnotation( PROPS, d ){ classInit(); }
+    AbstractInlineAnnotation( PROPS, d ){ classInit(); }
   Phoneme( const KWargs& a, Document *d = 0 ):
-    AbstractTokenAnnotation( PROPS, d ){ classInit( a ); }
+    AbstractInlineAnnotation( PROPS, d ){ classInit( a ); }
 
   private:
     static properties PROPS;
   };
 
-  class DomainAnnotation: public AbstractExtendedTokenAnnotation {
+  class DomainAnnotation: public AbstractExtendedInlineAnnotation {
     friend void static_init();
   public:
     explicit DomainAnnotation( Document *d=0 ):
-    AbstractExtendedTokenAnnotation( PROPS, d ){ classInit(); }
+    AbstractExtendedInlineAnnotation( PROPS, d ){ classInit(); }
   DomainAnnotation( const KWargs& a, Document *d = 0 ):
-    AbstractExtendedTokenAnnotation( PROPS, d ){ classInit( a ); }
+    AbstractExtendedInlineAnnotation( PROPS, d ){ classInit( a ); }
 
   private:
     static properties PROPS;
   };
 
-  class SenseAnnotation: public AbstractTokenAnnotation {
+  class SenseAnnotation: public AbstractInlineAnnotation {
     friend void static_init();
   public:
     explicit SenseAnnotation( Document *d=0 ):
-    AbstractTokenAnnotation( PROPS, d ){ classInit(); }
+    AbstractInlineAnnotation( PROPS, d ){ classInit(); }
   SenseAnnotation( const KWargs& a, Document *d = 0 ):
-    AbstractTokenAnnotation( PROPS, d ){ classInit( a ); }
+    AbstractInlineAnnotation( PROPS, d ){ classInit( a ); }
 
   private:
     static properties PROPS;
   };
 
-  class SubjectivityAnnotation: public AbstractTokenAnnotation {
+  class SubjectivityAnnotation: public AbstractInlineAnnotation {
     friend void static_init();
   public:
     explicit SubjectivityAnnotation( Document *d=0 ):
-    AbstractTokenAnnotation( PROPS, d ){ classInit(); }
+    AbstractInlineAnnotation( PROPS, d ){ classInit(); }
   SubjectivityAnnotation( const KWargs& a, Document *d = 0 ):
-    AbstractTokenAnnotation( PROPS, d ){ classInit( a ); }
+    AbstractInlineAnnotation( PROPS, d ){ classInit( a ); }
 
   private:
     static properties PROPS;
@@ -1656,15 +1671,15 @@ namespace folia {
     static properties PROPS;
   };
 
-  class Feature: public FoliaImpl {
+  class Feature: public AbstractHigherOrderAnnotation {
     friend void static_init();
   public:
     explicit Feature( Document *d = 0 ):
-    FoliaImpl( PROPS, d ){ classInit(); }
+    AbstractHigherOrderAnnotation( PROPS, d ){ classInit(); }
   Feature( const properties&p, Document *d = 0 ):
-    FoliaImpl( p, d ){ classInit(); }
+    AbstractHigherOrderAnnotation( p, d ){ classInit(); }
   Feature( const KWargs& a, Document *d = 0 ):
-    FoliaImpl( PROPS, d ){ classInit( a ); }
+    AbstractHigherOrderAnnotation( PROPS, d ){ classInit( a ); }
 
     void setAttributes( const KWargs& );
     KWargs collectAttributes() const;
@@ -2353,13 +2368,13 @@ namespace folia {
   };
 
 
-  class Correction: public AbstractTokenAnnotation {
+  class Correction: public AbstractInlineAnnotation {
     friend void static_init();
   public:
   explicit Correction( Document *d=0 ):
-    AbstractTokenAnnotation( PROPS, d ){ classInit(); }
+    AbstractInlineAnnotation( PROPS, d ){ classInit(); }
   Correction( const KWargs& a, Document *d = 0 ):
-    AbstractTokenAnnotation( PROPS, d ){ classInit( a ); }
+    AbstractInlineAnnotation( PROPS, d ){ classInit( a ); }
 
     bool hasNew() const;
     bool hasOriginal() const;
@@ -2382,13 +2397,13 @@ namespace folia {
     static properties PROPS;
   };
 
-  class ErrorDetection: public AbstractExtendedTokenAnnotation  {
+  class ErrorDetection: public AbstractExtendedInlineAnnotation  {
     friend void static_init();
   public:
   explicit ErrorDetection( Document *d=0 ):
-    AbstractExtendedTokenAnnotation( PROPS, d ){ classInit(); }
+    AbstractExtendedInlineAnnotation( PROPS, d ){ classInit(); }
   ErrorDetection( const KWargs& a, Document *d = 0 ):
-    AbstractExtendedTokenAnnotation( PROPS, d ){ classInit( a ); }
+    AbstractExtendedInlineAnnotation( PROPS, d ){ classInit( a ); }
 
   private:
     static properties PROPS;
