@@ -1458,6 +1458,10 @@ namespace folia {
      { PlaceHolder_t , { Word_t, AbstractStructureElement_t } }
   };
 
+  //foliaspec:oldtags_map
+  //old tags
+  XXX
+
   properties::properties() {
       //foliaspec:begin:defaultproperties
       //Default properties which all elements inherit
