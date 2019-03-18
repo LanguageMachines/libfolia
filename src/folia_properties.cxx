@@ -6,7 +6,7 @@
 #include "libfolia/folia_properties.h"
 
 //foliaspec:header
-//This file was last updated according to the FoLiA specification for version 2.0.0 on 2019-03-18 12:36:49, using foliaspec.py
+//This file was last updated according to the FoLiA specification for version 2.0.0 on 2019-03-18 12:52:47, using foliaspec.py
 //Code blocks after a foliaspec comment (until the next newline) are automatically generated. **DO NOT EDIT THOSE** and **DO NOT REMOVE ANY FOLIASPEC COMMENTS** !!!
 
 namespace folia {
@@ -1624,7 +1624,7 @@ namespace folia {
     {  AnnotationType::UTTERANCE, Utterance_t },
     {  AnnotationType::WHITESPACE, Whitespace_t },
     {  AnnotationType::TOKEN, Word_t },
-  }
+  };
 
   //foliaspec:annotationtype_xml_map
   //A mapping from annotation types to xml tags (strings)
@@ -1684,7 +1684,7 @@ namespace folia {
     {  AnnotationType::UTTERANCE, "utt" },
     {  AnnotationType::WHITESPACE, "whitespace" },
     {  AnnotationType::TOKEN, "w" },
-  }
+  };
 
   properties::properties() {
       //foliaspec:begin:defaultproperties
