@@ -6,7 +6,7 @@
 #include "libfolia/folia_properties.h"
 
 //foliaspec:header
-//This file was last updated according to the FoLiA specification for version 2.0.0 on 2019-03-18 16:54:05, using foliaspec.py
+//This file was last updated according to the FoLiA specification for version 2.0.1 on 2019-03-18 20:47:32, using foliaspec.py
 //Code blocks after a foliaspec comment (until the next newline) are automatically generated. **DO NOT EDIT THOSE** and **DO NOT REMOVE ANY FOLIASPEC COMMENTS** !!!
 
 namespace folia {
@@ -23,7 +23,7 @@ namespace folia {
 
   //foliaspec:version_sub:SUB_VERSION
   //The FoLiA version (sub/rev)
-  const int SUB_VERSION = 0;
+  const int SUB_VERSION = 1;
 
   //foliaspec:namespace:NSFOLIA
   //The FoLiA XML namespace
@@ -937,7 +937,7 @@ namespace folia {
     Hiddenword::PROPS.WREFABLE = true;
     Hiddenword::PROPS.XMLTAG = "hiddenw";
 //------ Hyphbreak -------
-    Hyphbreak::PROPS = AbstractStructureElement::PROPS;
+    Hyphbreak::PROPS = AbstractTextMarkup::PROPS;
     Hyphbreak::PROPS.ELEMENT_ID = Hyphbreak_t;
     Hyphbreak::PROPS.ANNOTATIONTYPE = AnnotationType::HYPHENATION;
     Hyphbreak::PROPS.LABEL = "Hyphbreak";
@@ -1282,7 +1282,7 @@ namespace folia {
 //------ SyntacticUnit -------
     SyntacticUnit::PROPS = AbstractSpanAnnotation::PROPS;
     SyntacticUnit::PROPS.ELEMENT_ID = SyntacticUnit_t;
-    SyntacticUnit::PROPS.ACCEPTED_DATA += {AbstractInlineAnnotation_t, Comment_t, Description_t, Feature_t, ForeignData_t, LinkReference_t, Metric_t, Relation_t, SyntacticUnit_t, WordReference_t, Word_t, Hiddenword_t, Morpheme_t, Phoneme_t};
+    SyntacticUnit::PROPS.ACCEPTED_DATA += {AbstractInlineAnnotation_t, Comment_t, Description_t, Feature_t, ForeignData_t, LinkReference_t, Metric_t, Relation_t, SyntacticUnit_t, WordReference_t, Word_t, Morpheme_t, Phoneme_t};
     SyntacticUnit::PROPS.ANNOTATIONTYPE = AnnotationType::SYNTAX;
     SyntacticUnit::PROPS.LABEL = "Syntactic Unit";
     SyntacticUnit::PROPS.XMLTAG = "su";
@@ -1565,6 +1565,10 @@ namespace folia {
     { "complexalignments", "spanrelations" },
     { "listitem", "item" },
   };
+
+  //foliaspec:wrefables
+  //Elements that act as words and can be referable from span annotations
+  const set<ElementType> wrefables = { Hiddenword_t, Morpheme_t, Phoneme_t, Word_t };
 
   //foliaspec:annotationtype_elementtype_map
   //A mapping from annotation types to element types, based on the assumption that there is always only one primary element for an annotation type (and possible multiple secondary ones which are not included in this map,w)

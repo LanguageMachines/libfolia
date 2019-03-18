@@ -53,6 +53,7 @@ namespace folia {
   extern const std::set<ElementType> default_ignore_structure;
   extern const std::set<ElementType> AnnoExcludeSet;
   extern const std::set<ElementType> SpanSet;
+  extern const std::set<ElementType> wrefables;
 
   extern const int MAJOR_VERSION;
   extern const int MINOR_VERSION;
