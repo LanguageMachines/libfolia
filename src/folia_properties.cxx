@@ -1484,7 +1484,7 @@ namespace folia {
      { HeadFeature_t, { Feature_t,AbstractHigherOrderAnnotation_t } },
      { Headspan_t, { AbstractSpanRole_t,AbstractSpanAnnotation_t } },
      { Hiddenword_t, { AbstractStructureElement_t } },
-     { Hyphbreak_t, { AbstractStructureElement_t } },
+     { Hyphbreak_t, { AbstractTextMarkup_t } },
      { Label_t, { AbstractStructureElement_t } },
      { LangAnnotation_t, { AbstractInlineAnnotation_t } },
      { LemmaAnnotation_t, { AbstractInlineAnnotation_t } },
