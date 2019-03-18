@@ -871,26 +871,12 @@ namespace folia {
       static properties PROPS;
     };
 
-  class AbstractExtendedInlineAnnotation: public AbstractInlineAnnotation
-    {
-      friend void static_init();
-    protected:
-      // DO NOT USE AbstractExtendedInlineAnnotation as a real node!!
-    AbstractExtendedInlineAnnotation( const properties& props, Document *d=0 ):
-      AbstractInlineAnnotation( props, d ){ classInit(); };
-      explicit AbstractExtendedInlineAnnotation( Document *d=0 ):
-      AbstractInlineAnnotation( PROPS, d ){ classInit(); };
-
-    private:
-      static properties PROPS;
-    };
-
-  class ComplexAlignment: public FoliaImpl {
+  class SpanRelation: public FoliaImpl {
     friend void static_init();
   public:
-    explicit ComplexAlignment( Document *d=0 ):
+    explicit SpanRelation( Document *d=0 ):
     FoliaImpl( PROPS, d ){ classInit(); }
-  ComplexAlignment( const KWargs& a, Document *d=0 ):
+  SpanRelation( const KWargs& a, Document *d=0 ):
     FoliaImpl( PROPS, d ){ classInit( a ); }
 
   private:
@@ -1597,13 +1583,13 @@ namespace folia {
     static properties PROPS;
   };
 
-  class LangAnnotation: public AbstractExtendedInlineAnnotation {
+  class LangAnnotation: public AbstractInlineAnnotation {
     friend void static_init();
   public:
     explicit LangAnnotation( Document *d=0 ):
-    AbstractExtendedInlineAnnotation( PROPS, d ){ classInit(); }
+    AbstractInlineAnnotation( PROPS, d ){ classInit(); }
   LangAnnotation( const KWargs& a, Document *d = 0 ):
-    AbstractExtendedInlineAnnotation( PROPS, d ){ classInit( a ); }
+    AbstractInlineAnnotation( PROPS, d ){ classInit( a ); }
 
   private:
     static properties PROPS;
@@ -1621,13 +1607,13 @@ namespace folia {
     static properties PROPS;
   };
 
-  class DomainAnnotation: public AbstractExtendedInlineAnnotation {
+  class DomainAnnotation: public AbstractInlineAnnotation {
     friend void static_init();
   public:
     explicit DomainAnnotation( Document *d=0 ):
-    AbstractExtendedInlineAnnotation( PROPS, d ){ classInit(); }
+    AbstractInlineAnnotation( PROPS, d ){ classInit(); }
   DomainAnnotation( const KWargs& a, Document *d = 0 ):
-    AbstractExtendedInlineAnnotation( PROPS, d ){ classInit( a ); }
+    AbstractInlineAnnotation( PROPS, d ){ classInit( a ); }
 
   private:
     static properties PROPS;
@@ -1862,13 +1848,13 @@ namespace folia {
     FoliaElement* parseXml( const xmlNode *node );
   };
 
-  class Alignment: public FoliaImpl {
+  class Relation: public AbstractHigherOrderAnnotation {
     friend void static_init();
   public:
-    explicit Alignment( Document *d = 0 ):
-    FoliaImpl( PROPS, d ){ classInit(); }
-  Alignment( const KWargs& a, Document *d = 0 ):
-    FoliaImpl( PROPS, d ){ classInit( a ); }
+    explicit Relation( Document *d = 0 ):
+    AbstractHigherOrderAnnotation( PROPS, d ){ classInit(); }
+  Relation( const KWargs& a, Document *d = 0 ):
+    AbstractHigherOrderAnnotation( PROPS, d ){ classInit( a ); }
 
     std::vector<FoliaElement *>resolve() const;
     void setAttributes( const KWargs& );
@@ -1879,13 +1865,13 @@ namespace folia {
     std::string _format;
   };
 
-  class AlignReference: public FoliaImpl {
+  class LinkReference: public FoliaImpl {
     friend void static_init();
-    friend class Alignment;
+    friend class Relation;
   public:
-    explicit AlignReference( Document *d = 0 ):
+    explicit LinkReference( Document *d = 0 ):
     FoliaImpl( PROPS, d ){ classInit(); }
-  AlignReference( const KWargs& a, Document *d = 0 ):
+  LinkReference( const KWargs& a, Document *d = 0 ):
     FoliaImpl( PROPS, d ){ classInit( a ); }
 
     KWargs collectAttributes() const;
@@ -1897,7 +1883,7 @@ namespace folia {
   private:
     static properties PROPS;
     FoliaElement* parseXml( const xmlNode *node );
-    FoliaElement *resolve_element( const Alignment *ref ) const;
+    FoliaElement *resolve_element( const Relation *ref ) const;
     std::string refId;
     std::string ref_type;
     std::string _t;
@@ -1999,17 +1985,17 @@ namespace folia {
     static properties PROPS;
   };
 
-  class Relation: public AbstractSpanRole {
-    friend void static_init();
-  public:
-    explicit Relation( Document *d=0 ):
-    AbstractSpanRole( PROPS, d ){ classInit(); }
-  Relation( const KWargs& a, Document *d = 0 ):
-    AbstractSpanRole( PROPS, d ){ classInit( a ); }
+  /* class Relation: public AbstractSpanRole { */
+  /*   friend void static_init(); */
+  /* public: */
+  /*   explicit Relation( Document *d=0 ): */
+  /*   AbstractSpanRole( PROPS, d ){ classInit(); } */
+  /* Relation( const KWargs& a, Document *d = 0 ): */
+  /*   AbstractSpanRole( PROPS, d ){ classInit( a ); } */
 
-  private:
-    static properties PROPS;
-  };
+  /* private: */
+  /*   static properties PROPS; */
+  /* }; */
 
   class Dependency: public AbstractSpanAnnotation {
     friend void static_init();
@@ -2397,13 +2383,13 @@ namespace folia {
     static properties PROPS;
   };
 
-  class ErrorDetection: public AbstractExtendedInlineAnnotation  {
+  class ErrorDetection: public AbstractInlineAnnotation  {
     friend void static_init();
   public:
   explicit ErrorDetection( Document *d=0 ):
-    AbstractExtendedInlineAnnotation( PROPS, d ){ classInit(); }
+    AbstractInlineAnnotation( PROPS, d ){ classInit(); }
   ErrorDetection( const KWargs& a, Document *d = 0 ):
-    AbstractExtendedInlineAnnotation( PROPS, d ){ classInit( a ); }
+    AbstractInlineAnnotation( PROPS, d ){ classInit( a ); }
 
   private:
     static properties PROPS;
@@ -2573,12 +2559,12 @@ namespace folia {
     static properties PROPS;
   };
 
-  class ComplexAlignmentLayer: public AbstractAnnotationLayer {
+  class SpanRelationLayer: public AbstractAnnotationLayer {
     friend void static_init();
   public:
-    explicit ComplexAlignmentLayer( Document *d=0  ):
+    explicit SpanRelationLayer( Document *d=0  ):
     AbstractAnnotationLayer( PROPS, d ){ classInit(); }
-  ComplexAlignmentLayer( const KWargs& a, Document *d = 0 ):
+  SpanRelationLayer( const KWargs& a, Document *d = 0 ):
     AbstractAnnotationLayer( PROPS, d ){ classInit( a ); }
   private:
     static properties PROPS;
