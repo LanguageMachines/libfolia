@@ -2538,7 +2538,7 @@ namespace folia {
     while ( p ){
       if ( p->isSubClass( String_t )
 	   || p->isSubClass( AbstractStructureElement_t )
-	   || p->isSubClass( AbstractInlineAnnotation_t ) ){
+	   || p->isSubClass( AbstractSubtokenAnnotation_t ) ){
 	if ( ++depth == 2 ){
 	  return p;
 	}

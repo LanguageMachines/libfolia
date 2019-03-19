@@ -1169,6 +1169,8 @@ namespace folia {
     AbstractStructureElement( PROPS, d ) {  classInit(); }
   AbstractSubtokenAnnotation( const KWargs& a, Document *d = 0 ):
     AbstractStructureElement( PROPS, d ) {  classInit( a ); }
+  AbstractSubtokenAnnotation( const properties& props, Document *d=0 ):
+    AbstractStructureElement( props, d ){ classInit(); };
 
   private:
     static properties PROPS;
@@ -1322,7 +1324,9 @@ namespace folia {
     static properties PROPS;
   };
 
-  class Word: public AbstractStructureElement {
+  class Word:
+    public AbstractStructureElement
+  {
     friend void static_init();
   public:
     explicit Word( Document *d = 0 ):
@@ -2459,13 +2463,13 @@ namespace folia {
     static properties PROPS;
   };
 
-  class Morpheme: public AbstractStructureElement {
+  class Morpheme: public AbstractSubtokenAnnotation {
     friend void static_init();
   public:
     explicit Morpheme( Document *d=0 ):
-    AbstractStructureElement( PROPS, d ){ classInit(); }
+    AbstractSubtokenAnnotation( PROPS, d ){ classInit(); }
   Morpheme( const KWargs& a, Document *d = 0 ):
-    AbstractStructureElement( PROPS, d ){ classInit( a ); }
+    AbstractSubtokenAnnotation( PROPS, d ){ classInit( a ); }
 
   private:
     static properties PROPS;
