@@ -44,7 +44,11 @@ namespace folia {
   class Alternative;
   class PosAnnotation;
   class LemmaAnnotation;
+  class SenseAnnotation;
+  class DomainAnnotation;
   class MorphologyLayer;
+  class Morpheme;
+  class Phoneme;
   class Sentence;
   class Word;
   class TextContent;
@@ -369,8 +373,8 @@ namespace folia {
     virtual const std::string& getTextDelimiter( bool retaintok=false ) const = 0;
     virtual void setDateTime( const std::string& ) = 0;
     virtual const std::string getDateTime() const = 0;
-    virtual const std::string pos( const std::string& = "" ) const = 0;
-    virtual const std::string lemma( const std::string& = "" ) const = 0;
+    virtual const std::string pos( const std::string& = "" ) NOT_IMPLEMENTED;
+    virtual const std::string lemma( const std::string& = "" ) NOT_IMPLEMENTED;
     virtual const std::string cls() const = 0;
     virtual const std::string sett() const = 0;
     virtual const std::string n() const = 0;
@@ -815,6 +819,29 @@ namespace folia {
   private:
       static properties PROPS;
     };
+
+  class AbstractWord: public virtual FoliaElement {
+    /// Interface class that is inherited by word-like (wrefable)
+    /// elements (Word, Hiddenword, Morpheme)
+  public:
+    Sentence *sentence() const;
+    Paragraph *paragraph() const;
+    Division *division() const;
+    PosAnnotation *pos( const std::string& = "" ) const;
+    LemmaAnnotation *lemma( const std::string& = "" ) const;
+    SenseAnnotation *sense( const std::string& = "" ) const;
+    DomainAnnotation *domain( const std::string& = "" ) const;
+    std::vector<Morpheme *> morphemes( const std::string& ="" ) const;
+    std::vector<Phoneme *> phonemes( const std::string& ="" ) const;
+    Morpheme *morpheme( size_t, const std::string& ="" ) const;
+    Phoneme *phoneme( size_t, const std::string& ="" ) const;
+    std::vector<Correction *> getcorrections( const std::string& ="",
+					      const std::string& ="" ) const NOT_IMPLEMENTED;
+    Correction *getcorrection( const std::string& ="",
+			       const std::string& ="" ) const NOT_IMPLEMENTED;
+    std::vector<AbstractSpanAnnotation*> findspans( ElementType,
+						    const std::string& ="" ) const;
+  };
 
   class AbstractInlineAnnotation:
     public FoliaImpl,
@@ -1325,6 +1352,7 @@ namespace folia {
 
   class Word:
     public AbstractStructureElement,
+    public AbstractWord,
     public AllowCorrections
 
   {
@@ -1339,11 +1367,11 @@ namespace folia {
 
     Correction *split( FoliaElement *, FoliaElement *,
 		       const std::string& = "" );
-    Sentence *sentence() const;
-    Paragraph *paragraph() const;
-    Division *division() const;
-    std::vector<Morpheme *> morphemes( const std::string& ="" ) const;
-    Morpheme* morpheme( size_t, const std::string& ="" ) const;
+    /* Sentence *sentence() const; */
+    /* Paragraph *paragraph() const; */
+    /* Division *division() const; */
+    //    std::vector<Morpheme *> morphemes( const std::string& ="" ) const;
+    //    Morpheme* morpheme( size_t, const std::string& ="" ) const;
     Correction *incorrection() const;
     Word *previous() const;
     Word *next() const;
@@ -1353,8 +1381,8 @@ namespace folia {
 				    const std::string& = "" ) const;
     std::vector<Word*> rightcontext( size_t,
 				     const std::string& ="" ) const;
-    std::vector<AbstractSpanAnnotation*> findspans( ElementType,
-					  const std::string& = "" ) const;
+    //    std::vector<AbstractSpanAnnotation*> findspans( ElementType,
+    //					  const std::string& = "" ) const;
     FoliaElement *append( FoliaElement *);
     const Word* resolveword( const std::string& ) const;
     void setAttributes( const KWargs& );

@@ -3372,9 +3372,9 @@ namespace folia {
     return FoliaImpl::append( child );
   }
 
-  Sentence *Word::sentence( ) const {
+  Sentence *AbstractWord::sentence() const {
     // return the sentence this word is a part of, otherwise return null
-    FoliaElement *p = _parent;
+    FoliaElement *p = parent();
     while( p ) {
       if ( p->isinstance( Sentence_t ) ) {
 	return dynamic_cast<Sentence*>(p);
@@ -3384,9 +3384,9 @@ namespace folia {
     return 0;
   }
 
-  Paragraph *Word::paragraph( ) const {
+  Paragraph *AbstractWord::paragraph( ) const {
     // return the sentence this word is a part of, otherwise return null
-    FoliaElement *p = _parent;
+    FoliaElement *p = parent();
     while( p ) {
       if ( p->isinstance( Paragraph_t ) ) {
 	return dynamic_cast<Paragraph*>(p);
@@ -3396,9 +3396,9 @@ namespace folia {
     return 0;
   }
 
-  Division *Word::division() const {
+  Division *AbstractWord::division() const {
     // return the <div> this word is a part of, otherwise return null
-    FoliaElement *p = _parent;
+    FoliaElement *p = parent();
     while( p ) {
       if ( p->isinstance( Division_t ) ) {
 	return dynamic_cast<Division*>(p);
@@ -3408,7 +3408,7 @@ namespace folia {
     return 0;
   }
 
-  vector<Morpheme *> Word::morphemes( const string& set ) const {
+  vector<Morpheme *> AbstractWord::morphemes( const string& set ) const {
     vector<Morpheme *> result;
     vector<MorphologyLayer*> mv = FoliaElement::select<MorphologyLayer>();
     for ( const auto& mor : mv ){
@@ -3418,7 +3418,7 @@ namespace folia {
     return result;
   }
 
-  Morpheme * Word::morpheme( size_t pos, const string& set ) const {
+  Morpheme *AbstractWord::morpheme( size_t pos, const string& set ) const {
     vector<Morpheme *> tmp = morphemes( set );
     if ( pos < tmp.size() ) {
       return tmp[pos];
@@ -3644,8 +3644,8 @@ namespace folia {
     }
   }
 
-  vector<AbstractSpanAnnotation*> Word::findspans( ElementType et,
-						   const string& st ) const {
+  vector<AbstractSpanAnnotation*> AbstractWord::findspans( ElementType et,
+							   const string& st ) const {
     ElementType layertype = layertypeof( et );
     vector<AbstractSpanAnnotation *> result;
     if ( layertype != BASE ) {
