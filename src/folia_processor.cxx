@@ -265,7 +265,7 @@ namespace folia {
       DBG << "add_comment " << endl;
     }
     string tag = "_XmlComment";
-    FoliaElement *t = FoliaImpl::createElement( tag, _out_doc );
+    FoliaElement *t = AbstractElement::createElement( tag, _out_doc );
     append_node( t, depth );
   }
 
@@ -812,7 +812,7 @@ namespace folia {
 
   FoliaElement *Processor::handle_match( const string& local_name,
 					 int depth ){
-    FoliaElement *t = FoliaImpl::createElement( local_name, _out_doc );
+    FoliaElement *t = AbstractElement::createElement( local_name, _out_doc );
     if ( t ){
       if ( _debug ){
 	DBG << "created FoliaElement: name=" << local_name << endl;
@@ -856,7 +856,7 @@ namespace folia {
       append_node( ref, depth );
     }
     else {
-      FoliaElement *t = FoliaImpl::createElement( local_name, _out_doc );
+      FoliaElement *t = AbstractElement::createElement( local_name, _out_doc );
       if ( t ){
 	if ( local_name == "foreign-data" ){
 	  xmlNode *fd = xmlTextReaderExpand(_reader);

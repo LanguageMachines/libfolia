@@ -468,17 +468,17 @@ namespace folia {
     virtual const std::string textclass() const NOT_IMPLEMENTED;
   };
 
-  class FoliaImpl: public virtual FoliaElement {
+  class AbstractElement: public virtual FoliaElement {
   private:
-    FoliaImpl( const FoliaImpl& ); // inhibit copies
-    FoliaImpl& operator=( const FoliaImpl& ); // inhibit copies
+    AbstractElement( const AbstractElement& ); // inhibit copies
+    AbstractElement& operator=( const AbstractElement& ); // inhibit copies
   public:
     //Constructor
-    FoliaImpl( const properties& p, Document* = 0 );
+    AbstractElement( const properties& p, Document* = 0 );
     // static element Constructor
     static FoliaElement *createElement( ElementType, Document * =0 );
     static FoliaElement *createElement( const std::string&, Document * =0 );
-    virtual ~FoliaImpl();
+    virtual ~AbstractElement();
 
     void classInit(){
       // we could call 'init()' directly, but this is more esthetic
@@ -790,7 +790,7 @@ namespace folia {
   };
 
   class AbstractStructureElement:
-    public FoliaImpl,
+    public AbstractElement,
     public AllowGenerateID,
     public AllowAnnotation
     {
@@ -798,9 +798,9 @@ namespace folia {
     protected:
       // DO NOT USE AbstractStructureElement as a real node!!
     AbstractStructureElement( const properties& props, Document *d=0 ):
-      FoliaImpl( props, d ){ classInit(); };
+      AbstractElement( props, d ){ classInit(); };
       explicit AbstractStructureElement( Document *d=0 ):
-      FoliaImpl( PROPS, d ) { classInit(); };
+      AbstractElement( PROPS, d ) { classInit(); };
     public:
       std::vector<Alternative *> alternatives( ElementType = BASE,
 					       const std::string& = "" ) const;
@@ -844,31 +844,31 @@ namespace folia {
   };
 
   class AbstractInlineAnnotation:
-    public FoliaImpl,
+    public AbstractElement,
     public AllowGenerateID
     {
       friend void static_init();
     protected:
       // DO NOT USE AbstractInlineAnnotation as a real node!!
     AbstractInlineAnnotation( const properties& props, Document *d=0 ):
-      FoliaImpl( props, d ){ classInit(); };
+      AbstractElement( props, d ){ classInit(); };
       explicit AbstractInlineAnnotation( Document *d=0 ):
-      FoliaImpl( PROPS, d ){ classInit(); };
+      AbstractElement( PROPS, d ){ classInit(); };
 
     private:
       static properties PROPS;
     };
 
   class AbstractHigherOrderAnnotation:
-    public FoliaImpl
+    public AbstractElement
     {
       friend void static_init();
     protected:
       // DO NOT USE AbstractHigherOrderAnnotation as a real node!!
     AbstractHigherOrderAnnotation( const properties& props, Document *d=0 ):
-      FoliaImpl( props, d ){ classInit(); };
+      AbstractElement( props, d ){ classInit(); };
       explicit AbstractHigherOrderAnnotation( Document *d=0 ):
-      FoliaImpl( PROPS, d ){ classInit(); };
+      AbstractElement( PROPS, d ){ classInit(); };
 
     private:
       static properties PROPS;
@@ -876,7 +876,7 @@ namespace folia {
 
 
   class AbstractSpanAnnotation:
-    public FoliaImpl,
+    public AbstractElement,
     public AllowGenerateID,
     public AllowAnnotation,
     public AllowCorrections
@@ -885,9 +885,9 @@ namespace folia {
     protected:
       // DO NOT USE AbstractSpanAnnotation as a real node!!
     AbstractSpanAnnotation( const properties& props, Document *d=0 ):
-      FoliaImpl( props, d ){ classInit(); };
+      AbstractElement( props, d ){ classInit(); };
       explicit AbstractSpanAnnotation( Document *d=0 ):
-      FoliaImpl( PROPS, d ){ classInit(); };
+      AbstractElement( PROPS, d ){ classInit(); };
     public:
       xmlNode *xml( bool, bool=false ) const;
       FoliaElement *append( FoliaElement* );
@@ -899,25 +899,25 @@ namespace folia {
       static properties PROPS;
     };
 
-  class SpanRelation: public FoliaImpl {
+  class SpanRelation: public AbstractElement {
     friend void static_init();
   public:
     explicit SpanRelation( Document *d=0 ):
-    FoliaImpl( PROPS, d ){ classInit(); }
+    AbstractElement( PROPS, d ){ classInit(); }
   SpanRelation( const KWargs& a, Document *d=0 ):
-    FoliaImpl( PROPS, d ){ classInit( a ); }
+    AbstractElement( PROPS, d ){ classInit( a ); }
 
   private:
     static properties PROPS;
   };
 
-  class ForeignData: public FoliaImpl {
+  class ForeignData: public AbstractElement {
     friend void static_init();
   public:
     explicit ForeignData( Document *d=0 ):
-    FoliaImpl( PROPS, d ){ classInit(); };
+    AbstractElement( PROPS, d ){ classInit(); };
   ForeignData( const properties& props, Document *d=0 ):
-    FoliaImpl( props, d ){ classInit(); };
+    AbstractElement( props, d ){ classInit(); };
     ~ForeignData();
 
     FoliaElement* parseXml( const xmlNode * );
@@ -995,14 +995,14 @@ namespace folia {
 
   const std::string EMPTY_STRING = "";
 
-  class AbstractTextMarkup: public FoliaImpl {
+  class AbstractTextMarkup: public AbstractElement {
     friend void static_init();
   protected:
     // DO NOT USE AbstractTextMarkup as a real node!!
   AbstractTextMarkup( const properties& props, Document *d=0 ):
-    FoliaImpl( props, d ){ classInit(); };
+    AbstractElement( props, d ){ classInit(); };
     explicit AbstractTextMarkup( Document *d=0 ):
-    FoliaImpl( PROPS, d ){ classInit(); };
+    AbstractElement( PROPS, d ){ classInit(); };
   public:
     void setAttributes( const KWargs& );
     KWargs collectAttributes() const;
@@ -1089,15 +1089,15 @@ namespace folia {
     static properties PROPS;
   };
 
-  class AbstractContentAnnotation: public FoliaImpl {
+  class AbstractContentAnnotation: public AbstractElement {
     friend void static_init();
   protected:
   AbstractContentAnnotation( const properties& props, Document *d=0 ):
-    FoliaImpl( props, d ){ classInit(); };
+    AbstractElement( props, d ){ classInit(); };
     explicit AbstractContentAnnotation( Document *d = 0 ):
-    FoliaImpl( PROPS, d ) {  classInit(); }
+    AbstractElement( PROPS, d ) {  classInit(); }
   AbstractContentAnnotation( const KWargs& a, Document *d = 0 ):
-    FoliaImpl( PROPS, d ) {  classInit( a ); }
+    AbstractElement( PROPS, d ) {  classInit( a ); }
   private:
     static properties PROPS;
   };
@@ -1159,13 +1159,13 @@ namespace folia {
     std::string _ref;
   };
 
-  class FoLiA: public FoliaImpl {
+  class FoLiA: public AbstractElement {
     friend void static_init();
   public:
     explicit FoLiA( Document *d = 0 ):
-    FoliaImpl( PROPS,d) { classInit(); }
+    AbstractElement( PROPS,d) { classInit(); }
   FoLiA( const KWargs& a, Document *d = 0 ):
-    FoliaImpl( PROPS, d ) { classInit( a ); }
+    AbstractElement( PROPS, d ) { classInit( a ); }
 
     FoliaElement* parseXml( const xmlNode * );
     void setAttributes( const KWargs& );
@@ -1176,13 +1176,13 @@ namespace folia {
 
   };
 
-  class DCOI: public FoliaImpl {
+  class DCOI: public AbstractElement {
     friend void static_init();
   public:
     explicit DCOI( Document *d = 0 ):
-    FoliaImpl( PROPS, d ) { classInit( ); }
+    AbstractElement( PROPS, d ) { classInit( ); }
   DCOI( const KWargs& a, Document *d = 0 ):
-    FoliaImpl( PROPS, d ) { classInit( a ); }
+    AbstractElement( PROPS, d ) { classInit( a ); }
 
   private:
     static properties PROPS;
@@ -1259,26 +1259,26 @@ namespace folia {
     static properties PROPS;
   };
 
-  class Gap: public FoliaImpl {
+  class Gap: public AbstractElement {
     friend void static_init();
   public:
     explicit Gap( Document *d = 0 ):
-    FoliaImpl( PROPS, d ) { classInit(); }
+    AbstractElement( PROPS, d ) { classInit(); }
   Gap( const KWargs& a, Document *d = 0 ):
-    FoliaImpl( PROPS, d ) { classInit( a ); }
+    AbstractElement( PROPS, d ) { classInit( a ); }
 
     const std::string content() const;
   private:
     static properties PROPS;
   };
 
-  class Content: public FoliaImpl {
+  class Content: public AbstractElement {
     friend void static_init();
   public:
     explicit Content( Document *d = 0 ):
-    FoliaImpl( PROPS, d ) { classInit(); }
+    AbstractElement( PROPS, d ) { classInit(); }
   Content( const KWargs& a, Document *d = 0 ):
-    FoliaImpl( PROPS, d ) { classInit( a ); }
+    AbstractElement( PROPS, d ) { classInit( a ); }
 
     FoliaElement* parseXml( const xmlNode * );
     xmlNode *xml( bool, bool = false ) const;
@@ -1289,13 +1289,13 @@ namespace folia {
     std::string value;
   };
 
-  class Metric: public FoliaImpl {
+  class Metric: public AbstractElement {
     friend void static_init();
   public:
   explicit Metric( Document *d = 0 ):
-    FoliaImpl( PROPS, d ) { classInit(); }
+    AbstractElement( PROPS, d ) { classInit(); }
   Metric( const KWargs& a, Document *d = 0 ):
-    FoliaImpl( PROPS, d ) { classInit( a ); }
+    AbstractElement( PROPS, d ) { classInit( a ); }
 
   private:
     static properties PROPS;
@@ -1399,15 +1399,16 @@ namespace folia {
   };
 
   class Hiddenword:
-    public Word
-  //public AllowCorrections
+    public AbstractStructureElement,
+    public AbstractWord,
+    public AllowCorrections
   {
     friend void static_init();
   public:
     explicit Hiddenword( Document *d=0 ):
-    Word( PROPS, d ){ classInit(); }
+    AbstractStructureElement( PROPS, d ){ classInit(); }
   Hiddenword( const KWargs& a, Document *d = 0 ):
-    Word( PROPS, d ){ classInit( a ); }
+    AbstractStructureElement( PROPS, d ){ classInit( a ); }
 
   private:
     static properties PROPS;
@@ -1614,13 +1615,13 @@ namespace folia {
   };
 
 
-  class AlternativeLayers: public FoliaImpl {
+  class AlternativeLayers: public AbstractElement {
     friend void static_init();
   public:
     explicit AlternativeLayers( Document *d = 0 ):
-    FoliaImpl( PROPS, d ){ classInit(); }
+    AbstractElement( PROPS, d ){ classInit(); }
   AlternativeLayers( const KWargs& a, Document *d = 0 ):
-    FoliaImpl( PROPS, d ){ classInit( a ); }
+    AbstractElement( PROPS, d ){ classInit( a ); }
 
   private:
     static properties PROPS;
@@ -1749,15 +1750,15 @@ namespace folia {
     static properties PROPS;
   };
 
-  class Feature: public AbstractHigherOrderAnnotation {
+  class Feature: public AbstractElement {
     friend void static_init();
   public:
     explicit Feature( Document *d = 0 ):
-    AbstractHigherOrderAnnotation( PROPS, d ){ classInit(); }
+    AbstractElement( PROPS, d ){ classInit(); }
   Feature( const properties&p, Document *d = 0 ):
-    AbstractHigherOrderAnnotation( p, d ){ classInit(); }
+    AbstractElement( p, d ){ classInit(); }
   Feature( const KWargs& a, Document *d = 0 ):
-    AbstractHigherOrderAnnotation( PROPS, d ){ classInit( a ); }
+    AbstractElement( PROPS, d ){ classInit( a ); }
 
     void setAttributes( const KWargs& );
     KWargs collectAttributes() const;
@@ -1927,13 +1928,13 @@ namespace folia {
     static properties PROPS;
   };
 
-  class WordReference: public FoliaImpl {
+  class WordReference: public AbstractElement {
     friend void static_init();
   public:
     explicit WordReference( Document *d = 0 ):
-    FoliaImpl( PROPS, d ){ classInit(); }
+    AbstractElement( PROPS, d ){ classInit(); }
   WordReference( const KWargs& a, Document *d = 0 ):
-    FoliaImpl( PROPS, d ){ classInit( a ); }
+    AbstractElement( PROPS, d ){ classInit( a ); }
     void setAttributes( const KWargs& );
   private:
     static properties PROPS;
@@ -1957,14 +1958,14 @@ namespace folia {
     std::string _format;
   };
 
-  class LinkReference: public FoliaImpl {
+  class LinkReference: public AbstractElement {
     friend void static_init();
     friend class Relation;
   public:
     explicit LinkReference( Document *d = 0 ):
-    FoliaImpl( PROPS, d ){ classInit(); }
+    AbstractElement( PROPS, d ){ classInit(); }
   LinkReference( const KWargs& a, Document *d = 0 ):
-    FoliaImpl( PROPS, d ){ classInit( a ); }
+    AbstractElement( PROPS, d ){ classInit( a ); }
 
     KWargs collectAttributes() const;
     void setAttributes( const KWargs& );
@@ -2189,7 +2190,7 @@ namespace folia {
 
 
   class AbstractAnnotationLayer:
-    public FoliaImpl,
+    public AbstractElement,
     public AllowGenerateID,
     public AllowAnnotation,
     public AllowCorrections
@@ -2198,11 +2199,11 @@ namespace folia {
     protected:
       // DO NOT USE AbstractAnnotationLayer as a real node!!
       explicit AbstractAnnotationLayer( Document *d = 0 ):
-      FoliaImpl( PROPS, d ) { classInit(); };
+      AbstractElement( PROPS, d ) { classInit(); };
     AbstractAnnotationLayer( const properties& props, Document *d = 0 ):
-      FoliaImpl( props, d ) { classInit(); };
+      AbstractElement( props, d ) { classInit(); };
     AbstractAnnotationLayer( const properties& props, const KWargs& a, Document *d = 0 ):
-      FoliaImpl( props, d ) { classInit( a ); };
+      AbstractElement( props, d ) { classInit( a ); };
   public:
     AbstractSpanAnnotation *findspan( const std::vector<FoliaElement*>& ) const;
     FoliaElement *append( FoliaElement * );
@@ -2212,14 +2213,14 @@ namespace folia {
     void assignset( FoliaElement * );
   };
 
-  class AbstractCorrectionChild: public FoliaImpl {
+  class AbstractCorrectionChild: public AbstractElement {
     friend void static_init();
   protected:
     // DO NOT USE AbstractCorrectionChild as a real node!!
   AbstractCorrectionChild( const properties& props, Document *d=0 ):
-    FoliaImpl( props, d ){ classInit(); };
+    AbstractElement( props, d ){ classInit(); };
     explicit AbstractCorrectionChild( Document *d=0 ):
-    FoliaImpl( PROPS, d ){ classInit(); };
+    AbstractElement( PROPS, d ){ classInit(); };
   private:
     static properties PROPS;
   };
@@ -2275,13 +2276,13 @@ namespace folia {
     std::string _merge;
   };
 
-  class Description: public FoliaImpl {
+  class Description: public AbstractElement {
     friend void static_init();
   public:
   explicit Description( Document *d=0 ):
-    FoliaImpl( PROPS, d ) { classInit(); }
+    AbstractElement( PROPS, d ) { classInit(); }
   Description( const KWargs& a, Document *d =0 ):
-    FoliaImpl( PROPS, d ) { classInit( a ); }
+    AbstractElement( PROPS, d ) { classInit( a ); }
 
     const std::string description() const { return _value; };
     void setAttributes( const KWargs& kwargs );
@@ -2293,13 +2294,13 @@ namespace folia {
     std::string _value;
   };
 
-  class Comment: public FoliaImpl {
+  class Comment: public AbstractElement {
     friend void static_init();
   public:
   explicit Comment( Document *d=0 ):
-    FoliaImpl( PROPS, d ) { classInit(); }
+    AbstractElement( PROPS, d ) { classInit(); }
   Comment( const KWargs& a, Document *d =0 ):
-    FoliaImpl( PROPS, d ) { classInit( a ); }
+    AbstractElement( PROPS, d ) { classInit( a ); }
 
     const std::string comment() const { return _value; };
     void setAttributes( const KWargs& kwargs );
@@ -2311,13 +2312,13 @@ namespace folia {
     std::string _value;
   };
 
-  class XmlComment: public FoliaImpl {
+  class XmlComment: public AbstractElement {
     friend void static_init();
   public:
   explicit XmlComment( Document *d=0 ):
-    FoliaImpl( PROPS, d ) { classInit(); }
+    AbstractElement( PROPS, d ) { classInit(); }
   XmlComment( const KWargs& a, Document *d = 0 ):
-    FoliaImpl( PROPS, d ) { classInit( a ); }
+    AbstractElement( PROPS, d ) { classInit( a ); }
 
     FoliaElement* parseXml( const xmlNode * );
     xmlNode *xml( bool, bool=false ) const;
@@ -2328,13 +2329,13 @@ namespace folia {
     std::string _value;
   };
 
-  class XmlText: public FoliaImpl {
+  class XmlText: public AbstractElement {
     friend void static_init();
   public:
   explicit XmlText( Document *d = 0 ):
-    FoliaImpl( PROPS, d ) { classInit(); }
+    AbstractElement( PROPS, d ) { classInit(); }
   XmlText( const KWargs& a, Document *d = 0 ):
-    FoliaImpl(PROPS, d ) { classInit( a ); }
+    AbstractElement(PROPS, d ) { classInit( a ); }
 
     FoliaElement* parseXml( const xmlNode * );
     xmlNode *xml( bool, bool=false ) const;
@@ -2347,13 +2348,13 @@ namespace folia {
     std::string _value; //UTF8 value
   };
 
-  class External: public FoliaImpl {
+  class External: public AbstractElement {
     friend void static_init();
   public:
   explicit External( Document *d = 0 ):
-    FoliaImpl( PROPS, d ), _include(false) { classInit(); }
+    AbstractElement( PROPS, d ), _include(false) { classInit(); }
   External( const KWargs& a, Document *d = 0 ):
-    FoliaImpl( PROPS, d ), _include(false) { classInit( a ); }
+    AbstractElement( PROPS, d ), _include(false) { classInit( a ); }
 
     FoliaElement* parseXml( const xmlNode * );
     void resolve_external();

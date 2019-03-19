@@ -47,7 +47,7 @@ using namespace icu;
 
 namespace folia {
 
-  FoliaElement *FoliaImpl::createElement( const string& tag,
+  FoliaElement *AbstractElement::createElement( const string& tag,
 					  Document *doc ){
 
     ElementType et = BASE;
@@ -65,7 +65,7 @@ namespace folia {
     return el;
   }
 
-  FoliaElement *FoliaImpl::createElement( ElementType et,
+  FoliaElement *AbstractElement::createElement( ElementType et,
 					  Document *doc ){
     FoliaElement *el = private_createElement( et );
     if ( doc ){
@@ -460,7 +460,7 @@ namespace folia {
 	}
 	FoliaElement *tmp1 = 0;
 	try {
-	  tmp1 = FoliaImpl::createElement( s );
+	  tmp1 = AbstractElement::createElement( s );
 	}
 	catch( const ValueError &e ){
 	  string err = e.what();
@@ -472,7 +472,7 @@ namespace folia {
 	if ( sane && tmp1 ){
 	  FoliaElement *tmp2 = 0;
 	  try {
-	    tmp2 = FoliaImpl::createElement( et );
+	    tmp2 = AbstractElement::createElement( et );
 	  }
 	  catch( const ValueError &e ){
 	    string err = e.what();

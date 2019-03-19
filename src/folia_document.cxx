@@ -657,7 +657,7 @@ namespace folia {
 	    throw logic_error( "no matching element_type for annotation_type: "
 			       + prefix );
 	  }
-	  FoliaElement *tmp = FoliaImpl::createElement( et_it->second );
+	  FoliaElement *tmp = AbstractElement::createElement( et_it->second );
 	  if ( tmp->required_attributes() & Attrib::CLASS ) {
 	    delete tmp;
 	    throw XmlError( "setname may not be empty for " + prefix
@@ -945,7 +945,7 @@ namespace folia {
     mydoc->setDocumentProps( atts );
     // use remaining attributes for the FoLiA node
     // probably only the ID
-    FoliaImpl::setAttributes( atts );
+    AbstractElement::setAttributes( atts );
   }
 
   FoliaElement* FoLiA::parseXml( const xmlNode *node ){
@@ -971,7 +971,7 @@ namespace folia {
 	else {
 	  if ( p && TiCC::getNS(p) == NSFOLIA ){
 	    string tag = TiCC::Name( p );
-	    FoliaElement *t = FoliaImpl::createElement( tag, mydoc );
+	    FoliaElement *t = AbstractElement::createElement( tag, mydoc );
 	    if ( t ){
 	      if ( mydoc->debug > 2 ){
 		cerr << "created " << t << endl;
@@ -1046,7 +1046,7 @@ namespace folia {
       }
       else if ( TiCC::Name(m)  == "foreign-data" &&
 		checkNS( m, NSFOLIA ) ){
-	FoliaElement *t = FoliaImpl::createElement( "foreign-data", this );
+	FoliaElement *t = AbstractElement::createElement( "foreign-data", this );
 	if ( t ){
 	  t = t->parseXml( m );
 	  if ( t ){
