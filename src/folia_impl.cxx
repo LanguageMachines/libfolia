@@ -4010,15 +4010,20 @@ namespace folia {
 	if ( isText ) {
 	  throw XmlError( "intermixing text and CDATA in Content node" );
 	}
-	isCdata = true;
 	value += (char*)p->content;
+	isCdata = !value.empty();
       }
       else if ( p->type == XML_TEXT_NODE ) {
-	if ( isCdata ) {
-	  throw XmlError( "intermixing text and CDATA in Content node" );
+	// "empty" text nodes may appear before or after CDATA
+	// we just ignore those
+	string tmp = (char*)p->content;
+	tmp = TiCC::trim(tmp);
+	if ( !tmp.empty()
+	     && isCdata ) {
+	  throw XmlError( "intermixing CDATA and text in Content node" );
 	}
-	isText = true;
-	value += (char*)p->content;
+	isText = !tmp.empty();
+	value += tmp;
       }
       else if ( p->type == XML_COMMENT_NODE ) {
 	string tag = "_XmlComment";
