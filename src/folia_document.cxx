@@ -652,97 +652,18 @@ namespace folia {
 	  s = "undefined"; // default value
 	}
 	else {
-	  FoliaElement *tmp = 0;
-	  string tag;
-	  switch( type ){
-	  case AnnotationType::SENTENCE:
-	    tag = "s";
-	    break;
-	  case AnnotationType::PARAGRAPH:
-	    tag = "p";
-	    break;
-	  case AnnotationType::TEXT:
-	    tag = "t";
-	    break;
-	  case AnnotationType::WHITESPACE:
-	    tag = "whitespace";
-	    break;
-	  case AnnotationType::LINEBREAK:
-	    tag = "whitespace";
-	    break;
-	  case AnnotationType::UTTERANCE:
-	    tag = "utt";
-	    break;
-	  case AnnotationType::TOKEN:
-	    tag = "w";
-	    break;
-	  case AnnotationType::STRING:
-	    tag = "str";
-	    break;
-	  case AnnotationType::TABLE:
-	    tag = "table";
-	    break;
-	  case AnnotationType::PART:
-	    tag = "part";
-	    break;
-	  case AnnotationType::ENTITY:
-	    tag = "entity";
-	    break;
-	  case AnnotationType::LIST:
-	    tag = "list";
-	    break;
-	  case AnnotationType::PHON:
-	    tag = "ph";
-	    break;
-	  case AnnotationType::HYPHENATION:
-	    tag = "t-hbr";
-	    break;
-	  case AnnotationType::HEAD:
-	    tag = "head";
-	    break;
-	  case AnnotationType::HIDDENTOKEN:
-	    tag = "hiddenw";
-	    break;
-	  case AnnotationType::SPANRELATION:
-	    tag = "spanrelation";
-	    break;
-	  case AnnotationType::RELATION:
-	    tag = "relation";
-	    break;
-	  case AnnotationType::DESCRIPTION:
-	    tag = "desc";
-	    break;
-	  case AnnotationType::REFERENCE:
-	    tag = "ref";
-	    break;
-	  case AnnotationType::COMMENT:
-	    tag = "comment";
-	    break;
-	  case AnnotationType::FIGURE:
-	    tag = "figure";
-	    break;
-	  case AnnotationType::QUOTE:
-	    tag = "quote";
-	    break;
-	  case AnnotationType::RAWCONTENT:
-	    tag = "content";
-	    break;
-	  default:
-	    break;
+	  auto et_it = annotationtype_elementtype_map.find( type );
+	  if ( et_it == annotationtype_elementtype_map.end() ){
+	    throw logic_error( "no matching element_type for annotation_type: "
+			       + prefix );
 	  }
-	  if ( !tag.empty() ){
-	    tmp = FoliaImpl::createElement( tag );
-	    if ( tmp->required_attributes() & Attrib::CLASS ) {
-	      delete tmp;
-	      throw XmlError( "setname may not be empty for " + prefix
-			      + "-annotation" );
-	    }
+	  FoliaElement *tmp = FoliaImpl::createElement( et_it->second );
+	  if ( tmp->required_attributes() & Attrib::CLASS ) {
 	    delete tmp;
-	  }
-	  else {
 	    throw XmlError( "setname may not be empty for " + prefix
 			    + "-annotation" );
 	  }
+	  delete tmp;
 	}
 	it = att.find( "annotator" );
 	if ( it != att.end() )

@@ -754,7 +754,7 @@ namespace folia {
     std::map<std::string, int> id_map;
   };
 
-  class AllowCorrection: public virtual FoliaElement {
+  class AllowCorrections: public virtual FoliaElement {
   public:
     Correction *correct( const std::vector<FoliaElement*>& v1,
 			 const std::vector<FoliaElement*>& v2,
@@ -788,8 +788,7 @@ namespace folia {
   class AbstractStructureElement:
     public FoliaImpl,
     public AllowGenerateID,
-    public AllowAnnotation,
-    public AllowCorrection
+    public AllowAnnotation
     {
       friend void static_init();
     protected:
@@ -853,7 +852,7 @@ namespace folia {
     public FoliaImpl,
     public AllowGenerateID,
     public AllowAnnotation,
-    public AllowCorrection
+    public AllowCorrections
     {
       friend void static_init();
     protected:
@@ -1325,7 +1324,9 @@ namespace folia {
   };
 
   class Word:
-    public AbstractStructureElement
+    public AbstractStructureElement,
+    public AllowCorrections
+
   {
     friend void static_init();
   public:
@@ -1369,7 +1370,10 @@ namespace folia {
     bool _space;
   };
 
-  class Hiddenword: public Word {
+  class Hiddenword:
+    public Word
+  //public AllowCorrections
+  {
     friend void static_init();
   public:
     explicit Hiddenword( Document *d=0 ):
@@ -1396,15 +1400,16 @@ namespace folia {
   class String:
     public AbstractInlineAnnotation,
     public AllowAnnotation,
-    public AllowCorrection {
-    friend void static_init();
+    public AllowCorrections
+    {
+      friend void static_init();
   public:
-    explicit String( Document *d=0 ):
-    AbstractInlineAnnotation( PROPS, d ){ classInit(); }
-  String( const KWargs& a, Document *d =0 ):
-    AbstractInlineAnnotation( PROPS, d ){ classInit( a ); }
-  private:
-    static properties PROPS;
+      explicit String( Document *d=0 ):
+      AbstractInlineAnnotation( PROPS, d ){ classInit(); }
+    String( const KWargs& a, Document *d =0 ):
+      AbstractInlineAnnotation( PROPS, d ){ classInit( a ); }
+    private:
+      static properties PROPS;
     };
 
   class PlaceHolder: public Word {
@@ -1420,29 +1425,32 @@ namespace folia {
     static properties PROPS;
   };
 
-  class Sentence: public AbstractStructureElement {
-    friend void static_init();
-  public:
-    explicit Sentence( Document *d=0 ):
-    AbstractStructureElement( PROPS, d ){ classInit(); }
-  Sentence( const KWargs& a, Document *d =0 ):
-    AbstractStructureElement( PROPS, d ){ classInit( a ); }
+  class Sentence:
+    public AbstractStructureElement,
+    public AllowCorrections
+    {
+      friend void static_init();
+    public:
+      explicit Sentence( Document *d=0 ):
+      AbstractStructureElement( PROPS, d ){ classInit(); }
+    Sentence( const KWargs& a, Document *d =0 ):
+      AbstractStructureElement( PROPS, d ){ classInit( a ); }
 
-    Correction *splitWord( FoliaElement *, FoliaElement *,
-			   FoliaElement *, const KWargs& );
-    Correction *mergewords( FoliaElement *,
-			    const std::vector<FoliaElement *>&,
-			    const std::string& = "" );
-    Correction *deleteword( FoliaElement *, const std::string& args );
-    Correction *insertword( FoliaElement *, FoliaElement *,
-			    const std::string& args );
-    std::vector<Word*> wordParts() const;
-  private:
-    static properties PROPS;
-    Correction *correctWords( const std::vector<FoliaElement *>&,
+      Correction *splitWord( FoliaElement *, FoliaElement *,
+			     FoliaElement *, const KWargs& );
+      Correction *mergewords( FoliaElement *,
 			      const std::vector<FoliaElement *>&,
-			      const KWargs& );
-  };
+			      const std::string& = "" );
+      Correction *deleteword( FoliaElement *, const std::string& args );
+      Correction *insertword( FoliaElement *, FoliaElement *,
+			      const std::string& args );
+      std::vector<Word*> wordParts() const;
+    private:
+      static properties PROPS;
+      Correction *correctWords( const std::vector<FoliaElement *>&,
+				const std::vector<FoliaElement *>&,
+				const KWargs& );
+    };
 
   class Speech: public AbstractStructureElement {
     friend void static_init();
@@ -1651,13 +1659,13 @@ namespace folia {
     static properties PROPS;
   };
 
-  class Phoneme: public AbstractInlineAnnotation {
+  class Phoneme: public AbstractSubtokenAnnotation {
     friend void static_init();
   public:
     explicit Phoneme( Document *d=0 ):
-    AbstractInlineAnnotation( PROPS, d ){ classInit(); }
+    AbstractSubtokenAnnotation( PROPS, d ){ classInit(); }
   Phoneme( const KWargs& a, Document *d = 0 ):
-    AbstractInlineAnnotation( PROPS, d ){ classInit( a ); }
+    AbstractSubtokenAnnotation( PROPS, d ){ classInit( a ); }
 
   private:
     static properties PROPS;
@@ -2156,7 +2164,7 @@ namespace folia {
     public FoliaImpl,
     public AllowGenerateID,
     public AllowAnnotation,
-    public AllowCorrection
+    public AllowCorrections
     {
       friend void static_init();
     protected:

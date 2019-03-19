@@ -2833,11 +2833,11 @@ namespace folia {
 
   //#define DEBUG_CORRECT 1
 
-  Correction * AllowCorrection::correct( const vector<FoliaElement*>& _original,
-					 const vector<FoliaElement*>& current,
-					 const vector<FoliaElement*>& _newv,
-					 const vector<FoliaElement*>& _suggestions,
-					 const KWargs& args_in ) {
+  Correction * AllowCorrections::correct( const vector<FoliaElement*>& _original,
+					  const vector<FoliaElement*>& current,
+					  const vector<FoliaElement*>& _newv,
+					  const vector<FoliaElement*>& _suggestions,
+					  const KWargs& args_in ) {
 #ifdef DEBUG_CORRECT
     cerr << "correct " << this << endl;
     cerr << "original= " << _original << endl;
@@ -3162,7 +3162,7 @@ namespace folia {
     return corr;
   }
 
-  Correction *AllowCorrection::correct( const string& s ) {
+  Correction *AllowCorrections::correct( const string& s ) {
     vector<FoliaElement*> nil1;
     vector<FoliaElement*> nil2;
     vector<FoliaElement*> nil3;
@@ -3174,10 +3174,10 @@ namespace folia {
     return tmp;
   }
 
-  Correction *AllowCorrection::correct( FoliaElement *_old,
-					FoliaElement *_new,
-					const vector<FoliaElement*>& sugg,
-					const KWargs& args ) {
+  Correction *AllowCorrections::correct( FoliaElement *_old,
+					 FoliaElement *_new,
+					 const vector<FoliaElement*>& sugg,
+					 const KWargs& args ) {
     vector<FoliaElement *> nv;
     nv.push_back( _new );
     vector<FoliaElement *> ov;
