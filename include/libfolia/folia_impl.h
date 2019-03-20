@@ -373,8 +373,8 @@ namespace folia {
     virtual const std::string& getTextDelimiter( bool retaintok=false ) const = 0;
     virtual void setDateTime( const std::string& ) = 0;
     virtual const std::string getDateTime() const = 0;
-    virtual const std::string pos( const std::string& = "" ) NOT_IMPLEMENTED;
-    virtual const std::string lemma( const std::string& = "" ) NOT_IMPLEMENTED;
+    virtual const std::string pos( const std::string& = "" ) const NOT_IMPLEMENTED;
+    virtual const std::string lemma( const std::string& = "" ) const NOT_IMPLEMENTED;
     virtual const std::string cls() const = 0;
     virtual const std::string sett() const = 0;
     virtual const std::string n() const = 0;
@@ -620,8 +620,6 @@ namespace folia {
     const std::string& getTextDelimiter( bool retaintok=false ) const;
     void setDateTime( const std::string& );
     const std::string getDateTime() const;
-    const std::string pos( const std::string& = "" ) const ;
-    const std::string lemma( const std::string& = "" ) const;
     const std::string cls() const { return _class; };
     const std::string sett() const { return _set; };
     const std::string n() const { return _n; };
@@ -827,8 +825,8 @@ namespace folia {
     Sentence *sentence() const;
     Paragraph *paragraph() const;
     Division *division() const;
-    PosAnnotation *pos( const std::string& = "" ) const;
-    LemmaAnnotation *lemma( const std::string& = "" ) const;
+    const std::string pos( const std::string& = "" ) const;
+    const std::string lemma( const std::string& = "" ) const;
     SenseAnnotation *sense( const std::string& = "" ) const;
     DomainAnnotation *domain( const std::string& = "" ) const;
     std::vector<Morpheme *> morphemes( const std::string& ="" ) const;

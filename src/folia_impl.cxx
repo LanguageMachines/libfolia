@@ -2108,11 +2108,11 @@ namespace folia {
     return _datetime;
   }
 
-  const string AbstractElement::pos( const string& st ) const {
+  const string AbstractWord::pos( const string& st ) const {
     return annotation<PosAnnotation>( st )->cls();
   }
 
-  const string AbstractElement::lemma( const string& st ) const {
+  const string AbstractWord::lemma( const string& st ) const {
     return annotation<LemmaAnnotation>( st )->cls();
   }
 
