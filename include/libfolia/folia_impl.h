@@ -1203,20 +1203,6 @@ namespace folia {
     static properties PROPS;
   };
 
-  class AbstractSubtokenAnnotation: public AbstractStructureElement {
-    friend void static_init();
-  public:
-    explicit AbstractSubtokenAnnotation( Document *d = 0 ):
-    AbstractStructureElement( PROPS, d ) {  classInit(); }
-  AbstractSubtokenAnnotation( const KWargs& a, Document *d = 0 ):
-    AbstractStructureElement( PROPS, d ) {  classInit( a ); }
-  AbstractSubtokenAnnotation( const properties& props, Document *d=0 ):
-    AbstractStructureElement( props, d ){ classInit(); };
-
-  private:
-    static properties PROPS;
-  };
-
   class Head: public AbstractStructureElement {
     friend void static_init();
   public:
@@ -1328,7 +1314,8 @@ namespace folia {
     static properties PROPS;
   };
 
-  class Linebreak: public AbstractStructureElement {
+  class Linebreak:
+    public AbstractStructureElement {
     friend void static_init();
   public:
     explicit Linebreak( Document *d=0 ):
@@ -1368,8 +1355,6 @@ namespace folia {
   class Word:
     public AbstractStructureElement,
     public AbstractWord
-    //    public AllowCorrections
-
   {
     friend void static_init();
   public:
@@ -1382,11 +1367,6 @@ namespace folia {
 
     Correction *split( FoliaElement *, FoliaElement *,
 		       const std::string& = "" );
-    /* Sentence *sentence() const; */
-    /* Paragraph *paragraph() const; */
-    /* Division *division() const; */
-    //    std::vector<Morpheme *> morphemes( const std::string& ="" ) const;
-    //    Morpheme* morpheme( size_t, const std::string& ="" ) const;
     Correction *incorrection() const;
     Word *previous() const;
     Word *next() const;
@@ -1416,7 +1396,6 @@ namespace folia {
   class Hiddenword:
     public AbstractStructureElement,
     public AbstractWord
-  //    public AllowCorrections
   {
     friend void static_init();
   public:
@@ -1471,7 +1450,6 @@ namespace folia {
 
   class Sentence:
     public AbstractStructureElement
-    //    public AllowCorrections
     {
       friend void static_init();
     public:
@@ -1612,6 +1590,22 @@ namespace folia {
     AbstractStructureElement( PROPS, d ){ classInit(); }
   Paragraph( const KWargs& a, Document *d = 0 ):
     AbstractStructureElement( PROPS, d ){ classInit( a ); }
+
+  private:
+    static properties PROPS;
+  };
+
+  class AbstractSubtokenAnnotation:
+    public AbstractStructureElement
+  {
+    friend void static_init();
+  public:
+    explicit AbstractSubtokenAnnotation( Document *d = 0 ):
+    AbstractStructureElement( PROPS, d ) {  classInit(); }
+  AbstractSubtokenAnnotation( const KWargs& a, Document *d = 0 ):
+    AbstractStructureElement( PROPS, d ) {  classInit( a ); }
+  AbstractSubtokenAnnotation( const properties& props, Document *d=0 ):
+    AbstractStructureElement( props, d ){ classInit(); };
 
   private:
     static properties PROPS;
