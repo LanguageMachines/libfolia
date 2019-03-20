@@ -1442,15 +1442,16 @@ namespace folia {
   };
 
   class String:
-    public AbstractInlineAnnotation,
-    public AllowInlineAnnotation
+    public AbstractElement,
+    public AllowInlineAnnotation,
+    public AllowGenerateID
     {
       friend void static_init();
   public:
       explicit String( Document *d=0 ):
-      AbstractInlineAnnotation( PROPS, d ){ classInit(); }
+      AbstractElement( PROPS, d ){ classInit(); }
     String( const KWargs& a, Document *d =0 ):
-      AbstractInlineAnnotation( PROPS, d ){ classInit( a ); }
+      AbstractElement( PROPS, d ){ classInit( a ); }
     private:
       static properties PROPS;
     };
@@ -1616,7 +1617,11 @@ namespace folia {
     static properties PROPS;
   };
 
-  class Alternative: public AbstractHigherOrderAnnotation {
+  class Alternative:
+    public AbstractHigherOrderAnnotation,
+    public AllowInlineAnnotation,
+    public AllowGenerateID
+    {
     friend void static_init();
   public:
     explicit Alternative( Document *d=0 ):
