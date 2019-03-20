@@ -239,6 +239,7 @@ namespace folia {
 
     void setimdi( xmlNode * );
     void parseannotations( const xmlNode * );
+    void parseprovenance( const xmlNode * );
     void parsesubmeta( const xmlNode * );
     void getstyles();
     void setannotations( xmlNode *) const;

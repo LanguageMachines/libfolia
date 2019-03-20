@@ -328,8 +328,9 @@ namespace folia {
       if ( cnt > 0 ){
 	throw XmlError( "document is invalid" );
       }
-      if ( debug )
+      if ( debug ){
 	cout << "read a doc from " << s << endl;
+      }
       foliadoc = parseXml();
       if ( !validate_offsets() ){
 	throw InconsistentText("MEH");
@@ -346,8 +347,9 @@ namespace folia {
       _xmldoc = 0;
       return foliadoc != 0;
     }
-    if ( debug )
+    if ( debug ){
       cout << "Failed to read a doc from " << s << endl;
+    }
     throw XmlError( "No valid FoLiA read" );
   }
 
@@ -364,8 +366,9 @@ namespace folia {
       if ( cnt > 0 ){
 	throw XmlError( "document is invalid" );
       }
-      if ( debug )
+      if ( debug ){
 	cout << "read a doc from string" << endl;
+      }
       foliadoc = parseXml();
       if ( !validate_offsets() ){
 	throw InconsistentText("MEH");
@@ -631,6 +634,9 @@ namespace folia {
   }
 
   void Document::parseannotations( const xmlNode *node ){
+    if ( debug ){
+      cerr << "parse annotations " << TiCC::Name(node) << endl;
+    }
     xmlNode *n = node->children;
     _anno_sort.clear();
     while ( n ){
@@ -638,6 +644,9 @@ namespace folia {
       if ( tag.length() > 11 && tag.substr( tag.length() - 11 ) == "-annotation" ){
 	string prefix = tag.substr( 0,  tag.length() - 11 );
 	AnnotationType::AnnotationType type = stringToAT( prefix );
+	if ( debug ){
+	  cerr << "parse " << tag << "-annotation" << endl;
+	}
 	KWargs att = getAttributes( n );
 	string s;
 	string a;
@@ -681,6 +690,97 @@ namespace folia {
 	  alias = it->second;
 	}
 	declare( type, s, a, t, d, alias );
+      }
+      n = n->next;
+    }
+  }
+
+  class processor {
+  public:
+    processor( const xmlNode * );
+    //  private:
+    string name;
+    string id;
+    string type;
+    string version;
+    string document_version;
+    string folia_version;
+    string command;
+    string host;
+    string user;
+    string begindatetime;
+    string enddatetime;
+    string resourcelink;
+    vector<processor> children;
+  };
+
+  ostream& operator<<( ostream& os, const processor& p ){
+    os << "PROCESSOR: " << p.name << endl;
+    os << "id=" << p.id << endl;
+    os << "version=" << p.version << endl;
+    os << "type=" << p.type << endl;
+    os << "folia_version=" << p.folia_version << endl;
+    os << "document_version=" << p.document_version << endl;
+    os << "command=" << p.command << endl;
+    os << "host=" << p.host << endl;
+    for( const auto& c : p.children ){
+      os << c << endl;
+    }
+    return os;
+  }
+
+  processor::processor( const xmlNode *node ){
+    KWargs atts = getAttributes( node );
+    for ( const auto& att : atts ){
+      if ( att.first == "begindatetime" ){
+	begindatetime = att.second;
+      }
+      else if ( att.first == "enddatetime" ){
+	enddatetime = att.second;
+      }
+      else if ( att.first == "xml:id" ){
+	id = att.second;
+      }
+      else if ( att.first == "version" ){
+	version = att.second;
+      }
+      else if ( att.first == "document_version" ){
+	document_version = att.second;
+      }
+      else if ( att.first == "command" ){
+	command = att.second;
+      }
+      else if ( att.first == "folia_version" ){
+	folia_version = att.second;
+      }
+      else if ( att.first == "folia_version" ){
+	folia_version = att.second;
+      }
+      else if ( att.first == "type" ){
+	type = att.second;
+      }
+      else if ( att.first == "host" ){
+	host = att.second;
+      }
+    }
+    xmlNode *n = node->children;
+    while ( n ){
+      string tag = TiCC::Name( n );
+      if ( tag == "processor" ){
+     	processor p(n);
+	children.push_back(p);
+      }
+      n = n->next;
+    }
+  }
+
+  void Document::parseprovenance( const xmlNode *node ){
+    xmlNode *n = node->children;
+    while ( n ){
+      string tag = TiCC::Name( n );
+      if ( tag == "processor" ){
+	processor p(n);
+	cerr << p << endl;
       }
       n = n->next;
     }
@@ -1007,6 +1107,7 @@ namespace folia {
       result = new NativeMetaData( type );
     }
     xmlNode *m = p->children;
+    xmlNode *a_node = 0;
     while ( m ){
       if ( TiCC::Name(m)  == "METATRANSCRIPT" ){
 	if ( !checkNS( m, NSIMDI ) || type != "imdi" )
@@ -1024,7 +1125,15 @@ namespace folia {
 	if ( debug > 1 ){
 	  cerr << "found annotations" << endl;
 	}
-	parseannotations( m );
+	// defer parsing until AFTER provenance data
+	a_node = m;
+      }
+      else if ( TiCC::Name( m ) == "provenance" &&
+		checkNS( m, NSFOLIA ) ){
+	//	if ( debug > 1 ){
+	cerr << "found provenance data" << endl;
+	//	}
+	parseprovenance( m );
       }
       else if ( TiCC::Name( m ) == "meta" &&
 		checkNS( m, NSFOLIA ) ){
@@ -1069,6 +1178,10 @@ namespace folia {
 	parsesubmeta( m );
       }
       m = m->next;
+    }
+    if ( a_node ){
+      cerr << "parse deferred annotations" << endl;
+      parseannotations( a_node );
     }
     if ( result == 0 && type == "imdi" ){
       // imdi missing all further info
@@ -1317,6 +1430,10 @@ namespace folia {
 			  const string& annotator_type,
 			  const string& date_time,
 			  const string& _alias ){
+    if ( debug ){
+      cerr << "declare( " << setname << "," << annotator << "'"
+	   << annotator_type << "'" << date_time << "'" << _alias << ")" << endl;
+    }
     if ( !_alias.empty() ){
       string set_ali = alias(type,setname);
       if ( !set_ali.empty() ){
