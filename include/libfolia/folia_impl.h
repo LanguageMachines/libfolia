@@ -569,20 +569,20 @@ namespace folia {
       return FoliaElement::addAnnotation<F>( args );
     }
 
-    template <typename F>
-      std::vector<F*> annotations( const std::string& s = "" ) const {
-      return FoliaElement::annotations<F>( s );
-    }
+    /* template <typename F> */
+    /*   std::vector<F*> annotations( const std::string& s = "" ) const { */
+    /*   return FoliaElement::annotations<F>( s ); */
+    /* } */
 
-    template <typename F>
-      int hasannotation( const std::string& st = "" ) const {
-      return FoliaElement::hasannotation<F>(st);
-    }
+    /* template <typename F> */
+    /*   int hasannotation( const std::string& st = "" ) const { */
+    /*   return FoliaElement::hasannotation<F>(st); */
+    /* } */
 
-    template <typename F>
-      F *annotation( const std::string& st = "" ) const {
-      return FoliaElement::annotation<F>(st);
-    }
+    /* template <typename F> */
+    /*   F *annotation( const std::string& st = "" ) const { */
+    /*   return FoliaElement::annotation<F>(st); */
+    /* } */
 
     // Span annotations
     std::vector<AbstractSpanAnnotation*> selectSpan() const;
@@ -757,6 +757,7 @@ namespace folia {
   };
 
   class AllowCorrections: public virtual FoliaElement {
+    /// Interface class that enables corrections on Elements
   public:
     Correction *correct( const std::vector<FoliaElement*>& v1,
 			 const std::vector<FoliaElement*>& v2,
@@ -776,21 +777,41 @@ namespace folia {
     Correction *correct( const std::string& = "" );
   };
 
-  class AllowAnnotation: public virtual FoliaElement {
+  class AllowInlineAnnotation: public AllowCorrections {
   public:
     bool allowannotations() const { return true; };
+    template <typename F>
+      std::vector<F*> annotations( const std::string& s = "" ) const {
+      return FoliaElement::annotations<F>( s );
+    }
+
+    template <typename F>
+      int hasannotation( const std::string& st = "" ) const {
+      return FoliaElement::hasannotation<F>(st);
+    }
+
+    template <typename F>
+      F *annotation( const std::string& st = "" ) const {
+      return FoliaElement::annotation<F>(st);
+    }
+
+    std::vector<Alternative *> alternatives( ElementType = BASE,
+					     const std::string& = "" ) const;
+
+
     PosAnnotation *addPosAnnotation( const KWargs& );
     PosAnnotation *getPosAnnotations( const std::string&,
 				      std::vector<PosAnnotation*>& ) const;
     LemmaAnnotation *addLemmaAnnotation( const KWargs& );
     LemmaAnnotation *getLemmaAnnotations( const std::string&,
 					  std::vector<LemmaAnnotation*>& ) const;
+
   };
 
   class AbstractStructureElement:
     public AbstractElement,
     public AllowGenerateID,
-    public AllowAnnotation
+    public AllowInlineAnnotation
     {
       friend void static_init();
     protected:
@@ -800,9 +821,6 @@ namespace folia {
       explicit AbstractStructureElement( Document *d=0 ):
       AbstractElement( PROPS, d ) { classInit(); };
     public:
-      std::vector<Alternative *> alternatives( ElementType = BASE,
-					       const std::string& = "" ) const;
-
       FoliaElement *append( FoliaElement* );
       std::vector<Paragraph*> paragraphs() const;
       std::vector<Sentence*> sentences() const;
@@ -876,8 +894,7 @@ namespace folia {
   class AbstractSpanAnnotation:
     public AbstractElement,
     public AllowGenerateID,
-    public AllowAnnotation,
-    public AllowCorrections
+    public AllowInlineAnnotation
     {
       friend void static_init();
     protected:
@@ -1350,8 +1367,8 @@ namespace folia {
 
   class Word:
     public AbstractStructureElement,
-    public AbstractWord,
-    public AllowCorrections
+    public AbstractWord
+    //    public AllowCorrections
 
   {
     friend void static_init();
@@ -1398,8 +1415,8 @@ namespace folia {
 
   class Hiddenword:
     public AbstractStructureElement,
-    public AbstractWord,
-    public AllowCorrections
+    public AbstractWord
+  //    public AllowCorrections
   {
     friend void static_init();
   public:
@@ -1426,8 +1443,7 @@ namespace folia {
 
   class String:
     public AbstractInlineAnnotation,
-    public AllowAnnotation,
-    public AllowCorrections
+    public AllowInlineAnnotation
     {
       friend void static_init();
   public:
@@ -1453,8 +1469,8 @@ namespace folia {
   };
 
   class Sentence:
-    public AbstractStructureElement,
-    public AllowCorrections
+    public AbstractStructureElement
+    //    public AllowCorrections
     {
       friend void static_init();
     public:
@@ -2190,8 +2206,7 @@ namespace folia {
   class AbstractAnnotationLayer:
     public AbstractElement,
     public AllowGenerateID,
-    public AllowAnnotation,
-    public AllowCorrections
+    public AllowInlineAnnotation
     {
       friend void static_init();
     protected:

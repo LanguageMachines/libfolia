@@ -2116,7 +2116,7 @@ namespace folia {
     return annotation<LemmaAnnotation>( st )->cls();
   }
 
-  PosAnnotation *AllowAnnotation::addPosAnnotation( const KWargs& inargs ) {
+  PosAnnotation *AllowInlineAnnotation::addPosAnnotation( const KWargs& inargs ) {
     KWargs args = inargs;
     string st;
     auto it = args.find("set" );
@@ -2142,7 +2142,7 @@ namespace folia {
     }
   }
 
-  PosAnnotation* AllowAnnotation::getPosAnnotations( const string& st,
+  PosAnnotation* AllowInlineAnnotation::getPosAnnotations( const string& st,
 					  vector<PosAnnotation*>& vec ) const {
     PosAnnotation *res = 0;
     vec.clear();
@@ -2167,7 +2167,7 @@ namespace folia {
     return res;
   }
 
-  LemmaAnnotation *AllowAnnotation::addLemmaAnnotation( const KWargs& inargs ) {
+  LemmaAnnotation *AllowInlineAnnotation::addLemmaAnnotation( const KWargs& inargs ) {
     KWargs args = inargs;
     string st;
     auto it = args.find("set" );
@@ -2193,7 +2193,7 @@ namespace folia {
     }
   }
 
-  LemmaAnnotation* AllowAnnotation::getLemmaAnnotations( const string& st,
+  LemmaAnnotation* AllowInlineAnnotation::getLemmaAnnotations( const string& st,
 					      vector<LemmaAnnotation*>& vec ) const {
     LemmaAnnotation *res = 0;
     vec.clear();
@@ -3268,8 +3268,8 @@ namespace folia {
     return result;
   }
 
-  vector<Alternative *> AbstractStructureElement::alternatives( ElementType elt,
-								const string& st ) const {
+  vector<Alternative *> AllowInlineAnnotation::alternatives( ElementType elt,
+							     const string& st ) const {
     // Return a list of alternatives, either all or only of a specific type, restrained by set
     vector<Alternative *> alts = FoliaElement::select<Alternative>( AnnoExcludeSet );
     if ( elt == BASE ) {
