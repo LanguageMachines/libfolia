@@ -77,6 +77,16 @@ namespace folia {
   class Word;
   class Sentence;
   class Paragraph;
+  class processor;
+
+  class Provenance {
+  public:
+    processor *get_processor( const std::string& );
+    xmlNode *xml();
+    Provenance *parseXml( const xmlNode * );
+    std::vector<processor> processors;
+  };
+
 
   class Document {
     friend bool operator==( const Document&, const Document& );
@@ -243,9 +253,11 @@ namespace folia {
     void parsesubmeta( const xmlNode * );
     void getstyles();
     void setannotations( xmlNode *) const;
+    void setprovenance( xmlNode * ) const;
     void setmetadata( xmlNode * ) const;
     void addsubmetadata( xmlNode *) const;
     void setstyles( xmlDoc* ) const;
+    void append_processor( xmlNode *, const processor& ) const;
     xmlDoc *to_xmlDoc( const std::string& ="", bool=false ) const;
     std::map<std::string, FoliaElement* > sindex;
     std::vector<FoliaElement* > iindex;
@@ -259,6 +271,7 @@ namespace folia {
     const xmlChar* _foliaNsIn_prefix;
     mutable xmlNs *_foliaNsOut;
     MetaData *_metadata;
+    Provenance *_provenance;
     std::map<std::string,MetaData *> submetadata;
     std::multimap<std::string,std::string> styles;
     mutable Mode mode;

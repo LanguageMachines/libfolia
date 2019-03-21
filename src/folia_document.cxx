@@ -154,6 +154,7 @@ namespace folia {
 
   void Document::init(){
     _metadata = 0;
+    _provenance = 0;
     _xmldoc = 0;
     foliadoc = 0;
     _foliaNsIn_href = 0;
@@ -181,6 +182,7 @@ namespace folia {
     for ( const auto& it : submetadata ){
       delete it.second;
     }
+    delete _provenance;
   }
 
   bool operator==( const Document& d1, const Document& d2 ){
@@ -711,7 +713,7 @@ namespace folia {
     string begindatetime;
     string enddatetime;
     string resourcelink;
-    vector<processor> children;
+    vector<processor> processors;
   };
 
   ostream& operator<<( ostream& os, const processor& p ){
@@ -723,7 +725,7 @@ namespace folia {
     os << "document_version=" << p.document_version << endl;
     os << "command=" << p.command << endl;
     os << "host=" << p.host << endl;
-    for( const auto& c : p.children ){
+    for( const auto& c : p.processors ){
       os << c << endl;
     }
     return os;
@@ -740,6 +742,9 @@ namespace folia {
       }
       else if ( att.first == "xml:id" ){
 	id = att.second;
+      }
+      else if ( att.first == "name" ){
+	name = att.second;
       }
       else if ( att.first == "version" ){
 	version = att.second;
@@ -762,28 +767,65 @@ namespace folia {
       else if ( att.first == "host" ){
 	host = att.second;
       }
+      else if ( att.first == "resourcelink" ){
+	resourcelink = att.second;
+      }
+    }
+    if ( id.empty() ){
+      throw XmlError( "processor: missing 'xml:id' attribute" );
+    }
+    if ( name.empty() ){
+      throw XmlError( "processor: missing 'name' attribute" );
+    }
+    if ( type.empty() ){
+      type = "auto";
+    }
+    else if ( type != "auto"
+	      && type != "manual"
+	      && type != "generator"
+	      && type != "datasource" ){
+      throw XmlError( "processor: invalid value for 'type' attribute: " + type );
     }
     xmlNode *n = node->children;
     while ( n ){
       string tag = TiCC::Name( n );
       if ( tag == "processor" ){
      	processor p(n);
-	children.push_back(p);
+	processors.emplace_back(p);
       }
       n = n->next;
     }
   }
 
+  ostream& operator<<( ostream& os, const Provenance& p ){
+    os << "provenance data" << endl;
+    for ( const auto& p : p.processors ){
+      os << "\t\t" << p << endl;
+    }
+    return os;
+  }
+
+  ostream& operator<<( ostream& os, const Provenance* p ){
+    if ( p ){
+      os << *p;
+    }
+    else {
+      os << "no provenance";
+    }
+    return os;
+  }
+
   void Document::parseprovenance( const xmlNode *node ){
+    Provenance *result = new Provenance();
     xmlNode *n = node->children;
     while ( n ){
       string tag = TiCC::Name( n );
       if ( tag == "processor" ){
-	processor p(n);
-	cerr << p << endl;
+	result->processors.emplace_back( processor(n) );
       }
       n = n->next;
     }
+    _provenance = result;
   }
 
   void Document::parsesubmeta( const xmlNode *node ){
@@ -1134,6 +1176,7 @@ namespace folia {
 	cerr << "found provenance data" << endl;
 	//	}
 	parseprovenance( m );
+	cerr << _provenance << endl;
       }
       else if ( TiCC::Name( m ) == "meta" &&
 		checkNS( m, NSFOLIA ) ){
@@ -1733,7 +1776,8 @@ namespace folia {
     return result;
   }
 
-  void Document::setannotations( xmlNode *node ) const {
+  void Document::setannotations( xmlNode *md ) const {
+    xmlNode *node = xmlAddChild( md, TiCC::XmlNewNode( foliaNs(), "annotations" ) );
     for ( const auto& pair : _anno_sort ){
       // Find the 'label'
       AnnotationType::AnnotationType type = pair.first;
@@ -1770,6 +1814,55 @@ namespace folia {
 	xmlAddChild( node, n );
 	++it;
       }
+    }
+  }
+
+  void Document::append_processor( xmlNode *node, const processor& p ) const {
+    xmlNode *pr = xmlAddChild( node, TiCC::XmlNewNode( foliaNs(), "processor" ) );
+    KWargs atts;
+    atts["xml:id"] = p.id;
+    atts["name"] = p.name;
+    atts["type"] = p.type;
+    if ( !p.version.empty() ){
+      atts["version"] = p.version;
+    }
+    if ( !p.version.empty() ){
+      atts["document_version"] = p.document_version;
+    }
+    if ( !p.command.empty() ){
+      atts["command"] = p.command;
+    }
+    if ( !p.host.empty() ){
+      atts["host"] = p.host;
+    }
+    if ( !p.user.empty() ){
+      atts["user"] = p.host;
+    }
+    if ( !p.folia_version.empty() ){
+      atts["folia_version"] = p.folia_version;
+    }
+    if ( !p.begindatetime.empty() ){
+      atts["begindatetime"] = p.begindatetime;
+    }
+    if ( !p.enddatetime.empty() ){
+      atts["enddatetime"] = p.enddatetime;
+    }
+    if ( !p.resourcelink.empty() ){
+      atts["resourcelink"] = p.resourcelink;
+    }
+    addAttributes( pr, atts );
+    for ( const auto& s : p.processors ){
+      append_processor( pr, s );
+    }
+  }
+
+  void Document::setprovenance( xmlNode *md ) const {
+    if ( !_provenance ){
+      return;
+    }
+    xmlNode *node = xmlAddChild( md, TiCC::XmlNewNode( foliaNs(), "provenance" ) );
+    for ( const auto& p : _provenance->processors ){
+      append_processor( node, p );
     }
   }
 
@@ -1901,8 +1994,8 @@ namespace folia {
     addAttributes( root, attribs );
 
     xmlNode *md = xmlAddChild( root, TiCC::XmlNewNode( foliaNs(), "metadata" ) );
-    xmlNode *an = xmlAddChild( md, TiCC::XmlNewNode( foliaNs(), "annotations" ) );
-    setannotations( an );
+    setannotations( md );
+    setprovenance( md );
     setmetadata( md );
     for ( size_t i=0; i < foliadoc->size(); ++i ){
       FoliaElement* el = foliadoc->index(i);
