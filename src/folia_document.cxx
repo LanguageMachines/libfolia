@@ -713,6 +713,7 @@ namespace folia {
     string begindatetime;
     string enddatetime;
     string resourcelink;
+    map<string,string> metadata;
     vector<processor> processors;
   };
 
@@ -792,6 +793,18 @@ namespace folia {
       if ( tag == "processor" ){
      	processor p(n);
 	processors.emplace_back(p);
+      }
+      if ( tag == "meta" ){
+	KWargs atts = getAttributes( n );
+	string id = atts["id"];
+	if ( id.empty() ){
+	  throw XmlError( "processor: missing 'id' for meta tag" );
+	}
+	if ( atts.size() != 1 ){
+	  throw XmlError( "processor: invalid attribute(s) in meta tag" );
+	}
+	string value = TiCC::XmlContent( n );
+	metadata[id] = value;
       }
       n = n->next;
     }
@@ -1851,6 +1864,13 @@ namespace folia {
       atts["resourcelink"] = p.resourcelink;
     }
     addAttributes( pr, atts );
+    for ( const auto& it : p.metadata ){
+      xmlNode *m = xmlAddChild( pr, TiCC::XmlNewNode( foliaNs(), "meta" ) );
+      KWargs args;
+      args["id"] = it.first;
+      addAttributes( m, args );
+      xmlAddChild( m, xmlNewText( (const xmlChar*)it.second.c_str()) );
+    }
     for ( const auto& s : p.processors ){
       append_processor( pr, s );
     }
