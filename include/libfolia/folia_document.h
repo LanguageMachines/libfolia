@@ -81,10 +81,11 @@ namespace folia {
 
   class Provenance {
   public:
-    processor *get_processor( const std::string& );
+    const processor *get_processor( const std::string& );
     xmlNode *xml();
     Provenance *parseXml( const xmlNode * );
     std::vector<processor> processors;
+    std::map<std::string,const processor*> _index;
   };
 
 
@@ -145,9 +146,9 @@ namespace folia {
 		bool = false ) const;
     std::string metadatatype() const;
     std::string metadatafile() const;
-    void set_metadata( const std::string& type, const std::string& value );
-    const std::string get_metadata( const std::string& type ) const;
-
+    void set_metadata( const std::string&, const std::string& );
+    const std::string get_metadata( const std::string&) const;
+    const processor *get_processor( const std::string& ) const;
     void addDocIndex( FoliaElement*, const std::string& );
     void delDocIndex( const FoliaElement*, const std::string& );
 
@@ -184,6 +185,7 @@ namespace folia {
     void declare( AnnotationType::AnnotationType,
 		  const std::string&, const std::string&,
 		  const std::string&, const std::string&,
+		  const std::set<std::string>&,
 		  const std::string& = "" );
     void un_declare( AnnotationType::AnnotationType,
 		     const std::string& );
@@ -204,17 +206,21 @@ namespace folia {
     class at_t {
       friend std::ostream& operator<<( std::ostream&, const at_t& );
     public:
-    at_t( const std::string& _a, const std::string& _t, const std::string& _d ): a(_a),t(_t),d(_d){};
+    at_t( const std::string& _a,
+	  const std::string& _t,
+	  const std::string& _d,
+	  const std::set<std::string>& _p ): a(_a),t(_t),d(_d),p(_p){};
       std::string a;
       std::string t;
       std::string d;
+      std::set<std::string> p;
     };
     void incrRef( AnnotationType::AnnotationType, const std::string& );
     void decrRef( AnnotationType::AnnotationType, const std::string& );
     void setmode( const std::string& ) const;
     std::string getmode() const;
     std::multimap<AnnotationType::AnnotationType,std::string> unused_declarations( ) const;
-      const MetaData *get_submetadata( const std::string& m ){
+    const MetaData *get_submetadata( const std::string& m ){
       const auto& it = submetadata.find( m );
       if ( it == submetadata.end() ){
 	return 0;

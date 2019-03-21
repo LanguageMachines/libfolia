@@ -610,6 +610,10 @@ namespace folia {
     return _metadata->get_val( type );
   }
 
+  const processor *Document::get_processor( const string& type ) const {
+    return _provenance->get_processor( type );
+  }
+
   void Document::set_foreign_metadata( xmlNode *node ){
     if ( !_metadata ){
       _metadata = new ForeignMetaData( "foreign" );
@@ -645,25 +649,25 @@ namespace folia {
       string tag = TiCC::Name( n );
       if ( tag.length() > 11 && tag.substr( tag.length() - 11 ) == "-annotation" ){
 	string prefix = tag.substr( 0,  tag.length() - 11 );
-	AnnotationType::AnnotationType type = stringToAT( prefix );
+	AnnotationType::AnnotationType at_type = stringToAT( prefix );
 	if ( debug ){
 	  cerr << "parse " << tag << "-annotation" << endl;
 	}
 	KWargs att = getAttributes( n );
-	string s;
-	string a;
-	string t;
-	string d;
+	string st;
+	string annotator;
+	string ann_type;
+	string datetime;
 	string alias;
 	auto it = att.find("set" );
 	if ( it != att.end() ){
-	  s = it->second;
+	  st = it->second;
 	}
 	else if ( version_below( 1, 6 ) ){
-	  s = "undefined"; // default value
+	  st = "undefined"; // default value
 	}
 	else {
-	  auto et_it = annotationtype_elementtype_map.find( type );
+	  auto et_it = annotationtype_elementtype_map.find( at_type );
 	  if ( et_it == annotationtype_elementtype_map.end() ){
 	    throw logic_error( "no matching element_type for annotation_type: "
 			       + prefix );
@@ -678,20 +682,37 @@ namespace folia {
 	}
 	it = att.find( "annotator" );
 	if ( it != att.end() )
-	  a = it->second;
+	  annotator = it->second;
 	it = att.find( "annotatortype" );
 	if ( it != att.end() ){
-	  t = it->second;
+	  ann_type = it->second;
 	}
 	it = att.find( "datetime" );
 	if ( it != att.end() ){
-	  d = parseDate( it->second );
+	  datetime = parseDate( it->second );
 	}
 	it = att.find( "alias" );
 	if ( it != att.end() ){
 	  alias = it->second;
 	}
-	declare( type, s, a, t, d, alias );
+	set<string> processors;
+	xmlNode *sub = n->children;
+	while ( sub ){
+	  string subtag = TiCC::Name( sub );
+	  if ( subtag == "annotator" ){
+	    KWargs args = getAttributes( sub );
+	    if ( args["processor"].empty() ){
+	      throw XmlError( tag + "-annotation: <annotator> misses attribute 'processor'" );
+	    }
+	    processors.insert( args["processor"] );
+	  }
+	  sub = sub->next;
+	}
+	if ( !annotator.empty() && !processors.empty() ){
+	  throw XmlError( tag + "-annotation: has both <annotator> node(s) and annotator attribute." );
+	}
+	declare( at_type, st, annotator, ann_type, datetime,
+		 processors, alias );
       }
       n = n->next;
     }
@@ -771,6 +792,9 @@ namespace folia {
       else if ( att.first == "resourcelink" ){
 	resourcelink = att.second;
       }
+      else if ( att.first == "user" ){
+	user = att.second;
+      }
     }
     if ( id.empty() ){
       throw XmlError( "processor: missing 'xml:id' attribute" );
@@ -812,8 +836,8 @@ namespace folia {
 
   ostream& operator<<( ostream& os, const Provenance& p ){
     os << "provenance data" << endl;
-    for ( const auto& p : p.processors ){
-      os << "\t\t" << p << endl;
+    for ( const auto& pr : p.processors ){
+      os << "\t\t" << pr << endl;
     }
     return os;
   }
@@ -826,6 +850,28 @@ namespace folia {
       os << "no provenance";
     }
     return os;
+  }
+
+  void fill_index( const processor& proc, map<string,const processor*>& index ){
+    index[proc.id] = &proc;
+    for ( const auto& p : proc.processors ){
+      fill_index( p, index );
+    }
+  }
+
+  const processor *Provenance::get_processor( const string& id ){
+    if ( _index.empty() ){
+      for ( const auto& p : processors ){
+	fill_index( p, _index );
+      }
+    }
+    const auto& p = _index.find( id );
+    if ( p != _index.end() ){
+      return p->second;
+    }
+    else {
+      return 0;
+    }
   }
 
   void Document::parseprovenance( const xmlNode *node ){
@@ -1186,10 +1232,10 @@ namespace folia {
       else if ( TiCC::Name( m ) == "provenance" &&
 		checkNS( m, NSFOLIA ) ){
 	//	if ( debug > 1 ){
-	cerr << "found provenance data" << endl;
+	//	cerr << "found provenance data" << endl;
 	//	}
 	parseprovenance( m );
-	cerr << _provenance << endl;
+	//	cerr << _provenance << endl;
       }
       else if ( TiCC::Name( m ) == "meta" &&
 		checkNS( m, NSFOLIA ) ){
@@ -1236,7 +1282,7 @@ namespace folia {
       m = m->next;
     }
     if ( a_node ){
-      cerr << "parse deferred annotations" << endl;
+      //      cerr << "parse deferred annotations" << endl;
       parseannotations( a_node );
     }
     if ( result == 0 && type == "imdi" ){
@@ -1442,7 +1488,8 @@ namespace folia {
     if ( kw.size() != 0 ){
       throw XmlError( "declaration: expected 'annotator', 'annotatortype', 'alias' or 'datetime', got '" + kw.begin()->first + "'" );
     }
-    declare( type, st, a, t, d, alias );
+    set<string> processors; // HACK. this is evil
+    declare( type, st, a, t, d, processors, alias );
   }
 
   string getNow() {
@@ -1485,6 +1532,7 @@ namespace folia {
 			  const string& annotator,
 			  const string& annotator_type,
 			  const string& date_time,
+			  const set<string>& processors,
 			  const string& _alias ){
     if ( debug ){
       cerr << "declare( " << setname << "," << annotator << "'"
@@ -1523,7 +1571,7 @@ namespace folia {
 	d = getNow();
       }
       _annotationdefaults[type].insert( make_pair( setname,
-						   at_t(annotator,annotator_type,d) ) );
+						   at_t(annotator,annotator_type,d,processors) ) );
       _anno_sort.push_back(make_pair(type,setname));
       _annotationrefs[type][setname] = 0;
       if ( !_alias.empty() ){
@@ -1800,31 +1848,59 @@ namespace folia {
       const auto& mm = _annotationdefaults.find(type);
       auto it = mm->second.lower_bound(sett);
       while ( it != mm->second.upper_bound(sett) ){
-	KWargs args;
 	string s = it->second.a;
-	if ( !s.empty() )
-	  args["annotator"] = s;
-	s = it->second.t;
-	if ( !s.empty() )
-	  args["annotatortype"] = s;
-	if ( !strip() ){
-	  s = it->second.d;
+	if ( !s.empty() ){
+	  // old style
+	  KWargs args;
+	  if ( !s.empty() ){
+	    args["annotator"] = s;
+	  }
+	  s = it->second.t;
 	  if ( !s.empty() )
-	    args["datetime"] = s;
+	    args["annotatortype"] = s;
+	  if ( !strip() ){
+	    s = it->second.d;
+	    if ( !s.empty() )
+	      args["datetime"] = s;
+	  }
+	  s = it->first;
+	  if ( s != "undefined" ) // the default
+	    args["set"] = s;
+	  const auto& ti = _set_alias.find(type);
+	  if ( ti != _set_alias.end() ){
+	    const auto& alias = ti->second.find(s);
+	    if ( alias->second != s ){
+	      args["alias"] = alias->second;
+	    }
+	  }
+	  xmlNode *n = TiCC::XmlNewNode( foliaNs(), label );
+	  addAttributes( n, args );
+	  xmlAddChild( node, n );
 	}
-	s = it->first;
-	if ( s != "undefined" ) // the default
-	  args["set"] = s;
-	const auto& ti = _set_alias.find(type);
-	if ( ti != _set_alias.end() ){
-	  const auto& alias = ti->second.find(s);
-	  if ( alias->second != s ){
-	    args["alias"] = alias->second;
+	else {
+	  // we have new style processors
+	  KWargs args;
+	  s = it->first;
+	  if ( s != "undefined" ) // the default
+	    args["set"] = s;
+	  const auto& ti = _set_alias.find(type);
+	  if ( ti != _set_alias.end() ){
+	    const auto& alias = ti->second.find(s);
+	    if ( alias->second != s ){
+	      args["alias"] = alias->second;
+	    }
+	  }
+	  xmlNode *n = TiCC::XmlNewNode( foliaNs(), label );
+	  addAttributes( n, args );
+	  xmlAddChild( node, n );
+	  args.clear();
+	  for ( const auto& p : it->second.p ){
+	    xmlNode *a = TiCC::XmlNewNode( foliaNs(), "annotator" );
+	    args["processor"] = p;
+	    addAttributes( a, args );
+	    xmlAddChild( n, a );
 	  }
 	}
-	xmlNode *n = TiCC::XmlNewNode( foliaNs(), label );
-	addAttributes( n, args );
-	xmlAddChild( node, n );
 	++it;
       }
     }
@@ -1835,11 +1911,13 @@ namespace folia {
     KWargs atts;
     atts["xml:id"] = p.id;
     atts["name"] = p.name;
-    atts["type"] = p.type;
+    if ( p.type != "auto" ){
+      atts["type"] = p.type;
+    }
     if ( !p.version.empty() ){
       atts["version"] = p.version;
     }
-    if ( !p.version.empty() ){
+    if ( !p.document_version.empty() ){
       atts["document_version"] = p.document_version;
     }
     if ( !p.command.empty() ){
@@ -1862,6 +1940,9 @@ namespace folia {
     }
     if ( !p.resourcelink.empty() ){
       atts["resourcelink"] = p.resourcelink;
+    }
+    if ( !p.user.empty() ){
+      atts["user"] = p.user;
     }
     addAttributes( pr, atts );
     for ( const auto& it : p.metadata ){

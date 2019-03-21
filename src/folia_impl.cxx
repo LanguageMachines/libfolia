@@ -350,7 +350,7 @@ namespace folia {
     val = kwargs.extract( "annotator" );
     if ( !val.empty() ) {
       if ( !(ANNOTATOR & supported) ) {
-	throw ValueError("Annotator is not supported for " + classname() );
+	throw ValueError("attribute 'annotator' is not supported for " + classname() );
       }
       else {
 	_annotator = val;
@@ -361,6 +361,18 @@ namespace folia {
       if ( mydoc &&
 	   (def = mydoc->defaultannotator( annotation_type(), _set )) != "" ) {
 	_annotator = def;
+      }
+    }
+    val = kwargs.extract( "processor" );
+    if ( !val.empty() ){
+      if ( !(ANNOTATOR & supported) ){
+	throw ValueError("attribute 'processor' is not supported for " + classname() );
+      }
+      else {
+	if ( mydoc && mydoc->get_processor(val) == 0 ){
+	  throw ValueError("attribute 'processor' has unknown value: " + val );
+	}
+	_processor = val;
       }
     }
 
@@ -663,6 +675,9 @@ namespace folia {
 	 _annotator != mydoc->defaultannotator( annotation_type(), _set ) ) {
       isDefaultAnn = false;
       attribs["annotator"] = _annotator;
+    }
+    if ( !_processor.empty() ){
+      attribs["processor"] = _processor;
     }
     if ( xlink() ) {
       auto it = _xlink.find("type");

@@ -195,6 +195,8 @@ namespace folia {
     virtual const std::string annotator( ) const = 0;
     virtual void annotator( const std::string& ) = 0;
     virtual AnnotatorType annotatortype() const = 0;
+    virtual const std::string processor() const = 0;
+    virtual void processor( const std::string& ) = 0;
     virtual void annotatortype( AnnotatorType t ) =  0;
     virtual AnnotationType::AnnotationType annotation_type() const = 0;
     virtual PosAnnotation *addPosAnnotation( const KWargs& ) NOT_IMPLEMENTED;
@@ -561,6 +563,8 @@ namespace folia {
 
     const std::string annotator( ) const { return _annotator; };
     void annotator( const std::string& a ) { _annotator = a; };
+    const std::string processor( ) const { return _processor; };
+    void processor( const std::string& p ) { _processor = p; };
     AnnotatorType annotatortype() const { return _annotator_type; };
     void annotatortype( AnnotatorType t ) { _annotator_type =  t; };
 
@@ -568,21 +572,6 @@ namespace folia {
       F *addAnnotation( const KWargs& args ) {
       return FoliaElement::addAnnotation<F>( args );
     }
-
-    /* template <typename F> */
-    /*   std::vector<F*> annotations( const std::string& s = "" ) const { */
-    /*   return FoliaElement::annotations<F>( s ); */
-    /* } */
-
-    /* template <typename F> */
-    /*   int hasannotation( const std::string& st = "" ) const { */
-    /*   return FoliaElement::hasannotation<F>(st); */
-    /* } */
-
-    /* template <typename F> */
-    /*   F *annotation( const std::string& st = "" ) const { */
-    /*   return FoliaElement::annotation<F>(st); */
-    /* } */
 
     // Span annotations
     std::vector<AbstractSpanAnnotation*> selectSpan() const;
@@ -702,6 +691,7 @@ namespace folia {
     std::string _speaker;
     std::string _textclass;
     std::string _metadata;
+    std::string _processor;
     AnnotatorType _annotator_type;
     double _confidence;
     int _refcount;
