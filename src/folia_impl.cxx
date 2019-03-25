@@ -307,10 +307,13 @@ namespace folia {
 			  "for " + toString( annotation_type() ) + "-annotation" );
       }
     }
-    else {
-      string def;
-      if ( mydoc && ( def = mydoc->defaultset( annotation_type() )) != "" ) {
+    else if ( mydoc ){
+      string def = mydoc->defaultset( annotation_type() );
+      if ( !def.empty() ){
 	_set = def;
+      }
+      else if ( CLASS & required_attributes() ){
+	throw XmlError( "unable to assign a default set for tag: " + xmltag() );
       }
     }
 
@@ -374,6 +377,10 @@ namespace folia {
 	}
 	_processor = val;
       }
+    }
+    else if ( mydoc ){
+      string def = mydoc->defaultprocessor( annotation_type(), _set );
+      _processor = def;
     }
 
     _annotator_type = UNDEFINED;

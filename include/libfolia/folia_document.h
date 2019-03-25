@@ -174,6 +174,8 @@ namespace folia {
 
     std::string defaultdatetime( AnnotationType::AnnotationType,
 				 const std::string& ="" ) const;
+    std::string defaultprocessor( AnnotationType::AnnotationType,
+				  const std::string& ="" ) const;
 
     FoliaElement* parseXml( );
 

@@ -1796,8 +1796,9 @@ namespace folia {
     const auto& mit1 = _annotationdefaults.find(type);
     if ( mit1 != _annotationdefaults.end() ){
       // cerr << "vind tussen " <<  mit1->second << endl;
-      if ( mit1->second.size() == 1 )
+      if ( mit1->second.size() == 1 ){
 	result = mit1->second.begin()->first;
+      }
     }
     // cerr << "defaultset ==> " << result << endl;
     return result;
@@ -1875,6 +1876,32 @@ namespace folia {
     }
     //  cerr << "get default ==> " << result << endl;
     return result;
+  }
+
+  string Document::defaultprocessor( AnnotationType::AnnotationType annotationtype,
+				     const string& set_name ) const{
+    if ( debug ){
+      cerr << "defaultprocessor(" << toString( annotationtype ) << ","
+	   << set_name << ")" << endl;
+    }
+    auto const& it = _annotationdefaults.find(annotationtype);
+    if ( it != _annotationdefaults.end() ){
+      auto const s_it = it->second.find(set_name);
+      if ( s_it != it->second.end() ){
+	set<string> results = s_it->second.p;
+	if ( results.size() == 1 ){
+	  return *results.begin();
+	}
+	else {
+	  auto const& as = annotationtype_xml_map.find(annotationtype);
+	  if ( as != annotationtype_xml_map.end() ){
+	    throw NoDefaultError("No processor specified for <"
+				 + as->second +  ">, but the presence of multiple declarations prevent assigning a default");
+	  }
+	}
+      }
+    }
+    return "";
   }
 
   void Document::setannotations( xmlNode *md ) const {
