@@ -246,6 +246,7 @@ namespace folia {
   private:
     void adjustTextMode();
     std::map<AnnotationType::AnnotationType,std::multimap<std::string,at_t> > _annotationdefaults;
+    std::map<AnnotationType::AnnotationType,std::map<std::string,bool> > _groupannotations;
     std::vector<std::pair<AnnotationType::AnnotationType,std::string>> _anno_sort;
     std::map<AnnotationType::AnnotationType,std::map<std::string,int> > _annotationrefs;
     std::map<AnnotationType::AnnotationType,std::map<std::string,std::string>> _alias_set;

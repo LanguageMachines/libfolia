@@ -651,7 +651,7 @@ namespace folia {
 	string prefix = tag.substr( 0,  tag.length() - 11 );
 	AnnotationType::AnnotationType at_type = stringToAT( prefix );
 	if ( debug ){
-	  cerr << "parse " << tag << "-annotation" << endl;
+	  cerr << "parse " << prefix << "-annotation" << endl;
 	}
 	KWargs att = getAttributes( n );
 	string st;
@@ -659,6 +659,7 @@ namespace folia {
 	string ann_type;
 	string datetime;
 	string alias;
+	ElementType et = BASE;
 	auto it = att.find("set" );
 	if ( it != att.end() ){
 	  st = it->second;
@@ -672,7 +673,8 @@ namespace folia {
 	    throw logic_error( "no matching element_type for annotation_type: "
 			       + prefix );
 	  }
-	  FoliaElement *tmp = AbstractElement::createElement( et_it->second );
+	  et = et_it->second;
+	  FoliaElement *tmp = AbstractElement::createElement( et );
 	  if ( tmp->required_attributes() & Attrib::CLASS ) {
 	    delete tmp;
 	    throw XmlError( "setname may not be empty for " + prefix
@@ -695,10 +697,31 @@ namespace folia {
 	if ( it != att.end() ){
 	  alias = it->second;
 	}
+	it = att.find( "groupannotations" );
+	if ( it != att.end() ){
+	  if ( !isSubClass( et, AbstractSpanAnnotation_t ) ){
+	    throw XmlError( "attribute 'groupannotations' not allowed for '"
+			    + prefix + "-annotation" );
+	  }
+	  if ( it->second == "yes"
+	       || it->second == "true" ){
+	    _groupannotations[at_type][st] = true;
+	  }
+	  else {
+	    throw XmlError( "invalid value '" + it->second
+			    + "' for attribute groupannotations" );
+	  }
+	}
+	else {
+	  _groupannotations[at_type][st] = false;
+	}
 	set<string> processors;
 	xmlNode *sub = n->children;
 	while ( sub ){
 	  string subtag = TiCC::Name( sub );
+	  if ( debug ){
+	    cerr << "parse subtag:" << subtag << endl;
+	  }
 	  if ( subtag == "annotator" ){
 	    KWargs args = getAttributes( sub );
 	    if ( args["processor"].empty() ){
@@ -715,6 +738,9 @@ namespace folia {
 		 processors, alias );
       }
       n = n->next;
+    }
+    if ( debug ){
+      cerr << "all group annotations: " << _groupannotations << endl;
     }
   }
 
@@ -1535,8 +1561,9 @@ namespace folia {
 			  const set<string>& processors,
 			  const string& _alias ){
     if ( debug ){
-      cerr << "declare( " << setname << "," << annotator << "'"
-	   << annotator_type << "'" << date_time << "'" << _alias << ")" << endl;
+      cerr << "declare( " << toString(type) << "," << setname << "," << annotator << ","
+	   << annotator_type << "," << date_time << "," << _alias << ","
+	   << processors << ") " << endl;
     }
     if ( !_alias.empty() ){
       string set_ali = alias(type,setname);
@@ -1687,26 +1714,39 @@ namespace folia {
 			     const string& set_name,
 			     const string& annotator,
 			     const string& annotator_type){
+    if ( debug ){
+      cerr << "isdeclared? ( " << toString(type) << "," << set_name << ","
+	   << annotator << "," << annotator_type << "," << ") " << endl;
+    }
     //
     // We DO NOT check the date. if all parameters match, it is OK
     //
-    if ( set_name.empty() ){
-      return true;
-      throw runtime_error("isDeclared called with empty set.");
-    }
+    // if ( set_name.empty() ){
+    //   return true;
+    //   throw runtime_error("isDeclared called with empty set.");
+    // }
     if ( type == AnnotationType::NO_ANN ){
+      if ( debug ){
+	cerr << "\t\t TRUE want NO_ANN" << endl;
+      }
       return true;
     }
     string setname = unalias(type,set_name);
-
     const auto& it1 = _annotationdefaults.find(type);
     if ( it1 != _annotationdefaults.end() ){
       auto mit2 = it1->second.lower_bound(setname);
       while ( mit2 != it1->second.upper_bound(setname) ){
-	if ( mit2->second.a == annotator && mit2->second.t == annotator_type )
+	if ( mit2->second.a == annotator && mit2->second.t == annotator_type ){
+	  if ( debug ){
+	    cerr << "\t\t TRUE want match" << endl;
+	  }
 	  return true;
+	}
 	++mit2;
       }
+    }
+    if ( debug ){
+      cerr << "\t\t FALSE, want niks" << endl;
     }
     return false;
   }
@@ -1866,6 +1906,15 @@ namespace folia {
 	  s = it->first;
 	  if ( s != "undefined" ) // the default
 	    args["set"] = s;
+	  auto const& t_it = _groupannotations.find(type);
+	  if ( t_it != _groupannotations.end() ){
+	    auto const& s_it = t_it->second.find(s);
+	    if ( s_it != t_it->second.end()
+		&& s_it->second ){
+	      args["groupannotations"] = "yes";
+	    }
+	  }
+
 	  const auto& ti = _set_alias.find(type);
 	  if ( ti != _set_alias.end() ){
 	    const auto& alias = ti->second.find(s);
@@ -1890,6 +1939,15 @@ namespace folia {
 	      args["alias"] = alias->second;
 	    }
 	  }
+	  auto const& t_it = _groupannotations.find(type);
+	  if ( t_it != _groupannotations.end() ){
+	    auto const& s_it = t_it->second.find(s);
+	    if ( s_it != t_it->second.end()
+		&& s_it->second ){
+	      args["groupannotations"] = "yes";
+	    }
+	  }
+
 	  xmlNode *n = TiCC::XmlNewNode( foliaNs(), label );
 	  addAttributes( n, args );
 	  xmlAddChild( node, n );
