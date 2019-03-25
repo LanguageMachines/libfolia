@@ -1886,13 +1886,19 @@ namespace folia {
     }
     auto const& it = _annotationdefaults.find(annotationtype);
     if ( it != _annotationdefaults.end() ){
+      if ( debug ){
+	cerr << "found some defs: " << it->second << endl;
+      }
       auto const s_it = it->second.find(set_name);
       if ( s_it != it->second.end() ){
 	set<string> results = s_it->second.p;
+	if ( debug ){
+	  cerr << "found strings: " << results << endl;
+	}
 	if ( results.size() == 1 ){
 	  return *results.begin();
 	}
-	else {
+	else if ( results.size() > 1 ){
 	  auto const& as = annotationtype_xml_map.find(annotationtype);
 	  if ( as != annotationtype_xml_map.end() ){
 	    throw NoDefaultError("No processor specified for <"
