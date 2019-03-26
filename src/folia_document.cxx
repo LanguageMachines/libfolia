@@ -1931,21 +1931,23 @@ namespace folia {
       if ( debug ){
 	cerr << "found some defs: " << it->second << endl;
       }
-      auto const s_it = it->second.find(set_name);
-      if ( s_it != it->second.end() ){
-	set<string> results = s_it->second.p;
+      set<string> results;
+      auto s_it = it->second.find(set_name);
+      while ( s_it != it->second.end() ){
 	if ( debug ){
-	  cerr << "found strings: " << results << endl;
+	  cerr << "found sub strings: " << s_it->second << endl;
 	}
-	if ( results.size() == 1 ){
-	  return *results.begin();
-	}
-	else if ( results.size() > 1 ){
-	  auto const& as = annotationtype_xml_map.find(annotationtype);
-	  if ( as != annotationtype_xml_map.end() ){
-	    throw NoDefaultError("No processor specified for <"
-				 + as->second +  ">, but the presence of multiple declarations prevent assigning a default");
-	  }
+	results.insert( s_it->second.p.begin(), s_it->second.p.end() );
+	++s_it;
+      }
+      if ( results.size() == 1 ){
+	return *results.begin();
+      }
+      else if ( results.size() > 1 ){
+	auto const& as = annotationtype_xml_map.find(annotationtype);
+	if ( as != annotationtype_xml_map.end() ){
+	  throw NoDefaultError("No processor specified for <"
+			       + as->second +  ">, but the presence of multiple declarations prevent assigning a default");
 	}
       }
     }
