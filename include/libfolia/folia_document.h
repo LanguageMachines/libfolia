@@ -167,6 +167,11 @@ namespace folia {
 		     const std::string&,
 		     const std::set<std::string>& );
     bool isDeclared( AnnotationType::AnnotationType, const std::string& = "" );
+    bool declared( AnnotationType::AnnotationType at,
+		   const std::string& s="" ){
+      return isDeclared( at, s );
+    }
+    bool declared( ElementType, const std::string& = "" );
     std::string unalias( AnnotationType::AnnotationType,
 			 const std::string& ) const;
     std::string alias( AnnotationType::AnnotationType,

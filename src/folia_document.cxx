@@ -1829,6 +1829,14 @@ namespace folia {
     return false;
   }
 
+  bool Document::declared( ElementType et,
+			   const string& setname ){
+    FoliaElement *tmp = AbstractElement::createElement( et );
+    AnnotationType::AnnotationType at = tmp->annotation_type();
+    delete tmp;
+    return isDeclared( at, setname );
+  }
+
   string Document::defaultset( AnnotationType::AnnotationType type ) const {
     if ( type == AnnotationType::NO_ANN )
       return "";
