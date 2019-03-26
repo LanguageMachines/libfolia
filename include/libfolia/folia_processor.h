@@ -83,7 +83,7 @@ namespace folia {
 		  const std::string& = "" );
     bool is_declared( AnnotationType::AnnotationType,
 		      const std::string&, const std::string&,
-		      const std::string& ) const;
+		      const std::string&, const std::string& = "" ) const;
     void set_metadata( const std::string&, const std::string& );
     bool set_debug( bool d );
     void set_dbg_stream( TiCC::LogStream * );

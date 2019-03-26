@@ -163,12 +163,13 @@ namespace folia {
   bool Processor::is_declared( AnnotationType::AnnotationType at,
 			       const string& setname,
 			       const string& annotator,
-			       const string& annotator_type ) const {
+			       const string& annotator_type,
+			       const string& processor ) const {
     if ( !ok() ){
       throw logic_error( "is_declared() called on invalid processor!" );
     }
     else {
-      return _out_doc->isDeclared( at, setname, annotator, annotator_type );
+      return _out_doc->isDeclared( at, setname, annotator, annotator_type, processor );
     }
   }
 

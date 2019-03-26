@@ -159,7 +159,13 @@ namespace folia {
     bool isDeclared( AnnotationType::AnnotationType,
 		     const std::string&,
 		     const std::string&,
+		     const std::string&,
 		     const std::string& );
+    bool isDeclared( AnnotationType::AnnotationType,
+		     const std::string&,
+		     const std::string&,
+		     const std::string&,
+		     const std::set<std::string>& );
     bool isDeclared( AnnotationType::AnnotationType, const std::string& = "" );
     std::string unalias( AnnotationType::AnnotationType,
 			 const std::string& ) const;
@@ -306,10 +312,7 @@ namespace folia {
     return os;
   }
 
-  inline std::ostream& operator<<( std::ostream& os, const Document::at_t& at ){
-    os << "<" << at.a << "," << at.t << "," << at.d << ">";
-    return os;
-  }
+  std::ostream& operator<<( std::ostream& os, const Document::at_t& at );
 
   void expand_version_string( const std::string&,
 			      int&, int&, int&, std::string& );

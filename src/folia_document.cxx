@@ -56,6 +56,11 @@ namespace folia {
     // a NO_OP now
   }
 
+  inline std::ostream& operator<<( std::ostream& os, const Document::at_t& at ){
+    os << "<" << at.a << "," << at.t << "," << at.d << "," << at.p << ">";
+    return os;
+  }
+
   bool checkNS( const xmlNode *n, const string& ns ){
     string tns = TiCC::getNS(n);
     if ( tns == ns )
@@ -680,6 +685,7 @@ namespace folia {
 	    throw XmlError( "setname may not be empty for " + prefix
 			    + "-annotation" );
 	  }
+	  //	  st = "default";
 	  delete tmp;
 	}
 	it = att.find( "annotator" );
@@ -1491,7 +1497,8 @@ namespace folia {
   }
 
   void Document::declare( AnnotationType::AnnotationType type,
-			  const string& setname, const string& args ){
+			  const string& setname,
+			  const string& args ){
     string st = setname;
     if ( st.empty() ){
       if ( version_below( 1, 6 ) ){
@@ -1588,7 +1595,7 @@ namespace folia {
 			+ ali_set );
       }
     }
-    if ( !isDeclared( type, setname, annotator, annotator_type ) ){
+    if ( !isDeclared( type, setname, annotator, annotator_type, processors ) ){
       if ( !unalias(type,setname).empty()
 	   && unalias(type,setname) != setname ){
 	throw XmlError( "setname: " + setname + " is also in use as an alias" );
@@ -1713,10 +1720,12 @@ namespace folia {
   bool Document::isDeclared( AnnotationType::AnnotationType type,
 			     const string& set_name,
 			     const string& annotator,
-			     const string& annotator_type){
+			     const string& annotator_type,
+			     const string& processor ){
     if ( debug ){
       cerr << "isdeclared? ( " << toString(type) << "," << set_name << ","
-	   << annotator << "," << annotator_type << "," << ") " << endl;
+	   << annotator << "," << annotator_type << "," << processor
+	   << ") " << endl;
     }
     //
     // We DO NOT check the date. if all parameters match, it is OK
@@ -1731,14 +1740,29 @@ namespace folia {
       }
       return true;
     }
+    if ( !processor.empty()
+	 && !get_processor( processor ) ){
+      throw XmlError( toString(type)
+		      + "-annotation is referring an undefined processor '"
+		      + processor + "'" );
+    }
     string setname = unalias(type,set_name);
     const auto& it1 = _annotationdefaults.find(type);
     if ( it1 != _annotationdefaults.end() ){
+      if ( debug > 2){
+	cerr << "OK, found an entry for type: " << toString(type) << endl;
+      }
       auto mit2 = it1->second.lower_bound(setname);
       while ( mit2 != it1->second.upper_bound(setname) ){
-	if ( mit2->second.a == annotator && mit2->second.t == annotator_type ){
+	if ( debug > 2){
+	  cerr << "OK, found an entry for set='" << setname  << "'" << endl;
+	  cerr << "content: " << mit2->second << endl;
+	}
+	if ( mit2->second.a == annotator
+	     && mit2->second.t == annotator_type
+	     && mit2->second.p.find(processor) != mit2->second.p.end() ){
 	  if ( debug ){
-	    cerr << "\t\t TRUE want match" << endl;
+	    cerr << "\t\t isDeclared ==> TRUE" << endl;
 	  }
 	  return true;
 	}
@@ -1746,9 +1770,27 @@ namespace folia {
       }
     }
     if ( debug ){
-      cerr << "\t\t FALSE, want niks" << endl;
+      cerr << "\t\t isDeclared() ==> FALSE" << endl;
     }
     return false;
+  }
+
+  bool Document::isDeclared( AnnotationType::AnnotationType type,
+			     const string& set_name,
+			     const string& annotator,
+			     const string& annotator_type,
+			     const set<string>& processors ){
+    if ( processors.empty() ){
+      return isDeclared( type, set_name, annotator, annotator_type, "" );
+    }
+    else {
+      for ( const auto& s : processors ){
+	if ( isDeclared( type, set_name, annotator, annotator_type, s ) ){
+	  return true;
+	}
+      }
+      return false;
+    }
   }
 
   void Document::incrRef( AnnotationType::AnnotationType type,
