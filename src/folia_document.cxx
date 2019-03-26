@@ -1760,7 +1760,8 @@ namespace folia {
 	}
 	if ( mit2->second.a == annotator
 	     && mit2->second.t == annotator_type
-	     && mit2->second.p.find(processor) != mit2->second.p.end() ){
+	     && ( mit2->second.p.empty()
+		  || mit2->second.p.find(processor) != mit2->second.p.end() ) ){
 	  if ( debug ){
 	    cerr << "\t\t isDeclared ==> TRUE" << endl;
 	  }
@@ -1832,17 +1833,17 @@ namespace folia {
     if ( type == AnnotationType::NO_ANN )
       return "";
     // search a set. it must be unique. Otherwise return ""
-    // cerr << "document: " << doc_version() << endl;
-    // cerr << "zoek '" << type << "' default set " <<  _annotationdefaults << endl;
+    // cerr << "zoek voor '" << toString(type) << "' de default set in:" << endl
+    // 	 <<  _annotationdefaults << endl;
     string result;
     const auto& mit1 = _annotationdefaults.find(type);
     if ( mit1 != _annotationdefaults.end() ){
-      // cerr << "vind tussen " <<  mit1->second << endl;
+      //      cerr << "vind tussen " <<  mit1->second << endl;
       if ( mit1->second.size() == 1 ){
 	result = mit1->second.begin()->first;
       }
     }
-    // cerr << "defaultset ==> " << result << endl;
+    //    cerr << "defaultset ==> " << result << endl;
     return result;
   }
 
@@ -2007,7 +2008,7 @@ namespace folia {
 	  // we have new style processors
 	  KWargs args;
 	  s = it->first;
-	  if ( s != "undefined" ) // the default
+	  if ( !s.empty() && s != "undefined" ) // the default
 	    args["set"] = s;
 	  const auto& ti = _set_alias.find(type);
 	  if ( ti != _set_alias.end() ){
