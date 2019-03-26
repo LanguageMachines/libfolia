@@ -1721,7 +1721,7 @@ namespace folia {
 			     const string& set_name,
 			     const string& annotator,
 			     const string& annotator_type,
-			     const string& processor ){
+			     const string& processor ) const {
     if ( debug ){
       cerr << "isdeclared? ( " << toString(type) << "," << set_name << ","
 	   << annotator << "," << annotator_type << "," << processor
@@ -1780,7 +1780,7 @@ namespace folia {
 			     const string& set_name,
 			     const string& annotator,
 			     const string& annotator_type,
-			     const set<string>& processors ){
+			     const set<string>& processors ) const {
     if ( processors.empty() ){
       return isDeclared( type, set_name, annotator, annotator_type, "" );
     }
@@ -1815,7 +1815,7 @@ namespace folia {
   }
 
   bool Document::isDeclared( AnnotationType::AnnotationType type,
-			     const string& setname ){
+			     const string& setname ) const {
     if ( type == AnnotationType::NO_ANN ){
       return true;
     }
@@ -1830,7 +1830,7 @@ namespace folia {
   }
 
   bool Document::declared( ElementType et,
-			   const string& setname ){
+			   const string& setname ) const {
     FoliaElement *tmp = AbstractElement::createElement( et );
     AnnotationType::AnnotationType at = tmp->annotation_type();
     delete tmp;
