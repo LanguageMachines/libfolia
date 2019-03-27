@@ -762,26 +762,6 @@ namespace folia {
     }
   }
 
-  class processor {
-  public:
-    processor( const xmlNode * );
-    //  private:
-    string name;
-    string id;
-    string type;
-    string version;
-    string document_version;
-    string folia_version;
-    string command;
-    string host;
-    string user;
-    string begindatetime;
-    string enddatetime;
-    string resourcelink;
-    map<string,string> metadata;
-    vector<processor> processors;
-  };
-
   ostream& operator<<( ostream& os, const processor& p ){
     os << "PROCESSOR: " << p.name << endl;
     os << "id=" << p.id << endl;
@@ -903,7 +883,7 @@ namespace folia {
     }
   }
 
-  const processor *Provenance::get_processor( const string& id ){
+  const processor *Provenance::get_processor( const string& id ) const {
     if ( _index.empty() ){
       for ( const auto& p : processors ){
 	fill_index( p, _index );
@@ -1867,6 +1847,33 @@ namespace folia {
     return result;
   }
 
+  vector<string> Document::getannotators( AnnotationType::AnnotationType type,
+					  const string& st ) const {
+    vector<string> result;
+    if ( type == AnnotationType::NO_ANN ){
+      return result;
+    }
+    const auto& mit1 = _annotationdefaults.find(type);
+    if ( mit1 != _annotationdefaults.end() ){
+      //      cerr << "vond iets voor " << toString(type) << endl;
+      for ( auto pos = mit1->second.lower_bound(st);
+	    pos != mit1->second.upper_bound(st);
+	    ++pos ){
+	if ( !pos->second.a.empty() ){
+	  result.push_back( pos->second.a );
+	}
+	else {
+	  for ( const auto& p : pos->second.p ){
+	    result.push_back( p );
+	  }
+	}
+      }
+    }
+    //    cerr << "get default ==> " << result << endl;
+    return result;
+
+  }
+
   string Document::defaultannotator( AnnotationType::AnnotationType type,
 				     const string& st ) const {
     if ( type == AnnotationType::NO_ANN ){
@@ -1973,6 +1980,32 @@ namespace folia {
       }
     }
     return "";
+  }
+
+  vector<string> Document::getprocessors( AnnotationType::AnnotationType type,
+					  const string& st ) const {
+    vector<string> result;
+    if ( debug ){
+      cerr << "getprocessors(" << toString( type ) << ","
+	   << st << ")" << endl;
+    }
+    if ( type == AnnotationType::NO_ANN ){
+      return result;
+    }
+    auto const& it = _annotationdefaults.find(type);
+    if ( it != _annotationdefaults.end() ){
+      if ( debug ){
+	cerr << "found some defs: " << it->second << endl;
+      }
+      for ( auto pos = it->second.lower_bound(st);
+	    pos != it->second.upper_bound(st);
+	    ++pos ){
+	for ( const auto& p : pos->second.p ){
+	  result.push_back( p );
+	}
+      }
+    }
+    return result;
   }
 
   void Document::setannotations( xmlNode *md ) const {

@@ -77,17 +77,40 @@ namespace folia {
   class Word;
   class Sentence;
   class Paragraph;
-  class processor;
+
+  class processor {
+  public:
+    processor( const xmlNode * );
+    //  private:
+    std::string name;
+    std::string id;
+    std::string type;
+    std::string version;
+    std::string document_version;
+    std::string folia_version;
+    std::string command;
+    std::string host;
+    std::string user;
+    std::string begindatetime;
+    std::string enddatetime;
+    std::string resourcelink;
+    std::map<std::string,std::string> metadata;
+    std::vector<processor> processors;
+  };
+
 
   class Provenance {
   public:
-    const processor *get_processor( const std::string& );
+    const processor *get_processor( const std::string& ) const;
     xmlNode *xml();
     Provenance *parseXml( const xmlNode * );
     std::vector<processor> processors;
-    std::map<std::string,const processor*> _index;
+    mutable std::map<std::string,const processor*> _index;
+    const processor* operator []( const std::string& s ) const {
+      //select i'th element from data
+      return get_processor( s );
+    };
   };
-
 
   class Document {
     friend bool operator==( const Document&, const Document& );
@@ -178,6 +201,12 @@ namespace folia {
 			 const std::string& ) const;
     std::string alias( AnnotationType::AnnotationType,
 		       const std::string& ) const;
+
+    std::vector<std::string> getannotators( AnnotationType::AnnotationType,
+					    const std::string& ="" ) const;
+    std::vector<std::string> getprocessors( AnnotationType::AnnotationType,
+					    const std::string& ="" ) const;
+
     std::string defaultset( AnnotationType::AnnotationType ) const;
 
     std::string defaultannotator( AnnotationType::AnnotationType,
@@ -258,6 +287,7 @@ namespace folia {
     std::map<AnnotationType::AnnotationType,std::multimap<std::string,at_t> > annotationdefaults() const { return _annotationdefaults; };
     void parse_metadata( const xmlNode * );
     void setDocumentProps( KWargs& );
+    Provenance *provenance() const { return _provenance;};
   private:
     void adjustTextMode();
     std::map<AnnotationType::AnnotationType,std::multimap<std::string,at_t> > _annotationdefaults;
