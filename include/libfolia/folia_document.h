@@ -97,9 +97,10 @@ namespace folia {
   public:
     Document();
     explicit Document( const KWargs& );
-    explicit Document( const std::string& s): Document( getArgs(s) ){};
+    explicit Document( const std::string& );
     ~Document();
     void init();
+    void init_args( const KWargs& );
     bool readFromFile( const std::string& );
     bool readFromString( const std::string& );
     bool save( std::ostream&, const std::string&, bool = false ) const;

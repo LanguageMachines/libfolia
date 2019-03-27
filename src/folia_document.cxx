@@ -92,7 +92,7 @@ namespace folia {
     init();
   }
 
-  Document::Document( const KWargs& kwargs ) {
+  void Document::init_args( const KWargs& kwargs ){
     init();
     KWargs args = kwargs;
     auto it = args.find( "debug" );
@@ -131,6 +131,18 @@ namespace folia {
       }
       foliadoc = new FoLiA( args, this );
     }
+  }
+
+  Document::Document( const KWargs& kwargs ) {
+    init_args( kwargs );
+  }
+
+  Document::Document( const string& s ) {
+    KWargs args = getArgs(s);
+    if ( args.empty() ){
+      args["file"] = s;
+    }
+    init_args( args );
   }
 
   string folia_version(){
