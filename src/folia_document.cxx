@@ -1982,9 +1982,9 @@ namespace folia {
     return "";
   }
 
-  vector<string> Document::getprocessors( AnnotationType::AnnotationType type,
-					  const string& st ) const {
-    vector<string> result;
+  vector<const processor*> Document::getprocessors( AnnotationType::AnnotationType type,
+					     const string& st ) const {
+    vector<const processor*> result;
     if ( debug ){
       cerr << "getprocessors(" << toString( type ) << ","
 	   << st << ")" << endl;
@@ -2001,7 +2001,7 @@ namespace folia {
 	    pos != it->second.upper_bound(st);
 	    ++pos ){
 	for ( const auto& p : pos->second.p ){
-	  result.push_back( p );
+	  result.push_back( get_processor(p) );
 	}
       }
     }

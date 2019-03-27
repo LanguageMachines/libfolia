@@ -204,7 +204,7 @@ namespace folia {
 
     std::vector<std::string> getannotators( AnnotationType::AnnotationType,
 					    const std::string& ="" ) const;
-    std::vector<std::string> getprocessors( AnnotationType::AnnotationType,
+    std::vector<const processor *> getprocessors( AnnotationType::AnnotationType,
 					    const std::string& ="" ) const;
 
     std::string defaultset( AnnotationType::AnnotationType ) const;
