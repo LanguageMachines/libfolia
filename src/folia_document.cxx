@@ -1859,13 +1859,8 @@ namespace folia {
       for ( auto pos = mit1->second.lower_bound(st);
 	    pos != mit1->second.upper_bound(st);
 	    ++pos ){
-	if ( !pos->second.a.empty() ){
-	  result.push_back( pos->second.a );
-	}
-	else {
-	  for ( const auto& p : pos->second.p ){
-	    result.push_back( p );
-	  }
+	for ( const auto& p : pos->second.p ){
+	  result.push_back( p );
 	}
       }
     }
