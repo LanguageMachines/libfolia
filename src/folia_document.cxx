@@ -628,7 +628,21 @@ namespace folia {
   }
 
   const processor *Document::get_processor( const string& type ) const {
-    return _provenance->get_processor( type );
+    if ( _provenance ){
+      return _provenance->get_processor( type );
+    }
+    else {
+      return 0;
+    }
+  }
+
+  void Document::add_processor( const KWargs& args ){
+    if ( !_provenance ){
+      _provenance = new Provenance();
+    }
+    processor *p = new processor();
+    p->init( args );
+    _provenance->processors.push_back( p );
   }
 
   void Document::set_foreign_metadata( xmlNode *node ){
@@ -794,6 +808,31 @@ namespace folia {
 
   processor::processor( const xmlNode *node ) {
     KWargs atts = getAttributes( node );
+    init( atts );
+    xmlNode *n = node->children;
+    while ( n ){
+      string tag = TiCC::Name( n );
+      if ( tag == "processor" ){
+     	processor *p = new processor(n);
+	_processors.push_back(p);
+      }
+      if ( tag == "meta" ){
+	KWargs atts = getAttributes( n );
+	string id = atts["id"];
+	if ( id.empty() ){
+	  throw XmlError( "processor: missing 'id' for meta tag" );
+	}
+	if ( atts.size() != 1 ){
+	  throw XmlError( "processor: invalid attribute(s) in meta tag" );
+	}
+	string value = TiCC::XmlContent( n );
+	_metadata[id] = value;
+      }
+      n = n->next;
+    }
+  }
+
+  void processor::init( const KWargs& atts ) {
     for ( const auto& att : atts ){
       if ( att.first == "begindatetime" ){
 	_begindatetime = att.second;
@@ -801,7 +840,8 @@ namespace folia {
       else if ( att.first == "enddatetime" ){
 	_enddatetime = att.second;
       }
-      else if ( att.first == "xml:id" ){
+      else if ( att.first == "id"
+		|| att.first == "xml:id" ){
 	_id = att.second;
       }
       else if ( att.first == "name" ){
@@ -850,27 +890,6 @@ namespace folia {
 	      && _type != "datasource" ){
       throw XmlError( "processor: invalid value for 'type' attribute: "
 		      + _type );
-    }
-    xmlNode *n = node->children;
-    while ( n ){
-      string tag = TiCC::Name( n );
-      if ( tag == "processor" ){
-     	processor *p = new processor(n);
-	_processors.push_back(p);
-      }
-      if ( tag == "meta" ){
-	KWargs atts = getAttributes( n );
-	string id = atts["id"];
-	if ( id.empty() ){
-	  throw XmlError( "processor: missing 'id' for meta tag" );
-	}
-	if ( atts.size() != 1 ){
-	  throw XmlError( "processor: invalid attribute(s) in meta tag" );
-	}
-	string value = TiCC::XmlContent( n );
-	_metadata[id] = value;
-      }
-      n = n->next;
     }
   }
 

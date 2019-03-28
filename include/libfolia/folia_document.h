@@ -83,7 +83,9 @@ namespace folia {
     friend class Document;
   public:
     processor( const xmlNode * );
+    processor(){};
     ~processor();
+    void init( const KWargs& );
     std::string name() const { return _name; };
     std::string annotator() const { return _name; };
     std::string id() const { return _id; };
@@ -235,6 +237,7 @@ namespace folia {
     std::string alias( AnnotationType::AnnotationType,
 		       const std::string& ) const;
 
+    void add_processor( const KWargs& );
     std::vector<std::string> getannotators( AnnotationType::AnnotationType,
 					    const std::string& ="" ) const;
     std::vector<const processor *> getprocessors( AnnotationType::AnnotationType,
