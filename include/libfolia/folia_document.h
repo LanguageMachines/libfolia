@@ -77,40 +77,73 @@ namespace folia {
   class Word;
   class Sentence;
   class Paragraph;
+  class Document;
 
   class processor {
+    friend class Document;
   public:
     processor( const xmlNode * );
-    //  private:
-    std::string name;
-    std::string id;
-    std::string type;
-    std::string version;
-    std::string document_version;
-    std::string folia_version;
-    std::string command;
-    std::string host;
-    std::string user;
-    std::string begindatetime;
-    std::string enddatetime;
-    std::string resourcelink;
-    std::map<std::string,std::string> metadata;
-    std::vector<processor> processors;
+    ~processor();
+    std::string name() const { return _name; };
+    std::string annotator() const { return _name; };
+    std::string id() const { return _id; };
+    std::string type() const { return _type; };
+    std::string annotatortype() const { return _type; };
+    std::string version() const { return _version; } ;
+    std::string document_version() const { return _document_version; };
+    std::string folia_version() const { return _folia_version; };
+    std::string command() const { return _command; };
+    std::string host() const { return _host; };
+    std::string user() const { return _user; };
+    std::string begindatetime() const { return _begindatetime; };
+    std::string enddatetime() const { return _enddatetime; };
+    std::string resourcelink() const { return _resourcelink; };
+    std::vector<processor*> processors() const { return _processors; };
+    void print( std::ostream&, const int ) const;
+  private:
+    std::string _name;
+    std::string _id;
+    std::string _type;
+    std::string _version;
+    std::string _document_version;
+    std::string _folia_version;
+    std::string _command;
+    std::string _host;
+    std::string _user;
+    std::string _begindatetime;
+    std::string _enddatetime;
+    std::string _resourcelink;
+    std::map<std::string,std::string> _metadata;
+    std::vector<processor*> _processors;
   };
 
+  std::ostream& operator<<( std::ostream&, const processor& );
+  std::ostream& operator<<( std::ostream&, const processor * );
 
   class Provenance {
   public:
+    Provenance(){};
+    ~Provenance();
     const processor *get_processor( const std::string& ) const;
     xmlNode *xml();
     Provenance *parseXml( const xmlNode * );
-    std::vector<processor> processors;
-    mutable std::map<std::string,const processor*> _index;
+    std::vector<processor*> processors;
     const processor* operator []( const std::string& s ) const {
-      //select i'th element from data
+      //select processor with index s
       return get_processor( s );
     };
+    const processor* index( const std::string& s ) const {
+      //select processor with index s
+      return get_processor( s );
+    };
+  private:
+    Provenance( const Provenance& ); // inhibit copy
+    Provenance& operator=( const Provenance& ); // inhibit copies
   };
+
+  std::ostream& operator<<( std::ostream&, const Provenance& );
+  std::ostream& operator<<( std::ostream&, const Provenance * );
+
 
   class Document {
     friend bool operator==( const Document&, const Document& );
@@ -205,7 +238,7 @@ namespace folia {
     std::vector<std::string> getannotators( AnnotationType::AnnotationType,
 					    const std::string& ="" ) const;
     std::vector<const processor *> getprocessors( AnnotationType::AnnotationType,
-					    const std::string& ="" ) const;
+						  const std::string& ="" ) const;
 
     std::string defaultset( AnnotationType::AnnotationType ) const;
 
@@ -263,6 +296,7 @@ namespace folia {
     void decrRef( AnnotationType::AnnotationType, const std::string& );
     void setmode( const std::string& ) const;
     std::string getmode() const;
+    int setdebug( int val ){ int ret=debug; debug=val; return ret;};
     std::multimap<AnnotationType::AnnotationType,std::string> unused_declarations( ) const;
     const MetaData *get_submetadata( const std::string& m ){
       const auto& it = submetadata.find( m );
@@ -309,7 +343,7 @@ namespace folia {
     void setmetadata( xmlNode * ) const;
     void addsubmetadata( xmlNode *) const;
     void setstyles( xmlDoc* ) const;
-    void append_processor( xmlNode *, const processor& ) const;
+    void append_processor( xmlNode *, const processor * ) const;
     xmlDoc *to_xmlDoc( const std::string& ="", bool=false ) const;
     std::map<std::string, FoliaElement* > sindex;
     std::vector<FoliaElement* > iindex;

@@ -762,85 +762,101 @@ namespace folia {
     }
   }
 
+  void processor::print( ostream& os, const int indent ) const {
+    string space = string(indent,'\t');
+    os << space << "name=" << _name << endl;
+    os << space << "id=" << _id << endl;
+    os << space << "version=" << _version << endl;
+    os << space << "type=" << _type << endl;
+    os << space << "folia_version=" << _folia_version << endl;
+    os << space << "document_version=" << _document_version << endl;
+    os << space << "command=" << _command << endl;
+    os << space << "host=" << _host << endl << endl;
+    for( const auto& c : _processors ){
+      c->print( os, indent+1 );
+    }
+  }
+
   ostream& operator<<( ostream& os, const processor& p ){
-    os << "PROCESSOR: " << p.name << endl;
-    os << "id=" << p.id << endl;
-    os << "version=" << p.version << endl;
-    os << "type=" << p.type << endl;
-    os << "folia_version=" << p.folia_version << endl;
-    os << "document_version=" << p.document_version << endl;
-    os << "command=" << p.command << endl;
-    os << "host=" << p.host << endl;
-    for( const auto& c : p.processors ){
-      os << c << endl;
+    p.print( os, 0 );
+    return os;
+  }
+
+  ostream& operator<<( ostream& os, const processor *p ){
+    if ( p ){
+      p->print( os, 0 );
+    }
+    else {
+      os << "NO PROCESSOR";
     }
     return os;
   }
 
-  processor::processor( const xmlNode *node ){
+  processor::processor( const xmlNode *node ) {
     KWargs atts = getAttributes( node );
     for ( const auto& att : atts ){
       if ( att.first == "begindatetime" ){
-	begindatetime = att.second;
+	_begindatetime = att.second;
       }
       else if ( att.first == "enddatetime" ){
-	enddatetime = att.second;
+	_enddatetime = att.second;
       }
       else if ( att.first == "xml:id" ){
-	id = att.second;
+	_id = att.second;
       }
       else if ( att.first == "name" ){
-	name = att.second;
+	_name = att.second;
       }
       else if ( att.first == "version" ){
-	version = att.second;
+	_version = att.second;
       }
       else if ( att.first == "document_version" ){
-	document_version = att.second;
+	_document_version = att.second;
       }
       else if ( att.first == "command" ){
-	command = att.second;
+	_command = att.second;
       }
       else if ( att.first == "folia_version" ){
-	folia_version = att.second;
+	_folia_version = att.second;
       }
       else if ( att.first == "folia_version" ){
-	folia_version = att.second;
+	_folia_version = att.second;
       }
       else if ( att.first == "type" ){
-	type = att.second;
+	_type = att.second;
       }
       else if ( att.first == "host" ){
-	host = att.second;
+	_host = att.second;
       }
       else if ( att.first == "resourcelink" ){
-	resourcelink = att.second;
+	_resourcelink = att.second;
       }
       else if ( att.first == "user" ){
-	user = att.second;
+	_user = att.second;
       }
     }
-    if ( id.empty() ){
+    if ( _id.empty() ){
       throw XmlError( "processor: missing 'xml:id' attribute" );
     }
-    if ( name.empty() ){
+    if ( _name.empty() ){
       throw XmlError( "processor: missing 'name' attribute" );
     }
-    if ( type.empty() ){
-      type = "auto";
+    if ( _type.empty() ){
+      _type = "auto";
     }
-    else if ( type != "auto"
-	      && type != "manual"
-	      && type != "generator"
-	      && type != "datasource" ){
-      throw XmlError( "processor: invalid value for 'type' attribute: " + type );
+    else if ( _type != "auto"
+	      && _type != "manual"
+	      && _type != "generator"
+	      && _type != "datasource" ){
+      throw XmlError( "processor: invalid value for 'type' attribute: "
+		      + _type );
     }
     xmlNode *n = node->children;
     while ( n ){
       string tag = TiCC::Name( n );
       if ( tag == "processor" ){
-     	processor p(n);
-	processors.emplace_back(p);
+     	processor *p = new processor(n);
+	_processors.push_back(p);
       }
       if ( tag == "meta" ){
 	KWargs atts = getAttributes( n );
@@ -852,16 +868,24 @@ namespace folia {
 	  throw XmlError( "processor: invalid attribute(s) in meta tag" );
 	}
 	string value = TiCC::XmlContent( n );
-	metadata[id] = value;
+	_metadata[id] = value;
       }
       n = n->next;
     }
   }
 
+  processor::~processor(){
+    for ( const auto& p : _processors ){
+      delete p;
+    }
+  }
+
+
   ostream& operator<<( ostream& os, const Provenance& p ){
     os << "provenance data" << endl;
     for ( const auto& pr : p.processors ){
-      os << "\t\t" << pr << endl;
+      pr->print( os, 2 );
+      os << endl;
     }
     return os;
   }
@@ -876,20 +900,39 @@ namespace folia {
     return os;
   }
 
-  void fill_index( const processor& proc, map<string,const processor*>& index ){
-    index[proc.id] = &proc;
-    for ( const auto& p : proc.processors ){
+  void fill_index( const processor *proc, map<string,const processor*>& index ){
+    // cerr << "fill: " << proc->id() << " with " << proc->name()
+    // 	 << " adres: " << (void*)proc << endl;
+    index[proc->id()] = proc;
+    for ( const auto& p : proc->processors() ){
       fill_index( p, index );
+    }
+    //    cerr << "INDEX is gevuld!: " << endl;
+    // for ( const auto& it: index ){
+    //   cerr << it.first << " " << it.second->id() <<  " adres: "
+    // 	   << (void*)(it.second)  << endl;
+    // }
+  }
+
+  Provenance::~Provenance(){
+    for ( const auto& p : processors ){
+      delete p;
     }
   }
 
-  const processor *Provenance::get_processor( const string& id ) const {
+  const processor *Provenance::get_processor( const string& pid ) const {
+    std::map<std::string,const processor*> _index;
+    //    cerr << "zoek: " << pid << endl;
     if ( _index.empty() ){
       for ( const auto& p : processors ){
 	fill_index( p, _index );
       }
     }
-    const auto& p = _index.find( id );
+    // cerr << "UITEINDELIJK INDEX is gevuld!: " << endl;
+    // for ( const auto& it: _index ){
+    //   cerr << it.first << " " << it.second->id() << endl;
+    // }
+    const auto& p = _index.find( pid );
     if ( p != _index.end() ){
       return p->second;
     }
@@ -904,7 +947,7 @@ namespace folia {
     while ( n ){
       string tag = TiCC::Name( n );
       if ( tag == "processor" ){
-	result->processors.emplace_back( processor(n) );
+	result->processors.push_back( new processor(n) );
       }
       n = n->next;
     }
@@ -2090,53 +2133,53 @@ namespace folia {
     }
   }
 
-  void Document::append_processor( xmlNode *node, const processor& p ) const {
+  void Document::append_processor( xmlNode *node, const processor *p ) const {
     xmlNode *pr = xmlAddChild( node, TiCC::XmlNewNode( foliaNs(), "processor" ) );
     KWargs atts;
-    atts["xml:id"] = p.id;
-    atts["name"] = p.name;
-    if ( p.type != "auto" ){
-      atts["type"] = p.type;
+    atts["xml:id"] = p->_id;
+    atts["name"] = p->_name;
+    if ( p->_type != "auto" ){
+      atts["type"] = p->_type;
     }
-    if ( !p.version.empty() ){
-      atts["version"] = p.version;
+    if ( !p->_version.empty() ){
+      atts["version"] = p->_version;
     }
-    if ( !p.document_version.empty() ){
-      atts["document_version"] = p.document_version;
+    if ( !p->_document_version.empty() ){
+      atts["document_version"] = p->_document_version;
     }
-    if ( !p.command.empty() ){
-      atts["command"] = p.command;
+    if ( !p->_command.empty() ){
+      atts["command"] = p->_command;
     }
-    if ( !p.host.empty() ){
-      atts["host"] = p.host;
+    if ( !p->_host.empty() ){
+      atts["host"] = p->_host;
     }
-    if ( !p.user.empty() ){
-      atts["user"] = p.host;
+    if ( !p->_user.empty() ){
+      atts["user"] = p->_user;
     }
-    if ( !p.folia_version.empty() ){
-      atts["folia_version"] = p.folia_version;
+    if ( !p->_folia_version.empty() ){
+      atts["folia_version"] = p->_folia_version;
     }
-    if ( !p.begindatetime.empty() ){
-      atts["begindatetime"] = p.begindatetime;
+    if ( !p->_begindatetime.empty() ){
+      atts["begindatetime"] = p->_begindatetime;
     }
-    if ( !p.enddatetime.empty() ){
-      atts["enddatetime"] = p.enddatetime;
+    if ( !p->_enddatetime.empty() ){
+      atts["enddatetime"] = p->_enddatetime;
     }
-    if ( !p.resourcelink.empty() ){
-      atts["resourcelink"] = p.resourcelink;
+    if ( !p->_resourcelink.empty() ){
+      atts["resourcelink"] = p->_resourcelink;
     }
-    if ( !p.user.empty() ){
-      atts["user"] = p.user;
+    if ( !p->_user.empty() ){
+      atts["user"] = p->_user;
     }
     addAttributes( pr, atts );
-    for ( const auto& it : p.metadata ){
+    for ( const auto& it : p->_metadata ){
       xmlNode *m = xmlAddChild( pr, TiCC::XmlNewNode( foliaNs(), "meta" ) );
       KWargs args;
       args["id"] = it.first;
       addAttributes( m, args );
       xmlAddChild( m, xmlNewText( (const xmlChar*)it.second.c_str()) );
     }
-    for ( const auto& s : p.processors ){
+    for ( const auto& s : p->_processors ){
       append_processor( pr, s );
     }
   }
