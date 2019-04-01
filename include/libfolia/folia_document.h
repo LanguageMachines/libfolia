@@ -238,7 +238,7 @@ namespace folia {
     std::string alias( AnnotationType::AnnotationType,
 		       const std::string& ) const;
 
-    void add_processor( const KWargs& );
+    processor *add_processor( const KWargs&, processor * =0 );
     std::vector<std::string> getannotators( AnnotationType::AnnotationType,
 					    const std::string& ="" ) const;
     std::vector<const processor *> getprocessors( AnnotationType::AnnotationType,

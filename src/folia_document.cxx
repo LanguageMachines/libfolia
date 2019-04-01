@@ -648,9 +648,12 @@ namespace folia {
     }
   }
 
-  void Document::add_processor( const KWargs& args ){
-    if ( !_provenance ){
-      _provenance = new Provenance();
+  processor *Document::add_processor( const KWargs& args,
+				      processor *parent ){
+    if ( !parent ){
+      if ( !_provenance ){
+	_provenance = new Provenance();
+      }
     }
     processor *p = new processor();
     p->init( args );
@@ -664,7 +667,13 @@ namespace folia {
       sub->_name = "libfolia";
       p->_processors.push_back(sub);
     }
-    _provenance->processors.push_back( p );
+    if ( parent ){
+      parent->_processors.push_back( p );
+    }
+    else {
+      _provenance->processors.push_back( p );
+    }
+    return p;
   }
 
   void Document::set_foreign_metadata( xmlNode *node ){
