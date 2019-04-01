@@ -1729,8 +1729,27 @@ namespace folia {
       if ( d == "now()" ){
 	d = getNow();
       }
-      _annotationdefaults[type].insert( make_pair( setname,
-						   at_t(annotator,annotator_type,d,processors) ) );
+      if ( processors.empty() ){
+	// old style
+	_annotationdefaults[type].insert( make_pair( setname,
+						     at_t(annotator,annotator_type,d,processors) ) );
+      }
+      else {
+	// new style
+	auto set_pos = _annotationdefaults[type].find(setname);
+	if ( set_pos == _annotationdefaults[type].end() ){
+	  // no processer annotations yet
+	  _annotationdefaults[type].insert( make_pair( setname,
+						       at_t(annotator,annotator_type,d,processors) ) );
+
+	}
+	else {
+	  // add to the existing
+	  for ( const auto& p : processors ){
+	    set_pos->second.p.insert( p );
+	  }
+	}
+      }
       _anno_sort.push_back(make_pair(type,setname));
       _annotationrefs[type][setname] = 0;
       if ( !_alias.empty() ){
@@ -2138,12 +2157,17 @@ namespace folia {
 
   void Document::setannotations( xmlNode *md ) const {
     xmlNode *node = xmlAddChild( md, TiCC::XmlNewNode( foliaNs(), "annotations" ) );
+    set<string> done;
     for ( const auto& pair : _anno_sort ){
       // Find the 'label'
       AnnotationType::AnnotationType type = pair.first;
-      string label = toString( type );
-      label += "-annotation";
       string sett = pair.second;
+      string label = toString( type );
+      if ( done.find(label+sett) != done.end() ){
+	continue;
+      }
+      done.insert(label+sett);
+      label += "-annotation";
       const auto& mm = _annotationdefaults.find(type);
       auto it = mm->second.lower_bound(sett);
       while ( it != mm->second.upper_bound(sett) ){
@@ -2232,7 +2256,6 @@ namespace folia {
 	      args["groupannotations"] = "yes";
 	    }
 	  }
-
 	  xmlNode *n = TiCC::XmlNewNode( foliaNs(), label );
 	  addAttributes( n, args );
 	  xmlAddChild( node, n );
