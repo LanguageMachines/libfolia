@@ -52,13 +52,23 @@ using namespace icu;
 namespace folia {
   using TiCC::operator<<;
 
-  void initMT(){
-    // a NO_OP now
-  }
+  string DEFAULT_TEXT_SET = "https://raw.githubusercontent.com/proycon/folia/master/setdefinitions/text.foliaset.ttl";
+  string DEFAULT_PHON_SET =" https://raw.githubusercontent.com/proycon/folia/master/setdefinitions/phon.foliaset.ttl";
 
   inline std::ostream& operator<<( std::ostream& os, const Document::at_t& at ){
     os << "<" << at.a << "," << at.t << "," << at.d << "," << at.p << ">";
     return os;
+  }
+
+  string getNow() {
+    time_t Time;
+    time(&Time);
+    tm curtime;
+    localtime_r(&Time,&curtime);
+    char buf[256];
+    strftime( buf, 100, "%Y-%m-%dT%X", &curtime );
+    string res = buf;
+    return res;
   }
 
   bool checkNS( const xmlNode *n, const string& ns ){
@@ -183,6 +193,8 @@ namespace folia {
     major_version = 0;
     minor_version = 0;
     sub_version = 0;
+    declare( AnnotationType::TEXT, DEFAULT_TEXT_SET );
+    declare( AnnotationType::PHON, DEFAULT_PHON_SET );
   }
 
   Document::~Document(){
@@ -642,6 +654,16 @@ namespace folia {
     }
     processor *p = new processor();
     p->init( args );
+    if ( args.find("generator") == args.end() ){
+      processor *sub = new processor();
+      //      sub->set_system_defaults();
+      sub->_folia_version = folia_version();
+      sub->_version = library_version();
+      sub->_id = p->_id + ".generator";
+      sub->_type = "generator";
+      sub->_name = "libfolia";
+      p->_processors.push_back(sub);
+    }
     _provenance->processors.push_back( p );
   }
 
@@ -697,6 +719,18 @@ namespace folia {
 	}
 	else if ( version_below( 1, 6 ) ){
 	  st = "undefined"; // default value
+	}
+	else if ( at_type == AnnotationType::TEXT ){
+	  if ( true ){
+	    cerr << "assign default for TEXT: " <<  DEFAULT_TEXT_SET << endl;
+	  }
+	  st = DEFAULT_TEXT_SET;
+	}
+	else if ( at_type == AnnotationType::PHON ){
+	  if ( true ){
+	    cerr << "assign default for PHON: " <<  DEFAULT_PHON_SET << endl;
+	  }
+	  st = DEFAULT_PHON_SET;
 	}
 	else {
 	  auto et_it = annotationtype_elementtype_map.find( at_type );
@@ -804,6 +838,49 @@ namespace folia {
       os << "NO PROCESSOR";
     }
     return os;
+  }
+
+  #include <sys/types.h>
+  #include <sys/socket.h>
+  #include <unistd.h>
+  #include <netdb.h>
+  string getfqdn( ){
+    string result;
+    struct addrinfo hints, *info, *p;
+    int gai_result;
+
+    char hostname[1024];
+    hostname[1023] = '\0';
+    gethostname(hostname, 1023);
+
+    memset(&hints, 0, sizeof hints);
+    hints.ai_family = AF_UNSPEC; /*either IPV4 or IPV6*/
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_flags = AI_CANONNAME;
+
+    if ((gai_result = getaddrinfo(hostname, "http", &hints, &info)) != 0) {
+      fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(gai_result));
+      exit(1);
+    }
+
+    for(p = info; p != NULL; p = p->ai_next) {
+      //      printf("hostname: %s\n", p->ai_canonname);
+      result = p->ai_canonname;
+      break;
+    }
+    freeaddrinfo(info);
+    return result;
+  }
+
+  processor::processor(){
+  }
+
+  void processor::set_system_defaults(){
+    _host = getfqdn();
+    _begindatetime = getNow();
+    _folia_version = folia_version();
+    _version = library_version();
+    _type = "generator";
   }
 
   processor::processor( const xmlNode *node ) {
@@ -1563,31 +1640,25 @@ namespace folia {
 			+ "-annotation" );
       }
     }
+    set<string> processors;
     KWargs kw = getArgs( args );
     string a = kw["annotator"];
     string t = kw["annotatortype"];
     string d = kw["datetime"];
     string alias = kw["alias"];
+    string processor = kw["processor"];
+    if ( !processor.empty() ){
+      processors.insert( processor );
+    }
     kw.erase("annotator");
     kw.erase("annotatortype");
     kw.erase("datetime");
     kw.erase("alias");
+    kw.erase("processor");
     if ( kw.size() != 0 ){
-      throw XmlError( "declaration: expected 'annotator', 'annotatortype', 'alias' or 'datetime', got '" + kw.begin()->first + "'" );
+      throw XmlError( "declaration: expected 'annotator', 'annotatortype', 'processor', 'alias' or 'datetime', got '" + kw.begin()->first + "'" );
     }
-    set<string> processors; // HACK. this is evil
     declare( type, st, a, t, d, processors, alias );
-  }
-
-  string getNow() {
-    time_t Time;
-    time(&Time);
-    tm curtime;
-    localtime_r(&Time,&curtime);
-    char buf[256];
-    strftime( buf, 100, "%Y-%m-%dT%X", &curtime );
-    string res = buf;
-    return res;
   }
 
   string Document::unalias( AnnotationType::AnnotationType type,
@@ -2092,8 +2163,21 @@ namespace folia {
 	      args["datetime"] = s;
 	  }
 	  s = it->first;
-	  if ( s != "undefined" ) // the default
-	    args["set"] = s;
+	  if ( s != "undefined" ){ // the default
+	    if ( s == DEFAULT_TEXT_SET
+		 || s == DEFAULT_PHON_SET ){
+	      if ( debug ){
+		cerr << "skip adding default " << label
+		     << " set: " << s << endl;
+	      }
+	      // skip complete!
+	      ++it;
+	      continue;
+	    }
+	    else {
+	      args["set"] = s;
+	    }
+	  }
 	  auto const& t_it = _groupannotations.find(type);
 	  if ( t_it != _groupannotations.end() ){
 	    auto const& s_it = t_it->second.find(s);
@@ -2118,8 +2202,21 @@ namespace folia {
 	  // we have new style processors
 	  KWargs args;
 	  s = it->first;
-	  if ( !s.empty() && s != "undefined" ) // the default
-	    args["set"] = s;
+	  if ( !s.empty() && s != "undefined" ){ // the default
+	    if ( s == DEFAULT_TEXT_SET
+		 || s == DEFAULT_PHON_SET ){
+	      if ( debug ){
+		cerr << "skip adding default " << label
+		     << " set: " << s << endl;
+	      }
+	      // skip complete!
+	      ++it;
+	      continue;
+	    }
+	    else {
+	      args["set"] = s;
+	    }
+	  }
 	  const auto& ti = _set_alias.find(type);
 	  if ( ti != _set_alias.end() ){
 	    const auto& alias = ti->second.find(s);
@@ -2160,8 +2257,21 @@ namespace folia {
     if ( p->_type != "auto" ){
       atts["type"] = p->_type;
     }
-    if ( !p->_version.empty() ){
-      atts["version"] = p->_version;
+    if ( !strip() ){
+      if ( !p->_version.empty() ){
+	atts["version"] = p->_version;
+      }
+      if ( !p->_folia_version.empty() ){
+	atts["folia_version"] = p->_folia_version;
+      }
+    }
+    else {
+      if ( p->_name == "libfolia" ){
+	atts["name"] = "stripped";
+      }
+      else if ( p->_name == "foliapy" ){
+	atts["name"] = "stripped";
+      }
     }
     if ( !p->_document_version.empty() ){
       atts["document_version"] = p->_document_version;
@@ -2174,9 +2284,6 @@ namespace folia {
     }
     if ( !p->_user.empty() ){
       atts["user"] = p->_user;
-    }
-    if ( !p->_folia_version.empty() ){
-      atts["folia_version"] = p->_folia_version;
     }
     if ( !p->_begindatetime.empty() ){
       atts["begindatetime"] = p->_begindatetime;

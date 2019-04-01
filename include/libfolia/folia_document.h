@@ -83,9 +83,10 @@ namespace folia {
     friend class Document;
   public:
     processor( const xmlNode * );
-    processor(){};
+    processor();
     ~processor();
     void init( const KWargs& );
+    void set_system_defaults();
     std::string name() const { return _name; };
     std::string annotator() const { return _name; };
     std::string id() const { return _id; };
