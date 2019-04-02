@@ -828,7 +828,7 @@ namespace folia {
 
   class AbstractWord: public virtual FoliaElement {
     /// Interface class that is inherited by word-like (wrefable)
-    /// elements (Word, Hiddenword, Morpheme)
+    /// elements (Word, Hiddenword, Morpheme, Phoneme)
   public:
     Sentence *sentence() const;
     Paragraph *paragraph() const;
@@ -1691,17 +1691,20 @@ namespace folia {
     static properties PROPS;
   };
 
-  class Phoneme: public AbstractSubtokenAnnotation {
-    friend void static_init();
-  public:
-    explicit Phoneme( Document *d=0 ):
-    AbstractSubtokenAnnotation( PROPS, d ){ classInit(); }
-  Phoneme( const KWargs& a, Document *d = 0 ):
-    AbstractSubtokenAnnotation( PROPS, d ){ classInit( a ); }
+  class Phoneme:
+    public AbstractSubtokenAnnotation,
+    public AbstractWord
+    {
+      friend void static_init();
+    public:
+      explicit Phoneme( Document *d=0 ):
+      AbstractSubtokenAnnotation( PROPS, d ){ classInit(); }
+    Phoneme( const KWargs& a, Document *d = 0 ):
+      AbstractSubtokenAnnotation( PROPS, d ){ classInit( a ); }
 
-  private:
-    static properties PROPS;
-  };
+    private:
+      static properties PROPS;
+    };
 
   class DomainAnnotation: public AbstractInlineAnnotation {
     friend void static_init();
@@ -2502,17 +2505,20 @@ namespace folia {
     static properties PROPS;
   };
 
-  class Morpheme: public AbstractSubtokenAnnotation {
-    friend void static_init();
-  public:
-    explicit Morpheme( Document *d=0 ):
-    AbstractSubtokenAnnotation( PROPS, d ){ classInit(); }
-  Morpheme( const KWargs& a, Document *d = 0 ):
-    AbstractSubtokenAnnotation( PROPS, d ){ classInit( a ); }
+  class Morpheme:
+    public AbstractSubtokenAnnotation,
+    public AbstractWord
+    {
+      friend void static_init();
+    public:
+      explicit Morpheme( Document *d=0 ):
+      AbstractSubtokenAnnotation( PROPS, d ){ classInit(); }
+    Morpheme( const KWargs& a, Document *d = 0 ):
+      AbstractSubtokenAnnotation( PROPS, d ){ classInit( a ); }
 
-  private:
-    static properties PROPS;
-  };
+    private:
+      static properties PROPS;
+    };
 
   class SyntaxLayer: public AbstractAnnotationLayer {
     friend void static_init();
