@@ -147,6 +147,7 @@ namespace folia {
 			   const string& annotator,
 			   const string& annotator_type,
 			   const string& time,
+			   const set<string>& processors,
 			   const string& alias ) {
     if ( !ok() ){
       throw logic_error( "declare() called on invalid processor!" );
@@ -155,8 +156,8 @@ namespace folia {
       throw logic_error( "declare() called on already (partially) saved document!" );
     }
     else {
-      set<string> HACK;
-      _out_doc->declare( at, setname, annotator, annotator_type, time, HACK, alias );
+      _out_doc->declare( at, setname, annotator, annotator_type, time,
+			 processors, alias );
     }
   }
 

@@ -80,6 +80,7 @@ namespace folia {
     void declare( AnnotationType::AnnotationType,
 		  const std::string&, const std::string&,
 		  const std::string&, const std::string&,
+		  const std::set<std::string>&,
 		  const std::string& = "" );
     bool is_declared( AnnotationType::AnnotationType,
 		      const std::string&, const std::string&,
