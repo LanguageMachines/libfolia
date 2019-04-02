@@ -253,14 +253,26 @@ namespace folia {
       if ( mod == "permissive" ){
 	mode = Mode( (int)mode | PERMISSIVE );
       }
+      else if ( mod == "nopermissive" ){
+	mode = Mode( (int)mode & ~PERMISSIVE );
+      }
       else if ( mod == "strip" ){
 	mode = Mode( (int)mode | STRIP );
+      }
+      else if ( mod == "nostrip" ){
+	mode = Mode( (int)mode & ~STRIP );
+      }
+      else if ( mod == "checktext" ){
+	mode = Mode( int(mode) | CHECKTEXT );
       }
       else if ( mod == "nochecktext" ){
 	mode = Mode( int(mode) & ~CHECKTEXT );
       }
       else if ( mod == "fixtext" ){
 	mode = Mode( int(mode) | FIXTEXT );
+      }
+      else if ( mod == "nofixtext" ){
+	mode = Mode( int(mode) & ~FIXTEXT );
       }
       else {
 	throw runtime_error( "FoLiA::Document: unsupported mode value: "+ mod );
@@ -284,6 +296,52 @@ namespace folia {
     }
     return result;
   }
+
+  bool Document::set_strip( bool new_val ) const{
+    bool old_val = (mode & STRIP);
+    if ( new_val ){
+      mode = Mode( (int)mode | STRIP );
+    }
+    else {
+      mode = Mode( (int)mode & ~STRIP );
+    }
+    return old_val;
+  }
+
+  bool Document::set_permissive( bool new_val ) const{
+    bool old_val = (mode & PERMISSIVE);
+    if ( new_val ){
+      mode = Mode( (int)mode | PERMISSIVE );
+    }
+    else {
+      mode = Mode( (int)mode & ~PERMISSIVE );
+    }
+    return old_val;
+  }
+
+  bool Document::set_checktext( bool new_val ) const{
+    bool old_val = (mode & CHECKTEXT);
+    if ( new_val ){
+      mode = Mode( (int)mode | CHECKTEXT );
+    }
+    else {
+      mode = Mode( (int)mode & ~CHECKTEXT );
+    }
+    return old_val;
+  }
+
+
+  bool Document::set_fixtext( bool new_val ) const{
+    bool old_val = (mode & FIXTEXT);
+    if ( new_val ){
+      mode = Mode( (int)mode | FIXTEXT );
+    }
+    else {
+      mode = Mode( (int)mode & ~FIXTEXT );
+    }
+    return old_val;
+  }
+
 
   void Document::addDocIndex( FoliaElement* el, const string& s ){
     if ( s.empty() ) {
@@ -2303,6 +2361,12 @@ namespace folia {
       }
       else if ( p->_name == "foliapy" ){
 	atts["name"] = "stripped";
+      }
+      if ( !p->_version.empty() ){
+	atts["version"] = "stripped";
+      }
+      if ( !p->_folia_version.empty() ){
+	atts["folia_version"] = "stripped";
       }
     }
     if ( !p->_document_version.empty() ){

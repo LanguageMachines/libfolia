@@ -284,6 +284,10 @@ namespace folia {
       return mode & FIXTEXT;
     };
     bool strip() const { return mode & STRIP; };
+    bool set_permissive( bool ) const; // defines const, but the mode is mutable!
+    bool set_checktext( bool ) const; // defines const, but the mode is mutable!
+    bool set_fixtext( bool ) const; // defines const, but the mode is mutable!
+    bool set_strip( bool ) const; // defines const, but the mode is mutable!
     class at_t {
       friend std::ostream& operator<<( std::ostream&, const at_t& );
     public:
