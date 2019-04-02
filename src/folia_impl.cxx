@@ -76,8 +76,22 @@ namespace folia {
     return _props.OPTIONAL_ATTRIBS;
   }
 
+  map<const string, const string> reverse_old;
+
   const string& AbstractElement::xmltag() const {
-    return _props.XMLTAG;
+    if ( reverse_old.empty() ){
+      for ( const auto& it : oldtags ){
+	reverse_old.insert( make_pair(it.second, it.first) );
+      }
+    }
+    const string& result = _props.XMLTAG;
+    if ( mydoc && mydoc->version_below(1,6) ){
+      const auto& it = reverse_old.find(result);
+      if ( it != reverse_old.end() ){
+	return it->second;
+      }
+    }
+    return result;
   }
 
   const string& AbstractElement::default_subset() const {
