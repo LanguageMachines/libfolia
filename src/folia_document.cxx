@@ -2139,7 +2139,7 @@ namespace folia {
   }
 
   vector<const processor*> Document::getprocessors( AnnotationType::AnnotationType type,
-					     const string& st ) const {
+						    const string& st ) const {
     vector<const processor*> result;
     if ( debug ){
       cerr << "getprocessors(" << toString( type ) << ","

@@ -626,10 +626,6 @@ namespace folia {
   void AbstractElement::addFeatureNodes( const KWargs& kwargs ) {
     for ( const auto& it: kwargs ) {
       string tag = it.first;
-      if ( tag == "processor" ){
-	// forward compatability to FoLiA 2.0 Just discard
-	continue;
-      }
       if ( tag == "head" ) {
 	// "head" is special because the tag is "headfeature"
 	// this to avoid conflicts with the "head" tag!
@@ -684,7 +680,18 @@ namespace folia {
       attribs["annotator"] = _annotator;
     }
     if ( !_processor.empty() ){
-      attribs["processor"] = _processor;
+      string tmp;
+      try {
+	tmp = mydoc->defaultprocessor( annotation_type(), _set );
+      }
+      catch ( NoDefaultError ){
+      }
+      catch ( ... ){
+	throw;
+      }
+      if ( tmp != _processor ){
+	attribs["processor"] = _processor;
+      }
     }
     if ( xlink() ) {
       auto it = _xlink.find("type");
