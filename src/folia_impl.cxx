@@ -3364,7 +3364,7 @@ namespace folia {
     AbstractElement::setAttributes(args);
   }
 
-  void AbstractStructureElement::setAttributes( const KWargs& args_in ) {
+  void Word::setAttributes( const KWargs& args_in ) {
     KWargs args = args_in;
     auto it = args.find( "space" );
     if ( it != args.end() ) {
@@ -3373,20 +3373,15 @@ namespace folia {
       }
       args.erase( it );
     }
-    AbstractElement::setAttributes( args );
-  }
-
-  void Word::setAttributes( const KWargs& args_in ) {
-    KWargs args = args_in;
-    auto it = args.find( "text" );
+    it = args.find( "text" );
     if ( it != args.end() ) {
       settext( it->second );
       args.erase( it );
     }
-    AbstractStructureElement::setAttributes( args );
+    AbstractElement::setAttributes( args );
   }
 
-  KWargs AbstractStructureElement::collectAttributes() const {
+  KWargs Word::collectAttributes() const {
     KWargs atts = AbstractElement::collectAttributes();
     if ( !_space ) {
       atts["space"] = "no";
@@ -3394,7 +3389,7 @@ namespace folia {
     return atts;
   }
 
-  const string& AbstractStructureElement::getTextDelimiter( bool retaintok ) const {
+  const string& Word::getTextDelimiter( bool retaintok ) const {
     if ( _space || retaintok ) {
       return PROPS.TEXTDELIMITER;
     }
@@ -4751,7 +4746,7 @@ namespace folia {
     _offset = -1;
   }
 
-  void AbstractStructureElement::init() {
+  void Word::init() {
     _space = true;
   }
 

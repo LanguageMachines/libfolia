@@ -822,14 +822,8 @@ namespace folia {
       Word *words( size_t, const std::string& ="" ) const;
       Word *rwords( size_t, const std::string& ="" ) const;
       const Word* resolveword( const std::string& ) const;
-      void setAttributes( const KWargs& );
-      KWargs collectAttributes() const;
-      bool space() const { return _space; };
-      const std::string& getTextDelimiter( bool=false) const;
-  private:
-      void init();
+    private:
       static properties PROPS;
-      bool _space;
     };
 
   class AbstractWord: public virtual FoliaElement {
@@ -1377,11 +1371,16 @@ namespace folia {
     FoliaElement *append( FoliaElement *);
     const Word* resolveword( const std::string& ) const;
     void setAttributes( const KWargs& );
+    KWargs collectAttributes() const;
+    const std::string& getTextDelimiter( bool=false) const;
     MorphologyLayer *addMorphologyLayer( const KWargs& );
     MorphologyLayer *getMorphologyLayers( const std::string&,
 					  std::vector<MorphologyLayer*>& ) const;
+    bool space() const { return _space; };
   private:
+    void init();
     static properties PROPS;
+    bool _space;
   };
 
   class Hiddenword:
