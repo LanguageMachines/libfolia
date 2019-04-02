@@ -730,13 +730,13 @@ namespace folia {
 	  st = "undefined"; // default value
 	}
 	else if ( at_type == AnnotationType::TEXT ){
-	  if ( true ){
+	  if ( debug ){
 	    cerr << "assign default for TEXT: " <<  DEFAULT_TEXT_SET << endl;
 	  }
 	  st = DEFAULT_TEXT_SET;
 	}
 	else if ( at_type == AnnotationType::PHON ){
-	  if ( true ){
+	  if ( debug ){
 	    cerr << "assign default for PHON: " <<  DEFAULT_PHON_SET << endl;
 	  }
 	  st = DEFAULT_PHON_SET;
