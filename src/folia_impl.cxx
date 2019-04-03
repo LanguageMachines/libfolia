@@ -1127,48 +1127,32 @@ namespace folia {
 #ifdef DEBUG_TEXT_DEL
     cerr << "IN " << xmltag() << "::gettextdelimiter (" << retaintok << ")" << endl;
 #endif
-    if ( _props.TEXTDELIMITER == "NONE" ) {
-      if ( data.size() > 0 ) {
-	// attempt to get a delimiter from the last child
-	FoliaElement *last = data.back();
-	if ( last->isSubClass(AbstractStructureElement_t) ){
-	  const string& det = last->getTextDelimiter( retaintok );
+    if ( _props.TEXTDELIMITER != "NONE" ) {
+      return _props.TEXTDELIMITER;
+    }
+    else if ( data.size() > 0 ) {
+      // attempt to get a delimiter from the last child
+      FoliaElement *last = data.back();
+      if ( last->isSubClass(AbstractStructureElement_t) ){
+	const string& det = last->getTextDelimiter( retaintok );
 #ifdef DEBUG_TEXT_DEL
-	  cerr << "out" << xmltag() << "::gettextdelimiter ==> '" << det << "'" << endl;
+	cerr << "out" << xmltag() << "::gettextdelimiter ==> '" << det << "'" << endl;
 #endif
-	  return det;
-	}
-	else {
-	  if ( (SPACE & optional_attributes()) ){
-	    if ( _space || retaintok ){
-#ifdef DEBUG_TEXT_DEL
-	      cerr << "out" << xmltag() << "::gettextdelimiter ==> ''" << endl;
-#endif
-	      return SPACE_STRING;
-	    }
-	  }
-#ifdef DEBUG_TEXT_DEL
-	  cerr << "out" << xmltag() << "::gettextdelimiter ==> ''" << endl;
-#endif
-	  return EMPTY_STRING;
-	}
+	return det;
       }
-      else {
-	if ( (SPACE & optional_attributes()) ){
-	  if ( _space || retaintok ){
-#ifdef DEBUG_TEXT_DEL
-	    cerr << "out" << xmltag() << "::gettextdelimiter ==> ''" << endl;
-#endif
-	    return SPACE_STRING;
-	  }
-	}
+    }
+    if ( (SPACE & optional_attributes()) ){
+      if ( _space || retaintok ){
 #ifdef DEBUG_TEXT_DEL
 	cerr << "out" << xmltag() << "::gettextdelimiter ==> ''" << endl;
 #endif
-	return EMPTY_STRING;
+	return SPACE_STRING;
       }
     }
-    return _props.TEXTDELIMITER;
+#ifdef DEBUG_TEXT_DEL
+    cerr << "out" << xmltag() << "::gettextdelimiter ==> ''" << endl;
+#endif
+    return EMPTY_STRING;
   }
 
   const UnicodeString AbstractElement::text( const string& cls,
