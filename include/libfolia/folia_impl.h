@@ -380,6 +380,8 @@ namespace folia {
     virtual const std::string lemma( const std::string& = "" ) const NOT_IMPLEMENTED;
     virtual const std::string cls() const = 0;
     virtual const std::string sett() const = 0;
+    virtual void update_cls( const std::string& ) = 0;
+    virtual void update_set( const std::string& ) = 0;
     virtual const std::string n() const = 0;
     virtual const std::string id() const = 0;
     virtual const std::string begintime() const = 0;
@@ -472,8 +474,6 @@ namespace folia {
   };
 
   class AbstractElement: public virtual FoliaElement {
-    friend class TextContent; // for set_to_current()
-    friend class Feature;     // must set _class
   private:
     AbstractElement( const AbstractElement& ); // inhibit copies
     AbstractElement& operator=( const AbstractElement& ); // inhibit copies
@@ -615,6 +615,8 @@ namespace folia {
     const std::string getDateTime() const;
     const std::string cls() const { return _class; };
     const std::string sett() const { return _set; };
+    void update_cls( const std::string& cls ) { _class = cls; };
+    void update_set( const std::string& st ) { _set = st; };
     const std::string n() const { return _n; };
     const std::string id() const { return _id; };
     const std::string begintime() const { return _begintime; };
@@ -681,10 +683,10 @@ namespace folia {
     FoliaElement *_parent;
     bool _auth;
     Document *mydoc;
-    std::string _set;
     std::map<std::string,std::string> _xlink;
 
   private:
+    std::string _set;
     std::string _class;
     std::string _id;
     static FoliaElement *private_createElement( ElementType );
@@ -1127,8 +1129,8 @@ namespace folia {
     int offset() const { return _offset; };
     std::vector<FoliaElement*> findreplacables( FoliaElement * ) const;
     const std::string set_to_current() { // Don't use without thinking twice!
-      std::string res = _class;
-      _class="current";
+      std::string res = cls();
+      update_cls( "current" );
       return res;
     }
     FoliaElement *postappend();

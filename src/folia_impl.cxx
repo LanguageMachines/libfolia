@@ -2650,8 +2650,8 @@ namespace folia {
     if ( !ref ){
       throw UnresolvableTextContent( "Default reference for textcontent not found!" );
     }
-    else if ( !ref->hastext( _class ) ){
-      throw UnresolvableTextContent( "Reference (ID " + _ref + ") has no such text (class=" + _class + ")" );
+    else if ( !ref->hastext( cls() ) ){
+      throw UnresolvableTextContent( "Reference (ID " + _ref + ") has no such text (class=" + cls() + ")" );
     }
     else if ( mydoc->checktext() || mydoc->fixtext() ){
       UnicodeString mt = this->text( this->cls(), false, true );
@@ -2686,7 +2686,7 @@ namespace folia {
 
   KWargs TextContent::collectAttributes() const {
     KWargs attribs = AbstractElement::collectAttributes();
-    if ( _class == "current" ) {
+    if ( cls() == "current" ) {
       attribs.erase( "class" );
     }
     // else if ( _class == "original" && parent() && parent()->isinstance( Original_t ) ) {
@@ -2816,7 +2816,8 @@ namespace folia {
 
   vector<FoliaElement *>TextContent::findreplacables( FoliaElement *par ) const {
     vector<FoliaElement *> result;
-    vector<TextContent*> v = par->FoliaElement::select<TextContent>( _set, false );
+    vector<TextContent*> v = par->FoliaElement::select<TextContent>( sett(),
+								     false );
     // cerr << "TextContent::findreplacable found " << v << endl;
     for ( const auto& el:v ) {
       // cerr << "TextContent::findreplacable bekijkt " << el << " ("
@@ -3992,17 +3993,17 @@ namespace folia {
     if ( c_set.empty() ){
       return;
     }
-    if ( _set.empty() ) {
-      _set = c_set;
+    if ( sett().empty() ) {
+      update_set( c_set );
     }
-    else if ( _set != c_set ){
+    else if ( sett() != c_set ){
       throw DuplicateAnnotationError( "appending child: " + child->xmltag()
 				      + " with set='"
 				      +  c_set + "' to " + xmltag()
 				      + " failed while it already has set='"
-				      + _set + "'" );
+				      + sett() + "'" );
     }
-    mydoc->incrRef( child->annotation_type(), _set );
+    mydoc->incrRef( child->annotation_type(), sett() );
   }
 
   FoliaElement *AbstractAnnotationLayer::append( FoliaElement *child ) {
@@ -4566,7 +4567,7 @@ namespace folia {
     if ( it->second.empty() ) {
       throw ValueError("class attribute may never be empty: " + classname() );
     }
-    _class = it->second;
+    update_cls( it->second );
   }
 
   KWargs Feature::collectAttributes() const {
