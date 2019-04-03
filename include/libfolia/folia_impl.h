@@ -475,10 +475,11 @@ namespace folia {
   private:
     AbstractElement( const AbstractElement& ); // inhibit copies
     AbstractElement& operator=( const AbstractElement& ); // inhibit copies
-  public:
     //Constructor
+  protected:
     AbstractElement( const properties& p, Document* = 0 );
-    // static element Constructor
+  public:
+    // expose static element Constructor
     static FoliaElement *createElement( ElementType, Document * =0 );
     static FoliaElement *createElement( const std::string&, Document * =0 );
     virtual ~AbstractElement();
@@ -621,6 +622,8 @@ namespace folia {
     const std::string speech_speaker() const;
     const std::string language( const std::string& = "" ) const;
     const std::string href() const;
+    bool space() const { return _space; };
+    const std::string src(){ return _src; };
 
     double confidence() const { return _confidence; };
     void confidence( double d ) { _confidence = d; };
@@ -676,13 +679,12 @@ namespace folia {
     FoliaElement *_parent;
     bool _auth;
     Document *mydoc;
-    std::string _id;
     std::string _class;
     std::string _set;
     std::map<std::string,std::string> _xlink;
-    std::string _src;
-    bool _space;
+
   private:
+    std::string _id;
     static FoliaElement *private_createElement( ElementType );
     void addFeatureNodes( const KWargs& args );
     std::string _annotator;
@@ -697,6 +699,8 @@ namespace folia {
     AnnotatorType _annotator_type;
     double _confidence;
     int _refcount;
+        std::string _src;
+    bool _space;
     const properties& _props;
   };
 
@@ -811,7 +815,7 @@ namespace folia {
     AbstractStructureElement( const properties& props, Document *d=0 ):
       AbstractElement( props, d ){ classInit(); };
       explicit AbstractStructureElement( Document *d=0 ):
-      AbstractElement( PROPS, d ) { classInit(); };
+      AbstractStructureElement( PROPS, d ){};
     public:
       FoliaElement *append( FoliaElement* );
       std::vector<Paragraph*> paragraphs() const;
@@ -824,7 +828,6 @@ namespace folia {
       Word *words( size_t, const std::string& ="" ) const;
       Word *rwords( size_t, const std::string& ="" ) const;
       const Word* resolveword( const std::string& ) const;
-      bool space() const { return _space; };
     private:
       static properties PROPS;
     };
@@ -862,7 +865,7 @@ namespace folia {
     AbstractInlineAnnotation( const properties& props, Document *d=0 ):
       AbstractElement( props, d ){ classInit(); };
       explicit AbstractInlineAnnotation( Document *d=0 ):
-      AbstractElement( PROPS, d ){ classInit(); };
+      AbstractInlineAnnotation( PROPS, d ){};
 
     private:
       static properties PROPS;
@@ -877,8 +880,7 @@ namespace folia {
     AbstractHigherOrderAnnotation( const properties& props, Document *d=0 ):
       AbstractElement( props, d ){ classInit(); };
       explicit AbstractHigherOrderAnnotation( Document *d=0 ):
-      AbstractElement( PROPS, d ){ classInit(); };
-
+      AbstractHigherOrderAnnotation( PROPS, d ){};
     private:
       static properties PROPS;
     };
@@ -895,7 +897,7 @@ namespace folia {
     AbstractSpanAnnotation( const properties& props, Document *d=0 ):
       AbstractElement( props, d ){ classInit(); };
       explicit AbstractSpanAnnotation( Document *d=0 ):
-      AbstractElement( PROPS, d ){ classInit(); };
+      AbstractSpanAnnotation( PROPS, d ){};
     public:
       xmlNode *xml( bool, bool=false ) const;
       FoliaElement *append( FoliaElement* );
@@ -923,9 +925,7 @@ namespace folia {
     friend void static_init();
   public:
     explicit ForeignData( Document *d=0 ):
-    AbstractElement( PROPS, d ){ classInit(); };
-  ForeignData( const properties& props, Document *d=0 ):
-    AbstractElement( props, d ){ classInit(); };
+    ForeignData( PROPS, d ){};
     ~ForeignData();
 
     FoliaElement* parseXml( const xmlNode * );
@@ -933,6 +933,8 @@ namespace folia {
     void set_data( const xmlNode * );
     xmlNode* get_data() const;
   private:
+  ForeignData( const properties& props, Document *d=0 ):
+    AbstractElement( props, d ){ classInit(); };
     void init();
     static properties PROPS;
     xmlNode *_foreign_data;
@@ -1010,7 +1012,7 @@ namespace folia {
   AbstractTextMarkup( const properties& props, Document *d=0 ):
     AbstractElement( props, d ){ classInit(); };
     explicit AbstractTextMarkup( Document *d=0 ):
-    AbstractElement( PROPS, d ){ classInit(); };
+    AbstractTextMarkup( PROPS, d ){};
   public:
     void setAttributes( const KWargs& );
     KWargs collectAttributes() const;
@@ -1103,7 +1105,7 @@ namespace folia {
   AbstractContentAnnotation( const properties& props, Document *d=0 ):
     AbstractElement( props, d ){ classInit(); };
     explicit AbstractContentAnnotation( Document *d = 0 ):
-    AbstractElement( PROPS, d ) {  classInit(); }
+    AbstractContentAnnotation( PROPS, d ) {};
   AbstractContentAnnotation( const KWargs& a, Document *d = 0 ):
     AbstractElement( PROPS, d ) {  classInit( a ); }
   private:
@@ -1352,9 +1354,7 @@ namespace folia {
     friend void static_init();
   public:
     explicit Word( Document *d = 0 ):
-    AbstractStructureElement(PROPS, d ) { classInit(); }
-  Word( const properties& p, Document *d=0 ):
-    AbstractStructureElement( p, d ) { classInit(); }
+    Word(PROPS, d ) {};
   Word( const KWargs& a,  Document *d = 0 ):
     AbstractStructureElement( PROPS, d ) { classInit( a ); };
 
@@ -1379,6 +1379,10 @@ namespace folia {
     MorphologyLayer *addMorphologyLayer( const KWargs& );
     MorphologyLayer *getMorphologyLayers( const std::string&,
 					  std::vector<MorphologyLayer*>& ) const;
+  protected:
+  Word( const properties& p, Document *d=0 ):
+    AbstractStructureElement( p, d ) { classInit(); }
+
   private:
     static properties PROPS;
   };
@@ -1566,8 +1570,6 @@ namespace folia {
     AbstractStructureElement( PROPS, d ){ classInit(); }
   Figure( const KWargs& a, Document *d = 0 ):
     AbstractStructureElement( PROPS, d ){ classInit( a ); }
-
-    const std::string src() const { return _src; };
     const UnicodeString caption() const;
   private:
     static properties PROPS;
@@ -1591,9 +1593,11 @@ namespace folia {
     friend void static_init();
   public:
     explicit AbstractSubtokenAnnotation( Document *d = 0 ):
-    AbstractStructureElement( PROPS, d ) {  classInit(); }
+    AbstractSubtokenAnnotation( PROPS, d ) {  classInit(); }
   AbstractSubtokenAnnotation( const KWargs& a, Document *d = 0 ):
     AbstractStructureElement( PROPS, d ) {  classInit( a ); }
+
+  protected:
   AbstractSubtokenAnnotation( const properties& props, Document *d=0 ):
     AbstractStructureElement( props, d ){ classInit(); };
 
@@ -1760,9 +1764,7 @@ namespace folia {
     friend void static_init();
   public:
     explicit Feature( Document *d = 0 ):
-    AbstractElement( PROPS, d ){ classInit(); }
-  Feature( const properties&p, Document *d = 0 ):
-    AbstractElement( p, d ){ classInit(); }
+    Feature( PROPS, d ){ classInit(); }
   Feature( const KWargs& a, Document *d = 0 ):
     AbstractElement( PROPS, d ){ classInit( a ); }
 
@@ -1771,9 +1773,11 @@ namespace folia {
     const std::string subset() const { return _subset; };
 
   protected:
-    std::string _subset;
+  Feature( const properties&p, Document *d = 0 ):
+    AbstractElement( p, d ){ classInit(); }
 
   private:
+    std::string _subset;
     static properties PROPS;
   };
 
@@ -2028,7 +2032,9 @@ namespace folia {
     friend void static_init();
   public:
     explicit AbstractSpanRole( Document *d=0 ):
-    AbstractSpanAnnotation( PROPS, d ){ classInit(); }
+    AbstractSpanRole( PROPS, d ){};
+
+  protected:
   AbstractSpanRole( const properties& props, Document *d=0 ):
     AbstractSpanAnnotation( props, d ){ classInit(); }
 
@@ -2204,7 +2210,7 @@ namespace folia {
     protected:
       // DO NOT USE AbstractAnnotationLayer as a real node!!
       explicit AbstractAnnotationLayer( Document *d = 0 ):
-      AbstractElement( PROPS, d ) { classInit(); };
+      AbstractAnnotationLayer( PROPS, d ){};
     AbstractAnnotationLayer( const properties& props, Document *d = 0 ):
       AbstractElement( props, d ) { classInit(); };
     AbstractAnnotationLayer( const properties& props, const KWargs& a, Document *d = 0 ):
@@ -2225,7 +2231,7 @@ namespace folia {
   AbstractCorrectionChild( const properties& props, Document *d=0 ):
     AbstractElement( props, d ){ classInit(); };
     explicit AbstractCorrectionChild( Document *d=0 ):
-    AbstractElement( PROPS, d ){ classInit(); };
+    AbstractCorrectionChild( PROPS, d ){};
   private:
     static properties PROPS;
   };

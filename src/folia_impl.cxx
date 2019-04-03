@@ -3421,7 +3421,7 @@ namespace folia {
   }
 
   const string& Word::getTextDelimiter( bool retaintok ) const {
-    if ( _space || retaintok ) {
+    if ( space() || retaintok ) {
       return PROPS.TEXTDELIMITER;
     }
     return EMPTY_STRING;
@@ -3666,7 +3666,7 @@ namespace folia {
   }
 
   const Word* Word::resolveword( const string& id ) const {
-    if ( _id == id ) {
+    if ( AbstractElement::id() == id ) {
       return this;
     }
     return 0;
@@ -4396,11 +4396,13 @@ namespace folia {
   }
 
   void External::resolve_external( ) {
+    string src;
     try {
-      cerr << "try to resolve: " << _src << endl;
+      src = AbstractElement::src();
+      cerr << "try to resolve: " << src << endl;
       int cnt = 0;
       xmlSetStructuredErrorFunc( &cnt, (xmlStructuredErrorFunc)error_sink );
-      xmlDoc *extdoc = xmlReadFile( _src.c_str(), 0, XML_PARSE_NSCLEAN|XML_PARSE_HUGE );
+      xmlDoc *extdoc = xmlReadFile( src.c_str(), 0, XML_PARSE_NSCLEAN|XML_PARSE_HUGE );
       if ( extdoc ) {
 	xmlNode *root = xmlDocGetRootElement( extdoc );
 	xmlNode *p = root->children;
@@ -4426,11 +4428,11 @@ namespace folia {
 	xmlFreeDoc( extdoc );
       }
       else {
-	throw XmlError( "resolving external " + _src + " failed" );
+	throw XmlError( "resolving external " + src + " failed" );
       }
     }
     catch ( const exception& e ) {
-      throw XmlError( "resolving external " + _src + " failed: "
+      throw XmlError( "resolving external " + src + " failed: "
 		      + e.what() );
     }
   }
@@ -4474,9 +4476,6 @@ namespace folia {
 
   KWargs Reference::collectAttributes() const {
     KWargs atts = AbstractElement::collectAttributes();
-    if ( !_id.empty() ){
-      atts["xml:id"] = _id;
-    }
     atts["id"] = refId;
     atts["type"] = ref_type;
     if ( !_format.empty() && _format != "text/folia+xml" ) {
@@ -4487,12 +4486,7 @@ namespace folia {
 
   void Reference::setAttributes( const KWargs& argsin ) {
     KWargs args = argsin;
-    auto it = args.find( "xml:id" );
-    if ( it != args.end() ) {
-      _id = it->second;
-      args.erase( it );
-    }
-    it = args.find( "id" );
+    auto it = args.find( "id" );
     if ( it != args.end() ) {
       refId = it->second;
       args.erase( it );

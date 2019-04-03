@@ -812,7 +812,6 @@ namespace folia {
 	    throw XmlError( "setname may not be empty for " + prefix
 			    + "-annotation" );
 	  }
-	  //	  st = "default";
 	  delete tmp;
 	}
 	it = att.find( "annotator" );
@@ -1350,9 +1349,7 @@ namespace folia {
 	_id = it->second;
       }
       else {
-	throw XmlError( "'"
-			+ it->second
-			+ "' is not a valid NCName." );
+	throw XmlError( "'" + it->second + "' is not a valid NCName." );
       }
       happy = true;
     }
