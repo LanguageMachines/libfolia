@@ -572,8 +572,32 @@ namespace folia {
       }
       kwargs.erase( it );
     }
-    else
+    else {
       _src.clear();
+    }
+
+    if ( SPACE & supported ){
+      _space = true;
+    }
+    it = kwargs.find( "space" );
+    if ( it != kwargs.end() ) {
+      if ( !(SPACE & supported) ){
+	throw ValueError( "space attribute is not supported for " + classname() );
+      }
+      else {
+	if ( it->second == "no" ) {
+	  _space = false;
+	}
+	else if ( it->second == "yes" ) {
+	  _space = true;
+	}
+	else {
+	  throw ValueError( "invalid value for space attribute: '" + it->second
+			    + "'" );
+	}
+	kwargs.erase( it );
+      }
+    }
 
     it = kwargs.find( "metadata" );
     if ( it != kwargs.end() ) {
@@ -786,6 +810,11 @@ namespace folia {
     }
     if ( !_auth ) {
       attribs["auth"] = "no";
+    }
+    if ( SPACE & optional_attributes() ){
+      if ( !_space ) {
+	attribs["space"] = "no";
+      }
     }
     return attribs;
   }
@@ -1089,8 +1118,10 @@ namespace folia {
     }
   }
 
-  //  #define DEBUG_TEXT
-  //  #define DEBUG_TEXT_DEL
+  //#define DEBUG_TEXT
+  //#define DEBUG_TEXT_DEL
+
+  const string SPACE_STRING = " ";
 
   const string& AbstractElement::getTextDelimiter( bool retaintok ) const {
 #ifdef DEBUG_TEXT_DEL
@@ -1099,17 +1130,43 @@ namespace folia {
     if ( _props.TEXTDELIMITER == "NONE" ) {
       if ( data.size() > 0 ) {
 	// attempt to get a delimiter from the last child
-	const string& det = data[data.size()-1]->getTextDelimiter( retaintok );
+	FoliaElement *last = data.back();
+	if ( last->isSubClass(AbstractStructureElement_t) ){
+	  const string& det = last->getTextDelimiter( retaintok );
 #ifdef DEBUG_TEXT_DEL
-	cerr << "out" << xmltag() << "::gettextdelimiter ==> '" << det << "'" << endl;
+	  cerr << "out" << xmltag() << "::gettextdelimiter ==> '" << det << "'" << endl;
 #endif
-	return det;
+	  return det;
+	}
+	else {
+	  if ( (SPACE & optional_attributes()) ){
+	    if ( _space || retaintok ){
+#ifdef DEBUG_TEXT_DEL
+	      cerr << "out" << xmltag() << "::gettextdelimiter ==> ''" << endl;
+#endif
+	      return SPACE_STRING;
+	    }
+	  }
+#ifdef DEBUG_TEXT_DEL
+	  cerr << "out" << xmltag() << "::gettextdelimiter ==> ''" << endl;
+#endif
+	  return EMPTY_STRING;
+	}
       }
-      else
+      else {
+	if ( (SPACE & optional_attributes()) ){
+	  if ( _space || retaintok ){
+#ifdef DEBUG_TEXT_DEL
+	    cerr << "out" << xmltag() << "::gettextdelimiter ==> ''" << endl;
+#endif
+	    return SPACE_STRING;
+	  }
+	}
 #ifdef DEBUG_TEXT_DEL
 	cerr << "out" << xmltag() << "::gettextdelimiter ==> ''" << endl;
 #endif
 	return EMPTY_STRING;
+      }
     }
     return _props.TEXTDELIMITER;
   }
@@ -3366,14 +3423,7 @@ namespace folia {
 
   void Word::setAttributes( const KWargs& args_in ) {
     KWargs args = args_in;
-    auto it = args.find( "space" );
-    if ( it != args.end() ) {
-      if ( it->second == "no" ) {
-	_space = false;
-      }
-      args.erase( it );
-    }
-    it = args.find( "text" );
+    auto const& it = args.find( "text" );
     if ( it != args.end() ) {
       settext( it->second );
       args.erase( it );
@@ -3383,9 +3433,6 @@ namespace folia {
 
   KWargs Word::collectAttributes() const {
     KWargs atts = AbstractElement::collectAttributes();
-    if ( !_space ) {
-      atts["space"] = "no";
-    }
     return atts;
   }
 
@@ -4744,10 +4791,6 @@ namespace folia {
 
   void PhonContent::init() {
     _offset = -1;
-  }
-
-  void Word::init() {
-    _space = true;
   }
 
   void Linebreak::init() {

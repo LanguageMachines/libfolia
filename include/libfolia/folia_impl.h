@@ -300,6 +300,7 @@ namespace folia {
     virtual bool referable() const = 0;
     virtual bool is_textcontainer() const = 0;
     virtual bool is_phoncontainer() const = 0;
+    virtual bool space() const NOT_IMPLEMENTED;
 
     // Word
     virtual Word *previous() const NOT_IMPLEMENTED;
@@ -680,6 +681,7 @@ namespace folia {
     std::string _set;
     std::map<std::string,std::string> _xlink;
     std::string _src;
+    bool _space;
   private:
     static FoliaElement *private_createElement( ElementType );
     void addFeatureNodes( const KWargs& args );
@@ -822,6 +824,7 @@ namespace folia {
       Word *words( size_t, const std::string& ="" ) const;
       Word *rwords( size_t, const std::string& ="" ) const;
       const Word* resolveword( const std::string& ) const;
+      bool space() const { return _space; };
     private:
       static properties PROPS;
     };
@@ -1376,11 +1379,8 @@ namespace folia {
     MorphologyLayer *addMorphologyLayer( const KWargs& );
     MorphologyLayer *getMorphologyLayers( const std::string&,
 					  std::vector<MorphologyLayer*>& ) const;
-    bool space() const { return _space; };
   private:
-    void init();
     static properties PROPS;
-    bool _space;
   };
 
   class Hiddenword:
