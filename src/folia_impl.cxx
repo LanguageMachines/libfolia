@@ -2735,8 +2735,8 @@ namespace folia {
     if ( !ref ){
       throw UnresolvableTextContent( "Default reference for phonetic content not found!" );
     }
-    else if ( !ref->hasphon( _class ) ){
-      throw UnresolvableTextContent( "Reference (ID " + _ref + ") has no such phonetic content (class=" + _class + ")" );
+    else if ( !ref->hasphon( cls() ) ){
+      throw UnresolvableTextContent( "Reference (ID " + _ref + ") has no such phonetic content (class=" + cls() + ")" );
     }
     else if ( mydoc->checktext() || mydoc->fixtext() ){
       UnicodeString mt = this->phon( this->cls(), false );
@@ -2771,7 +2771,7 @@ namespace folia {
 
   KWargs PhonContent::collectAttributes() const {
     KWargs attribs = AbstractElement::collectAttributes();
-    if ( _class == "current" ) {
+    if ( cls() == "current" ) {
       attribs.erase( "class" );
     }
     if ( _offset >= 0 ) {
@@ -2820,7 +2820,7 @@ namespace folia {
     // cerr << "TextContent::findreplacable found " << v << endl;
     for ( const auto& el:v ) {
       // cerr << "TextContent::findreplacable bekijkt " << el << " ("
-      if ( el->cls() == _class ) {
+      if ( el->cls() == cls() ) {
 	result.push_back( el );
       }
     }

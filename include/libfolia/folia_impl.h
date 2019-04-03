@@ -472,6 +472,8 @@ namespace folia {
   };
 
   class AbstractElement: public virtual FoliaElement {
+    friend class TextContent; // for set_to_current()
+    friend class Feature;     // must set _class
   private:
     AbstractElement( const AbstractElement& ); // inhibit copies
     AbstractElement& operator=( const AbstractElement& ); // inhibit copies
@@ -679,11 +681,11 @@ namespace folia {
     FoliaElement *_parent;
     bool _auth;
     Document *mydoc;
-    std::string _class;
     std::string _set;
     std::map<std::string,std::string> _xlink;
 
   private:
+    std::string _class;
     std::string _id;
     static FoliaElement *private_createElement( ElementType );
     void addFeatureNodes( const KWargs& args );
