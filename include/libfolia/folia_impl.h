@@ -653,7 +653,7 @@ namespace folia {
     bool setonly() const;
     bool auto_generate_id() const;
 
-    Document *doc() const { return mydoc; };
+    Document *doc() const { return _mydoc; };
 
     bool checkAtts();
     void check_text_consistency() const;
@@ -682,10 +682,10 @@ namespace folia {
     std::vector<FoliaElement*> data;
     FoliaElement *_parent;
     bool _auth;
-    Document *mydoc;
     std::map<std::string,std::string> _xlink;
 
   private:
+    Document *_mydoc;
     std::string _set;
     std::string _class;
     std::string _id;

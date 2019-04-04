@@ -85,7 +85,7 @@ namespace folia {
       }
     }
     const string& result = _props.XMLTAG;
-    if ( mydoc && mydoc->version_below(1,6) ){
+    if ( doc() && doc()->version_below(1,6) ){
       const auto& it = reverse_old.find(result);
       if ( it != reverse_old.end() ){
 	return it->second;
@@ -187,7 +187,7 @@ namespace folia {
   AbstractElement::AbstractElement( const properties& p, Document *d ) :
     _parent(0),
     _auth( p.AUTH ),
-    mydoc(d),
+    _mydoc(d),
     _annotator_type(UNDEFINED),
     _confidence(-1),
     _refcount(0),
@@ -210,8 +210,8 @@ namespace folia {
       cerr << "REFCOUNT = " << refcount() << endl;
     }
     if ( refcount() > 0 ){
-      if ( mydoc ) {
-	mydoc->keepForDeletion( this );
+      if ( doc() ) {
+	doc()->keepForDeletion( this );
       }
     }
     else {
@@ -223,11 +223,11 @@ namespace folia {
 	  // probably only != 0 for words
 	  delete el;
 	}
-	else if ( mydoc ) {
+	else if ( doc() ) {
 	  if ( debug ){
 	    cerr << "dus KEEP: " << el << endl;
 	  }
-	  mydoc->keepForDeletion( el );
+	  doc()->keepForDeletion( el );
 	}
       }
     }
@@ -235,15 +235,15 @@ namespace folia {
       cerr << "\t\tsucces deleting element id=" << _id << " tag = " << xmltag() << " class= "
      	   << cls() << " datasize= " << data.size() << endl;
     }
-    if ( mydoc ) {
-      mydoc->delDocIndex( this, _id );
-      mydoc->decrRef( annotation_type(), _set );
+    if ( doc() ) {
+      doc()->delDocIndex( this, _id );
+      doc()->decrRef( annotation_type(), _set );
     }
   }
 
   xmlNs *AbstractElement::foliaNs() const {
-    if ( mydoc ) {
-      return mydoc->foliaNs();
+    if ( doc() ) {
+      return doc()->foliaNs();
     }
     return 0;
   }
@@ -263,16 +263,16 @@ namespace folia {
     //   cerr << "id=" << ref->refId << endl;
     //   cerr << "AUTH : " << _auth << ", default=" << default_auth() << endl;
     // }
-    if ( mydoc && mydoc->debug > 2 ) {
+    if ( doc() && doc()->debug > 2 ) {
       cerr << "set attributes: " << kwargs << " on " << classname() << endl;
     }
 
     string val = kwargs.extract( "generate_id" );
     if ( !val.empty() ) {
-      if ( !mydoc ) {
+      if ( !doc() ) {
 	throw runtime_error( "can't generate an ID without a doc" );
       }
-      FoliaElement *e = (*mydoc)[val];
+      FoliaElement *e = (*doc())[val];
       if ( e ) {
 	_id = e->generateId( xmltag() );
       }
@@ -301,14 +301,14 @@ namespace folia {
     _set.clear();
     val = kwargs.extract( "set" );
     if ( !val.empty() ) {
-      if ( !mydoc ) {
+      if ( !doc() ) {
 	throw ValueError( "attribute set=" + val + " is used on a node without a document." );
       }
       if ( !( (CLASS & supported) || setonly() ) ) {
 	throw ValueError("attribute 'set' is not supported for " + classname());
       }
       else {
-	string st = mydoc->unalias( annotation_type(), val );
+	string st = doc()->unalias( annotation_type(), val );
 	if ( st.empty() ){
 	  _set = val;
 	}
@@ -316,13 +316,13 @@ namespace folia {
 	  _set = st;
 	}
       }
-      if ( !mydoc->isDeclared( annotation_type(), _set ) ) {
+      if ( !doc()->isDeclared( annotation_type(), _set ) ) {
 	throw ValueError( "Set " + _set + " is used but has no declaration " +
 			  "for " + toString( annotation_type() ) + "-annotation" );
       }
     }
-    else if ( mydoc ){
-      string def = mydoc->defaultset( annotation_type() );
+    else if ( doc() ){
+      string def = doc()->defaultset( annotation_type() );
       if ( !def.empty() ){
 	_set = def;
       }
@@ -338,12 +338,12 @@ namespace folia {
 	throw ValueError("Class is not supported for " + classname() );
       }
       if ( element_id() != TextContent_t && element_id() != PhonContent_t ) {
-	if ( !mydoc ) {
+	if ( !doc() ) {
 	  throw ValueError( "Class=" + _class + " is used on a node without a document." );
 	}
 	else if ( _set == "" &&
-		  mydoc->defaultset( annotation_type() ) == "" &&
-		  mydoc->isDeclared( annotation_type() ) ) {
+		  doc()->defaultset( annotation_type() ) == "" &&
+		  doc()->isDeclared( annotation_type() ) ) {
 	  string at =  toString(annotation_type());
 	  if ( at == "NONE" ){
 	    at = xmltag();
@@ -351,7 +351,7 @@ namespace folia {
 	  throw ValueError( "Class " + _class + " is used but has no default declaration " +
 			    "for " + at + "-annotation" );
 	}
-	mydoc->incrRef( annotation_type(), _set );
+	doc()->incrRef( annotation_type(), _set );
       }
       _class = val;
     }
@@ -375,8 +375,8 @@ namespace folia {
     }
     else {
       string def;
-      if ( mydoc &&
-	   (def = mydoc->defaultannotator( annotation_type(), _set )) != "" ) {
+      if ( doc() &&
+	   (def = doc()->defaultannotator( annotation_type(), _set )) != "" ) {
 	_annotator = def;
       }
     }
@@ -386,14 +386,14 @@ namespace folia {
 	throw ValueError("attribute 'processor' is not supported for " + classname() );
       }
       else {
-	if ( mydoc && mydoc->get_processor(val) == 0 ){
+	if ( doc() && doc()->get_processor(val) == 0 ){
 	  throw ValueError("attribute 'processor' has unknown value: " + val );
 	}
 	_processor = val;
       }
     }
-    else if ( mydoc ){
-      string def = mydoc->defaultprocessor( annotation_type(), _set );
+    else if ( doc() ){
+      string def = doc()->defaultprocessor( annotation_type(), _set );
       _processor = def;
     }
 
@@ -413,8 +413,8 @@ namespace folia {
     }
     else {
       string def;
-      if ( mydoc &&
-	   (def = mydoc->defaultannotatortype( annotation_type(), _set ) ) != ""  ) {
+      if ( doc() &&
+	   (def = doc()->defaultannotatortype( annotation_type(), _set ) ) != ""  ) {
 	_annotator_type = stringTo<AnnotatorType>( def );
 	if ( _annotator_type == UNDEFINED ) {
 	  throw ValueError("annotatortype must be 'auto' or 'manual'");
@@ -522,8 +522,8 @@ namespace folia {
     }
     else {
       string def;
-      if ( mydoc &&
-	   (def = mydoc->defaultdatetime( annotation_type(), _set )) != "" ) {
+      if ( doc() &&
+	   (def = doc()->defaultdatetime( annotation_type(), _set )) != "" ) {
 	_datetime = def;
       }
     }
@@ -606,7 +606,7 @@ namespace folia {
       }
       else {
 	_metadata = it->second;
-	if ( mydoc && mydoc->get_submetadata( _metadata ) == 0 ){
+	if ( doc() && doc()->get_submetadata( _metadata ) == 0 ){
 	  throw KeyError( "No such metadata defined: " + _metadata );
 	}
       }
@@ -648,9 +648,9 @@ namespace folia {
       _auth = stringTo<bool>( it->second );
       kwargs.erase( it );
     }
-    if ( mydoc && !_id.empty() ) {
+    if ( doc() && !_id.empty() ) {
       try {
-	mydoc->addDocIndex( this, _id );
+	doc()->addDocIndex( this, _id );
       }
       catch ( const DuplicateIDError& e ){
 	if ( element_id() != WordReference_t ){
@@ -675,7 +675,7 @@ namespace folia {
 	if ( tag == "id" ){
 	  message += "\ndid you mean xml:id?";
 	}
-	if ( mydoc && mydoc->permissive() ) {
+	if ( doc() && doc()->permissive() ) {
 	  cerr << message << endl;
 	}
 	else {
@@ -684,7 +684,7 @@ namespace folia {
       }
       KWargs newa;
       newa["class"] = it.second;
-      FoliaElement *new_node = createElement( tag, mydoc );
+      FoliaElement *new_node = createElement( tag, doc() );
       new_node->setAttributes( newa );
       append( new_node );
     }
@@ -699,9 +699,9 @@ namespace folia {
       attribs["xml:id"] = _id;
     }
     if ( !_set.empty() &&
-	 _set != mydoc->defaultset( annotation_type() ) ) {
+	 _set != doc()->defaultset( annotation_type() ) ) {
       isDefaultSet = false;
-      string ali = mydoc->alias( annotation_type(), _set );
+      string ali = doc()->alias( annotation_type(), _set );
       if ( ali.empty() ){
 	attribs["set"] = _set;
       }
@@ -713,14 +713,14 @@ namespace folia {
       attribs["class"] = _class;
     }
     if ( !_annotator.empty() &&
-	 _annotator != mydoc->defaultannotator( annotation_type(), _set ) ) {
+	 _annotator != doc()->defaultannotator( annotation_type(), _set ) ) {
       isDefaultAnn = false;
       attribs["annotator"] = _annotator;
     }
     if ( !_processor.empty() ){
       string tmp;
       try {
-	tmp = mydoc->defaultprocessor( annotation_type(), _set );
+	tmp = doc()->defaultprocessor( annotation_type(), _set );
       }
       catch ( NoDefaultError ){
       }
@@ -769,7 +769,7 @@ namespace folia {
       }
     }
     if ( !_datetime.empty() &&
-	 _datetime != mydoc->defaultdatetime( annotation_type(), _set ) ) {
+	 _datetime != doc()->defaultdatetime( annotation_type(), _set ) ) {
       attribs["datetime"] = _datetime;
     }
     if ( !_begintime.empty() ) {
@@ -791,7 +791,7 @@ namespace folia {
       attribs["textclass"] = _textclass;
     }
     if ( _annotator_type != UNDEFINED ) {
-      AnnotatorType at = stringTo<AnnotatorType>( mydoc->defaultannotatortype( annotation_type(), _set ) );
+      AnnotatorType at = stringTo<AnnotatorType>( doc()->defaultannotatortype( annotation_type(), _set ) );
       if ( (!isDefaultSet || !isDefaultAnn) && _annotator_type != at ) {
 	if ( _annotator_type == AUTO ) {
 	  attribs["annotatortype"] = "auto";
@@ -867,7 +867,7 @@ namespace folia {
   }
 
   void AbstractElement::check_append_text_consistency( const FoliaElement *child ) const {
-    if ( !mydoc || !mydoc->checktext() ){
+    if ( !doc() || !doc()->checktext() ){
       return;
     }
     string cls = child->cls();
@@ -913,7 +913,7 @@ namespace folia {
   }
 
   void AbstractElement::check_text_consistency( ) const {
-    if ( !mydoc || !mydoc->checktext() || ! printable() ){
+    if ( !doc() || !doc()->checktext() || ! printable() ){
       return;
     }
     // check if the text associated with all children is compatible with the
@@ -1787,27 +1787,27 @@ namespace folia {
     return true;
   }
 
-  void AbstractElement::assignDoc( Document* doc ) {
+  void AbstractElement::assignDoc( Document* the_doc ) {
     // attach a document-less FoliaElement (tree) to its doc
     // needs checking for correct annotation_type
     // also register the ID
     // then recurse into the children
-    if ( !mydoc ) {
-      mydoc = doc;
+    if ( !_mydoc ) {
+      _mydoc = the_doc;
       string myid = id();
       if ( !_set.empty()
 	   && (CLASS & required_attributes() )
-	   && !mydoc->isDeclared( annotation_type(), _set ) ) {
+	   && !_mydoc->isDeclared( annotation_type(), _set ) ) {
 	throw ValueError( "Set " + _set + " is used in " + xmltag()
 			  + "element: " + myid + " but has no declaration " +
 			  "for " + toString( annotation_type() ) + "-annotation" );
       }
       if ( !myid.empty() ) {
-	doc->addDocIndex( this, myid );
+	_mydoc->addDocIndex( this, myid );
       }
       // assume that children also might be doc-less
       for ( const auto& el : data ) {
-	el->assignDoc( doc );
+	el->assignDoc( _mydoc );
       }
     }
   }
@@ -1887,8 +1887,8 @@ namespace folia {
       throw;
     }
     if ( ok ) {
-      if ( mydoc ){
-	child->assignDoc( mydoc );
+      if ( doc() ){
+	child->assignDoc( doc() );
       }
       data.push_back(child);
       if ( !child->parent() ) {
@@ -1911,20 +1911,20 @@ namespace folia {
   }
 
   FoliaElement *TextContent::postappend( ) {
-    if ( mydoc ){
-      if ( mydoc->checktext()
+    if ( doc() ){
+      if ( doc()->checktext()
 	   && _offset != -1
 	   && ( _parent && parent()->auth() ) ){
-	mydoc->cache_textcontent(this);
+	doc()->cache_textcontent(this);
       }
     }
     return this;
   }
 
   FoliaElement *PhonContent::postappend( ) {
-    if ( mydoc ){
-      if ( mydoc->checktext() && _offset != -1 ){
-	mydoc->cache_phoncontent(this);
+    if ( doc() ){
+      if ( doc()->checktext() && _offset != -1 ){
+	doc()->cache_phoncontent(this);
       }
     }
     return this;
@@ -1936,7 +1936,7 @@ namespace folia {
     if ( del ) {
       if ( child->refcount() > 0 ){
 	// dont really delete yet!
-	mydoc->keepForDeletion( child );
+	doc()->keepForDeletion( child );
       }
       else {
 	delete child;
@@ -1957,7 +1957,7 @@ namespace folia {
       if ( del ) {
 	if ( (*it)->refcount() > 0 ){
 	  // dont really delete yet!
-	  mydoc->keepForDeletion( *it );
+	  doc()->keepForDeletion( *it );
 	}
 	else {
 	  delete *it;
@@ -2051,7 +2051,7 @@ namespace folia {
 	    append( t );
 	  }
 	}
-	else if ( mydoc && !mydoc->permissive() ){
+	else if ( doc() && !doc()->permissive() ){
 	  throw XmlError( "FoLiA parser terminated" );
 	}
       }
@@ -2362,7 +2362,7 @@ namespace folia {
       kw["xml:id"] = id;
     }
     try {
-      res = new Sentence( kw, mydoc );
+      res = new Sentence( kw, doc() );
     }
     catch( const DuplicateIDError& e ) {
       delete res;
@@ -2373,7 +2373,7 @@ namespace folia {
   }
 
   Word *AbstractElement::addWord( const KWargs& args ) {
-    Word *res = new Word( mydoc );
+    Word *res = new Word( doc() );
     KWargs kw = args;
     if ( !kw.is_present("xml:id") ){
       string id = generateId( "w" );
@@ -2426,8 +2426,8 @@ namespace folia {
       else if ( pnt->isinstance( Sentence_t ) ) {
 	KWargs args;
 	args["text"] = pnt->id();
-	PlaceHolder *p = new PlaceHolder( args, mydoc );
-	mydoc->keepForDeletion( p );
+	PlaceHolder *p = new PlaceHolder( args, doc() );
+	doc()->keepForDeletion( p );
 	result.push_back( p );
       }
       else if ( pnt->isinstance( Quote_t ) ) {
@@ -2639,7 +2639,7 @@ namespace folia {
     }
     else if ( !_ref.empty() ){
       try{
-	ref = (*mydoc)[_ref];
+	ref = (*doc())[_ref];
       }
       catch (...){
       }
@@ -2653,12 +2653,12 @@ namespace folia {
     else if ( !ref->hastext( cls() ) ){
       throw UnresolvableTextContent( "Reference (ID " + _ref + ") has no such text (class=" + cls() + ")" );
     }
-    else if ( mydoc->checktext() || mydoc->fixtext() ){
+    else if ( doc()->checktext() || doc()->fixtext() ){
       UnicodeString mt = this->text( this->cls(), false, true );
       UnicodeString pt = ref->text( this->cls(), false, true );
       UnicodeString sub( pt, this->offset(), mt.length() );
       if ( mt != sub ){
-	if ( mydoc->fixtext() ){
+	if ( doc()->fixtext() ){
 	  int pos = pt.indexOf( mt );
 	  if ( pos < 0 ){
 	    throw UnresolvableTextContent( "Reference (ID " + ref->id() +
@@ -2724,7 +2724,7 @@ namespace folia {
     }
     else if ( !_ref.empty() ){
       try{
-	ref = (*mydoc)[_ref];
+	ref = (*doc())[_ref];
       }
       catch (...){
       }
@@ -2738,12 +2738,12 @@ namespace folia {
     else if ( !ref->hasphon( cls() ) ){
       throw UnresolvableTextContent( "Reference (ID " + _ref + ") has no such phonetic content (class=" + cls() + ")" );
     }
-    else if ( mydoc->checktext() || mydoc->fixtext() ){
+    else if ( doc()->checktext() || doc()->fixtext() ){
       UnicodeString mt = this->phon( this->cls(), false );
       UnicodeString pt = ref->phon( this->cls(), false );
       UnicodeString sub( pt, this->offset(), mt.length() );
       if ( mt != sub ){
-	if ( mydoc->fixtext() ){
+	if ( doc()->fixtext() ){
 	  int pos = pt.indexOf( mt );
 	  if ( pos < 0 ){
 	    throw UnresolvableTextContent( "Reference (ID " + ref->id() +
@@ -2932,7 +2932,7 @@ namespace folia {
     cerr << "args in     = " << args_in << endl;
 #endif
     // Apply a correction
-    Document *mydoc = doc();
+    Document *doc = this->doc();
     Correction *corr = 0;
     bool suggestionsonly = false;
     bool hooked = false;
@@ -2945,7 +2945,7 @@ namespace folia {
     if ( it != args.end() ) {
       KWargs my_args;
       my_args["value"] = it->second;
-      TextContent *t = new TextContent( my_args, mydoc );
+      TextContent *t = new TextContent( my_args, doc );
       _new.push_back( t );
       args.erase( it );
     }
@@ -2953,7 +2953,7 @@ namespace folia {
     if ( it != args.end() ) {
       KWargs my_args;
       my_args["value"] = it->second;
-      TextContent *t = new TextContent( my_args, mydoc );
+      TextContent *t = new TextContent( my_args, doc );
       suggestions.push_back( t );
       args.erase( it );
     }
@@ -2961,7 +2961,7 @@ namespace folia {
     if ( it != args.end() ) {
       // reuse an existing correction instead of making a new one
       try {
-	corr = dynamic_cast<Correction*>(mydoc->index(it->second));
+	corr = dynamic_cast<Correction*>(doc->index(it->second));
       }
       catch ( const exception& e ) {
 	throw ValueError("reuse= must point to an existing correction id!");
@@ -2992,7 +2992,7 @@ namespace folia {
       args2.erase("suggestions" );
       string id = generateId( "correction" );
       args2["xml:id"] = id;
-      corr = new Correction( args2, mydoc );
+      corr = new Correction( args2, doc );
     }
 #ifdef DEBUG_CORRECT
     cerr << "now corr= " << corr << endl;
@@ -3002,7 +3002,7 @@ namespace folia {
 	throw runtime_error("When setting current=, original= and new= can not be set!");
       }
       for ( const auto& cur : current ) {
-	FoliaElement *add = new Current( mydoc );
+	FoliaElement *add = new Current( doc );
 	cur->setParent(0);
 	add->append( cur );
 	corr->replace( add );
@@ -3023,7 +3023,7 @@ namespace folia {
 #ifdef DEBUG_CORRECT
       cerr << "there is new! " << endl;
 #endif
-      addnew = new New( mydoc );
+      addnew = new New( doc );
       corr->append(addnew);
       for ( const auto& nw : _new ) {
 	nw->setParent(0);
@@ -3045,7 +3045,7 @@ namespace folia {
 #ifdef DEBUG_CORRECT
       cerr << "there is original! " << endl;
 #endif
-      FoliaElement *add = new Original( mydoc );
+      FoliaElement *add = new Original( doc );
       corr->replace(add);
 #ifdef DEBUG_CORRECT
       cerr << " corr after replace " << corr << endl;
@@ -3119,7 +3119,7 @@ namespace folia {
 #ifdef DEBUG_CORRECT
 	cerr << "we seem to have some originals! " << endl;
 #endif
-	FoliaElement *add = new Original( mydoc );
+	FoliaElement *add = new Original( doc );
 #ifdef DEBUG_CORRECT
 	cerr << "corr before adding new original! " << corr << endl;
 #endif
@@ -3210,7 +3210,7 @@ namespace folia {
 	  corr->append( sug );
 	}
 	else {
-	  FoliaElement *add = new Suggestion( mydoc );
+	  FoliaElement *add = new Suggestion( doc );
 	  sug->setParent(0);
 	  add->append( sug );
 	  corr->append( add );
@@ -3553,7 +3553,7 @@ namespace folia {
 			       const string& val ) const {
     vector<Word*> result;
     if ( size > 0 ) {
-      vector<Word*> words = mydoc->words();
+      vector<Word*> words = doc()->words();
       for ( size_t i=0; i < words.size(); ++i ) {
 	if ( words[i] == this ) {
 	  size_t miss = 0;
@@ -3568,7 +3568,7 @@ namespace folia {
 	      KWargs args;
 	      args["text"] = val;
 	      PlaceHolder *p = new PlaceHolder( args );
-	      mydoc->keepForDeletion( p );
+	      doc()->keepForDeletion( p );
 	      result.push_back( p );
 	    }
 	  }
@@ -3584,7 +3584,7 @@ namespace folia {
 		KWargs args;
 		args["text"] = val;
 		PlaceHolder *p = new PlaceHolder( args );
-		mydoc->keepForDeletion( p );
+		doc()->keepForDeletion( p );
 		result.push_back( p );
 	      }
 	    }
@@ -3602,7 +3602,7 @@ namespace folia {
     //  cerr << "leftcontext : " << size << endl;
     vector<Word*> result;
     if ( size > 0 ) {
-      vector<Word*> words = mydoc->words();
+      vector<Word*> words = doc()->words();
       for ( size_t i=0; i < words.size(); ++i ) {
 	if ( words[i] == this ) {
 	  size_t miss = 0;
@@ -3617,7 +3617,7 @@ namespace folia {
 	      KWargs args;
 	      args["text"] = val;
 	      PlaceHolder *p = new PlaceHolder( args );
-	      mydoc->keepForDeletion( p );
+	      doc()->keepForDeletion( p );
 	      result.push_back( p );
 	    }
 	  }
@@ -3636,7 +3636,7 @@ namespace folia {
     vector<Word*> result;
     //  cerr << "rightcontext : " << size << endl;
     if ( size > 0 ) {
-      vector<Word*> words = mydoc->words();
+      vector<Word*> words = doc()->words();
       size_t begin;
       size_t end;
       for ( size_t i=0; i < words.size(); ++i ) {
@@ -3652,7 +3652,7 @@ namespace folia {
 		KWargs args;
 		args["text"] = val;
 		PlaceHolder *p = new PlaceHolder( args );
-		mydoc->keepForDeletion( p );
+		doc()->keepForDeletion( p );
 		result.push_back( p );
 	      }
 	    }
@@ -3762,10 +3762,10 @@ namespace folia {
     if ( id.empty() ) {
       throw XmlError( "empty id in WordReference" );
     }
-    if ( mydoc->debug ) {
+    if ( doc()->debug ) {
       cerr << "Found word reference: " << id << endl;
     }
-    FoliaElement *ref = (*mydoc)[id];
+    FoliaElement *ref = (*doc())[id];
     if ( ref ) {
       if ( !ref->referable() ){
 	throw XmlError( "WordReference id=" + id + " refers to a non-referable word: "
@@ -3802,7 +3802,7 @@ namespace folia {
       throw XmlError( "ID required for LinkReference" );
     }
     refId = val;
-    if ( mydoc->debug ) {
+    if ( doc()->debug ) {
       cerr << "Found LinkReference ID " << refId << endl;
     }
     ref_type = att["type"];
@@ -3815,7 +3815,7 @@ namespace folia {
 
   FoliaElement *LinkReference::resolve_element( const Relation *ref ) const {
     if ( ref->href().empty() ) {
-      return (*mydoc)[refId];
+      return (*doc())[refId];
     }
     throw NotImplementedError( "LinkReference::resolve() for external doc" );
   }
@@ -3941,7 +3941,7 @@ namespace folia {
     if ( child->isSubClass( AbstractSpanAnnotation_t ) ) {
       string st = child->sett();
       if ( !st.empty()
-	   && mydoc->defaultset( child->annotation_type() ) != st ) {
+	   && doc()->defaultset( child->annotation_type() ) != st ) {
 	c_set = st;
       }
     }
@@ -3953,7 +3953,7 @@ namespace folia {
 	  if ( el->isSubClass( AbstractSpanAnnotation_t ) ) {
 	    string st = el->sett();
 	    if ( !st.empty()
-		 && mydoc->defaultset( el->annotation_type() ) != st ) {
+		 && doc()->defaultset( el->annotation_type() ) != st ) {
 	      c_set = st;
 	      break;
 	    }
@@ -3968,7 +3968,7 @@ namespace folia {
 	    if ( el->isSubClass( AbstractSpanAnnotation_t ) ) {
 	      string st = el->sett();
 	      if ( !st.empty()
-		   && mydoc->defaultset( el->annotation_type() ) != st ) {
+		   && doc()->defaultset( el->annotation_type() ) != st ) {
 		c_set = st;
 		break;
 	      }
@@ -3982,7 +3982,7 @@ namespace folia {
 	  if ( el->isSubClass( AbstractSpanAnnotation_t ) ) {
 	    string st = el->sett();
 	    if ( !st.empty()
-		 && mydoc->defaultset( el->annotation_type() ) != st ) {
+		 && doc()->defaultset( el->annotation_type() ) != st ) {
 	      c_set = st;
 	      break;
 	    }
@@ -4003,7 +4003,7 @@ namespace folia {
 				      + " failed while it already has set='"
 				      + sett() + "'" );
     }
-    mydoc->incrRef( child->annotation_type(), sett() );
+    doc()->incrRef( child->annotation_type(), sett() );
   }
 
   FoliaElement *AbstractAnnotationLayer::append( FoliaElement *child ) {
@@ -4102,7 +4102,7 @@ namespace folia {
       }
       else if ( p->type == XML_COMMENT_NODE ) {
 	string tag = "_XmlComment";
-	FoliaElement *t = createElement( tag, mydoc );
+	FoliaElement *t = createElement( tag, doc() );
 	if ( t ) {
 	  t = t->parseXml( p );
 	  append( t );
@@ -4415,10 +4415,10 @@ namespace folia {
 	      FoliaElement *parent = _parent;
 	      KWargs args = parent->collectAttributes();
 	      args["xml:id"] = bogus_id;
-	      Text *tmp = new Text( args, mydoc );
+	      Text *tmp = new Text( args, doc() );
 	      tmp->AbstractElement::parseXml( p );
 	      FoliaElement *old = parent->replace( this, tmp->index(0) );
-	      mydoc->delDocIndex( tmp, bogus_id );
+	      doc()->delDocIndex( tmp, bogus_id );
 	      tmp->remove( (size_t)0, false );
 	      delete tmp;
 	      delete old;
@@ -4442,7 +4442,7 @@ namespace folia {
     KWargs att = getAttributes( node );
     setAttributes( att );
     if ( _include ) {
-      mydoc->addExternal( this );
+      doc()->addExternal( this );
     }
     return this;
   }
@@ -4756,11 +4756,11 @@ namespace folia {
   }
 
   const FoliaElement* AbstractTextMarkup::resolveid() const {
-    if ( idref.empty() || !mydoc ) {
+    if ( idref.empty() || !doc() ) {
       return this;
     }
     else {
-      return mydoc->index(idref);
+      return doc()->index(idref);
     }
   }
 
