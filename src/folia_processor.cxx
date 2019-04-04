@@ -118,7 +118,7 @@ namespace folia {
     _is_setup = true;
   }
 
-  void Processor::declare( AnnotationType::AnnotationType at,
+  void Processor::declare( const AnnotationType::AnnotationType& at,
 			   const string& setname,
 			   const string& args ) {
     if ( !ok() ){
@@ -132,7 +132,7 @@ namespace folia {
     }
   }
 
-  bool Processor::is_declared( AnnotationType::AnnotationType at,
+  bool Processor::is_declared( const AnnotationType::AnnotationType& at,
 			       const string& setname ) const {
     if ( !ok() ){
       throw logic_error( "is_declared() called on invalid processor!" );
@@ -142,7 +142,7 @@ namespace folia {
     }
   }
 
-  void Processor::declare( AnnotationType::AnnotationType at,
+  void Processor::declare( const AnnotationType::AnnotationType& at,
 			   const string& setname,
 			   const string& annotator,
 			   const string& annotator_type,
@@ -161,10 +161,10 @@ namespace folia {
     }
   }
 
-  bool Processor::is_declared( AnnotationType::AnnotationType at,
+  bool Processor::is_declared( const AnnotationType::AnnotationType& at,
 			       const string& setname,
 			       const string& annotator,
-			       const string& annotator_type,
+			       const AnnotatorType& annotator_type,
 			       const string& processor ) const {
     if ( !ok() ){
       throw logic_error( "is_declared() called on invalid processor!" );
@@ -172,6 +172,21 @@ namespace folia {
     else {
       return _out_doc->isDeclared( at, setname, annotator, annotator_type, processor );
     }
+  }
+
+  bool Processor::is_declared( const AnnotationType::AnnotationType& at,
+			       const string& setname,
+			       const string& annotator,
+			       const string& annotator_type,
+			       const string& processor ) const {
+    AnnotatorType ant = UNDEFINED;
+    try {
+      ant = TiCC::stringTo<AnnotatorType>(annotator_type);
+    }
+    catch (...){
+      throw logic_error( annotator_type + " is NOT a valid annotator type" );
+    }
+    return is_declared( at, setname, annotator, ant, processor );
   }
 
   void Processor::set_metadata( const std::string& att,
@@ -660,7 +675,7 @@ namespace folia {
 
   xml_tree *get_structure_parent( const xml_tree *pnt ){
     if ( pnt->parent->tag != "w"
-	 && isSubClass( stringToET(pnt->parent->tag),
+	 && isSubClass( stringToElementType(pnt->parent->tag),
 			AbstractStructureElement_t ) ){
       return pnt->parent;
     }

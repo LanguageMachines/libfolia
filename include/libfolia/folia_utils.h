@@ -121,12 +121,13 @@ namespace folia {
   };
 
   std::string toString( const AnnotationType::AnnotationType& );
-  AnnotationType::AnnotationType stringToAT( const std::string& );
+  AnnotationType::AnnotationType stringToAnnotationType( const std::string& );
 
-  AnnotatorType stringToANT( const std::string& );
+  AnnotatorType stringToAnnotatorType( const std::string& );
+  std::string toString( const AnnotatorType& );
 
   std::string toString( const ElementType& );
-  ElementType stringToET( const std::string& );
+  ElementType stringToElementType( const std::string& );
 
   typedef std::map<std::string, std::string> Arguments;
 
@@ -183,17 +184,17 @@ namespace TiCC {
 
   template<>
     inline folia::AnnotationType::AnnotationType stringTo( const std::string& str ) {
-    return folia::stringToAT( str );
+    return folia::stringToAnnotationType( str );
   }
 
   template<>
     inline folia::ElementType stringTo( const std::string& str ) {
-    return folia::stringToET( str );
+    return folia::stringToElementType( str );
   }
 
   template<>
     inline folia::AnnotatorType stringTo( const std::string& str ) {
-    return folia::stringToANT( str );
+    return folia::stringToAnnotatorType( str );
   }
 
 } // namespace TiCC

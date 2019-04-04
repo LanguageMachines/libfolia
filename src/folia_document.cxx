@@ -721,7 +721,7 @@ namespace folia {
       sub->_folia_version = folia_version();
       sub->_version = library_version();
       sub->_id = p->_id + ".generator";
-      sub->_type = "generator";
+      sub->_type = GENERATOR;
       sub->_name = "libfolia";
       p->_processors.push_back(sub);
     }
@@ -769,7 +769,8 @@ namespace folia {
       string tag = TiCC::Name( n );
       if ( tag.length() > 11 && tag.substr( tag.length() - 11 ) == "-annotation" ){
 	string prefix = tag.substr( 0,  tag.length() - 11 );
-	AnnotationType::AnnotationType at_type = stringToAT( prefix );
+	AnnotationType::AnnotationType at_type
+	  = TiCC::stringTo<AnnotationType::AnnotationType>( prefix );
 	if ( debug ){
 	  cerr << "parse " << prefix << "-annotation" << endl;
 	}
@@ -881,7 +882,7 @@ namespace folia {
     os << space << "name=" << _name << endl;
     os << space << "id=" << _id << endl;
     os << space << "version=" << _version << endl;
-    os << space << "type=" << _type << endl;
+    os << space << "type=" << TiCC::toString(_type) << endl;
     os << space << "folia_version=" << _folia_version << endl;
     os << space << "document_version=" << _document_version << endl;
     os << space << "command=" << _command << endl;
@@ -946,7 +947,7 @@ namespace folia {
     _begindatetime = getNow();
     _folia_version = folia_version();
     _version = library_version();
-    _type = "generator";
+    _type = GENERATOR;
   }
 
   processor::processor( const xmlNode *node ) {
@@ -976,6 +977,7 @@ namespace folia {
   }
 
   void processor::init( const KWargs& atts ) {
+    _type = AUTO;
     for ( const auto& att : atts ){
       if ( att.first == "begindatetime" ){
 	_begindatetime = att.second;
@@ -1006,7 +1008,13 @@ namespace folia {
 	_folia_version = att.second;
       }
       else if ( att.first == "type" ){
-	_type = att.second;
+	try {
+	  _type = TiCC::stringTo<AnnotatorType>( att.second );
+	}
+	catch (...){
+	  throw XmlError( "processor: invalid value for 'type' attribute: "
+			  + att.second );
+	}
       }
       else if ( att.first == "host" ){
 	_host = att.second;
@@ -1023,16 +1031,6 @@ namespace folia {
     }
     if ( _name.empty() ){
       throw XmlError( "processor: missing 'name' attribute" );
-    }
-    if ( _type.empty() ){
-      _type = "auto";
-    }
-    else if ( _type != "auto"
-	      && _type != "manual"
-	      && _type != "generator"
-	      && _type != "datasource" ){
-      throw XmlError( "processor: invalid value for 'type' attribute: "
-		      + _type );
     }
   }
 
@@ -1761,6 +1759,14 @@ namespace folia {
 	   << annotator_type << "," << date_time << "," << _alias << ","
 	   << processors << ") " << endl;
     }
+    AnnotatorType ant = UNDEFINED;
+    try {
+      ant = TiCC::stringTo<AnnotatorType>( annotator_type );
+    }
+    catch (...) {
+      throw XmlError( "declare(): illegal value '"
+		      + annotator_type + "' for annotator type" );
+    }
     if ( !_alias.empty() ){
       string set_ali = alias(type,setname);
       if ( !set_ali.empty() ){
@@ -1784,7 +1790,7 @@ namespace folia {
 			+ ali_set );
       }
     }
-    if ( !isDeclared( type, setname, annotator, annotator_type, processors ) ){
+    if ( !isDeclared( type, setname, annotator, ant, processors ) ){
       if ( !unalias(type,setname).empty()
 	   && unalias(type,setname) != setname ){
 	throw XmlError( "setname: " + setname + " is also in use as an alias" );
@@ -1796,7 +1802,7 @@ namespace folia {
       if ( processors.empty() ){
 	// old style
 	_annotationdefaults[type].insert( make_pair( setname,
-						     at_t(annotator,annotator_type,d,processors) ) );
+						     at_t(annotator,ant,d,processors) ) );
       }
       else {
 	// new style
@@ -1804,7 +1810,7 @@ namespace folia {
 	if ( set_pos == _annotationdefaults[type].end() ){
 	  // no processer annotations yet
 	  _annotationdefaults[type].insert( make_pair( setname,
-						       at_t(annotator,annotator_type,d,processors) ) );
+						       at_t(annotator,ant,d,processors) ) );
 
 	}
 	else {
@@ -1918,14 +1924,14 @@ namespace folia {
     throw XmlError( "Only can append 'text' or 'speech' as root of a Document." );
   }
 
-  bool Document::isDeclared( AnnotationType::AnnotationType type,
+  bool Document::isDeclared( const AnnotationType::AnnotationType& type,
 			     const string& set_name,
 			     const string& annotator,
-			     const string& annotator_type,
+			     const AnnotatorType& annotator_type,
 			     const string& processor ) const {
     if ( debug ){
       cerr << "isdeclared? ( " << toString(type) << "," << set_name << ","
-	   << annotator << "," << annotator_type << "," << processor
+	   << annotator << "," << toString(annotator_type) << "," << processor
 	   << ") " << endl;
     }
     //
@@ -1977,10 +1983,10 @@ namespace folia {
     return false;
   }
 
-  bool Document::isDeclared( AnnotationType::AnnotationType type,
+  bool Document::isDeclared( const AnnotationType::AnnotationType& type,
 			     const string& set_name,
 			     const string& annotator,
-			     const string& annotator_type,
+			     const AnnotatorType& annotator_type,
 			     const set<string>& processors ) const {
     if ( processors.empty() ){
       return isDeclared( type, set_name, annotator, annotator_type, "" );
@@ -2015,7 +2021,7 @@ namespace folia {
     }
   }
 
-  bool Document::isDeclared( AnnotationType::AnnotationType type,
+  bool Document::isDeclared( const AnnotationType::AnnotationType& type,
 			     const string& setname ) const {
     if ( type == AnnotationType::NO_ANN ){
       return true;
@@ -2334,8 +2340,8 @@ namespace folia {
     KWargs atts;
     atts["xml:id"] = p->_id;
     atts["name"] = p->_name;
-    if ( p->_type != "auto" ){
-      atts["type"] = p->_type;
+    if ( p->_type != AUTO ){
+      atts["type"] = toString(p->_type);
     }
     if ( !strip() ){
       if ( !p->_version.empty() ){

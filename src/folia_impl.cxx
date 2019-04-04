@@ -4666,7 +4666,7 @@ namespace folia {
 
   xmlNode* ForeignData::get_data() const {
     xmlNode *result = xmlCopyNode(_foreign_data, 1 );
-    clean_ns( result, NSFOLIA ); // HACK: remove FoLiA namespace def
+    clean_ns( result, NSFOLIA ); // Sanity: remove FoLiA namespace defs, if any
     return result;
   }
 

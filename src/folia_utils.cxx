@@ -52,7 +52,7 @@ namespace folia {
 
     ElementType et = BASE;
     try {
-      et = stringToET( tag );
+      et = stringToElementType( tag );
     }
     catch ( const ValueError& e ){
       cerr << e.what() << endl;
@@ -445,7 +445,7 @@ namespace folia {
       if ( !s.empty() ){
 	ElementType et2;
 	try {
-	  et2 = stringToET( s );
+	  et2 = stringToElementType( s );
 	}
 	catch ( const ValueError& e ){
 	  cerr << "no element type found for string '" << s << "'" << endl;

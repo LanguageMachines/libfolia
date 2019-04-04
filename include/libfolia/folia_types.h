@@ -40,7 +40,13 @@ namespace folia {
   }
 
 
-  enum AnnotatorType: int { UNDEFINED = -1, AUTO = 0, MANUAL = 1 };
+  enum AnnotatorType: int {
+    UNDEFINED = -1,
+      AUTO = 0,
+      MANUAL = 1,
+      GENERATOR = 2,
+      DATASOURCE = 3
+      };
 
   //foliaspec:attributes
   //Defines all common FoLiA attributes (as part of the Attrib enumeration)

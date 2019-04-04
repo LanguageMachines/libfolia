@@ -90,8 +90,8 @@ namespace folia {
     std::string name() const { return _name; };
     std::string annotator() const { return _name; };
     std::string id() const { return _id; };
-    std::string type() const { return _type; };
-    std::string annotatortype() const { return _type; };
+    AnnotatorType type() const { return _type; };
+    AnnotatorType annotatortype() const { return _type; };
     std::string version() const { return _version; } ;
     std::string document_version() const { return _document_version; };
     std::string folia_version() const { return _folia_version; };
@@ -106,7 +106,7 @@ namespace folia {
   private:
     std::string _name;
     std::string _id;
-    std::string _type;
+    AnnotatorType _type;
     std::string _version;
     std::string _document_version;
     std::string _folia_version;
@@ -221,17 +221,17 @@ namespace folia {
 
     FoliaElement *index( const std::string& ) const; //retrieve element with specified ID
     FoliaElement* operator []( const std::string& ) const ; //index as operator
-    bool isDeclared( AnnotationType::AnnotationType,
+    bool isDeclared( const AnnotationType::AnnotationType&,
 		     const std::string&,
 		     const std::string&,
-		     const std::string&,
+		     const AnnotatorType&,
 		     const std::string& ) const;
-    bool isDeclared( AnnotationType::AnnotationType,
+    bool isDeclared( const AnnotationType::AnnotationType&,
 		     const std::string&,
 		     const std::string&,
-		     const std::string&,
+		     const AnnotatorType&,
 		     const std::set<std::string>& ) const;
-    bool isDeclared( AnnotationType::AnnotationType,
+    bool isDeclared( const AnnotationType::AnnotationType&,
 		     const std::string& = "" ) const;
     bool declared( AnnotationType::AnnotationType at,
 		   const std::string& s="" ) const {
@@ -297,11 +297,11 @@ namespace folia {
       friend std::ostream& operator<<( std::ostream&, const at_t& );
     public:
     at_t( const std::string& _a,
-	  const std::string& _t,
+	  const AnnotatorType& _t,
 	  const std::string& _d,
 	  const std::set<std::string>& _p ): a(_a),t(_t),d(_d),p(_p){};
       std::string a;
-      std::string t;
+      AnnotatorType t;
       std::string d;
       std::set<std::string> p;
     };
