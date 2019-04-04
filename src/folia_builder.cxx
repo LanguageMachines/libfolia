@@ -48,13 +48,12 @@ namespace folia {
     FoliaElement *t;
     if ( dt == TEXT ){
       args["xml:id"] = id + ".text";
-      t = new Text( args );
+      t = _doc->setTextRoot( args );
     }
     else {
       args["xml:id"] = id + ".speech";
-      t = new Speech( args );
+      t = _doc->setSpeechRoot( args );
     }
-    _doc->setRoot( t );
     root_node = t;
   }
 

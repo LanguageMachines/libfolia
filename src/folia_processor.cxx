@@ -364,8 +364,7 @@ namespace folia {
 	else if ( local_name == "text" ){
 	  _doc_type = TEXT;
 	  KWargs args = get_attributes(_reader);
-	  Text *text = new Text( args, _out_doc );
-	  _out_doc->setRoot( text );
+	  FoliaElement *text =_out_doc->setTextRoot( args );
 	  _root_node = text;
 	  _current_node = text;
 	  _ok = true;
@@ -375,8 +374,7 @@ namespace folia {
 	else if ( local_name == "speech" ){
 	  _doc_type = SPEECH;
 	  KWargs args = get_attributes(_reader);
-	  Speech *sp = new Speech( args, _out_doc );
-	  _out_doc->setRoot( sp );
+	  FoliaElement *sp = _out_doc->setSpeechRoot( args );
 	  _root_node = sp;
 	  _current_node = sp;
 	  _ok = true;

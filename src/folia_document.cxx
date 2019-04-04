@@ -1887,42 +1887,35 @@ namespace folia {
     return result;
   }
 
-  Text* Document::addText( const KWargs& kwargs ){
-    Text *res = new Text( kwargs, this );
-    foliadoc->append( res );
-    return res;
-  }
-
-  Speech* Document::addSpeech( const KWargs& kwargs ){
-    Speech *res = new Speech( kwargs, this );
-    foliadoc->append( res );
-    return res;
-  }
-
-  Text* Document::addText( Text *t ){
+  Text* Document::setTextRoot( KWargs& args ) {
+    Text *t = new Text( args );
     foliadoc->append( t );
     return t;
   }
 
-  Speech* Document::addSpeech( Speech *t ){
-    foliadoc->append( t );
-    return t;
+  Text* Document::setTextRoot() {
+    KWargs empty;
+    return setTextRoot( empty );
   }
 
-  FoliaElement* Document::setRoot( FoliaElement *t ) {
-    if ( t->element_id() == Text_t ){
-      return addText(dynamic_cast<Text*>(t) );
-    }
-    else if ( t->element_id() == Speech_t ){
-      return addSpeech(dynamic_cast<Speech*>(t) );
+  Speech* Document::setSpeechRoot( KWargs& args ) {
+    Speech *s = new Speech( args );
+    foliadoc->append( s );
+    return s;
+  }
+
+  Speech* Document::setSpeechRoot() {
+    KWargs empty;
+    return setSpeechRoot( empty );;
+  }
+
+  FoliaElement* Document::append( FoliaElement *t ){
+    if ( t->element_id() == Text_t
+	 || t->element_id() == Speech_t ) {
+      foliadoc->append( t );
+      return t;
     }
     throw XmlError( "Only can append 'text' or 'speech' as root of a Document." );
-  }
-
-  FoliaElement* Document::append( FoliaElement *t ){  // OBSOLETE
-    // cerr << "\nWARNING!! Obsolete Document::append() function is used. "
-    // 	 << "Please replace by Document::setRoot() ASAP." << endl;
-    return setRoot(t);
   }
 
   bool Document::isDeclared( AnnotationType::AnnotationType type,

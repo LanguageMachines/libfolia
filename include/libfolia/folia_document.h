@@ -173,12 +173,17 @@ namespace folia {
     std::string xmlstring( bool k = false ) const;
     int size() const;
     FoliaElement* doc() const { return foliadoc; }
-    Text* addText( const KWargs& );
-    Text* addText( Text * );
-    Speech* addSpeech( const KWargs& );
-    Speech* addSpeech( Speech * );
-    FoliaElement* append( FoliaElement *t ); // OBSOLETE
-    FoliaElement* setRoot( FoliaElement * );
+    FoliaElement* append( FoliaElement *t );
+    Text* setTextRoot();
+    Text* setTextRoot( KWargs& );
+    Speech* setSpeechRoot();
+    Speech* setSpeechRoot( KWargs& );
+    // backward compatible:
+    Text* addText( KWargs& a ){ return setTextRoot( a ); };
+    Text* addText( Text *t ){ return dynamic_cast<Text*>( append(t) ); };
+    Speech* addSpeech( KWargs& a ){ return setSpeechRoot( a ); };
+    Speech* addSpeech( Speech *s ){ return dynamic_cast<Speech*>( append(s) ); };
+
     void set_foreign_metadata( xmlNode * );
     void addStyle( const std::string&, const std::string& );
     void replaceStyle( const std::string&, const std::string& );
