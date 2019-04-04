@@ -253,8 +253,8 @@ namespace folia {
 
     std::string defaultannotator( AnnotationType::AnnotationType,
 				  const std::string& ="" ) const;
-    std::string defaultannotatortype( AnnotationType::AnnotationType,
-				      const std::string& ="" ) const;
+    AnnotatorType defaultannotatortype( AnnotationType::AnnotationType,
+					const std::string& ="" ) const;
 
     std::string defaultdatetime( AnnotationType::AnnotationType,
 				 const std::string& ="" ) const;

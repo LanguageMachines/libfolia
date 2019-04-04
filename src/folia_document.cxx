@@ -56,7 +56,7 @@ namespace folia {
   string DEFAULT_PHON_SET =" https://raw.githubusercontent.com/proycon/folia/master/setdefinitions/phon.foliaset.ttl";
 
   inline std::ostream& operator<<( std::ostream& os, const Document::at_t& at ){
-    os << "<" << at.a << "," << at.t << "," << at.d << "," << at.p << ">";
+    os << "<" << at.a << "," << TiCC::toString(at.t) << "," << at.d << "," << at.p << ">";
     return os;
   }
 
@@ -1692,6 +1692,10 @@ namespace folia {
   void Document::declare( AnnotationType::AnnotationType type,
 			  const string& setname,
 			  const string& args ){
+    if ( debug ){
+      cerr << "declare( " << TiCC::toString(type) << "," << setname << ", ["
+	   << args << "] )" << endl;
+    }
     string st = setname;
     if ( st.empty() ){
       if ( version_below( 1, 6 ) ){
@@ -1755,7 +1759,7 @@ namespace folia {
 			  const set<string>& processors,
 			  const string& _alias ){
     if ( debug ){
-      cerr << "declare( " << toString(type) << "," << setname << "," << annotator << ","
+      cerr << "declare( " << TiCC::toString(type) << "," << setname << "," << annotator << ","
 	   << annotator_type << "," << date_time << "," << _alias << ","
 	   << processors << ") " << endl;
     }
@@ -2113,17 +2117,25 @@ namespace folia {
     return result;
   }
 
-  string Document::defaultannotatortype( AnnotationType::AnnotationType type,
-					 const string& st ) const {
+  AnnotatorType Document::defaultannotatortype( AnnotationType::AnnotationType type,
+						const string& st ) const {
+    if ( debug ){
+      cerr << "annotationdefaults= " <<  _annotationdefaults << endl;
+      cerr << "lookup: " << TiCC::toString(type) << endl;
+    }
+    AnnotatorType result = UNDEFINED;
     if ( type == AnnotationType::NO_ANN ){
-      return "";
+      return result;
     }
     const auto& mit1 = _annotationdefaults.find(type);
-    string result;
     if ( mit1 != _annotationdefaults.end() ){
+      if ( debug ){
+	cerr << "found a git for type=" << TiCC::toString( type ) << endl;
+      }
       if ( st.empty() ){
-	if ( mit1->second.size() == 1 )
+	if ( mit1->second.size() == 1 ){
 	  result = mit1->second.begin()->second.t;
+	}
 	return result;
       }
       else {
@@ -2241,9 +2253,10 @@ namespace folia {
 	  if ( !s.empty() ){
 	    args["annotator"] = s;
 	  }
-	  s = it->second.t;
-	  if ( !s.empty() )
-	    args["annotatortype"] = s;
+	  AnnotatorType ant = it->second.t;
+	  if ( ant != UNDEFINED && ant != AUTO ){
+	    args["annotatortype"] = toString(ant);
+	  }
 	  if ( !strip() ){
 	    s = it->second.d;
 	    if ( !s.empty() )

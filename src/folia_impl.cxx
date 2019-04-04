@@ -412,12 +412,10 @@ namespace folia {
       }
     }
     else {
-      string def;
-      if ( doc() &&
-	   (def = doc()->defaultannotatortype( annotation_type(), _set ) ) != ""  ) {
-	_annotator_type = stringTo<AnnotatorType>( def );
-	if ( _annotator_type == UNDEFINED ) {
-	  throw ValueError("annotatortype must be 'auto' or 'manual'");
+      if ( doc() ){
+	AnnotatorType def = doc()->defaultannotatortype( annotation_type(), _set );
+	if ( def != UNDEFINED ) {
+	  _annotator_type = def;
 	}
       }
     }
@@ -791,7 +789,7 @@ namespace folia {
       attribs["textclass"] = _textclass;
     }
     if ( _annotator_type != UNDEFINED ) {
-      AnnotatorType at = stringTo<AnnotatorType>( doc()->defaultannotatortype( annotation_type(), _set ) );
+      AnnotatorType at = doc()->defaultannotatortype( annotation_type(), _set );
       if ( (!isDefaultSet || !isDefaultAnn) && _annotator_type != at ) {
 	if ( _annotator_type == AUTO ) {
 	  attribs["annotatortype"] = "auto";

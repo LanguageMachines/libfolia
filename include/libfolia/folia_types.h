@@ -41,11 +41,11 @@ namespace folia {
 
 
   enum AnnotatorType: int {
-    UNDEFINED = -1,
-      AUTO = 0,
-      MANUAL = 1,
-      GENERATOR = 2,
-      DATASOURCE = 3
+    UNDEFINED = 0,
+      AUTO = 1,
+      MANUAL = 2,
+      GENERATOR = 3,
+      DATASOURCE = 4
       };
 
   //foliaspec:attributes
