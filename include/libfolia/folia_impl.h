@@ -108,8 +108,8 @@ namespace folia {
     virtual std::vector<FoliaElement*> findreplacables( FoliaElement * ) const = 0;
     virtual void replace( FoliaElement * ) = 0;
     virtual FoliaElement* replace( FoliaElement *, FoliaElement* ) = 0;
-
-
+    virtual void insert_after( FoliaElement *, FoliaElement * ) = 0;
+    virtual const std::vector<FoliaElement*>& data() const = 0;
     virtual FoliaElement *head() const NOT_IMPLEMENTED;
 
     // Sentences
@@ -373,7 +373,7 @@ namespace folia {
     virtual const PhonContent *phoncontent( const std::string& = "current" ) const = 0;
 
     // properties
-    virtual const std::string& getTextDelimiter( bool retaintok=false ) const = 0;
+    virtual const std::string& getTextDelimiter( bool=false ) const = 0;
     virtual void setDateTime( const std::string& ) = 0;
     virtual const std::string getDateTime() const = 0;
     virtual const std::string pos( const std::string& = "" ) const NOT_IMPLEMENTED;
@@ -501,7 +501,7 @@ namespace folia {
     }
 
     //functions regarding contained data
-    size_t size() const { return data.size(); };
+    size_t size() const { return _data.size(); };
     FoliaElement* index( size_t ) const;
     FoliaElement* rindex( size_t ) const;
 
@@ -517,8 +517,8 @@ namespace folia {
     void assignDoc( Document* );
     FoliaElement *parent() const { return _parent; };
     void setParent( FoliaElement *p ) { _parent = p ; };
-    bool acceptable( ElementType ) const;
-    bool addable( const FoliaElement * ) const;
+
+    // modify the internal data
     FoliaElement *append( FoliaElement* );
     FoliaElement *postappend( );
     void remove( size_t, bool = true );
@@ -526,13 +526,15 @@ namespace folia {
     std::vector<FoliaElement*> findreplacables( FoliaElement * ) const;
     void replace( FoliaElement * );
     FoliaElement* replace( FoliaElement *, FoliaElement* );
+    void insert_after( FoliaElement *, FoliaElement * );
+    const std::vector<FoliaElement*>& data() const { return _data; };
 
     // Sentences
     Sentence *addSentence( const KWargs& );
 
+    // MetaData
     const MetaData *getmetadata() const;
     const std::string getmetadata( const std::string&  ) const;
-
 
     // Selections
     template <typename F>
@@ -565,6 +567,7 @@ namespace folia {
       return FoliaElement::select<F>( exclude, recurse );
     }
 
+
     const std::string annotator( ) const { return _annotator; };
     void annotator( const std::string& a ) { _annotator = a; };
     const std::string processor( ) const { return _processor; };
@@ -584,9 +587,8 @@ namespace folia {
     std::vector<std::string> feats( const std::string& ) const;
     const std::string feat( const std::string& ) const;
 
-    //XML (de)serialisation
+    //XML parsing
     FoliaElement* parseXml( const xmlNode * );
-    xmlNode *xml( bool, bool = false ) const;
 
     // text/string content
 
@@ -610,9 +612,9 @@ namespace folia {
     const PhonContent *phoncontent( const std::string& = "current" ) const;
 
     // properties
-    const std::string& getTextDelimiter( bool retaintok=false ) const;
-    void setDateTime( const std::string& );
-    const std::string getDateTime() const;
+    const std::string& getTextDelimiter( bool=false ) const;
+
+    // attributes
     const std::string cls() const { return _class; };
     const std::string sett() const { return _set; };
     void update_cls( const std::string& cls ) { _class = cls; };
@@ -628,7 +630,6 @@ namespace folia {
     const std::string href() const;
     bool space() const { return _space; };
     const std::string src(){ return _src; };
-
     double confidence() const { return _confidence; };
     void confidence( double d ) { _confidence = d; };
 
@@ -655,42 +656,46 @@ namespace folia {
 
     Document *doc() const { return _mydoc; };
 
+
+    std::vector<FoliaElement*> select( ElementType elementtype,
+				       bool = true ) const;
+    std::vector<FoliaElement*> select( ElementType elementtype,
+				       const std::set<ElementType>& ,
+				       bool = true ) const;
+    std::vector<FoliaElement*> select( ElementType elementtype,
+				       const std::string&,
+				       bool = true ) const;
+    std::vector<FoliaElement*> select( ElementType elementtype,
+				       const std::string&,
+				       const std::set<ElementType>& ,
+				       bool = true ) const;
+
+  protected:
+    xmlNode *xml( bool, bool = false ) const;
+    void setAttributes( const KWargs& );
     bool checkAtts();
+    KWargs collectAttributes() const;
+    int refcount() const { return _refcount; };
+    void increfcount() { ++_refcount; };
+    void setAuth( bool b ){ _auth = b; };
+    xmlNs *foliaNs() const;
+    bool acceptable( ElementType ) const;
+    bool addable( const FoliaElement * ) const;
+    void setDateTime( const std::string& );
+    const std::string getDateTime() const;
     void check_text_consistency() const;
     void check_append_text_consistency( const FoliaElement * ) const;
 
-    std::vector<FoliaElement*> select( ElementType elementtype,
-				       bool = true ) const;
-    std::vector<FoliaElement*> select( ElementType elementtype,
-				       const std::set<ElementType>& ,
-				       bool = true ) const;
-    std::vector<FoliaElement*> select( ElementType elementtype,
-				       const std::string&,
-				       bool = true ) const;
-    std::vector<FoliaElement*> select( ElementType elementtype,
-				       const std::string&,
-				       const std::set<ElementType>& ,
-				       bool = true ) const;
-    int refcount() const { return _refcount; };
-    void increfcount() { ++_refcount; };
-    void setAttributes( const KWargs& );
-    KWargs collectAttributes() const;
-    void setAuth( bool b ){ _auth = b; };
-
-  protected:
-    xmlNs *foliaNs() const;
-    std::vector<FoliaElement*> data;
-    FoliaElement *_parent;
-    bool _auth;
-    std::map<std::string,std::string> _xlink;
-
   private:
-    Document *_mydoc;
-    std::string _set;
-    std::string _class;
-    std::string _id;
     static FoliaElement *private_createElement( ElementType );
     void addFeatureNodes( const KWargs& args );
+    Document *_mydoc;
+    FoliaElement *_parent;
+    bool _auth;
+    bool _space;
+    AnnotatorType _annotator_type;
+    int _refcount;
+    double _confidence;
     std::string _annotator;
     std::string _n;
     std::string _datetime;
@@ -700,11 +705,12 @@ namespace folia {
     std::string _textclass;
     std::string _metadata;
     std::string _processor;
-    AnnotatorType _annotator_type;
-    double _confidence;
-    int _refcount;
-        std::string _src;
-    bool _space;
+    std::string _set;
+    std::string _class;
+    std::string _id;
+    std::string _src;
+    std::map<std::string,std::string> _xlink;
+    std::vector<FoliaElement*> _data;
     const properties& _props;
   };
 
