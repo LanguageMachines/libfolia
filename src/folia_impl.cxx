@@ -720,7 +720,7 @@ namespace folia {
       try {
 	tmp = doc()->defaultprocessor( annotation_type(), _set );
       }
-      catch ( NoDefaultError ){
+      catch ( NoDefaultError& ){
       }
       catch ( ... ){
 	throw;
