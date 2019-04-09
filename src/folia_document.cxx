@@ -697,9 +697,9 @@ namespace folia {
     return _metadata->get_val( type );
   }
 
-  const processor *Document::get_processor( const string& type ) const {
+  processor *Document::get_processor( const string& pid ) const {
     if ( _provenance ){
-      return _provenance->get_processor( type );
+      return _provenance->get_processor( pid );
     }
     else {
       return 0;
@@ -713,24 +713,34 @@ namespace folia {
 	_provenance = new Provenance();
       }
     }
-    processor *p = new processor();
-    p->init( args );
-    if ( args.find("generator") == args.end() ){
-      // we automagicly add a subprocessor.
-      processor *sub = new processor();
-      //      sub->set_system_defaults();
-      sub->_folia_version = folia_version();
-      sub->_version = library_version();
-      sub->_id = p->_id + ".generator";
-      sub->_type = GENERATOR;
-      sub->_name = "libfolia";
-      p->_processors.push_back(sub);
+    auto it = args.find( "id" );
+    if ( it == args.end() ){
+      it = args.find( "xml:id" );
+      if ( it == args.end() ){
+	throw runtime_error( "KUT" );
+      }
     }
-    if ( parent ){
-      parent->_processors.push_back( p );
-    }
-    else {
-      _provenance->processors.push_back( p );
+    processor *p = get_processor( it->second );
+    if ( !p ){
+      p = new processor();
+      p->init( args );
+      if ( args.find("generator") == args.end() ){
+	// we automagicly add a subprocessor.
+	processor *sub = new processor();
+	//      sub->set_system_defaults();
+	sub->_folia_version = folia_version();
+	sub->_version = library_version();
+	sub->_id = p->_id + ".generator";
+	sub->_type = GENERATOR;
+	sub->_name = "libfolia";
+	p->_processors.push_back(sub);
+      }
+      if ( parent ){
+	parent->_processors.push_back( p );
+      }
+      else {
+	_provenance->processors.push_back( p );
+      }
     }
     return p;
   }
@@ -1067,7 +1077,7 @@ namespace folia {
     return os;
   }
 
-  void fill_index( const processor *proc, map<string,const processor*>& index ){
+  void fill_index( processor *proc, map<string,processor*>& index ){
     // cerr << "fill: " << proc->id() << " with " << proc->name()
     // 	 << " adres: " << (void*)proc << endl;
     index[proc->id()] = proc;
@@ -1087,8 +1097,8 @@ namespace folia {
     }
   }
 
-  const processor *Provenance::get_processor( const string& pid ) const {
-    std::map<std::string,const processor*> _index;
+  processor *Provenance::get_processor( const string& pid ) const {
+    std::map<std::string, processor*> _index;
     //    cerr << "zoek: " << pid << endl;
     if ( _index.empty() ){
       for ( const auto& p : processors ){

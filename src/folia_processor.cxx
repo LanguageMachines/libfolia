@@ -132,6 +132,20 @@ namespace folia {
     }
   }
 
+  void Processor::declare( const AnnotationType::AnnotationType& at,
+			   const string& setname,
+			   const KWargs& args ) {
+    if ( !ok() ){
+      throw logic_error( "declare() called on invalid processor!" );
+    }
+    else if ( _header_done ){
+      throw logic_error( "declare() called on already (partially) saved document!" );
+    }
+    else {
+      _out_doc->declare( at, setname, args );
+    }
+  }
+
   bool Processor::is_declared( const AnnotationType::AnnotationType& at,
 			       const string& setname ) const {
     if ( !ok() ){

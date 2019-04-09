@@ -127,15 +127,15 @@ namespace folia {
   public:
     Provenance(){};
     ~Provenance();
-    const processor *get_processor( const std::string& ) const;
+    processor *get_processor( const std::string& ) const;
     xmlNode *xml();
     Provenance *parseXml( const xmlNode * );
     std::vector<processor*> processors;
-    const processor* operator []( const std::string& s ) const {
+    processor* operator []( const std::string& s ) const {
       //select processor with index s
       return get_processor( s );
     };
-    const processor* index( const std::string& s ) const {
+    processor* index( const std::string& s ) const {
       //select processor with index s
       return get_processor( s );
     };
@@ -223,7 +223,7 @@ namespace folia {
     std::string metadatafile() const;
     void set_metadata( const std::string&, const std::string& );
     const std::string get_metadata( const std::string&) const;
-    const processor *get_processor( const std::string& ) const;
+    processor *get_processor( const std::string& ) const;
     void addDocIndex( FoliaElement*, const std::string& );
     void delDocIndex( const FoliaElement*, const std::string& );
 
