@@ -779,6 +779,7 @@ namespace folia {
 	string st;
 	string annotator;
 	string ann_type;
+	string format;
 	string datetime;
 	string alias;
 	ElementType et = BASE;
@@ -816,9 +817,14 @@ namespace folia {
 	  }
 	  delete tmp;
 	}
+	it = att.find( "format" );
+	if ( it != att.end() ){
+	  format = it->second;
+	}
 	it = att.find( "annotator" );
-	if ( it != att.end() )
+	if ( it != att.end() ){
 	  annotator = it->second;
+	}
 	it = att.find( "annotatortype" );
 	if ( it != att.end() ){
 	  ann_type = it->second;
@@ -868,7 +874,7 @@ namespace folia {
 	if ( !annotator.empty() && !processors.empty() ){
 	  throw XmlError( tag + "-annotation: has both <annotator> node(s) and annotator attribute." );
 	}
-	declare( at_type, st, annotator, ann_type, datetime,
+	declare( at_type, st, format, annotator, ann_type, datetime,
 		 processors, alias );
       }
       n = n->next;
@@ -1693,6 +1699,14 @@ namespace folia {
   void Document::declare( AnnotationType::AnnotationType type,
 			  const string& setname,
 			  const string& args ){
+    KWargs kwargs = getArgs( args );
+    return declare( type, setname, kwargs );
+  }
+
+  void Document::declare( AnnotationType::AnnotationType type,
+			  const string& setname,
+			  const KWargs& _args ){
+    KWargs args = _args;
     if ( debug ){
       cerr << "declare( " << TiCC::toString(type) << "," << setname << ", ["
 	   << args << "] )" << endl;
@@ -1708,24 +1722,25 @@ namespace folia {
       }
     }
     set<string> processors;
-    KWargs kw = getArgs( args );
-    string a = kw["annotator"];
-    string t = kw["annotatortype"];
-    string d = kw["datetime"];
-    string alias = kw["alias"];
-    string processor = kw["processor"];
+    string a = args["annotator"];
+    string t = args["annotatortype"];
+    string f = args["format"];
+    string d = args["datetime"];
+    string alias = args["alias"];
+    string processor = args["processor"];
     if ( !processor.empty() ){
       processors.insert( processor );
     }
-    kw.erase("annotator");
-    kw.erase("annotatortype");
-    kw.erase("datetime");
-    kw.erase("alias");
-    kw.erase("processor");
-    if ( kw.size() != 0 ){
-      throw XmlError( "declaration: expected 'annotator', 'annotatortype', 'processor', 'alias' or 'datetime', got '" + kw.begin()->first + "'" );
+    args.erase("annotator");
+    args.erase("annotatortype");
+    args.erase("format");
+    args.erase("datetime");
+    args.erase("alias");
+    args.erase("processor");
+    if ( args.size() != 0 ){
+      throw XmlError( "declaration: expected 'annotator', 'annotatortype', 'processor', 'alias' or 'datetime', got '" + args.begin()->first + "'" );
     }
-    declare( type, st, a, t, d, processors, alias );
+    declare( type, st, f, a, t, d, processors, alias );
   }
 
   string Document::unalias( AnnotationType::AnnotationType type,
@@ -1754,13 +1769,15 @@ namespace folia {
 
   void Document::declare( AnnotationType::AnnotationType type,
 			  const string& setname,
+			  const string& format,
 			  const string& annotator,
 			  const string& annotator_type,
 			  const string& date_time,
 			  const set<string>& processors,
 			  const string& _alias ){
     if ( debug ){
-      cerr << "declare( " << TiCC::toString(type) << "," << setname << "," << annotator << ","
+      cerr << "declare( " << TiCC::toString(type) << "," << setname
+	   << ", format=" << format << "," << annotator << ","
 	   << annotator_type << "," << date_time << "," << _alias << ","
 	   << processors << ") " << endl;
     }
@@ -1807,7 +1824,7 @@ namespace folia {
       if ( processors.empty() ){
 	// old style
 	_annotationdefaults[type].insert( make_pair( setname,
-						     at_t(annotator,ant,d,processors) ) );
+						     at_t(annotator,ant,d,format,processors) ) );
       }
       else {
 	// new style
@@ -1815,7 +1832,7 @@ namespace folia {
 	if ( set_pos == _annotationdefaults[type].end() ){
 	  // no processer annotations yet
 	  _annotationdefaults[type].insert( make_pair( setname,
-						       at_t(annotator,ant,d,processors) ) );
+						       at_t(annotator,ant,d,format,processors) ) );
 
 	}
 	else {
@@ -2260,8 +2277,13 @@ namespace folia {
 	  }
 	  if ( !strip() ){
 	    s = it->second.d;
-	    if ( !s.empty() )
+	    if ( !s.empty() ){
 	      args["datetime"] = s;
+	    }
+	  }
+	  s = it->second.f;
+	  if ( !s.empty() ){
+	    args["format"] = s;
 	  }
 	  s = it->first;
 	  if ( s != "undefined" ){ // the default
@@ -2302,6 +2324,16 @@ namespace folia {
 	else {
 	  // we have new style processors
 	  KWargs args;
+	  if ( !strip() ){
+	    s = it->second.d;
+	    if ( !s.empty() ){
+	      args["datetime"] = s;
+	    }
+	  }
+	  s = it->second.f;
+	  if ( !s.empty() ){
+	    args["format"] = s;
+	  }
 	  s = it->first;
 	  if ( !s.empty() && s != "undefined" ){ // the default
 	    if ( s == DEFAULT_TEXT_SET

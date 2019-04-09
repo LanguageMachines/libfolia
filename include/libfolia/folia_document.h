@@ -279,7 +279,10 @@ namespace folia {
 		  const std::string&,
 		  const std::string& = "" );
     void declare( AnnotationType::AnnotationType,
-		  const std::string&, const std::string&,
+		  const std::string&,
+		  const KWargs& );
+    void declare( AnnotationType::AnnotationType,
+		  const std::string&, const std::string&, const std::string&,
 		  const std::string&, const std::string&,
 		  const std::set<std::string>&,
 		  const std::string& = "" );
@@ -309,10 +312,12 @@ namespace folia {
     at_t( const std::string& _a,
 	  const AnnotatorType& _t,
 	  const std::string& _d,
-	  const std::set<std::string>& _p ): a(_a),t(_t),d(_d),p(_p){};
+	  const std::string& _f,
+	  const std::set<std::string>& _p ): a(_a),t(_t),d(_d),f(_f),p(_p){};
       std::string a;
       AnnotatorType t;
       std::string d;
+      std::string f;
       std::set<std::string> p;
     };
     void incrRef( AnnotationType::AnnotationType, const std::string& );

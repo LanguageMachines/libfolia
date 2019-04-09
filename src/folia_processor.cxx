@@ -144,6 +144,7 @@ namespace folia {
 
   void Processor::declare( const AnnotationType::AnnotationType& at,
 			   const string& setname,
+			   const string& format,
 			   const string& annotator,
 			   const string& annotator_type,
 			   const string& time,
@@ -156,7 +157,7 @@ namespace folia {
       throw logic_error( "declare() called on already (partially) saved document!" );
     }
     else {
-      _out_doc->declare( at, setname, annotator, annotator_type, time,
+      _out_doc->declare( at, setname, format, annotator, annotator_type, time,
 			 processors, alias );
     }
   }
