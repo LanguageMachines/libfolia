@@ -716,6 +716,7 @@ namespace folia {
     processor *p = new processor();
     p->init( args );
     if ( args.find("generator") == args.end() ){
+      // we automagicly add a subprocessor.
       processor *sub = new processor();
       //      sub->set_system_defaults();
       sub->_folia_version = folia_version();
@@ -1897,7 +1898,7 @@ namespace folia {
     return result;
   }
 
-  Text* Document::setTextRoot( KWargs& args ) {
+  Text* Document::setTextRoot( const KWargs& args ) {
     Text *t = new Text( args );
     foliadoc->append( t );
     return t;
@@ -1908,7 +1909,7 @@ namespace folia {
     return setTextRoot( empty );
   }
 
-  Speech* Document::setSpeechRoot( KWargs& args ) {
+  Speech* Document::setSpeechRoot( const KWargs& args ) {
     Speech *s = new Speech( args );
     foliadoc->append( s );
     return s;
@@ -1916,7 +1917,7 @@ namespace folia {
 
   Speech* Document::setSpeechRoot() {
     KWargs empty;
-    return setSpeechRoot( empty );;
+    return setSpeechRoot( empty );
   }
 
   FoliaElement* Document::append( FoliaElement *t ){

@@ -173,11 +173,21 @@ namespace folia {
     std::string xmlstring( bool k = false ) const;
     int size() const;
     FoliaElement* doc() const { return foliadoc; }
+
+    template <typename T>
+      T *create_root( const KWargs& args ){
+      throw std::logic_error( "create_root() only possible for 'Text' and 'Speech'" );
+    }
+    template <typename T>
+      T *create_root(){
+      throw std::logic_error( "create_root() only possible for 'Text' and 'Speech'" );
+    }
+
     FoliaElement* append( FoliaElement *t );
     Text* setTextRoot();
-    Text* setTextRoot( KWargs& );
+    Text* setTextRoot( const KWargs& );
     Speech* setSpeechRoot();
-    Speech* setSpeechRoot( KWargs& );
+    Speech* setSpeechRoot( const KWargs& );
     // backward compatible:
     Text* addText( KWargs& a ){ return setTextRoot( a ); };
     Text* addText( Text *t ){ return dynamic_cast<Text*>( append(t) ); };
@@ -384,6 +394,25 @@ namespace folia {
     Document( const Document& ); // inhibit copies
     Document& operator=( const Document& ); // inhibit copies
   };
+
+  template <> inline
+    Text *Document::create_root( const KWargs& args ){
+    return setTextRoot( args );
+  }
+
+  template <> inline
+    Speech *Document::create_root( const KWargs& args ){
+    return setSpeechRoot( args );
+  }
+
+  template <> inline
+    Text *Document::create_root(){
+    return setTextRoot();
+  }
+  template <> inline
+    Speech *Document::create_root(){
+    return setSpeechRoot();
+  }
 
   bool operator==( const Document&, const Document& );
   inline bool operator!=( const Document& d1, const Document& d2 ){

@@ -514,6 +514,20 @@ namespace folia {
       return element_id() == obj.element_id();
     }
 
+    template <typename T>
+      inline T *create( KWargs& args ){
+      T *nt = new T(args, doc());
+      append( nt );
+      return nt;
+    }
+
+    template <typename T>
+      inline T *create(){
+      T *nt = new T(doc());
+      append( nt );
+      return nt;
+    }
+
     void assignDoc( Document* );
     FoliaElement *parent() const { return _parent; };
     void setParent( FoliaElement *p ) { _parent = p ; };
@@ -735,6 +749,30 @@ namespace folia {
   template <typename T>
     inline size_t len( const std::vector<T>& v ) {
     return v.size(); }
+
+  template <typename T>
+    T *create( KWargs& args ){
+    return new T(args);
+  }
+
+  template <typename T>
+    T *create( ){
+    return new T();
+  }
+
+  template <typename T>
+    T *create( KWargs& args, FoliaElement* p ){
+    T *nt = new T(args,p->doc());
+    p->append( nt );
+    return nt;
+  }
+
+  template <typename T>
+    T *create( FoliaElement* p ){
+    T *nt = new T(p->doc());
+    p->append( nt );
+    return nt;
+  }
 
   inline const std::string str( const FoliaElement *e,
 				const std::string& cls = "current" ) {
