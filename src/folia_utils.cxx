@@ -507,6 +507,33 @@ namespace folia {
     return true;
   }
 
+  bool checkNS( const xmlNode *n, const string& ns ){
+    string tns = TiCC::getNS(n);
+    if ( tns == ns )
+      return true;
+    else
+      throw runtime_error( "namespace conflict for tag:" + TiCC::Name(n)
+			   + ", wanted:" + ns
+			   + " got:" + tns );
+    return false;
+  }
+
+  map<string,string> getNS_definitions( const xmlNode *node ){
+    map<string,string> result;
+    xmlNs *p = node->nsDef;
+    while ( p ){
+      string pre;
+      string val;
+      if ( p->prefix ){
+	pre = (char *)p->prefix;
+      }
+      val = (char *)p->href;
+      result[pre] = val;
+      p = p->next;
+    }
+    return result;
+  }
+
   UnicodeString normalize_spaces( const UnicodeString& input ){
     // substitute \n \r \t by spaces AND all multiple spaces by 1
     // also trims at back and front.

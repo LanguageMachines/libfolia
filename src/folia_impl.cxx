@@ -1195,6 +1195,59 @@ namespace folia {
     }
   }
 
+  void FoLiA::setAttributes( const KWargs& args ){
+    KWargs atts = args;
+    // we store some attributes in the document itself
+    doc()->setDocumentProps( atts );
+    // use remaining attributes for the FoLiA node
+    // probably only the ID
+    AbstractElement::setAttributes( atts );
+  }
+
+  FoliaElement* FoLiA::parseXml( const xmlNode *node ){
+    ///
+    /// recursively parse a complete FoLiA tree from @node
+    /// the topnode is special, as it carries the main document properties
+    ///
+    KWargs atts = getAttributes( node );
+    if ( !doc() ){
+      throw logic_error( "FoLiA root without Document" );
+    }
+    setAttributes( atts );
+    xmlNode *p = node->children;
+    while ( p ){
+      if ( p->type == XML_ELEMENT_NODE ){
+	if ( TiCC::Name(p) == "metadata" &&
+	     checkNS( p, NSFOLIA ) ){
+	  if ( doc()->debug > 1 ){
+	    cerr << "Found metadata" << endl;
+	  }
+	  doc()->parse_metadata( p );
+	}
+	else {
+	  if ( p && TiCC::getNS(p) == NSFOLIA ){
+	    string tag = TiCC::Name( p );
+	    FoliaElement *t = AbstractElement::createElement( tag, doc() );
+	    if ( t ){
+	      if ( doc()->debug > 2 ){
+		cerr << "created " << t << endl;
+	      }
+	      t = t->parseXml( p );
+	      if ( t ){
+		if ( doc()->debug > 2 ){
+		  cerr << "extend " << this << " met " << tag << endl;
+		}
+		this->append( t );
+	      }
+	    }
+	  }
+	}
+      }
+      p = p->next;
+    }
+    return this;
+  }
+
   const UnicodeString FoLiA::text( const string& cls,
 				   bool retaintok,
 				   bool strict ) const {

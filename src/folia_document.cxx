@@ -41,6 +41,7 @@
 #include "ticcutils/XMLtools.h"
 #include "ticcutils/StringOps.h"
 #include "ticcutils/Unicode.h"
+#include "ticcutils/Timer.h"
 #include "ticcutils/zipper.h"
 #include "libfolia/folia.h"
 #include "libfolia/folia_properties.h"
@@ -58,44 +59,6 @@ namespace folia {
   inline std::ostream& operator<<( std::ostream& os, const Document::at_t& at ){
     os << "<" << at.a << "," << TiCC::toString(at.t) << "," << at.d << "," << at.p << ">";
     return os;
-  }
-
-  string getNow() {
-    time_t Time;
-    time(&Time);
-    tm curtime;
-    localtime_r(&Time,&curtime);
-    char buf[256];
-    strftime( buf, 100, "%Y-%m-%dT%X", &curtime );
-    string res = buf;
-    return res;
-  }
-
-  bool checkNS( const xmlNode *n, const string& ns ){
-    string tns = TiCC::getNS(n);
-    if ( tns == ns )
-      return true;
-    else
-      throw runtime_error( "namespace conflict for tag:" + TiCC::Name(n)
-			   + ", wanted:" + ns
-			   + " got:" + tns );
-    return false;
-  }
-
-  map<string,string> getNS_definitions( const xmlNode *node ){
-    map<string,string> result;
-    xmlNs *p = node->nsDef;
-    while ( p ){
-      string pre;
-      string val;
-      if ( p->prefix ){
-	pre = (char *)p->prefix;
-      }
-      val = (char *)p->href;
-      result[pre] = val;
-      p = p->next;
-    }
-    return result;
   }
 
   Document::Document(){
@@ -491,7 +454,7 @@ namespace folia {
 
   bool Document::save( ostream& os, const string& nsLabel, bool kanon ) const {
     string s = toXml( nsLabel, ( kanon || strip() ) );
-    os << s << endl;
+    os << s;  // the string already ends with a newline (i hope....)
     return os.good();
   }
 
@@ -961,7 +924,7 @@ namespace folia {
 
   void processor::set_system_defaults(){
     _host = getfqdn();
-    _begindatetime = getNow();
+    _begindatetime = TiCC::Timer::now();
     _folia_version = folia_version();
     _version = library_version();
     _type = GENERATOR;
@@ -1382,59 +1345,6 @@ namespace folia {
     }
   }
 
-  void FoLiA::setAttributes( const KWargs& args ){
-    KWargs atts = args;
-    // we store some attributes in the document itself
-    doc()->setDocumentProps( atts );
-    // use remaining attributes for the FoLiA node
-    // probably only the ID
-    AbstractElement::setAttributes( atts );
-  }
-
-  FoliaElement* FoLiA::parseXml( const xmlNode *node ){
-    ///
-    /// recursively parse a complete FoLiA tree from @node
-    /// the topnode is special, as it carries the main document properties
-    ///
-    KWargs atts = getAttributes( node );
-    if ( !doc() ){
-      throw logic_error( "FoLiA root without Document" );
-    }
-    setAttributes( atts );
-    xmlNode *p = node->children;
-    while ( p ){
-      if ( p->type == XML_ELEMENT_NODE ){
-	if ( TiCC::Name(p) == "metadata" &&
-	     checkNS( p, NSFOLIA ) ){
-	  if ( doc()->debug > 1 ){
-	    cerr << "Found metadata" << endl;
-	  }
-	  doc()->parse_metadata( p );
-	}
-	else {
-	  if ( p && TiCC::getNS(p) == NSFOLIA ){
-	    string tag = TiCC::Name( p );
-	    FoliaElement *t = AbstractElement::createElement( tag, doc() );
-	    if ( t ){
-	      if ( doc()->debug > 2 ){
-		cerr << "created " << t << endl;
-	      }
-	      t = t->parseXml( p );
-	      if ( t ){
-		if ( doc()->debug > 2 ){
-		  cerr << "extend " << this << " met " << tag << endl;
-		}
-		this->append( t );
-	      }
-	    }
-	  }
-	}
-      }
-      p = p->next;
-    }
-    return this;
-  }
-
   void Document::parse_metadata( const xmlNode *p ){
     MetaData *result = 0;
     KWargs atts = getAttributes( p );
@@ -1829,7 +1739,7 @@ namespace folia {
       }
       string d = date_time;
       if ( d == "now()" ){
-	d = getNow();
+	d = TiCC::Timer::now();
       }
       if ( processors.empty() ){
 	// old style
