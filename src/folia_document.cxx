@@ -388,8 +388,8 @@ namespace folia {
 
   ostream& operator<<( ostream& os, const Document *d ){
     if ( d ){
-      string s = d->toXml( "", d->strip() );
-      os << s; // the string already ends with a newline (i hope....)
+      os << d->toXml( "", d->strip() );
+      // the toXml() string already ends with a newline (i hope....)
     }
     else {
       os << "MISSING DOCUMENT" << endl;
@@ -398,8 +398,8 @@ namespace folia {
   }
 
   bool Document::save( ostream& os, const string& nsLabel, bool kanon ) const {
-    string s = toXml( nsLabel, ( kanon || strip() ) );
-    os << s << endl;
+    os << toXml( nsLabel, ( kanon || strip() ) );
+    // the toXml() string already ends with a newline (i hope....)
     return os.good();
   }
 
@@ -1851,8 +1851,9 @@ namespace folia {
       xmlFreeDoc( outDoc );
       _foliaNsOut = 0;
     }
-    else
+    else {
       throw runtime_error( "can't save, no doc" );
+    }
     return result;
   }
 
