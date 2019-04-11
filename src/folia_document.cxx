@@ -669,8 +669,12 @@ namespace folia {
     }
   }
 
-  processor *Document::add_processor( const KWargs& args,
+  processor *Document::add_processor( const KWargs& _args,
 				      processor *parent ){
+    KWargs args = _args;
+    if ( debug ){
+      cerr << "ADD_PROCESSOR: " << args << endl;
+    }
     if ( !parent ){
       if ( !_provenance ){
 	_provenance = new Provenance();
@@ -684,10 +688,43 @@ namespace folia {
       }
     }
     string pid = it->second;
+    if ( pid == "next()" ){
+      if ( debug ){
+	cerr << "CALCULATE NEXT" << endl;
+      }
+      if ( parent ){
+	if ( !parent->processors().empty() ){
+	  string prev_id = parent->processors().back()->id();
+	  if ( debug ){
+	    cerr << "prev id = " << prev_id << endl;
+	  }
+	  vector<string> v = TiCC::split_at( prev_id, "." );
+	  int val;
+	  if ( TiCC::stringTo( v.back(), val ) ){
+	    v.back() = TiCC::toString(++val);
+	  }
+	  pid.clear();
+	  for ( const auto& it :  v ){
+	    pid += it + ".";
+	  }
+	  pid.pop_back();
+	}
+	else {
+	  pid = parent->id() + ".1";
+	}
+	if ( debug ){
+	  cerr << "next pid =" << pid << endl;
+	}
+      }
+      else {
+	throw runtime_error( "processor id=next() impossible. No parent" );
+      }
+    }
     processor *p = get_processor( pid );
     if ( p ){
       throw DuplicateIDError( "processor '" + pid + "' already exist" );
     }
+    args["xml:id"] = pid;
     p = new processor( args );
     _provenance->add_index(p);
     if ( args.find("generator") == args.end() ){
