@@ -969,12 +969,12 @@ namespace folia {
     init(args);
   }
 
-  void processor::set_system_defaults(){
+  void processor::get_system_defaults(){
     _host = getfqdn();
     _begindatetime = TiCC::Timer::now();
     _folia_version = folia_version();
     _version = library_version();
-    _type = GENERATOR;
+    //    _user = getuser();
   }
 
   void processor::init( const KWargs& atts ) {
