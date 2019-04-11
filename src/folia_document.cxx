@@ -680,30 +680,32 @@ namespace folia {
     if ( it == args.end() ){
       it = args.find( "xml:id" );
       if ( it == args.end() ){
-	throw runtime_error( "KUT" );
+	throw runtime_error( "cannot create a processor: missing 'xml:id' argument" );
       }
     }
-    processor *p = get_processor( it->second );
-    if ( !p ){
-      p = new processor();
-      p->init( args );
-      if ( args.find("generator") == args.end() ){
-	// we automagicly add a subprocessor.
-	processor *sub = new processor();
-	//      sub->set_system_defaults();
-	sub->_folia_version = folia_version();
-	sub->_version = library_version();
-	sub->_id = p->_id + ".generator";
-	sub->_type = GENERATOR;
-	sub->_name = "libfolia";
-	p->_processors.push_back(sub);
-      }
-      if ( parent ){
-	parent->_processors.push_back( p );
-      }
-      else {
-	_provenance->processors.push_back( p );
-      }
+    string pid = it->second;
+    processor *p = get_processor( pid );
+    if ( p ){
+      throw DuplicateIDError( "processor '" + pid + "' already exist" );
+    }
+    p = new processor( args );
+    _provenance->add_index(p);
+    if ( args.find("generator") == args.end() ){
+      // we automagicly add a subprocessor.
+      processor *sub = new processor();
+      //      sub->set_system_defaults();
+      sub->_folia_version = folia_version();
+      sub->_version = library_version();
+      sub->_id = p->_id + ".generator";
+      sub->_type = GENERATOR;
+      sub->_name = "libfolia";
+      p->_processors.push_back(sub);
+    }
+    if ( parent ){
+      parent->_processors.push_back( p );
+    }
+    else {
+      _provenance->processors.push_back( p );
     }
     return p;
   }
@@ -922,38 +924,16 @@ namespace folia {
   processor::processor(){
   }
 
+  processor::processor( const KWargs & args ){
+    init(args);
+  }
+
   void processor::set_system_defaults(){
     _host = getfqdn();
     _begindatetime = TiCC::Timer::now();
     _folia_version = folia_version();
     _version = library_version();
     _type = GENERATOR;
-  }
-
-  processor::processor( const xmlNode *node ) {
-    KWargs atts = getAttributes( node );
-    init( atts );
-    xmlNode *n = node->children;
-    while ( n ){
-      string tag = TiCC::Name( n );
-      if ( tag == "processor" ){
-     	processor *p = new processor(n);
-	_processors.push_back(p);
-      }
-      if ( tag == "meta" ){
-	KWargs atts = getAttributes( n );
-	string id = atts["id"];
-	if ( id.empty() ){
-	  throw XmlError( "processor: missing 'id' for meta tag" );
-	}
-	if ( atts.size() != 1 ){
-	  throw XmlError( "processor: invalid attribute(s) in meta tag" );
-	}
-	string value = TiCC::XmlContent( n );
-	_metadata[id] = value;
-      }
-      n = n->next;
-    }
   }
 
   void processor::init( const KWargs& atts ) {
@@ -1020,6 +1000,53 @@ namespace folia {
     }
   }
 
+  Provenance::~Provenance(){
+    for ( const auto& p : processors ){
+      delete p;
+    }
+  }
+
+  processor *Provenance::get_processor( const string& pid ) const {
+    const auto& p = _index.find( pid );
+    if ( p != _index.end() ){
+      return p->second;
+    }
+    else {
+      return 0;
+    }
+  }
+
+  void Provenance::add_index( processor *p ){
+    _index[p->id()] = p;
+  }
+
+  processor *Provenance::parse_processor( const xmlNode *node ) {
+    KWargs atts = getAttributes( node );
+    processor *result = new processor( atts );
+    add_index( result );
+    xmlNode *n = node->children;
+    while ( n ){
+      string tag = TiCC::Name( n );
+      if ( tag == "processor" ){
+     	processor *p = parse_processor(n);
+	result->_processors.push_back(p);
+      }
+      if ( tag == "meta" ){
+	KWargs atts = getAttributes( n );
+	string id = atts["id"];
+	if ( id.empty() ){
+	  throw XmlError( "processor: missing 'id' for meta tag" );
+	}
+	if ( atts.size() != 1 ){
+	  throw XmlError( "processor: invalid attribute(s) in meta tag" );
+	}
+	string value = TiCC::XmlContent( n );
+	result->_metadata[id] = value;
+      }
+      n = n->next;
+    }
+    return result;
+  }
 
   ostream& operator<<( ostream& os, const Provenance& p ){
     os << "provenance data" << endl;
@@ -1040,54 +1067,13 @@ namespace folia {
     return os;
   }
 
-  void fill_index( processor *proc, map<string,processor*>& index ){
-    // cerr << "fill: " << proc->id() << " with " << proc->name()
-    // 	 << " adres: " << (void*)proc << endl;
-    index[proc->id()] = proc;
-    for ( const auto& p : proc->processors() ){
-      fill_index( p, index );
-    }
-    //    cerr << "INDEX is gevuld!: " << endl;
-    // for ( const auto& it: index ){
-    //   cerr << it.first << " " << it.second->id() <<  " adres: "
-    // 	   << (void*)(it.second)  << endl;
-    // }
-  }
-
-  Provenance::~Provenance(){
-    for ( const auto& p : processors ){
-      delete p;
-    }
-  }
-
-  processor *Provenance::get_processor( const string& pid ) const {
-    std::map<std::string, processor*> _index;
-    //    cerr << "zoek: " << pid << endl;
-    if ( _index.empty() ){
-      for ( const auto& p : processors ){
-	fill_index( p, _index );
-      }
-    }
-    // cerr << "UITEINDELIJK INDEX is gevuld!: " << endl;
-    // for ( const auto& it: _index ){
-    //   cerr << it.first << " " << it.second->id() << endl;
-    // }
-    const auto& p = _index.find( pid );
-    if ( p != _index.end() ){
-      return p->second;
-    }
-    else {
-      return 0;
-    }
-  }
-
   void Document::parseprovenance( const xmlNode *node ){
     Provenance *result = new Provenance();
     xmlNode *n = node->children;
     while ( n ){
       string tag = TiCC::Name( n );
       if ( tag == "processor" ){
-	result->processors.push_back( new processor(n) );
+	result->processors.push_back( result->parse_processor(n) );
       }
       n = n->next;
     }
@@ -1672,7 +1658,7 @@ namespace folia {
 	return sti->second;
       }
     }
-    return "";
+    return alias;
   }
 
   string Document::alias( AnnotationType::AnnotationType type,
@@ -1684,7 +1670,7 @@ namespace folia {
 	return ali->second;
       }
     }
-    return "";
+    return st;
   }
 
   void Document::declare( AnnotationType::AnnotationType type,
@@ -1712,30 +1698,30 @@ namespace folia {
     if ( !_alias.empty() ){
       string set_ali = alias(type,setname);
       if ( !set_ali.empty() ){
-	if ( set_ali != _alias ){
-	  throw XmlError( "setname: " + setname + " already has an alias: "
+	if ( set_ali != setname
+	     && set_ali != _alias ){
+	  throw XmlError( "setname: '" + setname + "' already has an alias: '"
 			  + set_ali );
 	}
       }
       string ali_ali = alias(type,_alias);
       string ali_set = unalias(type,_alias);
-      if ( !ali_ali.empty() ){
-	if( ali_ali != _alias ){
-	  throw XmlError( "alias: " + _alias +
-			  " is also in use as a setname for set:'"
-			  + ali_set + "'" );
-	}
+      if ( ali_ali != _alias ){
+	throw XmlError( "alias: '" + _alias +
+			"' is also in use as a setname for set:'"
+			+ ali_set + "'" );
       }
-      if ( !ali_set.empty()
+      if ( ali_set != _alias
 	   && ali_set != setname ){
-	throw XmlError( "alias: " + _alias + " already used for setname: "
-			+ ali_set );
+	throw XmlError( "alias: '" + _alias + "' already used for setname: '"
+			+ ali_set + "'" );
       }
     }
     if ( !isDeclared( type, setname, annotator, ant, processors ) ){
       if ( !unalias(type,setname).empty()
 	   && unalias(type,setname) != setname ){
-	throw XmlError( "setname: " + setname + " is also in use as an alias" );
+	throw XmlError( "setname: '" + setname
+			+ "' is also in use as an alias" );
       }
       string d = date_time;
       if ( d == "now()" ){
@@ -1970,9 +1956,14 @@ namespace folia {
     }
     const auto& mit1 = _annotationdefaults.find(type);
     if ( mit1 != _annotationdefaults.end() ){
-      if ( setname.empty() )
+      // cerr << "found some for: " << toString(type) << endl;
+      // cerr << mit1->second << endl;
+      if ( setname.empty() ){
 	return true;
-      const auto& mit2 = mit1->second.find(setname);
+      }
+      string set_name = unalias(type,setname);
+      //      cerr << "lookup: " << setname << " (" << set_name << ")" << endl;
+      const auto& mit2 = mit1->second.find(set_name);
       return mit2 != mit1->second.end();
     }
     return false;
@@ -2068,7 +2059,7 @@ namespace folia {
     const auto& mit1 = _annotationdefaults.find(type);
     if ( mit1 != _annotationdefaults.end() ){
       if ( debug ){
-	cerr << "found a git for type=" << TiCC::toString( type ) << endl;
+	cerr << "found a hit for type=" << TiCC::toString( type ) << endl;
       }
       if ( st.empty() ){
 	if ( mit1->second.size() == 1 ){

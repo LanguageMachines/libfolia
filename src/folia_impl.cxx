@@ -317,7 +317,7 @@ namespace folia {
 	}
       }
       if ( !doc()->isDeclared( annotation_type(), _set ) ) {
-	throw ValueError( "Set " + _set + " is used but has no declaration " +
+	throw ValueError( "Set '" + _set + "' is used but has no declaration " +
 			  "for " + toString( annotation_type() ) + "-annotation" );
       }
     }

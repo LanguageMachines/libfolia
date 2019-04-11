@@ -81,8 +81,9 @@ namespace folia {
 
   class processor {
     friend class Document;
+    friend class Provenance;
   public:
-    processor( const xmlNode * );
+    processor( const KWargs& );
     processor();
     ~processor();
     void init( const KWargs& );
@@ -127,6 +128,7 @@ namespace folia {
   public:
     Provenance(){};
     ~Provenance();
+    processor *parse_processor( const xmlNode * );
     processor *get_processor( const std::string& ) const;
     xmlNode *xml();
     Provenance *parseXml( const xmlNode * );
@@ -139,7 +141,9 @@ namespace folia {
       //select processor with index s
       return get_processor( s );
     };
+    void add_index( processor *p );
   private:
+    std::map<std::string,processor*> _index;
     Provenance( const Provenance& ); // inhibit copy
     Provenance& operator=( const Provenance& ); // inhibit copies
   };
