@@ -703,6 +703,10 @@ namespace folia {
 	  if ( TiCC::stringTo( v.back(), val ) ){
 	    v.back() = TiCC::toString(++val);
 	  }
+	  else {
+	    // not a number, just add .1 then, and pray
+	    v.back() += ".1";
+	  }
 	  pid.clear();
 	  for ( const auto& it :  v ){
 	    pid += it + ".";
