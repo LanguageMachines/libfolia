@@ -992,7 +992,6 @@ namespace folia {
     _host = getfqdn();
     _begindatetime = getNow();
     _folia_version = folia_version();
-    _version = library_version();
     _user = get_user();
   }
 
@@ -1020,9 +1019,6 @@ namespace folia {
       }
       else if ( att.first == "command" ){
 	_command = att.second;
-      }
-      else if ( att.first == "folia_version" ){
-	_folia_version = att.second;
       }
       else if ( att.first == "folia_version" ){
 	_folia_version = att.second;
