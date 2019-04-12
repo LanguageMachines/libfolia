@@ -41,7 +41,6 @@
 #include "ticcutils/XMLtools.h"
 #include "ticcutils/StringOps.h"
 #include "ticcutils/Unicode.h"
-#include "ticcutils/Timer.h"
 #include "ticcutils/zipper.h"
 #include "libfolia/folia.h"
 #include "libfolia/folia_properties.h"
@@ -969,12 +968,32 @@ namespace folia {
     init(args);
   }
 
+  string getNow() {
+    time_t Time;
+    time(&Time);
+    tm curtime;
+    localtime_r(&Time,&curtime);
+    char buf[256];
+    strftime( buf, 100, "%Y-%m-%dT%X", &curtime );
+    string res = buf;
+    return res;
+  }
+
+  string get_user(){
+    string result;
+    const char *env = getenv( "USER" );
+    if ( env ){
+      result = env;
+    }
+    return result;
+  }
+
   void processor::get_system_defaults(){
     _host = getfqdn();
-    _begindatetime = TiCC::Timer::now();
+    _begindatetime = getNow();
     _folia_version = folia_version();
     _version = library_version();
-    //    _user = getuser();
+    _user = get_user();
   }
 
   void processor::init( const KWargs& atts ) {
@@ -1288,6 +1307,7 @@ namespace folia {
     const char *env = getenv( "FOLIA_TEXT_CHECK" );
     if ( env ){
       string e = env;
+      delete env;
       cerr << "DETECTED FOLIA_TEXT_CHECK environment variable, value ='"
 	   << e << "'"<< endl;
       if ( e == "NO" ){
@@ -1766,7 +1786,7 @@ namespace folia {
       }
       string d = date_time;
       if ( d == "now()" ){
-	d = TiCC::Timer::now();
+	d = getNow();
       }
       if ( processors.empty() ){
 	// old style
