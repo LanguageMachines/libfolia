@@ -2364,6 +2364,21 @@ namespace folia {
       if ( !p->_folia_version.empty() ){
 	atts["folia_version"] = p->_folia_version;
       }
+      if ( !p->_command.empty() ){
+	atts["command"] = p->_command;
+      }
+      if ( !p->_host.empty() ){
+	atts["host"] = p->_host;
+      }
+      if ( !p->_user.empty() ){
+	atts["user"] = p->_user;
+      }
+      if ( !p->_begindatetime.empty() ){
+	atts["begindatetime"] = p->_begindatetime;
+      }
+      if ( !p->_enddatetime.empty() ){
+	atts["enddatetime"] = p->_enddatetime;
+      }
     }
     else {
       if ( p->_name == "libfolia" ){
@@ -2372,36 +2387,36 @@ namespace folia {
       else if ( p->_name == "foliapy" ){
 	atts["name"] = "stripped";
       }
+      else if ( !p->_name.empty() ){
+	atts["name"] = p->_name;
+      }
       if ( !p->_version.empty() ){
 	atts["version"] = "stripped";
       }
       if ( !p->_folia_version.empty() ){
 	atts["folia_version"] = "stripped";
       }
+      if ( !p->_command.empty() ){
+	atts["command"] = "stripped";
+      }
+      if ( !p->_host.empty() ){
+	atts["host"] = "stripped";
+      }
+      if ( !p->_user.empty() ){
+	atts["user"] = "stripped";
+      }
+      if ( !p->_begindatetime.empty() ){
+	atts["begindatetime"] = "stripped";
+      }
+      if ( !p->_enddatetime.empty() ){
+	atts["enddatetime"] = "stripped";
+      }
     }
     if ( !p->_document_version.empty() ){
       atts["document_version"] = p->_document_version;
     }
-    if ( !p->_command.empty() ){
-      atts["command"] = p->_command;
-    }
-    if ( !p->_host.empty() ){
-      atts["host"] = p->_host;
-    }
-    if ( !p->_user.empty() ){
-      atts["user"] = p->_user;
-    }
-    if ( !p->_begindatetime.empty() ){
-      atts["begindatetime"] = p->_begindatetime;
-    }
-    if ( !p->_enddatetime.empty() ){
-      atts["enddatetime"] = p->_enddatetime;
-    }
     if ( !p->_resourcelink.empty() ){
       atts["resourcelink"] = p->_resourcelink;
-    }
-    if ( !p->_user.empty() ){
-      atts["user"] = p->_user;
     }
     addAttributes( pr, atts );
     for ( const auto& it : p->_metadata ){
