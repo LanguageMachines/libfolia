@@ -43,7 +43,7 @@ namespace folia {
 
   using TiCC::operator<<;
 
-  Processor::Processor():
+  Engine::Engine():
     _reader(0),
     _out_doc(0),
     _root_node(0),
@@ -63,13 +63,13 @@ namespace folia {
   {
   }
 
-  Processor::~Processor(){
+  Engine::~Engine(){
     xmlFreeTextReader( _reader );
     delete _out_doc;
     delete _os;
   }
 
-  Document *Processor::doc( bool disconnect ){
+  Document *Engine::doc( bool disconnect ){
     // returns the FoLiA document. (assumes it is complete!)
     // may disconnect it from the processor. The caller has to delete it later
     Document *result = _out_doc;
@@ -79,7 +79,7 @@ namespace folia {
     return result;
   }
 
-  bool Processor::set_debug( bool d ) {
+  bool Engine::set_debug( bool d ) {
     bool res = _debug;
     if ( d ){
       if ( !_dbg_file ){
@@ -91,20 +91,20 @@ namespace folia {
     return res;
   }
 
-  void Processor::set_dbg_stream( TiCC::LogStream *ls ){
+  void Engine::set_dbg_stream( TiCC::LogStream *ls ){
     if ( _dbg_file ){
       delete _dbg_file;
     }
     _dbg_file = ls;
   }
 
-  bool TextProcessor::init_doc( const string& i, const string& o ){
+  bool TextEngine::init_doc( const string& i, const string& o ){
     _in_file = i;
     _is_setup = false;
-    return Processor::init_doc( i, o );
+    return Engine::init_doc( i, o );
   }
 
-  void TextProcessor::setup( const string& textclass, bool prefer_sent ){
+  void TextEngine::setup( const string& textclass, bool prefer_sent ){
     string txtc = textclass;
     if ( txtc == "current" ){
       txtc.clear();
@@ -118,7 +118,7 @@ namespace folia {
     _is_setup = true;
   }
 
-  void Processor::declare( const AnnotationType::AnnotationType& at,
+  void Engine::declare( const AnnotationType::AnnotationType& at,
 			   const string& setname,
 			   const string& args ) {
     if ( !ok() ){
@@ -132,7 +132,7 @@ namespace folia {
     }
   }
 
-  void Processor::declare( const AnnotationType::AnnotationType& at,
+  void Engine::declare( const AnnotationType::AnnotationType& at,
 			   const string& setname,
 			   const KWargs& args ) {
     if ( !ok() ){
@@ -146,7 +146,7 @@ namespace folia {
     }
   }
 
-  bool Processor::is_declared( const AnnotationType::AnnotationType& at,
+  bool Engine::is_declared( const AnnotationType::AnnotationType& at,
 			       const string& setname ) const {
     if ( !ok() ){
       throw logic_error( "is_declared() called on invalid processor!" );
@@ -156,7 +156,7 @@ namespace folia {
     }
   }
 
-  void Processor::declare( const AnnotationType::AnnotationType& at,
+  void Engine::declare( const AnnotationType::AnnotationType& at,
 			   const string& setname,
 			   const string& format,
 			   const string& annotator,
@@ -176,7 +176,7 @@ namespace folia {
     }
   }
 
-  bool Processor::is_declared( const AnnotationType::AnnotationType& at,
+  bool Engine::is_declared( const AnnotationType::AnnotationType& at,
 			       const string& setname,
 			       const string& annotator,
 			       const AnnotatorType& annotator_type,
@@ -189,7 +189,7 @@ namespace folia {
     }
   }
 
-  bool Processor::is_declared( const AnnotationType::AnnotationType& at,
+  bool Engine::is_declared( const AnnotationType::AnnotationType& at,
 			       const string& setname,
 			       const string& annotator,
 			       const string& annotator_type,
@@ -204,7 +204,7 @@ namespace folia {
     return is_declared( at, setname, annotator, ant, processor );
   }
 
-  void Processor::set_metadata( const std::string& att,
+  void Engine::set_metadata( const std::string& att,
 				const std::string& val){
     if ( !ok() ){
       throw logic_error( "set_metadata() called on invalid processor!" );
@@ -268,7 +268,7 @@ namespace folia {
     else if ( TiCC::match_back( buf, ".bz2" ) ){
       string buffer = TiCC::bz2ReadFile( buf );
       if ( buffer.empty() ){
-	throw( runtime_error( "folia::Processor(), empty file? (" + buf
+	throw( runtime_error( "folia::Engine(), empty file? (" + buf
 			      + ")" ) );
       }
       // return xmlReaderForMemory( buffer.c_str(), buffer.size(),
@@ -283,7 +283,7 @@ namespace folia {
     return xmlReaderForFile( buf.c_str(), 0, XML_PARSE_HUGE );
   }
 
-  void Processor::add_text( int depth ){
+  void Engine::add_text( int depth ){
     string value = (const char*)xmlTextReaderConstValue(_reader);
     if ( _debug ){
       DBG << "add_text(" << value << ") depth=" << depth << endl;
@@ -293,7 +293,7 @@ namespace folia {
     append_node( txt, depth );
   }
 
-  void Processor::add_comment( int depth ){
+  void Engine::add_comment( int depth ){
     if ( _debug ){
       DBG << "add_comment " << endl;
     }
@@ -302,7 +302,7 @@ namespace folia {
     append_node( t, depth );
   }
 
-  void Processor::add_default_node( int depth ){
+  void Engine::add_default_node( int depth ){
     string local_name = (const char*)xmlTextReaderConstLocalName(_reader);
     if ( local_name == "t" || local_name == "ph" ){
       // so we are AT THE END of a <t> or <ph> !
@@ -328,7 +328,7 @@ namespace folia {
     }
   }
 
-  bool Processor::init_doc( const string& file_name,
+  bool Engine::init_doc( const string& file_name,
 			    const string& out_name ){
     _ok = false;
     _out_doc = new Document();
@@ -338,7 +338,7 @@ namespace folia {
     }
     _reader = create_text_reader( file_name );
     if ( _reader == 0 ){
-      throw( runtime_error( "folia::Processor(), init failed on '" + file_name
+      throw( runtime_error( "folia::Engine(), init failed on '" + file_name
 			    + "'" ) );
     }
     int ret = xmlTextReaderRead(_reader);
@@ -384,7 +384,7 @@ namespace folia {
 	    _out_doc->foliadoc = root;
 	  }
 	  else {
-	    throw XmlError( "Processor: invalid FoLiA. missing ID" );
+	    throw XmlError( "Engine: invalid FoLiA. missing ID" );
 	  }
 	}
 	else if ( local_name == "metadata" ) {
@@ -432,7 +432,7 @@ namespace folia {
     return _ok;
   }
 
-  bool Processor::next(){
+  bool Engine::next(){
     if ( _done ){
       return false;
     }
@@ -441,7 +441,7 @@ namespace folia {
     }
   }
 
-  void Processor::append_node( FoliaElement *t, int new_depth ){
+  void Engine::append_node( FoliaElement *t, int new_depth ){
     if ( new_depth == _last_depth ){
       if ( _debug ){
 	DBG << "append_node(): EQUAL: current node = " << _current_node << endl;
@@ -480,7 +480,7 @@ namespace folia {
     _last_added = t;
   }
 
-  FoliaElement *Processor::get_node( const string& tag ){
+  FoliaElement *Engine::get_node( const string& tag ){
     if ( _done ){
       if ( _debug ){
 	DBG << "get node name(). processor is done" << endl;
@@ -599,7 +599,7 @@ namespace folia {
     return os;
   }
 
-  xml_tree *Processor::create_simple_tree( const string& in_file ) const {
+  xml_tree *Engine::create_simple_tree( const string& in_file ) const {
     ///
     /// create an xmlReader and use that to loop over the full input,
     /// creating a lightweight tree for enumerating all XML_ELEMENTS encountered
@@ -699,7 +699,7 @@ namespace folia {
     }
   }
 
-  map<int,int> TextProcessor::search_text_parents( const xml_tree* start,
+  map<int,int> TextEngine::search_text_parents( const xml_tree* start,
 						   const string& textclass,
 						   bool prefer_sentences ) const{
     map<int,int> result;
@@ -769,7 +769,7 @@ namespace folia {
     return result;
   }
 
-  map<int,int> TextProcessor::enumerate_text_parents( const string& textclass,
+  map<int,int> TextEngine::enumerate_text_parents( const string& textclass,
 						      bool prefer_sent ) const {
     ///
     /// Loop over the full input, looking for textnodes in class 'textclass'
@@ -841,7 +841,7 @@ namespace folia {
     return result;
   }
 
-  FoliaElement *Processor::handle_match( const string& local_name,
+  FoliaElement *Engine::handle_match( const string& local_name,
 					 int depth ){
     FoliaElement *t = AbstractElement::createElement( local_name, _out_doc );
     if ( t ){
@@ -866,7 +866,7 @@ namespace folia {
     }
   }
 
-  void Processor::handle_element( const string& local_name,
+  void Engine::handle_element( const string& local_name,
 				 int depth,
 				 bool skip_t ){
     KWargs atts = get_attributes( _reader );
@@ -940,7 +940,7 @@ namespace folia {
     }
   }
 
-  FoliaElement *TextProcessor::next_text_parent(){
+  FoliaElement *TextEngine::next_text_parent(){
     if ( _done ){
       if ( _debug ){
 	DBG << "next_text_parent(). processor is done" << endl;
@@ -948,7 +948,7 @@ namespace folia {
       return 0;
     }
     if ( !_is_setup ){
-      throw runtime_error( "TextProcessor: not setup yet!" );
+      throw runtime_error( "TextEngine: not setup yet!" );
     }
     if ( text_parent_map.empty() ){
       if ( _debug ){
@@ -1034,19 +1034,19 @@ namespace folia {
   }
 
 
-  bool Processor::output_header(){
+  bool Engine::output_header(){
     if ( _debug ){
-      DBG << "Processor::output_header()" << endl;
+      DBG << "Engine::output_header()" << endl;
     }
     if ( !_os ){
-      throw logic_error( "folia::Processor::output_header() impossible. No output file specified!" );
+      throw logic_error( "folia::Engine::output_header() impossible. No output file specified!" );
       return false;
     }
     if ( _finished ){
       return true;
     }
     else if ( _header_done ){
-      throw logic_error( "folia::Processor::output_header() is called twice!" );
+      throw logic_error( "folia::Engine::output_header() is called twice!" );
       return false;
     }
     _header_done = true;
@@ -1097,15 +1097,15 @@ namespace folia {
     return true;
   }
 
-  bool Processor::output_footer(){
+  bool Engine::output_footer(){
     if ( _debug ){
-      DBG << "Processor::output_footer()" << endl;
+      DBG << "Engine::output_footer()" << endl;
     }
     if ( _finished ){
       return true;
     }
     if ( !_os ){
-      throw logic_error( "folia::Processor::output_footer() impossible. No output file specified!" );
+      throw logic_error( "folia::Engine::output_footer() impossible. No output file specified!" );
       return false;
     }
     else if ( flush() ){
@@ -1118,12 +1118,12 @@ namespace folia {
     }
   }
 
-  bool Processor::flush() {
+  bool Engine::flush() {
     if ( _debug ){
-      DBG << "Processor::flush()" << endl;
+      DBG << "Engine::flush()" << endl;
     }
     if ( !_os ){
-      throw logic_error( "folia::Processor::flush() impossible. No outputfile specified!" );
+      throw logic_error( "folia::Engine::flush() impossible. No outputfile specified!" );
       return false;
     }
     if ( _finished ){
@@ -1142,12 +1142,12 @@ namespace folia {
     return true;
   }
 
-  bool Processor::flush( FoliaElement *root ) {
+  bool Engine::flush( FoliaElement *root ) {
     if ( _debug ){
-      DBG << "Processor::flush( " << root->xmltag() << " )" << endl;
+      DBG << "Engine::flush( " << root->xmltag() << " )" << endl;
     }
     if ( !_os ){
-      throw logic_error( "folia::Processor::flush() impossible. No outputfile specified!" );
+      throw logic_error( "folia::Engine::flush() impossible. No outputfile specified!" );
       return false;
     }
     if ( _finished ){
@@ -1166,12 +1166,12 @@ namespace folia {
     return true;
   }
 
-  bool Processor::finish() {
+  bool Engine::finish() {
     if ( _debug ){
-      DBG << "Processor::finish()" << endl;
+      DBG << "Engine::finish()" << endl;
     }
     if ( !_os ){
-      throw logic_error( "folia::Processor::finish() impossible. No outputfile specified!" );
+      throw logic_error( "folia::Engine::finish() impossible. No outputfile specified!" );
       return false;
     }
     if ( _finished ){
@@ -1180,14 +1180,14 @@ namespace folia {
     return output_footer();
   }
 
-  void Processor::save( const string& name, bool do_kanon ){
+  void Engine::save( const string& name, bool do_kanon ){
     if ( _os && name == _out_name ){
-      throw logic_error( "folia::Processor::save() impossible. Already connected to a stream withe the same name (" + name + ")" );
+      throw logic_error( "folia::Engine::save() impossible. Already connected to a stream withe the same name (" + name + ")" );
     }
     _out_doc->save( name, ns_prefix, do_kanon );
   }
 
-  void Processor::save( ostream& os, bool do_kanon ){
+  void Engine::save( ostream& os, bool do_kanon ){
     _out_doc->save( os, ns_prefix, do_kanon );
   }
 
