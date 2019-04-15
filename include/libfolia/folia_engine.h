@@ -53,14 +53,14 @@ namespace folia {
 
   void print( std::ostream&, const xml_tree* );
 
-  class Processor {
+  class Engine {
   public:
     enum doctype { TEXT, SPEECH };
-    Processor();
-  Processor( const std::string& i, const std::string& o="" ):
-    Processor() { init_doc(i,o); };
+    Engine();
+  Engine( const std::string& i, const std::string& o="" ):
+    Engine() { init_doc(i,o); };
     virtual bool init_doc( const std::string&, const std::string& ="" );
-    virtual ~Processor();
+    virtual ~Engine();
     FoliaElement *get_node( const std::string& );
     bool next();
     void append_node( FoliaElement *, int );
@@ -118,11 +118,11 @@ namespace folia {
     void add_text( int );
   };
 
-  class TextProcessor: public Processor {
+  class TextEngine: public Engine {
   public:
-  TextProcessor(): Processor(){};
-  TextProcessor( const std::string& i, const std::string& o="" ):
-    TextProcessor(){
+  TextEngine(): Engine(){};
+  TextEngine( const std::string& i, const std::string& o="" ):
+    TextEngine(){
       init_doc( i, o );
     }
     bool init_doc( const std::string&, const std::string& ="" );

@@ -82,7 +82,7 @@ namespace folia {
     friend bool operator==( const Document&, const Document& );
     friend std::ostream& operator<<( std::ostream&, const Document * );
     enum Mode { NOMODE=0, PERMISSIVE=1, CHECKTEXT=2, FIXTEXT=4, STRIP=8 };
-    friend class Processor;
+    friend class Engine;
   public:
     Document();
     explicit Document( const KWargs& );
