@@ -1153,9 +1153,9 @@ namespace folia {
     return EMPTY_STRING;
   }
 
-  const UnicodeString AbstractElement::text( const string& cls,
-				       bool retaintok,
-				       bool strict ) const {
+  const UnicodeString AbstractElement::private_text( const string& cls,
+						     bool retaintok,
+						     bool strict ) const {
     // get the UnicodeString value of underlying elements
     // default cls="current"
 #ifdef DEBUG_TEXT
@@ -1193,6 +1193,14 @@ namespace folia {
       }
       return result;
     }
+  }
+
+  const UnicodeString  AbstractElement::internal_text( const std::string& st,
+						       TEXT_FLAGS flags ) const {
+    bool retain = ( TEXT_FLAGS::RETAIN & flags );
+    bool strict = ( TEXT_FLAGS::STRICT & flags );
+    bool hidden = ( TEXT_FLAGS::HIDDEN & flags );
+    return text( st, retain, strict );
   }
 
   void FoLiA::setAttributes( const KWargs& args ){
@@ -1248,9 +1256,9 @@ namespace folia {
     return this;
   }
 
-  const UnicodeString FoLiA::text( const string& cls,
-				   bool retaintok,
-				   bool strict ) const {
+  const UnicodeString FoLiA::private_text( const string& cls,
+					   bool retaintok,
+					   bool strict ) const {
 #ifdef DEBUG_TEXT
     cerr << "FoLiA::TEXT(" << cls << ")" << endl;
 #endif
@@ -1267,6 +1275,14 @@ namespace folia {
     cerr << "FoLiA::TEXT returns '" << result << "'" << endl;
 #endif
     return result;
+  }
+
+  const UnicodeString FoLiA::internal_text( const string& st,
+					    TEXT_FLAGS flags ) const {
+    bool retain = ( TEXT_FLAGS::RETAIN & flags );
+    bool strict = ( TEXT_FLAGS::STRICT & flags );
+    bool hidden = ( TEXT_FLAGS::HIDDEN & flags );
+    return text( st, retain, strict );
   }
 
   UnicodeString trim_space( const UnicodeString& in ){
@@ -1330,7 +1346,7 @@ namespace folia {
   }
 
   const UnicodeString AbstractElement::deeptext( const string& cls,
-					   bool retaintok ) const {
+						 bool retaintok ) const {
     // get the UnicodeString value of underlying elements
     // default cls="current"
 #ifdef DEBUG_TEXT
@@ -4174,9 +4190,9 @@ namespace folia {
     return this;
   }
 
-  const UnicodeString Correction::text( const string& cls,
-					bool retaintok,
-					bool ) const {
+  const UnicodeString Correction::private_text( const string& cls,
+						bool retaintok,
+						bool ) const {
 #ifdef DEBUG_TEXT
     cerr << "TEXT(" << cls << ") op node : " << xmltag() << " id ( " << id() << ")" << endl;
 #endif
@@ -4200,6 +4216,14 @@ namespace folia {
       }
     }
     throw NoSuchText( "cls=" + cls );
+  }
+
+  const UnicodeString Correction::internal_text( const string& st,
+						 TEXT_FLAGS flags ) const {
+    bool retain = ( TEXT_FLAGS::RETAIN & flags );
+    bool strict = ( TEXT_FLAGS::STRICT & flags );
+    bool hidden = ( TEXT_FLAGS::HIDDEN & flags );
+    return text( st, retain, strict );
   }
 
   const string& Correction::getTextDelimiter( bool retaintok ) const {
@@ -4428,7 +4452,12 @@ namespace folia {
     return true;
   }
 
-  const UnicodeString XmlText::text( const string&, bool, bool ) const {
+  const UnicodeString XmlText::private_text( const string&, bool, bool ) const {
+    return internal_text();
+  }
+
+  const UnicodeString XmlText::internal_text( const string&,
+					      TEXT_FLAGS ) const {
     return TiCC::UnicodeFromUTF8(_value);
   }
 
@@ -4805,13 +4834,21 @@ namespace folia {
     AbstractElement::setAttributes( argl );
   }
 
-  const UnicodeString TextMarkupCorrection::text( const string& cls,
-						  bool ret,
-						  bool strict ) const{
+  const UnicodeString TextMarkupCorrection::private_text( const string& cls,
+							  bool ret,
+							  bool strict ) const{
     if ( cls == "original" ) {
       return TiCC::UnicodeFromUTF8(_original);
     }
-    return AbstractElement::text( cls, ret, strict );
+    return AbstractElement::private_text( cls, ret, strict );
+  }
+
+  const UnicodeString TextMarkupCorrection::internal_text( const string& st,
+							   TEXT_FLAGS flags ) const {
+    bool retain = ( TEXT_FLAGS::RETAIN & flags );
+    bool strict = ( TEXT_FLAGS::STRICT & flags );
+    bool hidden = ( TEXT_FLAGS::HIDDEN & flags );
+    return text( st, retain, strict );
   }
 
   const FoliaElement* AbstractTextMarkup::resolveid() const {

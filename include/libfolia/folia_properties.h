@@ -30,6 +30,7 @@ namespace folia {
     bool PRINTABLE; // does text() work on this element
     bool SPEAKABLE; // does phon() work on this element
     bool WREFABLE;  // can this element be refered to by a wref?
+    bool HIDDEN;
     bool XLINK;
     bool AUTH;
     bool SETONLY;

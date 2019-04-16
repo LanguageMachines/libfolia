@@ -66,6 +66,7 @@ namespace folia {
 
   class properties;
   extern const std::set<ElementType> default_ignore_annotations;
+  enum TEXT_FLAGS { NONE, RETAIN=1, STRICT=2, HIDDEN=4 };
 
 #define NOT_IMPLEMENTED {						\
     throw NotImplementedError( xmltag() + "::" + std::string(__func__) ); \
@@ -289,8 +290,13 @@ namespace folia {
 
     virtual const std::string str( const std::string& = "current" ) const = 0;
     const UnicodeString unicode( const std::string& cls = "current" ) const { return text( cls ); };
+    virtual const UnicodeString private_text( const std::string& = "current",
+					      bool = false, bool = false ) const = 0;
     virtual const UnicodeString text( const std::string& = "current",
-				bool = false, bool = false ) const = 0;
+				      bool = false, bool = false ) const = 0;
+    virtual const UnicodeString internal_text( const std::string& = "current",
+					       TEXT_FLAGS = TEXT_FLAGS::NONE ) const = 0;
+    virtual const UnicodeString internal_text( TEXT_FLAGS = TEXT_FLAGS::NONE ) const = 0;
     const UnicodeString stricttext( const std::string& = "current" ) const;
     const UnicodeString toktext( const std::string& = "current" ) const;
     virtual const UnicodeString phon( const std::string& = "current",
@@ -607,8 +613,20 @@ namespace folia {
     // text/string content
 
     const std::string str( const std::string& = "current" ) const;
-    const UnicodeString text( const std::string& = "current",
-			      bool = false, bool = false ) const;
+    const UnicodeString private_text( const std::string& = "current",
+				      bool = false, bool = false ) const;
+    const UnicodeString text( const std::string& st ="current",
+			      bool b1 = false,
+			      bool b2 = false ) const {
+      return private_text( st, b1, b2 );
+    }
+    const UnicodeString internal_text( const std::string& = "current",
+				       TEXT_FLAGS = TEXT_FLAGS::NONE ) const;
+
+    const UnicodeString internal_text( TEXT_FLAGS flags = TEXT_FLAGS::NONE ) const {
+      return internal_text( "current", flags );
+    }
+
 
     const UnicodeString phon( const std::string& = "current",
 			      bool = false ) const;
@@ -1104,8 +1122,10 @@ namespace folia {
 
     void setAttributes( const KWargs& );
     KWargs collectAttributes() const;
-    const UnicodeString text( const std::string& = "current",
-			      bool = false, bool = false ) const;
+    const UnicodeString private_text( const std::string& = "current",
+				      bool = false, bool = false ) const;
+    const UnicodeString internal_text( const std::string& = "current",
+				       TEXT_FLAGS = TEXT_FLAGS::NONE ) const;
   private:
     static properties PROPS;
     std::string _original;
@@ -1227,8 +1247,10 @@ namespace folia {
 
     FoliaElement* parseXml( const xmlNode * );
     void setAttributes( const KWargs& );
-    const UnicodeString text( const std::string& = "current",
-			      bool = false, bool = false ) const;
+    const UnicodeString private_text( const std::string& = "current",
+				      bool = false, bool = false ) const;
+    const UnicodeString internal_text( const std::string& = "current",
+				       TEXT_FLAGS = TEXT_FLAGS::NONE ) const;
   private:
     static properties PROPS;
 
@@ -1365,8 +1387,12 @@ namespace folia {
     AbstractStructureElement( PROPS, d ){ classInit(); };
   Linebreak( const KWargs& a, Document *d = 0 ):
     AbstractStructureElement( PROPS, d ){ classInit( a ); };
-    const UnicodeString text( const std::string& = "current",
-			      bool = false, bool = false ) const {
+    const UnicodeString private_text( const std::string& = "current",
+				      bool = false, bool = false ) const {
+      return "\n";
+    }
+    const UnicodeString internal_text( const std::string& = "current",
+				       TEXT_FLAGS = TEXT_FLAGS::NONE ) const {
       return "\n";
     }
     void setAttributes( const KWargs& );
@@ -1387,10 +1413,15 @@ namespace folia {
   Whitespace( const KWargs& a, Document *d = 0 ):
     AbstractStructureElement( PROPS, d ){ classInit( a ); }
 
-    const UnicodeString text( const std::string& = "current",
-			      bool = false, bool = false ) const {
+    const UnicodeString private_text( const std::string& = "current",
+				      bool = false, bool = false ) const {
       return "\n\n";
     }
+    const UnicodeString internal_text( const std::string& = "current",
+				       TEXT_FLAGS = TEXT_FLAGS::NONE ) const {
+      return "\n\n";
+    }
+
   private:
     static properties PROPS;
   };
@@ -2381,8 +2412,13 @@ namespace folia {
 
     FoliaElement* parseXml( const xmlNode * );
     xmlNode *xml( bool, bool=false ) const;
-    const UnicodeString text( const std::string& = "current",
-			      bool = false, bool = false ) const { return ""; };
+    const UnicodeString private_text( const std::string& = "current",
+				      bool = false,
+				      bool = false ) const { return ""; };
+    const UnicodeString internal_text( const std::string& = "current",
+				       TEXT_FLAGS = TEXT_FLAGS::NONE ) const {
+      return "";
+    }
   private:
     static properties PROPS;
     std::string _value;
@@ -2400,8 +2436,10 @@ namespace folia {
     xmlNode *xml( bool, bool=false ) const;
     bool setvalue( const std::string& );
     const std::string& getTextDelimiter( bool ) const { return EMPTY_STRING; };
-    const UnicodeString text( const std::string& = "current",
-			      bool = false, bool = false ) const;
+    const UnicodeString private_text( const std::string& = "current",
+				      bool = false, bool = false ) const;
+    const UnicodeString internal_text( const std::string& = "current",
+				       TEXT_FLAGS = TEXT_FLAGS::NONE ) const;
   private:
     static properties PROPS;
     std::string _value; //UTF8 value
@@ -2526,8 +2564,11 @@ namespace folia {
     FoliaElement *getCurrent( size_t ) const;
     std::vector<Suggestion*> suggestions() const;
     Suggestion *suggestions( size_t ) const;
-    const UnicodeString text( const std::string& = "current",
-			      bool = false, bool = false ) const;
+    const UnicodeString private_text( const std::string& = "current",
+				      bool = false,
+				      bool = false ) const;
+    const UnicodeString internal_text( const std::string& = "current",
+				       TEXT_FLAGS = TEXT_FLAGS::NONE ) const;
     const TextContent *textcontent( const std::string& = "current" ) const;
     const PhonContent *phoncontent( const std::string& = "current" ) const;
     const std::string& getTextDelimiter( bool=false) const;

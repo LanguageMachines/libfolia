@@ -935,6 +935,7 @@ namespace folia {
     Hiddenword::PROPS.SPEAKABLE = false;
     Hiddenword::PROPS.TEXTDELIMITER = " ";
     Hiddenword::PROPS.WREFABLE = true;
+    Hiddenword::PROPS.HIDDEN = true;
     Hiddenword::PROPS.XMLTAG = "hiddenw";
 //------ Hyphbreak -------
     Hyphbreak::PROPS = AbstractTextMarkup::PROPS;
@@ -1712,6 +1713,7 @@ namespace folia {
       TEXTCONTAINER = false;
       TEXTDELIMITER = "NONE";
       WREFABLE = false;
+      HIDDEN = false;
       XLINK = false;
       XMLTAG = "NONE";
 
