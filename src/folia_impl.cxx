@@ -76,6 +76,10 @@ namespace folia {
     return _props.OPTIONAL_ATTRIBS;
   }
 
+  bool AbstractElement::hidden() const {
+    return _props.HIDDEN;
+  }
+
   map<const string, const string> reverse_old;
 
   const string& AbstractElement::xmltag() const {
@@ -1155,14 +1159,15 @@ namespace folia {
 
   const UnicodeString AbstractElement::private_text( const string& cls,
 						     bool retaintok,
-						     bool strict ) const {
+						     bool strict,
+						     bool show_hidden ) const {
     // get the UnicodeString value of underlying elements
     // default cls="current"
 #ifdef DEBUG_TEXT
     cerr << "TEXT(" << cls << ") op node : " << xmltag() << " id ( " << id() << ")" << endl;
 #endif
     if ( strict ) {
-      return textcontent(cls)->text();
+      return textcontent(cls,show_hidden)->text();
     }
     else if ( is_textcontainer() ){
       UnicodeString result;
@@ -1180,11 +1185,11 @@ namespace folia {
 #endif
       return result;
     }
-    else if ( !printable() ) {
+    else if ( !printable() && !( hidden() && show_hidden ) ){
       throw NoSuchText( "NON printable element: " + xmltag() );
     }
     else {
-      UnicodeString result = deeptext( cls, retaintok );
+      UnicodeString result = deeptext( cls, retaintok,show_hidden );
       if ( result.isEmpty() ) {
 	result = stricttext( cls );
       }
@@ -1200,7 +1205,7 @@ namespace folia {
     bool retain = ( TEXT_FLAGS::RETAIN & flags );
     bool strict = ( TEXT_FLAGS::STRICT & flags );
     bool hidden = ( TEXT_FLAGS::HIDDEN & flags );
-    return text( st, retain, strict );
+    return private_text( st, retain, strict, hidden );
   }
 
   void FoLiA::setAttributes( const KWargs& args ){
@@ -1258,7 +1263,8 @@ namespace folia {
 
   const UnicodeString FoLiA::private_text( const string& cls,
 					   bool retaintok,
-					   bool strict ) const {
+					   bool strict,
+					   bool ) const {
 #ifdef DEBUG_TEXT
     cerr << "FoLiA::TEXT(" << cls << ")" << endl;
 #endif
@@ -1275,14 +1281,6 @@ namespace folia {
     cerr << "FoLiA::TEXT returns '" << result << "'" << endl;
 #endif
     return result;
-  }
-
-  const UnicodeString FoLiA::internal_text( const string& st,
-					    TEXT_FLAGS flags ) const {
-    bool retain = ( TEXT_FLAGS::RETAIN & flags );
-    bool strict = ( TEXT_FLAGS::STRICT & flags );
-    bool hidden = ( TEXT_FLAGS::HIDDEN & flags );
-    return text( st, retain, strict );
   }
 
   UnicodeString trim_space( const UnicodeString& in ){
@@ -1346,7 +1344,8 @@ namespace folia {
   }
 
   const UnicodeString AbstractElement::deeptext( const string& cls,
-						 bool retaintok ) const {
+						 bool retaintok,
+						 bool show_hidden ) const {
     // get the UnicodeString value of underlying elements
     // default cls="current"
 #ifdef DEBUG_TEXT
@@ -1449,7 +1448,7 @@ namespace folia {
     cerr << "deeptext() for " << xmltag() << " step 3 " << endl;
 #endif
     if ( result.isEmpty() ) {
-      result = textcontent(cls)->text();
+      result = textcontent(cls,show_hidden)->text();
     }
 #ifdef DEBUG_TEXT
     cerr << "deeptext() for " << xmltag() << " result= '" << result << "'" << endl;
@@ -1472,7 +1471,8 @@ namespace folia {
     return this->text(cls, true, false );
   }
 
-  const TextContent *AbstractElement::textcontent( const string& cls ) const {
+  const TextContent *AbstractElement::textcontent( const string& cls,
+						   bool show_hidden ) const {
     // Get the text explicitly associated with this element
     // (of the specified class) the default class is 'current'
     // Returns the TextContent instance rather than the actual text.
@@ -1480,7 +1480,14 @@ namespace folia {
     // Does not recurse into children
     // with sole exception of Correction
     // Raises NoSuchText exception if not found.
+#ifdef DEBUG_TEXT
+    cerr << "textcontent(" << cls << "," << (show_hidden?"show_hidden":"")
+	 << ")" << endl;
+#endif
     if ( isinstance(TextContent_t) ){
+#ifdef DEBUG_TEXT
+      cerr << "A textcontent!!" << endl;
+#endif
       if  ( this->cls() == cls ) {
 	return dynamic_cast<const TextContent*>(this);
       }
@@ -1488,7 +1495,11 @@ namespace folia {
 	throw NoSuchText( "TextContent::textcontent(" + cls + ")" );
       }
     }
-    if ( !printable() ) {
+#ifdef DEBUG_TEXT
+    cerr << (!printable()?"NOT":"") << " printable: " << xmltag() << endl;
+    cerr << (!hidden()?"NOT":"") << " hidden: " << xmltag() << endl;
+#endif
+    if ( !printable() && !( hidden() && show_hidden ) ) {
       throw NoSuchText( "non-printable element: " +  xmltag() );
     }
     for ( const auto& el : data() ) {
@@ -1497,7 +1508,7 @@ namespace folia {
       }
       else if ( el->element_id() == Correction_t) {
 	try {
-	  return el->textcontent(cls);
+	  return el->textcontent(cls,show_hidden);
 	} catch ( const NoSuchText& e ) {
 	  // continue search for other Corrections or a TextContent
 	}
@@ -4192,7 +4203,7 @@ namespace folia {
 
   const UnicodeString Correction::private_text( const string& cls,
 						bool retaintok,
-						bool ) const {
+						bool, bool ) const {
 #ifdef DEBUG_TEXT
     cerr << "TEXT(" << cls << ") op node : " << xmltag() << " id ( " << id() << ")" << endl;
 #endif
@@ -4218,14 +4229,6 @@ namespace folia {
     throw NoSuchText( "cls=" + cls );
   }
 
-  const UnicodeString Correction::internal_text( const string& st,
-						 TEXT_FLAGS flags ) const {
-    bool retain = ( TEXT_FLAGS::RETAIN & flags );
-    bool strict = ( TEXT_FLAGS::STRICT & flags );
-    bool hidden = ( TEXT_FLAGS::HIDDEN & flags );
-    return text( st, retain, strict );
-  }
-
   const string& Correction::getTextDelimiter( bool retaintok ) const {
     for ( const auto& el : data() ) {
       if ( el->isinstance( New_t ) || el->isinstance( Current_t ) ) {
@@ -4235,12 +4238,13 @@ namespace folia {
     return EMPTY_STRING;
   }
 
-  const TextContent *Correction::textcontent( const string& cls ) const {
+  const TextContent *Correction::textcontent( const string& cls,
+					      bool show_hidden ) const {
     // TODO: this implements correctionhandling::EITHER only
     for ( const auto& el : data() ) {
       if ( el->isinstance( New_t ) || el->isinstance( Current_t ) ) {
 	try {
-	  const TextContent *res = el->textcontent( cls );
+	  const TextContent *res = el->textcontent( cls, show_hidden );
 	  return res;
 	}
 	catch (...){
@@ -4250,16 +4254,16 @@ namespace folia {
     for ( const auto& el : data() ) {
       if ( el->isinstance( Original_t ) ) {
 	try {
-	  const TextContent *res = el->textcontent( cls );
+	  const TextContent *res = el->textcontent( cls, show_hidden );
 	  return res;
 	}
 	catch ( ... ){
 	}
       }
       else if ( cls == "current" && el->hastext( "original" ) ){
-	cerr << "text(original)= " << el->textcontent( cls )->text()<< endl;
+	cerr << "text(original)= " << el->textcontent( cls, show_hidden )->text()<< endl;
 	// hack for old and erroneous behaviour
-	return el->textcontent( "original" );
+	return el->textcontent( "original", show_hidden );
       }
     }
     throw NoSuchText("wrong cls");
@@ -4452,12 +4456,7 @@ namespace folia {
     return true;
   }
 
-  const UnicodeString XmlText::private_text( const string&, bool, bool ) const {
-    return internal_text();
-  }
-
-  const UnicodeString XmlText::internal_text( const string&,
-					      TEXT_FLAGS ) const {
+  const UnicodeString XmlText::private_text( const string&, bool, bool, bool ) const {
     return TiCC::UnicodeFromUTF8(_value);
   }
 
@@ -4836,19 +4835,12 @@ namespace folia {
 
   const UnicodeString TextMarkupCorrection::private_text( const string& cls,
 							  bool ret,
-							  bool strict ) const{
+							  bool strict,
+							  bool hidden ) const{
     if ( cls == "original" ) {
       return TiCC::UnicodeFromUTF8(_original);
     }
-    return AbstractElement::private_text( cls, ret, strict );
-  }
-
-  const UnicodeString TextMarkupCorrection::internal_text( const string& st,
-							   TEXT_FLAGS flags ) const {
-    bool retain = ( TEXT_FLAGS::RETAIN & flags );
-    bool strict = ( TEXT_FLAGS::STRICT & flags );
-    bool hidden = ( TEXT_FLAGS::HIDDEN & flags );
-    return text( st, retain, strict );
+    return AbstractElement::private_text( cls, ret, strict, hidden );
   }
 
   const FoliaElement* AbstractTextMarkup::resolveid() const {
