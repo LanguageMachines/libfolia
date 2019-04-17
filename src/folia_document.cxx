@@ -2173,10 +2173,11 @@ namespace folia {
     if ( it != _annotationdefaults.end() ){
       if ( debug ){
 	cerr << "found some defs: " << it->second << endl;
+	cerr << "NOW search for set: " << set_name << endl;
       }
       set<string> results;
-      auto s_it = it->second.find(set_name);
-      while ( s_it != it->second.end() ){
+      auto s_it = it->second.lower_bound(set_name);
+      while ( s_it != it->second.upper_bound(set_name) ){
 	if ( debug ){
 	  cerr << "found sub strings: " << s_it->second << endl;
 	}
