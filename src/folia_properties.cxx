@@ -6,7 +6,7 @@
 #include "libfolia/folia_properties.h"
 
 //foliaspec:header
-//This file was last updated according to the FoLiA specification for version 2.0.1 on 2019-04-02 13:46:24, using foliaspec.py
+//This file was last updated according to the FoLiA specification for version 2.0.3 on 2019-04-17 17:09:45, using foliaspec.py
 //Code blocks after a foliaspec comment (until the next newline) are automatically generated. **DO NOT EDIT THOSE** and **DO NOT REMOVE ANY FOLIASPEC COMMENTS** !!!
 
 namespace folia {
@@ -23,7 +23,7 @@ namespace folia {
 
   //foliaspec:version_sub:SUB_VERSION
   //The FoLiA version (sub/rev)
-  const int SUB_VERSION = 1;
+  const int SUB_VERSION = 3;
 
   //foliaspec:namespace:NSFOLIA
   //The FoLiA XML namespace
@@ -586,7 +586,7 @@ namespace folia {
 //------ AbstractAnnotationLayer -------
     AbstractAnnotationLayer::PROPS.ELEMENT_ID = AbstractAnnotationLayer_t;
     AbstractAnnotationLayer::PROPS.ACCEPTED_DATA += {Comment_t, Correction_t, Description_t, ForeignData_t};
-    AbstractAnnotationLayer::PROPS.OPTIONAL_ATTRIBS = ID|ANNOTATOR|CONFIDENCE|DATETIME|N|TEXTCLASS|METADATA;
+    AbstractAnnotationLayer::PROPS.OPTIONAL_ATTRIBS = ID;
     AbstractAnnotationLayer::PROPS.PRINTABLE = false;
     AbstractAnnotationLayer::PROPS.SETONLY = true;
     AbstractAnnotationLayer::PROPS.SPEAKABLE = false;
@@ -753,6 +753,7 @@ namespace folia {
 //------ Current -------
     Current::PROPS = AbstractCorrectionChild::PROPS;
     Current::PROPS.ELEMENT_ID = Current_t;
+    Current::PROPS.ANNOTATIONTYPE = AnnotationType::CORRECTION;
     Current::PROPS.OCCURRENCES = 1;
     Current::PROPS.OPTIONAL_ATTRIBS = NO_ATT;
     Current::PROPS.XMLTAG = "current";
@@ -929,13 +930,11 @@ namespace folia {
     Hiddenword::PROPS.ELEMENT_ID = Hiddenword_t;
     Hiddenword::PROPS.ACCEPTED_DATA += {AbstractAnnotationLayer_t, AbstractInlineAnnotation_t, Alternative_t, AlternativeLayers_t, Comment_t, Correction_t, Description_t, Feature_t, ForeignData_t, Metric_t, Part_t, PhonContent_t, Reference_t, Relation_t, String_t, TextContent_t};
     Hiddenword::PROPS.ANNOTATIONTYPE = AnnotationType::HIDDENTOKEN;
+    Hiddenword::PROPS.HIDDEN = true;
     Hiddenword::PROPS.LABEL = "Hidden Word/Token";
     Hiddenword::PROPS.OPTIONAL_ATTRIBS = ID|CLASS|ANNOTATOR|N|CONFIDENCE|DATETIME|SRC|BEGINTIME|ENDTIME|SPEAKER|TEXTCLASS|METADATA|SPACE;
-    Hiddenword::PROPS.PRINTABLE = false;
-    Hiddenword::PROPS.SPEAKABLE = false;
     Hiddenword::PROPS.TEXTDELIMITER = " ";
     Hiddenword::PROPS.WREFABLE = true;
-    Hiddenword::PROPS.HIDDEN = true;
     Hiddenword::PROPS.XMLTAG = "hiddenw";
 //------ Hyphbreak -------
     Hyphbreak::PROPS = AbstractTextMarkup::PROPS;
@@ -1026,6 +1025,7 @@ namespace folia {
 //------ New -------
     New::PROPS = AbstractCorrectionChild::PROPS;
     New::PROPS.ELEMENT_ID = New_t;
+    New::PROPS.ANNOTATIONTYPE = AnnotationType::CORRECTION;
     New::PROPS.OCCURRENCES = 1;
     New::PROPS.OPTIONAL_ATTRIBS = NO_ATT;
     New::PROPS.XMLTAG = "new";
@@ -1052,6 +1052,7 @@ namespace folia {
 //------ Original -------
     Original::PROPS = AbstractCorrectionChild::PROPS;
     Original::PROPS.ELEMENT_ID = Original_t;
+    Original::PROPS.ANNOTATIONTYPE = AnnotationType::CORRECTION;
     Original::PROPS.AUTH = false;
     Original::PROPS.OCCURRENCES = 1;
     Original::PROPS.OPTIONAL_ATTRIBS = NO_ATT;
@@ -1222,6 +1223,7 @@ namespace folia {
     Speech::PROPS.ELEMENT_ID = Speech_t;
     Speech::PROPS.ACCEPTED_DATA += {AbstractAnnotationLayer_t, AbstractInlineAnnotation_t, Alternative_t, AlternativeLayers_t, Comment_t, Correction_t, Description_t, Division_t, Entry_t, Event_t, Example_t, External_t, Feature_t, ForeignData_t, Gap_t, Hiddenword_t, List_t, Metric_t, Note_t, Paragraph_t, Part_t, PhonContent_t, Quote_t, Reference_t, Relation_t, Sentence_t, String_t, TextContent_t, Utterance_t, Word_t};
     Speech::PROPS.LABEL = "Speech Body";
+    Speech::PROPS.OPTIONAL_ATTRIBS = ID|ANNOTATOR|DATETIME|SRC|BEGINTIME|ENDTIME|SPEAKER|METADATA|SPACE;
     Speech::PROPS.TEXTDELIMITER = "\n\n\n";
     Speech::PROPS.XMLTAG = "speech";
 //------ Statement -------
@@ -1272,8 +1274,10 @@ namespace folia {
 //------ Suggestion -------
     Suggestion::PROPS = AbstractCorrectionChild::PROPS;
     Suggestion::PROPS.ELEMENT_ID = Suggestion_t;
+    Suggestion::PROPS.ANNOTATIONTYPE = AnnotationType::CORRECTION;
     Suggestion::PROPS.AUTH = false;
     Suggestion::PROPS.OCCURRENCES = 0;
+    Suggestion::PROPS.OPTIONAL_ATTRIBS = CONFIDENCE|N;
     Suggestion::PROPS.XMLTAG = "suggestion";
 //------ SynsetFeature -------
     SynsetFeature::PROPS = Feature::PROPS;
@@ -1325,6 +1329,7 @@ namespace folia {
     Text::PROPS.ELEMENT_ID = Text_t;
     Text::PROPS.ACCEPTED_DATA += {AbstractAnnotationLayer_t, AbstractInlineAnnotation_t, Alternative_t, AlternativeLayers_t, Comment_t, Correction_t, Description_t, Division_t, Entry_t, Event_t, Example_t, External_t, Feature_t, Figure_t, ForeignData_t, Gap_t, Hiddenword_t, Linebreak_t, List_t, Metric_t, Note_t, Paragraph_t, Part_t, PhonContent_t, Quote_t, Reference_t, Relation_t, Sentence_t, String_t, Table_t, TextContent_t, Whitespace_t, Word_t};
     Text::PROPS.LABEL = "Text Body";
+    Text::PROPS.OPTIONAL_ATTRIBS = ID|ANNOTATOR|DATETIME|SRC|BEGINTIME|ENDTIME|SPEAKER|METADATA|SPACE;
     Text::PROPS.TEXTDELIMITER = "\n\n\n";
     Text::PROPS.XMLTAG = "text";
 //------ TextContent -------
@@ -1700,6 +1705,7 @@ namespace folia {
       ANNOTATIONTYPE = AnnotationType::NO_ANN;
       AUTH = true;
       AUTO_GENERATE_ID = false;
+      HIDDEN = false;
       OCCURRENCES = 0;
       OCCURRENCES_PER_SET = 0;
       OPTIONAL_ATTRIBS = NO_ATT;
@@ -1713,7 +1719,6 @@ namespace folia {
       TEXTCONTAINER = false;
       TEXTDELIMITER = "NONE";
       WREFABLE = false;
-      HIDDEN = false;
       XLINK = false;
       XMLTAG = "NONE";
 
