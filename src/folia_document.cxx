@@ -520,7 +520,14 @@ namespace folia {
   UnicodeString Document::text( const std::string& cls,
 				bool retaintok,
 				bool strict ) const {
-    return foliadoc->text( cls, retaintok, strict );
+    TEXT_FLAGS flags = NONE;
+    if ( retaintok ){
+      flags = flags | TEXT_FLAGS::RETAIN;
+    }
+    if ( strict ){
+      flags = flags | TEXT_FLAGS::STRICT;
+    }
+    return foliadoc->text( cls, flags );
   }
 
   vector<Paragraph*> Document::paragraphs() const {

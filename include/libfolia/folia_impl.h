@@ -298,16 +298,15 @@ namespace folia {
     virtual void check_append_text_consistency( const FoliaElement * ) const = 0;
 
     virtual const std::string str( const std::string& = "current" ) const = 0;
-    const UnicodeString unicode( const std::string& cls = "current" ) const { return text( cls ); };
+    const UnicodeString unicode( const std::string& cls = "current" ) const {
+      return text( cls, TEXT_FLAGS::NONE ); };
     virtual const UnicodeString private_text( const std::string& = "current",
 					      bool = false,
 					      bool = false,
 					      bool = false ) const = 0;
-    virtual const UnicodeString text( const std::string& = "current",
-				      bool = false, bool = false ) const = 0;
-    virtual const UnicodeString internal_text( const std::string& = "current",
-					       TEXT_FLAGS = TEXT_FLAGS::NONE ) const = 0;
-    virtual const UnicodeString internal_text( TEXT_FLAGS = TEXT_FLAGS::NONE ) const = 0;
+    virtual const UnicodeString text( const std::string&,
+				      TEXT_FLAGS = TEXT_FLAGS::NONE ) const = 0;
+    virtual const UnicodeString text( TEXT_FLAGS = TEXT_FLAGS::NONE ) const = 0;
     const UnicodeString stricttext( const std::string& = "current" ) const;
     const UnicodeString toktext( const std::string& = "current" ) const;
     virtual const UnicodeString phon( const std::string& = "current",
@@ -633,16 +632,11 @@ namespace folia {
 				      bool = false,
 				      bool = false,
 				      bool = false ) const;
-    const UnicodeString text( const std::string& st ="current",
-			      bool b1 = false,
-			      bool b2 = false ) const {
-      return private_text( st, b1, b2, false );
-    }
-    const UnicodeString internal_text( const std::string& = "current",
-				       TEXT_FLAGS = TEXT_FLAGS::NONE ) const;
+    const UnicodeString text( const std::string&,
+			      TEXT_FLAGS = TEXT_FLAGS::NONE ) const;
 
-    const UnicodeString internal_text( TEXT_FLAGS flags = TEXT_FLAGS::NONE ) const {
-      return internal_text( "current", flags );
+    const UnicodeString text( TEXT_FLAGS flags = TEXT_FLAGS::NONE ) const {
+      return text( "current", flags );
     }
 
 
@@ -823,7 +817,7 @@ namespace folia {
   inline const UnicodeString text( const FoliaElement *e,
 				   const std::string& cls = "current" ) {
     if ( e )
-      return e->text( cls );
+      return e->text( cls, TEXT_FLAGS::NONE );
     else
       throw ValueError( "text() for empty element" );
   }

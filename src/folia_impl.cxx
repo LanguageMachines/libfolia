@@ -883,8 +883,8 @@ namespace folia {
 	 && parent->hastext( cls ) ){
       // check text consistency for parents with text
       // but SKIP Corrections
-      UnicodeString s1 = parent->text( cls, false, true );
-      UnicodeString s2 = child->text( cls, false, true );
+      UnicodeString s1 = parent->text( cls, TEXT_FLAGS::STRICT );
+      UnicodeString s2 = child->text( cls, TEXT_FLAGS::STRICT );
       // no retain tokenization, strict for both
       s1 = normalize_spaces( s1 );
       s2 = normalize_spaces( s2 );
@@ -928,8 +928,8 @@ namespace folia {
 	 && parent->hastext( cls ) ){
       // check text consistency for parents with text
       // but SKIP Corrections
-      UnicodeString s1 = parent->text( cls, false, true );
-      UnicodeString s2 = this->text( cls, false, false );
+      UnicodeString s1 = parent->text( cls, TEXT_FLAGS::STRICT );
+      UnicodeString s2 = this->text( cls, TEXT_FLAGS::NONE );
       // no retain tokenization, strict for parent, deeper for child
       s1 = normalize_spaces( s1 );
       s2 = normalize_spaces( s2 );
@@ -1051,11 +1051,11 @@ namespace folia {
     // otherwise return empty string
     UnicodeString us;
     try {
-      us = text(cls);
+      us = text(cls, TEXT_FLAGS::NONE );
     }
     catch( const NoSuchText& e ){
       try {
-	us = phon(cls);
+	us = phon(cls, TEXT_FLAGS::NONE );
       }
       catch( const NoSuchPhon& e ){
 	// No TextContent or Phone allowed
@@ -1167,7 +1167,7 @@ namespace folia {
     cerr << "TEXT(" << cls << ") op node : " << xmltag() << " id ( " << id() << ")" << endl;
 #endif
     if ( strict ) {
-      return textcontent(cls,show_hidden)->text();
+      return textcontent(cls,show_hidden)->text(TEXT_FLAGS::NONE);
     }
     else if ( is_textcontainer() ){
       UnicodeString result;
@@ -1177,7 +1177,7 @@ namespace folia {
 	    const string& delim = d->getTextDelimiter( retaintok );
 	    result += TiCC::UnicodeFromUTF8(delim);
 	  }
-	  result += d->text( cls );
+	  result += d->text( cls, TEXT_FLAGS::NONE );
 	}
       }
 #ifdef DEBUG_TEXT
@@ -1200,8 +1200,8 @@ namespace folia {
     }
   }
 
-  const UnicodeString  AbstractElement::internal_text( const std::string& st,
-						       TEXT_FLAGS flags ) const {
+  const UnicodeString AbstractElement::text( const std::string& st,
+					     TEXT_FLAGS flags ) const {
     bool retain = ( TEXT_FLAGS::RETAIN & flags );
     bool strict = ( TEXT_FLAGS::STRICT & flags );
     bool hidden = ( TEXT_FLAGS::HIDDEN & flags );
@@ -1275,7 +1275,7 @@ namespace folia {
 	const string& delim = d->getTextDelimiter( retaintok );
 	result += TiCC::UnicodeFromUTF8(delim);
       }
-      result += d->text( cls, retaintok, strict );
+      result += d->private_text( cls, retaintok, strict, false );
     }
 #ifdef DEBUG_TEXT
     cerr << "FoLiA::TEXT returns '" << result << "'" << endl;
@@ -1373,7 +1373,7 @@ namespace folia {
 	cerr << "deeptext:bekijk node[" << child->xmltag() << "]"<< endl;
 #endif
 	try {
-	  UnicodeString tmp = child->text( cls, retaintok, false );
+	  UnicodeString tmp = child->private_text( cls, retaintok, false, false );
 #ifdef DEBUG_TEXT
 	  cerr << "deeptext found '" << tmp << "'" << endl;
 #endif
@@ -1448,7 +1448,7 @@ namespace folia {
     cerr << "deeptext() for " << xmltag() << " step 3 " << endl;
 #endif
     if ( result.isEmpty() ) {
-      result = textcontent(cls,show_hidden)->text();
+      result = textcontent(cls,show_hidden)->text(TEXT_FLAGS::NONE);
     }
 #ifdef DEBUG_TEXT
     cerr << "deeptext() for " << xmltag() << " result= '" << result << "'" << endl;
@@ -1462,13 +1462,13 @@ namespace folia {
   const UnicodeString FoliaElement::stricttext( const string& cls ) const {
     // get UnicodeString content of TextContent children only
     // default cls="current"
-    return this->text(cls, false, true );
+    return this->text(cls, TEXT_FLAGS::STRICT );
   }
 
   const UnicodeString FoliaElement::toktext( const string& cls ) const {
     // get UnicodeString content of TextContent children only
     // default cls="current"
-    return this->text(cls, true, false );
+    return this->text(cls, TEXT_FLAGS::RETAIN );
   }
 
   const TextContent *AbstractElement::textcontent( const string& cls,
@@ -1724,7 +1724,7 @@ namespace folia {
 	 && !isSubClass( Morpheme_t ) && !isSubClass( Phoneme_t) ){
       UnicodeString deeper_u;
       try {
-	deeper_u = text( cls, false, false );
+	deeper_u = text( cls );
 	// get deep original text: no retain tokenization, no strict
       }
       catch (...){
@@ -1762,7 +1762,7 @@ namespace folia {
 	 && !isSubClass( Morpheme_t ) && !isSubClass( Phoneme_t) ){
       UnicodeString deeper_u;
       try {
-	deeper_u = text( cls, false, false );
+	deeper_u = text( cls );
 	// get deep original text: no retain tokenization, no strict
       }
       catch (...){
@@ -2174,7 +2174,7 @@ namespace folia {
 	}
 	append( t );
 	if ( doc() && doc()->debug > 2 ) {
-	  cerr << "created " << t << "(" << t->text() << ")" << endl;
+	  cerr << "created " << t << "(" << t->text(TEXT_FLAGS::NONE) << ")" << endl;
 	  cerr << "extended " << this << " met " << t << endl;
 	  cerr << "this.size()= " << size() << " t.size()=" << t->size() << endl;
 	}
@@ -2189,7 +2189,7 @@ namespace folia {
 	  }
 	  append( t );
 	  if ( doc() && doc()->debug > 2 ) {
-	    cerr << "created " << t << "(" << t->text() << ")" << endl;
+	    cerr << "created " << t << "(" << t->text(TEXT_FLAGS::NONE) << ")" << endl;
 	    cerr << "extended " << this << " met " << t << endl;
 	    cerr << "this.size()= " << size() << " t.size()=" << t->size() << endl;
 	  }
@@ -2233,14 +2233,14 @@ namespace folia {
       for ( const auto& st : cls ){
 	UnicodeString s1, s2;
 	try {
-	  s1 = text( st, false, true );  // no retain tokenization, strict
+	  s1 = text( st, TEXT_FLAGS::STRICT );  // no retain tokenization, strict
 	}
 	catch (...){
 	}
 	if ( !s1.isEmpty() ){
 	  //	  cerr << "S1: " << s1 << endl;
 	  try {
-	    s2 = text( st, false, false ); // no retain tokenization, no strict
+	    s2 = text( st, TEXT_FLAGS::NONE ); // no retain tokenization, no strict
 	  }
 	  catch (...){
 	  }
@@ -2742,8 +2742,8 @@ namespace folia {
       throw UnresolvableTextContent( "Reference (ID " + _ref + ") has no such text (class=" + cls() + ")" );
     }
     else if ( doc()->checktext() || doc()->fixtext() ){
-      UnicodeString mt = this->text( this->cls(), false, true );
-      UnicodeString pt = ref->text( this->cls(), false, true );
+      UnicodeString mt = this->text( this->cls(), TEXT_FLAGS::STRICT );
+      UnicodeString pt = ref->text( this->cls(), TEXT_FLAGS::STRICT );
       UnicodeString sub( pt, this->offset(), mt.length() );
       if ( mt != sub ){
 	if ( doc()->fixtext() ){
@@ -2934,7 +2934,7 @@ namespace folia {
 #ifdef DEBUG_PHON
 	cerr << "roep text(" << cls << ") aan op " << el << endl;
 #endif
-	UnicodeString tmp = el->text( cls );
+	UnicodeString tmp = el->text( cls, TEXT_FLAGS::NONE );
 #ifdef DEBUG_PHON
 	cerr << "PhonContent found '" << tmp << "'" << endl;
 #endif
@@ -3951,7 +3951,7 @@ namespace folia {
       throw NoSuchText("caption");
     }
     else {
-      return v[0]->text();
+      return v[0]->text(TEXT_FLAGS::NONE);
     }
   }
 
@@ -4221,7 +4221,7 @@ namespace folia {
 	   || el->isinstance( Current_t ) ){
 	UnicodeString result;
 	try {
-	  result = el->text( cls, retaintok );
+	  result = el->private_text( cls, retaintok, false, false );
 	  return result;
 	}
 	catch ( ... ){
@@ -4264,7 +4264,8 @@ namespace folia {
 	}
       }
       else if ( cls == "current" && el->hastext( "original" ) ){
-	cerr << "text(original)= " << el->textcontent( cls, show_hidden )->text()<< endl;
+	cerr << "text(original)= "
+	     << el->textcontent( cls, show_hidden )->text(TEXT_FLAGS::NONE)<< endl;
 	// hack for old and erroneous behaviour
 	return el->textcontent( "original", show_hidden );
       }
