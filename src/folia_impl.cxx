@@ -384,22 +384,6 @@ namespace folia {
 	_annotator = def;
       }
     }
-    val = kwargs.extract( "processor" );
-    if ( !val.empty() ){
-      if ( !(ANNOTATOR & supported) ){
-	throw ValueError("attribute 'processor' is not supported for " + classname() );
-      }
-      else {
-	if ( doc() && doc()->get_processor(val) == 0 ){
-	  throw ValueError("attribute 'processor' has unknown value: " + val );
-	}
-	_processor = val;
-      }
-    }
-    else if ( doc() ){
-      string def = doc()->defaultprocessor( annotation_type(), _set );
-      _processor = def;
-    }
 
     _annotator_type = UNDEFINED;
     val = kwargs.extract( "annotatortype" );
@@ -422,6 +406,31 @@ namespace folia {
 	  _annotator_type = def;
 	}
       }
+    }
+
+    val = kwargs.extract( "processor" );
+    if ( !val.empty() ){
+      if ( !(ANNOTATOR & supported) ){
+	throw ValueError("attribute 'processor' is not supported for " + classname() );
+      }
+      else {
+	if ( doc() && doc()->get_processor(val) == 0 ){
+	  throw ValueError("attribute 'processor' has unknown value: " + val );
+	}
+	if ( doc() && !doc()->isDeclared( annotation_type(), _set, "", _annotator_type, val ) ){
+	  throw XmlError( "Processor '" + val
+			  + "' is used for annotationtype '"
+			  + toString( annotation_type() )
+			  + "' but there is no corresponding <annotator> "
+			  + "referring to it in the annotation declaration "
+			  + "block." );
+	}
+	_processor = val;
+      }
+    }
+    else if ( doc() ){
+      string def = doc()->defaultprocessor( annotation_type(), _set );
+      _processor = def;
     }
 
     _confidence = -1;
