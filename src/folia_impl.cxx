@@ -1189,7 +1189,14 @@ namespace folia {
       throw NoSuchText( "NON printable element: " + xmltag() );
     }
     else {
-      UnicodeString result = deeptext( cls, retaintok,show_hidden );
+      TEXT_FLAGS flags = NONE;
+      if ( retaintok ){
+	flags = flags | RETAIN;
+      }
+      if ( show_hidden ){
+	flags = flags | HIDDEN;
+      }
+      UnicodeString result = deeptext( cls, flags );
       if ( result.isEmpty() ) {
 	result = stricttext( cls );
       }
@@ -1344,8 +1351,7 @@ namespace folia {
   }
 
   const UnicodeString AbstractElement::deeptext( const string& cls,
-						 bool retaintok,
-						 bool show_hidden ) const {
+						 TEXT_FLAGS flags ) const {
     // get the UnicodeString value of underlying elements
     // default cls="current"
 #ifdef DEBUG_TEXT
@@ -1373,7 +1379,7 @@ namespace folia {
 	cerr << "deeptext:bekijk node[" << child->xmltag() << "]"<< endl;
 #endif
 	try {
-	  UnicodeString tmp = child->private_text( cls, retaintok, false, false );
+	  UnicodeString tmp = child->text( cls, flags );
 #ifdef DEBUG_TEXT
 	  cerr << "deeptext found '" << tmp << "'" << endl;
 #endif
@@ -1396,7 +1402,7 @@ namespace folia {
 	  }
 	  else {
 	    // get the delimiter
-	    const string& delim = child->getTextDelimiter( retaintok );
+	    const string& delim = child->getTextDelimiter( RETAIN&flags );
 #ifdef DEBUG_TEXT
 	    cerr << "deeptext:delimiter van "<< child->xmltag() << " ='" << delim << "'" << endl;
 #endif
@@ -1448,7 +1454,7 @@ namespace folia {
     cerr << "deeptext() for " << xmltag() << " step 3 " << endl;
 #endif
     if ( result.isEmpty() ) {
-      result = textcontent(cls,show_hidden)->text(TEXT_FLAGS::NONE);
+      result = textcontent(cls,(HIDDEN&flags))->text(TEXT_FLAGS::NONE);
     }
 #ifdef DEBUG_TEXT
     cerr << "deeptext() for " << xmltag() << " result= '" << result << "'" << endl;
@@ -1568,7 +1574,7 @@ namespace folia {
       throw NoSuchPhon( "NON speakable element: " + xmltag() );
     }
     else {
-      UnicodeString result = deepphon( cls, (HIDDEN&flags) );
+      UnicodeString result = deepphon( cls, flags );
       if ( result.isEmpty() ) {
 	result = phoncontent(cls,(HIDDEN&flags))->phon();
       }
@@ -1580,7 +1586,7 @@ namespace folia {
   }
 
   const UnicodeString AbstractElement::deepphon( const string& cls,
-						 bool show_hidden ) const {
+						 TEXT_FLAGS flags ) const {
     // get the UnicodeString value of underlying elements
     // default cls="current"
 #ifdef DEBUG_PHON
@@ -1636,7 +1642,7 @@ namespace folia {
 #endif
     if ( result.isEmpty() ) {
       try {
-	result = phoncontent(cls,show_hidden)->phon();
+	result = phoncontent(cls,(HIDDEN&flags))->phon();
       }
       catch ( ... ) {
       }

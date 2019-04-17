@@ -464,10 +464,9 @@ namespace folia {
     virtual const FoliaElement* resolveid() const NOT_IMPLEMENTED;
     virtual bool checkAtts() = 0;
     virtual const UnicodeString deeptext( const std::string& = "current",
-					  bool = false,
-					  bool = false ) const NOT_IMPLEMENTED;
+					  TEXT_FLAGS = NONE ) const NOT_IMPLEMENTED;
     virtual const UnicodeString deepphon( const std::string& = "current",
-					  bool = false ) const NOT_IMPLEMENTED;
+					  TEXT_FLAGS = NONE ) const NOT_IMPLEMENTED;
 
 
     virtual std::vector<FoliaElement*> select( ElementType elementtype,
@@ -642,10 +641,9 @@ namespace folia {
 			      TEXT_FLAGS = TEXT_FLAGS::NONE ) const;
 
     const UnicodeString deeptext( const std::string& = "current",
-				  bool = false,
-				  bool = false ) const;
+				  TEXT_FLAGS = NONE ) const;
     const UnicodeString deepphon( const std::string& = "current",
-				  bool = false ) const;
+				  TEXT_FLAGS = NONE ) const;
 
     // Word
     const Word* resolveword( const std::string& ) const { return 0; };
