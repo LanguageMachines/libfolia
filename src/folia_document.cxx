@@ -1048,6 +1048,12 @@ namespace folia {
       else if ( att.first == "user" ){
 	_user = att.second;
       }
+      else if ( att.first == "src" ){
+	_src = att.second;
+      }
+      else if ( att.first == "format" ){
+	_format = att.second;
+      }
     }
     if ( _id.empty() ){
       throw XmlError( "processor: missing 'xml:id' attribute" );
@@ -1353,7 +1359,11 @@ namespace folia {
 			   sub_version,
 			   patch_version );
     if ( check_version( _version_string ) > 0 ){
-      cerr << "WARNING!!! the Document is created for newer FoLiA version than this library ("
+      cerr << "WARNING!!! the Document "
+	   << (_source_filename.empty()?"":"'")
+	   << _source_filename
+	   << (_source_filename.empty()?"":"' ")
+	   << "is created for newer FoLiA version than this library ("
 	   << _version_string << " vs " << folia_version()
 	   << ")\n\t Any possible subsequent failures in parsing or processing may probably be attributed to this." << endl
 	   << "\t Please upgrade libfolia!" << endl;
@@ -2425,6 +2435,12 @@ namespace folia {
     }
     if ( !p->_resourcelink.empty() ){
       atts["resourcelink"] = p->_resourcelink;
+    }
+    if ( !p->_src.empty() ){
+      atts["src"] = p->_src;
+    }
+    if ( !p->_format.empty() ){
+      atts["format"] = p->_format;
     }
     addAttributes( pr, atts );
     for ( const auto& it : p->_metadata ){

@@ -102,6 +102,8 @@ namespace folia {
     std::string begindatetime() const { return _begindatetime; };
     std::string enddatetime() const { return _enddatetime; };
     std::string resourcelink() const { return _resourcelink; };
+    std::string src() const { return _src; };
+    std::string format() const { return _format; };
     std::vector<processor*> processors() const { return _processors; };
     void print( std::ostream&, const int ) const;
   private:
@@ -117,6 +119,8 @@ namespace folia {
     std::string _begindatetime;
     std::string _enddatetime;
     std::string _resourcelink;
+    std::string _src;
+    std::string _format;
     std::map<std::string,std::string> _metadata;
     std::vector<processor*> _processors;
   };
