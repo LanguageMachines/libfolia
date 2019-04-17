@@ -1517,7 +1517,8 @@ namespace folia {
     throw NoSuchText( xmltag() + "::textcontent(" + cls + ")" );
   }
 
-  const PhonContent *AbstractElement::phoncontent( const string& cls ) const {
+  const PhonContent *AbstractElement::phoncontent( const string& cls,
+						   bool show_hidden ) const {
     // Get the phon explicitly associated with this element
     // (of the specified class) the default class is 'current'
     // Returns the PhonContent instance rather than the actual phoneme.
@@ -1532,7 +1533,7 @@ namespace folia {
 	throw NoSuchPhon( xmltag() + "::phoncontent(" + cls + ")" );
       }
     }
-    if ( !speakable() ) {
+    if ( !speakable() && !( hidden() && show_hidden ) ) {
       throw NoSuchPhon( "non-speakable element: " + xmltag() );
     }
 
@@ -1542,7 +1543,7 @@ namespace folia {
       }
       else if ( el->element_id() == Correction_t) {
 	try {
-	  return el->phoncontent(cls);
+	  return el->phoncontent(cls,show_hidden);
 	} catch ( const NoSuchPhon& e ) {
 	  // continue search for other Corrections or a TextContent
 	}
@@ -1554,7 +1555,8 @@ namespace folia {
   //#define DEBUG_PHON
 
   const UnicodeString AbstractElement::phon( const string& cls,
-				       bool strict ) const {
+					     bool strict,
+					     bool show_hidden ) const {
     // get the UnicodeString value of underlying elements
     // default cls="current"
 #ifdef DEBUG_PHON
@@ -1563,13 +1565,13 @@ namespace folia {
     if ( strict ) {
       return phoncontent(cls)->phon();
     }
-    else if ( !speakable() ) {
+    else if ( !speakable() && !( hidden() && show_hidden ) ) {
       throw NoSuchPhon( "NON speakable element: " + xmltag() );
     }
     else {
-      UnicodeString result = deepphon( cls );
+      UnicodeString result = deepphon( cls, show_hidden );
       if ( result.isEmpty() ) {
-	result = phoncontent(cls)->phon();
+	result = phoncontent(cls,show_hidden)->phon();
       }
       if ( result.isEmpty() ) {
 	throw NoSuchPhon( "on tag " + xmltag() + " nor it's children" );
@@ -1578,7 +1580,8 @@ namespace folia {
     }
   }
 
-  const UnicodeString AbstractElement::deepphon( const string& cls ) const {
+  const UnicodeString AbstractElement::deepphon( const string& cls,
+						 bool show_hidden ) const {
     // get the UnicodeString value of underlying elements
     // default cls="current"
 #ifdef DEBUG_PHON
@@ -1634,7 +1637,7 @@ namespace folia {
 #endif
     if ( result.isEmpty() ) {
       try {
-	result = phoncontent(cls)->phon();
+	result = phoncontent(cls,show_hidden)->phon();
       }
       catch ( ... ) {
       }
@@ -2915,7 +2918,7 @@ namespace folia {
   }
 
   const UnicodeString PhonContent::phon( const string& cls,
-					 bool ) const {
+					 bool, bool ) const {
     // get the UnicodeString value of underlying elements
     // default cls="current"
 #ifdef DEBUG_PHON
@@ -4269,16 +4272,17 @@ namespace folia {
     throw NoSuchText("wrong cls");
   }
 
-  const PhonContent *Correction::phoncontent( const string& cls ) const {
+  const PhonContent *Correction::phoncontent( const string& cls,
+					      bool show_hidden ) const {
     // TODO: this implements correctionhandling::EITHER only
     for ( const auto& el: data() ) {
       if ( el->isinstance( New_t ) || el->isinstance( Current_t ) ) {
-	return el->phoncontent( cls );
+	return el->phoncontent( cls, show_hidden );
       }
     }
     for ( const auto& el: data() ) {
       if ( el->isinstance( Original_t ) ) {
-	return el->phoncontent( cls );
+	return el->phoncontent( cls, show_hidden );
       }
     }
     throw NoSuchPhon("wrong cls");

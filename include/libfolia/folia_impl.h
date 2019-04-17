@@ -311,7 +311,8 @@ namespace folia {
     const UnicodeString stricttext( const std::string& = "current" ) const;
     const UnicodeString toktext( const std::string& = "current" ) const;
     virtual const UnicodeString phon( const std::string& = "current",
-				bool = false ) const = 0;
+				      bool = false,
+				      bool = false ) const = 0;
     virtual bool printable() const = 0;
     virtual bool speakable() const = 0;
     virtual bool referable() const = 0;
@@ -388,7 +389,8 @@ namespace folia {
 
     void cleartextcontent( const std::string& = "current" );
     // PhonContent
-    virtual const PhonContent *phoncontent( const std::string& = "current" ) const = 0;
+    virtual const PhonContent *phoncontent( const std::string& = "current",
+					    bool = false ) const = 0;
 
     // properties
     virtual const std::string& getTextDelimiter( bool=false ) const = 0;
@@ -466,7 +468,8 @@ namespace folia {
     virtual const UnicodeString deeptext( const std::string& = "current",
 					  bool = false,
 					  bool = false ) const NOT_IMPLEMENTED;
-    virtual const UnicodeString deepphon( const std::string& = "current" ) const NOT_IMPLEMENTED;
+    virtual const UnicodeString deepphon( const std::string& = "current",
+					  bool = false ) const NOT_IMPLEMENTED;
 
 
     virtual std::vector<FoliaElement*> select( ElementType elementtype,
@@ -644,11 +647,13 @@ namespace folia {
 
 
     const UnicodeString phon( const std::string& = "current",
+			      bool = false,
 			      bool = false ) const;
     const UnicodeString deeptext( const std::string& = "current",
 				  bool = false,
 				  bool = false ) const;
-    const UnicodeString deepphon( const std::string& = "current" ) const;
+    const UnicodeString deepphon( const std::string& = "current",
+				  bool = false ) const;
 
     // Word
     const Word* resolveword( const std::string& ) const { return 0; };
@@ -658,7 +663,8 @@ namespace folia {
     const TextContent *textcontent( const std::string& = "current",
 				    bool = false ) const;
     // PhonContent
-    const PhonContent *phoncontent( const std::string& = "current" ) const;
+    const PhonContent *phoncontent( const std::string& = "current",
+				    bool = false ) const;
 
     // properties
     const std::string& getTextDelimiter( bool=false ) const;
@@ -1239,6 +1245,7 @@ namespace folia {
     void setAttributes( const KWargs& );
     KWargs collectAttributes() const;
     const UnicodeString phon( const std::string& = "current",
+			      bool = false,
 			      bool = false ) const;
     int offset() const { return _offset; };
     FoliaElement *postappend();
@@ -2577,8 +2584,9 @@ namespace folia {
     std::vector<Suggestion*> suggestions() const;
     Suggestion *suggestions( size_t ) const;
     const TextContent *textcontent( const std::string& = "current",
-				    bool  = false ) const;
-    const PhonContent *phoncontent( const std::string& = "current" ) const;
+				    bool = false ) const;
+    const PhonContent *phoncontent( const std::string& = "current",
+				    bool = false ) const;
     const std::string& getTextDelimiter( bool=false) const;
   private:
     const UnicodeString private_text( const std::string& = "current",
