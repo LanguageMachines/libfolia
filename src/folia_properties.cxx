@@ -23,7 +23,7 @@ namespace folia {
 
   //foliaspec:version_sub:SUB_VERSION
   //The FoLiA version (sub/rev)
-  const int SUB_VERSION = 1;
+  const int SUB_VERSION = 2;
 
   //foliaspec:namespace:NSFOLIA
   //The FoLiA XML namespace
