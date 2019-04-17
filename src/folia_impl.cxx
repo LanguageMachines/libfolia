@@ -1194,7 +1194,7 @@ namespace folia {
 #endif
       return result;
     }
-    else if ( !printable() && !( hidden() && show_hidden ) ){
+    else if ( !printable() || ( hidden() && !show_hidden ) ){
       throw NoSuchText( "NON printable element: " + xmltag() );
     }
     else {
@@ -1514,7 +1514,7 @@ namespace folia {
     cerr << (!printable()?"NOT":"") << " printable: " << xmltag() << endl;
     cerr << (!hidden()?"NOT":"") << " hidden: " << xmltag() << endl;
 #endif
-    if ( !printable() && !( hidden() && show_hidden ) ) {
+    if ( !printable() || ( hidden() && !show_hidden ) ) {
       throw NoSuchText( "non-printable element: " +  xmltag() );
     }
     for ( const auto& el : data() ) {
@@ -1548,7 +1548,7 @@ namespace folia {
 	throw NoSuchPhon( xmltag() + "::phoncontent(" + cls + ")" );
       }
     }
-    if ( !speakable() && !( hidden() && show_hidden ) ) {
+    if ( !speakable() || ( hidden() && !show_hidden ) ) {
       throw NoSuchPhon( "non-speakable element: " + xmltag() );
     }
 
@@ -1579,7 +1579,7 @@ namespace folia {
     if ( STRICT & flags ) {
       return phoncontent(cls)->phon();
     }
-    else if ( !speakable() && !( hidden() && (HIDDEN & flags) ) ) {
+    else if ( !speakable() || ( hidden() && !(HIDDEN & flags) ) ) {
       throw NoSuchPhon( "NON speakable element: " + xmltag() );
     }
     else {
