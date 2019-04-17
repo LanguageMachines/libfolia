@@ -417,7 +417,8 @@ namespace folia {
 	if ( doc() && doc()->get_processor(val) == 0 ){
 	  throw ValueError("attribute 'processor' has unknown value: " + val );
 	}
-	if ( doc() && !doc()->isDeclared( annotation_type(), _set, "", UNDEFINED, val ) ){
+	if ( doc()
+	     && !doc()->isDeclared( annotation_type(), _set, "", _annotator_type, val ) ){
 	  throw XmlError( "Processor '" + val
 			  + "' is used for annotationtype '"
 			  + toString( annotation_type() )
@@ -428,7 +429,7 @@ namespace folia {
 	_processor = val;
       }
     }
-    else if ( doc() ){
+    else if ( (ANNOTATOR & supported) && doc() ){
       string def = doc()->defaultprocessor( annotation_type(), _set );
       _processor = def;
     }
