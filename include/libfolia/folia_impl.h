@@ -309,8 +309,9 @@ namespace folia {
     virtual const UnicodeString text( TEXT_FLAGS = TEXT_FLAGS::NONE ) const = 0;
     const UnicodeString stricttext( const std::string& = "current" ) const;
     const UnicodeString toktext( const std::string& = "current" ) const;
-    virtual const UnicodeString phon( const std::string& = "current",
+    virtual const UnicodeString phon( const std::string&,
 				      TEXT_FLAGS = TEXT_FLAGS::NONE ) const = 0;
+    virtual const UnicodeString phon( TEXT_FLAGS = TEXT_FLAGS::NONE ) const = 0;
     virtual bool printable() const = 0;
     virtual bool speakable() const = 0;
     virtual bool referable() const = 0;
@@ -632,13 +633,15 @@ namespace folia {
 				      bool = false ) const;
     const UnicodeString text( const std::string&,
 			      TEXT_FLAGS = TEXT_FLAGS::NONE ) const;
-
     const UnicodeString text( TEXT_FLAGS flags = TEXT_FLAGS::NONE ) const {
       return text( "current", flags );
     }
 
-    const UnicodeString phon( const std::string& = "current",
+    const UnicodeString phon( const std::string&,
 			      TEXT_FLAGS = TEXT_FLAGS::NONE ) const;
+    const UnicodeString phon( TEXT_FLAGS flags = TEXT_FLAGS::NONE ) const {
+      return phon( "current", flags );
+    }
 
     const UnicodeString deeptext( const std::string& = "current",
 				  TEXT_FLAGS = NONE ) const;

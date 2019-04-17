@@ -1051,7 +1051,7 @@ namespace folia {
     // otherwise return empty string
     UnicodeString us;
     try {
-      us = text(cls, TEXT_FLAGS::NONE );
+      us = text(cls);
     }
     catch( const NoSuchText& e ){
       try {
@@ -1167,7 +1167,7 @@ namespace folia {
     cerr << "TEXT(" << cls << ") op node : " << xmltag() << " id ( " << id() << ")" << endl;
 #endif
     if ( strict ) {
-      return textcontent(cls,show_hidden)->text(TEXT_FLAGS::NONE);
+      return textcontent(cls,show_hidden)->text();
     }
     else if ( is_textcontainer() ){
       UnicodeString result;
@@ -1177,7 +1177,7 @@ namespace folia {
 	    const string& delim = d->getTextDelimiter( retaintok );
 	    result += TiCC::UnicodeFromUTF8(delim);
 	  }
-	  result += d->text( cls, TEXT_FLAGS::NONE );
+	  result += d->text( cls );
 	}
       }
 #ifdef DEBUG_TEXT
@@ -1454,7 +1454,7 @@ namespace folia {
     cerr << "deeptext() for " << xmltag() << " step 3 " << endl;
 #endif
     if ( result.isEmpty() ) {
-      result = textcontent(cls,(HIDDEN&flags))->text(TEXT_FLAGS::NONE);
+      result = textcontent(cls,(HIDDEN&flags))->text();
     }
 #ifdef DEBUG_TEXT
     cerr << "deeptext() for " << xmltag() << " result= '" << result << "'" << endl;
@@ -2179,7 +2179,7 @@ namespace folia {
 	}
 	append( t );
 	if ( doc() && doc()->debug > 2 ) {
-	  cerr << "created " << t << "(" << t->text(TEXT_FLAGS::NONE) << ")" << endl;
+	  cerr << "created " << t << "(" << t->text() << ")" << endl;
 	  cerr << "extended " << this << " met " << t << endl;
 	  cerr << "this.size()= " << size() << " t.size()=" << t->size() << endl;
 	}
@@ -2194,7 +2194,7 @@ namespace folia {
 	  }
 	  append( t );
 	  if ( doc() && doc()->debug > 2 ) {
-	    cerr << "created " << t << "(" << t->text(TEXT_FLAGS::NONE) << ")" << endl;
+	    cerr << "created " << t << "(" << t->text() << ")" << endl;
 	    cerr << "extended " << this << " met " << t << endl;
 	    cerr << "this.size()= " << size() << " t.size()=" << t->size() << endl;
 	  }
@@ -2939,7 +2939,7 @@ namespace folia {
 #ifdef DEBUG_PHON
 	cerr << "roep text(" << cls << ") aan op " << el << endl;
 #endif
-	UnicodeString tmp = el->text( cls, TEXT_FLAGS::NONE );
+	UnicodeString tmp = el->text( cls );
 #ifdef DEBUG_PHON
 	cerr << "PhonContent found '" << tmp << "'" << endl;
 #endif
@@ -3956,7 +3956,7 @@ namespace folia {
       throw NoSuchText("caption");
     }
     else {
-      return v[0]->text(TEXT_FLAGS::NONE);
+      return v[0]->text();
     }
   }
 
@@ -4270,7 +4270,7 @@ namespace folia {
       }
       else if ( cls == "current" && el->hastext( "original" ) ){
 	cerr << "text(original)= "
-	     << el->textcontent( cls, show_hidden )->text(TEXT_FLAGS::NONE)<< endl;
+	     << el->textcontent( cls, show_hidden )->text()<< endl;
 	// hack for old and erroneous behaviour
 	return el->textcontent( "original", show_hidden );
       }
