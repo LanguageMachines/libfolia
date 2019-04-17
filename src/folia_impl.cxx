@@ -1055,7 +1055,7 @@ namespace folia {
     }
     catch( const NoSuchText& e ){
       try {
-	us = phon(cls, TEXT_FLAGS::NONE );
+	us = phon(cls);
       }
       catch( const NoSuchPhon& e ){
 	// No TextContent or Phone allowed
@@ -1555,23 +1555,22 @@ namespace folia {
   //#define DEBUG_PHON
 
   const UnicodeString AbstractElement::phon( const string& cls,
-					     bool strict,
-					     bool show_hidden ) const {
+					     TEXT_FLAGS flags ) const {
     // get the UnicodeString value of underlying elements
     // default cls="current"
 #ifdef DEBUG_PHON
     cerr << "PHON(" << cls << ") op node : " << xmltag() << " id ( " << id() << ")" << endl;
 #endif
-    if ( strict ) {
+    if ( STRICT & flags ) {
       return phoncontent(cls)->phon();
     }
-    else if ( !speakable() && !( hidden() && show_hidden ) ) {
+    else if ( !speakable() && !( hidden() && (HIDDEN & flags) ) ) {
       throw NoSuchPhon( "NON speakable element: " + xmltag() );
     }
     else {
-      UnicodeString result = deepphon( cls, show_hidden );
+      UnicodeString result = deepphon( cls, (HIDDEN&flags) );
       if ( result.isEmpty() ) {
-	result = phoncontent(cls,show_hidden)->phon();
+	result = phoncontent(cls,(HIDDEN&flags))->phon();
       }
       if ( result.isEmpty() ) {
 	throw NoSuchPhon( "on tag " + xmltag() + " nor it's children" );
@@ -1605,7 +1604,7 @@ namespace folia {
 	cerr << "deepphon:bekijk node[" << child->xmltag() << "]" << endl;
 #endif
 	try {
-	  UnicodeString tmp = child->phon( cls, false );
+	  UnicodeString tmp = child->phon( cls );
 #ifdef DEBUG_PHON
 	  cerr << "deepphon found '" << tmp << "'" << endl;
 #endif
@@ -2827,8 +2826,8 @@ namespace folia {
       throw UnresolvableTextContent( "Reference (ID " + _ref + ") has no such phonetic content (class=" + cls() + ")" );
     }
     else if ( doc()->checktext() || doc()->fixtext() ){
-      UnicodeString mt = this->phon( this->cls(), false );
-      UnicodeString pt = ref->phon( this->cls(), false );
+      UnicodeString mt = this->phon( this->cls() );
+      UnicodeString pt = ref->phon( this->cls() );
       UnicodeString sub( pt, this->offset(), mt.length() );
       if ( mt != sub ){
 	if ( doc()->fixtext() ){
@@ -2918,7 +2917,7 @@ namespace folia {
   }
 
   const UnicodeString PhonContent::phon( const string& cls,
-					 bool, bool ) const {
+					 TEXT_FLAGS ) const {
     // get the UnicodeString value of underlying elements
     // default cls="current"
 #ifdef DEBUG_PHON
@@ -4768,7 +4767,7 @@ namespace folia {
     }
   }
 
-  const string AbstractElement::getmetadata( const std::string& key ) const {
+  const string AbstractElement::getmetadata( const string& key ) const {
     // Get the metadata that applies to this element,
     // automatically inherited from parent elements
     if ( !_metadata.empty() && doc() ){

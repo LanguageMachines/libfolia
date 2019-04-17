@@ -66,7 +66,7 @@ namespace folia {
 
   class properties;
   extern const std::set<ElementType> default_ignore_annotations;
-  enum TEXT_FLAGS { NONE, RETAIN=1, STRICT=2, HIDDEN=4 };
+  enum TEXT_FLAGS { NONE=1, RETAIN=2, STRICT=4, HIDDEN=8 };
 
   inline TEXT_FLAGS operator|( TEXT_FLAGS f1, TEXT_FLAGS f2 ){
     return (TEXT_FLAGS) ((int)f1|(int)f2) ;
@@ -310,8 +310,7 @@ namespace folia {
     const UnicodeString stricttext( const std::string& = "current" ) const;
     const UnicodeString toktext( const std::string& = "current" ) const;
     virtual const UnicodeString phon( const std::string& = "current",
-				      bool = false,
-				      bool = false ) const = 0;
+				      TEXT_FLAGS = TEXT_FLAGS::NONE ) const = 0;
     virtual bool printable() const = 0;
     virtual bool speakable() const = 0;
     virtual bool referable() const = 0;
@@ -639,10 +638,9 @@ namespace folia {
       return text( "current", flags );
     }
 
-
     const UnicodeString phon( const std::string& = "current",
-			      bool = false,
-			      bool = false ) const;
+			      TEXT_FLAGS = TEXT_FLAGS::NONE ) const;
+
     const UnicodeString deeptext( const std::string& = "current",
 				  bool = false,
 				  bool = false ) const;
@@ -1239,8 +1237,7 @@ namespace folia {
     void setAttributes( const KWargs& );
     KWargs collectAttributes() const;
     const UnicodeString phon( const std::string& = "current",
-			      bool = false,
-			      bool = false ) const;
+			      TEXT_FLAGS = TEXT_FLAGS::NONE ) const;
     int offset() const { return _offset; };
     FoliaElement *postappend();
     FoliaElement *getreference() const;
