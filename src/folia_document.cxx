@@ -797,7 +797,7 @@ namespace folia {
 	if ( debug ){
 	  cerr << "parse " << prefix << "-annotation" << endl;
 	}
-	KWargs att = getAttributes( n );
+	KWargs atts = getAttributes( n );
 	string st;
 	string annotator;
 	string ann_type;
@@ -805,8 +805,8 @@ namespace folia {
 	string datetime;
 	string alias;
 	ElementType et = BASE;
-	auto it = att.find("set" );
-	if ( it != att.end() ){
+	auto it = atts.find("set" );
+	if ( it != atts.end() ){
 	  st = it->second;
 	}
 	else if ( version_below( 1, 6 ) ){
@@ -839,28 +839,37 @@ namespace folia {
 	  }
 	  delete tmp;
 	}
-	it = att.find( "format" );
-	if ( it != att.end() ){
+	// done with the set
+	if ( it != atts.end() ){
+	  atts.erase(it);
+	}
+	it = atts.find( "format" );
+	if ( it != atts.end() ){
 	  format = it->second;
+	  atts.erase(it);
 	}
-	it = att.find( "annotator" );
-	if ( it != att.end() ){
+	it = atts.find( "annotator" );
+	if ( it != atts.end() ){
 	  annotator = it->second;
+	  atts.erase(it);
 	}
-	it = att.find( "annotatortype" );
-	if ( it != att.end() ){
+	it = atts.find( "annotatortype" );
+	if ( it != atts.end() ){
 	  ann_type = it->second;
+	  atts.erase(it);
 	}
-	it = att.find( "datetime" );
-	if ( it != att.end() ){
+	it = atts.find( "datetime" );
+	if ( it != atts.end() ){
 	  datetime = parseDate( it->second );
+	  atts.erase(it);
 	}
-	it = att.find( "alias" );
-	if ( it != att.end() ){
+	it = atts.find( "alias" );
+	if ( it != atts.end() ){
 	  alias = it->second;
+	  atts.erase(it);
 	}
-	it = att.find( "groupannotations" );
-	if ( it != att.end() ){
+	it = atts.find( "groupannotations" );
+	if ( it != atts.end() ){
 	  if ( !isSubClass( et, AbstractSpanAnnotation_t ) ){
 	    throw XmlError( "attribute 'groupannotations' not allowed for '"
 			    + prefix + "-annotation" );
@@ -873,6 +882,7 @@ namespace folia {
 	    throw XmlError( "invalid value '" + it->second
 			    + "' for attribute groupannotations" );
 	  }
+	  atts.erase(it);
 	}
 	else {
 	  _groupannotations[at_type][st] = false;
@@ -898,6 +908,11 @@ namespace folia {
 	}
 	declare( at_type, st, format, annotator, ann_type, datetime,
 		 processors, alias );
+	if ( !atts.empty() ){
+
+	  throw XmlError( "found invalid attribute(s) in <" + prefix
+			  + "-declaration> " + atts.toString() );
+	}
       }
       n = n->next;
     }
