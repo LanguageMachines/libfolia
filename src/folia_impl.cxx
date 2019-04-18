@@ -3037,7 +3037,6 @@ namespace folia {
     // Apply a correction
     Document *doc = this->doc();
     Correction *corr = 0;
-    bool suggestionsonly = false;
     bool hooked = false;
     New *addnew = 0;
     KWargs args = args_in;
@@ -3073,9 +3072,6 @@ namespace folia {
 	throw ValueError("reuse= must point to an existing correction id!");
       }
       hooked = true;
-      suggestionsonly = (!corr->hasNew()
-			 && !corr->hasOriginal()
-			 && corr->hasSuggestions() );
       if ( !_new.empty() && corr->hasCurrent() ) {
 	// can't add new if there's current, so first set original to current, and then delete current
 
@@ -3323,18 +3319,6 @@ namespace folia {
 
     it = args.find("reuse");
     if ( it != args.end() ) {
-      if ( addnew && suggestionsonly ) {
-	vector<Suggestion*> sv = corr->suggestions();
-	for ( const auto& sug : sv ){
-	  if ( !corr->annotator().empty() && sug->annotator().empty() ) {
-	    sug->annotator( corr->annotator() );
-	  }
-	  if ( !(corr->annotatortype() == UNDEFINED) &&
-	       (sug->annotatortype() == UNDEFINED ) ) {
-	    sug->annotatortype( corr->annotatortype() );
-	  }
-	}
-      }
       it = args.find("annotator");
       if ( it != args.end() ) {
 	corr->annotator( it->second );
