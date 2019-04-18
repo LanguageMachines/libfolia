@@ -196,6 +196,10 @@ namespace folia {
     return result;
   }
 
+  string KWargs::toString(){
+    return folia::toString( *this );
+  }
+
   KWargs getAttributes( const xmlNode *node ){
     KWargs atts;
     if ( node ){
