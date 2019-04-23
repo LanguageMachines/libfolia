@@ -72,6 +72,8 @@ namespace folia {
     bool flush( FoliaElement * );
     bool finish();
     bool ok() const { return _ok; };
+    void un_declare( const AnnotationType::AnnotationType&,
+		     const std::string& = "" );
     void declare( const AnnotationType::AnnotationType&,
 		  const std::string&,
 		  const std::string& = "" );

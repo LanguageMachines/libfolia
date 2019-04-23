@@ -118,9 +118,22 @@ namespace folia {
     _is_setup = true;
   }
 
+  void Engine::un_declare( const AnnotationType::AnnotationType& at,
+			   const string& setname ){
+    if ( !ok() ){
+      throw logic_error( "declare() called on invalid processor!" );
+    }
+    else if ( _header_done ){
+      throw logic_error( "declare() called on already (partially) saved document!" );
+    }
+    else {
+      _out_doc->un_declare( at, setname );
+    }
+  }
+
   void Engine::declare( const AnnotationType::AnnotationType& at,
-			   const string& setname,
-			   const string& args ) {
+			const string& setname,
+			const string& args ) {
     if ( !ok() ){
       throw logic_error( "declare() called on invalid processor!" );
     }
@@ -133,8 +146,8 @@ namespace folia {
   }
 
   void Engine::declare( const AnnotationType::AnnotationType& at,
-			   const string& setname,
-			   const KWargs& args ) {
+			const string& setname,
+			const KWargs& args ) {
     if ( !ok() ){
       throw logic_error( "declare() called on invalid processor!" );
     }
@@ -147,7 +160,7 @@ namespace folia {
   }
 
   bool Engine::is_declared( const AnnotationType::AnnotationType& at,
-			       const string& setname ) const {
+			    const string& setname ) const {
     if ( !ok() ){
       throw logic_error( "is_declared() called on invalid processor!" );
     }
@@ -157,13 +170,13 @@ namespace folia {
   }
 
   void Engine::declare( const AnnotationType::AnnotationType& at,
-			   const string& setname,
-			   const string& format,
-			   const string& annotator,
-			   const string& annotator_type,
-			   const string& time,
-			   const set<string>& processors,
-			   const string& alias ) {
+			const string& setname,
+			const string& format,
+			const string& annotator,
+			const string& annotator_type,
+			const string& time,
+			const set<string>& processors,
+			const string& alias ) {
     if ( !ok() ){
       throw logic_error( "declare() called on invalid processor!" );
     }
@@ -177,10 +190,10 @@ namespace folia {
   }
 
   bool Engine::is_declared( const AnnotationType::AnnotationType& at,
-			       const string& setname,
-			       const string& annotator,
-			       const AnnotatorType& annotator_type,
-			       const string& processor ) const {
+			    const string& setname,
+			    const string& annotator,
+			    const AnnotatorType& annotator_type,
+			    const string& processor ) const {
     if ( !ok() ){
       throw logic_error( "is_declared() called on invalid processor!" );
     }
@@ -190,10 +203,10 @@ namespace folia {
   }
 
   bool Engine::is_declared( const AnnotationType::AnnotationType& at,
-			       const string& setname,
-			       const string& annotator,
-			       const string& annotator_type,
-			       const string& processor ) const {
+			    const string& setname,
+			    const string& annotator,
+			    const string& annotator_type,
+			    const string& processor ) const {
     AnnotatorType ant = UNDEFINED;
     try {
       ant = TiCC::stringTo<AnnotatorType>(annotator_type);
@@ -205,7 +218,7 @@ namespace folia {
   }
 
   void Engine::set_metadata( const std::string& att,
-				const std::string& val){
+			     const std::string& val){
     if ( !ok() ){
       throw logic_error( "set_metadata() called on invalid processor!" );
     }
