@@ -675,6 +675,15 @@ namespace folia {
     }
   }
 
+  processor *Document::get_processor_by_name( const string& name ) const {
+    if ( _provenance ){
+      return _provenance->get_processor_by_name( name );
+    }
+    else {
+      return 0;
+    }
+  }
+
   processor *Document::add_processor( const KWargs& _args,
 				      processor *parent ){
     KWargs args = _args;
@@ -1100,8 +1109,19 @@ namespace folia {
     }
   }
 
+  processor *Provenance::get_processor_by_name( const string& name ) const {
+    const auto& p = _name_index.find( name );
+    if ( p != _name_index.end() ){
+      return p->second;
+    }
+    else {
+      return 0;
+    }
+  }
+
   void Provenance::add_index( processor *p ){
     _index[p->id()] = p;
+    _name_index[p->name()] = p;
   }
 
   processor *Provenance::parse_processor( const xmlNode *node ) {
@@ -1712,8 +1732,20 @@ namespace folia {
 	st = "undefined";
       }
       else {
-	throw XmlError( "setname may not be empty for " + toString(type)
-			+ "-annotation" );
+	string prefix = TiCC::toString(type);
+	auto et_it = annotationtype_elementtype_map.find( type );
+	if ( et_it == annotationtype_elementtype_map.end() ){
+	  throw logic_error( "no matching element_type for annotation_type: "
+			     + prefix );
+	}
+	auto et = et_it->second;
+	FoliaElement *tmp = AbstractElement::createElement( et );
+	if ( tmp->required_attributes() & Attrib::CLASS ) {
+	  delete tmp;
+	  throw XmlError( "setname may not be empty for " + prefix
+			  + "-annotation" );
+	}
+	delete tmp;
       }
     }
     set<string> processors;
