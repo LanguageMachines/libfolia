@@ -1927,6 +1927,9 @@ namespace folia {
 	  ++it4;
 	}
       }
+      if ( adt->second.empty() ){
+	_annotationdefaults.erase(adt);
+      }
     }
   }
 
@@ -2072,20 +2075,46 @@ namespace folia {
 
   bool Document::isDeclared( const AnnotationType::AnnotationType& type,
 			     const string& setname ) const {
+    if ( debug ){
+      cerr << "isDeclared(" << folia::toString(type) << ",'" << setname << "')" << endl;
+    }
     if ( type == AnnotationType::NO_ANN ){
+      if ( debug ){
+	cerr << "always true for NO_ANN" << endl;
+      }
       return true;
+    }
+    if ( debug ){
+      cerr << "Doorzoek: " << _annotationdefaults << endl;
     }
     const auto& mit1 = _annotationdefaults.find(type);
     if ( mit1 != _annotationdefaults.end() ){
-      // cerr << "found some for: " << toString(type) << endl;
-      // cerr << mit1->second << endl;
+      if ( debug ){
+	cerr << "found some: " << mit1->second << endl;
+      }
       if ( setname.empty() ){
+	if ( debug ){
+	  cerr << "return TRUE" << endl;
+	}
 	return true;
       }
       string set_name = unalias(type,setname);
-      //      cerr << "lookup: " << setname << " (" << set_name << ")" << endl;
+      if ( debug ){
+	cerr << "lookup: " << setname << " (" << set_name << ")" << endl;
+      }
       const auto& mit2 = mit1->second.find(set_name);
+      if ( debug ){
+	if ( mit2 != mit1->second.end() ){
+	  cerr << "return TRUE" << endl;
+	}
+	else {
+	  cerr << "return FALSE" << endl;
+	}
+      }
       return mit2 != mit1->second.end();
+    }
+    if ( debug ){
+      cerr << "return DIRECTLY FALSE" << endl;
     }
     return false;
   }
