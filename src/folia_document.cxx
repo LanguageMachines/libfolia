@@ -1478,16 +1478,16 @@ namespace folia {
       }
       else if ( TiCC::Name( m ) == "provenance" &&
 		checkNS( m, NSFOLIA ) ){
-	//	if ( debug > 1 ){
-	//	cerr << "found provenance data" << endl;
-	//	}
+	if ( debug > 1 ){
+	  cerr << "found provenance data" << endl;
+	}
 	parseprovenance( m );
 	//	cerr << _provenance << endl;
       }
       else if ( TiCC::Name( m ) == "meta" &&
 		checkNS( m, NSFOLIA ) ){
 	if ( debug > 1 ){
-	  cerr << "found meta node" << endl;
+	  cerr << "found meta node:" << getAttributes(m) << endl;
 	}
 	if ( !result ){
 	  throw runtime_error( "'meta' tag found outside a metadata block" );
