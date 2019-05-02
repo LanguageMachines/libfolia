@@ -2671,8 +2671,8 @@ namespace folia {
     }
     else {
       attribs["generator"] = "libfolia-v" + library_version();
-      if ( !_version_string.empty() )
-	attribs["version"] = _version_string;
+      attribs["version"] = _version_string;
+      // attribs["version"] = folia_version();
     }
     if ( external )
       attribs["external"] = "yes";

@@ -2141,7 +2141,6 @@ namespace folia {
     AbstractSpanRole( PROPS, d ){ classInit(); }
   Headspan( const KWargs& a, Document *d = 0 ):
     AbstractSpanRole( PROPS, d ){ classInit( a ); }
-
   private:
     static properties PROPS;
   };
