@@ -746,7 +746,7 @@ namespace folia {
     args["xml:id"] = pid;
     p = new processor( args );
     _provenance->add_index(p);
-    if ( args.find("generator") == args.end() ){
+    if ( args.find("generator") != args.end() ){
       // we automagicly add a subprocessor.
       processor *sub = new processor();
       //      sub->set_system_defaults();
