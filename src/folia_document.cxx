@@ -1030,10 +1030,20 @@ namespace folia {
     _type = AUTO;
     for ( const auto& att : atts ){
       if ( att.first == "begindatetime" ){
-	_begindatetime = att.second;
+	if ( att.second == "now()" ){
+	  _begindatetime = getNow();
+	}
+	else {
+	  _begindatetime = att.second;
+	}
       }
       else if ( att.first == "enddatetime" ){
-	_enddatetime = att.second;
+	if ( att.second == "now()" ){
+	  _enddatetime = getNow();
+	}
+	else {
+	  _enddatetime = att.second;
+	}
       }
       else if ( att.first == "id"
 		|| att.first == "xml:id" ){
