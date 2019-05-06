@@ -3833,16 +3833,6 @@ namespace folia {
     return result;
   }
 
-  void WordReference::setAttributes( const KWargs& kwargsin ) {
-    // KWargs kwargs = kwargsin;
-    // auto it = kwargs.find( "t" );
-    // if ( it != kwargs.end() ) {
-    //   kwargs.erase( it );
-    // }
-    AbstractElement::setAttributes( kwargsin );
-  }
-
-
   FoliaElement* WordReference::parseXml( const xmlNode *node ) {
     KWargs atts = getAttributes( node );
     string id = atts["id"];
@@ -4117,13 +4107,7 @@ namespace folia {
 	xmlNode *t = XmlNewNode( foliaNs(), "wref" );
 	KWargs attribs;
 	attribs["id"] = el->id();
-	string txt;
-	if ( this->xmltag() == "hd" ){
-	  txt = el->str( parent()->textclass() );
-	}
-	else {
-	  txt = el->str( textclass() );
-	}
+	string txt = el->str( el->textclass() );
 	if ( !txt.empty() ) {
 	  attribs["t"] = txt;
 	}

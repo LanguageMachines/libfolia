@@ -2037,7 +2037,6 @@ namespace folia {
     AbstractElement( PROPS, d ){ classInit(); }
   WordReference( const KWargs& a, Document *d = 0 ):
     AbstractElement( PROPS, d ){ classInit( a ); }
-    void setAttributes( const KWargs& );
   private:
     static properties PROPS;
     FoliaElement* parseXml( const xmlNode *node );
@@ -2125,7 +2124,6 @@ namespace folia {
   public:
     explicit AbstractSpanRole( Document *d=0 ):
     AbstractSpanRole( PROPS, d ){};
-
   protected:
   AbstractSpanRole( const properties& props, Document *d=0 ):
     AbstractSpanAnnotation( props, d ){ classInit(); }
