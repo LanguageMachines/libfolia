@@ -1895,29 +1895,55 @@ namespace folia {
   void Document::un_declare( AnnotationType::AnnotationType type,
 			     const string& set_name ){
     string setname = unalias(type,set_name);
+    if ( debug ){
+      cerr << "undeclare: " << folia::toString(type) << "(" << set_name << "."
+	   << setname << ")" << endl;
+    }
     if ( _annotationrefs[type][setname] != 0 ){
       throw XmlError( "unable to undeclare " + toString(type) + "-type("
 		      + setname + ") (references remain)" );
     }
     auto const adt = _annotationdefaults.find(type);
     if ( adt != _annotationdefaults.end() ){
+      if ( debug ){
+	cerr << "matched type=" << folia::toString(type) << endl;
+      }
       auto it = adt->second.begin();
       while ( it != adt->second.end() ){
+	if ( debug ){
+	  cerr << "zoek set:" << setname << endl;
+	}
 	if ( setname.empty() || it->first == setname ){
+	  if ( debug ){
+	    cerr << "erase:" << setname << "==" << it->first << endl;
+	  }
 	  it = adt->second.erase(it);
 	}
 	else {
 	  ++it;
 	}
       }
+      if ( debug ){
+	cerr << "ANNO-SORT: IN " << _anno_sort << endl;
+      }
       auto it2 = _anno_sort.begin();
       while ( it2 != _anno_sort.end() ){
-	if ( it2->first == type && it2->second == setname ){
+	if ( debug ){
+	  cerr << "zoek set:" << setname << endl;
+	}
+	if ( it2->first == type
+	     && ( setname.empty() || it2->second == setname ) ){
+	  if ( debug ){
+	    cerr << "_annosort:erase:" << setname << "==" << it->first << endl;
+	  }
 	  it2 = _anno_sort.erase( it2 );
 	}
 	else {
 	  ++it2;
 	}
+      }
+      if ( debug ){
+	cerr << "ANNO-SORT: UIT " << _anno_sort << endl;
       }
       auto it3 = _alias_set[type].begin();
       while ( it3 != _alias_set[type].end() ){
