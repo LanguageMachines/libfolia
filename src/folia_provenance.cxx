@@ -31,24 +31,13 @@
 #include <netdb.h>
 #include <iostream>
 #include <fstream>
-#include <sstream>
 #include <string>
-#include <bitset>
-#include <set>
-#include <list>
-#include <vector>
-#include <map>
-#include <algorithm>
 #include <stdexcept>
-#include "config.h"
 #include "ticcutils/PrettyPrint.h"
 #include "ticcutils/XMLtools.h"
 #include "ticcutils/StringOps.h"
-#include "ticcutils/Unicode.h"
-#include "ticcutils/zipper.h"
 #include "libfolia/folia.h"
 #include "libfolia/folia_provenance.h"
-//#include "libxml/xmlstring.h"
 
 using namespace std;
 using namespace icu;

@@ -27,14 +27,9 @@
 #include <cstdlib>
 #include <iostream>
 #include <fstream>
-#include <sstream>
 #include <string>
-#include <bitset>
-#include <set>
-#include <list>
 #include <vector>
 #include <map>
-#include <algorithm>
 #include <stdexcept>
 #include "config.h"
 #include "ticcutils/PrettyPrint.h"
