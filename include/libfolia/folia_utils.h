@@ -179,6 +179,8 @@ namespace folia {
 
   icu::UnicodeString normalize_spaces( const icu::UnicodeString& );
 
+  std::string get_ISO_date();
+
 } // namespace folia
 
 namespace TiCC {
