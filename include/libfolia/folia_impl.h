@@ -485,6 +485,8 @@ namespace folia {
     // some 'internal stuff
     virtual int refcount() const = 0;
     virtual void increfcount() = 0;
+    virtual void decrefcount() = 0;
+    virtual void resetrefcount() = 0;
     virtual void setAttributes( const KWargs& ) = 0;
     virtual KWargs collectAttributes() const = 0;
     virtual void setAuth( bool b ) = 0;
@@ -726,6 +728,8 @@ namespace folia {
     KWargs collectAttributes() const;
     int refcount() const { return _refcount; };
     void increfcount() { ++_refcount; };
+    void decrefcount() { --_refcount; };
+    void resetrefcount() { _refcount = 0; };
     void setAuth( bool b ){ _auth = b; };
     xmlNs *foliaNs() const;
     bool acceptable( ElementType ) const;

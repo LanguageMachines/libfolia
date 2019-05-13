@@ -202,6 +202,7 @@ namespace folia {
   AbstractElement::~AbstractElement( ) {
     bool debug = false;
     if ( xmltag() == "w"
+    	 || xmltag() == "s"
     	 || xmltag() == "entity"
     	 || xmltag() == "entities"
     	 || xmltag() == "morpheme"
@@ -217,6 +218,7 @@ namespace folia {
       if ( doc() ) {
 	doc()->keepForDeletion( this );
       }
+      decrefcount();
     }
     else {
       for ( const auto& el : _data ) {

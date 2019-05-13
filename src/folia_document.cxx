@@ -162,6 +162,7 @@ namespace folia {
     iindex.clear();
     delete foliadoc;
     for ( const auto& it : delSet ){
+      it->resetrefcount();
       delete it;
     }
     delete _metadata;
