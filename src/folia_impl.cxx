@@ -218,7 +218,7 @@ namespace folia {
       if ( doc() ) {
 	doc()->keepForDeletion( this );
       }
-      decrefcount();
+      //      decrefcount();
     }
     else {
       for ( const auto& el : _data ) {
