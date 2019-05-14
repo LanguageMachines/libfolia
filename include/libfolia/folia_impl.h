@@ -66,10 +66,14 @@ namespace folia {
 
   class properties;
   extern const std::set<ElementType> default_ignore_annotations;
-  enum TEXT_FLAGS { NONE=1, RETAIN=2, STRICT=4, HIDDEN=8 };
+  enum class TEXT_FLAGS { NONE=0, RETAIN=1, STRICT=2, HIDDEN=4 };
+
+  inline TEXT_FLAGS operator&( TEXT_FLAGS f1, TEXT_FLAGS f2 ){
+    return (TEXT_FLAGS)((int)f1&(int)f2);
+  }
 
   inline TEXT_FLAGS operator|( TEXT_FLAGS f1, TEXT_FLAGS f2 ){
-    return (TEXT_FLAGS) ((int)f1|(int)f2) ;
+    return (TEXT_FLAGS) ((int)f1|(int)f2);
   }
 
   inline TEXT_FLAGS& operator|=( TEXT_FLAGS& f1, TEXT_FLAGS f2 ){
@@ -465,9 +469,9 @@ namespace folia {
     virtual const FoliaElement* resolveid() const NOT_IMPLEMENTED;
     virtual bool checkAtts() = 0;
     virtual const UnicodeString deeptext( const std::string& = "current",
-					  TEXT_FLAGS = NONE ) const NOT_IMPLEMENTED;
+					  TEXT_FLAGS = TEXT_FLAGS::NONE ) const NOT_IMPLEMENTED;
     virtual const UnicodeString deepphon( const std::string& = "current",
-					  TEXT_FLAGS = NONE ) const NOT_IMPLEMENTED;
+					  TEXT_FLAGS = TEXT_FLAGS::NONE ) const NOT_IMPLEMENTED;
 
 
     virtual std::vector<FoliaElement*> select( ElementType elementtype,
@@ -647,9 +651,9 @@ namespace folia {
     }
 
     const UnicodeString deeptext( const std::string& = "current",
-				  TEXT_FLAGS = NONE ) const;
+				  TEXT_FLAGS = TEXT_FLAGS::NONE ) const;
     const UnicodeString deepphon( const std::string& = "current",
-				  TEXT_FLAGS = NONE ) const;
+				  TEXT_FLAGS = TEXT_FLAGS::NONE ) const;
 
     // Word
     const Word* resolveword( const std::string& ) const { return 0; };

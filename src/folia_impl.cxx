@@ -1223,9 +1223,9 @@ namespace folia {
 
   const UnicodeString AbstractElement::text( const std::string& st,
 					     TEXT_FLAGS flags ) const {
-    bool retain = ( TEXT_FLAGS::RETAIN & flags );
-    bool strict = ( TEXT_FLAGS::STRICT & flags );
-    bool hidden = ( TEXT_FLAGS::HIDDEN & flags );
+    bool retain = ( TEXT_FLAGS::RETAIN & flags ) == TEXT_FLAGS::RETAIN;
+    bool strict = ( TEXT_FLAGS::STRICT & flags ) == TEXT_FLAGS::STRICT;
+    bool hidden = ( TEXT_FLAGS::HIDDEN & flags ) == TEXT_FLAGS::HIDDEN;
     return private_text( st, retain, strict, hidden );
   }
 
@@ -1416,7 +1416,8 @@ namespace folia {
 	  }
 	  else {
 	    // get the delimiter
-	    const string& delim = child->getTextDelimiter( RETAIN&flags );
+	    bool retain = ( TEXT_FLAGS::RETAIN & flags ) == TEXT_FLAGS::RETAIN;
+	    const string& delim = child->getTextDelimiter( retain );
 #ifdef DEBUG_TEXT
 	    cerr << "deeptext:delimiter van "<< child->xmltag() << " ='" << delim << "'" << endl;
 #endif
@@ -1468,7 +1469,8 @@ namespace folia {
     cerr << "deeptext() for " << xmltag() << " step 3 " << endl;
 #endif
     if ( result.isEmpty() ) {
-      result = textcontent(cls,(HIDDEN&flags))->text();
+      bool hidden = ( TEXT_FLAGS::HIDDEN & flags ) == TEXT_FLAGS::HIDDEN;
+      result = textcontent(cls,hidden)->text();
     }
 #ifdef DEBUG_TEXT
     cerr << "deeptext() for " << xmltag() << " result= '" << result << "'" << endl;
@@ -1578,19 +1580,21 @@ namespace folia {
 					     TEXT_FLAGS flags ) const {
     // get the UnicodeString value of underlying elements
     // default cls="current"
+    bool hidden = ( TEXT_FLAGS::HIDDEN & flags ) == TEXT_FLAGS::HIDDEN;
+    bool strict = ( TEXT_FLAGS::STRICT & flags ) == TEXT_FLAGS::STRICT;
 #ifdef DEBUG_PHON
     cerr << "PHON(" << cls << ") op node : " << xmltag() << " id ( " << id() << ")" << endl;
 #endif
-    if ( STRICT & flags ) {
+    if ( strict ) {
       return phoncontent(cls)->phon();
     }
-    else if ( !speakable() || ( hidden() && !(HIDDEN & flags) ) ) {
+    else if ( !speakable() || ( this->hidden() && !hidden ) ) {
       throw NoSuchPhon( "NON speakable element: " + xmltag() );
     }
     else {
       UnicodeString result = deepphon( cls, flags );
       if ( result.isEmpty() ) {
-	result = phoncontent(cls,(HIDDEN&flags))->phon();
+	result = phoncontent(cls,hidden)->phon();
       }
       if ( result.isEmpty() ) {
 	throw NoSuchPhon( "on tag " + xmltag() + " nor it's children" );
@@ -1655,8 +1659,9 @@ namespace folia {
     cerr << "deepphon() for " << xmltag() << " step 3 " << endl;
 #endif
     if ( result.isEmpty() ) {
+      bool hidden = ( TEXT_FLAGS::HIDDEN & flags ) == TEXT_FLAGS::HIDDEN;
       try {
-	result = phoncontent(cls,(HIDDEN&flags))->phon();
+	result = phoncontent(cls,hidden)->phon();
       }
       catch ( ... ) {
       }

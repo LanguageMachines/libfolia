@@ -532,7 +532,7 @@ namespace folia {
   UnicodeString Document::text( const std::string& cls,
 				bool retaintok,
 				bool strict ) const {
-    TEXT_FLAGS flags = NONE;
+    TEXT_FLAGS flags = TEXT_FLAGS::NONE;
     if ( retaintok ){
       flags = flags | TEXT_FLAGS::RETAIN;
     }
