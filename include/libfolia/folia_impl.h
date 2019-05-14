@@ -72,7 +72,7 @@ namespace folia {
     return (TEXT_FLAGS) ((int)f1|(int)f2) ;
   }
 
-  inline TEXT_FLAGS& operator|=( TEXT_FLAGS& f1, TEXT_FLAGS& f2 ){
+  inline TEXT_FLAGS& operator|=( TEXT_FLAGS& f1, TEXT_FLAGS f2 ){
     f1 = (f1 | f2);
     return f1;
   }

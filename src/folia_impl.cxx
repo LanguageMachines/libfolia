@@ -1203,12 +1203,12 @@ namespace folia {
       throw NoSuchText( "NON printable element: " + xmltag() );
     }
     else {
-      TEXT_FLAGS flags = NONE;
+      TEXT_FLAGS flags = TEXT_FLAGS::NONE;
       if ( retaintok ){
-	flags = flags | RETAIN;
+	flags |= TEXT_FLAGS::RETAIN;
       }
       if ( show_hidden ){
-	flags = flags | HIDDEN;
+	flags |= TEXT_FLAGS::HIDDEN;
       }
       UnicodeString result = deeptext( cls, flags );
       if ( result.isEmpty() ) {
