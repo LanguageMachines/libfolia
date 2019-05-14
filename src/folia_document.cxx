@@ -161,8 +161,11 @@ namespace folia {
     sindex.clear();
     iindex.clear();
     delete foliadoc;
+    set<FoliaElement*> bulk;
     for ( const auto& it : delSet ){
-      //      it->resetrefcount();
+      it->unravel( bulk );
+    }
+    for ( const auto& it : bulk ){
       delete it;
     }
     delete _metadata;

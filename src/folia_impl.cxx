@@ -2007,8 +2007,7 @@ namespace folia {
       if ( !child->parent() ) {
 	child->setParent(this);
       }
-      if ( child->xmltag() == "w"
-	   || child->xmltag() == "morpheme" ){
+      if ( child->referable() ){
 	child->increfcount();
       }
       return child->postappend();
@@ -2132,6 +2131,16 @@ namespace folia {
   vector<FoliaElement*> AbstractElement::select( ElementType et,
 					   bool recurse ) const {
     return select( et, "", default_ignore, recurse );
+  }
+
+  void AbstractElement::unravel( set<FoliaElement*>& store ){
+    resetrefcount();
+    store.insert( this );
+    auto dit = _data.begin();
+    while ( dit != _data.end() ){
+      (*dit)->unravel( store );
+      dit = _data.erase(dit);
+    }
   }
 
   FoliaElement* AbstractElement::parseXml( const xmlNode *node ) {

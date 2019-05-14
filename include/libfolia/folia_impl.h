@@ -493,6 +493,7 @@ namespace folia {
     virtual bool auth( ) const = 0;
     virtual const std::string generateId( const std::string& ) NOT_IMPLEMENTED;
     virtual const std::string textclass() const NOT_IMPLEMENTED;
+    virtual void unravel( std::set<FoliaElement*>& ) NOT_IMPLEMENTED;
   };
 
   class AbstractElement: public virtual FoliaElement {
@@ -720,6 +721,8 @@ namespace folia {
 				       const std::string&,
 				       const std::set<ElementType>& ,
 				       bool = true ) const;
+
+    void unravel( std::set<FoliaElement*>& );
 
   protected:
     xmlNode *xml( bool, bool = false ) const;
