@@ -176,32 +176,41 @@ namespace folia {
   }
 
   bool operator==( const Document& d1, const Document& d2 ){
-    if ( d1.data.size() != d2.data.size() )
+    if ( d1.data.size() != d2.data.size() ){
       return false;
+    }
     for ( size_t i = 0; i < d1.data.size(); ++i ){
-      if ( *d1.data[i] != *d2.data[i] )
+      if ( *d1.data[i] != *d2.data[i] ){
 	return false;
+      }
     }
     return true;
   }
 
   bool operator==( const FoliaElement& a1, const FoliaElement& a2){
-    if ( a1.element_id() != a2.element_id() )
+    if ( a1.element_id() != a2.element_id() ){
       return false;
-    if ( a1.id() != a2.id() )
+    }
+    if ( a1.id() != a2.id() ){
       return false;
-    if ( a1.sett() != a2.sett() )
+    }
+    if ( a1.sett() != a2.sett() ){
       return false;
-    if ( a1.cls() != a2.cls() )
+    }
+    if ( a1.cls() != a2.cls() ){
       return false;
-    if ( a1.annotator() != a2.annotator() )
+    }
+    if ( a1.annotator() != a2.annotator() ){
       return false;
-    if ( a1.annotatortype() != a2.annotatortype() )
+    }
+    if ( a1.annotatortype() != a2.annotatortype() ){
       return false;
+    }
     if ( a1.size() == a2.size() ) {
       for ( size_t i = 0; i < a1.size(); ++i ){
-	if ( *a1.index(i) != *a2.index(i) )
+	if ( *a1.index(i) != *a2.index(i) ){
 	  return false;
+	}
       }
     }
     return true;
@@ -236,7 +245,7 @@ namespace folia {
 	mode = Mode( int(mode) & ~FIXTEXT );
       }
       else {
-	throw runtime_error( "FoLiA::Document: unsupported mode value: "+ mod );
+	throw invalid_argument( "FoLiA::Document: unsupported mode value: "+ mod );
       }
     }
   }
@@ -358,10 +367,10 @@ namespace folia {
   bool Document::readFromFile( const string& s ){
     ifstream is( s );
     if ( !is.good() ){
-      throw runtime_error( "file not found: " + s );
+      throw invalid_argument( "file not found: " + s );
     }
     if ( foliadoc ){
-      throw runtime_error( "Document is already initialized" );
+      throw logic_error( "Document is already initialized" );
       return false;
     }
     _source_filename = s;
@@ -405,7 +414,7 @@ namespace folia {
 
   bool Document::readFromString( const string& s ){
     if ( foliadoc ){
-      throw runtime_error( "Document is already initialized" );
+      throw logic_error( "Document is already initialized" );
       return false;
     }
     int cnt = 0;
@@ -434,8 +443,9 @@ namespace folia {
       _xmldoc = 0;
       return foliadoc != 0;
     }
-    if ( debug )
-      cout << "Failed to read a doc from a string" << endl;
+    if ( debug ){
+      throw runtime_error( "Failed to read a doc from a string" );
+    }
     return false;
   }
 
@@ -491,18 +501,20 @@ namespace folia {
   }
 
   int Document::size() const {
-    if ( foliadoc )
+    if ( foliadoc ){
       return foliadoc->size();
-    else
-      return 0;
+    }
+    return 0;
   }
 
   FoliaElement* Document::index( const string& s ) const {
     const auto& it = sindex.find( s );
-    if ( it == sindex.end() )
+    if ( it == sindex.end() ){
       return 0;
-    else
+    }
+    else {
       return it->second;
+    }
   }
 
   FoliaElement* Document::operator []( const string& s ) const {
@@ -510,10 +522,10 @@ namespace folia {
   }
 
   FoliaElement* Document::operator []( size_t i ) const {
-    if ( i < iindex.size()-1 )
+    if ( i < iindex.size()-1 ){
       return iindex[i+1];
-    else
-      throw range_error( "Document index out of range" );
+    }
+    throw range_error( "Document index out of range" );
   }
 
   UnicodeString Document::text( const std::string& cls,
@@ -1216,8 +1228,9 @@ namespace folia {
     xmlNode *a_node = 0;
     while ( m ){
       if ( TiCC::Name(m)  == "METATRANSCRIPT" ){
-	if ( !checkNS( m, NSIMDI ) || type != "imdi" )
+	if ( !checkNS( m, NSIMDI ) || type != "imdi" ){
 	  throw runtime_error( "imdi != imdi " );
+	}
 	if ( debug > 1 ){
 	  cerr << "found IMDI" << endl;
 	}
@@ -1300,8 +1313,9 @@ namespace folia {
   void Document::addStyle( const string& type, const string& href ){
     if ( type == "text/xsl" ){
       const auto& it = styles.find( type );
-      if ( it != styles.end() )
+      if ( it != styles.end() ){
 	throw XmlError( "multiple 'text/xsl' style-sheets defined." );
+      }
     }
     styles.insert( make_pair( type, href ) );
   }
@@ -1412,8 +1426,9 @@ namespace folia {
     getstyles();
     xmlNode *root = xmlDocGetRootElement( _xmldoc );
     if ( root->ns ){
-      if ( root->ns->prefix )
+      if ( root->ns->prefix ){
 	_foliaNsIn_prefix = xmlStrdup( root->ns->prefix );
+      }
       _foliaNsIn_href = xmlStrdup( root->ns->href );
     }
     if ( debug > 2 ){
@@ -1773,10 +1788,6 @@ namespace folia {
     //
     // We DO NOT check the date. if all parameters match, it is OK
     //
-    // if ( set_name.empty() ){
-    //   return true;
-    //   throw runtime_error("isDeclared called with empty set.");
-    // }
     if ( type == AnnotationType::NO_ANN ){
       if ( debug ){
 	cerr << "\t\t TRUE want NO_ANN" << endl;
@@ -1912,8 +1923,9 @@ namespace folia {
   }
 
   string Document::defaultset( AnnotationType::AnnotationType type ) const {
-    if ( type == AnnotationType::NO_ANN )
+    if ( type == AnnotationType::NO_ANN ){
       return "";
+    }
     // search a set. it must be unique. Otherwise return ""
     // cerr << "zoek voor '" << toString(type) << "' de default set in:" << endl
     // 	 <<  _annotationdefaults << endl;
@@ -2018,9 +2030,9 @@ namespace folia {
     string result;
     if ( mit1 != _annotationdefaults.end() ){
       if ( st.empty() ){
-	if ( mit1->second.size() == 1 )
+	if ( mit1->second.size() == 1 ){
 	  result = mit1->second.begin()->second.d;
-	return result;
+	}
       }
       else {
 	if ( mit1->second.count( st ) == 1 ){
@@ -2424,12 +2436,14 @@ namespace folia {
 			  (const xmlChar *)"xlink" );
     xmlSetNs( root, xl );
     if ( _foliaNsIn_href == 0 ){
-      if ( nsLabel.empty() )
+      if ( nsLabel.empty() ){
 	_foliaNsOut = xmlNewNs( root, (const xmlChar *)NSFOLIA.c_str(), 0 );
-      else
+      }
+      else {
 	_foliaNsOut = xmlNewNs( root,
 				(const xmlChar *)NSFOLIA.c_str(),
 				(const xmlChar*)nsLabel.c_str() );
+      }
     }
     else {
       _foliaNsOut = xmlNewNs( root,
@@ -2448,8 +2462,9 @@ namespace folia {
       attribs["version"] = _version_string;
       // attribs["version"] = folia_version();
     }
-    if ( external )
+    if ( external ){
       attribs["external"] = "yes";
+    }
     addAttributes( root, attribs );
 
     xmlNode *md = xmlAddChild( root, TiCC::XmlNewNode( foliaNs(), "metadata" ) );
@@ -2474,8 +2489,9 @@ namespace folia {
       xmlFreeDoc( outDoc );
       _foliaNsOut = 0;
     }
-    else
+    else {
       throw runtime_error( "can't save, no doc" );
+    }
     return result;
   }
 
@@ -2490,8 +2506,9 @@ namespace folia {
 					   "UTF-8", 1 );
       xmlFreeDoc( outDoc );
       _foliaNsOut = 0;
-      if ( res == -1 )
+      if ( res == -1 ){
 	return false;
+      }
     }
     else {
       return false;
@@ -2505,15 +2522,18 @@ namespace folia {
     size_t rightcontext = 0;
     KWargs kw = getArgs( args );
     string val = kw["leftcontext"];
-    if ( !val.empty() )
+    if ( !val.empty() ){
       leftcontext = TiCC::stringTo<size_t>(val);
+    }
     val = kw["rightcontext"];
-    if ( !val.empty() )
+    if ( !val.empty() ){
       rightcontext = TiCC::stringTo<size_t>(val);
+    }
     vector<vector<Word*> > result;
     vector<Word*> matched;
-    if ( pat.regexp )
+    if ( pat.regexp ){
       throw runtime_error( "regexp not supported yet in patterns" );
+    }
     vector<Word*> mywords = words();
     for ( size_t startpos =0; startpos < mywords.size(); ++startpos ){
       // loop over all words
@@ -2524,8 +2544,9 @@ namespace folia {
       for ( size_t i = startpos; i < mywords.size() && goon ; ++i ){
 	//      cerr << "inner LOOP I = " << i << " myword=" << mywords[i] << endl;
 	UnicodeString value;
-	if ( pat.matchannotation == BASE )
+	if ( pat.matchannotation == BASE ){
 	  value = mywords[i]->text();
+	}
 	else {
 	  vector<FoliaElement *> v = mywords[i]->select( pat.matchannotation );
 	  if ( v.size() != 1 ){
@@ -2539,8 +2560,9 @@ namespace folia {
 	  // cerr << "matched, " << (done?"done":"not done")
 	  //      << (flag?" Flagged!":":{") << endl;
 	  matched.push_back(mywords[i]);
-	  if ( cursor == 0 )
+	  if ( cursor == 0 ){
 	    startpos = i; // restart search here
+	  }
 	  if ( done ){
 	    vector<Word*> keep = matched;
 	    //	  cerr << "findnodes() tussenresultaat ==> " << matched << endl;
@@ -2610,8 +2632,9 @@ namespace folia {
 	  variablewildcards = it.variablewildcards();
 	}
       }
-      else if ( !variablewildcards.empty() )
+      else if ( !variablewildcards.empty() ){
 	unsetwildcards = true;
+      }
       ++index;
     }
     if ( unsetwildcards ){
@@ -2622,8 +2645,9 @@ namespace folia {
     vector<vector<Word*> > result;
     for ( const auto& it : pats ){
       vector<vector<Word*> > res = findwords( it, args );
-      if ( result.empty() )
+      if ( result.empty() ){
 	result = res;
+      }
       else if ( res != result ){
 	result.clear();
 	break;
@@ -2639,14 +2663,18 @@ namespace folia {
     case_sensitive = false;
     KWargs kw = getArgs( args );
     matchannotationset = kw["matchannotationset"];
-    if (kw["regexp"] != "" )
+    if (kw["regexp"] != "" ){
       regexp = TiCC::stringTo<bool>( kw["regexp"] );
-    if (kw["maxgapsize"] != "" )
+    }
+    if (kw["maxgapsize"] != "" ){
       maxgapsize = TiCC::stringTo<int>( kw["maxgapsize"] );
-    else
+    }
+    else {
       maxgapsize = 10;
-    if ( kw["casesensitive"] != "" )
+    }
+    if ( kw["casesensitive"] != "" ){
       case_sensitive = TiCC::stringTo<bool>( kw["casesensitive"] );
+    }
     for ( const auto& pat : pat_vec ){
       if ( pat.find( "regexp('" ) == 0 &&
 	   pat.rfind( "')" ) == pat.length()-2 ){
@@ -2676,14 +2704,18 @@ namespace folia {
     case_sensitive = false;
     KWargs kw = getArgs( args );
     matchannotationset = kw["matchannotationset"];
-    if (kw["regexp"] != "" )
+    if (kw["regexp"] != "" ){
       regexp = TiCC::stringTo<bool>( kw["regexp"] );
-    if (kw["maxgapsize"] != "" )
+    }
+    if (kw["maxgapsize"] != "" ){
       maxgapsize = TiCC::stringTo<int>( kw["maxgapsize"] );
-    else
+    }
+    else {
       maxgapsize = 10;
-    if ( kw["casesensitive"] != "" )
+    }
+    if ( kw["casesensitive"] != "" ){
       case_sensitive = TiCC::stringTo<bool>( kw["casesensitive"] );
+    }
     for ( const auto& pat : pat_vec ){
       if ( pat.find( "regexp('" ) == 0 &&
 	   pat.rfind( "')" ) == pat.length()-2 ){
@@ -2736,8 +2768,9 @@ namespace folia {
       }
     }
     else {
-      if ( !case_sensitive )
+      if ( !case_sensitive ){
 	s.toLower();
+      }
       if ( sequence[pos] == s || sequence[pos] == "*:1" ){
 	done = ( ++pos >= sequence.size() );
 	return true;
@@ -2757,10 +2790,12 @@ namespace folia {
 	    done = true;
 	  }
 	}
-	else if ( ++gap == maxgapsize )
+	else if ( ++gap == maxgapsize ){
 	  ++pos;
-	else
+	}
+	else {
 	  flag = true;
+	}
 	return true;
       }
       else {
@@ -2781,16 +2816,18 @@ namespace folia {
 
   void Pattern::unsetwild() {
     for ( auto& s : sequence ){
-      if ( s == "*" )
+      if ( s == "*" ){
 	s = "*:1";
+      }
     }
   }
 
   set<int> Pattern::variablewildcards() const {
     set<int> result;
     for ( size_t i=0; i < sequence.size(); ++i ){
-      if ( sequence[i] == "*" )
+      if ( sequence[i] == "*" ){
 	result.insert( i );
+      }
     }
     return result;
   }
