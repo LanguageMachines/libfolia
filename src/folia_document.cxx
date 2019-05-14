@@ -436,8 +436,9 @@ namespace folia {
 	if ( foliadoc ){
 	  cout << "successful parsed the doc" << endl;
 	}
-	else
+	else{
 	  cout << "failed to parse the doc" << endl;
+	}
       }
       xmlFreeDoc( _xmldoc );
       _xmldoc = 0;
@@ -562,8 +563,7 @@ namespace folia {
     if ( index < v.size() ){
       return v[index];
     }
-    else
-      throw range_error( "sentences() index out of range" );
+    throw range_error( "sentences() index out of range" );
   }
 
   Sentence *Document::rsentences( size_t index ) const {
@@ -571,8 +571,7 @@ namespace folia {
     if ( index < v.size() ){
       return v[v.size()-1-index];
     }
-    else
-      throw range_error( "rsentences() index out of range" );
+    throw range_error( "rsentences() index out of range" );
   }
 
   vector<Word*> Document::words() const {
@@ -584,8 +583,7 @@ namespace folia {
     if ( index < v.size() ){
       return v[index];
     }
-    else
-      throw range_error( "words() index out of range" );
+    throw range_error( "words() index out of range" );
   }
 
   Word *Document::rwords( size_t index ) const {
@@ -593,8 +591,7 @@ namespace folia {
     if ( index < v.size() ){
       return v[v.size()-1-index];
     }
-    else
-      throw range_error( "rwords() index out of range" );
+    throw range_error( "rwords() index out of range" );
   }
 
   Paragraph *Document::paragraphs( size_t index ) const {
@@ -602,8 +599,7 @@ namespace folia {
     if ( index < v.size() ){
       return v[index];
     }
-    else
-      throw range_error( "paragraphs() index out of range" );
+    throw range_error( "paragraphs() index out of range" );
   }
 
   Paragraph *Document::rparagraphs( size_t index ) const {
@@ -611,8 +607,7 @@ namespace folia {
     if ( index < v.size() ){
       return v[v.size()-1-index];
     }
-    else
-      throw range_error( "rparagraphs() index out of range" );
+    throw range_error( "rparagraphs() index out of range" );
   }
 
   std::string Document::language() const {
@@ -2573,8 +2568,9 @@ namespace folia {
 	      copy( matched.begin(), matched.end(), back_inserter(tmp1) );
 	      //	    cerr << "findnodes() tmp1 na copy ==> " << tmp1 << endl;
 	    }
-	    else
+	    else {
 	      tmp1 = matched;
+	    }
 	    vector<Word*> tmp2;
 	    if ( rightcontext > 0 ){
 	      tmp2 = matched.back()->rightcontext(rightcontext);
@@ -2622,8 +2618,9 @@ namespace folia {
 	throw runtime_error( "findnodes(): If multiple patterns are provided, they must all have the same length!" );
       }
       if ( it.variablesize() ){
-	if ( index > 0 && variablewildcards.empty() )
+	if ( index > 0 && variablewildcards.empty() ){
 	  unsetwildcards = true;
+	}
 	else {
 	  if ( !variablewildcards.empty() &&
 	       variablewildcards != it.variablewildcards() ){

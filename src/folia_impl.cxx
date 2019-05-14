@@ -445,8 +445,9 @@ namespace folia {
       else {
 	try {
 	  _confidence = stringTo<double>(val);
-	  if ( _confidence < 0 || _confidence > 1.0 )
+	  if ( _confidence < 0 || _confidence > 1.0 ){
 	    throw ValueError("Confidence must be a floating point number between 0 and 1, got " + TiCC::toString(_confidence) );
+	  }
 	}
 	catch (...) {
 	  throw ValueError("invalid Confidence value, (not a number?)");
@@ -528,8 +529,9 @@ namespace folia {
       }
       else {
 	string time = parseDate( it->second );
-	if ( time.empty() )
+	if ( time.empty() ){
 	  throw ValueError( "invalid datetime, must be in YYYY-MM-DDThh:mm:ss format: " + it->second );
+	}
 	_datetime = time;
       }
       kwargs.erase( it );
@@ -3335,8 +3337,9 @@ namespace folia {
 	corr->annotator( it->second );
       }
       it = args.find("annotatortype");
-      if ( it != args.end() )
+      if ( it != args.end() ){
 	corr->annotatortype( stringTo<AnnotatorType>(it->second) );
+      }
       it = args.find("confidence");
       if ( it != args.end() ) {
 	corr->confidence( stringTo<double>(it->second) );
@@ -3606,8 +3609,9 @@ namespace folia {
       if ( p->isinstance( Correction_t ) ) {
 	return dynamic_cast<Correction*>(p);
       }
-      else if ( p->isinstance( Sentence_t ) )
+      else if ( p->isinstance( Sentence_t ) ){
 	break;
+      }
       p = p->parent();
     }
     return 0;
