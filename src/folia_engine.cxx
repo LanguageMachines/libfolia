@@ -71,7 +71,7 @@ namespace folia {
 
   Document *Engine::doc( bool disconnect ){
     // returns the FoLiA document. (assumes it is complete!)
-    // may disconnect it from the processor. The caller has to delete it later
+    // may disconnect it from the engine. The caller has to delete it later
     Document *result = _out_doc;
     if ( disconnect ){
       _out_doc = 0;
@@ -84,7 +84,7 @@ namespace folia {
     if ( d ){
       if ( !_dbg_file ){
 	_dbg_file
-	  = new TiCC::LogStream( cerr, "folia-processsor", StampMessage );
+	  = new TiCC::LogStream( cerr, "folia-engine", StampMessage );
       }
     }
     _debug = d;
@@ -122,7 +122,7 @@ namespace folia {
 			   const string& setname,
 			   const string& args ) {
     if ( !ok() ){
-      throw logic_error( "declare() called on invalid processor!" );
+      throw logic_error( "declare() called on invalid engine!" );
     }
     else if ( _header_done ){
       throw logic_error( "declare() called on already (partially) saved document!" );
@@ -135,7 +135,7 @@ namespace folia {
   bool Engine::is_declared( AnnotationType::AnnotationType at,
 			       const string& setname ) const {
     if ( !ok() ){
-      throw logic_error( "is_declared() called on invalid processor!" );
+      throw logic_error( "is_declared() called on invalid engine!" );
     }
     else {
       return _out_doc->isDeclared( at, setname );
@@ -149,7 +149,7 @@ namespace folia {
 			   const string& time,
 			   const string& args ) {
     if ( !ok() ){
-      throw logic_error( "declare() called on invalid processor!" );
+      throw logic_error( "declare() called on invalid engine!" );
     }
     else if ( _header_done ){
       throw logic_error( "declare() called on already (partially) saved document!" );
@@ -164,7 +164,7 @@ namespace folia {
 			       const string& annotator,
 			       const string& annotator_type ) const {
     if ( !ok() ){
-      throw logic_error( "is_declared() called on invalid processor!" );
+      throw logic_error( "is_declared() called on invalid engine!" );
     }
     else {
       return _out_doc->isDeclared( at, setname, annotator, annotator_type );
@@ -174,7 +174,7 @@ namespace folia {
   void Engine::set_metadata( const std::string& att,
 				const std::string& val){
     if ( !ok() ){
-      throw logic_error( "set_metadata() called on invalid processor!" );
+      throw logic_error( "set_metadata() called on invalid engine!" );
     }
     else {
       return _out_doc->set_metadata( att, val );
@@ -452,7 +452,7 @@ namespace folia {
   FoliaElement *Engine::get_node( const string& tag ){
     if ( _done ){
       if ( _debug ){
-	DBG << "get node name(). processor is done" << endl;
+	DBG << "get node name(). engine is done" << endl;
       }
       return 0;
     }
@@ -746,7 +746,7 @@ namespace folia {
     /// when prefer_sent eqs true, prefer structure elements over the words or
     /// strings within
     if ( _done ){
-      throw runtime_error( "enumerate_text_parents() called on a done processor" );
+      throw runtime_error( "enumerate_text_parents() called on a done engine" );
     }
     if ( _debug ){
       DBG << "enumerate_text_parents(" << textclass << ")" << endl;
@@ -827,7 +827,7 @@ namespace folia {
       return t;
     }
     else if ( !_out_doc->permissive() ){
-      throw XmlError( "folia::processor failed to create node: "
+      throw XmlError( "folia::engine failed to create node: "
 		      + local_name );
     }
     else {
@@ -845,11 +845,11 @@ namespace folia {
     if ( local_name == "wref" ){
       string id = atts["id"];
       if ( id.empty() ){
-	throw XmlError( "folia::processor, reference missing an 'id'" );
+	throw XmlError( "folia::engine, reference missing an 'id'" );
       }
       FoliaElement *ref = (*_out_doc)[id];
       if ( !ref ){
-	throw XmlError( "folia::processor, unresolvable reference: "
+	throw XmlError( "folia::engine, unresolvable reference: "
 			+ id );
       }
       ref->increfcount();
@@ -903,7 +903,7 @@ namespace folia {
 	}
       }
       else {
-	throw XmlError( "folia::processor failed to create node: "
+	throw XmlError( "folia::engine failed to create node: "
 			+ local_name );
       }
     }
@@ -912,7 +912,7 @@ namespace folia {
   FoliaElement *TextEngine::next_text_parent(){
     if ( _done ){
       if ( _debug ){
-	DBG << "next_text_parent(). processor is done" << endl;
+	DBG << "next_text_parent(). engine is done" << endl;
       }
       return 0;
     }
