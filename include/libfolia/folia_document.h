@@ -300,13 +300,16 @@ namespace folia {
     void parseprovenance( const xmlNode * );
     void parsesubmeta( const xmlNode * );
     void getstyles();
-    void setannotations( xmlNode *) const;
+    void setannotations( xmlNode *, bool = false ) const;
     void setprovenance( xmlNode * ) const;
     void setmetadata( xmlNode * ) const;
     void addsubmetadata( xmlNode *) const;
     void setstyles( xmlDoc* ) const;
     void append_processor( xmlNode *, const processor * ) const;
     xmlDoc *to_xmlDoc( const std::string& ="", bool=false ) const;
+    void add_one_anno( const std::pair<AnnotationType::AnnotationType,std::string>&,
+		       xmlNode *,
+		       std::set<std::string>& ) const;
     std::map<std::string, FoliaElement* > sindex;
     std::vector<FoliaElement* > iindex;
     std::vector<FoliaElement*> data;
