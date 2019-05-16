@@ -6,7 +6,7 @@
 #include "libfolia/folia_properties.h"
 
 //foliaspec:header
-//This file was last updated according to the FoLiA specification for version 2.0.3 on 2019-04-26 13:10:52, using foliaspec.py
+//This file was last updated according to the FoLiA specification for version 2.0.4 on 2019-05-16 23:48:27, using foliaspec.py
 //Code blocks after a foliaspec comment (until the next newline) are automatically generated. **DO NOT EDIT THOSE** and **DO NOT REMOVE ANY FOLIASPEC COMMENTS** !!!
 
 namespace folia {
@@ -23,7 +23,7 @@ namespace folia {
 
   //foliaspec:version_sub:SUB_VERSION
   //The FoLiA version (sub/rev)
-  const int SUB_VERSION = 3;
+  const int SUB_VERSION = 4;
 
   //foliaspec:namespace:NSFOLIA
   //The FoLiA XML namespace
@@ -914,7 +914,6 @@ namespace folia {
     Head::PROPS.ACCEPTED_DATA += {AbstractAnnotationLayer_t, AbstractInlineAnnotation_t, Alternative_t, AlternativeLayers_t, Comment_t, Correction_t, Description_t, Event_t, Feature_t, ForeignData_t, Gap_t, Hiddenword_t, Linebreak_t, Metric_t, Paragraph_t, Part_t, PhonContent_t, Reference_t, Relation_t, Sentence_t, String_t, TextContent_t, Whitespace_t, Word_t};
     Head::PROPS.ANNOTATIONTYPE = AnnotationType::HEAD;
     Head::PROPS.LABEL = "Head";
-    Head::PROPS.OCCURRENCES = 1;
     Head::PROPS.TEXTDELIMITER = "\n\n";
     Head::PROPS.XMLTAG = "head";
 //------ HeadFeature -------
