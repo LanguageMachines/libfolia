@@ -62,6 +62,8 @@ namespace folia {
   extern const std::string NSFOLIA;
   extern const std::string NSDCOI;
   extern const std::string NSIMDI;
+  extern const std::string DEFAULT_TEXT_SET;
+  extern const std::string DEFAULT_PHON_SET;
 
   void static_init();
   void print_type_hierarchy( std::ostream& );

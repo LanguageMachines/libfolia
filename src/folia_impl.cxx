@@ -2036,6 +2036,9 @@ namespace folia {
 	   && ( parent() && parent()->auth() ) ){
 	doc()->cache_textcontent(this);
       }
+      if ( !doc()->declared( AnnotationType::TEXT ) ){
+	doc()->declare( AnnotationType::TEXT, DEFAULT_TEXT_SET );
+      }
     }
     return this;
   }
@@ -2044,6 +2047,9 @@ namespace folia {
     if ( doc() ){
       if ( doc()->checktext() && _offset != -1 ){
 	doc()->cache_phoncontent(this);
+      }
+      if ( !doc()->declared( AnnotationType::PHON ) ){
+	doc()->declare( AnnotationType::PHON, DEFAULT_PHON_SET );
       }
     }
     return this;

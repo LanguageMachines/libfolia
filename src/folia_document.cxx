@@ -47,9 +47,6 @@ using namespace icu;
 namespace folia {
   using TiCC::operator<<;
 
-  string DEFAULT_TEXT_SET = "https://raw.githubusercontent.com/proycon/folia/master/setdefinitions/text.foliaset.ttl";
-  string DEFAULT_PHON_SET =" https://raw.githubusercontent.com/proycon/folia/master/setdefinitions/phon.foliaset.ttl";
-
   inline std::ostream& operator<<( std::ostream& os, const Document::at_t& at ){
     os << "<" << at.a << "," << TiCC::toString(at.t) << "," << at.d << "," << at.p << ">";
     return os;
@@ -150,8 +147,6 @@ namespace folia {
     major_version = 0;
     minor_version = 0;
     sub_version = 0;
-    declare( AnnotationType::TEXT, DEFAULT_TEXT_SET );
-    declare( AnnotationType::PHON, DEFAULT_PHON_SET );
   }
 
   Document::~Document(){
@@ -672,6 +667,15 @@ namespace folia {
     return _metadata->get_val( type );
   }
 
+  processor *Document::get_default_processor() const {
+    if ( _provenance ){
+      return _provenance->get_top_processor();
+    }
+    else {
+      return 0;
+    }
+  }
+
   processor *Document::get_processor( const string& pid ) const {
     if ( _provenance ){
       return _provenance->get_processor( pid );
@@ -823,6 +827,9 @@ namespace folia {
 	auto it = atts.find("set" );
 	if ( it != atts.end() ){
 	  st = it->second;
+	  if ( debug ){
+	    cerr << "found a def: " << st << endl;
+	  }
 	}
 	else if ( version_below( 1, 6 ) ){
 	  st = "undefined"; // default value
@@ -933,6 +940,10 @@ namespace folia {
     }
     if ( debug ){
       cerr << "all group annotations: " << _groupannotations << endl;
+    }
+    if ( debug ){
+      cerr << "done with parseannotation: " << _annotationdefaults << endl;
+      cerr << "sorting: " << _anno_sort << endl;
     }
   }
 
@@ -1568,13 +1579,13 @@ namespace folia {
 			  const string& annotator,
 			  const string& annotator_type,
 			  const string& date_time,
-			  const set<string>& processors,
+			  const set<string>& _processors,
 			  const string& _alias ){
     if ( debug ){
-      cerr << "declare( " << TiCC::toString(type) << "," << setname
+      cerr << "declare( " << folia::toString(type) << "," << setname
 	   << ", format=" << format << "," << annotator << ","
 	   << annotator_type << "," << date_time << "," << _alias << ","
-	   << processors << ") " << endl;
+	   << _processors << ") " << endl;
     }
     AnnotatorType ant = UNDEFINED;
     try {
@@ -1606,7 +1617,8 @@ namespace folia {
 			+ ali_set + "'" );
       }
     }
-    if ( !isDeclared( type, setname, annotator, ant, processors ) ){
+    if ( !isDeclared( type, setname, annotator, ant, _processors ) ){
+      set<string> procs = _processors;
       if ( !unalias(type,setname).empty()
 	   && unalias(type,setname) != setname ){
 	throw XmlError( "setname: '" + setname
@@ -1616,10 +1628,16 @@ namespace folia {
       if ( d == "now()" ){
 	d = get_ISO_date();
       }
-      if ( processors.empty() ){
+      if ( procs.empty() && _provenance ){
+	folia::processor *p = get_default_processor();
+	if ( p ){
+	  procs.insert( p->id() );
+	}
+      }
+      if ( procs.empty() ){
 	// old style
 	_annotationdefaults[type].insert( make_pair( setname,
-						     at_t(annotator,ant,d,format,processors) ) );
+						     at_t(annotator,ant,d,format,procs) ) );
       }
       else {
 	// new style
@@ -1627,15 +1645,19 @@ namespace folia {
 	if ( set_pos == _annotationdefaults[type].end() ){
 	  // no processer annotations yet
 	  _annotationdefaults[type].insert( make_pair( setname,
-						       at_t(annotator,ant,d,format,processors) ) );
+						       at_t(annotator,ant,d,format,procs) ) );
 
 	}
 	else {
 	  // add to the existing
-	  for ( const auto& p : processors ){
+	  for ( const auto& p : procs ){
 	    set_pos->second.p.insert( p );
 	  }
 	}
+      }
+      if ( debug ){
+	cerr << "ADD to sort: " << folia::toString(type) << " ("
+	     << setname << ")"  << endl;
       }
       _anno_sort.push_back(make_pair(type,setname));
       _annotationrefs[type][setname] = 0;
@@ -1776,7 +1798,7 @@ namespace folia {
 			     const AnnotatorType& annotator_type,
 			     const string& processor ) const {
     if ( debug ){
-      cerr << "isdeclared? ( " << toString(type) << "," << set_name << ","
+      cerr << "isdeclared? ( " << folia::toString(type) << "," << set_name << ","
 	   << annotator << "," << toString(annotator_type) << "," << processor
 	   << ") " << endl;
     }
@@ -1791,7 +1813,7 @@ namespace folia {
     }
     if ( !processor.empty()
 	 && !get_processor( processor ) ){
-      throw XmlError( toString(type)
+      throw XmlError( folia::toString(type)
 		      + "-annotation is referring an undefined processor '"
 		      + processor + "'" );
     }
@@ -1799,7 +1821,7 @@ namespace folia {
     const auto& it1 = _annotationdefaults.find(type);
     if ( it1 != _annotationdefaults.end() ){
       if ( debug > 2){
-	cerr << "OK, found an entry for type: " << toString(type) << endl;
+	cerr << "OK, found an entry for type: " << folia::toString(type) << endl;
       }
       auto mit2 = it1->second.lower_bound(setname);
       while ( mit2 != it1->second.upper_bound(setname) ){
@@ -2102,6 +2124,10 @@ namespace folia {
   }
 
   void Document::setannotations( xmlNode *md ) const {
+    if ( debug ){
+      cerr << "start setannotation: " << _annotationdefaults << endl;
+      cerr << "sorting: " << _anno_sort << endl;
+    }
     xmlNode *node = xmlAddChild( md, TiCC::XmlNewNode( foliaNs(), "annotations" ) );
     set<string> done;
     for ( const auto& pair : _anno_sort ){
@@ -2140,19 +2166,7 @@ namespace folia {
 	  }
 	  s = it->first;
 	  if ( s != "undefined" ){ // the default
-	    if ( s == DEFAULT_TEXT_SET
-		 || s == DEFAULT_PHON_SET ){
-	      if ( debug ){
-		cerr << "skip adding default " << label
-		     << " set: " << s << endl;
-	      }
-	      // skip complete!
-	      ++it;
-	      continue;
-	    }
-	    else {
-	      args["set"] = s;
-	    }
+	    args["set"] = s;
 	  }
 	  auto const& t_it = _groupannotations.find(type);
 	  if ( t_it != _groupannotations.end() ){
@@ -2189,19 +2203,7 @@ namespace folia {
 	  }
 	  s = it->first;
 	  if ( !s.empty() && s != "undefined" ){ // the default
-	    if ( s == DEFAULT_TEXT_SET
-		 || s == DEFAULT_PHON_SET ){
-	      if ( debug ){
-		cerr << "skip adding default " << label
-		     << " set: " << s << endl;
-	      }
-	      // skip complete!
-	      ++it;
-	      continue;
-	    }
-	    else {
-	      args["set"] = s;
-	    }
+	    args["set"] = s;
 	  }
 	  const auto& ti = _set_alias.find(type);
 	  if ( ti != _set_alias.end() ){

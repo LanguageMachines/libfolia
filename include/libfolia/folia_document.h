@@ -155,6 +155,7 @@ namespace folia {
     std::string metadatafile() const;
     void set_metadata( const std::string&, const std::string& );
     const std::string get_metadata( const std::string&) const;
+    processor *get_default_processor() const;
     processor *get_processor( const std::string& ) const;
     processor *get_processor_by_name( const std::string& ) const;
     void addDocIndex( FoliaElement*, const std::string& );

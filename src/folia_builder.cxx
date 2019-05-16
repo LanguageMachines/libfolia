@@ -87,10 +87,10 @@ namespace folia {
     string data = ss.str();
     string::size_type pos1;
     if ( _doc_type == TEXT ){
-      pos1 = data.find("<text");
+      pos1 = min( data.find("<text>"), data.find("<text ") );
     }
     else {
-      pos1 = data.find("<speech");
+      pos1 = min( data.find("<speech>"), data.find("<speech ") );
     }
     string::size_type pos2;
     if ( root_node->size() == 0 ){

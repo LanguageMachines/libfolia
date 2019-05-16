@@ -229,6 +229,10 @@ namespace folia {
     }
   }
 
+  processor *Provenance::get_top_processor() const {
+    return _first_proc;
+  }
+
   void Provenance::add_index( processor *p ){
     _index[p->id()] = p;
     _name_index[p->name()] = p;
@@ -238,6 +242,9 @@ namespace folia {
     KWargs atts = getAttributes( node );
     processor *result = new processor( atts );
     add_index( result );
+    if ( _first_proc == 0 ){
+      _first_proc = result;
+    }
     xmlNode *n = node->children;
     while ( n ){
       string tag = TiCC::Name( n );

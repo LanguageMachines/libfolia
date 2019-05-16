@@ -93,11 +93,12 @@ namespace folia {
 
   class Provenance {
   public:
-    Provenance(){};
+  Provenance():_first_proc(0){};
     ~Provenance();
     processor *parse_processor( const xmlNode * );
     processor *get_processor( const std::string& ) const;
     processor *get_processor_by_name( const std::string& ) const;
+    processor *get_top_processor() const;
     xmlNode *xml();
     Provenance *parseXml( const xmlNode * );
     std::vector<processor*> processors;
@@ -111,6 +112,7 @@ namespace folia {
     };
     void add_index( processor *p );
   private:
+    processor*  _first_proc;
     std::map<std::string,processor*> _index;
     std::map<std::string,processor*> _name_index;
     Provenance( const Provenance& ); // inhibit copy
