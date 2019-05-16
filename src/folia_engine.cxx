@@ -1066,30 +1066,42 @@ namespace folia {
     stringstream ss;
     _out_doc->save( ss, ns_prefix );
     string data = ss.str();
-    string search_b;
+    string search_b1;
+    string search_b2;
     string search_e;
     if ( _doc_type == TEXT ){
       if ( !ns_prefix.empty() ){
-	search_b = "<" + ns_prefix + ":" + "text";
-	search_e = "</" + ns_prefix + ":" + "text";
+	search_b1 = "<" + ns_prefix + ":" + "text>";
+	search_b2 = "<" + ns_prefix + ":" + "text ";
+	search_e = "</" + ns_prefix + ":" + "text>";
       }
       else {
-	search_b = "<text";
-	search_e = "</text";
+	search_b1 = "<text>";
+	search_b2 = "<text ";
+	search_e = "</text>";
       }
     }
     else {
       if ( !ns_prefix.empty() ){
-	search_b = "<" + ns_prefix + ":" + "speech";
-	search_e = "</" + ns_prefix + ":" + "speech";
+	search_b1 = "<" + ns_prefix + ":" + "speech>";
+	search_b2 = "<" + ns_prefix + ":" + "speech ";
+	search_e = "</" + ns_prefix + ":" + "speech>";
       }
       else {
-	search_b = "<speech";
-	search_e = "</speech";
+	search_b1 = "<speech>";
+	search_b2 = "<speech ";
+	search_e = "</speech>";
       }
     }
-    int add = search_e.size();
-    string::size_type pos1 = data.find( search_b );
+    string::size_type bpos1 = data.find( search_b1 );
+    string::size_type bpos2 = data.find( search_b2 );
+    string::size_type pos1;
+    if ( bpos1 < bpos2 ){
+      pos1 = bpos1;
+    }
+    else {
+      pos1 = bpos2;
+    }
     string::size_type pos2;
     if ( _root_node->size() == 0 ){
       pos2 = data.find( "/>" , pos1 );
@@ -1103,6 +1115,7 @@ namespace folia {
     }
     else {
       pos2 = data.find( search_e, pos1 );
+      int add = search_e.size();
       pos2 += add;
     }
     _footer = "  " + search_e + data.substr( pos2 );
