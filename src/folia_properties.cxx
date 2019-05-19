@@ -6,7 +6,7 @@
 #include "libfolia/folia_properties.h"
 
 //foliaspec:header
-//This file was last updated according to the FoLiA specification for version 2.0.4 on 2019-05-16 23:48:27, using foliaspec.py
+//This file was last updated according to the FoLiA specification for version 2.1.0 on 2019-05-19 23:39:36, using foliaspec.py
 //Code blocks after a foliaspec comment (until the next newline) are automatically generated. **DO NOT EDIT THOSE** and **DO NOT REMOVE ANY FOLIASPEC COMMENTS** !!!
 
 namespace folia {
@@ -19,11 +19,11 @@ namespace folia {
 
   //foliaspec:version_minor:MINOR_VERSION
   //The FoLiA version (minor)
-  const int MINOR_VERSION = 0;
+  const int MINOR_VERSION = 1;
 
   //foliaspec:version_sub:SUB_VERSION
   //The FoLiA version (sub/rev)
-  const int SUB_VERSION = 4;
+  const int SUB_VERSION = 0;
 
   //foliaspec:namespace:NSFOLIA
   //The FoLiA XML namespace
@@ -272,6 +272,7 @@ namespace folia {
     { TextMarkupCorrection_t,  "t-correction" },
     { TextMarkupError_t,  "t-error" },
     { TextMarkupGap_t,  "t-gap" },
+    { TextMarkupReference_t,  "t-ref" },
     { TextMarkupString_t,  "t-str" },
     { TextMarkupStyle_t,  "t-style" },
     { TimeFeature_t,  "time" },
@@ -399,6 +400,7 @@ namespace folia {
     { "t-correction", TextMarkupCorrection_t  },
     { "t-error", TextMarkupError_t  },
     { "t-gap", TextMarkupGap_t  },
+    { "t-ref", TextMarkupReference_t  },
     { "t-str", TextMarkupString_t  },
     { "t-style", TextMarkupStyle_t  },
     { "time", TimeFeature_t  },
@@ -559,6 +561,7 @@ namespace folia {
   properties TextMarkupCorrection::PROPS = DEFAULT_PROPERTIES;
   properties TextMarkupError::PROPS = DEFAULT_PROPERTIES;
   properties TextMarkupGap::PROPS = DEFAULT_PROPERTIES;
+  properties TextMarkupReference::PROPS = DEFAULT_PROPERTIES;
   properties TextMarkupString::PROPS = DEFAULT_PROPERTIES;
   properties TextMarkupStyle::PROPS = DEFAULT_PROPERTIES;
   properties TimeFeature::PROPS = DEFAULT_PROPERTIES;
@@ -679,7 +682,7 @@ namespace folia {
 //------ Caption -------
     Caption::PROPS = AbstractStructureElement::PROPS;
     Caption::PROPS.ELEMENT_ID = Caption_t;
-    Caption::PROPS.ACCEPTED_DATA += {AbstractAnnotationLayer_t, AbstractInlineAnnotation_t, Alternative_t, AlternativeLayers_t, Comment_t, Correction_t, Description_t, Feature_t, ForeignData_t, Gap_t, Linebreak_t, Metric_t, Paragraph_t, Part_t, PhonContent_t, Reference_t, Relation_t, Sentence_t, String_t, TextContent_t, Whitespace_t};
+    Caption::PROPS.ACCEPTED_DATA += {AbstractAnnotationLayer_t, AbstractInlineAnnotation_t, Alternative_t, AlternativeLayers_t, Comment_t, Correction_t, Description_t, Feature_t, ForeignData_t, Gap_t, Linebreak_t, Metric_t, Paragraph_t, Part_t, PhonContent_t, Quote_t, Reference_t, Relation_t, Sentence_t, String_t, TextContent_t, Whitespace_t};
     Caption::PROPS.LABEL = "Caption";
     Caption::PROPS.OCCURRENCES = 1;
     Caption::PROPS.OPTIONAL_ATTRIBS = ID|ANNOTATOR|N|CONFIDENCE|DATETIME|SRC|BEGINTIME|ENDTIME|SPEAKER|METADATA|SPACE;
@@ -687,7 +690,7 @@ namespace folia {
 //------ Cell -------
     Cell::PROPS = AbstractStructureElement::PROPS;
     Cell::PROPS.ELEMENT_ID = Cell_t;
-    Cell::PROPS.ACCEPTED_DATA += {AbstractAnnotationLayer_t, AbstractInlineAnnotation_t, Alternative_t, AlternativeLayers_t, Comment_t, Correction_t, Description_t, Entry_t, Event_t, Example_t, Feature_t, ForeignData_t, Gap_t, Head_t, Hiddenword_t, Linebreak_t, Metric_t, Note_t, Paragraph_t, Part_t, Reference_t, Relation_t, Sentence_t, String_t, TextContent_t, Whitespace_t, Word_t};
+    Cell::PROPS.ACCEPTED_DATA += {AbstractAnnotationLayer_t, AbstractInlineAnnotation_t, Alternative_t, AlternativeLayers_t, Comment_t, Correction_t, Description_t, Entry_t, Event_t, Example_t, Feature_t, Figure_t, ForeignData_t, Gap_t, Head_t, Hiddenword_t, Linebreak_t, List_t, Metric_t, Note_t, Paragraph_t, Part_t, Quote_t, Reference_t, Relation_t, Sentence_t, String_t, TextContent_t, Whitespace_t, Word_t};
     Cell::PROPS.LABEL = "Cell";
     Cell::PROPS.OPTIONAL_ATTRIBS = ID|ANNOTATOR|N|CONFIDENCE|DATETIME|SRC|BEGINTIME|ENDTIME|SPEAKER|METADATA|SPACE;
     Cell::PROPS.TEXTDELIMITER = " | ";
@@ -991,7 +994,7 @@ namespace folia {
 //------ ListItem -------
     ListItem::PROPS = AbstractStructureElement::PROPS;
     ListItem::PROPS.ELEMENT_ID = ListItem_t;
-    ListItem::PROPS.ACCEPTED_DATA += {AbstractAnnotationLayer_t, AbstractInlineAnnotation_t, Alternative_t, AlternativeLayers_t, Comment_t, Correction_t, Description_t, Event_t, Feature_t, ForeignData_t, Gap_t, Hiddenword_t, Label_t, Linebreak_t, List_t, Metric_t, Note_t, Paragraph_t, Part_t, PhonContent_t, Reference_t, Relation_t, Sentence_t, String_t, TextContent_t, Whitespace_t, Word_t};
+    ListItem::PROPS.ACCEPTED_DATA += {AbstractAnnotationLayer_t, AbstractInlineAnnotation_t, Alternative_t, AlternativeLayers_t, Comment_t, Correction_t, Description_t, Event_t, Feature_t, ForeignData_t, Gap_t, Hiddenword_t, Label_t, Linebreak_t, List_t, Metric_t, Note_t, Paragraph_t, Part_t, PhonContent_t, Quote_t, Reference_t, Relation_t, Sentence_t, String_t, TextContent_t, Whitespace_t, Word_t};
     ListItem::PROPS.LABEL = "List Item";
     ListItem::PROPS.OPTIONAL_ATTRIBS = ID|ANNOTATOR|N|CONFIDENCE|DATETIME|SRC|BEGINTIME|ENDTIME|SPEAKER|METADATA;
     ListItem::PROPS.TEXTDELIMITER = "\n";
@@ -1122,7 +1125,7 @@ namespace folia {
 //------ Quote -------
     Quote::PROPS = AbstractStructureElement::PROPS;
     Quote::PROPS.ELEMENT_ID = Quote_t;
-    Quote::PROPS.ACCEPTED_DATA += {AbstractAnnotationLayer_t, Alternative_t, AlternativeLayers_t, Comment_t, Correction_t, Description_t, Division_t, Feature_t, ForeignData_t, Gap_t, Hiddenword_t, Metric_t, Paragraph_t, Part_t, Quote_t, Reference_t, Relation_t, Sentence_t, String_t, TextContent_t, Utterance_t, Word_t};
+    Quote::PROPS.ACCEPTED_DATA += {AbstractAnnotationLayer_t, Alternative_t, AlternativeLayers_t, Comment_t, Correction_t, Description_t, Division_t, Feature_t, ForeignData_t, Gap_t, Hiddenword_t, Linebreak_t, Metric_t, Paragraph_t, Part_t, Quote_t, Reference_t, Relation_t, Sentence_t, String_t, TextContent_t, Utterance_t, Whitespace_t, Word_t};
     Quote::PROPS.ANNOTATIONTYPE = AnnotationType::QUOTE;
     Quote::PROPS.LABEL = "Quote";
     Quote::PROPS.XMLTAG = "quote";
@@ -1360,6 +1363,11 @@ namespace folia {
     TextMarkupGap::PROPS.ELEMENT_ID = TextMarkupGap_t;
     TextMarkupGap::PROPS.ANNOTATIONTYPE = AnnotationType::GAP;
     TextMarkupGap::PROPS.XMLTAG = "t-gap";
+//------ TextMarkupReference -------
+    TextMarkupReference::PROPS = AbstractTextMarkup::PROPS;
+    TextMarkupReference::PROPS.ELEMENT_ID = TextMarkupReference_t;
+    TextMarkupReference::PROPS.ANNOTATIONTYPE = AnnotationType::REFERENCE;
+    TextMarkupReference::PROPS.XMLTAG = "t-ref";
 //------ TextMarkupString -------
     TextMarkupString::PROPS = AbstractTextMarkup::PROPS;
     TextMarkupString::PROPS.ELEMENT_ID = TextMarkupString_t;
@@ -1552,6 +1560,7 @@ namespace folia {
      { TextMarkupCorrection_t, { AbstractTextMarkup_t } },
      { TextMarkupError_t, { AbstractTextMarkup_t } },
      { TextMarkupGap_t, { AbstractTextMarkup_t } },
+     { TextMarkupReference_t, { AbstractTextMarkup_t } },
      { TextMarkupString_t, { AbstractTextMarkup_t } },
      { TextMarkupStyle_t, { AbstractTextMarkup_t } },
      { TimeFeature_t, { Feature_t,AbstractHigherOrderAnnotation_t } },
