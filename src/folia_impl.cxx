@@ -4584,8 +4584,12 @@ namespace folia {
 
   KWargs Reference::collectAttributes() const {
     KWargs atts = AbstractElement::collectAttributes();
-    atts["id"] = refId;
-    atts["type"] = ref_type;
+    if ( !refId.empty() ){
+      atts["id"] = refId;
+    }
+    if ( !ref_type.empty() ){
+      atts["type"] = ref_type;
+    }
     if ( !_format.empty() && _format != "text/folia+xml" ) {
       atts["format"] = _format;
     }
@@ -4601,9 +4605,45 @@ namespace folia {
     }
     it = args.find( "type" );
     if ( it != args.end() ) {
-      ref_type = it->second;
+      if ( it->second != "simple" ){
+	ref_type = it->second;
+      }
       args.erase( it );
     }
+    it = args.find( "format" );
+    if ( it != args.end() ) {
+      _format = it->second;
+      args.erase( it );
+    }
+    AbstractElement::setAttributes(args);
+  }
+
+  KWargs TextMarkupReference::collectAttributes() const {
+    KWargs atts = AbstractElement::collectAttributes();
+    if ( !refId.empty() ){
+      atts["id"] = refId;
+    }
+    // if ( !ref_type.empty() ){
+    //   atts["type"] = ref_type;
+    // }
+    if ( !_format.empty() && _format != "text/folia+xml" ) {
+      atts["format"] = _format;
+    }
+    return atts;
+  }
+
+  void TextMarkupReference::setAttributes( const KWargs& argsin ) {
+    KWargs args = argsin;
+    auto it = args.find( "id" );
+    if ( it != args.end() ) {
+      refId = it->second;
+      args.erase( it );
+    }
+    // it = args.find( "type" );
+    // if ( it != args.end() ) {
+    //   ref_type = it->second;
+    //   args.erase( it );
+    // }
     it = args.find( "format" );
     if ( it != args.end() ) {
       _format = it->second;
@@ -4889,6 +4929,10 @@ namespace folia {
   }
 
   void Reference::init() {
+    _format = "text/folia+xml";
+  }
+
+  void TextMarkupReference::init() {
     _format = "text/folia+xml";
   }
 

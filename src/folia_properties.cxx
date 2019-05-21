@@ -1834,6 +1834,7 @@ namespace folia {
     case TextMarkupCorrection_t: return new TextMarkupCorrection();
     case TextMarkupError_t: return new TextMarkupError();
     case TextMarkupStyle_t: return new TextMarkupStyle();
+    case TextMarkupReference_t: return new TextMarkupReference();
     case Part_t: return new Part();
     case Observation_t: return new Observation();
     case ObservationLayer_t: return new ObservationLayer();

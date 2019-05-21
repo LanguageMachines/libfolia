@@ -1195,6 +1195,25 @@ namespace folia {
     static properties PROPS;
   };
 
+  class TextMarkupReference: public AbstractTextMarkup {
+    friend void static_init();
+  public:
+    explicit TextMarkupReference( Document *d=0 ):
+    AbstractTextMarkup( PROPS, d ){ classInit(); };
+  TextMarkupReference( const KWargs& a, Document *d=0 ):
+    AbstractTextMarkup( PROPS, d ) { classInit(a); };
+
+    KWargs collectAttributes() const;
+    void setAttributes( const KWargs& );
+
+  private:
+    void init();
+    static properties PROPS;
+    std::string refId;
+    std::string ref_type;
+    std::string _format;
+  };
+
   class AbstractContentAnnotation: public AbstractElement {
     friend void static_init();
   protected:
