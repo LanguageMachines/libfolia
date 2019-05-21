@@ -48,7 +48,6 @@
 using namespace std;
 using namespace icu;
 using namespace TiCC;
-using namespace icu;
 
 namespace folia {
   using TiCC::operator <<;
@@ -706,6 +705,13 @@ namespace folia {
     }
   }
 
+  string toDoubleString( double d ){
+    stringstream ss;
+    ss.precision(6);
+    ss << std::fixed << std::showpoint << d;
+    return ss.str();
+  }
+
   KWargs AbstractElement::collectAttributes() const {
     KWargs attribs;
     bool isDefaultSet = true;
@@ -728,11 +734,6 @@ namespace folia {
     if ( !_class.empty() ) {
       attribs["class"] = _class;
     }
-    if ( !_annotator.empty() &&
-	 _annotator != doc()->defaultannotator( annotation_type(), _set ) ) {
-      isDefaultAnn = false;
-      attribs["annotator"] = _annotator;
-    }
     if ( !_processor.empty() ){
       string tmp;
       try {
@@ -745,6 +746,24 @@ namespace folia {
       }
       if ( tmp != _processor ){
 	attribs["processor"] = _processor;
+      }
+    }
+    else {
+      if ( !_annotator.empty() &&
+	   _annotator != doc()->defaultannotator( annotation_type(), _set ) ) {
+	isDefaultAnn = false;
+	attribs["annotator"] = _annotator;
+      }
+      if ( _annotator_type != UNDEFINED ) {
+	AnnotatorType at = doc()->defaultannotatortype( annotation_type(), _set );
+	if ( (!isDefaultSet || !isDefaultAnn) && _annotator_type != at ) {
+	  if ( _annotator_type == AUTO ) {
+	    attribs["annotatortype"] = "auto";
+	  }
+	  else if ( _annotator_type == MANUAL ) {
+	    attribs["annotatortype"] = "manual";
+	  }
+	}
       }
     }
     if ( xlink() ) {
@@ -806,20 +825,9 @@ namespace folia {
     if ( !_textclass.empty() && _textclass != "current" ){
       attribs["textclass"] = _textclass;
     }
-    if ( _annotator_type != UNDEFINED ) {
-      AnnotatorType at = doc()->defaultannotatortype( annotation_type(), _set );
-      if ( (!isDefaultSet || !isDefaultAnn) && _annotator_type != at ) {
-	if ( _annotator_type == AUTO ) {
-	  attribs["annotatortype"] = "auto";
-	}
-	else if ( _annotator_type == MANUAL ) {
-	  attribs["annotatortype"] = "manual";
-	}
-      }
-    }
 
     if ( _confidence >= 0 ) {
-      attribs["confidence"] = TiCC::toString(_confidence);
+      attribs["confidence"] = toDoubleString(_confidence);
     }
     if ( !_n.empty() ) {
       attribs["n"] = _n;
