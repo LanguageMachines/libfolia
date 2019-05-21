@@ -227,6 +227,12 @@ namespace folia {
       else if ( mod == "nostrip" ){
 	mode = Mode( (int)mode & ~STRIP );
       }
+      else if ( mod == "kanon" ){
+	mode = Mode( (int)mode | KANON );
+      }
+      else if ( mod == "nokanon" ){
+	mode = Mode( (int)mode & ~KANON );
+      }
       else if ( mod == "checktext" ){
 	mode = Mode( int(mode) | CHECKTEXT );
       }
@@ -258,6 +264,9 @@ namespace folia {
     }
     if ( mode & FIXTEXT ){
       result += "fixtext,";
+    }
+    if ( mode & KANON ){
+      result += "kanon,";
     }
     return result;
   }
@@ -303,6 +312,17 @@ namespace folia {
     }
     else {
       mode = Mode( (int)mode & ~FIXTEXT );
+    }
+    return old_val;
+  }
+
+  bool Document::set_kanon( bool new_val ) const{
+    bool old_val = (mode & KANON);
+    if ( new_val ){
+      mode = Mode( (int)mode | KANON );
+    }
+    else {
+      mode = Mode( (int)mode & ~KANON );
     }
     return old_val;
   }
@@ -457,36 +477,40 @@ namespace folia {
   }
 
   bool Document::save( ostream& os, const string& nsLabel, bool kanon ) const {
-    os << toXml( nsLabel, ( kanon || strip() ) );
+    bool old_k = set_kanon(kanon);
+    os << toXml( nsLabel, strip() );
+    set_kanon(old_k);
     // the toXml() string already ends with a newline (i hope....)
     return os.good();
   }
 
   bool Document::save( const string& fn, const string& nsLabel, bool kanon ) const {
+    bool old_k = set_kanon(kanon);
+    bool result = false;
     try {
       if ( TiCC::match_back( fn, ".bz2" ) ){
 	string tmpname = fn.substr( 0, fn.length() - 3 ) + "tmp";
-	if ( toXml( tmpname, nsLabel, ( kanon || strip() ) ) ){
+	if ( toXml( tmpname, nsLabel, strip() ) ){
 	  bool stat = TiCC::bz2Compress( tmpname, fn );
 	  remove( tmpname.c_str() );
-	  return stat;
-	}
-	else {
-	  return false;
+	  result = stat;
 	}
       }
       else {
-	return toXml( fn, nsLabel,  ( kanon || strip() ) );
+	result = toXml( fn, nsLabel, strip() );
       }
     }
     catch ( const exception& e ){
       throw runtime_error( "saving to file " + fn + " failed: " + e.what() );
-      return false;
     }
+    set_kanon( old_k );
+    return result;
   }
 
   string Document::xmlstring( bool k ) const {
-    xmlDoc *outDoc = to_xmlDoc( "", k );
+    bool old_k = set_kanon(k);
+    xmlDoc *outDoc = to_xmlDoc( "" );
+    set_kanon(old_k);
     xmlChar *buf; int size;
     xmlDocDumpFormatMemoryEnc( outDoc, &buf, &size, "UTF-8", 0 ); // no formatting
     string result = string( (const char *)buf, size );
@@ -2231,14 +2255,14 @@ namespace folia {
     }
   }
 
-  void Document::setannotations( xmlNode *md, bool kanon ) const {
+  void Document::setannotations( xmlNode *md ) const {
     if ( debug ){
       cerr << "start setannotation: " << _annotationdefaults << endl;
       cerr << "sorting: " << _anno_sort << endl;
     }
     xmlNode *node = xmlAddChild( md, TiCC::XmlNewNode( foliaNs(), "annotations" ) );
     set<string> done;
-    if ( kanon ){
+    if ( kanon() ){
       multimap<AnnotationType::AnnotationType,
 	       pair<AnnotationType::AnnotationType,string>> ordered;
       for ( const auto& pair : _anno_sort ){
@@ -2443,7 +2467,7 @@ namespace folia {
     }
   }
 
-  xmlDoc *Document::to_xmlDoc( const string& nsLabel, bool kanon ) const {
+  xmlDoc *Document::to_xmlDoc( const string& nsLabel ) const {
     xmlDoc *outDoc = xmlNewDoc( (const xmlChar*)"1.0" );
     setstyles( outDoc );
     xmlNode *root = xmlNewDocNode( outDoc, 0, (const xmlChar*)"FoLiA", 0 );
@@ -2484,20 +2508,21 @@ namespace folia {
     addAttributes( root, attribs );
 
     xmlNode *md = xmlAddChild( root, TiCC::XmlNewNode( foliaNs(), "metadata" ) );
-    setannotations( md, kanon );
+    setannotations( md );
     setprovenance( md );
     setmetadata( md );
     for ( size_t i=0; i < foliadoc->size(); ++i ){
       FoliaElement* el = foliadoc->index(i);
-      xmlAddChild( root, el->xml( true, kanon ) );
+      xmlAddChild( root, el->xml( true, kanon() ) );
     }
     return outDoc;
   }
 
   string Document::toXml( const string& nsLabel, bool kanon ) const {
     string result;
+    bool old_k = set_kanon(kanon);
     if ( foliadoc ){
-      xmlDoc *outDoc = to_xmlDoc( nsLabel, kanon );
+      xmlDoc *outDoc = to_xmlDoc( nsLabel );
       xmlChar *buf; int size;
       xmlDocDumpFormatMemoryEnc( outDoc, &buf, &size, "UTF-8", 1 );
       result = string( (const char *)buf, size );
@@ -2508,13 +2533,16 @@ namespace folia {
     else {
       throw runtime_error( "can't save, no doc" );
     }
+    set_kanon( old_k );
     return result;
   }
 
   bool Document::toXml( const string& file_name,
 			const string& nsLabel, bool kanon ) const {
     if ( foliadoc ){
-      xmlDoc *outDoc = to_xmlDoc( nsLabel, kanon );
+      bool old_k = set_kanon(kanon);
+      xmlDoc *outDoc = to_xmlDoc( nsLabel );
+      set_kanon(old_k);
       if ( TiCC::match_back( file_name, ".gz" ) ){
 	xmlSetDocCompressMode(outDoc,9);
       }

@@ -83,7 +83,7 @@ namespace folia {
   class Document {
     friend bool operator==( const Document&, const Document& );
     friend std::ostream& operator<<( std::ostream&, const Document * );
-    enum Mode { NOMODE=0, PERMISSIVE=1, CHECKTEXT=2, FIXTEXT=4, STRIP=8 };
+    enum Mode { NOMODE=0, PERMISSIVE=1, CHECKTEXT=2, FIXTEXT=4, STRIP=8, KANON=16 };
     friend class Engine;
   public:
     Document();
@@ -229,17 +229,15 @@ namespace folia {
     void resolveExternals();
     int debug;
     bool permissive() const { return mode & PERMISSIVE; };
-    bool checktext() const {
-      return mode & CHECKTEXT;
-    };
-    bool fixtext() const {
-      return mode & FIXTEXT;
-    };
+    bool checktext() const { return mode & CHECKTEXT; };
+    bool fixtext() const { return mode & FIXTEXT; };
     bool strip() const { return mode & STRIP; };
+    bool kanon() const { return mode & KANON; };
     bool set_permissive( bool ) const; // defines const, but the mode is mutable!
     bool set_checktext( bool ) const; // defines const, but the mode is mutable!
     bool set_fixtext( bool ) const; // defines const, but the mode is mutable!
     bool set_strip( bool ) const; // defines const, but the mode is mutable!
+    bool set_kanon( bool ) const; // defines const, but the mode is mutable!
     class at_t {
       friend std::ostream& operator<<( std::ostream&, const at_t& );
     public:
@@ -300,13 +298,13 @@ namespace folia {
     void parseprovenance( const xmlNode * );
     void parsesubmeta( const xmlNode * );
     void getstyles();
-    void setannotations( xmlNode *, bool = false ) const;
+    void setannotations( xmlNode * ) const;
     void setprovenance( xmlNode * ) const;
     void setmetadata( xmlNode * ) const;
     void addsubmetadata( xmlNode *) const;
     void setstyles( xmlDoc* ) const;
     void append_processor( xmlNode *, const processor * ) const;
-    xmlDoc *to_xmlDoc( const std::string& ="", bool=false ) const;
+    xmlDoc *to_xmlDoc( const std::string& ="" ) const;
     void add_one_anno( const std::pair<AnnotationType::AnnotationType,std::string>&,
 		       xmlNode *,
 		       std::set<std::string>& ) const;
