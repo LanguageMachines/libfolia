@@ -467,7 +467,7 @@ namespace folia {
 
   ostream& operator<<( ostream& os, const Document *d ){
     if ( d ){
-      os << d->toXml( "", d->strip() );
+      os << d->toXml( "" );
       // the toXml() string already ends with a newline (i hope....)
     }
     else {
@@ -478,7 +478,7 @@ namespace folia {
 
   bool Document::save( ostream& os, const string& nsLabel, bool kanon ) const {
     bool old_k = set_kanon(kanon);
-    os << toXml( nsLabel, strip() );
+    os << toXml( nsLabel );
     set_kanon(old_k);
     // the toXml() string already ends with a newline (i hope....)
     return os.good();
@@ -490,14 +490,14 @@ namespace folia {
     try {
       if ( TiCC::match_back( fn, ".bz2" ) ){
 	string tmpname = fn.substr( 0, fn.length() - 3 ) + "tmp";
-	if ( toXml( tmpname, nsLabel, strip() ) ){
+	if ( toXml( tmpname, nsLabel ) ){
 	  bool stat = TiCC::bz2Compress( tmpname, fn );
 	  remove( tmpname.c_str() );
 	  result = stat;
 	}
       }
       else {
-	result = toXml( fn, nsLabel, strip() );
+	result = toXml( fn, nsLabel );
       }
     }
     catch ( const exception& e ){
@@ -2518,9 +2518,8 @@ namespace folia {
     return outDoc;
   }
 
-  string Document::toXml( const string& nsLabel, bool kanon ) const {
+  string Document::toXml( const string& nsLabel ) const {
     string result;
-    bool old_k = set_kanon(kanon);
     if ( foliadoc ){
       xmlDoc *outDoc = to_xmlDoc( nsLabel );
       xmlChar *buf; int size;
@@ -2533,16 +2532,13 @@ namespace folia {
     else {
       throw runtime_error( "can't save, no doc" );
     }
-    set_kanon( old_k );
     return result;
   }
 
   bool Document::toXml( const string& file_name,
-			const string& nsLabel, bool kanon ) const {
+			const string& nsLabel ) const {
     if ( foliadoc ){
-      bool old_k = set_kanon(kanon);
       xmlDoc *outDoc = to_xmlDoc( nsLabel );
-      set_kanon(old_k);
       if ( TiCC::match_back( file_name, ".gz" ) ){
 	xmlSetDocCompressMode(outDoc,9);
       }

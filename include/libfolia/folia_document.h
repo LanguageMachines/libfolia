@@ -146,11 +146,9 @@ namespace folia {
     Paragraph *rparagraphs( size_t ) const;
     Sentence *sentences( size_t ) const;
     Sentence *rsentences( size_t ) const;
-    std::string toXml( const std::string& ="",
-		       bool = false ) const;
+    std::string toXml( const std::string& ="" ) const;
     bool toXml( const std::string&,
-		const std::string& ="",
-		bool = false ) const;
+		const std::string& ) const;
     std::string metadatatype() const;
     std::string metadatafile() const;
     void set_metadata( const std::string&, const std::string& );
