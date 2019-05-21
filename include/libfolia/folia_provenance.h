@@ -68,6 +68,8 @@ namespace folia {
     std::string src() const { return _src; };
     std::string format() const { return _format; };
     std::vector<processor*> processors() const { return _processors; };
+    bool set_metadata( const std::string&, const std::string& );
+    std::string get_metadata( const std::string& );
     void print( std::ostream&, const int ) const;
   private:
     std::string _name;

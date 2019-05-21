@@ -203,6 +203,25 @@ namespace folia {
     }
   }
 
+  bool processor::set_metadata( const string& id,
+				const string& val ){
+    if ( _metadata[id].empty() ){
+      _metadata[id] = val;
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
+
+  string processor::get_metadata( const string& id ){
+    auto it = _metadata.find( id );
+    if ( it != _metadata.end() ){
+      return it->second;
+    }
+    return "";
+  }
+
   Provenance::~Provenance(){
     for ( const auto& p : processors ){
       delete p;
