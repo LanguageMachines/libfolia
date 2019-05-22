@@ -121,7 +121,7 @@ namespace folia {
   void Engine::un_declare( const AnnotationType::AnnotationType& at,
 			   const string& setname ){
     if ( !ok() ){
-      throw logic_error( "declare() called on invalid processor!" );
+      throw logic_error( "declare() called on invalid engine!" );
     }
     else if ( _header_done ){
       throw logic_error( "declare() called on already (partially) saved document!" );
@@ -135,7 +135,7 @@ namespace folia {
 			const string& setname,
 			const string& args ) {
     if ( !ok() ){
-      throw logic_error( "declare() called on invalid processor!" );
+      throw logic_error( "declare() called on invalid engine!" );
     }
     else if ( _header_done ){
       throw logic_error( "declare() called on already (partially) saved document!" );
