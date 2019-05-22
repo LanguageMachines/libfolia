@@ -73,20 +73,20 @@ namespace folia {
     it = args.find( "file" );
     if ( it != args.end() ){
       // extract a Document from a file
-      readFromFile( it->second );
+      read_from_file( it->second );
       args.erase(it);
     }
     else {
       it = args.find( "string" );
       if ( it != args.end() ){
 	// extract a Document from a string
-	readFromString( it->second );
+	read_from_string( it->second );
 	args.erase(it);
       }
     }
     if ( !foliadoc ){
       // so NO 'file' or 'string' argument.
-      // (readFromFile/readFromString throw on error)
+      // (read_from_file/read_from_string throw on error)
       // create an 'empty' document, with a FoLiA root node.
       it = args.find( "version" );
       if ( it == args.end() ){
@@ -328,7 +328,7 @@ namespace folia {
   }
 
 
-  void Document::addDocIndex( FoliaElement* el, const string& s ){
+  void Document::add_doc_index( FoliaElement* el, const string& s ){
     if ( s.empty() ) {
       return;
     }
@@ -342,7 +342,7 @@ namespace folia {
     }
   }
 
-  void Document::delDocIndex( const FoliaElement* el, const string& s ){
+  void Document::del_doc_index( const FoliaElement* el, const string& s ){
     if ( sindex.empty() ){
       // only when ~Document is in progress
       return;
@@ -379,7 +379,7 @@ namespace folia {
     return;
   }
 
-  bool Document::readFromFile( const string& s ){
+  bool Document::read_from_file( const string& s ){
     ifstream is( s );
     if ( !is.good() ){
       throw invalid_argument( "file not found: " + s );
@@ -391,7 +391,7 @@ namespace folia {
     _source_filename = s;
     if ( TiCC::match_back( s, ".bz2" ) ){
       string buffer = TiCC::bz2ReadFile( s );
-      return readFromString( buffer );
+      return read_from_string( buffer );
     }
     int cnt = 0;
     xmlSetStructuredErrorFunc( &cnt, (xmlStructuredErrorFunc)error_sink );
@@ -407,6 +407,7 @@ namespace folia {
       }
       foliadoc = parseXml();
       if ( !validate_offsets() ){
+	// cannot happen. validate_offsets() throws on error
 	throw InconsistentText("MEH");
       }
       if ( debug ){
@@ -427,7 +428,7 @@ namespace folia {
     throw XmlError( "No valid FoLiA read" );
   }
 
-  bool Document::readFromString( const string& s ){
+  bool Document::read_from_string( const string& s ){
     if ( foliadoc ){
       throw logic_error( "Document is already initialized" );
       return false;
@@ -445,6 +446,7 @@ namespace folia {
       }
       foliadoc = parseXml();
       if ( !validate_offsets() ){
+	// cannot happen. validate_offsets() throws on error
 	throw InconsistentText("MEH");
       }
       if ( debug ){
@@ -637,14 +639,14 @@ namespace folia {
     return result;
   }
 
-  std::string Document::metadatatype() const {
+  std::string Document::metadata_type() const {
     if ( _metadata ){
       return _metadata->type();
     }
     return "native";
   }
 
-  std::string Document::metadatafile() const {
+  std::string Document::metadata_file() const {
     if ( _metadata && _metadata->datatype() == "ExternalMetaData" ){
       return _metadata->src();
     }
@@ -783,7 +785,6 @@ namespace folia {
     if ( args.find("generator") != args.end() ){
       // we automagicly add a subprocessor.
       processor *sub = new processor();
-      //      sub->set_system_defaults();
       sub->_folia_version = folia_version();
       sub->_version = library_version();
       sub->_id = p->_id + ".generator";
@@ -825,7 +826,7 @@ namespace folia {
     }
   }
 
-  void Document::parseannotations( const xmlNode *node ){
+  void Document::parse_annotations( const xmlNode *node ){
     if ( debug ){
       cerr << "parse annotations " << TiCC::Name(node) << endl;
     }
@@ -966,12 +967,12 @@ namespace folia {
       cerr << "all group annotations: " << _groupannotations << endl;
     }
     if ( debug ){
-      cerr << "done with parseannotation: " << _annotationdefaults << endl;
+      cerr << "done with parse_annotation: " << _annotationdefaults << endl;
       cerr << "sorting: " << _anno_sort << endl;
     }
   }
 
-  void Document::parseprovenance( const xmlNode *node ){
+  void Document::parse_provenance( const xmlNode *node ){
     Provenance *result = new Provenance();
     xmlNode *n = node->children;
     while ( n ){
@@ -984,7 +985,7 @@ namespace folia {
     _provenance = result;
   }
 
-  void Document::parsesubmeta( const xmlNode *node ){
+  void Document::parse_submeta( const xmlNode *node ){
     if ( node ){
       KWargs att = getAttributes( node );
       string id = att["xml:id"];
@@ -1282,7 +1283,7 @@ namespace folia {
 	if ( debug > 1 ){
 	  cerr << "found provenance data" << endl;
 	}
-	parseprovenance( m );
+	parse_provenance( m );
 	//	cerr << _provenance << endl;
       }
       else if ( TiCC::Name( m ) == "meta" &&
@@ -1325,13 +1326,13 @@ namespace folia {
       }
       else if ( TiCC::Name(m)  == "submetadata" &&
 		checkNS( m, NSFOLIA ) ){
-	parsesubmeta( m );
+	parse_submeta( m );
       }
       m = m->next;
     }
     if ( a_node ){
       //      cerr << "parse deferred annotations" << endl;
-      parseannotations( a_node );
+      parse_annotations( a_node );
     }
     if ( result == 0 && type == "imdi" ){
       // imdi missing all further info
@@ -1641,7 +1642,7 @@ namespace folia {
 			+ ali_set + "'" );
       }
     }
-    if ( !isDeclared( type, setname, annotator, ant, _processors ) ){
+    if ( !declared( type, setname, annotator, ant, _processors ) ){
       set<string> procs = _processors;
       if ( !unalias(type,setname).empty()
 	   && unalias(type,setname) != setname ){
@@ -1817,11 +1818,11 @@ namespace folia {
     throw XmlError( "Only can append 'text' or 'speech' as root of a Document." );
   }
 
-  bool Document::isDeclared( const AnnotationType::AnnotationType& type,
-			     const string& set_name,
-			     const string& annotator,
-			     const AnnotatorType& annotator_type,
-			     const string& processor ) const {
+  bool Document::declared( const AnnotationType::AnnotationType& type,
+			   const string& set_name,
+			   const string& annotator,
+			   const AnnotatorType& annotator_type,
+			   const string& processor ) const {
     if ( debug ){
       cerr << "isdeclared? ( " << folia::toString(type) << "," << set_name << ","
 	   << annotator << "," << toString(annotator_type) << "," << processor
@@ -1859,7 +1860,7 @@ namespace folia {
 	     && ( mit2->second.p.empty()
 		  || mit2->second.p.find(processor) != mit2->second.p.end() ) ){
 	  if ( debug ){
-	    cerr << "\t\t isDeclared ==> TRUE" << endl;
+	    cerr << "\t\t declared ==> TRUE" << endl;
 	  }
 	  return true;
 	}
@@ -1867,22 +1868,22 @@ namespace folia {
       }
     }
     if ( debug ){
-      cerr << "\t\t isDeclared() ==> FALSE" << endl;
+      cerr << "\t\t declared() ==> FALSE" << endl;
     }
     return false;
   }
 
-  bool Document::isDeclared( const AnnotationType::AnnotationType& type,
-			     const string& set_name,
-			     const string& annotator,
-			     const AnnotatorType& annotator_type,
-			     const set<string>& processors ) const {
+  bool Document::declared( const AnnotationType::AnnotationType& type,
+			   const string& set_name,
+			   const string& annotator,
+			   const AnnotatorType& annotator_type,
+			   const set<string>& processors ) const {
     if ( processors.empty() ){
-      return isDeclared( type, set_name, annotator, annotator_type, "" );
+      return declared( type, set_name, annotator, annotator_type, "" );
     }
     else {
       for ( const auto& s : processors ){
-	if ( isDeclared( type, set_name, annotator, annotator_type, s ) ){
+	if ( declared( type, set_name, annotator, annotator_type, s ) ){
 	  return true;
 	}
       }
@@ -1895,7 +1896,7 @@ namespace folia {
     if ( type != AnnotationType::NO_ANN ){
       string st = s;
       if ( st.empty() ){
-	st = defaultset(type);
+	st = default_set(type);
       }
       ++_annotationrefs[type][st];
       //      cerr << "increment " << toString(type) << "(" << st << ")" << endl;
@@ -1910,10 +1911,10 @@ namespace folia {
     }
   }
 
-  bool Document::isDeclared( const AnnotationType::AnnotationType& type,
-			     const string& setname ) const {
+  bool Document::declared( const AnnotationType::AnnotationType& type,
+			   const string& setname ) const {
     if ( debug ){
-      cerr << "isDeclared(" << folia::toString(type) << ",'" << setname << "')" << endl;
+      cerr << "declared(" << folia::toString(type) << ",'" << setname << "')" << endl;
     }
     if ( type == AnnotationType::NO_ANN ){
       if ( debug ){
@@ -1961,10 +1962,10 @@ namespace folia {
     FoliaElement *tmp = AbstractElement::createElement( et );
     AnnotationType::AnnotationType at = tmp->annotation_type();
     delete tmp;
-    return isDeclared( at, setname );
+    return declared( at, setname );
   }
 
-  string Document::defaultset( AnnotationType::AnnotationType type ) const {
+  string Document::default_set( AnnotationType::AnnotationType type ) const {
     if ( type == AnnotationType::NO_ANN ){
       return "";
     }
@@ -1979,12 +1980,12 @@ namespace folia {
 	result = mit1->second.begin()->first;
       }
     }
-    //    cerr << "defaultset ==> " << result << endl;
+    //    cerr << "default_set ==> " << result << endl;
     return result;
   }
 
-  vector<string> Document::getannotators( AnnotationType::AnnotationType type,
-					  const string& st ) const {
+  vector<string> Document::get_annotators( AnnotationType::AnnotationType type,
+					   const string& st ) const {
     vector<string> result;
     if ( type == AnnotationType::NO_ANN ){
       return result;
@@ -2005,8 +2006,8 @@ namespace folia {
 
   }
 
-  string Document::defaultannotator( AnnotationType::AnnotationType type,
-				     const string& st ) const {
+  string Document::default_annotator( AnnotationType::AnnotationType type,
+				      const string& st ) const {
     if ( type == AnnotationType::NO_ANN ){
       return "";
     }
@@ -2034,8 +2035,8 @@ namespace folia {
     return result;
   }
 
-  AnnotatorType Document::defaultannotatortype( AnnotationType::AnnotationType type,
-						const string& st ) const {
+  AnnotatorType Document::default_annotatortype( AnnotationType::AnnotationType type,
+						 const string& st ) const {
     if ( debug ){
       cerr << "annotationdefaults= " <<  _annotationdefaults << endl;
       cerr << "lookup: " << TiCC::toString(type) << endl;
@@ -2066,8 +2067,8 @@ namespace folia {
     return result;
   }
 
-  string Document::defaultdatetime( AnnotationType::AnnotationType type,
-				    const string& st ) const {
+  string Document::default_datetime( AnnotationType::AnnotationType type,
+				     const string& st ) const {
     const auto& mit1 = _annotationdefaults.find(type);
     string result;
     if ( mit1 != _annotationdefaults.end() ){
@@ -2087,8 +2088,8 @@ namespace folia {
     return result;
   }
 
-  string Document::defaultprocessor( AnnotationType::AnnotationType annotationtype,
-				     const string& set_name ) const{
+  string Document::default_processor( AnnotationType::AnnotationType annotationtype,
+				      const string& set_name ) const{
     if ( debug ){
       cerr << "defaultprocessor(" << toString( annotationtype ) << ","
 	   << set_name << ")" << endl;
@@ -2122,8 +2123,8 @@ namespace folia {
     return "";
   }
 
-  vector<const processor*> Document::getprocessors( AnnotationType::AnnotationType type,
-						    const string& st ) const {
+  vector<const processor*> Document::get_processors( AnnotationType::AnnotationType type,
+						     const string& st ) const {
     vector<const processor*> result;
     if ( debug ){
       cerr << "getprocessors(" << toString( type ) << ","

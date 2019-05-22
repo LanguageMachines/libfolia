@@ -92,8 +92,8 @@ namespace folia {
     ~Document();
     void init();
     void init_args( const KWargs& );
-    bool readFromFile( const std::string& );
-    bool readFromString( const std::string& );
+    bool read_from_file( const std::string& );
+    bool read_from_string( const std::string& );
     bool save( std::ostream&, const std::string&, bool = false ) const;
     bool save( std::ostream& os, bool kanon = false ) const {
       return save( os, "", kanon );
@@ -149,36 +149,32 @@ namespace folia {
     std::string toXml( const std::string& ="" ) const;
     bool toXml( const std::string&,
 		const std::string& ) const;
-    std::string metadatatype() const;
-    std::string metadatafile() const;
+    std::string metadata_type() const;
+    std::string metadata_file() const;
     void set_metadata( const std::string&, const std::string& );
     const std::string get_metadata( const std::string&) const;
     processor *get_default_processor() const;
     processor *get_processor( const std::string& ) const;
     processor *get_processor_by_name( const std::string& ) const;
-    void addDocIndex( FoliaElement*, const std::string& );
-    void delDocIndex( const FoliaElement*, const std::string& );
+    void add_doc_index( FoliaElement*, const std::string& );
+    void del_doc_index( const FoliaElement*, const std::string& );
 
     FoliaElement* operator []( size_t ) const; //select i'th element from data
 
     FoliaElement *index( const std::string& ) const; //retrieve element with specified ID
     FoliaElement* operator []( const std::string& ) const ; //index as operator
-    bool isDeclared( const AnnotationType::AnnotationType&,
+    bool declared( const AnnotationType::AnnotationType&,
 		     const std::string&,
 		     const std::string&,
 		     const AnnotatorType&,
 		     const std::string& ) const;
-    bool isDeclared( const AnnotationType::AnnotationType&,
+    bool declared( const AnnotationType::AnnotationType&,
 		     const std::string&,
 		     const std::string&,
 		     const AnnotatorType&,
 		     const std::set<std::string>& ) const;
-    bool isDeclared( const AnnotationType::AnnotationType&,
-		     const std::string& = "" ) const;
-    bool declared( AnnotationType::AnnotationType at,
-		   const std::string& s="" ) const {
-      return isDeclared( at, s );
-    }
+    bool declared( const AnnotationType::AnnotationType&,
+		   const std::string& = "" ) const;
     bool declared( ElementType, const std::string& = "" ) const;
     std::string unalias( AnnotationType::AnnotationType,
 			 const std::string& ) const;
@@ -186,22 +182,22 @@ namespace folia {
 		       const std::string& ) const;
 
     processor *add_processor( const KWargs&, processor * =0 );
-    std::vector<std::string> getannotators( AnnotationType::AnnotationType,
+    std::vector<std::string> get_annotators( AnnotationType::AnnotationType,
 					    const std::string& ="" ) const;
-    std::vector<const processor *> getprocessors( AnnotationType::AnnotationType,
-						  const std::string& ="" ) const;
+    std::vector<const processor *> get_processors( AnnotationType::AnnotationType,
+						   const std::string& ="" ) const;
 
-    std::string defaultset( AnnotationType::AnnotationType ) const;
+    std::string default_set( AnnotationType::AnnotationType ) const;
 
-    std::string defaultannotator( AnnotationType::AnnotationType,
-				  const std::string& ="" ) const;
-    AnnotatorType defaultannotatortype( AnnotationType::AnnotationType,
+    std::string default_annotator( AnnotationType::AnnotationType,
+				   const std::string& ="" ) const;
+    AnnotatorType default_annotatortype( AnnotationType::AnnotationType,
 					const std::string& ="" ) const;
 
-    std::string defaultdatetime( AnnotationType::AnnotationType,
-				 const std::string& ="" ) const;
-    std::string defaultprocessor( AnnotationType::AnnotationType,
+    std::string default_datetime( AnnotationType::AnnotationType,
 				  const std::string& ="" ) const;
+    std::string default_processor( AnnotationType::AnnotationType,
+				   const std::string& ="" ) const;
 
     FoliaElement* parseXml( );
 
@@ -292,9 +288,9 @@ namespace folia {
     std::vector<PhonContent*> p_offset_validation_buffer;
 
     void setimdi( xmlNode * );
-    void parseannotations( const xmlNode * );
-    void parseprovenance( const xmlNode * );
-    void parsesubmeta( const xmlNode * );
+    void parse_annotations( const xmlNode * );
+    void parse_provenance( const xmlNode * );
+    void parse_submeta( const xmlNode * );
     void getstyles();
     void setannotations( xmlNode * ) const;
     void setprovenance( xmlNode * ) const;

@@ -165,7 +165,7 @@ namespace folia {
       throw logic_error( "is_declared() called on invalid processor!" );
     }
     else {
-      return _out_doc->isDeclared( at, setname );
+      return _out_doc->declared( at, setname );
     }
   }
 
@@ -198,7 +198,7 @@ namespace folia {
       throw logic_error( "is_declared() called on invalid processor!" );
     }
     else {
-      return _out_doc->isDeclared( at, setname, annotator, annotator_type, processor );
+      return _out_doc->declared( at, setname, annotator, annotator_type, processor );
     }
   }
 

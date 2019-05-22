@@ -241,7 +241,7 @@ namespace folia {
      	   << cls() << " datasize= " << _data.size() << endl;
     }
     if ( doc() ) {
-      doc()->delDocIndex( this, _id );
+      doc()->del_doc_index( this, _id );
       doc()->decrRef( annotation_type(), _set );
     }
   }
@@ -321,13 +321,13 @@ namespace folia {
 	  _set = st;
 	}
       }
-      if ( !doc()->isDeclared( annotation_type(), _set ) ) {
+      if ( !doc()->declared( annotation_type(), _set ) ) {
 	throw ValueError( "Set '" + _set + "' is used but has no declaration " +
 			  "for " + toString( annotation_type() ) + "-annotation" );
       }
     }
     else if ( doc() ){
-      string def = doc()->defaultset( annotation_type() );
+      string def = doc()->default_set( annotation_type() );
       if ( !def.empty() ){
 	_set = def;
       }
@@ -347,8 +347,8 @@ namespace folia {
 	  throw ValueError( "Class=" + _class + " is used on a node without a document." );
 	}
 	else if ( _set == "" &&
-		  doc()->defaultset( annotation_type() ) == "" &&
-		  doc()->isDeclared( annotation_type() ) ) {
+		  doc()->default_set( annotation_type() ) == "" &&
+		  doc()->declared( annotation_type() ) ) {
 	  string at =  toString(annotation_type());
 	  if ( at == "NONE" ){
 	    at = xmltag();
@@ -381,7 +381,7 @@ namespace folia {
     else {
       string def;
       if ( doc() &&
-	   (def = doc()->defaultannotator( annotation_type(), _set )) != "" ) {
+	   (def = doc()->default_annotator( annotation_type(), _set )) != "" ) {
 	_annotator = def;
       }
     }
@@ -402,7 +402,7 @@ namespace folia {
     }
     else {
       if ( doc() ){
-	AnnotatorType def = doc()->defaultannotatortype( annotation_type(), _set );
+	AnnotatorType def = doc()->default_annotatortype( annotation_type(), _set );
 	if ( def != UNDEFINED ) {
 	  _annotator_type = def;
 	}
@@ -419,7 +419,7 @@ namespace folia {
 	  throw ValueError("attribute 'processor' has unknown value: " + val );
 	}
 	if ( doc()
-	     && !doc()->isDeclared( annotation_type(), _set, "", _annotator_type, val ) ){
+	     && !doc()->declared( annotation_type(), _set, "", _annotator_type, val ) ){
 	  throw XmlError( "Processor '" + val
 			  + "' is used for annotationtype '"
 			  + toString( annotation_type() )
@@ -431,7 +431,7 @@ namespace folia {
       }
     }
     else if ( (ANNOTATOR & supported) && doc() ){
-      string def = doc()->defaultprocessor( annotation_type(), _set );
+      string def = doc()->default_processor( annotation_type(), _set );
       _processor = def;
     }
 
@@ -538,7 +538,7 @@ namespace folia {
     else {
       string def;
       if ( doc() &&
-	   (def = doc()->defaultdatetime( annotation_type(), _set )) != "" ) {
+	   (def = doc()->default_datetime( annotation_type(), _set )) != "" ) {
 	_datetime = def;
       }
     }
@@ -665,7 +665,7 @@ namespace folia {
     }
     if ( doc() && !_id.empty() ) {
       try {
-	doc()->addDocIndex( this, _id );
+	doc()->add_doc_index( this, _id );
       }
       catch ( const DuplicateIDError& e ){
 	if ( element_id() != WordReference_t ){
@@ -721,7 +721,7 @@ namespace folia {
       attribs["xml:id"] = _id;
     }
     if ( !_set.empty() &&
-	 _set != doc()->defaultset( annotation_type() ) ) {
+	 _set != doc()->default_set( annotation_type() ) ) {
       isDefaultSet = false;
       string ali = doc()->alias( annotation_type(), _set );
       if ( ali.empty() ){
@@ -737,7 +737,7 @@ namespace folia {
     if ( !_processor.empty() ){
       string tmp;
       try {
-	tmp = doc()->defaultprocessor( annotation_type(), _set );
+	tmp = doc()->default_processor( annotation_type(), _set );
       }
       catch ( NoDefaultError& ){
       }
@@ -750,12 +750,12 @@ namespace folia {
     }
     else {
       if ( !_annotator.empty() &&
-	   _annotator != doc()->defaultannotator( annotation_type(), _set ) ) {
+	   _annotator != doc()->default_annotator( annotation_type(), _set ) ) {
 	isDefaultAnn = false;
 	attribs["annotator"] = _annotator;
       }
       if ( _annotator_type != UNDEFINED ) {
-	AnnotatorType at = doc()->defaultannotatortype( annotation_type(), _set );
+	AnnotatorType at = doc()->default_annotatortype( annotation_type(), _set );
 	if ( (!isDefaultSet || !isDefaultAnn) && _annotator_type != at ) {
 	  if ( _annotator_type == AUTO ) {
 	    attribs["annotatortype"] = "auto";
@@ -804,7 +804,7 @@ namespace folia {
       }
     }
     if ( !_datetime.empty() &&
-	 _datetime != doc()->defaultdatetime( annotation_type(), _set ) ) {
+	 _datetime != doc()->default_datetime( annotation_type(), _set ) ) {
       attribs["datetime"] = _datetime;
     }
     if ( !_begintime.empty() ) {
@@ -1925,13 +1925,13 @@ namespace folia {
       string myid = id();
       if ( !_set.empty()
 	   && (CLASS & required_attributes() )
-	   && !_mydoc->isDeclared( annotation_type(), _set ) ) {
+	   && !_mydoc->declared( annotation_type(), _set ) ) {
 	throw ValueError( "Set " + _set + " is used in " + xmltag()
 			  + "element: " + myid + " but has no declaration " +
 			  "for " + toString( annotation_type() ) + "-annotation" );
       }
       if ( !myid.empty() ) {
-	_mydoc->addDocIndex( this, myid );
+	_mydoc->add_doc_index( this, myid );
       }
       // assume that children also might be doc-less
       for ( const auto& el : _data ) {
@@ -4052,7 +4052,7 @@ namespace folia {
     if ( child->isSubClass( AbstractSpanAnnotation_t ) ) {
       string st = child->sett();
       if ( !st.empty()
-	   && doc()->defaultset( child->annotation_type() ) != st ) {
+	   && doc()->default_set( child->annotation_type() ) != st ) {
 	c_set = st;
       }
     }
@@ -4064,7 +4064,7 @@ namespace folia {
 	  if ( el->isSubClass( AbstractSpanAnnotation_t ) ) {
 	    string st = el->sett();
 	    if ( !st.empty()
-		 && doc()->defaultset( el->annotation_type() ) != st ) {
+		 && doc()->default_set( el->annotation_type() ) != st ) {
 	      c_set = st;
 	      break;
 	    }
@@ -4079,7 +4079,7 @@ namespace folia {
 	    if ( el->isSubClass( AbstractSpanAnnotation_t ) ) {
 	      string st = el->sett();
 	      if ( !st.empty()
-		   && doc()->defaultset( el->annotation_type() ) != st ) {
+		   && doc()->default_set( el->annotation_type() ) != st ) {
 		c_set = st;
 		break;
 	      }
@@ -4093,7 +4093,7 @@ namespace folia {
 	  if ( el->isSubClass( AbstractSpanAnnotation_t ) ) {
 	    string st = el->sett();
 	    if ( !st.empty()
-		 && doc()->defaultset( el->annotation_type() ) != st ) {
+		 && doc()->default_set( el->annotation_type() ) != st ) {
 	      c_set = st;
 	      break;
 	    }
@@ -4533,7 +4533,7 @@ namespace folia {
 	      Text *tmp = new Text( args, doc() );
 	      tmp->AbstractElement::parseXml( p );
 	      FoliaElement *old = par->replace( this, tmp->index(0) );
-	      doc()->delDocIndex( tmp, bogus_id );
+	      doc()->del_doc_index( tmp, bogus_id );
 	      tmp->remove( (size_t)0, false );
 	      delete tmp;
 	      delete old;
