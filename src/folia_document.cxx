@@ -1409,7 +1409,7 @@ namespace folia {
       int offset = txt->offset();
       if ( offset != -1 ){
 	try {
-	  txt->getreference();
+	  txt->get_reference();
 	}
 	catch( UnresolvableTextContent& e ){
 	  string msg = "Text for " + txt->parent()->xmltag() + "(ID="
@@ -1434,7 +1434,7 @@ namespace folia {
       int offset = phon->offset();
       if ( offset != -1 ){
 	try {
-	  phon->getreference();
+	  phon->get_reference();
 	}
 	catch( UnresolvableTextContent& e ){
 	  string msg = "Phoneme for " + phon->parent()->xmltag() + ", ID="

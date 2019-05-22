@@ -256,18 +256,21 @@ namespace folia {
   void AbstractElement::setAttributes( const KWargs& kwargs_in ) {
     KWargs kwargs = kwargs_in;
     Attrib supported = required_attributes() | optional_attributes();
-    // if ( element_id() == Word_t ) {
-    //   cerr << "set attributes: " << kwargs << " on " << classname() << endl;
-    //   cerr << "required = " <<  required_attributes() << endl;
-    //   cerr << "optional = " <<  optional_attributes() << endl;
-    //   cerr << "supported = " << supported << endl;
-    //   cerr << "ID & supported = " << (ID & supported) << endl;
-    //   cerr << "ID & _required = " << (ID & required_attributes() ) << endl;
-    //   cerr << "_id=" << _id << endl;
-    //   Reference*ref=dynamic_cast<Reference*>(this);
-    //   cerr << "id=" << ref->refId << endl;
-    //   cerr << "AUTH : " << _auth << ", default=" << default_auth() << endl;
-    // }
+    //#define LOG_SET_ATT
+#ifdef LOG_SET_ATT
+    if ( element_id() == Word_t ) {
+      cerr << "set attributes: " << kwargs << " on " << classname() << endl;
+      cerr << "required = " <<  required_attributes() << endl;
+      cerr << "optional = " <<  optional_attributes() << endl;
+      cerr << "supported = " << supported << endl;
+      cerr << "ID & supported = " << (ID & supported) << endl;
+      cerr << "ID & _required = " << (ID & required_attributes() ) << endl;
+      cerr << "_id=" << _id << endl;
+      Reference*ref=dynamic_cast<Reference*>(this);
+      cerr << "id=" << ref->refId << endl;
+      cerr << "AUTH : " << _auth << ", default=" << default_auth() << endl;
+    }
+#endif
     if ( doc() && doc()->debug > 2 ) {
       cerr << "set attributes: " << kwargs << " on " << classname() << endl;
     }
@@ -1684,7 +1687,7 @@ namespace folia {
   }
 
 
-  vector<FoliaElement *>AbstractElement::findreplacables( FoliaElement *par ) const {
+  vector<FoliaElement *>AbstractElement::find_replacables( FoliaElement *par ) const {
     return par->select( element_id(), sett(), false );
   }
 
@@ -1693,7 +1696,7 @@ namespace folia {
     // element of the same type and set.
     // If no such child element exists, this will act the same as append()
 
-    vector<FoliaElement*> replace = child->findreplacables( this );
+    vector<FoliaElement*> replace = child->find_replacables( this );
     if ( replace.empty() ) {
       // nothing to replace, simply call append
       append( child );
@@ -1878,18 +1881,21 @@ namespace folia {
 		      + ", it was already connected to a "
 		      +  c->parent()->classname() + " id=" + c->parent()->id() );
     }
+#ifdef NOT_WORKING
+    // this fails. needs attention
     if ( c->element_id() == WordReference_t ){
-      // string tval = atts["t"];
-      // if ( !tval.empty() ){
-      // 	string tc = ref->textclass();
-      // 	string rtval = ref->str(tc);
-      // 	if ( tval != rtval ){
-      // 	  throw XmlError( "WordReference id=" + id + " has another value for "
-      // 			  + "the t attribute than it's reference. ("
-      // 			  + tval + " versus " + rtval + ")" );
-      // 	}
-      // }
+      string tval = atts["t"];
+      if ( !tval.empty() ){
+      	string tc = ref->textclass();
+      	string rtval = ref->str(tc);
+      	if ( tval != rtval ){
+      	  throw XmlError( "WordReference id=" + id + " has another value for "
+      			  + "the t attribute than it's reference. ("
+      			  + tval + " versus " + rtval + ")" );
+      	}
+      }
     }
+#endif
     if ( c->element_id() == TextContent_t && element_id() == Word_t ) {
       string val = c->str();
       val = trim( val );
@@ -2118,9 +2124,9 @@ namespace folia {
   }
 
   vector<FoliaElement*> AbstractElement::select( ElementType et,
-					   const string& st,
-					   const set<ElementType>& exclude,
-					   bool recurse ) const {
+						 const string& st,
+						 const set<ElementType>& exclude,
+						 bool recurse ) const {
     vector<FoliaElement*> res;
     for ( const auto& el : _data ) {
       if ( el->element_id() == et &&
@@ -2138,19 +2144,19 @@ namespace folia {
   }
 
   vector<FoliaElement*> AbstractElement::select( ElementType et,
-					   const string& st,
-					   bool recurse ) const {
+						 const string& st,
+						 bool recurse ) const {
     return select( et, st, default_ignore, recurse );
   }
 
   vector<FoliaElement*> AbstractElement::select( ElementType et,
-					   const set<ElementType>& exclude,
-					   bool recurse ) const {
+						 const set<ElementType>& exclude,
+						 bool recurse ) const {
     return select( et, "", exclude, recurse );
   }
 
   vector<FoliaElement*> AbstractElement::select( ElementType et,
-					   bool recurse ) const {
+						 bool recurse ) const {
     return select( et, "", default_ignore, recurse );
   }
 
@@ -2751,7 +2757,7 @@ namespace folia {
     AbstractElement::setAttributes(kwargs);
   }
 
-  FoliaElement *TextContent::finddefaultreference() const {
+  FoliaElement *TextContent::find_default_reference() const {
     int depth = 0;
     FoliaElement *p = parent();
     while ( p ){
@@ -2767,7 +2773,7 @@ namespace folia {
     return 0;
   }
 
-  FoliaElement *TextContent::getreference() const {
+  FoliaElement *TextContent::get_reference() const {
     FoliaElement *ref = 0;
     if ( _offset == -1 ){
       return 0;
@@ -2780,7 +2786,7 @@ namespace folia {
       }
     }
     else {
-      ref = finddefaultreference();
+      ref = find_default_reference();
     }
     if ( !ref ){
       throw UnresolvableTextContent( "Default reference for textcontent not found!" );
@@ -2824,10 +2830,6 @@ namespace folia {
     if ( cls() == "current" ) {
       attribs.erase( "class" );
     }
-    // else if ( _class == "original" && parent() && parent()->isinstance( Original_t ) ) {
-    //   attribs.erase( "class" );
-    // }
-
     if ( _offset >= 0 ) {
       attribs["offset"] = TiCC::toString( _offset );
     }
@@ -2837,7 +2839,7 @@ namespace folia {
     return attribs;
   }
 
-  FoliaElement *PhonContent::finddefaultreference() const {
+  FoliaElement *PhonContent::find_default_reference() const {
     int depth = 0;
     FoliaElement *p = parent();
     while ( p ){
@@ -2852,7 +2854,7 @@ namespace folia {
     return 0;
   }
 
-  FoliaElement *PhonContent::getreference() const {
+  FoliaElement *PhonContent::get_reference() const {
     FoliaElement *ref = 0;
     if ( _offset == -1 ){
       return 0;
@@ -2865,7 +2867,7 @@ namespace folia {
       }
     }
     else {
-      ref = finddefaultreference();
+      ref = find_default_reference();
     }
     if ( !ref ){
       throw UnresolvableTextContent( "Default reference for phonetic content not found!" );
@@ -2949,18 +2951,15 @@ namespace folia {
     return atts;
   }
 
-  vector<FoliaElement *>TextContent::findreplacables( FoliaElement *par ) const {
+  vector<FoliaElement *>TextContent::find_replacables( FoliaElement *par ) const {
     vector<FoliaElement *> result;
     vector<TextContent*> v = par->FoliaElement::select<TextContent>( sett(),
 								     false );
-    // cerr << "TextContent::findreplacable found " << v << endl;
     for ( const auto& el:v ) {
-      // cerr << "TextContent::findreplacable bekijkt " << el << " ("
       if ( el->cls() == cls() ) {
 	result.push_back( el );
       }
     }
-    //  cerr << "TextContent::findreplacable resultaat " << v << endl;
     return result;
   }
 
@@ -3238,7 +3237,7 @@ namespace folia {
 #ifdef DEBUG_CORRECT
 	cerr << "bekijk " << p << endl;
 #endif
-	vector<FoliaElement*> v = p->findreplacables( this );
+	vector<FoliaElement*> v = p->find_replacables( this );
 	for ( const auto& el: v ) {
 	  orig.push_back( el );
 	}

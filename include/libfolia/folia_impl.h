@@ -119,7 +119,7 @@ namespace folia {
     virtual FoliaElement *postappend( ) = 0;
     virtual void remove( size_t, bool = true ) = 0;
     virtual void remove( FoliaElement *, bool = true ) = 0;
-    virtual std::vector<FoliaElement*> findreplacables( FoliaElement * ) const = 0;
+    virtual std::vector<FoliaElement*> find_replacables( FoliaElement * ) const = 0;
     virtual void replace( FoliaElement * ) = 0;
     virtual FoliaElement* replace( FoliaElement *, FoliaElement* ) = 0;
     virtual void insert_after( FoliaElement *, FoliaElement * ) = 0;
@@ -564,7 +564,7 @@ namespace folia {
     FoliaElement *postappend( );
     void remove( size_t, bool = true );
     void remove( FoliaElement *, bool = true );
-    std::vector<FoliaElement*> findreplacables( FoliaElement * ) const;
+    std::vector<FoliaElement*> find_replacables( FoliaElement * ) const;
     void replace( FoliaElement * );
     FoliaElement* replace( FoliaElement *, FoliaElement* );
     void insert_after( FoliaElement *, FoliaElement * );
@@ -1238,18 +1238,18 @@ namespace folia {
     void setAttributes( const KWargs& );
     KWargs collectAttributes() const;
     int offset() const { return _offset; };
-    std::vector<FoliaElement*> findreplacables( FoliaElement * ) const;
+    std::vector<FoliaElement*> find_replacables( FoliaElement * ) const;
     const std::string set_to_current() { // Don't use without thinking twice!
       std::string res = cls();
       update_cls( "current" );
       return res;
     }
     FoliaElement *postappend();
-    FoliaElement *getreference() const;
+    FoliaElement *get_reference() const;
     std::string ref() const { return _ref; };
   private:
     void init();
-    FoliaElement *finddefaultreference() const;
+    FoliaElement *find_default_reference() const;
     void set_offset( int o ) const { _offset = o; }; // this MUST be const,
     // only used for 'fixing up' invalid offsets. keep it private!
     // therefore _offset  has to be mutable!
@@ -1271,11 +1271,11 @@ namespace folia {
 			      TEXT_FLAGS = TEXT_FLAGS::NONE ) const;
     int offset() const { return _offset; };
     FoliaElement *postappend();
-    FoliaElement *getreference() const;
+    FoliaElement *get_reference() const;
     std::string ref() const { return _ref; };
   private:
     void init();
-    FoliaElement *finddefaultreference() const;
+    FoliaElement *find_default_reference() const;
     void set_offset( int o ) const { _offset = o; }; // this MUST be const,
     // only used for 'fixing up' invalid offsets. keep it private!
     // therefore _offset  has to be mutable!
