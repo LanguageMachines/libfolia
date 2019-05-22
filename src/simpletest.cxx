@@ -51,9 +51,9 @@ int main() {
   cout << " Creating a document from scratch: ";
   Document d( "xml:id='example'" );
   d.declare( AnnotationType::TOKEN, "adhocset", "annotator='proycon'" );
-  if ( d.defaultset(AnnotationType::TOKEN) != "adhocset"
+  if ( d.default_set(AnnotationType::TOKEN) != "adhocset"
        ||
-       d.defaultannotator(AnnotationType::TOKEN) != "proycon" ){
+       d.default_annotator(AnnotationType::TOKEN) != "proycon" ){
     cout << " Defaultset or defaultannotator does not match" << endl;
     return EXIT_FAILURE;
   }
