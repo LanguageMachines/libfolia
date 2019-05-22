@@ -112,7 +112,7 @@ namespace folia {
 
     virtual void assignDoc( Document* ) = 0;
     virtual FoliaElement *parent() const = 0;
-    virtual void setParent( FoliaElement *p ) = 0;
+    virtual void set_parent( FoliaElement *p ) = 0;
     virtual bool acceptable( ElementType ) const = 0;
     virtual bool addable( const FoliaElement * ) const = 0;
     virtual FoliaElement *append( FoliaElement* ) = 0;
@@ -224,8 +224,8 @@ namespace folia {
     virtual MorphologyLayer *getMorphologyLayers( const std::string&,
 						  std::vector<MorphologyLayer*>& ) const NOT_IMPLEMENTED;
 
-    virtual const MetaData *getmetadata() const = 0;
-    virtual const std::string getmetadata( const std::string& ) const = 0;
+    virtual const MetaData *get_metadata() const = 0;
+    virtual const std::string get_metadata( const std::string& ) const = 0;
 
     template <typename F>
       std::vector<F*> annotations( const std::string& s = "" ) const {
@@ -245,7 +245,7 @@ namespace folia {
     }
 
     template <typename F>
-      int hasannotation( const std::string& st = "" ) const {
+      int has_annotation( const std::string& st = "" ) const {
       try {
 	std::vector<F*> v = annotations<F>( st );
 	return v.size();
@@ -375,8 +375,8 @@ namespace folia {
     virtual Correction *correct( const std::string& = "" ) NOT_IMPLEMENTED;
 
     // TextContent
-    virtual const TextContent *textcontent( const std::string& = "current",
-					    bool = false ) const = 0;
+    virtual const TextContent *text_content( const std::string& = "current",
+					     bool = false ) const = 0;
     TextContent *settext( const std::string&,
 			  const std::string& = "current" );
     TextContent *settext( const std::string&,
@@ -390,13 +390,13 @@ namespace folia {
     virtual int offset() const NOT_IMPLEMENTED;
     virtual void set_offset( int ) const NOT_IMPLEMENTED;
 
-    void cleartextcontent( const std::string& = "current" );
+    void clear_textcontent( const std::string& = "current" );
     // PhonContent
-    virtual const PhonContent *phoncontent( const std::string& = "current",
-					    bool = false ) const = 0;
+    virtual const PhonContent *phon_content( const std::string& = "current",
+					     bool = false ) const = 0;
 
     // properties
-    virtual const std::string& getTextDelimiter( bool=false ) const = 0;
+    virtual const std::string& get_delimiter( bool=false ) const = 0;
     virtual void setDateTime( const std::string& ) = 0;
     virtual const std::string getDateTime() const = 0;
     virtual const std::string pos( const std::string& = "" ) const NOT_IMPLEMENTED;
@@ -557,7 +557,7 @@ namespace folia {
 
     void assignDoc( Document* );
     FoliaElement *parent() const { return _parent; };
-    void setParent( FoliaElement *p ) { _parent = p ; };
+    void set_parent( FoliaElement *p ) { _parent = p ; };
 
     // modify the internal data
     FoliaElement *append( FoliaElement* );
@@ -574,8 +574,8 @@ namespace folia {
     Sentence *addSentence( const KWargs& );
 
     // MetaData
-    const MetaData *getmetadata() const;
-    const std::string getmetadata( const std::string&  ) const;
+    const MetaData *get_metadata() const;
+    const std::string get_metadata( const std::string&  ) const;
 
     // Selections
     template <typename F>
@@ -660,14 +660,14 @@ namespace folia {
     Word *addWord( const KWargs& );
 
     // TextContent
-    const TextContent *textcontent( const std::string& = "current",
+    const TextContent *text_content( const std::string& = "current",
 				    bool = false ) const;
     // PhonContent
-    const PhonContent *phoncontent( const std::string& = "current",
+    const PhonContent *phon_content( const std::string& = "current",
 				    bool = false ) const;
 
     // properties
-    const std::string& getTextDelimiter( bool=false ) const;
+    const std::string& get_delimiter( bool=false ) const;
 
     // attributes
     const std::string cls() const { return _class; };
@@ -876,8 +876,8 @@ namespace folia {
     }
 
     template <typename F>
-      int hasannotation( const std::string& st = "" ) const {
-      return FoliaElement::hasannotation<F>(st);
+      int has_annotation( const std::string& st = "" ) const {
+      return FoliaElement::has_annotation<F>(st);
     }
 
     template <typename F>
@@ -1112,7 +1112,7 @@ namespace folia {
     KWargs collectAttributes() const;
     const FoliaElement* resolveid() const;
   protected:
-    const std::string& getTextDelimiter( bool ) const { return EMPTY_STRING; };
+    const std::string& get_delimiter( bool ) const { return EMPTY_STRING; };
     std::string idref;
   private:
     static properties PROPS;
@@ -1497,7 +1497,7 @@ namespace folia {
     const Word* resolveword( const std::string& ) const;
     void setAttributes( const KWargs& );
     KWargs collectAttributes() const;
-    const std::string& getTextDelimiter( bool=false) const;
+    const std::string& get_delimiter( bool=false) const;
     MorphologyLayer *addMorphologyLayer( const KWargs& );
     MorphologyLayer *getMorphologyLayers( const std::string&,
 					  std::vector<MorphologyLayer*>& ) const;
@@ -1877,7 +1877,7 @@ namespace folia {
     AbstractStructureElement( PROPS, d ){ classInit( a ); };
     FoliaElement *append( FoliaElement *);
     std::vector<Word*> wordParts() const;
-    const std::string& getTextDelimiter( bool=false) const;
+    const std::string& get_delimiter( bool=false) const;
   private:
     static properties PROPS;
   };
@@ -2473,7 +2473,7 @@ namespace folia {
     FoliaElement* parseXml( const xmlNode * );
     xmlNode *xml( bool, bool=false ) const;
     bool setvalue( const std::string& );
-    const std::string& getTextDelimiter( bool ) const { return EMPTY_STRING; };
+    const std::string& get_delimiter( bool ) const { return EMPTY_STRING; };
   private:
     const UnicodeString private_text( const std::string& = "current",
 				      bool = false,
@@ -2602,11 +2602,11 @@ namespace folia {
     FoliaElement *getCurrent( size_t ) const;
     std::vector<Suggestion*> suggestions() const;
     Suggestion *suggestions( size_t ) const;
-    const TextContent *textcontent( const std::string& = "current",
+    const TextContent *text_content( const std::string& = "current",
 				    bool = false ) const;
-    const PhonContent *phoncontent( const std::string& = "current",
+    const PhonContent *phon_content( const std::string& = "current",
 				    bool = false ) const;
-    const std::string& getTextDelimiter( bool=false) const;
+    const std::string& get_delimiter( bool=false) const;
   private:
     const UnicodeString private_text( const std::string& = "current",
 				      bool = false,

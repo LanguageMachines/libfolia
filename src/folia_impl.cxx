@@ -1124,7 +1124,7 @@ namespace folia {
     // does this element have a TextContent with class 'cls'
     // Default is class="current"
     try {
-      this->textcontent(cls);
+      this->text_content(cls);
       return true;
     } catch ( const NoSuchText& e ) {
       return false;
@@ -1135,7 +1135,7 @@ namespace folia {
     // does this element have a TextContent with class 'cls'
     // Default is class="current"
     try {
-      this->phoncontent(cls);
+      this->phon_content(cls);
       return true;
     } catch ( const NoSuchPhon& e ) {
       return false;
@@ -1147,9 +1147,9 @@ namespace folia {
 
   const string SPACE_STRING = " ";
 
-  const string& AbstractElement::getTextDelimiter( bool retaintok ) const {
+  const string& AbstractElement::get_delimiter( bool retaintok ) const {
 #ifdef DEBUG_TEXT_DEL
-    cerr << "IN " << xmltag() << "::gettextdelimiter (" << retaintok << ")" << endl;
+    cerr << "IN " << xmltag() << "::get_delimiter (" << retaintok << ")" << endl;
 #endif
     if ( _props.TEXTDELIMITER != "NONE" ) {
       return _props.TEXTDELIMITER;
@@ -1158,9 +1158,9 @@ namespace folia {
       // attempt to get a delimiter from the last child
       FoliaElement *last = _data.back();
       if ( last->isSubClass(AbstractStructureElement_t) ){
-	const string& det = last->getTextDelimiter( retaintok );
+	const string& det = last->get_delimiter( retaintok );
 #ifdef DEBUG_TEXT_DEL
-	cerr << "out" << xmltag() << "::gettextdelimiter ==> '" << det << "'" << endl;
+	cerr << "out" << xmltag() << "::get_delimiter ==> '" << det << "'" << endl;
 #endif
 	return det;
       }
@@ -1168,13 +1168,13 @@ namespace folia {
     if ( (SPACE & optional_attributes()) ){
       if ( _space || retaintok ){
 #ifdef DEBUG_TEXT_DEL
-	cerr << "out" << xmltag() << "::gettextdelimiter ==> ''" << endl;
+	cerr << "out" << xmltag() << "::get_delimiter ==> ''" << endl;
 #endif
 	return SPACE_STRING;
       }
     }
 #ifdef DEBUG_TEXT_DEL
-    cerr << "out" << xmltag() << "::gettextdelimiter ==> ''" << endl;
+    cerr << "out" << xmltag() << "::get_delimiter ==> ''" << endl;
 #endif
     return EMPTY_STRING;
   }
@@ -1189,14 +1189,14 @@ namespace folia {
     cerr << "TEXT(" << cls << ") op node : " << xmltag() << " id ( " << id() << ")" << endl;
 #endif
     if ( strict ) {
-      return textcontent(cls,show_hidden)->text();
+      return text_content(cls,show_hidden)->text();
     }
     else if ( is_textcontainer() ){
       UnicodeString result;
       for ( const auto& d : _data ){
 	if ( d->printable() ){
 	  if ( !result.isEmpty() ){
-	    const string& delim = d->getTextDelimiter( retaintok );
+	    const string& delim = d->get_delimiter( retaintok );
 	    result += TiCC::UnicodeFromUTF8(delim);
 	  }
 	  result += d->text( cls );
@@ -1301,7 +1301,7 @@ namespace folia {
     UnicodeString result;
     for ( const auto& d : data ){
       if ( !result.isEmpty() ){
-	const string& delim = d->getTextDelimiter( retaintok );
+	const string& delim = d->get_delimiter( retaintok );
 	result += TiCC::UnicodeFromUTF8(delim);
       }
       result += d->private_text( cls, retaintok, strict, false );
@@ -1425,7 +1425,7 @@ namespace folia {
 	  else {
 	    // get the delimiter
 	    bool retain = ( TEXT_FLAGS::RETAIN & flags ) == TEXT_FLAGS::RETAIN;
-	    const string& delim = child->getTextDelimiter( retain );
+	    const string& delim = child->get_delimiter( retain );
 #ifdef DEBUG_TEXT
 	    cerr << "deeptext:delimiter van "<< child->xmltag() << " ='" << delim << "'" << endl;
 #endif
@@ -1478,7 +1478,7 @@ namespace folia {
 #endif
     if ( result.isEmpty() ) {
       bool hidden = ( TEXT_FLAGS::HIDDEN & flags ) == TEXT_FLAGS::HIDDEN;
-      result = textcontent(cls,hidden)->text();
+      result = text_content(cls,hidden)->text();
     }
 #ifdef DEBUG_TEXT
     cerr << "deeptext() for " << xmltag() << " result= '" << result << "'" << endl;
@@ -1501,8 +1501,8 @@ namespace folia {
     return this->text(cls, TEXT_FLAGS::RETAIN );
   }
 
-  const TextContent *AbstractElement::textcontent( const string& cls,
-						   bool show_hidden ) const {
+  const TextContent *AbstractElement::text_content( const string& cls,
+						    bool show_hidden ) const {
     // Get the text explicitly associated with this element
     // (of the specified class) the default class is 'current'
     // Returns the TextContent instance rather than the actual text.
@@ -1511,7 +1511,7 @@ namespace folia {
     // with sole exception of Correction
     // Raises NoSuchText exception if not found.
 #ifdef DEBUG_TEXT
-    cerr << "textcontent(" << cls << "," << (show_hidden?"show_hidden":"")
+    cerr << "text_content(" << cls << "," << (show_hidden?"show_hidden":"")
 	 << ")" << endl;
 #endif
     if ( isinstance(TextContent_t) ){
@@ -1522,7 +1522,7 @@ namespace folia {
 	return dynamic_cast<const TextContent*>(this);
       }
       else {
-	throw NoSuchText( "TextContent::textcontent(" + cls + ")" );
+	throw NoSuchText( "TextContent::text_content(" + cls + ")" );
       }
     }
 #ifdef DEBUG_TEXT
@@ -1538,17 +1538,17 @@ namespace folia {
       }
       else if ( el->element_id() == Correction_t) {
 	try {
-	  return el->textcontent(cls,show_hidden);
+	  return el->text_content(cls,show_hidden);
 	} catch ( const NoSuchText& e ) {
 	  // continue search for other Corrections or a TextContent
 	}
       }
     }
-    throw NoSuchText( xmltag() + "::textcontent(" + cls + ")" );
+    throw NoSuchText( xmltag() + "::text_content(" + cls + ")" );
   }
 
-  const PhonContent *AbstractElement::phoncontent( const string& cls,
-						   bool show_hidden ) const {
+  const PhonContent *AbstractElement::phon_content( const string& cls,
+						    bool show_hidden ) const {
     // Get the phon explicitly associated with this element
     // (of the specified class) the default class is 'current'
     // Returns the PhonContent instance rather than the actual phoneme.
@@ -1560,7 +1560,7 @@ namespace folia {
 	return dynamic_cast<const PhonContent*>(this);
       }
       else {
-	throw NoSuchPhon( xmltag() + "::phoncontent(" + cls + ")" );
+	throw NoSuchPhon( xmltag() + "::phon_content(" + cls + ")" );
       }
     }
     if ( !speakable() || ( hidden() && !show_hidden ) ) {
@@ -1573,13 +1573,13 @@ namespace folia {
       }
       else if ( el->element_id() == Correction_t) {
 	try {
-	  return el->phoncontent(cls,show_hidden);
+	  return el->phon_content(cls,show_hidden);
 	} catch ( const NoSuchPhon& e ) {
 	  // continue search for other Corrections or a TextContent
 	}
       }
     }
-    throw NoSuchPhon( xmltag() + "::phoncontent(" + cls + ")" );
+    throw NoSuchPhon( xmltag() + "::phon_content(" + cls + ")" );
   }
 
   //#define DEBUG_PHON
@@ -1594,7 +1594,7 @@ namespace folia {
     cerr << "PHON(" << cls << ") op node : " << xmltag() << " id ( " << id() << ")" << endl;
 #endif
     if ( strict ) {
-      return phoncontent(cls)->phon();
+      return phon_content(cls)->phon();
     }
     else if ( !speakable() || ( this->hidden() && !hidden ) ) {
       throw NoSuchPhon( "NON speakable element: " + xmltag() );
@@ -1602,7 +1602,7 @@ namespace folia {
     else {
       UnicodeString result = deepphon( cls, flags );
       if ( result.isEmpty() ) {
-	result = phoncontent(cls,hidden)->phon();
+	result = phon_content(cls,hidden)->phon();
       }
       if ( result.isEmpty() ) {
 	throw NoSuchPhon( "on tag " + xmltag() + " nor it's children" );
@@ -1642,7 +1642,7 @@ namespace folia {
 #endif
 	  parts.push_back(tmp);
 	  // get the delimiter
-	  const string& delim = child->getTextDelimiter();
+	  const string& delim = child->get_delimiter();
 #ifdef DEBUG_PHON
 	  cerr << "deepphon:delimiter van "<< child->xmltag() << " ='" << delim << "'" << endl;
 #endif
@@ -1669,7 +1669,7 @@ namespace folia {
     if ( result.isEmpty() ) {
       bool hidden = ( TEXT_FLAGS::HIDDEN & flags ) == TEXT_FLAGS::HIDDEN;
       try {
-	result = phoncontent(cls,hidden)->phon();
+	result = phon_content(cls,hidden)->phon();
       }
       catch ( ... ) {
       }
@@ -1715,7 +1715,7 @@ namespace folia {
     for ( auto& el: _data ) {
       if ( el == old ) {
 	el = _new;
-	_new->setParent( this );
+	_new->set_parent( this );
 	return old;
       }
     }
@@ -1736,7 +1736,7 @@ namespace folia {
     }
   }
 
-  void FoliaElement::cleartextcontent( const string& textclass ){
+  void FoliaElement::clear_textcontent( const string& textclass ){
     for ( size_t i=0; i < size(); ++i ){
       FoliaElement *p = index(i);
       if ( p->element_id() == TextContent_t ) {
@@ -2020,7 +2020,7 @@ namespace folia {
       }
       _data.push_back(child);
       if ( !child->parent() ) {
-	child->setParent(this);
+	child->set_parent(this);
       }
       if ( child->referable() ){
 	child->increfcount();
@@ -2076,7 +2076,7 @@ namespace folia {
       }
     }
     else {
-      child->setParent(0);
+      child->set_parent(0);
     }
   }
 
@@ -2097,7 +2097,7 @@ namespace folia {
 	}
       }
       else {
-	(*it)->setParent(0);
+	(*it)->set_parent(0);
       }
       _data.erase(it);
     }
@@ -2356,7 +2356,7 @@ namespace folia {
       newId = it->second;
       args.erase("generate_id");
     }
-    if ( hasannotation<PosAnnotation>( st ) > 0 ) {
+    if ( has_annotation<PosAnnotation>( st ) > 0 ) {
       // ok, there is already one, so create an Alternative
       KWargs kw;
       kw["xml:id"] = generateId( newId );
@@ -2407,7 +2407,7 @@ namespace folia {
       newId = it->second;
       args.erase("generate_id");
     }
-    if ( hasannotation<LemmaAnnotation>( st ) > 0 ) {
+    if ( has_annotation<LemmaAnnotation>( st ) > 0 ) {
       // ok, there is already one, so create an Alternative
       KWargs kw;
       kw["xml:id"] = generateId( newId );
@@ -2458,7 +2458,7 @@ namespace folia {
       newId = it->second;
       args.erase("generate_id");
     }
-    if ( hasannotation<MorphologyLayer>( st ) > 0 ) {
+    if ( has_annotation<MorphologyLayer>( st ) > 0 ) {
       // ok, there is already one, so create an Alternative
       KWargs kw;
       kw["xml:id"] = generateId( newId );
@@ -2533,9 +2533,9 @@ namespace folia {
     return res;
   }
 
-  const string& Quote::getTextDelimiter( bool retaintok ) const {
+  const string& Quote::get_delimiter( bool retaintok ) const {
 #ifdef DEBUG_TEXT_DEL
-    cerr << "IN " << xmltag() << "::gettextdelimiter (" << retaintok << ")" << endl;
+    cerr << "IN " << xmltag() << "::get_delimiter (" << retaintok << ")" << endl;
 #endif
     const vector<FoliaElement*>& data = this->data();
     auto it = data.rbegin();
@@ -2543,14 +2543,14 @@ namespace folia {
       if ( (*it)->isinstance( Sentence_t ) ) {
 	// if a quote ends in a sentence, we don't want any delimiter
 #ifdef DEBUG_TEXT_DEL
-	cerr << "OUT " << xmltag() << "::gettextdelimiter ==>''" << endl;
+	cerr << "OUT " << xmltag() << "::get_delimiter ==>''" << endl;
 #endif
 	return EMPTY_STRING;
       }
       else {
-	const string& res = (*it)->getTextDelimiter( retaintok );
+	const string& res = (*it)->get_delimiter( retaintok );
 #ifdef DEBUG_TEXT_DEL
-	cerr << "OUT " << xmltag() << "::gettextdelimiter ==> '"
+	cerr << "OUT " << xmltag() << "::get_delimiter ==> '"
 	     << res << "'" << endl;
 #endif
 	return res;
@@ -2644,7 +2644,7 @@ namespace folia {
     kwargs["text"] = "dummy";
     kwargs["xml:id"] = "dummy";
     Word *dummy = new Word( kwargs );
-    dummy->setParent( this ); // we create a dummy Word.
+    dummy->set_parent( this ); // we create a dummy Word.
     // now we insert it as member of the Sentence.
     // This makes correctWords() happy
     AbstractElement::insert_after( p, dummy );
@@ -3134,7 +3134,7 @@ namespace folia {
       }
       for ( const auto& cur : current ) {
 	FoliaElement *add = new Current( doc );
-	cur->setParent(0);
+	cur->set_parent(0);
 	add->append( cur );
 	corr->replace( add );
 	if ( !hooked ) {
@@ -3157,7 +3157,7 @@ namespace folia {
       addnew = new New( doc );
       corr->append(addnew);
       for ( const auto& nw : _new ) {
-	nw->setParent(0);
+	nw->set_parent(0);
 	addnew->append( nw );
       }
 #ifdef DEBUG_CORRECT
@@ -3188,7 +3188,7 @@ namespace folia {
 #endif
 	bool dummyNode = ( org->id() == "dummy" );
 	if ( !dummyNode ) {
-	  org->setParent(0);
+	  org->set_parent(0);
 	  add->append( org );
 	}
 #ifdef DEBUG_CORRECT
@@ -3299,7 +3299,7 @@ namespace folia {
 	    }
 	  }
 	  // now we conect org to the new original node
-	  org->setParent( 0 );
+	  org->set_parent( 0 );
 	  add->append( org );
 #ifdef DEBUG_CORRECT
 	  cerr << " add after append : " << add << endl;
@@ -3337,12 +3337,12 @@ namespace folia {
       }
       for ( const auto& sug : suggestions ) {
 	if ( sug->isinstance( Suggestion_t ) ) {
-	  sug->setParent(0);
+	  sug->set_parent(0);
 	  corr->append( sug );
 	}
 	else {
 	  FoliaElement *add = new Suggestion( doc );
-	  sug->setParent(0);
+	  sug->set_parent(0);
 	  add->append( sug );
 	  corr->append( add );
 	}
@@ -3541,7 +3541,7 @@ namespace folia {
     return atts;
   }
 
-  const string& Word::getTextDelimiter( bool retaintok ) const {
+  const string& Word::get_delimiter( bool retaintok ) const {
     if ( space() || retaintok ) {
       return PROPS.TEXTDELIMITER;
     }
@@ -4233,7 +4233,7 @@ namespace folia {
 #ifdef DEBUG_TEXT
     cerr << "TEXT(" << cls << ") op node : " << xmltag() << " id ( " << id() << ")" << endl;
 #endif
-    // we cannot use textcontent() on New, Origibal or Current,
+    // we cannot use text_content() on New, Origibal or Current,
     // because texcontent doesn't recurse!
     for ( const auto& el : data() ) {
 #ifdef DEBUG_TEXT
@@ -4255,22 +4255,22 @@ namespace folia {
     throw NoSuchText( "cls=" + cls );
   }
 
-  const string& Correction::getTextDelimiter( bool retaintok ) const {
+  const string& Correction::get_delimiter( bool retaintok ) const {
     for ( const auto& el : data() ) {
       if ( el->isinstance( New_t ) || el->isinstance( Current_t ) ) {
-	return el->getTextDelimiter( retaintok );
+	return el->get_delimiter( retaintok );
       }
     }
     return EMPTY_STRING;
   }
 
-  const TextContent *Correction::textcontent( const string& cls,
-					      bool show_hidden ) const {
+  const TextContent *Correction::text_content( const string& cls,
+					       bool show_hidden ) const {
     // TODO: this implements correctionhandling::EITHER only
     for ( const auto& el : data() ) {
       if ( el->isinstance( New_t ) || el->isinstance( Current_t ) ) {
 	try {
-	  const TextContent *res = el->textcontent( cls, show_hidden );
+	  const TextContent *res = el->text_content( cls, show_hidden );
 	  return res;
 	}
 	catch (...){
@@ -4280,7 +4280,7 @@ namespace folia {
     for ( const auto& el : data() ) {
       if ( el->isinstance( Original_t ) ) {
 	try {
-	  const TextContent *res = el->textcontent( cls, show_hidden );
+	  const TextContent *res = el->text_content( cls, show_hidden );
 	  return res;
 	}
 	catch ( ... ){
@@ -4288,25 +4288,25 @@ namespace folia {
       }
       else if ( cls == "current" && el->hastext( "original" ) ){
 	cerr << "text(original)= "
-	     << el->textcontent( cls, show_hidden )->text()<< endl;
+	     << el->text_content( cls, show_hidden )->text()<< endl;
 	// hack for old and erroneous behaviour
-	return el->textcontent( "original", show_hidden );
+	return el->text_content( "original", show_hidden );
       }
     }
     throw NoSuchText("wrong cls");
   }
 
-  const PhonContent *Correction::phoncontent( const string& cls,
-					      bool show_hidden ) const {
+  const PhonContent *Correction::phon_content( const string& cls,
+					       bool show_hidden ) const {
     // TODO: this implements correctionhandling::EITHER only
     for ( const auto& el: data() ) {
       if ( el->isinstance( New_t ) || el->isinstance( Current_t ) ) {
-	return el->phoncontent( cls, show_hidden );
+	return el->phon_content( cls, show_hidden );
       }
     }
     for ( const auto& el: data() ) {
       if ( el->isinstance( Original_t ) ) {
-	return el->phoncontent( cls, show_hidden );
+	return el->phon_content( cls, show_hidden );
       }
     }
     throw NoSuchPhon("wrong cls");
@@ -4817,21 +4817,21 @@ namespace folia {
     return result;
   }
 
-  const MetaData* AbstractElement::getmetadata() const {
+  const MetaData* AbstractElement::get_metadata() const {
     // Get the metadata that applies to this element,
     // automatically inherited from parent elements
     if ( !_metadata.empty() && doc() ){
       return doc()->get_submetadata(_metadata);
     }
     else if ( parent() ){
-      return parent()->getmetadata();
+      return parent()->get_metadata();
     }
     else {
       return 0;
     }
   }
 
-  const string AbstractElement::getmetadata( const string& key ) const {
+  const string AbstractElement::get_metadata( const string& key ) const {
     // Get the metadata that applies to this element,
     // automatically inherited from parent elements
     if ( !_metadata.empty() && doc() ){
@@ -4842,7 +4842,7 @@ namespace folia {
       return "";
     }
     else if ( parent() ){
-      return parent()->getmetadata( key );
+      return parent()->get_metadata( key );
     }
     else {
       return "";
