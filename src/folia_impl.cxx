@@ -524,19 +524,18 @@ namespace folia {
     }
 
     _datetime.clear();
-    auto it = kwargs.find( "datetime" );
-    if ( it != kwargs.end() ) {
+    val = kwargs.extract( "datetime" );
+    if ( !val.empty() ) {
       if ( !(DATETIME & supported) ) {
 	throw ValueError("datetime attribute is not supported for " + classname() );
       }
       else {
-	string time = parseDate( it->second );
+	string time = parseDate( val );
 	if ( time.empty() ){
-	  throw ValueError( "invalid datetime, must be in YYYY-MM-DDThh:mm:ss format: " + it->second );
+	  throw ValueError( "invalid datetime, must be in YYYY-MM-DDThh:mm:ss format: " + val );
 	}
 	_datetime = time;
       }
-      kwargs.erase( it );
     }
     else {
       string def;
@@ -545,50 +544,47 @@ namespace folia {
 	_datetime = def;
       }
     }
-    it = kwargs.find( "begintime" );
-    if ( it != kwargs.end() ) {
+    val = kwargs.extract( "begintime" );
+    if ( !val.empty() ) {
       if ( !(BEGINTIME & supported) ) {
 	throw ValueError( "begintime attribute is not supported for " + classname() );
       }
       else {
-	string time = parseTime( it->second );
+	string time = parseTime( val );
 	if ( time.empty() ) {
-	  throw ValueError( "invalid begintime, must be in HH:MM:SS.mmm format: " + it->second );
+	  throw ValueError( "invalid begintime, must be in HH:MM:SS.mmm format: " + val );
 	}
 	_begintime = time;
       }
-      kwargs.erase( it );
     }
     else {
       _begintime.clear();
     }
-    it = kwargs.find( "endtime" );
-    if ( it != kwargs.end() ) {
+    val = kwargs.extract( "endtime" );
+    if ( !val.empty() ) {
       if ( !(ENDTIME & supported) ) {
 	throw ValueError( "endtime attribute is not supported for " + classname() );
       }
       else {
-	string time = parseTime( it->second );
+	string time = parseTime( val );
 	if ( time.empty() ) {
-	  throw ValueError( "invalid endtime, must be in HH:MM:SS.mmm format: " + it->second );
+	  throw ValueError( "invalid endtime, must be in HH:MM:SS.mmm format: " + val );
 	}
 	_endtime = time;
       }
-      kwargs.erase( it );
     }
     else {
       _endtime.clear();
     }
 
-    it = kwargs.find( "src" );
-    if ( it != kwargs.end() ) {
+    val = kwargs.extract( "src" );
+    if ( !val.empty() ) {
       if ( !(SRC & supported) ) {
 	throw ValueError( "src attribute is not supported for " + classname() );
       }
       else {
-	_src = it->second;
+	_src = val;
       }
-      kwargs.erase( it );
     }
     else {
       _src.clear();
@@ -597,74 +593,68 @@ namespace folia {
     if ( SPACE & supported ){
       _space = true;
     }
-    it = kwargs.find( "space" );
-    if ( it != kwargs.end() ) {
+    val = kwargs.extract( "space" );
+    if ( !val.empty() ) {
       if ( !(SPACE & supported) ){
 	throw ValueError( "space attribute is not supported for " + classname() );
       }
       else {
-	if ( it->second == "no" ) {
+	if ( val == "no" ) {
 	  _space = false;
 	}
-	else if ( it->second == "yes" ) {
+	else if ( val == "yes" ) {
 	  _space = true;
 	}
 	else {
-	  throw ValueError( "invalid value for space attribute: '" + it->second
-			    + "'" );
+	  throw ValueError( "invalid value for space attribute: '" + val + "'" );
 	}
-	kwargs.erase( it );
       }
     }
 
-    it = kwargs.find( "metadata" );
-    if ( it != kwargs.end() ) {
+    val = kwargs.extract( "metadata" );
+    if ( !val.empty() ) {
       if ( !(METADATA & supported) ) {
 	throw ValueError( "Metadata attribute is not supported for " + classname() );
       }
       else {
-	_metadata = it->second;
+	_metadata = val;
 	if ( doc() && doc()->get_submetadata( _metadata ) == 0 ){
 	  throw KeyError( "No such metadata defined: " + _metadata );
 	}
       }
-      kwargs.erase( it );
     }
     else
       _metadata.clear();
 
-    it = kwargs.find( "speaker" );
-    if ( it != kwargs.end() ) {
+    val = kwargs.extract( "speaker" );
+    if ( !val.empty() ) {
       if ( !(SPEAKER & supported) ) {
 	throw ValueError( "speaker attibute is not supported for " + classname() );
       }
       else {
-	_speaker = it->second;
+	_speaker = val;
       }
-      kwargs.erase( it );
     }
     else {
       _speaker.clear();
     }
 
-    it = kwargs.find( "textclass" );
-    if ( it != kwargs.end() ) {
+    val = kwargs.extract( "textclass" );
+    if ( !val.empty() ) {
       if ( !(TEXTCLASS & supported) ) {
 	throw ValueError( "textclass attribute is not supported for " + classname() );
       }
       else {
-	_textclass = it->second;
+	_textclass = val;
       }
-      kwargs.erase( it );
     }
     else {
       _textclass = "current";
     }
 
-    it = kwargs.find( "auth" );
-    if ( it != kwargs.end() ) {
-      _auth = stringTo<bool>( it->second );
-      kwargs.erase( it );
+    val = kwargs.extract( "auth" );
+    if ( !val.empty() ){
+      _auth = stringTo<bool>( val );
     }
     if ( doc() && !_id.empty() ) {
       try {
@@ -2356,11 +2346,9 @@ namespace folia {
     if ( it != args.end() ) {
       st = it->second;
     }
-    string newId = "alt-pos";
-    it = args.find("generate_id" );
-    if ( it != args.end() ) {
-      newId = it->second;
-      args.erase("generate_id");
+    string newId = args.extract("generate_id" );
+    if ( newId.empty() ){
+      newId = "alt-pos";
     }
     if ( has_annotation<PosAnnotation>( st ) > 0 ) {
       // ok, there is already one, so create an Alternative
@@ -2407,11 +2395,9 @@ namespace folia {
     if ( it != args.end() ) {
       st = it->second;
     }
-    string newId = "alt-lem";
-    it = args.find("generate_id" );
-    if ( it != args.end() ) {
-      newId = it->second;
-      args.erase("generate_id");
+    string newId = args.extract("generate_id" );
+    if ( newId.empty() ){
+      newId = "alt-lem";
     }
     if ( has_annotation<LemmaAnnotation>( st ) > 0 ) {
       // ok, there is already one, so create an Alternative
@@ -2458,11 +2444,9 @@ namespace folia {
     if ( it != args.end() ) {
       st = it->second;
     }
-    string newId = "alt-mor";
-    it = args.find("generate_id" );
-    if ( it != args.end() ) {
-      newId = it->second;
-      args.erase("generate_id");
+    string newId = args.extract("generate_id" );
+    if ( newId.empty() ){
+      newId = "alt-mor";
     }
     if ( has_annotation<MorphologyLayer>( st ) > 0 ) {
       // ok, there is already one, so create an Alternative
