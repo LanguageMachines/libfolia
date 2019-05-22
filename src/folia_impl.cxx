@@ -2354,6 +2354,9 @@ namespace folia {
       // ok, there is already one, so create an Alternative
       KWargs kw;
       kw["xml:id"] = generateId( newId );
+      if ( !doc()->declared( AnnotationType::ALTERNATIVE ) ){
+	doc()->declare( AnnotationType::ALTERNATIVE,"" );
+      }
       Alternative *alt = new Alternative( kw, doc() );
       append( alt );
       return alt->addAnnotation<PosAnnotation>( args );
@@ -2403,6 +2406,9 @@ namespace folia {
       // ok, there is already one, so create an Alternative
       KWargs kw;
       kw["xml:id"] = generateId( newId );
+      if ( !doc()->declared( AnnotationType::ALTERNATIVE ) ){
+	doc()->declare( AnnotationType::ALTERNATIVE, "" );
+      }
       Alternative *alt = new Alternative( kw, doc() );
       append( alt );
       return alt->addAnnotation<LemmaAnnotation>( args );
@@ -2413,7 +2419,7 @@ namespace folia {
   }
 
   LemmaAnnotation* AllowInlineAnnotation::getLemmaAnnotations( const string& st,
-					      vector<LemmaAnnotation*>& vec ) const {
+							       vector<LemmaAnnotation*>& vec ) const {
     LemmaAnnotation *res = 0;
     vec.clear();
     try {
@@ -2452,6 +2458,9 @@ namespace folia {
       // ok, there is already one, so create an Alternative
       KWargs kw;
       kw["xml:id"] = generateId( newId );
+      if ( !doc()->declared( AnnotationType::ALTERNATIVE ) ){
+	doc()->declare( AnnotationType::ALTERNATIVE, "" );
+      }
       Alternative *alt = new Alternative( kw, doc() );
       append( alt );
       return alt->addAnnotation<MorphologyLayer>( args );
