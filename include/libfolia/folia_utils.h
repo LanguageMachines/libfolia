@@ -121,12 +121,13 @@ namespace folia {
   };
 
   std::string toString( const AnnotationType::AnnotationType& );
-  AnnotationType::AnnotationType stringToAT( const std::string& );
+  AnnotationType::AnnotationType stringToAnnotationType( const std::string& );
 
-  AnnotatorType stringToANT( const std::string& );
+  AnnotatorType stringToAnnotatorType( const std::string& );
+  std::string toString( const AnnotatorType& );
 
   std::string toString( const ElementType& );
-  ElementType stringToET( const std::string& );
+  ElementType stringToElementType( const std::string& );
 
   typedef std::map<std::string, std::string> Arguments;
 
@@ -142,26 +143,6 @@ namespace folia {
   KWargs getArgs( const std::string& );
   std::string toString( const KWargs& );
 
-
-  inline std::ostream& operator<<( std::ostream& os,
-				   const ElementType& el ){
-    os << toString( el );
-    return os;
-  }
-
-
-  inline std::ostream& operator<<( std::ostream& os,
-				   const KWargs& ats ){
-    os << toString( ats );
-    return os;
-  }
-
-  inline std::ostream& operator<<( std::ostream& os,
-				   const AnnotationType::AnnotationType& at ){
-    os << toString( at );
-    return os;
-  }
-
   void addAttributes( xmlNode *, const KWargs& );
   KWargs getAttributes( const xmlNode * );
 
@@ -173,27 +154,55 @@ namespace folia {
   bool ET_sanity_check();
 
   bool isNCName( const std::string& );
+  bool checkNS( const xmlNode *, const std::string& );
+  std::map<std::string,std::string> getNS_definitions( const xmlNode * );
 
   icu::UnicodeString normalize_spaces( const icu::UnicodeString& );
+
+  std::string get_ISO_date();
 
 } // namespace folia
 
 namespace TiCC {
-  // add some specializations to the TiCC stringTo() family
+  // add some specializations to the TiCC stringTo() and toString() family
 
   template<>
     inline folia::AnnotationType::AnnotationType stringTo( const std::string& str ) {
-    return folia::stringToAT( str );
+    return folia::stringToAnnotationType( str );
   }
 
   template<>
     inline folia::ElementType stringTo( const std::string& str ) {
-    return folia::stringToET( str );
+    return folia::stringToElementType( str );
   }
 
   template<>
     inline folia::AnnotatorType stringTo( const std::string& str ) {
-    return folia::stringToANT( str );
+    return folia::stringToAnnotatorType( str );
+  }
+
+  inline std::ostream& operator<<( std::ostream& os,
+				     const folia::ElementType& el ){
+    os << folia::toString( el );
+    return os;
+  }
+
+  inline std::ostream& operator<<( std::ostream& os,
+				   const folia::AnnotatorType& at ){
+    os << folia::toString(at);
+    return os;
+  }
+
+  inline std::ostream& operator<<( std::ostream& os,
+				   const folia::KWargs& ats ){
+    os << folia::toString( ats );
+    return os;
+  }
+
+  inline std::ostream& operator<<( std::ostream& os,
+				   const folia::AnnotationType::AnnotationType& at ){
+    os << folia::toString( at );
+    return os;
   }
 
 } // namespace TiCC
