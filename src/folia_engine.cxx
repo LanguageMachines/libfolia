@@ -118,9 +118,36 @@ namespace folia {
     _is_setup = true;
   }
 
-  void Engine::declare( AnnotationType::AnnotationType at,
-			   const string& setname,
-			   const string& args ) {
+  void Engine::un_declare( const AnnotationType::AnnotationType& at,
+			   const string& setname ){
+    if ( !ok() ){
+      throw logic_error( "declare() called on invalid processor!" );
+    }
+    else if ( _header_done ){
+      throw logic_error( "declare() called on already (partially) saved document!" );
+    }
+    else {
+      _out_doc->un_declare( at, setname );
+    }
+  }
+
+  void Engine::declare( const AnnotationType::AnnotationType& at,
+			const string& setname,
+			const string& args ) {
+    if ( !ok() ){
+      throw logic_error( "declare() called on invalid processor!" );
+    }
+    else if ( _header_done ){
+      throw logic_error( "declare() called on already (partially) saved document!" );
+    }
+    else {
+      _out_doc->declare( at, setname, args );
+    }
+  }
+
+  void Engine::declare( const AnnotationType::AnnotationType& at,
+			const string& setname,
+			const KWargs& args ) {
     if ( !ok() ){
       throw logic_error( "declare() called on invalid engine!" );
     }
@@ -132,22 +159,24 @@ namespace folia {
     }
   }
 
-  bool Engine::is_declared( AnnotationType::AnnotationType at,
-			       const string& setname ) const {
+  bool Engine::is_declared( const AnnotationType::AnnotationType& at,
+			    const string& setname ) const {
     if ( !ok() ){
       throw logic_error( "is_declared() called on invalid engine!" );
     }
     else {
-      return _out_doc->isDeclared( at, setname );
+      return _out_doc->declared( at, setname );
     }
   }
 
-  void Engine::declare( AnnotationType::AnnotationType at,
-			   const string& setname,
-			   const string& annotator,
-			   const string& annotator_type,
-			   const string& time,
-			   const string& args ) {
+  void Engine::declare( const AnnotationType::AnnotationType& at,
+			const string& setname,
+			const string& format,
+			const string& annotator,
+			const string& annotator_type,
+			const string& time,
+			const set<string>& processors,
+			const string& alias ) {
     if ( !ok() ){
       throw logic_error( "declare() called on invalid engine!" );
     }
@@ -155,24 +184,41 @@ namespace folia {
       throw logic_error( "declare() called on already (partially) saved document!" );
     }
     else {
-      _out_doc->declare( at, setname, annotator, annotator_type, time, args );
+      _out_doc->declare( at, setname, format, annotator, annotator_type, time,
+			 processors, alias );
     }
   }
 
-  bool Engine::is_declared( AnnotationType::AnnotationType at,
-			       const string& setname,
-			       const string& annotator,
-			       const string& annotator_type ) const {
+  bool Engine::is_declared( const AnnotationType::AnnotationType& at,
+			    const string& setname,
+			    const string& annotator,
+			    const AnnotatorType& annotator_type,
+			    const string& processor ) const {
     if ( !ok() ){
       throw logic_error( "is_declared() called on invalid engine!" );
     }
     else {
-      return _out_doc->isDeclared( at, setname, annotator, annotator_type );
+      return _out_doc->declared( at, setname, annotator, annotator_type, processor );
     }
   }
 
+  bool Engine::is_declared( const AnnotationType::AnnotationType& at,
+			    const string& setname,
+			    const string& annotator,
+			    const string& annotator_type,
+			    const string& processor ) const {
+    AnnotatorType ant = UNDEFINED;
+    try {
+      ant = TiCC::stringTo<AnnotatorType>(annotator_type);
+    }
+    catch (...){
+      throw logic_error( annotator_type + " is NOT a valid annotator type" );
+    }
+    return is_declared( at, setname, annotator, ant, processor );
+  }
+
   void Engine::set_metadata( const std::string& att,
-				const std::string& val){
+			     const std::string& val){
     if ( !ok() ){
       throw logic_error( "set_metadata() called on invalid engine!" );
     }
@@ -265,7 +311,7 @@ namespace folia {
       DBG << "add_comment " << endl;
     }
     string tag = "_XmlComment";
-    FoliaElement *t = FoliaImpl::createElement( tag, _out_doc );
+    FoliaElement *t = AbstractElement::createElement( tag, _out_doc );
     append_node( t, depth );
   }
 
@@ -361,8 +407,7 @@ namespace folia {
 	else if ( local_name == "text" ){
 	  _doc_type = TEXT;
 	  KWargs args = get_attributes(_reader);
-	  Text *text = new Text( args, _out_doc );
-	  _out_doc->setRoot( text );
+	  FoliaElement *text =_out_doc->setTextRoot( args );
 	  _root_node = text;
 	  _current_node = text;
 	  _ok = true;
@@ -372,8 +417,7 @@ namespace folia {
 	else if ( local_name == "speech" ){
 	  _doc_type = SPEECH;
 	  KWargs args = get_attributes(_reader);
-	  Speech *sp = new Speech( args, _out_doc );
-	  _out_doc->setRoot( sp );
+	  FoliaElement *sp = _out_doc->setSpeechRoot( args );
 	  _root_node = sp;
 	  _current_node = sp;
 	  _ok = true;
@@ -659,7 +703,7 @@ namespace folia {
 
   xml_tree *get_structure_parent( const xml_tree *pnt ){
     if ( pnt->parent->tag != "w"
-	 && isSubClass( stringToET(pnt->parent->tag),
+	 && isSubClass( stringToElementType(pnt->parent->tag),
 			AbstractStructureElement_t ) ){
       return pnt->parent;
     }
@@ -812,7 +856,7 @@ namespace folia {
 
   FoliaElement *Engine::handle_match( const string& local_name,
 					 int depth ){
-    FoliaElement *t = FoliaImpl::createElement( local_name, _out_doc );
+    FoliaElement *t = AbstractElement::createElement( local_name, _out_doc );
     if ( t ){
       if ( _debug ){
 	DBG << "created FoliaElement: name=" << local_name << endl;
@@ -856,7 +900,7 @@ namespace folia {
       append_node( ref, depth );
     }
     else {
-      FoliaElement *t = FoliaImpl::createElement( local_name, _out_doc );
+      FoliaElement *t = AbstractElement::createElement( local_name, _out_doc );
       if ( t ){
 	if ( local_name == "foreign-data" ){
 	  xmlNode *fd = xmlTextReaderExpand(_reader);
@@ -1022,30 +1066,42 @@ namespace folia {
     stringstream ss;
     _out_doc->save( ss, ns_prefix );
     string data = ss.str();
-    string search_b;
+    string search_b1;
+    string search_b2;
     string search_e;
     if ( _doc_type == TEXT ){
       if ( !ns_prefix.empty() ){
-	search_b = "<" + ns_prefix + ":" + "text";
-	search_e = "</" + ns_prefix + ":" + "text";
+	search_b1 = "<" + ns_prefix + ":" + "text>";
+	search_b2 = "<" + ns_prefix + ":" + "text ";
+	search_e = "</" + ns_prefix + ":" + "text>";
       }
       else {
-	search_b = "<text";
-	search_e = "</text";
+	search_b1 = "<text>";
+	search_b2 = "<text ";
+	search_e = "</text>";
       }
     }
     else {
       if ( !ns_prefix.empty() ){
-	search_b = "<" + ns_prefix + ":" + "speech";
-	search_e = "</" + ns_prefix + ":" + "speech";
+	search_b1 = "<" + ns_prefix + ":" + "speech>";
+	search_b2 = "<" + ns_prefix + ":" + "speech ";
+	search_e = "</" + ns_prefix + ":" + "speech>";
       }
       else {
-	search_b = "<speech";
-	search_e = "</speech";
+	search_b1 = "<speech>";
+	search_b2 = "<speech ";
+	search_e = "</speech>";
       }
     }
-    int add = search_e.size();
-    string::size_type pos1 = data.find( search_b );
+    string::size_type bpos1 = data.find( search_b1 );
+    string::size_type bpos2 = data.find( search_b2 );
+    string::size_type pos1;
+    if ( bpos1 < bpos2 ){
+      pos1 = bpos1;
+    }
+    else {
+      pos1 = bpos2;
+    }
     string::size_type pos2;
     if ( _root_node->size() == 0 ){
       pos2 = data.find( "/>" , pos1 );
@@ -1059,6 +1115,7 @@ namespace folia {
     }
     else {
       pos2 = data.find( search_e, pos1 );
+      int add = search_e.size();
       pos2 += add;
     }
     _footer = "  " + search_e + data.substr( pos2 );

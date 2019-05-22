@@ -47,12 +47,12 @@ using namespace icu;
 
 namespace folia {
 
-  FoliaElement *FoliaImpl::createElement( const string& tag,
+  FoliaElement *AbstractElement::createElement( const string& tag,
 					  Document *doc ){
 
     ElementType et = BASE;
     try {
-      et = stringToET( tag );
+      et = stringToElementType( tag );
     }
     catch ( const ValueError& e ){
       cerr << e.what() << endl;
@@ -65,7 +65,7 @@ namespace folia {
     return el;
   }
 
-  FoliaElement *FoliaImpl::createElement( ElementType et,
+  FoliaElement *AbstractElement::createElement( ElementType et,
 					  Document *doc ){
     FoliaElement *el = private_createElement( et );
     if ( doc ){
@@ -194,6 +194,10 @@ namespace folia {
 	result += ",";
     }
     return result;
+  }
+
+  string KWargs::toString(){
+    return folia::toString( *this );
   }
 
   KWargs getAttributes( const xmlNode *node ){
@@ -445,7 +449,7 @@ namespace folia {
       if ( !s.empty() ){
 	ElementType et2;
 	try {
-	  et2 = stringToET( s );
+	  et2 = stringToElementType( s );
 	}
 	catch ( const ValueError& e ){
 	  cerr << "no element type found for string '" << s << "'" << endl;
@@ -460,7 +464,7 @@ namespace folia {
 	}
 	FoliaElement *tmp1 = 0;
 	try {
-	  tmp1 = FoliaImpl::createElement( s );
+	  tmp1 = AbstractElement::createElement( s );
 	}
 	catch( const ValueError &e ){
 	  string err = e.what();
@@ -472,7 +476,7 @@ namespace folia {
 	if ( sane && tmp1 ){
 	  FoliaElement *tmp2 = 0;
 	  try {
-	    tmp2 = FoliaImpl::createElement( et );
+	    tmp2 = AbstractElement::createElement( et );
 	  }
 	  catch( const ValueError &e ){
 	    string err = e.what();
@@ -507,6 +511,33 @@ namespace folia {
     return true;
   }
 
+  bool checkNS( const xmlNode *n, const string& ns ){
+    string tns = TiCC::getNS(n);
+    if ( tns == ns )
+      return true;
+    else
+      throw runtime_error( "namespace conflict for tag:" + TiCC::Name(n)
+			   + ", wanted:" + ns
+			   + " got:" + tns );
+    return false;
+  }
+
+  map<string,string> getNS_definitions( const xmlNode *node ){
+    map<string,string> result;
+    xmlNs *p = node->nsDef;
+    while ( p ){
+      string pre;
+      string val;
+      if ( p->prefix ){
+	pre = (char *)p->prefix;
+      }
+      val = (char *)p->href;
+      result[pre] = val;
+      p = p->next;
+    }
+    return result;
+  }
+
   UnicodeString normalize_spaces( const UnicodeString& input ){
     // substitute \n \r \t by spaces AND all multiple spaces by 1
     // also trims at back and front.
@@ -527,6 +558,17 @@ namespace folia {
     }
     result.trim(); // remove leading and trailing whitespace;
     return result;
+  }
+
+  string get_ISO_date() {
+    time_t Time;
+    time(&Time);
+    tm curtime;
+    localtime_r(&Time,&curtime);
+    char buf[256];
+    strftime( buf, 100, "%Y-%m-%dT%X", &curtime );
+    string res = buf;
+    return res;
   }
 
 } //namespace folia

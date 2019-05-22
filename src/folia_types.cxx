@@ -47,8 +47,12 @@ namespace folia {
     return result->second;
   }
 
-  AnnotationType::AnnotationType stringToAT( const string& st ){
+  AnnotationType::AnnotationType stringToAnnotationType( const string& st ){
     string s = st;
+    auto const tr = oldtags.find(st);
+    if ( tr != oldtags.end() ){
+      s = tr->second;
+    }
     auto result = s_ant_map.find( s );
     if ( result == s_ant_map.end() ){
       throw logic_error( "Unknown translation for annotationtype: '"
@@ -57,14 +61,37 @@ namespace folia {
     return result->second;
   }
 
-  AnnotatorType stringToANT( const string& str ){
+  AnnotatorType stringToAnnotatorType( const string& str ){
     string at = TiCC::uppercase( str );
     if ( at == "AUTO" )
       return folia::AUTO;
     else if ( at == "MANUAL" )
       return folia::MANUAL;
+    else if ( at == "GENERATOR" )
+      return folia::GENERATOR;
+    else if ( at == "DATASOURCE" )
+      return folia::DATASOURCE;
     else
       return folia::UNDEFINED;
+  }
+
+  string toString( const AnnotatorType& at ){
+    switch ( at ){
+    case AUTO:
+      return "auto";
+      break;
+    case MANUAL:
+      return "manual";
+      break;
+    case GENERATOR:
+      return "generator";
+      break;
+    case DATASOURCE:
+      return "datasource";
+      break;
+    default:
+      return "UNDEFINED";
+    }
   }
 
   string toString( const ElementType& et ) {
@@ -76,10 +103,11 @@ namespace folia {
     return result->second;
   }
 
-  ElementType stringToET( const string& intag ){
+  ElementType stringToElementType( const string& intag ){
     string tag = intag;
-    if ( tag == "listitem" ){ // erroneous in older FoLiA docs
-      tag = "item";
+    auto const tr = oldtags.find(intag);
+    if ( tr != oldtags.end() ){
+      tag = tr->second;
     }
     auto result = s_et_map.find(tag);
     if ( result == s_et_map.end() ){

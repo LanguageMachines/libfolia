@@ -25,8 +25,8 @@
 
 */
 
-#ifndef FOLIA_PROCESSOR_H
-#define FOLIA_PROCESSOR_H
+#ifndef FOLIA_ENGINE_H
+#define FOLIA_ENGINE_H
 
 #include <string>
 #include <set>
@@ -72,18 +72,27 @@ namespace folia {
     bool flush( FoliaElement * );
     bool finish();
     bool ok() const { return _ok; };
-    void declare( AnnotationType::AnnotationType,
+    void un_declare( const AnnotationType::AnnotationType&,
+		     const std::string& = "" );
+    void declare( const AnnotationType::AnnotationType&,
 		  const std::string&,
 		  const std::string& = "" );
-    bool is_declared( AnnotationType::AnnotationType,
+    void declare( const AnnotationType::AnnotationType&,
+		  const std::string&,
+		  const KWargs& );
+    bool is_declared( const AnnotationType::AnnotationType&,
 		      const std::string& = "" ) const;
-    void declare( AnnotationType::AnnotationType,
+    void declare( const AnnotationType::AnnotationType&,
+		  const std::string&, const std::string&, const std::string&,
 		  const std::string&, const std::string&,
-		  const std::string&, const std::string&,
+		  const std::set<std::string>&,
 		  const std::string& = "" );
-    bool is_declared( AnnotationType::AnnotationType,
+    bool is_declared( const AnnotationType::AnnotationType&,
 		      const std::string&, const std::string&,
-		      const std::string& ) const;
+		      const std::string&, const std::string& = "" ) const;
+    bool is_declared( const AnnotationType::AnnotationType&,
+		      const std::string&, const std::string&,
+		      const AnnotatorType&, const std::string& = "" ) const;
     void set_metadata( const std::string&, const std::string& );
     bool set_debug( bool d );
     void set_dbg_stream( TiCC::LogStream * );
@@ -141,4 +150,4 @@ namespace folia {
   };
 
 }
-#endif // FOLIA_PROCESSOR_H
+#endif // FOLIA_ENGINE_H

@@ -7,7 +7,7 @@ group: edge
 branches:
   only:
     - master
-    - foliareader
+    - folia2.0
 
 notifications:
   irc:
