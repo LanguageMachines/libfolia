@@ -4637,7 +4637,6 @@ namespace folia {
   }
 
   void TextMarkupReference::setAttributes( const KWargs& argsin ) {
-    cerr << "TextMarkupReference: " << argsin << endl;
     KWargs args = argsin;
     auto it = args.find( "id" );
     if ( it != args.end() ) {
