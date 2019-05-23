@@ -470,7 +470,7 @@ namespace folia {
 
     if ( xlink() ) {
       string type = "simple";
-      string val = kwargs.extract( "type" );
+      string val = kwargs.extract( "xlink:type" );
       if ( !val.empty() ) {
 	type = val;
       }
@@ -478,43 +478,43 @@ namespace folia {
 	throw XmlError( "only xlink:types: 'simple' and 'locator' are supported!" );
       }
       _xlink["type"] = type;
-      val = kwargs.extract( "href" );
+      val = kwargs.extract( "xlink:href" );
       if ( !val.empty() ) {
 	_xlink["href"] = val;
       }
       else if ( type == "locator" ){
 	throw XmlError( "xlink:type='locator' requires an 'xlink:href' attribute" );
       }
-      val = kwargs.extract( "role" );
+      val = kwargs.extract( "xlink:role" );
       if ( !val.empty() ) {
 	_xlink["role"] = val;
       }
-      val = kwargs.extract( "title" );
+      val = kwargs.extract( "xlink:title" );
       if ( !val.empty() ) {
 	_xlink["title"] = val;
       }
-      val = kwargs.extract( "label" );
+      val = kwargs.extract( "xlink:label" );
       if ( !val.empty() ) {
 	if ( type == "simple" ){
 	  throw XmlError( "xlink:type='simple' may not have an 'xlink:label' attribute" );
 	}
 	_xlink["label"] = val;
       }
-      val = kwargs.extract( "arcrole" );
+      val = kwargs.extract( "xlink:arcrole" );
       if ( !val.empty() ) {
 	if ( type == "locator" ){
 	  throw XmlError( "xlink:type='locator' may not have an 'xlink:arcrole' attribute" );
 	}
 	_xlink["arcrole"] = val;
       }
-      val = kwargs.extract( "show" );
+      val = kwargs.extract( "xlink:show" );
       if ( !val.empty() ) {
 	if ( type == "locator" ){
 	  throw XmlError( "xlink:type='locator' may not have an 'xlink:show' attribute" );
 	}
 	_xlink["show"] = val;
       }
-      val = kwargs.extract( "actuate" );
+      val = kwargs.extract( "xlink:actuate" );
       if ( !val.empty() ) {
 	if ( type == "locator" ){
 	  throw XmlError( "xlink:type='locator' may not have an 'xlink:actuate' attribute" );
@@ -4609,9 +4609,9 @@ namespace folia {
     }
     it = args.find( "type" );
     if ( it != args.end() ) {
-      if ( it->second != "simple" ){
+      // if ( it->second != "simple" ){
 	ref_type = it->second;
-      }
+	//      }
       args.erase( it );
     }
     it = args.find( "format" );
@@ -4627,9 +4627,9 @@ namespace folia {
     if ( !refId.empty() ){
       atts["id"] = refId;
     }
-    // if ( !ref_type.empty() ){
-    //   atts["type"] = ref_type;
-    // }
+    if ( !ref_type.empty() ){
+      atts["type"] = ref_type;
+    }
     if ( !_format.empty() && _format != "text/folia+xml" ) {
       atts["format"] = _format;
     }
@@ -4643,11 +4643,11 @@ namespace folia {
       refId = it->second;
       args.erase( it );
     }
-    // it = args.find( "type" );
-    // if ( it != args.end() ) {
-    //   ref_type = it->second;
-    //   args.erase( it );
-    // }
+    it = args.find( "type" );
+    if ( it != args.end() ) {
+      ref_type = it->second;
+      args.erase( it );
+    }
     it = args.find( "format" );
     if ( it != args.end() ) {
       _format = it->second;
