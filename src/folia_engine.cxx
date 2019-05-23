@@ -254,18 +254,6 @@ namespace folia {
       do {
 	string att = (const char*)xmlTextReaderConstName(tr);
 	string val = (const char*)xmlTextReaderConstValue(tr);
-	if ( att == "xlink:href" ){
-	  att = "href";
-	}
-	else if ( att == "xlink:type" ){
-	  att = "type";
-	}
-	else if ( att == "xlink:role" ){
-	  att = "role";
-	}
-	else if ( att == "xlink:title" ){
-	  att = "title";
-	}
 	result[att] = val;
       }
       while ( xmlTextReaderMoveToNextAttribute(tr) );

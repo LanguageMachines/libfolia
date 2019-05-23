@@ -1211,6 +1211,7 @@ namespace folia {
     static properties PROPS;
     std::string refId;
     std::string ref_type;
+    std::string _type;
     std::string _format;
   };
 

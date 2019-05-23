@@ -215,7 +215,7 @@ namespace folia {
 	  string pref = string( (const char*)a->ns->prefix);
 	  string att  = string( (const char*)a->name);
 	  if ( pref == "xlink" ){
-	    atts[att] = (char *)a->children->content;
+	    atts["xlink:"+att] = (char *)a->children->content;
 	  }
 	  // else {
 	  //   cerr << "attribute PREF=" << pref << endl;
