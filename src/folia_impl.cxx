@@ -1249,6 +1249,7 @@ namespace folia {
       throw logic_error( "FoLiA root without Document" );
     }
     setAttributes( atts );
+    bool meta_found = false;
     xmlNode *p = node->children;
     while ( p ){
       if ( p->type == XML_ELEMENT_NODE ){
@@ -1258,22 +1259,24 @@ namespace folia {
 	    cerr << "Found metadata" << endl;
 	  }
 	  doc()->parse_metadata( p );
+	  meta_found = true;
 	}
-	else {
-	  if ( p && TiCC::getNS(p) == NSFOLIA ){
-	    string tag = TiCC::Name( p );
-	    FoliaElement *t = AbstractElement::createElement( tag, doc() );
+	else if ( p && TiCC::getNS(p) == NSFOLIA ){
+	  string tag = TiCC::Name( p );
+	  if ( !meta_found  && !doc()->version_below(1,6) ){
+	    throw XmlError( "Expecting element metadata, got '" + tag + "'" );
+	  }
+	  FoliaElement *t = AbstractElement::createElement( tag, doc() );
+	  if ( t ){
+	    if ( doc()->debug > 2 ){
+	      cerr << "created " << t << endl;
+	    }
+	    t = t->parseXml( p );
 	    if ( t ){
 	      if ( doc()->debug > 2 ){
-		cerr << "created " << t << endl;
+		cerr << "extend " << this << " met " << tag << endl;
 	      }
-	      t = t->parseXml( p );
-	      if ( t ){
-		if ( doc()->debug > 2 ){
-		  cerr << "extend " << this << " met " << tag << endl;
-		}
-		this->append( t );
-	      }
+	      this->append( t );
 	    }
 	  }
 	}
@@ -2355,7 +2358,7 @@ namespace folia {
       KWargs kw;
       kw["xml:id"] = generateId( newId );
       if ( !doc()->declared( AnnotationType::ALTERNATIVE ) ){
-	doc()->declare( AnnotationType::ALTERNATIVE,"" );
+	doc()->declare( AnnotationType::ALTERNATIVE, "" );
       }
       Alternative *alt = new Alternative( kw, doc() );
       append( alt );
@@ -2367,7 +2370,7 @@ namespace folia {
   }
 
   PosAnnotation* AllowInlineAnnotation::getPosAnnotations( const string& st,
-					  vector<PosAnnotation*>& vec ) const {
+							   vector<PosAnnotation*>& vec ) const {
     PosAnnotation *res = 0;
     vec.clear();
     try {
@@ -3477,8 +3480,9 @@ namespace folia {
       for ( const auto& alt : alts ){
 	if ( alt->size() > 0 ) { // child elements?
 	  for ( size_t j =0; j < alt->size(); ++j ) {
-	    if ( alt->index(j)->element_id() == elt &&
-		 ( alt->sett().empty() || alt->sett() == st ) ) {
+	    auto hit = alt->index(j);
+	    if ( hit->element_id() == elt &&
+		 ( hit->sett().empty() || hit->sett() == st ) ) {
 	      res.push_back( alt ); // not the child!
 	    }
 	  }
