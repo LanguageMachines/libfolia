@@ -31,6 +31,7 @@
 #include "libfolia/folia_impl.h"
 #include "libfolia/folia_document.h"
 #include "libfolia/folia_builder.h"
-#include "libfolia/folia_processor.h"
+#include "libfolia/folia_engine.h"
+#include "libfolia/folia_provenance.h"
 
 #endif

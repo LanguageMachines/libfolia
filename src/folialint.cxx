@@ -60,6 +60,7 @@ int main( int argc, char* argv[] ){
   bool kanon = false;
   string debug;
   vector<string> fileNames;
+  string command;
   try {
     TiCC::CL_Options Opts( "hV",
 			   "nochecktext,debug:,permissive,strip,output:,nooutput,help,fixtext,warn,version,KANON");
@@ -74,6 +75,13 @@ int main( int argc, char* argv[] ){
       cout << "folialint version 0.5" << endl;
       cout << "based on [" << folia::VersionName() << "]" << endl;
       return EXIT_SUCCESS;
+    }
+    command = Opts.toString();
+    if ( !command.empty() ){
+      command = "folialint " + command;
+    }
+    else {
+      command = "folialint";
     }
     permissive = Opts.extract("permissive");
     warn = Opts.extract("warn");
@@ -142,6 +150,17 @@ int main( int argc, char* argv[] ){
       }
       cmd += mode;
       folia::Document d( cmd );
+      if ( !(kanon||strip) && !d.get_processor_by_name( "folialint" ) ){
+	folia::KWargs args;
+	args["name"] = "folialint";
+	args["id"] = "folialint";
+	args["generator"] = "yes";
+	args["begindatetime"] = "now()";
+	args["command"] = command;
+	folia::processor *proc = d.add_processor( args );
+	proc->get_system_defaults();
+	proc->set_metadata( "valid", "yes" );
+      }
       if ( !outputName.empty() ){
 	d.save( outputName, kanon );
       }

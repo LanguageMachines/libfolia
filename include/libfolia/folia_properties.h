@@ -29,6 +29,8 @@ namespace folia {
     std::string TEXTDELIMITER;
     bool PRINTABLE; // does text() work on this element
     bool SPEAKABLE; // does phon() work on this element
+    bool WREFABLE;  // can this element be refered to by a wref?
+    bool HIDDEN;
     bool XLINK;
     bool AUTH;
     bool SETONLY;
@@ -43,12 +45,16 @@ namespace folia {
   extern const std::map<std::string,ElementType> s_et_map;
   extern const std::map<AnnotationType::AnnotationType,std::string> ant_s_map;
   extern const std::map<std::string,AnnotationType::AnnotationType> s_ant_map;
+  extern const std::map<AnnotationType::AnnotationType, ElementType> annotationtype_elementtype_map;
+  extern const std::map<AnnotationType::AnnotationType,std::string> annotationtype_xml_map;
+  extern const std::map<std::string,std::string> oldtags;
 
   extern const std::set<ElementType> default_ignore;
   extern const std::set<ElementType> default_ignore_annotations;
   extern const std::set<ElementType> default_ignore_structure;
   extern const std::set<ElementType> AnnoExcludeSet;
   extern const std::set<ElementType> SpanSet;
+  extern const std::set<ElementType> wrefables;
 
   extern const int MAJOR_VERSION;
   extern const int MINOR_VERSION;
@@ -56,6 +62,8 @@ namespace folia {
   extern const std::string NSFOLIA;
   extern const std::string NSDCOI;
   extern const std::string NSIMDI;
+  extern const std::string DEFAULT_TEXT_SET;
+  extern const std::string DEFAULT_PHON_SET;
 
   void static_init();
   void print_type_hierarchy( std::ostream& );

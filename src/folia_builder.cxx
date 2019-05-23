@@ -48,13 +48,12 @@ namespace folia {
     FoliaElement *t;
     if ( dt == TEXT ){
       args["xml:id"] = id + ".text";
-      t = new Text( args );
+      t = _doc->setTextRoot( args );
     }
     else {
       args["xml:id"] = id + ".speech";
-      t = new Speech( args );
+      t = _doc->setSpeechRoot( args );
     }
-    _doc->setRoot( t );
     root_node = t;
   }
 
@@ -88,10 +87,10 @@ namespace folia {
     string data = ss.str();
     string::size_type pos1;
     if ( _doc_type == TEXT ){
-      pos1 = data.find("<text");
+      pos1 = min( data.find("<text>"), data.find("<text ") );
     }
     else {
-      pos1 = data.find("<speech");
+      pos1 = min( data.find("<speech>"), data.find("<speech ") );
     }
     string::size_type pos2;
     if ( root_node->size() == 0 ){

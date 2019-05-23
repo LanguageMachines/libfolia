@@ -25,8 +25,8 @@
 
 */
 
-#ifndef FOLIA_PROCESSOR_H
-#define FOLIA_PROCESSOR_H
+#ifndef FOLIA_ENGINE_H
+#define FOLIA_ENGINE_H
 
 #include <string>
 #include <set>
@@ -53,14 +53,14 @@ namespace folia {
 
   void print( std::ostream&, const xml_tree* );
 
-  class Processor {
+  class Engine {
   public:
     enum doctype { TEXT, SPEECH };
-    Processor();
-  Processor( const std::string& i, const std::string& o="" ):
-    Processor() { init_doc(i,o); };
+    Engine();
+  Engine( const std::string& i, const std::string& o="" ):
+    Engine() { init_doc(i,o); };
     virtual bool init_doc( const std::string&, const std::string& ="" );
-    virtual ~Processor();
+    virtual ~Engine();
     FoliaElement *get_node( const std::string& );
     bool next();
     void append_node( FoliaElement *, int );
@@ -72,25 +72,34 @@ namespace folia {
     bool flush( FoliaElement * );
     bool finish();
     bool ok() const { return _ok; };
-    void declare( AnnotationType::AnnotationType,
+    void un_declare( const AnnotationType::AnnotationType&,
+		     const std::string& = "" );
+    void declare( const AnnotationType::AnnotationType&,
 		  const std::string&,
 		  const std::string& = "" );
-    bool is_declared( AnnotationType::AnnotationType,
+    void declare( const AnnotationType::AnnotationType&,
+		  const std::string&,
+		  const KWargs& );
+    bool is_declared( const AnnotationType::AnnotationType&,
 		      const std::string& = "" ) const;
-    void declare( AnnotationType::AnnotationType,
+    void declare( const AnnotationType::AnnotationType&,
+		  const std::string&, const std::string&, const std::string&,
 		  const std::string&, const std::string&,
-		  const std::string&, const std::string&,
+		  const std::set<std::string>&,
 		  const std::string& = "" );
-    bool is_declared( AnnotationType::AnnotationType,
+    bool is_declared( const AnnotationType::AnnotationType&,
 		      const std::string&, const std::string&,
-		      const std::string& ) const;
+		      const std::string&, const std::string& = "" ) const;
+    bool is_declared( const AnnotationType::AnnotationType&,
+		      const std::string&, const std::string&,
+		      const AnnotatorType&, const std::string& = "" ) const;
     void set_metadata( const std::string&, const std::string& );
     bool set_debug( bool d );
     void set_dbg_stream( TiCC::LogStream * );
-    Document *doc() { return _out_doc; };
+    Document *doc( bool=false ); // returns the doc. may disconnect
     xml_tree *create_simple_tree( const std::string& ) const;
   protected:
-    xmlTextReader *_in_doc;
+    xmlTextReader *_reader;
     Document *_out_doc;
     FoliaElement *_root_node;
     FoliaElement *_external_node;
@@ -104,20 +113,25 @@ namespace folia {
     std::string _footer;
     std::string _out_name;
     std::string ns_prefix;
-    bool _paused;
     bool _header_done;
     bool _finished;
     bool _ok;
     bool _done;
     bool _debug;
     bool _text_context;
+
+    FoliaElement *handle_match( const std::string&, int );
+    void handle_element( const std::string&, int, bool );
+    void add_default_node( int );
+    void add_comment( int );
+    void add_text( int );
   };
 
-  class TextProcessor: public Processor {
+  class TextEngine: public Engine {
   public:
-  TextProcessor(): Processor(){};
-  TextProcessor( const std::string& i, const std::string& o="" ):
-    TextProcessor(){
+  TextEngine(): Engine(){};
+  TextEngine( const std::string& i, const std::string& o="" ):
+    TextEngine(){
       init_doc( i, o );
     }
     bool init_doc( const std::string&, const std::string& ="" );
@@ -136,4 +150,4 @@ namespace folia {
   };
 
 }
-#endif // FOLIA_PROCESSOR_H
+#endif // FOLIA_ENGINE_H

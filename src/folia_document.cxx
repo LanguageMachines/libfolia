@@ -27,14 +27,9 @@
 #include <cstdlib>
 #include <iostream>
 #include <fstream>
-#include <sstream>
 #include <string>
-#include <bitset>
-#include <set>
-#include <list>
 #include <vector>
 #include <map>
-#include <algorithm>
 #include <stdexcept>
 #include "config.h"
 #include "ticcutils/PrettyPrint.h"
@@ -52,42 +47,16 @@ using namespace icu;
 namespace folia {
   using TiCC::operator<<;
 
-  void initMT(){
-    // a NO_OP now
-  }
-
-  bool checkNS( const xmlNode *n, const string& ns ){
-    string tns = TiCC::getNS(n);
-    if ( tns == ns )
-      return true;
-    else
-      throw runtime_error( "namespace conflict for tag:" + TiCC::Name(n)
-			   + ", wanted:" + ns
-			   + " got:" + tns );
-    return false;
-  }
-
-  map<string,string> getNS_definitions( const xmlNode *node ){
-    map<string,string> result;
-    xmlNs *p = node->nsDef;
-    while ( p ){
-      string pre;
-      string val;
-      if ( p->prefix ){
-	pre = (char *)p->prefix;
-      }
-      val = (char *)p->href;
-      result[pre] = val;
-      p = p->next;
-    }
-    return result;
+  inline std::ostream& operator<<( std::ostream& os, const Document::at_t& at ){
+    os << "<" << at.a << "," << TiCC::toString(at.t) << "," << at.d << "," << at.p << ">";
+    return os;
   }
 
   Document::Document(){
     init();
   }
 
-  Document::Document( const KWargs& kwargs ) {
+  void Document::init_args( const KWargs& kwargs ){
     init();
     KWargs args = kwargs;
     auto it = args.find( "debug" );
@@ -104,20 +73,20 @@ namespace folia {
     it = args.find( "file" );
     if ( it != args.end() ){
       // extract a Document from a file
-      readFromFile( it->second );
+      read_from_file( it->second );
       args.erase(it);
     }
     else {
       it = args.find( "string" );
       if ( it != args.end() ){
 	// extract a Document from a string
-	readFromString( it->second );
+	read_from_string( it->second );
 	args.erase(it);
       }
     }
     if ( !foliadoc ){
       // so NO 'file' or 'string' argument.
-      // (readFromFile/readFromString throw on error)
+      // (read_from_file/read_from_string throw on error)
       // create an 'empty' document, with a FoLiA root node.
       it = args.find( "version" );
       if ( it == args.end() ){
@@ -126,6 +95,18 @@ namespace folia {
       }
       foliadoc = new FoLiA( args, this );
     }
+  }
+
+  Document::Document( const KWargs& kwargs ) {
+    init_args( kwargs );
+  }
+
+  Document::Document( const string& s ) {
+    KWargs args = getArgs(s);
+    if ( args.empty() ){
+      args["file"] = s;
+    }
+    init_args( args );
   }
 
   string folia_version(){
@@ -154,6 +135,7 @@ namespace folia {
 
   void Document::init(){
     _metadata = 0;
+    _provenance = 0;
     _xmldoc = 0;
     foliadoc = 0;
     _foliaNsIn_href = 0;
@@ -174,42 +156,56 @@ namespace folia {
     sindex.clear();
     iindex.clear();
     delete foliadoc;
+    set<FoliaElement*> bulk;
     for ( const auto& it : delSet ){
+      it->unravel( bulk );
+    }
+    for ( const auto& it : bulk ){
       delete it;
     }
     delete _metadata;
     for ( const auto& it : submetadata ){
       delete it.second;
     }
+    delete _provenance;
   }
 
   bool operator==( const Document& d1, const Document& d2 ){
-    if ( d1.data.size() != d2.data.size() )
+    if ( d1.data.size() != d2.data.size() ){
       return false;
+    }
     for ( size_t i = 0; i < d1.data.size(); ++i ){
-      if ( *d1.data[i] != *d2.data[i] )
+      if ( *d1.data[i] != *d2.data[i] ){
 	return false;
+      }
     }
     return true;
   }
 
   bool operator==( const FoliaElement& a1, const FoliaElement& a2){
-    if ( a1.element_id() != a2.element_id() )
+    if ( a1.element_id() != a2.element_id() ){
       return false;
-    if ( a1.id() != a2.id() )
+    }
+    if ( a1.id() != a2.id() ){
       return false;
-    if ( a1.sett() != a2.sett() )
+    }
+    if ( a1.sett() != a2.sett() ){
       return false;
-    if ( a1.cls() != a2.cls() )
+    }
+    if ( a1.cls() != a2.cls() ){
       return false;
-    if ( a1.annotator() != a2.annotator() )
+    }
+    if ( a1.annotator() != a2.annotator() ){
       return false;
-    if ( a1.annotatortype() != a2.annotatortype() )
+    }
+    if ( a1.annotatortype() != a2.annotatortype() ){
       return false;
+    }
     if ( a1.size() == a2.size() ) {
       for ( size_t i = 0; i < a1.size(); ++i ){
-	if ( *a1.index(i) != *a2.index(i) )
+	if ( *a1.index(i) != *a2.index(i) ){
 	  return false;
+	}
       }
     }
     return true;
@@ -222,8 +218,23 @@ namespace folia {
       if ( mod == "permissive" ){
 	mode = Mode( (int)mode | PERMISSIVE );
       }
+      else if ( mod == "nopermissive" ){
+	mode = Mode( (int)mode & ~PERMISSIVE );
+      }
       else if ( mod == "strip" ){
 	mode = Mode( (int)mode | STRIP );
+      }
+      else if ( mod == "nostrip" ){
+	mode = Mode( (int)mode & ~STRIP );
+      }
+      else if ( mod == "kanon" ){
+	mode = Mode( (int)mode | KANON );
+      }
+      else if ( mod == "nokanon" ){
+	mode = Mode( (int)mode & ~KANON );
+      }
+      else if ( mod == "checktext" ){
+	mode = Mode( int(mode) | CHECKTEXT );
       }
       else if ( mod == "nochecktext" ){
 	mode = Mode( int(mode) & ~CHECKTEXT );
@@ -231,8 +242,11 @@ namespace folia {
       else if ( mod == "fixtext" ){
 	mode = Mode( int(mode) | FIXTEXT );
       }
+      else if ( mod == "nofixtext" ){
+	mode = Mode( int(mode) & ~FIXTEXT );
+      }
       else {
-	throw runtime_error( "FoLiA::Document: unsupported mode value: "+ mod );
+	throw invalid_argument( "FoLiA::Document: unsupported mode value: "+ mod );
       }
     }
   }
@@ -251,10 +265,70 @@ namespace folia {
     if ( mode & FIXTEXT ){
       result += "fixtext,";
     }
+    if ( mode & KANON ){
+      result += "kanon,";
+    }
     return result;
   }
 
-  void Document::addDocIndex( FoliaElement* el, const string& s ){
+  bool Document::set_strip( bool new_val ) const{
+    bool old_val = (mode & STRIP);
+    if ( new_val ){
+      mode = Mode( (int)mode | STRIP );
+    }
+    else {
+      mode = Mode( (int)mode & ~STRIP );
+    }
+    return old_val;
+  }
+
+  bool Document::set_permissive( bool new_val ) const{
+    bool old_val = (mode & PERMISSIVE);
+    if ( new_val ){
+      mode = Mode( (int)mode | PERMISSIVE );
+    }
+    else {
+      mode = Mode( (int)mode & ~PERMISSIVE );
+    }
+    return old_val;
+  }
+
+  bool Document::set_checktext( bool new_val ) const{
+    bool old_val = (mode & CHECKTEXT);
+    if ( new_val ){
+      mode = Mode( (int)mode | CHECKTEXT );
+    }
+    else {
+      mode = Mode( (int)mode & ~CHECKTEXT );
+    }
+    return old_val;
+  }
+
+
+  bool Document::set_fixtext( bool new_val ) const{
+    bool old_val = (mode & FIXTEXT);
+    if ( new_val ){
+      mode = Mode( (int)mode | FIXTEXT );
+    }
+    else {
+      mode = Mode( (int)mode & ~FIXTEXT );
+    }
+    return old_val;
+  }
+
+  bool Document::set_kanon( bool new_val ) const{
+    bool old_val = (mode & KANON);
+    if ( new_val ){
+      mode = Mode( (int)mode | KANON );
+    }
+    else {
+      mode = Mode( (int)mode & ~KANON );
+    }
+    return old_val;
+  }
+
+
+  void Document::add_doc_index( FoliaElement* el, const string& s ){
     if ( s.empty() ) {
       return;
     }
@@ -268,7 +342,7 @@ namespace folia {
     }
   }
 
-  void Document::delDocIndex( const FoliaElement* el, const string& s ){
+  void Document::del_doc_index( const FoliaElement* el, const string& s ){
     if ( sindex.empty() ){
       // only when ~Document is in progress
       return;
@@ -305,19 +379,19 @@ namespace folia {
     return;
   }
 
-  bool Document::readFromFile( const string& s ){
+  bool Document::read_from_file( const string& s ){
     ifstream is( s );
     if ( !is.good() ){
-      throw runtime_error( "file not found: " + s );
+      throw invalid_argument( "file not found: " + s );
     }
     if ( foliadoc ){
-      throw runtime_error( "Document is already initialized" );
+      throw logic_error( "Document is already initialized" );
       return false;
     }
     _source_filename = s;
     if ( TiCC::match_back( s, ".bz2" ) ){
       string buffer = TiCC::bz2ReadFile( s );
-      return readFromString( buffer );
+      return read_from_string( buffer );
     }
     int cnt = 0;
     xmlSetStructuredErrorFunc( &cnt, (xmlStructuredErrorFunc)error_sink );
@@ -328,10 +402,12 @@ namespace folia {
       if ( cnt > 0 ){
 	throw XmlError( "document is invalid" );
       }
-      if ( debug )
+      if ( debug ){
 	cout << "read a doc from " << s << endl;
+      }
       foliadoc = parseXml();
       if ( !validate_offsets() ){
+	// cannot happen. validate_offsets() throws on error
 	throw InconsistentText("MEH");
       }
       if ( debug ){
@@ -346,14 +422,15 @@ namespace folia {
       _xmldoc = 0;
       return foliadoc != 0;
     }
-    if ( debug )
+    if ( debug ){
       cout << "Failed to read a doc from " << s << endl;
+    }
     throw XmlError( "No valid FoLiA read" );
   }
 
-  bool Document::readFromString( const string& s ){
+  bool Document::read_from_string( const string& s ){
     if ( foliadoc ){
-      throw runtime_error( "Document is already initialized" );
+      throw logic_error( "Document is already initialized" );
       return false;
     }
     int cnt = 0;
@@ -364,32 +441,36 @@ namespace folia {
       if ( cnt > 0 ){
 	throw XmlError( "document is invalid" );
       }
-      if ( debug )
+      if ( debug ){
 	cout << "read a doc from string" << endl;
+      }
       foliadoc = parseXml();
       if ( !validate_offsets() ){
+	// cannot happen. validate_offsets() throws on error
 	throw InconsistentText("MEH");
       }
       if ( debug ){
 	if ( foliadoc ){
 	  cout << "successful parsed the doc" << endl;
 	}
-	else
+	else{
 	  cout << "failed to parse the doc" << endl;
+	}
       }
       xmlFreeDoc( _xmldoc );
       _xmldoc = 0;
       return foliadoc != 0;
     }
-    if ( debug )
-      cout << "Failed to read a doc from a string" << endl;
+    if ( debug ){
+      throw runtime_error( "Failed to read a doc from a string" );
+    }
     return false;
   }
 
   ostream& operator<<( ostream& os, const Document *d ){
     if ( d ){
-      string s = d->toXml( "", d->strip() );
-      os << s << endl;
+      os << d->toXml( "" );
+      // the toXml() string already ends with a newline (i hope....)
     }
     else {
       os << "MISSING DOCUMENT" << endl;
@@ -398,36 +479,40 @@ namespace folia {
   }
 
   bool Document::save( ostream& os, const string& nsLabel, bool kanon ) const {
-    string s = toXml( nsLabel, ( kanon || strip() ) );
-    os << s << endl;
+    bool old_k = set_kanon(kanon);
+    os << toXml( nsLabel );
+    set_kanon(old_k);
+    // the toXml() string already ends with a newline (i hope....)
     return os.good();
   }
 
   bool Document::save( const string& fn, const string& nsLabel, bool kanon ) const {
+    bool old_k = set_kanon(kanon);
+    bool result = false;
     try {
       if ( TiCC::match_back( fn, ".bz2" ) ){
 	string tmpname = fn.substr( 0, fn.length() - 3 ) + "tmp";
-	if ( toXml( tmpname, nsLabel, ( kanon || strip() ) ) ){
+	if ( toXml( tmpname, nsLabel ) ){
 	  bool stat = TiCC::bz2Compress( tmpname, fn );
 	  remove( tmpname.c_str() );
-	  return stat;
-	}
-	else {
-	  return false;
+	  result = stat;
 	}
       }
       else {
-	return toXml( fn, nsLabel,  ( kanon || strip() ) );
+	result = toXml( fn, nsLabel );
       }
     }
     catch ( const exception& e ){
       throw runtime_error( "saving to file " + fn + " failed: " + e.what() );
-      return false;
     }
+    set_kanon( old_k );
+    return result;
   }
 
   string Document::xmlstring( bool k ) const {
-    xmlDoc *outDoc = to_xmlDoc( "", k );
+    bool old_k = set_kanon(k);
+    xmlDoc *outDoc = to_xmlDoc( "" );
+    set_kanon(old_k);
     xmlChar *buf; int size;
     xmlDocDumpFormatMemoryEnc( outDoc, &buf, &size, "UTF-8", 0 ); // no formatting
     string result = string( (const char *)buf, size );
@@ -438,18 +523,20 @@ namespace folia {
   }
 
   int Document::size() const {
-    if ( foliadoc )
+    if ( foliadoc ){
       return foliadoc->size();
-    else
-      return 0;
+    }
+    return 0;
   }
 
   FoliaElement* Document::index( const string& s ) const {
     const auto& it = sindex.find( s );
-    if ( it == sindex.end() )
+    if ( it == sindex.end() ){
       return 0;
-    else
+    }
+    else {
       return it->second;
+    }
   }
 
   FoliaElement* Document::operator []( const string& s ) const {
@@ -457,16 +544,23 @@ namespace folia {
   }
 
   FoliaElement* Document::operator []( size_t i ) const {
-    if ( i < iindex.size()-1 )
+    if ( i < iindex.size()-1 ){
       return iindex[i+1];
-    else
-      throw range_error( "Document index out of range" );
+    }
+    throw range_error( "Document index out of range" );
   }
 
   UnicodeString Document::text( const std::string& cls,
 				bool retaintok,
 				bool strict ) const {
-    return foliadoc->text( cls, retaintok, strict );
+    TEXT_FLAGS flags = TEXT_FLAGS::NONE;
+    if ( retaintok ){
+      flags = flags | TEXT_FLAGS::RETAIN;
+    }
+    if ( strict ){
+      flags = flags | TEXT_FLAGS::STRICT;
+    }
+    return foliadoc->text( cls, flags );
   }
 
   vector<Paragraph*> Document::paragraphs() const {
@@ -490,8 +584,7 @@ namespace folia {
     if ( index < v.size() ){
       return v[index];
     }
-    else
-      throw range_error( "sentences() index out of range" );
+    throw range_error( "sentences() index out of range" );
   }
 
   Sentence *Document::rsentences( size_t index ) const {
@@ -499,8 +592,7 @@ namespace folia {
     if ( index < v.size() ){
       return v[v.size()-1-index];
     }
-    else
-      throw range_error( "rsentences() index out of range" );
+    throw range_error( "rsentences() index out of range" );
   }
 
   vector<Word*> Document::words() const {
@@ -512,8 +604,7 @@ namespace folia {
     if ( index < v.size() ){
       return v[index];
     }
-    else
-      throw range_error( "words() index out of range" );
+    throw range_error( "words() index out of range" );
   }
 
   Word *Document::rwords( size_t index ) const {
@@ -521,8 +612,7 @@ namespace folia {
     if ( index < v.size() ){
       return v[v.size()-1-index];
     }
-    else
-      throw range_error( "rwords() index out of range" );
+    throw range_error( "rwords() index out of range" );
   }
 
   Paragraph *Document::paragraphs( size_t index ) const {
@@ -530,8 +620,7 @@ namespace folia {
     if ( index < v.size() ){
       return v[index];
     }
-    else
-      throw range_error( "paragraphs() index out of range" );
+    throw range_error( "paragraphs() index out of range" );
   }
 
   Paragraph *Document::rparagraphs( size_t index ) const {
@@ -539,8 +628,7 @@ namespace folia {
     if ( index < v.size() ){
       return v[v.size()-1-index];
     }
-    else
-      throw range_error( "rparagraphs() index out of range" );
+    throw range_error( "rparagraphs() index out of range" );
   }
 
   std::string Document::language() const {
@@ -551,14 +639,14 @@ namespace folia {
     return result;
   }
 
-  std::string Document::metadatatype() const {
+  std::string Document::metadata_type() const {
     if ( _metadata ){
       return _metadata->type();
     }
     return "native";
   }
 
-  std::string Document::metadatafile() const {
+  std::string Document::metadata_file() const {
     if ( _metadata && _metadata->datatype() == "ExternalMetaData" ){
       return _metadata->src();
     }
@@ -605,6 +693,114 @@ namespace folia {
     return _metadata->get_val( type );
   }
 
+  processor *Document::get_default_processor() const {
+    if ( _provenance ){
+      return _provenance->get_top_processor();
+    }
+    else {
+      return 0;
+    }
+  }
+
+  processor *Document::get_processor( const string& pid ) const {
+    if ( _provenance ){
+      return _provenance->get_processor( pid );
+    }
+    else {
+      return 0;
+    }
+  }
+
+  processor *Document::get_processor_by_name( const string& name ) const {
+    if ( _provenance ){
+      return _provenance->get_processor_by_name( name );
+    }
+    else {
+      return 0;
+    }
+  }
+
+  processor *Document::add_processor( const KWargs& _args,
+				      processor *parent ){
+    KWargs args = _args;
+    if ( debug ){
+      cerr << "ADD_PROCESSOR: " << args << endl;
+    }
+    if ( !parent ){
+      if ( !_provenance ){
+	_provenance = new Provenance();
+      }
+    }
+    auto it = args.find( "id" );
+    if ( it == args.end() ){
+      it = args.find( "xml:id" );
+      if ( it == args.end() ){
+	throw runtime_error( "cannot create a processor: missing 'xml:id' argument" );
+      }
+    }
+    string pid = it->second;
+    if ( pid == "next()" ){
+      if ( debug ){
+	cerr << "CALCULATE NEXT" << endl;
+      }
+      if ( parent ){
+	if ( !parent->processors().empty() ){
+	  string prev_id = parent->processors().back()->id();
+	  if ( debug ){
+	    cerr << "prev id = " << prev_id << endl;
+	  }
+	  vector<string> v = TiCC::split_at( prev_id, "." );
+	  int val;
+	  if ( TiCC::stringTo( v.back(), val ) ){
+	    v.back() = TiCC::toString(++val);
+	  }
+	  else {
+	    // not a number, just add .1 then, and pray
+	    v.back() += ".1";
+	  }
+	  pid.clear();
+	  for ( const auto& it :  v ){
+	    pid += it + ".";
+	  }
+	  pid.pop_back();
+	}
+	else {
+	  pid = parent->id() + ".1";
+	}
+	if ( debug ){
+	  cerr << "next pid =" << pid << endl;
+	}
+      }
+      else {
+	throw runtime_error( "processor id=next() impossible. No parent" );
+      }
+    }
+    processor *p = get_processor( pid );
+    if ( p ){
+      throw DuplicateIDError( "processor '" + pid + "' already exist" );
+    }
+    args["xml:id"] = pid;
+    p = new processor( args );
+    _provenance->add_index(p);
+    if ( args.find("generator") != args.end() ){
+      // we automagicly add a subprocessor.
+      processor *sub = new processor();
+      sub->_folia_version = folia_version();
+      sub->_version = library_version();
+      sub->_id = p->_id + ".generator";
+      sub->_type = GENERATOR;
+      sub->_name = "libfolia";
+      p->_processors.push_back(sub);
+    }
+    if ( parent ){
+      parent->_processors.push_back( p );
+    }
+    else {
+      _provenance->processors.push_back( p );
+    }
+    return p;
+  }
+
   void Document::set_foreign_metadata( xmlNode *node ){
     if ( !_metadata ){
       _metadata = new ForeignMetaData( "foreign" );
@@ -630,53 +826,166 @@ namespace folia {
     }
   }
 
-  void Document::parseannotations( const xmlNode *node ){
+  void Document::parse_annotations( const xmlNode *node ){
+    if ( debug ){
+      cerr << "parse annotations " << TiCC::Name(node) << endl;
+    }
     xmlNode *n = node->children;
     _anno_sort.clear();
     while ( n ){
       string tag = TiCC::Name( n );
       if ( tag.length() > 11 && tag.substr( tag.length() - 11 ) == "-annotation" ){
 	string prefix = tag.substr( 0,  tag.length() - 11 );
-	AnnotationType::AnnotationType type = stringToAT( prefix );
-	KWargs att = getAttributes( n );
-	string s;
-	string a;
-	string t;
-	string d;
+	AnnotationType::AnnotationType at_type
+	  = TiCC::stringTo<AnnotationType::AnnotationType>( prefix );
+	if ( debug ){
+	  cerr << "parse " << prefix << "-annotation" << endl;
+	}
+	KWargs atts = getAttributes( n );
+	string st;
+	string annotator;
+	string ann_type;
+	string format;
+	string datetime;
 	string alias;
-	auto it = att.find("set" );
-	if ( it != att.end() ){
-	  s = it->second;
+	ElementType et = BASE;
+	auto it = atts.find("set" );
+	if ( it != atts.end() ){
+	  st = it->second;
+	  if ( debug ){
+	    cerr << "found a def: " << st << endl;
+	  }
 	}
 	else if ( version_below( 1, 6 ) ){
-	  s = "undefined"; // default value
+	  st = "undefined"; // default value
+	}
+	else if ( at_type == AnnotationType::TEXT ){
+	  if ( debug ){
+	    cerr << "assign default for TEXT: " <<  DEFAULT_TEXT_SET << endl;
+	  }
+	  st = DEFAULT_TEXT_SET;
+	}
+	else if ( at_type == AnnotationType::PHON ){
+	  if ( debug ){
+	    cerr << "assign default for PHON: " <<  DEFAULT_PHON_SET << endl;
+	  }
+	  st = DEFAULT_PHON_SET;
 	}
 	else {
-	  throw XmlError( "setname may not be empty for " + prefix
-			  + "-annotation" );
+	  auto et_it = annotationtype_elementtype_map.find( at_type );
+	  if ( et_it == annotationtype_elementtype_map.end() ){
+	    throw logic_error( "no matching element_type for annotation_type: "
+			       + prefix );
+	  }
+	  et = et_it->second;
+	  FoliaElement *tmp = AbstractElement::createElement( et );
+	  if ( tmp->required_attributes() & Attrib::CLASS ) {
+	    delete tmp;
+	    throw XmlError( "setname may not be empty for " + prefix
+			    + "-annotation" );
+	  }
+	  delete tmp;
 	}
-	it = att.find( "annotator" );
-	if ( it != att.end() )
-	  a = it->second;
-	it = att.find( "annotatortype" );
-	if ( it != att.end() ){
-	  t = it->second;
+	// done with the set
+	if ( it != atts.end() ){
+	  atts.erase(it);
 	}
-	it = att.find( "datetime" );
-	if ( it != att.end() ){
-	  d = parseDate( it->second );
+	it = atts.find( "format" );
+	if ( it != atts.end() ){
+	  format = it->second;
+	  atts.erase(it);
 	}
-	it = att.find( "alias" );
-	if ( it != att.end() ){
+	it = atts.find( "annotator" );
+	if ( it != atts.end() ){
+	  annotator = it->second;
+	  atts.erase(it);
+	}
+	it = atts.find( "annotatortype" );
+	if ( it != atts.end() ){
+	  ann_type = it->second;
+	  atts.erase(it);
+	}
+	it = atts.find( "datetime" );
+	if ( it != atts.end() ){
+	  datetime = parseDate( it->second );
+	  atts.erase(it);
+	}
+	it = atts.find( "alias" );
+	if ( it != atts.end() ){
 	  alias = it->second;
+	  atts.erase(it);
 	}
-	declare( type, s, a, t, d, alias );
+	it = atts.find( "groupannotations" );
+	if ( it != atts.end() ){
+	  if ( !isSubClass( et, AbstractSpanAnnotation_t ) ){
+	    throw XmlError( "attribute 'groupannotations' not allowed for '"
+			    + prefix + "-annotation" );
+	  }
+	  if ( it->second == "yes"
+	       || it->second == "true" ){
+	    _groupannotations[at_type][st] = true;
+	  }
+	  else {
+	    throw XmlError( "invalid value '" + it->second
+			    + "' for attribute groupannotations" );
+	  }
+	  atts.erase(it);
+	}
+	else {
+	  _groupannotations[at_type][st] = false;
+	}
+	set<string> processors;
+	xmlNode *sub = n->children;
+	while ( sub ){
+	  string subtag = TiCC::Name( sub );
+	  if ( debug ){
+	    cerr << "parse subtag:" << subtag << endl;
+	  }
+	  if ( subtag == "annotator" ){
+	    KWargs args = getAttributes( sub );
+	    if ( args["processor"].empty() ){
+	      throw XmlError( tag + "-annotation: <annotator> misses attribute 'processor'" );
+	    }
+	    processors.insert( args["processor"] );
+	  }
+	  sub = sub->next;
+	}
+	if ( !annotator.empty() && !processors.empty() ){
+	  throw XmlError( tag + "-annotation: has both <annotator> node(s) and annotator attribute." );
+	}
+	declare( at_type, st, format, annotator, ann_type, datetime,
+		 processors, alias );
+	if ( !atts.empty() ){
+
+	  throw XmlError( "found invalid attribute(s) in <" + prefix
+			  + "-declaration> " + atts.toString() );
+	}
       }
       n = n->next;
     }
+    if ( debug ){
+      cerr << "all group annotations: " << _groupannotations << endl;
+    }
+    if ( debug ){
+      cerr << "done with parse_annotation: " << _annotationdefaults << endl;
+      cerr << "sorting: " << _anno_sort << endl;
+    }
   }
 
-  void Document::parsesubmeta( const xmlNode *node ){
+  void Document::parse_provenance( const xmlNode *node ){
+    Provenance *result = new Provenance();
+    xmlNode *n = node->children;
+    while ( n ){
+      string tag = TiCC::Name( n );
+      if ( tag == "processor" ){
+	result->processors.push_back( result->parse_processor(n) );
+      }
+      n = n->next;
+    }
+    _provenance = result;
+  }
+
+  void Document::parse_submeta( const xmlNode *node ){
     if ( node ){
       KWargs att = getAttributes( node );
       string id = att["xml:id"];
@@ -843,6 +1152,7 @@ namespace folia {
     const char *env = getenv( "FOLIA_TEXT_CHECK" );
     if ( env ){
       string e = env;
+      delete env;
       cerr << "DETECTED FOLIA_TEXT_CHECK environment variable, value ='"
 	   << e << "'"<< endl;
       if ( e == "NO" ){
@@ -885,7 +1195,11 @@ namespace folia {
 			   sub_version,
 			   patch_version );
     if ( check_version( _version_string ) > 0 ){
-      cerr << "WARNING!!! the Document is created for newer FoLiA version than this library ("
+      cerr << "WARNING!!! the Document "
+	   << (_source_filename.empty()?"":"'")
+	   << _source_filename
+	   << (_source_filename.empty()?"":"' ")
+	   << "is created for newer FoLiA version than this library ("
 	   << _version_string << " vs " << folia_version()
 	   << ")\n\t Any possible subsequent failures in parsing or processing may probably be attributed to this." << endl
 	   << "\t Please upgrade libfolia!" << endl;
@@ -909,9 +1223,7 @@ namespace folia {
 	_id = it->second;
       }
       else {
-	throw XmlError( "'"
-			+ it->second
-			+ "' is not a valid NCName." );
+	throw XmlError( "'" + it->second + "' is not a valid NCName." );
       }
       happy = true;
     }
@@ -929,59 +1241,6 @@ namespace folia {
     }
   }
 
-  void FoLiA::setAttributes( const KWargs& args ){
-    KWargs atts = args;
-    // we store some attributes in the document itself
-    mydoc->setDocumentProps( atts );
-    // use remaining attributes for the FoLiA node
-    // probably only the ID
-    FoliaImpl::setAttributes( atts );
-  }
-
-  FoliaElement* FoLiA::parseXml( const xmlNode *node ){
-    ///
-    /// recursively parse a complete FoLiA tree from @node
-    /// the topnode is special, as it carries the main document properties
-    ///
-    KWargs atts = getAttributes( node );
-    if ( !mydoc ){
-      throw logic_error( "FoLiA root without Document" );
-    }
-    setAttributes( atts );
-    xmlNode *p = node->children;
-    while ( p ){
-      if ( p->type == XML_ELEMENT_NODE ){
-	if ( TiCC::Name(p) == "metadata" &&
-	     checkNS( p, NSFOLIA ) ){
-	  if ( mydoc->debug > 1 ){
-	    cerr << "Found metadata" << endl;
-	  }
-	  mydoc->parse_metadata( p );
-	}
-	else {
-	  if ( p && TiCC::getNS(p) == NSFOLIA ){
-	    string tag = TiCC::Name( p );
-	    FoliaElement *t = FoliaImpl::createElement( tag, mydoc );
-	    if ( t ){
-	      if ( mydoc->debug > 2 ){
-		cerr << "created " << t << endl;
-	      }
-	      t = t->parseXml( p );
-	      if ( t ){
-		if ( mydoc->debug > 2 ){
-		  cerr << "extend " << this << " met " << tag << endl;
-		}
-		this->append( t );
-	      }
-	    }
-	  }
-	}
-      }
-      p = p->next;
-    }
-    return this;
-  }
-
   void Document::parse_metadata( const xmlNode *p ){
     MetaData *result = 0;
     KWargs atts = getAttributes( p );
@@ -997,10 +1256,12 @@ namespace folia {
       result = new NativeMetaData( type );
     }
     xmlNode *m = p->children;
+    xmlNode *a_node = 0;
     while ( m ){
       if ( TiCC::Name(m)  == "METATRANSCRIPT" ){
-	if ( !checkNS( m, NSIMDI ) || type != "imdi" )
+	if ( !checkNS( m, NSIMDI ) || type != "imdi" ){
 	  throw runtime_error( "imdi != imdi " );
+	}
 	if ( debug > 1 ){
 	  cerr << "found IMDI" << endl;
 	}
@@ -1014,12 +1275,21 @@ namespace folia {
 	if ( debug > 1 ){
 	  cerr << "found annotations" << endl;
 	}
-	parseannotations( m );
+	// defer parsing until AFTER provenance data
+	a_node = m;
+      }
+      else if ( TiCC::Name( m ) == "provenance" &&
+		checkNS( m, NSFOLIA ) ){
+	if ( debug > 1 ){
+	  cerr << "found provenance data" << endl;
+	}
+	parse_provenance( m );
+	//	cerr << _provenance << endl;
       }
       else if ( TiCC::Name( m ) == "meta" &&
 		checkNS( m, NSFOLIA ) ){
 	if ( debug > 1 ){
-	  cerr << "found meta node" << endl;
+	  cerr << "found meta node:" << getAttributes(m) << endl;
 	}
 	if ( !result ){
 	  throw runtime_error( "'meta' tag found outside a metadata block" );
@@ -1036,7 +1306,7 @@ namespace folia {
       }
       else if ( TiCC::Name(m)  == "foreign-data" &&
 		checkNS( m, NSFOLIA ) ){
-	FoliaElement *t = FoliaImpl::createElement( "foreign-data", this );
+	FoliaElement *t = AbstractElement::createElement( "foreign-data", this );
 	if ( t ){
 	  t = t->parseXml( m );
 	  if ( t ){
@@ -1056,9 +1326,13 @@ namespace folia {
       }
       else if ( TiCC::Name(m)  == "submetadata" &&
 		checkNS( m, NSFOLIA ) ){
-	parsesubmeta( m );
+	parse_submeta( m );
       }
       m = m->next;
+    }
+    if ( a_node ){
+      //      cerr << "parse deferred annotations" << endl;
+      parse_annotations( a_node );
     }
     if ( result == 0 && type == "imdi" ){
       // imdi missing all further info
@@ -1070,8 +1344,9 @@ namespace folia {
   void Document::addStyle( const string& type, const string& href ){
     if ( type == "text/xsl" ){
       const auto& it = styles.find( type );
-      if ( it != styles.end() )
+      if ( it != styles.end() ){
 	throw XmlError( "multiple 'text/xsl' style-sheets defined." );
+      }
     }
     styles.insert( make_pair( type, href ) );
   }
@@ -1134,7 +1409,7 @@ namespace folia {
       int offset = txt->offset();
       if ( offset != -1 ){
 	try {
-	  txt->getreference();
+	  txt->get_reference();
 	}
 	catch( UnresolvableTextContent& e ){
 	  string msg = "Text for " + txt->parent()->xmltag() + "(ID="
@@ -1159,7 +1434,7 @@ namespace folia {
       int offset = phon->offset();
       if ( offset != -1 ){
 	try {
-	  phon->getreference();
+	  phon->get_reference();
 	}
 	catch( UnresolvableTextContent& e ){
 	  string msg = "Phoneme for " + phon->parent()->xmltag() + ", ID="
@@ -1182,12 +1457,12 @@ namespace folia {
     getstyles();
     xmlNode *root = xmlDocGetRootElement( _xmldoc );
     if ( root->ns ){
-      if ( root->ns->prefix )
+      if ( root->ns->prefix ){
 	_foliaNsIn_prefix = xmlStrdup( root->ns->prefix );
+      }
       _foliaNsIn_href = xmlStrdup( root->ns->href );
     }
     if ( debug > 2 ){
-      using TiCC::operator<<;
       string dum;
       cerr << "root = " << TiCC::Name( root ) << endl;
       cerr << "in namespace " << TiCC::getNS( root, dum ) << endl;
@@ -1241,41 +1516,62 @@ namespace folia {
   }
 
   void Document::declare( AnnotationType::AnnotationType type,
-			  const string& setname, const string& args ){
+			  const string& setname,
+			  const string& args ){
+    KWargs kwargs = getArgs( args );
+    return declare( type, setname, kwargs );
+  }
+
+  void Document::declare( AnnotationType::AnnotationType type,
+			  const string& setname,
+			  const KWargs& _args ){
+    KWargs args = _args;
+    if ( debug ){
+      cerr << "declare( " << TiCC::toString(type) << "," << setname << ", ["
+	   << args << "] )" << endl;
+    }
     string st = setname;
     if ( st.empty() ){
       if ( version_below( 1, 6 ) ){
 	st = "undefined";
       }
       else {
-	throw XmlError( "setname may not be empty for " + toString(type)
-			+ "-annotation" );
+	string prefix = TiCC::toString(type);
+	auto et_it = annotationtype_elementtype_map.find( type );
+	if ( et_it == annotationtype_elementtype_map.end() ){
+	  throw logic_error( "no matching element_type for annotation_type: "
+			     + prefix );
+	}
+	auto et = et_it->second;
+	FoliaElement *tmp = AbstractElement::createElement( et );
+	if ( tmp->required_attributes() & Attrib::CLASS ) {
+	  delete tmp;
+	  throw XmlError( "setname may not be empty for " + prefix
+			  + "-annotation" );
+	}
+	delete tmp;
       }
     }
-    KWargs kw = getArgs( args );
-    string a = kw["annotator"];
-    string t = kw["annotatortype"];
-    string d = kw["datetime"];
-    string alias = kw["alias"];
-    kw.erase("annotator");
-    kw.erase("annotatortype");
-    kw.erase("datetime");
-    kw.erase("alias");
-    if ( kw.size() != 0 ){
-      throw XmlError( "declaration: expected 'annotator', 'annotatortype', 'alias' or 'datetime', got '" + kw.begin()->first + "'" );
+    set<string> processors;
+    string a = args["annotator"];
+    string t = args["annotatortype"];
+    string f = args["format"];
+    string d = args["datetime"];
+    string alias = args["alias"];
+    string processor = args["processor"];
+    if ( !processor.empty() ){
+      processors.insert( processor );
     }
-    declare( type, st, a, t, d, alias );
-  }
-
-  string getNow() {
-    time_t Time;
-    time(&Time);
-    tm curtime;
-    localtime_r(&Time,&curtime);
-    char buf[256];
-    strftime( buf, 100, "%Y-%m-%dT%X", &curtime );
-    string res = buf;
-    return res;
+    args.erase("annotator");
+    args.erase("annotatortype");
+    args.erase("format");
+    args.erase("datetime");
+    args.erase("alias");
+    args.erase("processor");
+    if ( args.size() != 0 ){
+      throw XmlError( "declaration: expected 'annotator', 'annotatortype', 'processor', 'alias' or 'datetime', got '" + args.begin()->first + "'" );
+    }
+    declare( type, st, f, a, t, d, processors, alias );
   }
 
   string Document::unalias( AnnotationType::AnnotationType type,
@@ -1287,7 +1583,7 @@ namespace folia {
 	return sti->second;
       }
     }
-    return "";
+    return alias;
   }
 
   string Document::alias( AnnotationType::AnnotationType type,
@@ -1299,49 +1595,96 @@ namespace folia {
 	return ali->second;
       }
     }
-    return "";
+    return st;
   }
 
   void Document::declare( AnnotationType::AnnotationType type,
 			  const string& setname,
+			  const string& format,
 			  const string& annotator,
 			  const string& annotator_type,
 			  const string& date_time,
+			  const set<string>& _processors,
 			  const string& _alias ){
+    if ( debug ){
+      cerr << "declare( " << folia::toString(type) << "," << setname
+	   << ", format=" << format << "," << annotator << ","
+	   << annotator_type << "," << date_time << "," << _alias << ","
+	   << _processors << ") " << endl;
+    }
+    AnnotatorType ant = UNDEFINED;
+    try {
+      ant = TiCC::stringTo<AnnotatorType>( annotator_type );
+    }
+    catch (...) {
+      throw XmlError( "declare(): illegal value '"
+		      + annotator_type + "' for annotator type" );
+    }
     if ( !_alias.empty() ){
       string set_ali = alias(type,setname);
       if ( !set_ali.empty() ){
-	if ( set_ali != _alias ){
-	  throw XmlError( "setname: " + setname + " already has an alias: "
+	if ( set_ali != setname
+	     && set_ali != _alias ){
+	  throw XmlError( "setname: '" + setname + "' already has an alias: '"
 			  + set_ali );
 	}
       }
       string ali_ali = alias(type,_alias);
       string ali_set = unalias(type,_alias);
-      if ( !ali_ali.empty() ){
-	if( ali_ali != _alias ){
-	  throw XmlError( "alias: " + _alias +
-			  " is also in use as a setname for set:'"
-			  + ali_set + "'" );
-	}
+      if ( ali_ali != _alias ){
+	throw XmlError( "alias: '" + _alias +
+			"' is also in use as a setname for set:'"
+			+ ali_set + "'" );
       }
-      if ( !ali_set.empty()
+      if ( ali_set != _alias
 	   && ali_set != setname ){
-	throw XmlError( "alias: " + _alias + " already used for setname: "
-			+ ali_set );
+	throw XmlError( "alias: '" + _alias + "' already used for setname: '"
+			+ ali_set + "'" );
       }
     }
-    if ( !isDeclared( type, setname, annotator, annotator_type ) ){
+    if ( !declared( type, setname, annotator, ant, _processors ) ){
+      set<string> procs = _processors;
       if ( !unalias(type,setname).empty()
 	   && unalias(type,setname) != setname ){
-	throw XmlError( "setname: " + setname + " is also in use as an alias" );
+	throw XmlError( "setname: '" + setname
+			+ "' is also in use as an alias" );
       }
       string d = date_time;
       if ( d == "now()" ){
-	d = getNow();
+	d = get_ISO_date();
       }
-      _annotationdefaults[type].insert( make_pair( setname,
-						   at_t(annotator,annotator_type,d) ) );
+      if ( procs.empty() && _provenance
+	   && annotator.empty() ){
+	folia::processor *p = get_default_processor();
+	if ( p ){
+	  procs.insert( p->id() );
+	}
+      }
+      if ( procs.empty() ){
+	// old style
+	_annotationdefaults[type].insert( make_pair( setname,
+						     at_t(annotator,ant,d,format,procs) ) );
+      }
+      else {
+	// new style
+	auto set_pos = _annotationdefaults[type].find(setname);
+	if ( set_pos == _annotationdefaults[type].end() ){
+	  // no processer annotations yet
+	  _annotationdefaults[type].insert( make_pair( setname,
+						       at_t(annotator,ant,d,format,procs) ) );
+
+	}
+	else {
+	  // add to the existing
+	  for ( const auto& p : procs ){
+	    set_pos->second.p.insert( p );
+	  }
+	}
+      }
+      if ( debug ){
+	cerr << "ADD to sort: " << folia::toString(type) << " ("
+	     << setname << ")"  << endl;
+      }
       _anno_sort.push_back(make_pair(type,setname));
       _annotationrefs[type][setname] = 0;
       if ( !_alias.empty() ){
@@ -1358,29 +1701,55 @@ namespace folia {
   void Document::un_declare( AnnotationType::AnnotationType type,
 			     const string& set_name ){
     string setname = unalias(type,set_name);
+    if ( debug ){
+      cerr << "undeclare: " << folia::toString(type) << "(" << set_name << "."
+	   << setname << ")" << endl;
+    }
     if ( _annotationrefs[type][setname] != 0 ){
       throw XmlError( "unable to undeclare " + toString(type) + "-type("
 		      + setname + ") (references remain)" );
     }
     auto const adt = _annotationdefaults.find(type);
     if ( adt != _annotationdefaults.end() ){
+      if ( debug ){
+	cerr << "matched type=" << folia::toString(type) << endl;
+      }
       auto it = adt->second.begin();
       while ( it != adt->second.end() ){
+	if ( debug ){
+	  cerr << "zoek set:" << setname << endl;
+	}
 	if ( setname.empty() || it->first == setname ){
+	  if ( debug ){
+	    cerr << "erase:" << setname << "==" << it->first << endl;
+	  }
 	  it = adt->second.erase(it);
 	}
 	else {
 	  ++it;
 	}
       }
+      if ( debug ){
+	cerr << "ANNO-SORT: IN " << _anno_sort << endl;
+      }
       auto it2 = _anno_sort.begin();
       while ( it2 != _anno_sort.end() ){
-	if ( it2->first == type && it2->second == setname ){
+	if ( debug ){
+	  cerr << "zoek set:" << setname << endl;
+	}
+	if ( it2->first == type
+	     && ( setname.empty() || it2->second == setname ) ){
+	  if ( debug ){
+	    cerr << "_annosort:erase:" << setname << "==" << it->first << endl;
+	  }
 	  it2 = _anno_sort.erase( it2 );
 	}
 	else {
 	  ++it2;
 	}
+      }
+      if ( debug ){
+	cerr << "ANNO-SORT: UIT " << _anno_sort << endl;
       }
       auto it3 = _alias_set[type].begin();
       while ( it3 != _alias_set[type].end() ){
@@ -1400,6 +1769,9 @@ namespace folia {
 	  ++it4;
 	}
       }
+      if ( adt->second.empty() ){
+	_annotationdefaults.erase(adt);
+      }
     }
   }
 
@@ -1415,69 +1787,108 @@ namespace folia {
     return result;
   }
 
-  Text* Document::addText( const KWargs& kwargs ){
-    Text *res = new Text( kwargs, this );
-    foliadoc->append( res );
-    return res;
-  }
-
-  Speech* Document::addSpeech( const KWargs& kwargs ){
-    Speech *res = new Speech( kwargs, this );
-    foliadoc->append( res );
-    return res;
-  }
-
-  Text* Document::addText( Text *t ){
+  Text* Document::setTextRoot( const KWargs& args ) {
+    Text *t = new Text( args );
     foliadoc->append( t );
     return t;
   }
 
-  Speech* Document::addSpeech( Speech *t ){
-    foliadoc->append( t );
-    return t;
+  Text* Document::setTextRoot() {
+    KWargs empty;
+    return setTextRoot( empty );
   }
 
-  FoliaElement* Document::setRoot( FoliaElement *t ) {
-    if ( t->element_id() == Text_t ){
-      return addText(dynamic_cast<Text*>(t) );
-    }
-    else if ( t->element_id() == Speech_t ){
-      return addSpeech(dynamic_cast<Speech*>(t) );
+  Speech* Document::setSpeechRoot( const KWargs& args ) {
+    Speech *s = new Speech( args );
+    foliadoc->append( s );
+    return s;
+  }
+
+  Speech* Document::setSpeechRoot() {
+    KWargs empty;
+    return setSpeechRoot( empty );
+  }
+
+  FoliaElement* Document::append( FoliaElement *t ){
+    if ( t->element_id() == Text_t
+	 || t->element_id() == Speech_t ) {
+      foliadoc->append( t );
+      return t;
     }
     throw XmlError( "Only can append 'text' or 'speech' as root of a Document." );
   }
 
-  FoliaElement* Document::append( FoliaElement *t ){  // OBSOLETE
-    // cerr << "\nWARNING!! Obsolete Document::append() function is used. "
-    // 	 << "Please replace by Document::setRoot() ASAP." << endl;
-    return setRoot(t);
-  }
-
-  bool Document::isDeclared( AnnotationType::AnnotationType type,
-			     const string& set_name,
-			     const string& annotator,
-			     const string& annotator_type){
+  bool Document::declared( const AnnotationType::AnnotationType& type,
+			   const string& set_name,
+			   const string& annotator,
+			   const AnnotatorType& annotator_type,
+			   const string& processor ) const {
+    if ( debug ){
+      cerr << "isdeclared? ( " << folia::toString(type) << "," << set_name << ","
+	   << annotator << "," << toString(annotator_type) << "," << processor
+	   << ") " << endl;
+    }
     //
     // We DO NOT check the date. if all parameters match, it is OK
     //
-    if ( set_name.empty() ){
-	throw runtime_error("isDeclared called with empty set.");
-    }
     if ( type == AnnotationType::NO_ANN ){
+      if ( debug ){
+	cerr << "\t\t TRUE want NO_ANN" << endl;
+      }
       return true;
     }
+    if ( !processor.empty()
+	 && !get_processor( processor ) ){
+      throw XmlError( folia::toString(type)
+		      + "-annotation is referring an undefined processor '"
+		      + processor + "'" );
+    }
     string setname = unalias(type,set_name);
-
     const auto& it1 = _annotationdefaults.find(type);
     if ( it1 != _annotationdefaults.end() ){
+      if ( debug > 2){
+	cerr << "OK, found an entry for type: " << folia::toString(type) << endl;
+      }
       auto mit2 = it1->second.lower_bound(setname);
       while ( mit2 != it1->second.upper_bound(setname) ){
-	if ( mit2->second.a == annotator && mit2->second.t == annotator_type )
+	if ( debug > 2){
+	  cerr << "OK, found an entry for set='" << setname  << "'" << endl;
+	  cerr << "content: " << mit2->second << endl;
+	}
+	if ( mit2->second.a == annotator
+	     && mit2->second.t == annotator_type
+	     && ( mit2->second.p.empty()
+		  || mit2->second.p.find(processor) != mit2->second.p.end() ) ){
+	  if ( debug ){
+	    cerr << "\t\t declared ==> TRUE" << endl;
+	  }
 	  return true;
+	}
 	++mit2;
       }
     }
+    if ( debug ){
+      cerr << "\t\t declared() ==> FALSE" << endl;
+    }
     return false;
+  }
+
+  bool Document::declared( const AnnotationType::AnnotationType& type,
+			   const string& set_name,
+			   const string& annotator,
+			   const AnnotatorType& annotator_type,
+			   const set<string>& processors ) const {
+    if ( processors.empty() ){
+      return declared( type, set_name, annotator, annotator_type, "" );
+    }
+    else {
+      for ( const auto& s : processors ){
+	if ( declared( type, set_name, annotator, annotator_type, s ) ){
+	  return true;
+	}
+      }
+      return false;
+    }
   }
 
   void Document::incrRef( AnnotationType::AnnotationType type,
@@ -1485,7 +1896,7 @@ namespace folia {
     if ( type != AnnotationType::NO_ANN ){
       string st = s;
       if ( st.empty() ){
-	st = defaultset(type);
+	st = default_set(type);
       }
       ++_annotationrefs[type][st];
       //      cerr << "increment " << toString(type) << "(" << st << ")" << endl;
@@ -1500,40 +1911,103 @@ namespace folia {
     }
   }
 
-  bool Document::isDeclared( AnnotationType::AnnotationType type,
-			     const string& setname ){
+  bool Document::declared( const AnnotationType::AnnotationType& type,
+			   const string& setname ) const {
+    if ( debug ){
+      cerr << "declared(" << folia::toString(type) << ",'" << setname << "')" << endl;
+    }
     if ( type == AnnotationType::NO_ANN ){
+      if ( debug ){
+	cerr << "always true for NO_ANN" << endl;
+      }
       return true;
+    }
+    if ( debug ){
+      cerr << "Doorzoek: " << _annotationdefaults << endl;
     }
     const auto& mit1 = _annotationdefaults.find(type);
     if ( mit1 != _annotationdefaults.end() ){
-      if ( setname.empty() )
+      if ( debug ){
+	cerr << "found some: " << mit1->second << endl;
+      }
+      if ( setname.empty() ){
+	if ( debug ){
+	  cerr << "return TRUE" << endl;
+	}
 	return true;
-      const auto& mit2 = mit1->second.find(setname);
+      }
+      string set_name = unalias(type,setname);
+      if ( debug ){
+	cerr << "lookup: " << setname << " (" << set_name << ")" << endl;
+      }
+      const auto& mit2 = mit1->second.find(set_name);
+      if ( debug ){
+	if ( mit2 != mit1->second.end() ){
+	  cerr << "return TRUE" << endl;
+	}
+	else {
+	  cerr << "return FALSE" << endl;
+	}
+      }
       return mit2 != mit1->second.end();
+    }
+    if ( debug ){
+      cerr << "return DIRECTLY FALSE" << endl;
     }
     return false;
   }
 
-  string Document::defaultset( AnnotationType::AnnotationType type ) const {
-    if ( type == AnnotationType::NO_ANN )
+  bool Document::declared( ElementType et,
+			   const string& setname ) const {
+    FoliaElement *tmp = AbstractElement::createElement( et );
+    AnnotationType::AnnotationType at = tmp->annotation_type();
+    delete tmp;
+    return declared( at, setname );
+  }
+
+  string Document::default_set( AnnotationType::AnnotationType type ) const {
+    if ( type == AnnotationType::NO_ANN ){
       return "";
+    }
     // search a set. it must be unique. Otherwise return ""
-    // cerr << "document: " << doc_version() << endl;
-    // cerr << "zoek '" << type << "' default set " <<  _annotationdefaults << endl;
+    // cerr << "zoek voor '" << toString(type) << "' de default set in:" << endl
+    // 	 <<  _annotationdefaults << endl;
     string result;
     const auto& mit1 = _annotationdefaults.find(type);
     if ( mit1 != _annotationdefaults.end() ){
-      // cerr << "vind tussen " <<  mit1->second << endl;
-      if ( mit1->second.size() == 1 )
+      //      cerr << "vind tussen " <<  mit1->second << endl;
+      if ( mit1->second.size() == 1 ){
 	result = mit1->second.begin()->first;
+      }
     }
-    // cerr << "defaultset ==> " << result << endl;
+    //    cerr << "default_set ==> " << result << endl;
     return result;
   }
 
-  string Document::defaultannotator( AnnotationType::AnnotationType type,
-				     const string& st ) const {
+  vector<string> Document::get_annotators( AnnotationType::AnnotationType type,
+					   const string& st ) const {
+    vector<string> result;
+    if ( type == AnnotationType::NO_ANN ){
+      return result;
+    }
+    const auto& mit1 = _annotationdefaults.find(type);
+    if ( mit1 != _annotationdefaults.end() ){
+      //      cerr << "vond iets voor " << toString(type) << endl;
+      for ( auto pos = mit1->second.lower_bound(st);
+	    pos != mit1->second.upper_bound(st);
+	    ++pos ){
+	for ( const auto& p : pos->second.p ){
+	  result.push_back( p );
+	}
+      }
+    }
+    //    cerr << "get default ==> " << result << endl;
+    return result;
+
+  }
+
+  string Document::default_annotator( AnnotationType::AnnotationType type,
+				      const string& st ) const {
     if ( type == AnnotationType::NO_ANN ){
       return "";
     }
@@ -1561,17 +2035,25 @@ namespace folia {
     return result;
   }
 
-  string Document::defaultannotatortype( AnnotationType::AnnotationType type,
-					 const string& st ) const {
+  AnnotatorType Document::default_annotatortype( AnnotationType::AnnotationType type,
+						 const string& st ) const {
+    if ( debug ){
+      cerr << "annotationdefaults= " <<  _annotationdefaults << endl;
+      cerr << "lookup: " << TiCC::toString(type) << endl;
+    }
+    AnnotatorType result = UNDEFINED;
     if ( type == AnnotationType::NO_ANN ){
-      return "";
+      return result;
     }
     const auto& mit1 = _annotationdefaults.find(type);
-    string result;
     if ( mit1 != _annotationdefaults.end() ){
+      if ( debug ){
+	cerr << "found a hit for type=" << TiCC::toString( type ) << endl;
+      }
       if ( st.empty() ){
-	if ( mit1->second.size() == 1 )
+	if ( mit1->second.size() == 1 ){
 	  result = mit1->second.begin()->second.t;
+	}
 	return result;
       }
       else {
@@ -1585,15 +2067,15 @@ namespace folia {
     return result;
   }
 
-  string Document::defaultdatetime( AnnotationType::AnnotationType type,
-				    const string& st ) const {
+  string Document::default_datetime( AnnotationType::AnnotationType type,
+				     const string& st ) const {
     const auto& mit1 = _annotationdefaults.find(type);
     string result;
     if ( mit1 != _annotationdefaults.end() ){
       if ( st.empty() ){
-	if ( mit1->second.size() == 1 )
+	if ( mit1->second.size() == 1 ){
 	  result = mit1->second.begin()->second.d;
-	return result;
+	}
       }
       else {
 	if ( mit1->second.count( st ) == 1 ){
@@ -1606,31 +2088,116 @@ namespace folia {
     return result;
   }
 
-  void Document::setannotations( xmlNode *node ) const {
-    for ( const auto& pair : _anno_sort ){
-      // Find the 'label'
-      AnnotationType::AnnotationType type = pair.first;
-      string label = toString( type );
-      label += "-annotation";
-      string sett = pair.second;
-      const auto& mm = _annotationdefaults.find(type);
-      auto it = mm->second.lower_bound(sett);
-      while ( it != mm->second.upper_bound(sett) ){
+  string Document::default_processor( AnnotationType::AnnotationType annotationtype,
+				      const string& set_name ) const{
+    if ( debug ){
+      cerr << "defaultprocessor(" << toString( annotationtype ) << ","
+	   << set_name << ")" << endl;
+    }
+    auto const& it = _annotationdefaults.find(annotationtype);
+    if ( it != _annotationdefaults.end() ){
+      if ( debug ){
+	cerr << "found some defs: " << it->second << endl;
+	cerr << "NOW search for set: " << set_name << endl;
+      }
+      set<string> results;
+      auto s_it = it->second.lower_bound(set_name);
+      while ( s_it != it->second.upper_bound(set_name) ){
+	if ( debug ){
+	  cerr << "found sub strings: " << s_it->second << endl;
+	}
+	results.insert( s_it->second.p.begin(), s_it->second.p.end() );
+	++s_it;
+      }
+      if ( results.size() == 1 ){
+	return *results.begin();
+      }
+      else if ( results.size() > 1 ){
+	auto const& as = annotationtype_xml_map.find(annotationtype);
+	if ( as != annotationtype_xml_map.end() ){
+	  throw NoDefaultError("No processor specified for <"
+			       + as->second +  ">, but the presence of multiple declarations prevent assigning a default");
+	}
+      }
+    }
+    return "";
+  }
+
+  vector<const processor*> Document::get_processors( AnnotationType::AnnotationType type,
+						     const string& st ) const {
+    vector<const processor*> result;
+    if ( debug ){
+      cerr << "getprocessors(" << toString( type ) << ","
+	   << st << ")" << endl;
+    }
+    if ( type == AnnotationType::NO_ANN ){
+      return result;
+    }
+    auto const& it = _annotationdefaults.find(type);
+    if ( it != _annotationdefaults.end() ){
+      if ( debug ){
+	cerr << "found some defs: " << it->second << endl;
+      }
+      for ( auto pos = it->second.lower_bound(st);
+	    pos != it->second.upper_bound(st);
+	    ++pos ){
+	for ( const auto& p : pos->second.p ){
+	  result.push_back( get_processor(p) );
+	}
+      }
+    }
+    return result;
+  }
+
+  void Document::add_one_anno( const pair<AnnotationType::AnnotationType,string>& pair,
+			       xmlNode *node,
+			       set<string>& done ) const{
+    // Find the 'label'
+    AnnotationType::AnnotationType type = pair.first;
+    string sett = pair.second;
+    string label = toString( type );
+    if ( done.find(label+sett) != done.end() ){
+      return;
+    }
+    done.insert(label+sett);
+    label += "-annotation";
+    const auto& mm = _annotationdefaults.find(type);
+    auto it = mm->second.lower_bound(sett);
+    while ( it != mm->second.upper_bound(sett) ){
+      string s = it->second.a;
+      if ( !s.empty() ){
+	// old style
 	KWargs args;
-	string s = it->second.a;
-	if ( !s.empty() )
+	if ( !s.empty() ){
 	  args["annotator"] = s;
-	s = it->second.t;
-	if ( !s.empty() )
-	  args["annotatortype"] = s;
+	}
+	AnnotatorType ant = it->second.t;
+	if ( ant != UNDEFINED && ant != AUTO ){
+	  args["annotatortype"] = toString(ant);
+	}
 	if ( !strip() ){
 	  s = it->second.d;
-	  if ( !s.empty() )
+	  if ( !s.empty() ){
 	    args["datetime"] = s;
+	  }
+	}
+	s = it->second.f;
+	if ( !s.empty() ){
+	  args["format"] = s;
 	}
 	s = it->first;
-	if ( s != "undefined" ) // the default
+	if ( s != "undefined" ){ // the default
 	  args["set"] = s;
+	}
+	auto const& t_it = _groupannotations.find(type);
+	if ( t_it != _groupannotations.end() ){
+	  auto const& s_it = t_it->second.find(s);
+	  if ( s_it != t_it->second.end()
+	       && s_it->second ){
+	    args["groupannotations"] = "yes";
+	  }
+	}
+
 	const auto& ti = _set_alias.find(type);
 	if ( ti != _set_alias.end() ){
 	  const auto& alias = ti->second.find(s);
@@ -1641,8 +2208,173 @@ namespace folia {
 	xmlNode *n = TiCC::XmlNewNode( foliaNs(), label );
 	addAttributes( n, args );
 	xmlAddChild( node, n );
-	++it;
       }
+      else {
+	// we have new style processors
+	KWargs args;
+	if ( !strip() ){
+	  s = it->second.d;
+	  if ( !s.empty() ){
+	    args["datetime"] = s;
+	  }
+	}
+	s = it->second.f;
+	if ( !s.empty() ){
+	  args["format"] = s;
+	}
+	s = it->first;
+	if ( !s.empty() && s != "undefined" ){ // the default
+	  args["set"] = s;
+	}
+	const auto& ti = _set_alias.find(type);
+	if ( ti != _set_alias.end() ){
+	  const auto& alias = ti->second.find(s);
+	  if ( alias->second != s ){
+	    args["alias"] = alias->second;
+	  }
+	}
+	auto const& t_it = _groupannotations.find(type);
+	if ( t_it != _groupannotations.end() ){
+	  auto const& s_it = t_it->second.find(s);
+	  if ( s_it != t_it->second.end()
+	       && s_it->second ){
+	    args["groupannotations"] = "yes";
+	  }
+	}
+	xmlNode *n = TiCC::XmlNewNode( foliaNs(), label );
+	addAttributes( n, args );
+	xmlAddChild( node, n );
+	args.clear();
+	for ( const auto& p : it->second.p ){
+	  xmlNode *a = TiCC::XmlNewNode( foliaNs(), "annotator" );
+	  args["processor"] = p;
+	  addAttributes( a, args );
+	  xmlAddChild( n, a );
+	}
+      }
+      ++it;
+    }
+  }
+
+  void Document::setannotations( xmlNode *md ) const {
+    if ( debug ){
+      cerr << "start setannotation: " << _annotationdefaults << endl;
+      cerr << "sorting: " << _anno_sort << endl;
+    }
+    xmlNode *node = xmlAddChild( md, TiCC::XmlNewNode( foliaNs(), "annotations" ) );
+    set<string> done;
+    if ( kanon() ){
+      multimap<AnnotationType::AnnotationType,
+	       pair<AnnotationType::AnnotationType,string>> ordered;
+      for ( const auto& pair : _anno_sort ){
+	ordered.insert(make_pair(pair.first,pair));
+      }
+      for ( const auto& it : ordered ){
+	add_one_anno( it.second, node, done );
+      }
+    }
+    else {
+      for ( const auto& pair : _anno_sort ){
+	add_one_anno( pair, node, done );
+      }
+    }
+  }
+
+  void Document::append_processor( xmlNode *node, const processor *p ) const {
+    xmlNode *pr = xmlAddChild( node, TiCC::XmlNewNode( foliaNs(), "processor" ) );
+    KWargs atts;
+    atts["xml:id"] = p->_id;
+    atts["name"] = p->_name;
+    if ( p->_type != AUTO ){
+      atts["type"] = toString(p->_type);
+    }
+    if ( !strip() ){
+      if ( !p->_version.empty() ){
+	atts["version"] = p->_version;
+      }
+      if ( !p->_folia_version.empty() ){
+	atts["folia_version"] = p->_folia_version;
+      }
+      if ( !p->_command.empty() ){
+	atts["command"] = p->_command;
+      }
+      if ( !p->_host.empty() ){
+	atts["host"] = p->_host;
+      }
+      if ( !p->_user.empty() ){
+	atts["user"] = p->_user;
+      }
+      if ( !p->_begindatetime.empty() ){
+	atts["begindatetime"] = p->_begindatetime;
+      }
+      if ( !p->_enddatetime.empty() ){
+	atts["enddatetime"] = p->_enddatetime;
+      }
+    }
+    else {
+      if ( p->_name == "libfolia" ){
+	atts["name"] = "stripped";
+      }
+      else if ( p->_name == "foliapy" ){
+	atts["name"] = "stripped";
+      }
+      else if ( !p->_name.empty() ){
+	atts["name"] = p->_name;
+      }
+      if ( !p->_version.empty() ){
+	atts["version"] = "stripped";
+      }
+      if ( !p->_folia_version.empty() ){
+	atts["folia_version"] = "stripped";
+      }
+      if ( !p->_command.empty() ){
+	atts["command"] = "stripped";
+      }
+      if ( !p->_host.empty() ){
+	atts["host"] = "stripped";
+      }
+      if ( !p->_user.empty() ){
+	atts["user"] = "stripped";
+      }
+      if ( !p->_begindatetime.empty() ){
+	atts["begindatetime"] = "stripped";
+      }
+      if ( !p->_enddatetime.empty() ){
+	atts["enddatetime"] = "stripped";
+      }
+    }
+    if ( !p->_document_version.empty() ){
+      atts["document_version"] = p->_document_version;
+    }
+    if ( !p->_resourcelink.empty() ){
+      atts["resourcelink"] = p->_resourcelink;
+    }
+    if ( !p->_src.empty() ){
+      atts["src"] = p->_src;
+    }
+    if ( !p->_format.empty() ){
+      atts["format"] = p->_format;
+    }
+    addAttributes( pr, atts );
+    for ( const auto& it : p->_metadata ){
+      xmlNode *m = xmlAddChild( pr, TiCC::XmlNewNode( foliaNs(), "meta" ) );
+      KWargs args;
+      args["id"] = it.first;
+      addAttributes( m, args );
+      xmlAddChild( m, xmlNewText( (const xmlChar*)it.second.c_str()) );
+    }
+    for ( const auto& s : p->_processors ){
+      append_processor( pr, s );
+    }
+  }
+
+  void Document::setprovenance( xmlNode *md ) const {
+    if ( !_provenance ){
+      return;
+    }
+    xmlNode *node = xmlAddChild( md, TiCC::XmlNewNode( foliaNs(), "provenance" ) );
+    for ( const auto& p : _provenance->processors ){
+      append_processor( node, p );
     }
   }
 
@@ -1660,7 +2392,6 @@ namespace folia {
       xmlAddChild( node, sm );
       if ( type == "native" ){
 	atts = it.second->get_avs();
-	// using TiCC::operator<<;
 	// cerr << "atts: " << atts << endl;
 	for ( const auto& av : atts ){
 	  xmlNode *m = TiCC::XmlNewNode( foliaNs(), "meta" );
@@ -1737,7 +2468,7 @@ namespace folia {
     }
   }
 
-  xmlDoc *Document::to_xmlDoc( const string& nsLabel, bool kanon ) const {
+  xmlDoc *Document::to_xmlDoc( const string& nsLabel ) const {
     xmlDoc *outDoc = xmlNewDoc( (const xmlChar*)"1.0" );
     setstyles( outDoc );
     xmlNode *root = xmlNewDocNode( outDoc, 0, (const xmlChar*)"FoLiA", 0 );
@@ -1746,12 +2477,14 @@ namespace folia {
 			  (const xmlChar *)"xlink" );
     xmlSetNs( root, xl );
     if ( _foliaNsIn_href == 0 ){
-      if ( nsLabel.empty() )
+      if ( nsLabel.empty() ){
 	_foliaNsOut = xmlNewNs( root, (const xmlChar *)NSFOLIA.c_str(), 0 );
-      else
+      }
+      else {
 	_foliaNsOut = xmlNewNs( root,
 				(const xmlChar *)NSFOLIA.c_str(),
 				(const xmlChar*)nsLabel.c_str() );
+      }
     }
     else {
       _foliaNsOut = xmlNewNs( root,
@@ -1767,28 +2500,29 @@ namespace folia {
     }
     else {
       attribs["generator"] = "libfolia-v" + library_version();
-      if ( !_version_string.empty() )
-	attribs["version"] = _version_string;
+      attribs["version"] = _version_string;
+      // attribs["version"] = folia_version();
     }
-    if ( external )
+    if ( external ){
       attribs["external"] = "yes";
+    }
     addAttributes( root, attribs );
 
     xmlNode *md = xmlAddChild( root, TiCC::XmlNewNode( foliaNs(), "metadata" ) );
-    xmlNode *an = xmlAddChild( md, TiCC::XmlNewNode( foliaNs(), "annotations" ) );
-    setannotations( an );
+    setannotations( md );
+    setprovenance( md );
     setmetadata( md );
     for ( size_t i=0; i < foliadoc->size(); ++i ){
       FoliaElement* el = foliadoc->index(i);
-      xmlAddChild( root, el->xml( true, kanon ) );
+      xmlAddChild( root, el->xml( true, kanon() ) );
     }
     return outDoc;
   }
 
-  string Document::toXml( const string& nsLabel, bool kanon ) const {
+  string Document::toXml( const string& nsLabel ) const {
     string result;
     if ( foliadoc ){
-      xmlDoc *outDoc = to_xmlDoc( nsLabel, kanon );
+      xmlDoc *outDoc = to_xmlDoc( nsLabel );
       xmlChar *buf; int size;
       xmlDocDumpFormatMemoryEnc( outDoc, &buf, &size, "UTF-8", 1 );
       result = string( (const char *)buf, size );
@@ -1796,15 +2530,16 @@ namespace folia {
       xmlFreeDoc( outDoc );
       _foliaNsOut = 0;
     }
-    else
+    else {
       throw runtime_error( "can't save, no doc" );
+    }
     return result;
   }
 
   bool Document::toXml( const string& file_name,
-			const string& nsLabel, bool kanon ) const {
+			const string& nsLabel ) const {
     if ( foliadoc ){
-      xmlDoc *outDoc = to_xmlDoc( nsLabel, kanon );
+      xmlDoc *outDoc = to_xmlDoc( nsLabel );
       if ( TiCC::match_back( file_name, ".gz" ) ){
 	xmlSetDocCompressMode(outDoc,9);
       }
@@ -1812,8 +2547,9 @@ namespace folia {
 					   "UTF-8", 1 );
       xmlFreeDoc( outDoc );
       _foliaNsOut = 0;
-      if ( res == -1 )
+      if ( res == -1 ){
 	return false;
+      }
     }
     else {
       return false;
@@ -1827,15 +2563,18 @@ namespace folia {
     size_t rightcontext = 0;
     KWargs kw = getArgs( args );
     string val = kw["leftcontext"];
-    if ( !val.empty() )
+    if ( !val.empty() ){
       leftcontext = TiCC::stringTo<size_t>(val);
+    }
     val = kw["rightcontext"];
-    if ( !val.empty() )
+    if ( !val.empty() ){
       rightcontext = TiCC::stringTo<size_t>(val);
+    }
     vector<vector<Word*> > result;
     vector<Word*> matched;
-    if ( pat.regexp )
+    if ( pat.regexp ){
       throw runtime_error( "regexp not supported yet in patterns" );
+    }
     vector<Word*> mywords = words();
     for ( size_t startpos =0; startpos < mywords.size(); ++startpos ){
       // loop over all words
@@ -1846,8 +2585,9 @@ namespace folia {
       for ( size_t i = startpos; i < mywords.size() && goon ; ++i ){
 	//      cerr << "inner LOOP I = " << i << " myword=" << mywords[i] << endl;
 	UnicodeString value;
-	if ( pat.matchannotation == BASE )
+	if ( pat.matchannotation == BASE ){
 	  value = mywords[i]->text();
+	}
 	else {
 	  vector<FoliaElement *> v = mywords[i]->select( pat.matchannotation );
 	  if ( v.size() != 1 ){
@@ -1861,8 +2601,9 @@ namespace folia {
 	  // cerr << "matched, " << (done?"done":"not done")
 	  //      << (flag?" Flagged!":":{") << endl;
 	  matched.push_back(mywords[i]);
-	  if ( cursor == 0 )
+	  if ( cursor == 0 ){
 	    startpos = i; // restart search here
+	  }
 	  if ( done ){
 	    vector<Word*> keep = matched;
 	    //	  cerr << "findnodes() tussenresultaat ==> " << matched << endl;
@@ -1873,8 +2614,9 @@ namespace folia {
 	      copy( matched.begin(), matched.end(), back_inserter(tmp1) );
 	      //	    cerr << "findnodes() tmp1 na copy ==> " << tmp1 << endl;
 	    }
-	    else
+	    else {
 	      tmp1 = matched;
+	    }
 	    vector<Word*> tmp2;
 	    if ( rightcontext > 0 ){
 	      tmp2 = matched.back()->rightcontext(rightcontext);
@@ -1922,8 +2664,9 @@ namespace folia {
 	throw runtime_error( "findnodes(): If multiple patterns are provided, they must all have the same length!" );
       }
       if ( it.variablesize() ){
-	if ( index > 0 && variablewildcards.empty() )
+	if ( index > 0 && variablewildcards.empty() ){
 	  unsetwildcards = true;
+	}
 	else {
 	  if ( !variablewildcards.empty() &&
 	       variablewildcards != it.variablewildcards() ){
@@ -1932,8 +2675,9 @@ namespace folia {
 	  variablewildcards = it.variablewildcards();
 	}
       }
-      else if ( !variablewildcards.empty() )
+      else if ( !variablewildcards.empty() ){
 	unsetwildcards = true;
+      }
       ++index;
     }
     if ( unsetwildcards ){
@@ -1944,8 +2688,9 @@ namespace folia {
     vector<vector<Word*> > result;
     for ( const auto& it : pats ){
       vector<vector<Word*> > res = findwords( it, args );
-      if ( result.empty() )
+      if ( result.empty() ){
 	result = res;
+      }
       else if ( res != result ){
 	result.clear();
 	break;
@@ -1961,14 +2706,18 @@ namespace folia {
     case_sensitive = false;
     KWargs kw = getArgs( args );
     matchannotationset = kw["matchannotationset"];
-    if (kw["regexp"] != "" )
+    if (kw["regexp"] != "" ){
       regexp = TiCC::stringTo<bool>( kw["regexp"] );
-    if (kw["maxgapsize"] != "" )
+    }
+    if (kw["maxgapsize"] != "" ){
       maxgapsize = TiCC::stringTo<int>( kw["maxgapsize"] );
-    else
+    }
+    else {
       maxgapsize = 10;
-    if ( kw["casesensitive"] != "" )
+    }
+    if ( kw["casesensitive"] != "" ){
       case_sensitive = TiCC::stringTo<bool>( kw["casesensitive"] );
+    }
     for ( const auto& pat : pat_vec ){
       if ( pat.find( "regexp('" ) == 0 &&
 	   pat.rfind( "')" ) == pat.length()-2 ){
@@ -1998,14 +2747,18 @@ namespace folia {
     case_sensitive = false;
     KWargs kw = getArgs( args );
     matchannotationset = kw["matchannotationset"];
-    if (kw["regexp"] != "" )
+    if (kw["regexp"] != "" ){
       regexp = TiCC::stringTo<bool>( kw["regexp"] );
-    if (kw["maxgapsize"] != "" )
+    }
+    if (kw["maxgapsize"] != "" ){
       maxgapsize = TiCC::stringTo<int>( kw["maxgapsize"] );
-    else
+    }
+    else {
       maxgapsize = 10;
-    if ( kw["casesensitive"] != "" )
+    }
+    if ( kw["casesensitive"] != "" ){
       case_sensitive = TiCC::stringTo<bool>( kw["casesensitive"] );
+    }
     for ( const auto& pat : pat_vec ){
       if ( pat.find( "regexp('" ) == 0 &&
 	   pat.rfind( "')" ) == pat.length()-2 ){
@@ -2058,8 +2811,9 @@ namespace folia {
       }
     }
     else {
-      if ( !case_sensitive )
+      if ( !case_sensitive ){
 	s.toLower();
+      }
       if ( sequence[pos] == s || sequence[pos] == "*:1" ){
 	done = ( ++pos >= sequence.size() );
 	return true;
@@ -2079,10 +2833,12 @@ namespace folia {
 	    done = true;
 	  }
 	}
-	else if ( ++gap == maxgapsize )
+	else if ( ++gap == maxgapsize ){
 	  ++pos;
-	else
+	}
+	else {
 	  flag = true;
+	}
 	return true;
       }
       else {
@@ -2103,16 +2859,18 @@ namespace folia {
 
   void Pattern::unsetwild() {
     for ( auto& s : sequence ){
-      if ( s == "*" )
+      if ( s == "*" ){
 	s = "*:1";
+      }
     }
   }
 
   set<int> Pattern::variablewildcards() const {
     set<int> result;
     for ( size_t i=0; i < sequence.size(); ++i ){
-      if ( sequence[i] == "*" )
+      if ( sequence[i] == "*" ){
 	result.insert( i );
+      }
     }
     return result;
   }

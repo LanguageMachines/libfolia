@@ -1,3 +1,18 @@
+2.0 2019-05-22
+[Ko vd Sloot]
+getting ready
+1.16 2019-05-15
+[Ko van der Sloot]
+stabilizing release for folia1.5. Next release wil support the new FoLiA 2.0
+
+Changes:
+* renamed folia::Processor to folia::Engine
+* extended and improved Engine code a lot
+* avoid spurious newline on Document output
+* Will read and ignore some FoLiA 2.0 additions
+* numerous small additions and fixes
+* make sure that the XmlParser uses the HUGE model everywhere
+
 1.15 2018-11-29
 [Ko van der Sloot]
 * added (still experimental) code for a FoLiA Builder, Processor and

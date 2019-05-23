@@ -77,20 +77,29 @@ namespace folia {
   class Word;
   class Sentence;
   class Paragraph;
+  class processor;
+  class Provenance;
 
   class Document {
     friend bool operator==( const Document&, const Document& );
     friend std::ostream& operator<<( std::ostream&, const Document * );
-    enum Mode { NOMODE=0, PERMISSIVE=1, CHECKTEXT=2, FIXTEXT=4, STRIP=8 };
-    friend class Processor;
+    enum Mode { NOMODE=0, PERMISSIVE=1, CHECKTEXT=2, FIXTEXT=4, STRIP=8, KANON=16 };
+    friend class Engine;
   public:
     Document();
     explicit Document( const KWargs& );
-    explicit Document( const std::string& s): Document( getArgs(s) ){};
+    explicit Document( const std::string& );
     ~Document();
     void init();
-    bool readFromFile( const std::string& );
-    bool readFromString( const std::string& );
+    void init_args( const KWargs& );
+    bool read_from_string( const std::string& );
+    bool readFromString( const std::string& s ){
+      return read_from_string( s );
+    }
+    bool read_from_file( const std::string& );
+    bool readFromFile( const std::string& s ){
+      return read_from_file( s );
+    }
     bool save( std::ostream&, const std::string&, bool = false ) const;
     bool save( std::ostream& os, bool kanon = false ) const {
       return save( os, "", kanon );
@@ -102,12 +111,27 @@ namespace folia {
     std::string xmlstring( bool k = false ) const;
     int size() const;
     FoliaElement* doc() const { return foliadoc; }
-    Text* addText( const KWargs& );
-    Text* addText( Text * );
-    Speech* addSpeech( const KWargs& );
-    Speech* addSpeech( Speech * );
-    FoliaElement* append( FoliaElement *t ); // OBSOLETE
-    FoliaElement* setRoot( FoliaElement * );
+
+    template <typename T>
+      T *create_root( const KWargs& args ){
+      throw std::logic_error( "create_root() only possible for 'Text' and 'Speech'" );
+    }
+    template <typename T>
+      T *create_root(){
+      throw std::logic_error( "create_root() only possible for 'Text' and 'Speech'" );
+    }
+
+    FoliaElement* append( FoliaElement *t );
+    Text* setTextRoot();
+    Text* setTextRoot( const KWargs& );
+    Speech* setSpeechRoot();
+    Speech* setSpeechRoot( const KWargs& );
+    // backward compatible:
+    Text* addText( KWargs& a ){ return setTextRoot( a ); };
+    Text* addText( Text *t ){ return dynamic_cast<Text*>( append(t) ); };
+    Speech* addSpeech( KWargs& a ){ return setSpeechRoot( a ); };
+    Speech* addSpeech( Speech *s ){ return dynamic_cast<Speech*>( append(s) ); };
+
     void set_foreign_metadata( xmlNode * );
     void addStyle( const std::string&, const std::string& );
     void replaceStyle( const std::string&, const std::string& );
@@ -128,41 +152,58 @@ namespace folia {
     Paragraph *rparagraphs( size_t ) const;
     Sentence *sentences( size_t ) const;
     Sentence *rsentences( size_t ) const;
-    std::string toXml( const std::string& ="",
-		       bool = false ) const;
+    std::string toXml( const std::string& ="" ) const;
     bool toXml( const std::string&,
-		const std::string& ="",
-		bool = false ) const;
-    std::string metadatatype() const;
-    std::string metadatafile() const;
-    void set_metadata( const std::string& type, const std::string& value );
-    const std::string get_metadata( const std::string& type ) const;
-
-    void addDocIndex( FoliaElement*, const std::string& );
-    void delDocIndex( const FoliaElement*, const std::string& );
+		const std::string& ) const;
+    std::string metadata_type() const;
+    std::string metadata_file() const;
+    void set_metadata( const std::string&, const std::string& );
+    const std::string get_metadata( const std::string&) const;
+    processor *get_default_processor() const;
+    processor *get_processor( const std::string& ) const;
+    processor *get_processor_by_name( const std::string& ) const;
+    void add_doc_index( FoliaElement*, const std::string& );
+    void del_doc_index( const FoliaElement*, const std::string& );
 
     FoliaElement* operator []( size_t ) const; //select i'th element from data
 
     FoliaElement *index( const std::string& ) const; //retrieve element with specified ID
     FoliaElement* operator []( const std::string& ) const ; //index as operator
-    bool isDeclared( AnnotationType::AnnotationType,
+    bool declared( const AnnotationType::AnnotationType&,
 		     const std::string&,
 		     const std::string&,
-		     const std::string& );
-    bool isDeclared( AnnotationType::AnnotationType, const std::string& = "" );
+		     const AnnotatorType&,
+		     const std::string& ) const;
+    bool declared( const AnnotationType::AnnotationType&,
+		     const std::string&,
+		     const std::string&,
+		     const AnnotatorType&,
+		     const std::set<std::string>& ) const;
+    bool declared( const AnnotationType::AnnotationType&,
+		   const std::string& = "" ) const;
+    bool declared( ElementType, const std::string& = "" ) const;
     std::string unalias( AnnotationType::AnnotationType,
 			 const std::string& ) const;
     std::string alias( AnnotationType::AnnotationType,
 		       const std::string& ) const;
-    std::string defaultset( AnnotationType::AnnotationType ) const;
 
-    std::string defaultannotator( AnnotationType::AnnotationType,
+    processor *add_processor( const KWargs&, processor * =0 );
+    std::vector<std::string> get_annotators( AnnotationType::AnnotationType,
+					    const std::string& ="" ) const;
+    std::vector<const processor *> get_processors( AnnotationType::AnnotationType,
+						   const std::string& ="" ) const;
+
+    std::string default_set( AnnotationType::AnnotationType ) const;
+
+    std::string default_annotator( AnnotationType::AnnotationType,
+				   const std::string& ="" ) const;
+    AnnotatorType default_annotatortype( AnnotationType::AnnotationType,
+					const std::string& ="" ) const;
+
+    std::string default_datetime( AnnotationType::AnnotationType,
 				  const std::string& ="" ) const;
-    std::string defaultannotatortype( AnnotationType::AnnotationType,
-				      const std::string& ="" ) const;
-
-    std::string defaultdatetime( AnnotationType::AnnotationType,
-				 const std::string& ="" ) const;
+    std::string default_processor( AnnotationType::AnnotationType,
+				   const std::string& ="" ) const;
 
     FoliaElement* parseXml( );
 
@@ -172,8 +213,12 @@ namespace folia {
 		  const std::string&,
 		  const std::string& = "" );
     void declare( AnnotationType::AnnotationType,
+		  const std::string&,
+		  const KWargs& );
+    void declare( AnnotationType::AnnotationType,
+		  const std::string&, const std::string&, const std::string&,
 		  const std::string&, const std::string&,
-		  const std::string&, const std::string&,
+		  const std::set<std::string>&,
 		  const std::string& = "" );
     void un_declare( AnnotationType::AnnotationType,
 		     const std::string& );
@@ -184,27 +229,36 @@ namespace folia {
     void resolveExternals();
     int debug;
     bool permissive() const { return mode & PERMISSIVE; };
-    bool checktext() const {
-      return mode & CHECKTEXT;
-    };
-    bool fixtext() const {
-      return mode & FIXTEXT;
-    };
+    bool checktext() const { return mode & CHECKTEXT; };
+    bool fixtext() const { return mode & FIXTEXT; };
     bool strip() const { return mode & STRIP; };
+    bool kanon() const { return mode & KANON; };
+    bool set_permissive( bool ) const; // defines const, but the mode is mutable!
+    bool set_checktext( bool ) const; // defines const, but the mode is mutable!
+    bool set_fixtext( bool ) const; // defines const, but the mode is mutable!
+    bool set_strip( bool ) const; // defines const, but the mode is mutable!
+    bool set_kanon( bool ) const; // defines const, but the mode is mutable!
     class at_t {
       friend std::ostream& operator<<( std::ostream&, const at_t& );
     public:
-    at_t( const std::string& _a, const std::string& _t, const std::string& _d ): a(_a),t(_t),d(_d){};
+    at_t( const std::string& _a,
+	  const AnnotatorType& _t,
+	  const std::string& _d,
+	  const std::string& _f,
+	  const std::set<std::string>& _p ): a(_a),t(_t),d(_d),f(_f),p(_p){};
       std::string a;
-      std::string t;
+      AnnotatorType t;
       std::string d;
+      std::string f;
+      std::set<std::string> p;
     };
     void incrRef( AnnotationType::AnnotationType, const std::string& );
     void decrRef( AnnotationType::AnnotationType, const std::string& );
     void setmode( const std::string& ) const;
     std::string getmode() const;
+    int setdebug( int val ){ int ret=debug; debug=val; return ret;};
     std::multimap<AnnotationType::AnnotationType,std::string> unused_declarations( ) const;
-      const MetaData *get_submetadata( const std::string& m ){
+    const MetaData *get_submetadata( const std::string& m ){
       const auto& it = submetadata.find( m );
       if ( it == submetadata.end() ){
 	return 0;
@@ -227,9 +281,11 @@ namespace folia {
     std::map<AnnotationType::AnnotationType,std::multimap<std::string,at_t> > annotationdefaults() const { return _annotationdefaults; };
     void parse_metadata( const xmlNode * );
     void setDocumentProps( KWargs& );
+    Provenance *provenance() const { return _provenance;};
   private:
     void adjustTextMode();
     std::map<AnnotationType::AnnotationType,std::multimap<std::string,at_t> > _annotationdefaults;
+    std::map<AnnotationType::AnnotationType,std::map<std::string,bool> > _groupannotations;
     std::vector<std::pair<AnnotationType::AnnotationType,std::string>> _anno_sort;
     std::map<AnnotationType::AnnotationType,std::map<std::string,int> > _annotationrefs;
     std::map<AnnotationType::AnnotationType,std::map<std::string,std::string>> _alias_set;
@@ -238,14 +294,20 @@ namespace folia {
     std::vector<PhonContent*> p_offset_validation_buffer;
 
     void setimdi( xmlNode * );
-    void parseannotations( const xmlNode * );
-    void parsesubmeta( const xmlNode * );
+    void parse_annotations( const xmlNode * );
+    void parse_provenance( const xmlNode * );
+    void parse_submeta( const xmlNode * );
     void getstyles();
-    void setannotations( xmlNode *) const;
+    void setannotations( xmlNode * ) const;
+    void setprovenance( xmlNode * ) const;
     void setmetadata( xmlNode * ) const;
     void addsubmetadata( xmlNode *) const;
     void setstyles( xmlDoc* ) const;
-    xmlDoc *to_xmlDoc( const std::string& ="", bool=false ) const;
+    void append_processor( xmlNode *, const processor * ) const;
+    xmlDoc *to_xmlDoc( const std::string& ="" ) const;
+    void add_one_anno( const std::pair<AnnotationType::AnnotationType,std::string>&,
+		       xmlNode *,
+		       std::set<std::string>& ) const;
     std::map<std::string, FoliaElement* > sindex;
     std::vector<FoliaElement* > iindex;
     std::vector<FoliaElement*> data;
@@ -258,6 +320,7 @@ namespace folia {
     const xmlChar* _foliaNsIn_prefix;
     mutable xmlNs *_foliaNsOut;
     MetaData *_metadata;
+    Provenance *_provenance;
     std::map<std::string,MetaData *> submetadata;
     std::multimap<std::string,std::string> styles;
     mutable Mode mode;
@@ -272,6 +335,25 @@ namespace folia {
     Document& operator=( const Document& ); // inhibit copies
   };
 
+  template <> inline
+    Text *Document::create_root( const KWargs& args ){
+    return setTextRoot( args );
+  }
+
+  template <> inline
+    Speech *Document::create_root( const KWargs& args ){
+    return setSpeechRoot( args );
+  }
+
+  template <> inline
+    Text *Document::create_root(){
+    return setTextRoot();
+  }
+  template <> inline
+    Speech *Document::create_root(){
+    return setSpeechRoot();
+  }
+
   bool operator==( const Document&, const Document& );
   inline bool operator!=( const Document& d1, const Document& d2 ){
     return !( d1==d2 );
@@ -283,10 +365,7 @@ namespace folia {
     return os;
   }
 
-  inline std::ostream& operator<<( std::ostream& os, const Document::at_t& at ){
-    os << "<" << at.a << "," << at.t << "," << at.d << ">";
-    return os;
-  }
+  std::ostream& operator<<( std::ostream& os, const Document::at_t& at );
 
   void expand_version_string( const std::string&,
 			      int&, int&, int&, std::string& );
