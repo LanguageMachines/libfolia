@@ -29,6 +29,7 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #include <netdb.h>
+#include <random>
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -73,6 +74,20 @@ namespace folia {
       os << "NO PROCESSOR";
     }
     return os;
+  }
+
+  unsigned long long random64(){
+    static std::random_device rd;
+    static std::uniform_int_distribution<unsigned long long> dis;
+    static std::mt19937_64 gen(rd());
+    return dis(gen);
+  }
+
+  string randnum( int len ){
+    stringstream ss;
+    ss << random64() << endl;
+    string result = ss.str();
+    return result.substr(0,len);
   }
 
   string getfqdn( ){

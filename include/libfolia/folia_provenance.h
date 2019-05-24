@@ -124,6 +124,9 @@ namespace folia {
   std::ostream& operator<<( std::ostream&, const Provenance& );
   std::ostream& operator<<( std::ostream&, const Provenance * );
 
+  std::string randnum( int len );
+  //  std::string randnum8(){ return randnum(8); };
+
 } // namespace folia
 
 #endif // FOLIA_PROVENANCE_H
