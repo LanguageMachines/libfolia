@@ -253,14 +253,14 @@ namespace folia {
     }
   }
 
-  processor *Provenance::get_processor_by_name( const string& name ) const {
-    const auto& p = _name_index.find( name );
-    if ( p != _name_index.end() ){
-      return p->second;
+  vector<processor*> Provenance::get_processors_by_name( const string& name ) const {
+    vector<processor*> result;
+    for ( auto p = _name_index.lower_bound( name );
+	  p !=  _name_index.upper_bound( name );
+	  ++p ){
+      result.push_back( p->second );
     }
-    else {
-      return 0;
-    }
+    return result;
   }
 
   processor *Provenance::get_top_processor() const {
@@ -269,7 +269,7 @@ namespace folia {
 
   void Provenance::add_index( processor *p ){
     _index[p->id()] = p;
-    _name_index[p->name()] = p;
+    _name_index.insert( make_pair(p->name(),p) );
   }
 
   processor *Provenance::parse_processor( const xmlNode *node ) {

@@ -711,13 +711,12 @@ namespace folia {
     }
   }
 
-  processor *Document::get_processor_by_name( const string& name ) const {
+  vector<processor*> Document::get_processors_by_name( const string& name ) const {
+    vector<processor*> result;
     if ( _provenance ){
-      return _provenance->get_processor_by_name( name );
+      result = _provenance->get_processors_by_name( name );
     }
-    else {
-      return 0;
-    }
+    return result;
   }
 
   processor *Document::add_processor( const KWargs& _args,

@@ -150,7 +150,7 @@ int main( int argc, char* argv[] ){
       }
       cmd += mode;
       folia::Document d( cmd );
-      if ( !(kanon||strip) && !d.get_processor_by_name( "folialint" ) ){
+      if ( !(kanon||strip) && d.get_processors_by_name( "folialint" ).empty() ){
 	folia::KWargs args;
 	args["name"] = "folialint";
 	args["id"] = "folialint";

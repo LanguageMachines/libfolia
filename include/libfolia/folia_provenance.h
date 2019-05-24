@@ -99,7 +99,7 @@ namespace folia {
     ~Provenance();
     processor *parse_processor( const xmlNode * );
     processor *get_processor( const std::string& ) const;
-    processor *get_processor_by_name( const std::string& ) const;
+    std::vector<processor*> get_processors_by_name( const std::string& ) const;
     processor *get_top_processor() const;
     xmlNode *xml();
     Provenance *parseXml( const xmlNode * );
@@ -116,7 +116,7 @@ namespace folia {
   private:
     processor*  _first_proc;
     std::map<std::string,processor*> _index;
-    std::map<std::string,processor*> _name_index;
+    std::multimap<std::string,processor*> _name_index;
     Provenance( const Provenance& ); // inhibit copy
     Provenance& operator=( const Provenance& ); // inhibit copies
   };
