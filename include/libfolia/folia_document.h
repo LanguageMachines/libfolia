@@ -282,6 +282,7 @@ namespace folia {
     void parse_metadata( const xmlNode * );
     void setDocumentProps( KWargs& );
     Provenance *provenance() const { return _provenance;};
+    std::string filename() const { return _source_filename; };
   private:
     void adjustTextMode();
     std::map<AnnotationType::AnnotationType,std::multimap<std::string,at_t> > _annotationdefaults;
