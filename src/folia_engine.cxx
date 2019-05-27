@@ -330,13 +330,14 @@ namespace folia {
   }
 
   bool Engine::init_doc( const string& file_name,
-			    const string& out_name ){
+			 const string& out_name ){
     _ok = false;
     _out_doc = new Document();
     if ( !out_name.empty() ){
       _os = new ofstream( out_name );
       _out_name = out_name;
     }
+    _out_doc->_source_filename = file_name;
     _reader = create_text_reader( file_name );
     if ( _reader == 0 ){
       throw( runtime_error( "folia::Engine(), init failed on '" + file_name
