@@ -708,7 +708,6 @@ namespace folia {
   KWargs AbstractElement::collectAttributes() const {
     KWargs attribs;
     bool isDefaultSet = true;
-    bool isDefaultAnn = true;
 
     if ( !_id.empty() ) {
       attribs["xml:id"] = _id;
@@ -742,6 +741,7 @@ namespace folia {
       }
     }
     else {
+      bool isDefaultAnn = true;
       if ( !_annotator.empty() &&
 	   _annotator != doc()->default_annotator( annotation_type(), _set ) ) {
 	isDefaultAnn = false;
