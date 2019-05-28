@@ -270,15 +270,16 @@ namespace folia {
   void Provenance::add_index( processor *p ){
     _index[p->id()] = p;
     _name_index.insert( make_pair(p->name(),p) );
+    if ( _first_proc == 0 ){
+      _first_proc = p;
+    }
   }
 
   processor *Provenance::parse_processor( const xmlNode *node ) {
     KWargs atts = getAttributes( node );
     processor *result = new processor( atts );
+    //    cerr << "created procesor(" << atts << ")" << endl;
     add_index( result );
-    if ( _first_proc == 0 ){
-      _first_proc = result;
-    }
     xmlNode *n = node->children;
     while ( n ){
       string tag = TiCC::Name( n );

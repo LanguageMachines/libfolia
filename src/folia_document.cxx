@@ -1652,13 +1652,6 @@ namespace folia {
       if ( d == "now()" ){
 	d = get_ISO_date();
       }
-      if ( procs.empty() && _provenance
-	   && annotator.empty() ){
-	folia::processor *p = get_default_processor();
-	if ( p ){
-	  procs.insert( p->id() );
-	}
-      }
       if ( procs.empty() ){
 	// old style
 	_annotationdefaults[type].insert( make_pair( setname,

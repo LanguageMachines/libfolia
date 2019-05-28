@@ -1610,7 +1610,6 @@ namespace folia {
     AbstractStructureElement( PROPS, d ){ classInit(); }
   Text( const KWargs& a, Document *d = 0 ):
     AbstractStructureElement( PROPS, d ){ classInit( a ); }
-
   private:
     static properties PROPS;
   };
