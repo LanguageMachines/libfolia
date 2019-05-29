@@ -983,7 +983,7 @@ namespace folia {
       n = n->next;
     }
     _provenance = result;
-    cerr << "provenance=" << _provenance << endl;
+    //    cerr << "provenance=" << _provenance << endl;
   }
 
   void Document::parse_submeta( const xmlNode *node ){
