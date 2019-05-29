@@ -176,7 +176,13 @@ namespace folia {
       _id = generate_id( prov, _name );
     }
     else {
-      _id = id;
+      vector<string> parts = TiCC::split_at_first_of( id, "()" );
+      if ( parts.size() > 1 ){
+	_id = generate_id( prov, parts[1] );
+      }
+      else {
+	_id = id;
+      }
     }
     for ( const auto& att : atts ){
       if ( att.first == "begindatetime" ){
