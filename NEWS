@@ -1,6 +1,30 @@
 2.0 2019-05-22
 [Ko vd Sloot]
-getting ready
+Major release.
+* Supports the new FoLiA 2.0 features:
+  - provenance support
+  - more stricter checking on annotation declarations
+  - added the new TextMarkupReference class
+  - supports Hidden Words.
+  - All structure elements can have the 'space' attribute
+  - support for groupannotations
+  - many more.
+
+* API and ABI breaches:
+  - libray version bumped to version 10
+  - many functions are renamed
+  - the text() functions have an ENUM parameter now to select for STRICT,
+    RETAIN or HIDDEN
+
+* bug fixes
+  - support for xlink: improved
+  - there as a rare mixup between <text> nodes and <text-annotation> nodes in
+    the folia::Engine
+  - all <wref> nodes get a 't' attribute now on serializing.
+  - reading Extrenal Folia could getint an endless loop
+
+* code refactoring and cleanup
+
 1.16 2019-05-15
 [Ko van der Sloot]
 stabilizing release for folia1.5. Next release wil support the new FoLiA 2.0
