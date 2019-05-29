@@ -121,8 +121,8 @@ namespace folia {
   processor::processor(){
   }
 
-  processor::processor( const KWargs & args ){
-    init(args);
+  processor::processor( Provenance *prov, const KWargs& args ){
+    init( prov, args);
   }
 
   string get_user(){
@@ -141,8 +141,43 @@ namespace folia {
     _user = get_user();
   }
 
-  void processor::init( const KWargs& atts ) {
+  string processor::generate_id( Provenance *prov,
+				 const string& name ){
+    auto it = prov->_names.find(name);
+    if ( it == prov->_names.end() ){
+      prov->_names[name].insert(1);
+      return name + ".1";
+    }
+    else {
+      int val = *(it->second.end());
+      prov->_names[name].insert(++val);
+      return name + "." + TiCC::toString(val);
+    }
+  }
+
+  void processor::init( Provenance *prov, const KWargs& atts_in ) {
     _type = AUTO;
+    KWargs atts = atts_in;
+    string name = atts.extract("name");
+    if ( name.empty() ){
+      throw XmlError( "processor: missing 'name' attribute" );
+    }
+    else {
+      _name = name;
+    }
+    string id = atts.extract("id");
+    if ( id.empty() ){
+      id = atts.extract("xml:id");
+    }
+    if ( id.empty() ){
+      throw XmlError( "processor: missing 'xml:id' attribute" );
+    }
+    if ( id == "generate()" ){
+      _id = generate_id( prov, _name );
+    }
+    else {
+      _id = id;
+    }
     for ( const auto& att : atts ){
       if ( att.first == "begindatetime" ){
 	if ( att.second == "now()" ){
@@ -159,13 +194,6 @@ namespace folia {
 	else {
 	  _enddatetime = att.second;
 	}
-      }
-      else if ( att.first == "id"
-		|| att.first == "xml:id" ){
-	_id = att.second;
-      }
-      else if ( att.first == "name" ){
-	_name = att.second;
       }
       else if ( att.first == "version" ){
 	_version = att.second;
@@ -203,12 +231,6 @@ namespace folia {
       else if ( att.first == "format" ){
 	_format = att.second;
       }
-    }
-    if ( _id.empty() ){
-      throw XmlError( "processor: missing 'xml:id' attribute" );
-    }
-    if ( _name.empty() ){
-      throw XmlError( "processor: missing 'name' attribute" );
     }
   }
 
@@ -277,7 +299,7 @@ namespace folia {
 
   processor *Provenance::parse_processor( const xmlNode *node ) {
     KWargs atts = getAttributes( node );
-    processor *result = new processor( atts );
+    processor *result = new processor( this, atts );
     //    cerr << "created procesor(" << atts << ")" << endl;
     add_index( result );
     xmlNode *n = node->children;
@@ -306,6 +328,7 @@ namespace folia {
 
   ostream& operator<<( ostream& os, const Provenance& p ){
     os << "provenance data" << endl;
+    os << "NAMES: " << p._names << endl;
     for ( const auto& pr : p.processors ){
       pr->print( os, 2 );
       os << endl;

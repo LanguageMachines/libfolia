@@ -46,11 +46,12 @@ namespace folia {
     friend class Document;
     friend class Provenance;
   public:
-    processor( const KWargs& );
+    processor( Provenance*, const KWargs& );
     processor();
     ~processor();
-    void init( const KWargs& );
+    void init( Provenance*, const KWargs& );
     void get_system_defaults();
+    std::string generate_id( Provenance*, const std::string& );
     std::string name() const { return _name; };
     std::string annotator() const { return _name; };
     std::string id() const { return _id; };
@@ -94,6 +95,8 @@ namespace folia {
   std::ostream& operator<<( std::ostream&, const processor * );
 
   class Provenance {
+    friend class processor;
+    friend std::ostream& operator<<( std::ostream&, const Provenance& );
   public:
   Provenance():_first_proc(0){};
     ~Provenance();
@@ -116,6 +119,7 @@ namespace folia {
   private:
     processor*  _first_proc;
     std::map<std::string,processor*> _index;
+    std::map<std::string,std::set<int>> _names;
     std::multimap<std::string,processor*> _name_index;
     Provenance( const Provenance& ); // inhibit copy
     Provenance& operator=( const Provenance& ); // inhibit copies

@@ -779,16 +779,17 @@ namespace folia {
       throw DuplicateIDError( "processor '" + pid + "' already exist" );
     }
     args["xml:id"] = pid;
-    p = new processor( args );
+    p = new processor( _provenance, args );
     _provenance->add_index(p);
     if ( args.find("generator") != args.end() ){
       // we automagicly add a subprocessor.
-      processor *sub = new processor();
-      sub->_folia_version = folia_version();
-      sub->_version = library_version();
-      sub->_id = p->_id + ".generator";
-      sub->_type = GENERATOR;
-      sub->_name = "libfolia";
+      KWargs atts;
+      atts["folia_version"] = folia_version();
+      atts["version"] = library_version();
+      atts["type"] = "GENERATOR";
+      atts["id"] = p->_id + ".generator";
+      atts["name"] = "libfolia";
+      processor *sub = new processor( _provenance, atts );
       p->_processors.push_back(sub);
     }
     if ( parent ){
@@ -982,6 +983,7 @@ namespace folia {
       n = n->next;
     }
     _provenance = result;
+    cerr << "provenance=" << _provenance << endl;
   }
 
   void Document::parse_submeta( const xmlNode *node ){
