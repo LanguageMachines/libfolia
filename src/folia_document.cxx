@@ -727,59 +727,10 @@ namespace folia {
     }
     if ( !parent ){
       if ( !_provenance ){
-	_provenance = new Provenance();
+	_provenance = new Provenance(this);
       }
     }
-    auto it = args.find( "id" );
-    if ( it == args.end() ){
-      it = args.find( "xml:id" );
-      if ( it == args.end() ){
-	throw runtime_error( "cannot create a processor: missing 'xml:id' argument" );
-      }
-    }
-    string pid = it->second;
-    if ( pid == "next()" ){
-      if ( debug ){
-	cerr << "CALCULATE NEXT" << endl;
-      }
-      if ( parent ){
-	if ( !parent->processors().empty() ){
-	  string prev_id = parent->processors().back()->id();
-	  if ( debug ){
-	    cerr << "prev id = " << prev_id << endl;
-	  }
-	  vector<string> v = TiCC::split_at( prev_id, "." );
-	  int val;
-	  if ( TiCC::stringTo( v.back(), val ) ){
-	    v.back() = TiCC::toString(++val);
-	  }
-	  else {
-	    // not a number, just add .1 then, and pray
-	    v.back() += ".1";
-	  }
-	  pid.clear();
-	  for ( const auto& it :  v ){
-	    pid += it + ".";
-	  }
-	  pid.pop_back();
-	}
-	else {
-	  pid = parent->id() + ".1";
-	}
-	if ( debug ){
-	  cerr << "next pid =" << pid << endl;
-	}
-      }
-      else {
-	throw runtime_error( "processor id=next() impossible. No parent" );
-      }
-    }
-    processor *p = get_processor( pid );
-    if ( p ){
-      throw DuplicateIDError( "processor '" + pid + "' already exist" );
-    }
-    args["xml:id"] = pid;
-    p = new processor( _provenance, args );
+    processor *p = new processor( _provenance, parent, args );
     _provenance->add_index(p);
     if ( args.find("generator") != args.end() ){
       // we automagicly add a subprocessor.
@@ -789,7 +740,7 @@ namespace folia {
       atts["type"] = "GENERATOR";
       atts["id"] = p->_id + ".generator";
       atts["name"] = "libfolia";
-      processor *sub = new processor( _provenance, atts );
+      processor *sub = new processor( _provenance, 0, atts );
       p->_processors.push_back(sub);
     }
     if ( parent ){
@@ -973,7 +924,7 @@ namespace folia {
   }
 
   void Document::parse_provenance( const xmlNode *node ){
-    Provenance *result = new Provenance();
+    Provenance *result = new Provenance(this);
     xmlNode *n = node->children;
     while ( n ){
       string tag = TiCC::Name( n );

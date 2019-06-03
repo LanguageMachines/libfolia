@@ -121,8 +121,10 @@ namespace folia {
   processor::processor(){
   }
 
-  processor::processor( Provenance *prov, const KWargs& args ){
-    init( prov, args);
+  processor::processor( Provenance *prov,
+			processor* parent,
+			const KWargs& args ){
+    init( prov, parent, args);
   }
 
   string get_user(){
@@ -143,19 +145,53 @@ namespace folia {
 
   string processor::generate_id( Provenance *prov,
 				 const string& name ){
+    string new_id;
     auto it = prov->_names.find(name);
     if ( it == prov->_names.end() ){
       prov->_names[name].insert(1);
-      return name + ".1";
+      new_id = name + ".1";
     }
     else {
       int val = *(it->second.end());
       prov->_names[name].insert(++val);
-      return name + "." + TiCC::toString(val);
+      new_id = name + "." + TiCC::toString(val);
     }
+    if ( prov->_doc->index(new_id) != 0 ){
+      // oops creating an existing one. Not good
+      return generate_id( prov, name + "_1" );
+    }
+    return new_id;
   }
 
-  void processor::init( Provenance *prov, const KWargs& atts_in ) {
+  string processor::calculate_next_id(){
+    string new_id;
+    if ( !processors().empty() ){
+      string prev_id = processors().back()->id();
+      vector<string> v = TiCC::split_at( prev_id, "." );
+      int val;
+      if ( TiCC::stringTo( v.back(), val ) ){
+	v.back() = TiCC::toString(++val);
+      }
+      else {
+	// not a number, just add .1 then, and pray
+	v.back() += ".1";
+      }
+      for ( const auto& it :  v ){
+	new_id += it + ".";
+      }
+      new_id.pop_back();
+    }
+    else {
+      new_id = id() + ".1";
+    }
+    return new_id;
+  }
+
+  //#define PROC_DEBUG
+
+  void processor::init( Provenance *prov,
+			processor *parent,
+			const KWargs& atts_in ) {
     _type = AUTO;
     KWargs atts = atts_in;
     string name = atts.extract("name");
@@ -165,25 +201,57 @@ namespace folia {
     else {
       _name = name;
     }
+#ifdef PROC_DEBUG
+    cerr << "new processor(" << atts_in << ")" << endl;
+#endif
     string id = atts.extract("id");
     if ( id.empty() ){
       id = atts.extract("xml:id");
     }
     if ( id.empty() ){
-      throw XmlError( "processor: missing 'xml:id' attribute" );
-    }
-    if ( id == "generate()" ){
-      _id = generate_id( prov, _name );
-    }
-    else {
-      vector<string> parts = TiCC::split_at_first_of( id, "()" );
-      if ( parts.size() > 1 ){
-	_id = generate_id( prov, parts[1] );
+      string gen = atts.extract("generateid");
+      if ( gen.empty() ){
+	throw XmlError( "processor: missing 'xml:id' attribute" );
+      }
+#ifdef PROC_DEBUG
+      cerr << "new processor generate_id() gen==" << gen << endl;
+#endif
+      if ( gen == "auto()" ){
+	id = generate_id( prov, _name );
+#ifdef PROC_DEBUG
+	cerr << "new processor generate_id(" << _name << ") ==>" << id << endl;
+#endif
+      }
+      else if ( gen == "next()" ){
+	if ( !parent ){
+	  throw runtime_error( "processor id=next() impossible. No parent" );
+	}
+	id = parent->calculate_next_id();
+#ifdef PROC_DEBUG
+	cerr << "new processor calculate_next() ==>" << id << endl;
+#endif
       }
       else {
-	_id = id;
+	id = generate_id( prov, gen );
+#ifdef PROC_DEBUG
+	cerr << "new processor generate_id(" << gen << ") ==>" << id << endl;
+#endif
       }
     }
+    else if ( id == "next()" ){
+      if ( !parent ){
+	throw runtime_error( "processor id=next() impossible. No parent" );
+      }
+      id = parent->calculate_next_id();
+#ifdef PROC_DEBUG
+      cerr << "new processor calculate SPECIAAL() ==>" << id << endl;
+#endif
+    }
+    processor *check = prov->get_processor( id );
+    if ( check ){
+      throw DuplicateIDError( "processor '" + id + "' already exist" );
+    }
+    _id = id;
     for ( const auto& att : atts ){
       if ( att.first == "begindatetime" ){
 	if ( att.second == "now()" ){
@@ -305,7 +373,7 @@ namespace folia {
 
   processor *Provenance::parse_processor( const xmlNode *node ) {
     KWargs atts = getAttributes( node );
-    processor *result = new processor( this, atts );
+    processor *result = new processor( this, 0, atts );
     //    cerr << "created procesor(" << atts << ")" << endl;
     add_index( result );
     xmlNode *n = node->children;

@@ -46,12 +46,13 @@ namespace folia {
     friend class Document;
     friend class Provenance;
   public:
-    processor( Provenance*, const KWargs& );
+    processor( Provenance*, processor*, const KWargs& );
     processor();
     ~processor();
-    void init( Provenance*, const KWargs& );
+    void init( Provenance*, processor*, const KWargs& );
     void get_system_defaults();
     std::string generate_id( Provenance*, const std::string& );
+    std::string calculate_next_id();
     std::string name() const { return _name; };
     std::string annotator() const { return _name; };
     std::string id() const { return _id; };
@@ -98,7 +99,7 @@ namespace folia {
     friend class processor;
     friend std::ostream& operator<<( std::ostream&, const Provenance& );
   public:
-  Provenance():_first_proc(0){};
+  Provenance( Document *doc ): _doc(doc),_first_proc(0){};
     ~Provenance();
     processor *parse_processor( const xmlNode * );
     processor *get_processor( const std::string& ) const;
@@ -117,6 +118,7 @@ namespace folia {
     };
     void add_index( processor *p );
   private:
+    Document*  _doc; // which doc we belong to.
     processor*  _first_proc;
     std::map<std::string,processor*> _index;
     std::map<std::string,std::set<int>> _names;
