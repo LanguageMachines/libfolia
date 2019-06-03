@@ -118,15 +118,6 @@ namespace folia {
     return result;
   }
 
-  processor::processor(){
-  }
-
-  processor::processor( Provenance *prov,
-			processor* parent,
-			const KWargs& args ){
-    init( prov, parent, args);
-  }
-
   string get_user(){
     string result;
     const char *env = getenv( "USER" );
@@ -139,7 +130,7 @@ namespace folia {
   void processor::get_system_defaults(){
     _host = getfqdn();
     _begindatetime = get_ISO_date();
-    _folia_version = folia_version();
+    _folia_version = folia::folia_version();
     _user = get_user();
   }
 
@@ -189,8 +180,8 @@ namespace folia {
 
   //#define PROC_DEBUG
 
-  void processor::init( Provenance *prov,
-			processor *parent,
+  processor::processor( Provenance *prov,
+			processor* parent,
 			const KWargs& atts_in ) {
     _type = AUTO;
     KWargs atts = atts_in;
@@ -305,7 +296,24 @@ namespace folia {
       else if ( att.first == "format" ){
 	_format = att.second;
       }
+      else if ( att.first == "generator" ){
+	// we automagicly add a subprocessor.
+	KWargs atts;
+	atts["folia_version"] = folia::folia_version();
+	atts["version"] = library_version();
+	atts["type"] = "GENERATOR";
+	atts["id"] = _id + ".generator";
+	atts["name"] = "libfolia";
+	new processor( prov, this, atts );
+      }
     }
+    if ( parent ){
+      parent->_processors.push_back( this );
+    }
+    else {
+      prov->processors.push_back( this );
+    }
+    prov->add_index(this);
   }
 
   processor::~processor(){
@@ -371,19 +379,18 @@ namespace folia {
     }
   }
 
-  processor *Provenance::parse_processor( const xmlNode *node ) {
+  processor *Provenance::parse_processor( const xmlNode *node,
+					  processor *parent ) {
     KWargs atts = getAttributes( node );
-    processor *result = new processor( this, 0, atts );
+    processor *result = new processor( this, parent, atts );
     //    cerr << "created procesor(" << atts << ")" << endl;
-    add_index( result );
     xmlNode *n = node->children;
     while ( n ){
       string tag = TiCC::Name( n );
       if ( tag == "processor" ){
-     	processor *p = parse_processor(n);
-	result->_processors.push_back(p);
+     	parse_processor(n,result);
       }
-      if ( tag == "meta" ){
+      else if ( tag == "meta" ){
 	KWargs atts = getAttributes( n );
 	string id = atts["id"];
 	if ( id.empty() ){

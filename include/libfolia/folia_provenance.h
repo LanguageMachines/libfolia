@@ -47,9 +47,7 @@ namespace folia {
     friend class Provenance;
   public:
     processor( Provenance*, processor*, const KWargs& );
-    processor();
     ~processor();
-    void init( Provenance*, processor*, const KWargs& );
     void get_system_defaults();
     std::string generate_id( Provenance*, const std::string& );
     std::string calculate_next_id();
@@ -101,7 +99,7 @@ namespace folia {
   public:
   Provenance( Document *doc ): _doc(doc),_first_proc(0){};
     ~Provenance();
-    processor *parse_processor( const xmlNode * );
+    processor *parse_processor( const xmlNode *, processor * =0 );
     processor *get_processor( const std::string& ) const;
     std::vector<processor*> get_processors_by_name( const std::string& ) const;
     processor *get_top_processor() const;

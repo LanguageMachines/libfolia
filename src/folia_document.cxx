@@ -725,30 +725,11 @@ namespace folia {
     if ( debug ){
       cerr << "ADD_PROCESSOR: " << args << endl;
     }
-    if ( !parent ){
-      if ( !_provenance ){
-	_provenance = new Provenance(this);
-      }
+    if ( !parent
+	 && !_provenance ){
+      _provenance = new Provenance(this);
     }
     processor *p = new processor( _provenance, parent, args );
-    _provenance->add_index(p);
-    if ( args.find("generator") != args.end() ){
-      // we automagicly add a subprocessor.
-      KWargs atts;
-      atts["folia_version"] = folia_version();
-      atts["version"] = library_version();
-      atts["type"] = "GENERATOR";
-      atts["id"] = p->_id + ".generator";
-      atts["name"] = "libfolia";
-      processor *sub = new processor( _provenance, 0, atts );
-      p->_processors.push_back(sub);
-    }
-    if ( parent ){
-      parent->_processors.push_back( p );
-    }
-    else {
-      _provenance->processors.push_back( p );
-    }
     return p;
   }
 
@@ -929,7 +910,7 @@ namespace folia {
     while ( n ){
       string tag = TiCC::Name( n );
       if ( tag == "processor" ){
-	result->processors.push_back( result->parse_processor(n) );
+	result->parse_processor(n);
       }
       n = n->next;
     }
