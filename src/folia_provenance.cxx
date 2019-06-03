@@ -215,7 +215,7 @@ namespace folia {
       }
       else if ( gen == "next()" ){
 	if ( !parent ){
-	  throw runtime_error( "processor id=next() impossible. No parent" );
+	  throw invalid_argument( "processor id=next() impossible. No parent" );
 	}
 	id = parent->calculate_next_id();
 #ifdef PROC_DEBUG
@@ -231,7 +231,7 @@ namespace folia {
     }
     else if ( id == "next()" ){
       if ( !parent ){
-	throw runtime_error( "processor id=next() impossible. No parent" );
+	throw invalid_argument( "processor id=next() impossible. No parent" );
       }
       id = parent->calculate_next_id();
 #ifdef PROC_DEBUG
