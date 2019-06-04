@@ -215,9 +215,13 @@ namespace folia {
       }
       else if ( gen == "next()" ){
 	if ( !parent ){
-	  throw invalid_argument( "processor id=next() impossible. No parent" );
+	  // fall back to auto()
+	  id = generate_id( prov, _name );
+	  //	throw invalid_argument( "processor id=next() impossible. No parent" );
 	}
-	id = parent->calculate_next_id();
+	else {
+	  id = parent->calculate_next_id();
+	}
 #ifdef PROC_DEBUG
 	cerr << "new processor calculate_next() ==>" << id << endl;
 #endif
@@ -231,9 +235,13 @@ namespace folia {
     }
     else if ( id == "next()" ){
       if ( !parent ){
-	throw invalid_argument( "processor id=next() impossible. No parent" );
+	// fall back to auto()
+	id = generate_id( prov, _name );
+	//	throw invalid_argument( "processor id=next() impossible. No parent" );
       }
-      id = parent->calculate_next_id();
+      else {
+	id = parent->calculate_next_id();
+      }
 #ifdef PROC_DEBUG
       cerr << "new processor calculate SPECIAAL() ==>" << id << endl;
 #endif
