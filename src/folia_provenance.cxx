@@ -139,6 +139,10 @@ namespace folia {
     string new_id;
     auto it = prov->_names.find(name);
     if ( it == prov->_names.end() ){
+      if ( !isNCName(name) ){
+	throw XmlError( "generated_id: '" + name
+			+ "' is not a valid base for an NCName." );
+      }
       prov->_names[name].insert(1);
       new_id = name + ".1";
     }
@@ -200,7 +204,7 @@ namespace folia {
       id = atts.extract("xml:id");
     }
     if ( id.empty() ){
-      string gen = atts.extract("generateid");
+      string gen = atts.extract("generate_id");
       if ( gen.empty() ){
 	throw XmlError( "processor: missing 'xml:id' attribute" );
       }
