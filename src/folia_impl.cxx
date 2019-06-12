@@ -347,7 +347,7 @@ namespace folia {
       }
       if ( element_id() != TextContent_t && element_id() != PhonContent_t ) {
 	if ( !doc() ) {
-	  throw ValueError( "Class=" + _class + " is used on a node without a document." );
+	  throw ValueError( "Class=" + val + " is used on a node without a document." );
 	}
 	else if ( _set == "" &&
 		  doc()->default_set( annotation_type() ) == "" &&
@@ -356,7 +356,7 @@ namespace folia {
 	  if ( at == "NONE" ){
 	    at = xmltag();
 	  }
-	  throw ValueError( "Class " + _class + " is used but has no default declaration " +
+	  throw ValueError( "Class " + val + " is used but has no default declaration " +
 			    "for " + at + "-annotation" );
 	}
 	doc()->incrRef( annotation_type(), _set );
