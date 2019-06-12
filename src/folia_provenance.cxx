@@ -252,7 +252,7 @@ namespace folia {
     }
     processor *check = prov->get_processor( id );
     if ( check ){
-      throw DuplicateIDError( "processor '" + id + "' already exist" );
+      throw DuplicateIDError( "processor '" + id + "' already exists" );
     }
     _id = id;
     for ( const auto& att : atts ){
