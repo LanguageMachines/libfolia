@@ -151,7 +151,7 @@ namespace folia {
       prov->_names[name].insert(++val);
       new_id = name + "." + TiCC::toString(val);
     }
-    if ( prov->_doc->index(new_id) != 0 ){
+    if ( prov->get_processor(new_id) != 0 ){
       // oops creating an existing one. Not good
       return generate_id( prov, name + "_1" );
     }
