@@ -713,7 +713,7 @@ namespace folia {
       if ( pnt->tag == "wref"
 	   || pnt->tag == "original" ){
 	//
-	// DON'T sea a wref as a valid textparent.
+	// DON'T see a wref as a valid textparent.
 	// The word is connected elsewhere too
 	// Also an 'original' node is assumed to be part of a correction
 	// so hope for a 'new' node to be found!
@@ -734,7 +734,7 @@ namespace folia {
     if ( result.empty() ){
       // so no deeper text found
       // lets see at this level....
-      const xml_tree *pnt = start;
+      pnt = start;
       while ( pnt ){
 	if ( pnt->tag == "t" && pnt->textclass == textclass ){
 	  // OK text in the right textclass

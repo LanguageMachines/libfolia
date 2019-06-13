@@ -310,13 +310,13 @@ namespace folia {
       }
       else if ( att.first == "generator" ){
 	// we automagicly add a subprocessor.
-	KWargs atts;
-	atts["folia_version"] = folia::folia_version();
-	atts["version"] = library_version();
-	atts["type"] = "GENERATOR";
-	atts["id"] = _id + ".generator";
-	atts["name"] = "libfolia";
-	new processor( prov, this, atts );
+	KWargs g_atts;
+	g_atts["folia_version"] = folia::folia_version();
+	g_atts["version"] = library_version();
+	g_atts["type"] = "GENERATOR";
+	g_atts["id"] = _id + ".generator";
+	g_atts["name"] = "libfolia";
+	new processor( prov, this, g_atts );
       }
     }
     if ( parent ){
@@ -393,9 +393,9 @@ namespace folia {
 
   processor *Provenance::parse_processor( const xmlNode *node,
 					  processor *parent ) {
-    KWargs atts = getAttributes( node );
-    processor *result = new processor( this, parent, atts );
-    //    cerr << "created procesor(" << atts << ")" << endl;
+    KWargs node_atts = getAttributes( node );
+    processor *result = new processor( this, parent, node_atts );
+    //    cerr << "created procesor(" << node_atts << ")" << endl;
     xmlNode *n = node->children;
     while ( n ){
       string tag = TiCC::Name( n );

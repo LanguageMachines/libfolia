@@ -28,6 +28,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <algorithm>
 #include <vector>
 #include <map>
 #include <stdexcept>
@@ -918,18 +919,18 @@ namespace folia {
 
   void Document::parse_submeta( const xmlNode *node ){
     if ( node ){
-      KWargs att = getAttributes( node );
-      string id = att["xml:id"];
+      KWargs node_att = getAttributes( node );
+      string id = node_att["xml:id"];
       if ( id.empty() ){
 	throw MetaDataError( "submetadata without xml:id" );
       }
       //      cerr << "parse submetadata, id=" << id << endl;
-      string type = att["type"];
+      string type = node_att["type"];
       //      cerr << "parse submetadata, type=" << type << endl;
       if ( type.empty() ){
 	type = "native";
       }
-      string src = att["src"];
+      string src = node_att["src"];
       if ( !src.empty() ){
 	submetadata[id] = new ExternalMetaData( type, src );
 	//	cerr << "created External metadata, id=" << id << endl;
@@ -1226,14 +1227,14 @@ namespace folia {
 	  throw runtime_error( "'meta' tag found outside a metadata block" );
 	}
 	KWargs att = getAttributes( m );
-	string type = att["id"];
+	string meta_id = att["id"];
 	string val = TiCC::XmlContent( m );
-	string get = result->get_val( type );
+	string get = result->get_val( meta_id );
 	if ( !get.empty() ){
-	  throw runtime_error( "meta tag with id=" + type
+	  throw runtime_error( "meta tag with id=" + meta_id
 			       + " is defined more then once " );
 	}
-	result->add_av( type, val );
+	result->add_av( meta_id, val );
       }
       else if ( TiCC::Name(m)  == "foreign-data" &&
 		checkNS( m, NSFOLIA ) ){
@@ -1916,7 +1917,7 @@ namespace folia {
     }
     const auto& mit1 = _annotationdefaults.find(type);
     if ( mit1 != _annotationdefaults.end() ){
-      //      cerr << "vond iets voor " << toString(type) << endl;
+      //    cerr << "vond iets voor " << toString(type) << endl;
       for ( auto pos = mit1->second.lower_bound(st);
 	    pos != mit1->second.upper_bound(st);
 	    ++pos ){
@@ -2356,9 +2357,9 @@ namespace folia {
 	for ( const auto& it : _metadata->get_avs() ){
 	  xmlNode *m = TiCC::XmlNewNode( foliaNs(), "meta" );
 	  xmlAddChild( m, xmlNewText( (const xmlChar*)it.second.c_str()) );
-	  KWargs atts;
-	  atts["id"] = it.first;
-	  addAttributes( m, atts );
+	  KWargs meta_atts;
+	  meta_atts["id"] = it.first;
+	  addAttributes( m, meta_atts );
 	  xmlAddChild( node, m );
 	}
       }
@@ -2771,20 +2772,28 @@ namespace folia {
   }
 
   bool Pattern::variablesize() const {
-    for ( const auto& s : sequence ){
-      if ( s == "*" ){
-	return true;
-      }
-    }
-    return false;
+    // for ( const auto& s : sequence ){
+    //   if ( s == "*" ){
+    // 	return true;
+    //   }
+    // }
+    // return false;
+    return any_of( sequence.begin(),
+		   sequence.end(),
+		   []( const UnicodeString& s ) { return s == "*"; } );
   }
 
   void Pattern::unsetwild() {
-    for ( auto& s : sequence ){
-      if ( s == "*" ){
-	s = "*:1";
-      }
-    }
+    // for ( auto& s : sequence ){
+    //   if ( s == "*" ){
+    // 	s = "*:1";
+    //   }
+    // }
+    replace_if( sequence.begin(),
+		sequence.end(),
+		[]( const UnicodeString& s ) { return s == "*"; },
+		"*:1"
+		);
   }
 
   set<int> Pattern::variablewildcards() const {

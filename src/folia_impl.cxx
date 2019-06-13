@@ -289,7 +289,7 @@ namespace folia {
       }
     }
     else {
-      string val = kwargs.extract( "xml:id" );
+      val = kwargs.extract( "xml:id" );
       if ( val.empty() ) {
 	val = kwargs.extract( "_id" ); // for backward compatibility
       }
@@ -470,7 +470,7 @@ namespace folia {
 
     if ( xlink() ) {
       string type = "simple";
-      string val = kwargs.extract( "xlink:type" );
+      val = kwargs.extract( "xlink:type" );
       if ( !val.empty() ) {
 	type = val;
       }
@@ -764,7 +764,7 @@ namespace folia {
       if ( it != _xlink.end() ){
 	string type = it->second;
 	if ( type == "simple" || type == "locator" ){
-	  auto it = _xlink.find("href");
+	  it = _xlink.find("href");
 	  if ( it != _xlink.end() ){
 	    attribs["xlink:href"] = it->second;
 	    attribs["xlink:type"] = type;
@@ -1068,11 +1068,11 @@ namespace folia {
     try {
       us = text(cls);
     }
-    catch( const NoSuchText& e ){
+    catch( const NoSuchText& ){
       try {
 	us = phon(cls);
       }
-      catch( const NoSuchPhon& e ){
+      catch( const NoSuchPhon&){
 	// No TextContent or Phone allowed
       }
     }
@@ -1708,12 +1708,19 @@ namespace folia {
     // replaced old by _new
     // returns old
     // when not found does nothing and returns 0;
-    for ( auto& el: _data ) {
-      if ( el == old ) {
-	el = _new;
-	_new->set_parent( this );
-	return old;
-      }
+    // for ( auto& el: _data ) {
+    //   if ( el == old ) {
+    // 	el = _new;
+    // 	_new->set_parent( this );
+    // 	return old;
+    //   }
+    // }
+    auto it = find_if( _data.begin(),
+		       _data.end(),
+		       [&]( FoliaElement *el ){ return el == old; } );
+    if ( it != _data.end() ){
+      *it = _new;
+      _new->set_parent(this);
     }
     return 0;
   }
@@ -2951,11 +2958,15 @@ namespace folia {
     vector<FoliaElement *> result;
     vector<TextContent*> v = par->FoliaElement::select<TextContent>( sett(),
 								     false );
-    for ( const auto& el:v ) {
-      if ( el->cls() == cls() ) {
-	result.push_back( el );
-      }
-    }
+    // for ( const auto& el:v ) {
+    //   if ( el->cls() == cls() ) {
+    // 	result.push_back( el );
+    //   }
+    // }
+    copy_if( v.begin(),
+	     v.end(),
+	     back_inserter(result),
+	     [&]( FoliaElement *el ){ return el->cls() == cls(); } );
     return result;
   }
 
@@ -3234,9 +3245,10 @@ namespace folia {
 	cerr << "bekijk " << p << endl;
 #endif
 	vector<FoliaElement*> v = p->find_replacables( this );
-	for ( const auto& el: v ) {
-	  orig.push_back( el );
-	}
+	// for ( const auto& el: v ) {
+	//   orig.push_back( el );
+	// }
+	copy( v.begin(), v.end(), back_inserter(orig) );
       }
       if ( orig.empty() ) {
 	throw runtime_error( "No original= specified and unable to automatically infer");
@@ -3948,9 +3960,12 @@ namespace folia {
   vector<FoliaElement *> Relation::resolve() const {
     vector<FoliaElement*> result;
     vector<LinkReference*> v = FoliaElement::select<LinkReference>();
-    for ( const auto& ar : v ){
-      result.push_back( ar->resolve_element( this ) );
-    }
+    // for ( const auto& ar : v ){
+    //   result.push_back( ar->resolve_element( this ) );
+    // }
+    transform( v.begin(), v.end(),
+	       back_inserter(result),
+	       [&]( LinkReference *r ){ return r->resolve_element(this); } );
     return result;
   }
 
