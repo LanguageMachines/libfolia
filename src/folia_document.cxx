@@ -897,8 +897,6 @@ namespace folia {
     }
     if ( debug ){
       cerr << "all group annotations: " << _groupannotations << endl;
-    }
-    if ( debug ){
       cerr << "done with parse_annotation: " << _annotationdefaults << endl;
       cerr << "sorting: " << _anno_sort << endl;
     }
@@ -2094,9 +2092,7 @@ namespace folia {
       if ( !s.empty() ){
 	// old style
 	KWargs args;
-	if ( !s.empty() ){
-	  args["annotator"] = s;
-	}
+	args["annotator"] = s;
 	AnnotatorType ant = it->second.t;
 	if ( ant != UNDEFINED && ant != AUTO ){
 	  args["annotatortype"] = toString(ant);

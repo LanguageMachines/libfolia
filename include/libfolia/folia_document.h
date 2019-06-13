@@ -113,7 +113,7 @@ namespace folia {
     FoliaElement* doc() const { return foliadoc; }
 
     template <typename T>
-      T *create_root( const KWargs& args ){
+      T *create_root( const KWargs& ){
       throw std::logic_error( "create_root() only possible for 'Text' and 'Speech'" );
     }
     template <typename T>

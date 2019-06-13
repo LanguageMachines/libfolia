@@ -684,7 +684,7 @@ namespace folia {
     const std::string language( const std::string& = "" ) const;
     const std::string href() const;
     bool space() const { return _space; };
-    const std::string src(){ return _src; };
+    const std::string src() const { return _src; };
     double confidence() const { return _confidence; };
     void confidence( double d ) { _confidence = d; };
 
