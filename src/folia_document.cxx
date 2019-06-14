@@ -759,6 +759,17 @@ namespace folia {
     }
   }
 
+  void Document::save_orig_ann_defaults(){
+    map<AnnotationType::AnnotationType,string> result;
+    for ( const auto& it : _annotationdefaults ){
+      if ( it.second.size() == 1 ){
+	result.insert( make_pair(it.first,it.second.begin()->first) );
+      }
+    }
+    _orig_ann_defaults = result;
+  }
+
+
   void Document::parse_annotations( const xmlNode *node ){
     if ( debug ){
       cerr << "parse annotations " << TiCC::Name(node) << endl;
@@ -1907,6 +1918,16 @@ namespace folia {
     }
     //    cerr << "default_set ==> " << result << endl;
     return result;
+  }
+
+  string Document::original_default_set( AnnotationType::AnnotationType type ) const {
+    auto const& it = _orig_ann_defaults.find(type);
+    if ( it == _orig_ann_defaults.end() ){
+      return "";
+    }
+    else {
+      return it->second;
+    }
   }
 
   vector<string> Document::get_annotators( AnnotationType::AnnotationType type,

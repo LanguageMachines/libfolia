@@ -194,6 +194,7 @@ namespace folia {
 						   const std::string& ="" ) const;
 
     std::string default_set( AnnotationType::AnnotationType ) const;
+    std::string original_default_set( AnnotationType::AnnotationType ) const;
 
     std::string default_annotator( AnnotationType::AnnotationType,
 				   const std::string& ="" ) const;
@@ -283,6 +284,7 @@ namespace folia {
     void setDocumentProps( KWargs& );
     Provenance *provenance() const { return _provenance;};
     std::string filename() const { return _source_filename; };
+    void save_orig_ann_defaults();
   private:
     void adjustTextMode();
     std::map<AnnotationType::AnnotationType,std::multimap<std::string,at_t> > _annotationdefaults;
@@ -291,6 +293,8 @@ namespace folia {
     std::map<AnnotationType::AnnotationType,std::map<std::string,int> > _annotationrefs;
     std::map<AnnotationType::AnnotationType,std::map<std::string,std::string>> _alias_set;
     std::map<AnnotationType::AnnotationType,std::map<std::string,std::string>> _set_alias;
+    std::map<AnnotationType::AnnotationType,std::string> _orig_ann_defaults;
+
     std::vector<TextContent*> t_offset_validation_buffer;
     std::vector<PhonContent*> p_offset_validation_buffer;
 

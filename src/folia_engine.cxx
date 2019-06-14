@@ -401,6 +401,7 @@ namespace folia {
 	  _current_node = text;
 	  _ok = true;
 	  _start_index = index;
+	  _out_doc->save_orig_ann_defaults();
 	  return _ok;
 	}
 	else if ( local_name == "speech" ){
@@ -411,6 +412,7 @@ namespace folia {
 	  _current_node = sp;
 	  _ok = true;
 	  _start_index = index;
+	  _out_doc->save_orig_ann_defaults();
 	  return _ok;
 	}
 	break;
@@ -430,6 +432,7 @@ namespace folia {
       };
       ret = xmlTextReaderRead(_reader);
     }
+    _out_doc->save_orig_ann_defaults();
     _ok = true;
     return _ok;
   }

@@ -331,6 +331,9 @@ namespace folia {
     }
     else if ( doc() ){
       string def = doc()->default_set( annotation_type() );
+      if ( def.empty() ){
+	def = doc()->original_default_set( annotation_type() );
+      }
       if ( !def.empty() ){
 	_set = def;
       }
@@ -351,6 +354,7 @@ namespace folia {
 	}
 	else if ( _set == "" &&
 		  doc()->default_set( annotation_type() ) == "" &&
+		  doc()->original_default_set( annotation_type() ) == "" &&
 		  doc()->declared( annotation_type() ) ) {
 	  string at =  toString(annotation_type());
 	  if ( at == "NONE" ){
