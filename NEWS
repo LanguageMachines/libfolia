@@ -1,3 +1,13 @@
+2.1 2019-06-19
+[Ko vd Sloot]
+Bug fixes and enhancements:
+* provenance:
+ - added 'generate_id' attribute with 'auto()' and 'next()' values
+ - some code improvements
+* bugs:
+ - When using the FoLiA-engine, we have to save the ORIGINAL annotationdefaults,
+   and use these when parsing.
+
 2.0 2019-05-22
 [Ko vd Sloot]
 Major release.
