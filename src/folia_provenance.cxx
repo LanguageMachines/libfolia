@@ -134,11 +134,16 @@ namespace folia {
     _user = get_user();
   }
 
+#define PROC_DEBUG
+
   string processor::generate_id( Provenance *prov,
 				 const string& name ){
     string new_id;
     auto it = prov->_names.find(name);
     if ( it == prov->_names.end() ){
+#ifdef PROC_DEBUG
+      cerr << "generate_id, " << name << " not found in " <<prov->_names << endl;
+#endif
       if ( !isNCName(name) ){
 	throw XmlError( "generated_id: '" + name
 			+ "' is not a valid base for an NCName." );
@@ -147,11 +152,23 @@ namespace folia {
       new_id = name + ".1";
     }
     else {
+#ifdef PROC_DEBUG
+      cerr << "generate_id, " << name << " found " << endl;
+#endif
       int val = *(it->second.end());
+#ifdef PROC_DEBUG
+      cerr << "generate_id, val=" << val << endl;
+#endif
       prov->_names[name].insert(++val);
+#ifdef PROC_DEBUG
+      cerr << "generate_id, ++val=" << val << endl;
+#endif
       new_id = name + "." + TiCC::toString(val);
     }
     if ( prov->get_processor(new_id) != 0 ){
+#ifdef PROC_DEBUG
+      cerr << "generate_id, id=" << new_id << " exists, loop!" << endl;
+#endif
       // oops creating an existing one. Not good
       return generate_id( prov, name + "_1" );
     }
@@ -182,7 +199,6 @@ namespace folia {
     return new_id;
   }
 
-#define PROC_DEBUG
 
   processor::processor( Provenance *prov,
 			processor* parent,
