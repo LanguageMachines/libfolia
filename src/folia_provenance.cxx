@@ -134,7 +134,7 @@ namespace folia {
     _user = get_user();
   }
 
-#define PROC_DEBUG
+  //#define PROC_DEBUG
 
   string processor::generate_id( Provenance *prov,
 				 const string& name ){
