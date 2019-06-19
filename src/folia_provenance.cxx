@@ -155,7 +155,7 @@ namespace folia {
 #ifdef PROC_DEBUG
       cerr << "generate_id, " << name << " found " << endl;
 #endif
-      int val = *(it->second.end());
+      int val = *(it->second.rbegin());
 #ifdef PROC_DEBUG
       cerr << "generate_id, val=" << val << endl;
 #endif
