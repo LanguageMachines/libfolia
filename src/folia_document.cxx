@@ -1470,7 +1470,7 @@ namespace folia {
 			  const KWargs& _args ){
     KWargs args = _args;
     if ( debug ){
-      cerr << "declare( " << TiCC::toString(type) << "," << setname << ", ["
+      cerr << "declare( " << folia::toString(type) << "," << setname << ", ["
 	   << args << "] )" << endl;
     }
     string st = setname;
@@ -1479,7 +1479,7 @@ namespace folia {
 	st = "undefined";
       }
       else {
-	string prefix = TiCC::toString(type);
+	string prefix = folia::toString(type);
 	auto et_it = annotationtype_elementtype_map.find( type );
 	if ( et_it == annotationtype_elementtype_map.end() ){
 	  throw logic_error( "no matching element_type for annotation_type: "
@@ -1985,7 +1985,7 @@ namespace folia {
 						 const string& st ) const {
     if ( debug ){
       cerr << "annotationdefaults= " <<  _annotationdefaults << endl;
-      cerr << "lookup: " << TiCC::toString(type) << endl;
+      cerr << "lookup: " << folia::toString(type) << endl;
     }
     AnnotatorType result = UNDEFINED;
     if ( type == AnnotationType::NO_ANN ){
@@ -1994,7 +1994,7 @@ namespace folia {
     const auto& mit1 = _annotationdefaults.find(type);
     if ( mit1 != _annotationdefaults.end() ){
       if ( debug ){
-	cerr << "found a hit for type=" << TiCC::toString( type ) << endl;
+	cerr << "found a hit for type=" << folia::toString( type ) << endl;
       }
       if ( st.empty() ){
 	if ( mit1->second.size() == 1 ){
