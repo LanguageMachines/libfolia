@@ -182,7 +182,7 @@ namespace folia {
     return new_id;
   }
 
-  //#define PROC_DEBUG
+#define PROC_DEBUG
 
   processor::processor( Provenance *prov,
 			processor* parent,
