@@ -447,28 +447,29 @@ namespace folia {
   }
 
   void Engine::append_node( FoliaElement *t, int new_depth ){
+    if ( _debug ){
+      DBG << "append_node(" << t << ") current node= " << _current_node << endl;
+    }
     if ( new_depth == _last_depth ){
       if ( _debug ){
-	DBG << "append_node(): EQUAL: current node = " << _current_node << endl;
-	DBG << "last node = " << _last_added << endl;
+	DBG << "apend_node(): EQUAL! last node = " << _last_added << endl;
       }
       _current_node->append( t );
     }
     else if ( new_depth > _last_depth ){
       if ( _debug ){
-	DBG << "append_node(): DEEPER: current node = " << _current_node << endl;
+	DBG << "append_node(): DEEPER!" << endl;
       }
       _current_node = _last_added;
       if ( _debug ){
-	DBG << "Dus nu: current node = " << _current_node << endl;
+	DBG << "So now: current node = " << _current_node << endl;
       }
       _current_node->append( t );
       _last_depth = new_depth;
     }
     else if ( new_depth < _last_depth  ){
       if ( _debug ){
-	DBG << "append_node(): UP current node = " << _current_node << endl;
-	DBG << "last node = " << _last_added << endl;
+	DBG << "append_node(): UP , last node = " << _last_added << endl;
       }
       for ( int i=0; i < _last_depth-new_depth; ++i ){
 	_current_node = _current_node->parent();
@@ -705,8 +706,8 @@ namespace folia {
   }
 
   map<int,int> TextEngine::search_text_parents( const xml_tree* start,
-						   const string& textclass,
-						   bool prefer_sentences ) const{
+						const string& textclass,
+						bool prefer_sentences ) const{
     map<int,int> result;
     const xml_tree *pnt = start;
     while ( pnt ){
@@ -775,7 +776,7 @@ namespace folia {
   }
 
   map<int,int> TextEngine::enumerate_text_parents( const string& textclass,
-						      bool prefer_sent ) const {
+						   bool prefer_sent ) const {
     ///
     /// Loop over the full input, looking for textnodes in class 'textclass'
     /// for the DEEPEST text possible, enumerate their parents
@@ -872,8 +873,8 @@ namespace folia {
   }
 
   void Engine::handle_element( const string& local_name,
-				 int depth,
-				 bool skip_t ){
+			       int depth,
+			       bool skip_t ){
     KWargs atts = get_attributes( _reader );
     if ( _debug ){
       DBG << "name=" << local_name << " atts=" << atts << endl;
@@ -911,6 +912,9 @@ namespace folia {
 	  }
 	  if ( nsu.empty() || nsu == NSFOLIA ){
 	    if ( skip_t && local_name == "t" ){
+	      if ( _debug ){
+		DBG << "skipping a <t> because of skip_t " << endl;
+	      }
 	    }
 	    else if ( ( !skip_t && local_name == "t" )
 		      || local_name == "desc"
@@ -918,9 +922,16 @@ namespace folia {
 		      || local_name == "comment" ){
 	      xmlTextReaderRead(_reader);
 	      const char *val = (const char*)xmlTextReaderConstValue(_reader);
+	      if ( _debug ){
+		DBG << "processsing a <" << local_name << "> with value "
+		    << val << endl;
+	      }
 	      if ( val ) {
 		atts["value"] = val;
 	      }
+	    }
+	    if ( _debug ){
+	      DBG << "SET ATTRIBUTES: " << atts << endl;
 	    }
 	    t->setAttributes( atts );
 	    append_node( t, depth );
@@ -1013,8 +1024,12 @@ namespace folia {
 	  }
 	  return _external_node;
 	}
-	else {
+	else if ( _node_count < _next_text_node ){
 	  handle_element( local_name, new_depth, true );
+	  ++_node_count;
+	}
+	else {
+	  handle_element( local_name, new_depth, false );
 	  ++_node_count;
 	}
       }
