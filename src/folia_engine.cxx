@@ -452,7 +452,7 @@ namespace folia {
     }
     if ( new_depth == _last_depth ){
       if ( _debug ){
-	DBG << "apend_node(): EQUAL! last node = " << _last_added << endl;
+	DBG << "append_node(): EQUAL! last node = " << _last_added << endl;
       }
       _current_node->append( t );
     }
@@ -848,7 +848,7 @@ namespace folia {
   }
 
   FoliaElement *Engine::handle_match( const string& local_name,
-					 int depth ){
+				      int depth ){
     FoliaElement *t = AbstractElement::createElement( local_name, _out_doc );
     if ( t ){
       if ( _debug ){
@@ -922,12 +922,18 @@ namespace folia {
 		      || local_name == "comment" ){
 	      xmlTextReaderRead(_reader);
 	      const char *val = (const char*)xmlTextReaderConstValue(_reader);
-	      if ( _debug ){
-		DBG << "processsing a <" << local_name << "> with value "
-		    << val << endl;
-	      }
 	      if ( val ) {
+		if ( _debug ){
+		  DBG << "processsing a <" << local_name << "> with value '"
+		      << val << "'" << endl;
+		}
 		atts["value"] = val;
+	      }
+	      else {
+		if ( _debug ){
+		  DBG << "processsing a <" << local_name
+		      << "> with empty value " << endl;
+		}
 	      }
 	    }
 	    if ( _debug ){
