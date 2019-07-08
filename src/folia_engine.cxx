@@ -1024,7 +1024,8 @@ namespace folia {
 	  }
 	  return _external_node;
 	}
-	else if ( _node_count < _next_text_node ){
+	else if ( _node_count < _next_text_node
+		  && _next_text_node != INT_MAX ){
 	  handle_element( local_name, new_depth, true );
 	  ++_node_count;
 	}
