@@ -912,6 +912,7 @@ namespace folia {
 	  }
 	  if ( nsu.empty() || nsu == NSFOLIA ){
 	    if ( skip_t && local_name == "t" ){
+	      // so we hit on a <t> but is is NOT the desired one (yet)
 	      if ( _debug ){
 		DBG << "skipping a <t> because of skip_t " << endl;
 	      }
