@@ -165,8 +165,10 @@ namespace folia {
     os << " <" << ae.classname();
     KWargs ats = ae.collectAttributes();
     if ( !ae.id().empty() ) {
-      os << " xml:id=" << ae.id();
+      os << " xml:id='" << ae.id() << '"';
+      ats.erase("xml:id");
     }
+
     for ( const auto& it: ats ) {
       os << " " << it.first << "='" << it.second << "'";
     }
