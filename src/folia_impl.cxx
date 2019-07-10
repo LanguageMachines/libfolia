@@ -1854,7 +1854,8 @@ namespace folia {
     return true;
   }
 
-  bool AbstractElement::addable( const FoliaElement *c ) const {
+  bool AbstractElement::addable( const FoliaElement *c,
+				 bool xml_reader_context ) const {
     if ( !acceptable( c->element_id() ) ) {
       string mess = "Unable to append object of type " + c->classname()
 	+ " to a <" + classname() + ">";
@@ -1902,11 +1903,12 @@ namespace folia {
       }
     }
 #endif
-    if ( c->element_id() == TextContent_t && element_id() == Word_t ) {
+    if ( !xml_reader_context
+	 && c->element_id() == TextContent_t
+	 && element_id() == Word_t ) {
       string val = c->str();
       val = trim( val );
       if ( val.empty() ) {
-	//	abort();
      	throw ValueError( "attempt to add an empty <t> to word: " + _id );
       }
     }
@@ -2009,14 +2011,15 @@ namespace folia {
     return true;
   }
 
-  FoliaElement *AbstractElement::append( FoliaElement *child ) {
+  FoliaElement *AbstractElement::append( FoliaElement *child,
+					 bool xml_reader_context ) {
     if ( !child ){
       throw XmlError( "attempt to append an empty node to a " + classname() );
     }
     bool ok = false;
     try {
       ok = child->checkAtts();
-      ok &= addable( child );
+      ok &= addable( child, xml_reader_context );
     }
     catch ( const XmlError& ) {
       // don't delete the offending child in case of illegal reconnection
@@ -3408,8 +3411,9 @@ namespace folia {
     return tmp;
   }
 
-  FoliaElement *AbstractStructureElement::append( FoliaElement *child ) {
-    AbstractElement::append( child );
+  FoliaElement *AbstractStructureElement::append( FoliaElement *child,
+						  bool xml_reader_context ) {
+    AbstractElement::append( child, xml_reader_context );
     setMaxId( child );
     return child;
   }
@@ -3568,18 +3572,19 @@ namespace folia {
     return sentence()->splitWord( this, part1, part2, getArgs(args) );
   }
 
-  FoliaElement *Word::append( FoliaElement *child ) {
+  FoliaElement *Word::append( FoliaElement *child,
+			      bool xml_reader_context ) {
     if ( child->isSubClass( AbstractAnnotationLayer_t ) ) {
       // sanity check, there may be no other child within the same set
       vector<FoliaElement*> v = select( child->element_id(), child->sett() );
       if ( v.empty() ) {
     	// OK!
-    	return AbstractElement::append( child );
+    	return AbstractElement::append( child, xml_reader_context );
       }
       delete child;
       throw DuplicateAnnotationError( "Word::append" );
     }
-    return AbstractElement::append( child );
+    return AbstractElement::append( child, xml_reader_context );
   }
 
   Sentence *AbstractWord::sentence() const {
@@ -4045,7 +4050,8 @@ namespace folia {
     return this;
   }
 
-  FoliaElement *AbstractSpanAnnotation::append( FoliaElement *child ) {
+  FoliaElement *AbstractSpanAnnotation::append( FoliaElement *child,
+						bool xml_reader_context ) {
     if ( child->referable() ){
       // cerr << "append a word: " << child << " to " << this << endl;
       // cerr << "refcnt=" << child->refcount() << endl;
@@ -4054,7 +4060,7 @@ namespace folia {
        			+ "> is forbidden, use <wref>" );
       }
     }
-    AbstractElement::append( child );
+    AbstractElement::append( child, xml_reader_context );
     if ( child->isinstance(PlaceHolder_t) ) {
       child->increfcount();
     }
@@ -4135,9 +4141,10 @@ namespace folia {
     doc()->incrRef( child->annotation_type(), sett() );
   }
 
-  FoliaElement *AbstractAnnotationLayer::append( FoliaElement *child ) {
+  FoliaElement *AbstractAnnotationLayer::append( FoliaElement *child,
+						 bool xml_reader_context ) {
     assignset( child );
-    return AbstractElement::append( child );
+    return AbstractElement::append( child, xml_reader_context );
   }
 
   KWargs AbstractAnnotationLayer::collectAttributes() const {
@@ -4177,8 +4184,9 @@ namespace folia {
     return e;
   }
 
-  FoliaElement *Quote::append( FoliaElement *child ) {
-    AbstractElement::append( child );
+  FoliaElement *Quote::append( FoliaElement *child,
+			       bool xml_reader_context ) {
+    AbstractElement::append( child, xml_reader_context );
     if ( child->isinstance(Sentence_t) ) {
       child->setAuth( false ); // Sentences under quotes are non-authoritative
     }
