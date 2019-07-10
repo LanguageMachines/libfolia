@@ -448,7 +448,8 @@ namespace folia {
   }
 
   void Engine::append_node( FoliaElement *t,
-			    int new_depth ){
+			    int new_depth,
+			    bool allow_empty_t ){
     if ( _debug ){
       DBG << "append_node(" << t << ") current node= " << _current_node << endl;
       DBG << "append_node(): last node= " << _last_added << endl;
@@ -457,7 +458,7 @@ namespace folia {
       if ( _debug ){
 	DBG << "append_node(): EQUAL!" << endl;
       }
-      _current_node->append( t, true );
+      _current_node->append( t, allow_empty_t );
     }
     else if ( new_depth > _last_depth ){
       if ( _debug ){
@@ -467,7 +468,7 @@ namespace folia {
       if ( _debug ){
 	DBG << "So now: current node = " << _current_node << endl;
       }
-      _current_node->append( t, true );
+      _current_node->append( t, allow_empty_t );
       _last_depth = new_depth;
     }
     else if ( new_depth < _last_depth  ){
@@ -483,7 +484,7 @@ namespace folia {
       if ( _debug ){
 	DBG << "at last, current node = " << _current_node << endl;
       }
-      _current_node->append( t, true );
+      _current_node->append( t, allow_empty_t );
       _last_depth = new_depth;
     }
     _last_added = t;
@@ -944,7 +945,7 @@ namespace folia {
 	      DBG << "SET ATTRIBUTES: " << atts << endl;
 	    }
 	    t->setAttributes( atts );
-	    append_node( t, depth );
+	    append_node( t, depth, local_name == "t" );
 	  }
 	  else {
 	    if ( _debug ){
