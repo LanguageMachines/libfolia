@@ -96,6 +96,7 @@ namespace folia {
     bool set_debug( bool d );
     void set_dbg_stream( TiCC::LogStream * );
     Document *doc( bool=false ); // returns the doc. may disconnect
+    xml_tree *create_simple_tree( const std::string& ) const;
   protected:
     xmlTextReader *_reader;
     Document *_out_doc;
@@ -118,7 +119,6 @@ namespace folia {
     bool _debug;
     bool _text_context;
 
-    xml_tree *create_simple_tree( const std::string& ) const;
     FoliaElement *handle_match( const std::string&, int );
     void handle_element( const std::string&, int, bool );
     void add_default_node( int );
