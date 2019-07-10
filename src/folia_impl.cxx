@@ -1906,6 +1906,7 @@ namespace folia {
       string val = c->str();
       val = trim( val );
       if ( val.empty() ) {
+	//	abort();
      	throw ValueError( "attempt to add an empty <t> to word: " + _id );
       }
     }

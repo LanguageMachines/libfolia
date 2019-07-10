@@ -101,6 +101,7 @@ namespace folia {
   bool TextEngine::init_doc( const string& i, const string& o ){
     _in_file = i;
     _is_setup = false;
+    //    set_debug(true);
     return Engine::init_doc( i, o );
   }
 
@@ -449,10 +450,11 @@ namespace folia {
   void Engine::append_node( FoliaElement *t, int new_depth ){
     if ( _debug ){
       DBG << "append_node(" << t << ") current node= " << _current_node << endl;
+      DBG << "append_node(): last node= " << _last_added << endl;
     }
     if ( new_depth == _last_depth ){
       if ( _debug ){
-	DBG << "append_node(): EQUAL! last node = " << _last_added << endl;
+	DBG << "append_node(): EQUAL!" << endl;
       }
       _current_node->append( t );
     }
@@ -469,7 +471,7 @@ namespace folia {
     }
     else if ( new_depth < _last_depth  ){
       if ( _debug ){
-	DBG << "append_node(): UP , last node = " << _last_added << endl;
+	DBG << "append_node(): UP!" << endl;
       }
       for ( int i=0; i < _last_depth-new_depth; ++i ){
 	_current_node = _current_node->parent();
@@ -478,7 +480,7 @@ namespace folia {
 	}
       }
       if ( _debug ){
-	DBG << "so now: current node = " << _current_node << endl;
+	DBG << "at last, current node = " << _current_node << endl;
       }
       _current_node->append( t );
       _last_depth = new_depth;
