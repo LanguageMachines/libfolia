@@ -472,6 +472,8 @@ namespace folia {
     if ( d ){
       os << d->toXml( "" );
       // the toXml() string already ends with a newline (i hope....)
+      // but flush the stream
+      os.flush();
     }
     else {
       os << "MISSING DOCUMENT" << endl;
@@ -482,8 +484,10 @@ namespace folia {
   bool Document::save( ostream& os, const string& nsLabel, bool kanon ) const {
     bool old_k = set_kanon(kanon);
     os << toXml( nsLabel );
-    set_kanon(old_k);
     // the toXml() string already ends with a newline (i hope....)
+    // but flush the stream
+    os.flush();
+    set_kanon(old_k);
     return os.good();
   }
 
