@@ -119,8 +119,8 @@ namespace folia {
     bool _debug;
 
     FoliaElement *handle_match( const std::string&, int );
-    int handle_element( const std::string&, int );
-    int handle_text( const std::string&, int );
+    void handle_element( const std::string&, int );
+    int handle_text( int );
     void add_default_node( int );
     void add_comment( int );
     void add_text( int );

@@ -524,9 +524,8 @@ namespace folia {
 	  _external_node = handle_match( local_name, new_depth );
 	  return _external_node;
 	}
-	else if ( local_name == "t" ||
-		  local_name == "ph" ){
-	  handle_text( local_name, new_depth );
+	else if ( local_name == "t" ){
+	  handle_text( new_depth );
 	}
 	else {
 	  handle_element( local_name, new_depth );
@@ -860,15 +859,14 @@ namespace folia {
     }
   }
 
-  int Engine::handle_text( const string& local_name,
-			   int depth ){
+  int Engine::handle_text( int depth ){
     KWargs atts = get_attributes( _reader );
     if ( _debug ){
-      DBG << "name=" << local_name << " atts=" << atts << endl;
+      DBG << "handle text atts=" << atts << endl;
     }
-    FoliaElement *t = AbstractElement::createElement( local_name, _out_doc );
+    FoliaElement *t = AbstractElement::createElement( "t", _out_doc );
     if ( t ){
-      // so we hit on a <t> but is is NOT a desired one (yet)
+      t->setAttributes( atts );
       if ( _debug ){
 	DBG << "expanding a <t> " << endl;
       }
@@ -884,13 +882,12 @@ namespace folia {
       return count_nodes( t );
     }
     else {
-      throw XmlError( "folia::engine failed to create node: "
-		      + local_name );
+      throw XmlError( "folia::engine failed to create node: <t>" );
     }
   }
 
-  int Engine::handle_element( const string& local_name,
-			      int depth ){
+  void Engine::handle_element( const string& local_name,
+			       int depth ){
     KWargs atts = get_attributes( _reader );
     if ( _debug ){
       DBG << "name=" << local_name << " atts=" << atts << endl;
@@ -970,7 +967,6 @@ namespace folia {
 			+ local_name );
       }
     }
-    return 1;
   }
 
   FoliaElement *TextEngine::next_text_parent(){
@@ -1040,12 +1036,12 @@ namespace folia {
 	  }
 	  return _external_node;
 	}
-	else if ( local_name == "t" ||
-		  local_name == "ph" ){
-	  _node_count += handle_text( local_name, new_depth );
+	else if ( local_name == "t" ){
+	  _node_count += handle_text( new_depth );
 	}
 	else {
-	  _node_count += handle_element( local_name, new_depth );
+	  handle_element( local_name, new_depth );
+	  ++_node_count;
 	}
       }
 	break;
