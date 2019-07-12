@@ -114,8 +114,8 @@ namespace folia {
     virtual FoliaElement *parent() const = 0;
     virtual void set_parent( FoliaElement *p ) = 0;
     virtual bool acceptable( ElementType ) const = 0;
-    virtual bool addable( const FoliaElement *, bool=false ) const = 0;
-    virtual FoliaElement *append( FoliaElement*, bool=false ) = 0;
+    virtual bool addable( const FoliaElement * ) const = 0;
+    virtual FoliaElement *append( FoliaElement* ) = 0;
     virtual FoliaElement *postappend( ) = 0;
     virtual void remove( size_t, bool = true ) = 0;
     virtual void remove( FoliaElement *, bool = true ) = 0;
@@ -560,7 +560,7 @@ namespace folia {
     void set_parent( FoliaElement *p ) { _parent = p ; };
 
     // modify the internal data
-    FoliaElement *append( FoliaElement*, bool=false );
+    FoliaElement *append( FoliaElement* );
     FoliaElement *postappend( );
     void remove( size_t, bool = true );
     void remove( FoliaElement *, bool = true );
@@ -740,7 +740,7 @@ namespace folia {
     void setAuth( bool b ){ _auth = b; };
     xmlNs *foliaNs() const;
     bool acceptable( ElementType ) const;
-    bool addable( const FoliaElement *, bool ) const;
+    bool addable( const FoliaElement * ) const;
     void setDateTime( const std::string& );
     const std::string getDateTime() const;
     void check_text_consistency() const;
@@ -911,7 +911,7 @@ namespace folia {
       explicit AbstractStructureElement( Document *d=0 ):
       AbstractStructureElement( PROPS, d ){};
     public:
-      FoliaElement *append( FoliaElement*, bool=false );
+      FoliaElement *append( FoliaElement* );
       std::vector<Paragraph*> paragraphs() const;
       std::vector<Sentence*> sentences() const;
       std::vector<Word*> words( const std::string& ="" ) const;
@@ -994,7 +994,7 @@ namespace folia {
       AbstractSpanAnnotation( PROPS, d ){};
     public:
       xmlNode *xml( bool, bool=false ) const;
-      FoliaElement *append( FoliaElement*, bool=false );
+      FoliaElement *append( FoliaElement* );
 
       std::vector<FoliaElement*> wrefs() const;
       FoliaElement *wrefs( size_t ) const;
@@ -1492,9 +1492,7 @@ namespace folia {
 				    const std::string& = "" ) const;
     std::vector<Word*> rightcontext( size_t,
 				     const std::string& ="" ) const;
-    //    std::vector<AbstractSpanAnnotation*> findspans( ElementType,
-    //					  const std::string& = "" ) const;
-    FoliaElement *append( FoliaElement *, bool=false );
+    FoliaElement *append( FoliaElement * );
     const Word* resolveword( const std::string& ) const;
     void setAttributes( const KWargs& );
     KWargs collectAttributes() const;
@@ -1875,7 +1873,7 @@ namespace folia {
     AbstractStructureElement( PROPS, d ){ classInit(); };
   Quote( const KWargs& a, Document *d = 0 ):
     AbstractStructureElement( PROPS, d ){ classInit( a ); };
-    FoliaElement *append( FoliaElement *, bool=false );
+    FoliaElement *append( FoliaElement * );
     std::vector<Word*> wordParts() const;
     const std::string& get_delimiter( bool=false) const;
   private:
@@ -2336,7 +2334,7 @@ namespace folia {
       AbstractElement( props, d ) { classInit( a ); };
   public:
     AbstractSpanAnnotation *findspan( const std::vector<FoliaElement*>& ) const;
-    FoliaElement *append( FoliaElement *, bool=false );
+    FoliaElement *append( FoliaElement * );
     KWargs collectAttributes() const;
   private:
     static properties PROPS;

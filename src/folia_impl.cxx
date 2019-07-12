@@ -1857,8 +1857,7 @@ namespace folia {
     return true;
   }
 
-  bool AbstractElement::addable( const FoliaElement *c,
-				 bool xml_reader_context ) const {
+  bool AbstractElement::addable( const FoliaElement *c ) const {
     if ( !acceptable( c->element_id() ) ) {
       string mess = "Unable to append object of type " + c->classname()
 	+ " to a <" + classname() + ">";
@@ -1906,8 +1905,7 @@ namespace folia {
       }
     }
 #endif
-    if ( !xml_reader_context
-	 && c->element_id() == TextContent_t
+    if ( c->element_id() == TextContent_t
 	 && element_id() == Word_t ) {
       string val = c->str();
       val = trim( val );
@@ -2014,15 +2012,14 @@ namespace folia {
     return true;
   }
 
-  FoliaElement *AbstractElement::append( FoliaElement *child,
-					 bool xml_reader_context ) {
+  FoliaElement *AbstractElement::append( FoliaElement *child ){
     if ( !child ){
       throw XmlError( "attempt to append an empty node to a " + classname() );
     }
     bool ok = false;
     try {
       ok = child->checkAtts();
-      ok &= addable( child, xml_reader_context );
+      ok &= addable( child );
     }
     catch ( const XmlError& ) {
       // don't delete the offending child in case of illegal reconnection
@@ -3414,9 +3411,8 @@ namespace folia {
     return tmp;
   }
 
-  FoliaElement *AbstractStructureElement::append( FoliaElement *child,
-						  bool xml_reader_context ) {
-    AbstractElement::append( child, xml_reader_context );
+  FoliaElement *AbstractStructureElement::append( FoliaElement *child ){
+    AbstractElement::append( child );
     setMaxId( child );
     return child;
   }
@@ -3575,19 +3571,18 @@ namespace folia {
     return sentence()->splitWord( this, part1, part2, getArgs(args) );
   }
 
-  FoliaElement *Word::append( FoliaElement *child,
-			      bool xml_reader_context ) {
+  FoliaElement *Word::append( FoliaElement *child ){
     if ( child->isSubClass( AbstractAnnotationLayer_t ) ) {
       // sanity check, there may be no other child within the same set
       vector<FoliaElement*> v = select( child->element_id(), child->sett() );
       if ( v.empty() ) {
     	// OK!
-    	return AbstractElement::append( child, xml_reader_context );
+    	return AbstractElement::append( child );
       }
       delete child;
       throw DuplicateAnnotationError( "Word::append" );
     }
-    return AbstractElement::append( child, xml_reader_context );
+    return AbstractElement::append( child );
   }
 
   Sentence *AbstractWord::sentence() const {
@@ -4053,8 +4048,7 @@ namespace folia {
     return this;
   }
 
-  FoliaElement *AbstractSpanAnnotation::append( FoliaElement *child,
-						bool xml_reader_context ) {
+  FoliaElement *AbstractSpanAnnotation::append( FoliaElement *child ){
     if ( child->referable() ){
       // cerr << "append a word: " << child << " to " << this << endl;
       // cerr << "refcnt=" << child->refcount() << endl;
@@ -4063,7 +4057,7 @@ namespace folia {
        			+ "> is forbidden, use <wref>" );
       }
     }
-    AbstractElement::append( child, xml_reader_context );
+    AbstractElement::append( child );
     if ( child->isinstance(PlaceHolder_t) ) {
       child->increfcount();
     }
@@ -4144,10 +4138,9 @@ namespace folia {
     doc()->incrRef( child->annotation_type(), sett() );
   }
 
-  FoliaElement *AbstractAnnotationLayer::append( FoliaElement *child,
-						 bool xml_reader_context ) {
+  FoliaElement *AbstractAnnotationLayer::append( FoliaElement *child ){
     assignset( child );
-    return AbstractElement::append( child, xml_reader_context );
+    return AbstractElement::append( child );
   }
 
   KWargs AbstractAnnotationLayer::collectAttributes() const {
@@ -4187,9 +4180,8 @@ namespace folia {
     return e;
   }
 
-  FoliaElement *Quote::append( FoliaElement *child,
-			       bool xml_reader_context ) {
-    AbstractElement::append( child, xml_reader_context );
+  FoliaElement *Quote::append( FoliaElement *child ){
+    AbstractElement::append( child );
     if ( child->isinstance(Sentence_t) ) {
       child->setAuth( false ); // Sentences under quotes are non-authoritative
     }
