@@ -524,6 +524,10 @@ namespace folia {
 	  _external_node = handle_match( local_name, new_depth );
 	  return _external_node;
 	}
+	else if ( local_name == "t" ||
+		  local_name == "ph" ){
+	  handle_text( local_name, new_depth );
+	}
 	else {
 	  handle_element( local_name, new_depth );
 	}
@@ -923,25 +927,9 @@ namespace folia {
 	    }
 	  }
 	  if ( nsu.empty() || nsu == NSFOLIA ){
-	    if ( local_name == "t" ){
-	      // so we hit on a <t> but is is NOT the desired one (yet)
-	      if ( _debug ){
-		DBG << "expanding a <t> " << endl;
-	      }
-	      // just take as is...
-	      xmlNode *fd = xmlTextReaderExpand(_reader);
-	      t->parseXml( fd );
-	      if ( _debug ){
-		DBG << "parsed " << t << endl;
-	      }
-	      append_node( t, depth );
-	      // skip subtree
-	      xmlTextReaderNext(_reader);
-	      return count_nodes( t );
-	    }
-	    else if ( local_name == "desc"
-		      || local_name == "content"
-		      || local_name == "comment" ){
+	    if ( local_name == "desc"
+		 || local_name == "content"
+		 || local_name == "comment" ){
 	      xmlTextReaderRead(_reader);
 	      const char *val = (const char*)xmlTextReaderConstValue(_reader);
 	      if ( val ) {
@@ -957,19 +945,12 @@ namespace folia {
 		      << "> with empty value " << endl;
 		}
 	      }
-	      if ( _debug ){
-		DBG << "SET ATTRIBUTES: " << atts << endl;
-	      }
-	      t->setAttributes( atts );
-	      append_node( t, depth );
 	    }
-	    else {
-	      if ( _debug ){
-		DBG << "SET ATTRIBUTES: " << atts << endl;
-	      }
-	      t->setAttributes( atts );
-	      append_node( t, depth );
+	    if ( _debug ){
+	      DBG << "SET ATTRIBUTES: " << atts << endl;
 	    }
+	    t->setAttributes( atts );
+	    append_node( t, depth );
 	  }
 	  else {
 	    if ( _debug ){
@@ -1059,9 +1040,9 @@ namespace folia {
 	  }
 	  return _external_node;
 	}
-	else if ( _node_count < _next_text_node
-		  && _next_text_node != INT_MAX ){
-	  _node_count += handle_element( local_name, new_depth );
+	else if ( local_name == "t" ||
+		  local_name == "ph" ){
+	  _node_count += handle_text( local_name, new_depth );
 	}
 	else {
 	  _node_count += handle_element( local_name, new_depth );
