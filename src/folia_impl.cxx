@@ -177,6 +177,9 @@ namespace folia {
       os << "<" << ae.index(i)->classname() << ">,";
     }
     os << "}";
+    if ( ae.classname() == "t" ){
+      os << " (" << ae.str() << ")";
+    }
     return os;
   }
 

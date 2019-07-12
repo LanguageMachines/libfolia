@@ -58,8 +58,7 @@ namespace folia {
     _finished(false),
     _ok(false),
     _done(false),
-    _debug(false),
-    _text_context(false)
+    _debug(false)
   {
   }
 
@@ -306,27 +305,10 @@ namespace folia {
 
   void Engine::add_default_node( int depth ){
     string local_name = (const char*)xmlTextReaderConstLocalName(_reader);
-    if ( local_name == "t" || local_name == "ph" ){
-      // so we are AT THE END of a <t> or <ph> !
-      _text_context = false;
-    }
     if ( _debug ){
       int type = xmlTextReaderNodeType(_reader);
       DBG << "add_node " << type <<  " name=" << local_name
 	  << " depth " << _last_depth << " ==> " << depth << endl;
-    }
-    if ( _text_context ){
-      const char *val = (const char*)xmlTextReaderConstValue(_reader);
-      if ( val ){
-	// when inside a text_context, ALL text is relevant! add it
-	string value = val;
-	if ( _debug ){
-	  DBG << "ADD extra tekst '" << value << "' TO TEXT " << endl;
-	}
-	XmlText *txt = new XmlText();
-	txt->setvalue( value );
-	append_node( txt, depth );
-      }
     }
   }
 
@@ -448,8 +430,7 @@ namespace folia {
   }
 
   void Engine::append_node( FoliaElement *t,
-			    int new_depth,
-			    bool allow_empty_t ){
+			    int new_depth ){
     if ( _debug ){
       DBG << "append_node(" << t << ") current node= " << _current_node << endl;
       DBG << "append_node(): last node= " << _last_added << endl;
@@ -458,7 +439,7 @@ namespace folia {
       if ( _debug ){
 	DBG << "append_node(): EQUAL!" << endl;
       }
-      _current_node->append( t, allow_empty_t );
+      _current_node->append( t );
     }
     else if ( new_depth > _last_depth ){
       if ( _debug ){
@@ -468,7 +449,7 @@ namespace folia {
       if ( _debug ){
 	DBG << "So now: current node = " << _current_node << endl;
       }
-      _current_node->append( t, allow_empty_t );
+      _current_node->append( t );
       _last_depth = new_depth;
     }
     else if ( new_depth < _last_depth  ){
@@ -484,8 +465,11 @@ namespace folia {
       if ( _debug ){
 	DBG << "at last, current node = " << _current_node << endl;
       }
-      _current_node->append( t, allow_empty_t );
+      _current_node->append( t );
       _last_depth = new_depth;
+    }
+    if ( _debug ){
+      DBG << "appen_node() result = " << _current_node << endl;
     }
     _last_added = t;
   }
@@ -529,10 +513,6 @@ namespace folia {
       switch ( type ){
       case XML_ELEMENT_NODE: {
 	string local_name = (const char*)xmlTextReaderConstLocalName(_reader);
-	if ( local_name == "t" || local_name == "ph" ){
-	  // a <t> or a <ph> node starts. We have a text_context
-	  _text_context = true;
-	}
 	if ( _debug ){
 	  DBG << "get node XML_ELEMENT name=" << local_name
 	      << " depth " << _last_depth << " ==> " << new_depth << endl;
@@ -545,7 +525,7 @@ namespace folia {
 	  return _external_node;
 	}
 	else {
-	  handle_element( local_name, new_depth, false );
+	  handle_element( local_name, new_depth );
 	}
       }
 	break;
@@ -876,9 +856,37 @@ namespace folia {
     }
   }
 
-  void Engine::handle_element( const string& local_name,
-			       int depth,
-			       bool skip_t ){
+  int Engine::handle_text( const string& local_name,
+			   int depth ){
+    KWargs atts = get_attributes( _reader );
+    if ( _debug ){
+      DBG << "name=" << local_name << " atts=" << atts << endl;
+    }
+    FoliaElement *t = AbstractElement::createElement( local_name, _out_doc );
+    if ( t ){
+      // so we hit on a <t> but is is NOT a desired one (yet)
+      if ( _debug ){
+	DBG << "expanding a <t> " << endl;
+      }
+      // just take as is...
+      xmlNode *fd = xmlTextReaderExpand(_reader);
+      t->parseXml( fd );
+      if ( _debug ){
+	DBG << "parsed " << t << endl;
+      }
+      append_node( t, depth );
+      // skip subtree
+      xmlTextReaderNext(_reader);
+      return count_nodes( t );
+    }
+    else {
+      throw XmlError( "folia::engine failed to create node: "
+		      + local_name );
+    }
+  }
+
+  int Engine::handle_element( const string& local_name,
+			      int depth ){
     KWargs atts = get_attributes( _reader );
     if ( _debug ){
       DBG << "name=" << local_name << " atts=" << atts << endl;
@@ -915,14 +923,23 @@ namespace folia {
 	    }
 	  }
 	  if ( nsu.empty() || nsu == NSFOLIA ){
-	    if ( skip_t && local_name == "t" ){
+	    if ( local_name == "t" ){
 	      // so we hit on a <t> but is is NOT the desired one (yet)
 	      if ( _debug ){
-		DBG << "skipping a <t> because of skip_t " << endl;
+		DBG << "expanding a <t> " << endl;
 	      }
+	      // just take as is...
+	      xmlNode *fd = xmlTextReaderExpand(_reader);
+	      t->parseXml( fd );
+	      if ( _debug ){
+		DBG << "parsed " << t << endl;
+	      }
+	      append_node( t, depth );
+	      // skip subtree
+	      xmlTextReaderNext(_reader);
+	      return count_nodes( t );
 	    }
-	    else if ( ( !skip_t && local_name == "t" )
-		      || local_name == "desc"
+	    else if ( local_name == "desc"
 		      || local_name == "content"
 		      || local_name == "comment" ){
 	      xmlTextReaderRead(_reader);
@@ -940,12 +957,19 @@ namespace folia {
 		      << "> with empty value " << endl;
 		}
 	      }
+	      if ( _debug ){
+		DBG << "SET ATTRIBUTES: " << atts << endl;
+	      }
+	      t->setAttributes( atts );
+	      append_node( t, depth );
 	    }
-	    if ( _debug ){
-	      DBG << "SET ATTRIBUTES: " << atts << endl;
+	    else {
+	      if ( _debug ){
+		DBG << "SET ATTRIBUTES: " << atts << endl;
+	      }
+	      t->setAttributes( atts );
+	      append_node( t, depth );
 	    }
-	    t->setAttributes( atts );
-	    append_node( t, depth, local_name == "t" );
 	  }
 	  else {
 	    if ( _debug ){
@@ -965,6 +989,7 @@ namespace folia {
 			+ local_name );
       }
     }
+    return 1;
   }
 
   FoliaElement *TextEngine::next_text_parent(){
@@ -1016,12 +1041,11 @@ namespace folia {
 	if ( _debug ){
 	  DBG << "next element: " << local_name << " cnt =" << _node_count << endl;
 	}
-	if ( local_name == "t" || local_name == "ph" ){
-	  // a <t> or a <ph> node starts. We have a text_context
-	  _text_context = true;
-	}
 	if ( _node_count == _next_text_node  ){
 	  // HIT!
+	  if ( _debug ){
+	    DBG << "at index=" << _node_count << " WE HIT a next element for: " << local_name << endl;
+	  }
 	  _external_node = handle_match( local_name, new_depth );
 	  int skips = count_nodes( _external_node );
 	  // we are to output a tree of skips nodes
@@ -1037,12 +1061,10 @@ namespace folia {
 	}
 	else if ( _node_count < _next_text_node
 		  && _next_text_node != INT_MAX ){
-	  handle_element( local_name, new_depth, true );
-	  ++_node_count;
+	  _node_count += handle_element( local_name, new_depth );
 	}
 	else {
-	  handle_element( local_name, new_depth, false );
-	  ++_node_count;
+	  _node_count += handle_element( local_name, new_depth );
 	}
       }
 	break;
