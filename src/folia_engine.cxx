@@ -524,8 +524,9 @@ namespace folia {
 	  _external_node = handle_match( local_name, new_depth );
 	  return _external_node;
 	}
-	else if ( local_name == "t" ){
-	  handle_text( new_depth );
+	else if ( local_name == "t"
+		  || local_name == "ph" ){
+	  handle_content( local_name, new_depth );
 	}
 	else {
 	  handle_element( local_name, new_depth );
@@ -859,17 +860,14 @@ namespace folia {
     }
   }
 
-  int Engine::handle_text( int depth ){
+  int Engine::handle_content( const string& t_or_ph, int depth ){
     KWargs atts = get_attributes( _reader );
     if ( _debug ){
-      DBG << "handle text atts=" << atts << endl;
+      DBG << "expandinf content of <" << t_or_ph << "> atts=" << atts << endl;
     }
-    FoliaElement *t = AbstractElement::createElement( "t", _out_doc );
+    FoliaElement *t = AbstractElement::createElement( t_or_ph, _out_doc );
     if ( t ){
       t->setAttributes( atts );
-      if ( _debug ){
-	DBG << "expanding a <t> " << endl;
-      }
       // just take as is...
       xmlNode *fd = xmlTextReaderExpand(_reader);
       t->parseXml( fd );
@@ -882,7 +880,7 @@ namespace folia {
       return count_nodes( t );
     }
     else {
-      throw XmlError( "folia::engine failed to create node: <t>" );
+      throw XmlError( "folia::engine failed to create node: " + t_or_ph );
     }
   }
 
@@ -1036,8 +1034,9 @@ namespace folia {
 	  }
 	  return _external_node;
 	}
-	else if ( local_name == "t" ){
-	  _node_count += handle_text( new_depth );
+	else if ( local_name == "t"
+		  || local_name == "ph" ){
+	  _node_count += handle_content( local_name, new_depth );
 	}
 	else {
 	  handle_element( local_name, new_depth );

@@ -120,7 +120,7 @@ namespace folia {
 
     FoliaElement *handle_match( const std::string&, int );
     void handle_element( const std::string&, int );
-    int handle_text( int );
+    int handle_content( const std::string&, int );
     void add_default_node( int );
     void add_comment( int );
     void add_text( int );
