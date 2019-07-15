@@ -437,7 +437,7 @@ namespace folia {
 			  + toString( annotation_type() )
 			  + "' but there is no corresponding <annotator> "
 			  + "referring to it in the annotation declaration "
-			  + "block." );
+			  + "block. (set='" + _set +"'" );
 	}
 	_processor = val;
       }
