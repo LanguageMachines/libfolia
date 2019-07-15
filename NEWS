@@ -1,3 +1,11 @@
+2.2 2019-07-15
+[Ko vd Sloot]
+Bug fix release.
+* Folia::Engine choked on some complex FoLiA. Solved by refactoring and in fact
+  simplifying some code. (Frog issue #77 revealed this)
+* added flush() on document output to streams. (frog issue #72)
+* improved outout in debugging mode
+
 2.1 2019-06-19
 [Ko vd Sloot]
 Bug fixes and enhancements:
