@@ -1801,6 +1801,10 @@ namespace folia {
       if ( debug ){
 	cerr << "OK, found an entry for type: " << folia::toString(type) << endl;
       }
+      if ( setname.empty() ){
+	// 'wildcard' for setname
+	return true;
+      }
       auto mit2 = it1->second.lower_bound(setname);
       while ( mit2 != it1->second.upper_bound(setname) ){
 	if ( debug ){
@@ -1883,6 +1887,7 @@ namespace folia {
 	cerr << "found some: " << mit1->second << endl;
       }
       if ( setname.empty() ){
+	// 'wildcard' for setname
 	if ( debug ){
 	  cerr << "return TRUE" << endl;
 	}
@@ -1973,9 +1978,6 @@ namespace folia {
     if ( type == AnnotationType::NO_ANN ){
       return "";
     }
-    // if ( !st.empty() ){
-    //   cerr << "zoek '" << st << "' default annotator " <<  _annotationdefaults << endl;
-    // }
     const auto& mit1 = _annotationdefaults.find(type);
     string result;
     if ( mit1 != _annotationdefaults.end() ){
