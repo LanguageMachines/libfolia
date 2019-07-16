@@ -261,19 +261,17 @@ namespace folia {
   void AbstractElement::setAttributes( const KWargs& kwargs_in ) {
     KWargs kwargs = kwargs_in;
     Attrib supported = required_attributes() | optional_attributes();
-    //#define LOG_SET_ATT
+#define LOG_SET_ATT
 #ifdef LOG_SET_ATT
     if ( element_id() == Word_t ) {
       cerr << "set attributes: " << kwargs << " on " << classname() << endl;
-      cerr << "required = " <<  required_attributes() << endl;
-      cerr << "optional = " <<  optional_attributes() << endl;
-      cerr << "supported = " << supported << endl;
-      cerr << "ID & supported = " << (ID & supported) << endl;
-      cerr << "ID & _required = " << (ID & required_attributes() ) << endl;
-      cerr << "_id=" << _id << endl;
-      Reference*ref=dynamic_cast<Reference*>(this);
-      cerr << "id=" << ref->refId << endl;
-      cerr << "AUTH : " << _auth << ", default=" << default_auth() << endl;
+      //      cerr << "required = " <<  toString(required_attributes()) << endl;
+      //      cerr << "optional = " <<  optional_attributes() << endl;
+      //cerr << "supported = " << supported << endl;
+      //      cerr << "ID & supported = " << (ID & supported) << endl;
+      //      cerr << "ID & _required = " << (ID & required_attributes() ) << endl;
+      // cerr << "_id=" << _id << endl;
+      // cerr << "AUTH : " << _auth << endl;
     }
 #endif
     if ( doc() && doc()->debug > 2 ) {
@@ -336,9 +334,11 @@ namespace folia {
     }
     else if ( doc() ){
       string def = doc()->default_set( annotation_type() );
-      if ( def.empty() ){
-	def = doc()->original_default_set( annotation_type() );
-      }
+      //      cerr << "DEF = " << def << endl;
+      // if ( def.empty() ){
+      // 	def = doc()->original_default_set( annotation_type() );
+      // 	cerr << "AHA DEF = " << def << endl;
+      // }
       if ( !def.empty() ){
 	_set = def;
       }
@@ -357,16 +357,23 @@ namespace folia {
 	if ( !doc() ) {
 	  throw ValueError( "Class=" + val + " is used on a node without a document." );
 	}
-	else if ( _set == "" &&
-		  doc()->default_set( annotation_type() ) == "" &&
-		  doc()->original_default_set( annotation_type() ) == "" &&
-		  doc()->declared( annotation_type() ) ) {
-	  string at =  toString(annotation_type());
-	  if ( at == "NONE" ){
-	    at = xmltag();
+	if ( _set.empty() ){
+	  if ( !doc()->declared( annotation_type(), "None" ) ) {
+	    throw ValueError( xmltag() +": An empty set is used but that has no declaration "
+			      "for " + toString( annotation_type() )
+			      + "-annotation" );
 	  }
-	  throw ValueError( "Class " + val + " is used but has no default declaration " +
-			    "for " + at + "-annotation" );
+	  _set = "None";
+	  // else if ( doc()->default_set( annotation_type() ) == "" &&
+	  // 	    doc()->original_default_set( annotation_type() ) == "" &&
+	  // 	    doc()->declared( annotation_type() ) ) {
+	  //   string at =  toString(annotation_type());
+	  //   if ( at == "NONE" ){
+	  //     at = xmltag();
+	  //   }
+	  //   throw ValueError( "Class " + val + " is used but has no default declaration " +
+	  // 		      "for " + at + "-annotation" );
+	  // }
 	}
 	doc()->incrRef( annotation_type(), _set );
       }
@@ -423,6 +430,9 @@ namespace folia {
 
     val = kwargs.extract( "processor" );
     if ( !val.empty() ){
+      if ( _set.empty() ){
+	_set = "None";
+      }
       if ( !(ANNOTATOR & supported) ){
 	throw ValueError("attribute 'processor' is not supported for " + classname() );
       }
@@ -721,8 +731,9 @@ namespace folia {
     if ( !_id.empty() ) {
       attribs["xml:id"] = _id;
     }
-    if ( !_set.empty() &&
-	 _set != doc()->default_set( annotation_type() ) ) {
+    if ( _set != "None"
+	 && !_set.empty()
+	 && _set != doc()->default_set( annotation_type() ) ) {
       isDefaultSet = false;
       string ali = doc()->alias( annotation_type(), _set );
       if ( ali.empty() ){
@@ -1878,7 +1889,7 @@ namespace folia {
       vector<FoliaElement*> v = select( c->element_id(), c->sett(), false );
       size_t count = v.size();
       if ( count >= c->occurrences_per_set() ) {
-	throw DuplicateAnnotationError( "Unable to add another object of type " + c->classname() + " to " + classname() + ". There are already " + TiCC::toString(count) + " instances of this type and set, which is the maximum." );
+	throw DuplicateAnnotationError( "Unable to add another object of type " + c->classname() + " to " + classname() + ". There are already " + TiCC::toString(count) + " instances of this type and set (" + c->sett() + "), which is the maximum." );
       }
     }
     if ( c->parent() &&
@@ -2413,6 +2424,7 @@ namespace folia {
 
   LemmaAnnotation *AllowInlineAnnotation::addLemmaAnnotation( const KWargs& inargs ) {
     KWargs args = inargs;
+    cerr << "ADD LEMMA ANNOTATION: " << args << endl;
     string st;
     auto it = args.find("set" );
     if ( it != args.end() ) {
@@ -2423,6 +2435,7 @@ namespace folia {
       newId = "alt-lem";
     }
     if ( has_annotation<LemmaAnnotation>( st ) > 0 ) {
+      cerr << "FOUND " << st << endl;
       // ok, there is already one, so create an Alternative
       KWargs kw;
       kw["xml:id"] = generateId( newId );
@@ -2434,6 +2447,7 @@ namespace folia {
       return alt->addAnnotation<LemmaAnnotation>( args );
     }
     else {
+      cerr << "new " << st << endl;
       return addAnnotation<LemmaAnnotation>( args );
     }
   }

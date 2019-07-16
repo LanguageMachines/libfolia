@@ -834,6 +834,9 @@ namespace folia {
 	  }
 	  delete tmp;
 	}
+	if ( st.empty() ){
+	  st = "None";
+	}
 	// done with the set
 	if ( it != atts.end() ){
 	  atts.erase(it);
@@ -1498,6 +1501,9 @@ namespace folia {
 	}
 	delete tmp;
       }
+      if ( st.empty() ){
+	st = "None";
+      }
     }
     set<string> processors;
     string a = args["annotator"];
@@ -1786,12 +1792,12 @@ namespace folia {
     string setname = unalias(type,set_name);
     const auto& it1 = _annotationdefaults.find(type);
     if ( it1 != _annotationdefaults.end() ){
-      if ( debug > 2){
+      if ( debug ){
 	cerr << "OK, found an entry for type: " << folia::toString(type) << endl;
       }
       auto mit2 = it1->second.lower_bound(setname);
       while ( mit2 != it1->second.upper_bound(setname) ){
-	if ( debug > 2){
+	if ( debug ){
 	  cerr << "OK, found an entry for set='" << setname  << "'" << endl;
 	  cerr << "content: " << mit2->second << endl;
 	}
@@ -2134,7 +2140,10 @@ namespace folia {
 	  args["format"] = s;
 	}
 	s = it->first;
-	if ( s != "undefined" ){ // the default
+	if ( s == "None" ){ // "empty" set
+	  // skip
+	}
+	else if ( s != "undefined" ){ // the default
 	  args["set"] = s;
 	}
 	auto const& t_it = _groupannotations.find(type);
@@ -2171,7 +2180,10 @@ namespace folia {
 	  args["format"] = s;
 	}
 	s = it->first;
-	if ( !s.empty() && s != "undefined" ){ // the default
+	if ( s == "None" ){ // "empty" set
+	  // skip
+	}
+	else if ( s != "undefined" ){ // the default
 	  args["set"] = s;
 	}
 	const auto& ti = _set_alias.find(type);
