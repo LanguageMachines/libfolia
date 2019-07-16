@@ -334,12 +334,13 @@ namespace folia {
     }
     else if ( doc() ){
       string def = doc()->default_set( annotation_type() );
-      //      cerr << "DEF = " << def << endl;
       if ( def.empty() ){
+	// when there is NO default set, AND there is no "empty" set
+	// declaration, we must check if there WAS an empty set originally
+	// which is 'obscured' by newly added declarations
 	if ( !doc()->declared( annotation_type(), "None" ) ) {
 	  def = doc()->original_default_set( annotation_type() );
 	};
-	// 	cerr << "AHA DEF = " << def << endl;
       }
       if ( !def.empty() ){
 	_set = def;
@@ -367,16 +368,6 @@ namespace folia {
 			      + "-annotation" );
 	  }
 	  _set = "None";
-	  // else if ( doc()->default_set( annotation_type() ) == "" &&
-	  // 	    doc()->original_default_set( annotation_type() ) == "" &&
-	  // 	    doc()->declared( annotation_type() ) ) {
-	  //   string at =  toString(annotation_type());
-	  //   if ( at == "NONE" ){
-	  //     at = xmltag();
-	  //   }
-	  //   throw ValueError( "Class " + val + " is used but has no default declaration " +
-	  // 		      "for " + at + "-annotation" );
-	  // }
 	}
 	doc()->incrRef( annotation_type(), _set );
       }
