@@ -261,7 +261,7 @@ namespace folia {
   void AbstractElement::setAttributes( const KWargs& kwargs_in ) {
     KWargs kwargs = kwargs_in;
     Attrib supported = required_attributes() | optional_attributes();
-#define LOG_SET_ATT
+    //#define LOG_SET_ATT
 #ifdef LOG_SET_ATT
     if ( element_id() == Word_t ) {
       cerr << "set attributes: " << kwargs << " on " << classname() << endl;
@@ -335,10 +335,12 @@ namespace folia {
     else if ( doc() ){
       string def = doc()->default_set( annotation_type() );
       //      cerr << "DEF = " << def << endl;
-      // if ( def.empty() ){
-      // 	def = doc()->original_default_set( annotation_type() );
-      // 	cerr << "AHA DEF = " << def << endl;
-      // }
+      if ( def.empty() ){
+	if ( !doc()->declared( annotation_type(), "None" ) ) {
+	  def = doc()->original_default_set( annotation_type() );
+	};
+	// 	cerr << "AHA DEF = " << def << endl;
+      }
       if ( !def.empty() ){
 	_set = def;
       }
@@ -359,6 +361,7 @@ namespace folia {
 	}
 	if ( _set.empty() ){
 	  if ( !doc()->declared( annotation_type(), "None" ) ) {
+	    cerr << endl << doc()->annotationdefaults() << endl << endl;
 	    throw ValueError( xmltag() +": An empty set is used but that has no declaration "
 			      "for " + toString( annotation_type() )
 			      + "-annotation" );
@@ -2424,7 +2427,6 @@ namespace folia {
 
   LemmaAnnotation *AllowInlineAnnotation::addLemmaAnnotation( const KWargs& inargs ) {
     KWargs args = inargs;
-    cerr << "ADD LEMMA ANNOTATION: " << args << endl;
     string st;
     auto it = args.find("set" );
     if ( it != args.end() ) {
@@ -2435,7 +2437,6 @@ namespace folia {
       newId = "alt-lem";
     }
     if ( has_annotation<LemmaAnnotation>( st ) > 0 ) {
-      cerr << "FOUND " << st << endl;
       // ok, there is already one, so create an Alternative
       KWargs kw;
       kw["xml:id"] = generateId( newId );
@@ -2447,7 +2448,6 @@ namespace folia {
       return alt->addAnnotation<LemmaAnnotation>( args );
     }
     else {
-      cerr << "new " << st << endl;
       return addAnnotation<LemmaAnnotation>( args );
     }
   }

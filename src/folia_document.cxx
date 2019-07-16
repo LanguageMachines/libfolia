@@ -1529,25 +1529,31 @@ namespace folia {
 
   string Document::unalias( AnnotationType::AnnotationType type,
 			    const string& alias ) const {
+    //    cerr << "unalias: " << alias << endl;
     const auto& ti = _alias_set.find(type);
     if ( ti != _alias_set.end() ){
       const auto& sti = ti->second.find( alias );
       if ( sti != ti->second.end() ){
+	//	cerr << "unalias ==> " << sti->second << endl;
 	return sti->second;
       }
     }
+    //    cerr << "unalias ==> " << alias << endl;
     return alias;
   }
 
   string Document::alias( AnnotationType::AnnotationType type,
 			  const string& st ) const {
+    //    cerr << "alias: " << st << endl;
     const auto& ti = _set_alias.find(type);
     if ( ti != _set_alias.end() ){
       const auto& ali = ti->second.find( st );
       if ( ali != ti->second.end() ){
+	//	cerr << "alias ==> " << ali->second << endl;
 	return ali->second;
       }
     }
+    //    cerr << "alias ==> " << st << endl;
     return st;
   }
 
