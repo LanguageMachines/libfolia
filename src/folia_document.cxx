@@ -144,7 +144,8 @@ namespace folia {
     _foliaNsOut = 0;
     debug = 0;
     mode = CHECKTEXT;
-    external = false;
+    _external_document = false;
+    _incremental_parse =  false;
     major_version = 0;
     minor_version = 0;
     sub_version = 0;
@@ -1157,11 +1158,11 @@ namespace folia {
     adjustTextMode();
     it = kwargs.find( "external" );
     if ( it != kwargs.end() ){
-      external = TiCC::stringTo<bool>( it->second );
+      _external_document = TiCC::stringTo<bool>( it->second );
       kwargs.erase( it );
     }
     else {
-      external = false;
+      _external_document = false;
     }
     bool happy = false;
     it = kwargs.find( "_id" ); // for backward compatibility
@@ -2471,7 +2472,7 @@ namespace folia {
       attribs["version"] = _version_string;
       // attribs["version"] = folia_version();
     }
-    if ( external ){
+    if ( _external_document ){
       attribs["external"] = "yes";
     }
     addAttributes( root, attribs );

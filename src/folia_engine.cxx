@@ -502,6 +502,7 @@ namespace folia {
       _done = true;
       return 0;
     }
+    _out_doc->set_incremental( false );
     vector<string> tv = TiCC::split_at( tag, "|" );
     set<string> tags;
     for ( const auto& t : tv ){
@@ -522,6 +523,7 @@ namespace folia {
 	    DBG << "matched search tag: " << local_name << endl;
 	  }
 	  _external_node = handle_match( local_name, new_depth );
+	  _out_doc->set_incremental( true );
 	  return _external_node;
 	}
 	else if ( local_name == "t"
@@ -1002,6 +1004,7 @@ namespace folia {
       _done = true;
       return 0;
     }
+    _out_doc->set_incremental( false );
     while ( ret ){
       int type = xmlTextReaderNodeType(_reader);
       if ( _debug ){
@@ -1032,6 +1035,7 @@ namespace folia {
 		<< _node_count << " searching for: "
 		<< _next_text_node << endl;
 	  }
+	  _out_doc->set_incremental( true );
 	  return _external_node;
 	}
 	else if ( local_name == "t"

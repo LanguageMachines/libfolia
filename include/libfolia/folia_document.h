@@ -285,6 +285,8 @@ namespace folia {
     Provenance *provenance() const { return _provenance;};
     std::string filename() const { return _source_filename; };
     void save_orig_ann_defaults();
+    void set_incremental( bool b ) { _incremental_parse = b; };
+    bool is_incremental() const { return _incremental_parse; };
   private:
     void adjustTextMode();
     std::map<AnnotationType::AnnotationType,std::multimap<std::string,at_t> > _annotationdefaults;
@@ -335,7 +337,8 @@ namespace folia {
     int minor_version;
     int sub_version;
     std::string patch_version;
-    bool external;
+    bool _external_document;
+    bool _incremental_parse;
     Document( const Document& ); // inhibit copies
     Document& operator=( const Document& ); // inhibit copies
   };

@@ -334,13 +334,11 @@ namespace folia {
     }
     else if ( doc() ){
       string def = doc()->default_set( annotation_type() );
-      if ( def.empty() ){
-	// when there is NO default set, AND there is no "empty" set
-	// declaration, we must check if there WAS an empty set originally
+      if ( !doc()->is_incremental() && def.empty() ){
+	// when there is NO default set, AND we are NOT parsing using
+	// folia::Engine, we must check if there WAS an empty set originally
 	// which is 'obscured' by newly added declarations
-	if ( !doc()->declared( annotation_type(), "None" ) ) {
-	  def = doc()->original_default_set( annotation_type() );
-	};
+	def = doc()->original_default_set( annotation_type() );
       }
       if ( !def.empty() ){
 	_set = def;
