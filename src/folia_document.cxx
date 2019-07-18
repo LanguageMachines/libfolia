@@ -2065,6 +2065,16 @@ namespace folia {
 	cerr << "found some defs: " << it->second << endl;
 	cerr << "NOW search for set: " << set_name << endl;
       }
+      if ( set_name.empty() ){
+	// 'wildcard' search
+	if ( it->second.size() == 1
+	     && it->second.begin()->second.p.size() == 1 ){
+	  return *it->second.begin()->second.p.begin();
+	}
+	else {
+	  return "";
+	}
+      }
       set<string> results;
       auto s_it = it->second.lower_bound(set_name);
       while ( s_it != it->second.upper_bound(set_name) ){
