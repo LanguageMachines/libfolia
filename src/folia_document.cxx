@@ -1984,6 +1984,7 @@ namespace folia {
     if ( mit1 != _annotationdefaults.end() ){
       //      cerr << "vind tussen " <<  mit1->second << endl;
       if ( st.empty() ){
+	// 'wildcard' search
 	if ( mit1->second.size() == 1 ){
 	  result = mit1->second.begin()->second.a;
 	  return result;
@@ -2016,6 +2017,7 @@ namespace folia {
 	cerr << "found a hit for type=" << folia::toString( type ) << endl;
       }
       if ( st.empty() ){
+	// 'wildcard' search
 	if ( mit1->second.size() == 1 ){
 	  result = mit1->second.begin()->second.t;
 	}
@@ -2038,6 +2040,7 @@ namespace folia {
     string result;
     if ( mit1 != _annotationdefaults.end() ){
       if ( st.empty() ){
+	// 'wildcard' search
 	if ( mit1->second.size() == 1 ){
 	  result = mit1->second.begin()->second.d;
 	}
