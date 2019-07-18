@@ -167,6 +167,9 @@ int main( int argc, char* argv[] ){
       else if ( !nooutput ){
 	cout << d;
       }
+      else {
+	cerr << "Validated successfully: " << inputName << endl;
+      }
       if ( warn ){
 	if ( d.compare_to_lib_version() ){
 	  cerr << "WARNING: the document had version: " << d.version()
