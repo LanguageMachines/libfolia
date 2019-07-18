@@ -437,9 +437,10 @@ namespace folia {
 	  throw XmlError( "Processor '" + val
 			  + "' is used for annotationtype '"
 			  + toString( annotation_type() )
-			  + "' but there is no corresponding <annotator> "
+			  + "' with set='" + _set +"'"
+			  + " but there is no corresponding <annotator> "
 			  + "referring to it in the annotation declaration "
-			  + "block. (set='" + _set +"'" );
+			  + "block." );
 	}
 	_processor = val;
       }
