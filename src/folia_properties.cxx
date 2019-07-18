@@ -6,7 +6,7 @@
 #include "libfolia/folia_properties.h"
 
 //foliaspec:header
-//This file was last updated according to the FoLiA specification for version 2.1.0 on 2019-05-19 23:39:36, using foliaspec.py
+//This file was last updated according to the FoLiA specification for version 2.2.0 on 2019-07-18 13:41:15, using foliaspec.py
 //Code blocks after a foliaspec comment (until the next newline) are automatically generated. **DO NOT EDIT THOSE** and **DO NOT REMOVE ANY FOLIASPEC COMMENTS** !!!
 
 namespace folia {
@@ -19,7 +19,7 @@ namespace folia {
 
   //foliaspec:version_minor:MINOR_VERSION
   //The FoLiA version (minor)
-  const int MINOR_VERSION = 1;
+  const int MINOR_VERSION = 2;
 
   //foliaspec:version_sub:SUB_VERSION
   //The FoLiA version (sub/rev)
@@ -1076,7 +1076,7 @@ namespace folia {
     Part::PROPS.ACCEPTED_DATA += {AbstractAnnotationLayer_t, AbstractInlineAnnotation_t, AbstractStructureElement_t, Alternative_t, AlternativeLayers_t, Comment_t, Correction_t, Description_t, Feature_t, ForeignData_t, Metric_t, Part_t, PhonContent_t, Relation_t, TextContent_t};
     Part::PROPS.ANNOTATIONTYPE = AnnotationType::PART;
     Part::PROPS.LABEL = "Part";
-    Part::PROPS.TEXTDELIMITER = "NONE";
+    Part::PROPS.TEXTDELIMITER = " ";
     Part::PROPS.XMLTAG = "part";
 //------ PhonContent -------
     PhonContent::PROPS = AbstractContentAnnotation::PROPS;
@@ -1135,7 +1135,7 @@ namespace folia {
     Reference::PROPS.ACCEPTED_DATA += {AbstractAnnotationLayer_t, Alternative_t, AlternativeLayers_t, Comment_t, Correction_t, Description_t, Feature_t, ForeignData_t, Hiddenword_t, Linebreak_t, Metric_t, Paragraph_t, Part_t, PhonContent_t, Quote_t, Relation_t, Sentence_t, String_t, TextContent_t, Utterance_t, Whitespace_t, Word_t};
     Reference::PROPS.ANNOTATIONTYPE = AnnotationType::REFERENCE;
     Reference::PROPS.LABEL = "Reference";
-    Reference::PROPS.TEXTDELIMITER = "NONE";
+    Reference::PROPS.TEXTDELIMITER = " ";
     Reference::PROPS.XLINK = true;
     Reference::PROPS.XMLTAG = "ref";
 //------ Relation -------
