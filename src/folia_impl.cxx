@@ -1155,7 +1155,7 @@ namespace folia {
 
   const string& AbstractElement::get_delimiter( bool retaintok ) const {
 #ifdef DEBUG_TEXT_DEL
-    cerr << "IN " << xmltag() << "::get_delimiter (" << retaintok << ")" << endl;
+    cerr << "IN <" << xmltag() << ">:get_delimiter (" << retaintok << ")" << endl;
 #endif
     if ( _props.TEXTDELIMITER != "NONE" ) {
       return _props.TEXTDELIMITER;
@@ -1166,7 +1166,7 @@ namespace folia {
       if ( last->isSubClass(AbstractStructureElement_t) ){
 	const string& det = last->get_delimiter( retaintok );
 #ifdef DEBUG_TEXT_DEL
-	cerr << "out" << xmltag() << "::get_delimiter ==> '" << det << "'" << endl;
+	cerr << "out <" << xmltag() << ">:get_delimiter ==> '" << det << "'" << endl;
 #endif
 	return det;
       }
@@ -1174,13 +1174,13 @@ namespace folia {
     if ( (SPACE & optional_attributes()) ){
       if ( _space || retaintok ){
 #ifdef DEBUG_TEXT_DEL
-	cerr << "out" << xmltag() << "::get_delimiter ==> ''" << endl;
+	cerr << "out <" << xmltag() << ">:get_delimiter ==> ' '" << endl;
 #endif
 	return SPACE_STRING;
       }
     }
 #ifdef DEBUG_TEXT_DEL
-    cerr << "out" << xmltag() << "::get_delimiter ==> ''" << endl;
+    cerr << "out <" << xmltag() << ">:get_delimiter ==> ''" << endl;
 #endif
     return EMPTY_STRING;
   }
