@@ -867,7 +867,7 @@ namespace folia {
   int Engine::handle_content( const string& t_or_ph, int depth ){
     KWargs atts = get_attributes( _reader );
     if ( _debug ){
-      DBG << "expandinf content of <" << t_or_ph << "> atts=" << atts << endl;
+      DBG << "expanding content of <" << t_or_ph << "> atts=" << atts << endl;
     }
     FoliaElement *t = AbstractElement::createElement( t_or_ph, _out_doc );
     if ( t ){

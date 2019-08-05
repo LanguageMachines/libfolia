@@ -145,7 +145,7 @@ namespace folia {
     debug = 0;
     mode = CHECKTEXT;
     _external_document = false;
-    _incremental_parse =  false;
+    _incremental_parse = false;
     major_version = 0;
     minor_version = 0;
     sub_version = 0;
@@ -1928,17 +1928,23 @@ namespace folia {
       return "";
     }
     // search a set. it must be unique. Otherwise return ""
-    // cerr << "zoek voor '" << toString(type) << "' de default set in:" << endl
-    // 	 <<  _annotationdefaults << endl;
+    if ( debug ){
+      cerr << "\nzoek voor '" << toString(type) << "' de default set in:\n"
+	   <<  _annotationdefaults << endl;
+    }
     string result;
     const auto& mit1 = _annotationdefaults.find(type);
     if ( mit1 != _annotationdefaults.end() ){
-      //      cerr << "vind tussen " <<  mit1->second << endl;
+      if ( debug ){
+	cerr << "vind tussen " <<  mit1->second << endl;
+      }
       if ( mit1->second.size() == 1 ){
 	result = mit1->second.begin()->first;
       }
     }
-    //    cerr << "default_set ==> " << result << endl;
+    if ( debug ){
+      cerr << "default_set ==> " << result << endl;
+    }
     return result;
   }
 
