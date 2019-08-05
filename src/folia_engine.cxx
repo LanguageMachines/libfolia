@@ -37,7 +37,8 @@
 
 using namespace std;
 
-#define DBG *TiCC::Log(_dbg_file)
+TiCC::LogStream DBG_CERR(cerr,"folia-engine:");
+#define DBG *TiCC::Log((_dbg_file?_dbg_file:&DBG_CERR))
 
 namespace folia {
 
@@ -332,7 +333,7 @@ namespace folia {
       int type =  xmlTextReaderNodeType(_reader );
       string local_name = (const char*)xmlTextReaderConstLocalName(_reader );
       switch ( type ){
-      case XML_ELEMENT_NODE:
+      case XML_READER_TYPE_ELEMENT:
 	++index;
 	if ( local_name == "FoLiA" ){
 	  // found the root
@@ -399,7 +400,7 @@ namespace folia {
 	  return _ok;
 	}
 	break;
-      case XML_PI_NODE:
+      case XML_READER_TYPE_PROCESSING_INSTRUCTION:
 	// A PI
 	if ( local_name == "xml-stylesheet" ){
 	  string sv = (const char*)xmlTextReaderConstValue(_reader);
@@ -469,7 +470,7 @@ namespace folia {
       _last_depth = new_depth;
     }
     if ( _debug ){
-      DBG << "appen_node() result = " << _current_node << endl;
+      DBG << "append_node() result = " << _current_node << endl;
     }
     _last_added = t;
   }
@@ -512,7 +513,7 @@ namespace folia {
       int type = xmlTextReaderNodeType(_reader);
       int new_depth = xmlTextReaderDepth(_reader);
       switch ( type ){
-      case XML_ELEMENT_NODE: {
+      case XML_READER_TYPE_ELEMENT: {
 	string local_name = (const char*)xmlTextReaderConstLocalName(_reader);
 	if ( _debug ){
 	  DBG << "get node XML_ELEMENT name=" << local_name
@@ -535,11 +536,11 @@ namespace folia {
 	}
       }
 	break;
-      case XML_TEXT_NODE: {
+      case XML_READER_TYPE_TEXT: {
 	add_text( new_depth );
       }
 	break;
-      case XML_COMMENT_NODE: {
+      case XML_READER_TYPE_COMMENT: {
 	add_comment( new_depth );
       }
 	break;
@@ -615,7 +616,8 @@ namespace folia {
     while ( ret ){
       int depth = xmlTextReaderDepth(cur_reader);
       int type = xmlTextReaderNodeType(cur_reader);
-      if ( type == XML_ELEMENT_NODE || type == XML_COMMENT_NODE ){
+      if ( type == XML_READER_TYPE_ELEMENT
+	   || type == XML_READER_TYPE_COMMENT ){
 	string local_name = (const char*)xmlTextReaderConstLocalName(cur_reader);
 	KWargs atts = get_attributes( cur_reader );
 	string nsu;
@@ -927,19 +929,26 @@ namespace folia {
 	    if ( local_name == "desc"
 		 || local_name == "content"
 		 || local_name == "comment" ){
-	      xmlTextReaderRead(_reader);
-	      const char *val = (const char*)xmlTextReaderConstValue(_reader);
-	      if ( val ) {
+	      if ( xmlTextReaderIsEmptyElement(_reader) ){
 		if ( _debug ){
-		  DBG << "processsing a <" << local_name << "> with value '"
-		      << val << "'" << endl;
+		  DBG << "Element is empty." << endl;
 		}
-		atts["value"] = val;
 	      }
 	      else {
-		if ( _debug ){
-		  DBG << "processsing a <" << local_name
-		      << "> with empty value " << endl;
+		xmlTextReaderRead(_reader);
+		const char *val = (const char*)xmlTextReaderConstValue(_reader);
+		if ( val ) {
+		  if ( _debug ){
+		    DBG << "processsing a <" << local_name << "> with value '"
+			<< val << "'" << endl;
+		  }
+		  atts["value"] = val;
+		}
+		else {
+		  if ( _debug ){
+		    DBG << "processsing a <" << local_name
+			<< "> with empty value " << endl;
+		  }
 		}
 	      }
 	    }
@@ -1014,7 +1023,7 @@ namespace folia {
       }
       int new_depth = xmlTextReaderDepth(_reader);
       switch ( type ){
-      case XML_ELEMENT_NODE: {
+      case XML_READER_TYPE_ELEMENT: {
 	string local_name = (const char*)xmlTextReaderConstLocalName(_reader);
 	if ( _debug ){
 	  DBG << "next element: " << local_name << " cnt =" << _node_count << endl;
@@ -1048,11 +1057,11 @@ namespace folia {
 	}
       }
 	break;
-      case XML_TEXT_NODE: {
+      case XML_READER_TYPE_TEXT: {
 	add_text( new_depth );
       }
 	break;
-      case XML_COMMENT_NODE: {
+      case XML_READER_TYPE_COMMENT: {
 	add_comment( new_depth );
       }
 	break;
