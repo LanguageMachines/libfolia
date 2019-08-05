@@ -4003,17 +4003,20 @@ namespace folia {
     }
   }
 
-  void Description::setAttributes( const KWargs& kwargs ) {
-    auto it = kwargs.find( "value" );
-    if ( it == kwargs.end() ) {
-      throw ValueError("value attribute is required for " + classname() );
+  void Description::setAttributes( const KWargs& kwargsin ) {
+    KWargs kwargs = kwargsin;
+    string val = kwargs.extract( "value" );
+    if ( !val.empty() ) {
+      _value = val;
     }
-    _value = it->second;
+    AbstractElement::setAttributes( kwargs );
   }
 
   xmlNode *Description::xml( bool, bool ) const {
     xmlNode *e = AbstractElement::xml( false, false );
-    xmlAddChild( e, xmlNewText( (const xmlChar*)_value.c_str()) );
+    if ( !_value.empty() ){
+      xmlAddChild( e, xmlNewText( (const xmlChar*)_value.c_str()) );
+    }
     return e;
   }
 
@@ -4028,18 +4031,18 @@ namespace folia {
 
   void Comment::setAttributes( const KWargs& kwargsin ) {
     KWargs kwargs = kwargsin;
-    auto it = kwargs.find( "value" );
-    if ( it == kwargs.end() ) {
-      throw ValueError("value attribute is required for " + classname() );
+    string val = kwargs.extract( "value" );
+    if ( !val.empty() ) {
+      _value = val;
     }
-    _value = it->second;
-    kwargs.erase( it );
     AbstractElement::setAttributes( kwargs );
   }
 
   xmlNode *Comment::xml( bool, bool ) const {
     xmlNode *e = AbstractElement::xml( false, false );
-    xmlAddChild( e, xmlNewText( (const xmlChar*)_value.c_str()) );
+    if ( !_value.empty() ){
+      xmlAddChild( e, xmlNewText( (const xmlChar*)_value.c_str()) );
+    }
     return e;
   }
 
