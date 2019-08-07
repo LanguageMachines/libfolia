@@ -138,6 +138,7 @@ namespace folia {
     void setup( const std::string& ="", bool = false );
     std::map<int,int> enumerate_text_parents( const std::string& ="",
 					      bool = false ) const;
+    size_t text_parent_count() const { return text_parent_map.size(); };
     FoliaElement *next_text_parent();
   private:
     int _next_text_node;
