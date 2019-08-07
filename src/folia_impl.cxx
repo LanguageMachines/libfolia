@@ -455,7 +455,24 @@ namespace folia {
       }
     }
     else if ( (ANNOTATOR & supported) && doc() ){
-      string def = doc()->default_processor( annotation_type(), _set );
+      string def;
+      try {
+	def = doc()->default_processor( annotation_type(), _set );
+      }
+      catch ( const NoDefaultError& e ){
+	if ( doc()->is_incremental() ){
+	  // when there is NO default processor, AND we are parsing using
+	  // folia::Engine, we must check if there WAS a processor originally
+	  // which is 'obscured' by newly added declarations
+	  def = doc()->original_default_processor( annotation_type() );
+	  if ( doc()->debug > 2 ) {
+	    cerr << "from original got default processor='" <<  def << "'" << endl;
+	  }
+	}
+	else {
+	  throw e;
+	}
+      }
       _processor = def;
     }
 

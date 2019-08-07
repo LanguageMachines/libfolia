@@ -765,13 +765,16 @@ namespace folia {
   }
 
   void Document::save_orig_ann_defaults(){
-    map<AnnotationType::AnnotationType,string> result;
     for ( const auto& it : _annotationdefaults ){
       if ( it.second.size() == 1 ){
-	result.insert( make_pair(it.first,it.second.begin()->first) );
+	// so 1 set
+	_orig_ann_default_sets.insert( make_pair(it.first,it.second.begin()->first) );
+	auto procs = it.second.begin()->second.p;
+	if ( procs.size() == 1 ){
+	  _orig_ann_default_procs.insert( make_pair(it.first,*procs.begin()) );
+	}
       }
     }
-    _orig_ann_defaults = result;
   }
 
 
@@ -1949,8 +1952,18 @@ namespace folia {
   }
 
   string Document::original_default_set( AnnotationType::AnnotationType type ) const {
-    auto const& it = _orig_ann_defaults.find(type);
-    if ( it == _orig_ann_defaults.end() ){
+    auto const& it = _orig_ann_default_sets.find(type);
+    if ( it == _orig_ann_default_sets.end() ){
+      return "";
+    }
+    else {
+      return it->second;
+    }
+  }
+
+  string Document::original_default_processor( AnnotationType::AnnotationType type ) const {
+    auto const& it = _orig_ann_default_procs.find(type);
+    if ( it == _orig_ann_default_procs.end() ){
       return "";
     }
     else {

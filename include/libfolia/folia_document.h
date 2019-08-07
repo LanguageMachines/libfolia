@@ -205,6 +205,7 @@ namespace folia {
 				  const std::string& ="" ) const;
     std::string default_processor( AnnotationType::AnnotationType,
 				   const std::string& ="" ) const;
+    std::string original_default_processor( AnnotationType::AnnotationType ) const;
 
     FoliaElement* parseXml( );
 
@@ -295,7 +296,8 @@ namespace folia {
     std::map<AnnotationType::AnnotationType,std::map<std::string,int> > _annotationrefs;
     std::map<AnnotationType::AnnotationType,std::map<std::string,std::string>> _alias_set;
     std::map<AnnotationType::AnnotationType,std::map<std::string,std::string>> _set_alias;
-    std::map<AnnotationType::AnnotationType,std::string> _orig_ann_defaults;
+    std::map<AnnotationType::AnnotationType,std::string> _orig_ann_default_sets;
+    std::map<AnnotationType::AnnotationType,std::string> _orig_ann_default_procs;
 
     std::vector<TextContent*> t_offset_validation_buffer;
     std::vector<PhonContent*> p_offset_validation_buffer;
