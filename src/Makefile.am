@@ -18,6 +18,7 @@ bin_SCRIPTS = foliadiff.sh
 
 check_PROGRAMS = simpletest
 TESTS = $(check_PROGRAMS)
+TESTS_ENVIRONMENT = topsrcdir=$(top_srcdir)
 simpletest_SOURCES = simpletest.cxx
 CLEANFILES = simpletest.out
 
