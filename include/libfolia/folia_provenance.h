@@ -99,7 +99,7 @@ namespace folia {
   public:
   Provenance( Document *doc ): _doc(doc),_first_proc(0){};
     ~Provenance();
-    processor *parse_processor( const xmlNode *, processor * =0 );
+    void parse_processor( const xmlNode *, processor * =0 );
     processor *get_processor( const std::string& ) const;
     std::vector<processor*> get_processors_by_name( const std::string& ) const;
     processor *get_top_processor() const;

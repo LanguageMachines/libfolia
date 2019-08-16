@@ -407,16 +407,16 @@ namespace folia {
     }
   }
 
-  processor *Provenance::parse_processor( const xmlNode *node,
-					  processor *parent ) {
+  void Provenance::parse_processor( const xmlNode *node,
+				    processor *parent ) {
     KWargs node_atts = getAttributes( node );
-    processor *result = new processor( this, parent, node_atts );
+    processor *main = new processor( this, parent, node_atts );
     //    cerr << "created procesor(" << node_atts << ")" << endl;
     xmlNode *n = node->children;
     while ( n ){
       string tag = TiCC::Name( n );
       if ( tag == "processor" ){
-     	parse_processor(n,result);
+     	parse_processor(n,main);
       }
       else if ( tag == "meta" ){
 	KWargs atts = getAttributes( n );
@@ -428,11 +428,10 @@ namespace folia {
 	  throw XmlError( "processor: invalid attribute(s) in meta tag" );
 	}
 	string value = TiCC::XmlContent( n );
-	result->_metadata[id] = value;
+	main->_metadata[id] = value;
       }
       n = n->next;
     }
-    return result;
   }
 
   ostream& operator<<( ostream& os, const Provenance& p ){
