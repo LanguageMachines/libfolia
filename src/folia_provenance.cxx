@@ -332,14 +332,9 @@ namespace folia {
 	g_atts["type"] = "GENERATOR";
 	g_atts["id"] = _id + ".generator";
 	g_atts["name"] = "libfolia";
-	new processor( prov, this, g_atts );
+	processor *sub = new processor( prov, this, g_atts );
+	this->_processors.push_back( sub );
       }
-    }
-    if ( parent ){
-      parent->_processors.push_back( this );
-    }
-    else {
-      prov->processors.push_back( this );
     }
     prov->add_index(this);
   }
@@ -411,6 +406,12 @@ namespace folia {
 				    processor *parent ) {
     KWargs node_atts = getAttributes( node );
     processor *main = new processor( this, parent, node_atts );
+    if ( parent ){
+      parent->_processors.push_back( main );
+    }
+    else {
+      processors.push_back( main );
+    }
     //    cerr << "created procesor(" << node_atts << ")" << endl;
     xmlNode *n = node->children;
     while ( n ){

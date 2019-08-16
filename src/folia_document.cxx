@@ -736,6 +736,12 @@ namespace folia {
       _provenance = new Provenance(this);
     }
     processor *p = new processor( _provenance, parent, args );
+    if ( parent ){
+      parent->_processors.push_back( p );
+    }
+    else {
+      _provenance->processors.push_back( p );
+    }
     return p;
   }
 
