@@ -470,7 +470,7 @@ namespace folia {
 	  }
 	}
 	else {
-	  throw e;
+	  throw;
 	}
       }
       _processor = def;
