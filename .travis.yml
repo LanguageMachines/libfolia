@@ -71,9 +71,7 @@ install:
     - bash bootstrap.sh
     - ./configure $OPENMPFLAG
     - cppcheck --enable=all --quiet --error-exitcode=0 .
-    - $SCAN --status-bugs ./configure
     - $SCAN --status-bugs make
-    - make
     - sudo make install
 
 script:
