@@ -29,6 +29,9 @@ LT_INIT
 # when running tests, use CXX
 AC_LANG([C++])
 
+# check OpenMP support
+AC_OPENMP
+
 # Checks for libraries.
 
 # Checks for header files.
