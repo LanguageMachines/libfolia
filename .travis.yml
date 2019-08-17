@@ -72,6 +72,7 @@ install:
     - ./configure $OPENMPFLAG
     - cppcheck --enable=all --quiet --error-exitcode=0 .
     - $SCAN --status-bugs make
+    - make
     - sudo make install
 
 script:
