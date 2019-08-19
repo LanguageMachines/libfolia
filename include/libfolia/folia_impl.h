@@ -81,6 +81,8 @@ namespace folia {
     return f1;
   }
 
+  enum class SELECT_FLAGS { RECURSE=0, LOCAL=1, FIRST_HIT=2 };
+
 #define NOT_IMPLEMENTED {						\
     throw NotImplementedError( xmltag() + "::" + std::string(__func__) ); \
   }
@@ -133,6 +135,7 @@ namespace folia {
     };
 
     // Selections
+
     template <typename F>
       std::vector<F*> select( const std::string& st,
 			      const std::set<ElementType>& exclude,
@@ -142,7 +145,7 @@ namespace folia {
       std::vector<FoliaElement*> tmp = select( obj.element_id(),
 					       st,
 					       exclude,
-					       recurse );
+					       (recurse?SELECT_FLAGS::RECURSE : SELECT_FLAGS::LOCAL) );
       for ( size_t i = 0; i < tmp.size(); ++i ){
 	res.push_back( dynamic_cast<F*>( tmp[i]) );
       }
@@ -156,7 +159,7 @@ namespace folia {
       std::vector<F*> res;
       std::vector<FoliaElement*> tmp = select( obj.element_id(),
 					       st,
-					       recurse );
+					       (recurse?SELECT_FLAGS::RECURSE : SELECT_FLAGS::LOCAL) );
       for ( size_t i = 0; i < tmp.size(); ++i ){
 	res.push_back( dynamic_cast<F*>( tmp[i]) );
       }
@@ -170,7 +173,7 @@ namespace folia {
       std::vector<F*> res;
       std::vector<FoliaElement*> tmp = select( obj.element_id(),
 					       std::string(st),
-					       recurse );
+					       (recurse?SELECT_FLAGS::RECURSE : SELECT_FLAGS::LOCAL) );
       for ( size_t i = 0; i < tmp.size(); ++i ){
 	res.push_back( dynamic_cast<F*>( tmp[i]) );
       }
@@ -184,7 +187,7 @@ namespace folia {
       std::vector<F*> res;
       std::vector<FoliaElement*> tmp = select( obj.element_id(),
 					       exclude,
-					       recurse );
+					       (recurse?SELECT_FLAGS::RECURSE : SELECT_FLAGS::LOCAL) );
       for ( size_t i = 0; i < tmp.size(); ++i ){
 	res.push_back( dynamic_cast<F*>( tmp[i]) );
       }
@@ -196,7 +199,7 @@ namespace folia {
       F obj((Document*)0);
       std::vector<F*> res;
       std::vector<FoliaElement*> tmp = select( obj.element_id(),
-					       recurse );
+					       (recurse?SELECT_FLAGS::RECURSE : SELECT_FLAGS::LOCAL) );
       for ( size_t i = 0; i < tmp.size(); ++i ){
 	res.push_back( dynamic_cast<F*>( tmp[i]) );
       }
@@ -475,17 +478,17 @@ namespace folia {
 
 
     virtual std::vector<FoliaElement*> select( ElementType elementtype,
-					       bool = true ) const = 0;
+					       SELECT_FLAGS = SELECT_FLAGS::RECURSE ) const = 0;
     virtual std::vector<FoliaElement*> select( ElementType elementtype,
 					       const std::set<ElementType>& ,
-					       bool = true ) const = 0;
+					       SELECT_FLAGS = SELECT_FLAGS::RECURSE ) const = 0;
     virtual std::vector<FoliaElement*> select( ElementType elementtype,
 					       const std::string&,
-					       bool = true ) const = 0;
+					       SELECT_FLAGS = SELECT_FLAGS::RECURSE ) const = 0;
     virtual std::vector<FoliaElement*> select( ElementType elementtype,
 					       const std::string&,
 					       const std::set<ElementType>& ,
-					       bool = true ) const = 0;
+					       SELECT_FLAGS = SELECT_FLAGS::RECURSE ) const = 0;
     // some 'internal stuff
     virtual int refcount() const = 0;
     virtual void increfcount() = 0;
@@ -714,17 +717,17 @@ namespace folia {
 
 
     std::vector<FoliaElement*> select( ElementType elementtype,
-				       bool = true ) const;
+				       SELECT_FLAGS = SELECT_FLAGS::RECURSE ) const;
     std::vector<FoliaElement*> select( ElementType elementtype,
 				       const std::set<ElementType>& ,
-				       bool = true ) const;
+				       SELECT_FLAGS = SELECT_FLAGS::RECURSE ) const;
     std::vector<FoliaElement*> select( ElementType elementtype,
 				       const std::string&,
-				       bool = true ) const;
+				       SELECT_FLAGS = SELECT_FLAGS::RECURSE ) const;
     std::vector<FoliaElement*> select( ElementType elementtype,
 				       const std::string&,
 				       const std::set<ElementType>& ,
-				       bool = true ) const;
+				       SELECT_FLAGS = SELECT_FLAGS::RECURSE ) const;
 
     void unravel( std::set<FoliaElement*>& );
 
