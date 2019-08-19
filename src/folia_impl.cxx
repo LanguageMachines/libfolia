@@ -4473,7 +4473,7 @@ namespace folia {
   vector<AbstractSpanAnnotation*> AbstractElement::selectSpan() const {
     vector<AbstractSpanAnnotation*> res;
     for ( const auto& el : SpanSet ) {
-      vector<FoliaElement*> tmp = select( el, true );
+      vector<FoliaElement*> tmp = select( el );
       for ( auto& sp : tmp ) {
 	res.push_back( dynamic_cast<AbstractSpanAnnotation*>( sp ) );
       }
