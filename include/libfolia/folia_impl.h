@@ -627,7 +627,6 @@ namespace folia {
       return FoliaElement::select<F>( exclude, recurse );
     }
 
-
     const std::string annotator( ) const { return _annotator; };
     void annotator( const std::string& a ) { _annotator = a; };
     const std::string processor( ) const { return _processor; };
