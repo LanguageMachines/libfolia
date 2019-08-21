@@ -66,7 +66,17 @@ namespace folia {
 
   class properties;
   extern const std::set<ElementType> default_ignore_annotations;
+
   enum class TEXT_FLAGS { NONE=0, RETAIN=1, STRICT=2, HIDDEN=4 };
+  /// class used to steer 'text()' search behaviour
+  //    the values may be logically 'or'-ed, like RETAIN|HIDDEN
+  /// NONE   : None of the below flags is set.
+  ///          This is the default.
+  /// RETAIN : when returning text, keep al tokenization
+  /// STRICT : only text from the current textcontent sibling.
+  ///          The default is NOT STRICT, meaning to get text from deeper
+  ///          textcontent nodes too. (stopping at the first that HAS text)
+  /// HIDDEN : also get text from 'hidden' nodes.
 
   inline TEXT_FLAGS operator&( TEXT_FLAGS f1, TEXT_FLAGS f2 ){
     return (TEXT_FLAGS)((int)f1&(int)f2);
@@ -81,7 +91,13 @@ namespace folia {
     return f1;
   }
 
-  enum class SELECT_FLAGS { RECURSE=0, LOCAL=1, FIRST_HIT=2 };
+  enum class SELECT_FLAGS { RECURSE=0, LOCAL=1, TOP_HIT=2 };
+  /// class used to steer 'select()' behaviour
+  /// RECURSE: recurse the whole FoLia from the given node downwards
+  ///          returning all matching nodes, even within matches
+  ///          This is the default.
+  /// LOCAL  : only just look in the direct sibblings of the given node
+  /// TOP_HIT: like recurse, but do NOT recurse into sibblings of matching nodes
 
 #define NOT_IMPLEMENTED {						\
     throw NotImplementedError( xmltag() + "::" + std::string(__func__) ); \
