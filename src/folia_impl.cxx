@@ -2435,23 +2435,17 @@ namespace folia {
   }
 
   PosAnnotation* AllowInlineAnnotation::getPosAnnotations( const string& st,
-							   vector<PosAnnotation*>& vec ) const {
-    PosAnnotation *res = 0;
-    vec.clear();
-    try {
-      res = annotation<PosAnnotation>( st );
-    }
-    catch( const NoSuchAnnotation& e ) {
-      res = 0;
-    }
+							   vector<PosAnnotation*>& alts ) const {
+    PosAnnotation *res = annotation<PosAnnotation>( st ); // may be 0
+    alts.clear();
     // now search for alternatives
-    vector<Alternative *> alts = select<Alternative>( AnnoExcludeSet );
-    for ( const auto& alt : alts ){
+    vector<Alternative *> alt_nodes = select<Alternative>( AnnoExcludeSet );
+    for ( const auto& alt : alt_nodes ){
       if ( alt->size() > 0 ) { // child elements?
 	for ( size_t j=0; j < alt->size(); ++j ) {
 	  if ( alt->index(j)->element_id() == PosAnnotation_t &&
 	       ( st.empty() || alt->index(j)->sett() == st ) ) {
-	    vec.push_back( dynamic_cast<PosAnnotation*>(alt->index(j)) );
+	    alts.push_back( dynamic_cast<PosAnnotation*>(alt->index(j)) );
 	  }
 	}
       }
@@ -2487,23 +2481,17 @@ namespace folia {
   }
 
   LemmaAnnotation* AllowInlineAnnotation::getLemmaAnnotations( const string& st,
-							       vector<LemmaAnnotation*>& vec ) const {
-    LemmaAnnotation *res = 0;
-    vec.clear();
-    try {
-      res = annotation<LemmaAnnotation>( st );
-    }
-    catch( const NoSuchAnnotation& e ) {
-      // ok
-      res = 0;
-    }
-    vector<Alternative *> alts = select<Alternative>( AnnoExcludeSet );
-    for ( const auto& alt : alts ){
+							       vector<LemmaAnnotation*>& alts ) const {
+    alts.clear();
+    LemmaAnnotation *res = annotation<LemmaAnnotation>( st ); // may be 0 !
+    // also search alternatives
+    vector<Alternative *> alt_nodes = select<Alternative>( AnnoExcludeSet );
+    for ( const auto& alt : alt_nodes ){
       if ( alt->size() > 0 ) { // child elements?
 	for ( size_t j =0; j < alt->size(); ++j ) {
 	  if ( alt->index(j)->element_id() == LemmaAnnotation_t &&
 	       ( st.empty() || alt->index(j)->sett() == st ) ) {
-	    vec.push_back( dynamic_cast<LemmaAnnotation*>(alt->index(j)) );
+	    alts.push_back( dynamic_cast<LemmaAnnotation*>(alt->index(j)) );
 	  }
 	}
       }
@@ -2539,24 +2527,17 @@ namespace folia {
   }
 
   MorphologyLayer *Word::getMorphologyLayers( const string& st,
-					      vector<MorphologyLayer*>& vec ) const {
-    MorphologyLayer *res = 0;
-    vec.clear();
-    try {
-      res = annotation<MorphologyLayer>( st );
-    }
-    catch( const NoSuchAnnotation& e ) {
-      // ok
-      res = 0;
-    }
+					      vector<MorphologyLayer*>& alts ) const {
+    alts.clear();
+    MorphologyLayer *res = annotation<MorphologyLayer>( st ); // may be 0
     // now search for alternatives
-    vector<Alternative *> alts = select<Alternative>( AnnoExcludeSet );
-    for ( const auto& alt : alts ){
+    vector<Alternative *> alt_nodes = select<Alternative>( AnnoExcludeSet );
+    for ( const auto& alt : alt_nodes ){
       if ( alt->size() > 0 ) { // child elements?
 	for ( size_t j =0; j < alt->size(); ++j ) {
 	  if ( alt->index(j)->element_id() == MorphologyLayer_t &&
 	       ( st.empty() || alt->index(j)->sett() == st ) ) {
-	    vec.push_back( dynamic_cast<MorphologyLayer*>(alt->index(j)) );
+	    alts.push_back( dynamic_cast<MorphologyLayer*>(alt->index(j)) );
 	  }
 	}
       }

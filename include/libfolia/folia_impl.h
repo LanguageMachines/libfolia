@@ -249,35 +249,26 @@ namespace folia {
     template <typename F>
       std::vector<F*> annotations( const std::string& s = "" ) const {
       if ( allowannotations() ){
-	std::vector<F*> v = select<F>( s, default_ignore_annotations );
-	if ( v.size() >= 1 )
-	  return v;
-	else {
-	  F obj((Document*)0);
-	  if ( s.empty() )
-	    throw NoSuchAnnotation( obj.classname() );
-	  else
-	    throw NoSuchAnnotation( obj.classname() + " for set='" + s + "'" );
-	}
+	return select<F>( s, default_ignore_annotations );
       }
       else NOT_IMPLEMENTED;
     }
 
     template <typename F>
-      int has_annotation( const std::string& st = "" ) const {
-      try {
-	std::vector<F*> v = annotations<F>( st );
-	return v.size();
-      }
-      catch ( NoSuchAnnotation& e ){
-      }
-      return 0;
+      bool has_annotation( const std::string& st = "" ) const {
+      std::vector<F*> v = annotations<F>( st );
+      return v.size() > 0;
     }
 
     template <typename F>
       F *annotation( const std::string& st = "" ) const {
       std::vector<F*>v = annotations<F>( st );
-      return v[0]; // always exist, otherwise annotations would throw()
+      if ( v.size() > 0 ){
+	return v[0];
+      }
+      else {
+	return 0;
+      }
     }
 
     template <typename F>
