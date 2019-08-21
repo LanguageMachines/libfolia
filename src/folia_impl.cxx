@@ -1720,7 +1720,7 @@ namespace folia {
 
 
   vector<FoliaElement *>AbstractElement::find_replacables( FoliaElement *par ) const {
-    return par->select( element_id(), sett(), false );
+    return par->select( element_id(), sett(), SELECT_FLAGS::LOCAL );
   }
 
   void AbstractElement::replace( FoliaElement *child ) {
@@ -1867,7 +1867,7 @@ namespace folia {
   }
 
   const string FoliaElement::description() const {
-    vector<FoliaElement *> v = select( Description_t, false );
+    vector<FoliaElement *> v = select( Description_t, SELECT_FLAGS::LOCAL );
     if ( v.size() == 0 ) {
       return "";
     }
@@ -1897,7 +1897,7 @@ namespace folia {
       throw ValueError( mess );
     }
     if ( c->occurrences() > 0 ) {
-      vector<FoliaElement*> v = select( c->element_id(), false );
+      vector<FoliaElement*> v = select( c->element_id(), SELECT_FLAGS::LOCAL );
       size_t count = v.size();
       if ( count >= c->occurrences() ) {
 	throw DuplicateAnnotationError( "Unable to add another object of type " + c->classname() + " to " + classname() + ". There are already " + TiCC::toString(count) + " instances of this type, which is the maximum." );
@@ -1905,7 +1905,7 @@ namespace folia {
     }
     if ( c->occurrences_per_set() > 0 &&
 	 (CLASS & c->required_attributes() || c->setonly() ) ){
-      vector<FoliaElement*> v = select( c->element_id(), c->sett(), false );
+      vector<FoliaElement*> v = select( c->element_id(), c->sett(), SELECT_FLAGS::LOCAL );
       size_t count = v.size();
       if ( count >= c->occurrences_per_set() ) {
 	throw DuplicateAnnotationError( "Unable to add another object of type " + c->classname() + " to " + classname() + ". There are already " + TiCC::toString(count) + " instances of this type and set (" + c->sett() + "), which is the maximum." );
@@ -2166,16 +2166,34 @@ namespace folia {
   vector<FoliaElement*> AbstractElement::select( ElementType et,
 						 const string& st,
 						 const set<ElementType>& exclude,
-						 bool recurse ) const {
+						 SELECT_FLAGS flag ) const {
+    /// The generic 'select()' function on which all other variants are based
+    ///   it searches a FoLiA node for matchins sibblings.
+    /// criteria:
+    /// @et: which type of element we are lookinf for
+    /// @st: when no empty ("") we also must match on the 'sett' of the nodes
+    /// @exclude: a set of ElementTypes to exclude from searching.
+    ///            These are skipped, and NOT recursed into.
+    /// @flag: determines special search stategies:
+    ///        RECURSE : recurse the whole FoLia from the given node downwards
+    ///                  returning all matching nodes, even within matches
+    ///                  This is the default.
+    ///        LOCAL   : only just look in the direct sibblings of the node
+    ///        TOP_HIT : like recurse, but do NOT recurse into sibblings
+    ///                  of matching node
     vector<FoliaElement*> res;
     for ( const auto& el : _data ) {
       if ( el->element_id() == et &&
 	   ( st.empty() || el->sett() == st ) ) {
 	res.push_back( el );
+	if ( flag == SELECT_FLAGS::TOP_HIT ){
+	  flag = SELECT_FLAGS::LOCAL;
+	}
       }
-      if ( recurse ) {
+      if ( flag != SELECT_FLAGS::LOCAL ){
+	// not at this level, search deeper when recurse is true
 	if ( exclude.find( el->element_id() ) == exclude.end() ) {
-	  vector<FoliaElement*> tmp = el->select( et, st, exclude, recurse );
+	  vector<FoliaElement*> tmp = el->select( et, st, exclude, flag );
 	  res.insert( res.end(), tmp.begin(), tmp.end() );
 	}
       }
@@ -2185,19 +2203,19 @@ namespace folia {
 
   vector<FoliaElement*> AbstractElement::select( ElementType et,
 						 const string& st,
-						 bool recurse ) const {
-    return select( et, st, default_ignore, recurse );
+						 SELECT_FLAGS flag ) const {
+    return select( et, st, default_ignore, flag );
   }
 
   vector<FoliaElement*> AbstractElement::select( ElementType et,
 						 const set<ElementType>& exclude,
-						 bool recurse ) const {
-    return select( et, "", exclude, recurse );
+						 SELECT_FLAGS flag ) const {
+    return select( et, "", exclude, flag );
   }
 
   vector<FoliaElement*> AbstractElement::select( ElementType et,
-						 bool recurse ) const {
-    return select( et, "", default_ignore, recurse );
+						 SELECT_FLAGS flag ) const {
+    return select( et, "", default_ignore, flag );
   }
 
   void AbstractElement::unravel( set<FoliaElement*>& store ){
@@ -2998,11 +3016,6 @@ namespace folia {
     vector<FoliaElement *> result;
     vector<TextContent*> v = par->FoliaElement::select<TextContent>( sett(),
 								     false );
-    // for ( const auto& el:v ) {
-    //   if ( el->cls() == cls() ) {
-    // 	result.push_back( el );
-    //   }
-    // }
     copy_if( v.begin(),
 	     v.end(),
 	     back_inserter(result),
@@ -3895,7 +3908,7 @@ namespace folia {
     if ( layertype != BASE ) {
       const FoliaElement *e = parent();
       if ( e ) {
-	vector<FoliaElement*> v = e->select( layertype, st, false );
+	vector<FoliaElement*> v = e->select( layertype, st, SELECT_FLAGS::LOCAL );
 	for ( const auto& el : v ){
 	  for ( size_t k=0; k < el->size(); ++k ) {
 	    FoliaElement *f = el->index(k);
@@ -4367,7 +4380,7 @@ namespace folia {
   }
 
   bool Correction::hasNew( ) const {
-    vector<FoliaElement*> v = select( New_t, false );
+    vector<FoliaElement*> v = select( New_t, SELECT_FLAGS::LOCAL );
     return !v.empty();
   }
 
@@ -4385,7 +4398,7 @@ namespace folia {
   }
 
   bool Correction::hasOriginal() const {
-    vector<FoliaElement*> v = select( Original_t, false );
+    vector<FoliaElement*> v = select( Original_t, SELECT_FLAGS::LOCAL );
     return !v.empty();
   }
 
@@ -4403,7 +4416,7 @@ namespace folia {
   }
 
   bool Correction::hasCurrent( ) const {
-    vector<FoliaElement*> v = select( Current_t, false );
+    vector<FoliaElement*> v = select( Current_t, SELECT_FLAGS::LOCAL );
     return !v.empty();
   }
 
