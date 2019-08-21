@@ -1285,7 +1285,7 @@ namespace folia {
     ///
     KWargs atts = getAttributes( node );
     if ( !doc() ){
-      throw logic_error( "FoLiA root without Document" );
+      throw XmlError( "FoLiA root without Document" );
     }
     setAttributes( atts );
     bool meta_found = false;
