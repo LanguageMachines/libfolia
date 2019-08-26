@@ -1981,6 +1981,23 @@ namespace folia {
     // then recurse into the children
     if ( !_mydoc ) {
       _mydoc = the_doc;
+      if ( annotation_type() != AnnotationType::NO_ANN
+	   && !the_doc->version_below( 2, 0 )
+	   && the_doc->is_undeclared( annotation_type() ) ){
+	// cerr << "assignDoc: " << this << endl;
+	// cerr << "ant: " << annotation_type() << endl;
+	// cerr << "set: " << _set << endl;
+	// so when appending a document-less child, make sure that
+	// an annotation declaration is present or added.
+	if ( doc()->autodeclare() ){
+	  doc()->auto_declare( annotation_type(), _set );
+	}
+	else {
+	  throw DeclarationError( "Encountered an instance of <"
+				  + xmltag()
+				  + "> without a proper declaration" );
+	}
+      }
       string myid = id();
       if ( !_set.empty()
 	   && (CLASS & required_attributes() )
@@ -2056,6 +2073,9 @@ namespace folia {
   }
 
   FoliaElement *AbstractElement::append( FoliaElement *child ){
+    // cerr << "AbstractElement::append()" << endl;
+    // cerr << "AbstractElement is" << this << endl;
+    // cerr << "child = " << child << endl;
     if ( !child ){
       throw XmlError( "attempt to append an empty node to a " + classname() );
     }
@@ -2075,18 +2095,6 @@ namespace folia {
     }
     if ( ok ) {
       if ( doc() ){
-	if ( child->annotation_type() != AnnotationType::NO_ANN
-	     && !doc()->version_below( 2, 0 )
-	     && doc()->is_undeclared( child->annotation_type() ) ){
-	  if ( doc()->autodeclare() ){
-	    doc()->auto_declare( child->annotation_type(), child->sett() );
-	  }
-	  else {
-	    throw DeclarationError( "Encountered an instance of <"
-				    + child->xmltag()
-				    + "> without a proper declaration" );
-	  }
-	}
 	child->assignDoc( doc() );
       }
       _data.push_back(child);
@@ -3461,6 +3469,9 @@ namespace folia {
   }
 
   FoliaElement *AbstractStructureElement::append( FoliaElement *child ){
+    // cerr << "AbstractStructureElement::append()" << endl;
+    // cerr << "AbstractStructureElement is" << this << endl;
+    // cerr << "child = " << child << endl;
     AbstractElement::append( child );
     setMaxId( child );
     return child;
