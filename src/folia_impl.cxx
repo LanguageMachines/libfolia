@@ -2075,6 +2075,18 @@ namespace folia {
     }
     if ( ok ) {
       if ( doc() ){
+	if ( child->annotation_type() != AnnotationType::NO_ANN
+	     && !doc()->version_below( 2, 0 )
+	     && doc()->is_undeclared( child->annotation_type() ) ){
+	  if ( doc()->autodeclare() ){
+	    doc()->auto_declare( child->annotation_type(), child->sett() );
+	  }
+	  else {
+	    throw DeclarationError( "Encountered an instance of <"
+				    + child->xmltag()
+				    + "> without a proper declaration" );
+	  }
+	}
 	child->assignDoc( doc() );
       }
       _data.push_back(child);
