@@ -400,6 +400,11 @@ namespace folia {
 	  throw DeclarationError("Encountered an instance of <" + xmltag() + "> without a proper declaration" );
 	}
       }
+      else if ( _set.empty()
+		&& !isSubClass( AbstractAnnotationLayer_t )
+		&& !doc()->declared( annotation_type(), "None") ){
+	throw DeclarationError("Encountered an instance of <" + xmltag() + "> without a proper declaration" );
+      }
     }
     _annotator.clear();
     val = kwargs.extract( "annotator" );
