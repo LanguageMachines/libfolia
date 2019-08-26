@@ -120,6 +120,11 @@ namespace folia {
     explicit UnresolvableTextContent( const std::string& s ): std::runtime_error( "Unresolvable text: " + s ){};
   };
 
+  class DeclarationError: public std::runtime_error {
+  public:
+    explicit DeclarationError( const std::string& s ): std::runtime_error( "DeclarationError: " + s ){};
+  };
+
   std::string toString( const AnnotationType::AnnotationType& );
   AnnotationType::AnnotationType stringToAnnotationType( const std::string& );
 

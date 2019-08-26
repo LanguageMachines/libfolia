@@ -58,12 +58,13 @@ int main( int argc, char* argv[] ){
   bool nochecktext = false;
   bool fixtext = false;
   bool kanon = false;
+  bool autodeclare = false;
   string debug;
   vector<string> fileNames;
   string command;
   try {
     TiCC::CL_Options Opts( "hV",
-			   "nochecktext,debug:,permissive,strip,output:,nooutput,help,fixtext,warn,version,KANON");
+			   "nochecktext,debug:,permissive,strip,output:,nooutput,help,fixtext,warn,version,KANON,autodeclare");
     Opts.init(argc, argv );
     if ( Opts.extract( 'h' )
 	 || Opts.extract( "help" ) ){
@@ -98,6 +99,8 @@ int main( int argc, char* argv[] ){
     }
     Opts.extract( "debug", debug );
     Opts.extract( "output", outputName );
+    autodeclare = Opts.extract( "autodeclare" );
+
     if ( !Opts.empty() ){
       cerr << "unsupported option(s): " << Opts.toString() << endl;
       return EXIT_FAILURE;
@@ -129,24 +132,28 @@ int main( int argc, char* argv[] ){
 	cmd += ", debug='" + debug + "'";
       string mode;
       if ( permissive ){
-	mode = ", mode='permissive";
+	mode += ",permissive";
       }
-      else if ( strip ){
-	mode = ", mode='strip";
+      if ( strip ){
+	mode += ",strip";
       }
-      else if ( fixtext ){
-	mode = ", mode='fixtext";
+      if ( fixtext ){
+	mode += ",fixtext";
+      }
+      if ( autodeclare ){
+	mode += ",autodeclare";
+      }
+      else {
+	mode += ",noautodeclare"; // the default
       }
       if ( nochecktext ){
-	if ( mode.empty() ){
-	  mode = ", mode='nochecktext'";
-	}
-	else {
-	  mode += ",nochecktext'";
-	}
+	mode += ",nochecktext";
       }
-      else if ( !mode.empty() ){
-	mode += "'";
+      else {
+	mode += ",checktext";	// the default
+      }
+      if ( !mode.empty() ){
+	mode = ", mode='" + mode + "'";
       }
       cmd += mode;
       folia::Document d( cmd );

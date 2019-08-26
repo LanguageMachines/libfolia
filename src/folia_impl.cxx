@@ -388,6 +388,19 @@ namespace folia {
       }
     }
 
+
+    if ( doc()
+	 && annotation_type() != AnnotationType::NO_ANN
+	 && !doc()->version_below( 2, 0 ) ){
+      if ( doc()->is_undeclared( annotation_type() ) ){
+	if ( doc()->autodeclare() ){
+	  doc()->auto_declare( annotation_type(), _set );
+	}
+	else {
+	  throw DeclarationError("Encountered an instance of <" + xmltag() + "> without a proper declaration" );
+	}
+      }
+    }
     _annotator.clear();
     val = kwargs.extract( "annotator" );
     if ( !val.empty() ) {

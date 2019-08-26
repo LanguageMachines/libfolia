@@ -83,7 +83,7 @@ namespace folia {
   class Document {
     friend bool operator==( const Document&, const Document& );
     friend std::ostream& operator<<( std::ostream&, const Document * );
-    enum Mode { NOMODE=0, PERMISSIVE=1, CHECKTEXT=2, FIXTEXT=4, STRIP=8, KANON=16 };
+    enum Mode { NOMODE=0, PERMISSIVE=1, CHECKTEXT=2, FIXTEXT=4, STRIP=8, KANON=16, AUTODECLARE=32 };
     friend class Engine;
   public:
     Document();
@@ -182,6 +182,7 @@ namespace folia {
     bool declared( const AnnotationType::AnnotationType&,
 		   const std::string& = "" ) const;
     bool declared( ElementType, const std::string& = "" ) const;
+    bool is_undeclared( const AnnotationType::AnnotationType& ) const ;
     std::string unalias( AnnotationType::AnnotationType,
 			 const std::string& ) const;
     std::string alias( AnnotationType::AnnotationType,
@@ -211,6 +212,8 @@ namespace folia {
 
     std::string id() const { return _id; };
     std::string language() const;
+    void auto_declare( AnnotationType::AnnotationType,
+		       const std::string& = "" );
     void declare( AnnotationType::AnnotationType,
 		  const std::string&,
 		  const std::string& = "" );
@@ -235,11 +238,13 @@ namespace folia {
     bool fixtext() const { return mode & FIXTEXT; };
     bool strip() const { return mode & STRIP; };
     bool kanon() const { return mode & KANON; };
-    bool set_permissive( bool ) const; // defines const, but the mode is mutable!
-    bool set_checktext( bool ) const; // defines const, but the mode is mutable!
-    bool set_fixtext( bool ) const; // defines const, but the mode is mutable!
-    bool set_strip( bool ) const; // defines const, but the mode is mutable!
-    bool set_kanon( bool ) const; // defines const, but the mode is mutable!
+    bool autodeclare() const { return mode & AUTODECLARE; };
+    bool set_permissive( bool ) const; // defined const, but the mode is mutable!
+    bool set_checktext( bool ) const; // defined const, but the mode is mutable!
+    bool set_fixtext( bool ) const; // defined const, but the mode is mutable!
+    bool set_strip( bool ) const; // defined const, but the mode is mutable!
+    bool set_kanon( bool ) const; // defined const, but the mode is mutable!
+    bool set_autodeclare( bool ) const; // defined const, but the mode is mutable!
     class at_t {
       friend std::ostream& operator<<( std::ostream&, const at_t& );
     public:

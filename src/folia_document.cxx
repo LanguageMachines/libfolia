@@ -143,7 +143,7 @@ namespace folia {
     _foliaNsIn_prefix = 0;
     _foliaNsOut = 0;
     debug = 0;
-    mode = CHECKTEXT;
+    mode = Mode( CHECKTEXT|AUTODECLARE );
     _external_document = false;
     _incremental_parse = false;
     major_version = 0;
@@ -247,6 +247,12 @@ namespace folia {
       else if ( mod == "nofixtext" ){
 	mode = Mode( int(mode) & ~FIXTEXT );
       }
+      else if ( mod == "autodeclare" ){
+	mode = Mode( int(mode) | AUTODECLARE );
+      }
+      else if ( mod == "noautodeclare" ){
+	mode = Mode( int(mode) & ~AUTODECLARE );
+      }
       else {
 	throw invalid_argument( "FoLiA::Document: unsupported mode value: "+ mod );
       }
@@ -264,11 +270,20 @@ namespace folia {
     if ( mode & CHECKTEXT ){
       result += "checktext,";
     }
+    else {
+      result += "nochecktext,";
+    }
     if ( mode & FIXTEXT ){
       result += "fixtext,";
     }
     if ( mode & KANON ){
       result += "kanon,";
+    }
+    if ( mode & AUTODECLARE ){
+      result += "autodeclare,";
+    }
+    else {
+      result += "noautodeclare,";
     }
     return result;
   }
@@ -329,6 +344,16 @@ namespace folia {
     return old_val;
   }
 
+  bool Document::set_autodeclare( bool new_val ) const{
+    bool old_val = (mode & AUTODECLARE);
+    if ( new_val ){
+      mode = Mode( (int)mode | AUTODECLARE );
+    }
+    else {
+      mode = Mode( (int)mode & ~AUTODECLARE );
+    }
+    return old_val;
+  }
 
   void Document::add_doc_index( FoliaElement* el, const string& s ){
     if ( s.empty() ) {
@@ -1475,6 +1500,25 @@ namespace folia {
     return result;
   }
 
+  void Document::auto_declare( AnnotationType::AnnotationType type,
+			       const string& _setname ) {
+    string setname = _setname;
+    if ( setname.empty() ) {
+      if ( type == AnnotationType::TEXT ){
+	setname = DEFAULT_TEXT_SET;
+      }
+      else if ( type == AnnotationType::PHON ){
+	setname = DEFAULT_PHON_SET;
+      }
+    }
+    if ( setname.empty() ){
+      declare( type, "" );
+    }
+    else {
+      declare( type, setname );
+    }
+  }
+
   void Document::declare( AnnotationType::AnnotationType type,
 			  const string& setname,
 			  const string& args ){
@@ -1837,6 +1881,36 @@ namespace folia {
       cerr << "\t\t declared() ==> FALSE" << endl;
     }
     return false;
+  }
+
+  bool Document::is_undeclared( const AnnotationType::AnnotationType& type ) const {
+    if ( debug ){
+      cerr << "is_undeclared? ( " << folia::toString(type) << endl;
+    }
+    //
+    // just check if there is ANY declaration of this type
+    //
+    if ( type == AnnotationType::NO_ANN ){
+      if ( debug ){
+	cerr << "\t\t FALSE want NO_ANN" << endl;
+      }
+      return false;
+    }
+    const auto& it = _annotationdefaults.find(type);
+    if ( it == _annotationdefaults.end() ){
+      if ( debug ){
+	cerr << "There is NO declaration of type: " << folia::toString(type)
+	     << endl;
+      }
+      return true;
+    }
+    else {
+      if ( debug ){
+	cerr << "There IS at least one declaration of type: "
+	     << folia::toString(type) << endl;
+      }
+      return false;
+    }
   }
 
   bool Document::declared( const AnnotationType::AnnotationType& type,
