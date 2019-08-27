@@ -258,6 +258,26 @@ namespace folia {
     return 0;
   }
 
+  void AbstractElement::check_declaration(){
+    if ( _mydoc
+	 && annotation_type() != AnnotationType::NO_ANN
+	 && !_mydoc->version_below( 2, 0 ) ){
+      if ( _mydoc->is_undeclared( annotation_type() ) ){
+	if ( _mydoc->autodeclare() ){
+	  _mydoc->auto_declare( annotation_type(), _set );
+	}
+	else {
+	  throw DeclarationError("Encountered an instance of <" + xmltag() + "> without a proper declaration" );
+	}
+      }
+      else if ( _set.empty()
+		&& !isSubClass( AbstractAnnotationLayer_t )
+		&& !doc()->declared( annotation_type(), "None") ){
+	throw DeclarationError("Encountered an instance of <" + xmltag() + "> without a proper declaration" );
+      }
+    }
+  }
+
   void AbstractElement::setAttributes( const KWargs& kwargs_in ) {
     KWargs kwargs = kwargs_in;
     Attrib supported = required_attributes() | optional_attributes();
@@ -357,6 +377,8 @@ namespace folia {
       }
     }
 
+    check_declaration();
+
     _class.clear();
     val = kwargs.extract( "class" );
     if ( !val.empty() ) {
@@ -388,24 +410,6 @@ namespace folia {
       }
     }
 
-
-    if ( doc()
-	 && annotation_type() != AnnotationType::NO_ANN
-	 && !doc()->version_below( 2, 0 ) ){
-      if ( doc()->is_undeclared( annotation_type() ) ){
-	if ( doc()->autodeclare() ){
-	  doc()->auto_declare( annotation_type(), _set );
-	}
-	else {
-	  throw DeclarationError("Encountered an instance of <" + xmltag() + "> without a proper declaration" );
-	}
-      }
-      else if ( _set.empty()
-		&& !isSubClass( AbstractAnnotationLayer_t )
-		&& !doc()->declared( annotation_type(), "None") ){
-	throw DeclarationError("Encountered an instance of <" + xmltag() + "> without a proper declaration" );
-      }
-    }
     _annotator.clear();
     val = kwargs.extract( "annotator" );
     if ( !val.empty() ) {

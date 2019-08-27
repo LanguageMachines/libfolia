@@ -754,7 +754,7 @@ namespace folia {
     const std::string getDateTime() const;
     void check_text_consistency() const;
     void check_append_text_consistency( const FoliaElement * ) const;
-
+    void check_declaration();
   private:
     static FoliaElement *private_createElement( ElementType );
     void addFeatureNodes( const KWargs& args );
