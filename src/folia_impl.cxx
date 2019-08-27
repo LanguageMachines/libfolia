@@ -259,21 +259,52 @@ namespace folia {
   }
 
   void AbstractElement::check_declaration(){
-    if ( _mydoc
-	 && annotation_type() != AnnotationType::NO_ANN
-	 && !_mydoc->version_below( 2, 0 ) ){
-      if ( _mydoc->is_undeclared( annotation_type() ) ){
-	if ( _mydoc->autodeclare() ){
-	  _mydoc->auto_declare( annotation_type(), _set );
-	}
-	else {
-	  throw DeclarationError("Encountered an instance of <" + xmltag() + "> without a proper declaration" );
+    if ( _mydoc ){
+      if ( !_set.empty() ){
+	if ( !doc()->declared( annotation_type(), _set ) ) {
+	  throw ValueError( "Set '" + _set + "' is used but has no declaration " +
+			    "for " + toString( annotation_type() ) + "-annotation" );
 	}
       }
-      else if ( _set.empty()
-		&& !isSubClass( AbstractAnnotationLayer_t )
-		&& !doc()->declared( annotation_type(), "None") ){
-	throw DeclarationError("Encountered an instance of <" + xmltag() + "> without a proper declaration" );
+      else {
+	if ( _mydoc->debug > 2 ) {
+	  cerr << "get def for " <<  annotation_type() << endl;
+	}
+	string def = doc()->default_set( annotation_type() );
+	if ( doc()->debug > 2 ) {
+	  cerr << "got def='" <<  def << "'" << endl;
+	}
+	if ( doc()->is_incremental() && def.empty() ){
+	  // when there is NO default set, AND we are parsing using
+	  // folia::Engine, we must check if there WAS an empty set originally
+	  // which is 'obscured' by newly added declarations
+	  def = doc()->original_default_set( annotation_type() );
+	  if ( doc()->debug > 2 ) {
+	    cerr << "from original got def='" <<  def << "'" << endl;
+	  }
+	}
+	if ( !def.empty() ){
+	  _set = def;
+	}
+	else if ( CLASS & required_attributes() ){
+	  throw XmlError( "unable to assign a default set for tag: " + xmltag() );
+	}
+      }
+      if ( annotation_type() != AnnotationType::NO_ANN
+	   && !_mydoc->version_below( 2, 0 ) ){
+	if ( _mydoc->is_undeclared( annotation_type() ) ){
+	  if ( _mydoc->autodeclare() ){
+	    _mydoc->auto_declare( annotation_type(), _set );
+	  }
+	  else {
+	    throw DeclarationError("Encountered an instance of <" + xmltag() + "> without a proper declaration" );
+	  }
+	}
+	else if ( _set.empty()
+		  && !isSubClass( AbstractAnnotationLayer_t )
+		  && !doc()->declared( annotation_type(), "None") ){
+	  throw DeclarationError("Encountered an instance of <" + xmltag() + "> without a proper declaration" );
+	}
       }
     }
   }
@@ -346,34 +377,6 @@ namespace folia {
 	else {
 	  _set = st;
 	}
-      }
-      if ( !doc()->declared( annotation_type(), _set ) ) {
-	throw ValueError( "Set '" + _set + "' is used but has no declaration " +
-			  "for " + toString( annotation_type() ) + "-annotation" );
-      }
-    }
-    else if ( doc() ){
-      if ( doc()->debug > 2 ) {
-	cerr << "get def for " <<  annotation_type() << endl;
-      }
-      string def = doc()->default_set( annotation_type() );
-      if ( doc()->debug > 2 ) {
-	cerr << "got def='" <<  def << "'" << endl;
-      }
-      if ( doc()->is_incremental() && def.empty() ){
-	// when there is NO default set, AND we are parsing using
-	// folia::Engine, we must check if there WAS an empty set originally
-	// which is 'obscured' by newly added declarations
-	def = doc()->original_default_set( annotation_type() );
-	if ( doc()->debug > 2 ) {
-	  cerr << "from original got def='" <<  def << "'" << endl;
-	}
-      }
-      if ( !def.empty() ){
-	_set = def;
-      }
-      else if ( CLASS & required_attributes() ){
-	throw XmlError( "unable to assign a default set for tag: " + xmltag() );
       }
     }
 
