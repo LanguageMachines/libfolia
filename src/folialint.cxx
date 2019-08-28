@@ -63,7 +63,7 @@ int main( int argc, char* argv[] ){
   vector<string> fileNames;
   string command;
   try {
-    TiCC::CL_Options Opts( "hV",
+    TiCC::CL_Options Opts( "hVda",
 			   "nochecktext,debug:,permissive,strip,output:,nooutput,help,fixtext,warn,version,KANON,autodeclare");
     Opts.init(argc, argv );
     if ( Opts.extract( 'h' )
@@ -97,9 +97,9 @@ int main( int argc, char* argv[] ){
       cerr << "conflicting options: 'permissive' and 'strip'" << endl;
       return EXIT_FAILURE;
     }
-    Opts.extract( "debug", debug );
+    Opts.extract( "debug", debug ) || Opts.extract( 'd' );
     Opts.extract( "output", outputName );
-    autodeclare = Opts.extract( "autodeclare" );
+    autodeclare = Opts.extract( "autodeclare" ) || Opts.extract( 'a' );
 
     if ( !Opts.empty() ){
       cerr << "unsupported option(s): " << Opts.toString() << endl;
@@ -125,36 +125,38 @@ int main( int argc, char* argv[] ){
     exit( EXIT_FAILURE );
   }
 
+  int fail_count = 0;
+  string mode;
+  if ( permissive ){
+    mode += ",permissive";
+  }
+  if ( strip ){
+    mode += ",strip";
+  }
+  if ( fixtext ){
+    mode += ",fixtext";
+  }
+  if ( autodeclare ){
+    mode += ",autodeclare";
+  }
+  else {
+    mode += ",noautodeclare"; // the default
+  }
+  if ( nochecktext ){
+    mode += ",nochecktext";
+  }
+  else {
+    mode += ",checktext";	// the default
+  }
+  if ( !mode.empty() ){
+    mode = ", mode='" + mode + "'";
+  }
+  if ( !debug.empty() ){
+    mode += ", debug='" + debug + "'";
+  }
   for ( const auto& inputName : fileNames ){
     try {
       string cmd = "file='" + inputName + "'";
-      if ( !debug.empty() )
-	cmd += ", debug='" + debug + "'";
-      string mode;
-      if ( permissive ){
-	mode += ",permissive";
-      }
-      if ( strip ){
-	mode += ",strip";
-      }
-      if ( fixtext ){
-	mode += ",fixtext";
-      }
-      if ( autodeclare ){
-	mode += ",autodeclare";
-      }
-      else {
-	mode += ",noautodeclare"; // the default
-      }
-      if ( nochecktext ){
-	mode += ",nochecktext";
-      }
-      else {
-	mode += ",checktext";	// the default
-      }
-      if ( !mode.empty() ){
-	mode = ", mode='" + mode + "'";
-      }
       cmd += mode;
       folia::Document d( cmd );
       if ( !(kanon||strip) && d.get_processors_by_name( "folialint" ).empty() ){
@@ -194,8 +196,11 @@ int main( int argc, char* argv[] ){
     }
     catch( exception& e ){
       cerr << inputName << " failed: " << e.what() << endl;
-      //      exit( EXIT_FAILURE );
+      ++fail_count;
     }
+  }
+  if ( fail_count > 0 ){
+    exit( EXIT_FAILURE );
   }
   exit( EXIT_SUCCESS );
 }
