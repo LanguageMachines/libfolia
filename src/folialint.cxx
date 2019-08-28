@@ -63,7 +63,7 @@ int main( int argc, char* argv[] ){
   vector<string> fileNames;
   string command;
   try {
-    TiCC::CL_Options Opts( "hVda",
+    TiCC::CL_Options Opts( "hVd:a",
 			   "nochecktext,debug:,permissive,strip,output:,nooutput,help,fixtext,warn,version,KANON,autodeclare");
     Opts.init(argc, argv );
     if ( Opts.extract( 'h' )
@@ -97,7 +97,7 @@ int main( int argc, char* argv[] ){
       cerr << "conflicting options: 'permissive' and 'strip'" << endl;
       return EXIT_FAILURE;
     }
-    Opts.extract( "debug", debug ) || Opts.extract( 'd' );
+    Opts.extract( "debug", debug ) || Opts.extract( 'd', debug );
     Opts.extract( "output", outputName );
     autodeclare = Opts.extract( "autodeclare" ) || Opts.extract( 'a' );
 
@@ -158,6 +158,7 @@ int main( int argc, char* argv[] ){
     try {
       string cmd = "file='" + inputName + "'";
       cmd += mode;
+      //      cerr << "running " << cmd << endl;
       folia::Document d( cmd );
       if ( !(kanon||strip) && d.get_processors_by_name( "folialint" ).empty() ){
 	folia::KWargs args;

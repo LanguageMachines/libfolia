@@ -260,6 +260,7 @@ namespace folia {
 
   void AbstractElement::check_declaration(){
     if ( _mydoc ){
+      string def;
       if ( !_set.empty() ){
 	if ( !doc()->declared( annotation_type(), _set ) ) {
 	  throw ValueError( "Set '" + _set + "' is used but has no declaration " +
@@ -468,13 +469,22 @@ namespace folia {
 	}
 	if ( doc()
 	     && !doc()->declared( annotation_type(), _set, "", _annotator_type, val ) ){
-	  throw XmlError( "Processor '" + val
-			  + "' is used for annotationtype '"
-			  + toString( annotation_type() )
-			  + "' with set='" + _set +"'"
-			  + " but there is no corresponding <annotator> "
-			  + "referring to it in the annotation declaration "
-			  + "block." );
+	  if (	!doc()->version_below( 2, 0 )
+		&& doc()->autodeclare() ) {
+	    KWargs args;
+	    args["processor"] = val;
+	    args["annotatortype"] = _annotator_type;
+	    doc()->declare( annotation_type(), _set, args );
+	  }
+	  else {
+	    throw DeclarationError( "Processor '" + val
+				    + "' is used for annotationtype '"
+				    + toString( annotation_type() )
+				    + "' with set='" + _set +"'"
+				    + " but there is no corresponding <annotator>"
+				    + " referring to it in the annotation"
+				    + " declaration block." );
+	  }
 	}
 	_processor = val;
       }
@@ -2014,7 +2024,7 @@ namespace folia {
       if ( !_set.empty()
 	   && (CLASS & required_attributes() )
 	   && !_mydoc->declared( annotation_type(), _set ) ) {
-	throw ValueError( "Set " + _set + " is used in " + xmltag()
+	throw DeclarationError( "Set " + _set + " is used in " + xmltag()
 			  + "element: " + myid + " but has no declaration " +
 			  "for " + toString( annotation_type() ) + "-annotation" );
       }
