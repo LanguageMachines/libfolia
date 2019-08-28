@@ -263,15 +263,17 @@ namespace folia {
       string def;
       if ( !_set.empty() ){
 	if ( !doc()->declared( annotation_type(), _set ) ) {
-	  throw ValueError( "Set '" + _set + "' is used but has no declaration " +
-			    "for " + toString( annotation_type() ) + "-annotation" );
+	  throw DeclarationError( "Set '" + _set
+				  + "' is used but has no declaration " +
+				  "for " + toString( annotation_type() )
+				  + "-annotation" );
 	}
       }
       else {
 	if ( _mydoc->debug > 2 ) {
 	  cerr << "get def for " <<  annotation_type() << endl;
 	}
-	string def = doc()->default_set( annotation_type() );
+	def = doc()->default_set( annotation_type() );
 	if ( doc()->debug > 2 ) {
 	  cerr << "got def='" <<  def << "'" << endl;
 	}
