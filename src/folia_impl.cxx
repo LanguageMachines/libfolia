@@ -295,18 +295,33 @@ namespace folia {
       }
       if ( annotation_type() != AnnotationType::NO_ANN
 	   && !_mydoc->version_below( 2, 0 ) ){
-	if ( _mydoc->is_undeclared( annotation_type() ) ){
+	if ( !_mydoc->declared( annotation_type() ) ){
 	  if ( _mydoc->autodeclare() ){
 	    _mydoc->auto_declare( annotation_type(), _set );
 	  }
 	  else {
-	    throw DeclarationError("Encountered an instance of <" + xmltag() + "> without a proper declaration" );
+	    throw DeclarationError("1 Encountered an instance of <" + xmltag() + "> without a proper declaration" );
+	  }
+	}
+	else if ( def.empty()
+		  && !isSubClass( AbstractAnnotationLayer_t )
+		  && !doc()->declared( annotation_type() ) ){
+	  if ( _mydoc->autodeclare() ){
+	    _mydoc->auto_declare( annotation_type(), _set );
+	  }
+	  else {
+	    throw DeclarationError("2 Encountered an instance of <" + xmltag() + "> without a proper declaration" );
 	  }
 	}
 	else if ( _set.empty()
 		  && !isSubClass( AbstractAnnotationLayer_t )
-		  && !doc()->declared( annotation_type(), "None") ){
-	  throw DeclarationError("Encountered an instance of <" + xmltag() + "> without a proper declaration" );
+		  && !doc()->declared( annotation_type(), "None" ) ){
+	  if ( _mydoc->autodeclare() ){
+	    _mydoc->auto_declare( annotation_type(), _set );
+	  }
+	  else {
+	    throw DeclarationError("3 Encountered an instance of <" + xmltag() + "> without a proper declaration" );
+	  }
 	}
       }
     }
