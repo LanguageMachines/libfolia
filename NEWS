@@ -5,14 +5,14 @@ new features:
 * folialint by default doesn't autodeclare. use -a or --autodeclare to use it
 * Better detecting of declaration errors in general
 * the select function now also enables the possibility to search recursively
-  upto the first matching sibbling.
+  upto the first matching sibling.
 * bumped library version to 13
 
 other changes:
 * some exceptions are changed.
 * less exceptions are thrown. An empty result is returned instead.
 * folialint now accept bote -d and --debug
-* real fix for issue70
+* real fix for issue 70
 * small bug fixes and refactorings
 * accept empty Comment and Description nodes
 
