@@ -48,7 +48,7 @@ using namespace icu;
 namespace folia {
   using TiCC::operator<<;
 
-  inline std::ostream& operator<<( std::ostream& os, const Document::at_t& at ){
+  std::ostream& operator<<( std::ostream& os, const Document::at_t& at ){
     os << "<" << at.a << "," << TiCC::toString(at.t) << "," << at.d << "," << at.p << ">";
     return os;
   }
