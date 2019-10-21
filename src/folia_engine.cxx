@@ -28,9 +28,11 @@
 #include <iomanip>
 #include <fstream>
 #include <cstring>
+#include <cstdio>
 #include <string>
 #include <stdexcept>
 #include "ticcutils/PrettyPrint.h"
+#include "ticcutils/FileUtils.h"
 #include "ticcutils/XMLtools.h"
 #include "ticcutils/zipper.h"
 #include "libfolia/folia.h"
@@ -275,11 +277,14 @@ namespace folia {
       }
       // return xmlReaderForMemory( buffer.c_str(), buffer.size(),
       // 				 buf.c_str(), 0, XML_PARSE_HUGE );
-      string tmp_file = tmpnam(0);
+      string tmp_file = TiCC::tempname("folia");
       ofstream os( tmp_file );
       os << buffer << endl;
       os.close();
-      return xmlReaderForFile( tmp_file.c_str(), 0, XML_PARSE_HUGE );
+      xmlTextReader *result
+	= xmlReaderForFile( tmp_file.c_str(), 0, XML_PARSE_HUGE );
+      TiCC::erase( tmp_file );
+      return result;
     }
     // libxml2 can handle .xml and .xml.gz
     return xmlReaderForFile( buf.c_str(), 0, XML_PARSE_HUGE );
