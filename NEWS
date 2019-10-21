@@ -1,3 +1,10 @@
+2.3.1 2019-10-21
+[Maarten van Gompel]
+* Bug fix release for gcc 9.1
+  It stumbles upon some inline functions
+[Ko van der Sloot]
+* replaced call to unsafe 'tmpnam()' by 'TiCC::tempname()'
+
 2.3 2019-08-29
 [Ko vd Sloot]
 new features:
