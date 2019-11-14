@@ -1044,7 +1044,7 @@ namespace folia {
 				+ cls + ") from node: " + xmltag()
 				+ "(" + id() + ")"
 				+ " with value\n'" + TiCC::UnicodeToUTF8(s2)
-				+ "'n to element: " + parent->xmltag() +
+				+ "'\n to element: " + parent->xmltag() +
 				+ "(" + parent->id() + ") which already has "
 				+ "text in that class and value: \n'"
 				+ TiCC::UnicodeToUTF8(s1) + "'\n" );
@@ -1260,13 +1260,25 @@ namespace folia {
     // get the UnicodeString value of underlying elements
     // default cls="current"
 #ifdef DEBUG_TEXT
-    cerr << "TEXT(" << cls << ") op node : " << xmltag() << " id ( " << id() << ")" << endl;
+    cerr << "TEXT(" << cls << ") on node : " << xmltag() << " id="
+	 << id() << endl;
+    cerr << (strict?"strict":"not strict") << "\t"
+	 << (retaintok?"retain":"untokenized") << "\t"
+	 << (show_hidden?"show_hidden":"hide hidden") << "\t" << endl;
 #endif
     if ( strict ) {
-      return text_content(cls,show_hidden)->text();
+      return text_content(cls,show_hidden)->text(cls);
     }
     else if ( is_textcontainer() ){
+#ifdef DEBUG_TEXT
+      cerr << "Textcontainer!, class= " << this->cls() << endl;
+#endif
       UnicodeString result;
+      // if ( !this->cls().empty()
+      // 	   && this->cls() != cls
+      // 	   && this->cls() != "original" ){
+      // 	return result;
+      // }
       for ( const auto& d : _data ){
 	if ( d->printable() ){
 	  if ( !result.isEmpty() ){
@@ -1277,7 +1289,8 @@ namespace folia {
 	}
       }
 #ifdef DEBUG_TEXT
-      cerr << "TEXT op a textcontainer :" << xmltag() << " returned '" << result << "'" << endl;
+      cerr << "TEXT(" << cls << ") on a textcontainer :" << xmltag()
+	   << " returned '" << result << "'" << endl;
 #endif
       return result;
     }
@@ -1454,7 +1467,7 @@ namespace folia {
     // get the UnicodeString value of underlying elements
     // default cls="current"
 #ifdef DEBUG_TEXT
-    cerr << "deepTEXT(" << cls << ") op node : " << xmltag() << " id(" << id() << ") cls=" << this->cls() << ")" << endl;
+    cerr << "deepTEXT(" << cls << ") on node : " << xmltag() << " id=" << id() << ", cls=" << this->cls() << ")" << endl;
 #endif
 #ifdef DEBUG_TEXT
     cerr << "deeptext: node has " << _data.size() << " children." << endl;
@@ -1555,7 +1568,7 @@ namespace folia {
 #endif
     if ( result.isEmpty() ) {
       bool hidden = ( TEXT_FLAGS::HIDDEN & flags ) == TEXT_FLAGS::HIDDEN;
-      result = text_content(cls,hidden)->text();
+      result = text_content(cls,hidden)->text(cls);
     }
 #ifdef DEBUG_TEXT
     cerr << "deeptext() for " << xmltag() << " result= '" << result << "'" << endl;
@@ -1668,7 +1681,7 @@ namespace folia {
     bool hidden = ( TEXT_FLAGS::HIDDEN & flags ) == TEXT_FLAGS::HIDDEN;
     bool strict = ( TEXT_FLAGS::STRICT & flags ) == TEXT_FLAGS::STRICT;
 #ifdef DEBUG_PHON
-    cerr << "PHON(" << cls << ") op node : " << xmltag() << " id ( " << id() << ")" << endl;
+    cerr << "PHON(" << cls << ") on node : " << xmltag() << " id=" << id() << endl;
 #endif
     if ( strict ) {
       return phon_content(cls)->phon();
@@ -1693,7 +1706,8 @@ namespace folia {
     // get the UnicodeString value of underlying elements
     // default cls="current"
 #ifdef DEBUG_PHON
-    cerr << "deepPHON(" << cls << ") op node : " << xmltag() << " id(" << id() << ")" << endl;
+      cerr << "deepPHON(" << cls << ") on node : " << xmltag()
+	   << " id=" << id() << endl;
 #endif
 #ifdef DEBUG_PHON
     cerr << "deepphon: node has " << _data.size() << " children." << endl;
@@ -1838,6 +1852,10 @@ namespace folia {
     // Default cls="current"
     if ( doc() && doc()->checktext()
 	 && !isSubClass( Morpheme_t ) && !isSubClass( Phoneme_t) ){
+#ifdef DEBUG_TEXT
+      cerr << endl << "SET TEXT, '" << txt << "' class=" << cls << endl;
+      cerr << "for node " << this << endl;
+#endif
       UnicodeString deeper_u;
       try {
 	deeper_u = text( cls );
@@ -1846,6 +1864,9 @@ namespace folia {
       catch (...){
       }
       deeper_u = normalize_spaces( deeper_u );
+#ifdef DEBUG_TEXT
+      cerr << "deeper_u was " << deeper_u << endl;
+#endif
       UnicodeString txt_u = TiCC::UnicodeFromUTF8( txt );
       txt_u = normalize_spaces( txt_u );
       if ( !deeper_u.isEmpty() && txt_u != deeper_u ){
@@ -4344,7 +4365,7 @@ namespace folia {
 						bool retaintok,
 						bool, bool ) const {
 #ifdef DEBUG_TEXT
-    cerr << "TEXT(" << cls << ") op node : " << xmltag() << " id ( " << id() << ")" << endl;
+    cerr << "TEXT(" << cls << ") on node : " << xmltag() << " id=" << id() << endl;
 #endif
     // we cannot use text_content() on New, Origibal or Current,
     // because texcontent doesn't recurse!
@@ -5018,6 +5039,8 @@ namespace folia {
 							  bool ret,
 							  bool strict,
 							  bool hidden ) const{
+    // cerr << "TEXT MARKUP CORRECTION " << this << endl;
+    // cerr << "TEXT MARKUP CORRECTION parent cls=" << parent()->cls() << endl;
     if ( cls == "original" ) {
       return TiCC::UnicodeFromUTF8(_original);
     }
