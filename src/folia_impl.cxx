@@ -1274,11 +1274,6 @@ namespace folia {
       cerr << "Textcontainer!, class= " << this->cls() << endl;
 #endif
       UnicodeString result;
-      // if ( !this->cls().empty()
-      // 	   && this->cls() != cls
-      // 	   && this->cls() != "original" ){
-      // 	return result;
-      // }
       for ( const auto& d : _data ){
 	if ( d->printable() ){
 	  if ( !result.isEmpty() ){
@@ -1316,12 +1311,12 @@ namespace folia {
     }
   }
 
-  const UnicodeString AbstractElement::text( const std::string& st,
+  const UnicodeString AbstractElement::text( const std::string& cls,
 					     TEXT_FLAGS flags ) const {
     bool retain = ( TEXT_FLAGS::RETAIN & flags ) == TEXT_FLAGS::RETAIN;
     bool strict = ( TEXT_FLAGS::STRICT & flags ) == TEXT_FLAGS::STRICT;
     bool hidden = ( TEXT_FLAGS::HIDDEN & flags ) == TEXT_FLAGS::HIDDEN;
-    return private_text( st, retain, strict, hidden );
+    return private_text( cls, retain, strict, hidden );
   }
 
   void FoLiA::setAttributes( const KWargs& args ){
@@ -1609,6 +1604,9 @@ namespace folia {
       cerr << "A textcontent!!" << endl;
 #endif
       if  ( this->cls() == cls ) {
+#ifdef DEBUG_TEXT
+	cerr << "return myself..." << endl;
+#endif
 	return dynamic_cast<const TextContent*>(this);
       }
       else {
@@ -1622,6 +1620,9 @@ namespace folia {
     if ( !printable() || ( hidden() && !show_hidden ) ) {
       throw NoSuchText( "non-printable element: " +  xmltag() );
     }
+#ifdef DEBUG_TEXT
+    cerr << "recurse into children...." << endl;
+#endif
     for ( const auto& el : data() ) {
       if ( el->isinstance(TextContent_t) && (el->cls() == cls) ) {
 	return dynamic_cast<TextContent*>(el);
