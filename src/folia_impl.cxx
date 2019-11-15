@@ -1273,6 +1273,13 @@ namespace folia {
 #ifdef DEBUG_TEXT
       cerr << "Textcontainer!, class= " << this->cls() << endl;
 #endif
+      if ( isinstance( TextContent_t )
+	   && this->cls() != cls ) {
+	// cerr << "TextContent shortcurt, class=" << this->cls()
+	//      << " but looking for: " << cls << endl;
+	return "";
+      }
+
       UnicodeString result;
       for ( const auto& d : _data ){
 	if ( d->printable() ){
@@ -2001,7 +2008,7 @@ namespace folia {
 #endif
     if ( c->element_id() == TextContent_t
 	 && element_id() == Word_t ) {
-      string val = c->str();
+      string val = c->str(c->cls());
       val = trim( val );
       if ( val.empty() ) {
      	throw ValueError( "attempt to add an empty <t> to word: " + _id );
