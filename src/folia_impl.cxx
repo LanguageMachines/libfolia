@@ -1275,11 +1275,13 @@ namespace folia {
 #endif
       if ( isinstance( TextContent_t )
 	   && this->cls() != cls ) {
-	// cerr << "TextContent shortcurt, class=" << this->cls()
-	//      << " but looking for: " << cls << endl;
+	// So no shortcut for TextMarkup
+#ifdef DEBUG_TEXT
+	cerr << "TextContent shortcurt, class=" << this->cls()
+	     << " but looking for: " << cls << endl;
+#endif
 	return "";
       }
-
       UnicodeString result;
       for ( const auto& d : _data ){
 	if ( d->printable() ){
@@ -1714,10 +1716,8 @@ namespace folia {
     // get the UnicodeString value of underlying elements
     // default cls="current"
 #ifdef DEBUG_PHON
-      cerr << "deepPHON(" << cls << ") on node : " << xmltag()
-	   << " id=" << id() << endl;
-#endif
-#ifdef DEBUG_PHON
+    cerr << "deepPHON(" << cls << ") on node : " << xmltag()
+	 << " id=" << id() << endl;
     cerr << "deepphon: node has " << _data.size() << " children." << endl;
 #endif
     vector<UnicodeString> parts;
@@ -2262,14 +2262,14 @@ namespace folia {
     ///   it searches a FoLiA node for matchins sibblings.
     /// criteria:
     /// @et: which type of element we are lookinf for
-    /// @st: when no empty ("") we also must match on the 'sett' of the nodes
+    /// @st: when not empty ("") we also must match on the 'sett' of the nodes
     /// @exclude: a set of ElementTypes to exclude from searching.
     ///            These are skipped, and NOT recursed into.
     /// @flag: determines special search stategies:
     ///        RECURSE : recurse the whole FoLia from the given node downwards
     ///                  returning all matching nodes, even within matches
     ///                  This is the default.
-    ///        LOCAL   : only just look in the direct sibblings of the node
+    ///        LOCAL   : just look at the direct sibblings of the node
     ///        TOP_HIT : like recurse, but do NOT recurse into sibblings
     ///                  of matching node
     vector<FoliaElement*> res;
