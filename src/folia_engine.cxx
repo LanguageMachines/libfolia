@@ -265,7 +265,7 @@ namespace folia {
   }
 
   xmlTextReader *create_text_reader( const string& buf ){
-    if ( buf.find("<?xml ") == 0 ){
+    if ( TiCC::match_front( buf, "<?xml " ) ){
       return xmlReaderForMemory( buf.c_str(), buf.size(),
 				 "input_buffer", 0, XML_PARSE_HUGE );
     }
@@ -275,8 +275,12 @@ namespace folia {
 	throw( runtime_error( "folia::Engine(), empty file? (" + buf
 			      + ")" ) );
       }
-      // return xmlReaderForMemory( buffer.c_str(), buffer.size(),
-      // 				 buf.c_str(), 0, XML_PARSE_HUGE );
+      //
+      // next step fails for unclear reasons
+      // so we use an intermediate file. Which works, but is clumsy
+      //
+      // return xmlReaderForMemory( buffer.c_str(), buffer.size()+1,
+      //  				 buf.c_str(), 0, XML_PARSE_HUGE );
       string tmp_file = TiCC::tempname("folia");
       ofstream os( tmp_file );
       os << buffer << endl;
