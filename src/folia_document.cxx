@@ -70,7 +70,6 @@ namespace folia {
       setmode( it->second );
       args.erase(it);
     }
-    adjustTextMode();
     it = args.find( "file" );
     if ( it != args.end() ){
       // extract a Document from a file
@@ -1157,9 +1156,6 @@ namespace folia {
       // don't check text consistency for older documents
       mode = Mode( int(mode) & ~CHECKTEXT );
     }
-    else if ( !env) {
-      mode = Mode( int(mode) | CHECKTEXT );
-    }
   }
 
   void Document::setDocumentProps( KWargs& kwargs ){
@@ -1189,6 +1185,7 @@ namespace folia {
 	   << ")\n\t Any possible subsequent failures in parsing or processing may probably be attributed to this." << endl
 	   << "\t Please upgrade libfolia!" << endl;
     }
+
     adjustTextMode();
     it = kwargs.find( "external" );
     if ( it != kwargs.end() ){
