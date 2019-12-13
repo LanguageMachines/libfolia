@@ -484,15 +484,15 @@ namespace folia {
 					  TEXT_FLAGS = TEXT_FLAGS::NONE ) const NOT_IMPLEMENTED;
 
 
-    virtual std::vector<FoliaElement*> select( ElementType elementtype,
+    virtual std::vector<FoliaElement*> select( ElementType,
 					       SELECT_FLAGS = SELECT_FLAGS::RECURSE ) const = 0;
-    virtual std::vector<FoliaElement*> select( ElementType elementtype,
+    virtual std::vector<FoliaElement*> select( ElementType,
 					       const std::set<ElementType>& ,
 					       SELECT_FLAGS = SELECT_FLAGS::RECURSE ) const = 0;
-    virtual std::vector<FoliaElement*> select( ElementType elementtype,
+    virtual std::vector<FoliaElement*> select( ElementType,
 					       const std::string&,
 					       SELECT_FLAGS = SELECT_FLAGS::RECURSE ) const = 0;
-    virtual std::vector<FoliaElement*> select( ElementType elementtype,
+    virtual std::vector<FoliaElement*> select( ElementType,
 					       const std::string&,
 					       const std::set<ElementType>& ,
 					       SELECT_FLAGS = SELECT_FLAGS::RECURSE ) const = 0;
@@ -722,15 +722,15 @@ namespace folia {
     Document *doc() const { return _mydoc; };
 
 
-    std::vector<FoliaElement*> select( ElementType elementtype,
+    std::vector<FoliaElement*> select( ElementType,
 				       SELECT_FLAGS = SELECT_FLAGS::RECURSE ) const;
-    std::vector<FoliaElement*> select( ElementType elementtype,
+    std::vector<FoliaElement*> select( ElementType,
 				       const std::set<ElementType>& ,
 				       SELECT_FLAGS = SELECT_FLAGS::RECURSE ) const;
-    std::vector<FoliaElement*> select( ElementType elementtype,
+    std::vector<FoliaElement*> select( ElementType,
 				       const std::string&,
 				       SELECT_FLAGS = SELECT_FLAGS::RECURSE ) const;
-    std::vector<FoliaElement*> select( ElementType elementtype,
+    std::vector<FoliaElement*> select( ElementType,
 				       const std::string&,
 				       const std::set<ElementType>& ,
 				       SELECT_FLAGS = SELECT_FLAGS::RECURSE ) const;

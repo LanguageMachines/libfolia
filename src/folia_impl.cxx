@@ -2272,17 +2272,17 @@ namespace folia {
     /// The generic 'select()' function on which all other variants are based
     ///   it searches a FoLiA node for matchins sibblings.
     /// criteria:
-    /// @et: which type of element we are lookinf for
-    /// @st: when not empty ("") we also must match on the 'sett' of the nodes
-    /// @exclude: a set of ElementTypes to exclude from searching.
-    ///            These are skipped, and NOT recursed into.
-    /// @flag: determines special search stategies:
-    ///        RECURSE : recurse the whole FoLia from the given node downwards
-    ///                  returning all matching nodes, even within matches
-    ///                  This is the default.
-    ///        LOCAL   : just look at the direct sibblings of the node
-    ///        TOP_HIT : like recurse, but do NOT recurse into sibblings
-    ///                  of matching node
+    /// @param et which type of element we are lookinf for
+    /// @param st when not empty ("") we also must match on the 'sett' of the nodes
+    /// @param exclude a set of ElementTypes to exclude from searching.
+    ///                 These are skipped, and NOT recursed into.
+    /// @param flag determines special search stategies:
+    ///             RECURSE : recurse the whole FoLia from the given node downwards
+    ///                       returning all matching nodes, even within matches
+    ///                       This is the default.
+    ///             LOCAL   : just look at the direct sibblings of the node
+    ///             TOP_HIT : like recurse, but do NOT recurse into sibblings
+    ///                       of matching node
     vector<FoliaElement*> res;
     for ( const auto& el : _data ) {
       if ( el->element_id() == et &&
