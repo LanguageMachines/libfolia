@@ -1347,8 +1347,9 @@ namespace folia {
 
   FoliaElement* FoLiA::parseXml( const xmlNode *node ){
     ///
-    /// recursively parse a complete FoLiA tree from @node
-    /// the topnode is special, as it carries the main document properties
+    /// recursively parse a complete FoLiA tree
+    /// \param node an xmlNode that MUST be a FoLiA root node
+    /// this topnode is special, as it also carries the main document properties
     ///
     KWargs atts = getAttributes( node );
     if ( !doc() ){
