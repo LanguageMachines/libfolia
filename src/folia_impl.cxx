@@ -300,7 +300,11 @@ namespace folia {
 	    _mydoc->auto_declare( annotation_type(), _set );
 	  }
 	  else {
-	    throw DeclarationError("1 Encountered an instance of <" + xmltag() + "> without a proper declaration" );
+	    throw DeclarationError( "Encountered an instance of <"
+				    + xmltag()
+				    + "> without a proper "
+				    + toString(annotation_type())
+				    + "-annotation" );
 	  }
 	}
 	else if ( _set.empty()
@@ -310,7 +314,11 @@ namespace folia {
 	    _mydoc->auto_declare( annotation_type(), _set );
 	  }
 	  else {
-	    throw DeclarationError("2 Encountered an instance of <" + xmltag() + "> without a proper declaration" );
+	    throw DeclarationError( "Encountered an instance of <"
+				    + xmltag()
+				    + "> without a proper "
+				    + toString(annotation_type())
+				    + "-annotation" );
 	  }
 	}
       }
@@ -2053,7 +2061,9 @@ namespace folia {
 	else {
 	  throw DeclarationError( "Encountered an instance of <"
 				  + xmltag()
-				  + "> without a proper declaration" );
+				  + "> without a proper declaration for "
+				  + toString(annotation_type())
+				  + "-annotation" );
 	}
       }
       string myid = id();
