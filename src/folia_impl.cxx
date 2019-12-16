@@ -1509,7 +1509,6 @@ namespace folia {
 	  cerr << "deeptext found '" << tmp << "'" << endl;
 #endif
 	  if ( !isSubClass(AbstractTextMarkup_t) ){
-	    //	    tmp.trim();
 	    tmp = trim_space( tmp );
 	  }
 #ifdef DEBUG_TEXT
@@ -4410,9 +4409,9 @@ namespace folia {
 
   const string& Correction::get_delimiter( bool retaintok ) const {
     for ( const auto& el : data() ) {
-      if ( el->isinstance( New_t ) || el->isinstance( Current_t ) ) {
-	return el->get_delimiter( retaintok );
-      }
+      //      if ( el->isinstance( New_t ) || el->isinstance( Current_t ) ) {
+      return el->get_delimiter( retaintok );
+      //      }
     }
     return EMPTY_STRING;
   }
