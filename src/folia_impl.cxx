@@ -3295,8 +3295,17 @@ namespace folia {
 #ifdef DEBUG_CORRECT
       cerr << "there is new! " << endl;
 #endif
-      addnew = new New( doc );
-      corr->append(addnew);
+      vector<New*> old_new = corr->select<New>();
+      if ( !old_new.empty() && old_new[0]->size() == 0 ){
+	// there is an EMPTY <new> tag!
+	// use it to expand
+	addnew = old_new[0];
+      }
+      else {
+	// create a <new> tag, might throw is there is a non-empty one
+	addnew = new New( doc );
+	corr->append(addnew);
+      }
       for ( const auto& nw : _new ) {
 	nw->set_parent(0);
 	addnew->append( nw );
@@ -3312,6 +3321,17 @@ namespace folia {
 #ifdef DEBUG_CORRECT
       cerr << "after removing cur " << corr << endl;
 #endif
+    }
+    else {
+      vector<New*> old_new = corr->select<New>();
+      if ( !old_new.empty() && old_new[0]->size() == 0 ){
+	// there is aleady an EMPTY <new> tag!
+      }
+      else {
+	// create a <new> tag, might throw is there is a non-empty one
+	New *add_new = new New( doc );
+	corr->append(add_new);
+      }
     }
     if ( !original.empty() ) {
 #ifdef DEBUG_CORRECT
