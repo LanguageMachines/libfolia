@@ -134,15 +134,22 @@ namespace folia {
   std::string toString( const ElementType& );
   ElementType stringToElementType( const std::string& );
 
-  typedef std::map<std::string, std::string> Arguments;
-
-  class KWargs : public Arguments {
+  ///
+  /// KWargs is a class to hold attribute/value entries,
+  ///
+  /// it is used to pass argument lists to and from functions
+  /// including attributes for FoLiA constructs
+  ///
+  /// KWargs is a map, so it kan be indexed (on attribute), iterated etc.
+  ///
+  class KWargs : public std::map<std::string, std::string> {
   public:
     KWargs( const std::string& ="" );
-    std::string toString();
-    void init( const std::string& );
     bool is_present( const std::string& ) const;
     std::string extract( const std::string& );
+    std::string toString();
+  private:
+    void init( const std::string& );
   };
 
   KWargs getArgs( const std::string& );
@@ -187,7 +194,7 @@ namespace TiCC {
   }
 
   inline std::ostream& operator<<( std::ostream& os,
-				     const folia::ElementType& el ){
+				   const folia::ElementType& el ){
     os << folia::toString( el );
     return os;
   }

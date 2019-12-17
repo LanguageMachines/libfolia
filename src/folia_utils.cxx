@@ -23,6 +23,7 @@
   or send mail to:
       lamasoftware (at ) science.ru.nl
 */
+/** @file folia_utils.cxx */
 
 #include <iostream>
 #include <sstream>
@@ -48,7 +49,7 @@ using namespace icu;
 namespace folia {
 
   FoliaElement *AbstractElement::createElement( const string& tag,
-					  Document *doc ){
+						Document *doc ){
 
     ElementType et = BASE;
     try {
@@ -75,6 +76,12 @@ namespace folia {
   }
 
   KWargs::KWargs( const std::string& s ){
+    ///
+    /// create a KWargs from an input string
+    ///
+    /// \param s The input string, in the following format:
+    /// "att1='val1', att2='val2', ..., attn='valn'"
+    ///
     init( s );
   }
 
@@ -180,11 +187,22 @@ namespace folia {
   }
 
   KWargs getArgs( const string& s ){
+  ///
+  /// explicitely get a KWargs from a string
+  /// \param s The input string, in the following format:
+  /// "att1='val1', att2='val2', ..., attn='valn'"
+  ///
     KWargs result( s );
     return result;
   }
 
   string toString( const KWargs& args ){
+  ///
+  /// Convert a KWargs to a string
+  /// \param args the KWargs to convert
+  /// returns a string, in the following format:
+  /// "att1='val1', att2='val2', ..., attn='valn'"
+  ///
     string result;
     auto it = args.begin();
     while ( it != args.end() ){
