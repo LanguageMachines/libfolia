@@ -148,7 +148,6 @@ namespace folia {
     bool is_present( const std::string& ) const;
     std::string extract( const std::string& );
     std::string toString();
-  private:
     void init( const std::string& );
   };
 
