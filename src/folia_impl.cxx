@@ -540,7 +540,8 @@ namespace folia {
 	  }
 	}
 	catch (...) {
-	  throw ValueError("invalid Confidence value, (not a number?)");
+	  throw ValueError( "invalid Confidence value: " + val
+			    + " (not a number?)");
 	}
       }
     }
