@@ -4400,33 +4400,84 @@ namespace folia {
     return this;
   }
 
+  //#define DEBUG_TEXT
   const UnicodeString Correction::private_text( const string& cls,
 						bool retaintok,
 						bool, bool ) const {
 #ifdef DEBUG_TEXT
     cerr << "TEXT(" << cls << ") on node : " << xmltag() << " id=" << id() << endl;
 #endif
-    // we cannot use text_content() on New, Origibal or Current,
-    // because texcontent doesn't recurse!
+    // we cannot use text_content() on New, Original or Current,
+    // because textcontent doesn't recurse!
+    bool deletion = false;
+    UnicodeString new_result;
+    UnicodeString org_result;
+    UnicodeString cur_result;
     for ( const auto& el : data() ) {
 #ifdef DEBUG_TEXT
       cerr << "data=" << el << endl;
 #endif
-      if ( el->isinstance( New_t )
-	   ||( el->isinstance( Original_t ) && cls != "current" )
-	   || el->isinstance( Current_t ) ){
-	UnicodeString result;
+      if ( el->isinstance( New_t ) ){
+	if ( el->size() == 0 ){
+	  deletion = true;
+	}
+	else {
+	  try {
+	    new_result = el->private_text( cls, retaintok, false, false );
+	  }
+	  catch ( ... ){
+	    // try other nodes
+	  }
+	}
+      }
+      else if ( el->isinstance( Original_t ) ){
 	try {
-	  result = el->private_text( cls, retaintok, false, false );
-	  return result;
+	  org_result = el->private_text( cls, retaintok, false, false );
+	}
+	catch ( ... ){
+	  // try other nodes
+	}
+      }
+      else if ( el->isinstance( Current_t ) ){
+	try {
+	  cur_result = el->private_text( cls, retaintok, false, false );
 	}
 	catch ( ... ){
 	  // try other nodes
 	}
       }
     }
+    if ( !deletion ){
+      if ( !new_result.isEmpty() ){
+#ifdef DEBUG_TEXT
+	cerr << "return new text '" << new_result << "'" << endl;
+#endif
+	return new_result;
+      }
+      else if ( !cur_result.isEmpty() ){
+#ifdef DEBUG_TEXT
+	cerr << "return cur text '" << cur_result << "'" << endl;
+#endif
+	return cur_result;
+      }
+      else if ( !org_result.isEmpty() ){
+#ifdef DEBUG_TEXT
+	cerr << "return ori text '" << org_result << "'" << endl;
+#endif
+	return org_result;
+      }
+    }
+    else {
+      if ( !cur_result.isEmpty() ){
+#ifdef DEBUG_TEXT
+	cerr << "Deletion: return cur text '" << cur_result << "'" << endl;
+#endif
+	return cur_result;
+      }
+    }
     throw NoSuchText( "cls=" + cls );
   }
+  //#undef DEBUG_TEXT
 
   const string& Correction::get_delimiter( bool retaintok ) const {
     for ( const auto& el : data() ) {
