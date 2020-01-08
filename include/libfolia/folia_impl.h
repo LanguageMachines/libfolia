@@ -2369,7 +2369,11 @@ namespace folia {
     AbstractCorrectionChild( PROPS, d ) { classInit(); }
   New( const KWargs& a, Document *d = 0 ):
     AbstractCorrectionChild( PROPS, d ) { classInit( a ); }
-
+    Correction *correct( const std::vector<FoliaElement*>&,
+			 const std::vector<FoliaElement*>&,
+			 const std::vector<FoliaElement*>&,
+			 const std::vector<FoliaElement*>&,
+			 const KWargs& );
   private:
     static properties PROPS;
   };
@@ -2614,6 +2618,11 @@ namespace folia {
     const PhonContent *phon_content( const std::string& = "current",
 				    bool = false ) const;
     const std::string& get_delimiter( bool=false) const;
+    Correction *correct( const std::vector<FoliaElement*>&,
+			 const std::vector<FoliaElement*>&,
+			 const std::vector<FoliaElement*>&,
+			 const std::vector<FoliaElement*>&,
+			 const KWargs& );
   private:
     const UnicodeString private_text( const std::string& = "current",
 				      bool = false,

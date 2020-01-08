@@ -4520,6 +4520,24 @@ namespace folia {
     throw NoSuchText("wrong cls");
   }
 
+  Correction *Correction::correct( const std::vector<FoliaElement*>&,
+				   const std::vector<FoliaElement*>& vn,
+				   const std::vector<FoliaElement*>& vc,
+				   const std::vector<FoliaElement*>& vs,
+				   const KWargs& args){
+    vector<FoliaElement*> new_vo; // ignore users hints
+    new_vo.push_back( this );
+    return parent()->correct( new_vo, vn, vc, vs, args );
+  }
+
+  Correction *New::correct( const std::vector<FoliaElement*>& vo,
+			    const std::vector<FoliaElement*>& vn,
+			    const std::vector<FoliaElement*>& vc,
+			    const std::vector<FoliaElement*>& vs,
+			    const KWargs& args){
+    return parent()->correct( vo, vn, vc, vs, args );
+  }
+
   const PhonContent *Correction::phon_content( const string& cls,
 					       bool show_hidden ) const {
     // TODO: this implements correctionhandling::EITHER only
