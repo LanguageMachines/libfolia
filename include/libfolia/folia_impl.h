@@ -2374,6 +2374,7 @@ namespace folia {
 			 const std::vector<FoliaElement*>&,
 			 const std::vector<FoliaElement*>&,
 			 const KWargs& );
+    Correction *correct( const std::string& = "" );
   private:
     static properties PROPS;
   };
@@ -2623,6 +2624,7 @@ namespace folia {
 			 const std::vector<FoliaElement*>&,
 			 const std::vector<FoliaElement*>&,
 			 const KWargs& );
+    Correction *correct( const std::string& = "" );
   private:
     const UnicodeString private_text( const std::string& = "current",
 				      bool = false,

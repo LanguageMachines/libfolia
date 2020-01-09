@@ -3196,14 +3196,14 @@ namespace folia {
   //#define DEBUG_CORRECT 1
 
   Correction * AllowCorrections::correct( const vector<FoliaElement*>& _original,
-					  const vector<FoliaElement*>& current,
+					  const vector<FoliaElement*>& _current,
 					  const vector<FoliaElement*>& _newv,
 					  const vector<FoliaElement*>& _suggestions,
 					  const KWargs& args_in ) {
 #ifdef DEBUG_CORRECT
     cerr << "correct " << this << endl;
     cerr << "original= " << _original << endl;
-    cerr << "current = " << current << endl;
+    cerr << "current = " << _current << endl;
     cerr << "new     = " << _newv << endl;
     cerr << "suggestions     = " << _suggestions << endl;
     cerr << "args in     = " << args_in << endl;
@@ -3249,7 +3249,7 @@ namespace folia {
       if ( !_new.empty() && corr->hasCurrent() ) {
 	// can't add new if there's current, so first set original to current, and then delete current
 
-	if ( !current.empty() ) {
+	if ( !_current.empty() ) {
 	  throw runtime_error( "Can't set both new= and current= !");
 	}
 	if ( original.empty() ) {
@@ -3270,11 +3270,11 @@ namespace folia {
 #ifdef DEBUG_CORRECT
     cerr << "now corr= " << corr << endl;
 #endif
-    if ( !current.empty() ) {
+    if ( !_current.empty() ) {
       if ( !original.empty() || !_new.empty() ) {
 	throw runtime_error("When setting current=, original= and new= can not be set!");
       }
-      for ( const auto& cur : current ) {
+      for ( const auto& cur : _current ) {
 	FoliaElement *add = new Current( doc );
 	cur->set_parent(0);
 	add->append( cur );
@@ -3312,7 +3312,7 @@ namespace folia {
 	addnew->append( nw );
       }
 #ifdef DEBUG_CORRECT
-      cerr << "after adding " << corr << endl;
+      cerr << "after adding NEW: " << corr->xmlstring() << endl;
 #endif
       vector<Current*> v = corr->FoliaElement::select<Current>();
       //delete current if present
@@ -3320,7 +3320,7 @@ namespace folia {
 	corr->remove( cur, false );
       }
 #ifdef DEBUG_CORRECT
-      cerr << "after removing cur " << corr << endl;
+      cerr << "after removing CUR: " << corr->xmlstring() << endl;
 #endif
     }
     else {
@@ -3341,7 +3341,7 @@ namespace folia {
       FoliaElement *add = new Original( doc );
       corr->replace(add);
 #ifdef DEBUG_CORRECT
-      cerr << " corr after replace " << corr << endl;
+      cerr << " corr after replacing original " << corr->xmlstring() << endl;
       cerr << " new original= " << add << endl;
 #endif
       for ( const auto& org: original ) {
@@ -3368,7 +3368,7 @@ namespace folia {
 #ifdef DEBUG_CORRECT
 	      cerr << "it isn't hooked!" << endl;
 	      FoliaElement * tmp = replace( index(i), corr );
-	      cerr << " corr after replace " << corr << endl;
+	      cerr << " corr after replace " << corr->xmlstring() << endl;
 	      cerr << " replaced " << tmp << endl;
 #else
 	      replace( index(i), corr );
@@ -3480,7 +3480,7 @@ namespace folia {
       }
     }
 #ifdef DEBUG_CORRECT
-    cerr << " corr after edits " << corr << endl;
+    cerr << " corr after edits " << corr->xmlstring() << endl;
 #endif
     if ( addnew ) {
       for ( const auto& org : original ) {
@@ -3492,7 +3492,7 @@ namespace folia {
       }
     }
 #ifdef DEBUG_CORRECT
-    cerr << " corr after removes " << corr << endl;
+    cerr << " corr after removes " << corr->xmlstring() << endl;
 #endif
     if ( !suggestions.empty() ) {
       if ( !hooked ) {
@@ -4521,21 +4521,34 @@ namespace folia {
   }
 
   Correction *Correction::correct( const std::vector<FoliaElement*>&,
-				   const std::vector<FoliaElement*>& vn,
 				   const std::vector<FoliaElement*>& vc,
+				   const std::vector<FoliaElement*>& vn,
 				   const std::vector<FoliaElement*>& vs,
 				   const KWargs& args){
-    vector<FoliaElement*> new_vo; // ignore users hints
+    vector<FoliaElement*> new_vo; // ignore users hints about original
     new_vo.push_back( this );
-    return parent()->correct( new_vo, vn, vc, vs, args );
+    return parent()->correct( new_vo, vc, vn, vs, args );
+  }
+
+  Correction *Correction::correct( const std::string& args ){
+    vector<FoliaElement*> nv;
+    vector<FoliaElement*> ov;
+    vector<FoliaElement*> cv;
+    vector<FoliaElement*> sv;
+    ov.push_back( this );
+    return parent()->correct( ov,nv,cv,sv, args );
   }
 
   Correction *New::correct( const std::vector<FoliaElement*>& vo,
-			    const std::vector<FoliaElement*>& vn,
 			    const std::vector<FoliaElement*>& vc,
+			    const std::vector<FoliaElement*>& vn,
 			    const std::vector<FoliaElement*>& vs,
 			    const KWargs& args){
-    return parent()->correct( vo, vn, vc, vs, args );
+    return parent()->correct( vo, vc, vn, vs, args );
+  }
+
+  Correction *New::correct( const std::string& args ){
+    return parent()->correct( args );
   }
 
   const PhonContent *Correction::phon_content( const string& cls,
