@@ -79,14 +79,7 @@ namespace folia {
     return _props.HIDDEN;
   }
 
-  map<const string, const string> reverse_old;
-
   const string& AbstractElement::xmltag() const {
-    if ( reverse_old.empty() ){
-      for ( const auto& it : oldtags ){
-	reverse_old.insert( make_pair(it.second, it.first) );
-      }
-    }
     const string& result = _props.XMLTAG;
     if ( doc() && doc()->version_below(1,6) ){
       const auto& it = reverse_old.find(result);

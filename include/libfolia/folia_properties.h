@@ -74,6 +74,7 @@ namespace folia {
   extern const std::map<AnnotationType::AnnotationType, ElementType> annotationtype_elementtype_map;
   extern const std::map<AnnotationType::AnnotationType,std::string> annotationtype_xml_map;
   extern const std::map<std::string,std::string> oldtags;
+  extern std::map<std::string,std::string> reverse_old;
 
   extern const std::set<ElementType> default_ignore;
   extern const std::set<ElementType> default_ignore_annotations;

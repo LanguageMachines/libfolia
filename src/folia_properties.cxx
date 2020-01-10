@@ -1473,6 +1473,10 @@ namespace folia {
     PlaceHolder::PROPS.ELEMENT_ID = PlaceHolder_t;
     PlaceHolder::PROPS.REQUIRED_ATTRIBS = NO_ATT;
 
+    for ( const auto& it : oldtags ){
+      reverse_old[it.second] = it.first;
+    }
+
   }
 
 
@@ -1608,6 +1612,7 @@ namespace folia {
     { "complexalignments", "spanrelations" },
     { "listitem", "item" },
   };
+  map<string,string> reverse_old;
 
   //foliaspec:wrefables
   //Elements that act as words and can be referable from span annotations
