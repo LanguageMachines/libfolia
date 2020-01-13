@@ -4,7 +4,7 @@ Bug fix release
 * fix for https://github.com/LanguageMachines/foliautils/issues/37
 * fix for https://github.com/LanguageMachines/foliautils/issues/38
 * fixes in Correction handling.
-* fixed a Multi-Threadding problem with the static reverse_old mao
+* fixed a Multi-Threading problem with the static reverse_old map
 
 2.3.1 2019-10-21
 [Maarten van Gompel]
