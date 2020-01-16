@@ -52,34 +52,45 @@ using namespace TiCC;
 namespace folia {
   using TiCC::operator <<;
 
-  string VersionName() { return PACKAGE_STRING; }
-  string Version() { return VERSION; }
+  string VersionName() { return PACKAGE_STRING; } ///< Returns the PACKAGE_STRING info of the package
+  string Version() { return VERSION; }  ///< Returns version of the library
 
   ElementType AbstractElement::element_id() const {
+    /// return the ELEMENT_ID property
     return _props.ELEMENT_ID;
   }
 
   size_t AbstractElement::occurrences() const {
+    /// return the OCCURENCES property
     return _props.OCCURRENCES;
   }
 
   size_t AbstractElement::occurrences_per_set() const {
+    /// return the OCCURRENCES_PER_SET property
     return _props.OCCURRENCES_PER_SET;
   }
 
   Attrib AbstractElement::required_attributes() const {
+    /// return the REQUIRED_ATTRIBUTES property
     return _props.REQUIRED_ATTRIBS;
   }
 
   Attrib AbstractElement::optional_attributes() const {
+    /// return the OPTONAL_ATTRIBUTES property
     return _props.OPTIONAL_ATTRIBS;
   }
 
   bool AbstractElement::hidden() const {
+    /// return the HIDDEN property
     return _props.HIDDEN;
   }
 
   const string& AbstractElement::xmltag() const {
+    /// return the XMLTAG property
+    /*
+      For pre 1.5 documents, it will return the OLD name of that property.
+      e.g. "spanrelation" is translated to the old "complexalignment"
+    */
     const string& result = _props.XMLTAG;
     if ( doc() && doc()->version_below(1,6) ){
       const auto& it = reverse_old.find(result);
@@ -91,62 +102,85 @@ namespace folia {
   }
 
   const string& AbstractElement::default_subset() const {
+    /// return the SUBSET property
     return _props.SUBSET;
   }
 
   AnnotationType::AnnotationType AbstractElement::annotation_type() const {
+    /// return the ANNOTATIONTYPE property
     return _props.ANNOTATIONTYPE;
   }
 
   const set<ElementType>& AbstractElement::accepted_data() const {
+    /// return the ACCEPTED_DATA property
     return _props.ACCEPTED_DATA;
   }
 
   const set<ElementType>& AbstractElement::required_data() const {
+    /// return the REQUIRED_DATA property
     return _props.REQUIRED_DATA;
   }
 
   bool AbstractElement::printable() const {
+    /// return the PRINTABLE property
     return _props.PRINTABLE;
   }
 
   bool AbstractElement::speakable() const {
+    /// return the SPEAKABLE property
     return _props.SPEAKABLE;
   }
 
   bool AbstractElement::referable() const {
+    /// return the WREFABLE property
     return _props.WREFABLE;
   }
 
   bool AbstractElement::is_textcontainer() const {
+    /// return the TEXTCONTAINER property
     return _props.TEXTCONTAINER;
   }
 
   bool AbstractElement::is_phoncontainer() const {
+    /// return the PHONCONTAINER property
     return _props.PHONCONTAINER;
   }
 
   bool AbstractElement::xlink() const {
+    /// return the XLINK property
     return _props.XLINK;
   }
 
   bool AbstractElement::auth() const {
+    /// return the AUTH property
     return _props.AUTH;
   }
 
   bool AbstractElement::setonly() const {
+    /// return the SETONLY property
     return _props.SETONLY;
   }
 
   bool AbstractElement::auto_generate_id() const {
+    /// return the AUTO_GENERATE_ID property
     return _props.AUTO_GENERATE_ID;
   }
 
   bool is_structure( const FoliaElement *el ){
+    /// return true when the parameter is an AbstractStructureElement
+    /// or a derivative of an AbstractStructureElement
+    /*!
+      \param el the FoliaElement to test
+    */
     return dynamic_cast<const AbstractStructureElement*>( el ) != 0;
   }
 
   const string AbstractElement::href() const {
+    /// return the 'href' value of the object
+    /*!
+     * if the object has an xlink value for 'href' it is returned as a string
+     * otherwise the result is ""
+     */
     auto it = _xlink.find("href");
     if ( it != _xlink.end() ){
       return it->second;
@@ -155,6 +189,11 @@ namespace folia {
   }
 
   ostream& operator<<( ostream& os, const FoliaElement& ae ) {
+    /// Output operator for FoliaElements. (for DEBUGGING only)
+    /*!
+     * \param os the output stream
+     * \param ae the FoliaElement
+     */
     os << " <" << ae.classname();
     KWargs ats = ae.collectAttributes();
     if ( !ae.id().empty() ) {
@@ -177,6 +216,11 @@ namespace folia {
   }
 
   ostream& operator<<( ostream&os, const FoliaElement *ae ) {
+    /// Output operator for FoliaElements. (for DEBUGGING only)
+    /*!
+     * \param os the output stream
+     * \param ae the FoliaElement
+     */
     if ( !ae ) {
       os << "nil";
     }
@@ -186,6 +230,11 @@ namespace folia {
   }
 
   AbstractElement::AbstractElement( const properties& p, Document *d ) :
+    /// Constructor for AbstractElements.
+    /*!
+     * \param p a properties block (required)
+     * \param d a parent document
+     */
     _mydoc(d),
     _parent(0),
     _auth( p.AUTH ),
@@ -197,15 +246,16 @@ namespace folia {
   }
 
   AbstractElement::~AbstractElement( ) {
+    /// Destructor for AbstractElements.
     bool debug = false;
-    if ( xmltag() == "w"
-    	 || xmltag() == "s"
-    	 || xmltag() == "entity"
-    	 || xmltag() == "entities"
-    	 || xmltag() == "morpheme"
-    	 || xmltag() == "morphology" ){
-      debug = false;
-    }
+    // if ( xmltag() == "w"
+    // 	 || xmltag() == "s"
+    // 	 || xmltag() == "entity"
+    // 	 || xmltag() == "entities"
+    // 	 || xmltag() == "morpheme"
+    // 	 || xmltag() == "morphology" ){
+    //   debug = false;
+    // }
     if (debug ){
       cerr << "delete " << xmltag() << " id=" << _id << " class= "
     	   << cls() << " datasize= " << _data.size() << endl;

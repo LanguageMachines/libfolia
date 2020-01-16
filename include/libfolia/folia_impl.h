@@ -118,11 +118,13 @@ namespace folia {
     }
 
     virtual bool isinstance( ElementType et ) const = 0;
+
     template <typename F>
       bool isinstance() const {
       F obj((Document*)0);
       return element_id() == obj.element_id();
     }
+
     bool isSubClass( ElementType ) const;
     bool isSubClass( const FoliaElement *c ) const {
       return dynamic_cast<decltype(c)>(this) != 0;
@@ -543,8 +545,13 @@ namespace folia {
     FoliaElement* rindex( size_t ) const;
 
     bool isinstance( ElementType et ) const {
+      /// return true the object is an instance of the type parameter
+      /*!
+      \param et the type to check against
+    */
       return et == element_id();
     }
+
     template <typename F>
       bool isinstance() const {
       F obj((Document*)0);
@@ -845,6 +852,12 @@ namespace folia {
     return e->unicode(); }
 
   inline bool isinstance( const FoliaElement *e, ElementType t ) {
+    /// return true when the first parameter is instance of the type
+    /// given by the second parameter
+    /*!
+      \param e the FoliaElement to test
+      \param t the type to check against
+    */
     return e->isinstance( t ); }
 
   class AllowGenerateID: public virtual FoliaElement {
