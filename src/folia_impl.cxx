@@ -295,6 +295,7 @@ namespace folia {
   }
 
   xmlNs *AbstractElement::foliaNs() const {
+    /// return a pointer to the xmlNs object, when an xml document is available.
     if ( doc() ) {
       return doc()->foliaNs();
     }
@@ -302,6 +303,16 @@ namespace folia {
   }
 
   void AbstractElement::check_declaration(){
+    /// check the declation consistency of an object.
+    /// throws an exception on error
+    /*!
+     * When the object has an associated document, the declaration of the
+     * 'set' attribute is checked. Or the default set when no 'set' is provided
+     * Also the presence of an appropiate annotation declaration is checked
+     * for the annotation-type of the object. This might auto-declare
+     * the anntotation-type, when de document allows this.
+     */
+
     if ( _mydoc ){
       string def;
       if ( !_set.empty() ){
@@ -369,6 +380,14 @@ namespace folia {
   }
 
   void AbstractElement::setAttributes( const KWargs& kwargs_in ) {
+    /// set the objects attributes given a set of Key-Value pairs.
+    /*!
+     * \param kwargs_in a KWargs set of Key-Value pairs
+     * the given keys are checked agains a range of criteria:
+     *     - if the object supports the attribue
+     *     - if the object provided value is valid
+     *     - if the attribute is declared for the annotation-type
+     */
     KWargs kwargs = kwargs_in;
     Attrib supported = required_attributes() | optional_attributes();
     //#define LOG_SET_ATT
@@ -802,6 +821,12 @@ namespace folia {
   }
 
   void AbstractElement::addFeatureNodes( const KWargs& kwargs ) {
+    /// add children to the objcect, based on the set of Key-Value pairs.
+    /*!
+     * \param kwargs a KWargs set of Key-Value pairs
+     * the given keys must be in the AttributeFeatures set.
+     * the values are used as class attribute for the new children
+     */
     for ( const auto& it: kwargs ) {
       string tag = it.first;
       if ( tag == "head" ) {
@@ -838,6 +863,10 @@ namespace folia {
   }
 
   KWargs AbstractElement::collectAttributes() const {
+    /// extract a complete Attribute-Value from the objec
+    /*!
+     * Might also use declararion defaults and alias declarations
+     */
     KWargs attribs;
     bool isDefaultSet = true;
 
@@ -970,7 +999,10 @@ namespace folia {
   }
 
   const string FoliaElement::xmlstring( bool add_ns ) const{
-    // serialize to a string (XML fragment)
+    /// serialize the element to a string (XML fragment)
+    /*!
+     * \param add_ns Also add the NameSpace declarations
+     */
     xmlNode *n = xml( true, false );
     if ( add_ns ){
       xmlSetNs( n, xmlNewNs( n, (const xmlChar *)NSFOLIA.c_str(), 0 ) );
@@ -986,7 +1018,12 @@ namespace folia {
   const string FoliaElement::xmlstring( bool format,
 					int indent,
 					bool add_ns ) const{
-    // serialize to a string (XML fragment)
+    /// serialize the element to a string (XML fragment)
+    /*!
+     * \param format allow output formating
+     * \param indent number of spaces to indent
+     * \param add_ns Also add the NameSpace declarations
+     */
     xmlNode *n = xml( true, false );
     if ( add_ns ){
       xmlSetNs( n, xmlNewNs( n, (const xmlChar *)NSFOLIA.c_str(), 0 ) );
@@ -1001,6 +1038,7 @@ namespace folia {
   }
 
   string tagToAtt( const FoliaElement* c ) {
+    /// helper function. Given an element of type Feature_t, return the tag value
     string att;
     if ( c->isSubClass( Feature_t ) ) {
       att = c->xmltag();
@@ -1017,6 +1055,19 @@ namespace folia {
   }
 
   void AbstractElement::check_append_text_consistency( const FoliaElement *child ) const {
+    /// check the text consistency of a new child against the Element.
+    /*!
+     * \param child the new child
+     *
+     * When a document is available AND it has the checktext() property
+     * the text of the child is checked against the text of the parent.
+     *
+     * For Word, String and TextContent children, we assume that their text is
+     * embedded in the parents text.
+     *
+     * For all other cases, the text of the child should match the parents text.
+     * \note Matching is opaque to spaces, newlines and tabs
+     */
     if ( !doc() || !doc()->checktext() ){
       return;
     }
@@ -1063,11 +1114,22 @@ namespace folia {
   }
 
   void AbstractElement::check_text_consistency( ) const {
+    /// check the text consistency of the combined text of the children
+    /// against the text of the Element.
+    /*!
+     * When a document is available AND it has the checktext() property
+     * the combined text of ALL the children is checked against the text of
+     * the parent.
+     *
+     * For Word and String children, we only assume that their text is
+     * embedded in the parents text.
+     *
+     * For all other cases, the text should exactly match the parents text.
+     * \note Matching is opaque to spaces, newlines and tabs
+     */
     if ( !doc() || !doc()->checktext() || ! printable() ){
       return;
     }
-    // check if the text associated with all children is compatible with the
-    // parents parental text.
 
     string cls = this->cls();
     FoliaElement *parent = this->parent();
@@ -1105,6 +1167,11 @@ namespace folia {
   }
 
   xmlNode *AbstractElement::xml( bool recursive, bool kanon ) const {
+    /// convert an Element to an xmlNode
+    /*!
+     * \param recursive Convert the children too, creating a xmlNode tree
+     * \param kanon Output in a canonical form to make comparions easy
+     */
     xmlNode *e = XmlNewNode( foliaNs(), xmltag() );
     KWargs attribs = collectAttributes();
     set<FoliaElement *> attribute_elements;
@@ -1192,11 +1259,17 @@ namespace folia {
   }
 
   const string AbstractElement::str( const string& cls ) const {
-    // if this is a TextContent or it may contain TextContent
-    // then return the associated text()
-    // if this is a PhonContent or it may contain PhonContent
-    // then return the associated phon()
-    // otherwise return empty string
+    /// return the text value of this element
+    /*!
+     * \param cls The desired textclass
+     * if this is a TextContent or it may contain TextContent
+     * then return the associated text()
+     *
+     * if this is a PhonContent or it may contain PhonContent
+     * then return the associated phon()
+     *
+     * otherwise return the empty string
+     */
     UnicodeString us;
     try {
       us = text(cls);
@@ -1206,7 +1279,7 @@ namespace folia {
 	us = phon(cls);
       }
       catch( const NoSuchPhon&){
-	// No TextContent or Phone allowed
+	// No TextContent or Phone is allowed
       }
     }
     return TiCC::UnicodeToUTF8( us );
