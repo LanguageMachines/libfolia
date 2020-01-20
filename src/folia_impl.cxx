@@ -167,10 +167,11 @@ namespace folia {
   }
 
   bool is_structure( const FoliaElement *el ){
-    /// return true when the parameter is an AbstractStructureElement
-    /// or a derivative of an AbstractStructureElement
+    /// test if the object is a Structure Element.
     /*!
       \param el the FoliaElement to test
+      \return true when the parameter is an AbstractStructureElement
+      or a derivative of an AbstractStructureElement
     */
     return dynamic_cast<const AbstractStructureElement*>( el ) != 0;
   }
@@ -295,7 +296,11 @@ namespace folia {
   }
 
   xmlNs *AbstractElement::foliaNs() const {
-    /// return a pointer to the xmlNs object, when an xml document is available.
+    /// return the associated xmlNs object.
+    /*!
+     * \return the XML namespace element of the associated FoLiA document
+     * or 0 when no xml document is available
+     */
     if ( doc() ) {
       return doc()->foliaNs();
     }
@@ -863,9 +868,11 @@ namespace folia {
   }
 
   KWargs AbstractElement::collectAttributes() const {
-    /// extract a complete Attribute-Value from the objec
+    /// extract all Attribute-Value pairs from the object
     /*!
-     * Might also use declararion defaults and alias declarations
+     * \return a KWargs set of Attribute-value pairs
+     * Might also use declaration defaults and alias declarations to extract
+     * default values
      */
     KWargs attribs;
     bool isDefaultSet = true;
@@ -999,9 +1006,10 @@ namespace folia {
   }
 
   const string FoliaElement::xmlstring( bool add_ns ) const{
-    /// serialize the element to a string (XML fragment)
+    /// serialize a FoLiAElement to a string (XML fragment)
     /*!
      * \param add_ns Also add the NameSpace declarations
+     * \return a string representation of the FoLiA XML
      */
     xmlNode *n = xml( true, false );
     if ( add_ns ){
@@ -1018,11 +1026,12 @@ namespace folia {
   const string FoliaElement::xmlstring( bool format,
 					int indent,
 					bool add_ns ) const{
-    /// serialize the element to a string (XML fragment)
+    /// serialize a FoLiAElement to a string (XML fragment)
     /*!
      * \param format allow output formating
      * \param indent number of spaces to indent
      * \param add_ns Also add the NameSpace declarations
+     * \return a string representation of the FoLiA XML
      */
     xmlNode *n = xml( true, false );
     if ( add_ns ){
@@ -1039,6 +1048,12 @@ namespace folia {
 
   string tagToAtt( const FoliaElement* c ) {
     /// helper function. Given an element of type Feature_t, return the tag value
+    /*!
+     * \param c some FoLiAElement
+     * \return the string value of attribute related to the tag of the parameter
+     * if the element is of type Feature_t is has an asscociated attribute
+     * otherwise not, and the empty string is returned.
+     */
     string att;
     if ( c->isSubClass( Feature_t ) ) {
       att = c->xmltag();
@@ -1061,6 +1076,8 @@ namespace folia {
      *
      * When a document is available AND it has the checktext() property
      * the text of the child is checked against the text of the parent.
+     *
+     * will throw on error.
      *
      * For Word, String and TextContent children, we assume that their text is
      * embedded in the parents text.
@@ -1121,6 +1138,8 @@ namespace folia {
      * the combined text of ALL the children is checked against the text of
      * the parent.
      *
+     * will throw on error
+     *
      * For Word and String children, we only assume that their text is
      * embedded in the parents text.
      *
@@ -1171,6 +1190,7 @@ namespace folia {
     /*!
      * \param recursive Convert the children too, creating a xmlNode tree
      * \param kanon Output in a canonical form to make comparions easy
+     * \return am xmlNode object(-tree)
      */
     xmlNode *e = XmlNewNode( foliaNs(), xmltag() );
     KWargs attribs = collectAttributes();
@@ -1262,6 +1282,8 @@ namespace folia {
     /// return the text value of this element
     /*!
      * \param cls The desired textclass
+     * \return the string value (UTF8 encoded)
+     *
      * if this is a TextContent or it may contain TextContent
      * then return the associated text()
      *
@@ -1286,6 +1308,12 @@ namespace folia {
   }
 
   const string AbstractElement::speech_src() const {
+    /// give the value of the _scr of an element
+    /*!
+     * return a (possibly empty) string.
+     *
+     * This function recurses upward to the first element which carries _src
+     */
     if ( !_src.empty() ) {
       return _src;
     }
@@ -1296,6 +1324,12 @@ namespace folia {
   }
 
   const string AbstractElement::speech_speaker() const {
+    /// give the value of the _speaker of an element
+    /*!
+     * return a (possibly empty) string.
+     *
+     * This function recurses upward to the first element which carries _speaker
+     */
     if ( !_speaker.empty() ) {
       return _speaker;
     }
@@ -1306,6 +1340,13 @@ namespace folia {
   }
 
   const string AbstractElement::language( const string& st ) const {
+    /// give the language value of an element
+    /*!
+     * \param st the setname to us for searching
+     * The search will start at the object, and recurse upward until
+     * the document level, where it will return the Documents language
+     * Might return "" when no match is found
+     */
     std::set<ElementType> exclude;
     vector<LangAnnotation*> v = select<LangAnnotation>( st, exclude, false );
     if ( v.size() > 0 ){
@@ -1320,8 +1361,11 @@ namespace folia {
   }
 
   bool FoliaElement::hastext( const string& cls ) const {
-    // does this element have a TextContent with class 'cls'
-    // Default is class="current"
+    /// check if the element has a TextContent with class 'cls'
+    /*!
+     * \param cls The desired textclass
+     * \return true if there is a TextContent available. Otherwise false
+     */
     try {
       this->text_content(cls);
       return true;
@@ -1331,8 +1375,11 @@ namespace folia {
   }
 
   bool FoliaElement::hasphon( const string& cls ) const {
-    // does this element have a TextContent with class 'cls'
-    // Default is class="current"
+    /// check if the element has a PhonContent with class 'cls'
+    /*!
+     * \param cls The desired textclass
+     * \return true if there is a PhonContent available. Otherwise false
+     */
     try {
       this->phon_content(cls);
       return true;
@@ -1344,9 +1391,20 @@ namespace folia {
   //#define DEBUG_TEXT
   //#define DEBUG_TEXT_DEL
 
-  const string SPACE_STRING = " ";
-
   const string& AbstractElement::get_delimiter( bool retaintok ) const {
+    /// get the default delimter of this object.
+    /*!
+     * \param retaintok retain the tokenization assigned to this element
+     * \return a string representing the delimiter
+     *
+     * If the object has a TEXTDELIMITER property thats is returned
+     * Otherwise, the last child is taken and its delimiter is returned IF
+     * it is a Structure Element.
+     * When this test fails, an empty string is returned, UNLESS the element has
+     * the SPACE attribute AND retaintok is specified
+     */
+    static const string SPACE_STRING = " ";
+
 #ifdef DEBUG_TEXT_DEL
     cerr << "IN <" << xmltag() << ">:get_delimiter (" << retaintok << ")" << endl;
 #endif
@@ -1382,8 +1440,16 @@ namespace folia {
 						     bool retaintok,
 						     bool strict,
 						     bool show_hidden ) const {
-    // get the UnicodeString value of underlying elements
-    // default cls="current"
+    /// get the UnicodeString value of an element
+    /*!
+     * \param cls The textclass we are looking for
+     * \param retaintok retain the tokenisation information
+     * \param strict If true, return the text of this level onlu
+     * when false, allow recursing into children
+     * \param show_hiden include text form 'hidden' nodes too.
+     * \return the Unicode String representation found. Throws when
+     * no text can be found
+     */
 #ifdef DEBUG_TEXT
     cerr << "TEXT(" << cls << ") on node : " << xmltag() << " id="
 	 << id() << endl;
@@ -1447,6 +1513,11 @@ namespace folia {
 
   const UnicodeString AbstractElement::text( const std::string& cls,
 					     TEXT_FLAGS flags ) const {
+    /// get the UnicodeString value of an element
+    /*!
+     * \param cls the textclass the text should be in
+     * \param flags the search parameters to use. See TEXT_FLAGS.
+     */
     bool retain = ( TEXT_FLAGS::RETAIN & flags ) == TEXT_FLAGS::RETAIN;
     bool strict = ( TEXT_FLAGS::STRICT & flags ) == TEXT_FLAGS::STRICT;
     bool hidden = ( TEXT_FLAGS::HIDDEN & flags ) == TEXT_FLAGS::HIDDEN;
@@ -1454,6 +1525,12 @@ namespace folia {
   }
 
   void FoLiA::setAttributes( const KWargs& args ){
+    /// set the attributes of a FoLiA top node
+    /*!
+     * \param args an attribute-value list
+     * the FoLiA top is special, as it may accept special attributes
+     * which are stored in the associated document, and NOT in the node
+     */
     KWargs atts = args;
     // we store some attributes in the document itself
     doc()->setDocumentProps( atts );
@@ -1466,8 +1543,11 @@ namespace folia {
     ///
     /// recursively parse a complete FoLiA tree
     /// \param node an xmlNode that MUST be a FoLiA root node
-    /// this topnode is special, as it also carries the main document properties
-    ///
+    /// \return the parsed tree. Throws on error.
+    /*!
+     * the topnode is special, as it also carries the main document properties
+     *
+     */
     KWargs atts = getAttributes( node );
     if ( !doc() ){
       throw XmlError( "FoLiA root without Document" );
@@ -1514,6 +1594,15 @@ namespace folia {
 					   bool retaintok,
 					   bool strict,
 					   bool ) const {
+    /// get the UnicodeString value of a FoLiA topnode
+    /*!
+     * \param cls The textclass we are looking for
+     * \param retaintok retain the tokenisation information
+     * \param strict If true, return the text of the direct children only
+     * when false, allow recursing into children
+     * \return the Unicode String representation found. Throws when
+     * no text can be found
+     */
 #ifdef DEBUG_TEXT
     cerr << "FoLiA::TEXT(" << cls << ")" << endl;
 #endif
@@ -1533,6 +1622,12 @@ namespace folia {
   }
 
   UnicodeString trim_space( const UnicodeString& in ){
+    /// remove leading and traling spaces. KEEP newlines etc.
+    /*!
+     * \param in an untrimmed UnicodeString
+     * \return an UnicodeString with all leading and trailing spaces removed.
+     * Other 'whitespace' characters like newline and tab are retained!
+     */
     UnicodeString cmp = " ";
     //    cerr << "in = '" << in << "'" << endl;
     UnicodeString out;
@@ -1562,6 +1657,12 @@ namespace folia {
   }
 
   bool check_end( const UnicodeString& us, bool& only ){
+    /// check for newline characters at the end
+    /*!
+     * \param us the UnicodeString to check for '\n'
+     * \param only set to true if the whole string consists of only '\n'
+     * \return true when at least 1 '\n' is found at the end.
+     */
     only = false;
     string tmp = TiCC::UnicodeToUTF8( us );
     int j = tmp.length()-1;
@@ -1579,6 +1680,12 @@ namespace folia {
   }
 
   bool no_space_at_end( FoliaElement *s ){
+    /// given a FoliaElement check if the last Word in it has space()
+    /*!
+     * \param s a FoliaElement
+     * \return true if the element contains Word children and the last
+     * one has space()
+     */
     bool result = false;
     //    cerr << "no space? s: " << s << endl;
     if ( s ){
@@ -1594,8 +1701,13 @@ namespace folia {
 
   const UnicodeString AbstractElement::deeptext( const string& cls,
 						 TEXT_FLAGS flags ) const {
-    // get the UnicodeString value of underlying elements
-    // default cls="current"
+    /// get the UnicodeString value of underlying elements
+    /*!
+     * \param cls the textclass
+     * \flags the search parameters to use
+     * \return The Unicode Text found.
+     * Will throw on error.
+     */
 #ifdef DEBUG_TEXT
     cerr << "deepTEXT(" << cls << ") on node : " << xmltag() << " id=" << id() << ", cls=" << this->cls() << ")" << endl;
 #endif
@@ -1709,26 +1821,39 @@ namespace folia {
   }
 
   const UnicodeString FoliaElement::stricttext( const string& cls ) const {
-    // get UnicodeString content of TextContent children only
-    // default cls="current"
+    /// get the UnicodeString value of TextContent children only
+    /*!
+     * \param cls the textclass
+     * \return The Unicode Text found.
+     * Will throw on error.
+     */
     return this->text(cls, TEXT_FLAGS::STRICT );
   }
 
   const UnicodeString FoliaElement::toktext( const string& cls ) const {
-    // get UnicodeString content of TextContent children only
-    // default cls="current"
+    /// get the UnicodeString value of TextContent children only, retaining
+    /// tokenization
+    /*!
+     * \param cls the textclass
+     * \return The Unicode Text found.
+     * Will throw on error.
+     */
     return this->text(cls, TEXT_FLAGS::RETAIN );
   }
 
   const TextContent *AbstractElement::text_content( const string& cls,
 						    bool show_hidden ) const {
-    // Get the text explicitly associated with this element
-    // (of the specified class) the default class is 'current'
-    // Returns the TextContent instance rather than the actual text.
-    // (so it might return iself.. ;)
-    // Does not recurse into children
-    // with sole exception of Correction
-    // Raises NoSuchText exception if not found.
+    /// Get the TextContent explicitly associated with this element.
+    /*!
+     * \param cls the textclass to search for
+     * \param show_hidden if true also return text og 'hidden' nodes
+     *
+     * Returns the TextContent instance rather than the actual text.
+     * (so it might return iself.. ;)
+     * Does not recurse into children with the sole exception of Correction
+     * might throw NoSuchText exception if not found.
+     */
+
 #ifdef DEBUG_TEXT
     cerr << "text_content(" << cls << "," << (show_hidden?"show_hidden":"")
 	 << ")" << endl;
@@ -1774,12 +1899,16 @@ namespace folia {
 
   const PhonContent *AbstractElement::phon_content( const string& cls,
 						    bool show_hidden ) const {
-    // Get the phon explicitly associated with this element
-    // (of the specified class) the default class is 'current'
-    // Returns the PhonContent instance rather than the actual phoneme.
-    // Does not recurse into children
-    // with sole exception of Correction
-    // Raises NoSuchPhon exception if not found.
+    /// Get the PhonContent explicitly associated with this element.
+    /*!
+     * \param cls the textclass to search for
+     * \param show_hidden if true also return text og 'hidden' nodes
+     *
+     * Returns the PhonContent instance rather than the actual text.
+     * (so it might return iself.. ;)
+     * Does not recurse into children with the sole exception of Correction
+     * might throw NoSuchPhon exception if not found.
+     */
     if ( isinstance(PhonContent_t) ){
       if  ( this->cls() == cls ) {
 	return dynamic_cast<const PhonContent*>(this);
