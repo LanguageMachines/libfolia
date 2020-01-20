@@ -2721,7 +2721,7 @@ namespace folia {
   }
 
   FoliaElement* AbstractElement::parseXml( const xmlNode *node ) {
-    /// recursively parse a FoLiA tree starting at \node
+    /// recursively parse a FoLiA tree starting at node
     /*!
      * \param node an xmlNode representing a FoLiA subtree
      * \return the parsed tree. Throws on error.
@@ -3085,8 +3085,8 @@ namespace folia {
     /// return the MorhologyLayer AND all alternatives
     /*!
      * \param st the annotation set
-     * \param alt all the alternatives in set \st
-     * \return the MorphologyLayer in set \st
+     * \param alts all the alternatives in set st
+     * \return the MorphologyLayer in set st
      *
      * \note The return value may be 0, even when there ARE alternatives!
      */
@@ -3245,6 +3245,7 @@ namespace folia {
      * \param orig the node to correct
      * \param p1 the first part of the split
      * \param p2 the second part of the split
+     * \param args additional arguments in Attribute-value pairs
      * \return the created Correction
      */
     vector<FoliaElement*> ov;
@@ -3371,7 +3372,7 @@ namespace folia {
   void TextContent::setAttributes( const KWargs& args ) {
     /// set the TextContent attributes given a set of Key-Value pairs.
     /*!
-     * \param args_in a KWargs set of Key-Value pairs
+     * \param args a KWargs set of Key-Value pairs
      *
      * checks and sets the special attributes for TextContent:
      * value, offset, ref, class
@@ -4621,7 +4622,7 @@ namespace folia {
   }
 
   FoliaElement* WordReference::parseXml( const xmlNode *node ) {
-    /// parse a WordReference node at \node
+    /// parse a WordReference node at node
     /*!
      * \param node a WordReference
      * \return the parsed tree. Throws on error.
@@ -4665,7 +4666,7 @@ namespace folia {
   }
 
   FoliaElement* LinkReference::parseXml( const xmlNode *node ) {
-    /// parse a LinkReference node at \node
+    /// parse a LinkReference node at node
     /*!
      * \param node a LinkReference
      * \return the parsed tree. Throws on error.
@@ -4785,7 +4786,7 @@ namespace folia {
   }
 
   FoliaElement* Description::parseXml( const xmlNode *node ) {
-    /// parse a Description node at \node
+    /// parse a Description node at node
     /*!
      * \param node a Description
      * \return the parsed tree. Throws on error.
@@ -4822,7 +4823,7 @@ namespace folia {
   }
 
   FoliaElement* Comment::parseXml( const xmlNode *node ) {
-    /// parse a Comment node at \node
+    /// parse a Comment node at node
     /*!
      * \param node a Comment
      * \return the parsed tree. Throws on error.
@@ -5005,7 +5006,7 @@ namespace folia {
   }
 
   FoliaElement* Content::parseXml( const xmlNode *node ) {
-    /// parse a Content node at \node
+    /// parse a Content node at node
     /*!
      * \param node a Content
      * \return the parsed tree. Throws on error.
@@ -5405,7 +5406,7 @@ namespace folia {
   }
 
   FoliaElement* XmlText::parseXml( const xmlNode *node ) {
-    /// parse a Xmltext node at \node
+    /// parse a Xmltext node at node
     /*!
      * \param node an XmlText
      * \return the parsed tree. Throws on error.
@@ -5471,7 +5472,7 @@ namespace folia {
   }
 
   FoliaElement* External::parseXml( const xmlNode *node ) {
-    /// parse an External node at \node
+    /// parse an External node at node
     /*!
      * \param node an External
      * \return the parsed tree. Throws on error.
@@ -5600,7 +5601,7 @@ namespace folia {
   void TextMarkupReference::setAttributes( const KWargs& argsin ) {
     /// set the TextMarkupReference attributes given a set of Key-Value pairs.
     /*!
-     * \param args_in a KWargs set of Key-Value pairs
+     * \param argsin a KWargs set of Key-Value pairs
      *
      * checks and sets the special attributes for TextMarkupReference:
      * id, type, format
@@ -5659,7 +5660,7 @@ namespace folia {
   void Suggestion::setAttributes( const KWargs& kwargsin ) {
     /// set the Suggestion attributes given a set of Key-Value pairs.
     /*!
-     * \param args_in a KWargs set of Key-Value pairs
+     * \param kwargsin a KWargs set of Key-Value pairs
      *
      * checks and sets the special attributes for Suggestion:
      * split, merge
@@ -5902,7 +5903,7 @@ namespace folia {
   void TextMarkupCorrection::setAttributes( const KWargs& args ) {
     /// set the TextMarkupCorrection attributes given a set of Key-Value pairs.
     /*!
-     * \param atts a KWargs set of Key-Value pairs
+     * \param args a KWargs set of Key-Value pairs
      *
      * checks and sets the special attributes for TextMarkupCorrection:
      * id, original
