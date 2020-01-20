@@ -1392,7 +1392,7 @@ namespace folia {
   //#define DEBUG_TEXT_DEL
 
   const string& AbstractElement::get_delimiter( bool retaintok ) const {
-    /// get the default delimter of this object.
+    /// get the default delimiter of this object.
     /*!
      * \param retaintok retain the tokenization assigned to this element
      * \return a string representing the delimiter
@@ -1513,7 +1513,7 @@ namespace folia {
 
   const UnicodeString AbstractElement::text( const std::string& cls,
 					     TEXT_FLAGS flags ) const {
-    /// get the UnicodeString value of an element
+    /// get the UnicodeString text value of an element
     /*!
      * \param cls the textclass the text should be in
      * \param flags the search parameters to use. See TEXT_FLAGS.
@@ -1701,7 +1701,7 @@ namespace folia {
 
   const UnicodeString AbstractElement::deeptext( const string& cls,
 						 TEXT_FLAGS flags ) const {
-    /// get the UnicodeString value of underlying elements
+    /// get the UnicodeString text value of underlying elements
     /*!
      * \param cls the textclass
      * \flags the search parameters to use
@@ -1940,8 +1940,11 @@ namespace folia {
 
   const UnicodeString AbstractElement::phon( const string& cls,
 					     TEXT_FLAGS flags ) const {
-    // get the UnicodeString value of underlying elements
-    // default cls="current"
+    /// get the UnicodeString phon value of an element
+    /*!
+     * \param cls the textclass the text should be in
+     * \param flags the search parameters to use. See TEXT_FLAGS.
+     */
     bool hidden = ( TEXT_FLAGS::HIDDEN & flags ) == TEXT_FLAGS::HIDDEN;
     bool strict = ( TEXT_FLAGS::STRICT & flags ) == TEXT_FLAGS::STRICT;
 #ifdef DEBUG_PHON
@@ -1967,8 +1970,13 @@ namespace folia {
 
   const UnicodeString AbstractElement::deepphon( const string& cls,
 						 TEXT_FLAGS flags ) const {
-    // get the UnicodeString value of underlying elements
-    // default cls="current"
+    /// get the UnicodeString phon value of underlying elements
+    /*!
+     * \param cls the textclass
+     * \flags the search parameters to use
+     * \return The Unicode Text found.
+     * Will throw on error.
+     */
 #ifdef DEBUG_PHON
     cerr << "deepPHON(" << cls << ") on node : " << xmltag()
 	 << " id=" << id() << endl;
@@ -2038,14 +2046,24 @@ namespace folia {
 
 
   vector<FoliaElement *>AbstractElement::find_replacables( FoliaElement *par ) const {
+    // find all children with the same signature as the parameter
+    /*!
+     * \param par the FoliaElement to search
+     * \return a vector of matching elements
+     * search in the DIRECT children for nodes with the same tag AND set
+     * as the element par
+     */
     return par->select( element_id(), sett(), SELECT_FLAGS::LOCAL );
   }
 
   void AbstractElement::replace( FoliaElement *child ) {
-    // Appends a child element like append(), but replaces any existing child
-    // element of the same type and set.
-    // If no such child element exists, this will act the same as append()
-
+    /// replace a child element
+    /*!
+     * \param child Teh element to substitute
+     * This function searches for A child of the same signature (type and set)
+     * If found, that child is replaced.
+     * If no such child element exists, this will act the same as append()
+     */
     vector<FoliaElement*> replace = child->find_replacables( this );
     if ( replace.empty() ) {
       // nothing to replace, simply call append
@@ -2062,16 +2080,15 @@ namespace folia {
 
   FoliaElement* AbstractElement::replace( FoliaElement *old,
 					  FoliaElement* _new ) {
-    // replaced old by _new
-    // returns old
-    // when not found does nothing and returns 0;
-    // for ( auto& el: _data ) {
-    //   if ( el == old ) {
-    // 	el = _new;
-    // 	_new->set_parent( this );
-    // 	return old;
-    //   }
-    // }
+    /// replace in the children old by _new
+    /*!
+     * \param old The node to be replacec
+     * \param _new the new node to add
+     * \return old
+     * First old is looked up, if present it is replaced
+     *
+     * when not found this function does nothing and returns 0
+     */
     auto it = find_if( _data.begin(),
 		       _data.end(),
 		       [&]( FoliaElement *el ){ return el == old; } );
@@ -2083,6 +2100,13 @@ namespace folia {
   }
 
   void AbstractElement::insert_after( FoliaElement *pos, FoliaElement *add ){
+    /// append a node after a certain element
+    /*!
+     * \param pos The location after which to insert \add
+     * \param add the element to add
+     *
+     * throws when \pos is not found
+     */
     auto it = _data.begin();
     while ( it != _data.end() ) {
       if ( *it == pos ) {
@@ -2110,8 +2134,16 @@ namespace folia {
 
   TextContent *FoliaElement::settext( const string& txt,
 				      const string& cls ){
-    // create a TextContent child of class 'cls'
-    // Default cls="current"
+    /// append a TextContent child of class \txt with value \txt
+    /*!
+     * \param txt the UTF8 text value
+     * \param cls the textclass of the new TextContent
+     * \return the new created TextContent
+     * may throw on error
+     *
+     * when the associated document has the checktext mode, (which is the
+     * default) both text consistency and the offset are checked.
+     */
     if ( doc() && doc()->checktext()
 	 && !isSubClass( Morpheme_t ) && !isSubClass( Phoneme_t) ){
 #ifdef DEBUG_TEXT
@@ -2145,8 +2177,16 @@ namespace folia {
 
   TextContent *FoliaElement::setutext( const UnicodeString& txt,
 				       const string& cls ){
-    // create a TextContent child of class 'cls'
-    // Default cls="current"
+    /// append a TextContent child of class \txt with value \txt
+    /*!
+     * \param txt the Unicode text value
+     * \param cls the textclass of the new TextContent
+     * \return the new created TextContent
+     * may throw on error
+     *
+     * when the associated document has the checktext mode, (which is the
+     * default) both text consistency and the offset are checked.
+     */
     string utf8 = TiCC::UnicodeToUTF8(txt);
     return settext( utf8, cls );
   }
@@ -2154,9 +2194,17 @@ namespace folia {
   TextContent *FoliaElement::settext( const string& txt,
 				      int offset,
 				      const string& cls ){
-    // create a TextContent child of class 'cls'
-    // Default cls="current"
-    // sets the offset attribute.
+    /// append a TextContent child of class \txt with value \txt
+    /*!
+     * \param txt the UTF8 text value
+     * \param offset offset of the text in the text of the parent
+     * \param cls the textclass of the new TextContent
+     * \return the new created TextContent
+     * may throw on error
+     *
+     * when the associated document has the checktext mode, (which is the
+     * default) both text consistency and the offset are checked.
+     */
     if ( doc() && doc()->checktext()
 	 && !isSubClass( Morpheme_t ) && !isSubClass( Phoneme_t) ){
       UnicodeString deeper_u;
@@ -2185,13 +2233,28 @@ namespace folia {
   TextContent *FoliaElement::setutext( const UnicodeString& txt,
 				       int offset,
 				       const string& cls ){
-    // create a TextContent child of class 'cls'
-    // Default cls="current"
+    /// append a TextContent child of class \txt with value \txt
+    /*!
+     * \param txt the Unicode text value
+     * \param offset offset of the text in the text of the parent
+     * \param cls the textclass of the new TextContent
+     * \return the new created TextContent
+     * may throw on error
+     *
+     * when the associated document has the checktext mode, (which is the
+     * default) both text consistency and the offset are checked.
+     */
     string utf8 = TiCC::UnicodeToUTF8(txt);
     return settext( utf8, offset, cls );
   }
 
   const string FoliaElement::description() const {
+    /// return the string value of the description tag (if present)
+    /*!
+     * \return a string
+     * search for Description nodes in this object.
+     * When 1 or more are found, return the value of the first one
+     */
     vector<FoliaElement *> v = select( Description_t, SELECT_FLAGS::LOCAL );
     if ( v.size() == 0 ) {
       return "";
@@ -2200,6 +2263,14 @@ namespace folia {
   }
 
   bool AbstractElement::acceptable( ElementType t ) const {
+    /// test if this ElementType is acceptable for the current node
+    /*!
+     * \param t the ElementType to test
+     *
+     * This function tests if \t is in the accepted_data list of the node
+     * OR if it is a SubClass of one of the accepted types
+     */
+
     auto it = accepted_data().find( t );
     if ( it == accepted_data().end() ) {
       for ( const auto& et : accepted_data() ) {
@@ -2213,6 +2284,13 @@ namespace folia {
   }
 
   bool AbstractElement::addable( const FoliaElement *c ) const {
+    /// test if an element \c might succesfully appenden
+    /*!
+     * \param c the node to check
+     * \return true if it doesn't throw
+     *
+     * \note It will allways throw an error, instead of returning false
+     */
     if ( !acceptable( c->element_id() ) ) {
       string mess = "Unable to append object of type " + c->classname()
 	+ " to a <" + classname() + ">";
@@ -2287,10 +2365,19 @@ namespace folia {
   }
 
   void AbstractElement::assignDoc( Document* the_doc ) {
-    // attach a document-less FoliaElement (tree) to its doc
-    // needs checking for correct annotation_type
-    // also register the ID
-    // then recurse into the children
+    /// attach a document-less FoliaElement (-tree) to a Document \doc
+    /*!
+     * \param the_doc The Document to attach to
+     *
+     * if the node already has a Document assigned , nothing is done.
+     *
+     * Otherwise: The annotation type is checked. If not set yet and
+     * \doc has autodeclare mode set, it is attempted to do so.
+     *
+     * Also the ID is registered in \the_doc.
+     *
+     * Finaly, all children are also assigned to \the_doc
+     */
     if ( !_mydoc ) {
       _mydoc = the_doc;
       if ( annotation_type() != AnnotationType::NO_ANN
@@ -2331,6 +2418,10 @@ namespace folia {
   }
 
   bool AbstractElement::checkAtts() {
+    /// check if all the REQUIRED attributes of the node are set
+    /*!
+     * \return true, or throws
+     */
     if ( _id.empty()
 	 && (ID & required_attributes() ) ) {
       throw ValueError( "attribute 'ID' is required for " + classname() );
@@ -2387,9 +2478,13 @@ namespace folia {
   }
 
   FoliaElement *AbstractElement::append( FoliaElement *child ){
-    // cerr << "AbstractElement::append()" << endl;
-    // cerr << "AbstractElement is" << this << endl;
-    // cerr << "child = " << child << endl;
+    /// append \child to this node
+    /*!
+     * \param child the node to add
+     * \param the appended child
+     *
+     * will throw on error
+     */
     if ( !child ){
       throw XmlError( "attempt to append an empty node to a " + classname() );
     }
@@ -2424,6 +2519,7 @@ namespace folia {
   }
 
   FoliaElement *AbstractElement::postappend( ) {
+    /// perform some post correction after appending
     if ( id().empty() && (ID & required_attributes()) && auto_generate_id() ){
       _id = generateId( xmltag() );
     }
@@ -2431,6 +2527,7 @@ namespace folia {
   }
 
   FoliaElement *TextContent::postappend( ) {
+    /// perform some extra checks after appending a TextContent
     if ( doc() ){
       if ( doc()->checktext()
 	   && _offset != -1
@@ -2445,6 +2542,7 @@ namespace folia {
   }
 
   FoliaElement *PhonContent::postappend( ) {
+    /// perform some extra checks after appending a PhonContent
     if ( doc() ){
       if ( doc()->checktext() && _offset != -1 ){
 	doc()->cache_phoncontent(this);
@@ -2457,6 +2555,11 @@ namespace folia {
   }
 
   void AbstractElement::remove( FoliaElement *child, bool del ) {
+    /// remove a child from a node
+    /*!
+     * \param child the element to remove
+     * \param del If true, really delete the child
+     */
     auto it = std::remove( _data.begin(), _data.end(), child );
     _data.erase( it, _data.end() );
     if ( del ) {
@@ -2474,6 +2577,11 @@ namespace folia {
   }
 
   void AbstractElement::remove( size_t pos, bool del ) {
+    /// remove a child from a node
+    /*!
+     * \param pos the index of the element to remove
+     * \param del If true, really delete the child
+     */
     if ( pos < _data.size() ) {
       auto it = _data.begin();
       while ( pos > 0 ) {
@@ -2497,15 +2605,29 @@ namespace folia {
   }
 
   FoliaElement* AbstractElement::index( size_t i ) const {
+    /// return the child at index \i
+    /*!
+     * \param i the index
+     * \return the child at index \i
+     *
+     * Will throw when the index is out of range
+     */
     if ( i < _data.size() ) {
       return _data[i];
     }
     throw range_error( "[] index out of range" );
   }
 
-  FoliaElement* AbstractElement::rindex( size_t i ) const {
-    if ( i < _data.size() ) {
-      return _data[_data.size()-1-i];
+  FoliaElement* AbstractElement::rindex( size_t ri ) const {
+    /// return the child at reversed index \ri
+    /*!
+     * \param ri the index
+     * \return the child at index \ri
+     *
+     * Will throw when the index is out of range
+     */
+    if ( ri < _data.size() ) {
+      return _data[_data.size()-1-ri];
     }
     throw range_error( "[] rindex out of range" );
   }
@@ -2516,18 +2638,19 @@ namespace folia {
 						 SELECT_FLAGS flag ) const {
     /// The generic 'select()' function on which all other variants are based
     ///   it searches a FoLiA node for matchins sibblings.
-    /// criteria:
-    /// @param et which type of element we are lookinf for
-    /// @param st when not empty ("") we also must match on the 'sett' of the nodes
-    /// @param exclude a set of ElementTypes to exclude from searching.
-    ///                 These are skipped, and NOT recursed into.
-    /// @param flag determines special search stategies:
-    ///             RECURSE : recurse the whole FoLia from the given node downwards
-    ///                       returning all matching nodes, even within matches
-    ///                       This is the default.
-    ///             LOCAL   : just look at the direct sibblings of the node
-    ///             TOP_HIT : like recurse, but do NOT recurse into sibblings
-    ///                       of matching node
+    /*!
+     * \param et which type of element we are looking for
+     * \param st when not empty ("") we also must match on the 'sett' of the nodes
+     * \param exclude a set of ElementType to exclude from searching.
+     * These are skipped, and NOT recursed into.
+     * \param flag determines special search stategies:
+     *     - RECURSE : recurse the whole FoLia from the given node downwards
+     *                 returning all matching nodes, even within matches
+     *                 This is the default.
+     *     - LOCAL   : just look at the direct sibblings of the node
+     *     - TOP_HIT : like recurse, but do NOT recurse into sibblings
+     *               of matching node
+     */
     vector<FoliaElement*> res;
     for ( const auto& el : _data ) {
       if ( el->element_id() == et &&
@@ -2551,21 +2674,43 @@ namespace folia {
   vector<FoliaElement*> AbstractElement::select( ElementType et,
 						 const string& st,
 						 SELECT_FLAGS flag ) const {
+    /// wrapper around the the generic select()
+    /*!
+     * calls select() with a default ignore set.
+     */
     return select( et, st, default_ignore, flag );
   }
 
   vector<FoliaElement*> AbstractElement::select( ElementType et,
 						 const set<ElementType>& exclude,
 						 SELECT_FLAGS flag ) const {
+    /// wrapper around the the generic select()
+    /*!
+     * calls select() with a default setname.
+     */
     return select( et, "", exclude, flag );
   }
 
   vector<FoliaElement*> AbstractElement::select( ElementType et,
 						 SELECT_FLAGS flag ) const {
+    /// wrapper around the the generic select()
+    /*!
+     * calls select() with a default setname and the default ignore set
+     */
     return select( et, "", default_ignore, flag );
   }
 
   void AbstractElement::unravel( set<FoliaElement*>& store ){
+    /// split the node and all siblings into a set of nodes
+    /*!
+     * \param store
+     * recursively go throuhg this node and its children an collect all
+     * node pointers in \store.
+     * Erase the _data array of every node
+     *
+     * This function is used when erasing a document. Creating a set avoids
+     * deleting nodes twice
+     */
     resetrefcount();
     store.insert( this );
     auto dit = _data.begin();
@@ -2576,6 +2721,11 @@ namespace folia {
   }
 
   FoliaElement* AbstractElement::parseXml( const xmlNode *node ) {
+    /// recursively parse a FoLiA tree starting at \node
+    /*!
+     * \param node an xmlNode representing a FoLiA subtree
+     * \return the parsed tree. Throws on error.
+     */
     KWargs att = getAttributes( node );
     setAttributes( att );
     xmlNode *p = node->children;
@@ -2729,6 +2879,10 @@ namespace folia {
   }
 
   void AbstractElement::setDateTime( const string& s ) {
+    /// set the DATETIME value of a node
+    /*!
+     * \param s a date/time in ISO.... format. (YYYY-MM-DDThh:mm:ss)
+     */
     Attrib supported = required_attributes() | optional_attributes();
     if ( !(DATETIME & supported) ) {
       throw ValueError("datetime is not supported for " + classname() );
@@ -2743,18 +2897,39 @@ namespace folia {
   }
 
   const string AbstractElement::getDateTime() const {
+    /// return the _datetime value
     return _datetime;
   }
 
   const string AbstractWord::pos( const string& st ) const {
+    /// return the POS tag value of the node
+    /*!
+     * \param st the annotation setname to search
+     * \return the POS tag as a string
+     *  will throw if the PosAnnotation doesn't exist
+     */
     return annotation<PosAnnotation>( st )->cls();
   }
 
   const string AbstractWord::lemma( const string& st ) const {
+    /// return the LEMMA value of the node
+    /*!
+     * \param st the annotation setname to search
+     * \return the lemma as a string
+     *  will throw if the LemmaAnnotation doesn't exist
+     */
     return annotation<LemmaAnnotation>( st )->cls();
   }
 
   PosAnnotation *AllowInlineAnnotation::addPosAnnotation( const KWargs& inargs ) {
+    /// add a PosAnnotation node given the parameters
+    /*!
+     * \param inargs A list of Attribute-Value pairs
+     * \return the created PosAnnotation node
+     *
+     * when the *this node already has a PosAnnotation in the specified set,
+     * an ALTERNATIVE node is added
+     */
     KWargs args = inargs;
     string st;
     auto it = args.find("set" );
@@ -2783,6 +2958,14 @@ namespace folia {
 
   PosAnnotation* AllowInlineAnnotation::getPosAnnotations( const string& st,
 							   vector<PosAnnotation*>& alts ) const {
+    /// return the PosAnnotation AND all alternatives
+    /*!
+     * \param st the annotation set
+     * \param alt all the alternatives in set \st
+     * \return the PosAnnotation in set \st
+     *
+     * \note The return value may be 0, even when there ARE alternatives!
+     */
     PosAnnotation *res = annotation<PosAnnotation>( st ); // may be 0
     alts.clear();
     // now search for alternatives
@@ -2801,6 +2984,14 @@ namespace folia {
   }
 
   LemmaAnnotation *AllowInlineAnnotation::addLemmaAnnotation( const KWargs& inargs ) {
+    /// add a LemmaAnnotation node given the parameters
+    /*!
+     * \param inargs A list of Attribute-Value pairs
+     * \return the created LemmaAnnotation node
+     *
+     * when the *this node already has a LemmaAnnotation in the specified set,
+     * an ALTERNATIVE node is added
+     */
     KWargs args = inargs;
     string st;
     auto it = args.find("set" );
@@ -2829,6 +3020,14 @@ namespace folia {
 
   LemmaAnnotation* AllowInlineAnnotation::getLemmaAnnotations( const string& st,
 							       vector<LemmaAnnotation*>& alts ) const {
+    /// return the LemmaAnnotation AND all alternatives
+    /*!
+     * \param st the annotation set
+     * \param alt all the alternatives in set \st
+     * \return the LemmaAnnotation in set \st
+     *
+     * \note The return value may be 0, even when there ARE alternatives!
+     */
     alts.clear();
     LemmaAnnotation *res = annotation<LemmaAnnotation>( st ); // may be 0 !
     // also search alternatives
@@ -2847,6 +3046,14 @@ namespace folia {
   }
 
   MorphologyLayer *Word::addMorphologyLayer( const KWargs& inargs ) {
+    /// add a MorphologyLayer node given the parameters
+    /*!
+     * \param inargs A list of Attribute-Value pairs
+     * \return the created Morphologylayer
+     *
+     * when the *this node already has a MorphologyLayer in the specified set,
+     * an ALTERNATIVE node is added
+     */
     KWargs args = inargs;
     string st;
     auto it = args.find("set" );
@@ -2875,6 +3082,14 @@ namespace folia {
 
   MorphologyLayer *Word::getMorphologyLayers( const string& st,
 					      vector<MorphologyLayer*>& alts ) const {
+    /// return the MorhologyLayer AND all alternatives
+    /*!
+     * \param st the annotation set
+     * \param alt all the alternatives in set \st
+     * \return the MorphologyLayer in set \st
+     *
+     * \note The return value may be 0, even when there ARE alternatives!
+     */
     alts.clear();
     MorphologyLayer *res = annotation<MorphologyLayer>( st ); // may be 0
     // now search for alternatives
@@ -2893,6 +3108,12 @@ namespace folia {
   }
 
   Sentence *AbstractElement::addSentence( const KWargs& args ) {
+    /// add a Sentence node given the parameters
+    /*!
+     * \param inargs A list of Attribute-Value pairs
+     * \return the created Sentence
+     * may throw when the 'xml:id' is nor unique
+     */
     Sentence *res = 0;
     KWargs kw = args;
     if ( !kw.is_present("xml:id") ){
@@ -2911,6 +3132,12 @@ namespace folia {
   }
 
   Word *AbstractElement::addWord( const KWargs& args ) {
+    /// add a Word node given the parameters
+    /*!
+     * \param inargs A list of Attribute-Value pairs
+     * \return the created Word
+     * may throw when the 'xml:id' is nor unique
+     */
     Word *res = new Word( doc() );
     KWargs kw = args;
     if ( !kw.is_present("xml:id") ){
@@ -2929,6 +3156,13 @@ namespace folia {
   }
 
   const string& Quote::get_delimiter( bool retaintok ) const {
+    /// get the default delimiter of a Quote object.
+    /*!
+     * \param retaintok retain the tokenization assigned to this element
+     * \return a string representing the delimiter
+     * When the last data item in the Quote is a sentence, we don't
+     * want a delimiter and return ""
+     */
 #ifdef DEBUG_TEXT_DEL
     cerr << "IN " << xmltag() << "::get_delimiter (" << retaintok << ")" << endl;
 #endif
@@ -3001,7 +3235,18 @@ namespace folia {
     return result;
   }
 
-  Correction *Sentence::splitWord( FoliaElement *orig, FoliaElement *p1, FoliaElement *p2, const KWargs& args ) {
+  Correction *Sentence::splitWord( FoliaElement *orig,
+				   FoliaElement *p1,
+				   FoliaElement *p2,
+				   const KWargs& args ) {
+    /// create a split Correction of an Element in a Sentence given 2
+    /// FoliaElement nodes
+    /*!
+     * \param orig the node to correct
+     * \param p1 the first part of the split
+     * \param p2 the second part of the split
+     * \return the created Correction
+     */
     vector<FoliaElement*> ov;
     ov.push_back( orig );
     vector<FoliaElement*> nv;
@@ -3013,6 +3258,14 @@ namespace folia {
   Correction *Sentence::mergewords( FoliaElement *nw,
 				    const vector<FoliaElement *>& orig,
 				    const string& args ) {
+    /// create a merge Correction of list of Element in a Sentence
+    /// into one new FoliaElement node
+    /*!
+     * \param nw the new (corrected) node
+     * \param orig the list of nodes to merge
+     * \param args additional arguments in Attribute-value pairs
+     * \return the created Correction
+     */
     vector<FoliaElement*> nv;
     nv.push_back( nw );
     return correctWords( orig, nv, getArgs(args) );
@@ -3020,6 +3273,12 @@ namespace folia {
 
   Correction *Sentence::deleteword( FoliaElement *w,
 				    const string& args ) {
+    /// create a Correction where a word is deleted
+    /*!
+     * \param w the node to delete
+     * \param args additional arguments in Attribute-value pairs
+     * \return the created Correction
+     */
     vector<FoliaElement*> ov;
     ov.push_back( w );
     vector<FoliaElement*> nil1;
@@ -3029,6 +3288,13 @@ namespace folia {
   Correction *Sentence::insertword( FoliaElement *w,
 				    FoliaElement *p,
 				    const string& args ) {
+    /// create a Correction where a extra word is inserted
+    /*!
+     * \param w the Word to insert
+     * \param p the Word after which to insert
+     * \param args additional arguments in Attribute-value pairs
+     * \return the created Correction
+     */
     if ( !p || !p->isinstance( Word_t ) ) {
       throw runtime_error( "insertword(): previous is not a Word " );
     }
@@ -3054,9 +3320,16 @@ namespace folia {
   Correction *Sentence::correctWords( const vector<FoliaElement *>& orig,
 				      const vector<FoliaElement *>& _new,
 				      const KWargs& argsin ) {
-    // Generic correction method for words. You most likely want to use the helper functions
-    //      splitword() , mergewords(), deleteword(), insertword() instead
-
+    /// Generic correction method for words.
+    /*!
+     * \param orig a list of original elements
+     * \param _new a list of new elements to replace \orig
+     * \param args additional arguments in Attribute-value pairs
+     * \return the created Correction
+     *
+     * You most likely want to use the helper functions
+     *   splitword() , mergewords(), deleteword(), insertword() instead
+     */
     // sanity check:
     for ( const auto& org : orig ) {
       if ( !org || !org->isinstance( Word_t) ) {
@@ -3096,6 +3369,13 @@ namespace folia {
   }
 
   void TextContent::setAttributes( const KWargs& args ) {
+    /// set the TextContent attributes given a set of Key-Value pairs.
+    /*!
+     * \param args_in a KWargs set of Key-Value pairs
+     *
+     * checks and sets the special attributes for TextContent:
+     * value, offset, ref, class
+     */
     KWargs kwargs = args; // need to copy
     auto it = kwargs.find( "value" );
     if ( it != kwargs.end() ) {
@@ -3129,6 +3409,13 @@ namespace folia {
   }
 
   void PhonContent::setAttributes( const KWargs& args ) {
+    /// set the PhonContent attributes given a set of Key-Value pairs.
+    /*!
+     * \param args_in a KWargs set of Key-Value pairs
+     *
+     * checks and sets the special attributes for PhonContent:
+     * offset, ref, class
+     */
     KWargs kwargs = args; // need to copy
     auto it = kwargs.find( "offset" );
     if ( it != kwargs.end() ) {
@@ -3147,6 +3434,11 @@ namespace folia {
   }
 
   FoliaElement *TextContent::find_default_reference() const {
+    /// find the 'true' parent of a TextContent
+    /*!
+     * recurse the parent() nodes upward. halt at the second parent
+     * that is a Structure, String or Subtoken
+     */
     int depth = 0;
     FoliaElement *p = parent();
     while ( p ){
@@ -3163,6 +3455,10 @@ namespace folia {
   }
 
   FoliaElement *TextContent::get_reference() const {
+    /// get the FoliaElement _ref is refering to
+    /*!
+     * \return the refered element OR the default parent when _ref is 0
+     */
     FoliaElement *ref = 0;
     if ( _offset == -1 ){
       return 0;
@@ -3215,6 +3511,11 @@ namespace folia {
   }
 
   KWargs TextContent::collectAttributes() const {
+    /// extract all Attribute-Value pairs for TextContent
+    /*!
+     * \return a KWargs set of Attribute-value pairs
+     * inclusive: offset and ref
+     */
     KWargs attribs = AbstractElement::collectAttributes();
     if ( cls() == "current" ) {
       attribs.erase( "class" );
@@ -3296,6 +3597,11 @@ namespace folia {
   }
 
   KWargs PhonContent::collectAttributes() const {
+    /// extract all Attribute-Value pairs for PhonContent
+    /*!
+     * \return a KWargs set of Attribute-value pairs
+     * inclusive: offset
+     */
     KWargs attribs = AbstractElement::collectAttributes();
     if ( cls() == "current" ) {
       attribs.erase( "class" );
@@ -3307,6 +3613,13 @@ namespace folia {
   }
 
   void Linebreak::setAttributes( const KWargs& args_in ){
+    /// set the Linebreak attributes given a set of Key-Value pairs.
+    /*!
+     * \param args_in a KWargs set of Key-Value pairs
+     *
+     * checks and sets the special attributes for Linebreak:
+     * pagenr, linenr, newpage
+     */
     KWargs args = args_in;
     auto it = args.find( "pagenr" );
     if ( it != args.end() ) {
@@ -3327,6 +3640,11 @@ namespace folia {
   }
 
   KWargs Linebreak::collectAttributes() const {
+    /// extract all Attribute-Value pairs for LineBreak
+    /*!
+     * \return a KWargs set of Attribute-value pairs
+     * inclusive: linenr, pagenr and newpage
+     */
     KWargs atts = AbstractElement::collectAttributes();
     if ( ! _linenr.empty() ){
       atts["linenr"] = _linenr;
@@ -3909,6 +4227,11 @@ namespace folia {
   }
 
   KWargs LinkReference::collectAttributes() const {
+    /// extract all Attribute-Value pairs for LinkReference
+    /*!
+     * \return a KWargs set of Attribute-value pairs
+     * inclusive: refId and type
+     */
     KWargs atts;
     atts["id"] = refId;
     atts["type"] = ref_type;
@@ -3919,7 +4242,14 @@ namespace folia {
   }
 
   void LinkReference::setAttributes( const KWargs& argsin ) {
-    KWargs args = argsin;
+    /// set the LinkReference attributes given a set of Key-Value pairs.
+    /*!
+     * \param args_in a KWargs set of Key-Value pairs
+     *
+     * checks and sets the special attributes for LinkReference:
+     * id, type, t
+     */
+   KWargs args = argsin;
     auto it = args.find( "id" );
     if ( it != args.end() ) {
       refId = it->second;
@@ -3939,6 +4269,12 @@ namespace folia {
   }
 
   void Word::setAttributes( const KWargs& args_in ) {
+    /// set the Word attributes given a set of Key-Value pairs.
+    /*!
+     * \param args_in a KWargs set of Key-Value pairs
+     *
+     * checks and sets the special attributes for Word: text
+     */
     KWargs args = args_in;
     auto const& it = args.find( "text" );
     if ( it != args.end() ) {
@@ -3954,6 +4290,11 @@ namespace folia {
   }
 
   const string& Word::get_delimiter( bool retaintok ) const {
+    /// get the default delimiter of a Word
+    /*!
+     * \param retaintok retain the tokenization assigned to this element
+     * \return a string representing the delimiter
+     */
     if ( space() || retaintok ) {
       return PROPS.TEXTDELIMITER;
     }
@@ -4280,6 +4621,11 @@ namespace folia {
   }
 
   FoliaElement* WordReference::parseXml( const xmlNode *node ) {
+    /// parse a WordReference node at \node
+    /*!
+     * \param node a WordReference
+     * \return the parsed tree. Throws on error.
+     */
     KWargs atts = getAttributes( node );
     string id = atts["id"];
     if ( id.empty() ) {
@@ -4319,6 +4665,11 @@ namespace folia {
   }
 
   FoliaElement* LinkReference::parseXml( const xmlNode *node ) {
+    /// parse a LinkReference node at \node
+    /*!
+     * \param node a LinkReference
+     * \return the parsed tree. Throws on error.
+     */
     KWargs att = getAttributes( node );
     string val = att["id"];
     if ( val.empty() ) {
@@ -4344,6 +4695,12 @@ namespace folia {
   }
 
   void Relation::setAttributes( const KWargs& kwargsin ) {
+    /// set the Relation attributes given a set of Key-Value pairs.
+    /*!
+     * \param args_in a KWargs set of Key-Value pairs
+     *
+     * checks and sets the special attributes for Relation: format
+     */
     KWargs kwargs = kwargsin;
     auto it = kwargs.find( "format" );
     if ( it != kwargs.end() ) {
@@ -4354,6 +4711,11 @@ namespace folia {
   }
 
   KWargs Relation::collectAttributes() const {
+    /// extract all Attribute-Value pairs for Relation
+    /*!
+     * \return a KWargs set of Attribute-value pairs
+     * inclusive: format
+     */
     KWargs atts = AbstractElement::collectAttributes();
     if ( !_format.empty() && _format != "text/folia+xml" ) {
       atts["format"] = _format;
@@ -4374,6 +4736,12 @@ namespace folia {
   }
 
   void PlaceHolder::setAttributes( const KWargs& args ) {
+    /// set the PlaceHolder attributes given a set of Key-Value pairs.
+    /*!
+     * \param args_in a KWargs set of Key-Value pairs
+     *
+     * checks and sets the special attributes for PlaceHolder: text
+     */
     if ( !args.is_present("text") ) {
       throw ValueError("text attribute is required for " + classname() );
     }
@@ -4394,6 +4762,12 @@ namespace folia {
   }
 
   void Description::setAttributes( const KWargs& kwargsin ) {
+    /// set the Descriptions attributes given a set of Key-Value pairs.
+    /*!
+     * \param args_in a KWargs set of Key-Value pairs
+     *
+     * checks and sets the special attributes for Description: value
+     */
     KWargs kwargs = kwargsin;
     string val = kwargs.extract( "value" );
     if ( !val.empty() ) {
@@ -4411,6 +4785,11 @@ namespace folia {
   }
 
   FoliaElement* Description::parseXml( const xmlNode *node ) {
+    /// parse a Description node at \node
+    /*!
+     * \param node a Description
+     * \return the parsed tree. Throws on error.
+     */
     KWargs att = getAttributes( node );
     if ( !att.is_present("value") ) {
       att["value"] = XmlContent( node );
@@ -4420,6 +4799,12 @@ namespace folia {
   }
 
   void Comment::setAttributes( const KWargs& kwargsin ) {
+    /// set the Comments attributes given a set of Key-Value pairs.
+    /*!
+     * \param args_in a KWargs set of Key-Value pairs
+     *
+     * checks and sets the special attributes for Comment: value
+     */
     KWargs kwargs = kwargsin;
     string val = kwargs.extract( "value" );
     if ( !val.empty() ) {
@@ -4437,6 +4822,11 @@ namespace folia {
   }
 
   FoliaElement* Comment::parseXml( const xmlNode *node ) {
+    /// parse a Comment node at \node
+    /*!
+     * \param node a Comment
+     * \return the parsed tree. Throws on error.
+     */
     KWargs att = getAttributes( node );
     if ( !att.is_present("value") ) {
       att["value"] = XmlContent( node );
@@ -4541,6 +4931,11 @@ namespace folia {
   }
 
   KWargs AbstractAnnotationLayer::collectAttributes() const {
+    /// extract all Attribute-Value pairs for AbstractAnnotationLayer
+    /*!
+     * \return a KWargs set of Attribute-value pairs
+     * inclusive: set
+     */
     KWargs attribs = AbstractElement::collectAttributes();
     auto it = attribs.find("set");
     if ( it != attribs.end() ) {
@@ -4594,6 +4989,12 @@ namespace folia {
   }
 
   void Content::setAttributes( const KWargs& args ){
+    /// set the Contents attributes given a set of Key-Value pairs.
+    /*!
+     * \param args_in a KWargs set of Key-Value pairs
+     *
+     * checks and sets the special attributes for Content: value
+     */
     KWargs atts = args;
     auto it = atts.find( "value" );
     if ( it != atts.end() ) {
@@ -4604,6 +5005,12 @@ namespace folia {
   }
 
   FoliaElement* Content::parseXml( const xmlNode *node ) {
+    /// parse a Content node at \node
+    /*!
+     * \param node a Content
+     * \return the parsed tree. Throws on error.
+     * A content can also be a CDATA section
+     */
     KWargs att = getAttributes( node );
     setAttributes( att );
     xmlNode *p = node->children;
@@ -4725,6 +5132,11 @@ namespace folia {
   //#undef DEBUG_TEXT
 
   const string& Correction::get_delimiter( bool retaintok ) const {
+    /// get the default delimiter of a Correction
+    /*!
+     * \param retaintok retain the tokenization assigned to this element
+     * \return a string representing the delimiter
+     */
     for ( const auto& el : data() ) {
       //      if ( el->isinstance( New_t ) || el->isinstance( Current_t ) ) {
       return el->get_delimiter( retaintok );
@@ -4993,6 +5405,11 @@ namespace folia {
   }
 
   FoliaElement* XmlText::parseXml( const xmlNode *node ) {
+    /// parse a Xmltext node at \node
+    /*!
+     * \param node an XmlText
+     * \return the parsed tree. Throws on error.
+     */
     if ( node->content ) {
       setvalue( (const char*)node->content );
       _value = trim( _value );
@@ -5054,7 +5471,14 @@ namespace folia {
   }
 
   FoliaElement* External::parseXml( const xmlNode *node ) {
-    KWargs att = getAttributes( node );
+    /// parse an External node at \node
+    /*!
+     * \param node an External
+     * \return the parsed tree. Throws on error.
+     * if succesful, the external is added to the external documents list of
+     * the associated Document
+     */
+   KWargs att = getAttributes( node );
     setAttributes( att );
     if ( _include ) {
       doc()->addExternal( this );
@@ -5063,6 +5487,11 @@ namespace folia {
   }
 
   KWargs External::collectAttributes() const {
+    /// extract all Attribute-Value pairs for External
+    /*!
+     * \return a KWargs set of Attribute-value pairs
+     * inclusive: include
+     */
     KWargs atts = AbstractElement::collectAttributes();
     if ( _include ) {
       atts["include"] = "yes";
@@ -5071,6 +5500,12 @@ namespace folia {
   }
 
   void External::setAttributes( const KWargs& kwargsin ) {
+    /// set the External attributes given a set of Key-Value pairs.
+    /*!
+     * \param args_in a KWargs set of Key-Value pairs
+     *
+     * checks and sets the special attributes for External: include
+     */
     KWargs kwargs = kwargsin;
     auto it = kwargs.find( "include" );
     if ( it != kwargs.end() ) {
@@ -5081,6 +5516,12 @@ namespace folia {
   }
 
   void Note::setAttributes( const KWargs& args ) {
+    /// set the Node attributes given a set of Key-Value pairs.
+    /*!
+     * \param args_in a KWargs set of Key-Value pairs
+     *
+     * checks and sets the special attributes for Note: id
+     */
     KWargs a = args;
     auto it = a.find( "id" );
     if ( it != a.end() ) {
@@ -5091,6 +5532,11 @@ namespace folia {
   }
 
   KWargs Reference::collectAttributes() const {
+    /// extract all Attribute-Value pairs for Reference
+    /*!
+     * \return a KWargs set of Attribute-value pairs
+     * inclusive: id, type, format
+     */
     KWargs atts = AbstractElement::collectAttributes();
     if ( !refId.empty() ){
       atts["id"] = refId;
@@ -5105,6 +5551,12 @@ namespace folia {
   }
 
   void Reference::setAttributes( const KWargs& argsin ) {
+    /// set the Reference attributes given a set of Key-Value pairs.
+    /*!
+     * \param args_in a KWargs set of Key-Value pairs
+     *
+     * checks and sets the special attributes for Reference: id, type, format
+     */
     KWargs args = argsin;
     auto it = args.find( "id" );
     if ( it != args.end() ) {
@@ -5127,6 +5579,11 @@ namespace folia {
   }
 
   KWargs TextMarkupReference::collectAttributes() const {
+    /// extract all Attribute-Value pairs for TextMarkupReference
+    /*!
+     * \return a KWargs set of Attribute-value pairs
+     * inclusive: id, type and format
+     */
     KWargs atts = AbstractElement::collectAttributes();
     if ( !refId.empty() ){
       atts["id"] = refId;
@@ -5141,6 +5598,13 @@ namespace folia {
   }
 
   void TextMarkupReference::setAttributes( const KWargs& argsin ) {
+    /// set the TextMarkupReference attributes given a set of Key-Value pairs.
+    /*!
+     * \param args_in a KWargs set of Key-Value pairs
+     *
+     * checks and sets the special attributes for TextMarkupReference:
+     * id, type, format
+     */
     KWargs args = argsin;
     auto it = args.find( "id" );
     if ( it != args.end() ) {
@@ -5165,6 +5629,11 @@ namespace folia {
   }
 
   FoliaElement* XmlComment::parseXml( const xmlNode *node ) {
+    /// parse a XmlComment node
+    /*!
+     * \param node an XmlComment
+     * \return the parsed tree. Throws on error.
+     */
     if ( node->content ) {
       _value = (const char*)node->content;
     }
@@ -5172,6 +5641,11 @@ namespace folia {
   }
 
   KWargs Suggestion::collectAttributes() const {
+    /// extract all Attribute-Value pairs for Suggestion
+    /*!
+     * \return a KWargs set of Attribute-value pairs
+     * inclusive: split and merge
+     */
     KWargs atts = AbstractElement::collectAttributes();
     if ( !_split.empty() ) {
       atts["split"] = _split;
@@ -5183,6 +5657,13 @@ namespace folia {
   }
 
   void Suggestion::setAttributes( const KWargs& kwargsin ) {
+    /// set the Suggestion attributes given a set of Key-Value pairs.
+    /*!
+     * \param args_in a KWargs set of Key-Value pairs
+     *
+     * checks and sets the special attributes for Suggestion:
+     * split, merge
+     */
     KWargs kwargs = kwargsin;
     auto it = kwargs.find( "split" );
     if ( it != kwargs.end() ) {
@@ -5199,9 +5680,14 @@ namespace folia {
 
 
   void Feature::setAttributes( const KWargs& kwargs ) {
-    //
-    // Feature is special. So DON'T call ::setAttributes
-    //
+    /// set the Feature attributes given a set of Key-Value pairs.
+    /*!
+     * \param kwargs a KWargs set of Key-Value pairs
+     *
+     * checks and sets the special attributes for Feature
+     * subset, class
+     * \note Feature is special. So DON'T call ::setAttributes
+     */
     auto it = kwargs.find( "subset" );
     if ( it == kwargs.end() ) {
       _subset = default_subset();
@@ -5226,6 +5712,11 @@ namespace folia {
   }
 
   KWargs Feature::collectAttributes() const {
+    /// extract all Attribute-Value pairs for Feature
+    /*!
+     * \return a KWargs set of Attribute-value pairs
+     * inclusive: subset
+     */
     KWargs attribs = AbstractElement::collectAttributes();
     attribs["subset"] = _subset;
     return attribs;
@@ -5271,6 +5762,11 @@ namespace folia {
   }
 
   FoliaElement* ForeignData::parseXml( const xmlNode *node ){
+    /// parse a ForeignData
+    /*!
+     * \param node an ForeignData node
+     * \return the parsed tree. Throws on error.
+     */
     set_data( node );
     return this;
   }
@@ -5350,6 +5846,11 @@ namespace folia {
   }
 
   KWargs AbstractTextMarkup::collectAttributes() const {
+    /// extract all Attribute-Value pairs for AbstractTextMarkup
+    /*!
+     * \return a KWargs set of Attribute-value pairs
+     * inclusive: id
+     */
     KWargs attribs = AbstractElement::collectAttributes();
     if ( !idref.empty() ) {
       attribs["id"] = idref;
@@ -5358,6 +5859,13 @@ namespace folia {
   }
 
   void AbstractTextMarkup::setAttributes( const KWargs& atts ) {
+    /// set the AbstractTextMarkup attributes given a set of Key-Value pairs.
+    /*!
+     * \param atts a KWargs set of Key-Value pairs
+     *
+     * checks and sets the special attributes for AbstractTextMarkup:
+     * id, text
+     */
     KWargs args = atts;
     auto it = args.find( "id" );
     if ( it != args.end() ) {
@@ -5379,6 +5887,11 @@ namespace folia {
   }
 
   KWargs TextMarkupCorrection::collectAttributes() const {
+    /// extract all Attribute-Value pairs for TextMarkupCorrection
+    /*!
+     * \return a KWargs set of Attribute-value pairs
+     * inclusive: original
+     */
     KWargs attribs = AbstractTextMarkup::collectAttributes();
     if ( !_original.empty() ) {
       attribs["original"] = _original;
@@ -5387,6 +5900,13 @@ namespace folia {
   }
 
   void TextMarkupCorrection::setAttributes( const KWargs& args ) {
+    /// set the TextMarkupCorrection attributes given a set of Key-Value pairs.
+    /*!
+     * \param atts a KWargs set of Key-Value pairs
+     *
+     * checks and sets the special attributes for TextMarkupCorrection:
+     * id, original
+     */
     KWargs argl = args;
     auto it = argl.find( "id" );
     if ( it != argl.end() ) {
