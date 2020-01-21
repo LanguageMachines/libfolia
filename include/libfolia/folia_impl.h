@@ -2423,7 +2423,7 @@ namespace folia {
     AbstractCorrectionChild( PROPS, d ) { classInit(); }
   Suggestion( const KWargs& a, Document *d = 0 ):
     AbstractCorrectionChild( PROPS, d ) { classInit( a ); }
-    void setAttributes( const KWargs& kwargs );
+    void setAttributes( const KWargs& );
     KWargs collectAttributes() const;
   private:
     static properties PROPS;
@@ -2440,7 +2440,7 @@ namespace folia {
     AbstractElement( PROPS, d ) { classInit( a ); }
 
     const std::string description() const { return _value; };
-    void setAttributes( const KWargs& kwargs );
+    void setAttributes( const KWargs& );
     FoliaElement* parseXml( const xmlNode * );
     xmlNode *xml( bool, bool=false ) const;
 
@@ -2458,7 +2458,7 @@ namespace folia {
     AbstractElement( PROPS, d ) { classInit( a ); }
 
     const std::string comment() const { return _value; };
-    void setAttributes( const KWargs& kwargs );
+    void setAttributes( const KWargs& );
     FoliaElement* parseXml( const xmlNode * );
     xmlNode *xml( bool, bool=false ) const;
 

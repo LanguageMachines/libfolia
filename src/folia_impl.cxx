@@ -1444,9 +1444,9 @@ namespace folia {
     /*!
      * \param cls The textclass we are looking for
      * \param retaintok retain the tokenisation information
-     * \param strict If true, return the text of this level onlu
+     * \param strict If true, return the text of this level only
      * when false, allow recursing into children
-     * \param show_hiden include text form 'hidden' nodes too.
+     * \param show_hidden include text form 'hidden' nodes too.
      * \return the Unicode String representation found. Throws when
      * no text can be found
      */
@@ -1704,7 +1704,7 @@ namespace folia {
     /// get the UnicodeString text value of underlying elements
     /*!
      * \param cls the textclass
-     * \flags the search parameters to use
+     * \param flags the search parameters to use
      * \return The Unicode Text found.
      * Will throw on error.
      */
@@ -1973,7 +1973,7 @@ namespace folia {
     /// get the UnicodeString phon value of underlying elements
     /*!
      * \param cls the textclass
-     * \flags the search parameters to use
+     * \param flags the search parameters to use
      * \return The Unicode Text found.
      * Will throw on error.
      */
@@ -2102,10 +2102,10 @@ namespace folia {
   void AbstractElement::insert_after( FoliaElement *pos, FoliaElement *add ){
     /// append a node after a certain element
     /*!
-     * \param pos The location after which to insert \add
+     * \param pos The location after which to insert add
      * \param add the element to add
      *
-     * throws when \pos is not found
+     * throws when pos is not found
      */
     auto it = _data.begin();
     while ( it != _data.end() ) {
@@ -2134,7 +2134,7 @@ namespace folia {
 
   TextContent *FoliaElement::settext( const string& txt,
 				      const string& cls ){
-    /// append a TextContent child of class \txt with value \txt
+    /// append a TextContent child of class txt with value txt
     /*!
      * \param txt the UTF8 text value
      * \param cls the textclass of the new TextContent
@@ -2177,7 +2177,7 @@ namespace folia {
 
   TextContent *FoliaElement::setutext( const UnicodeString& txt,
 				       const string& cls ){
-    /// append a TextContent child of class \txt with value \txt
+    /// append a TextContent child of class cls with value txt
     /*!
      * \param txt the Unicode text value
      * \param cls the textclass of the new TextContent
@@ -2194,7 +2194,7 @@ namespace folia {
   TextContent *FoliaElement::settext( const string& txt,
 				      int offset,
 				      const string& cls ){
-    /// append a TextContent child of class \txt with value \txt
+    /// append a TextContent child of class cls with value txt
     /*!
      * \param txt the UTF8 text value
      * \param offset offset of the text in the text of the parent
@@ -2233,7 +2233,7 @@ namespace folia {
   TextContent *FoliaElement::setutext( const UnicodeString& txt,
 				       int offset,
 				       const string& cls ){
-    /// append a TextContent child of class \txt with value \txt
+    /// append a TextContent child of class cls with value txt
     /*!
      * \param txt the Unicode text value
      * \param offset offset of the text in the text of the parent
@@ -2267,7 +2267,7 @@ namespace folia {
     /*!
      * \param t the ElementType to test
      *
-     * This function tests if \t is in the accepted_data list of the node
+     * This function tests if t is in the accepted_data list of the node
      * OR if it is a SubClass of one of the accepted types
      */
 
@@ -2365,18 +2365,18 @@ namespace folia {
   }
 
   void AbstractElement::assignDoc( Document* the_doc ) {
-    /// attach a document-less FoliaElement (-tree) to a Document \doc
+    /// attach a document-less FoliaElement (-tree) to a Document the_doc
     /*!
      * \param the_doc The Document to attach to
      *
      * if the node already has a Document assigned , nothing is done.
      *
      * Otherwise: The annotation type is checked. If not set yet and
-     * \doc has autodeclare mode set, it is attempted to do so.
+     * the doc has autodeclare mode set, it is attempted to do so.
      *
-     * Also the ID is registered in \the_doc.
+     * Also the ID is registered in the_doc.
      *
-     * Finaly, all children are also assigned to \the_doc
+     * Finaly, all children are also assigned to the_doc
      */
     if ( !_mydoc ) {
       _mydoc = the_doc;
@@ -2478,10 +2478,10 @@ namespace folia {
   }
 
   FoliaElement *AbstractElement::append( FoliaElement *child ){
-    /// append \child to this node
+    /// append child to this node
     /*!
      * \param child the node to add
-     * \param the appended child
+     * \return the appended child
      *
      * will throw on error
      */
@@ -2605,10 +2605,10 @@ namespace folia {
   }
 
   FoliaElement* AbstractElement::index( size_t i ) const {
-    /// return the child at index \i
+    /// return the child at index i
     /*!
      * \param i the index
-     * \return the child at index \i
+     * \return the child at index i
      *
      * Will throw when the index is out of range
      */
@@ -2619,10 +2619,10 @@ namespace folia {
   }
 
   FoliaElement* AbstractElement::rindex( size_t ri ) const {
-    /// return the child at reversed index \ri
+    /// return the child at reversed index ri
     /*!
      * \param ri the index
-     * \return the child at index \ri
+     * \return the child at index ri
      *
      * Will throw when the index is out of range
      */
@@ -2705,7 +2705,7 @@ namespace folia {
     /*!
      * \param store
      * recursively go throuhg this node and its children an collect all
-     * node pointers in \store.
+     * node pointers in store.
      * Erase the _data array of every node
      *
      * This function is used when erasing a document. Creating a set avoids
@@ -2961,8 +2961,8 @@ namespace folia {
     /// return the PosAnnotation AND all alternatives
     /*!
      * \param st the annotation set
-     * \param alt all the alternatives in set \st
-     * \return the PosAnnotation in set \st
+     * \param alts all the alternatives in set st
+     * \return the PosAnnotation in set st
      *
      * \note The return value may be 0, even when there ARE alternatives!
      */
@@ -3023,8 +3023,8 @@ namespace folia {
     /// return the LemmaAnnotation AND all alternatives
     /*!
      * \param st the annotation set
-     * \param alt all the alternatives in set \st
-     * \return the LemmaAnnotation in set \st
+     * \param alts all the alternatives in set st
+     * \return the LemmaAnnotation in set st
      *
      * \note The return value may be 0, even when there ARE alternatives!
      */
@@ -3107,15 +3107,15 @@ namespace folia {
     return res;
   }
 
-  Sentence *AbstractElement::addSentence( const KWargs& args ) {
+  Sentence *AbstractElement::addSentence( const KWargs& in_args ) {
     /// add a Sentence node given the parameters
     /*!
-     * \param inargs A list of Attribute-Value pairs
+     * \param in_args A list of Attribute-Value pairs
      * \return the created Sentence
      * may throw when the 'xml:id' is nor unique
      */
     Sentence *res = 0;
-    KWargs kw = args;
+    KWargs kw = in_args;
     if ( !kw.is_present("xml:id") ){
       string id = generateId( "s" );
       kw["xml:id"] = id;
@@ -3131,15 +3131,15 @@ namespace folia {
     return res;
   }
 
-  Word *AbstractElement::addWord( const KWargs& args ) {
+  Word *AbstractElement::addWord( const KWargs& in_args ) {
     /// add a Word node given the parameters
     /*!
-     * \param inargs A list of Attribute-Value pairs
+     * \param in_args A list of Attribute-Value pairs
      * \return the created Word
      * may throw when the 'xml:id' is nor unique
      */
     Word *res = new Word( doc() );
-    KWargs kw = args;
+    KWargs kw = in_args;
     if ( !kw.is_present("xml:id") ){
       string id = generateId( "w" );
       kw["xml:id"] = id;
@@ -3409,7 +3409,7 @@ namespace folia {
     AbstractElement::setAttributes(kwargs);
   }
 
-  void PhonContent::setAttributes( const KWargs& args ) {
+  void PhonContent::setAttributes( const KWargs& args_in ) {
     /// set the PhonContent attributes given a set of Key-Value pairs.
     /*!
      * \param args_in a KWargs set of Key-Value pairs
@@ -3417,7 +3417,7 @@ namespace folia {
      * checks and sets the special attributes for PhonContent:
      * offset, ref, class
      */
-    KWargs kwargs = args; // need to copy
+    KWargs kwargs = args_in; // need to copy
     auto it = kwargs.find( "offset" );
     if ( it != kwargs.end() ) {
       _offset = stringTo<int>(it->second);
@@ -4242,7 +4242,7 @@ namespace folia {
     return atts;
   }
 
-  void LinkReference::setAttributes( const KWargs& argsin ) {
+  void LinkReference::setAttributes( const KWargs& args_in ) {
     /// set the LinkReference attributes given a set of Key-Value pairs.
     /*!
      * \param args_in a KWargs set of Key-Value pairs
@@ -4250,7 +4250,7 @@ namespace folia {
      * checks and sets the special attributes for LinkReference:
      * id, type, t
      */
-   KWargs args = argsin;
+   KWargs args = args_in;
     auto it = args.find( "id" );
     if ( it != args.end() ) {
       refId = it->second;
@@ -4695,14 +4695,14 @@ namespace folia {
     throw NotImplementedError( "LinkReference::resolve() for external doc" );
   }
 
-  void Relation::setAttributes( const KWargs& kwargsin ) {
+  void Relation::setAttributes( const KWargs& args_in ) {
     /// set the Relation attributes given a set of Key-Value pairs.
     /*!
      * \param args_in a KWargs set of Key-Value pairs
      *
      * checks and sets the special attributes for Relation: format
      */
-    KWargs kwargs = kwargsin;
+    KWargs kwargs = args_in;
     auto it = kwargs.find( "format" );
     if ( it != kwargs.end() ) {
       _format = it->second;
@@ -4736,20 +4736,20 @@ namespace folia {
     return result;
   }
 
-  void PlaceHolder::setAttributes( const KWargs& args ) {
+  void PlaceHolder::setAttributes( const KWargs& args_in ) {
     /// set the PlaceHolder attributes given a set of Key-Value pairs.
     /*!
      * \param args_in a KWargs set of Key-Value pairs
      *
      * checks and sets the special attributes for PlaceHolder: text
      */
-    if ( !args.is_present("text") ) {
+    if ( !args_in.is_present("text") ) {
       throw ValueError("text attribute is required for " + classname() );
     }
-    else if ( args.size() != 1 ) {
+    else if ( args_in.size() != 1 ) {
       throw ValueError("only the text attribute is supported for " + classname() );
     }
-    Word::setAttributes( args );
+    Word::setAttributes( args_in );
   }
 
   const UnicodeString Figure::caption() const {
@@ -4762,14 +4762,14 @@ namespace folia {
     }
   }
 
-  void Description::setAttributes( const KWargs& kwargsin ) {
+  void Description::setAttributes( const KWargs& args_in ) {
     /// set the Descriptions attributes given a set of Key-Value pairs.
     /*!
      * \param args_in a KWargs set of Key-Value pairs
      *
      * checks and sets the special attributes for Description: value
      */
-    KWargs kwargs = kwargsin;
+    KWargs kwargs = args_in;
     string val = kwargs.extract( "value" );
     if ( !val.empty() ) {
       _value = val;
@@ -4799,14 +4799,14 @@ namespace folia {
     return this;
   }
 
-  void Comment::setAttributes( const KWargs& kwargsin ) {
+  void Comment::setAttributes( const KWargs& args_in ) {
     /// set the Comments attributes given a set of Key-Value pairs.
     /*!
      * \param args_in a KWargs set of Key-Value pairs
      *
      * checks and sets the special attributes for Comment: value
      */
-    KWargs kwargs = kwargsin;
+    KWargs kwargs = args_in;
     string val = kwargs.extract( "value" );
     if ( !val.empty() ) {
       _value = val;
@@ -4989,14 +4989,14 @@ namespace folia {
     return e;
   }
 
-  void Content::setAttributes( const KWargs& args ){
+  void Content::setAttributes( const KWargs& args_in ){
     /// set the Contents attributes given a set of Key-Value pairs.
     /*!
      * \param args_in a KWargs set of Key-Value pairs
      *
      * checks and sets the special attributes for Content: value
      */
-    KWargs atts = args;
+    KWargs atts = args_in;
     auto it = atts.find( "value" );
     if ( it != atts.end() ) {
       value = it->second;
@@ -5500,14 +5500,14 @@ namespace folia {
     return atts;
   }
 
-  void External::setAttributes( const KWargs& kwargsin ) {
+  void External::setAttributes( const KWargs& args_in ) {
     /// set the External attributes given a set of Key-Value pairs.
     /*!
      * \param args_in a KWargs set of Key-Value pairs
      *
      * checks and sets the special attributes for External: include
      */
-    KWargs kwargs = kwargsin;
+    KWargs kwargs = args_in;
     auto it = kwargs.find( "include" );
     if ( it != kwargs.end() ) {
       _include = TiCC::stringTo<bool>( it->second );
@@ -5516,14 +5516,14 @@ namespace folia {
     AbstractElement::setAttributes(kwargs);
   }
 
-  void Note::setAttributes( const KWargs& args ) {
+  void Note::setAttributes( const KWargs& args_in ) {
     /// set the Node attributes given a set of Key-Value pairs.
     /*!
      * \param args_in a KWargs set of Key-Value pairs
      *
      * checks and sets the special attributes for Note: id
      */
-    KWargs a = args;
+    KWargs a = args_in;
     auto it = a.find( "id" );
     if ( it != a.end() ) {
       refId = it->second;
@@ -5551,14 +5551,14 @@ namespace folia {
     return atts;
   }
 
-  void Reference::setAttributes( const KWargs& argsin ) {
+  void Reference::setAttributes( const KWargs& args_in ) {
     /// set the Reference attributes given a set of Key-Value pairs.
     /*!
      * \param args_in a KWargs set of Key-Value pairs
      *
      * checks and sets the special attributes for Reference: id, type, format
      */
-    KWargs args = argsin;
+    KWargs args = args_in;
     auto it = args.find( "id" );
     if ( it != args.end() ) {
       refId = it->second;
@@ -5657,15 +5657,15 @@ namespace folia {
     return atts;
   }
 
-  void Suggestion::setAttributes( const KWargs& kwargsin ) {
+  void Suggestion::setAttributes( const KWargs& kwargs_in ) {
     /// set the Suggestion attributes given a set of Key-Value pairs.
     /*!
-     * \param kwargsin a KWargs set of Key-Value pairs
+     * \param kwargs_in a KWargs set of Key-Value pairs
      *
      * checks and sets the special attributes for Suggestion:
      * split, merge
      */
-    KWargs kwargs = kwargsin;
+    KWargs kwargs = kwargs_in;
     auto it = kwargs.find( "split" );
     if ( it != kwargs.end() ) {
       _split = it->second;
@@ -5680,17 +5680,17 @@ namespace folia {
   }
 
 
-  void Feature::setAttributes( const KWargs& kwargs ) {
+  void Feature::setAttributes( const KWargs& args_in ) {
     /// set the Feature attributes given a set of Key-Value pairs.
     /*!
-     * \param kwargs a KWargs set of Key-Value pairs
+     * \param args_in a KWargs set of Key-Value pairs
      *
      * checks and sets the special attributes for Feature
      * subset, class
-     * \note Feature is special. So DON'T call ::setAttributes
+     * \note Feature is special. So DON'T call setAttributes
      */
-    auto it = kwargs.find( "subset" );
-    if ( it == kwargs.end() ) {
+    auto it = args_in.find( "subset" );
+    if ( it == args_in.end() ) {
       _subset = default_subset();
       if ( _subset.empty() ){
 	throw ValueError("subset attribute is required for " + classname() );
@@ -5702,8 +5702,8 @@ namespace folia {
       }
       _subset = it->second;
     }
-    it = kwargs.find( "class" );
-    if ( it == kwargs.end() ) {
+    it = args_in.find( "class" );
+    if ( it == args_in.end() ) {
       throw ValueError("class attribute is required for " + classname() );
     }
     if ( it->second.empty() ) {
