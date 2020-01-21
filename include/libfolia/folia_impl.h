@@ -1517,7 +1517,6 @@ namespace folia {
     FoliaElement *append( FoliaElement * );
     const Word* resolveword( const std::string& ) const;
     void setAttributes( const KWargs& );
-    KWargs collectAttributes() const;
     const std::string& get_delimiter( bool=false) const;
     MorphologyLayer *addMorphologyLayer( const KWargs& );
     MorphologyLayer *getMorphologyLayers( const std::string&,

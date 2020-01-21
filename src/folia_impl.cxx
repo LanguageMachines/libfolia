@@ -4285,11 +4285,6 @@ namespace folia {
     AbstractElement::setAttributes( args );
   }
 
-  KWargs Word::collectAttributes() const {
-    KWargs atts = AbstractElement::collectAttributes();
-    return atts;
-  }
-
   const string& Word::get_delimiter( bool retaintok ) const {
     /// get the default delimiter of a Word
     /*!
