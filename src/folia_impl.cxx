@@ -3551,6 +3551,10 @@ namespace folia {
   }
 
   FoliaElement *PhonContent::get_reference() const {
+    /// get the FoliaElement _ref is refering to
+    /*!
+     * \return the refered element OR the default parent when _ref is 0
+     */
     FoliaElement *ref = 0;
     if ( _offset == -1 ){
       return 0;
@@ -3665,6 +3669,13 @@ namespace folia {
   }
 
   vector<FoliaElement *>TextContent::find_replacables( FoliaElement *par ) const {
+    // find all children with the same type, set AND textclass as the parameter
+    /*!
+     * \param par the FoliaElement to search
+     * \return a vector of matching elements
+     * search in the DIRECT children for nodes with the same tag, set and text
+     * class as the element par
+     */
     vector<FoliaElement *> result;
     vector<TextContent*> v = par->FoliaElement::select<TextContent>( sett(),
 								     false );
@@ -3677,8 +3688,11 @@ namespace folia {
 
   const UnicodeString PhonContent::phon( const string& cls,
 					 TEXT_FLAGS ) const {
-    // get the UnicodeString value of underlying elements
-    // default cls="current"
+    /// get the UnicodeString phon value
+    /*!
+     * \param cls the textclass the text should be in
+     * The second parameter is NOT used (yet)
+     */
 #ifdef DEBUG_PHON
     cerr << "PhonContent::PHON(" << cls << ") " << endl;
 #endif
@@ -3711,12 +3725,18 @@ namespace folia {
   }
 
   const string AllowGenerateID::generateId( const string& tag ){
-    // generate an new ID using my ID
-    // if no ID, look upward.
+    /// generate an new xml:id
+    /*!
+     * \param tag an extra string to use in the result
+     * \return a string with an unique id
+     *
+     * The new id is constructed from the elements id, or from a parent id
+     */
     string nodeId = id();
     // cerr << "node: " << this << endl;
     // cerr << "ID=" << nodeId << endl;
     if ( nodeId.empty() ){
+      // if no ID, look upward.
       FoliaElement *par = parent();
       if ( !par ){
 	throw XmlError( "unable to generate an ID. No StructureElement parent found?" );
@@ -3737,6 +3757,12 @@ namespace folia {
   }
 
   void AllowGenerateID::setMaxId( FoliaElement *child ) {
+    /// register the child id for later use
+    /*!
+      * \param child
+      * if the child has an id, try to extract the last part as a number
+      * if so, check the registration of that numer for the childs tag
+      */
     if ( !child->id().empty() && !child->xmltag().empty() ) {
       vector<string> parts = TiCC::split_at( child->id(), "." );
       if ( !parts.empty() ) {
@@ -4127,9 +4153,14 @@ namespace folia {
   }
 
   FoliaElement *AbstractStructureElement::append( FoliaElement *child ){
-    // cerr << "AbstractStructureElement::append()" << endl;
-    // cerr << "AbstractStructureElement is" << this << endl;
-    // cerr << "child = " << child << endl;
+    /// append child to an AbstractStructureElement node
+    /*!
+     * \param child the node to add
+     * \return the appended child
+     *
+     * will throw on error
+     * Sets the ID of the child, if not provided yet
+     */
     AbstractElement::append( child );
     setMaxId( child );
     return child;
@@ -4290,11 +4321,6 @@ namespace folia {
     AbstractElement::setAttributes( args );
   }
 
-  KWargs Word::collectAttributes() const {
-    KWargs atts = AbstractElement::collectAttributes();
-    return atts;
-  }
-
   const string& Word::get_delimiter( bool retaintok ) const {
     /// get the default delimiter of a Word
     /*!
@@ -4307,12 +4333,30 @@ namespace folia {
     return EMPTY_STRING;
   }
 
-  Correction *Word::split( FoliaElement *part1, FoliaElement *part2,
+  Correction *Word::split( FoliaElement *part1,
+			   FoliaElement *part2,
 			   const string& args ) {
+    /// split a word into 2 new words
+    /*!
+     * \param part1 the first new Word
+     * \param part2 the second new Word
+     * \param args additional arguments
+     * \return the Correction
+     *
+     * correction takes place in de context of the Sentence of the object
+     */
     return sentence()->splitWord( this, part1, part2, getArgs(args) );
   }
 
   FoliaElement *Word::append( FoliaElement *child ){
+    /// append child to a Word
+    /*!
+     * \param child the node to add
+     * \return the appended child
+     *
+     * will throw on error
+     * checks uniqueness of the child when it is an annotation
+     */
     if ( child->isSubClass( AbstractAnnotationLayer_t ) ) {
       // sanity check, there may be no other child within the same set
       vector<FoliaElement*> v = select( child->element_id(), child->sett() );
@@ -4842,6 +4886,15 @@ namespace folia {
   }
 
   FoliaElement *AbstractSpanAnnotation::append( FoliaElement *child ){
+    /// append child to an AbstractSpanAnnotation
+    /*!
+     * \param child the node to add
+     * \return the appended child
+     *
+     * will throw on error
+     * if the child has the  'referable' property, check that is not refered
+     * to already
+     */
     if ( child->referable() ){
       // cerr << "append a word: " << child << " to " << this << endl;
       // cerr << "refcnt=" << child->refcount() << endl;
@@ -4932,6 +4985,14 @@ namespace folia {
   }
 
   FoliaElement *AbstractAnnotationLayer::append( FoliaElement *child ){
+    /// append child to an AbstractAnnotationLayer
+    /*!
+     * \param child the node to add
+     * \return the appended child
+     *
+     * will throw on error
+     * Make sure that the layer has the same 'set' as the new child
+     */
     assignset( child );
     return AbstractElement::append( child );
   }
@@ -4979,6 +5040,14 @@ namespace folia {
   }
 
   FoliaElement *Quote::append( FoliaElement *child ){
+    /// append child to an AbstractStructureElement node
+    /*!
+     * \param child the node to add
+     * \return the appended child
+     *
+     * will throw on error
+     * Sets the auth property to false when we add a sentence to a Quote
+     */
     AbstractElement::append( child );
     if ( child->isinstance(Sentence_t) ) {
       child->setAuth( false ); // Sentences under quotes are non-authoritative
