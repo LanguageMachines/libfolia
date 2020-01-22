@@ -4521,7 +4521,7 @@ namespace folia {
   }
 
   Division *AbstractWord::division() const {
-    /// return the <div> this word is a part of, otherwise return null
+    /// return the Division this word is a part of, otherwise return null
     /*
      * recurses upward through all parents until a hit or no parent left
      */
@@ -5690,6 +5690,10 @@ namespace folia {
   }
 
   Head *Division::head() const {
+    /// return the Head node in a Division
+    /*!
+     * \return the element with ElementType Head_t. throws when not found.
+     */
     const vector<FoliaElement*>& data = this->data();
     for ( const auto& h : data ){
       if ( h->element_id() == Head_t ) {
@@ -5700,6 +5704,10 @@ namespace folia {
   }
 
   const string Gap::content() const {
+    /// return the content of a Gap
+    /*!
+     * \return the an UTF8 string of the content in the Gap. Throws if not found
+     */
     vector<FoliaElement*> cv = select( Content_t );
     if ( cv.empty() ) {
       throw NoSuchAnnotation( "content" );
@@ -5708,6 +5716,10 @@ namespace folia {
   }
 
   Headspan *Dependency::head() const {
+    /// return the HeadSpan node in a Dependency
+    /*!
+     * \return the element with ElementType Headspan. throws when not found.
+     */
     vector<Headspan*> v = FoliaElement::select<Headspan>();
     if ( v.size() < 1 ) {
       throw NoSuchAnnotation( "head" );
@@ -5716,6 +5728,11 @@ namespace folia {
   }
 
   DependencyDependent *Dependency::dependent() const {
+    /// return the DependencyDependent node in a Dependency
+    /*!
+     * \return the element with ElementType DependencyDependent.
+     *  throws when not found.
+     */
     vector<DependencyDependent *> v = FoliaElement::select<DependencyDependent>();
     if ( v.empty() ) {
       throw NoSuchAnnotation( "dependent" );
@@ -5724,6 +5741,11 @@ namespace folia {
   }
 
   vector<AbstractSpanAnnotation*> AbstractElement::selectSpan() const {
+    /// select als SpanAnnotation nodes in the FoliaElement
+    /*!
+     * \return a list of SpanAnnotation nodes.
+     * All possible Span types are collected in this list. (see SpanSet)
+     */
     vector<AbstractSpanAnnotation*> res;
     for ( const auto& el : SpanSet ) {
       vector<FoliaElement*> tmp = select( el );
@@ -5735,6 +5757,12 @@ namespace folia {
   }
 
   vector<FoliaElement*> AbstractSpanAnnotation::wrefs() const {
+    /// select all referable Elements present in this object
+    /*!
+     * \return al list of FoliAElements
+     * recurses through al the children to look for referable nodes
+     * (see WREFABLE) and collects them in one list.
+     */
     vector<FoliaElement*> res;
     for ( const auto& el : data() ) {
       ElementType et = el->element_id();
@@ -5756,6 +5784,12 @@ namespace folia {
   }
 
   FoliaElement *AbstractSpanAnnotation::wrefs( size_t pos ) const {
+    /// select the referable Element at position pos
+    /*!
+     * \return a referable FoliAElement or 0, when not found.
+     * recurses through al the children to look for referable nodes
+     * (see WREFABLE) and collects them in one list.
+     */
     vector<FoliaElement*> v = wrefs();
     if ( pos < v.size() ) {
       return v[pos];
@@ -5764,6 +5798,13 @@ namespace folia {
   }
 
   AbstractSpanAnnotation *AbstractAnnotationLayer::findspan( const vector<FoliaElement*>& words ) const {
+    /// find the SpanAnnotation which spans the whole list of words
+    /*!
+     * \param words a list of nodes
+     * \return the spanning element, or 0 if not found.
+     * All available SpanAnnotations are search for one that spans EXACTLY
+     * the 'words' list
+     */
     vector<AbstractSpanAnnotation*> av = selectSpan();
     for ( const auto& span : av ){
       vector<FoliaElement*> v = span->wrefs();
@@ -5784,6 +5825,11 @@ namespace folia {
   }
 
   bool XmlText::setvalue( const std::string& s ){
+    /// set the value of an Xmltext element in NFC endcoded UTF8
+    /*!
+     * \param s an UTF8 string
+     * \return true always
+     */
     static TiCC::UnicodeNormalizer norm;  // defaults to a NFC normalizer
     UnicodeString us = TiCC::UnicodeFromUTF8(s);
     us = norm.normalize( us );
@@ -5820,6 +5866,7 @@ namespace folia {
   }
 
   static void error_sink(void *mydata, xmlError *error ) {
+    /// helper function for Xml parsing
     int *cnt = (int*)mydata;
     if ( *cnt == 0 ) {
       cerr << "\nXML-error: " << error->message << endl;
@@ -6130,7 +6177,13 @@ namespace folia {
   }
 
   vector<string> AbstractElement::feats( const string& s ) const {
-    //    return all classes of the given subset
+    /// return all classes of the given subset
+    /*!
+     * \param s a subset name
+     * \return a list of all classes in the subset of the Feature nodes
+     * The function loops through all children and for Feature_t children
+     * it check the subset and collects the matching ones
+     */
     vector<string> result;
     for ( const auto& el : data() ) {
       if ( el->isSubClass( Feature_t ) &&
@@ -6142,7 +6195,11 @@ namespace folia {
   }
 
   const string AbstractElement::feat( const string& s ) const {
-    //    return the fist class of the given subset
+    /// return the class of the first matching Feature with subset s
+    /*!
+     * \param s a subset name
+     * \return the first class of the first Feature node in subset s
+     */
     for ( const auto& el : data() ) {
       if ( el->isSubClass( Feature_t ) &&
 	   el->subset() == s ) {
@@ -6153,18 +6210,24 @@ namespace folia {
   }
 
   ForeignMetaData::~ForeignMetaData(){
+    /// destructor for ForeignMetaData
     for ( const auto& it : foreigners ){
       delete it;
     }
   }
 
   void ForeignMetaData::add_foreign( const xmlNode *node ){
+    /// add a ForeignData node
+    /*!
+     * \param node a (foreign by definition) node
+     */
     ForeignData *fd = new ForeignData();
     fd->set_data( node );
     foreigners.push_back( fd );
   }
 
   ForeignData::~ForeignData(){
+    /// destructor for ForeignData
     xmlFreeNode( _foreign_data );
   }
 
@@ -6184,6 +6247,10 @@ namespace folia {
   }
 
   void ForeignData::set_data( const xmlNode *node ){
+    /// assign node to _foreign_data
+    /*!
+     * performs sanity check to avoid adding FoLiA nodes
+     */
     xmlNode *p = (xmlNode *)node->children;
     while ( p ){
       string pref;
@@ -6197,6 +6264,11 @@ namespace folia {
   }
 
   void clean_ns( xmlNode *node, const string& ns ){
+    /// strip the NameSpace with value ns from the node
+    /*!
+     * \param node the xmlNode to work on
+     * \param ns the HREF valeu of the namespace to remove
+     */
     xmlNs *p = node->nsDef;
     xmlNs *prev = 0;
     while ( p ){
@@ -6216,14 +6288,22 @@ namespace folia {
   }
 
   xmlNode* ForeignData::get_data() const {
+    /// get the _foreign_data as an xmlNode tree
+    /*!
+     * \return a COPY of the _foreign_daya member.
+     * With cleaned-out FoLiA namespace declarations.
+     */
     xmlNode *result = xmlCopyNode(_foreign_data, 1 );
     clean_ns( result, NSFOLIA ); // Sanity: remove FoLiA namespace defs, if any
     return result;
   }
 
   const MetaData* AbstractElement::get_metadata() const {
-    // Get the metadata that applies to this element,
-    // automatically inherited from parent elements
+    /// Get the MetaData node related to this element
+    /*!
+     * \return the _matedata or 0 if not available
+     * may recurse upwards through the parent nodes
+     */
     if ( !_metadata.empty() && doc() ){
       return doc()->get_submetadata(_metadata);
     }
@@ -6236,8 +6316,11 @@ namespace folia {
   }
 
   const string AbstractElement::get_metadata( const string& key ) const {
-    // Get the metadata that applies to this element,
-    // automatically inherited from parent elements
+    /// Get the metadata value for this key
+    /*!
+     * \param key which metadata field do we want?
+     * \return the metadata value for this key
+     */
     if ( !_metadata.empty() && doc() ){
       const MetaData *what = doc()->get_submetadata(_metadata);
       if ( what && what->datatype() == "NativeMetaData" && !key.empty() ){
@@ -6352,6 +6435,10 @@ namespace folia {
   }
 
   const FoliaElement* AbstractTextMarkup::resolveid() const {
+    /// return the FoliaElement refered to by idref
+    /*!
+     * \return the refered FoliaElement, or 'this' if not applicable
+     */
     if ( idref.empty() || !doc() ) {
       return this;
     }
@@ -6361,30 +6448,37 @@ namespace folia {
   }
 
   void TextContent::init() {
+    /// set default value on creation
     _offset = -1;
   }
 
   void PhonContent::init() {
+    /// set default value on creation
     _offset = -1;
   }
 
   void Linebreak::init() {
+    /// set default value on creation
     _newpage = false;
   }
 
   void Relation::init() {
+    /// set default value on creation
     _format = "text/folia+xml";
   }
 
   void Reference::init() {
+    /// set default value on creation
     _format = "text/folia+xml";
   }
 
   void TextMarkupReference::init() {
+    /// set default value on creation
     _format = "text/folia+xml";
   }
 
   void ForeignData::init() {
+    /// set default value on creation
     _foreign_data = 0;
   }
 
