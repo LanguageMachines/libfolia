@@ -3531,11 +3531,16 @@ namespace folia {
   }
 
   FoliaElement *PhonContent::find_default_reference() const {
+    /// find the 'true' parent of a PhonContent
+    /*!
+     * recurse the parent() nodes upward. halt at the second parent
+     * that is a Structure, String or Subtoken
+     */
     int depth = 0;
     FoliaElement *p = parent();
     while ( p ){
       if ( p->isSubClass( AbstractStructureElement_t )
-	   || p->isSubClass( AbstractInlineAnnotation_t ) ){
+	   || p->isSubClass( AbstractSubtokenAnnotation_t ) ){
 	if ( ++depth == 2 ){
 	  return p;
 	}
