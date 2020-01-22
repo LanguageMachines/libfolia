@@ -5581,12 +5581,17 @@ namespace folia {
     throw NoSuchPhon("wrong cls");
   }
 
-  bool Correction::hasNew( ) const {
+  bool Correction::hasNew() const {
+    ///  check if this Correction has a New node
     vector<FoliaElement*> v = select( New_t, SELECT_FLAGS::LOCAL );
     return !v.empty();
   }
 
   New *Correction::getNew() const {
+    /// extract the New node of a Correction
+    /*!
+     * \return the new node or 0 if not available
+     */
     vector<New*> v = FoliaElement::select<New>( false );
     if ( v.empty() ) {
       return 0;
@@ -5595,16 +5600,26 @@ namespace folia {
   }
 
   FoliaElement *Correction::getNew( size_t index ) const {
+    /// extract the child at position 'index' in the New of a Correction
+    /*!
+     * \param index the position in the children of the New node
+     * \return the child or 0 if not available
+     */
     New *n = getNew();
     return n->index(index);
   }
 
   bool Correction::hasOriginal() const {
+    ///  check if this Correction has an Original node
     vector<FoliaElement*> v = select( Original_t, SELECT_FLAGS::LOCAL );
     return !v.empty();
   }
 
   Original *Correction::getOriginal() const {
+    /// extract the Original node of a Correction
+    /*!
+     * \return the new node or 0 if not available
+     */
     vector<Original*> v = FoliaElement::select<Original>( false );
     if ( v.empty() ) {
       return 0;
@@ -5613,16 +5628,26 @@ namespace folia {
   }
 
   FoliaElement *Correction::getOriginal( size_t index ) const {
+    /// extract the child at position 'index' in the Original of a Correction
+    /*!
+     * \param index the position in the children of the Original node
+     * \return the child or 0 if not available
+     */
     Original *n = getOriginal();
     return n->index(index);
   }
 
   bool Correction::hasCurrent( ) const {
+    ///  check if this Correction has a New node
     vector<FoliaElement*> v = select( Current_t, SELECT_FLAGS::LOCAL );
     return !v.empty();
   }
 
   Current *Correction::getCurrent( ) const {
+    /// extract the Cuurent node of a Correction
+    /*!
+     * \return the new node or 0 if not available
+     */
     vector<Current*> v = FoliaElement::select<Current>( false );
     if ( v.empty() ) {
       throw NoSuchAnnotation( "current" );
@@ -5631,20 +5656,32 @@ namespace folia {
   }
 
   FoliaElement *Correction::getCurrent( size_t index ) const {
+    /// extract the child at position 'index' in the Current of a Correction
+    /*!
+     * \param index the position in the children of the Current node
+     * \return the child or 0 if not available
+     */
     Current *n = getCurrent();
     return n->index(index);
   }
 
   bool Correction::hasSuggestions( ) const {
+    ///  check if this Correction has Suggestion nodes
     vector<Suggestion*> v = suggestions();
     return !v.empty();
   }
 
   vector<Suggestion*> Correction::suggestions( ) const {
+    /// get all Suggestion nodes of this Correction
     return FoliaElement::select<Suggestion>( false );
   }
 
   Suggestion *Correction::suggestions( size_t index ) const {
+    /// extract the Suggestion at position 'index' of a Correction
+    /*!
+     * \param index the position in list of Suggestion nodes
+     * \return the Suggestion or 0 if not available
+     */
     vector<Suggestion*> v = suggestions();
     if ( v.empty() || index >= v.size() ) {
       throw NoSuchAnnotation( "suggestion" );
@@ -5654,9 +5691,10 @@ namespace folia {
 
   Head *Division::head() const {
     const vector<FoliaElement*>& data = this->data();
-    if ( data.size() > 0 ||
-	 data[0]->element_id() == Head_t ) {
-      return dynamic_cast<Head*>(data[0]);
+    for ( const auto& h : data ){
+      if ( h->element_id() == Head_t ) {
+	return dynamic_cast<Head*>(h);
+      }
     }
     throw runtime_error( "No head" );
   }
