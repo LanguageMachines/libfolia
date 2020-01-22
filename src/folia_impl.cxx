@@ -3795,6 +3795,15 @@ namespace folia {
 					  const vector<FoliaElement*>& _newv,
 					  const vector<FoliaElement*>& _suggestions,
 					  const KWargs& args_in ) {
+    /// generic function to correct a group of FoliaElements into a Correction
+    /*!
+     * \param _original a group of nodes to correct and add to the Original
+     * \param _current a group of nodes to add to the Current
+     * \param _newv a group of nodes to replace _original, added to New
+     * \param _suggestions a group of nodes to add to Suggestions
+     * \param args_in additional arguments
+     * \return the Correction node. Might throw on problems
+     */
 #ifdef DEBUG_CORRECT
     cerr << "correct " << this << endl;
     cerr << "original= " << _original << endl;
@@ -4126,6 +4135,13 @@ namespace folia {
   }
 
   Correction *AllowCorrections::correct( const string& s ) {
+    /// use an Attribute-Value list to create a Correction
+    /*!
+     * \param s a string representation of a Attribute-Value list
+     * \return the created Correcion
+     * The parameter is converted to a KWargs list which is handled over
+     * to correct()
+     */
     vector<FoliaElement*> nil1;
     vector<FoliaElement*> nil2;
     vector<FoliaElement*> nil3;
@@ -4141,6 +4157,14 @@ namespace folia {
 					 FoliaElement *_new,
 					 const vector<FoliaElement*>& sugg,
 					 const KWargs& args ) {
+    /// create a correction using the parameters
+    /*!
+     * \param _old the node to correct
+     * \param _new the corrected node
+     * \param sugg a list of possible suggestions
+     * \param args additonal arguments
+     * \return the created Correcion
+     */
     vector<FoliaElement *> nv;
     nv.push_back( _new );
     vector<FoliaElement *> ov;
@@ -4150,6 +4174,20 @@ namespace folia {
     Correction *tmp = correct( ov, nil, nv, sugg, args );
     //    cerr << xmltag() << "::correct() ==> " << this << endl;
     return tmp;
+  }
+
+  Correction *AllowCorrections::correct( FoliaElement* _old,
+					 FoliaElement* _new,
+					 const KWargs& args ) {
+    /// create a correction using the parameters
+    /*!
+     * \param _old the node to correct
+     * \param _new the corrected node
+     * \param args additonal arguments
+     * \return the created Correcion
+     */
+    const std::vector<FoliaElement*> sugg;
+    return correct( _old, _new, sugg, args );
   }
 
   FoliaElement *AbstractStructureElement::append( FoliaElement *child ){
@@ -4166,19 +4204,49 @@ namespace folia {
     return child;
   }
 
-  vector<Paragraph*> AbstractStructureElement::paragraphs() const{
+  vector<Paragraph*> AbstractStructureElement::paragraphs() const {
+    /// return all embedded Paragraph nodes
+    /*!
+     * \return a list of the found paragraphs, throws when none are found
+     * This function recursus into all children of the node, except for
+     * children in the default_ignore_structure set, like Alternative, Foreign
+     * and the Original and Suggestion parts of Correction
+     */
     return FoliaElement::select<Paragraph>( default_ignore_structure );
   }
 
   vector<Sentence*> AbstractStructureElement::sentences() const{
+    /// return all embedded Sentence nodes
+    /*!
+     * \return a list of the found sentences, throws when none are found
+     * This function recursus into all children of the node, except for
+     * children in the default_ignore_structure set, like Alternative, Foreign
+     * and the Original and Suggestion parts of Correction
+     */
     return FoliaElement::select<Sentence>( default_ignore_structure );
   }
 
   vector<Word*> AbstractStructureElement::words( const string& st ) const{
+    /// return all embedded Word nodes in set st
+    /*!
+     * \param st the required set. If st="" then ALL sets are searched.
+     * \return a list of the found words, throws when none are found
+     * This function recursus into all children of the node, except for
+     * children in the default_ignore_structure set, like Alternative, Foreign
+     * and the Original and Suggestion parts of Correction
+     */
     return FoliaElement::select<Word>( st, default_ignore_structure );
   }
 
   Sentence *AbstractStructureElement::sentences( size_t index ) const {
+    /// return the Sentence at index
+    /*!
+     * \param index the position
+     * \return the found Sentence, throws when not found
+     * This function recursus into all children of the node, except for
+     * children in the default_ignore_structure set, like Alternative, Foreign
+     * and the Original and Suggestion parts of Correction
+     */
     vector<Sentence*> v = sentences();
     if ( index < v.size() ) {
       return v[index];
@@ -4187,6 +4255,14 @@ namespace folia {
   }
 
   Sentence *AbstractStructureElement::rsentences( size_t index ) const {
+    /// return the Sentence at REVERSE index
+    /*!
+     * \param index the position from the back of the Word list
+     * \return the found Sentence, throws when not found
+     * This function recursus into all children of the node, except for
+     * children in the default_ignore_structure set, like Alternative, Foreign
+     * and the Original and Suggestion parts of Correction
+     */
     vector<Sentence*> v = sentences();
     if ( index < v.size() ) {
       return v[v.size()-1-index];
@@ -4195,6 +4271,14 @@ namespace folia {
   }
 
   Paragraph *AbstractStructureElement::paragraphs( size_t index ) const {
+    /// return the Paragraph at index
+    /*!
+     * \param index the position
+     * \return the found Paragraph, throws when not found
+     * This function recursus into all children of the node, except for
+     * children in the default_ignore_structure set, like Alternative, Foreign
+     * and the Original and Suggestion parts of Correction
+     */
     vector<Paragraph*> v = paragraphs();
     if ( index < v.size() ) {
       return v[index];
@@ -4203,6 +4287,14 @@ namespace folia {
   }
 
   Paragraph *AbstractStructureElement::rparagraphs( size_t index ) const {
+    /// return the Paragraph at REVERSE index
+    /*!
+     * \param index the position from the back of the Word list
+     * \return the found Paragraph, throws when not found
+     * This function recursus into all children of the node, except for
+     * children in the default_ignore_structure set, like Alternative, Foreign
+     * and the Original and Suggestion parts of Correction
+     */
     vector<Paragraph*> v = paragraphs();
     if ( index < v.size() ) {
       return v[v.size()-1-index];
@@ -4212,6 +4304,15 @@ namespace folia {
 
   Word *AbstractStructureElement::words( size_t index,
 					 const string& st ) const {
+    /// return the Word at index, in set st
+    /*!
+     * \param index the position
+     * \param st the required set. If st="" then ALL sets are searched.
+     * \return the found Word, throws when not found
+     * This function recursus into all children of the node, except for
+     * children in the default_ignore_structure set, like Alternative, Foreign
+     * and the Original and Suggestion parts of Correction
+     */
     vector<Word*> v = words(st);
     if ( index < v.size() ) {
       return v[index];
@@ -4221,6 +4322,15 @@ namespace folia {
 
   Word *AbstractStructureElement::rwords( size_t index,
 					  const string& st ) const {
+    /// return the Word at REVERSE index, in set st
+    /*!
+     * \param index the position from the back of the Word list
+     * \param st the required set. If st="" then ALL sets are searched.
+     * \return the found Word, throws when not found
+     * This function recursus into all children of the node, except for
+     * children in the default_ignore_structure set, like Alternative, Foreign
+     * and the Original and Suggestion parts of Correction
+     */
     vector<Word*> v = words(st);
     if ( index < v.size() ) {
       return v[v.size()-1-index];
@@ -4229,6 +4339,11 @@ namespace folia {
   }
 
   const Word* AbstractStructureElement::resolveword( const string& id ) const{
+    /// recursively search for a Word with xml:id id
+    /*!
+     * \param id The xml:id we are looking for
+     * \return pointer to the Word. Or 0 when not found.
+     */
     const Word *result = 0;
     for ( const auto& el : data() ) {
       result = el->resolveword( id );
@@ -4241,7 +4356,12 @@ namespace folia {
 
   vector<Alternative *> AllowInlineAnnotation::alternatives( ElementType elt,
 							     const string& st ) const {
-    // Return a list of alternatives, either all or only of a specific type, restrained by set
+    /// Return a list of alternatives, either all restrained by the parameters
+    /*!
+     * \param elt only look for alternatives of type elt, default ALL types
+     * \param st only look for alternatives in set st, default NO restriction
+     * \return a list of matching Alternative nodes
+     */
     vector<Alternative *> alts = FoliaElement::select<Alternative>( AnnoExcludeSet );
     if ( elt == BASE ) {
       return alts;
@@ -4371,7 +4491,10 @@ namespace folia {
   }
 
   Sentence *AbstractWord::sentence() const {
-    // return the sentence this word is a part of, otherwise return null
+    /// return the sentence this word is a part of, otherwise return null
+    /*
+     * recurses upward through all parents until a hit or no parent left
+     */
     FoliaElement *p = parent();
     while( p ) {
       if ( p->isinstance( Sentence_t ) ) {
@@ -4383,7 +4506,10 @@ namespace folia {
   }
 
   Paragraph *AbstractWord::paragraph( ) const {
-    // return the sentence this word is a part of, otherwise return null
+    /// return the sentence this word is a part of, otherwise return null
+    /*
+     * recurses upward through all parents until a hit or no parent left
+     */
     FoliaElement *p = parent();
     while( p ) {
       if ( p->isinstance( Paragraph_t ) ) {
@@ -4395,7 +4521,10 @@ namespace folia {
   }
 
   Division *AbstractWord::division() const {
-    // return the <div> this word is a part of, otherwise return null
+    /// return the <div> this word is a part of, otherwise return null
+    /*
+     * recurses upward through all parents until a hit or no parent left
+     */
     FoliaElement *p = parent();
     while( p ) {
       if ( p->isinstance( Division_t ) ) {
@@ -4407,6 +4536,11 @@ namespace folia {
   }
 
   vector<Morpheme *> AbstractWord::morphemes( const string& set ) const {
+    /// return all morphemes in this AbstractWord
+    /*
+     * \param set the set to use in searching.
+     * \return a list of Morpheme nodes. Might be empty.
+     */
     vector<Morpheme *> result;
     vector<MorphologyLayer*> mv = FoliaElement::select<MorphologyLayer>();
     for ( const auto& mor : mv ){
@@ -4417,6 +4551,11 @@ namespace folia {
   }
 
   Morpheme *AbstractWord::morpheme( size_t pos, const string& set ) const {
+    /// return the Morpheme with indes pos
+    /*
+     * \param set the set to use in searching.
+     * \return the Morpheme. Throws on error.
+     */
     vector<Morpheme *> tmp = morphemes( set );
     if ( pos < tmp.size() ) {
       return tmp[pos];
@@ -4425,7 +4564,12 @@ namespace folia {
   }
 
   Correction *Word::incorrection( ) const {
-    // Is the Word part of a correction? If it is, it returns the Correction element, otherwise it returns 0;
+    /// find out if a Word is part of a correction?
+    /*!
+     * \return the Correction the Word it is part of, or 0 when uncorrected.
+     * recurses upward through the parents, until a result is found, or
+     * the Sentence level or the document level..
+     */
     FoliaElement *p = parent();
     while ( p ) {
       if ( p->isinstance( Correction_t ) ) {
@@ -4439,7 +4583,11 @@ namespace folia {
     return 0;
   }
 
-  Word *Word::previous() const{
+  Word *Word::previous() const {
+    /// return the previous Word in the Sentence
+    /*!
+     * \return the previous Word or 0, when not found.
+     */
     Sentence *s = sentence();
     vector<Word*> words = s->words();
     for ( size_t i=0; i < words.size(); ++i ) {
@@ -4457,6 +4605,10 @@ namespace folia {
   }
 
   Word *Word::next() const{
+    /// return the next Word in the Sentence
+    /*!
+     * \return the next Word or 0, when not found.
+     */
     Sentence *s = sentence();
     vector<Word*> words = s->words();
     for ( size_t i=0; i < words.size(); ++i ) {
@@ -4475,6 +4627,16 @@ namespace folia {
 
   vector<Word*> Word::context( size_t size,
 			       const string& val ) const {
+    /// return the (Word) context the Word is in.
+    /*!
+     * \param size limits the number of context words
+     * \param val string value of the PlaceHolder for the Word itself
+     * \return a list of (maximum) size Word nodes surrounding the Word.
+     *
+     * The result is a list of Word nodes of length 'size', where the Word
+     * itself is replaced by the 0 pointer, or a PlaceHolder with value val
+     * in the middle of the list.
+     */
     vector<Word*> result;
     if ( size > 0 ) {
       vector<Word*> words = doc()->words();
@@ -4523,6 +4685,16 @@ namespace folia {
 
   vector<Word*> Word::leftcontext( size_t size,
 				   const string& val ) const {
+    /// return the left (Word) context the Word is in.
+    /*!
+     * \param size limits the number of context words
+     * \param val string value of the PlaceHolder for the Word itself
+     * \return a list of (maximum) size Word nodes preceding teh Word
+     *
+     * The result is a list of Word nodes of length 'size', where the Word
+     * itself is replaced by the 0 pointer, or a PlaceHolder with value val
+     * at the end of the list.
+     */
     //  cerr << "leftcontext : " << size << endl;
     vector<Word*> result;
     if ( size > 0 ) {
@@ -4557,6 +4729,16 @@ namespace folia {
 
   vector<Word*> Word::rightcontext( size_t size,
 				    const string& val ) const {
+    /// return the rigth (Word) context the Word is in.
+    /*!
+     * \param size limits the number of context words
+     * \param val string value of the PlaceHolder for the Word itself
+     * \return a list of (maximum) size Word nodes succeeding the Word
+     *
+     * The result is a list of Word nodes of length 'size', where the Word
+     * itself is replaced by the 0 pointer, or a PlaceHolder with value val
+     * at the beginning of the list.
+     */
     vector<Word*> result;
     //  cerr << "rightcontext : " << size << endl;
     if ( size > 0 ) {
@@ -4591,6 +4773,11 @@ namespace folia {
   }
 
   const Word* Word::resolveword( const string& id ) const {
+    /// search for Word with xml:id id
+    /*!
+     * \param id The xml:id we are looking for
+     * \return pointer to the Word. Or 0 when not found.
+     */
     if ( AbstractElement::id() == id ) {
       return this;
     }
@@ -4598,6 +4785,11 @@ namespace folia {
   }
 
   ElementType layertypeof( ElementType et ) {
+    /// return the Layer ElemenType of the given ElementType
+    /*!
+     * \param et the ElementType to check
+     * \return The Layer ElementType er belongs to. Or BASE if it has no Layer.
+     */
     switch( et ) {
     case Entity_t:
     case EntitiesLayer_t:
@@ -4645,6 +4837,12 @@ namespace folia {
 
   vector<AbstractSpanAnnotation*> AbstractWord::findspans( ElementType et,
 							   const string& st ) const {
+    /// find all SpanAnnotation nodes of this object for a given type
+    /*!
+     * \param et the ElementType to search for
+     * \param st limit the search to set st
+     * \return a list of SpanAnnotations
+     */
     ElementType layertype = layertypeof( et );
     vector<AbstractSpanAnnotation *> result;
     if ( layertype != BASE ) {
@@ -4738,6 +4936,11 @@ namespace folia {
   }
 
   FoliaElement *LinkReference::resolve_element( const Relation *ref ) const {
+    /// return the refered FoliaElement of this Reference
+    /*!
+     * \param ref the Relation which called us
+     * \return pointer to refered FoliaElement. Throws when not found.
+     */
     if ( ref->href().empty() ) {
       return (*doc())[refId];
     }
@@ -4774,11 +4977,12 @@ namespace folia {
   }
 
   vector<FoliaElement *> Relation::resolve() const {
+    /// return a list of refered FoliaElement nodes
+    /*!
+     * \return a list of refered FoliaElement. Throws on error.
+     */
     vector<FoliaElement*> result;
     vector<LinkReference*> v = FoliaElement::select<LinkReference>();
-    // for ( const auto& ar : v ){
-    //   result.push_back( ar->resolve_element( this ) );
-    // }
     transform( v.begin(), v.end(),
 	       back_inserter(result),
 	       [&]( LinkReference *r ){ return r->resolve_element(this); } );
@@ -4802,6 +5006,10 @@ namespace folia {
   }
 
   const UnicodeString Figure::caption() const {
+    /// return the caption of a Figure
+    /*!
+     * \return A UnicodeString with the caption. Throws on error.
+     */
     vector<FoliaElement *> v = select(Caption_t);
     if ( v.empty() ) {
       throw NoSuchText("caption");
@@ -4827,6 +5035,7 @@ namespace folia {
   }
 
   xmlNode *Description::xml( bool, bool ) const {
+    ///  convert the Description to an xmlNode
     xmlNode *e = AbstractElement::xml( false, false );
     if ( !_value.empty() ){
       xmlAddChild( e, xmlNewText( (const xmlChar*)_value.c_str()) );
@@ -4864,6 +5073,7 @@ namespace folia {
   }
 
   xmlNode *Comment::xml( bool, bool ) const {
+    ///  convert the Comment to an xmlNode
     xmlNode *e = AbstractElement::xml( false, false );
     if ( !_value.empty() ){
       xmlAddChild( e, xmlNewText( (const xmlChar*)_value.c_str()) );
@@ -5012,9 +5222,18 @@ namespace folia {
   }
 
   xmlNode *AbstractSpanAnnotation::xml( bool recursive, bool kanon ) const {
+    ///  convert an SpanAnnotation to an xmlNode
+    /*!
+     * \param recursive recurse into children, producing an XmlNode tree.
+     * \param kanon if true, output in a canonical way.
+     * \return The created XmlNode (-tree)
+     *
+     * Extra care has to be taken for referable children. These should be added
+     * as Wref, except for there first occurrence in the document.
+     */
     xmlNode *e = AbstractElement::xml( false, false );
-    // append Word, Phon and Morpheme children as WREFS
-    //  EXCEPT when there are NO references to it
+    // append referable children as WREFS
+    //   EXCEPT when there are NO references to it
     for ( const auto& el : data() ) {
       if ( el-referable()
 	   && el->refcount() > 0 ){
@@ -5055,8 +5274,14 @@ namespace folia {
     return child;
   }
 
-  xmlNode *Content::xml( bool recurse, bool ) const {
-    xmlNode *e = AbstractElement::xml( recurse, false );
+  xmlNode *Content::xml( bool recursive, bool ) const {
+    ///  convert a Content node to an xmlNode
+    /*!
+     * \param recursive recurse into children, producing an XmlNode tree.
+     * \return The created XmlNode (-tree) with the value of Content added
+     * as a CData block
+     */
+    xmlNode *e = AbstractElement::xml( recursive, false );
     xmlAddChild( e, xmlNewCDataBlock( 0,
 				      (const xmlChar*)value.c_str() ,
 				      value.length() ) );
@@ -5131,6 +5356,13 @@ namespace folia {
   const UnicodeString Correction::private_text( const string& cls,
 						bool retaintok,
 						bool, bool ) const {
+    /// get the UnicodeString value of an Correction
+    /*!
+     * \param cls The textclass we are looking for
+     * \param retaintok retain the tokenisation information
+     * \return the Unicode String representation found. Throws when
+     * no text can be found.
+     */
 #ifdef DEBUG_TEXT
     cerr << "TEXT(" << cls << ") on node : " << xmltag() << " id=" << id() << endl;
 #endif
@@ -5222,6 +5454,16 @@ namespace folia {
 
   const TextContent *Correction::text_content( const string& cls,
 					       bool show_hidden ) const {
+    /// Get the TextContent explicitly associated with a Correction
+    /*!
+     * \param cls the textclass to search for
+     * \param show_hidden if true also return text of 'hidden' nodes
+     *
+     * Returns the TextContent instance rather than the actual text.
+     * (so it might return iself.. ;)
+     * recurses into children looking for New or Current nodes
+     * might throw NoSuchText exception if not found.
+     */
     // TODO: this implements correctionhandling::EITHER only
     for ( const auto& el : data() ) {
       if ( el->isinstance( New_t ) || el->isinstance( Current_t ) ) {
@@ -5257,12 +5499,25 @@ namespace folia {
 				   const std::vector<FoliaElement*>& vn,
 				   const std::vector<FoliaElement*>& vs,
 				   const KWargs& args){
+    /// correct a Correction
+    /*!
+     * \param vc a group of nodes to add to the Current
+     * \param vn a group of nodes to replace Original, added to New
+     * \param vs a group of nodes to add to Suggestions
+     * \param args additional arguments
+     * \return a new Correction node. The old Coorection is added as Original
+     */
     vector<FoliaElement*> new_vo; // ignore users hints about original
     new_vo.push_back( this );
     return parent()->correct( new_vo, vc, vn, vs, args );
   }
 
   Correction *Correction::correct( const std::string& args ){
+    /// correct a Correction using an Attribute-value list
+    /*!
+     * \param args the list to parse into a KWargs struct
+     * \return a new Correction node. The old Correction is added as Original
+     */
     vector<FoliaElement*> nv;
     vector<FoliaElement*> ov;
     vector<FoliaElement*> cv;
@@ -5276,15 +5531,42 @@ namespace folia {
 			    const std::vector<FoliaElement*>& vn,
 			    const std::vector<FoliaElement*>& vs,
 			    const KWargs& args){
+    /// create a Correction on the PARENT of this New node.
+    /*!
+     * \param vo a group of nodes to add to the Original (ignored i assume)
+     * \param vc a group of nodes to add to the Current
+     * \param vn a group of nodes to replace Original, added to New
+     * \param vs a group of nodes to add to Suggestions
+     * \param args additional arguments
+     * \return the Correction node. Might throw on problems
+     */
     return parent()->correct( vo, vc, vn, vs, args );
   }
 
   Correction *New::correct( const std::string& args ){
+    /// use an Attribute-Value list to create a Correction on the parent
+    /// of this New node.
+    /*!
+     * \param args a string representation of a Attribute-Value list
+     * \return the created Correcion
+     * The parameter is converted to a KWargs list which is handled over
+     * to use correct() on the PARENT (Correction) of this node
+     */
     return parent()->correct( args );
   }
 
   const PhonContent *Correction::phon_content( const string& cls,
 					       bool show_hidden ) const {
+    /// Get the PhonContent explicitly associated with this element.
+    /*!
+     * \param cls the textclass to search for
+     * \param show_hidden if true also return text og 'hidden' nodes
+     *
+     * Returns the PhonContent instance rather than the actual text.
+     * (so it might return iself.. ;)
+     * recurses into children looking for New or Current
+     * might throw NoSuchPhon exception if not found.
+     */
     // TODO: this implements correctionhandling::EITHER only
     for ( const auto& el: data() ) {
       if ( el->isinstance( New_t ) || el->isinstance( Current_t ) ) {
@@ -5472,10 +5754,14 @@ namespace folia {
   }
 
   const UnicodeString XmlText::private_text( const string&, bool, bool, bool ) const {
+    /// get the UnicodeString value of an XmlText element
+    /*!
+     */
     return TiCC::UnicodeFromUTF8(_value);
   }
 
   xmlNode *XmlText::xml( bool, bool ) const {
+    ///  convert an XmlText node to an xmlNode
     return xmlNewText( (const xmlChar*)_value.c_str() );
   }
 
@@ -5504,6 +5790,13 @@ namespace folia {
   }
 
   void External::resolve_external( ) {
+    /// resolve external references
+    /*!
+     * given the src location of the External node, try to parse a FoLiA
+     * document from that location (URL) and insert it's Text part into our
+     * document.
+     * might fail in numourous ways!
+     */
     string src;
     try {
       src = AbstractElement::src();
@@ -5700,6 +5993,7 @@ namespace folia {
   }
 
   xmlNode *XmlComment::xml( bool, bool ) const {
+    ///  convert an XmlComment node to an xmlNode
     return xmlNewComment( (const xmlChar*)_value.c_str() );
   }
 
@@ -5847,6 +6141,7 @@ namespace folia {
   }
 
   xmlNode *ForeignData::xml( bool, bool ) const {
+    /// retrieve the data of the ForeignData node as an xmlNode-tree
     return get_data();
   }
 
@@ -5997,15 +6292,25 @@ namespace folia {
   }
 
   const UnicodeString TextMarkupCorrection::private_text( const string& cls,
-							  bool ret,
+							  bool retaintok,
 							  bool strict,
-							  bool hidden ) const{
+							  bool show_hidden ) const{
+    /// get the UnicodeString value of a TextMarkupCorrection element
+    /*!
+     * \param cls The textclass we are looking for
+     * \param retaintok retain the tokenisation information
+     * \param strict If true, return the text of this level only
+     * when false, allow recursing into children
+     * \param show_hidden include text form 'hidden' nodes too.
+     * \return the Unicode String representation found. Throws when
+     * no text can be found
+     */
     // cerr << "TEXT MARKUP CORRECTION " << this << endl;
     // cerr << "TEXT MARKUP CORRECTION parent cls=" << parent()->cls() << endl;
     if ( cls == "original" ) {
       return TiCC::UnicodeFromUTF8(_original);
     }
-    return AbstractElement::private_text( cls, ret, strict, hidden );
+    return AbstractElement::private_text( cls, retaintok, strict, show_hidden );
   }
 
   const FoliaElement* AbstractTextMarkup::resolveid() const {

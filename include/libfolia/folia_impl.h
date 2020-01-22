@@ -871,17 +871,14 @@ namespace folia {
   class AllowCorrections: public virtual FoliaElement {
     /// Interface class that enables corrections on Elements
   public:
-    Correction *correct( const std::vector<FoliaElement*>& v1,
-			 const std::vector<FoliaElement*>& v2,
- 			 const std::vector<FoliaElement*>& v3,
-			 const std::vector<FoliaElement*>& v4,
-			 const KWargs& args );
-    Correction *correct( FoliaElement* o,
-			 FoliaElement* n,
-			 const KWargs& args ) {
-      const std::vector<FoliaElement*> v;
-      return correct( o, n, v, args );
-    }
+    Correction *correct( const std::vector<FoliaElement*>&,
+			 const std::vector<FoliaElement*>&,
+ 			 const std::vector<FoliaElement*>&,
+			 const std::vector<FoliaElement*>&,
+			 const KWargs& );
+    Correction *correct( FoliaElement*,
+			 FoliaElement*,
+			 const KWargs& );
     Correction* correct( FoliaElement*,
 			 FoliaElement*,
 			 const std::vector<FoliaElement*>&,
