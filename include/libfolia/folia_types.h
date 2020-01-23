@@ -52,7 +52,22 @@ namespace folia {
 
   //foliaspec:attributes
   //Defines all common FoLiA attributes (as part of the Attrib enumeration)
-  enum Attrib : int { NO_ATT=0, ID=1, CLASS=2, ANNOTATOR=4, CONFIDENCE=8, N=16, DATETIME=32, BEGINTIME=64, ENDTIME=128, SRC=256, SPEAKER=512, TEXTCLASS=1024, METADATA=2048, IDREF=4096, SPACE=8192, ALL=16384 };
+  enum Attrib : int { NO_ATT=0, ///<No attribute
+ID=1,  ///<xml:id: The ID of the element; this has to be a unique in the entire document or collection of documents (corpus). All identifiers in FoLiA are of the `XML NCName <https://www.w3.org/TR/1999/WD-xmlschema-2-19990924/#NCName>`_ datatype, which roughly means it is a unique string that has to start with a letter (not a number or symbol), may contain numbers, but may never contain colons or spaces. FoLiA does not define any naming convention for IDs.
+CLASS=2,  ///<class: The class of the annotation, i.e. the annotation tag in the vocabulary defined by ``set``.
+ANNOTATOR=4,  ///<annotator: This is an older alternative to the ``processor`` attribute, without support for full provenance. The annotator attribute simply refers to the name o ID of the system or human annotator that made the annotation.
+CONFIDENCE=8,  ///<confidence: A floating point value between zero and one; expresses the confidence the annotator places in his annotation.
+N=16,  ///<n: A number in a sequence, corresponding to a number in the original document, for example chapter numbers, section numbers, list item numbers. This this not have to be an actual number but other sequence identifiers are also possible (think alphanumeric characters or roman numerals).
+DATETIME=32,  ///<datetime: The date and time when this annotation was recorded, the format is ``YYYY-MM-DDThh:mm:ss`` (note the literal T in the middle to separate date from time), as per the XSD Datetime data type.
+BEGINTIME=64,  ///<begintime: A timestamp in ``HH:MM:SS.MMM`` format, indicating the begin time of the speech. If a sound clip is specified (``src``); the timestamp refers to a location in the soundclip.
+ENDTIME=128,  ///<endtime: A timestamp in ``HH:MM:SS.MMM`` format, indicating the end time of the speech. If a sound clip is specified (``src``); the timestamp refers to a location in the soundclip.
+SRC=256,  ///<src: Points to a file or full URL of a sound or video file. This attribute is inheritable.
+SPEAKER=512,  ///<speaker: A string identifying the speaker. This attribute is inheritable. Multiple speakers are not allowed, simply do not specify a speaker on a certain level if you are unable to link the speech to a specific (single) speaker.
+TEXTCLASS=1024,  ///<textclass: Refers to the text class this annotation is based on. This is an advanced attribute, if not specified, it defaults to ``current``. See :ref:`textclass_attribute`.
+METADATA=2048, 
+IDREF=4096,  ///<id: A reference to the ID of another element. This is a reference and not an assignment, unlike xml:id, so do not confuse the two! It is only supported on certain elements that are referential in nature.
+SPACE=8192,  ///<space: This attribute indicates whether spacing should be inserted after this element (it's default value is always ``yes``, so it does not need to be specified in that case), but if tokens or other structural elements are glued together then the value should be set to ``no``. This allows for reconstruction of the detokenised original text. 
+ALL=16384 };
 
   inline Attrib& operator++( Attrib & a ){
     return a = ( METADATA < a )
@@ -83,7 +98,63 @@ namespace folia {
 
     //foliaspec:annotationtype
     //Defines all annotation types (as part of the AnnotationType enumeration)
-    enum AnnotationType : int { NO_ANN,TEXT, TOKEN, DIVISION, PARAGRAPH, HEAD, LIST, FIGURE, WHITESPACE, LINEBREAK, SENTENCE, POS, LEMMA, DOMAIN, SENSE, SYNTAX, CHUNKING, ENTITY, CORRECTION, ERRORDETECTION, PHON, SUBJECTIVITY, MORPHOLOGICAL, EVENT, DEPENDENCY, TIMESEGMENT, GAP, QUOTE, NOTE, REFERENCE, RELATION, SPANRELATION, COREFERENCE, SEMROLE, METRIC, LANG, STRING, TABLE, STYLE, PART, UTTERANCE, ENTRY, TERM, DEFINITION, EXAMPLE, PHONOLOGICAL, PREDICATE, OBSERVATION, SENTIMENT, STATEMENT, ALTERNATIVE, RAWCONTENT, COMMENT, DESCRIPTION, HYPHENATION, HIDDENTOKEN, LAST_ANN };
+    enum AnnotationType : int { NO_ANN, ///<No type dummy
+    TEXT, ///<Text Annotation: Text annotation associates actual textual content with structural elements, without it a document would be textless. FoLiA treats it as an annotation like any other.
+    TOKEN, ///<Token Annotation: This annotation type introduces a tokenisation layer for the document. The terms **token** and **word** are used interchangeably in FoLiA as FoLiA itself does not commit to a specific tokenisation paradigm. Tokenisation is a prerequisite for the majority of linguistic annotation types offered by FoLiA and it is one of the most fundamental types of Structure Annotation. The words/tokens are typically embedded in other types of structure elements, such as sentences or paragraphs.
+    DIVISION, ///<Division Annotation: Structure annotation representing some kind of division, typically used for chapters, sections, subsections (up to the set definition). Divisions may be nested at will, and may include almost all kinds of other structure elements.
+    PARAGRAPH, ///<Paragraph Annotation: Represents a paragraph and holds further structure annotation such as sentences.
+    HEAD, ///<Head Annotation: The ``head`` element is used to provide a header or title for the structure element in which it is embedded, usually a division (``<div>``)
+    LIST, ///<List Annotation: Structure annotation for enumeration/itemisation, e.g. bulleted lists.
+    FIGURE, ///<Figure Annotation: Structure annotation for including pictures, optionally captioned, in documents.
+    WHITESPACE, ///<Whitespace: Structure annotation introducing vertical whitespace
+    LINEBREAK, ///<Linebreak: Structure annotation representing a single linebreak and with special facilities to denote pagebreaks.
+    SENTENCE, ///<Sentence Annotation: Structure annotation representing a sentence. Sentence detection is a common stage in NLP alongside tokenisation.
+    POS, ///<Part-of-Speech Annotation: Part-of-Speech Annotation, one of the most common types of linguistic annotation. Assigns a lexical class to words.
+    LEMMA, ///<Lemmatisation: Lemma Annotation, one of the most common types of linguistic annotation. Represents the canonical form of a word.
+    DOMAIN, ///<Domain/topic Annotation: Domain/topic Annotation. A form of inline annotation used to assign a certain domain or topic to a structure element.
+    SENSE, ///<Sense Annotation: Sense Annotation allows to assign a lexical semantic sense to a word.
+    SYNTAX, ///<Syntactic Annotation: Assign grammatical categories to spans of words. Syntactic units are nestable and allow representation of complete syntax trees that are usually the result of consistuency parsing.
+    CHUNKING, ///<Chunking: Assigns shallow grammatical categories to spans of words. Unlike syntax annotation, chunks are not nestable. They are often produced by a process called Shallow Parsing, or alternatively, chunking.
+    ENTITY, ///<Entity Annotation: Entity annotation is a broad and common category in FoLiA. It is used for specifying all kinds of multi-word expressions, including but not limited to named entities. The set definition used determines the vocabulary and therefore the precise nature of the entity annotation.
+    CORRECTION, ///<Correction Annotation: Corrections are one of the most complex annotation types in FoLiA. Corrections can be applied not just over text, but over any type of structure annotation, inline annotation or span annotation. Corrections explicitly preserve the original, and recursively so if corrections are done over other corrections.
+    ERRORDETECTION, ///<Error Detection: This annotation type is deprecated in favour of `Observation Annotation` and only exists for backward compatibility.
+    PHON, ///<Phonetic Annotation: This is the phonetic analogy to text content (``<t>``) and allows associating a phonetic transcription with any structural element, it is often used in a speech context. Note that for actual segmentation into phonemes, FoLiA has another related type: ``Phonological Annotation``
+    SUBJECTIVITY, ///<Subjectivity Annotation: This annotation type is deprecated in favour of `Sentiment Annotation` and only exists for backward compatibility.
+    MORPHOLOGICAL, ///<Morphological Annotation: Morphological Annotation allows splitting a word/token into morphemes, morphemes itself may be nested. It is embedded within a layer ``morphology`` which can be embedded within word/tokens.
+    EVENT, ///<Event Annotation: Structural annotation type representing events, often used in new media contexts for things such as tweets, chat messages and forum posts (as defined by a user-defined set definition). Note that a more linguistic kind of event annotation can be accomplished with `Entity Annotation` or even `Time Segmentation` rather than this one.
+    DEPENDENCY, ///<Dependency Annotation: Dependency relations are syntactic relations between spans of tokens. A dependency relation takes a particular class and consists of a single head component and a single dependent component.
+    TIMESEGMENT, ///<Time Segmentation: FoLiA supports time segmentation to allow for more fine-grained control of timing information by associating spans of words/tokens with exact timestamps. It can provide a more linguistic alternative to `Event Annotation`.
+    GAP, ///<Gap Annotation: Sometimes there are parts of a document you want to skip and not annotate at all, but include as is. This is where gap annotation comes in, the user-defined set may indicate the kind of gap. Common omissions in books are for example front-matter and back-matter, i.e. the cover.
+    QUOTE, ///<Quote Annotation: Structural annotation used to explicitly mark quoted speech, i.e. that what is reported to be said and appears in the text in some form of quotation marks.
+    NOTE, ///<Note Annotation: Structural annotation used for notes, such as footnotes or warnings or notice blocks.
+    REFERENCE, ///<Reference Annotation: Structural annotation for referring to other annotation types. Used e.g. for referring to bibliography entries (citations) and footnotes.
+    RELATION, ///<Relation Annotation: FoLiA provides a facility to relate arbitrary parts of your document with other parts of your document, or even with parts of other FoLiA documents or external resources, even in other formats. It thus allows linking resources together. Within this context, the ``xref`` element is used to refer to the linked FoLiA elements.
+    SPANRELATION, ///<Span Relation Annotation: Span relations are a stand-off extension of relation annotation that allows for more complex relations, such as word alignments that include many-to-one, one-to-many or many-to-many alignments. One of its uses is in the alignment of multiple translations of (parts) of a text.
+    COREFERENCE, ///<Coreference Annotation: Relations between words that refer to the same referent (anaphora) are expressed in FoLiA using Coreference Annotation. The co-reference relations are expressed by specifying the entire chain in which all links are coreferent.
+    SEMROLE, ///<Semantic Role Annotation: This span annotation type allows for the expression of semantic roles, or thematic roles. It is often used together with `Predicate Annotation`
+    METRIC, ///<Metric Annotation: Metric Annotation is a form of higher-order annotation that allows annotation of some kind of measurement. The type of measurement is defined by the class, which in turn is defined by the set as always. The metric element has a ``value`` attribute that stores the actual measurement, the value is often numeric but this needs not be the case.
+    LANG, ///<Language Annotation: Language Annotation simply identifies the language a part of the text is in. Though this information is often part of the metadata, this form is considered an actual annotation.
+    STRING, ///<String Annotation: This is a form of higher-order annotation for selecting an arbitrary substring of a text, even untokenised, and allows further forms of higher-order annotation on the substring. It is also tied to a form of text markup annotation.
+    TABLE, ///<Table Annotation: Structural annotation type for creating a simple tabular environment, i.e. a table with rows, columns and cells and an optional header.
+    STYLE, ///<Style Annotation: This is a text markup annotation type for applying styling to text. The actual styling is defined by the user-defined set definition and can for example included classes such as italics, bold, underline
+    PART, ///<Part Annotation: The structure element ``part`` is a fairly abstract structure element that should only be used when a more specific structure element is not available. Most notably, the part element should never be used for representation of morphemes or phonemes! Part can be used to divide a larger structure element, such as a division, or a paragraph into arbitrary subparts.
+    UTTERANCE, ///<Utterance Annotation: An utterance is a structure element that may consist of words or sentences, which in turn may contain words. The opposite is also true, a sentence may consist of multiple utterances. Utterances are often used in the absence of sentences in a speech context, where neat grammatical sentences can not always be distinguished.
+    ENTRY, ///<Entry Annotation: FoLiA has a set of structure elements that can be used to represent collections such as glossaries, dictionaries, thesauri, and wordnets. `Entry annotation` defines the entries in such collections, `Term annotation` defines the terms, and `Definition Annotation` provides the definitions.
+    TERM, ///<Term Annotation: FoLiA has a set of structure elements that can be used to represent collections such as glossaries, dictionaries, thesauri, and wordnets. `Entry annotation` defines the entries in such collections, `Term annotation` defines the terms, and `Definition Annotation` provides the definitions.
+    DEFINITION, ///<Definition Annotation: FoLiA has a set of structure elements that can be used to represent collections such as glossaries, dictionaries, thesauri, and wordnets. `Entry annotation` defines the entries in such collections, `Term annotation` defines the terms, and `Definition Annotation` provides the definitions.
+    EXAMPLE, ///<Example Annotation: FoLiA has a set of structure elements that can be used to represent collections such as glossaries, dictionaries, thesauri, and wordnets. `Examples annotation` defines examples in such collections.
+    PHONOLOGICAL, ///<Phonological Annotation: The smallest unit of annotatable speech in FoLiA is the phoneme level. The phoneme element is a form of structure annotation used for phonemes.  Alike to morphology, it is embedded within a layer ``phonology`` which can be embedded within word/tokens.
+    PREDICATE, ///<Predicate Annotation: Allows annotation of predicates, this annotation type is usually used together with Semantic Role Annotation. The types of predicates are defined by a user-defined set definition.
+    OBSERVATION, ///<Observation Annotation: Observation annotation is used to make an observation pertaining to one or more word tokens.  Observations offer a an external qualification on part of a text. The qualification is expressed by the class, in turn defined by a set. The precise semantics of the observation depends on the user-defined set.
+    SENTIMENT, ///<Sentiment Annotation: Sentiment analysis marks subjective information such as sentiments or attitudes expressed in text. The sentiments/attitudes are defined by a user-defined set definition.
+    STATEMENT, ///<Statement Annotation: Statement annotation, sometimes also refered to as attribution, allows to decompose statements into the source of the statement, the content of the statement, and the way these relate, provided these are made explicit in the text.
+    ALTERNATIVE, ///<Alternative Annotation: This form of higher-order annotation encapsulates alternative annotations, i.e. annotations that are posed as an alternative option rather than the authoratitive chosen annotation
+    RAWCONTENT, ///<Raw Content: This associates raw text content which can not carry any further annotation. It is used in the context of :ref:`gap_annotation`
+    COMMENT, ///<Comment Annotation: This is a form of higher-order annotation that allows you to associate comments with almost all other annotation elements
+    DESCRIPTION, ///<Description Annotation: This is a form of higher-order annotation that allows you to associate descriptions with almost all other annotation elements
+    HYPHENATION, ///<Hyphenation Annotation: This is a text-markup annotation form that indicates where in the original text a linebreak was inserted and a word was hyphenised.
+    HIDDENTOKEN, ///<Hidden Token Annotation: This annotation type allows for a hidden token layer in the document. Hidden tokens are ignored for most intents and purposes but may serve a purpose when annotations on implicit tokens is required, for example as targets for syntactic movement annotation.
+, LAST_ANN };
 
     inline AnnotationType& operator++( AnnotationType &at ){
       return at = ( LAST_ANN == at )

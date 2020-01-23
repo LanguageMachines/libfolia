@@ -32,7 +32,7 @@
 #include "libfolia/folia_properties.h"
 
 //foliaspec:header
-//This file was last updated according to the FoLiA specification for version 2.2.1 on 2019-08-21 17:53:56, using foliaspec.py
+//This file was last updated according to the FoLiA specification for version 2.2.1 on 2020-01-23 12:15:47, using foliaspec.py
 //Code blocks after a foliaspec comment (until the next newline) are automatically generated. **DO NOT EDIT THOSE** and **DO NOT REMOVE ANY FOLIASPEC COMMENTS** !!!
 
 namespace folia {
@@ -1612,7 +1612,6 @@ namespace folia {
     { "complexalignments", "spanrelations" },
     { "listitem", "item" },
   };
-  map<string,string> reverse_old;
 
   //foliaspec:wrefables
   //Elements that act as words and can be referable from span annotations
