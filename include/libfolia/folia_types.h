@@ -39,13 +39,15 @@ namespace folia {
       : ElementType(et+1);
   }
 
-
+  /** AnnotatorType is the Internal representation of the Annatator attribute
+   *
+   */
   enum AnnotatorType: int {
-    UNDEFINED = 0,
-      AUTO = 1,
-      MANUAL = 2,
-      GENERATOR = 3,
-      DATASOURCE = 4
+    UNDEFINED = 0,   ///< The value is (yet) unknown
+      AUTO = 1,      ///< The value is automaticly assigned
+      MANUAL = 2,    ///< The value is manually assigned
+      GENERATOR = 3, ///< The value is added by a generator
+      DATASOURCE = 4 ///< The value comes from an external datasource
       };
 
   //foliaspec:attributes
@@ -70,7 +72,7 @@ namespace folia {
   std::string toString( const Attrib );
   std::ostream& operator<<( std::ostream&, const Attrib& );
 
-#undef DOMAIN // ugly hack but GCC screws up
+  //#undef DOMAIN // ugly hack but GCC screws up
 
   /*
    * Annotation types tie FoLiA elements to a particular kind of annotation.

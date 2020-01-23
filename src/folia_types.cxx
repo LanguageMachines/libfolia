@@ -187,7 +187,14 @@ namespace folia {
   }
 
   ostream& operator<<( ostream& os, const Attrib& attribs ){
-    /// outpu an attribute list. (debugging only)
+    /// Output operator for an Attrib element
+    /*!
+     * \param os the output stream
+     * \attribs an Attrib.
+     * An Attrib contains a logical OR of serveral values.
+     * This function outputs a string value for every value set.
+     * separated by '|'
+     */
     enum Attrib at = NO_ATT;
     while ( at != ALL ){
       if ( attribs & at ){
