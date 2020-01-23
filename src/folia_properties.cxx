@@ -1613,6 +1613,8 @@ namespace folia {
     { "listitem", "item" },
   };
 
+  map<string,string> reverse_old;
+
   //foliaspec:wrefables
   //Elements that act as words and can be referable from span annotations
   const set<ElementType> wrefables = { Hiddenword_t, Morpheme_t, Phoneme_t, Word_t };
