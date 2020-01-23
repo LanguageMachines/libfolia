@@ -39,6 +39,7 @@ using namespace std;
 namespace folia {
 
   string toString( const AnnotationType::AnnotationType& at ){
+    /// return the string representation of AnnotationType at
     auto result = ant_s_map.find(at);
     if ( result == ant_s_map.end() ){
       throw logic_error( "Unknown Annotationtype: index= "
@@ -48,6 +49,13 @@ namespace folia {
   }
 
   AnnotationType::AnnotationType stringToAnnotationType( const string& st ){
+    // convert a string into an AnnotationType
+    /*!
+     * \param st a string representing an AnnotationType
+     * \return an AnnotationType. Throws when not found.
+     *
+     * Also handles 'old' pre v1.5 names.
+     */
     string s = st;
     auto const tr = oldtags.find(st);
     if ( tr != oldtags.end() ){
@@ -62,6 +70,11 @@ namespace folia {
   }
 
   AnnotatorType stringToAnnotatorType( const string& str ){
+    // convert a string into an AnnotatorType
+    /*!
+     * \param str a (case insensitive) string representation
+     * \return an AnnotatorType
+     */
     string at = TiCC::uppercase( str );
     if ( at == "AUTO" )
       return folia::AUTO;
@@ -76,6 +89,7 @@ namespace folia {
   }
 
   string toString( const AnnotatorType& at ){
+    /// return the string representation of AnnotatorType at
     switch ( at ){
     case AUTO:
       return "auto";
@@ -95,6 +109,11 @@ namespace folia {
   }
 
   string toString( const ElementType& et ) {
+    /// return the string representation of ElementType et
+    /*!
+     * \param et an ElementType
+     * \return a string representation.
+     */
     auto result = et_s_map.find(et);
     if ( result == et_s_map.end() ){
       throw logic_error( "toString: Unknown Elementtype "
@@ -104,6 +123,13 @@ namespace folia {
   }
 
   ElementType stringToElementType( const string& intag ){
+    // convert a string into an ElementType
+    /*!
+     * \param intag a string representing an ElementType
+     * \return an ElementType. Throws when not found.
+     *
+     * Also handles 'old' pre v1.5 names.
+     */
     string tag = intag;
     auto const tr = oldtags.find(intag);
     if ( tr != oldtags.end() ){
@@ -117,6 +143,7 @@ namespace folia {
   }
 
   string toString( const Attrib at ){
+    /// return the string representation of Attrib at
     switch ( at ){
     case ID:
       return "ID";
@@ -160,6 +187,7 @@ namespace folia {
   }
 
   ostream& operator<<( ostream& os, const Attrib& attribs ){
+    /// outpu an attribute list. (debugging only)
     enum Attrib at = NO_ATT;
     while ( at != ALL ){
       if ( attribs & at ){
