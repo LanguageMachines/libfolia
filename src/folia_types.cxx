@@ -190,7 +190,7 @@ namespace folia {
     /// Output operator for an Attrib element
     /*!
      * \param os the output stream
-     * \attribs an Attrib.
+     * \param attribs an Attrib.
      * An Attrib contains a logical OR of serveral values.
      * This function outputs a string value for every value set.
      * separated by '|'

@@ -70,7 +70,7 @@ SPACE=8192,  ///<space: This attribute indicates whether spacing should be inser
 ALL=16384 };
 
   inline Attrib& operator++( Attrib & a ){
-    return a = ( METADATA < a )
+    return a = ( ALL == a )
       ? NO_ATT
       : ( NO_ATT == a ? ID : Attrib(a<<1) );
   }
