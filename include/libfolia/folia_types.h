@@ -154,7 +154,7 @@ ALL=16384 };
     DESCRIPTION, ///<Description Annotation: This is a form of higher-order annotation that allows you to associate descriptions with almost all other annotation elements
     HYPHENATION, ///<Hyphenation Annotation: This is a text-markup annotation form that indicates where in the original text a linebreak was inserted and a word was hyphenised.
     HIDDENTOKEN, ///<Hidden Token Annotation: This annotation type allows for a hidden token layer in the document. Hidden tokens are ignored for most intents and purposes but may serve a purpose when annotations on implicit tokens is required, for example as targets for syntactic movement annotation.
-, LAST_ANN };
+LAST_ANN };
 
     inline AnnotationType& operator++( AnnotationType &at ){
       return at = ( LAST_ANN == at )
