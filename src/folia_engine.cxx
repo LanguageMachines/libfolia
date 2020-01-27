@@ -135,10 +135,11 @@ namespace folia {
   }
 
   bool Engine::set_debug( bool d ) {
-    /// swiich debugging on/off depending on parameter 'd'
+    /// switch debugging on/off depending on parameter 'd'
     /// \param d when true switch debugging to ON, otherwise OFF
-    // when debugging is switched ON and NO debug file is associated yet,
-    // it is created.
+
+    /// When debugging is switched ON and NO debug file is associated yet,
+    /// it is created.
     bool res = _debug;
     if ( d ){
       if ( !_dbg_file ){
@@ -427,8 +428,9 @@ namespace folia {
     /// init an associated document for this Engine
     /// \param file_name the input file to use for parsing
     /// \param out_name when not empty, add an output-file with this name
-    // initializing includes parsing the Document's metadata, style-sheet
-    // upto and including the top \<text or \<speech> node
+
+    /// Initializing includes parsing the Document's metadata, style-sheet
+    /// upto and including the top \<text or \<speech> node
     _ok = false;
     _out_doc = new Document();
     _out_doc->set_incremental( true );
@@ -804,9 +806,10 @@ namespace folia {
 
   int count_nodes( FoliaElement *fe ){
     /// count all 'real' FoliaElements including and below this one
-    // \param fe The elemnt to start at
-    // this returns the 'size' of the subtree below fe
-    // we need this number to know where to proceed processing
+    /// \param fe the The element to start at
+    /// \return the 'size' of the subtree below fe
+
+    /// we need this number to know where to proceed processing
     int result = 0;
     //    cerr << "DEPTH " << fe << endl;
     if ( fe
@@ -1055,7 +1058,8 @@ namespace folia {
 
   bool Engine::flush() {
     /// output all NEW information in the output Document to the output stream
-    // may call output_header() first
+
+    /// may call output_header() first
     if ( _debug ){
       DBG << "Engine::flush()" << endl;
     }
@@ -1141,9 +1145,9 @@ namespace folia {
     /// init an associated document for this TextEngine
     /// \param i the input file to use for parsing
     /// \param o when not empty, add an output-file with this name
-    //
-    // Sets the _in_file property to i and mars _is_setup FALSE
-    // then calls Engine::init_doc to do the real work.
+    ///
+    /// Sets the _in_file property to i and mars _is_setup FALSE
+    /// then calls Engine::init_doc to do the real work.
     _in_file = i;
     _is_setup = false;
     //    set_debug(true);
@@ -1270,7 +1274,7 @@ namespace folia {
     /// Structure nodes like sentences or paragraphs above returning
     /// just Word or String nodes
     ///
-    // recurses to the DEEPEST text possible, and enumerates their parents
+    /// recurses to the DEEPEST text possible, and enumerates their parents
     if ( _done ){
       throw runtime_error( "enumerate_text_parents() called on a done engine" );
     }

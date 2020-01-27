@@ -75,6 +75,7 @@ namespace folia {
     bool flush();
     bool flush( FoliaElement * );
     bool finish();
+    /// return the status of the Engine. True when still valid. False otherwise.
     bool ok() const { return _ok; };
     void un_declare( const AnnotationType::AnnotationType&,
 		     const std::string& = "" );
