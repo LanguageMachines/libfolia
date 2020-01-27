@@ -186,15 +186,8 @@ namespace folia {
     /// \param args additional arguments in string annotation
     // args can be used to add extra arguments like a processor name or
     // an annotator
-    if ( !ok() ){
-      throw logic_error( "declare() called on invalid engine!" );
-    }
-    else if ( _header_done ){
-      throw logic_error( "declare() called on already (partially) saved document!" );
-    }
-    else {
-      _out_doc->declare( at, setname, args );
-    }
+    KWargs kwargs( args );
+    declare( at, setname, kwargs );
   }
 
   void Engine::declare( const AnnotationType::AnnotationType& at,
@@ -230,7 +223,7 @@ namespace folia {
       return _out_doc->declared( at, setname );
     }
   }
-
+  /*
   void Engine::declare( const AnnotationType::AnnotationType& at,
 			const string& setname,
 			const string& format,
@@ -259,7 +252,7 @@ namespace folia {
 			 processors, alias );
     }
   }
-
+  */
   bool Engine::is_declared( const AnnotationType::AnnotationType& at,
 			    const string& setname,
 			    const string& annotator,

@@ -86,11 +86,6 @@ namespace folia {
 		  const KWargs& );
     bool is_declared( const AnnotationType::AnnotationType&,
 		      const std::string& = "" ) const;
-    void declare( const AnnotationType::AnnotationType&,
-		  const std::string&, const std::string&, const std::string&,
-		  const std::string&, const std::string&,
-		  const std::set<std::string>&,
-		  const std::string& = "" );
     bool is_declared( const AnnotationType::AnnotationType&,
 		      const std::string&, const std::string&,
 		      const std::string&, const std::string& = "" ) const;
