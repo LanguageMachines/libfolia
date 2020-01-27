@@ -413,7 +413,7 @@ namespace folia {
   }
 
   void Engine::add_default_node( int depth ){
-    /// when parsing, and debugging, output a message. does nothing else
+    /// when debugging, output a message. Does nothing else
     if ( _debug ){
       string local_name = (const char*)xmlTextReaderConstLocalName(_reader);
       int type = xmlTextReaderNodeType(_reader);
@@ -547,21 +547,21 @@ namespace folia {
   }
 
   void Engine::append_node( FoliaElement *t,
-			    int new_depth ){
+			    int depth ){
     /// append a FoliaElement to the associated document
     /// \param t the FoliaElement
-    /// \param new_depth the location use for adding
+    /// \param depth the location use for adding
     if ( _debug ){
       DBG << "append_node(" << t << ") current node= " << _current_node << endl;
       DBG << "append_node(): last node= " << _last_added << endl;
     }
-    if ( new_depth == _last_depth ){
+    if ( depth == _last_depth ){
       if ( _debug ){
 	DBG << "append_node(): EQUAL!" << endl;
       }
       _current_node->append( t );
     }
-    else if ( new_depth > _last_depth ){
+    else if ( depth > _last_depth ){
       if ( _debug ){
 	DBG << "append_node(): DEEPER!" << endl;
       }
@@ -570,13 +570,13 @@ namespace folia {
 	DBG << "So now: current node = " << _current_node << endl;
       }
       _current_node->append( t );
-      _last_depth = new_depth;
+      _last_depth = depth;
     }
-    else if ( new_depth < _last_depth  ){
+    else if ( depth < _last_depth  ){
       if ( _debug ){
 	DBG << "append_node(): UP!" << endl;
       }
-      for ( int i=0; i < _last_depth-new_depth; ++i ){
+      for ( int i=0; i < _last_depth - depth; ++i ){
 	_current_node = _current_node->parent();
 	if ( _debug ){
 	  DBG << "up node = " << _current_node << endl;
@@ -586,7 +586,7 @@ namespace folia {
 	DBG << "at last, current node = " << _current_node << endl;
       }
       _current_node->append( t );
-      _last_depth = new_depth;
+      _last_depth = depth;
     }
     if ( _debug ){
       DBG << "append_node() result = " << _current_node << endl;
@@ -625,23 +625,24 @@ namespace folia {
 
   FoliaElement *Engine::get_node( const string& tag ){
     /// return the next node in the Engine with 'tag'
-    /// \param tag the tag or a list of tags are looking for
+    /// \param tag the tag or a list of tags we are looking for
     /// \return the FoliaElement found.
-    // tag may be a single tag like 'lemma' but also a list of tags
-    // like 'lemma|pos|description'. In the latter case all named tags
-    // are tested and the first found is returned
-    //
-    // The returned FoliaElement is a FoLiA subtree expaned from the
-    // xmlTextReader. Further parsing will continue at its next brother
-    // or the next child in the parent.
+
+    /// tag may be a single tag like 'lemma' but also a list of '|' separated
+    /// tags like 'lemma|pos|description'. In the latter case all named tags
+    /// are tested and the first found is returned
+    ///
+    /// The returned FoliaElement is a FoLiA subtree expaned from the
+    /// xmlTextReader. Further parsing will continue at the next sibbling
+    /// of the parent.
     if ( _done ){
       if ( _debug ){
-	DBG << "get node name(). engine is done" << endl;
+	DBG << "Engine::get_node(). we are done" << endl;
       }
       return 0;
     }
     if ( _debug ){
-      DBG << "get node name, for tag=" << tag << endl;
+      DBG << "Engine::get_node(), for tag=" << tag << endl;
     }
     int ret = 0;
     if ( _external_node != 0 ){
@@ -947,9 +948,11 @@ namespace folia {
   }
 
   bool Engine::output_header(){
-    ///  output the Folia header to the associated output stream
-    // this outputs ALL metadata from the Document upto and including
-    // the opening \<text> of \<speech> node
+    /// output the 'header' of the Folia document to the associated output
+    /// stream
+
+    /// This outputs ALL metadata from the Document upto and including
+    /// the opening \<text> of \<speech> node
     if ( _debug ){
       DBG << "Engine::output_header()" << endl;
     }
@@ -1027,7 +1030,9 @@ namespace folia {
 
   bool Engine::output_footer(){
     /// output the remains of the associated Document
-    // further processing is illegal
+    /// might call flush() first
+
+    /// further processing in this Engine is illegal
     if ( _debug ){
       DBG << "Engine::output_footer()" << endl;
     }
