@@ -39,14 +39,65 @@
 
 using namespace std;
 
+/// define a static default LogStream
 TiCC::LogStream DBG_CERR(cerr,"folia-engine:");
+
+/// direct Debugging info to the internal file, if present, or to the default stream
 #define DBG *TiCC::Log((_dbg_file?_dbg_file:&DBG_CERR))
 
 namespace folia {
 
   using TiCC::operator<<;
 
+  xml_tree::xml_tree( int d, int i, const std::string& t, const std::string& c ):
+    /// create an xml_tree element with the given parameters
+    depth(d),
+    index(i),
+    tag(t),
+    textclass(c),
+    parent(0),
+    link(0),
+    next(0)
+  {}
+
+  xml_tree::~xml_tree() {
+    /// delete an xml_tree
+    if ( link ){
+      delete link;
+    }
+    if ( next ){
+      delete next;
+    }
+  }
+
+  void print( ostream& os, const xml_tree* tree ){
+    /// pretty print an xml_tree
+    // \param os the output stream
+    // \param tree the tree
+    const xml_tree *rec_pnt = tree;
+    while ( rec_pnt ){
+      os << setw(10) << rec_pnt->index << string( rec_pnt->depth, ' ' )
+	 << rec_pnt->tag;
+      if ( rec_pnt->textclass.empty() ){
+	os << endl;
+      }
+      else {
+	os << " (" << rec_pnt->textclass << ")" << endl;
+      }
+      print( os, rec_pnt->link );
+      rec_pnt = rec_pnt->next;
+    }
+  }
+
+  ostream& operator<<( ostream& os, const xml_tree* tree ){
+    /// print an xml_tree
+    os << endl;
+    print( os, tree );
+    return os;
+  }
+
   Engine::Engine():
+    /// default constructor
     _reader(0),
     _out_doc(0),
     _root_node(0),
@@ -66,14 +117,16 @@ namespace folia {
   }
 
   Engine::~Engine(){
+    /// destructor
     xmlFreeTextReader( _reader );
     delete _out_doc;
     delete _os;
   }
 
   Document *Engine::doc( bool disconnect ){
-    // returns the FoLiA document. (assumes it is complete!)
-    // may disconnect it from the engine. The caller has to delete it later
+    /// returns the associated FoLiA document. (assumes it is complete!)
+    /// \param disconnect handle control over to the caller.
+    /// The caller has to delete it to avoid memory leaks
     Document *result = _out_doc;
     if ( disconnect ){
       _out_doc = 0;
@@ -82,6 +135,10 @@ namespace folia {
   }
 
   bool Engine::set_debug( bool d ) {
+    /// swiich debugging on/off depending on parameter 'd'
+    /// \param d when true switch debugging to ON, otherwise OFF
+    // when debugging is switched ON and NO debug file is associated yet,
+    // it is created.
     bool res = _debug;
     if ( d ){
       if ( !_dbg_file ){
@@ -94,35 +151,20 @@ namespace folia {
   }
 
   void Engine::set_dbg_stream( TiCC::LogStream *ls ){
+    /// switch debugging to another stream
     if ( _dbg_file ){
       delete _dbg_file;
     }
     _dbg_file = ls;
   }
 
-  bool TextEngine::init_doc( const string& i, const string& o ){
-    _in_file = i;
-    _is_setup = false;
-    //    set_debug(true);
-    return Engine::init_doc( i, o );
-  }
-
-  void TextEngine::setup( const string& textclass, bool prefer_sent ){
-    string txtc = textclass;
-    if ( txtc == "current" ){
-      txtc.clear();
-    }
-    text_parent_map = enumerate_text_parents( txtc, prefer_sent );
-    _next_text_node = _start_index;
-    if ( !text_parent_map.empty() ){
-      _next_text_node = text_parent_map.begin()->first;
-    }
-    _node_count = _start_index;
-    _is_setup = true;
-  }
-
   void Engine::un_declare( const AnnotationType::AnnotationType& at,
 			   const string& setname ){
+    /// remove the annotation declaration for the given type and set
+    /// \param at the AnnotationType
+    /// \param setname the set so remove
+    /// \note an AnntotationType can have several set-names assigned to it.
+    /// When setname is empty ("") ALL set-names are removed
     if ( !ok() ){
       throw logic_error( "declare() called on invalid engine!" );
     }
@@ -137,6 +179,12 @@ namespace folia {
   void Engine::declare( const AnnotationType::AnnotationType& at,
 			const string& setname,
 			const string& args ) {
+    /// declare a set for a given annotation type
+    /// \param at the AnnotationType
+    /// \param setname The set-name to use
+    /// \param args additional arguments in string annotation
+    // args can be used to add extra arguments like a processor name or
+    // an annotator
     if ( !ok() ){
       throw logic_error( "declare() called on invalid engine!" );
     }
@@ -151,6 +199,12 @@ namespace folia {
   void Engine::declare( const AnnotationType::AnnotationType& at,
 			const string& setname,
 			const KWargs& args ) {
+    /// declare a set for a given annotation type
+    /// \param at the AnnotationType
+    /// \param setname The set-name to use
+    /// \param args additional arguments as a KWargs attribute-value list
+    // args can be used to add extra arguments like a processor name or
+    // an annotator
     if ( !ok() ){
       throw logic_error( "declare() called on invalid engine!" );
     }
@@ -164,6 +218,10 @@ namespace folia {
 
   bool Engine::is_declared( const AnnotationType::AnnotationType& at,
 			    const string& setname ) const {
+    /// check if an annotation for the provided type and setname is present
+    /// \param at the AnnotationType
+    /// \param setname the set-name to test
+    /// \return true if declared, false otherwise.
     if ( !ok() ){
       throw logic_error( "is_declared() called on invalid engine!" );
     }
@@ -180,6 +238,15 @@ namespace folia {
 			const string& time,
 			const set<string>& processors,
 			const string& alias ) {
+    /// declare a set for a given annotation type
+    /// \param at the AnnotationType
+    /// \param setname The set-name to use
+    /// \param format The format to use TO DO EXPLAIN
+    /// \param annotator the name of the annotator
+    /// \param annotator_type which AnnotatorType in string representation
+    /// \param time the timestamp to set
+    /// \param processors the processors involved
+    /// \param alias an alias for the set-name (in genaral an abbreviated name)
     if ( !ok() ){
       throw logic_error( "declare() called on invalid engine!" );
     }
@@ -197,6 +264,13 @@ namespace folia {
 			    const string& annotator,
 			    const AnnotatorType& annotator_type,
 			    const string& processor ) const {
+    /// check if an annotation for the provided type and setname is present
+    /// \param at the AnnotationType
+    /// \param setname the set-name to test
+    /// \param annotator the name of the annotator to test
+    /// \param annotator_type the AnnotatorType to test
+    /// \param processor the desired processor
+    /// \return true if declared, false otherwise.
     if ( !ok() ){
       throw logic_error( "is_declared() called on invalid engine!" );
     }
@@ -210,6 +284,13 @@ namespace folia {
 			    const string& annotator,
 			    const string& annotator_type,
 			    const string& processor ) const {
+    /// check if an annotation for the provided type and setname is present
+    /// \param at the AnnotationType
+    /// \param setname the set-name to test
+    /// \param annotator the name of the annotator to test
+    /// \param annotator_type the AnnotatorType to test, encoded as a string
+    /// \param processor the desired processor
+    /// \return true if declared, false otherwise.
     AnnotatorType ant = UNDEFINED;
     try {
       ant = TiCC::stringTo<AnnotatorType>(annotator_type);
@@ -222,6 +303,9 @@ namespace folia {
 
   void Engine::set_metadata( const std::string& att,
 			     const std::string& val){
+    /// set a metadata value in the associated document
+    /// \param att the attribute to set
+    /// \param val the value of the attribute
     if ( !ok() ){
       throw logic_error( "set_metadata() called on invalid engine!" );
     }
@@ -231,6 +315,9 @@ namespace folia {
   }
 
   pair<string,string> extract_style( const string& value ){
+    /// parse a string to extract an xml style-sheet value
+    /// \param value the line to parse
+    /// \return a pait of strings containing the type and the href values
     string type;
     string href;
     vector<string> v = TiCC::split( value );
@@ -251,6 +338,9 @@ namespace folia {
   }
 
   KWargs get_attributes( xmlTextReader *tr ){
+    /// extract a KWargs list from the current TextReader location
+    /// \param tr the xmlTextReader pointer
+    /// \return a KWargs list of all attribute/value pairs found
     KWargs result;
     if ( xmlTextReaderHasAttributes(tr) ){
       xmlTextReaderMoveToFirstAttribute(tr);
@@ -265,6 +355,11 @@ namespace folia {
   }
 
   xmlTextReader *create_text_reader( const string& buf ){
+    /// create a new xmlTextRead on a buffer
+    /// \param buf the input buffer
+    // The buffer may contain a complete (FoLiA-) XML document as a string
+    // OR a filename denoting such a document, which may be .bz2 and .gz
+    // encoded
     if ( TiCC::match_front( buf, "<?xml " ) ){
       return xmlReaderForMemory( buf.c_str(), buf.size(),
 				 "input_buffer", 0, XML_PARSE_HUGE );
@@ -295,6 +390,8 @@ namespace folia {
   }
 
   void Engine::add_text( int depth ){
+    /// when parsing, add a new XmlText node
+    /// \param depth the depth (location) in the tree where to add
     string value = (const char*)xmlTextReaderConstValue(_reader);
     if ( _debug ){
       DBG << "add_text(" << value << ") depth=" << depth << endl;
@@ -305,6 +402,8 @@ namespace folia {
   }
 
   void Engine::add_comment( int depth ){
+    /// when parsing, add a new _XmlComment node
+    /// \param depth the depth (location) in the tree where to add
     if ( _debug ){
       DBG << "add_comment " << endl;
     }
@@ -314,8 +413,9 @@ namespace folia {
   }
 
   void Engine::add_default_node( int depth ){
-    string local_name = (const char*)xmlTextReaderConstLocalName(_reader);
+    /// when parsing, and debugging, output a message. does nothing else
     if ( _debug ){
+      string local_name = (const char*)xmlTextReaderConstLocalName(_reader);
       int type = xmlTextReaderNodeType(_reader);
       DBG << "add_node " << type <<  " name=" << local_name
 	  << " depth " << _last_depth << " ==> " << depth << endl;
@@ -324,6 +424,11 @@ namespace folia {
 
   bool Engine::init_doc( const string& file_name,
 			 const string& out_name ){
+    /// init an associated document for this Engine
+    /// \param file_name the input file to use for parsing
+    /// \param out_name when not empty, add an output-file with this name
+    // initializing includes parsing the Document's metadata, style-sheet
+    // upto and including the top \<text or \<speech> node
     _ok = false;
     _out_doc = new Document();
     _out_doc->set_incremental( true );
@@ -432,6 +537,7 @@ namespace folia {
   }
 
   bool Engine::next(){
+    /// advance the Engine's reading position
     if ( _done ){
       return false;
     }
@@ -442,6 +548,9 @@ namespace folia {
 
   void Engine::append_node( FoliaElement *t,
 			    int new_depth ){
+    /// append a FoliaElement to the associated document
+    /// \param t the FoliaElement
+    /// \param new_depth the location use for adding
     if ( _debug ){
       DBG << "append_node(" << t << ") current node= " << _current_node << endl;
       DBG << "append_node(): last node= " << _last_added << endl;
@@ -485,7 +594,46 @@ namespace folia {
     _last_added = t;
   }
 
+  FoliaElement *Engine::handle_match( const string& local_name,
+				      int depth ){
+    /// expand a matched tag into a FoLiA subtree
+    /// \param local_name the tag to create
+    /// \param depth the location in the Document to attach to
+    /// \return an expanded FoLiA subtree
+    FoliaElement *t = AbstractElement::createElement( local_name, _out_doc );
+    if ( t ){
+      if ( _debug ){
+	DBG << "created FoliaElement: name=" << local_name << endl;
+      }
+      xmlNode *fd = xmlTextReaderExpand(_reader);
+      t->parseXml( fd );
+      append_node( t, depth );
+      _external_node = t;
+      if ( _debug ){
+	DBG << "expose external node: " << t << endl;
+      }
+      return t;
+    }
+    else if ( !_out_doc->permissive() ){
+      throw XmlError( "folia::engine failed to create node: "
+		      + local_name );
+    }
+    else {
+      return 0;
+    }
+  }
+
   FoliaElement *Engine::get_node( const string& tag ){
+    /// return the next node in the Engine with 'tag'
+    /// \param tag the tag or a list of tags are looking for
+    /// \return the FoliaElement found.
+    // tag may be a single tag like 'lemma' but also a list of tags
+    // like 'lemma|pos|description'. In the latter case all named tags
+    // are tested and the first found is returned
+    //
+    // The returned FoliaElement is a FoLiA subtree expaned from the
+    // xmlTextReader. Further parsing will continue at its next brother
+    // or the next child in the parent.
     if ( _done ){
       if ( _debug ){
 	DBG << "get node name(). engine is done" << endl;
@@ -563,52 +711,11 @@ namespace folia {
     return 0;
   }
 
-  xml_tree::xml_tree( int d, int i, const std::string& t, const std::string& c ):
-    depth(d),
-    index(i),
-    tag(t),
-    textclass(c),
-    parent(0),
-    link(0),
-    next(0)
-  {}
-
-  xml_tree::~xml_tree() {
-    if ( link ){
-      delete link;
-    }
-    if ( next ){
-      delete next;
-    }
-  }
-
-  void print( ostream& os, const xml_tree* recs ){
-    const xml_tree *rec_pnt = recs;
-    while ( rec_pnt ){
-      os << setw(10) << rec_pnt->index << string( rec_pnt->depth, ' ' )
-	 << rec_pnt->tag;
-      if ( rec_pnt->textclass.empty() ){
-	os << endl;
-      }
-      else {
-	os << " (" << rec_pnt->textclass << ")" << endl;
-      }
-      print( os, rec_pnt->link );
-      rec_pnt = rec_pnt->next;
-    }
-  }
-
-  ostream& operator<<( ostream& os, const xml_tree* xt ){
-    os << endl;
-    print( os, xt );
-    return os;
-  }
-
   xml_tree *Engine::create_simple_tree( const string& in_file ) const {
-    ///
-    /// create an xmlReader and use that to loop over the full input,
     /// creating a lightweight tree for enumerating all XML_ELEMENTS encountered
-    ///
+    /// \param in_file The file to create an xmlTextReader on. May be a string
+    /// buffer containing a complete XML file too
+    /// \return the light-weight tree with the relevant nodes
     xmlTextReader *cur_reader = create_text_reader( in_file );
     if ( _debug ){
       DBG << "enumerate_nodes()" << endl;
@@ -694,140 +801,11 @@ namespace folia {
     return records;
   }
 
-  xml_tree *get_structure_parent( const xml_tree *pnt ){
-    if ( pnt->parent->tag != "w"
-	 && isSubClass( stringToElementType(pnt->parent->tag),
-			AbstractStructureElement_t ) ){
-      return pnt->parent;
-    }
-    else {
-      return get_structure_parent( pnt->parent );
-    }
-  }
-
-  map<int,int> TextEngine::search_text_parents( const xml_tree* start,
-						const string& textclass,
-						bool prefer_sentences ) const{
-    map<int,int> result;
-    const xml_tree *pnt = start;
-    while ( pnt ){
-      if ( _debug ){
-	DBG << "bekijk:" << pnt->tag << "-" << pnt->index << endl;
-      }
-      if ( pnt->tag == "wref"
-	   || pnt->tag == "original" ){
-	//
-	// DON'T see a wref as a valid textparent.
-	// The word is connected elsewhere too
-	// Also an 'original' node is assumed to be part of a correction
-	// so hope for a 'new' node to be found!
-	pnt = pnt->next;
-	continue;
-      }
-      map<int,int> deeper = search_text_parents( pnt->link,
-						 textclass,
-						 prefer_sentences );
-      if ( !deeper.empty() ){
-	if ( _debug ){
-	  DBG << "deeper we found: " << deeper << endl;
-	}
-	result.insert( deeper.begin(), deeper.end() );
-      }
-      pnt = pnt->next;
-    }
-    if ( result.empty() ){
-      // so no deeper text found
-      // lets see at this level....
-      pnt = start;
-      while ( pnt ){
-	if ( pnt->tag == "t" && pnt->textclass == textclass ){
-	  // OK text in the right textclass
-	  if ( prefer_sentences ){
-	    // search for a non-word parent
-	    xml_tree *par = get_structure_parent( pnt );
-	    int index = par->index;
-	    int next = INT_MAX;
-	    if ( par->next ){
-	      next = par->index;
-	    }
-	    result[index] = next;
-	    break;
-	  }
-	  else {
-	    int index = pnt->parent->index;
-	    int next = INT_MAX;
-	    if ( pnt->parent->next ){
-	      next = pnt->parent->next->index;
-	    }
-	    else if ( pnt->parent->parent->next ){
-	      next = pnt->parent->parent->next->index;
-	    }
-	    result[index] = next;
-	    break;
-	  }
-	}
-	pnt = pnt->next;
-      }
-    }
-    if ( _debug && !result.empty() ){
-      DBG << "return " << result << " for " << start->parent->tag << endl;
-    }
-    return result;
-  }
-
-  map<int,int> TextEngine::enumerate_text_parents( const string& textclass,
-						   bool prefer_sent ) const {
-    ///
-    /// Loop over the full input, looking for textnodes in class 'textclass'
-    /// for the DEEPEST text possible, enumerate their parents
-    /// when prefer_sent eqs true, prefer structure elements over the words or
-    /// strings within
-    if ( _done ){
-      throw runtime_error( "enumerate_text_parents() called on a done engine" );
-    }
-    if ( _debug ){
-      DBG << "enumerate_text_parents(" << textclass << ")" << endl;
-    }
-    //
-    // we start by creating a tree of all nodes
-    xml_tree *tree = create_simple_tree(_in_file);
-    //
-    // now search that tree for nodes in 'textclass'
-    // if is a <t>, then remember the index of its parent
-    // but when 'prefer_sent' is specified, return the direct structure above
-    // when present.
-    map<int,int> result;
-    xml_tree *rec_pnt = tree;
-    while ( rec_pnt ){
-      map<int,int> deeper = search_text_parents( rec_pnt->link,
-						 textclass,
-						 prefer_sent );
-      result.insert( deeper.begin(), deeper.end() );
-      rec_pnt = rec_pnt->next;
-    }
-    if ( _debug ){
-      DBG << "complete tree: " << endl;
-      print( DBG, tree );
-      DBG << "Search map = " << result << endl;
-    }
-    for ( auto it = result.begin(); it != result.end(); ++it ){
-      auto nit = it;
-      ++nit;
-      if ( nit != result.end() ){
-	it->second = nit->first;
-      }
-    }
-    if ( _debug ){
-      DBG << "Reduced Search map = " << result << endl;
-    }
-    delete tree;
-    return result;
-  }
-
   int count_nodes( FoliaElement *fe ){
-    // count all 'real' FoliaElements including and below this one
-    // so this is the 'size' of the subtree
-    // we need this number to know where te proceed
+    /// count all 'real' FoliaElements including and below this one
+    // \param fe The elemnt to start at
+    // this returns the 'size' of the subtree below fe
+    // we need this number to know where to proceed processing
     int result = 0;
     //    cerr << "DEPTH " << fe << endl;
     if ( fe
@@ -847,32 +825,11 @@ namespace folia {
     return result;
   }
 
-  FoliaElement *Engine::handle_match( const string& local_name,
-				      int depth ){
-    FoliaElement *t = AbstractElement::createElement( local_name, _out_doc );
-    if ( t ){
-      if ( _debug ){
-	DBG << "created FoliaElement: name=" << local_name << endl;
-      }
-      xmlNode *fd = xmlTextReaderExpand(_reader);
-      t->parseXml( fd );
-      append_node( t, depth );
-      _external_node = t;
-      if ( _debug ){
-	DBG << "expose external node: " << t << endl;
-      }
-      return t;
-    }
-    else if ( !_out_doc->permissive() ){
-      throw XmlError( "folia::engine failed to create node: "
-		      + local_name );
-    }
-    else {
-      return 0;
-    }
-  }
-
   int Engine::handle_content( const string& t_or_ph, int depth ){
+    /// process a matched 't' or 'ph' tag into a FoLiA subtree
+    /// \param t_or_ph a t or ph tags
+    /// \param depth the location in the Document to attach to
+    /// \return the number of FoliaElement nodes added
     KWargs atts = get_attributes( _reader );
     if ( _debug ){
       DBG << "expanding content of <" << t_or_ph << "> atts=" << atts << endl;
@@ -898,6 +855,9 @@ namespace folia {
 
   void Engine::handle_element( const string& local_name,
 			       int depth ){
+    /// process a matched tag into a FoLiA subtree
+    /// \param local_name the tag
+    /// \param depth the location in the Document to attach to
     KWargs atts = get_attributes( _reader );
     if ( _debug ){
       DBG << "name=" << local_name << " atts=" << atts << endl;
@@ -986,7 +946,370 @@ namespace folia {
     }
   }
 
+  bool Engine::output_header(){
+    ///  output the Folia header to the associated output stream
+    // this outputs ALL metadata from the Document upto and including
+    // the opening \<text> of \<speech> node
+    if ( _debug ){
+      DBG << "Engine::output_header()" << endl;
+    }
+    if ( !_os ){
+      throw logic_error( "folia::Engine::output_header() impossible. No output file specified!" );
+      return false;
+    }
+    if ( _finished ){
+      return true;
+    }
+    else if ( _header_done ){
+      throw logic_error( "folia::Engine::output_header() is called twice!" );
+      return false;
+    }
+    _header_done = true;
+    stringstream ss;
+    _out_doc->save( ss, ns_prefix );
+    string data = ss.str();
+    string search_b1;
+    string search_b2;
+    string search_e;
+    if ( _doc_type == TEXT ){
+      if ( !ns_prefix.empty() ){
+	search_b1 = "<" + ns_prefix + ":" + "text>";
+	search_b2 = "<" + ns_prefix + ":" + "text ";
+	search_e = "</" + ns_prefix + ":" + "text>";
+      }
+      else {
+	search_b1 = "<text>";
+	search_b2 = "<text ";
+	search_e = "</text>";
+      }
+    }
+    else {
+      if ( !ns_prefix.empty() ){
+	search_b1 = "<" + ns_prefix + ":" + "speech>";
+	search_b2 = "<" + ns_prefix + ":" + "speech ";
+	search_e = "</" + ns_prefix + ":" + "speech>";
+      }
+      else {
+	search_b1 = "<speech>";
+	search_b2 = "<speech ";
+	search_e = "</speech>";
+      }
+    }
+    string::size_type bpos1 = data.find( search_b1 );
+    string::size_type bpos2 = data.find( search_b2 );
+    string::size_type pos1;
+    if ( bpos1 < bpos2 ){
+      pos1 = bpos1;
+    }
+    else {
+      pos1 = bpos2;
+    }
+    string::size_type pos2;
+    if ( _root_node->size() == 0 ){
+      pos2 = data.find( "/>" , pos1 );
+    }
+    else {
+      pos2 = data.find( ">" , pos1 );
+    }
+    string head = data.substr( 0, pos2 ) + ">";
+    if ( _root_node->size() == 0 ){
+      pos2 += 2;
+    }
+    else {
+      pos2 = data.find( search_e, pos1 );
+      int add = search_e.size();
+      pos2 += add;
+    }
+    _footer = "  " + search_e + data.substr( pos2 );
+    *_os << head << endl;
+    return true;
+  }
+
+  bool Engine::output_footer(){
+    /// output the remains of the associated Document
+    // further processing is illegal
+    if ( _debug ){
+      DBG << "Engine::output_footer()" << endl;
+    }
+    if ( _finished ){
+      return true;
+    }
+    if ( !_os ){
+      throw logic_error( "folia::Engine::output_footer() impossible. No output file specified!" );
+      return false;
+    }
+    else if ( flush() ){
+      *_os << _footer << endl;
+      _finished = true;
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
+
+  bool Engine::flush() {
+    /// output all NEW information in the output Document to the output stream
+    // may call output_header() first
+    if ( _debug ){
+      DBG << "Engine::flush()" << endl;
+    }
+    if ( !_os ){
+      throw logic_error( "folia::Engine::flush() impossible. No outputfile specified!" );
+      return false;
+    }
+    if ( _finished ){
+      return true;
+    }
+    else if ( !_header_done ){
+      output_header();
+    }
+    size_t len = _root_node->size();
+    for ( size_t i=0; i < len; ++i ){
+      *_os << "    " << _root_node->index(i)->xmlstring(true,2,false) << endl;
+    }
+    for ( size_t i=0; i < len; ++i ){
+      _root_node->remove( i, true );
+    }
+    return true;
+  }
+
+  bool Engine::flush( FoliaElement *root ) {
+    /// TO DO: Never used??
+    if ( _debug ){
+      DBG << "Engine::flush( " << root->xmltag() << " )" << endl;
+    }
+    if ( !_os ){
+      throw logic_error( "folia::Engine::flush() impossible. No outputfile specified!" );
+      return false;
+    }
+    if ( _finished ){
+      return true;
+    }
+    else if ( !_header_done ){
+      output_header();
+    }
+    size_t len = root->size();
+    for ( size_t i=0; i < len; ++i ){
+      *_os << "    " << root->index(i)->xmlstring(true,2,false) << endl;
+    }
+    for ( size_t i=0; i < len; ++i ){
+      root->remove( i, true );
+    }
+    return true;
+  }
+
+  bool Engine::finish() {
+    /// finalize the Engine bij calling output_footer
+    if ( _debug ){
+      DBG << "Engine::finish()" << endl;
+    }
+    if ( !_os ){
+      throw logic_error( "folia::Engine::finish() impossible. No outputfile specified!" );
+      return false;
+    }
+    if ( _finished ){
+      return true;
+    }
+    return output_footer();
+  }
+
+  void Engine::save( const string& name, bool do_kanon ){
+    /// save the associated Document to a file
+    /// \param name the file-name
+    /// \param do_kanon output in Canonical format
+    if ( _os && name == _out_name ){
+      throw logic_error( "folia::Engine::save() impossible. Already connected to a stream withe the same name (" + name + ")" );
+    }
+    _out_doc->save( name, ns_prefix, do_kanon );
+  }
+
+  void Engine::save( ostream& os, bool do_kanon ){
+    /// save the associated Document to a stream
+    /// \param os the stream
+    /// \param do_kanon output in Canonical format
+    _out_doc->save( os, ns_prefix, do_kanon );
+  }
+
+
+  bool TextEngine::init_doc( const string& i, const string& o ){
+    /// init an associated document for this TextEngine
+    /// \param i the input file to use for parsing
+    /// \param o when not empty, add an output-file with this name
+    //
+    // Sets the _in_file property to i and mars _is_setup FALSE
+    // then calls Engine::init_doc to do the real work.
+    _in_file = i;
+    _is_setup = false;
+    //    set_debug(true);
+    return Engine::init_doc( i, o );
+  }
+
+  void TextEngine::setup( const string& textclass, bool prefer_sent ){
+    /// set the TextEngine ready for parsing
+    /// \param textclass Determines which textnodes to search for
+    /// \param prefer_sent If TRUE, set the TextEngine up for returning
+    /// Structure nodes like sentences or paragraphs above returning
+    /// just Word or String nodes
+    string txtc = textclass;
+    if ( txtc == "current" ){
+      txtc.clear();
+    }
+    text_parent_map = enumerate_text_parents( txtc, prefer_sent );
+    _next_text_node = _start_index;
+    if ( !text_parent_map.empty() ){
+      _next_text_node = text_parent_map.begin()->first;
+    }
+    _node_count = _start_index;
+    _is_setup = true;
+  }
+
+  xml_tree *get_structure_parent( const xml_tree *pnt ){
+    ///  return the nearest StructureElement above this node
+    /// \param pnt a (text) element inthe simple tree.
+    /// \return the firs parent which is an AbstractStructureElement
+    /// and NOT a Word
+    if ( pnt->parent->tag != "w"
+	 && isSubClass( stringToElementType(pnt->parent->tag),
+			AbstractStructureElement_t ) ){
+      return pnt->parent;
+    }
+    else {
+      return get_structure_parent( pnt->parent );
+    }
+  }
+
+  map<int,int> TextEngine::search_text_parents( const xml_tree* start,
+						const string& textclass,
+						bool prefer_sentences ) const{
+    /// scan the whole TextEngine for TextContent nodes
+    /// \param start the tree to search
+    /// \param textclass the text-class we are interested in
+    /// \param prefer_sentences If TRUE, set the TextEngine up for returning
+    /// Structure nodes like sentences or paragraphs above returning
+    /// just Word or String nodes
+    /// \return a map containing for every found text_parent the index of
+    /// the NEXT value to search. TO DO: very mysty and mystic
+    map<int,int> result;
+    const xml_tree *pnt = start;
+    while ( pnt ){
+      if ( _debug ){
+	DBG << "bekijk:" << pnt->tag << "-" << pnt->index << endl;
+      }
+      if ( pnt->tag == "wref"
+	   || pnt->tag == "original" ){
+	//
+	// DON'T see a wref as a valid textparent.
+	// The word is connected elsewhere too
+	// Also an 'original' node is assumed to be part of a correction
+	// so hope for a 'new' node to be found!
+	pnt = pnt->next;
+	continue;
+      }
+      map<int,int> deeper = search_text_parents( pnt->link,
+						 textclass,
+						 prefer_sentences );
+      if ( !deeper.empty() ){
+	if ( _debug ){
+	  DBG << "deeper we found: " << deeper << endl;
+	}
+	result.insert( deeper.begin(), deeper.end() );
+      }
+      pnt = pnt->next;
+    }
+    if ( result.empty() ){
+      // so no deeper text found
+      // lets see at this level....
+      pnt = start;
+      while ( pnt ){
+	if ( pnt->tag == "t" && pnt->textclass == textclass ){
+	  // OK text in the right textclass
+	  if ( prefer_sentences ){
+	    // search for a non-word parent
+	    xml_tree *par = get_structure_parent( pnt );
+	    int index = par->index;
+	    int next = INT_MAX;
+	    if ( par->next ){
+	      next = par->index;
+	    }
+	    result[index] = next;
+	    break;
+	  }
+	  else {
+	    int index = pnt->parent->index;
+	    int next = INT_MAX;
+	    if ( pnt->parent->next ){
+	      next = pnt->parent->next->index;
+	    }
+	    else if ( pnt->parent->parent->next ){
+	      next = pnt->parent->parent->next->index;
+	    }
+	    result[index] = next;
+	    break;
+	  }
+	}
+	pnt = pnt->next;
+      }
+    }
+    if ( _debug && !result.empty() ){
+      DBG << "return " << result << " for " << start->parent->tag << endl;
+    }
+    return result;
+  }
+
+  map<int,int> TextEngine::enumerate_text_parents( const string& textclass,
+						   bool prefer_sent ) const {
+    /// Loop over the full input, looking for textnodes in class 'textclass'
+    /// \param textclass the text-class we are interested in
+    /// \param prefer_sent If TRUE, set the TextEngine up for returning
+    /// Structure nodes like sentences or paragraphs above returning
+    /// just Word or String nodes
+    ///
+    // recurses to the DEEPEST text possible, and enumerates their parents
+    if ( _done ){
+      throw runtime_error( "enumerate_text_parents() called on a done engine" );
+    }
+    if ( _debug ){
+      DBG << "enumerate_text_parents(" << textclass << ")" << endl;
+    }
+    //
+    // we start by creating a tree of all nodes
+    xml_tree *tree = create_simple_tree(_in_file);
+    //
+    // now search that tree for nodes in 'textclass'
+    // if is a <t>, then remember the index of its parent
+    // but when 'prefer_sent' is specified, return the direct structure above
+    // when present.
+    map<int,int> result;
+    xml_tree *rec_pnt = tree;
+    while ( rec_pnt ){
+      map<int,int> deeper = search_text_parents( rec_pnt->link,
+						 textclass,
+						 prefer_sent );
+      result.insert( deeper.begin(), deeper.end() );
+      rec_pnt = rec_pnt->next;
+    }
+    if ( _debug ){
+      DBG << "complete tree: " << endl;
+      print( DBG, tree );
+      DBG << "Search map = " << result << endl;
+    }
+    for ( auto it = result.begin(); it != result.end(); ++it ){
+      auto nit = it;
+      ++nit;
+      if ( nit != result.end() ){
+	it->second = nit->first;
+      }
+    }
+    if ( _debug ){
+      DBG << "Reduced Search map = " << result << endl;
+    }
+    delete tree;
+    return result;
+  }
+
   FoliaElement *TextEngine::next_text_parent(){
+    /// return the next node to handle
     if ( _done ){
       if ( _debug ){
 	DBG << "next_text_parent(). engine is done" << endl;
@@ -1080,177 +1403,6 @@ namespace folia {
     }
     _done = true;
     return 0;
-  }
-
-
-  bool Engine::output_header(){
-    if ( _debug ){
-      DBG << "Engine::output_header()" << endl;
-    }
-    if ( !_os ){
-      throw logic_error( "folia::Engine::output_header() impossible. No output file specified!" );
-      return false;
-    }
-    if ( _finished ){
-      return true;
-    }
-    else if ( _header_done ){
-      throw logic_error( "folia::Engine::output_header() is called twice!" );
-      return false;
-    }
-    _header_done = true;
-    stringstream ss;
-    _out_doc->save( ss, ns_prefix );
-    string data = ss.str();
-    string search_b1;
-    string search_b2;
-    string search_e;
-    if ( _doc_type == TEXT ){
-      if ( !ns_prefix.empty() ){
-	search_b1 = "<" + ns_prefix + ":" + "text>";
-	search_b2 = "<" + ns_prefix + ":" + "text ";
-	search_e = "</" + ns_prefix + ":" + "text>";
-      }
-      else {
-	search_b1 = "<text>";
-	search_b2 = "<text ";
-	search_e = "</text>";
-      }
-    }
-    else {
-      if ( !ns_prefix.empty() ){
-	search_b1 = "<" + ns_prefix + ":" + "speech>";
-	search_b2 = "<" + ns_prefix + ":" + "speech ";
-	search_e = "</" + ns_prefix + ":" + "speech>";
-      }
-      else {
-	search_b1 = "<speech>";
-	search_b2 = "<speech ";
-	search_e = "</speech>";
-      }
-    }
-    string::size_type bpos1 = data.find( search_b1 );
-    string::size_type bpos2 = data.find( search_b2 );
-    string::size_type pos1;
-    if ( bpos1 < bpos2 ){
-      pos1 = bpos1;
-    }
-    else {
-      pos1 = bpos2;
-    }
-    string::size_type pos2;
-    if ( _root_node->size() == 0 ){
-      pos2 = data.find( "/>" , pos1 );
-    }
-    else {
-      pos2 = data.find( ">" , pos1 );
-    }
-    string head = data.substr( 0, pos2 ) + ">";
-    if ( _root_node->size() == 0 ){
-      pos2 += 2;
-    }
-    else {
-      pos2 = data.find( search_e, pos1 );
-      int add = search_e.size();
-      pos2 += add;
-    }
-    _footer = "  " + search_e + data.substr( pos2 );
-    *_os << head << endl;
-    return true;
-  }
-
-  bool Engine::output_footer(){
-    if ( _debug ){
-      DBG << "Engine::output_footer()" << endl;
-    }
-    if ( _finished ){
-      return true;
-    }
-    if ( !_os ){
-      throw logic_error( "folia::Engine::output_footer() impossible. No output file specified!" );
-      return false;
-    }
-    else if ( flush() ){
-      *_os << _footer << endl;
-      _finished = true;
-      return true;
-    }
-    else {
-      return false;
-    }
-  }
-
-  bool Engine::flush() {
-    if ( _debug ){
-      DBG << "Engine::flush()" << endl;
-    }
-    if ( !_os ){
-      throw logic_error( "folia::Engine::flush() impossible. No outputfile specified!" );
-      return false;
-    }
-    if ( _finished ){
-      return true;
-    }
-    else if ( !_header_done ){
-      output_header();
-    }
-    size_t len = _root_node->size();
-    for ( size_t i=0; i < len; ++i ){
-      *_os << "    " << _root_node->index(i)->xmlstring(true,2,false) << endl;
-    }
-    for ( size_t i=0; i < len; ++i ){
-      _root_node->remove( i, true );
-    }
-    return true;
-  }
-
-  bool Engine::flush( FoliaElement *root ) {
-    if ( _debug ){
-      DBG << "Engine::flush( " << root->xmltag() << " )" << endl;
-    }
-    if ( !_os ){
-      throw logic_error( "folia::Engine::flush() impossible. No outputfile specified!" );
-      return false;
-    }
-    if ( _finished ){
-      return true;
-    }
-    else if ( !_header_done ){
-      output_header();
-    }
-    size_t len = root->size();
-    for ( size_t i=0; i < len; ++i ){
-      *_os << "    " << root->index(i)->xmlstring(true,2,false) << endl;
-    }
-    for ( size_t i=0; i < len; ++i ){
-      root->remove( i, true );
-    }
-    return true;
-  }
-
-  bool Engine::finish() {
-    if ( _debug ){
-      DBG << "Engine::finish()" << endl;
-    }
-    if ( !_os ){
-      throw logic_error( "folia::Engine::finish() impossible. No outputfile specified!" );
-      return false;
-    }
-    if ( _finished ){
-      return true;
-    }
-    return output_footer();
-  }
-
-  void Engine::save( const string& name, bool do_kanon ){
-    if ( _os && name == _out_name ){
-      throw logic_error( "folia::Engine::save() impossible. Already connected to a stream withe the same name (" + name + ")" );
-    }
-    _out_doc->save( name, ns_prefix, do_kanon );
-  }
-
-  void Engine::save( ostream& os, bool do_kanon ){
-    _out_doc->save( os, ns_prefix, do_kanon );
   }
 
 } // namespace folia

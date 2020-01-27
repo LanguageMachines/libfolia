@@ -39,6 +39,8 @@
 namespace folia {
 
   class xml_tree {
+    /// a lightweight representation of an Xml tree, used in the enumeration
+    /// process
   public:
     xml_tree( int, int, const std::string&, const std::string& );
     ~xml_tree();
@@ -55,7 +57,10 @@ namespace folia {
 
   class Engine {
   public:
-    enum doctype { TEXT, SPEECH };
+    /// the document type, determines the type of the top node (\<text> or \<speech>)
+    enum doctype { TEXT, //!< the topnode is \<text>
+		   SPEECH //!< the topnode is \<speech>
+    };
     Engine();
   Engine( const std::string& i, const std::string& o="" ):
     Engine() { init_doc(i,o); };
