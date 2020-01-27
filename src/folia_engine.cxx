@@ -1083,31 +1083,6 @@ namespace folia {
     return true;
   }
 
-  bool Engine::flush( FoliaElement *root ) {
-    /// TO DO: Never used??
-    if ( _debug ){
-      DBG << "Engine::flush( " << root->xmltag() << " )" << endl;
-    }
-    if ( !_os ){
-      throw logic_error( "folia::Engine::flush() impossible. No outputfile specified!" );
-      return false;
-    }
-    if ( _finished ){
-      return true;
-    }
-    else if ( !_header_done ){
-      output_header();
-    }
-    size_t len = root->size();
-    for ( size_t i=0; i < len; ++i ){
-      *_os << "    " << root->index(i)->xmlstring(true,2,false) << endl;
-    }
-    for ( size_t i=0; i < len; ++i ){
-      root->remove( i, true );
-    }
-    return true;
-  }
-
   bool Engine::finish() {
     /// finalize the Engine bij calling output_footer
     if ( _debug ){

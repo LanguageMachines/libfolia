@@ -73,7 +73,6 @@ namespace folia {
     bool output_header();
     bool output_footer();
     bool flush();
-    bool flush( FoliaElement * );
     bool finish();
     /// return the status of the Engine. True when still valid. False otherwise.
     bool ok() const { return _ok; };
