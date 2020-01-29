@@ -1864,7 +1864,7 @@ namespace folia {
 	}
 	if ( mit2->second.a == annotator
 	     && mit2->second.t == annotator_type
-	     && ( mit2->second.p.empty()
+	     && ( (mit2->second.p.empty() && processor.empty() )
 		  || mit2->second.p.find(processor) != mit2->second.p.end() ) ){
 	  if ( debug ){
 	    cerr << "\t\t declared ==> TRUE" << endl;
