@@ -397,7 +397,9 @@ namespace folia {
     Attrib supported = required_attributes() | optional_attributes();
     //#define LOG_SET_ATT
 #ifdef LOG_SET_ATT
-    if ( element_id() == Word_t ) {
+    int db_level = doc()->debug;
+    if ( element_id() == Sentence_t ) {
+      doc()->setdebug(8);
       cerr << "set attributes: " << kwargs << " on " << classname() << endl;
       //      cerr << "required = " <<  toString(required_attributes()) << endl;
       //      cerr << "optional = " <<  optional_attributes() << endl;
@@ -539,6 +541,9 @@ namespace folia {
 
     val = kwargs.extract( "processor" );
     if ( !val.empty() ){
+      if ( doc() && doc()->debug > 2 ) {
+	cerr << "set processor= " << val << " on " << classname() << endl;
+      }
       if ( _set.empty() ){
 	_set = "None";
       }
@@ -823,6 +828,9 @@ namespace folia {
       }
     }
     addFeatureNodes( kwargs );
+#ifdef LOG_SET_ATT
+    doc()->setdebug(db_level);
+#endif
   }
 
   void AbstractElement::addFeatureNodes( const KWargs& kwargs ) {
