@@ -513,6 +513,11 @@ namespace folia {
     virtual const std::string generateId( const std::string& ) NOT_IMPLEMENTED;
     virtual const std::string textclass() const NOT_IMPLEMENTED;
     virtual void unravel( std::set<FoliaElement*>& ) NOT_IMPLEMENTED;
+    static FoliaElement *private_createElement( ElementType );
+  public:
+    static FoliaElement *createElement( ElementType, Document * =0 );
+    static FoliaElement *createElement( const std::string&, Document * =0 );
+
   };
 
   class AbstractElement: public virtual FoliaElement {
@@ -524,8 +529,6 @@ namespace folia {
     AbstractElement( const properties& p, Document* = 0 );
   public:
     // expose static element Constructor
-    static FoliaElement *createElement( ElementType, Document * =0 );
-    static FoliaElement *createElement( const std::string&, Document * =0 );
     virtual ~AbstractElement();
 
     void classInit(){
@@ -766,7 +769,6 @@ namespace folia {
     void check_append_text_consistency( const FoliaElement * ) const;
     void check_declaration();
   private:
-    static FoliaElement *private_createElement( ElementType );
     void addFeatureNodes( const KWargs& args );
     Document *_mydoc;
     FoliaElement *_parent;

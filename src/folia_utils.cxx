@@ -48,7 +48,7 @@ using namespace icu;
 
 namespace folia {
 
-  FoliaElement *AbstractElement::createElement( const string& tag,
+  FoliaElement *FoliaElement::createElement( const string& tag,
 						Document *doc ){
 
     ElementType et = BASE;
@@ -66,8 +66,8 @@ namespace folia {
     return el;
   }
 
-  FoliaElement *AbstractElement::createElement( ElementType et,
-					  Document *doc ){
+  FoliaElement *FoliaElement::createElement( ElementType et,
+					     Document *doc ){
     FoliaElement *el = private_createElement( et );
     if ( doc ){
       el->assignDoc( doc );

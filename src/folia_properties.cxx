@@ -1768,7 +1768,7 @@ namespace folia {
 //foliaspec:end:defaultproperties
   }
 
-  FoliaElement *AbstractElement::private_createElement( ElementType et ){
+  FoliaElement *FoliaElement::private_createElement( ElementType et ){
     switch ( et ){
     case BASE: return new FoLiA();
     case Text_t: return new Text();
