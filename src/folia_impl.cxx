@@ -386,59 +386,57 @@ namespace folia {
 
 
   void AllowXlink::setAttributes( KWargs& kwargs ) {
-    if ( xlink() ) {
-      string type = "simple";
-      string val = kwargs.extract( "xlink:type" );
-      if ( !val.empty() ) {
-	type = val;
+    string type = "simple";
+    string val = kwargs.extract( "xlink:type" );
+    if ( !val.empty() ) {
+      type = val;
+    }
+    if ( type != "simple" && type != "locator" ) {
+      throw XmlError( "only xlink:types: 'simple' and 'locator' are supported!" );
+    }
+    _xlink["type"] = type;
+    val = kwargs.extract( "xlink:href" );
+    if ( !val.empty() ) {
+      _xlink["href"] = val;
+    }
+    else if ( type == "locator" ){
+      throw XmlError( "xlink:type='locator' requires an 'xlink:href' attribute" );
+    }
+    val = kwargs.extract( "xlink:role" );
+    if ( !val.empty() ) {
+      _xlink["role"] = val;
+    }
+    val = kwargs.extract( "xlink:title" );
+    if ( !val.empty() ) {
+      _xlink["title"] = val;
+    }
+    val = kwargs.extract( "xlink:label" );
+    if ( !val.empty() ) {
+      if ( type == "simple" ){
+	throw XmlError( "xlink:type='simple' may not have an 'xlink:label' attribute" );
       }
-      if ( type != "simple" && type != "locator" ) {
-	throw XmlError( "only xlink:types: 'simple' and 'locator' are supported!" );
+      _xlink["label"] = val;
+    }
+    val = kwargs.extract( "xlink:arcrole" );
+    if ( !val.empty() ) {
+      if ( type == "locator" ){
+	throw XmlError( "xlink:type='locator' may not have an 'xlink:arcrole' attribute" );
       }
-      _xlink["type"] = type;
-      val = kwargs.extract( "xlink:href" );
-      if ( !val.empty() ) {
-	_xlink["href"] = val;
+      _xlink["arcrole"] = val;
+    }
+    val = kwargs.extract( "xlink:show" );
+    if ( !val.empty() ) {
+      if ( type == "locator" ){
+	throw XmlError( "xlink:type='locator' may not have an 'xlink:show' attribute" );
       }
-      else if ( type == "locator" ){
-	throw XmlError( "xlink:type='locator' requires an 'xlink:href' attribute" );
+      _xlink["show"] = val;
+    }
+    val = kwargs.extract( "xlink:actuate" );
+    if ( !val.empty() ) {
+      if ( type == "locator" ){
+	throw XmlError( "xlink:type='locator' may not have an 'xlink:actuate' attribute" );
       }
-      val = kwargs.extract( "xlink:role" );
-      if ( !val.empty() ) {
-	_xlink["role"] = val;
-      }
-      val = kwargs.extract( "xlink:title" );
-      if ( !val.empty() ) {
-	_xlink["title"] = val;
-      }
-      val = kwargs.extract( "xlink:label" );
-      if ( !val.empty() ) {
-	if ( type == "simple" ){
-	  throw XmlError( "xlink:type='simple' may not have an 'xlink:label' attribute" );
-	}
-	_xlink["label"] = val;
-      }
-      val = kwargs.extract( "xlink:arcrole" );
-      if ( !val.empty() ) {
-	if ( type == "locator" ){
-	  throw XmlError( "xlink:type='locator' may not have an 'xlink:arcrole' attribute" );
-	}
-	_xlink["arcrole"] = val;
-      }
-      val = kwargs.extract( "xlink:show" );
-      if ( !val.empty() ) {
-	if ( type == "locator" ){
-	  throw XmlError( "xlink:type='locator' may not have an 'xlink:show' attribute" );
-	}
-	_xlink["show"] = val;
-      }
-      val = kwargs.extract( "xlink:actuate" );
-      if ( !val.empty() ) {
-	if ( type == "locator" ){
-	  throw XmlError( "xlink:type='locator' may not have an 'xlink:actuate' attribute" );
-	}
-	_xlink["actuate"] = val;
-      }
+      _xlink["actuate"] = val;
     }
   }
 
@@ -878,40 +876,38 @@ namespace folia {
 
   KWargs AllowXlink::collectAttributes() const {
     KWargs attribs;
-    if ( xlink() ) {
-      auto it = _xlink.find("type");
-      if ( it != _xlink.end() ){
-	string type = it->second;
-	if ( type == "simple" || type == "locator" ){
-	  it = _xlink.find("href");
-	  if ( it != _xlink.end() ){
-	    attribs["xlink:href"] = it->second;
-	    attribs["xlink:type"] = type;
-	  }
-	  it = _xlink.find("role");
-	  if ( it != _xlink.end() ){
-	    attribs["xlink:role"] = it->second;
-	  }
-	  it = _xlink.find("arcrole");
-	  if ( it != _xlink.end() ){
-	    attribs["xlink:arcrole"] = it->second;
-	  }
-	  it = _xlink.find("show");
-	  if ( it != _xlink.end() ){
-	    attribs["xlink:show"] = it->second;
-	  }
-	  it = _xlink.find("actuate");
-	  if ( it != _xlink.end() ){
-	    attribs["xlink:actuate"] = it->second;
-	  }
-	  it = _xlink.find("title");
-	  if ( it != _xlink.end() ){
-	    attribs["xlink:title"] = it->second;
-	  }
-	  it = _xlink.find("label");
-	  if ( it != _xlink.end() ){
-	    attribs["xlink:label"] = it->second;
-	  }
+    auto it = _xlink.find("type");
+    if ( it != _xlink.end() ){
+      string type = it->second;
+      if ( type == "simple" || type == "locator" ){
+	it = _xlink.find("href");
+	if ( it != _xlink.end() ){
+	  attribs["xlink:href"] = it->second;
+	  attribs["xlink:type"] = type;
+	}
+	it = _xlink.find("role");
+	if ( it != _xlink.end() ){
+	  attribs["xlink:role"] = it->second;
+	}
+	it = _xlink.find("arcrole");
+	if ( it != _xlink.end() ){
+	  attribs["xlink:arcrole"] = it->second;
+	}
+	it = _xlink.find("show");
+	if ( it != _xlink.end() ){
+	  attribs["xlink:show"] = it->second;
+	}
+	it = _xlink.find("actuate");
+	if ( it != _xlink.end() ){
+	  attribs["xlink:actuate"] = it->second;
+	}
+	it = _xlink.find("title");
+	if ( it != _xlink.end() ){
+	  attribs["xlink:title"] = it->second;
+	}
+	it = _xlink.find("label");
+	if ( it != _xlink.end() ){
+	  attribs["xlink:label"] = it->second;
 	}
       }
     }

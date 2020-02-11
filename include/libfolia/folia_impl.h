@@ -792,7 +792,6 @@ namespace folia {
     std::string _class;
     std::string _id;
     std::string _src;
-    //    std::map<std::string,std::string> _xlink;
     std::vector<FoliaElement*> _data;
     const properties& _props;
   };
