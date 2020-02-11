@@ -506,10 +506,12 @@ namespace folia {
     virtual void increfcount() = 0;
     virtual void decrefcount() = 0;
     virtual void resetrefcount() = 0;
-    virtual void setAttributes( const KWargs& ) = 0;
+    virtual void setAttributes( KWargs& ) = 0;
     virtual KWargs collectAttributes() const = 0;
     virtual void setAuth( bool b ) = 0;
     virtual bool auth( ) const = 0;
+    virtual bool xlink() const = 0;
+    virtual const std::string href() const NOT_IMPLEMENTED;
     virtual const std::string generateId( const std::string& ) NOT_IMPLEMENTED;
     virtual const std::string textclass() const NOT_IMPLEMENTED;
     virtual void unravel( std::set<FoliaElement*>& ) NOT_IMPLEMENTED;
@@ -542,7 +544,8 @@ namespace folia {
       // setAttributes from the constructor will NOT call the right version
       // THIS IS BY DESIGN.
       init(); // virtual init
-      setAttributes( a ); // also virtual!
+      KWargs a1 = a;
+      setAttributes( a1 ); // also virtual!
     }
 
     //functions regarding contained data
@@ -704,7 +707,6 @@ namespace folia {
     const std::string speech_src() const;
     const std::string speech_speaker() const;
     const std::string language( const std::string& = "" ) const;
-    const std::string href() const;
     bool space() const { return _space; };
     const std::string src() const { return _src; };
     double confidence() const { return _confidence; };
@@ -727,8 +729,8 @@ namespace folia {
     bool referable() const;
     bool is_textcontainer() const;
     bool is_phoncontainer() const;
-    bool xlink() const;
     bool auth() const;
+    bool xlink() const;
     bool setonly() const;
     bool auto_generate_id() const;
 
@@ -752,7 +754,7 @@ namespace folia {
 
   protected:
     xmlNode *xml( bool, bool = false ) const;
-    void setAttributes( const KWargs& );
+    void setAttributes( KWargs& );
     bool checkAtts();
     KWargs collectAttributes() const;
     int refcount() const { return _refcount; };
@@ -790,7 +792,7 @@ namespace folia {
     std::string _class;
     std::string _id;
     std::string _src;
-    std::map<std::string,std::string> _xlink;
+    //    std::map<std::string,std::string> _xlink;
     std::vector<FoliaElement*> _data;
     const properties& _props;
   };
@@ -889,6 +891,15 @@ namespace folia {
 			 const std::vector<FoliaElement*>&,
 			 const KWargs& );
     Correction *correct( const std::string& = "" );
+  };
+
+  class AllowXlink: public virtual FoliaElement {
+  public:
+    const std::string href() const;
+    void setAttributes( KWargs& );
+    KWargs collectAttributes() const;
+  protected:
+    std::map<std::string,std::string> _xlink;
   };
 
   class AllowInlineAnnotation: public AllowCorrections {
@@ -1123,16 +1134,19 @@ namespace folia {
 
   const std::string EMPTY_STRING = "";
 
-  class AbstractTextMarkup: public AbstractElement {
-    friend void static_init();
+  class AbstractTextMarkup:
+    public AbstractElement,
+    public AllowXlink
+    {
+      friend void static_init();
   protected:
-    // DO NOT USE AbstractTextMarkup as a real node!!
+      // DO NOT USE AbstractTextMarkup as a real node!!
   AbstractTextMarkup( const properties& props, Document *d=0 ):
-    AbstractElement( props, d ){ classInit(); };
-    explicit AbstractTextMarkup( Document *d=0 ):
+      AbstractElement( props, d ){ classInit(); };
+      explicit AbstractTextMarkup( Document *d=0 ):
     AbstractTextMarkup( PROPS, d ){};
   public:
-    void setAttributes( const KWargs& );
+    void setAttributes( KWargs& );
     KWargs collectAttributes() const;
     const FoliaElement* resolveid() const;
   protected:
@@ -1172,7 +1186,7 @@ namespace folia {
   TextMarkupCorrection( const KWargs& a, Document *d=0 ):
     AbstractTextMarkup( PROPS, d ) { classInit(a); };
 
-    void setAttributes( const KWargs& );
+    void setAttributes( KWargs& );
     KWargs collectAttributes() const;
   private:
     const UnicodeString private_text( const std::string& = "current",
@@ -1228,7 +1242,7 @@ namespace folia {
     AbstractTextMarkup( PROPS, d ) { classInit(a); };
 
     KWargs collectAttributes() const;
-    void setAttributes( const KWargs& );
+    void setAttributes( KWargs& );
 
   private:
     void init();
@@ -1253,35 +1267,38 @@ namespace folia {
   };
 
 
-  class TextContent: public AbstractContentAnnotation {
-    friend void static_init();
-  public:
-    explicit TextContent( Document *d = 0 ):
-    AbstractContentAnnotation( PROPS, d ){ classInit(); }
-  TextContent( const KWargs& a, Document *d=0 ):
-    AbstractContentAnnotation( PROPS, d ){ classInit(a); }
-    void setAttributes( const KWargs& );
-    KWargs collectAttributes() const;
-    int offset() const { return _offset; };
-    std::vector<FoliaElement*> find_replacables( FoliaElement * ) const;
-    const std::string set_to_current() { // Don't use without thinking twice!
-      std::string res = cls();
-      update_cls( "current" );
-      return res;
-    }
-    FoliaElement *postappend();
-    FoliaElement *get_reference() const;
-    std::string ref() const { return _ref; };
-  private:
-    void init();
-    FoliaElement *find_default_reference() const;
-    void set_offset( int o ) const { _offset = o; }; // this MUST be const,
-    // only used for 'fixing up' invalid offsets. keep it private!
-    // therefore _offset  has to be mutable!
-    static properties PROPS;
-    mutable int _offset;
-    std::string _ref;
-  };
+  class TextContent:
+    public AbstractContentAnnotation,
+    public AllowXlink
+    {
+      friend void static_init();
+    public:
+      explicit TextContent( Document *d = 0 ):
+      AbstractContentAnnotation( PROPS, d ){ classInit(); }
+    TextContent( const KWargs& a, Document *d=0 ):
+      AbstractContentAnnotation( PROPS, d ){ classInit(a); }
+      void setAttributes( KWargs& );
+      KWargs collectAttributes() const;
+      int offset() const { return _offset; };
+      std::vector<FoliaElement*> find_replacables( FoliaElement * ) const;
+      const std::string set_to_current() { // Don't use without thinking twice!
+	std::string res = cls();
+	update_cls( "current" );
+	return res;
+      }
+      FoliaElement *postappend();
+      FoliaElement *get_reference() const;
+      std::string ref() const { return _ref; };
+    private:
+      void init();
+      FoliaElement *find_default_reference() const;
+      void set_offset( int o ) const { _offset = o; }; // this MUST be const,
+      // only used for 'fixing up' invalid offsets. keep it private!
+      // therefore _offset  has to be mutable!
+      static properties PROPS;
+      mutable int _offset;
+      std::string _ref;
+    };
 
   class PhonContent: public AbstractContentAnnotation {
     friend void static_init();
@@ -1290,7 +1307,7 @@ namespace folia {
     AbstractContentAnnotation(PROPS,d){ classInit(); }
   PhonContent( const KWargs& a, Document *d = 0 ):
     AbstractContentAnnotation(PROPS,d){ classInit( a ); }
-    void setAttributes( const KWargs& );
+    void setAttributes( KWargs& );
     KWargs collectAttributes() const;
     const UnicodeString phon( const std::string& = "current",
 			      TEXT_FLAGS = TEXT_FLAGS::NONE ) const;
@@ -1318,7 +1335,7 @@ namespace folia {
     AbstractElement( PROPS, d ) { classInit( a ); }
 
     FoliaElement* parseXml( const xmlNode * );
-    void setAttributes( const KWargs& );
+    void setAttributes( KWargs& );
   private:
     const UnicodeString private_text( const std::string& = "current",
 				      bool = false,
@@ -1421,7 +1438,7 @@ namespace folia {
     FoliaElement* parseXml( const xmlNode * );
     xmlNode *xml( bool, bool = false ) const;
     const std::string content() const { return value; };
-    void setAttributes( const KWargs& );
+    void setAttributes( KWargs& );
   private:
     static properties PROPS;
     std::string value;
@@ -1452,28 +1469,30 @@ namespace folia {
   };
 
   class Linebreak:
-    public AbstractStructureElement {
-    friend void static_init();
-  public:
-    explicit Linebreak( Document *d=0 ):
-    AbstractStructureElement( PROPS, d ){ classInit(); };
-  Linebreak( const KWargs& a, Document *d = 0 ):
-    AbstractStructureElement( PROPS, d ){ classInit( a ); };
-    void setAttributes( const KWargs& );
-    KWargs collectAttributes() const;
-  private:
-    void init();
-    const UnicodeString private_text( const std::string& = "current",
-				      bool = false,
-				      bool = false,
-				      bool = false ) const {
-      return "\n";
-    }
-    static properties PROPS;
-    std::string _pagenr;
-    std::string _linenr;
-    bool _newpage;
-  };
+    public AbstractStructureElement,
+    public AllowXlink
+    {
+      friend void static_init();
+    public:
+      explicit Linebreak( Document *d=0 ):
+      AbstractStructureElement( PROPS, d ){ classInit(); };
+    Linebreak( const KWargs& a, Document *d = 0 ):
+      AbstractStructureElement( PROPS, d ){ classInit( a ); };
+      void setAttributes( KWargs& );
+      KWargs collectAttributes() const;
+    private:
+      void init();
+      const UnicodeString private_text( const std::string& = "current",
+					bool = false,
+					bool = false,
+					bool = false ) const {
+	return "\n";
+      }
+      static properties PROPS;
+      std::string _pagenr;
+      std::string _linenr;
+      bool _newpage;
+    };
 
   class Whitespace: public AbstractStructureElement {
     friend void static_init();
@@ -1518,7 +1537,7 @@ namespace folia {
 				     const std::string& ="" ) const;
     FoliaElement *append( FoliaElement * );
     const Word* resolveword( const std::string& ) const;
-    void setAttributes( const KWargs& );
+    void setAttributes( KWargs& );
     const std::string& get_delimiter( bool=false) const;
     MorphologyLayer *addMorphologyLayer( const KWargs& );
     MorphologyLayer *getMorphologyLayers( const std::string&,
@@ -1581,7 +1600,7 @@ namespace folia {
   PlaceHolder( const KWargs& a, Document *d = 0 ):
     Word( PROPS, d ){ classInit( a ); }
 
-    void setAttributes( const KWargs& );
+    void setAttributes( KWargs& );
   private:
     static properties PROPS;
   };
@@ -1911,7 +1930,7 @@ namespace folia {
   Feature( const KWargs& a, Document *d = 0 ):
     AbstractElement( PROPS, d ){ classInit( a ); }
 
-    void setAttributes( const KWargs& );
+    void setAttributes( KWargs& );
     KWargs collectAttributes() const;
     const std::string subset() const { return _subset; };
 
@@ -2093,22 +2112,25 @@ namespace folia {
     FoliaElement* parseXml( const xmlNode *node );
   };
 
-  class Relation: public AbstractHigherOrderAnnotation {
-    friend void static_init();
-  public:
-    explicit Relation( Document *d = 0 ):
-    AbstractHigherOrderAnnotation( PROPS, d ){ classInit(); }
-  Relation( const KWargs& a, Document *d = 0 ):
-    AbstractHigherOrderAnnotation( PROPS, d ){ classInit( a ); }
+  class Relation:
+    public AbstractHigherOrderAnnotation,
+    public AllowXlink
+    {
+      friend void static_init();
+    public:
+      explicit Relation( Document *d = 0 ):
+      AbstractHigherOrderAnnotation( PROPS, d ){ classInit(); }
+    Relation( const KWargs& a, Document *d = 0 ):
+      AbstractHigherOrderAnnotation( PROPS, d ){ classInit( a ); }
 
-    std::vector<FoliaElement *>resolve() const;
-    void setAttributes( const KWargs& );
-    KWargs collectAttributes() const;
-  private:
-    void init();
-    static properties PROPS;
-    std::string _format;
-  };
+      std::vector<FoliaElement *>resolve() const;
+      void setAttributes( KWargs& );
+      KWargs collectAttributes() const;
+    private:
+      void init();
+      static properties PROPS;
+      std::string _format;
+    };
 
   class LinkReference: public AbstractElement {
     friend void static_init();
@@ -2120,7 +2142,7 @@ namespace folia {
     AbstractElement( PROPS, d ){ classInit( a ); }
 
     KWargs collectAttributes() const;
-    void setAttributes( const KWargs& );
+    void setAttributes( KWargs& );
     const std::string refid() const { return refId; };
     const std::string type() const { return ref_type; };
     const std::string t() const { return _t; };
@@ -2424,7 +2446,7 @@ namespace folia {
     AbstractCorrectionChild( PROPS, d ) { classInit(); }
   Suggestion( const KWargs& a, Document *d = 0 ):
     AbstractCorrectionChild( PROPS, d ) { classInit( a ); }
-    void setAttributes( const KWargs& );
+    void setAttributes( KWargs& );
     KWargs collectAttributes() const;
   private:
     static properties PROPS;
@@ -2441,7 +2463,7 @@ namespace folia {
     AbstractElement( PROPS, d ) { classInit( a ); }
 
     const std::string description() const { return _value; };
-    void setAttributes( const KWargs& );
+    void setAttributes( KWargs& );
     FoliaElement* parseXml( const xmlNode * );
     xmlNode *xml( bool, bool=false ) const;
 
@@ -2459,7 +2481,7 @@ namespace folia {
     AbstractElement( PROPS, d ) { classInit( a ); }
 
     const std::string comment() const { return _value; };
-    void setAttributes( const KWargs& );
+    void setAttributes( KWargs& );
     FoliaElement* parseXml( const xmlNode * );
     xmlNode *xml( bool, bool=false ) const;
 
@@ -2519,7 +2541,7 @@ namespace folia {
 
     FoliaElement* parseXml( const xmlNode * );
     void resolve_external();
-    void setAttributes( const KWargs& );
+    void setAttributes( KWargs& );
     KWargs collectAttributes() const;
   private:
     static properties PROPS;
@@ -2534,7 +2556,7 @@ namespace folia {
   Note( const KWargs& a, Document *d = 0 ):
     AbstractStructureElement( PROPS, d ){ classInit( a ); }
 
-    void setAttributes( const KWargs& );
+    void setAttributes( KWargs& );
   private:
     static properties PROPS;
     std::string refId;
@@ -2588,24 +2610,27 @@ namespace folia {
     static properties PROPS;
   };
 
-  class Reference: public AbstractStructureElement {
-    friend void static_init();
-    friend class Note;
-  public:
-  explicit Reference( Document *d=0 ):
-    AbstractStructureElement( PROPS, d ){ classInit(); }
-  Reference( const KWargs& a, Document *d = 0 ):
-    AbstractStructureElement( PROPS, d ){ classInit( a ); }
+  class Reference:
+    public AbstractStructureElement,
+    public AllowXlink
+    {
+      friend void static_init();
+      friend class Note;
+    public:
+      explicit Reference( Document *d=0 ):
+      AbstractStructureElement( PROPS, d ){ classInit(); }
+    Reference( const KWargs& a, Document *d = 0 ):
+      AbstractStructureElement( PROPS, d ){ classInit( a ); }
 
-    KWargs collectAttributes() const;
-    void setAttributes( const KWargs& );
-  private:
-    void init();
-    static properties PROPS;
-    std::string refId;
-    std::string ref_type;
-    std::string _format;
-  };
+      KWargs collectAttributes() const;
+      void setAttributes( KWargs& );
+    private:
+      void init();
+      static properties PROPS;
+      std::string refId;
+      std::string ref_type;
+      std::string _format;
+    };
 
 
   class Correction: public AbstractInlineAnnotation {
