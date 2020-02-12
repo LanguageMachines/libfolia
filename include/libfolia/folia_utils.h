@@ -42,9 +42,7 @@
 
 namespace folia {
 
-  namespace AnnotationType {
-    enum AnnotationType : int;
-  }
+  enum AnnotationType : int;
   enum AnnotatorType : int;
   enum ElementType : unsigned int;
 
@@ -125,8 +123,8 @@ namespace folia {
     explicit DeclarationError( const std::string& s ): std::runtime_error( "DeclarationError: " + s ){};
   };
 
-  std::string toString( const AnnotationType::AnnotationType& );
-  AnnotationType::AnnotationType stringToAnnotationType( const std::string& );
+  std::string toString( const AnnotationType& );
+  AnnotationType stringToAnnotationType( const std::string& );
 
   AnnotatorType stringToAnnotatorType( const std::string& );
   std::string toString( const AnnotatorType& );
@@ -178,7 +176,7 @@ namespace TiCC {
   // add some specializations to the TiCC stringTo() and toString() family
 
   template<>
-    inline folia::AnnotationType::AnnotationType stringTo( const std::string& str ) {
+    inline folia::AnnotationType stringTo( const std::string& str ) {
     return folia::stringToAnnotationType( str );
   }
 
@@ -211,7 +209,7 @@ namespace TiCC {
   }
 
   inline std::ostream& operator<<( std::ostream& os,
-				   const folia::AnnotationType::AnnotationType& at ){
+				   const folia::AnnotationType& at ){
     os << folia::toString( at );
     return os;
   }

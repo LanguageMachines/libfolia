@@ -159,7 +159,7 @@ namespace folia {
     _dbg_file = ls;
   }
 
-  void Engine::un_declare( const AnnotationType::AnnotationType& at,
+  void Engine::un_declare( const AnnotationType& at,
 			   const string& setname ){
     /// remove the annotation declaration for the given type and set
     /// \param at the AnnotationType
@@ -177,7 +177,7 @@ namespace folia {
     }
   }
 
-  void Engine::declare( const AnnotationType::AnnotationType& at,
+  void Engine::declare( const AnnotationType& at,
 			const string& setname,
 			const string& args ) {
     /// declare a set for a given annotation type
@@ -190,7 +190,7 @@ namespace folia {
     declare( at, setname, kwargs );
   }
 
-  void Engine::declare( const AnnotationType::AnnotationType& at,
+  void Engine::declare( const AnnotationType& at,
 			const string& setname,
 			const KWargs& args ) {
     /// declare a set for a given annotation type
@@ -210,7 +210,7 @@ namespace folia {
     }
   }
 
-  bool Engine::is_declared( const AnnotationType::AnnotationType& at,
+  bool Engine::is_declared( const AnnotationType& at,
 			    const string& setname ) const {
     /// check if an annotation for the provided type and setname is present
     /// \param at the AnnotationType
@@ -224,7 +224,7 @@ namespace folia {
     }
   }
   /*
-  void Engine::declare( const AnnotationType::AnnotationType& at,
+  void Engine::declare( const AnnotationType& at,
 			const string& setname,
 			const string& format,
 			const string& annotator,
@@ -253,7 +253,7 @@ namespace folia {
     }
   }
   */
-  bool Engine::is_declared( const AnnotationType::AnnotationType& at,
+  bool Engine::is_declared( const AnnotationType& at,
 			    const string& setname,
 			    const string& annotator,
 			    const AnnotatorType& annotator_type,
@@ -273,7 +273,7 @@ namespace folia {
     }
   }
 
-  bool Engine::is_declared( const AnnotationType::AnnotationType& at,
+  bool Engine::is_declared( const AnnotationType& at,
 			    const string& setname,
 			    const string& annotator,
 			    const string& annotator_type,

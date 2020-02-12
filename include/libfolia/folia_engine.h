@@ -76,20 +76,20 @@ namespace folia {
     bool finish();
     /// return the status of the Engine. True when still valid. False otherwise.
     bool ok() const { return _ok; };
-    void un_declare( const AnnotationType::AnnotationType&,
+    void un_declare( const AnnotationType&,
 		     const std::string& = "" );
-    void declare( const AnnotationType::AnnotationType&,
+    void declare( const AnnotationType&,
 		  const std::string&,
 		  const std::string& = "" );
-    void declare( const AnnotationType::AnnotationType&,
+    void declare( const AnnotationType&,
 		  const std::string&,
 		  const KWargs& );
-    bool is_declared( const AnnotationType::AnnotationType&,
+    bool is_declared( const AnnotationType&,
 		      const std::string& = "" ) const;
-    bool is_declared( const AnnotationType::AnnotationType&,
+    bool is_declared( const AnnotationType&,
 		      const std::string&, const std::string&,
 		      const std::string&, const std::string& = "" ) const;
-    bool is_declared( const AnnotationType::AnnotationType&,
+    bool is_declared( const AnnotationType&,
 		      const std::string&, const std::string&,
 		      const AnnotatorType&, const std::string& = "" ) const;
     void set_metadata( const std::string&, const std::string& );

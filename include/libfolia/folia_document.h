@@ -169,63 +169,63 @@ namespace folia {
 
     FoliaElement *index( const std::string& ) const; //retrieve element with specified ID
     FoliaElement* operator []( const std::string& ) const ; //index as operator
-    bool declared( const AnnotationType::AnnotationType&,
+    bool declared( const AnnotationType&,
 		   const std::string&,
 		   const std::string&,
 		   const AnnotatorType&,
 		   const std::string& ) const;
-    bool declared( const AnnotationType::AnnotationType&,
+    bool declared( const AnnotationType&,
 		   const std::string&,
 		   const std::string&,
 		   const AnnotatorType&,
 		   const std::set<std::string>& ) const;
-    bool declared( const AnnotationType::AnnotationType&,
+    bool declared( const AnnotationType&,
 		   const std::string& = "" ) const;
     bool declared( ElementType, const std::string& = "" ) const;
-    bool is_undeclared( const AnnotationType::AnnotationType& ) const ;
-    std::string unalias( AnnotationType::AnnotationType,
+    bool is_undeclared( const AnnotationType& ) const ;
+    std::string unalias( AnnotationType,
 			 const std::string& ) const;
-    std::string alias( AnnotationType::AnnotationType,
+    std::string alias( AnnotationType,
 		       const std::string& ) const;
 
     processor *add_processor( const KWargs&, processor * =0 );
-    std::vector<std::string> get_annotators( AnnotationType::AnnotationType,
+    std::vector<std::string> get_annotators( AnnotationType,
 					    const std::string& ="" ) const;
-    std::vector<const processor *> get_processors( AnnotationType::AnnotationType,
+    std::vector<const processor *> get_processors( AnnotationType,
 						   const std::string& ="" ) const;
 
-    std::string default_set( AnnotationType::AnnotationType ) const;
-    std::string original_default_set( AnnotationType::AnnotationType ) const;
+    std::string default_set( AnnotationType ) const;
+    std::string original_default_set( AnnotationType ) const;
 
-    std::string default_annotator( AnnotationType::AnnotationType,
+    std::string default_annotator( AnnotationType,
 				   const std::string& ="" ) const;
-    AnnotatorType default_annotatortype( AnnotationType::AnnotationType,
+    AnnotatorType default_annotatortype( AnnotationType,
 					const std::string& ="" ) const;
 
-    std::string default_datetime( AnnotationType::AnnotationType,
+    std::string default_datetime( AnnotationType,
 				  const std::string& ="" ) const;
-    std::string default_processor( AnnotationType::AnnotationType,
+    std::string default_processor( AnnotationType,
 				   const std::string& ="" ) const;
-    std::string original_default_processor( AnnotationType::AnnotationType ) const;
+    std::string original_default_processor( AnnotationType ) const;
 
     FoliaElement* parseXml( );
 
     std::string id() const { return _id; };
     std::string language() const;
-    void auto_declare( AnnotationType::AnnotationType,
+    void auto_declare( AnnotationType,
 		       const std::string& = "" );
-    void declare( AnnotationType::AnnotationType,
+    void declare( AnnotationType,
 		  const std::string&,
 		  const std::string& = "" );
-    void declare( AnnotationType::AnnotationType,
+    void declare( AnnotationType,
 		  const std::string&,
 		  const KWargs& );
-    void declare( AnnotationType::AnnotationType,
+    void declare( AnnotationType,
 		  const std::string&, const std::string&, const std::string&,
 		  const std::string&, const std::string&,
 		  const std::set<std::string>&,
 		  const std::string& = "" );
-    void un_declare( AnnotationType::AnnotationType,
+    void un_declare( AnnotationType,
 		     const std::string& );
     xmlDoc *XmlDoc() const { return _xmldoc; };
     xmlNs *foliaNs() const { return _foliaNsOut; };
@@ -259,12 +259,12 @@ namespace folia {
       std::string f;
       std::set<std::string> p;
     };
-    void incrRef( AnnotationType::AnnotationType, const std::string& );
-    void decrRef( AnnotationType::AnnotationType, const std::string& );
+    void incrRef( AnnotationType, const std::string& );
+    void decrRef( AnnotationType, const std::string& );
     void setmode( const std::string& ) const;
     std::string getmode() const;
     int setdebug( int val ){ int ret=debug; debug=val; return ret;};
-    std::multimap<AnnotationType::AnnotationType,std::string> unused_declarations( ) const;
+    std::multimap<AnnotationType,std::string> unused_declarations( ) const;
     const MetaData *get_submetadata( const std::string& m ){
       const auto& it = submetadata.find( m );
       if ( it == submetadata.end() ){
@@ -285,7 +285,7 @@ namespace folia {
     std::string doc_version() const;
     std::string update_version();
     bool version_below( int, int );
-    std::map<AnnotationType::AnnotationType,std::multimap<std::string,at_t> > annotationdefaults() const { return _annotationdefaults; };
+    std::map<AnnotationType,std::multimap<std::string,at_t> > annotationdefaults() const { return _annotationdefaults; };
     void parse_metadata( const xmlNode * );
     void setDocumentProps( KWargs& );
     Provenance *provenance() const { return _provenance;};
@@ -295,14 +295,14 @@ namespace folia {
     bool is_incremental() const { return _incremental_parse; };
   private:
     void adjustTextMode();
-    std::map<AnnotationType::AnnotationType,std::multimap<std::string,at_t> > _annotationdefaults;
-    std::map<AnnotationType::AnnotationType,std::map<std::string,bool> > _groupannotations;
-    std::vector<std::pair<AnnotationType::AnnotationType,std::string>> _anno_sort;
-    std::map<AnnotationType::AnnotationType,std::map<std::string,int> > _annotationrefs;
-    std::map<AnnotationType::AnnotationType,std::map<std::string,std::string>> _alias_set;
-    std::map<AnnotationType::AnnotationType,std::map<std::string,std::string>> _set_alias;
-    std::map<AnnotationType::AnnotationType,std::string> _orig_ann_default_sets;
-    std::map<AnnotationType::AnnotationType,std::string> _orig_ann_default_procs;
+    std::map<AnnotationType,std::multimap<std::string,at_t> > _annotationdefaults;
+    std::map<AnnotationType,std::map<std::string,bool> > _groupannotations;
+    std::vector<std::pair<AnnotationType,std::string>> _anno_sort;
+    std::map<AnnotationType,std::map<std::string,int> > _annotationrefs;
+    std::map<AnnotationType,std::map<std::string,std::string>> _alias_set;
+    std::map<AnnotationType,std::map<std::string,std::string>> _set_alias;
+    std::map<AnnotationType,std::string> _orig_ann_default_sets;
+    std::map<AnnotationType,std::string> _orig_ann_default_procs;
 
     std::vector<TextContent*> t_offset_validation_buffer;
     std::vector<PhonContent*> p_offset_validation_buffer;
@@ -319,7 +319,7 @@ namespace folia {
     void setstyles( xmlDoc* ) const;
     void append_processor( xmlNode *, const processor * ) const;
     xmlDoc *to_xmlDoc( const std::string& ="" ) const;
-    void add_one_anno( const std::pair<AnnotationType::AnnotationType,std::string>&,
+    void add_one_anno( const std::pair<AnnotationType,std::string>&,
 		       xmlNode *,
 		       std::set<std::string>& ) const;
     std::map<std::string, FoliaElement* > sindex;

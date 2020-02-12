@@ -235,7 +235,7 @@ namespace folia {
     virtual const std::string processor() const = 0;
     virtual void processor( const std::string& ) = 0;
     virtual void annotatortype( AnnotatorType t ) =  0;
-    virtual AnnotationType::AnnotationType annotation_type() const = 0;
+    virtual AnnotationType annotation_type() const = 0;
     virtual PosAnnotation *addPosAnnotation( const KWargs& ) NOT_IMPLEMENTED;
     virtual LemmaAnnotation *addLemmaAnnotation( const KWargs& ) NOT_IMPLEMENTED;
     virtual MorphologyLayer *addMorphologyLayer( const KWargs& ) NOT_IMPLEMENTED;
@@ -720,7 +720,7 @@ namespace folia {
     bool hidden() const;
     const std::string& xmltag() const;
     const std::string& default_subset() const;
-    AnnotationType::AnnotationType annotation_type() const;
+    AnnotationType annotation_type() const;
     const std::set<ElementType>& accepted_data() const;
     const std::set<ElementType>& required_data() const;
     bool printable() const;

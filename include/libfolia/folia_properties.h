@@ -34,10 +34,7 @@ namespace folia {
   enum ElementType : unsigned int;
   enum Attrib : int;
   enum AnnotatorType: int;
-
-  namespace AnnotationType {
-    enum AnnotationType : int;
-  }
+  enum AnnotationType : int;
 
   class properties {
    public:
@@ -48,7 +45,7 @@ namespace folia {
     std::set<ElementType> REQUIRED_DATA;
     Attrib REQUIRED_ATTRIBS;
     Attrib OPTIONAL_ATTRIBS;
-    AnnotationType::AnnotationType ANNOTATIONTYPE;
+    AnnotationType ANNOTATIONTYPE;
     std::string SUBSET;
     size_t OCCURRENCES;
     size_t OCCURRENCES_PER_SET;
@@ -69,10 +66,10 @@ namespace folia {
   extern const std::set<std::string> AttributeFeatures;
   extern const std::map<ElementType,std::string> et_s_map;
   extern const std::map<std::string,ElementType> s_et_map;
-  extern const std::map<AnnotationType::AnnotationType,std::string> ant_s_map;
-  extern const std::map<std::string,AnnotationType::AnnotationType> s_ant_map;
-  extern const std::map<AnnotationType::AnnotationType, ElementType> annotationtype_elementtype_map;
-  extern const std::map<AnnotationType::AnnotationType,std::string> annotationtype_xml_map;
+  extern const std::map<AnnotationType,std::string> ant_s_map;
+  extern const std::map<std::string,AnnotationType> s_ant_map;
+  extern const std::map<AnnotationType, ElementType> annotationtype_elementtype_map;
+  extern const std::map<AnnotationType,std::string> annotationtype_xml_map;
   extern const std::map<std::string,std::string> oldtags;
   extern std::map<std::string,std::string> reverse_old;
 

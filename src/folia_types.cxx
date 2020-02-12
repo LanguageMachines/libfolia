@@ -38,7 +38,7 @@ using namespace std;
 
 namespace folia {
 
-  string toString( const AnnotationType::AnnotationType& at ){
+  string toString( const AnnotationType& at ){
     /// return the string representation of AnnotationType at
     auto result = ant_s_map.find(at);
     if ( result == ant_s_map.end() ){
@@ -48,7 +48,7 @@ namespace folia {
     return result->second;
   }
 
-  AnnotationType::AnnotationType stringToAnnotationType( const string& st ){
+  AnnotationType stringToAnnotationType( const string& st ){
     // convert a string into an AnnotationType
     /*!
      * \param st a string representing an AnnotationType

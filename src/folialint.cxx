@@ -186,7 +186,7 @@ int main( int argc, char* argv[] ){
 	       << " and the library is at version: "
 	       <<  folia::library_version() << endl;
 	}
-	multimap<folia::AnnotationType::AnnotationType, string> und = d.unused_declarations();
+	multimap<folia::AnnotationType, string> und = d.unused_declarations();
 	if ( !und.empty() ){
 	  cerr << "the folowing annotationsets are declared but unused: " << endl;
 	  for ( const auto& it : und ){

@@ -66,7 +66,7 @@ namespace folia {
 
   //foliaspec:annotationtype_string_map
   //A mapping from annotation types to strings
-  const map<AnnotationType::AnnotationType,string> ant_s_map = {
+  const map<AnnotationType,string> ant_s_map = {
     { AnnotationType::NO_ANN, "NONE" },
     { AnnotationType::ALTERNATIVE,  "alternative" },
     { AnnotationType::CHUNKING,  "chunking" },
@@ -127,7 +127,7 @@ namespace folia {
 
   //foliaspec:string_annotationtype_map
   //A mapping from strings to annotation types
-  const map<string,AnnotationType::AnnotationType> s_ant_map = {
+  const map<string,AnnotationType> s_ant_map = {
     { "NONE", AnnotationType::NO_ANN },
     { "alternative", AnnotationType::ALTERNATIVE },
     { "chunking", AnnotationType::CHUNKING },
@@ -1621,7 +1621,7 @@ namespace folia {
 
   //foliaspec:annotationtype_elementtype_map
   //A mapping from annotation types to element types, based on the assumption that there is always only one primary element for an annotation type (and possible multiple secondary ones which are not included in this map,w)
-  const map<AnnotationType::AnnotationType,ElementType> annotationtype_elementtype_map = {
+  const map<AnnotationType,ElementType> annotationtype_elementtype_map = {
     {  AnnotationType::ALTERNATIVE, Alternative_t },
     {  AnnotationType::CHUNKING, Chunk_t },
     {  AnnotationType::COMMENT, Comment_t },
@@ -1681,7 +1681,7 @@ namespace folia {
 
   //foliaspec:annotationtype_xml_map
   //A mapping from annotation types to xml tags (strings)
-  const map<AnnotationType::AnnotationType,string> annotationtype_xml_map = {
+  const map<AnnotationType,string> annotationtype_xml_map = {
     {  AnnotationType::ALTERNATIVE, "alt" },
     {  AnnotationType::CHUNKING, "chunk" },
     {  AnnotationType::COMMENT, "comment" },

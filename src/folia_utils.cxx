@@ -430,7 +430,7 @@ namespace folia {
       }
       if ( !s.empty() ){
 	try {
-	  stringTo<AnnotationType::AnnotationType>( s );
+	  stringTo<AnnotationType>( s );
 	}
 	catch ( const ValueError& e ){
 	  cerr << "no AnnotationType found for string '" << s << "'" << endl;

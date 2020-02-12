@@ -106,7 +106,7 @@ namespace folia {
     return _props.SUBSET;
   }
 
-  AnnotationType::AnnotationType AbstractElement::annotation_type() const {
+  AnnotationType AbstractElement::annotation_type() const {
     /// return the ANNOTATIONTYPE property
     return _props.ANNOTATIONTYPE;
   }

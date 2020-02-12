@@ -818,8 +818,8 @@ namespace folia {
       string tag = TiCC::Name( n );
       if ( tag.length() > 11 && tag.substr( tag.length() - 11 ) == "-annotation" ){
 	string prefix = tag.substr( 0,  tag.length() - 11 );
-	AnnotationType::AnnotationType at_type
-	  = TiCC::stringTo<AnnotationType::AnnotationType>( prefix );
+	AnnotationType at_type
+	  = TiCC::stringTo<AnnotationType>( prefix );
 	if ( debug ){
 	  cerr << "parse " << prefix << "-annotation" << endl;
 	}
@@ -1497,7 +1497,7 @@ namespace folia {
     return result;
   }
 
-  void Document::auto_declare( AnnotationType::AnnotationType type,
+  void Document::auto_declare( AnnotationType type,
 			       const string& _setname ) {
     string setname = _setname;
     if ( setname.empty() ) {
@@ -1516,14 +1516,14 @@ namespace folia {
     }
   }
 
-  void Document::declare( AnnotationType::AnnotationType type,
+  void Document::declare( AnnotationType type,
 			  const string& setname,
 			  const string& args ){
     KWargs kwargs = getArgs( args );
     return declare( type, setname, kwargs );
   }
 
-  void Document::declare( AnnotationType::AnnotationType type,
+  void Document::declare( AnnotationType type,
 			  const string& setname,
 			  const KWargs& _args ){
     KWargs args = _args;
@@ -1578,7 +1578,7 @@ namespace folia {
     declare( type, st, f, a, t, d, processors, alias );
   }
 
-  string Document::unalias( AnnotationType::AnnotationType type,
+  string Document::unalias( AnnotationType type,
 			    const string& alias ) const {
     //    cerr << "unalias: " << alias << endl;
     const auto& ti = _alias_set.find(type);
@@ -1593,7 +1593,7 @@ namespace folia {
     return alias;
   }
 
-  string Document::alias( AnnotationType::AnnotationType type,
+  string Document::alias( AnnotationType type,
 			  const string& st ) const {
     //    cerr << "alias: " << st << endl;
     const auto& ti = _set_alias.find(type);
@@ -1608,7 +1608,7 @@ namespace folia {
     return st;
   }
 
-  void Document::declare( AnnotationType::AnnotationType type,
+  void Document::declare( AnnotationType type,
 			  const string& setname,
 			  const string& format,
 			  const string& annotator,
@@ -1701,7 +1701,7 @@ namespace folia {
     }
   }
 
-  void Document::un_declare( AnnotationType::AnnotationType type,
+  void Document::un_declare( AnnotationType type,
 			     const string& set_name ){
     string setname = unalias(type,set_name);
     if ( debug ){
@@ -1778,8 +1778,8 @@ namespace folia {
     }
   }
 
-  multimap<AnnotationType::AnnotationType, string> Document::unused_declarations( ) const {
-    multimap<AnnotationType::AnnotationType,string> result;
+  multimap<AnnotationType, string> Document::unused_declarations( ) const {
+    multimap<AnnotationType,string> result;
     for ( const auto& tit : _annotationrefs ){
       for ( const auto& mit : tit.second ){
 	if ( mit.second == 0 ){
@@ -1821,7 +1821,7 @@ namespace folia {
     throw XmlError( "Only can append 'text' or 'speech' as root of a Document." );
   }
 
-  bool Document::declared( const AnnotationType::AnnotationType& type,
+  bool Document::declared( const AnnotationType& type,
 			   const string& set_name,
 			   const string& annotator,
 			   const AnnotatorType& annotator_type,
@@ -1880,7 +1880,7 @@ namespace folia {
     return false;
   }
 
-  bool Document::is_undeclared( const AnnotationType::AnnotationType& type ) const {
+  bool Document::is_undeclared( const AnnotationType& type ) const {
     if ( debug ){
       cerr << "is_undeclared? ( " << folia::toString(type) << endl;
     }
@@ -1910,7 +1910,7 @@ namespace folia {
     }
   }
 
-  bool Document::declared( const AnnotationType::AnnotationType& type,
+  bool Document::declared( const AnnotationType& type,
 			   const string& set_name,
 			   const string& annotator,
 			   const AnnotatorType& annotator_type,
@@ -1928,7 +1928,7 @@ namespace folia {
     }
   }
 
-  void Document::incrRef( AnnotationType::AnnotationType type,
+  void Document::incrRef( AnnotationType type,
 			  const string& s ){
     if ( type != AnnotationType::NO_ANN ){
       string st = s;
@@ -1940,7 +1940,7 @@ namespace folia {
     }
   }
 
-  void Document::decrRef( AnnotationType::AnnotationType type,
+  void Document::decrRef( AnnotationType type,
 			  const string& s ){
     if ( type != AnnotationType::NO_ANN ){
       --_annotationrefs[type][s];
@@ -1948,7 +1948,7 @@ namespace folia {
     }
   }
 
-  bool Document::declared( const AnnotationType::AnnotationType& type,
+  bool Document::declared( const AnnotationType& type,
 			   const string& setname ) const {
     if ( debug ){
       cerr << "declared(" << folia::toString(type) << ",'" << setname << "')" << endl;
@@ -1998,12 +1998,12 @@ namespace folia {
   bool Document::declared( ElementType et,
 			   const string& setname ) const {
     FoliaElement *tmp = AbstractElement::createElement( et );
-    AnnotationType::AnnotationType at = tmp->annotation_type();
+    AnnotationType at = tmp->annotation_type();
     delete tmp;
     return declared( at, setname );
   }
 
-  string Document::default_set( AnnotationType::AnnotationType type ) const {
+  string Document::default_set( AnnotationType type ) const {
     if ( type == AnnotationType::NO_ANN ){
       return "";
     }
@@ -2028,7 +2028,7 @@ namespace folia {
     return result;
   }
 
-  string Document::original_default_set( AnnotationType::AnnotationType type ) const {
+  string Document::original_default_set( AnnotationType type ) const {
     auto const& it = _orig_ann_default_sets.find(type);
     if ( it == _orig_ann_default_sets.end() ){
       return "";
@@ -2038,7 +2038,7 @@ namespace folia {
     }
   }
 
-  string Document::original_default_processor( AnnotationType::AnnotationType type ) const {
+  string Document::original_default_processor( AnnotationType type ) const {
     auto const& it = _orig_ann_default_procs.find(type);
     if ( it == _orig_ann_default_procs.end() ){
       return "";
@@ -2048,7 +2048,7 @@ namespace folia {
     }
   }
 
-  vector<string> Document::get_annotators( AnnotationType::AnnotationType type,
+  vector<string> Document::get_annotators( AnnotationType type,
 					   const string& st ) const {
     vector<string> result;
     if ( type == AnnotationType::NO_ANN ){
@@ -2070,7 +2070,7 @@ namespace folia {
 
   }
 
-  string Document::default_annotator( AnnotationType::AnnotationType type,
+  string Document::default_annotator( AnnotationType type,
 				      const string& st ) const {
     if ( type == AnnotationType::NO_ANN ){
       return "";
@@ -2097,7 +2097,7 @@ namespace folia {
     return result;
   }
 
-  AnnotatorType Document::default_annotatortype( AnnotationType::AnnotationType type,
+  AnnotatorType Document::default_annotatortype( AnnotationType type,
 						 const string& st ) const {
     if ( debug ){
       cerr << "annotationdefaults= " <<  _annotationdefaults << endl;
@@ -2130,7 +2130,7 @@ namespace folia {
     return result;
   }
 
-  string Document::default_datetime( AnnotationType::AnnotationType type,
+  string Document::default_datetime( AnnotationType type,
 				     const string& st ) const {
     const auto& mit1 = _annotationdefaults.find(type);
     string result;
@@ -2152,7 +2152,7 @@ namespace folia {
     return result;
   }
 
-  string Document::default_processor( AnnotationType::AnnotationType annotationtype,
+  string Document::default_processor( AnnotationType annotationtype,
 				      const string& set_name ) const{
     if ( debug ){
       cerr << "defaultprocessor(" << toString( annotationtype ) << ","
@@ -2197,7 +2197,7 @@ namespace folia {
     return "";
   }
 
-  vector<const processor*> Document::get_processors( AnnotationType::AnnotationType type,
+  vector<const processor*> Document::get_processors( AnnotationType type,
 						     const string& st ) const {
     vector<const processor*> result;
     if ( debug ){
@@ -2223,11 +2223,11 @@ namespace folia {
     return result;
   }
 
-  void Document::add_one_anno( const pair<AnnotationType::AnnotationType,string>& pair,
+  void Document::add_one_anno( const pair<AnnotationType,string>& pair,
 			       xmlNode *node,
 			       set<string>& done ) const{
     // Find the 'label'
-    AnnotationType::AnnotationType type = pair.first;
+    AnnotationType type = pair.first;
     string sett = pair.second;
     string label = toString( type );
     if ( done.find(label+sett) != done.end() ){
@@ -2342,8 +2342,8 @@ namespace folia {
     xmlNode *node = xmlAddChild( md, TiCC::XmlNewNode( foliaNs(), "annotations" ) );
     set<string> done;
     if ( kanon() ){
-      multimap<AnnotationType::AnnotationType,
-	       pair<AnnotationType::AnnotationType,string>> ordered;
+      multimap<AnnotationType,
+	       pair<AnnotationType,string>> ordered;
       for ( const auto& pair : _anno_sort ){
 	ordered.insert(make_pair(pair.first,pair));
       }
