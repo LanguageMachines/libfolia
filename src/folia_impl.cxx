@@ -6308,7 +6308,7 @@ namespace folia {
   const MetaData* AbstractElement::get_metadata() const {
     /// Get the MetaData node related to this element
     /*!
-     * \return the _matedata or 0 if not available
+     * \return the _metadata or 0 if not available
      * may recurse upwards through the parent nodes
      */
     if ( !_metadata.empty() && doc() ){
