@@ -424,13 +424,13 @@ namespace folia {
     }
   }
 
-  processor *Provenance::get_processor( const string& pid ) const {
+  processor *Provenance::get_processor( const string& id ) const {
     ///  return a processor with the given id
     /*!
       \param id the processor id we search for
       \return the found processor or 0 when not found
     */
-    const auto& p = _index.find( pid );
+    const auto& p = _index.find( id );
     if ( p != _index.end() ){
       return p->second;
     }
@@ -440,6 +440,13 @@ namespace folia {
   }
 
   vector<processor*> Provenance::get_processors_by_name( const string& name ) const {
+    /// give a list of all processors with this name
+    /*!
+      \param name the name to search for
+      \return a list of found processors
+
+      \note processor id's are UNIQUE, processor names ARN'T
+    */
     vector<processor*> result;
     for ( auto p = _name_index.lower_bound( name );
 	  p !=  _name_index.upper_bound( name );
@@ -450,10 +457,12 @@ namespace folia {
   }
 
   processor *Provenance::get_top_processor() const {
+    /// return the main processor in this Provenance context
     return _first_proc;
   }
 
   void Provenance::add_index( processor *p ){
+    /// add a procesor to the index
     _index[p->id()] = p;
     _name_index.insert( make_pair(p->name(),p) );
     if ( _first_proc == 0 ){
@@ -463,6 +472,11 @@ namespace folia {
 
   void Provenance::parse_processor( const xmlNode *node,
 				    processor *parent ) {
+    /// parse a processor from XML
+    /*!
+      \param node the xmlNode whre the processor is found
+      \param parent the processor to connect to (may be 0)
+     */
     KWargs node_atts = getAttributes( node );
     processor *main = new processor( this, parent, node_atts );
     if ( parent ){
@@ -495,6 +509,7 @@ namespace folia {
   }
 
   ostream& operator<<( ostream& os, const Provenance& p ){
+    /// output the provenance context (debugging only)
     os << "provenance data" << endl;
     os << "NAMES: " << p._names << endl;
     for ( const auto& pr : p.processors ){
@@ -505,6 +520,7 @@ namespace folia {
   }
 
   ostream& operator<<( ostream& os, const Provenance* p ){
+    /// output the provenance context (debugging only)
     if ( p ){
       os << *p;
     }
