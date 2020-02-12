@@ -386,6 +386,14 @@ namespace folia {
 
 
   void AllowXlink::setAttributes( KWargs& kwargs ) {
+    /// set the objects attributes given a set of Key-Value pairs.
+    /*!
+     * \param kwargs a KWargs set of Key-Value pairs
+     * the given keys are checked agains a range of criteria:
+     *     - if the object supports the attribue
+     *     - if the object provided value is valid
+     *     - if the attribute is declared for the annotation-type
+     */
     string type = "simple";
     string val = kwargs.extract( "xlink:type" );
     if ( !val.empty() ) {
@@ -443,7 +451,7 @@ namespace folia {
   void AbstractElement::setAttributes( KWargs& kwargs ) {
     /// set the objects attributes given a set of Key-Value pairs.
     /*!
-     * \param kwargs_in a KWargs set of Key-Value pairs
+     * \param kwargs a KWargs set of Key-Value pairs
      * the given keys are checked agains a range of criteria:
      *     - if the object supports the attribue
      *     - if the object provided value is valid
@@ -1534,18 +1542,18 @@ namespace folia {
     return private_text( cls, retain, strict, hidden );
   }
 
-  void FoLiA::setAttributes( KWargs& args ){
+  void FoLiA::setAttributes( KWargs& kwargs ){
     /// set the attributes of a FoLiA top node
     /*!
-     * \param args an attribute-value list
+     * \param kwargs an attribute-value list
      * the FoLiA top is special, as it may accept special attributes
      * which are stored in the associated document, and NOT in the node
      */
     // we store some attributes in the document itself
-    doc()->setDocumentProps( args );
+    doc()->setDocumentProps( kwargs );
     // use remaining attributes for the FoLiA node
     // probably only the ID
-    AbstractElement::setAttributes( args );
+    AbstractElement::setAttributes( kwargs );
   }
 
   FoliaElement* FoLiA::parseXml( const xmlNode *node ){
@@ -3381,7 +3389,7 @@ namespace folia {
   void TextContent::setAttributes( KWargs& kwargs ) {
     /// set the TextContent attributes given a set of Key-Value pairs.
     /*!
-     * \param args a KWargs set of Key-Value pairs
+     * \param kwargs a KWargs set of Key-Value pairs
      *
      * checks and sets the special attributes for TextContent:
      * value, offset, ref, class
@@ -3403,8 +3411,9 @@ namespace folia {
       _offset = stringTo<int>(it->second);
       kwargs.erase(it);
     }
-    else
+    else {
       _offset = -1;
+    }
     it = kwargs.find( "ref" );
     if ( it != kwargs.end() ) {
       _ref = it->second;
@@ -3421,7 +3430,7 @@ namespace folia {
   void PhonContent::setAttributes( KWargs& kwargs ) {
     /// set the PhonContent attributes given a set of Key-Value pairs.
     /*!
-     * \param args_in a KWargs set of Key-Value pairs
+     * \param kwargs a KWargs set of Key-Value pairs
      *
      * checks and sets the special attributes for PhonContent:
      * offset, ref, class
@@ -3431,8 +3440,9 @@ namespace folia {
       _offset = stringTo<int>(it->second);
       kwargs.erase(it);
     }
-    else
+    else {
       _offset = -1;
+    }
     if ( kwargs.is_present( "ref" ) ) {
       throw NotImplementedError( "ref attribute in PhonContent" );
     }
@@ -3632,31 +3642,22 @@ namespace folia {
     return attribs;
   }
 
-  void Linebreak::setAttributes( KWargs& args ){
+  void Linebreak::setAttributes( KWargs& kwargs ){
     /// set the Linebreak attributes given a set of Key-Value pairs.
     /*!
-     * \param args_in a KWargs set of Key-Value pairs
+     * \param kwargs a KWargs set of Key-Value pairs
      *
      * checks and sets the special attributes for Linebreak:
      * pagenr, linenr, newpage
      */
-    auto it = args.find( "pagenr" );
-    if ( it != args.end() ) {
-      _pagenr = it->second;
-      args.erase( it );
+    _pagenr = kwargs.extract( "pagenr" );
+    _linenr = kwargs.extract( "linenr" );
+    string val = kwargs.extract( "newpage" );
+    if ( !val.empty() ) {
+      _newpage = ( val == "yes" );
     }
-    it = args.find( "linenr" );
-    if ( it != args.end() ) {
-      _linenr = it->second;
-      args.erase( it );
-    }
-    it = args.find( "newpage" );
-    if ( it != args.end() ) {
-      _newpage = ( it->second == "yes" );
-      args.erase( it );
-    }
-    AllowXlink::setAttributes( args );
-    AbstractElement::setAttributes( args );
+    AllowXlink::setAttributes( kwargs );
+    AbstractElement::setAttributes( kwargs );
   }
 
   KWargs Linebreak::collectAttributes() const {
@@ -4399,10 +4400,10 @@ namespace folia {
     /// extract all Attribute-Value pairs for LinkReference
     /*!
      * \return a KWargs set of Attribute-value pairs
-     * inclusive: refId and type
+     * inclusive: ref_id and type
      */
     KWargs atts;
-    atts["id"] = refId;
+    atts["id"] = ref_id;
     atts["type"] = ref_type;
     if ( !_t.empty() ) {
       atts["t"] = _t;
@@ -4410,45 +4411,32 @@ namespace folia {
     return atts;
   }
 
-  void LinkReference::setAttributes( KWargs& args ) {
+  void LinkReference::setAttributes( KWargs& kwargs ) {
     /// set the LinkReference attributes given a set of Key-Value pairs.
     /*!
-     * \param args_in a KWargs set of Key-Value pairs
+     * \param kwargs a KWargs set of Key-Value pairs
      *
      * checks and sets the special attributes for LinkReference:
      * id, type, t
      */
-    auto it = args.find( "id" );
-    if ( it != args.end() ) {
-      refId = it->second;
-      args.erase(it);
-    }
-    it = args.find( "type" );
-    if ( it != args.end() ) {
-      ref_type = it->second;
-      args.erase(it);
-    }
-    it = args.find( "t" );
-    if ( it != args.end() ) {
-      _t = it->second;
-      args.erase(it);
-    }
-    AbstractElement::setAttributes(args);
+    ref_id = kwargs.extract( "id" );
+    ref_type = kwargs.extract( "type" );
+    _t = kwargs.extract( "t" );
+    AbstractElement::setAttributes(kwargs);
   }
 
-  void Word::setAttributes( KWargs& args ) {
+  void Word::setAttributes( KWargs& kwargs ) {
     /// set the Word attributes given a set of Key-Value pairs.
     /*!
-     * \param args_in a KWargs set of Key-Value pairs
+     * \param kwargs a KWargs set of Key-Value pairs
      *
      * checks and sets the special attributes for Word: text
      */
-    auto const& it = args.find( "text" );
-    if ( it != args.end() ) {
-      settext( it->second );
-      args.erase( it );
+    string value = kwargs.extract( "text" );
+    if ( !value.empty() ) {
+      settext( value );
     }
-    AbstractElement::setAttributes( args );
+    AbstractElement::setAttributes( kwargs );
   }
 
   const string& Word::get_delimiter( bool retaintok ) const {
@@ -4933,9 +4921,9 @@ namespace folia {
     if ( val.empty() ) {
       throw XmlError( "ID required for LinkReference" );
     }
-    refId = val;
+    ref_id = val;
     if ( doc()->debug ) {
-      cerr << "Found LinkReference ID " << refId << endl;
+      cerr << "Found LinkReference ID " << ref_id << endl;
     }
     ref_type = att["type"];
     val = att["t"];
@@ -4952,7 +4940,7 @@ namespace folia {
      * \return pointer to refered FoliaElement. Throws when not found.
      */
     if ( ref->href().empty() ) {
-      return (*doc())[refId];
+      return (*doc())[ref_id];
     }
     throw NotImplementedError( "LinkReference::resolve() for external doc" );
   }
@@ -4960,15 +4948,11 @@ namespace folia {
   void Relation::setAttributes( KWargs& kwargs ) {
     /// set the Relation attributes given a set of Key-Value pairs.
     /*!
-     * \param args_in a KWargs set of Key-Value pairs
+     * \param kwargs a KWargs set of Key-Value pairs
      *
      * checks and sets the special attributes for Relation: format
      */
-    auto it = kwargs.find( "format" );
-    if ( it != kwargs.end() ) {
-      _format = it->second;
-      kwargs.erase( it );
-    }
+    _format = kwargs.extract( "format" );
     AllowXlink::setAttributes(kwargs);
     AbstractElement::setAttributes(kwargs);
   }
@@ -5001,20 +4985,20 @@ namespace folia {
     return result;
   }
 
-  void PlaceHolder::setAttributes( KWargs& args_in ) {
+  void PlaceHolder::setAttributes( KWargs& kwargs ) {
     /// set the PlaceHolder attributes given a set of Key-Value pairs.
     /*!
-     * \param args_in a KWargs set of Key-Value pairs
+     * \param kwargs a KWargs set of Key-Value pairs
      *
      * checks and sets the special attributes for PlaceHolder: text
      */
-    if ( !args_in.is_present("text") ) {
+    if ( !kwargs.is_present("text") ) {
       throw ValueError("text attribute is required for " + classname() );
     }
-    else if ( args_in.size() != 1 ) {
+    else if ( kwargs.size() != 1 ) {
       throw ValueError("only the text attribute is supported for " + classname() );
     }
-    Word::setAttributes( args_in );
+    Word::setAttributes( kwargs );
   }
 
   const UnicodeString Figure::caption() const {
@@ -5034,14 +5018,11 @@ namespace folia {
   void Description::setAttributes( KWargs& kwargs ) {
     /// set the Descriptions attributes given a set of Key-Value pairs.
     /*!
-     * \param args_in a KWargs set of Key-Value pairs
+     * \param kwargs a KWargs set of Key-Value pairs
      *
      * checks and sets the special attributes for Description: value
      */
-    string val = kwargs.extract( "value" );
-    if ( !val.empty() ) {
-      _value = val;
-    }
+    _value = kwargs.extract( "value" );
     AbstractElement::setAttributes( kwargs );
   }
 
@@ -5071,14 +5052,11 @@ namespace folia {
   void Comment::setAttributes( KWargs& kwargs ) {
     /// set the Comments attributes given a set of Key-Value pairs.
     /*!
-     * \param args_in a KWargs set of Key-Value pairs
+     * \param kwargs a KWargs set of Key-Value pairs
      *
      * checks and sets the special attributes for Comment: value
      */
-    string val = kwargs.extract( "value" );
-    if ( !val.empty() ) {
-      _value = val;
-    }
+    _value = kwargs.extract( "value" );
     AbstractElement::setAttributes( kwargs );
   }
 
@@ -5298,19 +5276,15 @@ namespace folia {
     return e;
   }
 
-  void Content::setAttributes( KWargs& atts ){
+  void Content::setAttributes( KWargs& kwargs ){
     /// set the Contents attributes given a set of Key-Value pairs.
     /*!
-     * \param args_in a KWargs set of Key-Value pairs
+     * \param kwargs a KWargs set of Key-Value pairs
      *
      * checks and sets the special attributes for Content: value
      */
-    auto it = atts.find( "value" );
-    if ( it != atts.end() ) {
-      value = it->second;
-      atts.erase( it );
-    }
-    AbstractElement::setAttributes( atts );
+    value = kwargs.extract( "value" );
+    AbstractElement::setAttributes( kwargs );
   }
 
   FoliaElement* Content::parseXml( const xmlNode *node ) {
@@ -5964,31 +5938,26 @@ namespace folia {
   void External::setAttributes( KWargs& kwargs ) {
     /// set the External attributes given a set of Key-Value pairs.
     /*!
-     * \param args_in a KWargs set of Key-Value pairs
+     * \param kwargs a KWargs set of Key-Value pairs
      *
      * checks and sets the special attributes for External: include
      */
-    auto it = kwargs.find( "include" );
-    if ( it != kwargs.end() ) {
-      _include = TiCC::stringTo<bool>( it->second );
-      kwargs.erase( it );
+    string value = kwargs.extract( "include" );
+    if ( !value.empty() ) {
+      _include = TiCC::stringTo<bool>( value );
     }
     AbstractElement::setAttributes(kwargs);
   }
 
-  void Note::setAttributes( KWargs& args ) {
+  void Note::setAttributes( KWargs& kwargs ) {
     /// set the Node attributes given a set of Key-Value pairs.
     /*!
-     * \param args_in a KWargs set of Key-Value pairs
+     * \param kwargs a KWargs set of Key-Value pairs
      *
      * checks and sets the special attributes for Note: id
      */
-    auto it = args.find( "id" );
-    if ( it != args.end() ) {
-      refId = it->second;
-      args.erase( it );
-    }
-    AbstractElement::setAttributes( args );
+    ref_id = kwargs.extract( "id" );
+    AbstractElement::setAttributes( kwargs );
   }
 
   KWargs Reference::collectAttributes() const {
@@ -5998,8 +5967,8 @@ namespace folia {
      * inclusive: id, type, format
      */
     KWargs atts = AbstractElement::collectAttributes();
-    if ( !refId.empty() ){
-      atts["id"] = refId;
+    if ( !ref_id.empty() ){
+      atts["id"] = ref_id;
     }
     if ( !ref_type.empty() ){
       atts["type"] = ref_type;
@@ -6012,32 +5981,18 @@ namespace folia {
     return atts;
   }
 
-  void Reference::setAttributes( KWargs& args ) {
+  void Reference::setAttributes( KWargs& kwargs ) {
     /// set the Reference attributes given a set of Key-Value pairs.
     /*!
-     * \param args_in a KWargs set of Key-Value pairs
+     * \param kwargs a KWargs set of Key-Value pairs
      *
      * checks and sets the special attributes for Reference: id, type, format
      */
-    auto it = args.find( "id" );
-    if ( it != args.end() ) {
-      refId = it->second;
-      args.erase( it );
-    }
-    it = args.find( "type" );
-    if ( it != args.end() ) {
-      // if ( it->second != "simple" ){
-	ref_type = it->second;
-	//      }
-      args.erase( it );
-    }
-    it = args.find( "format" );
-    if ( it != args.end() ) {
-      _format = it->second;
-      args.erase( it );
-    }
-    AllowXlink::setAttributes(args);
-    AbstractElement::setAttributes(args);
+    ref_id = kwargs.extract( "id" );
+    ref_type = kwargs.extract( "type" );
+    _format = kwargs.extract( "format" );
+    AllowXlink::setAttributes(kwargs);
+    AbstractElement::setAttributes(kwargs);
   }
 
   KWargs TextMarkupReference::collectAttributes() const {
@@ -6047,8 +6002,8 @@ namespace folia {
      * inclusive: id, type and format
      */
     KWargs atts = AbstractElement::collectAttributes();
-    if ( !refId.empty() ){
-      atts["id"] = refId;
+    if ( !ref_id.empty() ){
+      atts["id"] = ref_id;
     }
     if ( !ref_type.empty() ){
       atts["type"] = ref_type;
@@ -6059,30 +6014,18 @@ namespace folia {
     return atts;
   }
 
-  void TextMarkupReference::setAttributes( KWargs& args ) {
+  void TextMarkupReference::setAttributes( KWargs& kwargs ) {
     /// set the TextMarkupReference attributes given a set of Key-Value pairs.
     /*!
-     * \param argsin a KWargs set of Key-Value pairs
+     * \param kwargs a KWargs set of Key-Value pairs
      *
      * checks and sets the special attributes for TextMarkupReference:
      * id, type, format
      */
-    auto it = args.find( "id" );
-    if ( it != args.end() ) {
-      refId = it->second;
-      args.erase( it );
-    }
-    it = args.find( "type" );
-    if ( it != args.end() ) {
-      ref_type = it->second;
-      args.erase( it );
-    }
-    it = args.find( "format" );
-    if ( it != args.end() ) {
-      _format = it->second;
-      args.erase( it );
-    }
-    AbstractElement::setAttributes(args);
+    ref_id = kwargs.extract( "id" );
+    ref_type = kwargs.extract( "type" );
+    _format = kwargs.extract( "format" );
+    AbstractElement::setAttributes(kwargs);
   }
 
   xmlNode *XmlComment::xml( bool, bool ) const {
@@ -6121,36 +6064,28 @@ namespace folia {
   void Suggestion::setAttributes( KWargs& kwargs ) {
     /// set the Suggestion attributes given a set of Key-Value pairs.
     /*!
-     * \param kwargs_in a KWargs set of Key-Value pairs
+     * \param kwargs a KWargs set of Key-Value pairs
      *
      * checks and sets the special attributes for Suggestion:
      * split, merge
      */
-    auto it = kwargs.find( "split" );
-    if ( it != kwargs.end() ) {
-      _split = it->second;
-      kwargs.erase( it );
-    }
-    it = kwargs.find( "merge" );
-    if ( it != kwargs.end() ) {
-      _merge = it->second;
-      kwargs.erase( it );
-    }
+    _split = kwargs.extract( "split" );
+    _merge = kwargs.extract( "merge" );
     AbstractElement::setAttributes(kwargs);
   }
 
 
-  void Feature::setAttributes( KWargs& args_in ) {
+  void Feature::setAttributes( KWargs& kwargs ) {
     /// set the Feature attributes given a set of Key-Value pairs.
     /*!
-     * \param args_in a KWargs set of Key-Value pairs
+     * \param kwargs a KWargs set of Key-Value pairs
      *
      * checks and sets the special attributes for Feature
      * subset, class
      * \note Feature is special. So DON'T call setAttributes
      */
-    auto it = args_in.find( "subset" );
-    if ( it == args_in.end() ) {
+    auto it = kwargs.find( "subset" );
+    if ( it == kwargs.end() ) {
       _subset = default_subset();
       if ( _subset.empty() ){
 	throw ValueError("subset attribute is required for " + classname() );
@@ -6162,8 +6097,8 @@ namespace folia {
       }
       _subset = it->second;
     }
-    it = args_in.find( "class" );
-    if ( it == args_in.end() ) {
+    it = kwargs.find( "class" );
+    if ( it == kwargs.end() ) {
       throw ValueError("class attribute is required for " + classname() );
     }
     if ( it->second.empty() ) {
@@ -6358,32 +6293,32 @@ namespace folia {
     return attribs;
   }
 
-  void AbstractTextMarkup::setAttributes( KWargs& args ) {
+  void AbstractTextMarkup::setAttributes( KWargs& kwargs ) {
     /// set the AbstractTextMarkup attributes given a set of Key-Value pairs.
     /*!
-     * \param atts a KWargs set of Key-Value pairs
+     * \param kwargs a KWargs set of Key-Value pairs
      *
      * checks and sets the special attributes for AbstractTextMarkup:
      * id, text
      */
-    auto it = args.find( "id" );
-    if ( it != args.end() ) {
-      auto it2 = args.find( "xml:id" );
-      if ( it2 != args.end() ) {
+    auto it = kwargs.find( "id" );
+    if ( it != kwargs.end() ) {
+      auto it2 = kwargs.find( "xml:id" );
+      if ( it2 != kwargs.end() ) {
 	throw ValueError("Both 'id' and 'xml:id found for " + classname() );
       }
       idref = it->second;
-      args.erase( it );
+      kwargs.erase( it );
     }
-    it = args.find( "text" );
-    if ( it != args.end() ) {
+    it = kwargs.find( "text" );
+    if ( it != kwargs.end() ) {
       XmlText *txt = new XmlText();
       txt->setvalue( it->second );
       append(txt);
-      args.erase( it );
+      kwargs.erase( it );
     }
-    AllowXlink::setAttributes( args );
-    AbstractElement::setAttributes( args );
+    AllowXlink::setAttributes( kwargs );
+    AbstractElement::setAttributes( kwargs );
   }
 
   KWargs TextMarkupCorrection::collectAttributes() const {
@@ -6399,25 +6334,17 @@ namespace folia {
     return attribs;
   }
 
-  void TextMarkupCorrection::setAttributes( KWargs& args ) {
+  void TextMarkupCorrection::setAttributes( KWargs& kwargs ) {
     /// set the TextMarkupCorrection attributes given a set of Key-Value pairs.
     /*!
-     * \param args a KWargs set of Key-Value pairs
+     * \param kwargs a KWargs set of Key-Value pairs
      *
      * checks and sets the special attributes for TextMarkupCorrection:
      * id, original
      */
-    auto it = args.find( "id" );
-    if ( it != args.end() ) {
-      idref = it->second;
-      args.erase( it );
-    }
-    it = args.find( "original" );
-    if ( it != args.end() ) {
-      _original = it->second;
-      args.erase( it );
-    }
-    AbstractElement::setAttributes( args );
+    idref = kwargs.extract( "id" );
+    _original = kwargs.extract( "original" );
+    AbstractElement::setAttributes( kwargs );
   }
 
   const UnicodeString TextMarkupCorrection::private_text( const string& cls,

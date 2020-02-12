@@ -36,6 +36,8 @@
 #include "unicode/unistr.h"
 #include "libxml/tree.h"
 
+#include "libfolia/folia_properties.h"
+
 using namespace icu;
 
 namespace folia {
@@ -63,9 +65,6 @@ namespace folia {
   class Paragraph;
   class Morpheme;
   class MetaData;
-
-  class properties;
-  extern const std::set<ElementType> default_ignore_annotations;
 
   /// class used to steer 'text()' search behaviour
   /// the values may be logically 'or'-ed, like RETAIN|HIDDEN
@@ -1246,7 +1245,7 @@ namespace folia {
   private:
     void init();
     static properties PROPS;
-    std::string refId;
+    std::string ref_id;
     std::string ref_type;
     std::string _type;
     std::string _format;
@@ -2142,7 +2141,7 @@ namespace folia {
 
     KWargs collectAttributes() const;
     void setAttributes( KWargs& );
-    const std::string refid() const { return refId; };
+    const std::string refid() const { return ref_id; };
     const std::string type() const { return ref_type; };
     const std::string t() const { return _t; };
 
@@ -2150,7 +2149,7 @@ namespace folia {
     static properties PROPS;
     FoliaElement* parseXml( const xmlNode *node );
     FoliaElement *resolve_element( const Relation *ref ) const;
-    std::string refId;
+    std::string ref_id;
     std::string ref_type;
     std::string _t;
   };
@@ -2558,7 +2557,7 @@ namespace folia {
     void setAttributes( KWargs& );
   private:
     static properties PROPS;
-    std::string refId;
+    std::string ref_id;
   };
 
   class Definition: public AbstractStructureElement {
@@ -2626,7 +2625,7 @@ namespace folia {
     private:
       void init();
       static properties PROPS;
-      std::string refId;
+      std::string ref_id;
       std::string ref_type;
       std::string _format;
     };
