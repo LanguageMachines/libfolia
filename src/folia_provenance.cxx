@@ -29,7 +29,6 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #include <netdb.h>
-#include <random>
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -47,6 +46,11 @@ namespace folia {
   using TiCC::operator<<;
 
   void processor::print( ostream& os, const int indent ) const {
+    /// print a complete processor instance to a stream (Debugging purposes)
+    /*!
+      \param os The output stream
+      \param indent The identation (in spaces) to use
+    */
     string space = string(indent,'\t');
     os << space << "name=" << _name << endl;
     os << space << "id=" << _id << endl;
@@ -62,11 +66,21 @@ namespace folia {
   }
 
   ostream& operator<<( ostream& os, const processor& p ){
+    /// output a processor
+    /*!
+      \param os the output stream
+      \param p the processor
+    */
     p.print( os, 0 );
     return os;
   }
 
   ostream& operator<<( ostream& os, const processor *p ){
+    /// output a processor
+    /*!
+      \param os the output stream
+      \param p the processor
+    */
     if ( p ){
       p->print( os, 0 );
     }
@@ -76,21 +90,11 @@ namespace folia {
     return os;
   }
 
-  unsigned long long random64(){
-    static std::random_device rd;
-    static std::uniform_int_distribution<unsigned long long> dis;
-    static std::mt19937_64 gen(rd());
-    return dis(gen);
-  }
-
-  string randnum( int len ){
-    stringstream ss;
-    ss << random64() << endl;
-    string result = ss.str();
-    return result.substr(0,len);
-  }
-
   string getfqdn( ){
+    /// function to get the hostname of the machine we are running on
+    /*!
+      \return a string with the hostname
+    */
     string result;
     struct addrinfo hints, *info, *p;
     int gai_result;
@@ -119,6 +123,10 @@ namespace folia {
   }
 
   string get_user(){
+    /// function to get the username of the program
+    /*!
+      \return a string with the username
+    */
     string result;
     const char *env = getenv( "USER" );
     if ( env ){
@@ -128,6 +136,11 @@ namespace folia {
   }
 
   void processor::get_system_defaults(){
+    /// set the sytem information in this processor
+    /*!
+      will set the hostname, the username, the current time and the FoLiA
+      version
+    */
     _host = getfqdn();
     _begindatetime = get_ISO_date();
     _folia_version = folia::folia_version();
@@ -138,6 +151,19 @@ namespace folia {
 
   string processor::generate_id( Provenance *prov,
 				 const string& name ){
+    /// generate an processor id
+    /*!
+      \param prov the provenance data context
+      \param name use this name as base for the id
+      \return the new id
+
+      First we lookup \em name in the Provenance \em prov. If it is found
+      we generate a new id as sub-id of the name. When not found, we just create
+      a new id \e 'name.1'
+
+      Some care is taken to make sure NO existing id is generated, when this
+      would happen we add extra '_' characters to name
+    */
     string new_id;
     auto it = prov->_names.find(name);
     if ( it == prov->_names.end() ){
@@ -176,6 +202,15 @@ namespace folia {
   }
 
   string processor::calculate_next_id(){
+    /// create a successor id for this processor
+    /*!
+      \return the new id
+
+      When the processor has subprocessors, we create an id which is 1 beyond
+      that of the last subprocessor
+
+      Otherwise we create an id for the first subprocessor
+    */
     string new_id;
     if ( !processors().empty() ){
       string prev_id = processors().back()->id();
@@ -203,6 +238,12 @@ namespace folia {
   processor::processor( Provenance *prov,
 			processor* parent,
 			const KWargs& atts_in ) {
+    /// initialize a procesor
+    /*!
+      \param prov The provenance context
+      \param parent A parent to connect to
+      \param atts_in A KWargs list with values to set for the processor
+    */
     _type = AUTO;
     KWargs atts = atts_in;
     string name = atts.extract("name");
@@ -340,6 +381,7 @@ namespace folia {
   }
 
   processor::~processor(){
+    /// deconstructor for a processor and its subprocessors
     for ( const auto& p : _processors ){
       delete p;
     }
@@ -347,6 +389,12 @@ namespace folia {
 
   bool processor::set_metadata( const string& id,
 				const string& val ){
+    /// set a metadata property in the processor
+    /*!
+      \param id the name of the property
+      \param val the value to set
+      \return true when set, false when already set
+    */
     if ( _metadata[id].empty() ){
       _metadata[id] = val;
       return true;
@@ -357,6 +405,11 @@ namespace folia {
   }
 
   string processor::get_metadata( const string& id ){
+    /// get a metadata property from the processor
+    /*!
+      \param id the name of the property to return
+      \return the value when found or "" when not found
+    */
     auto it = _metadata.find( id );
     if ( it != _metadata.end() ){
       return it->second;
@@ -365,12 +418,18 @@ namespace folia {
   }
 
   Provenance::~Provenance(){
+    /// deconstruct this provenance context and it's processors
     for ( const auto& p : processors ){
       delete p;
     }
   }
 
   processor *Provenance::get_processor( const string& pid ) const {
+    ///  return a processor with the given id
+    /*!
+      \param id the processor id we search for
+      \return the found processor or 0 when not found
+    */
     const auto& p = _index.find( pid );
     if ( p != _index.end() ){
       return p->second;
