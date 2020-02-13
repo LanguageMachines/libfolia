@@ -290,7 +290,7 @@ namespace folia {
      	   << cls() << " datasize= " << _data.size() << endl;
     }
     if ( doc() ) {
-      doc()->del_doc_index( this, _id );
+      doc()->del_doc_index( _id );
       doc()->decrRef( annotation_type(), _set );
     }
   }
@@ -5886,7 +5886,7 @@ namespace folia {
 	      Text *tmp = new Text( args, doc() );
 	      tmp->AbstractElement::parseXml( p );
 	      FoliaElement *old = par->replace( this, tmp->index(0) );
-	      doc()->del_doc_index( tmp, bogus_id );
+	      doc()->del_doc_index( bogus_id );
 	      tmp->remove( (size_t)0, false );
 	      delete tmp;
 	      delete old;

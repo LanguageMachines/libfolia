@@ -155,7 +155,6 @@ namespace folia {
     xmlFree( (xmlChar*)_foliaNsIn_href );
     xmlFree( (xmlChar*)_foliaNsIn_prefix );
     sindex.clear();
-    iindex.clear();
     delete foliadoc;
     set<FoliaElement*> bulk;
     for ( const auto& it : delSet ){
@@ -361,14 +360,13 @@ namespace folia {
     auto it = sindex.find( s );
     if ( it == sindex.end() ){
       sindex[s] = el;
-      iindex.push_back( el );
     }
     else {
       throw DuplicateIDError( s );
     }
   }
 
-  void Document::del_doc_index( const FoliaElement* el, const string& s ){
+  void Document::del_doc_index( const string& s ){
     if ( sindex.empty() ){
       // only when ~Document is in progress
       return;
@@ -378,14 +376,6 @@ namespace folia {
     }
     // cerr << _id << "-del docindex " << el << " (" << s << ")" << endl;
     sindex.erase(s);
-    auto pos = iindex.begin();
-    while( pos != iindex.end() ){
-      if ( *pos == el ){
-	iindex.erase( pos );
-	return;
-      }
-      ++pos;
-    }
   }
 
   static void error_sink(void *mydata, xmlError *error ){
@@ -571,13 +561,6 @@ namespace folia {
 
   FoliaElement* Document::operator []( const string& s ) const {
     return index(s);
-  }
-
-  FoliaElement* Document::operator []( size_t i ) const {
-    if ( i < iindex.size()-1 ){
-      return iindex[i+1];
-    }
-    throw range_error( "Document index out of range" );
   }
 
   UnicodeString Document::text( const std::string& cls,

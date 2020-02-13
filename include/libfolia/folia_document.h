@@ -174,9 +174,7 @@ namespace folia {
     processor *get_processor( const std::string& ) const;
     std::vector<processor*> get_processors_by_name( const std::string& ) const;
     void add_doc_index( FoliaElement*, const std::string& );
-    void del_doc_index( const FoliaElement*, const std::string& );
-
-    FoliaElement* operator []( size_t ) const; //select i'th element from data
+    void del_doc_index( const std::string& );
 
     FoliaElement *index( const std::string& ) const; //retrieve element with specified ID
     FoliaElement* operator []( const std::string& ) const ; //index as operator
@@ -355,7 +353,7 @@ namespace folia {
 		       std::set<std::string>& ) const;
     std::map<std::string, FoliaElement* > sindex; ///< the lookup table
     ///< for all Folialement's with an index
-    std::vector<FoliaElement* > iindex;
+    //    std::vector<FoliaElement* > iindex;
     std::vector<FoliaElement*> data;
     std::vector<External*> externals;
     std::string _id;
