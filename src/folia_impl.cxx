@@ -2301,7 +2301,7 @@ namespace folia {
   }
 
   bool AbstractElement::addable( const FoliaElement *c ) const {
-    /// test if an element \c might succesfully appenden
+    /// test if an element \c might succesfully appended
     /*!
      * \param c the node to check
      * \return true if it doesn't throw
@@ -3170,6 +3170,23 @@ namespace folia {
     }
     append( res );
     return res;
+  }
+
+  Word *AbstractElement::addWord( const std::string& s ){
+    /// add a Word given the string s
+    /*!
+      \param s a string with text OR an encode KWargs list
+      \return a new Word
+
+      If the string is a KWargs properties list it is used to create a word
+      with those properties. Otherwise it is assumed that \em s represents
+      the text value for the Word
+    */
+    KWargs args = getArgs(s);
+    if ( args.empty() ){
+      args["text"] = s;
+    }
+    return addWord( args );
   }
 
   const string& Quote::get_delimiter( bool retaintok ) const {
