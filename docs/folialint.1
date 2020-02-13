@@ -1,4 +1,4 @@
-.TH folialint 1 "2017 nov 13" "version 1.11 "
+.TH folialint 1 "2020 deb 13" "version 2.0 "
 .
 .SH NAME
 folialint \(hy check validity of FoLiA documents
@@ -42,12 +42,18 @@ Disable checking text consistency. (for older FoLiA versions this wasn't forced 
 )
 .RE
 .
+.B --fixtext
+.RS
+Attempt to fix text problems like wrong offset's. Might be dangerous, and the
+default is to DON'T do it.
+.RE
+.
 .B --strip
 .RS
 strip all information from the file that makes comparison hard.
 Notably date/time information.
 .
-This also guaratees a 'canonical' output, meaning that otherwise unsorted tags
+This also enable '--canonical' output, meaning that otherwise unsorted tags
 are output in the same order every time.
 .
 .RE
@@ -63,7 +69,16 @@ add some extra (warning) checks:
 
 \(hy About unused set declarations
 
-\(hy About possible incompatabilities between the current library version and the document version.
+\(hy About possible incompatabilities between the current library version and
+the document version.
+.RE
+.
+.B --canonical
+or
+.B --KANON
+.RS
+output annotation declarations and FoLiA nodes in a fixed (canonical) order.
+This might make tree comparisons easier.
 .RE
 .
 .B --debug
