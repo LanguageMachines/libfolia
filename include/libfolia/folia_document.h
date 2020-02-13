@@ -136,6 +136,7 @@ namespace folia {
     Text* setTextRoot( const KWargs& );
     Speech* setSpeechRoot();
     Speech* setSpeechRoot( const KWargs& );
+    FoliaElement *getRoot();
     // backward compatible:
     Text* addText( KWargs& a ){ return setTextRoot( a ); };
     Text* addText( Text *t ){ return dynamic_cast<Text*>( append(t) ); };

@@ -1754,6 +1754,15 @@ namespace folia {
     return setSpeechRoot( empty );
   }
 
+  FoliaElement *Document::getRoot(){
+    if ( foliadoc ){
+      return foliadoc->index(0);
+    }
+    else {
+      return 0;
+    }
+  }
+
   FoliaElement* Document::append( FoliaElement *t ){
     if ( t->element_id() == Text_t
 	 || t->element_id() == Speech_t ) {
