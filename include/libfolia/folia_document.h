@@ -80,7 +80,6 @@ namespace folia {
   class Provenance;
 
   class Document {
-    friend bool operator==( const Document&, const Document& );
     friend std::ostream& operator<<( std::ostream&, const Document * );
     /// enum Mode determines runtime characteristic of the document
     /*!
@@ -352,9 +351,8 @@ namespace folia {
 		       xmlNode *,
 		       std::set<std::string>& ) const;
     std::map<std::string, FoliaElement* > sindex; ///< the lookup table
-    ///< for all Folialement's with an index
-    //    std::vector<FoliaElement* > iindex;
-    std::vector<FoliaElement*> data;
+    ///< for FoliaElements by index (xml:id) (not all nodes do have an index)
+    //    std::vector<FoliaElement*> data;
     std::vector<External*> externals;
     std::string _id;
     std::set<FoliaElement *> delSet;
@@ -397,11 +395,6 @@ namespace folia {
   template <> inline
     Speech *Document::create_root(){
     return setSpeechRoot();
-  }
-
-  bool operator==( const Document&, const Document& );
-  inline bool operator!=( const Document& d1, const Document& d2 ){
-    return !( d1==d2 );
   }
 
   std::ostream& operator<<( std::ostream&, const Document * );

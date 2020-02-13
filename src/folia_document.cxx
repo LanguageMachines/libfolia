@@ -170,47 +170,6 @@ namespace folia {
     delete _provenance;
   }
 
-  bool operator==( const Document& d1, const Document& d2 ){
-    if ( d1.data.size() != d2.data.size() ){
-      return false;
-    }
-    for ( size_t i = 0; i < d1.data.size(); ++i ){
-      if ( *d1.data[i] != *d2.data[i] ){
-	return false;
-      }
-    }
-    return true;
-  }
-
-  bool operator==( const FoliaElement& a1, const FoliaElement& a2){
-    if ( a1.element_id() != a2.element_id() ){
-      return false;
-    }
-    if ( a1.id() != a2.id() ){
-      return false;
-    }
-    if ( a1.sett() != a2.sett() ){
-      return false;
-    }
-    if ( a1.cls() != a2.cls() ){
-      return false;
-    }
-    if ( a1.annotator() != a2.annotator() ){
-      return false;
-    }
-    if ( a1.annotatortype() != a2.annotatortype() ){
-      return false;
-    }
-    if ( a1.size() == a2.size() ) {
-      for ( size_t i = 0; i < a1.size(); ++i ){
-	if ( *a1.index(i) != *a2.index(i) ){
-	  return false;
-	}
-      }
-    }
-    return true;
-  }
-
   void Document::setmode( const string& ms ) const {
     // mode is mutable, so this even sets mode on CONST documents!
     vector<string> modev = TiCC::split_at( ms, "," );
