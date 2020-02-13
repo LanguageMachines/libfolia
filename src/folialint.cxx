@@ -44,7 +44,12 @@ void usage(){
   cerr << "\t--output='file'\t\t name an outputfile. (default is stdout)" << endl;
   cerr << "\t--nooutput\t\t Suppress output. Only warnings/errors are displayed." << endl;
   cerr << "\t--nochecktext DO NOT check if text is consistent inside structure tags. Default is to do so." << endl;
-  cerr << "\t--fixtext. Try to fixup text errors like wrong offsets. Default is to DONT DO THAT." << endl;
+  cerr << "\t--fixtext.\t\t Try to fixup text errors like wrong offsets. Default is to DONT DO THAT." << endl;
+  cerr << "\t--permissive.\t\t Allow some dubious constructs." << endl;
+  cerr << "\t--warn\t\t\t add some extra warnings about library versions and unused" << endl;
+  cerr << "\t\t\t\t annotation declarations" << endl;
+  cerr << "\t--canonical\t\t output in a predefined order. Makes comparisons easier" << endl;
+  cerr << "\t--KANON\t\t\t same as --canonical" << endl;
   cerr << "\t--debug=value\t\t Run more verbose." << endl;
   cerr << "\t--permissive\t\t Accept some unwise constructions." << endl;
 }
@@ -64,7 +69,7 @@ int main( int argc, char* argv[] ){
   string command;
   try {
     TiCC::CL_Options Opts( "hVd:a",
-			   "nochecktext,debug:,permissive,strip,output:,nooutput,help,fixtext,warn,version,KANON,autodeclare");
+			   "nochecktext,debug:,permissive,strip,output:,nooutput,help,fixtext,warn,version,canonical,KANON,autodeclare");
     Opts.init(argc, argv );
     if ( Opts.extract( 'h' )
 	 || Opts.extract( "help" ) ){
@@ -77,6 +82,10 @@ int main( int argc, char* argv[] ){
       cout << "based on [" << folia::VersionName() << "]" << endl;
       return EXIT_SUCCESS;
     }
+    if ( Opts.empty() ){
+      usage();
+      return EXIT_FAILURE;
+    }
     command = Opts.toString();
     if ( !command.empty() ){
       command = "folialint " + command;
@@ -88,7 +97,7 @@ int main( int argc, char* argv[] ){
     warn = Opts.extract("warn");
     nooutput = Opts.extract("nooutput");
     fixtext = Opts.extract("fixtext");
-    kanon = Opts.extract("KANON");
+    kanon = Opts.extract("canonical") || Opts.extract("KANON");
     if ( Opts.extract("nochecktext") ){
       nochecktext = true;
     }
@@ -188,7 +197,7 @@ int main( int argc, char* argv[] ){
 	}
 	multimap<folia::AnnotationType, string> und = d.unused_declarations();
 	if ( !und.empty() ){
-	  cerr << "the folowing annotationsets are declared but unused: " << endl;
+	  cerr << "the following annotationsets are declared but unused: " << endl;
 	  for ( const auto& it : und ){
 	    cerr << folia::toString( it.first )<< "-annotation, set=" << it.second << endl;
 	  }
