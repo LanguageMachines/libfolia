@@ -43,7 +43,6 @@
 using namespace icu;
 
 namespace folia {
-  void initMT();
 
   extern const std::string NSFOLIA;
 
@@ -83,7 +82,19 @@ namespace folia {
   class Document {
     friend bool operator==( const Document&, const Document& );
     friend std::ostream& operator<<( std::ostream&, const Document * );
-    enum Mode { NOMODE=0, PERMISSIVE=1, CHECKTEXT=2, FIXTEXT=4, STRIP=8, KANON=16, AUTODECLARE=32 };
+    /// enum Mode determines runtime characteristic of the document
+    /*!
+      The default settings are CHECKTEXT and AUTODECLARE
+     */
+    enum Mode {
+      NOMODE=0,        //!< no special mode is set.
+      PERMISSIVE=1,    //!< be permissive for certain incompatablities
+      CHECKTEXT=2,     //!< check text consistency
+      FIXTEXT=4,       //!< try to fix text inconsistencies in the fly
+      STRIP=8,         //!< on output, strip
+      CANONICAL=16,    //!< no special mode is set.
+      AUTODECLARE=32   //!< no special mode is set.
+    };
     friend class Engine;
   public:
     Document();
@@ -237,7 +248,7 @@ namespace folia {
     bool checktext() const { return mode & CHECKTEXT; };
     bool fixtext() const { return mode & FIXTEXT; };
     bool strip() const { return mode & STRIP; };
-    bool kanon() const { return mode & KANON; };
+    bool kanon() const { return mode & CANONICAL; };
     bool autodeclare() const { return mode & AUTODECLARE; };
     bool set_permissive( bool ) const; // defined const, but the mode is mutable!
     bool set_checktext( bool ) const; // defined const, but the mode is mutable!
@@ -245,6 +256,7 @@ namespace folia {
     bool set_strip( bool ) const; // defined const, but the mode is mutable!
     bool set_kanon( bool ) const; // defined const, but the mode is mutable!
     bool set_autodeclare( bool ) const; // defined const, but the mode is mutable!
+    /// this class holds annotation declaration information
     class at_t {
       friend std::ostream& operator<<( std::ostream&, const at_t& );
     public:
@@ -253,12 +265,13 @@ namespace folia {
 	  const std::string& _d,
 	  const std::string& _f,
 	  const std::set<std::string>& _p ): a(_a),t(_t),d(_d),f(_f),p(_p){};
-      std::string a;
-      AnnotatorType t;
-      std::string d;
-      std::string f;
-      std::set<std::string> p;
+      std::string a;   ///< the annotation type as a string
+      AnnotatorType t; ///< the annotator type
+      std::string d;   ///< the timestamp as a string
+      std::string f;   ///< the format
+      std::set<std::string> p; ///< the id's of all associated processors
     };
+
     void incrRef( AnnotationType, const std::string& );
     void decrRef( AnnotationType, const std::string& );
     void setmode( const std::string& ) const;
@@ -295,18 +308,36 @@ namespace folia {
     bool is_incremental() const { return _incremental_parse; };
   private:
     void adjustTextMode();
-    std::map<AnnotationType,std::multimap<std::string,at_t> > _annotationdefaults;
-    std::map<AnnotationType,std::map<std::string,bool> > _groupannotations;
-    std::vector<std::pair<AnnotationType,std::string>> _anno_sort;
-    std::map<AnnotationType,std::map<std::string,int> > _annotationrefs;
-    std::map<AnnotationType,std::map<std::string,std::string>> _alias_set;
-    std::map<AnnotationType,std::map<std::string,std::string>> _set_alias;
-    std::map<AnnotationType,std::string> _orig_ann_default_sets;
-    std::map<AnnotationType,std::string> _orig_ann_default_procs;
+    std::map<AnnotationType,std::multimap<std::string,at_t> > _annotationdefaults;   ///< stores all declared annotations per AnnotationType
+    ///< every AnnotationType can have multiple annotations even with the same
+    ///< setnames. hence a multimap
+    std::map<AnnotationType,std::map<std::string,bool> > _groupannotations; ///<
+    ///< register which annotations are GROUP annotations
+    std::vector<std::pair<AnnotationType,std::string>> _anno_sort; ///<
+    ///< register the original sorting of the annotation declarations in the
+    ///< input, so we can use that for output in the same order. (cannonical
+    ///< mode
+    std::map<AnnotationType,std::map<std::string,int> > _annotationrefs; ///<
+    ///< register the number of references to this AnnotationType/setename
+    std::map<AnnotationType,std::map<std::string,std::string>> _alias_set; ///<
+    ///< register the mapping from aliases to setnames per AnnotationType
+    std::map<AnnotationType,std::map<std::string,std::string>> _set_alias; ///<
+    ///< register the mapping from setname to aliases per AnnotationType
+    std::map<AnnotationType,std::string> _orig_ann_default_sets; ///<
+    ///< for folia::Engine we need to register the original mapping from a
+    ///< AnnoationType to a setname, because in the process more mappings
+    ///< can be added, loosing the default.
+    std::map<AnnotationType,std::string> _orig_ann_default_procs;///<
+    ///< for folia::Engine we need to register the original mapping from a
+    ///< AnnoationType to a processor name, because in the process more mappings
+    ///< can be added, loosing the default.
 
-    std::vector<TextContent*> t_offset_validation_buffer;
-    std::vector<PhonContent*> p_offset_validation_buffer;
-
+    std::vector<TextContent*> t_offset_validation_buffer; ///< we register all
+    ///< TextContent nodes here to quickly access them for offset checks
+    ///< that check is performed directly after parsing
+    std::vector<PhonContent*> p_offset_validation_buffer; ///< we register all
+    ///< PhonContent nodes here to quickly access them for offset checks
+    ///< that check is performed directly after parsing
     void setimdi( xmlNode * );
     void parse_annotations( const xmlNode * );
     void parse_provenance( const xmlNode * );
@@ -322,7 +353,8 @@ namespace folia {
     void add_one_anno( const std::pair<AnnotationType,std::string>&,
 		       xmlNode *,
 		       std::set<std::string>& ) const;
-    std::map<std::string, FoliaElement* > sindex;
+    std::map<std::string, FoliaElement* > sindex; ///< the lookup table
+    ///< for all Folialement's with an index
     std::vector<FoliaElement* > iindex;
     std::vector<FoliaElement*> data;
     std::vector<External*> externals;

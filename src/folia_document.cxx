@@ -229,10 +229,10 @@ namespace folia {
 	mode = Mode( (int)mode & ~STRIP );
       }
       else if ( mod == "kanon" ){
-	mode = Mode( (int)mode | KANON );
+	mode = Mode( (int)mode | CANONICAL );
       }
       else if ( mod == "nokanon" ){
-	mode = Mode( (int)mode & ~KANON );
+	mode = Mode( (int)mode & ~CANONICAL );
       }
       else if ( mod == "checktext" ){
 	mode = Mode( int(mode) | CHECKTEXT );
@@ -275,7 +275,7 @@ namespace folia {
     if ( mode & FIXTEXT ){
       result += "fixtext,";
     }
-    if ( mode & KANON ){
+    if ( mode & CANONICAL ){
       result += "kanon,";
     }
     if ( mode & AUTODECLARE ){
@@ -333,12 +333,12 @@ namespace folia {
   }
 
   bool Document::set_kanon( bool new_val ) const{
-    bool old_val = (mode & KANON);
+    bool old_val = (mode & CANONICAL);
     if ( new_val ){
-      mode = Mode( (int)mode | KANON );
+      mode = Mode( (int)mode | CANONICAL );
     }
     else {
-      mode = Mode( (int)mode & ~KANON );
+      mode = Mode( (int)mode & ~CANONICAL );
     }
     return old_val;
   }

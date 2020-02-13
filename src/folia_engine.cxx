@@ -71,9 +71,11 @@ namespace folia {
   }
 
   void print( ostream& os, const xml_tree* tree ){
-    /// pretty print an xml_tree
-    // \param os the output stream
-    // \param tree the tree
+    //! pretty print an xml_tree
+    /*!
+      \param os the output stream
+      \param tree the tree
+    */
     const xml_tree *rec_pnt = tree;
     while ( rec_pnt ){
       os << setw(10) << rec_pnt->index << string( rec_pnt->depth, ' ' )
@@ -1144,7 +1146,7 @@ namespace folia {
   xml_tree *get_structure_parent( const xml_tree *pnt ){
     ///  return the nearest StructureElement above this node
     /// \param pnt a (text) element inthe simple tree.
-    /// \return the firs parent which is an AbstractStructureElement
+    /// \return the first parent which is an AbstractStructureElement
     /// and NOT a Word
     if ( pnt->parent->tag != "w"
 	 && isSubClass( stringToElementType(pnt->parent->tag),
@@ -1287,6 +1289,17 @@ namespace folia {
 
   FoliaElement *TextEngine::next_text_parent(){
     /// return the next node to handle
+    /*!
+      \return a FoLiAElement pointer to a 'textparent' subtree, or 0 when done
+
+      The caller may use this pointer to modify the subtree BELOW that pointer
+      at will.
+
+      next_text_parent should be called until no more candidates are found.
+      At that moment, the complete input FoLiA is parsed and stored in _out_doc
+      adn can be saved or handled over for further processing.
+
+    */
     if ( _done ){
       if ( _debug ){
 	DBG << "next_text_parent(). engine is done" << endl;
