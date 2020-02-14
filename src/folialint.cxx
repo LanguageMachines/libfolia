@@ -82,10 +82,6 @@ int main( int argc, char* argv[] ){
       cout << "based on [" << folia::VersionName() << "]" << endl;
       return EXIT_SUCCESS;
     }
-    if ( Opts.empty() ){
-      usage();
-      return EXIT_FAILURE;
-    }
     command = Opts.toString();
     if ( !command.empty() ){
       command = "folialint " + command;
@@ -117,6 +113,7 @@ int main( int argc, char* argv[] ){
     fileNames = Opts.getMassOpts();
     if ( fileNames.size() == 0 ){
       cerr << "missing input file" << endl;
+      usage();
       return EXIT_FAILURE;
     }
     if ( fileNames.size() > 1 && !outputName.empty() ){
