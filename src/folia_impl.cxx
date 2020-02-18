@@ -2805,9 +2805,9 @@ namespace folia {
 	}
       }
       else if ( p->type == XML_TEXT_NODE ){
-	if ( this->isSubClass( TextContent_t )
-	     || this->isSubClass( PhonContent_t )
-	     || this->isSubClass( AbstractTextMarkup_t ) ){
+	if ( this->is_textcontainer()
+	     || this->is_phoncontainer() ){
+	  // non empty text is allowed (or even required) here
 	  XmlText *t = new XmlText();
 	  if ( p->content ) {
 	    t->setvalue( (const char*)p->content );
@@ -2820,7 +2820,7 @@ namespace folia {
 	  }
 	}
 	else {
-	  //most probably this always 'empty space'
+	  // This MUST be 'empty space', so only spaces and tabs formatting
 	  string tag = "_XmlText";
 	  FoliaElement *t = createElement( tag, doc() );
 	  if ( t ) {
@@ -2838,6 +2838,12 @@ namespace folia {
 	  if ( t ) {
 	    if ( doc() && doc()->debug > 2 ) {
 	      cerr << "extend " << this << " met " << t << endl;
+	    }
+	    string txt = t->str();
+	    txt = TiCC::trim(txt);
+	    if ( !txt.empty() ){
+	      throw XmlError( "element <" + this->xmltag() + "> has extra text"
+			      " '" + txt + "', NOT allowed there." );
 	    }
 	    append( t );
 	  }
