@@ -1556,6 +1556,18 @@ namespace folia {
     AbstractElement::setAttributes( kwargs );
   }
 
+  inline string TextValue( const xmlNode *node ){
+    string result;
+    if ( node ){
+      xmlChar *tmp = xmlNodeGetContent( node );
+      if ( tmp ){
+	result = string( (char *)tmp );
+	xmlFree( tmp );
+      }
+    }
+    return result;
+  }
+
   FoliaElement* FoLiA::parseXml( const xmlNode *node ){
     ///
     /// recursively parse a complete FoLiA tree
@@ -1599,6 +1611,23 @@ namespace folia {
 	      }
 	      this->append( t );
 	    }
+	  }
+	}
+      }
+      else if ( p->type == XML_TEXT_NODE ){
+	// This MUST be 'empty space', so only spaces and tabs formatting
+	string txt = TextValue(p);
+	txt = TiCC::trim(txt);
+	if ( !txt.empty() ){
+	  if ( p->prev ){
+	    string tg = "<" + Name(p->prev) + ">";
+	    throw XmlError( "found extra text '" + txt + "' after element "
+			    + tg + ", NOT allowed there." );
+	  }
+	  else {
+	    string tg = "<" + Name(p->parent) + ">";
+	    throw XmlError( "found extra text '" + txt + "' inside element "
+			    + tg + ", NOT allowed there." );
 	  }
 	}
       }
@@ -2842,8 +2871,16 @@ namespace folia {
 	    string txt = t->str();
 	    txt = TiCC::trim(txt);
 	    if ( !txt.empty() ){
-	      throw XmlError( "element <" + this->xmltag() + "> has extra text"
-			      " '" + txt + "', NOT allowed there." );
+	      if ( p->prev ){
+		string tg = "<" + Name(p->prev) + ">";
+		throw XmlError( "found extra text '" + txt + "' after element "
+				+ tg + ", NOT allowed there." );
+	      }
+	      else {
+		string tg = "<" + Name(p->parent) + ">";
+		throw XmlError( "found extra text '" + txt + "' inside element "
+				+ tg + ", NOT allowed there." );
+	      }
 	    }
 	    append( t );
 	  }
