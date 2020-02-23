@@ -841,7 +841,7 @@ namespace folia {
   }
 
   void AbstractElement::addFeatureNodes( const KWargs& kwargs ) {
-    /// add children to the objcect, based on the set of Key-Value pairs.
+    /// add children to the object, based on the set of Key-Value pairs.
     /*!
      * \param kwargs a KWargs set of Key-Value pairs
      * the given keys must be in the AttributeFeatures set.
@@ -1103,15 +1103,29 @@ namespace folia {
      * For all other cases, the text of the child should match the parents text.
      * \note Matching is opaque to spaces, newlines and tabs
      */
-    if ( !doc() || !doc()->checktext() ){
+    //    cerr << "VOOR checkappend I am=" << this << endl;
+    //    cerr << "VOOR checkappend child=" << child << endl;
+    if ( !doc() || !doc()->checktext() || doc()->fixtext() ){
       return;
     }
     string cls = child->cls();
-    if ( !child->hastext( cls ) ){
-      // no use to proceed. not adding text
+    //    cerr << "HIER 2 " << cls << endl;
+    if ( child->size() == 0
+	 || ( child->is_textcontainer()
+	      && !child->hastext( cls ) ) ){
+      // no use to proceed. not adding real text
       return;
     }
-    FoliaElement *parent = this->parent();
+    //    cerr << "HIER 3 " << endl;
+    const FoliaElement *parent = 0;
+    if ( child->is_textcontainer() ){
+      parent = this->parent();
+    }
+    else {
+      parent = this;
+      cls = child->index(0)->cls();
+    }
+    //    cerr << "PARENT? " << parent << endl;
     if ( parent
 	 && parent->element_id() != Correction_t
 	 && parent->hastext( cls ) ){
@@ -1119,6 +1133,8 @@ namespace folia {
       // but SKIP Corrections
       UnicodeString s1 = parent->text( cls, TEXT_FLAGS::STRICT );
       UnicodeString s2 = child->text( cls, TEXT_FLAGS::STRICT );
+      // cerr << "check parent: " << s1 << endl;
+      // cerr << "check child: " << s2 << endl;
       // no retain tokenization, strict for both
       s1 = normalize_spaces( s1 );
       s2 = normalize_spaces( s2 );
@@ -1126,7 +1142,8 @@ namespace folia {
 	bool test_fail;
 	if ( isSubClass( Word_t )
 	     || child->isSubClass( TextContent_t )
-	     || isSubClass( String_t ) ){
+	     || isSubClass( String_t )
+	     || child->isSubClass( Word_t ) ){
 	  // Words and Strings are 'per definition' PART of there parents
 	  test_fail = ( s1.indexOf( s2 ) < 0 ); // aren't they?
 	}
@@ -1135,7 +1152,7 @@ namespace folia {
 	  test_fail = ( s1 != s2 );
 	}
 	if ( test_fail ){
-	  throw InconsistentText( "text (class="
+	  throw InconsistentText( "adding text (class="
 				  + cls + ") from node: " + child->xmltag()
 				  + "(" + child->id() + ")"
 				  + " with value\n'" + TiCC::UnicodeToUTF8(s2)
@@ -2405,6 +2422,9 @@ namespace folia {
 	  }
 	}
       }
+    }
+    if ( c->is_textcontainer() ||
+	 c->element_id() == Word_t ){
       check_append_text_consistency( c );
     }
     return true;
@@ -3196,7 +3216,7 @@ namespace folia {
     /*!
      * \param in_args A list of Attribute-Value pairs
      * \return the created Word
-     * may throw when the 'xml:id' is nor unique
+     * may throw when the 'xml:id' is nor unique, or when appending fails
      */
     Word *res = new Word( doc() );
     KWargs kw = in_args;
@@ -6061,7 +6081,7 @@ namespace folia {
      * \return a KWargs set of Attribute-value pairs
      * inclusive: id, type and format
      */
-    KWargs atts = AbstractElement::collectAttributes();
+    KWargs atts = AbstractTextMarkup::collectAttributes();
     if ( !ref_id.empty() ){
       atts["id"] = ref_id;
     }
@@ -6085,7 +6105,7 @@ namespace folia {
     ref_id = kwargs.extract( "id" );
     ref_type = kwargs.extract( "type" );
     _format = kwargs.extract( "format" );
-    AbstractElement::setAttributes(kwargs);
+    AbstractTextMarkup::setAttributes(kwargs);
   }
 
   xmlNode *XmlComment::xml( bool, bool ) const {
