@@ -422,6 +422,33 @@ namespace folia {
     }
   }
 
+  void check_empty( xmlNode *node ){
+    /// assure that node == 0 OR just contains whitespace or comment
+    /*!
+      \param node the node to check
+      will throw when node is anything other than xml-comment or whitespace
+    */
+    if ( node ){
+      if ( node->type == XML_COMMENT_NODE ){
+	check_empty( node->next );
+      }
+      else if ( node->type == XML_TEXT_NODE ){
+	string txt = TextValue(node);
+	txt = TiCC::trim(txt);
+	if ( !txt.empty() ){
+	  string tg = "<" + TiCC::Name(node->prev) + ">";
+	  throw XmlError( "found extra text '" + txt + "' after element "
+			  + tg + ", NOT allowed there." );
+	}
+      }
+      else {
+	string tg = "<" + TiCC::Name(node->prev) + ">";
+	throw XmlError( "found unexpected node '" + TiCC::Name(node)
+			+ "' after element " + tg + ", NOT allowed there." );
+      }
+    }
+  }
+
   bool Engine::init_doc( const string& file_name,
 			 const string& out_name ){
     /// init an associated document for this Engine
@@ -442,7 +469,7 @@ namespace folia {
     if ( _reader == 0 ){
       _ok = false;
       throw( runtime_error( "folia::Engine(), init failed on '" + file_name
-			    + "'" ) );
+			    + "' (File not found)" ) );
     }
     int ret = xmlTextReaderRead(_reader);
     int index = 0;
@@ -494,6 +521,7 @@ namespace folia {
 	}
 	else if ( local_name == "metadata" ) {
 	  xmlNode *node = xmlTextReaderExpand(_reader);
+	  check_empty( node->next );
 	  _out_doc->parse_metadata( node );
 	}
 	else if ( local_name == "text" ){

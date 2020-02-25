@@ -1573,18 +1573,6 @@ namespace folia {
     AbstractElement::setAttributes( kwargs );
   }
 
-  inline string TextValue( const xmlNode *node ){
-    string result;
-    if ( node ){
-      xmlChar *tmp = xmlNodeGetContent( node );
-      if ( tmp ){
-	result = string( (char *)tmp );
-	xmlFree( tmp );
-      }
-    }
-    return result;
-  }
-
   FoliaElement* FoLiA::parseXml( const xmlNode *node ){
     ///
     /// recursively parse a complete FoLiA tree
