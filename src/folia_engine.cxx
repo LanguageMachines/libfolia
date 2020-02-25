@@ -389,6 +389,10 @@ namespace folia {
     /// when parsing, add a new XmlText node
     /// \param depth the depth (location) in the tree where to add
     string value = (const char*)xmlTextReaderConstValue(_reader);
+    string trimmed = TiCC::trim(value);
+    if ( !trimmed.empty() ){
+      throw XmlError( "spurious text " + trimmed + " found." );
+    }
     if ( _debug ){
       DBG << "add_text(" << value << ") depth=" << depth << endl;
     }
@@ -436,6 +440,7 @@ namespace folia {
     _out_doc->_source_filename = file_name;
     _reader = create_text_reader( file_name );
     if ( _reader == 0 ){
+      _ok = false;
       throw( runtime_error( "folia::Engine(), init failed on '" + file_name
 			    + "'" ) );
     }
@@ -459,6 +464,7 @@ namespace folia {
 	    _out_doc->_foliaNsIn_href = xmlStrdup(pnt);
 	    string ns = (const char*)_out_doc->_foliaNsIn_href;
 	    if ( ns != NSFOLIA ){
+	      _ok = false;
 	      throw XmlError( "Folia Document should have namespace declaration "
 			      + NSFOLIA + " but found: " + ns );
 	    }
@@ -482,6 +488,7 @@ namespace folia {
 	    _out_doc->foliadoc = root;
 	  }
 	  else {
+	    _ok = false;
 	    throw XmlError( "Engine: invalid FoLiA. missing ID" );
 	  }
 	}
@@ -612,6 +619,7 @@ namespace folia {
       return t;
     }
     else if ( !_out_doc->permissive() ){
+      _ok = false;
       throw XmlError( "folia::engine failed to create node: "
 		      + local_name );
     }
@@ -848,6 +856,7 @@ namespace folia {
       return count_nodes( t );
     }
     else {
+      _ok = false;
       throw XmlError( "folia::engine failed to create node: " + t_or_ph );
     }
   }
@@ -864,10 +873,12 @@ namespace folia {
     if ( local_name == "wref" ){
       string id = atts["id"];
       if ( id.empty() ){
+	_ok = false;
 	throw XmlError( "folia::engine, reference missing an 'id'" );
       }
       FoliaElement *ref = (*_out_doc)[id];
       if ( !ref ){
+	_ok = false;
 	throw XmlError( "folia::engine, unresolvable reference: "
 			+ id );
       }
@@ -939,6 +950,7 @@ namespace folia {
 	}
       }
       else {
+	_ok = false;
 	throw XmlError( "folia::engine failed to create node: "
 			+ local_name );
       }
@@ -1116,7 +1128,7 @@ namespace folia {
     /// \param i the input file to use for parsing
     /// \param o when not empty, add an output-file with this name
     ///
-    /// Sets the _in_file property to i and mars _is_setup FALSE
+    /// Sets the _in_file property to i and marks _is_setup FALSE
     /// then calls Engine::init_doc to do the real work.
     _in_file = i;
     _is_setup = false;
