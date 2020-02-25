@@ -49,8 +49,7 @@ using namespace icu;
 namespace folia {
 
   FoliaElement *FoliaElement::createElement( const string& tag,
-						Document *doc ){
-
+					     Document *doc ){
     ElementType et = BASE;
     try {
       et = stringToElementType( tag );
@@ -552,6 +551,23 @@ namespace folia {
       val = (char *)p->href;
       result[pre] = val;
       p = p->next;
+    }
+    return result;
+  }
+
+  string TextValue( const xmlNode *node ){
+    /// extract the string content of the node
+    /*!
+      \param node The xmlNode to extract from
+      \return the string value of node
+    */
+    string result;
+    if ( node ){
+      xmlChar *tmp = xmlNodeGetContent( node );
+      if ( tmp ){
+	result = string( (char *)tmp );
+	xmlFree( tmp );
+      }
     }
     return result;
   }

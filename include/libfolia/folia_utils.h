@@ -165,6 +165,7 @@ namespace folia {
   bool isNCName( const std::string& );
   bool checkNS( const xmlNode *, const std::string& );
   std::map<std::string,std::string> getNS_definitions( const xmlNode * );
+  std::string TextValue( const xmlNode * );
 
   icu::UnicodeString normalize_spaces( const icu::UnicodeString& );
 
