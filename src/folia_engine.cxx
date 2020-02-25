@@ -225,36 +225,7 @@ namespace folia {
       return _out_doc->declared( at, setname );
     }
   }
-  /*
-  void Engine::declare( const AnnotationType& at,
-			const string& setname,
-			const string& format,
-			const string& annotator,
-			const string& annotator_type,
-			const string& time,
-			const set<string>& processors,
-			const string& alias ) {
-    /// declare a set for a given annotation type
-    /// \param at the AnnotationType
-    /// \param setname The set-name to use
-    /// \param format The format to use TO DO EXPLAIN
-    /// \param annotator the name of the annotator
-    /// \param annotator_type which AnnotatorType in string representation
-    /// \param time the timestamp to set
-    /// \param processors the processors involved
-    /// \param alias an alias for the set-name (in genaral an abbreviated name)
-    if ( !ok() ){
-      throw logic_error( "declare() called on invalid engine!" );
-    }
-    else if ( _header_done ){
-      throw logic_error( "declare() called on already (partially) saved document!" );
-    }
-    else {
-      _out_doc->declare( at, setname, format, annotator, annotator_type, time,
-			 processors, alias );
-    }
-  }
-  */
+
   bool Engine::is_declared( const AnnotationType& at,
 			    const string& setname,
 			    const string& annotator,
@@ -881,6 +852,15 @@ namespace folia {
       append_node( t, depth );
       // skip subtree
       xmlTextReaderNext(_reader);
+      int type = xmlTextReaderNodeType(_reader);
+      if ( type == XML_READER_TYPE_TEXT ){
+	string value = (const char*)xmlTextReaderConstValue(_reader);
+	string trimmed = TiCC::trim(value);
+	if ( !trimmed.empty() ){
+	  throw XmlError( "spurious text " + trimmed + " found after node <"
+			  + t_or_ph + ">" );
+	}
+      }
       return count_nodes( t );
     }
     else {
