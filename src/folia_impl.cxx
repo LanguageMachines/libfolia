@@ -879,6 +879,9 @@ namespace folia {
     if ( d == 1.0 ){
       return "1.0";
     }
+    else if ( d == 0.0 ){
+      return "0.0";
+    }
     else {
       stringstream ss;
       ss.precision(6);
