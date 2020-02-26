@@ -876,10 +876,15 @@ namespace folia {
   }
 
   string toDoubleString( double d ){
-    stringstream ss;
-    ss.precision(6);
-    ss << std::fixed << std::showpoint << d;
-    return ss.str();
+    if ( d == 1.0 ){
+      return "1.0";
+    }
+    else {
+      stringstream ss;
+      ss.precision(6);
+      ss << d;
+      return ss.str();
+    }
   }
 
   KWargs AllowXlink::collectAttributes() const {
