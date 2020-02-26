@@ -45,6 +45,8 @@
 using namespace std;
 using namespace icu;
 
+const char *output_encoding = "UTF-8";
+
 namespace folia {
   using TiCC::operator<<;
 
@@ -493,7 +495,8 @@ namespace folia {
     xmlDoc *outDoc = to_xmlDoc( "" );
     set_kanon(old_k);
     xmlChar *buf; int size;
-    xmlDocDumpFormatMemoryEnc( outDoc, &buf, &size, "UTF-8", 0 ); // no formatting
+    xmlDocDumpFormatMemoryEnc( outDoc, &buf, &size,
+			       output_encoding, 0 ); // no formatting
     string result = string( (const char *)buf, size );
     xmlFree( buf );
     xmlFreeDoc( outDoc );
@@ -2553,7 +2556,8 @@ namespace folia {
     if ( foliadoc ){
       xmlDoc *outDoc = to_xmlDoc( nsLabel );
       xmlChar *buf; int size;
-      xmlDocDumpFormatMemoryEnc( outDoc, &buf, &size, "UTF-8", 1 );
+      xmlDocDumpFormatMemoryEnc( outDoc, &buf, &size,
+				 output_encoding, 1 );
       result = string( (const char *)buf, size );
       xmlFree( buf );
       xmlFreeDoc( outDoc );
@@ -2573,7 +2577,7 @@ namespace folia {
 	xmlSetDocCompressMode(outDoc,9);
       }
       long int res = xmlSaveFormatFileEnc( file_name.c_str(), outDoc,
-					   "UTF-8", 1 );
+					   output_encoding, 1 );
       xmlFreeDoc( outDoc );
       _foliaNsOut = 0;
       if ( res == -1 ){
