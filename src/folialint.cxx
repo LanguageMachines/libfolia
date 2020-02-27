@@ -166,7 +166,9 @@ int main( int argc, char* argv[] ){
       cmd += mode;
       //      cerr << "running " << cmd << endl;
       folia::Document d( cmd );
-      if ( !(kanon||strip) && d.get_processors_by_name( "folialint" ).empty() ){
+      if ( !d.version_below(2,0)
+	   && !(kanon||strip)
+	   && d.get_processors_by_name( "folialint" ).empty() ){
 	folia::KWargs args;
 	args["name"] = "folialint";
 	args["id"] = "folialint";
