@@ -168,6 +168,7 @@ namespace folia {
 		const std::string& ) const;
     std::string metadata_type() const;
     std::string metadata_file() const;
+    std::string annotation_type_to_string( AnnotationType ) const;
     void set_metadata( const std::string&, const std::string& );
     const std::string get_metadata( const std::string&) const;
     processor *get_default_processor() const;
@@ -295,7 +296,7 @@ namespace folia {
     std::string version() const { return _version_string; };
     std::string doc_version() const;
     std::string update_version();
-    bool version_below( int, int );
+    bool version_below( int, int ) const;
     std::map<AnnotationType,std::multimap<std::string,at_t> > annotationdefaults() const { return _annotationdefaults; };
     void parse_metadata( const xmlNode * );
     void setDocumentProps( KWargs& );

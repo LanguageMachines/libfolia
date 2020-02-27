@@ -339,6 +339,18 @@ namespace folia {
     sindex.erase(s);
   }
 
+  string Document::annotation_type_to_string( AnnotationType ann ) const {
+    /// return the ANNOTATIONTYPE translated to a string
+    const string& result = toString( ann );
+    if ( version_below(1,6) ){
+      const auto& it = reverse_old.find(result);
+      if ( it != reverse_old.end() ){
+	return it->second;
+      }
+    }
+    return result;
+  }
+
   static void error_sink(void *mydata, xmlError *error ){
     int *cnt = (int*)mydata;
     if ( *cnt == 0 ){
@@ -1066,7 +1078,7 @@ namespace folia {
     return check_version( version() );
   }
 
-  bool Document::version_below( int major, int minor ){
+  bool Document::version_below( int major, int minor ) const {
     // check if current document version is strict < major.minor
     if ( major_version < major ){
       return true;
@@ -2183,7 +2195,7 @@ namespace folia {
     // Find the 'label'
     AnnotationType type = pair.first;
     string sett = pair.second;
-    string label = toString( type );
+    string label = annotation_type_to_string( type );
     if ( done.find(label+sett) != done.end() ){
       return;
     }
