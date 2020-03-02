@@ -45,65 +45,100 @@
 using namespace std;
 using namespace icu;
 
+/// the default output encoding, in fact the only one we allow
 const char *output_encoding = "UTF-8";
 
 namespace folia {
   using TiCC::operator<<;
 
-  std::ostream& operator<<( std::ostream& os, const Document::at_t& at ){
+  ostream& operator<<( ostream& os, const Document::at_t& at ){
+    /// output an at_t structure (Debugging only)
+    /*!
+      \param os the output stream
+      \param at the at_t object
+    */
     os << "<" << at.a << "," << TiCC::toString(at.t) << "," << at.d << "," << at.p << ">";
     return os;
   }
 
   Document::Document(){
+    /// create and initalize a FoLiA Document.
     init();
   }
 
   void Document::init_args( const KWargs& kwargs ){
+    /// init some Document properties from a key-value list
+    /*!
+      \param kwargs a list of key-value pairs
+
+      this function initializes a Document and can set the attributes
+      \e 'debug' and \e 'mode'
+
+      When the attributes \e 'file' or \e 'string' are found, the value is used
+      to extract a complete FoLiA document from that file or string.
+    */
     init();
     KWargs args = kwargs;
-    auto it = args.find( "debug" );
-    if ( it != args.end() ){
-      debug = TiCC::stringTo<int>( it->second );
-      args.erase(it);
+    string value = args.extract( "debug" );
+    if ( !value.empty() ){
+      debug = TiCC::stringTo<int>( value );
     }
-    it = args.find( "mode" );
-    if ( it != args.end() ){
-      setmode( it->second );
-      args.erase(it);
+    value = args.extract( "mode" );
+    if ( !value.empty() ){
+      setmode( value );
     }
-    it = args.find( "file" );
-    if ( it != args.end() ){
+    value = args.extract( "file" );
+    if ( !value.empty() ){
       // extract a Document from a file
-      read_from_file( it->second );
-      args.erase(it);
+      read_from_file( value );
     }
     else {
-      it = args.find( "string" );
-      if ( it != args.end() ){
+      value = args.extract( "string" );
+      if ( !value.empty() ){
 	// extract a Document from a string
-	read_from_string( it->second );
-	args.erase(it);
+	read_from_string( value );
       }
     }
     if ( !foliadoc ){
       // so NO 'file' or 'string' argument.
-      // (read_from_file/read_from_string throw on error)
-      // create an 'empty' document, with a FoLiA root node.
-      it = args.find( "version" );
-      if ( it == args.end() ){
+      // (read_from_file/read_from_string create a foliadoc OR throw )
+      if ( args.find( "version" ) == args.end() ){
 	// no version attribute. set it to the current default
 	args["version"] = folia_version();
       }
+      // create an 'empty' document using the args, with a FoLiA root node.
       foliadoc = new FoLiA( args, this );
     }
   }
 
   Document::Document( const KWargs& kwargs ) {
+    /// initialize a Document using an attribute-value list
+    /*!
+      \param kwargs an attribute-value list
+     */
     init_args( kwargs );
   }
 
   Document::Document( const string& s ) {
+    /// initialize a Document using a string (filename or attribute-value list)
+    /*!
+      \param s a string representing a filename OR an attribute value list
+
+      the string \e s can be a string encoded attribute value list OR just a
+      filename.
+
+      Some examples:
+
+      Document doc("my_first.folia.xml") creates a Document doc from
+      the file \e my_first.folia.xml.
+
+      Document doc( "file='my_first.folia.xml', debug='3', mode='nochecktext'" ) This creates a document from the file \e my_first.folia.xml with a
+      debugging level of 3 and textchecking set to OFF
+
+      Document doc( "xml:id='test'" ) creates an yet empty document with a
+      document ID with value 'test'
+
+    */
     KWargs args = getArgs(s);
     if ( args.empty() ){
       args["file"] = s;
@@ -112,30 +147,36 @@ namespace folia {
   }
 
   string folia_version(){
+    /// return the FoLiA version of this build
     stringstream ss;
     ss << MAJOR_VERSION << "." << MINOR_VERSION << "." << SUB_VERSION;
     return ss.str();
   }
 
   string Document::doc_version() const {
+    /// return the FoLiA version of this Document
     stringstream ss;
     ss << major_version << "." << minor_version << "." << sub_version;
     return ss.str();
   }
 
   string library_version(){
+    /// return the version of the library
     return VERSION;
   }
 
   string Document::update_version(){
-    // override the document version with the current folia version
-    // return the old value
+    /// override the document version with the version of the build
+    /*!
+      \return the old value of the documents version
+    */
     string old = _version_string;
     _version_string = folia_version();
     return old;
   }
 
   void Document::init(){
+    /// initialize a Document structure with default values
     _metadata = 0;
     _provenance = 0;
     _xmldoc = 0;
@@ -153,6 +194,11 @@ namespace folia {
   }
 
   Document::~Document(){
+    /// Destroy a Document structure including al it's members
+    /*!
+      This also finally deletes FoLiA nodes that were marked for deletion
+      but not yet really destroyed. (because they might still be referenced)
+     */
     xmlFreeDoc( _xmldoc );
     xmlFree( (xmlChar*)_foliaNsIn_href );
     xmlFree( (xmlChar*)_foliaNsIn_prefix );
@@ -173,7 +219,20 @@ namespace folia {
   }
 
   void Document::setmode( const string& ms ) const {
-    // mode is mutable, so this even sets mode on CONST documents!
+    /// Sets the  mode attributes of a document
+    /*!
+      \param ms an encoded string of attribute-values pairs giving modes
+      \note mode is mutable, so this even sets mode on CONST documents!
+
+      The following modes can be set:
+      '(no)permissive' (default is NO), '(no)strip' (default is NO),
+      '(no)kanon (default is NO), '(no)checktext (default is checktext),
+      '(no)fixtext (default is NO), (no)autodeclare (default is NO)
+
+      example:
+
+      doc.setmode( "strip,nochecktext,autodeclare" );
+    */
     vector<string> modev = TiCC::split_at( ms, "," );
     for ( const auto& mod : modev ){
       if ( mod == "permissive" ){
@@ -218,7 +277,15 @@ namespace folia {
     }
   }
 
-  string Document::getmode() const{
+  string Document::getmode() const {
+    /// returns the curent mode(s) as a string
+    /*!
+      \return a string explaining the modes set
+
+      example:
+
+      doc.getmode() might return: "mode=strip,nohecktext,autodeclare,"
+     */
     string result = "mode=";
     if ( mode & PERMISSIVE ){
       result += "permissive,";
@@ -248,6 +315,11 @@ namespace folia {
   }
 
   bool Document::set_strip( bool new_val ) const{
+    /// sets the 'strip' mode to on/off
+    /*!
+      \param new_val the boolean to use for on/off
+      \return the previous value
+    */
     bool old_val = (mode & STRIP);
     if ( new_val ){
       mode = Mode( (int)mode | STRIP );
@@ -259,6 +331,11 @@ namespace folia {
   }
 
   bool Document::set_permissive( bool new_val ) const{
+    /// sets the 'permissive' mode to on/off
+    /*!
+      \param new_val the boolean to use for on/off
+      \return the previous value
+    */
     bool old_val = (mode & PERMISSIVE);
     if ( new_val ){
       mode = Mode( (int)mode | PERMISSIVE );
@@ -270,6 +347,11 @@ namespace folia {
   }
 
   bool Document::set_checktext( bool new_val ) const{
+    /// sets the 'checktext' mode to on/off
+    /*!
+      \param new_val the boolean to use for on/off
+      \return the previous value
+    */
     bool old_val = (mode & CHECKTEXT);
     if ( new_val ){
       mode = Mode( (int)mode | CHECKTEXT );
@@ -282,6 +364,11 @@ namespace folia {
 
 
   bool Document::set_fixtext( bool new_val ) const{
+    /// sets the 'fixtext' mode to on/off
+    /*!
+      \param new_val the boolean to use for on/off
+      \return the previous value
+    */
     bool old_val = (mode & FIXTEXT);
     if ( new_val ){
       mode = Mode( (int)mode | FIXTEXT );
@@ -293,6 +380,11 @@ namespace folia {
   }
 
   bool Document::set_kanon( bool new_val ) const{
+    /// sets the 'kanon' mode to on/off
+    /*!
+      \param new_val the boolean to use for on/off
+      \return the previous value
+    */
     bool old_val = (mode & CANONICAL);
     if ( new_val ){
       mode = Mode( (int)mode | CANONICAL );
@@ -304,6 +396,11 @@ namespace folia {
   }
 
   bool Document::set_autodeclare( bool new_val ) const{
+    /// sets the 'autodeclare' mode to on/off
+    /*!
+      \param new_val the boolean to use for on/off
+      \return the previous value
+    */
     bool old_val = (mode & AUTODECLARE);
     if ( new_val ){
       mode = Mode( (int)mode | AUTODECLARE );
@@ -314,33 +411,47 @@ namespace folia {
     return old_val;
   }
 
-  void Document::add_doc_index( FoliaElement* el, const string& s ){
-    if ( s.empty() ) {
+  void Document::add_doc_index( FoliaElement* el, const string& id ){
+    /// add a FoliaElement to the index
+    /*!
+      \param el the FoliaElement to add
+      \param id the id of the new element
+      will throw when the \em id is already in the index
+     */
+    if ( id.empty() ) {
       return;
     }
-    auto it = sindex.find( s );
+    auto it = sindex.find( id );
     if ( it == sindex.end() ){
-      sindex[s] = el;
+      sindex[id] = el;
     }
     else {
-      throw DuplicateIDError( s );
+      throw DuplicateIDError( id );
     }
   }
 
-  void Document::del_doc_index( const string& s ){
+  void Document::del_doc_index( const string& id ){
+    /// remove an id from the index
+    /*!
+      \param id The id to remove
+    */
     if ( sindex.empty() ){
       // only when ~Document is in progress
       return;
     }
-    if ( s.empty() ) {
+    if ( id.empty() ) {
       return;
     }
-    // cerr << _id << "-del docindex " << el << " (" << s << ")" << endl;
-    sindex.erase(s);
+    sindex.erase(id);
   }
 
   string Document::annotation_type_to_string( AnnotationType ann ) const {
-    /// return the ANNOTATIONTYPE translated to a string
+    /// return the ANNOTATIONTYPE translated to a string in a Document context
+    /*!
+      \param ann the annotationtype
+      \return a string representation of \e ann. Taking into account the version
+      of the Dcocument, translating to old labels for pre 1.6 versions
+    */
     const string& result = toString( ann );
     if ( version_below(1,6) ){
       const auto& it = reverse_old.find(result);
@@ -352,6 +463,17 @@ namespace folia {
   }
 
   static void error_sink(void *mydata, xmlError *error ){
+    /// helper function for libxml2 to catch and display problems in an
+    /// orderly fashion
+    /*!
+      \param a pointer to a struct to hold persisten data. In our case just an
+      int.
+      \param error an xmlEror structure created by a libxml2 function
+
+      For the first error encountered, a message is sent to stderr. Further
+      errors are just counted. It is up to calling functions to react on a
+      an count != 0
+     */
     int *cnt = (int*)mydata;
     if ( *cnt == 0 ){
       string line = "\n";
@@ -368,23 +490,30 @@ namespace folia {
     return;
   }
 
-  bool Document::read_from_file( const string& s ){
-    ifstream is( s );
+  bool Document::read_from_file( const string& file_name ){
+    /// read a FoLiA document from a file
+    /*!
+      \param file_name the name of the file
+      \return true on succes. Will throw otherwise.
+
+      This function also takes care of files in .bz2 or .gz format when the
+      right extension is given.
+    */
+    ifstream is( file_name );
     if ( !is.good() ){
-      throw invalid_argument( "file not found: " + s );
+      throw invalid_argument( "file not found: " + file_name );
     }
     if ( foliadoc ){
       throw logic_error( "Document is already initialized" );
-      return false;
     }
-    _source_filename = s;
-    if ( TiCC::match_back( s, ".bz2" ) ){
-      string buffer = TiCC::bz2ReadFile( s );
+    _source_filename = file_name;
+    if ( TiCC::match_back( file_name, ".bz2" ) ){
+      string buffer = TiCC::bz2ReadFile( file_name );
       return read_from_string( buffer );
     }
     int cnt = 0;
     xmlSetStructuredErrorFunc( &cnt, (xmlStructuredErrorFunc)error_sink );
-    _xmldoc = xmlReadFile( s.c_str(),
+    _xmldoc = xmlReadFile( file_name.c_str(),
 			   0,
 			   XML_PARSE_HUGE|XML_PARSE_NSCLEAN );
     if ( _xmldoc ){
@@ -392,7 +521,7 @@ namespace folia {
 	throw XmlError( "document is invalid" );
       }
       if ( debug ){
-	cout << "read a doc from " << s << endl;
+	cout << "read a doc from " << file_name << endl;
       }
       foliadoc = parseXml();
       if ( !validate_offsets() ){
@@ -401,10 +530,10 @@ namespace folia {
       }
       if ( debug ){
 	if ( foliadoc ){
-	  cout << "successful parsed the doc from: " << s << endl;
+	  cout << "successful parsed the doc from: " << file_name << endl;
 	}
 	else {
-	  cout << "failed to parse the doc from: " << s << endl;
+	  cout << "failed to parse the doc from: " << file_name << endl;
 	}
       }
       xmlFreeDoc( _xmldoc );
@@ -412,19 +541,24 @@ namespace folia {
       return foliadoc != 0;
     }
     if ( debug ){
-      cout << "Failed to read a doc from " << s << endl;
+      cout << "Failed to read a doc from " << file_name << endl;
     }
     throw XmlError( "No valid FoLiA read" );
   }
 
-  bool Document::read_from_string( const string& s ){
+  bool Document::read_from_string( const string& buffer ){
+    /// read a FoLiA Document from a string buffer
+    /*!
+      \param buffer A complete FoLiA document in a string buffer
+      \return true on succes. Will throw otherwise.
+     */
     if ( foliadoc ){
       throw logic_error( "Document is already initialized" );
       return false;
     }
     int cnt = 0;
     xmlSetStructuredErrorFunc( &cnt, (xmlStructuredErrorFunc)error_sink );
-    _xmldoc = xmlReadMemory( s.c_str(), s.length(), 0, 0,
+    _xmldoc = xmlReadMemory( buffer.c_str(), buffer.length(), 0, 0,
 			     XML_PARSE_HUGE|XML_PARSE_NSCLEAN );
     if ( _xmldoc ){
       if ( cnt > 0 ){
@@ -457,6 +591,11 @@ namespace folia {
   }
 
   ostream& operator<<( ostream& os, const Document *d ){
+    /// output a Document to a stream
+    /*!
+      \param os the output stream
+      \param d the document to output
+     */
     if ( d ){
       os << d->toXml( "" );
       // the toXml() string already ends with a newline (i hope....)
@@ -469,9 +608,18 @@ namespace folia {
     return os;
   }
 
-  bool Document::save( ostream& os, const string& nsLabel, bool kanon ) const {
+  bool Document::save( ostream& os,
+		       const string& ns_label,
+		       bool kanon ) const {
+    /// save the Document to a stream
+    /*!
+      \param os the output stream
+      \param ns_label the namespace name to use, the default is "" placing all
+      FoLiA nodes in the default namespace.
+      \param kanon determines to output in canonical order. Default is no.
+    */
     bool old_k = set_kanon(kanon);
-    os << toXml( nsLabel );
+    os << toXml( ns_label );
     // the toXml() string already ends with a newline (i hope....)
     // but flush the stream
     os.flush();
@@ -479,31 +627,48 @@ namespace folia {
     return os.good();
   }
 
-  bool Document::save( const string& fn, const string& nsLabel, bool kanon ) const {
+  bool Document::save( const string& file_name,
+		       const string& ns_label,
+		       bool kanon ) const {
+    /// save the Document to a file
+    /*!
+      \param file_name the name of the file to create
+      \param ns_label the namespace name to use, the default is "" placing all
+      FoLiA nodes in the default namespace.
+      \param kanon determines to output in canonical order. Default is no.
+
+      This function also takes care of output to files in .bz2 or .gz format
+      when the right extension is given.
+    */
     bool old_k = set_kanon(kanon);
     bool result = false;
     try {
-      if ( TiCC::match_back( fn, ".bz2" ) ){
-	string tmpname = fn.substr( 0, fn.length() - 3 ) + "tmp";
-	if ( toXml( tmpname, nsLabel ) ){
-	  bool stat = TiCC::bz2Compress( tmpname, fn );
+      if ( TiCC::match_back( file_name, ".bz2" ) ){
+	string tmpname = file_name.substr( 0, file_name.length() - 3 ) + "tmp";
+	if ( toXml( tmpname, ns_label ) ){
+	  bool stat = TiCC::bz2Compress( tmpname, file_name );
 	  remove( tmpname.c_str() );
 	  result = stat;
 	}
       }
       else {
-	result = toXml( fn, nsLabel );
+	result = toXml( file_name, ns_label );
       }
     }
     catch ( const exception& e ){
-      throw runtime_error( "saving to file " + fn + " failed: " + e.what() );
+      throw runtime_error( "saving to file " + file_name + " failed: " + e.what() );
     }
     set_kanon( old_k );
     return result;
   }
 
-  string Document::xmlstring( bool k ) const {
-    bool old_k = set_kanon(k);
+  string Document::xmlstring( bool kanon ) const {
+    /// dump the Document in a string buffer
+    /*!
+      \param kanon determines to output in canonical order. Default is no.
+      \return the complete document in an unformatted string
+    */
+    bool old_k = set_kanon(kanon);
     xmlDoc *outDoc = to_xmlDoc( "" );
     set_kanon(old_k);
     xmlChar *buf; int size;
@@ -516,15 +681,13 @@ namespace folia {
     return result;
   }
 
-  int Document::size() const {
-    if ( foliadoc ){
-      return foliadoc->size();
-    }
-    return 0;
-  }
-
-  FoliaElement* Document::index( const string& s ) const {
-    const auto& it = sindex.find( s );
+  FoliaElement* Document::index( const string& id ) const {
+    /// search for the element with xml:id id
+    /*!
+      \param id the id we search
+      \return the FoliaElement with this \e id or 0, when not present
+     */
+    const auto& it = sindex.find( id );
     if ( it == sindex.end() ){
       return 0;
     }
@@ -533,13 +696,32 @@ namespace folia {
     }
   }
 
-  FoliaElement* Document::operator []( const string& s ) const {
-    return index(s);
+  FoliaElement* Document::operator []( const string& id ) const {
+    /// search for the element with xml:id id
+    /*!
+      \param id the id we search
+      \return the FoliaElement with this \e id or 0, when not present
+
+      example:
+
+      FoliaElement *e = doc["doc.sent.1"];
+      when Document doc has a node with id="doc.sent.1", \e e refer that node
+      otherwise \e e will be set to 0;
+    */
+    return index(id);
   }
 
   UnicodeString Document::text( const std::string& cls,
 				bool retaintok,
 				bool strict ) const {
+    /// return the text content of the whole document, restricted by the
+    /// parameters.
+    /*!
+      \param cls The textclass to use fro searching.
+      \param retaintok Should we retain the tokenization. Default NO.
+      \param strict Should we perform a strict search? Default NO.
+      \return the complete text matching the criteria as an UnicodeString
+     */
     TEXT_FLAGS flags = TEXT_FLAGS::NONE;
     if ( retaintok ){
       flags = flags | TEXT_FLAGS::RETAIN;
@@ -550,23 +732,27 @@ namespace folia {
     return foliadoc->text( cls, flags );
   }
 
-  vector<Paragraph*> Document::paragraphs() const {
-    return foliadoc->select<Paragraph>();
-  }
-
   static const set<ElementType> quoteSet = { Quote_t };
   static const set<ElementType> emptySet;
 
   vector<Sentence*> Document::sentences() const {
+    /// return all Sentences in the Document, except those in Quotes
     return foliadoc->select<Sentence>( quoteSet );
   }
 
   vector<Sentence*> Document::sentenceParts() const {
+    /// return all Sentences in the Document, including those in Quotes
     vector<Sentence*> sents = foliadoc->select<Sentence>( emptySet );
     return sents;
   }
 
   Sentence *Document::sentences( size_t index ) const {
+    /// return the Sentence at position \e index
+    /*!
+      \param index  the index to search for
+      \return The Sentence found.
+      will throw when the index is out of range
+    */
     vector<Sentence*> v = sentences();
     if ( index < v.size() ){
       return v[index];
@@ -575,6 +761,12 @@ namespace folia {
   }
 
   Sentence *Document::rsentences( size_t index ) const {
+    /// return the Sentence at position \e index from the back of the Document
+    /*!
+      \param index  the index to search for
+      \return The Sentence found.
+      will throw when the index is out of range
+    */
     vector<Sentence*> v = sentences();
     if ( index < v.size() ){
       return v[v.size()-1-index];
@@ -583,10 +775,22 @@ namespace folia {
   }
 
   vector<Word*> Document::words() const {
+    /// return all the Words in the Document, ignoring those within structure
+    /// annotations
+    /*!
+      \return The Words found.
+    */
     return foliadoc->select<Word>( default_ignore_structure );
   }
 
   Word *Document::words( size_t index ) const {
+    /// return the Word at position \e index, ignoring those within structure
+    /// annotations
+    /*!
+      \param index the index to search for
+      \return The Word found.
+      will throw when the index is out of range
+    */
     vector<Word*> v = words();
     if ( index < v.size() ){
       return v[index];
@@ -595,6 +799,13 @@ namespace folia {
   }
 
   Word *Document::rwords( size_t index ) const {
+    /// return the Word at position \e index from the back of the Document,
+    /// ignoring those within structure annotations
+    /*!
+      \param index the index to search for
+      \return The Word found.
+      will throw when the index is out of range
+    */
     vector<Word*> v = words();
     if ( index < v.size() ){
       return v[v.size()-1-index];
@@ -602,7 +813,18 @@ namespace folia {
     throw range_error( "rwords() index out of range" );
   }
 
+  vector<Paragraph*> Document::paragraphs() const {
+    /// return all Paragraphs in the Document
+    return foliadoc->select<Paragraph>();
+  }
+
   Paragraph *Document::paragraphs( size_t index ) const {
+    /// return the Paragraph at position \e index
+    /*!
+      \param index the index to search for
+      \return The Paragraph found.
+      will throw when the index is out of range
+    */
     vector<Paragraph*> v = paragraphs();
     if ( index < v.size() ){
       return v[index];
@@ -611,6 +833,12 @@ namespace folia {
   }
 
   Paragraph *Document::rparagraphs( size_t index ) const {
+    /// return the Word at position \e index from the back of the Document
+    /*!
+      \param index the index to search for
+      \return The Paragraph found.
+      will throw when the index is out of range
+    */
     vector<Paragraph*> v = paragraphs();
     if ( index < v.size() ){
       return v[v.size()-1-index];
@@ -618,7 +846,11 @@ namespace folia {
     throw range_error( "rparagraphs() index out of range" );
   }
 
-  std::string Document::language() const {
+  string Document::language() const {
+    /// extract the language from the metadata
+    /*!
+      \return the metadata language value or "" when not set
+    */
     string result;
     if ( _metadata ){
       result = _metadata->get_val("language");
@@ -626,14 +858,22 @@ namespace folia {
     return result;
   }
 
-  std::string Document::metadata_type() const {
+  string Document::metadata_type() const {
+    /// extract the metadata type
+    /*!
+      \return the metadata type or "native" when not set
+    */
     if ( _metadata ){
       return _metadata->type();
     }
     return "native";
   }
 
-  std::string Document::metadata_file() const {
+  string Document::metadata_file() const {
+    /// extract the metadata filename. if any
+    /*!
+      \return the metadata file name.
+    */
     if ( _metadata && _metadata->datatype() == "ExternalMetaData" ){
       return _metadata->src();
     }
@@ -641,6 +881,7 @@ namespace folia {
   }
 
   void Document::setimdi( xmlNode *node ){
+    /// set IMDI values. DEPRECATED
     xmlNode *n = TiCC::xPath( node, "//imdi:Session/imdi:Title" );
     if ( n ){
       _metadata->add_av( "title", TiCC::XmlContent( n ) );
@@ -663,24 +904,36 @@ namespace folia {
     }
   }
 
-  void Document::set_metadata( const string& type, const string& value ){
+  void Document::set_metadata( const string& attribute, const string& value ){
+    /// set a metadata value in the Document
+    /*!
+      \param attribute the attribute to set
+      \param value the value of the attribute
+
+      This is only valid for the 'native' FoLiA metadata type
+     */
     if ( !_metadata ){
       _metadata = new NativeMetaData( "native" );
     }
     else if ( _metadata->datatype() != "NativeMetaData" ){
-      throw MetaDataError( "cannot set '" + type + "=" + value +
+      throw MetaDataError( "cannot set '" + attribute + "=" + value +
 			   "' on " +  _metadata->datatype() + "(" +
 			   _metadata->type() + ")" );
 
     }
-    _metadata->add_av( type, value );
+    _metadata->add_av( attribute, value );
   }
 
-  const string Document::get_metadata( const string& type ) const {
-    return _metadata->get_val( type );
+  const string Document::get_metadata( const string& attribute ) const {
+    /// return the metadata value for a metadata attribute
+    return _metadata->get_val( attribute );
   }
 
   processor *Document::get_default_processor() const {
+    /// return the default processor for this document
+    /*!
+      \return the main processor in the provenance data. can be 0;
+     */
     if ( _provenance ){
       return _provenance->get_top_processor();
     }
@@ -690,6 +943,11 @@ namespace folia {
   }
 
   processor *Document::get_processor( const string& pid ) const {
+    /// return the processsor with ID=pid
+    /*!
+      \param pid the processorID we look for
+      \return the processor found, or 0
+    */
     if ( _provenance ){
       return _provenance->get_processor( pid );
     }
@@ -699,6 +957,11 @@ namespace folia {
   }
 
   vector<processor*> Document::get_processors_by_name( const string& name ) const {
+    /// return all the processsor with name=name
+    /*!
+      \param name the name of the processors we look for
+      \return al list of matching processors
+    */
     vector<processor*> result;
     if ( _provenance ){
       result = _provenance->get_processors_by_name( name );
@@ -706,9 +969,16 @@ namespace folia {
     return result;
   }
 
-  processor *Document::add_processor( const KWargs& _args,
+  processor *Document::add_processor( const KWargs& args,
 				      processor *parent ){
-    KWargs args = _args;
+    /// create new processor and add it to the provenance data
+    /*!
+      \param args the argument list for creating the new provessor
+      \param parent add the new processor as a child to this parent.
+      When the parent = 0, add to the provenance structure.
+
+      May create a new Provenance structure if not yet available.
+    */
     if ( debug ){
       cerr << "ADD_PROCESSOR: " << args << endl;
     }
@@ -727,6 +997,13 @@ namespace folia {
   }
 
   void Document::set_foreign_metadata( xmlNode *node ){
+    /// create a ForeigMetaData element from 'node'
+    /*!
+      \param node the xml node we are parsing
+
+      FoLiA treats foreign metadata by adding a copy of the xml tree under node
+      to the folia, without further notice.
+    */
     if ( !_metadata ){
       _metadata = new ForeignMetaData( "foreign" );
     }
@@ -752,6 +1029,15 @@ namespace folia {
   }
 
   void Document::save_orig_ann_defaults(){
+    /// make a copy of the _annotationdefaults
+    /*!
+      For incremental document creation (using folia::Engine) we need to
+      'remember' which annotationdefaults there were initially, so before
+      any new annotations are added with declare().
+
+      But we only need those that would return a default annotation or
+      default processor.
+     */
     for ( const auto& it : _annotationdefaults ){
       if ( it.second.size() == 1 ){
 	// so 1 set
@@ -764,8 +1050,8 @@ namespace folia {
     }
   }
 
-
   void Document::parse_annotations( const xmlNode *node ){
+    /// parse all annotation declarations from the Xml tree given by node
     if ( debug ){
       cerr << "parse annotations " << TiCC::Name(node) << endl;
     }
@@ -913,6 +1199,7 @@ namespace folia {
   }
 
   void Document::parse_provenance( const xmlNode *node ){
+    /// parse provenance data from the XmlTree under node
     Provenance *result = new Provenance(this);
     xmlNode *n = node->children;
     while ( n ){
@@ -927,6 +1214,7 @@ namespace folia {
   }
 
   void Document::parse_submeta( const xmlNode *node ){
+    /// parse sub metadata from the XmlTree under node
     if ( node ){
       KWargs node_att = getAttributes( node );
       string id = node_att["xml:id"];
@@ -991,6 +1279,7 @@ namespace folia {
   }
 
   bool is_number( const string& s ){
+    /// check that every character in s is a digit
     for ( const auto& c : s ){
       if ( !isdigit(c) ){
 	return false;
@@ -1004,7 +1293,20 @@ namespace folia {
 			      int& minor,
 			      int& sub,
 			      string& patch ){
-    // expand string @vs into int major, minor and subvalue
+    /// expand a version string vs into ints major, minor and sub
+    /*!
+      \param[in] vs A string holding version information
+      \param[out] major the major version found
+      \param[out] minor the minor version found
+      \param[out] sub the sub version found
+      \param[out] patch the NON-numeric remainder of vs after parsing
+
+      examples:
+
+      "2.1" ==> major=2, minor=1
+
+      "2.0.3-a" ==> major=2, minor=0, sub=3 path=-a
+     */
     major = 0;
     minor = 0;
     sub = 0;
@@ -1048,6 +1350,13 @@ namespace folia {
   }
 
   int check_version( const string& vers ){
+    /// check a version given by 'vers' against the current build
+    /*!
+      \param vers a version string (like "2.1.5")
+      \return 0 when major, minor AND sub version are equal, -1 when the version
+      is lower and 1 when the version is greater then the current build
+
+     */
     int maj = 0;
     int min = 0;
     int sub = 0;
@@ -1074,12 +1383,23 @@ namespace folia {
     return 0;
   }
 
-  int Document::compare_to_lib_version() const {
+  int Document::compare_to_build_version() const {
+    /// check the version of the document against the build version
+    /*!
+      \return 0 when the versions match, -1 when the document version
+      is lower and 1 when the version is greater then the current build
+    */
     return check_version( version() );
   }
 
   bool Document::version_below( int major, int minor ) const {
-    // check if current document version is strict < major.minor
+    /// check if current document version is strict lower then asked
+    /*!
+      \param major the major version we want
+      \param minor the minor version we want
+      \return true when the Document's major version is lower than mjor OR
+      it is equal, but the Document's minor version is lower than minor.
+    */
     if ( major_version < major ){
       return true;
     }
@@ -1090,6 +1410,15 @@ namespace folia {
   }
 
   void Document::adjustTextMode(){
+    /// set the text checking mode of the Document based on an environment
+    /// variable and the document version
+    /*!
+      When the FOLIA_TEXT_CHECK environment variable is set to YES or NO then
+      set the CHECKTEXT mode accordingly.
+
+      When the document version is below 1.5 we disable CHECKTEXT except when
+      FIXTEXT is also set.
+     */
     const char *env = getenv( "FOLIA_TEXT_CHECK" );
     if ( env ){
       string e = env;
@@ -1116,6 +1445,14 @@ namespace folia {
   }
 
   void Document::setDocumentProps( KWargs& kwargs ){
+    /// set general properties based on an attribute-value list
+    /*!
+      \param kwargs the arguments. Normally these are parsed attributes from
+      \<FoLiA\> node.
+      Even with an empty kwarg list, at least the version of the document is
+      set. We use a special value (1.4.987) to signal that is was not
+      specified.
+     */
     auto it = kwargs.find( "version" );
     if ( it != kwargs.end() ){
       _version_string = it->second;
@@ -2512,7 +2849,7 @@ namespace folia {
     }
   }
 
-  xmlDoc *Document::to_xmlDoc( const string& nsLabel ) const {
+  xmlDoc *Document::to_xmlDoc( const string& ns_label ) const {
     xmlDoc *outDoc = xmlNewDoc( (const xmlChar*)"1.0" );
     setstyles( outDoc );
     xmlNode *root = xmlNewDocNode( outDoc, 0, (const xmlChar*)"FoLiA", 0 );
@@ -2521,13 +2858,13 @@ namespace folia {
 			  (const xmlChar *)"xlink" );
     xmlSetNs( root, xl );
     if ( _foliaNsIn_href == 0 ){
-      if ( nsLabel.empty() ){
+      if ( ns_label.empty() ){
 	_foliaNsOut = xmlNewNs( root, (const xmlChar *)NSFOLIA.c_str(), 0 );
       }
       else {
 	_foliaNsOut = xmlNewNs( root,
 				(const xmlChar *)NSFOLIA.c_str(),
-				(const xmlChar*)nsLabel.c_str() );
+				(const xmlChar*)ns_label.c_str() );
       }
     }
     else {
@@ -2563,10 +2900,10 @@ namespace folia {
     return outDoc;
   }
 
-  string Document::toXml( const string& nsLabel ) const {
+  string Document::toXml( const string& ns_label ) const {
     string result;
     if ( foliadoc ){
-      xmlDoc *outDoc = to_xmlDoc( nsLabel );
+      xmlDoc *outDoc = to_xmlDoc( ns_label );
       xmlChar *buf; int size;
       xmlDocDumpFormatMemoryEnc( outDoc, &buf, &size,
 				 output_encoding, 1 );
@@ -2582,9 +2919,9 @@ namespace folia {
   }
 
   bool Document::toXml( const string& file_name,
-			const string& nsLabel ) const {
+			const string& ns_label ) const {
     if ( foliadoc ){
-      xmlDoc *outDoc = to_xmlDoc( nsLabel );
+      xmlDoc *outDoc = to_xmlDoc( ns_label );
       if ( TiCC::match_back( file_name, ".gz" ) ){
 	xmlSetDocCompressMode(outDoc,9);
       }

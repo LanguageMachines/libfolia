@@ -189,10 +189,10 @@ int main( int argc, char* argv[] ){
 	cerr << "Validated successfully: " << inputName << endl;
       }
       if ( warn ){
-	if ( d.compare_to_lib_version() ){
+	if ( d.compare_to_build_version() ){
 	  cerr << "WARNING: the document had version: " << d.version()
 	       << " and the library is at version: "
-	       <<  folia::library_version() << endl;
+	       <<  folia::folia_version() << endl;
 	}
 	multimap<folia::AnnotationType, string> und = d.unused_declarations();
 	if ( !und.empty() ){

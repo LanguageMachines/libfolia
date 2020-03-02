@@ -80,7 +80,7 @@ namespace folia {
   class Provenance;
 
   class Document {
-    friend std::ostream& operator<<( std::ostream&, const Document * );
+    friend std::ostream& operator<<( std::ostream& os, const Document *d );
     /// enum Mode determines runtime characteristic of the document
     /*!
       The default settings are CHECKTEXT and AUTODECLARE
@@ -118,8 +118,7 @@ namespace folia {
     bool save( const std::string& s, bool kanon = false ) const {
       return save( s, "", kanon );
     }
-    std::string xmlstring( bool k = false ) const;
-    int size() const;
+    std::string xmlstring( bool = false ) const;
     FoliaElement* doc() const { return foliadoc; }
 
     template <typename T>
@@ -257,7 +256,7 @@ namespace folia {
     bool set_autodeclare( bool ) const; // defined const, but the mode is mutable!
     /// this class holds annotation declaration information
     class at_t {
-      friend std::ostream& operator<<( std::ostream&, const at_t& );
+      friend std::ostream& operator<<( std::ostream& os, const at_t& at );
     public:
     at_t( const std::string& _a,
 	  const AnnotatorType& _t,
@@ -292,7 +291,7 @@ namespace folia {
       p_offset_validation_buffer.push_back( tc );
     }
     bool validate_offsets() const;
-    int compare_to_lib_version() const;
+    int compare_to_build_version() const;
     std::string version() const { return _version_string; };
     std::string doc_version() const;
     std::string update_version();
@@ -399,7 +398,7 @@ namespace folia {
     return setSpeechRoot();
   }
 
-  std::ostream& operator<<( std::ostream&, const Document * );
+  std::ostream& operator<<( std::ostream& os, const Document *d );
   inline std::ostream& operator<<( std::ostream& os, const Document& d ){
     os << &d;
     return os;
