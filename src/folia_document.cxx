@@ -1305,7 +1305,7 @@ namespace folia {
 
       "2.1" ==> major=2, minor=1
 
-      "2.0.3-a" ==> major=2, minor=0, sub=3 path=-a
+      "2.0.3-a" ==> major=2, minor=0, sub=3 patch=-a
      */
     major = 0;
     minor = 0;
@@ -1453,11 +1453,10 @@ namespace folia {
       set. We use a special value (1.4.987) to signal that is was not
       specified.
      */
-    auto it = kwargs.find( "version" );
-    if ( it != kwargs.end() ){
-      _version_string = it->second;
+    string value = kwargs.extract( "version" );
+    if ( !value.empty() ){
+      _version_string = value;
       //      cerr << "So we found version " << _version_string << endl;
-      kwargs.erase( it );
     }
     else {
       // assign a 'random' version, but PRE 1.5
@@ -1481,35 +1480,36 @@ namespace folia {
     }
 
     adjustTextMode();
-    it = kwargs.find( "external" );
-    if ( it != kwargs.end() ){
-      _external_document = TiCC::stringTo<bool>( it->second );
-      kwargs.erase( it );
+    value = kwargs.extract( "external" );
+    if ( !value.empty() ){
+      _external_document = TiCC::stringTo<bool>( value );
     }
     else {
       _external_document = false;
     }
     bool happy = false;
-    it = kwargs.find( "_id" ); // for backward compatibility
-    if ( it == kwargs.end() ){
-      it = kwargs.find( "xml:id" );
+    value = kwargs.extract( "_id" ); // for backward compatibility
+    if ( value.empty() ){
+      value = kwargs.extract( "xml:id" );
     }
-    if ( it != kwargs.end() ){
-      if ( isNCName( it->second ) ){
-	_id = it->second;
+    if ( !value.empty() ){
+      if ( isNCName( value ) ){
+	_id = value;
       }
       else {
-	throw XmlError( "'" + it->second + "' is not a valid NCName." );
+	throw XmlError( "'" + value + "' is not a valid NCName." );
       }
       happy = true;
+      kwargs["xml:id"] = value;
     }
     if ( !foliadoc && !happy ){
       throw runtime_error( "No Document ID specified" );
     }
-    kwargs.erase( "generator" ); // also delete unused att-val(s)
+    kwargs.erase( "generator" ); // also delete this unused att-val
   }
 
   void Document::resolveExternals(){
+    /// resolve all external references
     if ( !externals.empty() ){
       for ( const auto& ext : externals ){
 	ext->resolve_external();
@@ -1517,9 +1517,10 @@ namespace folia {
     }
   }
 
-  void Document::parse_metadata( const xmlNode *p ){
+  void Document::parse_metadata( const xmlNode *node ){
+    /// parse metadata information from the XmlTree under node
     MetaData *result = 0;
-    KWargs atts = getAttributes( p );
+    KWargs atts = getAttributes( node );
     string type = TiCC::lowercase(atts["type"]);
     if ( type.empty() ){
       type = "native";
@@ -1531,7 +1532,7 @@ namespace folia {
     else if ( type == "native" ){
       result = new NativeMetaData( type );
     }
-    xmlNode *m = p->children;
+    xmlNode *m = node->children;
     xmlNode *a_node = 0;
     while ( m ){
       if ( TiCC::Name(m)  == "METATRANSCRIPT" ){
@@ -1618,6 +1619,12 @@ namespace folia {
   }
 
   void Document::addStyle( const string& type, const string& href ){
+    /// add a style-sheet
+    /*!
+      \param type Which type of sheet
+      \param href the external link for this sheet
+      We assure that only one "text/sxl" style-sheet is present
+     */
     if ( type == "text/xsl" ){
       const auto& it = styles.find( type );
       if ( it != styles.end() ){
@@ -1629,6 +1636,14 @@ namespace folia {
 
   void Document::replaceStyle( const string& type,
 			       const string& href ){
+    /// replace a style-sheet
+    /*!
+      \param type Which type of sheet
+      \param href the external link for this sheet
+
+      \note this is sloppy, as multiple sheets with the same type may exist
+      (except for 'text/xslt') and we replace the first one only
+    */
     const auto& it = styles.find( type );
     if ( it != styles.end() ){
       it->second = href;
@@ -1639,6 +1654,7 @@ namespace folia {
   }
 
   void Document::getstyles(){
+    /// retrieve all style-sheets from the current XmlTree
     xmlNode *pnt = _xmldoc->children;
     while ( pnt ){
       if ( pnt->type == XML_PI_NODE && TiCC::Name(pnt) == "xml-stylesheet" ){
@@ -1668,6 +1684,12 @@ namespace folia {
   }
 
   void fixupNs( xmlNode *p, xmlNs *ns ){
+    /// make sure that all XmlNodes in the tree p get namespace ns
+    /*!
+      \param p an XmlTree (fragment)
+      \param ns the Namespace value to set
+      This function is used when a Document uses PERMISSIVE mode
+     */
     while ( p ){
       xmlSetNs( p, ns );
       fixupNs( p->children, ns );
@@ -1676,6 +1698,14 @@ namespace folia {
   }
 
   bool Document::validate_offsets() const {
+    /// Validate all the offset values as found in all \<t\> and \<p\> nodes
+    /*!
+      During Document parsing, \<t\> and \<p\> nodes are stored in a buffer
+      until the whole parsing is done.
+
+      Then we are able to examine those nodes in their context and check the
+      offsets used.
+     */
     set<TextContent*> t_done;
     for ( const auto& txt : t_offset_validation_buffer ){
       if ( t_done.find( txt ) != t_done.end() ){
@@ -1730,6 +1760,7 @@ namespace folia {
   }
 
   FoliaElement* Document::parseXml( ){
+    /// parse a complete FoLiA tree from the XmlTree we have got
     getstyles();
     xmlNode *root = xmlDocGetRootElement( _xmldoc );
     if ( root->ns ){
@@ -1793,6 +1824,11 @@ namespace folia {
 
   void Document::auto_declare( AnnotationType type,
 			       const string& _setname ) {
+    /// create a default declaration for the given AnnotationType
+    /*!
+      \param type which default do we want to add
+      \param _setname which setname to add
+     */
     string setname = _setname;
     if ( setname.empty() ) {
       if ( type == AnnotationType::TEXT ){
@@ -1813,6 +1849,13 @@ namespace folia {
   void Document::declare( AnnotationType type,
 			  const string& setname,
 			  const string& args ){
+    /// Add an annotation declaration
+    /*!
+      \param type The AnnotationType for which to add a setname
+      \param setname The Set name to add
+      \param args a string representation of an attribute-value list with
+      additional parameters
+    */
     KWargs kwargs = getArgs( args );
     return declare( type, setname, kwargs );
   }
@@ -1820,6 +1863,12 @@ namespace folia {
   void Document::declare( AnnotationType type,
 			  const string& setname,
 			  const KWargs& _args ){
+    /// Add an annotation declaration
+    /*!
+      \param type The AnnotationType for which to add a setname
+      \param setname The Set name to add
+      \param _args an attribute-value list with additional parameters
+    */
     KWargs args = _args;
     if ( debug ){
       cerr << "declare( " << folia::toString(type) << "," << setname << ", ["
@@ -1874,32 +1923,40 @@ namespace folia {
 
   string Document::unalias( AnnotationType type,
 			    const string& alias ) const {
-    //    cerr << "unalias: " << alias << endl;
+    /// resolve an alias for a setname to the full setname
+    /*!
+      \param type the AnnotationType
+      \param alias the alias to resolve
+      \return the setname belonging to alias for this type, or alias if not
+      found
+    */
     const auto& ti = _alias_set.find(type);
     if ( ti != _alias_set.end() ){
       const auto& sti = ti->second.find( alias );
       if ( sti != ti->second.end() ){
-	//	cerr << "unalias ==> " << sti->second << endl;
 	return sti->second;
       }
     }
-    //    cerr << "unalias ==> " << alias << endl;
     return alias;
   }
 
   string Document::alias( AnnotationType type,
-			  const string& st ) const {
-    //    cerr << "alias: " << st << endl;
+			  const string& setname ) const {
+    /// give the alias for a setname
+    /*!
+      \param type the AnnotationType
+      \param setname the alias to resolve
+      \return the alias belonging setname for this type, or setname if
+      not found
+     */
     const auto& ti = _set_alias.find(type);
     if ( ti != _set_alias.end() ){
-      const auto& ali = ti->second.find( st );
+      const auto& ali = ti->second.find( setname );
       if ( ali != ti->second.end() ){
-	//	cerr << "alias ==> " << ali->second << endl;
 	return ali->second;
       }
     }
-    //    cerr << "alias ==> " << st << endl;
-    return st;
+    return setname;
   }
 
   void Document::declare( AnnotationType type,
@@ -1910,6 +1967,18 @@ namespace folia {
 			  const string& date_time,
 			  const set<string>& _processors,
 			  const string& _alias ){
+    /// Add an annotation declaration
+    /*!
+      \param type The AnnotationType for which to add a setname
+      \param setname The Set name to add
+      \param format the format to add
+      \param annotator the name of the annotator
+      \param annotator_type the type of annotator
+      \param date_time the date and time to set. The value "now()" will set it
+      to the current time.
+      \param _processors a set of processor id's to relate to this declaration
+      \param _alias an alias value for the setname
+    */
     if ( debug ){
       cerr << "declare( " << folia::toString(type) << "," << setname
 	   << ", format=" << format << "," << annotator << ","
@@ -1997,6 +2066,11 @@ namespace folia {
 
   void Document::un_declare( AnnotationType type,
 			     const string& set_name ){
+    /// remove a declaration for an AnnotationType/setname pair
+    /*!
+      \param type the AnnotationType
+      \param set_name the setname
+     */
     string setname = unalias(type,set_name);
     if ( debug ){
       cerr << "undeclare: " << folia::toString(type) << "(" << set_name << "."
@@ -2073,6 +2147,10 @@ namespace folia {
   }
 
   multimap<AnnotationType, string> Document::unused_declarations( ) const {
+    /// search for declarations not referencec in the Document
+    /*!
+      \return a list of all AnntotationType/setname pairs that are not used
+     */
     multimap<AnnotationType,string> result;
     for ( const auto& tit : _annotationrefs ){
       for ( const auto& mit : tit.second ){
@@ -2085,29 +2163,40 @@ namespace folia {
   }
 
   Text* Document::setTextRoot( const KWargs& args ) {
+    /// create a Text element as root for the document
+    /*!
+      \param args extra attribute-value pairs as attributes to use
+    */
     Text *t = new Text( args );
     foliadoc->append( t );
     return t;
   }
 
   Text* Document::setTextRoot() {
+    /// create a Text element as root for the document
     KWargs empty;
     return setTextRoot( empty );
   }
 
   Speech* Document::setSpeechRoot( const KWargs& args ) {
+    /// create a Speech element as root for the document
+    /*!
+      \param args extra attribute-value pairs as attributes to use
+    */
     Speech *s = new Speech( args );
     foliadoc->append( s );
     return s;
   }
 
   Speech* Document::setSpeechRoot() {
+    /// create a Speech element as root for the document
     KWargs empty;
     return setSpeechRoot( empty );
   }
 
   FoliaElement *Document::getRoot(){
-    if ( foliadoc ){
+    /// return the root element, if any
+    if ( foliadoc && foliadoc->size() > 0 ){
       return foliadoc->index(0);
     }
     else {
@@ -2116,6 +2205,19 @@ namespace folia {
   }
 
   FoliaElement* Document::append( FoliaElement *t ){
+    /// append a root element tot the Document
+    /*!
+      \param t a root element to add
+      \return the added root (also t). Throws on error.
+
+      This function will check if a root is already there.
+      Is only accepts Speech or Text nodes as root.
+     */
+
+    FoliaElement *root = getRoot();
+    if ( root ){
+      throw XmlError( "cannot append a root element to a Document. Already there." );
+    }
     if ( t->element_id() == Text_t
 	 || t->element_id() == Speech_t ) {
       foliadoc->append( t );
@@ -2129,6 +2231,23 @@ namespace folia {
 			   const string& annotator,
 			   const AnnotatorType& annotator_type,
 			   const string& processor ) const {
+    /// check if a given combination of AnnotationType, setname, annotators etc.
+    /// is declared
+    /*!
+      \param type the AnnotationType
+      \param set_name a setname OR an alias (may be empty)
+      \param annotator the annotator to check (may be empty)
+      \param annotator_type the annotator_type to check (may be UNDEFINED)
+      \param processor the processor to match (may be empty)
+      \return true when all values match.
+
+      For the type NO_ANN, the result is always true.
+
+      If set_name is empty ("") a match is found when a declarion for \e type
+      exists
+
+      Otherwise, all values are checked for a match
+    */
     if ( debug ){
       cerr << "isdeclared? ( " << folia::toString(type) << "," << set_name << ","
 	   << annotator << "," << toString(annotator_type) << "," << processor
@@ -2184,6 +2303,11 @@ namespace folia {
   }
 
   bool Document::is_undeclared( const AnnotationType& type ) const {
+    /// check if ANY declaration for AnnotationType tyoe exists
+    /*!
+      \param type
+      \return true if NO declaration is found for \e type
+    */
     if ( debug ){
       cerr << "is_undeclared? ( " << folia::toString(type) << endl;
     }
@@ -2218,6 +2342,24 @@ namespace folia {
 			   const string& annotator,
 			   const AnnotatorType& annotator_type,
 			   const set<string>& processors ) const {
+    /// check if a given combination of AnnotationType, setname, annotators etc.
+    /// is declared
+    /*!
+      \param type the AnnotationType
+      \param set_name a setname OR an alias (may be empty)
+      \param annotator the annotator to check (may be empty)
+      \param annotator_type the annotator_type to check (may be UNDEFINED)
+      \param processors a list of processors to match (may be empty)
+      \return true when all values match.
+
+      For the type NO_ANN, the result is always true.
+
+      If set_name is empty ("") a match is found when a declarion for \e type
+      exists
+
+      Otherwise, all values are checked for a match for at least 1 of the
+      processors.
+    */
     if ( processors.empty() ){
       return declared( type, set_name, annotator, annotator_type, "" );
     }
@@ -2233,6 +2375,7 @@ namespace folia {
 
   void Document::incrRef( AnnotationType type,
 			  const string& s ){
+    /// increment the reference count for the AnnotationType/set combination
     if ( type != AnnotationType::NO_ANN ){
       string st = s;
       if ( st.empty() ){
@@ -2245,6 +2388,7 @@ namespace folia {
 
   void Document::decrRef( AnnotationType type,
 			  const string& s ){
+    /// decrement the reference count for the AnnotationType/set combination
     if ( type != AnnotationType::NO_ANN ){
       --_annotationrefs[type][s];
       //      cerr << "decrement " << toString(type) << "(" << s << ")" << endl;
@@ -2252,9 +2396,23 @@ namespace folia {
   }
 
   bool Document::declared( const AnnotationType& type,
-			   const string& setname ) const {
+			   const string& set_name ) const {
+    /// check if a given combination of AnnotationType and setname
+    /// is declared
+    /*!
+      \param type the AnnotationType
+      \param set_name a setname OR an alias (may be empty)
+      \return true when there is a match
+
+      For the type NO_ANN, the result is always true.
+
+      If set_name is empty ("") a match is found when a declarion for \e type
+      exists
+
+    */
     if ( debug ){
-      cerr << "declared(" << folia::toString(type) << ",'" << setname << "')" << endl;
+      cerr << "declared(" << folia::toString(type) << ",'"
+	   << set_name << "')" << endl;
     }
     if ( type == AnnotationType::NO_ANN ){
       if ( debug ){
@@ -2270,18 +2428,18 @@ namespace folia {
       if ( debug ){
 	cerr << "found some: " << mit1->second << endl;
       }
-      if ( setname.empty() ){
+      if ( set_name.empty() ){
 	// 'wildcard' for setname
 	if ( debug ){
 	  cerr << "return TRUE" << endl;
 	}
 	return true;
       }
-      string set_name = unalias(type,setname);
+      string s_name = unalias(type,set_name);
       if ( debug ){
-	cerr << "lookup: " << setname << " (" << set_name << ")" << endl;
+	cerr << "lookup: " << set_name << " (" << s_name << ")" << endl;
       }
-      const auto& mit2 = mit1->second.find(set_name);
+      const auto& mit2 = mit1->second.find(s_name);
       if ( debug ){
 	if ( mit2 != mit1->second.end() ){
 	  cerr << "return TRUE" << endl;
@@ -2299,11 +2457,25 @@ namespace folia {
   }
 
   bool Document::declared( ElementType et,
-			   const string& setname ) const {
+			   const string& set_name ) const {
+    /// check if the AnnotationType belonging to the ElementType and setname
+    /// is declared
+    /*!
+      \param et the ElementType
+      \param set_name a setname OR an alias (may be empty)
+      \return true when there is a match
+
+      For the type NO_ANN, the result is always true.
+
+      If set_name is empty ("") a match is found when a declarion for \e type
+      exists
+
+    */
+
     FoliaElement *tmp = AbstractElement::createElement( et );
     AnnotationType at = tmp->annotation_type();
     delete tmp;
-    return declared( at, setname );
+    return declared( at, set_name );
   }
 
   string Document::default_set( AnnotationType type ) const {
