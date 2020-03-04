@@ -3235,8 +3235,216 @@ namespace folia {
     return true;
   }
 
+  Pattern::Pattern( const vector<string>& pat_vec,
+		    const ElementType et,
+		    const string& args ): matchannotation(et) {
+    /// create a Pattern structure for searching
+    /*!
+      \param pat_vec a list if search terms (may be regular expressions)
+      \param et The kind of elements to match on
+      \param args additionale search options as attribute/value pairs
+    */
+    regexp = false;
+    case_sensitive = false;
+    KWargs kw = getArgs( args );
+    matchannotationset = kw["matchannotationset"];
+    if (kw["regexp"] != "" ){
+      regexp = TiCC::stringTo<bool>( kw["regexp"] );
+    }
+    if (kw["maxgapsize"] != "" ){
+      maxgapsize = TiCC::stringTo<int>( kw["maxgapsize"] );
+    }
+    else {
+      maxgapsize = 10;
+    }
+    if ( kw["casesensitive"] != "" ){
+      case_sensitive = TiCC::stringTo<bool>( kw["casesensitive"] );
+    }
+    for ( const auto& pat : pat_vec ){
+      if ( pat.find( "regexp('" ) == 0 &&
+	   pat.rfind( "')" ) == pat.length()-2 ){
+	string tmp = pat.substr( 8, pat.length() - 10 );
+	UnicodeString us = TiCC::UnicodeFromUTF8( tmp );
+	UErrorCode u_stat = U_ZERO_ERROR;
+	RegexMatcher *matcher = new RegexMatcher(us, 0, u_stat);
+	if ( U_FAILURE(u_stat) ){
+	  throw runtime_error( "failed to create a regexp matcher with '" + tmp + "'" );
+	}
+	matchers.push_back( matcher );
+	sequence.push_back( "" );
+      }
+      else {
+	sequence.push_back( TiCC::UnicodeFromUTF8(pat) );
+	matchers.push_back( 0 );
+	if ( !case_sensitive ){
+	  sequence.back().toLower();
+	}
+      }
+    }
+  }
+
+  Pattern::Pattern( const std::vector<std::string>& pat_vec,
+		    const std::string& args ) : matchannotation(BASE) {
+    /// create a Pattern structure for searching
+    /*!
+      \param pat_vec a list if search terms (may be regular expressions)
+      \param args additionale search options as attribute/value pairs
+    */
+    regexp = false;
+    case_sensitive = false;
+    KWargs kw = getArgs( args );
+    matchannotationset = kw["matchannotationset"];
+    if (kw["regexp"] != "" ){
+      regexp = TiCC::stringTo<bool>( kw["regexp"] );
+    }
+    if (kw["maxgapsize"] != "" ){
+      maxgapsize = TiCC::stringTo<int>( kw["maxgapsize"] );
+    }
+    else {
+      maxgapsize = 10;
+    }
+    if ( kw["casesensitive"] != "" ){
+      case_sensitive = TiCC::stringTo<bool>( kw["casesensitive"] );
+    }
+    for ( const auto& pat : pat_vec ){
+      if ( pat.find( "regexp('" ) == 0 &&
+	   pat.rfind( "')" ) == pat.length()-2 ){
+	string tmp = pat.substr( 8, pat.length() - 10 );
+	UnicodeString us = TiCC::UnicodeFromUTF8( tmp );
+	UErrorCode u_stat = U_ZERO_ERROR;
+	RegexMatcher *matcher = new RegexMatcher(us, 0, u_stat);
+	if ( U_FAILURE(u_stat) ){
+	  throw runtime_error( "failed to create a regexp matcher with '" + tmp + "'" );
+	}
+	matchers.push_back( matcher );
+	sequence.push_back( "" );
+      }
+      else {
+	sequence.push_back( TiCC::UnicodeFromUTF8(pat) );
+	matchers.push_back( 0 );
+	if ( !case_sensitive ){
+	  sequence.back().toLower();
+	}
+      }
+    }
+  }
+
+  Pattern::~Pattern(){
+    /// destroy a Pattern
+    for ( const auto& m : matchers ){
+      delete m;
+    }
+  }
+
+  inline ostream& operator<<( ostream& os, const Pattern& p ){
+    /// debugging only: output the sequence part of a Pattern
+    using TiCC::operator <<;
+    os << "pattern: " << p.sequence;
+    return os;
+  }
+
+  bool Pattern::match( const UnicodeString& us,
+		       size_t& pos,
+		       int& gap,
+		       bool& done,
+		       bool& flag ) const {
+    /// try to match the input string to this pattern
+    /*!
+      \param us A UnicodeString to match
+      \param pos the position of the (regex) matcher to try
+      \param gap
+      \param done
+      \param flag
+      \return true on a succesful match
+    */
+    UnicodeString s = us;
+    //  cerr << "gap = " << gap << "cursor=" << pos << " vergelijk '" <<  sequence[pos] << "' met '" << us << "'" << endl;
+    if ( matchers[pos] ){
+      matchers[pos]->reset( s );
+      UErrorCode u_stat = U_ZERO_ERROR;
+      if ( matchers[pos]->matches( u_stat ) ){
+	done = ( ++pos >= sequence.size() );
+	return true;
+      }
+      else {
+	++pos;
+	return false;
+      }
+    }
+    else {
+      if ( !case_sensitive ){
+	s.toLower();
+      }
+      if ( sequence[pos] == s || sequence[pos] == "*:1" ){
+	done = ( ++pos >= sequence.size() );
+	return true;
+      }
+      else if ( sequence[pos] == "*" ){
+	if ( (pos + 1 ) >= sequence.size() ){
+	  done = true;
+	}
+	else if ( sequence[pos+1] == s ){
+	  //	cerr << "    but next matched!" << endl;
+	  flag = ( ++gap < maxgapsize );
+	  if ( !flag ){
+	    pos = pos + gap;
+	    done = ( ++pos >= sequence.size() );
+	  }
+	  else {
+	    done = true;
+	  }
+	}
+	else if ( ++gap == maxgapsize ){
+	  ++pos;
+	}
+	else {
+	  flag = true;
+	}
+	return true;
+      }
+      else {
+	++pos;
+	return false;
+      }
+    }
+  }
+
+  bool Pattern::variablesize() const {
+    /// look if at least one sequence in the Pattern is "*"
+    return any_of( sequence.begin(),
+		   sequence.end(),
+		   []( const UnicodeString& s ) { return s == "*"; } );
+  }
+
+  void Pattern::unsetwild() {
+    /// replace all sequence in the Pattern with value "*" by "*:1"
+    replace_if( sequence.begin(),
+		sequence.end(),
+		[]( const UnicodeString& s ) { return s == "*"; },
+		"*:1"
+		);
+  }
+
+  set<int> Pattern::variablewildcards() const {
+    /// build an index of all "*" sequences
+    set<int> result;
+    for ( size_t i=0; i < sequence.size(); ++i ){
+      if ( sequence[i] == "*" ){
+	result.insert( i );
+      }
+    }
+    return result;
+  }
+
   vector<vector<Word*> > Document::findwords( const Pattern& pat,
 					      const string& args ) const {
+    /// search the Document for vector of Word list matching the Pattern
+    /*!
+      \param pat The search Pattern
+      \param args additional search options as attribute/value pairs
+      \return a vector of Word list that matched. (if any)
+      supported additional arguments can be 'leftcontext' and 'rightcontext'
+    */
     size_t leftcontext = 0;
     size_t rightcontext = 0;
     KWargs kw = getArgs( args );
@@ -3327,6 +3535,13 @@ namespace folia {
 
   vector<vector<Word*> > Document::findwords( list<Pattern>& pats,
 					      const string& args ) const {
+    /// search the Document for vector of Word list matching one of the Pattern
+    /*!
+      \param pats a list of search Patterns
+      \param args additional search options as attribute/value pairs
+      \return a vector of Word list that matched. (if any)
+      supported additional arguments can be 'leftcontext' and 'rightcontext'
+    */
     size_t prevsize = 0;
     bool start = true;
     bool unsetwildcards = false;
@@ -3372,190 +3587,6 @@ namespace folia {
       else if ( res != result ){
 	result.clear();
 	break;
-      }
-    }
-    return result;
-  }
-
-  Pattern::Pattern( const vector<string>& pat_vec,
-		    const ElementType at,
-		    const string& args ): matchannotation(at) {
-    regexp = false;
-    case_sensitive = false;
-    KWargs kw = getArgs( args );
-    matchannotationset = kw["matchannotationset"];
-    if (kw["regexp"] != "" ){
-      regexp = TiCC::stringTo<bool>( kw["regexp"] );
-    }
-    if (kw["maxgapsize"] != "" ){
-      maxgapsize = TiCC::stringTo<int>( kw["maxgapsize"] );
-    }
-    else {
-      maxgapsize = 10;
-    }
-    if ( kw["casesensitive"] != "" ){
-      case_sensitive = TiCC::stringTo<bool>( kw["casesensitive"] );
-    }
-    for ( const auto& pat : pat_vec ){
-      if ( pat.find( "regexp('" ) == 0 &&
-	   pat.rfind( "')" ) == pat.length()-2 ){
-	string tmp = pat.substr( 8, pat.length() - 10 );
-	UnicodeString us = TiCC::UnicodeFromUTF8( tmp );
-	UErrorCode u_stat = U_ZERO_ERROR;
-	RegexMatcher *matcher = new RegexMatcher(us, 0, u_stat);
-	if ( U_FAILURE(u_stat) ){
-	  throw runtime_error( "failed to create a regexp matcher with '" + tmp + "'" );
-	}
-	matchers.push_back( matcher );
-	sequence.push_back( "" );
-      }
-      else {
-	sequence.push_back( TiCC::UnicodeFromUTF8(pat) );
-	matchers.push_back( 0 );
-	if ( !case_sensitive ){
-	  sequence.back().toLower();
-	}
-      }
-    }
-  }
-
-  Pattern::Pattern( const std::vector<std::string>& pat_vec,
-		    const std::string& args ) : matchannotation(BASE) {
-    regexp = false;
-    case_sensitive = false;
-    KWargs kw = getArgs( args );
-    matchannotationset = kw["matchannotationset"];
-    if (kw["regexp"] != "" ){
-      regexp = TiCC::stringTo<bool>( kw["regexp"] );
-    }
-    if (kw["maxgapsize"] != "" ){
-      maxgapsize = TiCC::stringTo<int>( kw["maxgapsize"] );
-    }
-    else {
-      maxgapsize = 10;
-    }
-    if ( kw["casesensitive"] != "" ){
-      case_sensitive = TiCC::stringTo<bool>( kw["casesensitive"] );
-    }
-    for ( const auto& pat : pat_vec ){
-      if ( pat.find( "regexp('" ) == 0 &&
-	   pat.rfind( "')" ) == pat.length()-2 ){
-	string tmp = pat.substr( 8, pat.length() - 10 );
-	UnicodeString us = TiCC::UnicodeFromUTF8( tmp );
-	UErrorCode u_stat = U_ZERO_ERROR;
-	RegexMatcher *matcher = new RegexMatcher(us, 0, u_stat);
-	if ( U_FAILURE(u_stat) ){
-	  throw runtime_error( "failed to create a regexp matcher with '" + tmp + "'" );
-	}
-	matchers.push_back( matcher );
-	sequence.push_back( "" );
-      }
-      else {
-	sequence.push_back( TiCC::UnicodeFromUTF8(pat) );
-	matchers.push_back( 0 );
-	if ( !case_sensitive ){
-	  sequence.back().toLower();
-	}
-      }
-    }
-  }
-
-  Pattern::~Pattern(){
-    for ( const auto& m : matchers ){
-      delete m;
-    }
-  }
-
-  inline ostream& operator<<( ostream& os, const Pattern& p ){
-    using TiCC::operator <<;
-    os << "pattern: " << p.sequence;
-    return os;
-  }
-
-  bool Pattern::match( const UnicodeString& us, size_t& pos, int& gap,
-		       bool& done, bool& flag ) const {
-    UnicodeString s = us;
-    //  cerr << "gap = " << gap << "cursor=" << pos << " vergelijk '" <<  sequence[pos] << "' met '" << us << "'" << endl;
-    if ( matchers[pos] ){
-      matchers[pos]->reset( s );
-      UErrorCode u_stat = U_ZERO_ERROR;
-      if ( matchers[pos]->matches( u_stat ) ){
-	done = ( ++pos >= sequence.size() );
-	return true;
-      }
-      else {
-	++pos;
-	return false;
-      }
-    }
-    else {
-      if ( !case_sensitive ){
-	s.toLower();
-      }
-      if ( sequence[pos] == s || sequence[pos] == "*:1" ){
-	done = ( ++pos >= sequence.size() );
-	return true;
-      }
-      else if ( sequence[pos] == "*" ){
-	if ( (pos + 1 ) >= sequence.size() ){
-	  done = true;
-	}
-	else if ( sequence[pos+1] == s ){
-	  //	cerr << "    but next matched!" << endl;
-	  flag = ( ++gap < maxgapsize );
-	  if ( !flag ){
-	    pos = pos + gap;
-	    done = ( ++pos >= sequence.size() );
-	  }
-	  else {
-	    done = true;
-	  }
-	}
-	else if ( ++gap == maxgapsize ){
-	  ++pos;
-	}
-	else {
-	  flag = true;
-	}
-	return true;
-      }
-      else {
-	++pos;
-	return false;
-      }
-    }
-  }
-
-  bool Pattern::variablesize() const {
-    // for ( const auto& s : sequence ){
-    //   if ( s == "*" ){
-    // 	return true;
-    //   }
-    // }
-    // return false;
-    return any_of( sequence.begin(),
-		   sequence.end(),
-		   []( const UnicodeString& s ) { return s == "*"; } );
-  }
-
-  void Pattern::unsetwild() {
-    // for ( auto& s : sequence ){
-    //   if ( s == "*" ){
-    // 	s = "*:1";
-    //   }
-    // }
-    replace_if( sequence.begin(),
-		sequence.end(),
-		[]( const UnicodeString& s ) { return s == "*"; },
-		"*:1"
-		);
-  }
-
-  set<int> Pattern::variablewildcards() const {
-    set<int> result;
-    for ( size_t i=0; i < sequence.size(); ++i ){
-      if ( sequence[i] == "*" ){
-	result.insert( i );
       }
     }
     return result;
