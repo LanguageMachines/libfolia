@@ -226,7 +226,7 @@ namespace folia {
 
       The following modes can be set:
       '(no)permissive' (default is NO), '(no)strip' (default is NO),
-      '(no)kanon (default is NO), '(no)checktext (default is checktext),
+      '(no)canonical (default is NO), '(no)checktext (default is checktext),
       '(no)fixtext (default is NO), (no)autodeclare (default is NO)
 
       example:
@@ -247,10 +247,16 @@ namespace folia {
       else if ( mod == "nostrip" ){
 	mode = Mode( (int)mode & ~STRIP );
       }
-      else if ( mod == "kanon" ){
+      else if ( mod == "canonical" ){
 	mode = Mode( (int)mode | CANONICAL );
       }
-      else if ( mod == "nokanon" ){
+      else if ( mod == "nocanonical" ){
+	mode = Mode( (int)mode & ~CANONICAL );
+      }
+      else if ( mod == "kanon" ){ // backward compatible
+	mode = Mode( (int)mode | CANONICAL );
+      }
+      else if ( mod == "nokanon" ){ // backward compatible
 	mode = Mode( (int)mode & ~CANONICAL );
       }
       else if ( mod == "checktext" ){
@@ -303,7 +309,7 @@ namespace folia {
       result += "fixtext,";
     }
     if ( mode & CANONICAL ){
-      result += "kanon,";
+      result += "canonical,";
     }
     if ( mode & AUTODECLARE ){
       result += "autodeclare,";
@@ -379,8 +385,8 @@ namespace folia {
     return old_val;
   }
 
-  bool Document::set_kanon( bool new_val ) const{
-    /// sets the 'kanon' mode to on/off
+  bool Document::set_canonical( bool new_val ) const{
+    /// sets the 'canonical' mode to on/off
     /*!
       \param new_val the boolean to use for on/off
       \return the previous value
@@ -610,37 +616,37 @@ namespace folia {
 
   bool Document::save( ostream& os,
 		       const string& ns_label,
-		       bool kanon ) const {
+		       bool canonical ) const {
     /// save the Document to a stream
     /*!
       \param os the output stream
       \param ns_label the namespace name to use, the default is "" placing all
       FoLiA nodes in the default namespace.
-      \param kanon determines to output in canonical order. Default is no.
+      \param canonical determines to output in canonical order. Default is no.
     */
-    bool old_k = set_kanon(kanon);
+    bool old_k = set_canonical(canonical);
     os << toXml( ns_label );
     // the toXml() string already ends with a newline (i hope....)
     // but flush the stream
     os.flush();
-    set_kanon(old_k);
+    set_canonical(old_k);
     return os.good();
   }
 
   bool Document::save( const string& file_name,
 		       const string& ns_label,
-		       bool kanon ) const {
+		       bool canonical ) const {
     /// save the Document to a file
     /*!
       \param file_name the name of the file to create
       \param ns_label the namespace name to use, the default is "" placing all
       FoLiA nodes in the default namespace.
-      \param kanon determines to output in canonical order. Default is no.
+      \param canonical determines to output in canonical order. Default is no.
 
       This function also takes care of output to files in .bz2 or .gz format
       when the right extension is given.
     */
-    bool old_k = set_kanon(kanon);
+    bool old_k = set_canonical(canonical);
     bool result = false;
     try {
       result = toXml( file_name, ns_label );
@@ -648,19 +654,19 @@ namespace folia {
     catch ( const exception& e ){
       throw runtime_error( "saving to file " + file_name + " failed: " + e.what() );
     }
-    set_kanon( old_k );
+    set_canonical( old_k );
     return result;
   }
 
-  string Document::xmlstring( bool kanon ) const {
+  string Document::xmlstring( bool canonical ) const {
     /// dump the Document in a string buffer
     /*!
-      \param kanon determines to output in canonical order. Default is no.
+      \param canonical determines to output in canonical order. Default is no.
       \return the complete document in an unformatted string
     */
-    bool old_k = set_kanon(kanon);
+    bool old_k = set_canonical(canonical);
     xmlDoc *outDoc = to_xmlDoc( "" );
-    set_kanon(old_k);
+    set_canonical(old_k);
     xmlChar *buf; int size;
     xmlDocDumpFormatMemoryEnc( outDoc, &buf, &size,
 			       output_encoding, 0 ); // no formatting
@@ -939,7 +945,7 @@ namespace folia {
       \return the processor found, or 0
     */
     if ( _provenance ){
-      return _provenance->get_processor( pid );
+      return _provenance->get_processor_by_id( pid );
     }
     else {
       return 0;
@@ -2897,7 +2903,7 @@ namespace folia {
 				 TiCC::XmlNewNode( foliaNs(),
 						   "annotations" ) );
     set<string> done;
-    if ( kanon() ){
+    if ( canonical() ){
       multimap<AnnotationType,
 	       pair<AnnotationType,string>> ordered;
       for ( const auto& pair : _anno_sort ){
@@ -3166,7 +3172,7 @@ namespace folia {
     add_metadata( md );
     for ( size_t i=0; i < foliadoc->size(); ++i ){
       FoliaElement* el = foliadoc->index(i);
-      xmlAddChild( root, el->xml( true, kanon() ) );
+      xmlAddChild( root, el->xml( true, canonical() ) );
     }
     return outDoc;
   }

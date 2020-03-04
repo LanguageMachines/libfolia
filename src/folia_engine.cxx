@@ -1113,21 +1113,21 @@ namespace folia {
     return output_footer();
   }
 
-  void Engine::save( const string& name, bool do_kanon ){
+  void Engine::save( const string& name, bool do_canon ){
     /// save the associated Document to a file
     /// \param name the file-name
-    /// \param do_kanon output in Canonical format
+    /// \param do_canon output in Canonical format
     if ( _os && name == _out_name ){
       throw logic_error( "folia::Engine::save() impossible. Already connected to a stream withe the same name (" + name + ")" );
     }
-    _out_doc->save( name, ns_prefix, do_kanon );
+    _out_doc->save( name, ns_prefix, do_canon );
   }
 
-  void Engine::save( ostream& os, bool do_kanon ){
+  void Engine::save( ostream& os, bool do_canon ){
     /// save the associated Document to a stream
     /// \param os the stream
-    /// \param do_kanon output in Canonical format
-    _out_doc->save( os, ns_prefix, do_kanon );
+    /// \param do_canon output in Canonical format
+    _out_doc->save( os, ns_prefix, do_canon );
   }
 
 

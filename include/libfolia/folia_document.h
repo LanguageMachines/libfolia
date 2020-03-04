@@ -104,22 +104,30 @@ namespace folia {
     void init_args( const KWargs& );
     bool read_from_string( const std::string& );
     bool readFromString( const std::string& s ){
+      /// backward compatability. read_from_string() is preferred
       return read_from_string( s );
     }
     bool read_from_file( const std::string& );
     bool readFromFile( const std::string& s ){
+      /// backward compatability. read_from_file() is preferred
       return read_from_file( s );
     }
     bool save( std::ostream&, const std::string&, bool = false ) const;
-    bool save( std::ostream& os, bool kanon = false ) const {
-      return save( os, "", kanon );
+    bool save( std::ostream& os, bool canonical = false ) const {
+      /// save a Document to a stream without using a namespace name
+      return save( os, "", canonical );
     }
     bool save( const std::string&, const std::string&, bool = false ) const ;
-    bool save( const std::string& s, bool kanon = false ) const {
-      return save( s, "", kanon );
+    bool save( const std::string& s, bool canonical = false ) const {
+      /// save a Document to a file without using a namespace name
+      return save( s, "", canonical );
     }
     std::string xmlstring( bool = false ) const;
-    FoliaElement* doc() const { return foliadoc; }
+
+    const FoliaElement* doc() const {
+      /// return a pointer to the internal FoLiA tree
+      return foliadoc;
+    }
 
     template <typename T>
       T *create_root( const KWargs& ){
@@ -219,7 +227,10 @@ namespace folia {
 
     FoliaElement* parseXml( );
 
-    std::string id() const { return _id; };
+    std::string id() const {
+      /// return the Document id value
+      return _id;
+    };
     std::string language() const;
     void auto_declare( AnnotationType,
 		       const std::string& = "" );
@@ -236,23 +247,49 @@ namespace folia {
 		  const std::string& = "" );
     void un_declare( AnnotationType,
 		     const std::string& );
-    xmlDoc *XmlDoc() const { return _xmldoc; };
-    xmlNs *foliaNs() const { return _foliaNsOut; };
-    void keepForDeletion( FoliaElement *p ) { delSet.insert( p ); };
-    void addExternal( External *p ) { _externals.push_back( p ); };
+    const xmlDoc *XmlDoc() const {
+      /// return a pointer to the internal xmlDoc. handle with care.
+      return _xmldoc;
+    };
+    xmlNs *foliaNs() const {
+      /// return a pointer to the output namespace structure
+      return _foliaNsOut;
+    };
+    void keepForDeletion( FoliaElement *p ) {
+      /// add FoliaElement \e p to the delSet
+      /*!
+	\param p the FoliaElement to keep for later annihilation
+	the delSet is kept until the destruction of the Document
+       */
+      delSet.insert( p );
+    };
+    void addExternal( External *p ) {
+      /// add a node to the _externals list
+      /*!
+	\param p The node to add
+      */
+      _externals.push_back( p );
+    };
     void resolveExternals();
     int debug;
+
+    /// is the PERMISSIVE mode set?
     bool permissive() const { return mode & PERMISSIVE; };
+    /// is the CHECKTEXT mode set?
     bool checktext() const { return mode & CHECKTEXT; };
+    /// is the FIXTEXT mode set?
     bool fixtext() const { return mode & FIXTEXT; };
+    /// is the STRIP mode set?
     bool strip() const { return mode & STRIP; };
-    bool kanon() const { return mode & CANONICAL; };
+    /// is the CANONICAL mode set?
+    bool canonical() const { return mode & CANONICAL; };
+    /// is the AUTODECLARE mode set?
     bool autodeclare() const { return mode & AUTODECLARE; };
     bool set_permissive( bool ) const; // defined const, but the mode is mutable!
     bool set_checktext( bool ) const; // defined const, but the mode is mutable!
     bool set_fixtext( bool ) const; // defined const, but the mode is mutable!
     bool set_strip( bool ) const; // defined const, but the mode is mutable!
-    bool set_kanon( bool ) const; // defined const, but the mode is mutable!
+    bool set_canonical( bool ) const; // defined const, but the mode is mutable!
     bool set_autodeclare( bool ) const; // defined const, but the mode is mutable!
     /// this class holds annotation declaration information
     class at_t {
@@ -274,36 +311,76 @@ namespace folia {
     void decrRef( AnnotationType, const std::string& );
     void setmode( const std::string& ) const;
     std::string getmode() const;
-    int setdebug( int val ){ int ret=debug; debug=val; return ret;};
+    int setdebug( int val ){
+      /// set the debug level
+      /*!
+	\param val the new debug value
+	\return the old debug value
+      */
+      int ret=debug; debug=val; return ret;
+    };
     std::multimap<AnnotationType,std::string> unused_declarations( ) const;
     const MetaData *get_submetadata( const std::string& m ){
+      /// get the metadata structure with value \e m
+      /*!
+	\param m the value we search
+	\return the found MetaData element, or 0
+       */
       const auto& it = submetadata.find( m );
       if ( it == submetadata.end() ){
 	return 0;
-      } else {
+      }
+      else {
 	return it->second;
       }
     }
     void cache_textcontent( TextContent *tc ){
+      /// add a TextContent to the validation buffer
+      /*!
+	\param tc the TextContent to add to the buffer
+	on a call to validate_offsets() this buffer is used to validate
+	all offsets.
+      */
       t_offset_validation_buffer.push_back( tc );
     }
-    void cache_phoncontent( PhonContent *tc ){
-      p_offset_validation_buffer.push_back( tc );
+    void cache_phoncontent( PhonContent *pc ){
+      /// add a PhonContent to the validation buffer
+      /*!
+	\param pc the PhonContent to add
+	on a call to validate_offsets() this buffer is used to validate
+	all offsets.
+      */
+      p_offset_validation_buffer.push_back( pc );
     }
     bool validate_offsets() const;
     int compare_to_build_version() const;
-    std::string version() const { return _version_string; };
+    const std::string& version() const {
+      /// return the version string
+      return _version_string;
+    };
     std::string doc_version() const;
     std::string update_version();
     bool version_below( int, int ) const;
-    std::map<AnnotationType,std::multimap<std::string,at_t> > annotationdefaults() const { return _annotationdefaults; };
+    const std::map<AnnotationType,std::multimap<std::string,at_t>>& annotationdefaults() const { return _annotationdefaults; };
     void parse_metadata( const xmlNode * );
     void setDocumentProps( KWargs& );
-    Provenance *provenance() const { return _provenance;};
-    std::string filename() const { return _source_filename; };
+    Provenance *provenance() const {
+      /// return a pointer to the Provenance data
+      return _provenance;
+    };
+    const std::string& filename() const {
+      /// return the filename the Document was created from
+      return _source_filename;
+    };
     void save_orig_ann_defaults();
-    void set_incremental( bool b ) { _incremental_parse = b; };
-    bool is_incremental() const { return _incremental_parse; };
+    void set_incremental( bool b ) {
+      /// set/unset the incremental_parse flag
+      _incremental_parse = b;
+    };
+    bool is_incremental() const {
+      /// return the value of the incremental_parse flag
+      return _incremental_parse;
+    };
   private:
     void adjustTextMode();
     std::map<AnnotationType,std::multimap<std::string,at_t> > _annotationdefaults;   ///< stores all declared annotations per AnnotationType

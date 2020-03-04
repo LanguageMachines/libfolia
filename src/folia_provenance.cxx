@@ -191,7 +191,7 @@ namespace folia {
 #endif
       new_id = name + "." + TiCC::toString(val);
     }
-    if ( prov->get_processor(new_id) != 0 ){
+    if ( prov->get_processor_by_id(new_id) != 0 ){
 #ifdef PROC_DEBUG
       cerr << "generate_id, id=" << new_id << " exists, loop!" << endl;
 #endif
@@ -212,8 +212,8 @@ namespace folia {
       Otherwise we create an id for the first subprocessor
     */
     string new_id;
-    if ( !processors().empty() ){
-      string prev_id = processors().back()->id();
+    if ( !sub_processors().empty() ){
+      string prev_id = sub_processors().back()->id();
       vector<string> v = TiCC::split_at( prev_id, "." );
       int val;
       if ( TiCC::stringTo( v.back(), val ) ){
@@ -307,7 +307,7 @@ namespace folia {
       cerr << "new processor calculate SPECIAAL() ==>" << id << endl;
 #endif
     }
-    processor *check = prov->get_processor( id );
+    processor *check = prov->get_processor_by_id( id );
     if ( check ){
       throw DuplicateIDError( "processor '" + id + "' already exists" );
     }
@@ -377,7 +377,7 @@ namespace folia {
 	this->_processors.push_back( sub );
       }
     }
-    prov->add_index(this);
+    prov->add_to_index(this);
   }
 
   processor::~processor(){
@@ -424,7 +424,7 @@ namespace folia {
     }
   }
 
-  processor *Provenance::get_processor( const string& id ) const {
+  processor *Provenance::get_processor_by_id( const string& id ) const {
     ///  return a processor with the given id
     /*!
       \param id the processor id we search for
@@ -461,7 +461,7 @@ namespace folia {
     return _first_proc;
   }
 
-  void Provenance::add_index( processor *p ){
+  void Provenance::add_to_index( processor *p ){
     /// add a procesor to the index
     _index[p->id()] = p;
     _name_index.insert( make_pair(p->name(),p) );
