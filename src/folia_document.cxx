@@ -643,17 +643,7 @@ namespace folia {
     bool old_k = set_kanon(kanon);
     bool result = false;
     try {
-      if ( TiCC::match_back( file_name, ".bz2" ) ){
-	string tmpname = file_name.substr( 0, file_name.length() - 3 ) + "tmp";
-	if ( toXml( tmpname, ns_label ) ){
-	  bool stat = TiCC::bz2Compress( tmpname, file_name );
-	  remove( tmpname.c_str() );
-	  result = stat;
-	}
-      }
-      else {
-	result = toXml( file_name, ns_label );
-      }
+      result = toXml( file_name, ns_label );
     }
     catch ( const exception& e ){
       throw runtime_error( "saving to file " + file_name + " failed: " + e.what() );
@@ -880,7 +870,7 @@ namespace folia {
     return "";
   }
 
-  void Document::setimdi( xmlNode *node ){
+  void Document::parse_imdi( const xmlNode *node ){
     /// set IMDI values. DEPRECATED
     xmlNode *n = TiCC::xPath( node, "//imdi:Session/imdi:Title" );
     if ( n ){
@@ -1510,8 +1500,11 @@ namespace folia {
 
   void Document::resolveExternals(){
     /// resolve all external references
-    if ( !externals.empty() ){
-      for ( const auto& ext : externals ){
+    /*!
+      external references are stored during parsing in the _externals array
+     */
+    if ( !_externals.empty() ){
+      for ( const auto& ext : _externals ){
 	ext->resolve_external();
       }
     }
@@ -1653,7 +1646,7 @@ namespace folia {
     }
   }
 
-  void Document::getstyles(){
+  void Document::parse_styles(){
     /// retrieve all style-sheets from the current XmlTree
     xmlNode *pnt = _xmldoc->children;
     while ( pnt ){
@@ -1761,7 +1754,7 @@ namespace folia {
 
   FoliaElement* Document::parseXml( ){
     /// parse a complete FoLiA tree from the XmlTree we have got
-    getstyles();
+    parse_styles();
     xmlNode *root = xmlDocGetRootElement( _xmldoc );
     if ( root->ns ){
       if ( root->ns->prefix ){
@@ -2469,9 +2462,7 @@ namespace folia {
 
       If set_name is empty ("") a match is found when a declarion for \e type
       exists
-
     */
-
     FoliaElement *tmp = AbstractElement::createElement( et );
     AnnotationType at = tmp->annotation_type();
     delete tmp;
@@ -2479,6 +2470,12 @@ namespace folia {
   }
 
   string Document::default_set( AnnotationType type ) const {
+    /// return the default setname for the type. If any.
+    /*!
+      \param type the AnnotationType
+      \return the setname. May be empty ("") when there is none defined OR it
+      is ambiguous.
+    */
     if ( type == AnnotationType::NO_ANN ){
       return "";
     }
@@ -2494,6 +2491,7 @@ namespace folia {
 	cerr << "vind tussen " <<  mit1->second << endl;
       }
       if ( mit1->second.size() == 1 ){
+	// so it is unique
 	result = mit1->second.begin()->first;
       }
     }
@@ -2503,50 +2501,15 @@ namespace folia {
     return result;
   }
 
-  string Document::original_default_set( AnnotationType type ) const {
-    auto const& it = _orig_ann_default_sets.find(type);
-    if ( it == _orig_ann_default_sets.end() ){
-      return "";
-    }
-    else {
-      return it->second;
-    }
-  }
-
-  string Document::original_default_processor( AnnotationType type ) const {
-    auto const& it = _orig_ann_default_procs.find(type);
-    if ( it == _orig_ann_default_procs.end() ){
-      return "";
-    }
-    else {
-      return it->second;
-    }
-  }
-
-  vector<string> Document::get_annotators( AnnotationType type,
-					   const string& st ) const {
-    vector<string> result;
-    if ( type == AnnotationType::NO_ANN ){
-      return result;
-    }
-    const auto& mit1 = _annotationdefaults.find(type);
-    if ( mit1 != _annotationdefaults.end() ){
-      //    cerr << "vond iets voor " << toString(type) << endl;
-      for ( auto pos = mit1->second.lower_bound(st);
-	    pos != mit1->second.upper_bound(st);
-	    ++pos ){
-	for ( const auto& p : pos->second.p ){
-	  result.push_back( p );
-	}
-      }
-    }
-    //    cerr << "get default ==> " << result << endl;
-    return result;
-
-  }
-
   string Document::default_annotator( AnnotationType type,
-				      const string& st ) const {
+				      const string& setname ) const {
+    /// return the default annotator for the type/setname combination.
+    /*!
+      \param type the AnnotationType
+      \param setname the AnnotationType. "*" means for ANY set.
+      \return the annotator. May be empty ("") when there is none defined OR it
+      is ambiguous.
+    */
     if ( type == AnnotationType::NO_ANN ){
       return "";
     }
@@ -2554,16 +2517,18 @@ namespace folia {
     string result;
     if ( mit1 != _annotationdefaults.end() ){
       //      cerr << "vind tussen " <<  mit1->second << endl;
-      if ( st.empty() ){
+      if ( setname.empty() ){
 	// 'wildcard' search
 	if ( mit1->second.size() == 1 ){
+	  // so it is unique
 	  result = mit1->second.begin()->second.a;
 	  return result;
 	}
       }
       else {
-	if ( mit1->second.count( st ) == 1 ){
-	  const auto& mit2 = mit1->second.find( st );
+	if ( mit1->second.count( setname ) == 1 ){
+	  // so it is unique
+	  const auto& mit2 = mit1->second.find( setname );
 	  result = mit2->second.a;
 	}
       }
@@ -2573,7 +2538,14 @@ namespace folia {
   }
 
   AnnotatorType Document::default_annotatortype( AnnotationType type,
-						 const string& st ) const {
+						 const string& setname ) const {
+    /// return the default annotator type for the type/setname combination.
+    /*!
+      \param type the AnnotationType
+      \param setname the AnnotationType. "*" means for ANY set.
+      \return the annotator. May be empty ("") when there is none defined OR it
+      is ambiguous.
+    */
     if ( debug ){
       cerr << "annotationdefaults= " <<  _annotationdefaults << endl;
       cerr << "lookup: " << folia::toString(type) << endl;
@@ -2587,16 +2559,18 @@ namespace folia {
       if ( debug ){
 	cerr << "found a hit for type=" << folia::toString( type ) << endl;
       }
-      if ( st.empty() ){
+      if ( setname.empty() ){
 	// 'wildcard' search
 	if ( mit1->second.size() == 1 ){
+	  // so it is unique
 	  result = mit1->second.begin()->second.t;
 	}
 	return result;
       }
       else {
-	if ( mit1->second.count( st ) == 1 ){
-	  const auto& mit2 = mit1->second.find( st );
+	if ( mit1->second.count( setname ) == 1 ){
+	  // so it is unique
+	  const auto& mit2 = mit1->second.find( setname );
 	  result = mit2->second.t;
 	}
       }
@@ -2606,19 +2580,28 @@ namespace folia {
   }
 
   string Document::default_datetime( AnnotationType type,
-				     const string& st ) const {
+				     const string& setname ) const {
+    /// return the default datetime value for the type/setname combination.
+    /*!
+      \param type the AnnotationType
+      \param setname the AnnotationType. "*" means for ANY set.
+      \return the datetime value. May be empty ("") when there is none defined
+      OR it is ambiguous.
+    */
     const auto& mit1 = _annotationdefaults.find(type);
     string result;
     if ( mit1 != _annotationdefaults.end() ){
-      if ( st.empty() ){
+      if ( setname.empty() ){
 	// 'wildcard' search
 	if ( mit1->second.size() == 1 ){
+	  // so it is unique
 	  result = mit1->second.begin()->second.d;
 	}
       }
       else {
-	if ( mit1->second.count( st ) == 1 ){
-	  const auto& mit2 = mit1->second.find( st );
+	if ( mit1->second.count( setname ) == 1 ){
+	  // so it is unique
+	  const auto& mit2 = mit1->second.find( setname );
 	  result = mit2->second.d;
 	}
       }
@@ -2627,22 +2610,30 @@ namespace folia {
     return result;
   }
 
-  string Document::default_processor( AnnotationType annotationtype,
-				      const string& set_name ) const{
+  string Document::default_processor( AnnotationType type,
+				      const string& setname ) const{
+    /// return the default processor type for the type/setname combination.
+    /*!
+      \param type the AnnotationType
+      \param setname the AnnotationType. "*" means for ANY set.
+      \return the processor. May be empty ("") when there is none defined OR it
+      is ambiguous.
+    */
     if ( debug ){
-      cerr << "defaultprocessor(" << toString( annotationtype ) << ","
-	   << set_name << ")" << endl;
+      cerr << "defaultprocessor(" << toString( type ) << ","
+	   << setname << ")" << endl;
     }
-    auto const& it = _annotationdefaults.find(annotationtype);
+    auto const& it = _annotationdefaults.find(type);
     if ( it != _annotationdefaults.end() ){
       if ( debug ){
 	cerr << "found some defs: " << it->second << endl;
-	cerr << "NOW search for set: " << set_name << endl;
+	cerr << "NOW search for set: " << setname << endl;
       }
-      if ( set_name.empty() ){
+      if ( setname.empty() ){
 	// 'wildcard' search
 	if ( it->second.size() == 1
 	     && it->second.begin()->second.p.size() == 1 ){
+	  // so it is unique for setname AND for the number of processors
 	  return *it->second.begin()->second.p.begin();
 	}
 	else {
@@ -2650,8 +2641,8 @@ namespace folia {
 	}
       }
       set<string> results;
-      auto s_it = it->second.lower_bound(set_name);
-      while ( s_it != it->second.upper_bound(set_name) ){
+      auto s_it = it->second.lower_bound(setname);
+      while ( s_it != it->second.upper_bound(setname) ){
 	if ( debug ){
 	  cerr << "found sub strings: " << s_it->second << endl;
 	}
@@ -2659,10 +2650,11 @@ namespace folia {
 	++s_it;
       }
       if ( results.size() == 1 ){
+	// so we found exactly 1 processor
 	return *results.begin();
       }
       else if ( results.size() > 1 ){
-	auto const& as = annotationtype_xml_map.find(annotationtype);
+	auto const& as = annotationtype_xml_map.find(type);
 	if ( as != annotationtype_xml_map.end() ){
 	  throw NoDefaultError("No processor specified for <"
 			       + as->second +  ">, but the presence of multiple declarations prevent assigning a default");
@@ -2672,12 +2664,88 @@ namespace folia {
     return "";
   }
 
+  string Document::original_default_set( AnnotationType type ) const {
+    /// return the default setname for the type in the ORIGINAL definitions.
+    /*!
+      \param type the AnnotationType
+      \return the setname. May be empty ("") when there is none defined OR it
+      is ambiguous.
+
+      In case of \e incremental Document building, we are allowed to add
+      annotation declarations at any moment. That might render the default_set
+      of an AnnotationType undefined. With this function, we still are able to
+      find the original value and use that e.g. on output.
+    */
+    auto const& it = _orig_ann_default_sets.find(type);
+    if ( it == _orig_ann_default_sets.end() ){
+      return "";
+    }
+    else {
+      return it->second;
+    }
+  }
+
+  string Document::original_default_processor( AnnotationType type ) const {
+    /// return the default processor name for the type in the ORIGINAL definitions.
+    /*!
+      \param type the AnnotationType
+      \return the processor name. May be empty ("") when there is none defined
+      OR it is ambiguous.
+
+      In case of \e incremental Document building, we are allowed to add
+      annotation declarations at any moment. That might render the default
+      processor of an AnnotationType undefined. With this function, we still
+      are able to find the original value and use that e.g. on output.
+    */
+    auto const& it = _orig_ann_default_procs.find(type);
+    if ( it == _orig_ann_default_procs.end() ){
+      return "";
+    }
+    else {
+      return it->second;
+    }
+  }
+
+  vector<string> Document::get_annotators( AnnotationType type,
+					   const string& setname ) const {
+    /// return all the annotators for the type/setname combination.
+    /*!
+      \param type the AnnotationType
+      \param setname the AnnotationType. "*" means for ANY set.
+      \return a list of annotators.
+    */
+    vector<string> result;
+    if ( type == AnnotationType::NO_ANN ){
+      return result;
+    }
+    const auto& mit1 = _annotationdefaults.find(type);
+    if ( mit1 != _annotationdefaults.end() ){
+      //    cerr << "vond iets voor " << toString(type) << endl;
+      for ( auto pos = mit1->second.lower_bound(setname);
+	    pos != mit1->second.upper_bound(setname);
+	    ++pos ){
+	for ( const auto& p : pos->second.p ){
+	  result.push_back( p );
+	}
+      }
+    }
+    //    cerr << "get default ==> " << result << endl;
+    return result;
+
+  }
+
   vector<const processor*> Document::get_processors( AnnotationType type,
-						     const string& st ) const {
+						     const string& setname ) const {
+    /// return all the processors for the type/setname combination.
+    /*!
+      \param type the AnnotationType
+      \param setname the AnnotationType. "*" means for ANY set.
+      \return a list of processors.
+    */
     vector<const processor*> result;
     if ( debug ){
       cerr << "getprocessors(" << toString( type ) << ","
-	   << st << ")" << endl;
+	   << setname << ")" << endl;
     }
     if ( type == AnnotationType::NO_ANN ){
       return result;
@@ -2687,8 +2755,8 @@ namespace folia {
       if ( debug ){
 	cerr << "found some defs: " << it->second << endl;
       }
-      for ( auto pos = it->second.lower_bound(st);
-	    pos != it->second.upper_bound(st);
+      for ( auto pos = it->second.lower_bound(setname);
+	    pos != it->second.upper_bound(setname);
 	    ++pos ){
 	for ( const auto& p : pos->second.p ){
 	  result.push_back( get_processor(p) );
@@ -2700,8 +2768,14 @@ namespace folia {
 
   void Document::add_one_anno( const pair<AnnotationType,string>& pair,
 			       xmlNode *node,
-			       set<string>& done ) const{
-    // Find the 'label'
+			       set<string>& done ) const {
+    /// create an annotation declaration entry under the xmlNode node
+    /*!
+      \param pair an AnnotationType/setname pair
+      \param node the node we want to add to
+      \param done a set of "labels" to keep track of already handled cases
+
+     */
     AnnotationType type = pair.first;
     string sett = pair.second;
     string label = annotation_type_to_string( type );
@@ -2809,12 +2883,19 @@ namespace folia {
     }
   }
 
-  void Document::setannotations( xmlNode *md ) const {
+  void Document::add_annotations( xmlNode *metadata ) const {
+    /// create an annotations block under the xmlNode metadata
+    /*!
+      \param metadata the parent to add to
+      calls add_one_anno() for every annotation declaration.
+    */
     if ( debug ){
-      cerr << "start setannotation: " << _annotationdefaults << endl;
+      cerr << "start add_annotations: " << _annotationdefaults << endl;
       cerr << "sorting: " << _anno_sort << endl;
     }
-    xmlNode *node = xmlAddChild( md, TiCC::XmlNewNode( foliaNs(), "annotations" ) );
+    xmlNode *node = xmlAddChild( metadata,
+				 TiCC::XmlNewNode( foliaNs(),
+						   "annotations" ) );
     set<string> done;
     if ( kanon() ){
       multimap<AnnotationType,
@@ -2834,6 +2915,7 @@ namespace folia {
   }
 
   void Document::append_processor( xmlNode *node, const processor *p ) const {
+    /// add a processor xml structure to the parent 'node'
     xmlNode *pr = xmlAddChild( node, TiCC::XmlNewNode( foliaNs(), "processor" ) );
     KWargs atts;
     atts["xml:id"] = p->_id;
@@ -2921,17 +3003,25 @@ namespace folia {
     }
   }
 
-  void Document::setprovenance( xmlNode *md ) const {
+  void Document::add_provenance( xmlNode *metadata ) const {
+    /// create a provenance block under the xmlNode metadata
+    /*!
+      \param metadata the parent to add to
+      calls append_processor() for every processor available
+    */
     if ( !_provenance ){
       return;
     }
-    xmlNode *node = xmlAddChild( md, TiCC::XmlNewNode( foliaNs(), "provenance" ) );
+    xmlNode *node = xmlAddChild( metadata,
+				 TiCC::XmlNewNode( foliaNs(),
+						   "provenance" ) );
     for ( const auto& p : _provenance->processors ){
       append_processor( node, p );
     }
   }
 
-  void Document::addsubmetadata( xmlNode *node ) const {
+  void Document::add_submetadata( xmlNode *node ) const {
+    /// add a submetadata block to node
     for ( const auto& it : submetadata ){
       xmlNode *sm = TiCC::XmlNewNode( foliaNs(), "submetadata" );
       KWargs atts;
@@ -2969,7 +3059,8 @@ namespace folia {
     }
   }
 
-  void Document::setmetadata( xmlNode *node ) const{
+  void Document::add_metadata( xmlNode *node ) const{
+    /// add a metadata block to node
     if ( _metadata ){
       if ( _metadata->datatype() == "ExternalMetaData" ){
 	KWargs atts;
@@ -3008,10 +3099,14 @@ namespace folia {
       atts["type"] = "native";
       addAttributes( node, atts );
     }
-    addsubmetadata( node );
+    add_submetadata( node );
   }
 
-  void Document::setstyles( xmlDoc* doc ) const {
+  void Document::add_styles( xmlDoc* doc ) const {
+    /// add a styles block to the output document
+    /*!
+      \param doc the output document
+    */
     for ( const auto& it : styles ){
       string content = "type=\"" + it.first + "\" href=\"" + it.second + "\"";
       xmlAddChild( (xmlNode*)doc,
@@ -3022,8 +3117,12 @@ namespace folia {
   }
 
   xmlDoc *Document::to_xmlDoc( const string& ns_label ) const {
+    /// convert the Document to an xmlDoc
+    /*!
+      \param ns_label a namespace label to use. (default "")
+    */
     xmlDoc *outDoc = xmlNewDoc( (const xmlChar*)"1.0" );
-    setstyles( outDoc );
+    add_styles( outDoc );
     xmlNode *root = xmlNewDocNode( outDoc, 0, (const xmlChar*)"FoLiA", 0 );
     xmlDocSetRootElement( outDoc, root );
     xmlNs *xl = xmlNewNs( root, (const xmlChar *)"http://www.w3.org/1999/xlink",
@@ -3062,9 +3161,9 @@ namespace folia {
     addAttributes( root, attribs );
 
     xmlNode *md = xmlAddChild( root, TiCC::XmlNewNode( foliaNs(), "metadata" ) );
-    setannotations( md );
-    setprovenance( md );
-    setmetadata( md );
+    add_annotations( md );
+    add_provenance( md );
+    add_metadata( md );
     for ( size_t i=0; i < foliadoc->size(); ++i ){
       FoliaElement* el = foliadoc->index(i);
       xmlAddChild( root, el->xml( true, kanon() ) );
@@ -3073,6 +3172,10 @@ namespace folia {
   }
 
   string Document::toXml( const string& ns_label ) const {
+    /// dump the Document to a string
+    /*!
+      \param ns_label a namespace label to use. (default "")
+    */
     string result;
     if ( foliadoc ){
       xmlDoc *outDoc = to_xmlDoc( ns_label );
@@ -3092,15 +3195,36 @@ namespace folia {
 
   bool Document::toXml( const string& file_name,
 			const string& ns_label ) const {
+    /// write the Document to a file
+    /*!
+      \param file_name the name of the file to create
+      \param ns_label a namespace label to use. (default "")
+      \return false on error, true otherwise
+      automaticly detects .gz and .bz2 filenames and will handle accordingly
+    */
     if ( foliadoc ){
-      xmlDoc *outDoc = to_xmlDoc( ns_label );
-      if ( TiCC::match_back( file_name, ".gz" ) ){
-	xmlSetDocCompressMode(outDoc,9);
+      long int res = 0;
+      if ( TiCC::match_back( file_name, ".bz2" ) ){
+	string tmpname = file_name.substr( 0, file_name.length() - 3 ) + "tmp";
+	if ( toXml( tmpname, ns_label ) ){
+	  bool stat = TiCC::bz2Compress( tmpname, file_name );
+	  remove( tmpname.c_str() );
+	  if ( !stat ){
+	    res = -1;
+	  }
+	}
       }
-      long int res = xmlSaveFormatFileEnc( file_name.c_str(), outDoc,
-					   output_encoding, 1 );
-      xmlFreeDoc( outDoc );
-      _foliaNsOut = 0;
+      else {
+	xmlDoc *outDoc = to_xmlDoc( ns_label );
+	if ( TiCC::match_back( file_name, ".gz" ) ){
+	  xmlSetDocCompressMode(outDoc,9);
+	}
+	res = xmlSaveFormatFileEnc( file_name.c_str(),
+				    outDoc,
+				    output_encoding, 1 );
+	xmlFreeDoc( outDoc );
+	_foliaNsOut = 0;
+      }
       if ( res == -1 ){
 	return false;
       }

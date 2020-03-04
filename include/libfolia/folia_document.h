@@ -239,7 +239,7 @@ namespace folia {
     xmlDoc *XmlDoc() const { return _xmldoc; };
     xmlNs *foliaNs() const { return _foliaNsOut; };
     void keepForDeletion( FoliaElement *p ) { delSet.insert( p ); };
-    void addExternal( External *p ) { externals.push_back( p ); };
+    void addExternal( External *p ) { _externals.push_back( p ); };
     void resolveExternals();
     int debug;
     bool permissive() const { return mode & PERMISSIVE; };
@@ -336,16 +336,16 @@ namespace folia {
     std::vector<PhonContent*> p_offset_validation_buffer; ///< we register all
     ///< PhonContent nodes here to quickly access them for offset checks
     ///< that check is performed directly after parsing
-    void setimdi( xmlNode * );
+    void parse_imdi( const xmlNode * );
     void parse_annotations( const xmlNode * );
     void parse_provenance( const xmlNode * );
     void parse_submeta( const xmlNode * );
-    void getstyles();
-    void setannotations( xmlNode * ) const;
-    void setprovenance( xmlNode * ) const;
-    void setmetadata( xmlNode * ) const;
-    void addsubmetadata( xmlNode *) const;
-    void setstyles( xmlDoc* ) const;
+    void parse_styles();
+    void add_annotations( xmlNode * ) const;
+    void add_provenance( xmlNode * ) const;
+    void add_metadata( xmlNode * ) const;
+    void add_submetadata( xmlNode *) const;
+    void add_styles( xmlDoc* ) const;
     void append_processor( xmlNode *, const processor * ) const;
     xmlDoc *to_xmlDoc( const std::string& ="" ) const;
     void add_one_anno( const std::pair<AnnotationType,std::string>&,
@@ -354,7 +354,7 @@ namespace folia {
     std::map<std::string, FoliaElement* > sindex; ///< the lookup table
     ///< for FoliaElements by index (xml:id) (not all nodes do have an index)
     //    std::vector<FoliaElement*> data;
-    std::vector<External*> externals;
+    std::vector<External*> _externals;
     std::string _id;
     std::set<FoliaElement *> delSet;
     FoliaElement *foliadoc;
