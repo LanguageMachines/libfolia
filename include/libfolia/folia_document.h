@@ -124,7 +124,7 @@ namespace folia {
     }
     std::string xmlstring( bool = false ) const;
 
-    const FoliaElement* doc() const {
+    FoliaElement* doc() const {
       /// return a pointer to the internal FoLiA tree
       return foliadoc;
     }
