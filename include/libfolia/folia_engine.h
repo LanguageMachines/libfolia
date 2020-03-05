@@ -61,9 +61,16 @@ namespace folia {
     enum doctype { TEXT, //!< the topnode is \<text>
 		   SPEECH //!< the topnode is \<speech>
     };
-    Engine();
+    Engine(); //!< default constructor. needs a call to init_doc() to get started
   Engine( const std::string& i, const std::string& o="" ):
-    Engine() { init_doc(i,o); };
+    Engine() {
+      /// construct and initialize an engine.
+      /*!
+	\param i name of the inputfile
+	\param o optional name of an outputfile
+       */
+      init_doc(i,o);
+    };
     virtual bool init_doc( const std::string&, const std::string& ="" );
     virtual ~Engine();
     FoliaElement *get_node( const std::string& );
@@ -100,23 +107,23 @@ namespace folia {
   protected:
     xmlTextReader *_reader;
     Document *_out_doc;
-    FoliaElement *_root_node;
-    FoliaElement *_external_node;
-    FoliaElement *_current_node;
-    FoliaElement *_last_added;
-    int _last_depth;
-    int _start_index;
-    doctype _doc_type;
-    TiCC::LogStream *_dbg_file;
-    std::ostream *_os;
-    std::string _footer;
-    std::string _out_name;
-    std::string ns_prefix;
-    bool _header_done;
-    bool _finished;
-    bool _ok;
-    bool _done;
-    bool _debug;
+    FoliaElement *_root_node;    //!< the root node (Speech or Text)
+    FoliaElement *_external_node; //!< the last node we exposed to the world
+    FoliaElement *_current_node; //!< the FoliaElement at hand
+    FoliaElement *_last_added;   //!< the last added FoliaElement
+    int _last_depth;        //!< at what depth in the tree was the last addition
+    int _start_index;       //!< the index of the first relevant node
+    doctype _doc_type;      //!< do we process TEXT or SPEECH?
+    TiCC::LogStream *_dbg_file; //!< the debugging stream
+    std::ostream *_os;      //!< optional outputstream
+    std::string _out_name;  //!< the name of the output file connected to _os
+    std::string ns_prefix;  //!< a namespace name to use. (copied from the input file)
+    std::string _footer;    //!< the constructed string to output at the end
+    bool _ok;               //!< are we fine?
+    bool _done;             //!< are we done parsing?
+    bool _header_done;      //!< is the header outputed yet?
+    bool _finished;         //!< did we finish the whole process?
+    bool _debug;            //!< is debug on?
 
     FoliaElement *handle_match( const std::string&, int );
     void handle_element( const std::string&, int );
@@ -129,16 +136,25 @@ namespace folia {
 
   class TextEngine: public Engine {
   public:
-  TextEngine(): Engine(){};
+  TextEngine(): Engine(){}; //!< default construcor. Needs a call to init_doc()
   TextEngine( const std::string& i, const std::string& o="" ):
     TextEngine(){
+      /// construct a TextEngine
+      /*!
+	\param i the input file
+	\param o an optional output file
+	To be able to use the TextEngine, a call to setup() is still needed
+       */
       init_doc( i, o );
     }
     bool init_doc( const std::string&, const std::string& ="" );
     void setup( const std::string& ="", bool = false );
     std::map<int,int> enumerate_text_parents( const std::string& ="",
 					      bool = false ) const;
-    size_t text_parent_count() const { return text_parent_map.size(); };
+    size_t text_parent_count() const {
+      /// return the number of textparents found
+      return text_parent_map.size();
+    };
     FoliaElement *next_text_parent();
   private:
     int _next_text_node;

@@ -271,7 +271,7 @@ namespace folia {
       _externals.push_back( p );
     };
     void resolveExternals();
-    int debug;
+    int debug; //!< the debug level. 0 means NO debugging.
 
     /// is the PERMISSIVE mode set?
     bool permissive() const { return mode & PERMISSIVE; };

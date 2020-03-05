@@ -1118,7 +1118,7 @@ namespace folia {
     /// \param name the file-name
     /// \param do_canon output in Canonical format
     if ( _os && name == _out_name ){
-      throw logic_error( "folia::Engine::save() impossible. Already connected to a stream withe the same name (" + name + ")" );
+      throw logic_error( "folia::Engine::save() impossible. Already connected to a stream with the same name (" + name + ")" );
     }
     _out_doc->save( name, ns_prefix, do_canon );
   }
