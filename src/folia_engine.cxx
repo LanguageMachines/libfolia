@@ -1252,7 +1252,7 @@ namespace folia {
 	pnt = pnt->next;
       }
     }
-    if ( _debug && !result.empty() ){
+    if ( _debug && start && !result.empty() ){
       DBG << "return " << result << " for " << start->parent->tag << endl;
     }
     return result;

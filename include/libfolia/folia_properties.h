@@ -89,6 +89,8 @@ namespace folia {
   extern const std::string DEFAULT_TEXT_SET;
   extern const std::string DEFAULT_PHON_SET;
 
+  bool isAttributeFeature( const std::string& );
+
   void static_init();
   void print_type_hierarchy( std::ostream& );
 }
