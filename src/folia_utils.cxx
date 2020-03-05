@@ -521,6 +521,11 @@ namespace folia {
   }
 
   bool isNCName( const string& s ){
+    /// test if a string is a valid NCName value
+    /*!
+      \param s the inputstring
+      \return true if \e s may be used as an NCName (e.g. for xml:id)
+    */
     int test = xmlValidateNCName( (const xmlChar*)s.c_str(), 0 );
     if ( test != 0 ){
       return false;
@@ -572,9 +577,9 @@ namespace folia {
     return result;
   }
 
-  UnicodeString normalize_spaces( const UnicodeString& input ){
-    // substitute \n \r \t by spaces AND all multiple spaces by 1
-    // also trims at back and front.
+  icu::UnicodeString normalize_spaces( const icu::UnicodeString& input ){
+    /// substitute NEWLINE, CARRIAGERETURN and TAB by spaces
+    /// AND all multiple spaces by 1, also trims at back and front.
     UnicodeString result;
     bool is_space = false;
     for ( int i=0; i < input.length(); ++i ){

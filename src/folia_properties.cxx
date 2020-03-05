@@ -606,12 +606,13 @@ namespace folia {
   }
 
   void static_init(){
+    /// initialize a lot of statics ('constants')
+    /// This function should be called once.
     FoLiA::PROPS.XMLTAG = "FoLiA";
     FoLiA::PROPS.ACCEPTED_DATA += { Text_t, Speech_t };
 
     DCOI::PROPS.XMLTAG = "DCOI";
     DCOI::PROPS.ACCEPTED_DATA += { Text_t, Speech_t };
-
 
     //foliaspec:begin:setelementproperties
     //Sets all element properties for all elements
@@ -1904,6 +1905,12 @@ namespace folia {
   }
 
   bool isSubClass( const ElementType e1, const ElementType e2 ){
+    /// check if an ElementType is a subclass of another one
+    /*!
+      \param e1 an ElementType
+      \param e2 an ElementType
+      \return true if e1 is in the typeHierarchy of e2
+    */
     if ( e1 == e2 )
       return true;
     const auto& it = typeHierarchy.find( e1 );
@@ -1914,18 +1921,53 @@ namespace folia {
   }
 
   bool isSubClass( const FoliaElement *e1, const FoliaElement *e2 ){
+    /// check if a FoliaElement is a subclass of another one
+    /*!
+      \param e1 a FoliaElement
+      \param e2 a FoliaElement
+      \return true if e1 is a subclass of e2
+      This is about C++ class inheritance: is our class a derivative of c's
+      class?
+    */
     return isSubClass( e1->element_id(), e2->element_id() );
   }
 
   bool FoliaElement::isSubClass( ElementType t ) const {
+    /// check if this FoliaElement is a subclass of the ElementType \e t
+    /*!
+      \param t an ElementType
+      \return true if our class is a subclass of t
+      This is about C++ class inheritance: is our class a derivative of c's
+      class?
+    */
     return folia::isSubClass( element_id(), t );
   }
 
-  bool isAttributeFeature( const string& tag ){
-    return AttributeFeatures.find( tag ) != AttributeFeatures.end();
+  bool isAttributeFeature( const string& att ){
+    /// check if an attribute is to be handled as a feature
+    /*!
+      \param att the attribute to check
+      \return true if this attribute has to be stored internally as an Feature
+
+      example, the FoLiA fragment:
+      \verbatim
+      <sentiment xml:id="sentiment.1" class="disappointment" polarity="negative" strength="strong">
+      \endverbatim
+
+      will internally be stored as
+      \verbatim
+      <sentiment class="disappointment">
+        <polarity class="negative"/>
+        <strength class="strong"/>
+      </sentiment>
+      \endverbatim
+      because polarity and strenght ara AttributeFeatures
+     */
+    return AttributeFeatures.find( att ) != AttributeFeatures.end();
   }
 
   void print_type_hierarchy( ostream& os ){
+    /// output the type hierarchy. DEBUGGING PURPOSES ONLY
     for ( auto const& top : typeHierarchy ){
       os << toString(top.first) << endl;
       for ( auto const& el : top.second ){
@@ -1935,6 +1977,11 @@ namespace folia {
   }
 
   namespace {
+    //
+    // this trick assures that the static_int() function is called
+    // exactly once en every run.
+    // This because the static i is initialized before main() starts.
+    //
     struct initializer {
      initializer() {
 	 static_init();

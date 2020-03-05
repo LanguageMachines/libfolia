@@ -129,6 +129,13 @@ namespace folia {
 
     bool isSubClass( ElementType ) const;
     bool isSubClass( const FoliaElement *c ) const {
+      /// check if the object is a subclass of the class of \e c
+      /*!
+	\param c the FoliaElement we would like to compare to
+	\return true if the object is a SubClass of c.
+	This is about C++ class inheritance: is our class a derivative of c's
+	class?
+      */
       return dynamic_cast<decltype(c)>(this) != 0;
     };
 
@@ -463,10 +470,6 @@ namespace folia {
     virtual const std::string description() const;
 
     // alternatives
-    template <typename F>
-      F *addAlternative();
-    template <typename F>
-      F *addAlternative( const KWargs& );
     virtual std::vector<Alternative *> alternatives( ElementType,
 						     const std::string& = ""
 						     ) const NOT_IMPLEMENTED;
@@ -551,7 +554,7 @@ namespace folia {
     FoliaElement* rindex( size_t ) const;
 
     bool isinstance( ElementType et ) const {
-      /// return true the object is an instance of the type parameter
+      /// return true when the object is an instance of the type parameter
       /*!
       \param et the type to check against
     */
@@ -799,6 +802,12 @@ namespace folia {
 
   template <typename T1, typename T2>
     bool isSubClass(){
+    /// templated check if Type T1 is a subclass of Type T2
+    /*!
+      \return true if T1 is a SubClass of T2.
+      This is about C++ class inheritance: is our class a derivative of c's
+      class?
+    */
     T1 t1((Document*)0);
     return dynamic_cast<T2*>(&t1) != 0;
   }
@@ -809,24 +818,42 @@ namespace folia {
   }
 
   inline size_t len( const FoliaElement *e ) {
-    return e->size(); }
+    /// return the number of FoliaElement children of '\e e
+    return e->size();
+  }
 
   template <typename T>
     inline size_t len( const std::vector<T>& v ) {
+    /// return the size of the given vector
     return v.size(); }
 
   template <typename T>
     T *create( KWargs& args ){
+    /// create a new FoliaElement
+    /*!
+      \param args an attribute-value list of arguments to use
+      \return a new FoliaElement
+    */
     return new T(args);
   }
 
   template <typename T>
     T *create( ){
+    /// create a new FoliaElement
+    /*!
+      \return a new FoliaElement
+    */
     return new T();
   }
 
   template <typename T>
     T *create( KWargs& args, FoliaElement* p ){
+    /// create a new FoliaElement as a child of \e p
+    /*!
+      \param p the FoliaElement to connect to
+      \param args an attribute-value list of arguments to use
+      \return a new FoliaElement
+    */
     T *nt = new T(args,p->doc());
     p->append( nt );
     return nt;
@@ -834,6 +861,11 @@ namespace folia {
 
   template <typename T>
     T *create( FoliaElement* p ){
+    /// create a new FoliaElement as a child of \e p
+    /*!
+      \param p the FoliaElement to connect to
+      \return a new FoliaElement
+    */
     T *nt = new T(p->doc());
     p->append( nt );
     return nt;
@@ -841,10 +873,22 @@ namespace folia {
 
   inline const std::string str( const FoliaElement *e,
 				const std::string& cls = "current" ) {
+    /// return the string value contained in \e e
+    /*!
+      \param e The FoliaElement
+      \param cls the textclass we want
+      \return the (UTF8) string value
+    */
     return e->str( cls ); }
 
   inline const UnicodeString text( const FoliaElement *e,
 				   const std::string& cls = "current" ) {
+    /// return the Unicode value contained in \e e
+    /*!
+      \param e The FoliaElement
+      \param cls the textclass we want
+      \return the Unicode string value
+    */
     if ( e )
       return e->text( cls, TEXT_FLAGS::NONE );
     else
@@ -852,10 +896,15 @@ namespace folia {
   }
 
   inline const UnicodeString unicode( const FoliaElement *e ) {
+    /// return the Unicode value contained in \e e
+    /*!
+      \param e The FoliaElement
+      \return the Unicode string value
+    */
     return e->unicode(); }
 
   inline bool isinstance( const FoliaElement *e, ElementType t ) {
-    /// return true when the first parameter is instance of the type
+    /// return true when the first parameter is an instance of the type
     /// given by the second parameter
     /*!
       \param e the FoliaElement to test
@@ -1791,31 +1840,6 @@ namespace folia {
   private:
     static properties PROPS;
   };
-
-  template <typename F>
-    F *FoliaElement::addAlternative( const KWargs& args ){
-    KWargs kw;
-    std::string id = generateId( "alt" );
-    kw["id"] = id;
-    F *res = 0;
-    Alternative *alt = 0;
-    try {
-      alt = new Alternative( kw, doc() );
-      res = alt->addAnnotation<F>( args );
-    }
-    catch( std::exception& ){
-      delete alt;
-      throw;
-    }
-    append( alt );
-    return res;
-  }
-
-  template <typename F>
-    F *FoliaElement::addAlternative(){
-    KWargs numb;
-    return addAlternative<F>( numb );
-  }
 
   class PosAnnotation: public AbstractInlineAnnotation {
     friend void static_init();
