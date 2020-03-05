@@ -149,8 +149,8 @@ namespace folia {
     }
     bool init_doc( const std::string&, const std::string& ="" );
     void setup( const std::string& ="", bool = false );
-    std::map<int,int> enumerate_text_parents( const std::string& ="",
-					      bool = false ) const;
+    const std::map<int,int>& enumerate_text_parents( const std::string& ="",
+						     bool = false );
     size_t text_parent_count() const {
       /// return the number of textparents found
       return text_parent_map.size();

@@ -110,10 +110,10 @@ namespace folia {
     _doc_type( TEXT ),
     _dbg_file(0),
     _os(0),
-    _header_done(false),
-    _finished(false),
     _ok(false),
     _done(false),
+    _header_done(false),
+    _finished(false),
     _debug(false)
   {
   }
@@ -1182,13 +1182,15 @@ namespace folia {
 						const string& textclass,
 						bool prefer_sentences ) const{
     /// scan the whole TextEngine for TextContent nodes
-    /// \param start the tree to search
-    /// \param textclass the text-class we are interested in
-    /// \param prefer_sentences If TRUE, set the TextEngine up for returning
-    /// Structure nodes like sentences or paragraphs above returning
-    /// just Word or String nodes
-    /// \return a map containing for every found text_parent the index of
-    /// the NEXT value to search. TO DO: very mysty and mystic
+    /*!
+      \param start the tree to search
+      \param textclass the text-class we are interested in
+      \param prefer_sentences If TRUE, set the TextEngine up for returning
+      Structure nodes like sentences or paragraphs above returning
+      just Word or String nodes
+      \return a map containing for every found text_parent the index of
+      the NEXT value to search. TO DO: very mysty and mystic
+    */
     map<int,int> result;
     const xml_tree *pnt = start;
     while ( pnt ){
@@ -1256,15 +1258,19 @@ namespace folia {
     return result;
   }
 
-  map<int,int> TextEngine::enumerate_text_parents( const string& textclass,
-						   bool prefer_sent ) const {
+  const map<int,int>& TextEngine::enumerate_text_parents( const string& textclass,
+							  bool prefer_sent ) {
     /// Loop over the full input, looking for textnodes in class 'textclass'
-    /// \param textclass the text-class we are interested in
-    /// \param prefer_sent If TRUE, set the TextEngine up for returning
-    /// Structure nodes like sentences or paragraphs above returning
-    /// just Word or String nodes
-    ///
-    /// recurses to the DEEPEST text possible, and enumerates their parents
+    /*!
+      \param textclass the text-class we are interested in
+      \param prefer_sent If TRUE, set the TextEngine up for returning
+      Structure nodes like sentences or paragraphs above returning
+      just Word or String nodes
+      \return a reference to a map of text parent nodes
+
+      this function recurses to the DEEPEST text possible, and enumerates their
+      parents. It creates a mapping of text parents indices to their successor
+    */
     if ( _done ){
       throw runtime_error( "enumerate_text_parents() called on a done engine" );
     }
@@ -1279,32 +1285,34 @@ namespace folia {
     // if is a <t>, then remember the index of its parent
     // but when 'prefer_sent' is specified, return the direct structure above
     // when present.
-    map<int,int> result;
+    text_parent_map.clear();
     xml_tree *rec_pnt = tree;
     while ( rec_pnt ){
       map<int,int> deeper = search_text_parents( rec_pnt->link,
 						 textclass,
 						 prefer_sent );
-      result.insert( deeper.begin(), deeper.end() );
+      text_parent_map.insert( deeper.begin(), deeper.end() );
       rec_pnt = rec_pnt->next;
     }
     if ( _debug ){
       DBG << "complete tree: " << endl;
       print( DBG, tree );
-      DBG << "Search map = " << result << endl;
+      DBG << "Search map = " << text_parent_map << endl;
     }
-    for ( auto it = result.begin(); it != result.end(); ++it ){
+    for ( auto it = text_parent_map.begin();
+	  it != text_parent_map.end();
+	  ++it ){
       auto nit = it;
       ++nit;
-      if ( nit != result.end() ){
+      if ( nit != text_parent_map.end() ){
 	it->second = nit->first;
       }
     }
     if ( _debug ){
-      DBG << "Reduced Search map = " << result << endl;
+      DBG << "Reduced Search map = " << text_parent_map << endl;
     }
     delete tree;
-    return result;
+    return text_parent_map;
   }
 
   FoliaElement *TextEngine::next_text_parent(){
