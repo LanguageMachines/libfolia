@@ -5322,22 +5322,6 @@ namespace folia {
     return e;
   }
 
-  FoliaElement *Quote::append( FoliaElement *child ){
-    /// append child to an AbstractStructureElement node
-    /*!
-     * \param child the node to add
-     * \return the appended child
-     *
-     * will throw on error
-     * Sets the auth property to false when we add a sentence to a Quote
-     */
-    AbstractElement::append( child );
-    if ( child->isinstance(Sentence_t) ) {
-      child->setAuth( false ); // Sentences under quotes are non-authoritative
-    }
-    return child;
-  }
-
   xmlNode *Content::xml( bool recursive, bool ) const {
     ///  convert a Content node to an xmlNode
     /*!

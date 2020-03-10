@@ -1935,7 +1935,6 @@ namespace folia {
     AbstractStructureElement( PROPS, d ){ classInit(); };
   Quote( const KWargs& a, Document *d = 0 ):
     AbstractStructureElement( PROPS, d ){ classInit( a ); };
-    FoliaElement *append( FoliaElement * );
     std::vector<Word*> wordParts() const;
     const std::string& get_delimiter( bool=false) const;
   private:
