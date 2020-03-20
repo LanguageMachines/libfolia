@@ -27,6 +27,7 @@
 #ifndef TYPES_H
 #define TYPES_H
 #include <string>
+#include "ticcutils/StringOps.h"
 
 namespace folia {
 
@@ -161,5 +162,53 @@ LAST_ANN };
       : AnnotationType(at+1);
   }
 
-}
+  std::string toString( const AnnotationType& );
+  AnnotationType stringToAnnotationType( const std::string& );
+
+  AnnotatorType stringToAnnotatorType( const std::string& );
+  std::string toString( const AnnotatorType& );
+
+  std::string toString( const ElementType& );
+  ElementType stringToElementType( const std::string& );
+
+} // namespace folia
+
+namespace TiCC {
+  // add specializations to the TiCC stringTo() and toString() family
+
+  template<>
+    inline folia::AnnotationType stringTo( const std::string& str ) {
+    return folia::stringToAnnotationType( str );
+  }
+
+  template<>
+    inline folia::ElementType stringTo( const std::string& str ) {
+    return folia::stringToElementType( str );
+  }
+
+  template<>
+    inline folia::AnnotatorType stringTo( const std::string& str ) {
+    return folia::stringToAnnotatorType( str );
+  }
+
+  inline std::ostream& operator<<( std::ostream& os,
+				   const folia::ElementType& el ){
+    os << folia::toString( el );
+    return os;
+  }
+
+  inline std::ostream& operator<<( std::ostream& os,
+				   const folia::AnnotatorType& at ){
+    os << folia::toString(at);
+    return os;
+  }
+
+  inline std::ostream& operator<<( std::ostream& os,
+				   const folia::AnnotationType& at ){
+    os << folia::toString( at );
+    return os;
+  }
+
+} // namespace TiCC
+
 #endif
