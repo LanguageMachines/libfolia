@@ -1063,100 +1063,65 @@ namespace folia {
 	  cerr << "parse " << prefix << "-annotation" << endl;
 	}
 	KWargs atts = getAttributes( n );
-	string st;
-	string annotator;
-	string ann_type;
-	string format;
-	string datetime;
-	string alias;
 	ElementType et = BASE;
-	auto it = atts.find("set" );
-	if ( it != atts.end() ){
-	  st = it->second;
-	  if ( debug ){
-	    cerr << "found a def: " << st << endl;
+	string set_name = atts.extract("set" );
+	if ( set_name.empty() ){
+	  if ( version_below( 1, 6 ) ){
+	    set_name = "undefined"; // default value
 	  }
-	}
-	else if ( version_below( 1, 6 ) ){
-	  st = "undefined"; // default value
-	}
-	else if ( at_type == AnnotationType::TEXT ){
-	  if ( debug ){
-	    cerr << "assign default for TEXT: " <<  DEFAULT_TEXT_SET << endl;
+	  else if ( at_type == AnnotationType::TEXT ){
+	    if ( debug ){
+	      cerr << "assign default for TEXT: " <<  DEFAULT_TEXT_SET << endl;
+	    }
+	    set_name = DEFAULT_TEXT_SET;
 	  }
-	  st = DEFAULT_TEXT_SET;
-	}
-	else if ( at_type == AnnotationType::PHON ){
-	  if ( debug ){
-	    cerr << "assign default for PHON: " <<  DEFAULT_PHON_SET << endl;
+	  else if ( at_type == AnnotationType::PHON ){
+	    if ( debug ){
+	      cerr << "assign default for PHON: " <<  DEFAULT_PHON_SET << endl;
+	    }
+	    set_name = DEFAULT_PHON_SET;
 	  }
-	  st = DEFAULT_PHON_SET;
-	}
-	else {
-	  auto et_it = annotationtype_elementtype_map.find( at_type );
-	  if ( et_it == annotationtype_elementtype_map.end() ){
-	    throw logic_error( "no matching element_type for annotation_type: "
-			       + prefix );
-	  }
-	  et = et_it->second;
-	  FoliaElement *tmp = AbstractElement::createElement( et );
-	  if ( tmp->required_attributes() & Attrib::CLASS ) {
+	  else {
+	    auto et_it = annotationtype_elementtype_map.find( at_type );
+	    if ( et_it == annotationtype_elementtype_map.end() ){
+	      throw logic_error( "no matching element_type for annotation_type: "
+				 + prefix );
+	    }
+	    et = et_it->second;
+	    FoliaElement *tmp = AbstractElement::createElement( et );
+	    if ( tmp->required_attributes() & Attrib::CLASS ) {
+	      delete tmp;
+	      throw XmlError( "setname may not be empty for " + prefix
+			      + "-annotation" );
+	    }
 	    delete tmp;
-	    throw XmlError( "setname may not be empty for " + prefix
-			    + "-annotation" );
 	  }
-	  delete tmp;
 	}
-	if ( st.empty() ){
-	  st = "None";
+	if ( set_name.empty() ){
+	  set_name = "None";
 	}
-	// done with the set
-	if ( it != atts.end() ){
-	  atts.erase(it);
-	}
-	it = atts.find( "format" );
-	if ( it != atts.end() ){
-	  format = it->second;
-	  atts.erase(it);
-	}
-	it = atts.find( "annotator" );
-	if ( it != atts.end() ){
-	  annotator = it->second;
-	  atts.erase(it);
-	}
-	it = atts.find( "annotatortype" );
-	if ( it != atts.end() ){
-	  ann_type = it->second;
-	  atts.erase(it);
-	}
-	it = atts.find( "datetime" );
-	if ( it != atts.end() ){
-	  datetime = parseDate( it->second );
-	  atts.erase(it);
-	}
-	it = atts.find( "alias" );
-	if ( it != atts.end() ){
-	  alias = it->second;
-	  atts.erase(it);
-	}
-	it = atts.find( "groupannotations" );
-	if ( it != atts.end() ){
+	string format = atts.extract( "format" );
+	string annotator = atts.extract( "annotator" );
+	string ann_type = atts.extract( "annotatortype" );
+	string datetime = parseDate( atts.extract( "datetime" ) );
+	string alias = atts.extract( "alias" );
+	string gran_val = atts.extract( "groupannotations" );
+	if ( !gran_val.empty() ){
 	  if ( !isSubClass( et, AbstractSpanAnnotation_t ) ){
 	    throw XmlError( "attribute 'groupannotations' not allowed for '"
 			    + prefix + "-annotation" );
 	  }
-	  if ( it->second == "yes"
-	       || it->second == "true" ){
-	    _groupannotations[at_type][st] = true;
+	  if ( gran_val == "yes"
+	       || gran_val == "true" ){
+	    _groupannotations[at_type][set_name] = true;
 	  }
 	  else {
-	    throw XmlError( "invalid value '" + it->second
+	    throw XmlError( "invalid value '" + gran_val
 			    + "' for attribute groupannotations" );
 	  }
-	  atts.erase(it);
 	}
 	else {
-	  _groupannotations[at_type][st] = false;
+	  _groupannotations[at_type][set_name] = false;
 	}
 	set<string> processors;
 	xmlNode *sub = n->children;
@@ -1177,7 +1142,7 @@ namespace folia {
 	if ( !annotator.empty() && !processors.empty() ){
 	  throw XmlError( tag + "-annotation: has both <annotator> node(s) and annotator attribute." );
 	}
-	declare( at_type, st, format, annotator, ann_type, datetime,
+	declare( at_type, set_name, format, annotator, ann_type, datetime,
 		 processors, alias );
 	if ( !atts.empty() ){
 
