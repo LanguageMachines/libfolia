@@ -1,3 +1,16 @@
+2.4 2020-04-15
+[Ko van der Sloot]
+* comment in Doxygen format added
+* bumped the library version to 14
+* fix for https://github.com/proycon/folia/issues/82
+* fix for https://github.com/proycon/folia/issues/42
+* fixed problem with using new tag names on pre 1.6 documents
+* better checks in folia_engine on text inconsistencies and such
+  (https://github.com/LanguageMachines/libfolia/issues/43)
+* confidence output is more consistent now
+* removed the folia_builder (was not used)
+* code refactorings and cleanup, removing unused functions
+
 2.3.2 2020-01-13
 [Ko van der Sloot]
 Bug fix release
