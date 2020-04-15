@@ -939,7 +939,7 @@ namespace folia {
   }
 
   processor *Document::get_processor( const string& pid ) const {
-    /// return the processsor with ID=pid
+    /// return the processor with ID=pid
     /*!
       \param pid the processorID we look for
       \return the processor found, or 0
@@ -953,7 +953,7 @@ namespace folia {
   }
 
   vector<processor*> Document::get_processors_by_name( const string& name ) const {
-    /// return all the processsor with name=name
+    /// return all the processor with name=name
     /*!
       \param name the name of the processors we look for
       \return al list of matching processors

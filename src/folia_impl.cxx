@@ -797,7 +797,7 @@ namespace folia {
     val = kwargs.extract( "speaker" );
     if ( !val.empty() ) {
       if ( !(SPEAKER & supported) ) {
-	throw ValueError( "speaker attibute is not supported for " + classname() );
+	throw ValueError( "speaker attribute is not supported for " + classname() );
       }
       else {
 	_speaker = val;

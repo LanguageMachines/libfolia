@@ -925,14 +925,14 @@ namespace folia {
 		const char *val = (const char*)xmlTextReaderConstValue(_reader);
 		if ( val ) {
 		  if ( _debug ){
-		    DBG << "processsing a <" << local_name << "> with value '"
+		    DBG << "processing a <" << local_name << "> with value '"
 			<< val << "'" << endl;
 		  }
 		  atts["value"] = val;
 		}
 		else {
 		  if ( _debug ){
-		    DBG << "processsing a <" << local_name
+		    DBG << "processing a <" << local_name
 			<< "> with empty value " << endl;
 		  }
 		}
