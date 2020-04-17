@@ -109,12 +109,11 @@ namespace folia {
     hints.ai_flags = AI_CANONNAME;
 
     if ((gai_result = getaddrinfo(hostname, "http", &hints, &info)) != 0) {
-      fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(gai_result));
+      cerr << "failure in getaddrinfo: " << gai_strerror(gai_result) << endl;
       exit(1);
     }
 
-    for(p = info; p != NULL; p = p->ai_next) {
-      //      printf("hostname: %s\n", p->ai_canonname);
+    for ( p = info; p != NULL; p = p->ai_next ) {
       result = p->ai_canonname;
       break;
     }
