@@ -1769,6 +1769,8 @@ namespace folia {
 //foliaspec:end:defaultproperties
   }
 
+  const int XML_PARSER_OPTIONS = XML_PARSE_NSCLEAN|XML_PARSE_HUGE;
+
   FoliaElement *FoliaElement::private_createElement( ElementType et ){
     switch ( et ){
     case BASE: return new FoLiA();

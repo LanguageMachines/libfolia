@@ -521,7 +521,7 @@ namespace folia {
     xmlSetStructuredErrorFunc( &cnt, (xmlStructuredErrorFunc)error_sink );
     _xmldoc = xmlReadFile( file_name.c_str(),
 			   0,
-			   XML_PARSE_HUGE|XML_PARSE_NSCLEAN );
+			   XML_PARSER_OPTIONS );
     if ( _xmldoc ){
       if ( cnt > 0 ){
 	throw XmlError( "document is invalid" );
@@ -565,7 +565,7 @@ namespace folia {
     int cnt = 0;
     xmlSetStructuredErrorFunc( &cnt, (xmlStructuredErrorFunc)error_sink );
     _xmldoc = xmlReadMemory( buffer.c_str(), buffer.length(), 0, 0,
-			     XML_PARSE_HUGE|XML_PARSE_NSCLEAN );
+			     XML_PARSER_OPTIONS );
     if ( _xmldoc ){
       if ( cnt > 0 ){
 	throw XmlError( "document is invalid" );

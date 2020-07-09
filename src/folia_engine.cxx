@@ -329,7 +329,7 @@ namespace folia {
     // encoded
     if ( TiCC::match_front( buf, "<?xml " ) ){
       return xmlReaderForMemory( buf.c_str(), buf.size(),
-				 "input_buffer", 0, XML_PARSE_HUGE );
+				 "input_buffer", 0, XML_PARSER_OPTIONS );
     }
     else if ( TiCC::match_back( buf, ".bz2" ) ){
       string buffer = TiCC::bz2ReadFile( buf );
@@ -342,18 +342,18 @@ namespace folia {
       // so we use an intermediate file. Which works, but is clumsy
       //
       // return xmlReaderForMemory( buffer.c_str(), buffer.size()+1,
-      //  				 buf.c_str(), 0, XML_PARSE_HUGE );
+      //  				 buf.c_str(), 0, XML_PARSER_OPTIONS );
       string tmp_file = TiCC::tempname("folia");
       ofstream os( tmp_file );
       os << buffer << endl;
       os.close();
       xmlTextReader *result
-	= xmlReaderForFile( tmp_file.c_str(), 0, XML_PARSE_HUGE );
+	= xmlReaderForFile( tmp_file.c_str(), 0, XML_PARSER_OPTIONS );
       TiCC::erase( tmp_file );
       return result;
     }
     // libxml2 can handle .xml and .xml.gz
-    return xmlReaderForFile( buf.c_str(), 0, XML_PARSE_HUGE );
+    return xmlReaderForFile( buf.c_str(), 0, XML_PARSER_OPTIONS );
   }
 
   void Engine::add_text( int depth ){

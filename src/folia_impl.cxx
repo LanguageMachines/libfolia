@@ -5931,7 +5931,7 @@ namespace folia {
       cerr << "try to resolve: " << src << endl;
       int cnt = 0;
       xmlSetStructuredErrorFunc( &cnt, (xmlStructuredErrorFunc)error_sink );
-      xmlDoc *extdoc = xmlReadFile( src.c_str(), 0, XML_PARSE_NSCLEAN|XML_PARSE_HUGE );
+      xmlDoc *extdoc = xmlReadFile( src.c_str(), 0, XML_PARSER_OPTIONS );
       if ( extdoc ) {
 	xmlNode *root = xmlDocGetRootElement( extdoc );
 	xmlNode *p = root->children;

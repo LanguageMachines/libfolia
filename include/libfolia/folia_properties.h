@@ -93,6 +93,8 @@ namespace folia {
 
   void static_init();
   void print_type_hierarchy( std::ostream& );
+
+  extern const int XML_PARSER_OPTIONS;
 }
 
 #endif
