@@ -834,6 +834,7 @@ namespace folia {
 	}
       }
     }
+    kwargs.erase("typegroup"); //this is used in explicit form only, we can safely discard it
     addFeatureNodes( kwargs );
 #ifdef LOG_SET_ATT
     doc()->setdebug(db_level);

@@ -1467,6 +1467,7 @@ namespace folia {
       throw runtime_error( "No Document ID specified" );
     }
     kwargs.erase( "generator" ); // also delete this unused att-val
+    kwargs.erase( "form" ); //silently discard form attribute (for normal vs explicit form), we should be able to read either fine
   }
 
   void Document::resolveExternals(){
