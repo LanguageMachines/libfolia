@@ -65,9 +65,9 @@ ENDTIME=128,  ///<endtime: A timestamp in ``HH:MM:SS.MMM`` format, indicating th
 SRC=256,  ///<src: Points to a file or full URL of a sound or video file. This attribute is inheritable.
 SPEAKER=512,  ///<speaker: A string identifying the speaker. This attribute is inheritable. Multiple speakers are not allowed, simply do not specify a speaker on a certain level if you are unable to link the speech to a specific (single) speaker.
 TEXTCLASS=1024,  ///<textclass: Refers to the text class this annotation is based on. This is an advanced attribute, if not specified, it defaults to ``current``. See :ref:`textclass_attribute`.
-METADATA=2048,
+METADATA=2048, 
 IDREF=4096,  ///<id: A reference to the ID of another element. This is a reference and not an assignment, unlike xml:id, so do not confuse the two! It is only supported on certain elements that are referential in nature.
-SPACE=8192,  ///<space: This attribute indicates whether spacing should be inserted after this element (it's default value is always ``yes``, so it does not need to be specified in that case), but if tokens or other structural elements are glued together then the value should be set to ``no``. This allows for reconstruction of the detokenised original text.
+SPACE=8192,  ///<space: This attribute indicates whether spacing should be inserted after this element (it's default value is always ``yes``, so it does not need to be specified in that case), but if tokens or other structural elements are glued together then the value should be set to ``no``. This allows for reconstruction of the detokenised original text. 
 ALL=16384 };
 
   inline Attrib& operator++( Attrib & a ){
