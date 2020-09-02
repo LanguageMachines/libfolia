@@ -1,4 +1,4 @@
-.TH folialint 1 "2020 deb 13" "version 2.0 "
+.TH folialint 1 "2020 sep 02" "version 2.0 "
 .
 .SH NAME
 folialint \(hy check validity of FoLiA documents
@@ -48,6 +48,13 @@ Attempt to fix text problems like wrong offset's. Might be dangerous, and the
 default is to DON'T do it.
 .RE
 .
+.B -a
+or
+.B --autodeclare
+.RS
+Attempt to automaticly fix missing annotations. (default: false)
+.RE
+.
 .B --strip
 .RS
 strip all information from the file that makes comparison hard.
@@ -81,15 +88,12 @@ output annotation declarations and FoLiA nodes in a fixed (canonical) order.
 This might make tree comparisons easier.
 .RE
 .
-.B --debug
-value
+.B -d
+or
+.B --debug level
 .RS
-Run more verbose
-.RE
-.
-.B -v
-.RS
-be more verbose.
+run with a debug level of
+.B level
 .RE
 .
 .B -V
