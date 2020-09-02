@@ -47,7 +47,7 @@ void usage(){
   cerr << "\t\t\t\t Default is to do so." << endl;
   cerr << "\t--fixtext.\t\t Try to fixup text errors like wrong offsets." << endl;
   cerr << "\t\t\t\t Default is to DON'T DO THAT." << endl;
-  cerr << "\t-a, --autodeclare\t Attempt to automaticly missing annotation larations" << endl;
+  cerr << "\t-a, --autodeclare\t Attempt to automaticly fix missing annotations." << endl;
   cerr << "\t\t\t\t (default: false)" << endl;
   cerr << "\t--permissive.\t\t Allow some dubious constructs." << endl;
   cerr << "\t--warn\t\t\t add some extra warnings about library versions and unused" << endl;
