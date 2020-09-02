@@ -37,20 +37,24 @@ using namespace std;
 void usage(){
   cerr << "usage: folialint [options] <foliafiles>" << endl;
   cerr << "options are" << endl;
-  cerr << "\t-h or --help\t\t This help" << endl;
-  cerr << "\t-V or --version\t\t Show versions" << endl;
+  cerr << "\t-h, --help\t\t This help" << endl;
+  cerr << "\t-V, --version\t\t Show versions" << endl;
   cerr << "\t--strip\t\t\t strip variable items from the FoLiA. Like all dates." << endl;
   cerr << "\t\t\t\t This is usefull to generate FoLiA that can be diffed." << endl;
   cerr << "\t--output='file'\t\t name an outputfile. (default is stdout)" << endl;
   cerr << "\t--nooutput\t\t Suppress output. Only warnings/errors are displayed." << endl;
-  cerr << "\t--nochecktext DO NOT check if text is consistent inside structure tags. Default is to do so." << endl;
-  cerr << "\t--fixtext.\t\t Try to fixup text errors like wrong offsets. Default is to DONT DO THAT." << endl;
+  cerr << "\t--nochecktext\t\t DO NOT check if text is consistent inside structure tags." << endl;
+  cerr << "\t\t\t\t Default is to do so." << endl;
+  cerr << "\t--fixtext.\t\t Try to fixup text errors like wrong offsets." << endl;
+  cerr << "\t\t\t\t Default is to DON'T DO THAT." << endl;
+  cerr << "\t-a, --autodeclare\t Attempt to automaticly missing annotation larations" << endl;
+  cerr << "\t\t\t\t (default: false)" << endl;
   cerr << "\t--permissive.\t\t Allow some dubious constructs." << endl;
   cerr << "\t--warn\t\t\t add some extra warnings about library versions and unused" << endl;
   cerr << "\t\t\t\t annotation declarations" << endl;
   cerr << "\t--canonical\t\t output in a predefined order. Makes comparisons easier" << endl;
   cerr << "\t--KANON\t\t\t same as --canonical" << endl;
-  cerr << "\t--debug=value\t\t Run more verbose." << endl;
+  cerr << "\t-d value, --debug=value\t Run more verbose." << endl;
   cerr << "\t--permissive\t\t Accept some unwise constructions." << endl;
 }
 
