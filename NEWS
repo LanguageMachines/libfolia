@@ -1,3 +1,11 @@
+2.5 2020-09-02
+[Maarten van Gompel]
+* Adapted to FoLiA v2.3
+* Support parsing of the new explicit form
+
+[Ko van der Sloot]
+* minor refactoring
+
 2.4 2020-04-15
 [Ko van der Sloot]
 * comment in Doxygen format added
