@@ -76,16 +76,21 @@ namespace folia {
      * \return an AnnotatorType
      */
     string at = TiCC::uppercase( str );
-    if ( at == "AUTO" )
+    if ( at == "AUTO" ){
       return folia::AUTO;
-    else if ( at == "MANUAL" )
+    }
+    else if ( at == "MANUAL" ){
       return folia::MANUAL;
-    else if ( at == "GENERATOR" )
+    }
+    else if ( at == "GENERATOR" ){
       return folia::GENERATOR;
-    else if ( at == "DATASOURCE" )
+    }
+    else if ( at == "DATASOURCE" ){
       return folia::DATASOURCE;
-    else
+    }
+    else {
       return folia::UNDEFINED;
+    }
   }
 
   string toString( const AnnotatorType& at ){
