@@ -791,9 +791,9 @@ namespace folia {
 	}
       }
     }
-    else
+    else {
       _metadata.clear();
-
+    }
     val = kwargs.extract( "speaker" );
     if ( !val.empty() ) {
       if ( !(SPEAKER & supported) ) {
