@@ -272,38 +272,33 @@ namespace folia {
   }
 
   int toMonth( const string& ms ){
+    static const map<string,int> m_n_map
+      = { { "jan", 0 },
+	  { "feb", 1 },
+	  { "mar", 2 },
+	  { "apr", 3 },
+	  { "may", 4 },
+	  { "jun", 5 },
+	  { "jul", 6 },
+	  { "aug", 7 },
+	  { "sep", 8 },
+	  { "oct", 9 },
+	  { "nov", 10 },
+	  { "dec", 11 },
+    };
     try {
       int result = stringTo<int>( ms );
       return result - 1;
     }
     catch( const exception& ){
       string m = TiCC::lowercase( ms );
-      if ( m == "jan" )
-	return 0;
-      else if ( m == "feb" )
-	return 1;
-      else if ( m == "mar" )
-	return 2;
-      else if ( m == "apr" )
-	return 3;
-      else if ( m == "may" )
-	return 4;
-      else if ( m == "jun" )
-	return 5;
-      else if ( m == "jul" )
-	return 6;
-      else if ( m == "aug" )
-	return 7;
-      else if ( m == "sep" )
-	return 8;
-      else if ( m == "oct" )
-	return 9;
-      else if ( m == "nov" )
-	return 10;
-      else if ( m == "dec" )
-	return 11;
-      else
+      auto it = m_n_map.find( m );
+      if ( it == m_n_map.end() ){
 	throw runtime_error( "invalid month: " + m );
+      }
+      else {
+	return it->second;
+      }
     }
   }
 
