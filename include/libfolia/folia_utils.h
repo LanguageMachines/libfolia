@@ -160,6 +160,7 @@ namespace folia {
 
   icu::UnicodeString strip_control_chars( const icu::UnicodeString& );
   icu::UnicodeString normalize_spaces( const icu::UnicodeString& , bool replace_all_control_chars = true);
+  bool is_norm_empty(const std::string& s);
 
   std::string get_ISO_date();
 
