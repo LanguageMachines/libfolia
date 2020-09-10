@@ -572,13 +572,13 @@ namespace folia {
     return result;
   }
 
-  icu::UnicodeString normalize_spaces( const icu::UnicodeString& input ){
+  icu::UnicodeString normalize_spaces( const icu::UnicodeString& input, bool replace_all_control_chars ){
     /// substitute NEWLINE, CARRIAGERETURN and TAB by spaces
     /// AND all multiple spaces by 1, also trims at back and front.
     UnicodeString result;
     bool is_space = false;
     for ( int i=0; i < input.length(); ++i ){
-      if ( u_isspace( input[i] ) ){
+      if ( u_isspace( input[i] ) ||  (replace_all_control_chars && u_iscntrl(input[i])) ){
 	if ( is_space ){
 	  continue;
 	}
