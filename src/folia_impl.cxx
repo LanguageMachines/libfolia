@@ -2204,6 +2204,7 @@ namespace folia {
      * when the associated document has the checktext mode, (which is the
      * default) both text consistency and the offset are checked.
      */
+    UnicodeString txt_u = TiCC::UnicodeFromUTF8( txt );
     if ( doc() && doc()->checktext()
 	 && !isSubClass( Morpheme_t ) && !isSubClass( Phoneme_t) ){
 #ifdef DEBUG_TEXT
@@ -2221,14 +2222,14 @@ namespace folia {
 #ifdef DEBUG_TEXT
       cerr << "deeper_u was " << deeper_u << endl;
 #endif
-      UnicodeString txt_u = TiCC::UnicodeFromUTF8( txt );
-      txt_u = normalize_spaces( txt_u );
-      if ( !deeper_u.isEmpty() && txt_u != deeper_u ){
-	throw InconsistentText( "settext(cls=" + cls + "): deeper text differs from attempted\ndeeper='" + TiCC::UnicodeToUTF8(deeper_u) + "'\nattempted='" + txt + "'" );
+      txt_u = strip_control_chars( txt_u );
+      UnicodeString txt_check_u = normalize_spaces( txt_u );
+      if ( !deeper_u.isEmpty() && txt_check_u != deeper_u ){
+	throw InconsistentText( "settext(cls=" + cls + "): deeper text differs from attempted\ndeeper='" + TiCC::UnicodeToUTF8(deeper_u) + "'\nattempted='" + TiCC::UnicodeToUTF8(txt_check_u) +  "'" );
       }
     }
     KWargs args;
-    args["value"] = txt;
+    args["value"] = TiCC::UnicodeToUTF8(txt_u); //this rapid decode/encoding step is a bit inefficient perhaps
     args["class"] = cls;
     TextContent *node = new TextContent( args, doc() );
     replace( node );
@@ -2265,6 +2266,7 @@ namespace folia {
      * when the associated document has the checktext mode, (which is the
      * default) both text consistency and the offset are checked.
      */
+    UnicodeString txt_u = TiCC::UnicodeFromUTF8( txt );
     if ( doc() && doc()->checktext()
 	 && !isSubClass( Morpheme_t ) && !isSubClass( Phoneme_t) ){
       UnicodeString deeper_u;
@@ -2275,14 +2277,14 @@ namespace folia {
       catch (...){
       }
       deeper_u = normalize_spaces( deeper_u );
-      UnicodeString txt_u = TiCC::UnicodeFromUTF8( txt );
-      txt_u = normalize_spaces( txt_u );
+      txt_u = strip_control_chars( txt_u );
+      UnicodeString txt_check_u = normalize_spaces( txt_u );
       if ( !deeper_u.isEmpty() && txt_u != deeper_u ){
-	throw InconsistentText( "settext(cls=" + cls + "): deeper text differs from attempted\ndeeper='" + TiCC::UnicodeToUTF8(deeper_u) + "'\nattempted='" + txt + "'" );
+	throw InconsistentText( "settext(cls=" + cls + "): deeper text differs from attempted\ndeeper='" + TiCC::UnicodeToUTF8(deeper_u) + "'\nattempted='" + TiCC::UnicodeToUTF8(txt_u) + "'" );
       }
     }
     KWargs args;
-    args["value"] = txt;
+    args["value"] = TiCC::UnicodeToUTF8(txt_u);
     args["class"] = cls;
     args["offset"] = TiCC::toString(offset);
     TextContent *node = new TextContent( args, doc() );
