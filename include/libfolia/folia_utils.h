@@ -159,8 +159,9 @@ namespace folia {
   std::string TextValue( const xmlNode * );
 
   icu::UnicodeString strip_control_chars( const icu::UnicodeString& );
-  icu::UnicodeString normalize_spaces( const icu::UnicodeString& , bool replace_all_control_chars = true);
-  bool is_norm_empty(const std::string& s);
+  icu::UnicodeString normalize_spaces( const icu::UnicodeString&,
+				       bool = true);
+  bool is_norm_empty( const std::string&  );
 
   std::string get_ISO_date();
 

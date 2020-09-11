@@ -572,7 +572,7 @@ namespace folia {
     return result;
   }
 
-  icu::UnicodeString strip_control_chars( const icu::UnicodeString& input){
+  icu::UnicodeString strip_control_chars( const icu::UnicodeString& input ){
     UnicodeString result;
     for ( int i=0; i < input.length(); ++i ){
        if (input[i] == 0x0a || input[i] == 0x09  || input[i] == 0x0d || input[i] == 0x85 || input[i] == 0x2028 || !u_iscntrl(input[i])) { //newline/cr and tab and a few others are okay, other control characters are ignored
@@ -582,9 +582,15 @@ namespace folia {
     return result;
   }
 
-  icu::UnicodeString normalize_spaces( const icu::UnicodeString& input, bool replace_all_control_chars ){
+  icu::UnicodeString normalize_spaces( const icu::UnicodeString& input,
+				       bool replace_all_control_chars ){
     /// substitute NEWLINE, CARRIAGERETURN and TAB by spaces
     /// AND all multiple spaces by 1, also trims at back and front.
+    /*!
+      \param input the UnicodeString to normalize
+      \param replace_all_control_chars when true, substitute all control-chars
+      by a space too. (the default is true)
+     */
     UnicodeString result;
     bool is_space = false;
     for ( int i=0; i < input.length(); ++i ){
@@ -610,6 +616,7 @@ namespace folia {
   }
 
   string get_ISO_date() {
+    /// get the current date in ISO 8601 format
     time_t Time;
     time(&Time);
     tm curtime;
