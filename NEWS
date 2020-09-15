@@ -1,3 +1,11 @@
+2.5.1 2020-09-15
+[Maarten van Gompel]
+* Bugfix: Fixed handling of control characters, strip control characters by default
+[Ko vd Sloot]
+* fix in date handling (lookup table for month -> integer conversion )
+* minor refactoring
+* some documentation
+
 2.5 2020-09-02
 [Maarten van Gompel]
 * Adapted to FoLiA v2.3
