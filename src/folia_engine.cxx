@@ -343,13 +343,13 @@ namespace folia {
       //
       // return xmlReaderForMemory( buffer.c_str(), buffer.size()+1,
       //  				 buf.c_str(), 0, XML_PARSER_OPTIONS );
-      string tmp_file = TiCC::tempname("folia");
-      ofstream os( tmp_file );
+      TiCC::tmp_stream ts( "folia" );
+      string tmp_file = ts.tmp_name();
+      ofstream& os = ts.os();
       os << buffer << endl;
-      os.close();
+      ts.close();
       xmlTextReader *result
 	= xmlReaderForFile( tmp_file.c_str(), 0, XML_PARSER_OPTIONS );
-      TiCC::erase( tmp_file );
       return result;
     }
     // libxml2 can handle .xml and .xml.gz
