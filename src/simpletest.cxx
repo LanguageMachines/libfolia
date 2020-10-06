@@ -29,6 +29,7 @@
 #include <string>
 #include <map>
 #include "ticcutils/StringOps.h"
+#include "ticcutils/Unicode.h"
 #include "libfolia/folia.h"
 
 using namespace std;
@@ -107,6 +108,24 @@ int main() {
   if ( clean != wanted ){
     cerr << "normalize_space() test 3 failed: got:'" << clean << "'"
 	 << "                 but expected:'" << wanted << "'" << endl;
+    return EXIT_FAILURE;
+  }
+  dirty = u"\u001B"; // ESC
+  clean = normalize_spaces( dirty );
+  wanted = "";
+  if ( clean != wanted ){
+    cerr << "normalize_space() test 4 failed: got:'" << clean << "'"
+	 << "                 but expected:'" << wanted << "'" << endl;
+    return EXIT_FAILURE;
+  }
+  clean = normalize_spaces( dirty, false );
+  if ( clean != dirty ){
+    cerr << "normalize_space() test 5 failed: got:'" << clean << "'"
+	 << "                 but expected:'" << dirty << "'" << endl;
+    return EXIT_FAILURE;
+  }
+  if ( !is_norm_empty( TiCC::UnicodeToUTF8(dirty) ) ){
+    cerr << "is_norm_empty() failed." << endl;
     return EXIT_FAILURE;
   }
   return EXIT_SUCCESS;
