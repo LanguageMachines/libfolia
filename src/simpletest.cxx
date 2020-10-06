@@ -49,6 +49,30 @@ int main() {
     cout << "too bad. no use to continue" << endl;
     return EXIT_FAILURE;
   }
+  cout << "AnnotatorType sanity" << endl;
+  set<string> as = { "auto", "manual", "generator", "datasource", "UNDEFINED" };
+  for ( const auto& in_ans : as ){
+    AnnotatorType ann = stringToAnnotatorType( in_ans );
+    string out_ans = toString( ann );
+    if ( out_ans != in_ans ){
+      cout << "insane AnnotatorType: " << in_ans << " !=" << out_ans << endl;
+      exit( EXIT_FAILURE );
+    }
+  }
+  cout << "AnnotationType sanity" << endl;
+  for ( const auto& it : ant_s_map ){
+    string in_ans = it.second;
+    AnnotationType ant = stringToAnnotationType( in_ans );
+    string out_ans = folia::toString( ant );
+    if ( out_ans != in_ans ){
+      cout << "insane AnnotationType: " << in_ans << " !=" << out_ans << endl;
+      exit( EXIT_FAILURE );
+    }
+    if ( ant != it.first ){
+      cout << "insane AnnotationType: " << ant << " !=" << it.first << endl;
+      exit( EXIT_FAILURE );
+    }
+  }
   cout << " Creating a document from scratch: ";
   Document d( "xml:id='example'" );
   d.declare( AnnotationType::TOKEN, "adhocset", "annotator='proycon'" );
