@@ -1060,8 +1060,9 @@ namespace folia {
     if ( !_speaker.empty() ) {
       attribs["speaker"] = _speaker;
     }
-    if ( !_textclass.empty() &&
-	 ( _textclass != "current" || Explicit ) ){
+    if ( is_textcontainer() && !(element_id() == TextContent_t)
+	 && ( !_textclass.empty() &&
+	      ( _textclass != "current" || Explicit ) ) ){
       attribs["textclass"] = _textclass;
     }
 

@@ -185,7 +185,7 @@ namespace folia {
     _foliaNsIn_prefix = 0;
     _foliaNsOut = 0;
     debug = 0;
-    mode = Mode( CHECKTEXT|AUTODECLARE );
+    mode = Mode( CHECKTEXT|AUTODECLARE|EXPLICIT );
     _external_document = false;
     _incremental_parse = false;
     major_version = 0;
