@@ -931,6 +931,47 @@ namespace folia {
     return attribs;
   }
 
+  void AbstractElement::set_typegroup( KWargs& attribs ) const {
+    switch ( element_id() ) {
+    case AbstractStructureElement_t:
+      attribs["typegroup"] = "structure";
+      break;
+    case AbstractInlineAnnotation_t:
+      attribs["typegroup"] = "inline";
+      break;
+    case AbstractHigherOrderAnnotation_t:
+      attribs["typegroup"] = "higherorder";
+      break;
+    case AbstractSpanRole_t:
+      attribs["typegroup"] = "spanrole";
+      break;
+    case AbstractSpanAnnotation_t:
+      attribs["typegroup"] = "span";
+      break;
+    case AbstractTextMarkup_t:
+      attribs["typegroup"] = "textmarkup";
+      break;
+    case AbstractContentAnnotation_t:
+      attribs["typegroup"] = "content";
+      break;
+    case AbstractAnnotationLayer_t:
+      attribs["typegroup"] = "layer";
+      break;
+    case AbstractSubtokenAnnotation_t:
+      attribs["typegroup"] = "subtoken";
+      break;
+    case AbstractCorrectionChild_t:
+      attribs["typegroup"] = "correctionchild";
+      break;
+    case Feature_t:
+      attribs["typegroup"] = "feature";
+      break;
+    default:
+      // nothing
+      break;
+    }
+  }
+
   KWargs AbstractElement::collectAttributes() const {
     /// extract all Attribute-Value pairs from the object
     /*!
@@ -940,16 +981,21 @@ namespace folia {
      */
     KWargs attribs;
     bool isDefaultSet = true;
-
+    bool Explicit = false;
+    if ( doc()->has_explicit() ){
+      Explicit = true;
+      set_typegroup( attribs );
+    }
     if ( !_id.empty() ) {
       attribs["xml:id"] = _id;
     }
     if ( _set != "None"
 	 && !_set.empty()
-	 && _set != doc()->default_set( annotation_type() ) ) {
+	 && (_set != doc()->default_set( annotation_type() )
+	     || Explicit ) ) {
       isDefaultSet = false;
       string ali = doc()->alias( annotation_type(), _set );
-      if ( ali.empty() ){
+      if ( ali.empty() || Explicit ){
 	attribs["set"] = _set;
       }
       else {
@@ -963,6 +1009,9 @@ namespace folia {
       string tmp;
       try {
 	tmp = doc()->default_processor( annotation_type(), _set );
+	if ( Explicit ){
+	  attribs["processor"] = tmp;
+	}
       }
       catch ( NoDefaultError& ){
       }
@@ -1011,7 +1060,8 @@ namespace folia {
     if ( !_speaker.empty() ) {
       attribs["speaker"] = _speaker;
     }
-    if ( !_textclass.empty() && _textclass != "current" ){
+    if ( !_textclass.empty() &&
+	 ( _textclass != "current" || Explicit ) ){
       attribs["textclass"] = _textclass;
     }
 

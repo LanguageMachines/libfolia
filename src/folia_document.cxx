@@ -3152,6 +3152,9 @@ namespace folia {
       attribs["version"] = _version_string;
       // attribs["version"] = folia_version();
     }
+    if ( has_explicit() ){
+      attribs["form"] = "explicit";
+    }
     if ( _external_document ){
       attribs["external"] = "yes";
     }
