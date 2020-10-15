@@ -932,43 +932,41 @@ namespace folia {
   }
 
   void AbstractElement::set_typegroup( KWargs& attribs ) const {
-    switch ( element_id() ) {
-    case AbstractStructureElement_t:
+    if ( isSubClass( AbstractStructureElement_t ) ){
       attribs["typegroup"] = "structure";
-      break;
-    case AbstractInlineAnnotation_t:
-      attribs["typegroup"] = "inline";
-      break;
-    case AbstractHigherOrderAnnotation_t:
-      attribs["typegroup"] = "higherorder";
-      break;
-    case AbstractSpanRole_t:
-      attribs["typegroup"] = "spanrole";
-      break;
-    case AbstractSpanAnnotation_t:
-      attribs["typegroup"] = "span";
-      break;
-    case AbstractTextMarkup_t:
-      attribs["typegroup"] = "textmarkup";
-      break;
-    case AbstractContentAnnotation_t:
-      attribs["typegroup"] = "content";
-      break;
-    case AbstractAnnotationLayer_t:
-      attribs["typegroup"] = "layer";
-      break;
-    case AbstractSubtokenAnnotation_t:
-      attribs["typegroup"] = "subtoken";
-      break;
-    case AbstractCorrectionChild_t:
-      attribs["typegroup"] = "correctionchild";
-      break;
-    case Feature_t:
+    }
+    else if ( isSubClass(  Feature_t ) ){
       attribs["typegroup"] = "feature";
-      break;
-    default:
-      // nothing
-      break;
+    }
+    else if ( isSubClass( AbstractInlineAnnotation_t ) ){
+      attribs["typegroup"] = "inline";
+    }
+    else if ( isSubClass( AbstractHigherOrderAnnotation_t ) ){
+      attribs["typegroup"] = "higherorder";
+    }
+    else if ( isSubClass(  AbstractSpanRole_t ) ){
+      attribs["typegroup"] = "spanrole";
+    }
+    else if ( isSubClass(  AbstractSpanAnnotation_t ) ){
+      attribs["typegroup"] = "span";
+    }
+    else if ( isSubClass(  AbstractTextMarkup_t ) ){
+      attribs["typegroup"] = "textmarkup";
+    }
+    else if ( isSubClass(  AbstractContentAnnotation_t ) ){
+      attribs["typegroup"] = "content";
+    }
+    else if ( isSubClass(  AbstractAnnotationLayer_t ) ){
+      attribs["typegroup"] = "layer";
+    }
+    else if ( isSubClass(  AbstractSubtokenAnnotation_t ) ){
+      attribs["typegroup"] = "subtoken";
+    }
+    else if ( isSubClass(  AbstractCorrectionChild_t ) ){
+      attribs["typegroup"] = "correctionchild";
+    }
+    else {
+      cerr << "UNHANDLED " << element_id() << endl;
     }
   }
 
@@ -982,6 +980,7 @@ namespace folia {
     KWargs attribs;
     bool isDefaultSet = true;
     bool Explicit = false;
+    Attrib supported = required_attributes() | optional_attributes();
     if ( doc()->has_explicit() ){
       Explicit = true;
       set_typegroup( attribs );
@@ -992,7 +991,7 @@ namespace folia {
     if ( _set != "None"
 	 && !_set.empty()
 	 && (_set != doc()->default_set( annotation_type() )
-	     || Explicit ) ) {
+	     || ( Explicit && (CLASS & supported) ) ) ) {
       isDefaultSet = false;
       string ali = doc()->alias( annotation_type(), _set );
       if ( ali.empty() || Explicit ){
@@ -1060,7 +1059,7 @@ namespace folia {
     if ( !_speaker.empty() ) {
       attribs["speaker"] = _speaker;
     }
-    if ( is_textcontainer() && !(element_id() == TextContent_t)
+    if ( ( Explicit && (TEXTCLASS & supported) )
 	 && ( !_textclass.empty() &&
 	      ( _textclass != "current" || Explicit ) ) ){
       attribs["textclass"] = _textclass;
@@ -3666,7 +3665,7 @@ namespace folia {
      * inclusive: offset and ref
      */
     KWargs attribs = AbstractElement::collectAttributes();
-    if ( cls() == "current" ) {
+    if ( cls() == "current" && !doc()->has_explicit() ) {
       attribs.erase( "class" );
     }
     if ( _offset >= 0 ) {
@@ -3763,7 +3762,7 @@ namespace folia {
      * inclusive: offset
      */
     KWargs attribs = AbstractElement::collectAttributes();
-    if ( cls() == "current" ) {
+    if ( cls() == "current" && !doc()->has_explicit() ) {
       attribs.erase( "class" );
     }
     if ( _offset >= 0 ) {
