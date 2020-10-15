@@ -68,12 +68,15 @@ int main( int argc, char* argv[] ){
   bool fixtext = false;
   bool kanon = false;
   bool autodeclare = false;
+  bool do_explicit = false;
   string debug;
   vector<string> fileNames;
   string command;
   try {
     TiCC::CL_Options Opts( "hVd:a",
-			   "nochecktext,debug:,permissive,strip,output:,nooutput,help,fixtext,warn,version,canonical,KANON,autodeclare");
+			   "nochecktext,debug:,permissive,strip,output:,"
+			   "nooutput,help,fixtext,warn,version,canonical,"
+			   "KANON,explicit,autodeclare");
     Opts.init(argc, argv );
     if ( Opts.extract( 'h' )
 	 || Opts.extract( "help" ) ){
@@ -94,6 +97,7 @@ int main( int argc, char* argv[] ){
       command = "folialint";
     }
     permissive = Opts.extract("permissive");
+    do_explicit = Opts.extract("explicit");
     warn = Opts.extract("warn");
     nooutput = Opts.extract("nooutput");
     fixtext = Opts.extract("fixtext");
@@ -145,6 +149,9 @@ int main( int argc, char* argv[] ){
   }
   if ( fixtext ){
     mode += ",fixtext";
+  }
+  if ( do_explicit ){
+    mode += ",explicit";
   }
   if ( autodeclare ){
     mode += ",autodeclare";
