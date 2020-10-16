@@ -1963,7 +1963,7 @@ namespace folia {
         <strength class="strong"/>
       </sentiment>
       \endverbatim
-      because polarity and strenght ara AttributeFeatures
+      because polarity and strenght are AttributeFeatures
      */
     return AttributeFeatures.find( att ) != AttributeFeatures.end();
   }
