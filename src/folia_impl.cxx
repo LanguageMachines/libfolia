@@ -988,13 +988,21 @@ namespace folia {
     if ( !_id.empty() ) {
       attribs["xml:id"] = _id;
     }
-    if ( _set != "None"
-	 && !_set.empty()
-	 && (_set != doc()->default_set( annotation_type() )
-	     || ( Explicit && (CLASS & supported) ) ) ) {
+    string default_set = doc()->default_set( annotation_type() );
+    if ( Explicit && _set != "None" && !default_set.empty() ){
+      if ( _set.empty() ){
+	attribs["set"] = default_set;
+      }
+      else {
+	attribs["set"] = _set;
+      }
+    }
+    else if ( _set != "None"
+	      && !_set.empty()
+	      && (_set != default_set ) ){
       isDefaultSet = false;
       string ali = doc()->alias( annotation_type(), _set );
-      if ( ali.empty() || Explicit ){
+      if ( ali.empty() ){
 	attribs["set"] = _set;
       }
       else {
@@ -1059,7 +1067,7 @@ namespace folia {
     if ( !_speaker.empty() ) {
       attribs["speaker"] = _speaker;
     }
-    if ( ( Explicit && (TEXTCLASS & supported) )
+    if ( ( TEXTCLASS & supported)
 	 && ( !_textclass.empty() &&
 	      ( _textclass != "current" || Explicit ) ) ){
       attribs["textclass"] = _textclass;
