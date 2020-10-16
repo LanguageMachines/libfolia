@@ -2917,7 +2917,7 @@ namespace folia {
     KWargs atts;
     atts["xml:id"] = p->_id;
     atts["name"] = p->_name;
-    if ( p->_type != AUTO ){
+    if ( p->_type != AUTO || has_explicit() ){
       atts["type"] = toString(p->_type);
     }
     if ( !strip() ){

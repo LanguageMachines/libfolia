@@ -978,7 +978,6 @@ namespace folia {
      * default values
      */
     KWargs attribs;
-    bool isDefaultSet = true;
     bool Explicit = false;
     Attrib supported = required_attributes() | optional_attributes();
     if ( doc()->has_explicit() ){
@@ -989,6 +988,7 @@ namespace folia {
       attribs["xml:id"] = _id;
     }
     string default_set = doc()->default_set( annotation_type() );
+    bool isDefaultSet = (_set == default_set);
     if ( Explicit && _set != "None" && !default_set.empty() ){
       if ( _set.empty() ){
 	attribs["set"] = default_set;
@@ -999,8 +999,7 @@ namespace folia {
     }
     else if ( _set != "None"
 	      && !_set.empty()
-	      && (_set != default_set ) ){
-      isDefaultSet = false;
+	      && !isDefaultSet ){
       string ali = doc()->alias( annotation_type(), _set );
       if ( ali.empty() ){
 	attribs["set"] = _set;
@@ -1036,9 +1035,10 @@ namespace folia {
 	isDefaultAnn = false;
 	attribs["annotator"] = _annotator;
       }
-      if ( _annotator_type != UNDEFINED ) {
+      if ( _annotator_type != UNDEFINED ){
 	AnnotatorType at = doc()->default_annotatortype( annotation_type(), _set );
-	if ( (!isDefaultSet || !isDefaultAnn) && _annotator_type != at ) {
+	if ( (!isDefaultSet || !isDefaultAnn)
+	     && _annotator_type != at ) {
 	  if ( _annotator_type == AUTO ) {
 	    attribs["annotatortype"] = "auto";
 	  }
@@ -1300,21 +1300,23 @@ namespace folia {
     // nodes that can be represented as attributes are converted to atributes
     // and excluded of 'normal' output.
 
-    map<string,int> af_map;
-    // first we search al features that can be serialized to an attribute
-    // and count them!
-    for ( const auto& el : _data ) {
-      string at = tagToAtt( el );
-      if ( !at.empty() ) {
-	++af_map[at];
+    if ( !doc()->has_explicit() ){
+      map<string,int> af_map;
+      // first we search al features that can be serialized to an attribute
+      // and count them!
+      for ( const auto& el : _data ) {
+	string at = tagToAtt( el );
+	if ( !at.empty() ) {
+	  ++af_map[at];
+	}
       }
-    }
-    // ok, now we create attributes for those that only occur once
-    for ( const auto& el : _data ) {
-      string at = tagToAtt( el );
-      if ( !at.empty() && af_map[at] == 1 ) {
-	attribs[at] = el->cls();
-	attribute_elements.insert( el );
+      // ok, now we create attributes for those that only occur once
+      for ( const auto& el : _data ) {
+	string at = tagToAtt( el );
+	if ( !at.empty() && af_map[at] == 1 ) {
+	  attribs[at] = el->cls();
+	  attribute_elements.insert( el );
+	}
       }
     }
     addAttributes( e, attribs );
