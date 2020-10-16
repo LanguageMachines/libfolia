@@ -49,6 +49,7 @@ void usage(){
   cerr << "\t\t\t\t Default is to DON'T DO THAT." << endl;
   cerr << "\t-a, --autodeclare\t Attempt to automaticly fix missing annotations." << endl;
   cerr << "\t\t\t\t (default: false)" << endl;
+  cerr << "\t-x, --explicitt output explicit FoLiA. (default: false)" << endl;
   cerr << "\t--permissive.\t\t Allow some dubious constructs." << endl;
   cerr << "\t--warn\t\t\t add some extra warnings about library versions and unused" << endl;
   cerr << "\t\t\t\t annotation declarations" << endl;
@@ -73,7 +74,7 @@ int main( int argc, char* argv[] ){
   vector<string> fileNames;
   string command;
   try {
-    TiCC::CL_Options Opts( "hVd:a",
+    TiCC::CL_Options Opts( "hVd:ax",
 			   "nochecktext,debug:,permissive,strip,output:,"
 			   "nooutput,help,fixtext,warn,version,canonical,"
 			   "KANON,explicit,autodeclare");
@@ -97,7 +98,7 @@ int main( int argc, char* argv[] ){
       command = "folialint";
     }
     permissive = Opts.extract("permissive");
-    do_explicit = Opts.extract("explicit");
+    do_explicit = ( Opts.extract("explicit") || Opts.extract('x') );
     warn = Opts.extract("warn");
     nooutput = Opts.extract("nooutput");
     fixtext = Opts.extract("fixtext");
