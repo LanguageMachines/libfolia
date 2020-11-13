@@ -277,6 +277,12 @@ namespace folia {
       else if ( mod == "noautodeclare" ){
 	mode = Mode( int(mode) & ~AUTODECLARE );
       }
+      else if ( mod == "explicit" ){
+	mode = Mode( int(mode) | EXPLICIT );
+      }
+      else if ( mod == "noexplicit" ){
+	mode = Mode( int(mode) & ~EXPLICIT );
+      }
       else {
 	throw invalid_argument( "FoLiA::Document: unsupported mode value: "+ mod );
       }
@@ -316,6 +322,9 @@ namespace folia {
     }
     else {
       result += "noautodeclare,";
+    }
+    if ( mode & EXPLICIT ){
+      result += "explicit,";
     }
     return result;
   }
@@ -413,6 +422,22 @@ namespace folia {
     }
     else {
       mode = Mode( (int)mode & ~AUTODECLARE );
+    }
+    return old_val;
+  }
+
+  bool Document::set_explicit( bool new_val ) const{
+    /// sets the 'explicit' mode to on/off
+    /*!
+      \param new_val the boolean to use for on/off
+      \return the previous value
+    */
+    bool old_val = (mode & EXPLICIT);
+    if ( new_val ){
+      mode = Mode( (int)mode | EXPLICIT );
+    }
+    else {
+      mode = Mode( (int)mode & ~EXPLICIT );
     }
     return old_val;
   }
@@ -2892,7 +2917,7 @@ namespace folia {
     KWargs atts;
     atts["xml:id"] = p->_id;
     atts["name"] = p->_name;
-    if ( p->_type != AUTO ){
+    if ( p->_type != AUTO || has_explicit() ){
       atts["type"] = toString(p->_type);
     }
     if ( !strip() ){
@@ -3126,6 +3151,9 @@ namespace folia {
       attribs["generator"] = "libfolia-v" + library_version();
       attribs["version"] = _version_string;
       // attribs["version"] = folia_version();
+    }
+    if ( has_explicit() ){
+      attribs["form"] = "explicit";
     }
     if ( _external_document ){
       attribs["external"] = "yes";

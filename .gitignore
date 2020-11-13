@@ -44,3 +44,5 @@ src/*.la
 src/folialint
 src/simpletest*
 src/*.log
+latex/
+html/

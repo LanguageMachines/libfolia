@@ -756,6 +756,7 @@ namespace folia {
     xmlNode *xml( bool, bool = false ) const;
     void setAttributes( KWargs& );
     bool checkAtts();
+    void set_typegroup( KWargs& ) const;
     KWargs collectAttributes() const;
     int refcount() const { return _refcount; };
     void increfcount() { ++_refcount; };

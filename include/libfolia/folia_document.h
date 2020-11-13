@@ -91,8 +91,9 @@ namespace folia {
       CHECKTEXT=2,     //!< check text consistency
       FIXTEXT=4,       //!< try to fix text inconsistencies in the fly
       STRIP=8,         //!< on output, strip
-      CANONICAL=16,    //!< no special mode is set.
-      AUTODECLARE=32   //!< no special mode is set.
+      CANONICAL=16,    //!< sort ouput in a reproducable way.
+      AUTODECLARE=32,  //!< Automagicly add missing Annotation Declarations
+      EXPLICIT=64      //!< add all set information
     };
     friend class Engine;
   public:
@@ -285,12 +286,14 @@ namespace folia {
     bool canonical() const { return mode & CANONICAL; };
     /// is the AUTODECLARE mode set?
     bool autodeclare() const { return mode & AUTODECLARE; };
+    bool has_explicit() const { return mode & EXPLICIT; };
     bool set_permissive( bool ) const; // defined const, but the mode is mutable!
     bool set_checktext( bool ) const; // defined const, but the mode is mutable!
     bool set_fixtext( bool ) const; // defined const, but the mode is mutable!
     bool set_strip( bool ) const; // defined const, but the mode is mutable!
     bool set_canonical( bool ) const; // defined const, but the mode is mutable!
     bool set_autodeclare( bool ) const; // defined const, but the mode is mutable!
+    bool set_explicit( bool ) const; // defined const, but the mode is mutable!
     /// this class holds annotation declaration information
     class at_t {
       friend std::ostream& operator<<( std::ostream& os, const at_t& at );

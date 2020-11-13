@@ -931,6 +931,45 @@ namespace folia {
     return attribs;
   }
 
+  void AbstractElement::set_typegroup( KWargs& attribs ) const {
+    if ( isSubClass( AbstractStructureElement_t ) ){
+      attribs["typegroup"] = "structure";
+    }
+    else if ( isSubClass(  Feature_t ) ){
+      attribs["typegroup"] = "feature";
+    }
+    else if ( isSubClass( AbstractInlineAnnotation_t ) ){
+      attribs["typegroup"] = "inline";
+    }
+    else if ( isSubClass( AbstractHigherOrderAnnotation_t ) ){
+      attribs["typegroup"] = "higherorder";
+    }
+    else if ( isSubClass(  AbstractSpanRole_t ) ){
+      attribs["typegroup"] = "spanrole";
+    }
+    else if ( isSubClass(  AbstractSpanAnnotation_t ) ){
+      attribs["typegroup"] = "span";
+    }
+    else if ( isSubClass(  AbstractTextMarkup_t ) ){
+      attribs["typegroup"] = "textmarkup";
+    }
+    else if ( isSubClass(  AbstractContentAnnotation_t ) ){
+      attribs["typegroup"] = "content";
+    }
+    else if ( isSubClass(  AbstractAnnotationLayer_t ) ){
+      attribs["typegroup"] = "layer";
+    }
+    else if ( isSubClass(  AbstractSubtokenAnnotation_t ) ){
+      attribs["typegroup"] = "subtoken";
+    }
+    else if ( isSubClass(  AbstractCorrectionChild_t ) ){
+      attribs["typegroup"] = "correctionchild";
+    }
+    else {
+      cerr << "UNHANDLED " << element_id() << endl;
+    }
+  }
+
   KWargs AbstractElement::collectAttributes() const {
     /// extract all Attribute-Value pairs from the object
     /*!
@@ -939,15 +978,28 @@ namespace folia {
      * default values
      */
     KWargs attribs;
-    bool isDefaultSet = true;
-
+    bool Explicit = false;
+    Attrib supported = required_attributes() | optional_attributes();
+    if ( doc()->has_explicit() ){
+      Explicit = true;
+      set_typegroup( attribs );
+    }
     if ( !_id.empty() ) {
       attribs["xml:id"] = _id;
     }
-    if ( _set != "None"
-	 && !_set.empty()
-	 && _set != doc()->default_set( annotation_type() ) ) {
-      isDefaultSet = false;
+    string default_set = doc()->default_set( annotation_type() );
+    bool isDefaultSet = (_set == default_set);
+    if ( Explicit && _set != "None" && !default_set.empty() ){
+      if ( _set.empty() ){
+	attribs["set"] = default_set;
+      }
+      else {
+	attribs["set"] = _set;
+      }
+    }
+    else if ( _set != "None"
+	      && !_set.empty()
+	      && !isDefaultSet ){
       string ali = doc()->alias( annotation_type(), _set );
       if ( ali.empty() ){
 	attribs["set"] = _set;
@@ -963,6 +1015,9 @@ namespace folia {
       string tmp;
       try {
 	tmp = doc()->default_processor( annotation_type(), _set );
+	if ( Explicit ){
+	  attribs["processor"] = tmp;
+	}
       }
       catch ( NoDefaultError& ){
       }
@@ -980,9 +1035,10 @@ namespace folia {
 	isDefaultAnn = false;
 	attribs["annotator"] = _annotator;
       }
-      if ( _annotator_type != UNDEFINED ) {
+      if ( _annotator_type != UNDEFINED ){
 	AnnotatorType at = doc()->default_annotatortype( annotation_type(), _set );
-	if ( (!isDefaultSet || !isDefaultAnn) && _annotator_type != at ) {
+	if ( (!isDefaultSet || !isDefaultAnn)
+	     && _annotator_type != at ) {
 	  if ( _annotator_type == AUTO ) {
 	    attribs["annotatortype"] = "auto";
 	  }
@@ -1011,7 +1067,9 @@ namespace folia {
     if ( !_speaker.empty() ) {
       attribs["speaker"] = _speaker;
     }
-    if ( !_textclass.empty() && _textclass != "current" ){
+    if ( ( TEXTCLASS & supported)
+	 && ( !_textclass.empty() &&
+	      ( _textclass != "current" || Explicit ) ) ){
       attribs["textclass"] = _textclass;
     }
 
@@ -1242,21 +1300,23 @@ namespace folia {
     // nodes that can be represented as attributes are converted to atributes
     // and excluded of 'normal' output.
 
-    map<string,int> af_map;
-    // first we search al features that can be serialized to an attribute
-    // and count them!
-    for ( const auto& el : _data ) {
-      string at = tagToAtt( el );
-      if ( !at.empty() ) {
-	++af_map[at];
+    if ( !doc()->has_explicit() ){
+      map<string,int> af_map;
+      // first we search al features that can be serialized to an attribute
+      // and count them!
+      for ( const auto& el : _data ) {
+	string at = tagToAtt( el );
+	if ( !at.empty() ) {
+	  ++af_map[at];
+	}
       }
-    }
-    // ok, now we create attributes for those that only occur once
-    for ( const auto& el : _data ) {
-      string at = tagToAtt( el );
-      if ( !at.empty() && af_map[at] == 1 ) {
-	attribs[at] = el->cls();
-	attribute_elements.insert( el );
+      // ok, now we create attributes for those that only occur once
+      for ( const auto& el : _data ) {
+	string at = tagToAtt( el );
+	if ( !at.empty() && af_map[at] == 1 ) {
+	  attribs[at] = el->cls();
+	  attribute_elements.insert( el );
+	}
       }
     }
     addAttributes( e, attribs );
@@ -3615,7 +3675,7 @@ namespace folia {
      * inclusive: offset and ref
      */
     KWargs attribs = AbstractElement::collectAttributes();
-    if ( cls() == "current" ) {
+    if ( cls() == "current" && !doc()->has_explicit() ) {
       attribs.erase( "class" );
     }
     if ( _offset >= 0 ) {
@@ -3712,7 +3772,7 @@ namespace folia {
      * inclusive: offset
      */
     KWargs attribs = AbstractElement::collectAttributes();
-    if ( cls() == "current" ) {
+    if ( cls() == "current" && !doc()->has_explicit() ) {
       attribs.erase( "class" );
     }
     if ( _offset >= 0 ) {
