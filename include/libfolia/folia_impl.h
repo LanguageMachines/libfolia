@@ -2271,6 +2271,30 @@ namespace folia {
     static properties PROPS;
   };
 
+  class Scope: public AbstractSpanRole {
+    friend void static_init();
+  public:
+    explicit Scope( Document *d=0 ):
+    AbstractSpanRole( PROPS, d ){ classInit(); }
+  Scope( const KWargs& a, Document *d = 0 ):
+    AbstractSpanRole( PROPS, d ){ classInit( a ); }
+
+  private:
+    static properties PROPS;
+  };
+
+  class Cue: public AbstractSpanRole {
+    friend void static_init();
+  public:
+    explicit Cue( Document *d=0 ):
+    AbstractSpanRole( PROPS, d ){ classInit(); }
+  Cue( const KWargs& a, Document *d = 0 ):
+    AbstractSpanRole( PROPS, d ){ classInit( a ); }
+
+  private:
+    static properties PROPS;
+  };
+
   class StatementRelation: public AbstractSpanRole {
     friend void static_init();
   public:
@@ -2351,6 +2375,18 @@ namespace folia {
     explicit Sentiment( Document *d=0 ):
     AbstractSpanAnnotation( PROPS, d ){ classInit(); }
   Sentiment( const KWargs& a, Document *d = 0 ):
+    AbstractSpanAnnotation( PROPS, d ){ classInit( a ); }
+
+  private:
+    static properties PROPS;
+  };
+
+  class Modality: public AbstractSpanAnnotation {
+    friend void static_init();
+  public:
+    explicit Modality( Document *d=0 ):
+    AbstractSpanAnnotation( PROPS, d ){ classInit(); }
+  Modality( const KWargs& a, Document *d = 0 ):
     AbstractSpanAnnotation( PROPS, d ){ classInit( a ); }
 
   private:
@@ -2854,6 +2890,17 @@ namespace folia {
     explicit SentimentLayer( Document *d=0 ):
     AbstractAnnotationLayer( PROPS, d ){ classInit(); }
   SentimentLayer( const KWargs& a, Document *d = 0 ):
+    AbstractAnnotationLayer( PROPS, d ){ classInit( a ); }
+  private:
+    static properties PROPS;
+  };
+
+  class ModalityLayer: public AbstractAnnotationLayer {
+    friend void static_init();
+  public:
+    explicit ModalityLayer( Document *d=0 ):
+    AbstractAnnotationLayer( PROPS, d ){ classInit(); }
+  ModalityLayer( const KWargs& a, Document *d = 0 ):
     AbstractAnnotationLayer( PROPS, d ){ classInit( a ); }
   private:
     static properties PROPS;
