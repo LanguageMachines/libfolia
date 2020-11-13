@@ -32,7 +32,7 @@
 #include "libfolia/folia_properties.h"
 
 //foliaspec:header
-//This file was last updated according to the FoLiA specification for version 2.4.0 on 2020-11-13 11:04:17, using foliaspec.py
+//This file was last updated according to the FoLiA specification for version 2.4.0 on 2020-11-13 11:49:28, using foliaspec.py
 //Code blocks after a foliaspec comment (until the next newline) are automatically generated. **DO NOT EDIT THOSE** and **DO NOT REMOVE ANY FOLIASPEC COMMENTS** !!!
 
 namespace folia {
@@ -1063,7 +1063,7 @@ namespace folia {
 //------ Modality -------
     Modality::PROPS = AbstractSpanAnnotation::PROPS;
     Modality::PROPS.ELEMENT_ID = Modality_t;
-    Modality::PROPS.ACCEPTED_DATA += {AbstractInlineAnnotation_t, Comment_t, Cue_t, Description_t, Feature_t, ForeignData_t, LinkReference_t, Metric_t, Relation_t, Scope_t, Source_t, Target_t};
+    Modality::PROPS.ACCEPTED_DATA += {AbstractInlineAnnotation_t, Comment_t, Cue_t, Description_t, Feature_t, ForeignData_t, LinkReference_t, Metric_t, PolarityFeature_t, Relation_t, Scope_t, Source_t, StrengthFeature_t, Target_t};
     Modality::PROPS.ANNOTATIONTYPE = AnnotationType::MODALITY;
     Modality::PROPS.LABEL = "Modality";
     Modality::PROPS.XMLTAG = "modality";
