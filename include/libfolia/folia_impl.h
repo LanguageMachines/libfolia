@@ -2895,12 +2895,12 @@ namespace folia {
     static properties PROPS;
   };
 
-  class ModalityLayer: public AbstractAnnotationLayer {
+  class ModalitiesLayer: public AbstractAnnotationLayer {
     friend void static_init();
   public:
-    explicit ModalityLayer( Document *d=0 ):
+    explicit ModalitiesLayer( Document *d=0 ):
     AbstractAnnotationLayer( PROPS, d ){ classInit(); }
-  ModalityLayer( const KWargs& a, Document *d = 0 ):
+  ModalitiesLayer( const KWargs& a, Document *d = 0 ):
     AbstractAnnotationLayer( PROPS, d ){ classInit( a ); }
   private:
     static properties PROPS;

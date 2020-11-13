@@ -32,7 +32,7 @@
 #include "libfolia/folia_properties.h"
 
 //foliaspec:header
-//This file was last updated according to the FoLiA specification for version 2.3.0 on 2020-08-18 22:00:30, using foliaspec.py
+//This file was last updated according to the FoLiA specification for version 2.4.0 on 2020-11-13 11:04:17, using foliaspec.py
 //Code blocks after a foliaspec comment (until the next newline) are automatically generated. **DO NOT EDIT THOSE** and **DO NOT REMOVE ANY FOLIASPEC COMMENTS** !!!
 
 namespace folia {
@@ -45,7 +45,7 @@ namespace folia {
 
   //foliaspec:version_minor:MINOR_VERSION
   //The FoLiA version (minor)
-  const int MINOR_VERSION = 3;
+  const int MINOR_VERSION = 4;
 
   //foliaspec:version_sub:SUB_VERSION
   //The FoLiA version (sub/rev)
@@ -94,6 +94,7 @@ namespace folia {
     { AnnotationType::LINEBREAK,  "linebreak" },
     { AnnotationType::LIST,  "list" },
     { AnnotationType::METRIC,  "metric" },
+    { AnnotationType::MODALITY,  "modality" },
     { AnnotationType::MORPHOLOGICAL,  "morphological" },
     { AnnotationType::NOTE,  "note" },
     { AnnotationType::OBSERVATION,  "observation" },
@@ -155,6 +156,7 @@ namespace folia {
     { "linebreak", AnnotationType::LINEBREAK },
     { "list", AnnotationType::LIST },
     { "metric", AnnotationType::METRIC },
+    { "modality", AnnotationType::MODALITY },
     { "morphological", AnnotationType::MORPHOLOGICAL },
     { "note", AnnotationType::NOTE },
     { "observation", AnnotationType::OBSERVATION },
@@ -213,6 +215,7 @@ namespace folia {
     { CoreferenceLayer_t,  "coreferences" },
     { CoreferenceLink_t,  "coreferencelink" },
     { Correction_t,  "correction" },
+    { Cue_t,  "cue" },
     { Current_t,  "current" },
     { Definition_t,  "def" },
     { DependenciesLayer_t,  "dependencies" },
@@ -248,6 +251,8 @@ namespace folia {
     { List_t,  "list" },
     { ListItem_t,  "item" },
     { Metric_t,  "metric" },
+    { ModalitiesLayer_t,  "modalities" },
+    { Modality_t,  "modality" },
     { ModalityFeature_t,  "modality" },
     { Morpheme_t,  "morpheme" },
     { MorphologyLayer_t,  "morphology" },
@@ -268,6 +273,7 @@ namespace folia {
     { Reference_t,  "ref" },
     { Relation_t,  "relation" },
     { Row_t,  "row" },
+    { Scope_t,  "scope" },
     { SemanticRole_t,  "semrole" },
     { SemanticRolesLayer_t,  "semroles" },
     { SenseAnnotation_t,  "sense" },
@@ -341,6 +347,7 @@ namespace folia {
     { "coreferences", CoreferenceLayer_t  },
     { "coreferencelink", CoreferenceLink_t  },
     { "correction", Correction_t  },
+    { "cue", Cue_t  },
     { "current", Current_t  },
     { "def", Definition_t  },
     { "dependencies", DependenciesLayer_t  },
@@ -376,6 +383,8 @@ namespace folia {
     { "list", List_t  },
     { "item", ListItem_t  },
     { "metric", Metric_t  },
+    { "modalities", ModalitiesLayer_t  },
+    { "modality", Modality_t  },
     { "modality", ModalityFeature_t  },
     { "morpheme", Morpheme_t  },
     { "morphology", MorphologyLayer_t  },
@@ -396,6 +405,7 @@ namespace folia {
     { "ref", Reference_t  },
     { "relation", Relation_t  },
     { "row", Row_t  },
+    { "scope", Scope_t  },
     { "semrole", SemanticRole_t  },
     { "semroles", SemanticRolesLayer_t  },
     { "sense", SenseAnnotation_t  },
@@ -452,7 +462,7 @@ namespace folia {
 
   //foliaspec:default_ignore_structure
   //Default ignore list for structure annotation
-  const set<ElementType> default_ignore_structure = { Alternative_t, AlternativeLayers_t, ChunkingLayer_t, CoreferenceLayer_t, DependenciesLayer_t, EntitiesLayer_t, MorphologyLayer_t, ObservationLayer_t, Original_t, PhonologyLayer_t, SemanticRolesLayer_t, SentimentLayer_t, SpanRelationLayer_t, StatementLayer_t, Suggestion_t, SyntaxLayer_t, TimingLayer_t };
+  const set<ElementType> default_ignore_structure = { Alternative_t, AlternativeLayers_t, ChunkingLayer_t, CoreferenceLayer_t, DependenciesLayer_t, EntitiesLayer_t, ModalitiesLayer_t, MorphologyLayer_t, ObservationLayer_t, Original_t, PhonologyLayer_t, SemanticRolesLayer_t, SentimentLayer_t, SpanRelationLayer_t, StatementLayer_t, Suggestion_t, SyntaxLayer_t, TimingLayer_t };
 
   const set<ElementType> AnnoExcludeSet = { Original_t, Suggestion_t };
 
@@ -502,6 +512,7 @@ namespace folia {
   properties CoreferenceLayer::PROPS = DEFAULT_PROPERTIES;
   properties CoreferenceLink::PROPS = DEFAULT_PROPERTIES;
   properties Correction::PROPS = DEFAULT_PROPERTIES;
+  properties Cue::PROPS = DEFAULT_PROPERTIES;
   properties Current::PROPS = DEFAULT_PROPERTIES;
   properties Definition::PROPS = DEFAULT_PROPERTIES;
   properties DependenciesLayer::PROPS = DEFAULT_PROPERTIES;
@@ -537,6 +548,8 @@ namespace folia {
   properties List::PROPS = DEFAULT_PROPERTIES;
   properties ListItem::PROPS = DEFAULT_PROPERTIES;
   properties Metric::PROPS = DEFAULT_PROPERTIES;
+  properties ModalitiesLayer::PROPS = DEFAULT_PROPERTIES;
+  properties Modality::PROPS = DEFAULT_PROPERTIES;
   properties ModalityFeature::PROPS = DEFAULT_PROPERTIES;
   properties Morpheme::PROPS = DEFAULT_PROPERTIES;
   properties MorphologyLayer::PROPS = DEFAULT_PROPERTIES;
@@ -557,6 +570,7 @@ namespace folia {
   properties Reference::PROPS = DEFAULT_PROPERTIES;
   properties Relation::PROPS = DEFAULT_PROPERTIES;
   properties Row::PROPS = DEFAULT_PROPERTIES;
+  properties Scope::PROPS = DEFAULT_PROPERTIES;
   properties SemanticRole::PROPS = DEFAULT_PROPERTIES;
   properties SemanticRolesLayer::PROPS = DEFAULT_PROPERTIES;
   properties SenseAnnotation::PROPS = DEFAULT_PROPERTIES;
@@ -783,6 +797,12 @@ namespace folia {
     Correction::PROPS.SPEAKABLE = true;
     Correction::PROPS.TEXTDELIMITER = "NONE";
     Correction::PROPS.XMLTAG = "correction";
+//------ Cue -------
+    Cue::PROPS = AbstractSpanRole::PROPS;
+    Cue::PROPS.ELEMENT_ID = Cue_t;
+    Cue::PROPS.LABEL = "Cue";
+    Cue::PROPS.OCCURRENCES = 1;
+    Cue::PROPS.XMLTAG = "cue";
 //------ Current -------
     Current::PROPS = AbstractCorrectionChild::PROPS;
     Current::PROPS.ELEMENT_ID = Current_t;
@@ -1034,6 +1054,19 @@ namespace folia {
     Metric::PROPS.LABEL = "Metric";
     Metric::PROPS.OPTIONAL_ATTRIBS = ID|CLASS|ANNOTATOR|N|CONFIDENCE|DATETIME|SRC|BEGINTIME|ENDTIME|SPEAKER|METADATA;
     Metric::PROPS.XMLTAG = "metric";
+//------ ModalitiesLayer -------
+    ModalitiesLayer::PROPS = AbstractAnnotationLayer::PROPS;
+    ModalitiesLayer::PROPS.ELEMENT_ID = ModalitiesLayer_t;
+    ModalitiesLayer::PROPS.ACCEPTED_DATA += {Comment_t, Correction_t, Description_t, ForeignData_t, Modality_t};
+    ModalitiesLayer::PROPS.ANNOTATIONTYPE = AnnotationType::MODALITY;
+    ModalitiesLayer::PROPS.XMLTAG = "modalities";
+//------ Modality -------
+    Modality::PROPS = AbstractSpanAnnotation::PROPS;
+    Modality::PROPS.ELEMENT_ID = Modality_t;
+    Modality::PROPS.ACCEPTED_DATA += {AbstractInlineAnnotation_t, Comment_t, Cue_t, Description_t, Feature_t, ForeignData_t, LinkReference_t, Metric_t, Relation_t, Scope_t, Source_t, Target_t};
+    Modality::PROPS.ANNOTATIONTYPE = AnnotationType::MODALITY;
+    Modality::PROPS.LABEL = "Modality";
+    Modality::PROPS.XMLTAG = "modality";
 //------ ModalityFeature -------
     ModalityFeature::PROPS = Feature::PROPS;
     ModalityFeature::PROPS.ELEMENT_ID = ModalityFeature_t;
@@ -1184,6 +1217,13 @@ namespace folia {
     Row::PROPS.LABEL = "Table Row";
     Row::PROPS.TEXTDELIMITER = "\n";
     Row::PROPS.XMLTAG = "row";
+//------ Scope -------
+    Scope::PROPS = AbstractSpanRole::PROPS;
+    Scope::PROPS.ELEMENT_ID = Scope_t;
+    Scope::PROPS.ACCEPTED_DATA += {AbstractInlineAnnotation_t, Comment_t, Cue_t, Description_t, Feature_t, ForeignData_t, LinkReference_t, Metric_t, Relation_t, Source_t, Target_t, WordReference_t, Hiddenword_t, Morpheme_t, Phoneme_t, Word_t};
+    Scope::PROPS.LABEL = "Scope";
+    Scope::PROPS.OCCURRENCES = 1;
+    Scope::PROPS.XMLTAG = "scope";
 //------ SemanticRole -------
     SemanticRole::PROPS = AbstractSpanAnnotation::PROPS;
     SemanticRole::PROPS.ELEMENT_ID = SemanticRole_t;
@@ -1506,6 +1546,7 @@ namespace folia {
      { CoreferenceLayer_t, { AbstractAnnotationLayer_t } },
      { CoreferenceLink_t, { AbstractSpanRole_t,AbstractSpanAnnotation_t } },
      { Correction_t, { AbstractHigherOrderAnnotation_t } },
+     { Cue_t, { AbstractSpanRole_t,AbstractSpanAnnotation_t } },
      { Current_t, { AbstractCorrectionChild_t } },
      { Definition_t, { AbstractStructureElement_t } },
      { DependenciesLayer_t, { AbstractAnnotationLayer_t } },
@@ -1541,6 +1582,8 @@ namespace folia {
      { List_t, { AbstractStructureElement_t } },
      { ListItem_t, { AbstractStructureElement_t } },
      { Metric_t, { AbstractHigherOrderAnnotation_t } },
+     { ModalitiesLayer_t, { AbstractAnnotationLayer_t } },
+     { Modality_t, { AbstractSpanAnnotation_t } },
      { ModalityFeature_t, { Feature_t,AbstractHigherOrderAnnotation_t } },
      { Morpheme_t, { AbstractSubtokenAnnotation_t } },
      { MorphologyLayer_t, { AbstractAnnotationLayer_t } },
@@ -1561,6 +1604,7 @@ namespace folia {
      { Reference_t, { AbstractStructureElement_t } },
      { Relation_t, { AbstractHigherOrderAnnotation_t } },
      { Row_t, { AbstractStructureElement_t } },
+     { Scope_t, { AbstractSpanRole_t,AbstractSpanAnnotation_t } },
      { SemanticRole_t, { AbstractSpanAnnotation_t } },
      { SemanticRolesLayer_t, { AbstractAnnotationLayer_t } },
      { SenseAnnotation_t, { AbstractInlineAnnotation_t } },
@@ -1649,6 +1693,7 @@ namespace folia {
     {  AnnotationType::LINEBREAK, Linebreak_t },
     {  AnnotationType::LIST, List_t },
     {  AnnotationType::METRIC, Metric_t },
+    {  AnnotationType::MODALITY, Modality_t },
     {  AnnotationType::MORPHOLOGICAL, Morpheme_t },
     {  AnnotationType::NOTE, Note_t },
     {  AnnotationType::OBSERVATION, Observation_t },
@@ -1709,6 +1754,7 @@ namespace folia {
     {  AnnotationType::LINEBREAK, "br" },
     {  AnnotationType::LIST, "list" },
     {  AnnotationType::METRIC, "metric" },
+    {  AnnotationType::MODALITY, "modality" },
     {  AnnotationType::MORPHOLOGICAL, "morpheme" },
     {  AnnotationType::NOTE, "note" },
     {  AnnotationType::OBSERVATION, "observation" },
