@@ -32,7 +32,7 @@
 #include "libfolia/folia_properties.h"
 
 //foliaspec:header
-//This file was last updated according to the FoLiA specification for version 2.4.0 on 2020-11-13 11:49:28, using foliaspec.py
+//This file was last updated according to the FoLiA specification for version 2.4.0 on 2020-11-13 12:08:36, using foliaspec.py
 //Code blocks after a foliaspec comment (until the next newline) are automatically generated. **DO NOT EDIT THOSE** and **DO NOT REMOVE ANY FOLIASPEC COMMENTS** !!!
 
 namespace folia {
@@ -62,7 +62,7 @@ namespace folia {
   const string DEFAULT_PHON_SET = "https://raw.githubusercontent.com/proycon/folia/master/setdefinitions/phon.foliaset.ttl";
 
   //foliaspec:attributefeatures
-  const set<string> AttributeFeatures = { "actor", "begindatetime", "enddatetime", "function", "headfeature", "level", "modality", "polarity", "strength", "style", "synset", "time", "value" };
+  const set<string> AttributeFeatures = { "actor", "begindatetime", "enddatetime", "function", "headfeature", "level", "mod", "polarity", "strength", "style", "synset", "time", "value" };
 
   //foliaspec:annotationtype_string_map
   //A mapping from annotation types to strings
@@ -253,7 +253,7 @@ namespace folia {
     { Metric_t,  "metric" },
     { ModalitiesLayer_t,  "modalities" },
     { Modality_t,  "modality" },
-    { ModalityFeature_t,  "modality" },
+    { ModalityFeature_t,  "mod" },
     { Morpheme_t,  "morpheme" },
     { MorphologyLayer_t,  "morphology" },
     { New_t,  "new" },
@@ -385,7 +385,7 @@ namespace folia {
     { "metric", Metric_t  },
     { "modalities", ModalitiesLayer_t  },
     { "modality", Modality_t  },
-    { "modality", ModalityFeature_t  },
+    { "mod", ModalityFeature_t  },
     { "morpheme", Morpheme_t  },
     { "morphology", MorphologyLayer_t  },
     { "new", New_t  },
@@ -1070,8 +1070,8 @@ namespace folia {
 //------ ModalityFeature -------
     ModalityFeature::PROPS = Feature::PROPS;
     ModalityFeature::PROPS.ELEMENT_ID = ModalityFeature_t;
-    ModalityFeature::PROPS.SUBSET = "modality";
-    ModalityFeature::PROPS.XMLTAG = "modality";
+    ModalityFeature::PROPS.SUBSET = "mod";
+    ModalityFeature::PROPS.XMLTAG = "mod";
 //------ Morpheme -------
     Morpheme::PROPS = AbstractSubtokenAnnotation::PROPS;
     Morpheme::PROPS.ELEMENT_ID = Morpheme_t;
@@ -1923,7 +1923,9 @@ namespace folia {
     case Predicate_t: return new Predicate();
     case Relation_t: return new Relation();
     case Sentiment_t: return new Sentiment();
+    case Modality_t: return new Modality();
     case SentimentLayer_t: return new SentimentLayer();
+    case ModalitiesLayer_t: return new ModalitiesLayer();
     case Statement_t: return new Statement();
     case StatementRelation_t: return new StatementRelation();
     case StatementLayer_t: return new StatementLayer();
@@ -1931,6 +1933,8 @@ namespace folia {
     case StyleFeature_t: return new StyleFeature();
     case Source_t: return new Source();
     case Target_t: return new Target();
+    case Scope_t: return new Scope();
+    case Cue_t: return new Cue();
     case Hiddenword_t: return new Hiddenword();
     case Hyphbreak_t: return new Hyphbreak();
     case AbstractContentAnnotation_t:
