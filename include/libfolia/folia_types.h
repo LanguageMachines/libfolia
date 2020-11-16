@@ -155,6 +155,7 @@ ALL=16384 };
     HYPHENATION, ///<Hyphenation Annotation: This is a text-markup annotation form that indicates where in the original text a linebreak was inserted and a word was hyphenised.
     HIDDENTOKEN, ///<Hidden Token Annotation: This annotation type allows for a hidden token layer in the document. Hidden tokens are ignored for most intents and purposes but may serve a purpose when annotations on implicit tokens is required, for example as targets for syntactic movement annotation.
     MODALITY, ///<Modality Annotation: Modality annotation is used to describe the relationship between cue word(s) and the scope it covers. It is primarily used for the annotation of negation, but also for the annotation of factuality, certainty and truthfulness:.
+    EXTERNAL, ///<External Annotation: External annotation makes a reference to an external FoLiA document whose structure is inserted at the exact place the external element occurs.
 LAST_ANN };
 
   inline AnnotationType& operator++( AnnotationType &at ){
