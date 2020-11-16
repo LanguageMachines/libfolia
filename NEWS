@@ -1,3 +1,12 @@
+2.6.0 2020-11-16
+[Maarten van Gompel]
+* Updated for FoLiA v2.4
+* Revised external implementation
+* Implemented Modality annotation
+[Ko vd Sloot]
+* cleanup and extra sanity tests
+* Implemented an 'explicit' mode for Document (FoLiA v2.3) and in folialint
+
 2.5.1 2020-09-15
 [Maarten van Gompel]
 * Bugfix: Fixed handling of control characters, strip control characters by default
