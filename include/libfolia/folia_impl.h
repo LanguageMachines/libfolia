@@ -2591,17 +2591,14 @@ namespace folia {
     friend void static_init();
   public:
   explicit External( Document *d = 0 ):
-    AbstractElement( PROPS, d ), _include(false) { classInit(); }
+    AbstractElement( PROPS, d ) { classInit(); }
   External( const KWargs& a, Document *d = 0 ):
-    AbstractElement( PROPS, d ), _include(false) { classInit( a ); }
+    AbstractElement( PROPS, d ) { classInit( a ); }
 
     FoliaElement* parseXml( const xmlNode * );
     void resolve_external();
-    void setAttributes( KWargs& );
-    KWargs collectAttributes() const;
   private:
     static properties PROPS;
-    bool _include;
   };
 
   class Note: public AbstractStructureElement {

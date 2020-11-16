@@ -6039,37 +6039,10 @@ namespace folia {
      */
    KWargs att = getAttributes( node );
     setAttributes( att );
-    if ( _include ) {
+    /*if ( _include ) {
       doc()->addExternal( this );
-    }
+    }*/
     return this;
-  }
-
-  KWargs External::collectAttributes() const {
-    /// extract all Attribute-Value pairs for External
-    /*!
-     * \return a KWargs set of Attribute-value pairs
-     * inclusive: include
-     */
-    KWargs atts = AbstractElement::collectAttributes();
-    if ( _include ) {
-      atts["include"] = "yes";
-    }
-    return atts;
-  }
-
-  void External::setAttributes( KWargs& kwargs ) {
-    /// set the External attributes given a set of Key-Value pairs.
-    /*!
-     * \param kwargs a KWargs set of Key-Value pairs
-     *
-     * checks and sets the special attributes for External: include
-     */
-    string value = kwargs.extract( "include" );
-    if ( !value.empty() ) {
-      _include = TiCC::stringTo<bool>( value );
-    }
-    AbstractElement::setAttributes(kwargs);
   }
 
   void Note::setAttributes( KWargs& kwargs ) {
