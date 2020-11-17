@@ -1211,7 +1211,7 @@ namespace folia {
 	     || child->isSubClass( TextContent_t )
 	     || isSubClass( String_t )
 	     || child->isSubClass( Word_t ) ){
-	  // Words and Strings are 'per definition' PART of there parents
+	  // Words and Strings are 'per definition' PART of their parents
 	  test_fail = ( s1.indexOf( s2 ) < 0 ); // aren't they?
 	}
 	else {
@@ -1266,8 +1266,10 @@ namespace folia {
       s2 = normalize_spaces( s2 );
       bool test_fail;
       if ( isSubClass( Word_t )
-	   || isSubClass( String_t ) ) {
-	// Words and Strings are 'per definition' PART of there parents
+	   || isSubClass( String_t )
+	   || isSubClass( AbstractTextMarkup_t ) ) {
+	// Words, Strings and AbstractTextMarkup are 'per definition' PART of
+	// their text parents
 	test_fail = ( s1.indexOf( s2 ) < 0 ); // aren't they?
       }
       else {
