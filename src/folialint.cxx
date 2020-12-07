@@ -49,7 +49,7 @@ void usage(){
   cerr << "\t\t\t\t Default is to DON'T DO THAT." << endl;
   cerr << "\t-a, --autodeclare\t Attempt to automaticly fix missing annotations." << endl;
   cerr << "\t\t\t\t (default: false)" << endl;
-  cerr << "\t-x, --explicitt output explicit FoLiA. (default: false)" << endl;
+  cerr << "\t-x, --explicit\t\t output explicit FoLiA. (default: false)" << endl;
   cerr << "\t--permissive.\t\t Allow some dubious constructs." << endl;
   cerr << "\t--warn\t\t\t add some extra warnings about library versions and unused" << endl;
   cerr << "\t\t\t\t annotation declarations" << endl;
