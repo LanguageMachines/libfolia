@@ -239,6 +239,7 @@ namespace folia {
     _mydoc(d),
     _parent(0),
     _auth( p.AUTH ),
+    _space(true),
     _annotator_type(UNDEFINED),
     _refcount(0),
     _confidence(-1),
