@@ -1575,7 +1575,7 @@ namespace folia {
 	   && this->cls() != cls ) {
 	// So no shortcut for TextMarkup
 #ifdef DEBUG_TEXT
-	cerr << "TextContent shortcurt, class=" << this->cls()
+	cerr << "TextContent shortcut, class=" << this->cls()
 	     << " but looking for: " << cls << endl;
 #endif
 	return "";
