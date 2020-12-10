@@ -2929,6 +2929,10 @@ namespace folia {
   std::string VersionName();
   std::string Version();
 
+  UnicodeString trim_space( const UnicodeString& in );
+  UnicodeString ltrim( const UnicodeString& in );
+  UnicodeString rtrim( const UnicodeString& in );
+
 } // namespace folia
 
 #endif

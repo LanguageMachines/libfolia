@@ -1581,14 +1581,26 @@ namespace folia {
 	return "";
       }
       UnicodeString result;
+      int i = 0;
       for ( const auto& d : _data ){
-	if ( d->printable() ){
+        if (d->isinstance( XmlText_t)) {
+              if ((i == 0) && (i == (int) _data.size() -1)) {
+                  result += rtrim(ltrim(d->text( cls )));
+              } else if (i == 0) {
+                  result += ltrim(d->text( cls ));
+              } else if (i == (int) _data.size() - 1) {
+                  result += rtrim(d->text( cls ));
+              } else {
+                  result += d->text( cls );
+              }
+        } else if ( d->printable() ){
 	  if ( !result.isEmpty() ){
 	    const string& delim = d->get_delimiter( retaintok );
 	    result += TiCC::UnicodeFromUTF8(delim);
 	  }
-	  result += d->text( cls );
+          result += d->text( cls );
 	}
+        i++;
       }
 #ifdef DEBUG_TEXT
       cerr << "TEXT(" << cls << ") on a textcontainer :" << xmltag()
@@ -1751,20 +1763,20 @@ namespace folia {
      * \return an UnicodeString with all leading and trailing spaces removed.
      * Other 'whitespace' characters like newline and tab are retained!
      */
-    UnicodeString cmp = " ";
+    const char16_t space = 0x0020;
     //    cerr << "in = '" << in << "'" << endl;
     UnicodeString out;
     int i = 0;
     for( ; i < in.length(); ++i ){
       //      cerr << "start: bekijk:" << UnicodeString(in[i]) << endl;
-      if ( in[i] != cmp[0] ){
+      if ( in[i] != space ){
 	break;
       }
     }
     int j = in.length()-1;
     for( ; j >= 0; --j ){
       //      cerr << "end: bekijk:" << UnicodeString(in[j]) << endl;
-      if ( in[j] != cmp[0] ){
+      if ( in[j] != space ){
 	break;
       }
     }
@@ -1777,6 +1789,42 @@ namespace folia {
     out = UnicodeString( in, i, j-i+1 );
     //    cerr << "out = '" << out << "'" << endl;
     return out;
+  }
+
+  UnicodeString ltrim( const UnicodeString& in ){
+    /// remove leading whitespace (including newlines and tabs)
+    int begin = in.length();
+    for (int i = 0; i < in.length(); i++) {
+        if ((in[i] != 0x0020) && (in[i] != 0x0009) && (in[i] != 0x000a) && (in[i] != 0x000d)) {
+            begin = i;
+            break;
+        }
+    }
+    if (begin == 0) {
+        return in;
+    } else if (begin == in.length()) {
+        return "";
+    } else {
+        return UnicodeString(in, begin, in.length() - begin);
+    }
+  }
+
+  UnicodeString rtrim( const UnicodeString& in ){
+    /// remove trailing whitespace (including newlines and tabs)
+    int end = -1;
+    for (int i = in.length() - 1; i >= 0; i--) {
+        if ((in[i] != 0x0020) && (in[i] != 0x0009) && (in[i] != 0x000a) && (in[i] != 0x000d)) {
+            end = i;
+            break;
+        }
+    }
+    if (end == in.length()) {
+        return in;
+    } else if (end == -1) {
+        return "";
+    } else {
+        return UnicodeString(in, 0, end+1);
+    }
   }
 
   bool check_end( const UnicodeString& us, bool& only ){
