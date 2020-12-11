@@ -1,3 +1,9 @@
+2.6.1 2020-12-11
+[Maarten van Gompel]
+* Updated for FoLiA v2.4.1: strip leading/trailing whitespace in text content (proycon/folia#88)
+[Ko vd Sloot]
+* Fixed problem with text-conststency errors for <t-str> within <t>
+
 2.6.0 2020-11-16
 [Maarten van Gompel]
 * Updated for FoLiA v2.4
