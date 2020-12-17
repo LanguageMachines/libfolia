@@ -1925,6 +1925,8 @@ namespace folia {
     case ModalityFeature_t: return new ModalityFeature();
     case FunctionFeature_t: return new FunctionFeature();
     case LevelFeature_t: return new LevelFeature();
+    case FontFeature_t: return new FontFeature();
+    case SizeFeature_t: return new SizeFeature();
     case Quote_t: return new Quote();
     case DependenciesLayer_t: return new DependenciesLayer();
     case Dependency_t: return new Dependency();
