@@ -32,7 +32,7 @@
 #include "libfolia/folia_properties.h"
 
 //foliaspec:header
-//This file was last updated according to the FoLiA specification for version 2.4.1 on 2020-12-08 15:34:24, using foliaspec.py
+//This file was last updated according to the FoLiA specification for version 2.4.2 on 2020-12-17 17:43:25, using foliaspec.py
 //Code blocks after a foliaspec comment (until the next newline) are automatically generated. **DO NOT EDIT THOSE** and **DO NOT REMOVE ANY FOLIASPEC COMMENTS** !!!
 
 namespace folia {
@@ -49,7 +49,7 @@ namespace folia {
 
   //foliaspec:version_sub:SUB_VERSION
   //The FoLiA version (sub/rev)
-  const int SUB_VERSION = 1;
+  const int SUB_VERSION = 2;
 
   //foliaspec:namespace:NSFOLIA
   //The FoLiA XML namespace
@@ -62,7 +62,7 @@ namespace folia {
   const string DEFAULT_PHON_SET = "https://raw.githubusercontent.com/proycon/folia/master/setdefinitions/phon.foliaset.ttl";
 
   //foliaspec:attributefeatures
-  const set<string> AttributeFeatures = { "actor", "begindatetime", "enddatetime", "function", "headfeature", "level", "mod", "polarity", "strength", "style", "synset", "time", "value" };
+  const set<string> AttributeFeatures = { "actor", "begindatetime", "enddatetime", "font", "function", "headfeature", "level", "mod", "polarity", "size", "strength", "style", "synset", "time", "value" };
 
   //foliaspec:annotationtype_string_map
   //A mapping from annotation types to strings
@@ -236,6 +236,7 @@ namespace folia {
     { External_t,  "external" },
     { Feature_t,  "feat" },
     { Figure_t,  "figure" },
+    { FontFeature_t,  "font" },
     { ForeignData_t,  "foreign-data" },
     { FunctionFeature_t,  "function" },
     { Gap_t,  "gap" },
@@ -282,6 +283,7 @@ namespace folia {
     { Sentence_t,  "s" },
     { Sentiment_t,  "sentiment" },
     { SentimentLayer_t,  "sentiments" },
+    { SizeFeature_t,  "size" },
     { Source_t,  "source" },
     { SpanRelation_t,  "spanrelation" },
     { SpanRelationLayer_t,  "spanrelations" },
@@ -368,6 +370,7 @@ namespace folia {
     { "external", External_t  },
     { "feat", Feature_t  },
     { "figure", Figure_t  },
+    { "font", FontFeature_t  },
     { "foreign-data", ForeignData_t  },
     { "function", FunctionFeature_t  },
     { "gap", Gap_t  },
@@ -414,6 +417,7 @@ namespace folia {
     { "s", Sentence_t  },
     { "sentiment", Sentiment_t  },
     { "sentiments", SentimentLayer_t  },
+    { "size", SizeFeature_t  },
     { "source", Source_t  },
     { "spanrelation", SpanRelation_t  },
     { "spanrelations", SpanRelationLayer_t  },
@@ -533,6 +537,7 @@ namespace folia {
   properties External::PROPS = DEFAULT_PROPERTIES;
   properties Feature::PROPS = DEFAULT_PROPERTIES;
   properties Figure::PROPS = DEFAULT_PROPERTIES;
+  properties FontFeature::PROPS = DEFAULT_PROPERTIES;
   properties ForeignData::PROPS = DEFAULT_PROPERTIES;
   properties FunctionFeature::PROPS = DEFAULT_PROPERTIES;
   properties Gap::PROPS = DEFAULT_PROPERTIES;
@@ -579,6 +584,7 @@ namespace folia {
   properties Sentence::PROPS = DEFAULT_PROPERTIES;
   properties Sentiment::PROPS = DEFAULT_PROPERTIES;
   properties SentimentLayer::PROPS = DEFAULT_PROPERTIES;
+  properties SizeFeature::PROPS = DEFAULT_PROPERTIES;
   properties Source::PROPS = DEFAULT_PROPERTIES;
   properties SpanRelation::PROPS = DEFAULT_PROPERTIES;
   properties SpanRelationLayer::PROPS = DEFAULT_PROPERTIES;
@@ -692,7 +698,7 @@ namespace folia {
     AbstractSubtokenAnnotation::PROPS.TEXTDELIMITER = "\n\n";
 //------ AbstractTextMarkup -------
     AbstractTextMarkup::PROPS.ELEMENT_ID = AbstractTextMarkup_t;
-    AbstractTextMarkup::PROPS.ACCEPTED_DATA += {AbstractTextMarkup_t, Comment_t, Description_t, Linebreak_t, XmlText_t};
+    AbstractTextMarkup::PROPS.ACCEPTED_DATA += {AbstractTextMarkup_t, Comment_t, Description_t, Feature_t, Linebreak_t, XmlText_t};
     AbstractTextMarkup::PROPS.OPTIONAL_ATTRIBS = ID|CLASS|ANNOTATOR|N|CONFIDENCE|DATETIME|SRC|BEGINTIME|ENDTIME|SPEAKER|METADATA;
     AbstractTextMarkup::PROPS.PRINTABLE = true;
     AbstractTextMarkup::PROPS.TEXTCONTAINER = true;
@@ -943,6 +949,11 @@ namespace folia {
     Figure::PROPS.SPEAKABLE = false;
     Figure::PROPS.TEXTDELIMITER = "\n\n";
     Figure::PROPS.XMLTAG = "figure";
+//------ FontFeature -------
+    FontFeature::PROPS = Feature::PROPS;
+    FontFeature::PROPS.ELEMENT_ID = FontFeature_t;
+    FontFeature::PROPS.SUBSET = "font";
+    FontFeature::PROPS.XMLTAG = "font";
 //------ ForeignData -------
     ForeignData::PROPS = AbstractHigherOrderAnnotation::PROPS;
     ForeignData::PROPS.ELEMENT_ID = ForeignData_t;
@@ -1269,6 +1280,11 @@ namespace folia {
     SentimentLayer::PROPS.ACCEPTED_DATA += {Comment_t, Correction_t, Description_t, ForeignData_t, Sentiment_t};
     SentimentLayer::PROPS.ANNOTATIONTYPE = AnnotationType::SENTIMENT;
     SentimentLayer::PROPS.XMLTAG = "sentiments";
+//------ SizeFeature -------
+    SizeFeature::PROPS = Feature::PROPS;
+    SizeFeature::PROPS.ELEMENT_ID = SizeFeature_t;
+    SizeFeature::PROPS.SUBSET = "size";
+    SizeFeature::PROPS.XMLTAG = "size";
 //------ Source -------
     Source::PROPS = AbstractSpanRole::PROPS;
     Source::PROPS.ELEMENT_ID = Source_t;
@@ -1445,6 +1461,7 @@ namespace folia {
 //------ TextMarkupStyle -------
     TextMarkupStyle::PROPS = AbstractTextMarkup::PROPS;
     TextMarkupStyle::PROPS.ELEMENT_ID = TextMarkupStyle_t;
+    TextMarkupStyle::PROPS.ACCEPTED_DATA += {AbstractTextMarkup_t, Comment_t, Description_t, Feature_t, FontFeature_t, Linebreak_t, SizeFeature_t};
     TextMarkupStyle::PROPS.ANNOTATIONTYPE = AnnotationType::STYLE;
     TextMarkupStyle::PROPS.XMLTAG = "t-style";
 //------ TimeFeature -------
@@ -1567,6 +1584,7 @@ namespace folia {
      { External_t, { AbstractHigherOrderAnnotation_t } },
      { Feature_t, { AbstractHigherOrderAnnotation_t } },
      { Figure_t, { AbstractStructureElement_t } },
+     { FontFeature_t, { Feature_t,AbstractHigherOrderAnnotation_t } },
      { ForeignData_t, { AbstractHigherOrderAnnotation_t } },
      { FunctionFeature_t, { Feature_t,AbstractHigherOrderAnnotation_t } },
      { Gap_t, { AbstractHigherOrderAnnotation_t } },
@@ -1613,6 +1631,7 @@ namespace folia {
      { Sentence_t, { AbstractStructureElement_t } },
      { Sentiment_t, { AbstractSpanAnnotation_t } },
      { SentimentLayer_t, { AbstractAnnotationLayer_t } },
+     { SizeFeature_t, { Feature_t,AbstractHigherOrderAnnotation_t } },
      { Source_t, { AbstractSpanRole_t,AbstractSpanAnnotation_t } },
      { SpanRelation_t, { AbstractHigherOrderAnnotation_t } },
      { SpanRelationLayer_t, { AbstractAnnotationLayer_t } },

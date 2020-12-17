@@ -2120,6 +2120,30 @@ namespace folia {
     static properties PROPS;
   };
 
+  class FontFeature: public Feature {
+    friend void static_init();
+  public:
+    explicit FontFeature( Document *d=0 ):
+    Feature( PROPS, d ){ classInit(); }
+  FontFeature( const KWargs& a, Document *d = 0 ):
+    Feature( PROPS, d ){ classInit( a ); }
+
+  private:
+    static properties PROPS;
+  };
+
+  class SizeFeature: public Feature {
+    friend void static_init();
+  public:
+    explicit SizeFeature( Document *d=0 ):
+    Feature( PROPS, d ){ classInit(); }
+  SizeFeature( const KWargs& a, Document *d = 0 ):
+    Feature( PROPS, d ){ classInit( a ); }
+
+  private:
+    static properties PROPS;
+  };
+
   class WordReference: public AbstractElement {
     friend void static_init();
   public:
