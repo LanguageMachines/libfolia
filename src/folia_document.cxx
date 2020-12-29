@@ -1561,7 +1561,7 @@ namespace folia {
 	  cerr << "found meta node:" << getAttributes(m) << endl;
 	}
 	if ( !_native_metadata ){
-	  throw runtime_error( "'meta' tag found outside a metadata block" );
+	  _native_metadata = new NativeMetaData( "native" );
 	}
 	KWargs att = getAttributes( m );
 	string meta_id = att["id"];
@@ -1579,7 +1579,9 @@ namespace folia {
 	if ( t ){
 	  t = t->parseXml( m );
 	  if ( t ){
-	    _foreign_metadata = new ForeignMetaData( type );
+	    if ( !_foreign_metadata ){
+	      _foreign_metadata = new ForeignMetaData( type );
+	    }
 	    _foreign_metadata->add_foreign( m );
 	  }
 	}
