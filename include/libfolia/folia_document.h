@@ -443,9 +443,8 @@ namespace folia {
     const xmlChar* _foliaNsIn_prefix;
     mutable xmlNs *_foliaNsOut;
     Provenance *_provenance;
-    NativeMetaData *_native_metadata;
+    MetaData *_metadata;
     ForeignMetaData *_foreign_metadata;
-    ExternalMetaData *_external_metadata;
     std::map<std::string,MetaData *> submetadata;
     std::multimap<std::string,std::string> styles;
     mutable Mode mode;

@@ -177,9 +177,8 @@ namespace folia {
 
   void Document::init(){
     /// initialize a Document structure with default values
-    _native_metadata = 0;
+    _metadata = 0;
     _foreign_metadata = 0;
-    _external_metadata = 0;
     _provenance = 0;
     _xmldoc = 0;
     foliadoc = 0;
@@ -213,9 +212,8 @@ namespace folia {
     for ( const auto& it : bulk ){
       delete it;
     }
-    delete _native_metadata;
+    delete _metadata;
     delete _foreign_metadata;
-    delete _external_metadata;
     for ( const auto& it : submetadata ){
       delete it.second;
     }
@@ -877,8 +875,8 @@ namespace folia {
       \return the metadata language value or "" when not set
     */
     string result;
-    if ( _native_metadata ){
-      result = _native_metadata->get_val("language");
+    if ( _metadata ){
+      result = _metadata->get_val("language");
     }
     return result;
   }
@@ -888,14 +886,11 @@ namespace folia {
     /*!
       \return the metadata type or "native" when not set
     */
-    if ( _native_metadata ){
-      return _native_metadata->type();
+    if ( _metadata ){
+      return _metadata->type();
     }
     else if ( _foreign_metadata ){
       return _foreign_metadata->type();
-    }
-    else if ( _external_metadata ){
-      return _external_metadata->type();
     }
     return "native";
   }
@@ -905,8 +900,11 @@ namespace folia {
     /*!
       \return the metadata file name.
     */
-    if ( _external_metadata ){
-      return _external_metadata->src();
+    if ( _metadata ){
+      if ( _metadata->datatype() != "ExternalMetaData" ){
+	return "";
+      }
+      return _metadata->src();
     }
     return "";
   }
@@ -915,23 +913,23 @@ namespace folia {
     /// set IMDI values. DEPRECATED
     xmlNode *n = TiCC::xPath( node, "//imdi:Session/imdi:Title" );
     if ( n ){
-      _native_metadata->add_av( "title", TiCC::XmlContent( n ) );
+      _metadata->add_av( "title", TiCC::XmlContent( n ) );
     }
     n = TiCC::xPath( node, "//imdi:Session/imdi:Date" );
     if ( n ){
-      _native_metadata->add_av( "date", TiCC::XmlContent( n ) );
+      _metadata->add_av( "date", TiCC::XmlContent( n ) );
     }
     n = TiCC::xPath( node, "//imdi:Source/imdi:Access/imdi:Publisher" );
     if ( n ){
-      _native_metadata->add_av( "publisher", TiCC::XmlContent( n ) );
+      _metadata->add_av( "publisher", TiCC::XmlContent( n ) );
     }
     n = TiCC::xPath( node, "//imdi:Source/imdi:Access/imdi:Availability" );
     if ( n ){
-      _native_metadata->add_av( "licence", TiCC::XmlContent( n ) );
+      _metadata->add_av( "licence", TiCC::XmlContent( n ) );
     }
     n = TiCC::xPath( node, "//imdi:Languages/imdi:Language/imdi:ID" );
     if ( n ){
-      _native_metadata->add_av( "language", TiCC::XmlContent( n ) );
+      _metadata->add_av( "language", TiCC::XmlContent( n ) );
     }
   }
 
@@ -943,16 +941,22 @@ namespace folia {
 
       This is only valid for the 'native' FoLiA metadata type
      */
-    if ( !_native_metadata ){
-      _native_metadata = new NativeMetaData( "native" );
+    if ( !_metadata ){
+      _metadata = new NativeMetaData( "native" );
     }
-    _native_metadata->add_av( attribute, value );
+    else if ( _metadata->datatype() == "ExternalMetaData" ){
+      throw MetaDataError( "cannot set meta values on ExternalMetaData" );
+    }
+    if ( _metadata->type() == "imdi" ){
+      throw MetaDataError( "cannot set meta values on IMDI MetaData" );
+    }
+    _metadata->add_av( attribute, value );
   }
 
   const string Document::get_metadata( const string& attribute ) const {
     /// return the metadata value for a metadata attribute
-    if ( _native_metadata ){
-      return _native_metadata->get_val( attribute );
+    if ( _metadata ){
+      return _metadata->get_val( attribute );
     }
     else {
       return "";
@@ -1519,10 +1523,10 @@ namespace folia {
     }
     string src = atts["src"];
     if ( !src.empty() ){
-      _external_metadata = new ExternalMetaData( type, src );
+      _metadata = new ExternalMetaData( type, src );
     }
     else if ( type == "native" ){
-      _native_metadata = new NativeMetaData( type );
+      _metadata = new NativeMetaData( type );
     }
     xmlNode *m = node->children;
     xmlNode *a_node = 0;
@@ -1560,18 +1564,22 @@ namespace folia {
 	if ( debug > 1 ){
 	  cerr << "found meta node:" << getAttributes(m) << endl;
 	}
-	if ( !_native_metadata ){
-	  _native_metadata = new NativeMetaData( "native" );
+	if ( !_metadata ){
+	  if ( type == "external" ){
+	    throw runtime_error( "cannot add 'meta' nodes to external metadata" );
+
+	  }
+	  _metadata = new NativeMetaData( "native" );
 	}
 	KWargs att = getAttributes( m );
 	string meta_id = att["id"];
 	string val = TiCC::XmlContent( m );
-	string get = _native_metadata->get_val( meta_id );
+	string get = _metadata->get_val( meta_id );
 	if ( !get.empty() ){
 	  throw runtime_error( "meta tag with id=" + meta_id
 			       + " is defined more then once " );
 	}
-	_native_metadata->add_av( meta_id, val );
+	_metadata->add_av( meta_id, val );
       }
       else if ( TiCC::Name(m)  == "foreign-data" &&
 		checkNS( m, NSFOLIA ) ){
@@ -1596,9 +1604,9 @@ namespace folia {
       //      cerr << "parse deferred annotations" << endl;
       parse_annotations( a_node );
     }
-    if ( !_native_metadata && type == "imdi" ){
+    if ( !_metadata && type == "imdi" ){
       // imdi missing all further info
-      _native_metadata = new NativeMetaData( type );
+      _metadata = new NativeMetaData( type );
     }
   }
 
@@ -3052,17 +3060,28 @@ namespace folia {
 
   void Document::add_metadata( xmlNode *node ) const{
     /// add a metadata block to node
-    if ( _native_metadata ){
-      KWargs atts;
-      atts["type"] = _native_metadata->type();
-      addAttributes( node, atts );
-      for ( const auto& it : _native_metadata->get_avs() ){
-	xmlNode *m = TiCC::XmlNewNode( foliaNs(), "meta" );
-	xmlAddChild( m, xmlNewText( (const xmlChar*)it.second.c_str()) );
-	KWargs meta_atts;
-	meta_atts["id"] = it.first;
-	addAttributes( m, meta_atts );
-	xmlAddChild( node, m );
+    if ( _metadata ){
+      if ( _metadata->datatype() == "ExternalMetaData" ){
+	KWargs atts;
+	atts["type"] = _metadata->type();
+	string src = _metadata->src();
+	if ( !src.empty() ){
+	  atts["src"] = src;
+	}
+	addAttributes( node, atts );
+      }
+      else {
+	KWargs atts;
+	atts["type"] = _metadata->type();
+	addAttributes( node, atts );
+	for ( const auto& it : _metadata->get_avs() ){
+	  xmlNode *m = TiCC::XmlNewNode( foliaNs(), "meta" );
+	  xmlAddChild( m, xmlNewText( (const xmlChar*)it.second.c_str()) );
+	  KWargs meta_atts;
+	  meta_atts["id"] = it.first;
+	  addAttributes( m, meta_atts );
+	  xmlAddChild( node, m );
+	}
       }
     }
     if ( _foreign_metadata ){
@@ -3074,18 +3093,8 @@ namespace folia {
 	xmlAddChild( node, f );
       }
     }
-    if ( _external_metadata ){
-      KWargs atts;
-      atts["type"] = _external_metadata->type();
-      string src = _external_metadata->src();
-      if ( !src.empty() ){
-	atts["src"] = src;
-      }
-      addAttributes( node, atts );
-    }
-    if ( !_native_metadata
-	 && !_foreign_metadata
-	 && !_external_metadata ){
+    if ( !_metadata
+	 && !_foreign_metadata ){
       KWargs atts;
       atts["type"] = "native";
       addAttributes( node, atts );
