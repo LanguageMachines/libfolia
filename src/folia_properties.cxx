@@ -32,7 +32,7 @@
 #include "libfolia/folia_properties.h"
 
 //foliaspec:header
-//This file was last updated according to the FoLiA specification for version 2.4.2 on 2020-12-17 17:43:25, using foliaspec.py
+//This file was last updated according to the FoLiA specification for version 2.4.2 on 2021-01-06 15:22:24, using foliaspec.py
 //Code blocks after a foliaspec comment (until the next newline) are automatically generated. **DO NOT EDIT THOSE** and **DO NOT REMOVE ANY FOLIASPEC COMMENTS** !!!
 
 namespace folia {
@@ -45,11 +45,11 @@ namespace folia {
 
   //foliaspec:version_minor:MINOR_VERSION
   //The FoLiA version (minor)
-  const int MINOR_VERSION = 5;
+  const int MINOR_VERSION = 4;
 
   //foliaspec:version_sub:SUB_VERSION
   //The FoLiA version (sub/rev)
-  const int SUB_VERSION = 0;
+  const int SUB_VERSION = 2;
 
   //foliaspec:namespace:NSFOLIA
   //The FoLiA XML namespace
@@ -1154,7 +1154,7 @@ namespace folia {
 //------ PhonContent -------
     PhonContent::PROPS = AbstractContentAnnotation::PROPS;
     PhonContent::PROPS.ELEMENT_ID = PhonContent_t;
-    PhonContent::PROPS.ACCEPTED_DATA += {Comment_t, Description_t, XmlText_t};
+    PhonContent::PROPS.ACCEPTED_DATA += {Comment_t, Description_t, Feature_t, XmlText_t};
     PhonContent::PROPS.ANNOTATIONTYPE = AnnotationType::PHON;
     PhonContent::PROPS.LABEL = "Phonetic Content";
     PhonContent::PROPS.PHONCONTAINER = true;
@@ -1425,7 +1425,7 @@ namespace folia {
 //------ TextContent -------
     TextContent::PROPS = AbstractContentAnnotation::PROPS;
     TextContent::PROPS.ELEMENT_ID = TextContent_t;
-    TextContent::PROPS.ACCEPTED_DATA += {AbstractTextMarkup_t, Comment_t, Description_t, Linebreak_t, XmlText_t};
+    TextContent::PROPS.ACCEPTED_DATA += {AbstractTextMarkup_t, Comment_t, Description_t, Feature_t, Linebreak_t, XmlText_t};
     TextContent::PROPS.ANNOTATIONTYPE = AnnotationType::TEXT;
     TextContent::PROPS.LABEL = "Text";
     TextContent::PROPS.PRINTABLE = true;
