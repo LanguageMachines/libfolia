@@ -3063,7 +3063,7 @@ namespace folia {
     if ( _metadata ){
       if ( _metadata->datatype() == "ExternalMetaData" ){
 	KWargs atts;
-	atts["type"] = _metadata->type();
+	atts["type"] = "external";
 	string src = _metadata->src();
 	if ( !src.empty() ){
 	  atts["src"] = src;
@@ -3072,7 +3072,7 @@ namespace folia {
       }
       else {
 	KWargs atts;
-	atts["type"] = _metadata->type();
+	atts["type"] = "native";
 	addAttributes( node, atts );
 	for ( const auto& it : _metadata->get_avs() ){
 	  xmlNode *m = TiCC::XmlNewNode( foliaNs(), "meta" );
@@ -3085,9 +3085,11 @@ namespace folia {
       }
     }
     if ( _foreign_metadata ){
-      KWargs atts;
-      atts["type"] = _foreign_metadata->type();
-      addAttributes( node, atts );
+      if ( !_metadata ){
+	KWargs atts;
+	atts["type"] = "foreign";
+	addAttributes( node, atts );
+      }
       for ( const auto& foreign : _foreign_metadata->get_foreigners() ) {
 	xmlNode *f = foreign->xml( true, false );
 	xmlAddChild( node, f );
