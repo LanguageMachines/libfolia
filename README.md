@@ -4,7 +4,7 @@
 Libfolia: FoLiA Library for C++
 ===================================
 
-    Libfolia (c) CLS/ILK 2010 - 2020
+    Libfolia (c) CLS/ILK 2010 - 2021
     Centre for Language Studies, Radboud University Nijmegen
     Induction of Linguistic Knowledge Research Group, Tilburg University
 
