@@ -1,3 +1,9 @@
+2.7 2021-01-07
+* implemented a more relaxed MetaData scheme, allowing mixing 'foreign'
+  and 'native' MetaData
+* bumped the .so version to 15
+* features may be present in <t> and <t-*> nodes now
+
 2.6.1 2020-12-11
 [Maarten van Gompel]
 * Updated for FoLiA v2.4.1: strip leading/trailing whitespace in text content (proycon/folia#88)
