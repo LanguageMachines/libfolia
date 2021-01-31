@@ -1495,8 +1495,8 @@ namespace folia {
     }
   }
 
-  //#define DEBUG_TEXT
-  //#define DEBUG_TEXT_DEL
+  //  #define DEBUG_TEXT
+  //  #define DEBUG_TEXT_DEL
 
   const string& AbstractElement::get_delimiter( bool retaintok ) const {
     /// get the default delimiter of this object.
@@ -1515,6 +1515,30 @@ namespace folia {
 #ifdef DEBUG_TEXT_DEL
     cerr << "IN <" << xmltag() << ">:get_delimiter (" << retaintok << ")" << endl;
 #endif
+    if ( (SPACE & optional_attributes()) ){
+      if ( _space || retaintok ){
+#ifdef DEBUG_TEXT_DEL
+	cerr << "out <" << xmltag() << "> has space attribute" << endl;
+#endif
+	if ( _props.TEXTDELIMITER != "NONE" ) {
+#ifdef DEBUG_TEXT_DEL
+	  cerr << " return its OWN delimiter: '"
+	       <<  _props.TEXTDELIMITER << "'" << endl;
+#endif
+	  return _props.TEXTDELIMITER;
+	}
+#ifdef DEBUG_TEXT_DEL
+	cerr << " return its delimiter: '" << SPACE_STRING << "'" << endl;
+#endif
+	return SPACE_STRING;
+      }
+      else {
+#ifdef DEBUG_TEXT_DEL
+	cerr << " space = NO, return: '" << EMPTY_STRING << "'" << endl;
+#endif
+	return EMPTY_STRING;
+      }
+    }
     if ( _props.TEXTDELIMITER != "NONE" ) {
       return _props.TEXTDELIMITER;
     }
@@ -1527,14 +1551,6 @@ namespace folia {
 	cerr << "out <" << xmltag() << ">:get_delimiter ==> '" << det << "'" << endl;
 #endif
 	return det;
-      }
-    }
-    if ( (SPACE & optional_attributes()) ){
-      if ( _space || retaintok ){
-#ifdef DEBUG_TEXT_DEL
-	cerr << "out <" << xmltag() << ">:get_delimiter ==> ' '" << endl;
-#endif
-	return SPACE_STRING;
       }
     }
 #ifdef DEBUG_TEXT_DEL
