@@ -1525,7 +1525,7 @@ namespace folia {
     if ( !src.empty() ){
       _metadata = new ExternalMetaData( type, src );
     }
-    else if ( type == "native" ){
+    else if ( type == "native" || type == "imdi" ){
       _metadata = new NativeMetaData( type );
     }
     xmlNode *m = node->children;
@@ -3072,7 +3072,7 @@ namespace folia {
       }
       else {
 	KWargs atts;
-	atts["type"] = "native";
+	atts["type"] = _metadata->type();
 	addAttributes( node, atts );
 	for ( const auto& it : _metadata->get_avs() ){
 	  xmlNode *m = TiCC::XmlNewNode( foliaNs(), "meta" );
