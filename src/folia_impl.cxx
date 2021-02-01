@@ -1523,6 +1523,15 @@ namespace folia {
 	return EMPTY_STRING;
       }
     }
+
+    if ( !data().empty() ){
+      FoliaElement *last = data().back();
+      if ( last &&
+	   last->isSubClass(AbstractStructureElement_t)
+	   && !last->space() ){
+	return EMPTY_STRING;
+      }
+    }
     if ( _props.TEXTDELIMITER != "NONE" ) {
       return _props.TEXTDELIMITER;
     }
