@@ -462,7 +462,7 @@ namespace folia {
     //#define LOG_SET_ATT
 #ifdef LOG_SET_ATT
     int db_level = doc()->debug;
-    if ( element_id() == Sentence_t ) {
+    if ( element_id() == Part_t ) {
       doc()->setdebug(8);
       cerr << "set attributes: " << kwargs << " on " << classname() << endl;
       //      cerr << "required = " <<  toString(required_attributes()) << endl;
@@ -1516,23 +1516,7 @@ namespace folia {
     cerr << "IN <" << xmltag() << ">:get_delimiter (" << retaintok << ")" << endl;
 #endif
     if ( (SPACE & optional_attributes()) ){
-      if ( _space || retaintok ){
-#ifdef DEBUG_TEXT_DEL
-	cerr << "out <" << xmltag() << "> has space attribute" << endl;
-#endif
-	if ( _props.TEXTDELIMITER != "NONE" ) {
-#ifdef DEBUG_TEXT_DEL
-	  cerr << " return its OWN delimiter: '"
-	       <<  _props.TEXTDELIMITER << "'" << endl;
-#endif
-	  return _props.TEXTDELIMITER;
-	}
-#ifdef DEBUG_TEXT_DEL
-	cerr << " return its delimiter: '" << SPACE_STRING << "'" << endl;
-#endif
-	return SPACE_STRING;
-      }
-      else {
+      if ( ! ( _space || retaintok ) ){
 #ifdef DEBUG_TEXT_DEL
 	cerr << " space = NO, return: '" << EMPTY_STRING << "'" << endl;
 #endif
