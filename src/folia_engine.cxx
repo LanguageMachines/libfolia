@@ -1165,10 +1165,11 @@ namespace folia {
 
   xml_tree *get_structure_parent( const xml_tree *pnt ){
     ///  return the nearest StructureElement above this node
-    /// \param pnt a (text) element inthe simple tree.
+    /// \param pnt a (text) element in the simple tree.
     /// \return the first parent which is an AbstractStructureElement
-    /// and NOT a Word
+    /// and NOT a Word or Part
     if ( pnt->parent->tag != "w"
+	 && pnt->parent->tag != "part"
 	 && isSubClass( stringToElementType(pnt->parent->tag),
 			AbstractStructureElement_t ) ){
       return pnt->parent;
@@ -1226,7 +1227,7 @@ namespace folia {
 	if ( pnt->tag == "t" && pnt->textclass == textclass ){
 	  // OK text in the right textclass
 	  if ( prefer_sentences ){
-	    // search for a non-word parent
+	    // search for a suitable parent
 	    xml_tree *par = get_structure_parent( pnt );
 	    int index = par->index;
 	    int next = INT_MAX;
