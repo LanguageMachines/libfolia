@@ -1167,9 +1167,8 @@ namespace folia {
     ///  return the nearest StructureElement above this node
     /// \param pnt a (text) element in the simple tree.
     /// \return the first parent which is an AbstractStructureElement
-    /// and NOT a Word or Part
+    /// and NOT a Word
     if ( pnt->parent->tag != "w"
-	 && pnt->parent->tag != "part"
 	 && isSubClass( stringToElementType(pnt->parent->tag),
 			AbstractStructureElement_t ) ){
       return pnt->parent;
