@@ -1233,7 +1233,7 @@ namespace folia {
     }
   }
 
-  void AbstractElement::check_text_consistency( ) const {
+  void AbstractElement::check_text_consistency( bool trim_spaces ) const {
     /// check the text consistency of the combined text of the children
     /// against the text of the Element.
     /*!
@@ -1260,8 +1260,12 @@ namespace folia {
 	 && parent->hastext( cls ) ){
       // check text consistency for parents with text
       // but SKIP Corrections
-      UnicodeString s1 = parent->text( cls, TEXT_FLAGS::STRICT );
-      UnicodeString s2 = this->text( cls, TEXT_FLAGS::NONE );
+      TEXT_FLAGS flags = TEXT_FLAGS::STRICT;
+      if (!trim_spaces) flags |= TEXT_FLAGS::NO_TRIM_SPACES;
+      UnicodeString s1 = parent->text( cls, flags);
+      flags = TEXT_FLAGS::NONE;
+      if (!trim_spaces) flags |= TEXT_FLAGS::NO_TRIM_SPACES;
+      UnicodeString s2 = this->text( cls, flags );
       // no retain tokenization, strict for parent, deeper for child
       s1 = normalize_spaces( s1 );
       s2 = normalize_spaces( s2 );
@@ -1278,14 +1282,31 @@ namespace folia {
 	test_fail = ( s1 != s2 );
       }
       if ( test_fail ){
-	throw InconsistentText( "text (class="
-				+ cls + ") from node: " + xmltag()
-				+ "(" + id() + ")"
-				+ " with value\n'" + TiCC::UnicodeToUTF8(s2)
-				+ "'\n to element: " + parent->xmltag() +
-				+ "(" + parent->id() + ") which already has "
-				+ "text in that class and value: \n'"
-				+ TiCC::UnicodeToUTF8(s1) + "'\n" );
+        bool warn_only = false;
+        if (trim_spaces) {
+            //ok, we failed according to the >v2.4.1 rules
+            //but do we also fail under the old rules?
+            try {
+                this->check_text_consistency(false);
+                warn_only = true;
+            } catch ( const InconsistentText& ) {
+                //ignore, we raise the newer error
+            }
+        }
+	string msg = "text (class="
+                        + cls + ") from node: " + xmltag()
+                        + "(" + id() + ")"
+                        + " with value\n'" + TiCC::UnicodeToUTF8(s2)
+                        + "'\n to element: " + parent->xmltag() +
+                        + "(" + parent->id() + ") which already has "
+                        + "text in that class and value: \n'"
+                        + TiCC::UnicodeToUTF8(s1) + "'\n";
+        if (warn_only) {
+            msg += "However, according to the older rules (<v2.4.1) the text is consistent. So we are treating this as a warning rather than an error. We do recommend fixing this if this is a document you intend to publish.\n";
+            cerr << "WARNING: inconsistent text: " << msg << endl;
+        } else {
+            throw InconsistentText(msg);
+        }
       }
     }
   }
@@ -1555,7 +1576,9 @@ namespace folia {
   const UnicodeString AbstractElement::private_text( const string& cls,
 						     bool retaintok,
 						     bool strict,
-						     bool show_hidden ) const {
+						     bool show_hidden,
+                                                     bool trim_spaces ) const {
+
     /// get the UnicodeString value of an element
     /*!
      * \param cls The textclass we are looking for
@@ -1563,6 +1586,7 @@ namespace folia {
      * \param strict If true, return the text of this level only
      * when false, allow recursing into children
      * \param show_hidden include text form 'hidden' nodes too.
+     * \param trim_spaces Trim leading and trailing spaces (defaults to True since FoLiA v2.4.1)
      * \return the Unicode String representation found. Throws when
      * no text can be found
      */
@@ -1593,11 +1617,11 @@ namespace folia {
       int i = 0;
       for ( const auto& d : _data ){
         if (d->isinstance( XmlText_t)) {
-              if ((i == 0) && (i == (int) _data.size() -1)) {
+              if ((trim_spaces) && (i == 0) && (i == (int) _data.size() -1)) {
                   result += rtrim(ltrim(d->text( cls )));
-              } else if (i == 0) {
+              } else if ((trim_spaces) && (i == 0)) {
                   result += ltrim(d->text( cls ));
-              } else if (i == (int) _data.size() - 1) {
+              } else if ((trim_spaces) && (i == (int) _data.size() - 1)) {
                   result += rtrim(d->text( cls ));
               } else {
                   result += d->text( cls );
@@ -1607,7 +1631,9 @@ namespace folia {
 	    const string& delim = d->get_delimiter( retaintok );
 	    result += TiCC::UnicodeFromUTF8(delim);
 	  }
-          result += d->text( cls );
+          TEXT_FLAGS flags = TEXT_FLAGS::NONE;
+          if (!trim_spaces) flags |= TEXT_FLAGS::NO_TRIM_SPACES;
+          result += d->text( cls, flags );
 	}
         i++;
       }
@@ -1628,9 +1654,12 @@ namespace folia {
       if ( show_hidden ){
 	flags |= TEXT_FLAGS::HIDDEN;
       }
+    if (!trim_spaces) flags |= TEXT_FLAGS::NO_TRIM_SPACES;
       UnicodeString result = deeptext( cls, flags );
       if ( result.isEmpty() ) {
-	result = stricttext( cls );
+        TEXT_FLAGS flags = TEXT_FLAGS::NONE;
+        if (!trim_spaces) flags |= TEXT_FLAGS::NO_TRIM_SPACES;
+	result = stricttext( cls, trim_spaces );
       }
       if ( result.isEmpty() ) {
 	throw NoSuchText( "on tag " + xmltag() + " nor it's children" );
@@ -1649,7 +1678,8 @@ namespace folia {
     bool retain = ( TEXT_FLAGS::RETAIN & flags ) == TEXT_FLAGS::RETAIN;
     bool strict = ( TEXT_FLAGS::STRICT & flags ) == TEXT_FLAGS::STRICT;
     bool hidden = ( TEXT_FLAGS::HIDDEN & flags ) == TEXT_FLAGS::HIDDEN;
-    return private_text( cls, retain, strict, hidden );
+    bool trim_spaces = !( ( TEXT_FLAGS::NO_TRIM_SPACES & flags ) == TEXT_FLAGS::NO_TRIM_SPACES);
+    return private_text( cls, retain, strict, hidden, trim_spaces );
   }
 
   void FoLiA::setAttributes( KWargs& kwargs ){
@@ -1737,13 +1767,15 @@ namespace folia {
   const UnicodeString FoLiA::private_text( const string& cls,
 					   bool retaintok,
 					   bool strict,
-					   bool ) const {
+					   bool,
+                                           bool trim_spaces) const {
     /// get the UnicodeString value of a FoLiA topnode
     /*!
      * \param cls The textclass we are looking for
      * \param retaintok retain the tokenisation information
      * \param strict If true, return the text of the direct children only
      * when false, allow recursing into children
+     * \param trim_spaces Trim leading and trailing spaces (defaults to True since FoLiA v2.4.1)
      * \return the Unicode String representation found. Throws when
      * no text can be found
      */
@@ -1757,7 +1789,7 @@ namespace folia {
 	const string& delim = d->get_delimiter( retaintok );
 	result += TiCC::UnicodeFromUTF8(delim);
       }
-      result += d->private_text( cls, retaintok, strict, false );
+      result += d->private_text( cls, retaintok, strict, false, trim_spaces );
     }
 #ifdef DEBUG_TEXT
     cerr << "FoLiA::TEXT returns '" << result << "'" << endl;
@@ -2000,17 +2032,19 @@ namespace folia {
     return result;
   }
 
-  const UnicodeString FoliaElement::stricttext( const string& cls ) const {
+  const UnicodeString FoliaElement::stricttext( const string& cls, bool trim_spaces ) const {
     /// get the UnicodeString value of TextContent children only
     /*!
      * \param cls the textclass
      * \return The Unicode Text found.
      * Will throw on error.
      */
-    return this->text(cls, TEXT_FLAGS::STRICT );
+    TEXT_FLAGS flags = TEXT_FLAGS::STRICT;
+    if (!trim_spaces) flags |= TEXT_FLAGS::NO_TRIM_SPACES;
+    return this->text(cls, flags );
   }
 
-  const UnicodeString FoliaElement::toktext( const string& cls ) const {
+  const UnicodeString FoliaElement::toktext( const string& cls, bool trim_spaces ) const {
     /// get the UnicodeString value of TextContent children only, retaining
     /// tokenization
     /*!
@@ -2018,7 +2052,9 @@ namespace folia {
      * \return The Unicode Text found.
      * Will throw on error.
      */
-    return this->text(cls, TEXT_FLAGS::RETAIN );
+    TEXT_FLAGS flags = TEXT_FLAGS::RETAIN;
+    if (!trim_spaces) flags |= TEXT_FLAGS::NO_TRIM_SPACES;
+    return this->text(cls, flags );
   }
 
   const TextContent *AbstractElement::text_content( const string& cls,
@@ -5521,7 +5557,7 @@ namespace folia {
   //#define DEBUG_TEXT
   const UnicodeString Correction::private_text( const string& cls,
 						bool retaintok,
-						bool, bool ) const {
+						bool, bool, bool trim_spaces ) const {
     /// get the UnicodeString value of an Correction
     /*!
      * \param cls The textclass we are looking for
@@ -5548,7 +5584,7 @@ namespace folia {
 	}
 	else {
 	  try {
-	    new_result = el->private_text( cls, retaintok, false, false );
+	    new_result = el->private_text( cls, retaintok, false, false, trim_spaces );
 	  }
 	  catch ( ... ){
 	    // try other nodes
@@ -5557,7 +5593,7 @@ namespace folia {
       }
       else if ( el->isinstance( Original_t ) ){
 	try {
-	  org_result = el->private_text( cls, retaintok, false, false );
+	  org_result = el->private_text( cls, retaintok, false, false, trim_spaces );
 	}
 	catch ( ... ){
 	  // try other nodes
@@ -5565,7 +5601,7 @@ namespace folia {
       }
       else if ( el->isinstance( Current_t ) ){
 	try {
-	  cur_result = el->private_text( cls, retaintok, false, false );
+	  cur_result = el->private_text( cls, retaintok, false, false, trim_spaces );
 	}
 	catch ( ... ){
 	  // try other nodes
@@ -6003,7 +6039,7 @@ namespace folia {
     return true;
   }
 
-  const UnicodeString XmlText::private_text( const string&, bool, bool, bool ) const {
+  const UnicodeString XmlText::private_text( const string&, bool, bool, bool, bool ) const {
     /// get the UnicodeString value of an XmlText element
     /*!
      */
@@ -6506,7 +6542,8 @@ namespace folia {
   const UnicodeString TextMarkupCorrection::private_text( const string& cls,
 							  bool retaintok,
 							  bool strict,
-							  bool show_hidden ) const{
+							  bool show_hidden,
+                                                          bool trim_spaces ) const{
     /// get the UnicodeString value of a TextMarkupCorrection element
     /*!
      * \param cls The textclass we are looking for
@@ -6522,7 +6559,7 @@ namespace folia {
     if ( cls == "original" ) {
       return TiCC::UnicodeFromUTF8(_original);
     }
-    return AbstractElement::private_text( cls, retaintok, strict, show_hidden );
+    return AbstractElement::private_text( cls, retaintok, strict, show_hidden, trim_spaces );
   }
 
   const FoliaElement* AbstractTextMarkup::resolveid() const {

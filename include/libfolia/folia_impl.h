@@ -75,7 +75,12 @@ namespace folia {
 		  The default is NOT STRICT, meaning to get text from deeper
 		  textcontent nodes too. (stopping at the first that HAS text)
 		*/
-      HIDDEN=4  //!< Include text from 'hidden' nodes.
+      HIDDEN=4,  //!< Include text from 'hidden' nodes.
+      NO_TRIM_SPACES=8 /*!< Do not trim leading and trailing spaces (was the default
+                          prior to FoLiA v2.4.1, see
+                          https://github.com/proycon/folia/issues/92
+                        */
+
       };
 
   inline TEXT_FLAGS operator&( TEXT_FLAGS f1, TEXT_FLAGS f2 ){
@@ -319,7 +324,7 @@ namespace folia {
     // text/string content
     bool hastext( const std::string& = "current" ) const;
     bool hasphon( const std::string& = "current" ) const;
-    virtual void check_text_consistency() const = 0;
+    virtual void check_text_consistency(bool = true) const = 0;
     virtual void check_append_text_consistency( const FoliaElement * ) const = 0;
 
     virtual const std::string str( const std::string& = "current" ) const = 0;
@@ -328,12 +333,13 @@ namespace folia {
     virtual const UnicodeString private_text( const std::string& = "current",
 					      bool = false,
 					      bool = false,
-					      bool = false ) const = 0;
+					      bool = false,
+                                              bool = true) const = 0;
     virtual const UnicodeString text( const std::string&,
 				      TEXT_FLAGS = TEXT_FLAGS::NONE ) const = 0;
     virtual const UnicodeString text( TEXT_FLAGS = TEXT_FLAGS::NONE ) const = 0;
-    const UnicodeString stricttext( const std::string& = "current" ) const;
-    const UnicodeString toktext( const std::string& = "current" ) const;
+    const UnicodeString stricttext( const std::string& = "current", bool = true ) const;
+    const UnicodeString toktext( const std::string& = "current", bool = true ) const;
     virtual const UnicodeString phon( const std::string&,
 				      TEXT_FLAGS = TEXT_FLAGS::NONE ) const = 0;
     virtual const UnicodeString phon( TEXT_FLAGS = TEXT_FLAGS::NONE ) const = 0;
@@ -662,7 +668,8 @@ namespace folia {
     const UnicodeString private_text( const std::string& = "current",
 				      bool = false,
 				      bool = false,
-				      bool = false ) const;
+				      bool = false,
+                                      bool = true) const;
     const UnicodeString text( const std::string&,
 			      TEXT_FLAGS = TEXT_FLAGS::NONE ) const;
     const UnicodeString text( TEXT_FLAGS flags = TEXT_FLAGS::NONE ) const {
@@ -768,7 +775,7 @@ namespace folia {
     bool addable( const FoliaElement * ) const;
     void setDateTime( const std::string& );
     const std::string getDateTime() const;
-    void check_text_consistency() const;
+    void check_text_consistency(bool = true) const;
     void check_append_text_consistency( const FoliaElement * ) const;
     void check_declaration();
   private:
@@ -1238,7 +1245,8 @@ namespace folia {
     const UnicodeString private_text( const std::string& = "current",
 				      bool = false,
 				      bool = false,
-				      bool = false ) const;
+				      bool = false,
+                                      bool = true) const;
     static properties PROPS;
     std::string _original;
   };
@@ -1386,7 +1394,8 @@ namespace folia {
     const UnicodeString private_text( const std::string& = "current",
 				      bool = false,
 				      bool = false,
-				      bool = false ) const;
+				      bool = false,
+                                      bool = true) const;
     static properties PROPS;
 
   };
@@ -1531,7 +1540,8 @@ namespace folia {
       const UnicodeString private_text( const std::string& = "current",
 					bool = false,
 					bool = false,
-					bool = false ) const {
+					bool = false,
+                                        bool = true) const {
 	return "\n";
       }
       static properties PROPS;
@@ -1553,7 +1563,8 @@ namespace folia {
     const UnicodeString private_text( const std::string& = "current",
 				      bool = false,
 				      bool = false,
-				      bool = false ) const {
+				      bool = false,
+                                      bool = true) const {
       return "\n\n";
     }
     static properties PROPS;
@@ -2585,7 +2596,8 @@ namespace folia {
     const UnicodeString private_text( const std::string& = "current",
 				      bool = false,
 				      bool = false,
-				      bool = false ) const { return ""; };
+				      bool = false,
+                                      bool = true) const { return ""; };
     static properties PROPS;
     std::string _value;
   };
@@ -2606,7 +2618,8 @@ namespace folia {
     const UnicodeString private_text( const std::string& = "current",
 				      bool = false,
 				      bool = false,
-				      bool = false ) const;
+				      bool = false,
+                                      bool = true) const;
     static properties PROPS;
     std::string _value; //UTF8 value
   };
@@ -2745,7 +2758,8 @@ namespace folia {
     const UnicodeString private_text( const std::string& = "current",
 				      bool = false,
 				      bool = false,
-				      bool = false ) const;
+				      bool = false,
+                                      bool = true) const;
     static properties PROPS;
   };
 
