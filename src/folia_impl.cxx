@@ -1311,6 +1311,93 @@ namespace folia {
     }
   }
 
+  void AbstractElement::check_text_consistency_while_parsing( bool trim_spaces ) {
+      // this block was moved from parseXml into a separate function
+      // it remains to be seen how much overlaps with check_text_consistency()
+      // and whether we can't make do with one function
+      //
+      // unlike the other function, this does do some fixing when requested
+      //
+
+#ifdef DEBUG_TEXT
+      cerr << "DEBUG: BEGIN check_text_consistency_while_parsing(" << trim_spaces << ")" << endl;
+#endif
+
+      vector<TextContent*> tv = select<TextContent>( false );
+      // first see which text classes are present
+      set<string> cls;
+      for ( const auto& it : tv ){
+	cls.insert( it->cls() );
+      }
+      // check the text for every text class
+      for ( const auto& st : cls ){
+	UnicodeString s1, s2;
+        TEXT_FLAGS flags = TEXT_FLAGS::STRICT;
+        if (!trim_spaces) flags |= TEXT_FLAGS::NO_TRIM_SPACES;
+	try {
+	  s1 = text( st, flags );  // no retain tokenization, strict
+	}
+	catch (...){
+	}
+	if ( !s1.isEmpty() ){
+	  //	  cerr << "S1: " << s1 << endl;
+         flags = TEXT_FLAGS::NONE;
+         if (!trim_spaces) flags |= TEXT_FLAGS::NO_TRIM_SPACES;
+	  try {
+	    s2 = text( st, flags ); // no retain tokenization, no strict
+	  }
+	  catch (...){
+	  }
+	  //	  cerr << "S2: " << s2 << endl;
+	  s1 = normalize_spaces( s1 );
+	  s2 = normalize_spaces( s2 );
+	  if ( !s2.isEmpty() && s1 != s2 ){
+	    if ( doc()->fixtext() ){
+	      //	      cerr << "FIX: " << s1 << "==>" << s2 << endl;
+	      KWargs args;
+	      args["value"] = TiCC::UnicodeToUTF8(s2);
+	      args["class"] = st;
+	      TextContent *node = new TextContent( args, doc() );
+	      this->replace( node );
+	    }
+	    else {
+              bool warn_only = false;
+              if (trim_spaces) {
+                 //ok, we failed according to the >v2.4.1 rules
+                 //but do we also fail under the old rules?
+                 try {
+#ifdef DEBUG_TEXT
+                     cerr << "DEBUG: (testing according to older rules now)" << endl;
+#endif
+                     this->check_text_consistency_while_parsing(false);
+                     warn_only = true;
+                 } catch ( const InconsistentText& e ) {
+                     cerr << "(tested according to older rules (<v2.4.1) as well, but this failed too)" << endl;
+                     //ignore, we raise the newer error
+                 }
+              }
+	      string msg = "node " + xmltag() + "(" + id()
+		+ ") has a mismatch for the text in set:" + st
+		+ "\nthe element text ='" + TiCC::UnicodeToUTF8(s1)
+		+ "'\n" + " the deeper text ='" + TiCC::UnicodeToUTF8(s2) + "'";
+              if (warn_only) {
+                  msg += "\nHOWEVER, according to the older rules (<v2.4.1) the text is consistent. So we are treating this as a warning rather than an error. We do recommend fixing this if this is a document you intend to publish.\n";
+                  cerr << "WARNING: inconsistent text: " << msg << endl;
+              } else {
+#ifdef DEBUG_TEXT
+                  cerr << "DEBUG: CONSISTENCYERROR check_text_consistency_while_parsing(" << trim_spaces << ")" << endl;
+#endif
+                  throw InconsistentText(msg);
+              }
+	    }
+	  }
+	}
+      }
+#ifdef DEBUG_TEXT
+      cerr << "DEBUG: END-OK check_text_consistency_while_parsing(" << trim_spaces << ")" << endl;
+#endif
+  }
+
   xmlNode *AbstractElement::xml( bool recursive, bool kanon ) const {
     /// convert an Element to an xmlNode
     /*!
@@ -1595,10 +1682,11 @@ namespace folia {
 	 << id() << endl;
     cerr << (strict?"strict":"not strict") << "\t"
 	 << (retaintok?"retain":"untokenized") << "\t"
-	 << (show_hidden?"show_hidden":"hide hidden") << "\t" << endl;
+	 << (show_hidden?"show_hidden":"hide hidden") << "\t"
+	 << (trim_spaces?"trimming spaces":"not trimming spaces") << "\t" << endl;
 #endif
     if ( strict ) {
-      return text_content(cls,show_hidden)->text(cls);
+      return text_content(cls,show_hidden)->text(cls, !trim_spaces ? TEXT_FLAGS::NO_TRIM_SPACES : TEXT_FLAGS::NONE);
     }
     else if ( is_textcontainer() ){
 #ifdef DEBUG_TEXT
@@ -1631,9 +1719,7 @@ namespace folia {
 	    const string& delim = d->get_delimiter( retaintok );
 	    result += TiCC::UnicodeFromUTF8(delim);
 	  }
-          TEXT_FLAGS flags = TEXT_FLAGS::NONE;
-          if (!trim_spaces) flags |= TEXT_FLAGS::NO_TRIM_SPACES;
-          result += d->text( cls, flags );
+          result += d->text( cls, !trim_spaces ? TEXT_FLAGS::NO_TRIM_SPACES : TEXT_FLAGS::NONE  );
 	}
         i++;
       }
@@ -1654,11 +1740,11 @@ namespace folia {
       if ( show_hidden ){
 	flags |= TEXT_FLAGS::HIDDEN;
       }
-    if (!trim_spaces) flags |= TEXT_FLAGS::NO_TRIM_SPACES;
+      if ( !trim_spaces ){
+         flags |= TEXT_FLAGS::NO_TRIM_SPACES;
+      }
       UnicodeString result = deeptext( cls, flags );
       if ( result.isEmpty() ) {
-        TEXT_FLAGS flags = TEXT_FLAGS::NONE;
-        if (!trim_spaces) flags |= TEXT_FLAGS::NO_TRIM_SPACES;
 	result = stricttext( cls, trim_spaces );
       }
       if ( result.isEmpty() ) {
@@ -1679,6 +1765,9 @@ namespace folia {
     bool strict = ( TEXT_FLAGS::STRICT & flags ) == TEXT_FLAGS::STRICT;
     bool hidden = ( TEXT_FLAGS::HIDDEN & flags ) == TEXT_FLAGS::HIDDEN;
     bool trim_spaces = !( ( TEXT_FLAGS::NO_TRIM_SPACES & flags ) == TEXT_FLAGS::NO_TRIM_SPACES);
+#ifdef DEBUG_TEXT
+    cerr << "DEBUG text() retain=" << retain << " strict=" << strict << " hidden=" << hidden << " trim_spaces=" << trim_spaces << endl;
+#endif
     return private_text( cls, retain, strict, hidden, trim_spaces );
   }
 
@@ -3066,49 +3155,7 @@ namespace folia {
     if ( doc() && ( doc()->checktext() || doc()->fixtext() )
 	 && this->printable()
 	 && !isSubClass( Morpheme_t ) && !isSubClass( Phoneme_t) ){
-      vector<TextContent*> tv = select<TextContent>( false );
-      // first see which text classes are present
-      set<string> cls;
-      for ( const auto& it : tv ){
-	cls.insert( it->cls() );
-      }
-      // check the text for every text class
-      for ( const auto& st : cls ){
-	UnicodeString s1, s2;
-	try {
-	  s1 = text( st, TEXT_FLAGS::STRICT );  // no retain tokenization, strict
-	}
-	catch (...){
-	}
-	if ( !s1.isEmpty() ){
-	  //	  cerr << "S1: " << s1 << endl;
-	  try {
-	    s2 = text( st, TEXT_FLAGS::NONE ); // no retain tokenization, no strict
-	  }
-	  catch (...){
-	  }
-	  //	  cerr << "S2: " << s2 << endl;
-	  s1 = normalize_spaces( s1 );
-	  s2 = normalize_spaces( s2 );
-	  if ( !s2.isEmpty() && s1 != s2 ){
-	    if ( doc()->fixtext() ){
-	      //	      cerr << "FIX: " << s1 << "==>" << s2 << endl;
-	      KWargs args;
-	      args["value"] = TiCC::UnicodeToUTF8(s2);
-	      args["class"] = st;
-	      TextContent *node = new TextContent( args, doc() );
-	      this->replace( node );
-	    }
-	    else {
-	      string mess = "node " + xmltag() + "(" + id()
-		+ ") has a mismatch for the text in set:" + st
-		+ "\nthe element text ='" + TiCC::UnicodeToUTF8(s1)
-		+ "'\n" + " the deeper text ='" + TiCC::UnicodeToUTF8(s2) + "'";
-	      throw( InconsistentText( mess ) );
-	    }
-	  }
-	}
-      }
+        check_text_consistency_while_parsing();
     }
     return this;
   }

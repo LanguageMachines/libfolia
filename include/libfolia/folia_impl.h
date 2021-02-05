@@ -325,6 +325,7 @@ namespace folia {
     bool hastext( const std::string& = "current" ) const;
     bool hasphon( const std::string& = "current" ) const;
     virtual void check_text_consistency(bool = true) const = 0;
+    virtual void check_text_consistency_while_parsing(bool = true) = 0; //can't we merge these two somehow?
     virtual void check_append_text_consistency( const FoliaElement * ) const = 0;
 
     virtual const std::string str( const std::string& = "current" ) const = 0;
@@ -776,6 +777,7 @@ namespace folia {
     void setDateTime( const std::string& );
     const std::string getDateTime() const;
     void check_text_consistency(bool = true) const;
+    void check_text_consistency_while_parsing(bool = true); //can't we merge these two somehow?
     void check_append_text_consistency( const FoliaElement * ) const;
     void check_declaration();
   private:
