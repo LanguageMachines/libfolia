@@ -1603,8 +1603,8 @@ namespace folia {
     }
   }
 
-  //  #define DEBUG_TEXT
-  //  #define DEBUG_TEXT_DEL
+  //#define DEBUG_TEXT
+  //#define DEBUG_TEXT_DEL
 
   const string& AbstractElement::get_delimiter( bool retaintok ) const {
     /// get the default delimiter of this object.
@@ -1701,27 +1701,34 @@ namespace folia {
 #endif
 	return "";
       }
+#ifdef DEBUG_TEXT
+      cerr << "Get the text from the children." << endl;
+#endif
       UnicodeString result;
-      int i = 0;
+      unsigned int i = 0;
       for ( const auto& d : _data ){
         if (d->isinstance( XmlText_t)) {
-              if ((trim_spaces) && (i == 0) && (i == (int) _data.size() -1)) {
-                  result += rtrim(ltrim(d->text( cls )));
-              } else if ((trim_spaces) && (i == 0)) {
-                  result += ltrim(d->text( cls ));
-              } else if ((trim_spaces) && (i == (int) _data.size() - 1)) {
-                  result += rtrim(d->text( cls ));
-              } else {
-                  result += d->text( cls );
-              }
-        } else if ( d->printable() ){
+	  if ((trim_spaces) && (i == 0) && (i == _data.size() -1)) {
+	    result += rtrim(ltrim(d->text( cls )));
+	  } else if ((trim_spaces) && (i == 0)) {
+	    result += ltrim(d->text( cls ));
+	  } else if ((trim_spaces) && (i == _data.size() - 1)) {
+	    result += rtrim(d->text( cls ));
+	  } else {
+	    result += d->text( cls );
+	  }
+        }
+	else if ( d->printable() ){
 	  if ( !result.isEmpty() ){
 	    const string& delim = d->get_delimiter( retaintok );
+#ifdef DEBUG_TEXT
+	    cerr << "append delimitter: '" << delim << "'" << endl;
+#endif
 	    result += TiCC::UnicodeFromUTF8(delim);
 	  }
           result += d->text( cls, !trim_spaces ? TEXT_FLAGS::NO_TRIM_SPACES : TEXT_FLAGS::NONE  );
 	}
-        i++;
+        ++i;
       }
 #ifdef DEBUG_TEXT
       cerr << "TEXT(" << cls << ") on a textcontainer :" << xmltag()
@@ -1924,7 +1931,7 @@ namespace folia {
   UnicodeString ltrim( const UnicodeString& in ){
     /// remove leading whitespace (including newlines and tabs)
     int begin = in.length();
-    for (int i = 0; i < in.length(); i++) {
+    for ( int i = 0; i < in.length(); ++i ) {
         if ((in[i] != 0x0020) && (in[i] != 0x0009) && (in[i] != 0x000a) && (in[i] != 0x000d)) {
             begin = i;
             break;
@@ -1942,7 +1949,7 @@ namespace folia {
   UnicodeString rtrim( const UnicodeString& in ){
     /// remove trailing whitespace (including newlines and tabs)
     int end = -1;
-    for (int i = in.length() - 1; i >= 0; i--) {
+    for ( int i = in.length() - 1; i >= 0; --i ) {
         if ((in[i] != 0x0020) && (in[i] != 0x0009) && (in[i] != 0x000a) && (in[i] != 0x000d)) {
             end = i;
             break;
