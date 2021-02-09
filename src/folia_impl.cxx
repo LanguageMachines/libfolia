@@ -1240,7 +1240,7 @@ namespace folia {
      * For all other cases, the text should exactly match the parents text.
      * \note Matching is opaque to spaces, newlines and tabs
      */
-    if ( !doc() || !doc()->checktext() || ! printable() ){
+    if ( !doc() || !doc()->checktext() || !printable() ){
       return;
     }
 
@@ -1252,10 +1252,14 @@ namespace folia {
       // check text consistency for parents with text
       // but SKIP Corrections
       TEXT_FLAGS flags = TEXT_FLAGS::STRICT;
-      if (!trim_spaces) flags |= TEXT_FLAGS::NO_TRIM_SPACES;
+      if ( !trim_spaces ) {
+	flags |= TEXT_FLAGS::NO_TRIM_SPACES;
+      }
       UnicodeString s1 = parent->text( cls, flags);
       flags = TEXT_FLAGS::NONE;
-      if (!trim_spaces) flags |= TEXT_FLAGS::NO_TRIM_SPACES;
+      if ( !trim_spaces ) {
+	flags |= TEXT_FLAGS::NO_TRIM_SPACES;
+      }
       UnicodeString s2 = this->text( cls, flags );
       // no retain tokenization, strict for parent, deeper for child
       s1 = normalize_spaces( s1 );
@@ -1274,29 +1278,30 @@ namespace folia {
       }
       if ( test_fail ){
         bool warn_only = false;
-        if (trim_spaces) {
-            //ok, we failed according to the >v2.4.1 rules
-            //but do we also fail under the old rules?
-            try {
-                this->check_text_consistency(false);
-                warn_only = true;
-            } catch ( const InconsistentText& ) {
-                //ignore, we raise the newer error
-            }
+        if ( trim_spaces ) {
+	  //ok, we failed according to the >v2.4.1 rules
+	  //but do we also fail under the old rules?
+	  try {
+	    this->check_text_consistency(false);
+	    warn_only = true;
+	  } catch ( const InconsistentText& ) {
+	    //ignore, we raise the newer error
+	  }
         }
 	string msg = "text (class="
-                        + cls + ") from node: " + xmltag()
-                        + "(" + id() + ")"
-                        + " with value\n'" + TiCC::UnicodeToUTF8(s2)
-                        + "'\n to element: " + parent->xmltag() +
-                        + "(" + parent->id() + ") which already has "
-                        + "text in that class and value: \n'"
-                        + TiCC::UnicodeToUTF8(s1) + "'\n";
+	  + cls + ") from node: " + xmltag()
+	  + "(" + id() + ")"
+	  + " with value\n'" + TiCC::UnicodeToUTF8(s2)
+	  + "'\n to element: " + parent->xmltag() +
+	  + "(" + parent->id() + ") which already has "
+	  + "text in that class and value: \n'"
+	  + TiCC::UnicodeToUTF8(s1) + "'\n";
         if (warn_only) {
-            msg += "However, according to the older rules (<v2.4.1) the text is consistent. So we are treating this as a warning rather than an error. We do recommend fixing this if this is a document you intend to publish.\n";
-            cerr << "WARNING: inconsistent text: " << msg << endl;
-        } else {
-            throw InconsistentText(msg);
+	  msg += "However, according to the older rules (<v2.4.1) the text is consistent. So we are treating this as a warning rather than an error. We do recommend fixing this if this is a document you intend to publish.\n";
+	  cerr << "WARNING: inconsistent text: " << msg << endl;
+        }
+	else {
+	  throw InconsistentText(msg);
         }
       }
     }
@@ -1324,7 +1329,9 @@ namespace folia {
       for ( const auto& st : cls ){
 	UnicodeString s1, s2;
         TEXT_FLAGS flags = TEXT_FLAGS::STRICT;
-        if (!trim_spaces) flags |= TEXT_FLAGS::NO_TRIM_SPACES;
+        if ( !trim_spaces ) {
+	  flags |= TEXT_FLAGS::NO_TRIM_SPACES;
+	}
 	try {
 	  s1 = text( st, flags );  // no retain tokenization, strict
 	}
@@ -1332,8 +1339,10 @@ namespace folia {
 	}
 	if ( !s1.isEmpty() ){
 	  //	  cerr << "S1: " << s1 << endl;
-         flags = TEXT_FLAGS::NONE;
-         if (!trim_spaces) flags |= TEXT_FLAGS::NO_TRIM_SPACES;
+	  flags = TEXT_FLAGS::NONE;
+	  if ( !trim_spaces ) {
+	    flags |= TEXT_FLAGS::NO_TRIM_SPACES;
+	  }
 	  try {
 	    s2 = text( st, flags ); // no retain tokenization, no strict
 	  }
@@ -1353,32 +1362,34 @@ namespace folia {
 	    }
 	    else {
               bool warn_only = false;
-              if (trim_spaces) {
-                 //ok, we failed according to the >v2.4.1 rules
-                 //but do we also fail under the old rules?
-                 try {
+              if ( trim_spaces ) {
+		//ok, we failed according to the >v2.4.1 rules
+		//but do we also fail under the old rules?
+		try {
 #ifdef DEBUG_TEXT
-                     cerr << "DEBUG: (testing according to older rules now)" << endl;
+		  cerr << "DEBUG: (testing according to older rules now)" << endl;
 #endif
-                     this->check_text_consistency_while_parsing(false);
-                     warn_only = true;
-                 } catch ( const InconsistentText& e ) {
-                     cerr << "(tested according to older rules (<v2.4.1) as well, but this failed too)" << endl;
-                     //ignore, we raise the newer error
-                 }
+		  this->check_text_consistency_while_parsing(false);
+		  warn_only = true;
+		}
+		catch ( const InconsistentText& e ) {
+		  cerr << "(tested according to older rules (<v2.4.1) as well, but this failed too)" << endl;
+		  //ignore, we raise the newer error
+		}
               }
 	      string msg = "node " + xmltag() + "(" + id()
 		+ ") has a mismatch for the text in set:" + st
 		+ "\nthe element text ='" + TiCC::UnicodeToUTF8(s1)
 		+ "'\n" + " the deeper text ='" + TiCC::UnicodeToUTF8(s2) + "'";
-              if (warn_only) {
-                  msg += "\nHOWEVER, according to the older rules (<v2.4.1) the text is consistent. So we are treating this as a warning rather than an error. We do recommend fixing this if this is a document you intend to publish.\n";
-                  cerr << "WARNING: inconsistent text: " << msg << endl;
-              } else {
+              if ( warn_only ) {
+		msg += "\nHOWEVER, according to the older rules (<v2.4.1) the text is consistent. So we are treating this as a warning rather than an error. We do recommend fixing this if this is a document you intend to publish.\n";
+		cerr << "WARNING: inconsistent text: " << msg << endl;
+              }
+	      else {
 #ifdef DEBUG_TEXT
-                  cerr << "DEBUG: CONSISTENCYERROR check_text_consistency_while_parsing(" << trim_spaces << ")" << endl;
+		cerr << "DEBUG: CONSISTENCYERROR check_text_consistency_while_parsing(" << trim_spaces << ")" << endl;
 #endif
-                  throw InconsistentText(msg);
+		throw InconsistentText(msg);
               }
 	    }
 	  }
