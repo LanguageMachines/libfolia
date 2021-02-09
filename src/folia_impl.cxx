@@ -210,8 +210,8 @@ namespace folia {
       os << "<" << ae.index(i)->classname() << ">,";
     }
     os << "}";
-    if ( ae.classname() == "t" ){
-      os << " (" << ae.str() << ")";
+    if ( ae.printable() ){
+      os << " \"" << ae.str(ae.textclass()) << "\" (" << ae.textclass() << ")";
     }
     return os;
   }
@@ -2158,7 +2158,7 @@ namespace folia {
     /// Get the TextContent explicitly associated with this element.
     /*!
      * \param cls the textclass to search for
-     * \param show_hidden if true also return text og 'hidden' nodes
+     * \param show_hidden if true also return text of 'hidden' nodes
      *
      * Returns the TextContent instance rather than the actual text.
      * (so it might return iself.. ;)
