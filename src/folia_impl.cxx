@@ -1097,16 +1097,7 @@ namespace folia {
      * \param add_ns Also add the NameSpace declarations
      * \return a string representation of the FoLiA XML
      */
-    xmlNode *n = xml( true, false );
-    if ( add_ns ){
-      xmlSetNs( n, xmlNewNs( n, (const xmlChar *)NSFOLIA.c_str(), 0 ) );
-    }
-    xmlBuffer *buf = xmlBufferCreate();
-    xmlNodeDump( buf, 0, n, 0, 0 );
-    string result = (const char*)xmlBufferContent( buf );
-    xmlBufferFree( buf );
-    xmlFreeNode( n );
-    return result;
+    return xmlstring( false, 0, add_ns );
   }
 
   const string FoliaElement::xmlstring( bool format,
