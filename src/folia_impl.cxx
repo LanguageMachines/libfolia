@@ -210,7 +210,7 @@ namespace folia {
       os << "<" << ae.index(i)->classname() << ">,";
     }
     os << "}";
-    if ( ae.printable() ){
+    if ( ae.printable() && ae.classname()[0] == 't' ){
       os << " \"" << ae.str(ae.textclass()) << "\" (" << ae.textclass() << ")";
     }
     return os;
