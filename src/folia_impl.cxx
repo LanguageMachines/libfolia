@@ -1433,6 +1433,9 @@ namespace folia {
       }
     }
     addAttributes( e, attribs );
+    if ( _data.empty() ){
+      return e; // we are done
+    }
     if ( recursive ) {
       // append children:
       // we want make sure that text elements are in the right order,
@@ -1481,8 +1484,8 @@ namespace folia {
 	// don't change the internal sequences of TextContent elements
       }
       if ( !kanon ) {
-	for ( const auto& oel : otherelements ) {
-	  xmlAddChild( e, oel->xml( recursive, kanon ) );
+	for ( const auto& oem : otherelements ) {
+	  xmlAddChild( e, oem->xml( recursive, kanon ) );
 	}
       }
       else {
@@ -3113,12 +3116,12 @@ namespace folia {
 	  XmlText *t = new XmlText();
 	  if ( p->content ) {
 	    t->setvalue( (const char*)p->content );
-	  }
-	  append( t );
-	  if ( doc() && doc()->debug > 2 ) {
-	    cerr << "created " << t << "(" << t->text() << ")" << endl;
-	    cerr << "extended " << this << " met " << t << endl;
-	    cerr << "this.size()= " << size() << " t.size()=" << t->size() << endl;
+	    append( t );
+	    if ( doc() && doc()->debug > 2 ) {
+	      cerr << "created " << t << "(" << t->text() << ")" << endl;
+	      cerr << "extended " << this << " met " << t << endl;
+	      cerr << "this.size()= " << size() << " t.size()=" << t->size() << endl;
+	    }
 	  }
 	}
 	else {
