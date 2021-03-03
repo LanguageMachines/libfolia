@@ -1,5 +1,7 @@
-[![Build Status](https://travis-ci.org/LanguageMachines/libfolia.svg?branch=master)](https://travis-ci.org/LanguageMachines/libfolia) [![Language Machines Badge](http://applejack.science.ru.nl/lamabadge.php/ticcutils)](http://applejack.science.ru.nl/languagemachines/) [![DOI](https://zenodo.org/badge/9030036.svg)](https://zenodo.org/badge/latestdoi/9030036)
-[![GitHub release](https://img.shields.io/github/release/LanguageMachines/libfolia.svg)](https://GitHub.com/LanguageMachines/libfolia/releases/) [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
+[![GitHub build](https://github.com/LanguageMachines/libfolia/actions/workflows/libfolia.yml/badge.svg?branch=master)](https://github.com/LanguageMachines/libfolia/actions/)
+[![Language Machines Badge](http://applejack.science.ru.nl/lamabadge.php/ticcutils)](http://applejack.science.ru.nl/languagemachines/) [![DOI](https://zenodo.org/badge/9030036.svg)](https://zenodo.org/badge/latestdoi/9030036)
+[![GitHub release](https://img.shields.io/github/release/LanguageMachines/libfolia.svg)](https://GitHub.com/LanguageMachines/libfolia/releases/)
+[![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 
 Libfolia: FoLiA Library for C++
 ===================================
