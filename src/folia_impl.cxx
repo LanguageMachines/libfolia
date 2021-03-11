@@ -243,6 +243,7 @@ namespace folia {
     _annotator_type(UNDEFINED),
     _refcount(0),
     _confidence(-1),
+    _preserve_spaces(false),
     _props(p)
   {
   }

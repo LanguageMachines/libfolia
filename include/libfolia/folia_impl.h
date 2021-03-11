@@ -715,8 +715,10 @@ namespace folia {
     const std::string speech_src() const;
     const std::string speech_speaker() const;
     const std::string language( const std::string& = "" ) const;
-    bool space() const { return _space; };
     const std::string src() const { return _src; };
+    bool space() const { return _space; };
+    bool preserve_spaces() const { return _preserve_spaces; };
+    void preserve_spaces( bool p ) { _preserve_spaces = p; };
     double confidence() const { return _confidence; };
     void confidence( double d ) { _confidence = d; };
 
@@ -802,6 +804,7 @@ namespace folia {
     std::string _class;
     std::string _id;
     std::string _src;
+    bool _preserve_spaces;
     std::vector<FoliaElement*> _data;
     const properties& _props;
   };
