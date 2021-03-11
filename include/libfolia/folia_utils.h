@@ -135,6 +135,7 @@ namespace folia {
   public:
     KWargs( const std::string& ="" );
     bool is_present( const std::string& ) const;
+    std::string lookup( const std::string& );
     std::string extract( const std::string& );
     std::string toString();
     void init( const std::string& );

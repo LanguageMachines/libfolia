@@ -3189,7 +3189,7 @@ namespace folia {
     if ( doc() && ( doc()->checktext() || doc()->fixtext() )
 	 && this->printable()
 	 && !isSubClass( Morpheme_t ) && !isSubClass( Phoneme_t) ){
-        check_text_consistency_while_parsing();
+      check_text_consistency_while_parsing();
     }
     return this;
   }

@@ -175,6 +175,15 @@ namespace folia {
     return find(att) != end();
   }
 
+  string KWargs::lookup( const string& att ){
+    string result;
+    auto it = find(att);
+    if ( it != end() ){
+      result = it->second;
+    }
+    return result;
+  }
+
   string KWargs::extract( const string& att ){
     string result;
     auto it = find(att);
