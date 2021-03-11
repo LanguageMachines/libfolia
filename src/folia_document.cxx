@@ -189,6 +189,7 @@ namespace folia {
     mode = Mode( CHECKTEXT|AUTODECLARE );
     _external_document = false;
     _incremental_parse = false;
+    _preserve_spaces = false;
     major_version = 0;
     minor_version = 0;
     sub_version = 0;

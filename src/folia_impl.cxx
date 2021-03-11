@@ -1427,16 +1427,21 @@ namespace folia {
      */
     xmlNode *e = XmlNewNode( foliaNs(), xmltag() );
     KWargs attribs = collectAttributes();
-    string sp = attribs.lookup( "xml:space" );
-    if ( sp == "preserve" ){
+    if ( _preserve_spaces ){
+      // we carry an 'xml:space="preserve" flag?
       if ( doc()->preserve_spaces() ){
+	// if our ancestor did also, clear it here
 	attribs.extract( "xml:space" );
       }
       else {
+	// otherwise leave it, and notify our document
 	doc()->set_preserve_spaces(true);
       }
     }
-    else {
+    else if ( doc()->preserve_spaces() ){
+      // this subtree should go back to "default" then
+      attribs["xml:space"] = "default";
+      // and the doc needs to know it
       doc()->set_preserve_spaces(false);
     }
     set<FoliaElement *> attribute_elements;

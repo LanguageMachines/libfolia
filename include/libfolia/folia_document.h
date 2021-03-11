@@ -389,7 +389,7 @@ namespace folia {
       _preserve_spaces = b;
     };
     bool preserve_spaces() const {
-      /// the value of the preserve_spaces flag
+      /// return the value of the preserve_spaces flag
       return _preserve_spaces;
     }
 
