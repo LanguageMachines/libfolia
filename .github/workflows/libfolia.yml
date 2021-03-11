@@ -2,10 +2,11 @@ name: C/C++ CI
 
 on:
   push:
-    branches: [master]
+    branches: [master, v2.5]
     paths:
       - 'src/**'
       - 'include/**'
+      - .github/workflows/libfolia.yml
 
   pull_request:
     branches: [master]
