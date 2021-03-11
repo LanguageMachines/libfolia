@@ -384,6 +384,15 @@ namespace folia {
       /// return the value of the incremental_parse flag
       return _incremental_parse;
     };
+    void set_preserve_spaces( bool b ) {
+      /// set/unset the preserve_spaces flag
+      _preserve_spaces = b;
+    };
+    bool preserve_spaces() const {
+      /// the value of the preserve_spaces flag
+      return _preserve_spaces;
+    }
+
   private:
     void adjustTextMode();
     std::map<AnnotationType,std::multimap<std::string,at_t> > _annotationdefaults;   ///< stores all declared annotations per AnnotationType
@@ -456,6 +465,7 @@ namespace folia {
     std::string patch_version;
     bool _external_document;
     bool _incremental_parse;
+    bool _preserve_spaces;
     Document( const Document& ); // inhibit copies
     Document& operator=( const Document& ); // inhibit copies
   };

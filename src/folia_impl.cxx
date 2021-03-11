@@ -1427,6 +1427,18 @@ namespace folia {
      */
     xmlNode *e = XmlNewNode( foliaNs(), xmltag() );
     KWargs attribs = collectAttributes();
+    string sp = attribs.lookup( "xml:space" );
+    if ( sp == "preserve" ){
+      if ( doc()->preserve_spaces() ){
+	attribs.extract( "xml:space" );
+      }
+      else {
+	doc()->set_preserve_spaces(true);
+      }
+    }
+    else {
+      doc()->set_preserve_spaces(false);
+    }
     set<FoliaElement *> attribute_elements;
     // nodes that can be represented as attributes are converted to atributes
     // and excluded of 'normal' output.
