@@ -459,11 +459,25 @@ namespace folia {
      *     - if the object provided value is valid
      *     - if the attribute is declared for the annotation-type
      */
+    // for the moment, always look for the 'xml:space' attribute
+    string sval = kwargs.extract( "xml:space" );
+    if ( !sval.empty() ){
+      if ( sval == "preserve" ){
+	_preserve_spaces = true;
+      }
+      else if ( sval == "default" ){
+	_preserve_spaces = false;
+      }
+      else {
+	throw runtime_error( "invalid value for attribute xml:space, must be "
+			     "'default' or 'preserve', found: '" + sval + "'");
+      }
+    }
     Attrib supported = required_attributes() | optional_attributes();
     //#define LOG_SET_ATT
 #ifdef LOG_SET_ATT
     int db_level = doc()->debug;
-    if ( element_id() == Part_t ) {
+    if ( element_id() == Paragraph_t ) {
       doc()->setdebug(8);
       cerr << "set attributes: " << kwargs << " on " << classname() << endl;
       //      cerr << "required = " <<  toString(required_attributes()) << endl;
@@ -988,6 +1002,9 @@ namespace folia {
     }
     if ( !_id.empty() ) {
       attribs["xml:id"] = _id;
+    }
+    if ( _preserve_spaces ) {
+      attribs["xml:space"] = "preserve";
     }
     string default_set = doc()->default_set( annotation_type() );
     bool isDefaultSet = (_set == default_set);
@@ -3050,6 +3067,10 @@ namespace folia {
      * \return the parsed tree. Throws on error.
      */
     KWargs att = getAttributes( node );
+    int sp = xmlNodeGetSpacePreserve(node);
+    if ( sp == 1 ){
+      att["xml:space"] = "preserve";
+    }
     setAttributes( att );
     xmlNode *p = node->children;
     while ( p ) {
