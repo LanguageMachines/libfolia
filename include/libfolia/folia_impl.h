@@ -132,6 +132,20 @@ namespace folia {
       return element_id() == obj.element_id();
     }
 
+    template <typename T>
+      inline T *create( KWargs& args ){
+      T *nt = new T(args, doc());
+      append( nt );
+      return nt;
+    }
+
+    template <typename T>
+      inline T *create(){
+      T *nt = new T(doc());
+      append( nt );
+      return nt;
+    }
+
     bool isSubClass( ElementType ) const;
     bool isSubClass( const FoliaElement *c ) const {
       /// check if the object is a subclass of the class of \e c
@@ -549,7 +563,7 @@ namespace folia {
     void classInit( const KWargs& a ){
       // this funcion is needed because calling the virtual function
       // setAttributes from the constructor will NOT call the right version
-      // THIS IS BY DESIGN.
+      // THIS IS BY DESIGN in C++
       init(); // virtual init
       KWargs a1 = a;
       setAttributes( a1 ); // also virtual!
@@ -566,26 +580,6 @@ namespace folia {
       \param et the type to check against
     */
       return et == element_id();
-    }
-
-    template <typename F>
-      bool isinstance() const {
-      F obj((Document*)0);
-      return element_id() == obj.element_id();
-    }
-
-    template <typename T>
-      inline T *create( KWargs& args ){
-      T *nt = new T(args, doc());
-      append( nt );
-      return nt;
-    }
-
-    template <typename T>
-      inline T *create(){
-      T *nt = new T(doc());
-      append( nt );
-      return nt;
     }
 
     void assignDoc( Document* );

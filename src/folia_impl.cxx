@@ -6125,7 +6125,7 @@ namespace folia {
   }
 
   bool XmlText::setvalue( const std::string& s ){
-    /// set the value of an Xmltext element in NFC endcoded UTF8
+    /// set the value of an XmlText element in NFC endcoded UTF8
     /*!
      * \param s an UTF8 string
      * \return true always
