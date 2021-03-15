@@ -455,6 +455,8 @@ namespace folia {
     virtual const std::string set_to_current() NOT_IMPLEMENTED;
     virtual double confidence() const = 0;
     virtual void confidence( double ) = 0;
+    virtual bool preserve_spaces() const = 0;
+    virtual void preserve_spaces( bool ) = 0;
     virtual ElementType element_id() const = 0;
     virtual size_t occurrences() const = 0;
     virtual size_t occurrences_per_set() const = 0;
