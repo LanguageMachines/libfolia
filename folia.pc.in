@@ -5,8 +5,8 @@ includedir=@includedir@
 
 Name: folia
 Version: @VERSION@
-Description: FoLiA uitls
-Requires.private: libxml-2.0 
+Description: FoLiA library
+Requires.private: libxml-2.0
 Libs: -L${libdir} -lfolia
 Libs.private: @LIBS@
 Cflags: -I${includedir}
