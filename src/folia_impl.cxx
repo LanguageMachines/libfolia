@@ -243,7 +243,7 @@ namespace folia {
     _annotator_type(UNDEFINED),
     _refcount(0),
     _confidence(-1),
-    _preserve_spaces(false),
+    _preserve_spaces(SPACE_FLAGS::UNSET),
     _props(p)
   {
   }
@@ -463,10 +463,10 @@ namespace folia {
     string sval = kwargs.extract( "xml:space" );
     if ( !sval.empty() ){
       if ( sval == "preserve" ){
-	_preserve_spaces = true;
+	_preserve_spaces = SPACE_FLAGS::PRESERVE;
       }
       else if ( sval == "default" ){
-	_preserve_spaces = false;
+	_preserve_spaces = SPACE_FLAGS::DEFAULT;
       }
       else {
 	throw runtime_error( "invalid value for attribute xml:space, must be "
@@ -1003,7 +1003,7 @@ namespace folia {
     if ( !_id.empty() ) {
       attribs["xml:id"] = _id;
     }
-    if ( _preserve_spaces ) {
+    if ( _preserve_spaces == SPACE_FLAGS::PRESERVE ) {
       attribs["xml:space"] = "preserve";
     }
     string default_set = doc()->default_set( annotation_type() );
@@ -1427,7 +1427,7 @@ namespace folia {
      */
     xmlNode *e = XmlNewNode( foliaNs(), xmltag() );
     KWargs attribs = collectAttributes();
-    if ( _preserve_spaces ){
+    if ( _preserve_spaces == SPACE_FLAGS::PRESERVE ){
       // we carry an 'xml:space="preserve" flag?
       if ( doc()->preserve_spaces() ){
 	// if our ancestor did also, clear it here
@@ -2870,6 +2870,9 @@ namespace folia {
       if ( child->referable() ){
 	child->increfcount();
       }
+      if ( child->preserve_spaces() == SPACE_FLAGS::UNSET ){
+	child->preserve_spaces( _preserve_spaces );
+      }
       return child->postappend();
     }
     return 0;
@@ -3088,6 +3091,10 @@ namespace folia {
     if ( sp == 1 ){
       att["xml:space"] = "preserve";
     }
+    else if ( sp == 0 ){
+      att["xml:space"] = "default";
+    }
+
     setAttributes( att );
     xmlNode *p = node->children;
     while ( p ) {
