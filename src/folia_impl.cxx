@@ -1658,7 +1658,6 @@ namespace folia {
      * When this test fails, an empty string is returned, UNLESS the element has
      * the SPACE attribute AND retaintok is specified
      */
-    static const string SPACE_STRING = " ";
 
 #ifdef DEBUG_TEXT_DEL
     cerr << "IN <" << xmltag() << ">:get_delimiter (" << retaintok << ")" << endl;
