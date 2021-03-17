@@ -39,6 +39,8 @@ using namespace icu;
 
 int main() {
   cout << "checking sanity" << endl;
+  cout << "Type Hierarchy" << endl;
+  print_type_hierarchy( cout );
   cout << "AnnotationType sanity" << endl;
   if ( ! AT_sanity_check() ){
     cout << "too bad. no use to continue" << endl;
