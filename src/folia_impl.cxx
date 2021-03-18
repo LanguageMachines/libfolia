@@ -1753,22 +1753,20 @@ namespace folia {
 		pendingspace = false;
 	    }
 	    if (trim_spaces) {
-		cerr << "trimming spaces"  << endl;
 		//This implements https://github.com/proycon/folia/issues/88
 		//FoLiA >= v2.5 behaviour (introduced earlier in v2.4.1 but modified thereafter)
 		const int l = result.length();
 		UnicodeString text = d->text(cls);
 		int begin = 0;
 		int linenr = 0;
-		for (i = 0; i < text.length(); i++) {
-		    if ((text[i] == 0x000a) || (i == text.length() - 1)) { //newline or end
+		for (i = 0; i < (unsigned int) text.length(); i++) {
+		    if ((text[i] == 0x000a) || (i == (unsigned int) text.length() - 1)) { //newline or end
 			UnicodeString line;
 			if (text[i] == 0x000a) { //newline
 			    line = UnicodeString(text, begin, i - begin);
 			} else {
 			    line = UnicodeString(text, begin, text.length() - begin);
 			}
-			cerr << "LINE: " << line << endl;
 			begin = i+1;
 
 			UnicodeString subresult;
@@ -1811,7 +1809,6 @@ namespace folia {
 
 	    } else {
 		//old FoLiA <= v2.4.1 behaviour, we don't trim anything
-		cerr << "legacy behaviour"  << endl;
 		result += d->text( cls );
 	    }
 
@@ -1823,7 +1820,7 @@ namespace folia {
 	  if ( !result.isEmpty() ){
 	    const string& delim = d->get_delimiter( retaintok );
 #ifdef DEBUG_TEXT
-	    cerr << "append delimitter: '" << delim << "'" << endl;
+	    cerr << "append delimiter: '" << delim << "'" << endl;
 #endif
 	    result += TiCC::UnicodeFromUTF8(delim);
 	  }
@@ -2175,12 +2172,6 @@ namespace folia {
 	  UnicodeString tmp = child->text( cls, flags );
 #ifdef DEBUG_TEXT
 	  cerr << "deeptext found '" << tmp << "'" << endl;
-#endif
-	  if ( !isSubClass(AbstractTextMarkup_t) ){
-	    tmp = trim_space( tmp );
-	  }
-#ifdef DEBUG_TEXT
-	  cerr << "deeptext trimmed '" << tmp << "'" << endl;
 #endif
 	  parts.push_back(tmp);
 	  if ( child->isinstance( Sentence_t )
