@@ -1796,7 +1796,7 @@ namespace folia {
 		    }
 		}
 
-		if ((text.length() > 0) && (result.length() > 0) && (
+		if ((this->_preserve_spaces != SPACE_FLAGS::PRESERVE) && (text.length() > 0) && (result.length() > 0) && (
 			(text[text.length() - 1] == 0x0020) || //space
 			(text[text.length() - 1] == 0x000a) || //newline
 			(text[text.length() - 1] == 0x0009))) { //tab
