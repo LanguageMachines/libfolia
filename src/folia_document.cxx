@@ -1691,9 +1691,9 @@ namespace folia {
   }
 
   bool Document::validate_offsets() const {
-    /// Validate all the offset values as found in all \<t\> and \<p\> nodes
+    /// Validate all the offset values as found in all \<t\> and \<ph\> nodes
     /*!
-      During Document parsing, \<t\> and \<p\> nodes are stored in a buffer
+      During Document parsing, \<t\> and \<ph\> nodes are stored in a buffer
       until the whole parsing is done.
 
       Then we are able to examine those nodes in their context and check the
