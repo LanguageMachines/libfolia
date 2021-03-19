@@ -1714,13 +1714,28 @@ namespace folia {
 	  string msg = "Text for " + txt->parent()->xmltag() + "(ID="
 	    + txt->parent()->id() + ", textclass='" + txt->cls()
 	    + "'), has incorrect offset " + TiCC::toString(offset);
+
+
 	  string ref = txt->ref();
 	  if ( !ref.empty() ){
 	    msg += " or invalid reference:" + ref;
 	  }
 	  msg += "\n\toriginal msg=";
 	  msg += e.what();
-	  throw UnresolvableTextContent( msg );
+
+          bool warn = false;
+          try {
+             txt->get_reference(false); //trim_spaces = false
+             msg += "\nHowever, according to the older rules (<v2.4.1) the offsets are accepted. So we are treating this as a warning rather than an error. We do recommend fixing this if this is a document you intend to publish.";
+             warn = true;
+          } catch (UnresolvableTextContent& e2) {
+             msg += "\n(also checked against older rules prior to FoLiA v2.4.1)";
+          }
+
+          if (warn)
+              cerr << "WARNING: " << msg << endl;
+          else
+              throw UnresolvableTextContent( msg );
 	}
       }
     }
@@ -1739,13 +1754,28 @@ namespace folia {
 	  string msg = "Phoneme for " + phon->parent()->xmltag() + ", ID="
 	    + phon->parent()->id() + ", textclass='" + phon->cls()
 	    + "', has incorrect offset " + TiCC::toString(offset);
+
+
 	  string ref = phon->ref();
 	  if ( !ref.empty() ){
 	    msg += " or invalid reference:" + ref;
 	  }
 	  msg += "\n\toriginal msg=";
 	  msg += e.what();
-	  throw UnresolvableTextContent( msg );
+
+          bool warn = false;
+          try {
+             phon->get_reference(false); //trim_spaces = false
+             msg += "\nHowever, according to the older rules (<v2.4.1) the offsets are accepted. So we are treating this as a warning rather than an error. We do recommend fixing this if this is a document you intend to publish.";
+             warn = true;
+          } catch (UnresolvableTextContent& e2) {
+             msg += "\n(also checked against older rules prior to FoLiA v2.4.1)";
+          }
+
+          if (warn)
+              cerr << "WARNING: " << msg << endl;
+          else
+              throw UnresolvableTextContent( msg );
 	}
       }
     }

@@ -3895,8 +3895,8 @@ namespace folia {
     return 0;
   }
 
-  FoliaElement *TextContent::get_reference() const {
-    /// get the FoliaElement _ref is refering to
+  FoliaElement *TextContent::get_reference(bool trim_spaces) const {
+    /// get the FoliaElement _ref is refering to and does offset validation
     /*!
      * \return the refered element OR the default parent when _ref is 0
      */
@@ -3921,8 +3921,10 @@ namespace folia {
       throw UnresolvableTextContent( "Reference (ID " + _ref + ") has no such text (class=" + cls() + ")" );
     }
     else if ( doc()->checktext() || doc()->fixtext() ){
-      UnicodeString mt = this->text( this->cls(), TEXT_FLAGS::STRICT );
-      UnicodeString pt = ref->text( this->cls(), TEXT_FLAGS::STRICT );
+      TEXT_FLAGS flags = TEXT_FLAGS::STRICT;
+      if ( !trim_spaces ) flags |= TEXT_FLAGS::NO_TRIM_SPACES;
+      UnicodeString mt = this->text( this->cls(), flags );
+      UnicodeString pt = ref->text( this->cls(), flags );
       UnicodeString sub( pt, this->offset(), mt.length() );
       if ( mt != sub ){
 	if ( doc()->fixtext() ){
@@ -3992,7 +3994,7 @@ namespace folia {
     return 0;
   }
 
-  FoliaElement *PhonContent::get_reference() const {
+  FoliaElement *PhonContent::get_reference(bool trim_spaces) const {
     /// get the FoliaElement _ref is refering to
     /*!
      * \return the refered element OR the default parent when _ref is 0
@@ -4018,8 +4020,10 @@ namespace folia {
       throw UnresolvableTextContent( "Reference (ID " + _ref + ") has no such phonetic content (class=" + cls() + ")" );
     }
     else if ( doc()->checktext() || doc()->fixtext() ){
-      UnicodeString mt = this->phon( this->cls() );
-      UnicodeString pt = ref->phon( this->cls() );
+      TEXT_FLAGS flags = TEXT_FLAGS::STRICT;
+      if ( !trim_spaces ) flags |= TEXT_FLAGS::NO_TRIM_SPACES;
+      UnicodeString mt = this->phon( this->cls(), flags );
+      UnicodeString pt = ref->phon( this->cls(), flags );
       UnicodeString sub( pt, this->offset(), mt.length() );
       if ( mt != sub ){
 	if ( doc()->fixtext() ){

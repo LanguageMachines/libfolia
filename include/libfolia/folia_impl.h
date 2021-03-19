@@ -1350,7 +1350,7 @@ namespace folia {
 	return res;
       }
       FoliaElement *postappend();
-      FoliaElement *get_reference() const;
+      FoliaElement *get_reference(bool trim_spaces=true) const;
       std::string ref() const { return _ref; };
     private:
       void init();
@@ -1376,7 +1376,7 @@ namespace folia {
 			      TEXT_FLAGS = TEXT_FLAGS::NONE ) const;
     int offset() const { return _offset; };
     FoliaElement *postappend();
-    FoliaElement *get_reference() const;
+    FoliaElement *get_reference(bool trim_spaces=true) const;
     std::string ref() const { return _ref; };
   private:
     void init();
