@@ -1748,74 +1748,79 @@ namespace folia {
       unsigned int i = 0;
       for ( const auto& d : _data ){
         if (d->isinstance( XmlText_t)) {
-	    if (pendingspace) {
-		result += " ";
-		pendingspace = false;
-	    }
-	    if (trim_spaces) {
-		//This implements https://github.com/proycon/folia/issues/88
-		//FoLiA >= v2.5 behaviour (introduced earlier in v2.4.1 but modified thereafter)
-		const int l = result.length();
-		UnicodeString text = d->text(cls);
-		int begin = 0;
-		int linenr = 0;
-		for (i = 0; i < (unsigned int) text.length(); i++) {
-		    if ((text[i] == 0x000a) || (i == (unsigned int) text.length() - 1)) { //newline or end
-			UnicodeString line;
-			if (text[i] == 0x000a) { //newline
-			    line = UnicodeString(text, begin, i - begin);
-			} else {
-			    line = UnicodeString(text, begin, text.length() - begin);
-			}
-			begin = i+1;
-
-			UnicodeString subresult;
-			if (this->_preserve_spaces == SPACE_FLAGS::PRESERVE) {
-			    if (line.length() > 0 && line[line.length() - 1] == 0x000d) { //carriage return
-				//remove artefacts of any DOS-style line endings (not sure if still
-				//needed here but better safe than sorry)
-				line = UnicodeString(line, 0, line.length() - 1);
-			    }
-			    subresult = line;
-			} else {
-			    subresult = normalize_spaces(trim_space(line));
-			}
-
-			if ((linenr > 0) && (subresult.length() > 0) && (result.length() != l)) {
-			    //insert spaces between lines that used to be newline separated
-			    result.append((UChar32) 0x0020);
-			} else if ((linenr == 0) && (subresult.length() > 0) && (line.length() > 0) && ((line[0] == 0x0020) || line[0] == 0x0009) && this->_preserve_spaces != SPACE_FLAGS::PRESERVE) {
-			    //we have leading indentation we may need to collapse or ignore entirely
-			    //we can't be sure yet what to do so we add a temporary placeholder \1
-			    //this will later be handled in postprocess_spaces() (converts to a space only if no space preceeds it)
-			    result.append(0x0001);
-			}
-			result += subresult;
-
-			linenr++;
-		    }
-		}
-
-		if ((this->_preserve_spaces != SPACE_FLAGS::PRESERVE) && (text.length() > 0) && (result.length() > 0) && (
-			(text[text.length() - 1] == 0x0020) || //space
-			(text[text.length() - 1] == 0x000a) || //newline
-			(text[text.length() - 1] == 0x0009))) { //tab
-			//this item has trailing spaces but we stripped them
-			//this may be premature so
-			//we reserve to output them later in case there is a next item
-			pendingspace = true;
-
-		}
-
-	    } else {
-		//old FoLiA <= v2.4.1 behaviour, we don't trim anything
-		result += d->text( cls );
-	    }
-
-        } else if ( d->printable() ){
 	  if (pendingspace) {
-	     result += " ";
-	     pendingspace = false;
+	    result += " ";
+	    pendingspace = false;
+	  }
+	  if (trim_spaces) {
+	    //This implements https://github.com/proycon/folia/issues/88
+	    //FoLiA >= v2.5 behaviour (introduced earlier in v2.4.1 but modified thereafter)
+	    const int l = result.length();
+	    UnicodeString text = d->text(cls);
+	    int begin = 0;
+	    int linenr = 0;
+	    for (i = 0; i < (unsigned int) text.length(); i++) {
+	      if ((text[i] == 0x000a) || (i == (unsigned int) text.length() - 1)) { //newline or end
+		UnicodeString line;
+		if (text[i] == 0x000a) { //newline
+		  line = UnicodeString(text, begin, i - begin);
+		}
+		else {
+		  line = UnicodeString(text, begin, text.length() - begin);
+		}
+		begin = i+1;
+
+		UnicodeString subresult;
+		if (this->_preserve_spaces == SPACE_FLAGS::PRESERVE) {
+		  if (line.length() > 0 && line[line.length() - 1] == 0x000d) { //carriage return
+		    //remove artefacts of any DOS-style line endings (not sure if still
+		    //needed here but better safe than sorry)
+		    line = UnicodeString(line, 0, line.length() - 1);
+		  }
+		  subresult = line;
+		}
+		else {
+		  subresult = normalize_spaces(trim_space(line));
+		}
+
+		if ((linenr > 0) && (subresult.length() > 0) && (result.length() != l)) {
+		  //insert spaces between lines that used to be newline separated
+		  result.append((UChar32) 0x0020);
+		}
+		else if ((linenr == 0) && (subresult.length() > 0) && (line.length() > 0) && ((line[0] == 0x0020) || line[0] == 0x0009) && this->_preserve_spaces != SPACE_FLAGS::PRESERVE) {
+		  //we have leading indentation we may need to collapse or ignore entirely
+		  //we can't be sure yet what to do so we add a temporary placeholder \1
+		  //this will later be handled in postprocess_spaces() (converts to a space only if no space preceeds it)
+		  result.append(0x0001);
+		}
+		result += subresult;
+
+		linenr++;
+	      }
+	    }
+
+	    if ((this->_preserve_spaces != SPACE_FLAGS::PRESERVE) && (text.length() > 0) && (result.length() > 0) && (
+														      (text[text.length() - 1] == 0x0020) || //space
+														      (text[text.length() - 1] == 0x000a) || //newline
+														      (text[text.length() - 1] == 0x0009))) { //tab
+	      //this item has trailing spaces but we stripped them
+	      //this may be premature so
+	      //we reserve to output them later in case there is a next item
+	      pendingspace = true;
+
+	    }
+
+	  }
+	  else {
+	    //old FoLiA <= v2.4.1 behaviour, we don't trim anything
+	    result += d->text( cls );
+	  }
+
+        }
+	else if ( d->printable() ){
+	  if (pendingspace) {
+	    result += " ";
+	    pendingspace = false;
 	  }
 	  if ( !result.isEmpty() ){
 	    const string& delim = d->get_delimiter( retaintok );
@@ -1833,9 +1838,10 @@ namespace folia {
 	   << " returned '" << result << "'" << endl;
 #endif
       if (trim_spaces && this->preserve_spaces() != SPACE_FLAGS::PRESERVE) {
-          return postprocess_spaces(result);
-      } else {
-	  return result;
+	return postprocess_spaces(result);
+      }
+      else {
+	return result;
       }
     }
     else if ( !printable() || ( hidden() && !show_hidden ) ){
@@ -2034,17 +2040,19 @@ namespace folia {
     /// remove leading whitespace (including newlines and tabs)
     int begin = in.length();
     for ( int i = 0; i < in.length(); ++i ) {
-        if ((in[i] != 0x0020) && (in[i] != 0x0009) && (in[i] != 0x000a) && (in[i] != 0x000d)) {
-            begin = i;
-            break;
-        }
+      if ((in[i] != 0x0020) && (in[i] != 0x0009) && (in[i] != 0x000a) && (in[i] != 0x000d)) {
+	begin = i;
+	break;
+      }
     }
     if (begin == 0) {
-        return in;
-    } else if (begin == in.length()) {
-        return "";
-    } else {
-        return UnicodeString(in, begin, in.length() - begin);
+      return in;
+    }
+    else if (begin == in.length()) {
+      return "";
+    }
+    else {
+      return UnicodeString(in, begin, in.length() - begin);
     }
   }
 
@@ -2052,17 +2060,19 @@ namespace folia {
     /// remove trailing whitespace (including newlines and tabs)
     int end = -1;
     for ( int i = in.length() - 1; i >= 0; --i ) {
-        if ((in[i] != 0x0020) && (in[i] != 0x0009) && (in[i] != 0x000a) && (in[i] != 0x000d)) {
-            end = i;
-            break;
-        }
+      if ((in[i] != 0x0020) && (in[i] != 0x0009) && (in[i] != 0x000a) && (in[i] != 0x000d)) {
+	end = i;
+	break;
+      }
     }
     if (end == in.length()) {
-        return in;
-    } else if (end == -1) {
-        return "";
-    } else {
-        return UnicodeString(in, 0, end+1);
+      return in;
+    }
+    else if (end == -1) {
+      return "";
+    }
+    else {
+      return UnicodeString(in, 0, end+1);
     }
   }
 
@@ -2070,25 +2080,28 @@ namespace folia {
     ///Postprocessing for spaces, translates temporary \1 codepoints to spaces if they are are not preceeded by whitespace
     bool need_postprocessing = false;
     for (int i = 0; i < in.length(); i++) {
-	if (in[i] == 0x0001) {
-	    need_postprocessing = true;
-	    break;
-	}
+      if (in[i] == 0x0001) {
+	need_postprocessing = true;
+	break;
+      }
     }
     if (!need_postprocessing) {
-	return in;
-    } else {
-	UnicodeString result;
-	for (int i = 0; i < in.length(); i++) {
-	    if (in[i] == 0x0001) {
-		if ((i > 0) && (in[i-1] != 0x0020) && (in[i-1] != 0x0009) && (in[i-1] != 0x000a) && (in[i-1] != 0x000d))
-		    result.append((UChar32) 0x0020); //add a space
-	        // 1 byte is dropped otherwise
-	    } else {
-		result.append(in[i]);
-	    }
+      return in;
+    }
+    else {
+      UnicodeString result;
+      for (int i = 0; i < in.length(); i++) {
+	if (in[i] == 0x0001) {
+	  if ((i > 0) && (in[i-1] != 0x0020) && (in[i-1] != 0x0009) && (in[i-1] != 0x000a) && (in[i-1] != 0x000d)) {
+	    result.append((UChar32) 0x0020); //add a space
+	    // 1 byte is dropped otherwise
+	  }
 	}
-	return result;
+	else {
+	  result.append(in[i]);
+	}
+      }
+      return result;
     }
   }
 
