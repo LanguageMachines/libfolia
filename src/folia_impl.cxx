@@ -1699,6 +1699,13 @@ namespace folia {
     return EMPTY_STRING;
   }
 
+  bool is_space( const UChar32 kar ){
+    return ( kar == 0x0020       // space
+	     || kar == 0x0009    // tab
+	     || kar == 0x000a    // newline
+	     || kar == 0x000d ); // carriage return
+  }
+
   const UnicodeString AbstractElement::private_text( const string& cls,
 						     bool retaintok,
 						     bool strict,
@@ -1796,8 +1803,7 @@ namespace folia {
 		else if ( (linenr == 0)
 			  && (subresult.length() > 0)
 			  && (line.length() > 0)
-			  && ( (line[0] == 0x0020)
-			       || line[0] == 0x0009)
+			  && ( is_space(line[0]) )
 			  && this->_preserve_spaces != SPACE_FLAGS::PRESERVE ) {
 		  //we have leading indentation we may need to collapse or ignore entirely
 		  //we can't be sure yet what to do so we add a temporary placeholder \1
@@ -1809,12 +1815,10 @@ namespace folia {
 	      }
 	    }
 
-	    if ( (this->_preserve_spaces != SPACE_FLAGS::PRESERVE)
-		 && (text.length() > 0)
-		 && (result.length() > 0)
-		 && ( (text[text.length() - 1] == 0x0020) || //space
-		      (text[text.length() - 1] == 0x000a) || //newline
-		      (text[text.length() - 1] == 0x0009))) { //tab
+	    if ( this->_preserve_spaces != SPACE_FLAGS::PRESERVE
+		 && text.length() > 0
+		 && result.length() > 0
+		 && is_space(text[text.length() - 1]) ){
 	      //this item has trailing spaces but we stripped them
 	      //this may be premature so
 	      //we reserve to output them later in case there is a next item
@@ -2050,10 +2054,7 @@ namespace folia {
     /// remove leading whitespace (including newlines and tabs)
     int begin = in.length();
     for ( int i = 0; i < in.length(); ++i ) {
-      if ( (in[i] != 0x0020)
-	   && (in[i] != 0x0009)
-	   && (in[i] != 0x000a)
-	   && (in[i] != 0x000d) ) {
+      if ( !is_space(in[i]) ){
 	begin = i;
 	break;
       }
@@ -2073,10 +2074,7 @@ namespace folia {
     /// remove trailing whitespace (including newlines and tabs)
     int end = -1;
     for ( int i = in.length() - 1; i >= 0; --i ) {
-      if ( (in[i] != 0x0020)
-	   && (in[i] != 0x0009)
-	   && (in[i] != 0x000a)
-	   && (in[i] != 0x000d)) {
+      if ( !is_space(in[i]) ){
 	end = i;
 	break;
       }
@@ -2093,7 +2091,8 @@ namespace folia {
   }
 
   UnicodeString postprocess_spaces( const UnicodeString& in ){
-    ///Postprocessing for spaces, translates temporary \1 codepoints to spaces if they are are not preceeded by whitespace
+    ///Postprocessing for spaces, translates temporary \1 codepoints to spaces
+    /// if they are are not preceeded by whitespace
     bool need_postprocessing = false;
     for (int i = 0; i < in.length(); i++) {
       if (in[i] == 0x0001) {
@@ -2106,13 +2105,10 @@ namespace folia {
     }
     else {
       UnicodeString result;
-      for (int i = 0; i < in.length(); i++) {
+      for (int i = 0; i < in.length(); ++i) {
 	if ( in[i] == 0x0001 ) {
-	  if ( (i > 0)
-	       && (in[i-1] != 0x0020)
-	       && (in[i-1] != 0x0009)
-	       && (in[i-1] != 0x000a)
-	       && (in[i-1] != 0x000d)) {
+	  if ( i > 0
+	       && !is_space(in[i-1]) ){
 	    result.append((UChar32) 0x0020); //add a space
 	    // 1 byte is dropped otherwise
 	  }
