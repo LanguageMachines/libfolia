@@ -1752,7 +1752,6 @@ namespace folia {
 #endif
       UnicodeString result;
       bool pendingspace = false;
-      unsigned int i = 0;
       for ( const auto& d : _data ){
         if (d->isinstance( XmlText_t)) {
 	  if (pendingspace) {
@@ -1766,9 +1765,9 @@ namespace folia {
 	    UnicodeString text = d->text(cls);
 	    int begin = 0;
 	    int linenr = 0;
-	    for (i = 0; i < (unsigned int) text.length(); i++) {
+	    for ( int i = 0; i < text.length(); i++) {
 	      if  ((text[i] == 0x000a)
-		   || (i == (unsigned int) text.length() - 1)) {
+		   || (i == text.length() - 1)) {
 		//newline or end
 		UnicodeString line;
 		if (text[i] == 0x000a) { //newline
@@ -1829,7 +1828,6 @@ namespace folia {
 	    //old FoLiA <= v2.4.1 behaviour, we don't trim anything
 	    result += d->text( cls );
 	  }
-
         }
 	else if ( d->printable() ){
 	  if (pendingspace) {
@@ -1845,7 +1843,7 @@ namespace folia {
 	  }
           result += d->text( cls, !trim_spaces ? TEXT_FLAGS::NO_TRIM_SPACES : TEXT_FLAGS::NONE  );
 	}
-        ++i;
+	//        ++i;
       }
 #ifdef DEBUG_TEXT
       cerr << "TEXT(" << cls << ") on a textcontainer :" << xmltag()
@@ -2048,46 +2046,6 @@ namespace folia {
     out = UnicodeString( in, i, j-i+1 );
     //    cerr << "out = '" << out << "'" << endl;
     return out;
-  }
-
-  UnicodeString ltrim( const UnicodeString& in ){
-    /// remove leading whitespace (including newlines and tabs)
-    int begin = in.length();
-    for ( int i = 0; i < in.length(); ++i ) {
-      if ( !is_space(in[i]) ){
-	begin = i;
-	break;
-      }
-    }
-    if (begin == 0) {
-      return in;
-    }
-    else if (begin == in.length()) {
-      return "";
-    }
-    else {
-      return UnicodeString(in, begin, in.length() - begin);
-    }
-  }
-
-  UnicodeString rtrim( const UnicodeString& in ){
-    /// remove trailing whitespace (including newlines and tabs)
-    int end = -1;
-    for ( int i = in.length() - 1; i >= 0; --i ) {
-      if ( !is_space(in[i]) ){
-	end = i;
-	break;
-      }
-    }
-    if (end == in.length()) {
-      return in;
-    }
-    else if (end == -1) {
-      return "";
-    }
-    else {
-      return UnicodeString(in, 0, end+1);
-    }
   }
 
   UnicodeString postprocess_spaces( const UnicodeString& in ){
@@ -3270,8 +3228,8 @@ namespace folia {
 	if ( this->is_textcontainer()
 	     || this->is_phoncontainer() ){
 	  // non empty text is allowed (or even required) here
-	  XmlText *t = new XmlText();
 	  if ( p->content ) {
+	    XmlText *t = new XmlText();
 	    t->setvalue( (const char*)p->content );
 	    append( t );
 	    if ( doc() && doc()->debug > 2 ) {

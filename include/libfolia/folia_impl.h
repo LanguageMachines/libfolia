@@ -2977,8 +2977,6 @@ namespace folia {
   std::string Version();
 
   UnicodeString trim_space( const UnicodeString& in );
-  UnicodeString ltrim( const UnicodeString& in );
-  UnicodeString rtrim( const UnicodeString& in );
   UnicodeString postprocess_spaces( const UnicodeString& in );
 
 } // namespace folia
