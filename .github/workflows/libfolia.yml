@@ -49,12 +49,13 @@ jobs:
         run: |
              if [ "$RUNNER_OS" == "Linux" ]; then
                 sudo apt-get install libicu-dev libxml2-dev libbz2-dev;
-                sudo apt-get install zlib1g-dev libtar-dev
+                sudo apt-get install zlib1g-dev libtar-dev cppcheck
              else
                 brew install libxml2;
                 brew install bzip2;
                 brew install zlib;
-                brew install libtar
+                brew install libtar;
+                brew install cppcheck
              fi
       - name: install TiccUtils
         env:
@@ -74,6 +75,8 @@ jobs:
         env:
           CXX:  ${{ matrix.compiler }}
         run: ./configure
+      - name: Static Code-check
+        run: cppcheck --enable=all --quiet --error-exitcode=0 .
       - name: make
         run: make
       - name: install
