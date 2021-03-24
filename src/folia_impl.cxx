@@ -1799,8 +1799,7 @@ namespace folia {
 		  //insert spaces between lines that used to be newline separated
 		  result.append((UChar32) 0x0020);
 		}
-		else if ( (linenr == 0)
-			  && (subresult.length() > 0)
+		else if ( (subresult.length() > 0)
 			  && (line.length() > 0)
 			  && ( is_space(line[0]) )
 			  && this->_preserve_spaces != SPACE_FLAGS::PRESERVE ) {
