@@ -1316,6 +1316,28 @@ namespace folia {
     std::string _format;
   };
 
+  class TextMarkupHSpace: public AbstractTextMarkup {
+    friend void static_init();
+  public:
+    explicit TextMarkupHSpace( Document *d=0 ):
+    AbstractTextMarkup( PROPS, d ) { classInit(); };
+  TextMarkupHSpace(  const KWargs& a, Document *d=0 ):
+    AbstractTextMarkup( PROPS, d ) { classInit(a); };
+  private:
+    static properties PROPS;
+  };
+
+  class TextMarkupWhitespace: public AbstractTextMarkup {
+    friend void static_init();
+  public:
+    explicit TextMarkupWhitespace( Document *d=0 ):
+    AbstractTextMarkup( PROPS, d ) { classInit(); };
+  TextMarkupWhitespace(  const KWargs& a, Document *d=0 ):
+    AbstractTextMarkup( PROPS, d ) { classInit(a); };
+  private:
+    static properties PROPS;
+  };
+
   class AbstractContentAnnotation: public AbstractElement {
     friend void static_init();
   protected:

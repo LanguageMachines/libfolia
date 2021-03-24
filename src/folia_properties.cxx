@@ -32,7 +32,7 @@
 #include "libfolia/folia_properties.h"
 
 //foliaspec:header
-//This file was last updated according to the FoLiA specification for version 2.5.0 on 2021-03-19 11:19:13, using foliaspec.py
+//This file was last updated according to the FoLiA specification for version 2.5.0 on 2021-03-24 21:23:01, using foliaspec.py
 //Code blocks after a foliaspec comment (until the next newline) are automatically generated. **DO NOT EDIT THOSE** and **DO NOT REMOVE ANY FOLIASPEC COMMENTS** !!!
 
 namespace folia {
@@ -120,10 +120,11 @@ namespace folia {
     { AnnotationType::TABLE,  "table" },
     { AnnotationType::TERM,  "term" },
     { AnnotationType::TEXT,  "text" },
+    { AnnotationType::HSPACE,  "hspace" },
     { AnnotationType::STYLE,  "style" },
+    { AnnotationType::WHITESPACE,  "whitespace" },
     { AnnotationType::TIMESEGMENT,  "timesegment" },
     { AnnotationType::UTTERANCE,  "utterance" },
-    { AnnotationType::WHITESPACE,  "whitespace" },
     { AnnotationType::TOKEN,  "token" },
   };
 
@@ -183,10 +184,11 @@ namespace folia {
     { "table", AnnotationType::TABLE },
     { "term", AnnotationType::TERM },
     { "text", AnnotationType::TEXT },
+    { "hspace", AnnotationType::HSPACE },
     { "style", AnnotationType::STYLE },
+    { "whitespace", AnnotationType::WHITESPACE },
     { "timesegment", AnnotationType::TIMESEGMENT },
     { "utterance", AnnotationType::UTTERANCE },
-    { "whitespace", AnnotationType::WHITESPACE },
     { "token", AnnotationType::TOKEN },
   };
 
@@ -308,9 +310,11 @@ namespace folia {
     { TextMarkupCorrection_t,  "t-correction" },
     { TextMarkupError_t,  "t-error" },
     { TextMarkupGap_t,  "t-gap" },
+    { TextMarkupHSpace_t,  "t-hspace" },
     { TextMarkupReference_t,  "t-ref" },
     { TextMarkupString_t,  "t-str" },
     { TextMarkupStyle_t,  "t-style" },
+    { TextMarkupWhitespace_t,  "t-whitespace" },
     { TimeFeature_t,  "time" },
     { TimeSegment_t,  "timesegment" },
     { TimingLayer_t,  "timing" },
@@ -442,9 +446,11 @@ namespace folia {
     { "t-correction", TextMarkupCorrection_t  },
     { "t-error", TextMarkupError_t  },
     { "t-gap", TextMarkupGap_t  },
+    { "t-hspace", TextMarkupHSpace_t  },
     { "t-ref", TextMarkupReference_t  },
     { "t-str", TextMarkupString_t  },
     { "t-style", TextMarkupStyle_t  },
+    { "t-whitespace", TextMarkupWhitespace_t  },
     { "time", TimeFeature_t  },
     { "timesegment", TimeSegment_t  },
     { "timing", TimingLayer_t  },
@@ -609,9 +615,11 @@ namespace folia {
   properties TextMarkupCorrection::PROPS = DEFAULT_PROPERTIES;
   properties TextMarkupError::PROPS = DEFAULT_PROPERTIES;
   properties TextMarkupGap::PROPS = DEFAULT_PROPERTIES;
+  properties TextMarkupHSpace::PROPS = DEFAULT_PROPERTIES;
   properties TextMarkupReference::PROPS = DEFAULT_PROPERTIES;
   properties TextMarkupString::PROPS = DEFAULT_PROPERTIES;
   properties TextMarkupStyle::PROPS = DEFAULT_PROPERTIES;
+  properties TextMarkupWhitespace::PROPS = DEFAULT_PROPERTIES;
   properties TimeFeature::PROPS = DEFAULT_PROPERTIES;
   properties TimeSegment::PROPS = DEFAULT_PROPERTIES;
   properties TimingLayer::PROPS = DEFAULT_PROPERTIES;
@@ -1448,6 +1456,12 @@ namespace folia {
     TextMarkupGap::PROPS.ELEMENT_ID = TextMarkupGap_t;
     TextMarkupGap::PROPS.ANNOTATIONTYPE = AnnotationType::GAP;
     TextMarkupGap::PROPS.XMLTAG = "t-gap";
+//------ TextMarkupHSpace -------
+    TextMarkupHSpace::PROPS = AbstractTextMarkup::PROPS;
+    TextMarkupHSpace::PROPS.ELEMENT_ID = TextMarkupHSpace_t;
+    TextMarkupHSpace::PROPS.ANNOTATIONTYPE = AnnotationType::HSPACE;
+    TextMarkupHSpace::PROPS.TEXTDELIMITER = " ";
+    TextMarkupHSpace::PROPS.XMLTAG = "t-hspace";
 //------ TextMarkupReference -------
     TextMarkupReference::PROPS = AbstractTextMarkup::PROPS;
     TextMarkupReference::PROPS.ELEMENT_ID = TextMarkupReference_t;
@@ -1464,6 +1478,12 @@ namespace folia {
     TextMarkupStyle::PROPS.ACCEPTED_DATA += {AbstractTextMarkup_t, Comment_t, Description_t, Feature_t, FontFeature_t, Linebreak_t, SizeFeature_t};
     TextMarkupStyle::PROPS.ANNOTATIONTYPE = AnnotationType::STYLE;
     TextMarkupStyle::PROPS.XMLTAG = "t-style";
+//------ TextMarkupWhitespace -------
+    TextMarkupWhitespace::PROPS = AbstractTextMarkup::PROPS;
+    TextMarkupWhitespace::PROPS.ELEMENT_ID = TextMarkupWhitespace_t;
+    TextMarkupWhitespace::PROPS.ANNOTATIONTYPE = AnnotationType::WHITESPACE;
+    TextMarkupWhitespace::PROPS.TEXTDELIMITER = "";
+    TextMarkupWhitespace::PROPS.XMLTAG = "t-whitespace";
 //------ TimeFeature -------
     TimeFeature::PROPS = Feature::PROPS;
     TimeFeature::PROPS.ELEMENT_ID = TimeFeature_t;
@@ -1656,9 +1676,11 @@ namespace folia {
      { TextMarkupCorrection_t, { AbstractTextMarkup_t } },
      { TextMarkupError_t, { AbstractTextMarkup_t } },
      { TextMarkupGap_t, { AbstractTextMarkup_t } },
+     { TextMarkupHSpace_t, { AbstractTextMarkup_t } },
      { TextMarkupReference_t, { AbstractTextMarkup_t } },
      { TextMarkupString_t, { AbstractTextMarkup_t } },
      { TextMarkupStyle_t, { AbstractTextMarkup_t } },
+     { TextMarkupWhitespace_t, { AbstractTextMarkup_t } },
      { TimeFeature_t, { Feature_t,AbstractHigherOrderAnnotation_t } },
      { TimeSegment_t, { AbstractSpanAnnotation_t } },
      { TimingLayer_t, { AbstractAnnotationLayer_t } },
@@ -1740,6 +1762,7 @@ namespace folia {
     {  AnnotationType::TABLE, Table_t },
     {  AnnotationType::TERM, Term_t },
     {  AnnotationType::TEXT, TextContent_t },
+    {  AnnotationType::HSPACE, TextMarkupHSpace_t },
     {  AnnotationType::STYLE, TextMarkupStyle_t },
     {  AnnotationType::TIMESEGMENT, TimeSegment_t },
     {  AnnotationType::UTTERANCE, Utterance_t },
@@ -1802,6 +1825,7 @@ namespace folia {
     {  AnnotationType::TABLE, "table" },
     {  AnnotationType::TERM, "term" },
     {  AnnotationType::TEXT, "t" },
+    {  AnnotationType::HSPACE, "t-hspace" },
     {  AnnotationType::STYLE, "t-style" },
     {  AnnotationType::TIMESEGMENT, "timesegment" },
     {  AnnotationType::UTTERANCE, "utt" },
