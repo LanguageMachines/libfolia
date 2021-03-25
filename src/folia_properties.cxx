@@ -1964,6 +1964,8 @@ namespace folia {
     case TextMarkupCorrection_t: return new TextMarkupCorrection();
     case TextMarkupError_t: return new TextMarkupError();
     case TextMarkupStyle_t: return new TextMarkupStyle();
+    case TextMarkupHSpace_t: return new TextMarkupHSpace();
+    case TextMarkupWhitespace_t: return new TextMarkupWhitespace();
     case TextMarkupReference_t: return new TextMarkupReference();
     case Part_t: return new Part();
     case Observation_t: return new Observation();
