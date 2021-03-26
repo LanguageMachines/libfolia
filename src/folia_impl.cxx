@@ -6203,6 +6203,20 @@ namespace folia {
     return 0;
   }
 
+  UnicodeString dumb_spaces( const UnicodeString& is ){
+    UnicodeString os;
+    for ( int i=0; i < is.length(); ++i ){
+      if ( u_isspace( is[i] )
+	   && !( ( is[i] == '\t' ) || is[i] == '\n' || is[i] == '\r' ) ){
+	os += " ";
+      }
+      else {
+	os += is[i];
+      }
+    }
+    return os;
+  }
+
   bool XmlText::setvalue( const std::string& s ){
     /// set the value of an XmlText element in NFC endcoded UTF8
     /*!
@@ -6212,6 +6226,7 @@ namespace folia {
     static TiCC::UnicodeNormalizer norm;  // defaults to a NFC normalizer
     UnicodeString us = TiCC::UnicodeFromUTF8(s);
     us = norm.normalize( us );
+    us = dumb_spaces( us );
     _value = TiCC::UnicodeToUTF8( us );
     return true;
   }
