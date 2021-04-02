@@ -189,6 +189,13 @@ namespace folia {
     return "";
   }
 
+  const string AbstractElement::settag( const string& t ) {
+    string r = _tags;
+    TiCC::trim( r );
+    _tags = r + " " + t;
+    return r;
+  }
+
   ostream& operator<<( ostream& os, const FoliaElement& ae ) {
     /// Output operator for FoliaElements. (for DEBUGGING only)
     /*!

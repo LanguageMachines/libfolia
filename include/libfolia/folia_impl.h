@@ -454,6 +454,8 @@ namespace folia {
     virtual void update_cls( const std::string& ) = 0;
     virtual void update_set( const std::string& ) = 0;
     virtual const std::string n() const = 0;
+    virtual const std::string tag() const = 0;
+    virtual const std::string settag( const std::string& ) = 0;
     virtual const std::string id() const = 0;
     virtual const std::string begintime() const = 0;
     virtual const std::string endtime() const = 0;
@@ -711,6 +713,8 @@ namespace folia {
     const std::string sett() const { return _set; };
     void update_cls( const std::string& cls ) { _class = cls; };
     void update_set( const std::string& st ) { _set = st; };
+    const std::string tag() const { return _tags; };
+    const std::string settag( const std::string&  );
     const std::string n() const { return _n; };
     const std::string id() const { return _id; };
     const std::string begintime() const { return _begintime; };
