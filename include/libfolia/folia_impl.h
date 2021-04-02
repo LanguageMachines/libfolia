@@ -808,6 +808,7 @@ namespace folia {
     std::string _class;
     std::string _id;
     std::string _src;
+    std::string _tags;
     SPACE_FLAGS _preserve_spaces;
     std::vector<FoliaElement*> _data;
     const properties& _props;

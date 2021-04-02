@@ -774,6 +774,19 @@ namespace folia {
       _src.clear();
     }
 
+    val = kwargs.extract( "tag" );
+    if ( !val.empty() ) {
+      if ( !(TAG & supported) ) {
+	throw ValueError( "tag attribute is not supported for " + classname() );
+      }
+      else {
+	_tags = val;
+      }
+    }
+    else {
+      _tags.clear();
+    }
+
     if ( SPACE & supported ){
       _space = true;
     }
@@ -1079,6 +1092,9 @@ namespace folia {
     }
     if ( !_src.empty() ) {
       attribs["src"] = _src;
+    }
+    if ( !_tags.empty() ) {
+      attribs["tag"] = _tags;
     }
     if ( !_metadata.empty() ) {
       attribs["metadata"] = _metadata;
@@ -1842,7 +1858,6 @@ namespace folia {
 	  }
           result += d->text( cls, !trim_spaces ? TEXT_FLAGS::NO_TRIM_SPACES : TEXT_FLAGS::NONE  );
 	}
-	//        ++i;
       }
 #ifdef DEBUG_TEXT
       cerr << "TEXT(" << cls << ") on a textcontainer :" << xmltag()
