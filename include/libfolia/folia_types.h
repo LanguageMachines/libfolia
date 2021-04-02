@@ -68,7 +68,8 @@ TEXTCLASS=1024,  ///<textclass: Refers to the text class this annotation is base
 METADATA=2048, 
 IDREF=4096,  ///<id: A reference to the ID of another element. This is a reference and not an assignment, unlike xml:id, so do not confuse the two! It is only supported on certain elements that are referential in nature.
 SPACE=8192,  ///<space: This attribute indicates whether spacing should be inserted after this element (it's default value is always ``yes``, so it does not need to be specified in that case), but if tokens or other structural elements are glued together then the value should be set to ``no``. This allows for reconstruction of the detokenised original text. 
-ALL=16384 };
+TAG=16384,  ///<tag: Contains a space separated list of processing tags associated with the element. A processing tag carries arbitrary user-defined information that may aid in processing a document. It may carry cues on how a specific tool should treat a specific element. The tag vocabulary is specific to the tool that processes the document. Tags carry no instrinsic meaning for the data representation and should not be used except to inform/aid processors in their task. Processors are encouraged to clean up the tags they use. Ideally, published FoLiA documents at the end of a processing pipeline carry no further tags. For encoding actual data, use ``class`` and optionally features instead.
+ALL=32768 };
 
   inline Attrib& operator++( Attrib & a ){
     return a = ( ALL == a )
