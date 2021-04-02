@@ -190,6 +190,12 @@ namespace folia {
   }
 
   const string AbstractElement::settag( const string& t ) {
+    /// set a value for the _tags attribute
+    /*!
+     * \param t the new value (may be empty)
+     * \return the old value (can be empty)
+     * thows when the FoliaElement doesn't support the tag attribute
+     */
     Attrib supported = required_attributes() | optional_attributes();
     if ( !(TAG & supported) ) {
       throw ValueError( "settag is not supported for " + classname() );
@@ -2260,10 +2266,12 @@ namespace folia {
     return result;
   }
 
-  const UnicodeString FoliaElement::stricttext( const string& cls, bool trim_spaces ) const {
+  const UnicodeString FoliaElement::stricttext( const string& cls,
+						bool trim_spaces ) const {
     /// get the UnicodeString value of TextContent children only
     /*!
      * \param cls the textclass
+     * \param trim_spaces extract text with all spaces trimmed, default 'true'
      * \return The Unicode Text found.
      * Will throw on error.
      */
@@ -2277,6 +2285,7 @@ namespace folia {
     /// tokenization
     /*!
      * \param cls the textclass
+     * \param trim_spaces extract text with all spaces trimmed, default 'true'
      * \return The Unicode Text found.
      * Will throw on error.
      */
