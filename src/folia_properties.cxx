@@ -32,7 +32,7 @@
 #include "libfolia/folia_properties.h"
 
 //foliaspec:header
-//This file was last updated according to the FoLiA specification for version 2.5.0 on 2021-03-24 21:23:01, using foliaspec.py
+//This file was last updated according to the FoLiA specification for version 2.5.0 on 2021-04-02 13:28:50, using foliaspec.py
 //Code blocks after a foliaspec comment (until the next newline) are automatically generated. **DO NOT EDIT THOSE** and **DO NOT REMOVE ANY FOLIASPEC COMMENTS** !!!
 
 namespace folia {
@@ -311,6 +311,7 @@ namespace folia {
     { TextMarkupError_t,  "t-error" },
     { TextMarkupGap_t,  "t-gap" },
     { TextMarkupHSpace_t,  "t-hspace" },
+    { TextMarkupLanguage_t,  "t-lang" },
     { TextMarkupReference_t,  "t-ref" },
     { TextMarkupString_t,  "t-str" },
     { TextMarkupStyle_t,  "t-style" },
@@ -447,6 +448,7 @@ namespace folia {
     { "t-error", TextMarkupError_t  },
     { "t-gap", TextMarkupGap_t  },
     { "t-hspace", TextMarkupHSpace_t  },
+    { "t-lang", TextMarkupLanguage_t  },
     { "t-ref", TextMarkupReference_t  },
     { "t-str", TextMarkupString_t  },
     { "t-style", TextMarkupStyle_t  },
@@ -616,6 +618,7 @@ namespace folia {
   properties TextMarkupError::PROPS = DEFAULT_PROPERTIES;
   properties TextMarkupGap::PROPS = DEFAULT_PROPERTIES;
   properties TextMarkupHSpace::PROPS = DEFAULT_PROPERTIES;
+  properties TextMarkupLanguage::PROPS = DEFAULT_PROPERTIES;
   properties TextMarkupReference::PROPS = DEFAULT_PROPERTIES;
   properties TextMarkupString::PROPS = DEFAULT_PROPERTIES;
   properties TextMarkupStyle::PROPS = DEFAULT_PROPERTIES;
@@ -1460,8 +1463,13 @@ namespace folia {
     TextMarkupHSpace::PROPS = AbstractTextMarkup::PROPS;
     TextMarkupHSpace::PROPS.ELEMENT_ID = TextMarkupHSpace_t;
     TextMarkupHSpace::PROPS.ANNOTATIONTYPE = AnnotationType::HSPACE;
-    TextMarkupHSpace::PROPS.TEXTDELIMITER = " ";
+    TextMarkupHSpace::PROPS.TEXTDELIMITER = "";
     TextMarkupHSpace::PROPS.XMLTAG = "t-hspace";
+//------ TextMarkupLanguage -------
+    TextMarkupLanguage::PROPS = AbstractTextMarkup::PROPS;
+    TextMarkupLanguage::PROPS.ELEMENT_ID = TextMarkupLanguage_t;
+    TextMarkupLanguage::PROPS.ANNOTATIONTYPE = AnnotationType::LANG;
+    TextMarkupLanguage::PROPS.XMLTAG = "t-lang";
 //------ TextMarkupReference -------
     TextMarkupReference::PROPS = AbstractTextMarkup::PROPS;
     TextMarkupReference::PROPS.ELEMENT_ID = TextMarkupReference_t;
@@ -1677,6 +1685,7 @@ namespace folia {
      { TextMarkupError_t, { AbstractTextMarkup_t } },
      { TextMarkupGap_t, { AbstractTextMarkup_t } },
      { TextMarkupHSpace_t, { AbstractTextMarkup_t } },
+     { TextMarkupLanguage_t, { AbstractTextMarkup_t } },
      { TextMarkupReference_t, { AbstractTextMarkup_t } },
      { TextMarkupString_t, { AbstractTextMarkup_t } },
      { TextMarkupStyle_t, { AbstractTextMarkup_t } },
@@ -1965,6 +1974,7 @@ namespace folia {
     case TextMarkupError_t: return new TextMarkupError();
     case TextMarkupStyle_t: return new TextMarkupStyle();
     case TextMarkupHSpace_t: return new TextMarkupHSpace();
+    case TextMarkupLanguage_t: return new TextMarkupLanguage();
     case TextMarkupWhitespace_t: return new TextMarkupWhitespace();
     case TextMarkupReference_t: return new TextMarkupReference();
     case Part_t: return new Part();
