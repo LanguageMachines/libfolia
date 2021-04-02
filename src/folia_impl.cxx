@@ -190,9 +190,12 @@ namespace folia {
   }
 
   const string AbstractElement::settag( const string& t ) {
+    Attrib supported = required_attributes() | optional_attributes();
+    if ( !(TAG & supported) ) {
+      throw ValueError( "settag is not supported for " + classname() );
+    }
     string r = _tags;
-    TiCC::trim( r );
-    _tags = r + " " + t;
+    _tags = t;
     return r;
   }
 
@@ -780,7 +783,6 @@ namespace folia {
     else {
       _src.clear();
     }
-
     val = kwargs.extract( "tag" );
     if ( !val.empty() ) {
       if ( !(TAG & supported) ) {
