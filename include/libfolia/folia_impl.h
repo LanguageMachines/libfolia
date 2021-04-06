@@ -142,6 +142,12 @@ namespace folia {
 
     template <typename T>
       inline T *create_child( KWargs& args ){
+      /// create a new FoliaElement of type T as child of this
+      /*!
+	\param args an attribute-value list of arguments to use
+	\return a new FoliaElement
+	may throw if a Document is required, but not available
+      */
       T *nt = new T(args, doc());
       append( nt );
       return nt;
@@ -149,6 +155,11 @@ namespace folia {
 
     template <typename T>
       inline T *create_child(){
+      /// create a new FoliaElement of type T as child of this
+      /*!
+	\return a new FoliaElement
+	may throw if a Document is required, but not available
+      */
       T *nt = new T(doc());
       append( nt );
       return nt;

@@ -50,6 +50,13 @@ namespace folia {
 
   FoliaElement *FoliaElement::createElement( const string& tag,
 					     Document *doc ){
+    /// create a new FoliaElement
+    /*!
+      \param tag the folia tagname of the desired element
+      \param doc the Document the new element will be part of. May be 0
+      \return a new FoliaElement
+      throws if the tag is unknown
+    */
     ElementType et = BASE;
     try {
       et = stringToElementType( tag );
@@ -67,6 +74,12 @@ namespace folia {
 
   FoliaElement *FoliaElement::createElement( ElementType et,
 					     Document *doc ){
+    /// create a new FoliaElement
+    /*!
+      \param et the ElementType the desired node
+      \param doc the Document the new element will be part of. May be 0
+      \return a new FoliaElement
+    */
     FoliaElement *el = private_createElement( et );
     if ( doc ){
       el->assignDoc( doc );
@@ -75,16 +88,21 @@ namespace folia {
   }
 
   KWargs::KWargs( const std::string& s ){
-    ///
     /// create a KWargs from an input string
-    ///
-    /// \param s The input string, in the following format:
-    /// "att1='val1', att2='val2', ..., attn='valn'"
-    ///
+    /*!
+      \param s The input string, in the following format:
+      "att1='val1', att2='val2', ..., attn='valn'"
+    */
     init( s );
   }
 
   void KWargs::init( const string& s ){
+    /// initialize a KWargs from an input string
+    /*!
+      \param s The input string, in the following format:
+      "att1='val1', att2='val2', ..., attn='valn'"
+      all existing values are cleared
+    */
     clear();
     bool quoted = false;
     bool parseatt = true;
@@ -172,10 +190,20 @@ namespace folia {
   }
 
   bool KWargs::is_present( const string& att ) const {
+    /// check if an attribute is present in the KWargs
+    /*!
+      \param att The attribute to check
+      \return true is present, otherwise false
+    */
     return find(att) != end();
   }
 
   string KWargs::lookup( const string& att ){
+    /// lookup an attribute
+    /*!
+      \param att The attribute to check
+      \return the value if present, otherwise ""
+    */
     string result;
     auto it = find(att);
     if ( it != end() ){
@@ -185,6 +213,12 @@ namespace folia {
   }
 
   string KWargs::extract( const string& att ){
+    /// lookup and removed an attribute
+    /*!
+      \param att The attribute to check
+      \return the value if present, otherwise ""
+      the attribute is cleared from the KWargs
+    */
     string result;
     auto it = find(att);
     if ( it != end() ){
@@ -227,6 +261,11 @@ namespace folia {
   }
 
   KWargs getAttributes( const xmlNode *node ){
+    /// extract a KWargs list from an xmlNode
+    /*!
+      \param node The xmlNode to examine
+      \return a KWargs object with all attributes from 'node'
+    */
     KWargs atts;
     if ( node ){
       xmlAttr *a = node->properties;
@@ -254,6 +293,12 @@ namespace folia {
   }
 
   void addAttributes( xmlNode *node, const KWargs& atts ){
+    /// add all attributes from 'atts' as attribute nodes to 'node`
+    /*!
+      \param node The xmlNode to add to
+      \param atts The list of attribute/value pairs
+      some special care is taken for attributes 'xml:id', 'id' and 'lang'
+    */
     KWargs attribs = atts;
     auto it = attribs.find("xml:id");
     if ( it != attribs.end() ){ // xml:id is special
