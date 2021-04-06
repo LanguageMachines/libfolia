@@ -610,7 +610,7 @@ namespace folia {
   }
 
   string TextValue( const xmlNode *node ){
-    /// extract the string content of the node
+    /// extract the string content of an xmlNode
     /*!
       \param node The xmlNode to extract from
       \return the string value of node

@@ -1651,7 +1651,7 @@ namespace folia {
     xmlNode *pnt = _xmldoc->children;
     while ( pnt ){
       if ( pnt->type == XML_PI_NODE && TiCC::Name(pnt) == "xml-stylesheet" ){
-	string content = (const char*)pnt->content;
+	string content = TextValue(pnt);
 	string type;
 	string href;
 	vector<string> v = TiCC::split( content );

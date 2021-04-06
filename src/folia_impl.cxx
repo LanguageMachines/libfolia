@@ -3246,9 +3246,8 @@ namespace folia {
       }
       else if ( p->type == XML_ENTITY_REF_NODE ){
 	XmlText *t = new XmlText();
-	if ( p->content ) {
-	  t->setvalue( (const char*)p->content );
-	}
+	string txt = TextValue( p );
+	t->setvalue( txt );
 	append( t );
 	if ( doc() && doc()->debug > 2 ) {
 	  cerr << "created " << t << "(" << t->text() << ")" << endl;
@@ -3260,9 +3259,10 @@ namespace folia {
 	if ( this->is_textcontainer()
 	     || this->is_phoncontainer() ){
 	  // non empty text is allowed (or even required) here
-	  if ( p->content ) {
+	  string txt = TextValue( p );
+	  if ( !txt.empty() ) {
 	    XmlText *t = new XmlText();
-	    t->setvalue( (const char*)p->content );
+	    t->setvalue( txt );
 	    append( t );
 	    if ( doc() && doc()->debug > 2 ) {
 	      cerr << "created " << t << "(" << t->text() << ")" << endl;
@@ -5733,13 +5733,13 @@ namespace folia {
 	if ( isText ) {
 	  throw XmlError( "intermixing text and CDATA in Content node" );
 	}
-	value += (char*)p->content;
+	value += TextValue( p );
 	isCdata = !value.empty();
       }
       else if ( p->type == XML_TEXT_NODE ) {
 	// "empty" text nodes may appear before or after CDATA
 	// we just ignore those
-	string tmp = (char*)p->content;
+	string tmp = TextValue( p );
 	tmp = TiCC::trim(tmp);
 	if ( !tmp.empty()
 	     && isCdata ) {
@@ -6257,10 +6257,12 @@ namespace folia {
      * \return true always
      */
     static TiCC::UnicodeNormalizer norm;  // defaults to a NFC normalizer
-    UnicodeString us = TiCC::UnicodeFromUTF8(s);
-    us = norm.normalize( us );
-    us = dumb_spaces( us );
-    _value = TiCC::UnicodeToUTF8( us );
+    if ( !s.empty() ){
+      UnicodeString us = TiCC::UnicodeFromUTF8(s);
+      us = norm.normalize( us );
+      us = dumb_spaces( us );
+      _value = TiCC::UnicodeToUTF8( us );
+    }
     return true;
   }
 
@@ -6282,13 +6284,12 @@ namespace folia {
      * \param node an XmlText
      * \return the parsed tree. Throws on error.
      */
-    if ( node->content ) {
-      setvalue( (const char*)node->content );
-      _value = trim( _value );
-    }
-    if ( _value.empty() ) {
+    string txt = TextValue( node );
+    txt = trim( txt );
+    if ( txt.empty() ) {
       throw ValueError( "TextContent may not be empty" );
     }
+    setvalue( txt );
     return this;
   }
 
@@ -6456,9 +6457,7 @@ namespace folia {
      * \param node an XmlComment
      * \return the parsed tree. Throws on error.
      */
-    if ( node->content ) {
-      _value = (const char*)node->content;
-    }
+    _value = TextValue( node );
     return this;
   }
 
@@ -6626,7 +6625,7 @@ namespace folia {
     /// strip the NameSpace with value ns from the node
     /*!
      * \param node the xmlNode to work on
-     * \param ns the HREF valeu of the namespace to remove
+     * \param ns the HREF value of the namespace to remove
      */
     xmlNs *p = node->nsDef;
     xmlNs *prev = 0;
