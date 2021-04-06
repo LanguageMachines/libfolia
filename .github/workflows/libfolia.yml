@@ -94,7 +94,7 @@ jobs:
         with:
           server: irc.uvt.nl
           channel: '#gitlama'
-          nickname: GitHub-${{ github.run_id }}
+          nickname: GH-${{ run.os }}-${{ matrix.compiler }}
           message: |-
             ${{ github.event.repository.name }} with ${{ matrix.compiler }} build by ${{ github.actor }} on ${{ matrix.os }}: FAILED
       - name: Notify IRC of succes
@@ -103,6 +103,6 @@ jobs:
         with:
           server: irc.uvt.nl
           channel: '#gitlama'
-          nickname: GitHub-${{ github.run_id }}
+          nickname: GH-${{ run.os }}-${{ matrix.compiler }}
           message: |-
             ${{ github.event.repository.name }} with ${{ matrix.compiler }} build by ${{ github.actor }} on ${{ matrix.os }}: SUCCESS
