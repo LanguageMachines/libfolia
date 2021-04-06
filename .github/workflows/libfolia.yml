@@ -14,7 +14,7 @@ on:
 jobs:
   notification:
     runs-on: ubuntu-latest
-    name: Notify start to #gitlama
+    name: Notify start to \#gitlama
     steps:
       - name: IRC notification
         uses: Gottox/irc-message-action@v1
@@ -91,7 +91,7 @@ jobs:
         run: cat src/test-suite.log
       - id: compiler
         run: |
-          id=$(echo ${{github.event.client_payload.value}} | cut -d+ -f1)
+          id=$(echo ${{matrix.compiler}} | cut -d\+ -f1)
           echo "::set-output name=id::$id"
       - run: echo "${{steps.compiler.outputs.id}}"
       - name: Notify IRC of failure
@@ -100,15 +100,15 @@ jobs:
         with:
           server: irc.uvt.nl
           channel: '#gitlama'
-          nickname: GH-${{ runner.os }}-${{ matrix.compiler }}
+          nickname: GH-${{ runner.os }}-${{ steps.compiler.outputs.id }}
           message: |-
-            ${{ github.event.repository.name }} with ${{ steps.compiler.outputs.id }} build by ${{ github.actor }} on ${{ matrix.os }}: FAILED
+            ${{ github.event.repository.name }} with ${{ matrix.compiler }} build by ${{ github.actor }} on ${{ matrix.os }}: FAILED
       - name: Notify IRC of succes
         if: ${{ steps.check.outcome == 'success' }}
         uses: Gottox/irc-message-action@v1
         with:
           server: irc.uvt.nl
           channel: '#gitlama'
-          nickname: GH-${{ runner.os }}-${{ matrix.compiler }}
+          nickname: GH-${{ runner.os }}-${{ steps.compiler.outputs.id }}
           message: |-
-            ${{ github.event.repository.name }} with ${{ steps.compiler.outputs.id }} build by ${{ github.actor }} on ${{ matrix.os }}: SUCCESS
+            ${{ github.event.repository.name }} with ${{ matrix.compiler }} build by ${{ github.actor }} on ${{ matrix.os }}: SUCCESS
