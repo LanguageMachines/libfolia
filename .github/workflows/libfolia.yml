@@ -73,7 +73,7 @@ jobs:
         run: sh bootstrap.sh
       - name: configure
         env:
-          CXX:  ${{ matrix.compiler }}
+          CXX: ${{ matrix.compiler }}
         run: ./configure
       - name: Static Code-check
         run: cppcheck --enable=all --quiet --error-exitcode=0 .
@@ -83,7 +83,7 @@ jobs:
         run: sudo make install
       - name: make check
         env:
-          CXX:  ${{ matrix.compiler }}
+          CXX: ${{ matrix.compiler }}
         run: LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib make check
         continue-on-error: true
       - name: show log
@@ -94,7 +94,7 @@ jobs:
         with:
           server: irc.uvt.nl
           channel: '#gitlama'
-          nickname: GitHub
+          nickname: GitHub-${{ github.run_id }}
           message: |-
             ${{ github.event.repository.name }} with ${{ matrix.compiler }} build by ${{ github.actor }} on ${{ matrix.os }}: FAILED
       - name: Notify IRC of succes
@@ -103,6 +103,6 @@ jobs:
         with:
           server: irc.uvt.nl
           channel: '#gitlama'
-          nickname: GitHub
+          nickname: GitHub-${{ github.run_id }}
           message: |-
             ${{ github.event.repository.name }} with ${{ matrix.compiler }} build by ${{ github.actor }} on ${{ matrix.os }}: SUCCESS
