@@ -141,14 +141,14 @@ namespace folia {
     }
 
     template <typename T>
-      inline T *create( KWargs& args ){
+      inline T *create_child( KWargs& args ){
       T *nt = new T(args, doc());
       append( nt );
       return nt;
     }
 
     template <typename T>
-      inline T *create(){
+      inline T *create_child(){
       T *nt = new T(doc());
       append( nt );
       return nt;
