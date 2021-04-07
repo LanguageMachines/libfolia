@@ -1,6 +1,6 @@
 2.8.1 2021-04-07
 [Ko vd Sloot]
-* re-added the ltrim() function for backward compatablity
+* re-added the ltrim() function for backward compatibility
 
 2.8 2021-04-07
 * implements FoLia v2.5, with a new 'model' for whitespaces in texts.

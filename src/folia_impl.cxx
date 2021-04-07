@@ -2597,36 +2597,7 @@ namespace folia {
      * when the associated document has the checktext mode, (which is the
      * default) both text consistency and the offset are checked.
      */
-    UnicodeString txt_u = TiCC::UnicodeFromUTF8( txt );
-    if ( doc() && doc()->checktext()
-	 && !isSubClass( Morpheme_t ) && !isSubClass( Phoneme_t) ){
-#ifdef DEBUG_TEXT
-      cerr << endl << "SET TEXT, '" << txt << "' class=" << cls << endl;
-      cerr << "for node " << this << endl;
-#endif
-      UnicodeString deeper_u;
-      try {
-	deeper_u = text( cls );
-	// get deep original text: no retain tokenization, no strict
-      }
-      catch (...){
-      }
-      deeper_u = normalize_spaces( deeper_u );
-#ifdef DEBUG_TEXT
-      cerr << "deeper_u was " << deeper_u << endl;
-#endif
-      txt_u = strip_control_chars( txt_u );
-      UnicodeString txt_check_u = normalize_spaces( txt_u );
-      if ( !deeper_u.isEmpty() && txt_check_u != deeper_u ){
-	throw InconsistentText( "settext(cls=" + cls + "): deeper text differs from attempted\ndeeper='" + TiCC::UnicodeToUTF8(deeper_u) + "'\nattempted='" + TiCC::UnicodeToUTF8(txt_check_u) +  "'" );
-      }
-    }
-    KWargs args;
-    args["value"] = TiCC::UnicodeToUTF8(txt_u); //this rapid decode/encoding step is a bit inefficient perhaps
-    args["class"] = cls;
-    TextContent *node = new TextContent( args, doc() );
-    replace( node );
-    return node;
+    return settext( txt, -1, cls );
   }
 
   TextContent *FoliaElement::setutext( const UnicodeString& txt,
@@ -2651,7 +2622,8 @@ namespace folia {
     /// append a TextContent child of class cls with value txt
     /*!
      * \param txt the UTF8 text value
-     * \param offset offset of the text in the text of the parent
+     * \param offset offset of the text in the text of the parent,
+              when offset < 0 it is ignored.
      * \param cls the textclass of the new TextContent
      * \return the new created TextContent
      * may throw on error
@@ -2679,7 +2651,9 @@ namespace folia {
     KWargs args;
     args["value"] = TiCC::UnicodeToUTF8(txt_u);
     args["class"] = cls;
-    args["offset"] = TiCC::toString(offset);
+    if ( offset >= 0 ){
+      args["offset"] = TiCC::toString(offset);
+    }
     TextContent *node = new TextContent( args, doc() );
     replace( node );
     return node;
@@ -2691,7 +2665,8 @@ namespace folia {
     /// append a TextContent child of class cls with value txt
     /*!
      * \param txt the Unicode text value
-     * \param offset offset of the text in the text of the parent
+     * \param offset offset of the text in the text of the parent,
+              when offset < 0 it is ignored.
      * \param cls the textclass of the new TextContent
      * \return the new created TextContent
      * may throw on error
