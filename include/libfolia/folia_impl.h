@@ -382,7 +382,6 @@ namespace folia {
     virtual bool referable() const = 0;
     virtual bool is_textcontainer() const = 0;
     virtual bool is_phoncontainer() const = 0;
-    virtual bool space() const NOT_IMPLEMENTED;
 
     // Word
     virtual Word *previous() const NOT_IMPLEMENTED;
@@ -476,6 +475,8 @@ namespace folia {
     virtual const std::string set_to_current() NOT_IMPLEMENTED;
     virtual double confidence() const = 0;
     virtual void confidence( double ) = 0;
+    virtual bool space() const = 0;
+    virtual bool setspace( bool ) = 0;
     virtual SPACE_FLAGS preserve_spaces() const = 0;
     virtual void preserve_spaces( SPACE_FLAGS ) = 0;
     virtual ElementType element_id() const = 0;
@@ -736,6 +737,7 @@ namespace folia {
     const std::string language( const std::string& = "" ) const;
     const std::string src() const { return _src; };
     bool space() const { return _space; };
+    bool setspace( bool b ) { bool s =_space; _space =  b; return s; };
     SPACE_FLAGS preserve_spaces() const { return _preserve_spaces; };
     void preserve_spaces( SPACE_FLAGS f ) { _preserve_spaces = f; };
     double confidence() const { return _confidence; };
