@@ -2754,9 +2754,7 @@ namespace folia {
       for ( auto pos = mit1->second.lower_bound(setname);
 	    pos != mit1->second.upper_bound(setname);
 	    ++pos ){
-	for ( const auto& p : pos->second.p ){
-	  result.push_back( p );
-	}
+	copy( pos->second.p.begin(), pos->second.p.end(), back_inserter(result) );
       }
     }
     //    cerr << "get default ==> " << result << endl;

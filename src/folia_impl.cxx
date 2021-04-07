@@ -6186,9 +6186,7 @@ namespace folia {
 	AbstractSpanAnnotation *as = dynamic_cast<AbstractSpanAnnotation*>(el);
 	if ( as != 0 ) {
 	  vector<FoliaElement*> sub = as->wrefs();
-	  for ( auto& wr : sub ) {
-	    res.push_back( wr );
-	  }
+	  copy( sub.begin(), sub.end(), back_inserter(res) );
 	}
       }
     }
