@@ -1,3 +1,21 @@
+2.8 2021-04-07
+* implements FoLia v2.5, with a new 'model' for whitespaces in texts.
+* bumped the .so version to 17
+[Maarten van Gompel]
+* added <t-lang> TextMarkup tag
+* added <t-hspace> TextMarkup tag
+* added tag attribute
+* fix for proycon/folia#88, proycon/folia#92, proycon/folia#93, proycon/folia#94
+* added text normalisation functions to supprt the new text model,
+  maintaining backward compatability.
+[Ko vd Sloot]
+* parse and preserve the xml:space attribute.
+* added a 'space' normalizer. ALL exotic spaces (like mm-space and en-space)
+  are replaced by the standard ascii space
+* fixed https://github.com/LanguageMachines/libfolia/issues/48
+* code cleanup/refactoring
+* ditch TravisCI and implemented a GitHub action
+
 2.7 2021-01-07
 * implemented a more relaxed MetaData scheme, allowing mixing 'foreign'
   and 'native' MetaData
