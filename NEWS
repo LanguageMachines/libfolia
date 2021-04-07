@@ -6,11 +6,11 @@
 * added <t-hspace> TextMarkup tag
 * added tag attribute
 * fix for proycon/folia#88, proycon/folia#92, proycon/folia#93, proycon/folia#94
-* added text normalisation functions to supprt the new text model,
-  maintaining backward compatability.
+* added text normalization functions to support the new text model,
+  maintaining backward compatibility.
 [Ko vd Sloot]
 * parse and preserve the xml:space attribute.
-* added a 'space' normalizer. ALL exotic spaces (like mm-space and en-space)
+* added a 'space' normalizer. ALL exotic spaces (like em-space and en-space)
   are replaced by the standard ascii space
 * fixed https://github.com/LanguageMachines/libfolia/issues/48
 * code cleanup/refactoring
