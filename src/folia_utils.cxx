@@ -664,6 +664,26 @@ namespace folia {
     return result;
   }
 
+  UnicodeString ltrim( const UnicodeString& in ){
+    /// remove leading whitespace (including newlines and tabs)
+    int begin = in.length();
+    for ( int i = 0; i < in.length(); ++i ) {
+      if ( !u_isspace(in[i]) ){
+	begin = i;
+	break;
+      }
+    }
+    if (begin == 0) {
+      return in;
+    }
+    else if (begin == in.length()) {
+      return "";
+    }
+    else {
+      return UnicodeString(in, begin, in.length() - begin);
+    }
+  }
+
   bool is_norm_empty(const std::string& s) {
       /// checks if the string is empty after normalization (strips all control characters), strings with only spaces/newslines etc are considered empty too
       return normalize_spaces(TiCC::UnicodeFromUTF8(s)).isEmpty();
