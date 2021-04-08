@@ -1593,6 +1593,27 @@ namespace folia {
     return TiCC::UnicodeToUTF8( us );
   }
 
+  const string AbstractElement::special_str( const string& cls ) const {
+    /// return the text value of this element, with spical markers included
+    /*!
+     * \param cls The desired textclass
+     * \return the string value (UTF8 encoded), with special markers steered
+               by the 'tag' attribute
+     *
+     * if this is a TextContent or it may contain TextContent
+     * then return the associated text()
+     *
+     * otherwise return the empty string
+     */
+    UnicodeString us;
+    try {
+      us = text(cls,TEXT_FLAGS::NONE,true);
+    }
+    catch( const NoSuchText& ){
+    }
+    return TiCC::UnicodeToUTF8( us );
+  }
+
   const string AbstractElement::speech_src() const {
     /// give the value of the _scr of an element
     /*!
@@ -1737,11 +1758,146 @@ namespace folia {
 	     || kar == 0x000d ); // carriage return
   }
 
+  UnicodeString AbstractElement::text_container_text( const string& cls,
+						      bool retaintok,
+						      bool trim_spaces,
+						      bool honour_tag ) const {
+    if ( isinstance( TextContent_t )
+	 && this->cls() != cls ) {
+      // take a shortcut for TextContent in wrong class
+#ifdef DEBUG_TEXT
+      cerr << "TextContent shortcut, class=" << this->cls()
+	   << " but looking for: " << cls << endl;
+#endif
+      return "";
+    }
+#ifdef DEBUG_TEXT
+    cerr << "Textcontainer!, class= " << this->cls() << " HONOUR=" << honour_tag << endl;
+#endif
+    UnicodeString result;
+    bool pendingspace = false;
+    for ( const auto& d : _data ){
+      if (d->isinstance( XmlText_t)) {
+	// 'true' text child
+	if (pendingspace) {
+	  result += " ";
+	  pendingspace = false;
+	}
+	if (trim_spaces) {
+	  //This implements https://github.com/proycon/folia/issues/88
+	  //FoLiA >= v2.5 behaviour (introduced earlier in v2.4.1 but modified thereafter)
+	  const int l = result.length();
+	  UnicodeString text = d->text(cls);
+	  int begin = 0;
+	  int linenr = 0;
+	  for ( int i = 0; i < text.length(); ++i ) {
+	    if ( text[i] == 0x000a
+		 || (i == text.length() - 1) ) {
+	      //newline or end
+	      UnicodeString line;
+	      if ( text[i] == 0x000a ) { //newline
+		line = UnicodeString(text, begin, i - begin);
+	      }
+	      else {
+		line = UnicodeString(text, begin, text.length() - begin);
+	      }
+	      begin = i+1;
+
+	      UnicodeString subresult;
+	      if (this->_preserve_spaces == SPACE_FLAGS::PRESERVE) {
+		if ( line.length() > 0
+		     && line[line.length() - 1] == 0x000d) {
+		  //carriage return
+		  //remove artefacts of any DOS-style line endings (not sure if still
+		  //needed here but better safe than sorry)
+		  line = UnicodeString(line, 0, line.length() - 1);
+		}
+		subresult = line;
+	      }
+	      else {
+		subresult = normalize_spaces(trim_space(line));
+	      }
+
+	      if ( (linenr > 0)
+		   && (subresult.length() > 0)
+		   && (result.length() != l) ) {
+		//insert spaces between lines that used to be newline separated
+		result.append((UChar32) 0x0020);
+	      }
+	      else if ( (subresult.length() > 0)
+			&& (line.length() > 0)
+			&& ( is_space(line[0]) )
+			&& this->_preserve_spaces != SPACE_FLAGS::PRESERVE ) {
+		//we have leading indentation we may need to collapse or ignore entirely
+		//we can't be sure yet what to do so we add a temporary placeholder \1
+		//this will later be handled in postprocess_spaces() (converts to a space only if no space preceeds it)
+		result.append(0x0001);
+	      }
+	      result += subresult;
+	      linenr++;
+	    }
+	  }
+
+	  if ( this->_preserve_spaces != SPACE_FLAGS::PRESERVE
+	       && text.length() > 0
+	       && result.length() > 0
+	       && is_space(text[text.length() - 1]) ){
+	    //this item has trailing spaces but we stripped them
+	    //this may be premature so
+	    //we reserve to output them later in case there is a next item
+	    pendingspace = true;
+	  }
+	}
+	else {
+	  //old FoLiA <= v2.4.1 behaviour, we don't trim anything
+	  result += d->text( cls );
+	}
+      }
+      else if ( d->printable() ){
+	// this is some TextMarkup I hope
+	if (pendingspace) {
+	  result += " ";
+	  pendingspace = false;
+	}
+	if ( !result.isEmpty() ){
+	  const string& delim = d->get_delimiter( retaintok );
+#ifdef DEBUG_TEXT
+	  cerr << "append delimiter: '" << delim << "'" << endl;
+#endif
+	  result += TiCC::UnicodeFromUTF8(delim);
+	}
+	UnicodeString tmp_result = d->text( cls, !trim_spaces ? TEXT_FLAGS::NO_TRIM_SPACES : TEXT_FLAGS::NONE, honour_tag );
+	string tv = d->tag();
+	if ( honour_tag && tv == "token" ){
+	  result += u'\u200D';
+	  result += tmp_result;
+	  result += u'\u200D';
+	}
+	else {
+	  result += tmp_result;
+	}
+      }
+      else {
+	// non interesting stuff like <feature>, <comment> etc.
+      }
+    }
+    if (trim_spaces && this->preserve_spaces() != SPACE_FLAGS::PRESERVE) {
+      result = postprocess_spaces(result);
+    }
+#ifdef DEBUG_TEXT
+    cerr << "TEXT(" << cls << ") on a textcontainer :" << xmltag()
+	 << " returned '" << result << "'" << endl;
+#endif
+      return result;
+  }
+
   const UnicodeString AbstractElement::private_text( const string& cls,
 						     bool retaintok,
 						     bool strict,
 						     bool show_hidden,
-                                                     bool trim_spaces ) const {
+                                                     bool trim_spaces,
+                                                     bool honour_tag
+						     ) const {
 
     /// get the UnicodeString value of an element
     /*!
@@ -1760,135 +1916,20 @@ namespace folia {
     cerr << (strict?"strict":"not strict") << "\t"
 	 << (retaintok?"retain":"untokenized") << "\t"
 	 << (show_hidden?"show_hidden":"hide hidden") << "\t"
-	 << (trim_spaces?"trimming spaces":"not trimming spaces") << "\t" << endl;
+	 << (trim_spaces?"trimming spaces":"not trimming spaces") << "\t"
+	 << (honour_tag?"honouring tag":"ignore tag") << endl;
 #endif
     if ( strict ) {
-      return text_content(cls,show_hidden)->text(cls, !trim_spaces ? TEXT_FLAGS::NO_TRIM_SPACES : TEXT_FLAGS::NONE);
-    }
-    else if ( is_textcontainer() ){
-#ifdef DEBUG_TEXT
-      cerr << "Textcontainer!, class= " << this->cls() << endl;
-#endif
-      if ( isinstance( TextContent_t )
-	   && this->cls() != cls ) {
-	// So no shortcut for TextMarkup
-#ifdef DEBUG_TEXT
-	cerr << "TextContent shortcut, class=" << this->cls()
-	     << " but looking for: " << cls << endl;
-#endif
-	return "";
-      }
-#ifdef DEBUG_TEXT
-      cerr << "Get the text from the children." << endl;
-#endif
-      UnicodeString result;
-      bool pendingspace = false;
-      for ( const auto& d : _data ){
-        if (d->isinstance( XmlText_t)) {
-	  if (pendingspace) {
-	    result += " ";
-	    pendingspace = false;
-	  }
-	  if (trim_spaces) {
-	    //This implements https://github.com/proycon/folia/issues/88
-	    //FoLiA >= v2.5 behaviour (introduced earlier in v2.4.1 but modified thereafter)
-	    const int l = result.length();
-	    UnicodeString text = d->text(cls);
-	    int begin = 0;
-	    int linenr = 0;
-	    for ( int i = 0; i < text.length(); i++) {
-	      if  ((text[i] == 0x000a)
-		   || (i == text.length() - 1)) {
-		//newline or end
-		UnicodeString line;
-		if (text[i] == 0x000a) { //newline
-		  line = UnicodeString(text, begin, i - begin);
-		}
-		else {
-		  line = UnicodeString(text, begin, text.length() - begin);
-		}
-		begin = i+1;
-
-		UnicodeString subresult;
-		if (this->_preserve_spaces == SPACE_FLAGS::PRESERVE) {
-		  if ( line.length() > 0
-		       && line[line.length() - 1] == 0x000d) {
-		    //carriage return
-		    //remove artefacts of any DOS-style line endings (not sure if still
-		    //needed here but better safe than sorry)
-		    line = UnicodeString(line, 0, line.length() - 1);
-		  }
-		  subresult = line;
-		}
-		else {
-		  subresult = normalize_spaces(trim_space(line));
-		}
-
-		if ( (linenr > 0)
-		     && (subresult.length() > 0)
-		     && (result.length() != l) ) {
-		  //insert spaces between lines that used to be newline separated
-		  result.append((UChar32) 0x0020);
-		}
-		else if ( (subresult.length() > 0)
-			  && (line.length() > 0)
-			  && ( is_space(line[0]) )
-			  && this->_preserve_spaces != SPACE_FLAGS::PRESERVE ) {
-		  //we have leading indentation we may need to collapse or ignore entirely
-		  //we can't be sure yet what to do so we add a temporary placeholder \1
-		  //this will later be handled in postprocess_spaces() (converts to a space only if no space preceeds it)
-		  result.append(0x0001);
-		}
-		result += subresult;
-		linenr++;
-	      }
-	    }
-
-	    if ( this->_preserve_spaces != SPACE_FLAGS::PRESERVE
-		 && text.length() > 0
-		 && result.length() > 0
-		 && is_space(text[text.length() - 1]) ){
-	      //this item has trailing spaces but we stripped them
-	      //this may be premature so
-	      //we reserve to output them later in case there is a next item
-	      pendingspace = true;
-	    }
-	  }
-	  else {
-	    //old FoLiA <= v2.4.1 behaviour, we don't trim anything
-	    result += d->text( cls );
-	  }
-        }
-	else if ( d->printable() ){
-	  if (pendingspace) {
-	    result += " ";
-	    pendingspace = false;
-	  }
-	  if ( !result.isEmpty() ){
-	    const string& delim = d->get_delimiter( retaintok );
-#ifdef DEBUG_TEXT
-	    cerr << "append delimiter: '" << delim << "'" << endl;
-#endif
-	    result += TiCC::UnicodeFromUTF8(delim);
-	  }
-          result += d->text( cls, !trim_spaces ? TEXT_FLAGS::NO_TRIM_SPACES : TEXT_FLAGS::NONE  );
-	}
-      }
-#ifdef DEBUG_TEXT
-      cerr << "TEXT(" << cls << ") on a textcontainer :" << xmltag()
-	   << " returned '" << result << "'" << endl;
-#endif
-      if (trim_spaces && this->preserve_spaces() != SPACE_FLAGS::PRESERVE) {
-	return postprocess_spaces(result);
-      }
-      else {
-	return result;
-      }
+      return text_content(cls,show_hidden)->text(cls, !trim_spaces ? TEXT_FLAGS::NO_TRIM_SPACES : TEXT_FLAGS::NONE,honour_tag);
     }
     else if ( !printable() || ( hidden() && !show_hidden ) ){
       throw NoSuchText( "NON printable element: " + xmltag() );
     }
+    else if ( is_textcontainer() ){
+      return text_container_text( cls, retaintok, trim_spaces, honour_tag );
+    }
     else {
+      //
       TEXT_FLAGS flags = TEXT_FLAGS::NONE;
       if ( retaintok ){
 	flags |= TEXT_FLAGS::RETAIN;
@@ -1899,7 +1940,7 @@ namespace folia {
       if ( !trim_spaces ){
          flags |= TEXT_FLAGS::NO_TRIM_SPACES;
       }
-      UnicodeString result = deeptext( cls, flags );
+      UnicodeString result = deeptext( cls, flags, honour_tag );
       if ( result.isEmpty() ) {
 	result = stricttext( cls, trim_spaces );
       }
@@ -1911,7 +1952,8 @@ namespace folia {
   }
 
   const UnicodeString AbstractElement::text( const std::string& cls,
-					     TEXT_FLAGS flags ) const {
+					     TEXT_FLAGS flags,
+					     bool honour_tag ) const {
     /// get the UnicodeString text value of an element
     /*!
      * \param cls the textclass the text should be in
@@ -1922,9 +1964,11 @@ namespace folia {
     bool hidden = ( TEXT_FLAGS::HIDDEN & flags ) == TEXT_FLAGS::HIDDEN;
     bool trim_spaces = !( ( TEXT_FLAGS::NO_TRIM_SPACES & flags ) == TEXT_FLAGS::NO_TRIM_SPACES);
 #ifdef DEBUG_TEXT
-    cerr << "DEBUG text() retain=" << retain << " strict=" << strict << " hidden=" << hidden << " trim_spaces=" << trim_spaces << endl;
+    cerr << "DEBUG <" << xmltag() << ">.text() retain=" << retain << " strict=" << strict
+	 << " hidden=" << hidden << " trim_spaces=" << trim_spaces
+	 << " honour_tag=" << honour_tag << endl;
 #endif
-    return private_text( cls, retain, strict, hidden, trim_spaces );
+    return private_text( cls, retain, strict, hidden, trim_spaces, honour_tag );
   }
 
   void FoLiA::setAttributes( KWargs& kwargs ){
@@ -2013,7 +2057,8 @@ namespace folia {
 					   bool retaintok,
 					   bool strict,
 					   bool,
-                                           bool trim_spaces) const {
+                                           bool trim_spaces,
+					   bool honour_tag ) const {
     /// get the UnicodeString value of a FoLiA topnode
     /*!
      * \param cls The textclass we are looking for
@@ -2034,7 +2079,7 @@ namespace folia {
 	const string& delim = d->get_delimiter( retaintok );
 	result += TiCC::UnicodeFromUTF8(delim);
       }
-      result += d->private_text( cls, retaintok, strict, false, trim_spaces );
+      result += d->private_text( cls, retaintok, strict, false, trim_spaces, honour_tag );
     }
 #ifdef DEBUG_TEXT
     cerr << "FoLiA::TEXT returns '" << result << "'" << endl;
@@ -2152,7 +2197,8 @@ namespace folia {
   }
 
   const UnicodeString AbstractElement::deeptext( const string& cls,
-						 TEXT_FLAGS flags ) const {
+						 TEXT_FLAGS flags,
+						 bool honour_tag) const {
     /// get the UnicodeString text value of underlying elements
     /*!
      * \param cls the textclass
@@ -2169,8 +2215,8 @@ namespace folia {
     vector<UnicodeString> parts;
     vector<UnicodeString> seps;
     for ( const auto& child : this->data() ) {
-      // try to get text dynamically from children
-      // skip TextContent elements
+      // try to get text dynamically from printable children
+      // skipping the TextContent elements
 #ifdef DEBUG_TEXT
       if ( !child->printable() ) {
 	cerr << "deeptext: node[" << child->xmltag() << "] NOT PRINTABLE! " << endl;
@@ -2185,7 +2231,7 @@ namespace folia {
 	cerr << "deeptext:bekijk node[" << child->xmltag() << "]"<< endl;
 #endif
 	try {
-	  UnicodeString tmp = child->text( cls, flags );
+	  UnicodeString tmp = child->text( cls, flags, honour_tag );
 #ifdef DEBUG_TEXT
 	  cerr << "deeptext found '" << tmp << "'" << endl;
 #endif
@@ -2254,8 +2300,9 @@ namespace folia {
     cerr << "deeptext() for " << xmltag() << " step 3 " << endl;
 #endif
     if ( result.isEmpty() ) {
+      // so no deeper text is found. Well, lets look here then
       bool hidden = ( TEXT_FLAGS::HIDDEN & flags ) == TEXT_FLAGS::HIDDEN;
-      result = text_content(cls,hidden)->text(cls);
+      result = text_content(cls,hidden)->text(cls,flags,honour_tag);
     }
 #ifdef DEBUG_TEXT
     cerr << "deeptext() for " << xmltag() << " result= '" << result << "'" << endl;
@@ -2276,11 +2323,14 @@ namespace folia {
      * Will throw on error.
      */
     TEXT_FLAGS flags = TEXT_FLAGS::STRICT;
-    if (!trim_spaces) flags |= TEXT_FLAGS::NO_TRIM_SPACES;
+    if (!trim_spaces) {
+      flags |= TEXT_FLAGS::NO_TRIM_SPACES;
+    }
     return this->text(cls, flags );
   }
 
-  const UnicodeString FoliaElement::toktext( const string& cls, bool trim_spaces ) const {
+  const UnicodeString FoliaElement::toktext( const string& cls,
+					     bool trim_spaces ) const {
     /// get the UnicodeString value of TextContent children only, retaining
     /// tokenization
     /*!
@@ -5742,7 +5792,9 @@ namespace folia {
   //#define DEBUG_TEXT
   const UnicodeString Correction::private_text( const string& cls,
 						bool retaintok,
-						bool, bool, bool trim_spaces ) const {
+						bool, bool,
+						bool trim_spaces,
+						bool honour_tag ) const {
     /// get the UnicodeString value of an Correction
     /*!
      * \param cls The textclass we are looking for
@@ -5769,7 +5821,11 @@ namespace folia {
 	}
 	else {
 	  try {
-	    new_result = el->private_text( cls, retaintok, false, false, trim_spaces );
+	    new_result = el->private_text( cls,
+					   retaintok,
+					   false, false,
+					   trim_spaces,
+					   honour_tag );
 	  }
 	  catch ( ... ){
 	    // try other nodes
@@ -5778,7 +5834,11 @@ namespace folia {
       }
       else if ( el->isinstance( Original_t ) ){
 	try {
-	  org_result = el->private_text( cls, retaintok, false, false, trim_spaces );
+	  org_result = el->private_text( cls,
+					 retaintok,
+					 false, false,
+					 trim_spaces,
+					 honour_tag );
 	}
 	catch ( ... ){
 	  // try other nodes
@@ -5786,7 +5846,11 @@ namespace folia {
       }
       else if ( el->isinstance( Current_t ) ){
 	try {
-	  cur_result = el->private_text( cls, retaintok, false, false, trim_spaces );
+	  cur_result = el->private_text( cls,
+					 retaintok,
+					 false, false,
+					 trim_spaces,
+					 honour_tag );
 	}
 	catch ( ... ){
 	  // try other nodes
@@ -6239,7 +6303,7 @@ namespace folia {
     return true;
   }
 
-  const UnicodeString XmlText::private_text( const string&, bool, bool, bool, bool ) const {
+  const UnicodeString XmlText::private_text( const string&, bool, bool, bool, bool, bool ) const {
     /// get the UnicodeString value of an XmlText element
     /*!
      */
@@ -6740,7 +6804,8 @@ namespace folia {
 							  bool retaintok,
 							  bool strict,
 							  bool show_hidden,
-                                                          bool trim_spaces ) const{
+                                                          bool trim_spaces,
+							  bool honour_tag ) const{
     /// get the UnicodeString value of a TextMarkupCorrection element
     /*!
      * \param cls The textclass we are looking for
@@ -6756,7 +6821,9 @@ namespace folia {
     if ( cls == "original" ) {
       return TiCC::UnicodeFromUTF8(_original);
     }
-    return AbstractElement::private_text( cls, retaintok, strict, show_hidden, trim_spaces );
+    return AbstractElement::private_text( cls, retaintok, strict,
+					  show_hidden, trim_spaces,
+					  honour_tag );
   }
 
   const FoliaElement* AbstractTextMarkup::resolveid() const {

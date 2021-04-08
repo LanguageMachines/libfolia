@@ -362,15 +362,23 @@ namespace folia {
     virtual void check_append_text_consistency( const FoliaElement * ) const = 0;
 
     virtual const std::string str( const std::string& = "current" ) const = 0;
+    virtual const std::string special_str( const std::string& = "current" ) const = 0;
     const UnicodeString unicode( const std::string& cls = "current" ) const {
       return text( cls, TEXT_FLAGS::NONE ); };
+
+    virtual UnicodeString text_container_text( const std::string&,
+					       bool = false,
+					       bool = true,
+					       bool = false ) const = 0;
     virtual const UnicodeString private_text( const std::string& = "current",
 					      bool = false,
 					      bool = false,
 					      bool = false,
-                                              bool = true) const = 0;
+                                              bool = true,
+					      bool = false ) const = 0;
     virtual const UnicodeString text( const std::string&,
-				      TEXT_FLAGS = TEXT_FLAGS::NONE ) const = 0;
+				      TEXT_FLAGS = TEXT_FLAGS::NONE,
+				      bool = false ) const = 0;
     virtual const UnicodeString text( TEXT_FLAGS = TEXT_FLAGS::NONE ) const = 0;
     const UnicodeString stricttext( const std::string& = "current", bool = true ) const;
     const UnicodeString toktext( const std::string& = "current", bool = true ) const;
@@ -529,7 +537,8 @@ namespace folia {
     virtual const FoliaElement* resolveid() const NOT_IMPLEMENTED;
     virtual bool checkAtts() = 0;
     virtual const UnicodeString deeptext( const std::string& = "current",
-					  TEXT_FLAGS = TEXT_FLAGS::NONE ) const NOT_IMPLEMENTED;
+					  TEXT_FLAGS = TEXT_FLAGS::NONE,
+					  bool = false ) const NOT_IMPLEMENTED;
     virtual const UnicodeString deepphon( const std::string& = "current",
 					  TEXT_FLAGS = TEXT_FLAGS::NONE ) const NOT_IMPLEMENTED;
 
@@ -684,13 +693,20 @@ namespace folia {
     // text/string content
 
     const std::string str( const std::string& = "current" ) const;
+    const std::string special_str( const std::string& = "current" ) const;
+    UnicodeString text_container_text( const std::string&,
+				       bool = false,
+				       bool = true,
+				       bool = false ) const;
     const UnicodeString private_text( const std::string& = "current",
 				      bool = false,
 				      bool = false,
 				      bool = false,
-                                      bool = true) const;
+                                      bool = true,
+				      bool = false ) const;
     const UnicodeString text( const std::string&,
-			      TEXT_FLAGS = TEXT_FLAGS::NONE ) const;
+			      TEXT_FLAGS = TEXT_FLAGS::NONE,
+			      bool = false ) const;
     const UnicodeString text( TEXT_FLAGS flags = TEXT_FLAGS::NONE ) const {
       return text( "current", flags );
     }
@@ -702,7 +718,8 @@ namespace folia {
     }
 
     const UnicodeString deeptext( const std::string& = "current",
-				  TEXT_FLAGS = TEXT_FLAGS::NONE ) const;
+				  TEXT_FLAGS = TEXT_FLAGS::NONE,
+				  bool = false ) const;
     const UnicodeString deepphon( const std::string& = "current",
 				  TEXT_FLAGS = TEXT_FLAGS::NONE ) const;
 
@@ -1273,7 +1290,8 @@ namespace folia {
 				      bool = false,
 				      bool = false,
 				      bool = false,
-                                      bool = true) const;
+                                      bool = true,
+				      bool = false ) const;
     static properties PROPS;
     std::string _original;
   };
@@ -1456,7 +1474,8 @@ namespace folia {
 				      bool = false,
 				      bool = false,
 				      bool = false,
-                                      bool = true) const;
+                                      bool = true,
+				      bool = false ) const;
     static properties PROPS;
 
   };
@@ -1602,7 +1621,8 @@ namespace folia {
 					bool = false,
 					bool = false,
 					bool = false,
-                                        bool = true) const {
+                                        bool = true,
+					bool = false ) const {
 	return "\n";
       }
       static properties PROPS;
@@ -1625,7 +1645,8 @@ namespace folia {
 				      bool = false,
 				      bool = false,
 				      bool = false,
-                                      bool = true) const {
+                                      bool = true,
+				      bool = false ) const {
       return "\n\n";
     }
     static properties PROPS;
@@ -2658,7 +2679,8 @@ namespace folia {
 				      bool = false,
 				      bool = false,
 				      bool = false,
-                                      bool = true) const { return ""; };
+                                      bool = true,
+				      bool = false ) const { return ""; };
     static properties PROPS;
     std::string _value;
   };
@@ -2680,7 +2702,8 @@ namespace folia {
 				      bool = false,
 				      bool = false,
 				      bool = false,
-                                      bool = true) const;
+                                      bool = true,
+				      bool = false ) const;
     static properties PROPS;
     std::string _value; //UTF8 value
   };
@@ -2820,7 +2843,8 @@ namespace folia {
 				      bool = false,
 				      bool = false,
 				      bool = false,
-                                      bool = true) const;
+                                      bool = true,
+				      bool = false ) const;
     static properties PROPS;
   };
 
