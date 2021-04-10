@@ -1804,7 +1804,7 @@ namespace folia {
 	      begin = i+1;
 
 	      UnicodeString subresult;
-	      if (this->_preserve_spaces == SPACE_FLAGS::PRESERVE) {
+	      if ( _preserve_spaces == SPACE_FLAGS::PRESERVE) {
 		if ( line.length() > 0
 		     && line[line.length() - 1] == 0x000d) {
 		  //carriage return
@@ -2079,7 +2079,9 @@ namespace folia {
 	const string& delim = d->get_delimiter( retaintok );
 	result += TiCC::UnicodeFromUTF8(delim);
       }
-      result += d->private_text( cls, retaintok, strict, false, trim_spaces, honour_tag );
+      result += d->private_text( cls, retaintok, strict,
+				 false,
+				 trim_spaces, honour_tag );
     }
 #ifdef DEBUG_TEXT
     cerr << "FoLiA::TEXT returns '" << result << "'" << endl;
