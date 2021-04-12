@@ -1356,6 +1356,9 @@ namespace folia {
     }
   }
 
+  //#define DEBUG_TEXT
+  //#define DEBUG_TEXT_DEL
+
   void AbstractElement::check_text_consistency_while_parsing( bool trim_spaces ) {
       // this block was moved from parseXml into a separate function
       // it remains to be seen how much overlaps with check_text_consistency()
@@ -1694,9 +1697,6 @@ namespace folia {
       return false;
     }
   }
-
-  //#define DEBUG_TEXT
-  //#define DEBUG_TEXT_DEL
 
   const string& AbstractElement::get_delimiter( bool retaintok ) const {
     /// get the default delimiter of this object.
@@ -6826,6 +6826,22 @@ namespace folia {
     return AbstractElement::private_text( cls, retaintok, strict,
 					  show_hidden, trim_spaces,
 					  honour_tag );
+  }
+
+  const UnicodeString TextMarkupHSpace::private_text( const string&,
+						      bool,
+						      bool,
+						      bool,
+						      bool,
+						      bool ) const {
+    /// get the UnicodeString value of a TextMarkupHSpace element
+    /*!
+     * \return A single space.
+     */
+#ifdef DEBUG_TEXT
+    cerr << "TEXT MARKUP HSPACE " << " return ' '" << endl;
+#endif
+    return " ";
   }
 
   const FoliaElement* AbstractTextMarkup::resolveid() const {

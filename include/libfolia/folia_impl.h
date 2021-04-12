@@ -1360,6 +1360,12 @@ namespace folia {
   TextMarkupHSpace(  const KWargs& a, Document *d=0 ):
     AbstractTextMarkup( PROPS, d ) { classInit(a); };
   private:
+    const UnicodeString private_text( const std::string& = "current",
+				      bool = false,
+				      bool = false,
+				      bool = false,
+                                      bool = true,
+				      bool = false ) const;
     static properties PROPS;
   };
 
