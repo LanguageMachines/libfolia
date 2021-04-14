@@ -114,6 +114,21 @@ namespace folia {
       };
 
 
+  class FoliaElement;
+  class TextPolicy {
+  public:
+  TextPolicy(): _class("current"), _honour_tag(false),_tag_handler(0) {};
+  TextPolicy( const std::string& cls, const TEXT_FLAGS flags):
+    _class(cls),
+      _text_flags( flags ),
+      _honour_tag( false ) {}
+    std::string _class;
+    TEXT_FLAGS _text_flags;
+    SELECT_FLAGS _select_flags;
+    bool _honour_tag;
+    std::string (*_tag_handler)( const FoliaElement* );
+  };
+
 #define NOT_IMPLEMENTED {						\
     throw NotImplementedError( xmltag() + "::" + std::string(__func__) ); \
   }
@@ -376,6 +391,7 @@ namespace folia {
 					      bool = false,
                                               bool = true,
 					      bool = false ) const = 0;
+    virtual const UnicodeString private_text( const TextPolicy& ) const = 0;
     virtual const UnicodeString text( const std::string&,
 				      TEXT_FLAGS = TEXT_FLAGS::NONE,
 				      bool = false ) const = 0;
@@ -704,6 +720,7 @@ namespace folia {
 				      bool = false,
                                       bool = true,
 				      bool = false ) const;
+    const UnicodeString private_text( const TextPolicy& ) const;
     const UnicodeString text( const std::string&,
 			      TEXT_FLAGS = TEXT_FLAGS::NONE,
 			      bool = false ) const;
@@ -1292,6 +1309,7 @@ namespace folia {
 				      bool = false,
                                       bool = true,
 				      bool = false ) const;
+    const UnicodeString private_text( const TextPolicy& ) const;
     static properties PROPS;
     std::string _original;
   };
@@ -1366,6 +1384,7 @@ namespace folia {
 				      bool = false,
                                       bool = true,
 				      bool = false ) const;
+    const UnicodeString private_text( const TextPolicy& ) const;
     static properties PROPS;
   };
 
@@ -1482,8 +1501,8 @@ namespace folia {
 				      bool = false,
                                       bool = true,
 				      bool = false ) const;
+    const UnicodeString private_text( const TextPolicy& ) const;
     static properties PROPS;
-
   };
 
   class DCOI: public AbstractElement {
@@ -1631,6 +1650,9 @@ namespace folia {
 					bool = false ) const {
 	return "\n";
       }
+      const UnicodeString private_text( const TextPolicy& ) const {
+	return "\n";
+      }
       static properties PROPS;
       std::string _pagenr;
       std::string _linenr;
@@ -1653,6 +1675,9 @@ namespace folia {
 				      bool = false,
                                       bool = true,
 				      bool = false ) const {
+      return "\n\n";
+    }
+    const UnicodeString private_text( const TextPolicy& ) const {
       return "\n\n";
     }
     static properties PROPS;
@@ -2687,6 +2712,9 @@ namespace folia {
 				      bool = false,
                                       bool = true,
 				      bool = false ) const { return ""; };
+    const UnicodeString private_text( const TextPolicy& ) const {
+      return "";
+    }
     static properties PROPS;
     std::string _value;
   };
@@ -2710,6 +2738,7 @@ namespace folia {
 				      bool = false,
                                       bool = true,
 				      bool = false ) const;
+    const UnicodeString private_text( const TextPolicy& ) const;
     static properties PROPS;
     std::string _value; //UTF8 value
   };
@@ -2851,6 +2880,7 @@ namespace folia {
 				      bool = false,
                                       bool = true,
 				      bool = false ) const;
+    const UnicodeString private_text( const TextPolicy& ) const;
     static properties PROPS;
   };
 

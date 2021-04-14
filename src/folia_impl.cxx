@@ -1891,6 +1891,15 @@ namespace folia {
       return result;
   }
 
+  const UnicodeString AbstractElement::private_text( const TextPolicy& tp ) const {
+    bool retain = ( TEXT_FLAGS::RETAIN & tp._text_flags ) == TEXT_FLAGS::RETAIN;
+    bool strict = ( TEXT_FLAGS::STRICT & tp._text_flags ) == TEXT_FLAGS::STRICT;
+    bool hidden = ( TEXT_FLAGS::HIDDEN & tp._text_flags ) == TEXT_FLAGS::HIDDEN;
+    bool trim = !( ( TEXT_FLAGS::NO_TRIM_SPACES & tp._text_flags ) == TEXT_FLAGS::NO_TRIM_SPACES);
+    bool honour = tp._honour_tag;
+    return private_text( tp._class, retain, strict, hidden, trim, honour );
+  }
+
   const UnicodeString AbstractElement::private_text( const string& cls,
 						     bool retaintok,
 						     bool strict,
@@ -1959,16 +1968,12 @@ namespace folia {
      * \param cls the textclass the text should be in
      * \param flags the search parameters to use. See TEXT_FLAGS.
      */
-    bool retain = ( TEXT_FLAGS::RETAIN & flags ) == TEXT_FLAGS::RETAIN;
-    bool strict = ( TEXT_FLAGS::STRICT & flags ) == TEXT_FLAGS::STRICT;
-    bool hidden = ( TEXT_FLAGS::HIDDEN & flags ) == TEXT_FLAGS::HIDDEN;
-    bool trim_spaces = !( ( TEXT_FLAGS::NO_TRIM_SPACES & flags ) == TEXT_FLAGS::NO_TRIM_SPACES);
+    TextPolicy tp( cls, flags );
+    tp._honour_tag = honour_tag;
 #ifdef DEBUG_TEXT
-    cerr << "DEBUG <" << xmltag() << ">.text() retain=" << retain << " strict=" << strict
-	 << " hidden=" << hidden << " trim_spaces=" << trim_spaces
-	 << " honour_tag=" << honour_tag << endl;
+    cerr << "DEBUG <" << xmltag() << ">.text() Policy=" << tp << endl;
 #endif
-    return private_text( cls, retain, strict, hidden, trim_spaces, honour_tag );
+    return private_text( tp );
   }
 
   void FoLiA::setAttributes( KWargs& kwargs ){
@@ -2053,6 +2058,15 @@ namespace folia {
     return this;
   }
 
+  const UnicodeString FoLiA::private_text( const TextPolicy& tp ) const {
+    bool retain = ( TEXT_FLAGS::RETAIN & tp._text_flags ) == TEXT_FLAGS::RETAIN;
+    bool strict = ( TEXT_FLAGS::STRICT & tp._text_flags ) == TEXT_FLAGS::STRICT;
+    bool hidden = ( TEXT_FLAGS::HIDDEN & tp._text_flags ) == TEXT_FLAGS::HIDDEN;
+    bool trim = !( ( TEXT_FLAGS::NO_TRIM_SPACES & tp._text_flags ) == TEXT_FLAGS::NO_TRIM_SPACES);
+    bool honour = tp._honour_tag;
+    return private_text( tp._class, retain, strict, hidden, trim, honour );
+  }
+
   const UnicodeString FoLiA::private_text( const string& cls,
 					   bool retaintok,
 					   bool strict,
@@ -2074,14 +2088,24 @@ namespace folia {
 #endif
     const vector<FoliaElement *>& data = this->data();
     UnicodeString result;
+    TextPolicy tp;
+    tp._class = cls;
+    if ( retaintok ){
+      tp._text_flags |= TEXT_FLAGS::RETAIN;
+    }
+    if ( strict ){
+      tp._text_flags |= TEXT_FLAGS::STRICT;
+    }
+    if ( !trim_spaces ){
+      tp._text_flags |= TEXT_FLAGS::NO_TRIM_SPACES;
+    }
+    tp._honour_tag = honour_tag;
     for ( const auto& d : data ){
       if ( !result.isEmpty() ){
 	const string& delim = d->get_delimiter( retaintok );
 	result += TiCC::UnicodeFromUTF8(delim);
       }
-      result += d->private_text( cls, retaintok, strict,
-				 false,
-				 trim_spaces, honour_tag );
+      result += d->private_text( tp );
     }
 #ifdef DEBUG_TEXT
     cerr << "FoLiA::TEXT returns '" << result << "'" << endl;
@@ -5792,6 +5816,15 @@ namespace folia {
   }
 
   //#define DEBUG_TEXT
+  const UnicodeString Correction::private_text( const TextPolicy& tp ) const {
+    bool retain = ( TEXT_FLAGS::RETAIN & tp._text_flags ) == TEXT_FLAGS::RETAIN;
+    bool strict = ( TEXT_FLAGS::STRICT & tp._text_flags ) == TEXT_FLAGS::STRICT;
+    bool hidden = ( TEXT_FLAGS::HIDDEN & tp._text_flags ) == TEXT_FLAGS::HIDDEN;
+    bool trim = !( ( TEXT_FLAGS::NO_TRIM_SPACES & tp._text_flags ) == TEXT_FLAGS::NO_TRIM_SPACES);
+    bool honour = tp._honour_tag;
+    return private_text( tp._class, retain, strict, hidden, trim, honour );
+  }
+
   const UnicodeString Correction::private_text( const string& cls,
 						bool retaintok,
 						bool, bool,
@@ -6305,6 +6338,15 @@ namespace folia {
     return true;
   }
 
+  const UnicodeString XmlText::private_text( const TextPolicy& tp ) const {
+    bool retain = ( TEXT_FLAGS::RETAIN & tp._text_flags ) == TEXT_FLAGS::RETAIN;
+    bool strict = ( TEXT_FLAGS::STRICT & tp._text_flags ) == TEXT_FLAGS::STRICT;
+    bool hidden = ( TEXT_FLAGS::HIDDEN & tp._text_flags ) == TEXT_FLAGS::HIDDEN;
+    bool trim = !( ( TEXT_FLAGS::NO_TRIM_SPACES & tp._text_flags ) == TEXT_FLAGS::NO_TRIM_SPACES);
+    bool honour = tp._honour_tag;
+    return private_text( tp._class, retain, strict, hidden, trim, honour );
+  }
+
   const UnicodeString XmlText::private_text( const string&, bool, bool, bool, bool, bool ) const {
     /// get the UnicodeString value of an XmlText element
     /*!
@@ -6802,6 +6844,15 @@ namespace folia {
     AbstractElement::setAttributes( kwargs );
   }
 
+  const UnicodeString TextMarkupCorrection::private_text( const TextPolicy& tp ) const {
+    bool retain = ( TEXT_FLAGS::RETAIN & tp._text_flags ) == TEXT_FLAGS::RETAIN;
+    bool strict = ( TEXT_FLAGS::STRICT & tp._text_flags ) == TEXT_FLAGS::STRICT;
+    bool hidden = ( TEXT_FLAGS::HIDDEN & tp._text_flags ) == TEXT_FLAGS::HIDDEN;
+    bool trim = !( ( TEXT_FLAGS::NO_TRIM_SPACES & tp._text_flags ) == TEXT_FLAGS::NO_TRIM_SPACES);
+    bool honour = tp._honour_tag;
+    return private_text( tp._class, retain, strict, hidden, trim, honour );
+  }
+
   const UnicodeString TextMarkupCorrection::private_text( const string& cls,
 							  bool retaintok,
 							  bool strict,
@@ -6826,6 +6877,15 @@ namespace folia {
     return AbstractElement::private_text( cls, retaintok, strict,
 					  show_hidden, trim_spaces,
 					  honour_tag );
+  }
+
+  const UnicodeString TextMarkupHSpace::private_text( const TextPolicy& tp ) const {
+    bool retain = ( TEXT_FLAGS::RETAIN & tp._text_flags ) == TEXT_FLAGS::RETAIN;
+    bool strict = ( TEXT_FLAGS::STRICT & tp._text_flags ) == TEXT_FLAGS::STRICT;
+    bool hidden = ( TEXT_FLAGS::HIDDEN & tp._text_flags ) == TEXT_FLAGS::HIDDEN;
+    bool trim = !( ( TEXT_FLAGS::NO_TRIM_SPACES & tp._text_flags ) == TEXT_FLAGS::NO_TRIM_SPACES);
+    bool honour = tp._honour_tag;
+    return private_text( tp._class, retain, strict, hidden, trim, honour );
   }
 
   const UnicodeString TextMarkupHSpace::private_text( const string&,
