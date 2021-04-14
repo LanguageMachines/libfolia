@@ -71,6 +71,25 @@ namespace folia {
     _tag_handler(0) {
   }
 
+  ostream& operator<<( ostream& os, const TextPolicy& tp ){
+    bool retain  = tp.is_set( TEXT_FLAGS::RETAIN );
+    bool strict  = tp.is_set( TEXT_FLAGS::STRICT );
+    bool hide    = tp.is_set( TEXT_FLAGS::HIDDEN );
+    bool trim = !tp.is_set( TEXT_FLAGS::NO_TRIM_SPACES );
+    bool honour = tp._honour_tag;
+
+    os << (strict?"strict":"not strict") << "\t"
+       << (retain?"retain":"untokenized") << "\t"
+       << (hide?"show_hidden":"hide hidden") << "\t"
+       << (trim?"trimming spaces":"not trimming spaces") << "\t"
+       << (honour?"honouring tag":"ignore tag");
+    return os;
+  }
+
+  bool TextPolicy::is_set( TEXT_FLAGS tf ) const {
+    return ( tf & _text_flags ) == tf;
+  }
+
   ElementType AbstractElement::element_id() const {
     /// return the ELEMENT_ID property
     return _props.ELEMENT_ID;
@@ -1791,7 +1810,7 @@ namespace folia {
     UnicodeString result;
     bool pendingspace = false;
     bool trim_spaces = !( ( TEXT_FLAGS::NO_TRIM_SPACES & tp._text_flags ) == TEXT_FLAGS::NO_TRIM_SPACES);
-    bool retaintok  = (tp._text_flags & TEXT_FLAGS::RETAIN ) == TEXT_FLAGS::RETAIN;
+    bool retaintok  = tp.is_set( TEXT_FLAGS::RETAIN );
     bool honour_tag = tp._honour_tag;
     for ( const auto& d : _data ){
       if (d->isinstance( XmlText_t)) {
@@ -1909,22 +1928,6 @@ namespace folia {
   }
 
   const UnicodeString AbstractElement::private_text( const TextPolicy& tp ) const {
-    bool retain = ( TEXT_FLAGS::RETAIN & tp._text_flags ) == TEXT_FLAGS::RETAIN;
-    bool strict = ( TEXT_FLAGS::STRICT & tp._text_flags ) == TEXT_FLAGS::STRICT;
-    bool hidden = ( TEXT_FLAGS::HIDDEN & tp._text_flags ) == TEXT_FLAGS::HIDDEN;
-    bool trim = !( ( TEXT_FLAGS::NO_TRIM_SPACES & tp._text_flags ) == TEXT_FLAGS::NO_TRIM_SPACES);
-    bool honour = tp._honour_tag;
-    return private_text( tp._class, retain, strict, hidden, trim, honour );
-  }
-
-  const UnicodeString AbstractElement::private_text( const string& cls,
-						     bool retaintok,
-						     bool strict,
-						     bool show_hidden,
-                                                     bool trim_spaces,
-                                                     bool honour_tag
-						     ) const {
-
     /// get the UnicodeString value of an element
     /*!
      * \param cls The textclass we are looking for
@@ -1936,51 +1939,29 @@ namespace folia {
      * \return the Unicode String representation found. Throws when
      * no text can be found
      */
+    bool strict = tp.is_set( TEXT_FLAGS::STRICT );
+    bool hide = tp.is_set( TEXT_FLAGS::HIDDEN );
+    bool trim = !tp.is_set( TEXT_FLAGS::NO_TRIM_SPACES );
+    bool honour = tp._honour_tag;
 #ifdef DEBUG_TEXT
     cerr << "TEXT(" << cls << ") on node : " << xmltag() << " id="
 	 << id() << endl;
-    cerr << (strict?"strict":"not strict") << "\t"
-	 << (retaintok?"retain":"untokenized") << "\t"
-	 << (show_hidden?"show_hidden":"hide hidden") << "\t"
-	 << (trim_spaces?"trimming spaces":"not trimming spaces") << "\t"
-	 << (honour_tag?"honouring tag":"ignore tag") << endl;
+    cerr << "TextPolicy: " << tp << endl;
 #endif
     if ( strict ) {
-      return text_content(cls,show_hidden)->text(cls, !trim_spaces ? TEXT_FLAGS::NO_TRIM_SPACES : TEXT_FLAGS::NONE,honour_tag);
+      return text_content(tp._class,hide)->text(tp._class, !trim ? TEXT_FLAGS::NO_TRIM_SPACES : TEXT_FLAGS::NONE,honour);
     }
-    else if ( !printable() || ( hidden() && !show_hidden ) ){
+    else if ( !printable() || ( hidden() && !hide ) ){
       throw NoSuchText( "NON printable element: " + xmltag() );
     }
     else if ( is_textcontainer() ){
-      TEXT_FLAGS flags = TEXT_FLAGS::NONE;
-      if ( retaintok ){
-	flags |= TEXT_FLAGS::RETAIN;
-      }
-      if ( show_hidden ){
-	flags |= TEXT_FLAGS::HIDDEN;
-      }
-      if ( !trim_spaces ){
-         flags |= TEXT_FLAGS::NO_TRIM_SPACES;
-      }
-      TextPolicy tp( cls, flags );
-      tp._honour_tag = honour_tag;
       return text_container_text( tp );
     }
     else {
       //
-      TEXT_FLAGS flags = TEXT_FLAGS::NONE;
-      if ( retaintok ){
-	flags |= TEXT_FLAGS::RETAIN;
-      }
-      if ( show_hidden ){
-	flags |= TEXT_FLAGS::HIDDEN;
-      }
-      if ( !trim_spaces ){
-         flags |= TEXT_FLAGS::NO_TRIM_SPACES;
-      }
-      UnicodeString result = deeptext( cls, flags, honour_tag );
+      UnicodeString result = deeptext( tp._class, tp._text_flags, honour );
       if ( result.isEmpty() ) {
-	result = stricttext( cls, trim_spaces );
+	result = stricttext( tp._class, trim );
       }
       if ( result.isEmpty() ) {
 	throw NoSuchText( "on tag " + xmltag() + " nor it's children" );
@@ -2088,20 +2069,6 @@ namespace folia {
   }
 
   const UnicodeString FoLiA::private_text( const TextPolicy& tp ) const {
-    bool retain = ( TEXT_FLAGS::RETAIN & tp._text_flags ) == TEXT_FLAGS::RETAIN;
-    bool strict = ( TEXT_FLAGS::STRICT & tp._text_flags ) == TEXT_FLAGS::STRICT;
-    bool hidden = ( TEXT_FLAGS::HIDDEN & tp._text_flags ) == TEXT_FLAGS::HIDDEN;
-    bool trim = !( ( TEXT_FLAGS::NO_TRIM_SPACES & tp._text_flags ) == TEXT_FLAGS::NO_TRIM_SPACES);
-    bool honour = tp._honour_tag;
-    return private_text( tp._class, retain, strict, hidden, trim, honour );
-  }
-
-  const UnicodeString FoLiA::private_text( const string& cls,
-					   bool retaintok,
-					   bool strict,
-					   bool,
-                                           bool trim_spaces,
-					   bool honour_tag ) const {
     /// get the UnicodeString value of a FoLiA topnode
     /*!
      * \param cls The textclass we are looking for
@@ -2112,26 +2079,15 @@ namespace folia {
      * \return the Unicode String representation found. Throws when
      * no text can be found
      */
+    bool retain = tp.is_set( TEXT_FLAGS::RETAIN );
 #ifdef DEBUG_TEXT
     cerr << "FoLiA::TEXT(" << cls << ")" << endl;
 #endif
     const vector<FoliaElement *>& data = this->data();
     UnicodeString result;
-    TextPolicy tp;
-    tp._class = cls;
-    if ( retaintok ){
-      tp._text_flags |= TEXT_FLAGS::RETAIN;
-    }
-    if ( strict ){
-      tp._text_flags |= TEXT_FLAGS::STRICT;
-    }
-    if ( !trim_spaces ){
-      tp._text_flags |= TEXT_FLAGS::NO_TRIM_SPACES;
-    }
-    tp._honour_tag = honour_tag;
     for ( const auto& d : data ){
       if ( !result.isEmpty() ){
-	const string& delim = d->get_delimiter( retaintok );
+	const string& delim = d->get_delimiter( retain );
 	result += TiCC::UnicodeFromUTF8(delim);
       }
       result += d->private_text( tp );
@@ -5846,20 +5802,6 @@ namespace folia {
 
   //#define DEBUG_TEXT
   const UnicodeString Correction::private_text( const TextPolicy& tp ) const {
-    bool retain = ( TEXT_FLAGS::RETAIN & tp._text_flags ) == TEXT_FLAGS::RETAIN;
-    bool strict = ( TEXT_FLAGS::STRICT & tp._text_flags ) == TEXT_FLAGS::STRICT;
-    bool hidden = ( TEXT_FLAGS::HIDDEN & tp._text_flags ) == TEXT_FLAGS::HIDDEN;
-    bool trim = !( ( TEXT_FLAGS::NO_TRIM_SPACES & tp._text_flags ) == TEXT_FLAGS::NO_TRIM_SPACES);
-    bool honour = tp._honour_tag;
-    return private_text( tp._class, retain, strict, hidden, trim, honour );
-  }
-
-  const UnicodeString Correction::private_text( const string& cls,
-						bool retaintok,
-						bool strict,
-						bool hidden,
-						bool trim_spaces,
-						bool honour_tag ) const {
     /// get the UnicodeString value of an Correction
     /*!
      * \param cls The textclass we are looking for
@@ -5868,7 +5810,8 @@ namespace folia {
      * no text can be found.
      */
 #ifdef DEBUG_TEXT
-    cerr << "TEXT(" << cls << ") on node : " << xmltag() << " id=" << id() << endl;
+    cerr << "TEXT(" << cls << ") on node : " << xmltag() << " id="
+	 << id() << " TextPolicy: " << tp << endl;
 #endif
     // we cannot use text_content() on New, Original or Current,
     // because textcontent doesn't recurse!
@@ -5876,22 +5819,6 @@ namespace folia {
     UnicodeString new_result;
     UnicodeString org_result;
     UnicodeString cur_result;
-    TextPolicy tp;
-    tp._class = cls;
-    if ( retaintok ){
-      tp._text_flags |= TEXT_FLAGS::RETAIN;
-    }
-    if ( strict ){
-      tp._text_flags |= TEXT_FLAGS::STRICT;
-    }
-    if ( hidden ){
-      tp._text_flags |= TEXT_FLAGS::HIDDEN;
-    }
-    if ( !trim_spaces ){
-      tp._text_flags |= TEXT_FLAGS::NO_TRIM_SPACES;
-    }
-    tp._honour_tag = honour_tag;
-
     for ( const auto& el : data() ) {
 #ifdef DEBUG_TEXT
       cerr << "data=" << el << endl;
@@ -5954,7 +5881,7 @@ namespace folia {
 	return cur_result;
       }
     }
-    throw NoSuchText( "cls=" + cls );
+    throw NoSuchText( "cls=" + tp._class );
   }
   //#undef DEBUG_TEXT
 
@@ -6372,16 +6299,7 @@ namespace folia {
     return true;
   }
 
-  const UnicodeString XmlText::private_text( const TextPolicy& tp ) const {
-    bool retain = ( TEXT_FLAGS::RETAIN & tp._text_flags ) == TEXT_FLAGS::RETAIN;
-    bool strict = ( TEXT_FLAGS::STRICT & tp._text_flags ) == TEXT_FLAGS::STRICT;
-    bool hidden = ( TEXT_FLAGS::HIDDEN & tp._text_flags ) == TEXT_FLAGS::HIDDEN;
-    bool trim = !( ( TEXT_FLAGS::NO_TRIM_SPACES & tp._text_flags ) == TEXT_FLAGS::NO_TRIM_SPACES);
-    bool honour = tp._honour_tag;
-    return private_text( tp._class, retain, strict, hidden, trim, honour );
-  }
-
-  const UnicodeString XmlText::private_text( const string&, bool, bool, bool, bool, bool ) const {
+  const UnicodeString XmlText::private_text( const TextPolicy& ) const {
     /// get the UnicodeString value of an XmlText element
     /*!
      */
@@ -6879,20 +6797,6 @@ namespace folia {
   }
 
   const UnicodeString TextMarkupCorrection::private_text( const TextPolicy& tp ) const {
-    bool retain = ( TEXT_FLAGS::RETAIN & tp._text_flags ) == TEXT_FLAGS::RETAIN;
-    bool strict = ( TEXT_FLAGS::STRICT & tp._text_flags ) == TEXT_FLAGS::STRICT;
-    bool hidden = ( TEXT_FLAGS::HIDDEN & tp._text_flags ) == TEXT_FLAGS::HIDDEN;
-    bool trim = !( ( TEXT_FLAGS::NO_TRIM_SPACES & tp._text_flags ) == TEXT_FLAGS::NO_TRIM_SPACES);
-    bool honour = tp._honour_tag;
-    return private_text( tp._class, retain, strict, hidden, trim, honour );
-  }
-
-  const UnicodeString TextMarkupCorrection::private_text( const string& cls,
-							  bool retaintok,
-							  bool strict,
-							  bool show_hidden,
-                                                          bool trim_spaces,
-							  bool honour_tag ) const{
     /// get the UnicodeString value of a TextMarkupCorrection element
     /*!
      * \param cls The textclass we are looking for
@@ -6905,29 +6809,13 @@ namespace folia {
      */
     // cerr << "TEXT MARKUP CORRECTION " << this << endl;
     // cerr << "TEXT MARKUP CORRECTION parent cls=" << parent()->cls() << endl;
-    if ( cls == "original" ) {
+    if ( tp._class == "original" ) {
       return TiCC::UnicodeFromUTF8(_original);
     }
-    return AbstractElement::private_text( cls, retaintok, strict,
-					  show_hidden, trim_spaces,
-					  honour_tag );
+    return AbstractElement::private_text( tp );
   }
 
-  const UnicodeString TextMarkupHSpace::private_text( const TextPolicy& tp ) const {
-    bool retain = ( TEXT_FLAGS::RETAIN & tp._text_flags ) == TEXT_FLAGS::RETAIN;
-    bool strict = ( TEXT_FLAGS::STRICT & tp._text_flags ) == TEXT_FLAGS::STRICT;
-    bool hidden = ( TEXT_FLAGS::HIDDEN & tp._text_flags ) == TEXT_FLAGS::HIDDEN;
-    bool trim = !( ( TEXT_FLAGS::NO_TRIM_SPACES & tp._text_flags ) == TEXT_FLAGS::NO_TRIM_SPACES);
-    bool honour = tp._honour_tag;
-    return private_text( tp._class, retain, strict, hidden, trim, honour );
-  }
-
-  const UnicodeString TextMarkupHSpace::private_text( const string&,
-						      bool,
-						      bool,
-						      bool,
-						      bool,
-						      bool ) const {
+  const UnicodeString TextMarkupHSpace::private_text( const TextPolicy& ) const {
     /// get the UnicodeString value of a TextMarkupHSpace element
     /*!
      * \return A single space.

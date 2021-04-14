@@ -120,6 +120,7 @@ namespace folia {
     TextPolicy();
     TextPolicy( const std::string&,
 		const TEXT_FLAGS );
+    bool is_set( TEXT_FLAGS ) const;
     std::string _class;
     TEXT_FLAGS _text_flags;
     SELECT_FLAGS _select_flags;
@@ -380,12 +381,6 @@ namespace folia {
       return text( cls, TEXT_FLAGS::NONE ); };
 
     virtual UnicodeString text_container_text( const TextPolicy& ) const = 0;
-    virtual const UnicodeString private_text( const std::string& = "current",
-					      bool = false,
-					      bool = false,
-					      bool = false,
-                                              bool = true,
-					      bool = false ) const = 0;
     virtual const UnicodeString private_text( const TextPolicy& ) const = 0;
     virtual const UnicodeString text( const std::string&,
 				      TEXT_FLAGS = TEXT_FLAGS::NONE,
@@ -706,12 +701,6 @@ namespace folia {
     const std::string str( const std::string& = "current" ) const;
     const std::string special_str( const std::string& = "current" ) const;
     UnicodeString text_container_text( const TextPolicy& ) const;
-    const UnicodeString private_text( const std::string& = "current",
-				      bool = false,
-				      bool = false,
-				      bool = false,
-                                      bool = true,
-				      bool = false ) const;
     const UnicodeString private_text( const TextPolicy& ) const;
     const UnicodeString text( const std::string&,
 			      TEXT_FLAGS = TEXT_FLAGS::NONE,
@@ -1295,12 +1284,6 @@ namespace folia {
     void setAttributes( KWargs& );
     KWargs collectAttributes() const;
   private:
-    const UnicodeString private_text( const std::string& = "current",
-				      bool = false,
-				      bool = false,
-				      bool = false,
-                                      bool = true,
-				      bool = false ) const;
     const UnicodeString private_text( const TextPolicy& ) const;
     static properties PROPS;
     std::string _original;
@@ -1370,12 +1353,6 @@ namespace folia {
   TextMarkupHSpace(  const KWargs& a, Document *d=0 ):
     AbstractTextMarkup( PROPS, d ) { classInit(a); };
   private:
-    const UnicodeString private_text( const std::string& = "current",
-				      bool = false,
-				      bool = false,
-				      bool = false,
-                                      bool = true,
-				      bool = false ) const;
     const UnicodeString private_text( const TextPolicy& ) const;
     static properties PROPS;
   };
@@ -1487,12 +1464,6 @@ namespace folia {
     FoliaElement* parseXml( const xmlNode * );
     void setAttributes( KWargs& );
   private:
-    const UnicodeString private_text( const std::string& = "current",
-				      bool = false,
-				      bool = false,
-				      bool = false,
-                                      bool = true,
-				      bool = false ) const;
     const UnicodeString private_text( const TextPolicy& ) const;
     static properties PROPS;
   };
@@ -1634,14 +1605,6 @@ namespace folia {
       KWargs collectAttributes() const;
     private:
       void init();
-      const UnicodeString private_text( const std::string& = "current",
-					bool = false,
-					bool = false,
-					bool = false,
-                                        bool = true,
-					bool = false ) const {
-	return "\n";
-      }
       const UnicodeString private_text( const TextPolicy& ) const {
 	return "\n";
       }
@@ -1661,14 +1624,6 @@ namespace folia {
 
 
   private:
-    const UnicodeString private_text( const std::string& = "current",
-				      bool = false,
-				      bool = false,
-				      bool = false,
-                                      bool = true,
-				      bool = false ) const {
-      return "\n\n";
-    }
     const UnicodeString private_text( const TextPolicy& ) const {
       return "\n\n";
     }
@@ -2698,12 +2653,6 @@ namespace folia {
     xmlNode *xml( bool, bool=false ) const;
 
   private:
-    const UnicodeString private_text( const std::string& = "current",
-				      bool = false,
-				      bool = false,
-				      bool = false,
-                                      bool = true,
-				      bool = false ) const { return ""; };
     const UnicodeString private_text( const TextPolicy& ) const {
       return "";
     }
@@ -2724,12 +2673,6 @@ namespace folia {
     bool setvalue( const std::string& );
     const std::string& get_delimiter( bool ) const { return EMPTY_STRING; };
   private:
-    const UnicodeString private_text( const std::string& = "current",
-				      bool = false,
-				      bool = false,
-				      bool = false,
-                                      bool = true,
-				      bool = false ) const;
     const UnicodeString private_text( const TextPolicy& ) const;
     static properties PROPS;
     std::string _value; //UTF8 value
@@ -2866,12 +2809,6 @@ namespace folia {
 			 const KWargs& );
     Correction *correct( const std::string& = "" );
   private:
-    const UnicodeString private_text( const std::string& = "current",
-				      bool = false,
-				      bool = false,
-				      bool = false,
-                                      bool = true,
-				      bool = false ) const;
     const UnicodeString private_text( const TextPolicy& ) const;
     static properties PROPS;
   };
