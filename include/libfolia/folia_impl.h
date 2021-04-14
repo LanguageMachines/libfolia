@@ -117,11 +117,9 @@ namespace folia {
   class FoliaElement;
   class TextPolicy {
   public:
-  TextPolicy(): _class("current"), _honour_tag(false),_tag_handler(0) {};
-  TextPolicy( const std::string& cls, const TEXT_FLAGS flags):
-    _class(cls),
-      _text_flags( flags ),
-      _honour_tag( false ) {}
+    TextPolicy();
+    TextPolicy( const std::string&,
+		const TEXT_FLAGS );
     std::string _class;
     TEXT_FLAGS _text_flags;
     SELECT_FLAGS _select_flags;
@@ -385,6 +383,7 @@ namespace folia {
 					       bool = false,
 					       bool = true,
 					       bool = false ) const = 0;
+    virtual UnicodeString text_container_text( const TextPolicy& ) const = 0;
     virtual const UnicodeString private_text( const std::string& = "current",
 					      bool = false,
 					      bool = false,
@@ -710,6 +709,7 @@ namespace folia {
 
     const std::string str( const std::string& = "current" ) const;
     const std::string special_str( const std::string& = "current" ) const;
+    UnicodeString text_container_text( const TextPolicy& ) const;
     UnicodeString text_container_text( const std::string&,
 				       bool = false,
 				       bool = true,

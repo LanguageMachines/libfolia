@@ -55,6 +55,22 @@ namespace folia {
   string VersionName() { return PACKAGE_STRING; } ///< Returns the PACKAGE_STRING info of the package
   string Version() { return VERSION; }  ///< Returns version of the library
 
+  TextPolicy::TextPolicy():
+    _class("current"),
+    _text_flags(TEXT_FLAGS::NONE),
+    _select_flags(SELECT_FLAGS::RECURSE),
+    _honour_tag(false),
+    _tag_handler(0) {
+  }
+
+  TextPolicy::TextPolicy( const std::string& cls, const TEXT_FLAGS flags ):
+    _class(cls),
+    _text_flags( flags ),
+    _select_flags(SELECT_FLAGS::RECURSE),
+    _honour_tag( false ),
+    _tag_handler(0) {
+  }
+
   ElementType AbstractElement::element_id() const {
     /// return the ELEMENT_ID property
     return _props.ELEMENT_ID;
@@ -1756,6 +1772,13 @@ namespace folia {
 	     || kar == 0x0009    // tab
 	     || kar == 0x000a    // newline
 	     || kar == 0x000d ); // carriage return
+  }
+
+  UnicodeString AbstractElement::text_container_text( const TextPolicy& tp ) const {
+    bool retain = ( TEXT_FLAGS::RETAIN & tp._text_flags ) == TEXT_FLAGS::RETAIN;
+    bool trim = !( ( TEXT_FLAGS::NO_TRIM_SPACES & tp._text_flags ) == TEXT_FLAGS::NO_TRIM_SPACES);
+    bool honour = tp._honour_tag;
+    return text_container_text( tp._class, retain, trim, honour );
   }
 
   UnicodeString AbstractElement::text_container_text( const string& cls,
@@ -5827,7 +5850,8 @@ namespace folia {
 
   const UnicodeString Correction::private_text( const string& cls,
 						bool retaintok,
-						bool, bool,
+						bool strict,
+						bool hidden,
 						bool trim_spaces,
 						bool honour_tag ) const {
     /// get the UnicodeString value of an Correction
@@ -5846,6 +5870,22 @@ namespace folia {
     UnicodeString new_result;
     UnicodeString org_result;
     UnicodeString cur_result;
+    TextPolicy tp;
+    tp._class = cls;
+    if ( retaintok ){
+      tp._text_flags |= TEXT_FLAGS::RETAIN;
+    }
+    if ( strict ){
+      tp._text_flags |= TEXT_FLAGS::STRICT;
+    }
+    if ( hidden ){
+      tp._text_flags |= TEXT_FLAGS::HIDDEN;
+    }
+    if ( !trim_spaces ){
+      tp._text_flags |= TEXT_FLAGS::NO_TRIM_SPACES;
+    }
+    tp._honour_tag = honour_tag;
+
     for ( const auto& el : data() ) {
 #ifdef DEBUG_TEXT
       cerr << "data=" << el << endl;
@@ -5856,11 +5896,7 @@ namespace folia {
 	}
 	else {
 	  try {
-	    new_result = el->private_text( cls,
-					   retaintok,
-					   false, false,
-					   trim_spaces,
-					   honour_tag );
+	    new_result = el->private_text( tp );
 	  }
 	  catch ( ... ){
 	    // try other nodes
@@ -5869,11 +5905,7 @@ namespace folia {
       }
       else if ( el->isinstance( Original_t ) ){
 	try {
-	  org_result = el->private_text( cls,
-					 retaintok,
-					 false, false,
-					 trim_spaces,
-					 honour_tag );
+	  org_result = el->private_text( tp );
 	}
 	catch ( ... ){
 	  // try other nodes
@@ -5881,11 +5913,7 @@ namespace folia {
       }
       else if ( el->isinstance( Current_t ) ){
 	try {
-	  cur_result = el->private_text( cls,
-					 retaintok,
-					 false, false,
-					 trim_spaces,
-					 honour_tag );
+	  cur_result = el->private_text( tp );
 	}
 	catch ( ... ){
 	  // try other nodes
