@@ -379,10 +379,6 @@ namespace folia {
     const UnicodeString unicode( const std::string& cls = "current" ) const {
       return text( cls, TEXT_FLAGS::NONE ); };
 
-    virtual UnicodeString text_container_text( const std::string&,
-					       bool = false,
-					       bool = true,
-					       bool = false ) const = 0;
     virtual UnicodeString text_container_text( const TextPolicy& ) const = 0;
     virtual const UnicodeString private_text( const std::string& = "current",
 					      bool = false,
@@ -710,10 +706,6 @@ namespace folia {
     const std::string str( const std::string& = "current" ) const;
     const std::string special_str( const std::string& = "current" ) const;
     UnicodeString text_container_text( const TextPolicy& ) const;
-    UnicodeString text_container_text( const std::string&,
-				       bool = false,
-				       bool = true,
-				       bool = false ) const;
     const UnicodeString private_text( const std::string& = "current",
 				      bool = false,
 				      bool = false,

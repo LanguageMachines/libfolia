@@ -1775,30 +1775,24 @@ namespace folia {
   }
 
   UnicodeString AbstractElement::text_container_text( const TextPolicy& tp ) const {
-    bool retain = ( TEXT_FLAGS::RETAIN & tp._text_flags ) == TEXT_FLAGS::RETAIN;
-    bool trim = !( ( TEXT_FLAGS::NO_TRIM_SPACES & tp._text_flags ) == TEXT_FLAGS::NO_TRIM_SPACES);
-    bool honour = tp._honour_tag;
-    return text_container_text( tp._class, retain, trim, honour );
-  }
-
-  UnicodeString AbstractElement::text_container_text( const string& cls,
-						      bool retaintok,
-						      bool trim_spaces,
-						      bool honour_tag ) const {
     if ( isinstance( TextContent_t )
-	 && this->cls() != cls ) {
+	 && this->cls() != tp._class ) {
       // take a shortcut for TextContent in wrong class
 #ifdef DEBUG_TEXT
       cerr << "TextContent shortcut, class=" << this->cls()
-	   << " but looking for: " << cls << endl;
+	   << " but looking for: " << tp._class << endl;
 #endif
       return "";
     }
 #ifdef DEBUG_TEXT
-    cerr << "Textcontainer!, class= " << this->cls() << " HONOUR=" << honour_tag << endl;
+    cerr << "Textcontainer!, class= " << this->cls() << " HONOUR="
+	 << tp._honour_tag << endl;
 #endif
     UnicodeString result;
     bool pendingspace = false;
+    bool trim_spaces = !( ( TEXT_FLAGS::NO_TRIM_SPACES & tp._text_flags ) == TEXT_FLAGS::NO_TRIM_SPACES);
+    bool retaintok  = (tp._text_flags & TEXT_FLAGS::RETAIN ) == TEXT_FLAGS::RETAIN;
+    bool honour_tag = tp._honour_tag;
     for ( const auto& d : _data ){
       if (d->isinstance( XmlText_t)) {
 	// 'true' text child
@@ -1806,11 +1800,11 @@ namespace folia {
 	  result += " ";
 	  pendingspace = false;
 	}
-	if (trim_spaces) {
+	if ( trim_spaces) {
 	  //This implements https://github.com/proycon/folia/issues/88
 	  //FoLiA >= v2.5 behaviour (introduced earlier in v2.4.1 but modified thereafter)
 	  const int l = result.length();
-	  UnicodeString text = d->text(cls);
+	  UnicodeString text = d->text(tp._class);
 	  int begin = 0;
 	  int linenr = 0;
 	  for ( int i = 0; i < text.length(); ++i ) {
@@ -1873,7 +1867,7 @@ namespace folia {
 	}
 	else {
 	  //old FoLiA <= v2.4.1 behaviour, we don't trim anything
-	  result += d->text( cls );
+	  result += d->text( tp._class );
 	}
       }
       else if ( d->printable() ){
@@ -1889,7 +1883,7 @@ namespace folia {
 #endif
 	  result += TiCC::UnicodeFromUTF8(delim);
 	}
-	UnicodeString tmp_result = d->text( cls, !trim_spaces ? TEXT_FLAGS::NO_TRIM_SPACES : TEXT_FLAGS::NONE, honour_tag );
+	UnicodeString tmp_result = d->text( tp._class, !trim_spaces ? TEXT_FLAGS::NO_TRIM_SPACES : TEXT_FLAGS::NONE, honour_tag );
 	string tv = d->tag();
 	if ( honour_tag && tv == "token" ){
 	  result += u'\u200D';
@@ -1908,7 +1902,7 @@ namespace folia {
       result = postprocess_spaces(result);
     }
 #ifdef DEBUG_TEXT
-    cerr << "TEXT(" << cls << ") on a textcontainer :" << xmltag()
+    cerr << "TEXT(" << tp._class << ") on a textcontainer :" << xmltag()
 	 << " returned '" << result << "'" << endl;
 #endif
       return result;
@@ -1958,7 +1952,19 @@ namespace folia {
       throw NoSuchText( "NON printable element: " + xmltag() );
     }
     else if ( is_textcontainer() ){
-      return text_container_text( cls, retaintok, trim_spaces, honour_tag );
+      TEXT_FLAGS flags = TEXT_FLAGS::NONE;
+      if ( retaintok ){
+	flags |= TEXT_FLAGS::RETAIN;
+      }
+      if ( show_hidden ){
+	flags |= TEXT_FLAGS::HIDDEN;
+      }
+      if ( !trim_spaces ){
+         flags |= TEXT_FLAGS::NO_TRIM_SPACES;
+      }
+      TextPolicy tp( cls, flags );
+      tp._honour_tag = honour_tag;
+      return text_container_text( tp );
     }
     else {
       //
