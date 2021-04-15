@@ -55,12 +55,16 @@ namespace folia {
   string VersionName() { return PACKAGE_STRING; } ///< Returns the PACKAGE_STRING info of the package
   string Version() { return VERSION; }  ///< Returns version of the library
 
-  TextPolicy::TextPolicy():
+  TextPolicy::TextPolicy( const string& cl ):
     _class("current"),
     _text_flags(TEXT_FLAGS::NONE),
     _select_flags(SELECT_FLAGS::RECURSE),
     _honour_tag(false),
-    _tag_handler(0) {
+    _tag_handler(0)
+  {
+    if ( !cl.empty() ){
+      _class = cl;
+    }
   }
 
   TextPolicy::TextPolicy( const std::string& cls, const TEXT_FLAGS flags ):
@@ -1818,14 +1822,6 @@ namespace folia {
 	     || kar == 0x000d ); // carriage return
   }
 
-  UnicodeString handle_token_tag( const FoliaElement *d,
-				  const TextPolicy& tp ){
-    UnicodeString tmp_result = text( d, tp );
-    tmp_result = u'\u200D' + tmp_result;
-    tmp_result += u'\u200D';
-    return tmp_result;
-  }
-
   UnicodeString AbstractElement::text_container_text( const TextPolicy& tp ) const {
     if ( isinstance( TextContent_t )
 	 && this->cls() != tp._class ) {
@@ -1930,7 +1926,8 @@ namespace folia {
 	}
 	string tv = d->tag();
 	if ( honour_tag && tv == "token" ){
-	  UnicodeString tmp_result = handle_token_tag( d, tp );
+	  //	  UnicodeString tmp_result = handle_token_tag( d, tp );
+	  UnicodeString tmp_result = tp._tag_handler( d, tp );
 	  result += tmp_result;
 	}
 	else {

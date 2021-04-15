@@ -735,6 +735,16 @@ namespace folia {
     return index(id);
   }
 
+  UnicodeString Document::text( const TextPolicy& tp ) const {
+    /// return the text content of the whole document, restricted by the
+    /// parameters.
+    /*!
+      \param tp The TextPolicy to use
+      \return the complete text matching the criteria as an UnicodeString
+     */
+    return foliadoc->text( tp );
+  }
+
   UnicodeString Document::text( const std::string& cls,
 				bool retaintok,
 				bool strict,

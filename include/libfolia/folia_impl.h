@@ -122,7 +122,7 @@ namespace folia {
 
   class TextPolicy {
   public:
-    TextPolicy();
+    TextPolicy( const std::string& = "" );
     TextPolicy( const std::string&,
 		const TEXT_FLAGS );
     bool is_set( TEXT_FLAGS ) const;

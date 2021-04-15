@@ -158,6 +158,7 @@ namespace folia {
 			bool = false,
 			bool = false,
 			bool = false ) const;
+    UnicodeString text( const TextPolicy& ) const;
     std::vector<Paragraph*> paragraphs() const;
     std::vector<Sentence*> sentences() const;
     std::vector<Sentence*> sentenceParts() const;
