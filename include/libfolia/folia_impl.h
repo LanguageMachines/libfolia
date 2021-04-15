@@ -382,12 +382,15 @@ namespace folia {
 
     virtual UnicodeString text_container_text( const TextPolicy& ) const = 0;
     virtual const UnicodeString private_text( const TextPolicy& ) const = 0;
+    virtual const UnicodeString text( const TextPolicy & ) const = 0;
     virtual const UnicodeString text( const std::string&,
 				      TEXT_FLAGS = TEXT_FLAGS::NONE,
 				      bool = false ) const = 0;
     virtual const UnicodeString text( TEXT_FLAGS = TEXT_FLAGS::NONE ) const = 0;
-    const UnicodeString stricttext( const std::string& = "current", bool = true ) const;
-    const UnicodeString toktext( const std::string& = "current", bool = true ) const;
+    const UnicodeString stricttext( const std::string& = "current",
+				    bool = true ) const;
+    const UnicodeString toktext( const std::string& = "current",
+				 bool = true ) const;
     virtual const UnicodeString phon( const std::string&,
 				      TEXT_FLAGS = TEXT_FLAGS::NONE ) const = 0;
     virtual const UnicodeString phon( TEXT_FLAGS = TEXT_FLAGS::NONE ) const = 0;
@@ -542,9 +545,7 @@ namespace folia {
     virtual std::vector<FoliaElement *> resolve() const NOT_IMPLEMENTED;
     virtual const FoliaElement* resolveid() const NOT_IMPLEMENTED;
     virtual bool checkAtts() = 0;
-    virtual const UnicodeString deeptext( const std::string& = "current",
-					  TEXT_FLAGS = TEXT_FLAGS::NONE,
-					  bool = false ) const NOT_IMPLEMENTED;
+    virtual const UnicodeString deeptext( const TextPolicy& ) const NOT_IMPLEMENTED;
     virtual const UnicodeString deepphon( const std::string& = "current",
 					  TEXT_FLAGS = TEXT_FLAGS::NONE ) const NOT_IMPLEMENTED;
 
@@ -702,6 +703,7 @@ namespace folia {
     const std::string special_str( const std::string& = "current" ) const;
     UnicodeString text_container_text( const TextPolicy& ) const;
     const UnicodeString private_text( const TextPolicy& ) const;
+    const UnicodeString text( const TextPolicy & ) const;
     const UnicodeString text( const std::string&,
 			      TEXT_FLAGS = TEXT_FLAGS::NONE,
 			      bool = false ) const;
@@ -715,9 +717,7 @@ namespace folia {
       return phon( "current", flags );
     }
 
-    const UnicodeString deeptext( const std::string& = "current",
-				  TEXT_FLAGS = TEXT_FLAGS::NONE,
-				  bool = false ) const;
+    const UnicodeString deeptext( const TextPolicy& ) const;
     const UnicodeString deepphon( const std::string& = "current",
 				  TEXT_FLAGS = TEXT_FLAGS::NONE ) const;
 
@@ -939,10 +939,12 @@ namespace folia {
       \param cls the textclass we want
       \return the Unicode string value
     */
-    if ( e )
+    if ( e ){
       return e->text( cls, TEXT_FLAGS::NONE );
-    else
+    }
+    else {
       throw ValueError( "text() for empty element" );
+    }
   }
 
   inline const UnicodeString unicode( const FoliaElement *e ) {

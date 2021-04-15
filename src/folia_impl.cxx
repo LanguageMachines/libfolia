@@ -1274,8 +1274,8 @@ namespace folia {
 	 && parent->hastext( cls ) ){
       // check text consistency for parents with text
       // but SKIP Corrections
-      UnicodeString s1 = parent->text( cls, TEXT_FLAGS::STRICT );
-      UnicodeString s2 = child->text( cls, TEXT_FLAGS::STRICT );
+      UnicodeString s1 = parent->stricttext( cls );
+      UnicodeString s2 = child->stricttext( cls );
       // cerr << "check parent: " << s1 << endl;
       // cerr << "check child: " << s2 << endl;
       // no retain tokenization, strict for both
@@ -1335,12 +1335,8 @@ namespace folia {
 	 && parent->hastext( cls ) ){
       // check text consistency for parents with text
       // but SKIP Corrections
-      TEXT_FLAGS flags = TEXT_FLAGS::STRICT;
-      if ( !trim_spaces ) {
-	flags |= TEXT_FLAGS::NO_TRIM_SPACES;
-      }
-      UnicodeString s1 = parent->text( cls, flags);
-      flags = TEXT_FLAGS::NONE;
+      UnicodeString s1 = parent->stricttext( cls, trim_spaces );
+      TEXT_FLAGS flags = TEXT_FLAGS::NONE;
       if ( !trim_spaces ) {
 	flags |= TEXT_FLAGS::NO_TRIM_SPACES;
       }
@@ -1809,7 +1805,7 @@ namespace folia {
 #endif
     UnicodeString result;
     bool pendingspace = false;
-    bool trim_spaces = !( ( TEXT_FLAGS::NO_TRIM_SPACES & tp._text_flags ) == TEXT_FLAGS::NO_TRIM_SPACES);
+    bool trim_spaces = !tp.is_set( TEXT_FLAGS::NO_TRIM_SPACES);
     bool retaintok  = tp.is_set( TEXT_FLAGS::RETAIN );
     bool honour_tag = tp._honour_tag;
     for ( const auto& d : _data ){
@@ -1823,7 +1819,7 @@ namespace folia {
 	  //This implements https://github.com/proycon/folia/issues/88
 	  //FoLiA >= v2.5 behaviour (introduced earlier in v2.4.1 but modified thereafter)
 	  const int l = result.length();
-	  UnicodeString text = d->text(tp._class);
+	  UnicodeString text = d->text( tp._class );
 	  int begin = 0;
 	  int linenr = 0;
 	  for ( int i = 0; i < text.length(); ++i ) {
@@ -1902,7 +1898,7 @@ namespace folia {
 #endif
 	  result += TiCC::UnicodeFromUTF8(delim);
 	}
-	UnicodeString tmp_result = d->text( tp._class, !trim_spaces ? TEXT_FLAGS::NO_TRIM_SPACES : TEXT_FLAGS::NONE, honour_tag );
+	UnicodeString tmp_result = d->text( tp );
 	string tv = d->tag();
 	if ( honour_tag && tv == "token" ){
 	  result += u'\u200D';
@@ -1940,7 +1936,7 @@ namespace folia {
      * no text can be found
      */
     bool strict = tp.is_set( TEXT_FLAGS::STRICT );
-    bool hide = tp.is_set( TEXT_FLAGS::HIDDEN );
+    bool show_hidden = tp.is_set( TEXT_FLAGS::HIDDEN );
     bool trim = !tp.is_set( TEXT_FLAGS::NO_TRIM_SPACES );
     bool honour = tp._honour_tag;
 #ifdef DEBUG_TEXT
@@ -1949,9 +1945,12 @@ namespace folia {
     cerr << "TextPolicy: " << tp << endl;
 #endif
     if ( strict ) {
-      return text_content(tp._class,hide)->text(tp._class, !trim ? TEXT_FLAGS::NO_TRIM_SPACES : TEXT_FLAGS::NONE,honour);
+      /// WARNING. Don't call text(tp) here. We will get into an infinite
+      /// recursion
+      UnicodeString tmp = text_content(tp._class,show_hidden)->text(tp._class, !trim ? TEXT_FLAGS::NO_TRIM_SPACES : TEXT_FLAGS::NONE,honour);
+      return tmp;
     }
-    else if ( !printable() || ( hidden() && !hide ) ){
+    else if ( !printable() || ( hidden() && !show_hidden ) ){
       throw NoSuchText( "NON printable element: " + xmltag() );
     }
     else if ( is_textcontainer() ){
@@ -1959,7 +1958,7 @@ namespace folia {
     }
     else {
       //
-      UnicodeString result = deeptext( tp._class, tp._text_flags, honour );
+      UnicodeString result = deeptext( tp );
       if ( result.isEmpty() ) {
 	result = stricttext( tp._class, trim );
       }
@@ -1968,6 +1967,18 @@ namespace folia {
       }
       return result;
     }
+  }
+
+  const UnicodeString AbstractElement::text( const TextPolicy& tp ) const {
+    /// get the UnicodeString text value of an element
+    /*!
+     * \param tp a TextPolicy
+     * \param flags the search parameters to use. See TEXT_FLAGS.
+     */
+#ifdef DEBUG_TEXT
+    cerr << "DEBUG <" << xmltag() << ">.text() Policy=" << tp << endl;
+#endif
+    return private_text( tp );
   }
 
   const UnicodeString AbstractElement::text( const std::string& cls,
@@ -2207,20 +2218,15 @@ namespace folia {
     return result;
   }
 
-  const UnicodeString AbstractElement::deeptext( const string& cls,
-						 TEXT_FLAGS flags,
-						 bool honour_tag) const {
+  const UnicodeString AbstractElement::deeptext( const TextPolicy& tp ) const {
     /// get the UnicodeString text value of underlying elements
     /*!
-     * \param cls the textclass
-     * \param flags the search parameters to use
+     * \param tp the TextPolicy to use
      * \return The Unicode Text found.
      * Will throw on error.
      */
 #ifdef DEBUG_TEXT
-    cerr << "deepTEXT(" << cls << ") on node : " << xmltag() << " id=" << id() << ", cls=" << this->cls() << ")" << endl;
-#endif
-#ifdef DEBUG_TEXT
+    cerr << "deeptext, policy: " << tp << ", on node : " << xmltag() << " id=" << id() << ", cls=" << this->cls() << ")" << endl;
     cerr << "deeptext: node has " << _data.size() << " children." << endl;
 #endif
     vector<UnicodeString> parts;
@@ -2242,7 +2248,7 @@ namespace folia {
 	cerr << "deeptext:bekijk node[" << child->xmltag() << "]"<< endl;
 #endif
 	try {
-	  UnicodeString tmp = child->text( cls, flags, honour_tag );
+	  UnicodeString tmp = child->text( tp );
 #ifdef DEBUG_TEXT
 	  cerr << "deeptext found '" << tmp << "'" << endl;
 #endif
@@ -2258,7 +2264,7 @@ namespace folia {
 	  }
 	  else {
 	    // get the delimiter
-	    bool retain = ( TEXT_FLAGS::RETAIN & flags ) == TEXT_FLAGS::RETAIN;
+	    bool retain = tp.is_set( TEXT_FLAGS::RETAIN );
 	    const string& delim = child->get_delimiter( retain );
 #ifdef DEBUG_TEXT
 	    cerr << "deeptext:delimiter van "<< child->xmltag() << " ='" << delim << "'" << endl;
@@ -2312,14 +2318,14 @@ namespace folia {
 #endif
     if ( result.isEmpty() ) {
       // so no deeper text is found. Well, lets look here then
-      bool hidden = ( TEXT_FLAGS::HIDDEN & flags ) == TEXT_FLAGS::HIDDEN;
-      result = text_content(cls,hidden)->text(cls,flags,honour_tag);
+      bool hidden = tp.is_set( TEXT_FLAGS::HIDDEN );
+      result = text_content(tp._class,hidden)->text(tp);
     }
 #ifdef DEBUG_TEXT
     cerr << "deeptext() for " << xmltag() << " result= '" << result << "'" << endl;
 #endif
     if ( result.isEmpty() ) {
-      throw NoSuchText( xmltag() + ":(class=" + cls +"): empty!" );
+      throw NoSuchText( xmltag() + ":(class=" + tp._class +"): empty!" );
     }
     return result;
   }
