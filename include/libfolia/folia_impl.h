@@ -115,8 +115,10 @@ namespace folia {
 
 
   class FoliaElement;
+  class TextPolicy;
 
-  typedef std::string (*stringFunctionPointer)( const FoliaElement* );
+  typedef UnicodeString (*stringFunctionPointer)( const FoliaElement*,
+						  const TextPolicy& );
 
   class TextPolicy {
   public:
@@ -379,6 +381,7 @@ namespace folia {
     virtual void check_append_text_consistency( const FoliaElement * ) const = 0;
 
     virtual const std::string str( const std::string& = "current" ) const = 0;
+    virtual const std::string str( const TextPolicy& ) const = 0;
     virtual const std::string special_str( const std::string& = "current" ) const = 0;
     const UnicodeString unicode( const std::string& cls = "current" ) const {
       return text( cls, TEXT_FLAGS::NONE ); };
@@ -703,6 +706,7 @@ namespace folia {
     // text/string content
 
     const std::string str( const std::string& = "current" ) const;
+    const std::string str( const TextPolicy& ) const;
     const std::string special_str( const std::string& = "current" ) const;
     UnicodeString text_container_text( const TextPolicy& ) const;
     const UnicodeString private_text( const TextPolicy& ) const;
@@ -933,6 +937,33 @@ namespace folia {
       \return the (UTF8) string value
     */
     return e->str( cls ); }
+
+  inline const std::string str( const FoliaElement *e,
+				const TextPolicy& tp ){
+    /// return the string value contained in \e e
+    /*!
+      \param e The FoliaElement
+      \param tp the TextPolicy to use
+      \return the (UTF8) string value
+    */
+    return e->str( tp );
+  }
+
+  inline const UnicodeString text( const FoliaElement *e,
+				   const TextPolicy& tp ){
+    /// return the Unicode value contained in \e e
+    /*!
+      \param e The FoliaElement
+      \param tp the TextPolicy to use
+      \return the Unicode string value
+    */
+    if ( e ){
+      return e->text( tp );
+    }
+    else {
+      throw ValueError( "text() for empty element" );
+    }
+  }
 
   inline const UnicodeString text( const FoliaElement *e,
 				   const std::string& cls = "current" ) {

@@ -1627,6 +1627,35 @@ namespace folia {
     return TiCC::UnicodeToUTF8( us );
   }
 
+  const string AbstractElement::str( const TextPolicy& tp ) const {
+    /// return the text value of this element
+    /*!
+     * \param tp the TextPolicy to use
+     * \return the string value (UTF8 encoded)
+     *
+     * if this is a TextContent or it may contain TextContent
+     * then return the associated text()
+     *
+     * if this is a PhonContent or it may contain PhonContent
+     * then return the associated phon()
+     *
+     * otherwise return the empty string
+     */
+    UnicodeString us;
+    try {
+      us = text( tp );
+    }
+    catch( const NoSuchText& ){
+      try {
+	us = phon( tp._class);
+      }
+      catch( const NoSuchPhon&){
+	// No TextContent or Phone is allowed
+      }
+    }
+    return TiCC::UnicodeToUTF8( us );
+  }
+
   const string AbstractElement::special_str( const string& cls ) const {
     /// return the text value of this element, with spical markers included
     /*!
@@ -1789,6 +1818,14 @@ namespace folia {
 	     || kar == 0x000d ); // carriage return
   }
 
+  UnicodeString handle_token_tag( const FoliaElement *d,
+				  const TextPolicy& tp ){
+    UnicodeString tmp_result = text( d, tp );
+    tmp_result = u'\u200D' + tmp_result;
+    tmp_result += u'\u200D';
+    return tmp_result;
+  }
+
   UnicodeString AbstractElement::text_container_text( const TextPolicy& tp ) const {
     if ( isinstance( TextContent_t )
 	 && this->cls() != tp._class ) {
@@ -1893,9 +1930,7 @@ namespace folia {
 	}
 	string tv = d->tag();
 	if ( honour_tag && tv == "token" ){
-	  UnicodeString tmp_result = d->text( tp );
-	  tmp_result = u'\u200D' + tmp_result;
-	  tmp_result += u'\u200D';
+	  UnicodeString tmp_result = handle_token_tag( d, tp );
 	  result += tmp_result;
 	}
 	else {
