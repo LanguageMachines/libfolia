@@ -1891,22 +1891,22 @@ namespace folia {
 	  result += " ";
 	  pendingspace = false;
 	}
+	string tv = d->tag();
+	if ( honour_tag && tv == "token" ){
+	  UnicodeString tmp_result = d->text( tp );
+	  tmp_result = u'\u200D' + tmp_result;
+	  tmp_result += u'\u200D';
+	  result += tmp_result;
+	}
+	else {
+	  result += d->text( tp );
+	}
 	if ( !result.isEmpty() ){
 	  const string& delim = d->get_delimiter( retaintok );
 #ifdef DEBUG_TEXT
 	  cerr << "append delimiter: '" << delim << "'" << endl;
 #endif
 	  result += TiCC::UnicodeFromUTF8(delim);
-	}
-	UnicodeString tmp_result = d->text( tp );
-	string tv = d->tag();
-	if ( honour_tag && tv == "token" ){
-	  result += u'\u200D';
-	  result += tmp_result;
-	  result += u'\u200D';
-	}
-	else {
-	  result += tmp_result;
 	}
       }
       else {

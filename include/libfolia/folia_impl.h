@@ -115,6 +115,9 @@ namespace folia {
 
 
   class FoliaElement;
+
+  typedef std::string (*stringFunctionPointer)( const FoliaElement* );
+
   class TextPolicy {
   public:
     TextPolicy();
@@ -125,7 +128,7 @@ namespace folia {
     TEXT_FLAGS _text_flags;
     SELECT_FLAGS _select_flags;
     bool _honour_tag;
-    std::string (*_tag_handler)( const FoliaElement* );
+    stringFunctionPointer _tag_handler;
   };
 
 #define NOT_IMPLEMENTED {						\
