@@ -1957,9 +1957,10 @@ namespace folia {
 #endif
     if ( strict ) {
       /// WARNING. Don't call text(tp) here. We will get into an infinite
-      /// recursion
-      UnicodeString tmp = text_content(tp._class,show_hidden)->text(tp._class, !trim ? TEXT_FLAGS::NO_TRIM_SPACES : TEXT_FLAGS::NONE );
-      return tmp;
+      /// recursion. Can't we do better then calling ourself again, sort of?
+      TextPolicy tmp = tp;
+      tmp._text_flags = TEXT_FLAGS( tmp._text_flags & ~TEXT_FLAGS::STRICT );
+      return text_content(tp._class,show_hidden)->text(tmp);
     }
     else if ( !printable() || ( hidden() && !show_hidden ) ){
       throw NoSuchText( "NON printable element: " + xmltag() );

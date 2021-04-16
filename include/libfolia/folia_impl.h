@@ -96,6 +96,10 @@ namespace folia {
     return f1;
   }
 
+  inline TEXT_FLAGS operator~( TEXT_FLAGS f1 ){
+    return TEXT_FLAGS( ~(int)f1 );
+  }
+
   /// class used to steer 'select()' behaviour
   enum class SELECT_FLAGS {
     RECURSE=0,  /*!< recurse the whole FoLia from the given node downwards
