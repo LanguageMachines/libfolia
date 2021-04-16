@@ -1897,12 +1897,17 @@ namespace folia {
 	string tv = d->tag();
 	if ( !tv.empty() ){
 	  vector<string> tvv = TiCC::split(tv);
+	  bool no_match = true;
 	  for ( const auto& v : tvv ){
 	    auto fun = tp._tag_handlers.find( v );
 	    if ( fun != tp._tag_handlers.end() ){
+	      no_match = false;
 	      UnicodeString tmp_result = (*fun).second( d, tp );
 	      result += tmp_result;
 	    }
+	  }
+	  if ( no_match ){
+	    result += d->text( tp );
 	  }
 	}
 	else {
