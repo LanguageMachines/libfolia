@@ -1656,27 +1656,6 @@ namespace folia {
     return TiCC::UnicodeToUTF8( us );
   }
 
-  const string AbstractElement::special_str( const string& cls ) const {
-    /// return the text value of this element, with spical markers included
-    /*!
-     * \param cls The desired textclass
-     * \return the string value (UTF8 encoded), with special markers steered
-               by the 'tag' attribute
-     *
-     * if this is a TextContent or it may contain TextContent
-     * then return the associated text()
-     *
-     * otherwise return the empty string
-     */
-    UnicodeString us;
-    try {
-      us = text(cls,TEXT_FLAGS::NONE,true);
-    }
-    catch( const NoSuchText& ){
-    }
-    return TiCC::UnicodeToUTF8( us );
-  }
-
   const string AbstractElement::speech_src() const {
     /// give the value of the _scr of an element
     /*!
@@ -2004,8 +1983,7 @@ namespace folia {
   }
 
   const UnicodeString AbstractElement::text( const std::string& cls,
-					     TEXT_FLAGS flags,
-					     bool ) const {
+					     TEXT_FLAGS flags ) const {
     /// get the UnicodeString text value of an element
     /*!
      * \param cls the textclass the text should be in

@@ -381,7 +381,7 @@ namespace folia {
 
     virtual const std::string str( const std::string& = "current" ) const = 0;
     virtual const std::string str( const TextPolicy& ) const = 0;
-    virtual const std::string special_str( const std::string& = "current" ) const = 0;
+
     const UnicodeString unicode( const std::string& cls = "current" ) const {
       return text( cls, TEXT_FLAGS::NONE ); };
 
@@ -389,8 +389,7 @@ namespace folia {
     virtual const UnicodeString private_text( const TextPolicy& ) const = 0;
     virtual const UnicodeString text( const TextPolicy & ) const = 0;
     virtual const UnicodeString text( const std::string&,
-				      TEXT_FLAGS = TEXT_FLAGS::NONE,
-				      bool = false ) const = 0;
+				      TEXT_FLAGS = TEXT_FLAGS::NONE ) const = 0;
     virtual const UnicodeString text( TEXT_FLAGS = TEXT_FLAGS::NONE ) const = 0;
     const UnicodeString stricttext( const std::string& = "current",
 				    bool = true ) const;
@@ -706,13 +705,12 @@ namespace folia {
 
     const std::string str( const std::string& = "current" ) const;
     const std::string str( const TextPolicy& ) const;
-    const std::string special_str( const std::string& = "current" ) const;
+
     UnicodeString text_container_text( const TextPolicy& ) const;
     const UnicodeString private_text( const TextPolicy& ) const;
     const UnicodeString text( const TextPolicy & ) const;
     const UnicodeString text( const std::string&,
-			      TEXT_FLAGS = TEXT_FLAGS::NONE,
-			      bool = false ) const;
+			      TEXT_FLAGS = TEXT_FLAGS::NONE ) const;
     const UnicodeString text( TEXT_FLAGS flags = TEXT_FLAGS::NONE ) const {
       return text( "current", flags );
     }

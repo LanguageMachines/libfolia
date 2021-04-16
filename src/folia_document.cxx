@@ -747,15 +747,13 @@ namespace folia {
 
   UnicodeString Document::text( const std::string& cls,
 				bool retaintok,
-				bool strict,
-				bool honour_tags ) const {
+				bool strict ) const {
     /// return the text content of the whole document, restricted by the
     /// parameters.
     /*!
       \param cls The textclass to use fro searching.
       \param retaintok Should we retain the tokenization. Default NO.
       \param strict Should we perform a strict search? Default NO.
-      \param honour_tags Should we react on tag attributes?
       \return the complete text matching the criteria as an UnicodeString
      */
     TEXT_FLAGS flags = TEXT_FLAGS::NONE;
@@ -765,7 +763,7 @@ namespace folia {
     if ( strict ){
       flags = flags | TEXT_FLAGS::STRICT;
     }
-    return foliadoc->text( cls, flags, honour_tags );
+    return foliadoc->text( cls, flags );
   }
 
   static const set<ElementType> quoteSet = { Quote_t };

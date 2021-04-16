@@ -156,7 +156,6 @@ namespace folia {
     void replaceStyle( const std::string&, const std::string& );
     UnicodeString text( const std::string& = "current",
 			bool = false,
-			bool = false,
 			bool = false ) const;
     UnicodeString text( const TextPolicy& ) const;
     std::vector<Paragraph*> paragraphs() const;
