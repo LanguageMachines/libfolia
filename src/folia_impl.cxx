@@ -1895,10 +1895,15 @@ namespace folia {
 	  pendingspace = false;
 	}
 	string tv = d->tag();
-	auto fun = tp._tag_handlers.find( tv );
-	if ( fun != tp._tag_handlers.end() ){
-	  UnicodeString tmp_result = (*fun).second( d, tp );
-	  result += tmp_result;
+	if ( !tv.empty() ){
+	  vector<string> tvv = TiCC::split(tv);
+	  for ( const auto& v : tvv ){
+	    auto fun = tp._tag_handlers.find( v );
+	    if ( fun != tp._tag_handlers.end() ){
+	      UnicodeString tmp_result = (*fun).second( d, tp );
+	      result += tmp_result;
+	    }
+	  }
 	}
 	else {
 	  result += d->text( tp );
