@@ -126,11 +126,10 @@ namespace folia {
     TextPolicy( const std::string&,
 		const TEXT_FLAGS );
     bool is_set( TEXT_FLAGS ) const;
+    void set( TEXT_FLAGS );
     std::string _class;
     TEXT_FLAGS _text_flags;
-    SELECT_FLAGS _select_flags;
-    bool _honour_tag;
-    stringFunctionPointer _tag_handler;
+    std::map<std::string, stringFunctionPointer> _tag_handlers;
   };
 
 #define NOT_IMPLEMENTED {						\

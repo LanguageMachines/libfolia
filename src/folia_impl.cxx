@@ -57,10 +57,7 @@ namespace folia {
 
   TextPolicy::TextPolicy( const string& cl ):
     _class("current"),
-    _text_flags(TEXT_FLAGS::NONE),
-    _select_flags(SELECT_FLAGS::RECURSE),
-    _honour_tag(false),
-    _tag_handler(0)
+    _text_flags(TEXT_FLAGS::NONE)
   {
     if ( !cl.empty() ){
       _class = cl;
@@ -69,10 +66,8 @@ namespace folia {
 
   TextPolicy::TextPolicy( const std::string& cls, const TEXT_FLAGS flags ):
     _class(cls),
-    _text_flags( flags ),
-    _select_flags(SELECT_FLAGS::RECURSE),
-    _honour_tag( false ),
-    _tag_handler(0) {
+    _text_flags( flags )
+  {
   }
 
   ostream& operator<<( ostream& os, const TextPolicy& tp ){
@@ -80,18 +75,19 @@ namespace folia {
     bool strict  = tp.is_set( TEXT_FLAGS::STRICT );
     bool hide    = tp.is_set( TEXT_FLAGS::HIDDEN );
     bool trim = !tp.is_set( TEXT_FLAGS::NO_TRIM_SPACES );
-    bool honour = tp._honour_tag;
-
     os << (strict?"strict":"not strict") << "\t"
        << (retain?"retain":"untokenized") << "\t"
        << (hide?"show_hidden":"hide hidden") << "\t"
-       << (trim?"trimming spaces":"not trimming spaces") << "\t"
-       << (honour?"honouring tag":"ignore tag");
+       << (trim?"trimming spaces":"not trimming spaces");
     return os;
   }
 
   bool TextPolicy::is_set( TEXT_FLAGS tf ) const {
     return ( tf & _text_flags ) == tf;
+  }
+
+  void TextPolicy::set( TEXT_FLAGS tf ) {
+    _text_flags |= tf;
   }
 
   ElementType AbstractElement::element_id() const {
@@ -1832,15 +1828,10 @@ namespace folia {
 #endif
       return "";
     }
-#ifdef DEBUG_TEXT
-    cerr << "Textcontainer!, class= " << this->cls() << " HONOUR="
-	 << tp._honour_tag << endl;
-#endif
     UnicodeString result;
     bool pendingspace = false;
     bool trim_spaces = !tp.is_set( TEXT_FLAGS::NO_TRIM_SPACES);
     bool retaintok  = tp.is_set( TEXT_FLAGS::RETAIN );
-    bool honour_tag = tp._honour_tag;
     for ( const auto& d : _data ){
       if (d->isinstance( XmlText_t)) {
 	// 'true' text child
@@ -1925,9 +1916,9 @@ namespace folia {
 	  pendingspace = false;
 	}
 	string tv = d->tag();
-	if ( honour_tag && tv == "token" ){
-	  //	  UnicodeString tmp_result = handle_token_tag( d, tp );
-	  UnicodeString tmp_result = tp._tag_handler( d, tp );
+	auto fun = tp._tag_handlers.find( tv );
+	if ( fun != tp._tag_handlers.end() ){
+	  UnicodeString tmp_result = (*fun).second( d, tp );
 	  result += tmp_result;
 	}
 	else {
@@ -1970,7 +1961,6 @@ namespace folia {
     bool strict = tp.is_set( TEXT_FLAGS::STRICT );
     bool show_hidden = tp.is_set( TEXT_FLAGS::HIDDEN );
     bool trim = !tp.is_set( TEXT_FLAGS::NO_TRIM_SPACES );
-    bool honour = tp._honour_tag;
 #ifdef DEBUG_TEXT
     cerr << "TEXT(" << cls << ") on node : " << xmltag() << " id="
 	 << id() << endl;
@@ -1979,7 +1969,7 @@ namespace folia {
     if ( strict ) {
       /// WARNING. Don't call text(tp) here. We will get into an infinite
       /// recursion
-      UnicodeString tmp = text_content(tp._class,show_hidden)->text(tp._class, !trim ? TEXT_FLAGS::NO_TRIM_SPACES : TEXT_FLAGS::NONE,honour);
+      UnicodeString tmp = text_content(tp._class,show_hidden)->text(tp._class, !trim ? TEXT_FLAGS::NO_TRIM_SPACES : TEXT_FLAGS::NONE );
       return tmp;
     }
     else if ( !printable() || ( hidden() && !show_hidden ) ){
@@ -2015,14 +2005,13 @@ namespace folia {
 
   const UnicodeString AbstractElement::text( const std::string& cls,
 					     TEXT_FLAGS flags,
-					     bool honour_tag ) const {
+					     bool ) const {
     /// get the UnicodeString text value of an element
     /*!
      * \param cls the textclass the text should be in
      * \param flags the search parameters to use. See TEXT_FLAGS.
      */
     TextPolicy tp( cls, flags );
-    tp._honour_tag = honour_tag;
 #ifdef DEBUG_TEXT
     cerr << "DEBUG <" << xmltag() << ">.text() Policy=" << tp << endl;
 #endif
