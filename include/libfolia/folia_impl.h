@@ -131,6 +131,8 @@ namespace folia {
 		const TEXT_FLAGS );
     bool is_set( TEXT_FLAGS ) const;
     void set( TEXT_FLAGS );
+    void add_handler( const std::string&, const stringFunctionPointer& );
+    //  private:
     std::string _class;
     TEXT_FLAGS _text_flags;
     std::map<std::string, stringFunctionPointer> _tag_handlers;
@@ -395,10 +397,8 @@ namespace folia {
     virtual const UnicodeString text( const std::string&,
 				      TEXT_FLAGS = TEXT_FLAGS::NONE ) const = 0;
     virtual const UnicodeString text( TEXT_FLAGS = TEXT_FLAGS::NONE ) const = 0;
-    const UnicodeString stricttext( const std::string& = "current",
-				    bool = true ) const;
-    const UnicodeString toktext( const std::string& = "current",
-				 bool = true ) const;
+    const UnicodeString stricttext( const std::string& = "current" ) const;
+    const UnicodeString toktext( const std::string& = "current" ) const;
     virtual const UnicodeString phon( const std::string&,
 				      TEXT_FLAGS = TEXT_FLAGS::NONE ) const = 0;
     virtual const UnicodeString phon( TEXT_FLAGS = TEXT_FLAGS::NONE ) const = 0;

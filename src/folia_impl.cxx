@@ -90,6 +90,11 @@ namespace folia {
     _text_flags |= tf;
   }
 
+  void TextPolicy::add_handler( const std::string& label,
+				const stringFunctionPointer& sfp ){
+    _tag_handlers.insert( make_pair( label, sfp ) );
+  }
+
   ElementType AbstractElement::element_id() const {
     /// return the ELEMENT_ID property
     return _props.ELEMENT_ID;
@@ -1335,13 +1340,17 @@ namespace folia {
 	 && parent->hastext( cls ) ){
       // check text consistency for parents with text
       // but SKIP Corrections
-      UnicodeString s1 = parent->stricttext( cls, trim_spaces );
-      TEXT_FLAGS flags = TEXT_FLAGS::NONE;
+      // no retain tokenization, strict for parent, deeper for child
+      TEXT_FLAGS flags = TEXT_FLAGS::STRICT;
+      if (!trim_spaces) {
+	flags |= TEXT_FLAGS::NO_TRIM_SPACES;
+      }
+      UnicodeString s1 = parent->text( cls, flags );
+      flags = TEXT_FLAGS::NONE;
       if ( !trim_spaces ) {
 	flags |= TEXT_FLAGS::NO_TRIM_SPACES;
       }
       UnicodeString s2 = this->text( cls, flags );
-      // no retain tokenization, strict for parent, deeper for child
       s1 = normalize_spaces( s1 );
       s2 = normalize_spaces( s2 );
       bool test_fail;
@@ -1972,7 +1981,11 @@ namespace folia {
       //
       UnicodeString result = deeptext( tp );
       if ( result.isEmpty() ) {
-	result = stricttext( tp._class, trim );
+	TEXT_FLAGS flags = TEXT_FLAGS::STRICT;
+	if ( !trim ) {
+	  flags |= TEXT_FLAGS::NO_TRIM_SPACES;
+	}
+	result = text( tp._class, flags );
       }
       if ( result.isEmpty() ) {
 	throw NoSuchText( "on tag " + xmltag() + " nor it's children" );
@@ -2340,34 +2353,26 @@ namespace folia {
     return result;
   }
 
-  const UnicodeString FoliaElement::stricttext( const string& cls,
-						bool trim_spaces ) const {
+  const UnicodeString FoliaElement::stricttext( const string& cls ) const {
     /// get the UnicodeString value of TextContent children only
     /*!
      * \param cls the textclass
-     * \param trim_spaces extract text with all spaces trimmed, default 'true'
      * \return The Unicode Text found.
      * Will throw on error.
      */
     TEXT_FLAGS flags = TEXT_FLAGS::STRICT;
-    if (!trim_spaces) {
-      flags |= TEXT_FLAGS::NO_TRIM_SPACES;
-    }
     return this->text(cls, flags );
   }
 
-  const UnicodeString FoliaElement::toktext( const string& cls,
-					     bool trim_spaces ) const {
+  const UnicodeString FoliaElement::toktext( const string& cls ) const {
     /// get the UnicodeString value of TextContent children only, retaining
     /// tokenization
     /*!
      * \param cls the textclass
-     * \param trim_spaces extract text with all spaces trimmed, default 'true'
      * \return The Unicode Text found.
      * Will throw on error.
      */
     TEXT_FLAGS flags = TEXT_FLAGS::RETAIN;
-    if (!trim_spaces) flags |= TEXT_FLAGS::NO_TRIM_SPACES;
     return this->text(cls, flags );
   }
 
@@ -2379,7 +2384,7 @@ namespace folia {
      * \param show_hidden if true also return text of 'hidden' nodes
      *
      * Returns the TextContent instance rather than the actual text.
-     * (so it might return iself.. ;)
+     * (so it might return itself.. ;)
      * Does not recurse into children with the sole exception of Correction
      * might throw NoSuchText exception if not found.
      */
