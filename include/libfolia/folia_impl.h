@@ -495,25 +495,31 @@ namespace folia {
     virtual const std::string pos( const std::string& = "" ) const NOT_IMPLEMENTED;
     virtual const std::string lemma( const std::string& = "" ) const NOT_IMPLEMENTED;
     virtual const std::string cls() const = 0;
+    virtual void set_cls( const std::string& ) = 0;
     virtual const std::string sett() const = 0;
-    virtual void update_cls( const std::string& ) = 0;
-    virtual void update_set( const std::string& ) = 0;
+    virtual void set_set( const std::string& ) = 0;
     virtual const std::string n() const = 0;
+    virtual void set_n( const std::string& ) = 0;
     virtual const std::string tag() const = 0;
-    virtual const std::string settag( const std::string& ) = 0;
+    virtual const std::string set_tag( const std::string& ) = 0;
     virtual const std::string id() const = 0;
     virtual const std::string begintime() const = 0;
+    virtual void set_begintime( const std::string& ) = 0;
     virtual const std::string endtime() const = 0;
+    virtual void set_endtime( const std::string& ) = 0;
     virtual const std::string speech_src() const = 0;
+    virtual void set_speech_src( const std::string& ) = 0;
     virtual const std::string speech_speaker() const = 0;
+    virtual void set_speech_speaker( const std::string& ) = 0;
     virtual const std::string language( const std::string& = "" ) const = 0;
     virtual const std::string set_to_current() NOT_IMPLEMENTED;
     virtual double confidence() const = 0;
-    virtual void confidence( double ) = 0;
+    virtual void set_confidence( double ) = 0;
+    virtual void confidence( double ) = 0; // deprecated
     virtual bool space() const = 0;
-    virtual bool setspace( bool ) = 0;
-    virtual SPACE_FLAGS preserve_spaces() const = 0;
-    virtual void preserve_spaces( SPACE_FLAGS ) = 0;
+    virtual bool set_space( bool ) = 0;
+    virtual SPACE_FLAGS spaces_flag() const = 0;
+    virtual void set_spaces_flag( SPACE_FLAGS ) = 0;
     virtual ElementType element_id() const = 0;
     virtual size_t occurrences() const = 0;
     virtual size_t occurrences_per_set() const = 0;
@@ -719,7 +725,6 @@ namespace folia {
     const std::string str( const std::string& = "current" ) const;
     const std::string str( const TextPolicy& ) const;
 
-    UnicodeString text_container_text( const TextPolicy& ) const;
     const UnicodeString private_text( const TextPolicy& ) const;
     const UnicodeString text( const TextPolicy & ) const;
     const UnicodeString text( const std::string&,
@@ -754,26 +759,48 @@ namespace folia {
 
     // attributes
     const std::string cls() const { return _class; };
+    void set_cls( const std::string& cls ){ _class = cls; };
+    void update_cls( const std::string& c ) { set_cls( c ); } // deprecated
+
     const std::string sett() const { return _set; };
-    void update_cls( const std::string& cls ) { _class = cls; };
-    void update_set( const std::string& st ) { _set = st; };
+    void set_set( const std::string& st ){ _set = st; };
+
     const std::string tag() const { return _tags; };
-    const std::string settag( const std::string&  );
+    const std::string set_tag( const std::string&  );
+    const std::string settag( const std::string& t ){
+      return set_tag(t); };                              //deprecated
+
     const std::string n() const { return _n; };
+    void set_n( const std::string& n ){ _n = n; };
+
     const std::string id() const { return _id; };
+
     const std::string begintime() const { return _begintime; };
+    void set_begintime( const std::string& bt ){ _begintime = bt; };
+
     const std::string endtime() const { return _endtime; };
+    void set_endtime( const std::string& bt ){ _endtime = bt; };
+
     const std::string textclass() const { return _textclass; };
+    void textclass( const std::string& tc ){ _textclass = tc; };
+
     const std::string speech_src() const;
+    void set_speech_src( const std::string& ) NOT_IMPLEMENTED;
+
     const std::string speech_speaker() const;
-    const std::string language( const std::string& = "" ) const;
-    const std::string src() const { return _src; };
+    void set_speech_speaker( const std::string& ) NOT_IMPLEMENTED;
+
     bool space() const { return _space; };
-    bool setspace( bool b ) { bool s =_space; _space =  b; return s; };
-    SPACE_FLAGS preserve_spaces() const { return _preserve_spaces; };
-    void preserve_spaces( SPACE_FLAGS f ) { _preserve_spaces = f; };
+    bool set_space( bool b ) { bool s =_space; _space =  b; return s; };
+
+    SPACE_FLAGS spaces_flag() const { return _preserve_spaces; };
+    void set_spaces_flag( SPACE_FLAGS f ) { _preserve_spaces = f; };
+
     double confidence() const { return _confidence; };
     void confidence( double d ) { _confidence = d; };
+    void set_confidence( double d ) { _confidence = d; };
+
+    const std::string language( const std::string& = "" ) const;
 
     // generic properties
     ElementType element_id() const;
@@ -818,24 +845,26 @@ namespace folia {
   protected:
     xmlNode *xml( bool, bool = false ) const;
     void setAttributes( KWargs& );
-    bool checkAtts();
-    void set_typegroup( KWargs& ) const;
     KWargs collectAttributes() const;
+    xmlNs *foliaNs() const;
+
+  private:
     int refcount() const { return _refcount; };
     void increfcount() { ++_refcount; };
     void decrefcount() { --_refcount; };
     void resetrefcount() { _refcount = 0; };
     void setAuth( bool b ){ _auth = b; };
-    xmlNs *foliaNs() const;
-    bool acceptable( ElementType ) const;
-    bool addable( const FoliaElement * ) const;
     void setDateTime( const std::string& );
     const std::string getDateTime() const;
+    bool checkAtts();
+    void set_typegroup( KWargs& ) const;
+    bool acceptable( ElementType ) const;
+    bool addable( const FoliaElement * ) const;
+    UnicodeString text_container_text( const TextPolicy& ) const;
     void check_text_consistency(bool = true) const;
     void check_text_consistency_while_parsing(bool = true); //can't we merge these two somehow?
     void check_append_text_consistency( const FoliaElement * ) const;
     void check_declaration();
-  private:
     void addFeatureNodes( const KWargs& args );
     Document *_mydoc;
     FoliaElement *_parent;
@@ -1456,7 +1485,7 @@ namespace folia {
       std::vector<FoliaElement*> find_replacables( FoliaElement * ) const;
       const std::string set_to_current() { // Don't use without thinking twice!
 	std::string res = cls();
-	update_cls( "current" );
+	set_cls( "current" );
 	return res;
       }
       FoliaElement *postappend();

@@ -239,7 +239,7 @@ namespace folia {
     return "";
   }
 
-  const string AbstractElement::settag( const string& t ) {
+  const string AbstractElement::set_tag( const string& t ) {
     /// set a value for the _tags attribute
     /*!
      * \param t the new value (may be empty)
@@ -1944,7 +1944,7 @@ namespace folia {
 	// non interesting stuff like <feature>, <comment> etc.
       }
     }
-    if (trim_spaces && this->preserve_spaces() != SPACE_FLAGS::PRESERVE) {
+    if (trim_spaces && this->spaces_flag() != SPACE_FLAGS::PRESERVE) {
       result = postprocess_spaces(result);
     }
 #ifdef DEBUG_TEXT
@@ -3072,8 +3072,8 @@ namespace folia {
       if ( child->referable() ){
 	child->increfcount();
       }
-      if ( child->preserve_spaces() == SPACE_FLAGS::UNSET ){
-	child->preserve_spaces( _preserve_spaces );
+      if ( child->spaces_flag() == SPACE_FLAGS::UNSET ){
+	child->set_spaces_flag( _preserve_spaces );
       }
       return child->postappend();
     }
@@ -5725,7 +5725,7 @@ namespace folia {
       return;
     }
     if ( sett().empty() ) {
-      update_set( c_set );
+      set_set( c_set );
     }
     else if ( sett() != c_set ){
       throw DuplicateAnnotationError( "appending child: " + child->xmltag()
@@ -6649,7 +6649,7 @@ namespace folia {
     if ( it->second.empty() ) {
       throw ValueError("class attribute may never be empty: " + classname() );
     }
-    update_cls( it->second );
+    set_cls( it->second );
   }
 
   KWargs Feature::collectAttributes() const {
