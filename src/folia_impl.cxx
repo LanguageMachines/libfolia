@@ -2492,8 +2492,7 @@ namespace folia {
     throw NoSuchPhon( xmltag() + "::phon_content(" + tp.get_class() + ")" );
   }
 
-  const PhonContent *AbstractElement::phon_content( const string& cls,
-						    bool show_hidden ) const {
+  const PhonContent *AbstractElement::phon_content( const string& cls ) const {
     /// Get the PhonContent explicitly associated with this element.
     /*!
      * \param cls the textclass to search for
@@ -2504,31 +2503,8 @@ namespace folia {
      * Does not recurse into children with the sole exception of Correction
      * might throw NoSuchPhon exception if not found.
      */
-    if ( isinstance(PhonContent_t) ){
-      if  ( this->cls() == cls ) {
-	return dynamic_cast<const PhonContent*>(this);
-      }
-      else {
-	throw NoSuchPhon( xmltag() + "::phon_content(" + cls + ")" );
-      }
-    }
-    if ( !speakable() || ( hidden() && !show_hidden ) ) {
-      throw NoSuchPhon( "non-speakable element: " + xmltag() );
-    }
-
-    for ( const auto& el : _data ) {
-      if ( el->isinstance(PhonContent_t) && ( el->cls() == cls) ) {
-	return dynamic_cast<PhonContent*>(el);
-      }
-      else if ( el->element_id() == Correction_t) {
-	try {
-	  return el->phon_content(cls,show_hidden);
-	} catch ( const NoSuchPhon& e ) {
-	  // continue search for other Corrections or a TextContent
-	}
-      }
-    }
-    throw NoSuchPhon( xmltag() + "::phon_content(" + cls + ")" );
+    TextPolicy tp(cls );
+    return phon_content( tp );
   }
 
   //#define DEBUG_PHON
@@ -2544,7 +2520,7 @@ namespace folia {
     cerr << "PHON, Policy= " << tp << " on node : " << xmltag() << " id=" << id() << endl;
 #endif
     if ( strict ) {
-      return phon_content(tp.get_class())->phon();
+      return phon_content(tp)->phon();
     }
     else if ( !speakable() || ( this->hidden() && !hidden ) ) {
       throw NoSuchPhon( "NON speakable element: " + xmltag() );
@@ -2586,7 +2562,7 @@ namespace folia {
       }
       UnicodeString result = deepphon( tp );
       if ( result.isEmpty() ) {
-	result = phon_content(cls,hidden)->phon();
+	result = phon_content(tp)->phon();
       }
       if ( result.isEmpty() ) {
 	throw NoSuchPhon( "on tag " + xmltag() + " nor it's children" );
@@ -6184,8 +6160,7 @@ namespace folia {
     throw NoSuchPhon("wrong cls");
   }
 
-  const PhonContent *Correction::phon_content( const string& cls,
-					       bool show_hidden ) const {
+  const PhonContent *Correction::phon_content( const string& cls ) const {
     /// Get the PhonContent explicitly associated with this element.
     /*!
      * \param cls the textclass to search for
@@ -6196,18 +6171,8 @@ namespace folia {
      * recurses into children looking for New or Current
      * might throw NoSuchPhon exception if not found.
      */
-    // TODO: this implements correctionhandling::EITHER only
-    for ( const auto& el: data() ) {
-      if ( el->isinstance( New_t ) || el->isinstance( Current_t ) ) {
-	return el->phon_content( cls, show_hidden );
-      }
-    }
-    for ( const auto& el: data() ) {
-      if ( el->isinstance( Original_t ) ) {
-	return el->phon_content( cls, show_hidden );
-      }
-    }
-    throw NoSuchPhon("wrong cls");
+    TextPolicy tp( cls );
+    return phon_content( tp );
   }
 
   bool Correction::hasNew() const {

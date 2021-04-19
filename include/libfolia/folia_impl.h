@@ -486,8 +486,7 @@ namespace folia {
     void clear_textcontent( const std::string& = "current" );
     // PhonContent
     virtual const PhonContent *phon_content( const TextPolicy& ) const = 0;
-    virtual const PhonContent *phon_content( const std::string& = "current",
-					     bool = false ) const = 0;
+    virtual const PhonContent *phon_content( const std::string& = "current" ) const = 0;
 
     // properties
     virtual const std::string& get_delimiter( bool=false ) const = 0;
@@ -748,8 +747,7 @@ namespace folia {
     const TextContent *text_content( const std::string& = "current" ) const;
     // PhonContent
     const PhonContent *phon_content( const TextPolicy& tp ) const;
-    const PhonContent *phon_content( const std::string& = "current",
-				     bool = false ) const;
+    const PhonContent *phon_content( const std::string& = "current" ) const;
 
     // properties
     const std::string& get_delimiter( bool=false ) const;
@@ -2849,8 +2847,7 @@ namespace folia {
     const TextContent *text_content( const TextPolicy& ) const;
     const TextContent *text_content( const std::string& = "current" ) const;
     const PhonContent *phon_content( const TextPolicy& tp ) const;
-    const PhonContent *phon_content( const std::string& = "current",
-				     bool = false ) const;
+    const PhonContent *phon_content( const std::string& = "current" ) const;
     const std::string& get_delimiter( bool=false) const;
     Correction *correct( const std::vector<FoliaElement*>&,
 			 const std::vector<FoliaElement*>&,
