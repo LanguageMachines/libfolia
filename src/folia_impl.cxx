@@ -1666,7 +1666,7 @@ namespace folia {
     }
     catch( const NoSuchText& ){
       try {
-	us = phon( tp.get_class() );
+	us = phon( tp );
       }
       catch( const NoSuchPhon&){
 	// No TextContent or Phone is allowed
@@ -2454,6 +2454,44 @@ namespace folia {
     return text_content( tp );
   }
 
+  const PhonContent *AbstractElement::phon_content( const TextPolicy& tp ) const {
+    /// Get the PhonContent explicitly associated with this element.
+    /*!
+     * \param cls the textclass to search for
+     *
+     * Returns the PhonContent instance rather than the actual text.
+     * (so it might return iself.. ;)
+     * Does not recurse into children with the sole exception of Correction
+     * might throw NoSuchPhon exception if not found.
+     */
+    if ( isinstance(PhonContent_t) ){
+      if  ( this->cls() ==tp.get_class() ) {
+	return dynamic_cast<const PhonContent*>(this);
+      }
+      else {
+	throw NoSuchPhon( xmltag() + "::phon_content(" + tp.get_class() + ")" );
+      }
+    }
+    bool show_hidden = tp.is_set( TEXT_FLAGS::HIDDEN );
+    if ( !speakable() || ( hidden() && !show_hidden ) ) {
+      throw NoSuchPhon( "non-speakable element: " + xmltag() );
+    }
+
+    for ( const auto& el : _data ) {
+      if ( el->isinstance(PhonContent_t) && ( el->cls() == tp.get_class() ) ) {
+	return dynamic_cast<PhonContent*>(el);
+      }
+      else if ( el->element_id() == Correction_t) {
+	try {
+	  return el->phon_content(tp);
+	} catch ( const NoSuchPhon& e ) {
+	  // continue search for other Corrections or a TextContent
+	}
+      }
+    }
+    throw NoSuchPhon( xmltag() + "::phon_content(" + tp.get_class() + ")" );
+  }
+
   const PhonContent *AbstractElement::phon_content( const string& cls,
 						    bool show_hidden ) const {
     /// Get the PhonContent explicitly associated with this element.
@@ -2495,6 +2533,34 @@ namespace folia {
 
   //#define DEBUG_PHON
 
+  const UnicodeString AbstractElement::phon( const TextPolicy& tp ) const {
+    /// get the UnicodeString phon value of an element
+    /*!
+     * \param cls the textclass the text should be in
+     */
+    bool hidden = tp.is_set( TEXT_FLAGS::HIDDEN );
+    bool strict = tp.is_set( TEXT_FLAGS::STRICT );
+#ifdef DEBUG_PHON
+    cerr << "PHON, Policy= " << tp << " on node : " << xmltag() << " id=" << id() << endl;
+#endif
+    if ( strict ) {
+      return phon_content(tp.get_class())->phon();
+    }
+    else if ( !speakable() || ( this->hidden() && !hidden ) ) {
+      throw NoSuchPhon( "NON speakable element: " + xmltag() );
+    }
+    else {
+      UnicodeString result = deepphon( tp );
+      if ( result.isEmpty() ) {
+	result = phon_content(tp)->phon();
+      }
+      if ( result.isEmpty() ) {
+	throw NoSuchPhon( "on tag " + xmltag() + " nor it's children" );
+      }
+      return result;
+    }
+  }
+
   const UnicodeString AbstractElement::phon( const string& cls,
 					     TEXT_FLAGS flags ) const {
     /// get the UnicodeString phon value of an element
@@ -2514,7 +2580,11 @@ namespace folia {
       throw NoSuchPhon( "NON speakable element: " + xmltag() );
     }
     else {
-      UnicodeString result = deepphon( cls, flags );
+      TextPolicy tp(cls);
+      if ( hidden ){
+	tp.set( TEXT_FLAGS::HIDDEN );
+      }
+      UnicodeString result = deepphon( tp );
       if ( result.isEmpty() ) {
 	result = phon_content(cls,hidden)->phon();
       }
@@ -2525,8 +2595,7 @@ namespace folia {
     }
   }
 
-  const UnicodeString AbstractElement::deepphon( const string& cls,
-						 TEXT_FLAGS flags ) const {
+  const UnicodeString AbstractElement::deepphon( const TextPolicy& tp ) const {
     /// get the UnicodeString phon value of underlying elements
     /*!
      * \param cls the textclass
@@ -2535,7 +2604,7 @@ namespace folia {
      * Will throw on error.
      */
 #ifdef DEBUG_PHON
-    cerr << "deepPHON(" << cls << ") on node : " << xmltag()
+    cerr << "deepPHON, policy= " << tp << ", on node : " << xmltag()
 	 << " id=" << id() << endl;
     cerr << "deepphon: node has " << _data.size() << " children." << endl;
 #endif
@@ -2554,7 +2623,7 @@ namespace folia {
 	cerr << "deepphon:bekijk node[" << child->xmltag() << "]" << endl;
 #endif
 	try {
-	  UnicodeString tmp = child->phon( cls );
+	  UnicodeString tmp = child->phon( tp.get_class() );
 #ifdef DEBUG_PHON
 	  cerr << "deepphon found '" << tmp << "'" << endl;
 #endif
@@ -2562,7 +2631,8 @@ namespace folia {
 	  // get the delimiter
 	  const string& delim = child->get_delimiter();
 #ifdef DEBUG_PHON
-	  cerr << "deepphon:delimiter van "<< child->xmltag() << " ='" << delim << "'" << endl;
+	  cerr << "deepphon:delimiter van "<< child->xmltag()
+	       << " ='" << delim << "'" << endl;
 #endif
 	  seps.push_back(TiCC::UnicodeFromUTF8(delim));
 	} catch ( const NoSuchPhon& e ) {
@@ -2585,9 +2655,8 @@ namespace folia {
     cerr << "deepphon() for " << xmltag() << " step 3 " << endl;
 #endif
     if ( result.isEmpty() ) {
-      bool hidden = ( TEXT_FLAGS::HIDDEN & flags ) == TEXT_FLAGS::HIDDEN;
       try {
-	result = phon_content(cls,hidden)->phon();
+	result = phon_content(tp)->phon();
       }
       catch ( ... ) {
       }
@@ -2596,7 +2665,7 @@ namespace folia {
     cerr << "deepphontext() for " << xmltag() << " result= '" << result << "'" << endl;
 #endif
     if ( result.isEmpty() ) {
-      throw NoSuchPhon( xmltag() + ":(class=" + cls +"): empty!" );
+      throw NoSuchPhon( xmltag() + ":(class=" + tp.get_class() +"): empty!" );
     }
     return result;
   }
@@ -4220,6 +4289,43 @@ namespace folia {
 	     v.end(),
 	     back_inserter(result),
 	     [&]( FoliaElement *el ){ return el->cls() == cls(); } );
+    return result;
+  }
+
+  const UnicodeString PhonContent::phon( const TextPolicy& tp ) const {
+    /// get the UnicodeString phon value
+    /*!
+     * \param tp the TextPolicy to use
+     * The second parameter is NOT used (yet)
+     */
+#ifdef DEBUG_PHON
+    cerr << "PhonContent::PHON, Policy= " << tp << endl;
+#endif
+    UnicodeString result;
+    for ( const auto& el : data() ) {
+      // try to get text dynamically from children
+#ifdef DEBUG_PHON
+      cerr << "PhonContent: bekijk node[" << el->str( tp.get_class() ) << endl;
+#endif
+      try {
+#ifdef DEBUG_PHON
+	cerr << "roep text(" << tp.get_class() << ") aan op " << el << endl;
+#endif
+	UnicodeString tmp = el->text( tp.get_class() );
+#ifdef DEBUG_PHON
+	cerr << "PhonContent found '" << tmp << "'" << endl;
+#endif
+	result += tmp;
+      } catch ( const NoSuchPhon& e ) {
+#ifdef DEBUG_TEXT
+	cerr << "PhonContent::HELAAS" << endl;
+#endif
+      }
+    }
+    result.trim();
+#ifdef DEBUG_PHON
+    cerr << "PhonContent return " << result << endl;
+#endif
     return result;
   }
 
@@ -6053,6 +6159,29 @@ namespace folia {
      * to use correct() on the PARENT (Correction) of this node
      */
     return parent()->correct( args );
+  }
+
+  const PhonContent *Correction::phon_content( const TextPolicy& tp ) const {
+    /// Get the PhonContent explicitly associated with this element.
+    /*!
+     * \param cls the textclass to search for
+     *
+     * Returns the PhonContent instance rather than the actual text.
+     * (so it might return iself.. ;)
+     * recurses into children looking for New or Current
+     * might throw NoSuchPhon exception if not found.
+     */
+    for ( const auto& el: data() ) {
+      if ( el->isinstance( New_t ) || el->isinstance( Current_t ) ) {
+	return el->phon_content( tp );
+      }
+    }
+    for ( const auto& el: data() ) {
+      if ( el->isinstance( Original_t ) ) {
+	return el->phon_content( tp );
+      }
+    }
+    throw NoSuchPhon("wrong cls");
   }
 
   const PhonContent *Correction::phon_content( const string& cls,

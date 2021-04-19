@@ -408,6 +408,7 @@ namespace folia {
     virtual const UnicodeString text( TEXT_FLAGS = TEXT_FLAGS::NONE ) const = 0;
     const UnicodeString stricttext( const std::string& = "current" ) const;
     const UnicodeString toktext( const std::string& = "current" ) const;
+    virtual const UnicodeString phon( const TextPolicy& ) const = 0;
     virtual const UnicodeString phon( const std::string&,
 				      TEXT_FLAGS = TEXT_FLAGS::NONE ) const = 0;
     virtual const UnicodeString phon( TEXT_FLAGS = TEXT_FLAGS::NONE ) const = 0;
@@ -484,6 +485,7 @@ namespace folia {
 
     void clear_textcontent( const std::string& = "current" );
     // PhonContent
+    virtual const PhonContent *phon_content( const TextPolicy& ) const = 0;
     virtual const PhonContent *phon_content( const std::string& = "current",
 					     bool = false ) const = 0;
 
@@ -563,8 +565,7 @@ namespace folia {
     virtual const FoliaElement* resolveid() const NOT_IMPLEMENTED;
     virtual bool checkAtts() = 0;
     virtual const UnicodeString deeptext( const TextPolicy& ) const NOT_IMPLEMENTED;
-    virtual const UnicodeString deepphon( const std::string& = "current",
-					  TEXT_FLAGS = TEXT_FLAGS::NONE ) const NOT_IMPLEMENTED;
+    virtual const UnicodeString deepphon( const TextPolicy& ) const NOT_IMPLEMENTED;
 
 
     virtual std::vector<FoliaElement*> select( ElementType,
@@ -728,6 +729,7 @@ namespace folia {
       return text( "current", flags );
     }
 
+    const UnicodeString phon( const TextPolicy& ) const;
     const UnicodeString phon( const std::string&,
 			      TEXT_FLAGS = TEXT_FLAGS::NONE ) const;
     const UnicodeString phon( TEXT_FLAGS flags = TEXT_FLAGS::NONE ) const {
@@ -735,8 +737,7 @@ namespace folia {
     }
 
     const UnicodeString deeptext( const TextPolicy& ) const;
-    const UnicodeString deepphon( const std::string& = "current",
-				  TEXT_FLAGS = TEXT_FLAGS::NONE ) const;
+    const UnicodeString deepphon( const TextPolicy& ) const;
 
     // Word
     const Word* resolveword( const std::string& ) const { return 0; };
@@ -746,6 +747,7 @@ namespace folia {
     const TextContent *text_content( const TextPolicy& ) const;
     const TextContent *text_content( const std::string& = "current" ) const;
     // PhonContent
+    const PhonContent *phon_content( const TextPolicy& tp ) const;
     const PhonContent *phon_content( const std::string& = "current",
 				     bool = false ) const;
 
@@ -1482,6 +1484,7 @@ namespace folia {
     AbstractContentAnnotation(PROPS,d){ classInit( a ); }
     void setAttributes( KWargs& );
     KWargs collectAttributes() const;
+    const UnicodeString phon( const TextPolicy& ) const;
     const UnicodeString phon( const std::string& = "current",
 			      TEXT_FLAGS = TEXT_FLAGS::NONE ) const;
     int offset() const { return _offset; };
@@ -2845,6 +2848,7 @@ namespace folia {
     Suggestion *suggestions( size_t ) const;
     const TextContent *text_content( const TextPolicy& ) const;
     const TextContent *text_content( const std::string& = "current" ) const;
+    const PhonContent *phon_content( const TextPolicy& tp ) const;
     const PhonContent *phon_content( const std::string& = "current",
 				     bool = false ) const;
     const std::string& get_delimiter( bool=false) const;
