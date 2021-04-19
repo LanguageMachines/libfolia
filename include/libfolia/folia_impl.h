@@ -468,8 +468,7 @@ namespace folia {
 
     // TextContent
     virtual const TextContent *text_content( const TextPolicy& ) const = 0;
-    virtual const TextContent *text_content( const std::string& = "current",
-					     bool = false ) const = 0;
+    virtual const TextContent *text_content( const std::string& = "current" ) const = 0;
     TextContent *settext( const std::string&,
 			  const std::string& = "current" );
     TextContent *settext( const std::string&,
@@ -745,11 +744,10 @@ namespace folia {
     Word *addWord( const std::string& ="" );
     // TextContent
     const TextContent *text_content( const TextPolicy& ) const;
-    const TextContent *text_content( const std::string& = "current",
-				    bool = false ) const;
+    const TextContent *text_content( const std::string& = "current" ) const;
     // PhonContent
     const PhonContent *phon_content( const std::string& = "current",
-				    bool = false ) const;
+				     bool = false ) const;
 
     // properties
     const std::string& get_delimiter( bool=false ) const;
@@ -2846,10 +2844,9 @@ namespace folia {
     std::vector<Suggestion*> suggestions() const;
     Suggestion *suggestions( size_t ) const;
     const TextContent *text_content( const TextPolicy& ) const;
-    const TextContent *text_content( const std::string& = "current",
-				    bool = false ) const;
+    const TextContent *text_content( const std::string& = "current" ) const;
     const PhonContent *phon_content( const std::string& = "current",
-				    bool = false ) const;
+				     bool = false ) const;
     const std::string& get_delimiter( bool=false) const;
     Correction *correct( const std::vector<FoliaElement*>&,
 			 const std::vector<FoliaElement*>&,

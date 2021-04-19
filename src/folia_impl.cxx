@@ -2439,8 +2439,7 @@ namespace folia {
     throw NoSuchText( xmltag() + "::text_content(" + tp.get_class() + ")" );
   }
 
-  const TextContent *AbstractElement::text_content( const string& cls,
-						    bool show_hidden ) const {
+  const TextContent *AbstractElement::text_content( const string& cls ) const {
     /// Get the TextContent explicitly associated with this element.
     /*!
      * \param cls the textclass to search for
@@ -2451,48 +2450,8 @@ namespace folia {
      * Does not recurse into children with the sole exception of Correction
      * might throw NoSuchText exception if not found.
      */
-
-#ifdef DEBUG_TEXT
-    cerr << "text_content(" << cls << "," << (show_hidden?"show_hidden":"")
-	 << ")" << endl;
-#endif
-    if ( isinstance(TextContent_t) ){
-#ifdef DEBUG_TEXT
-      cerr << "A textcontent!!" << endl;
-#endif
-      if  ( this->cls() == cls ) {
-#ifdef DEBUG_TEXT
-	cerr << "return myself..." << endl;
-#endif
-	return dynamic_cast<const TextContent*>(this);
-      }
-      else {
-	throw NoSuchText( "TextContent::text_content(" + cls + ")" );
-      }
-    }
-#ifdef DEBUG_TEXT
-    cerr << (!printable()?"NOT":"") << " printable: " << xmltag() << endl;
-    cerr << (!hidden()?"NOT":"") << " hidden: " << xmltag() << endl;
-#endif
-    if ( !printable() || ( hidden() && !show_hidden ) ) {
-      throw NoSuchText( "non-printable element: " +  xmltag() );
-    }
-#ifdef DEBUG_TEXT
-    cerr << "recurse into children...." << endl;
-#endif
-    for ( const auto& el : data() ) {
-      if ( el->isinstance(TextContent_t) && (el->cls() == cls) ) {
-	return dynamic_cast<TextContent*>(el);
-      }
-      else if ( el->element_id() == Correction_t) {
-	try {
-	  return el->text_content(cls,show_hidden);
-	} catch ( const NoSuchText& e ) {
-	  // continue search for other Corrections or a TextContent
-	}
-      }
-    }
-    throw NoSuchText( xmltag() + "::text_content(" + cls + ")" );
+    TextPolicy tp( cls );
+    return text_content( tp );
   }
 
   const PhonContent *AbstractElement::phon_content( const string& cls,
@@ -6019,8 +5978,7 @@ namespace folia {
     throw NoSuchText("wrong cls");
   }
 
-  const TextContent *Correction::text_content( const string& cls,
-					       bool show_hidden ) const {
+  const TextContent *Correction::text_content( const string& cls ) const {
     /// Get the TextContent explicitly associated with a Correction
     /*!
      * \param cls the textclass to search for
@@ -6032,33 +5990,8 @@ namespace folia {
      * might throw NoSuchText exception if not found.
      */
     // TODO: this implements correctionhandling::EITHER only
-    for ( const auto& el : data() ) {
-      if ( el->isinstance( New_t ) || el->isinstance( Current_t ) ) {
-	try {
-	  const TextContent *res = el->text_content( cls, show_hidden );
-	  return res;
-	}
-	catch (...){
-	}
-      }
-    }
-    for ( const auto& el : data() ) {
-      if ( el->isinstance( Original_t ) ) {
-	try {
-	  const TextContent *res = el->text_content( cls, show_hidden );
-	  return res;
-	}
-	catch ( ... ){
-	}
-      }
-      else if ( cls == "current" && el->hastext( "original" ) ){
-	cerr << "text(original)= "
-	     << el->text_content( cls, show_hidden )->text()<< endl;
-	// hack for old and erroneous behaviour
-	return el->text_content( "original", show_hidden );
-      }
-    }
-    throw NoSuchText("wrong cls");
+    TextPolicy tp( cls );
+    return text_content( tp );
   }
 
   Correction *Correction::correct( const std::vector<FoliaElement*>&,
