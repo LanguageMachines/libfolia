@@ -96,6 +96,11 @@ namespace folia {
     return f1;
   }
 
+  inline TEXT_FLAGS& operator&=( TEXT_FLAGS& f1, TEXT_FLAGS f2 ){
+    f1 = (f1 & f2);
+    return f1;
+  }
+
   inline TEXT_FLAGS operator~( TEXT_FLAGS f1 ){
     return TEXT_FLAGS( ~(int)f1 );
   }
@@ -131,8 +136,12 @@ namespace folia {
 		const TEXT_FLAGS );
     bool is_set( TEXT_FLAGS ) const;
     void set( TEXT_FLAGS );
+    void clear( TEXT_FLAGS );
     void add_handler( const std::string&, const stringFunctionPointer& );
-    //  private:
+    stringFunctionPointer get_handler( const std::string& ) const;
+    std::string get_class() const { return _class; };
+    void set_class( const std::string& c ) { _class = c; };
+  private:
     std::string _class;
     TEXT_FLAGS _text_flags;
     std::map<std::string, stringFunctionPointer> _tag_handlers;

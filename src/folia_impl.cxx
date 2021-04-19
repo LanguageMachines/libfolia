@@ -90,9 +90,23 @@ namespace folia {
     _text_flags |= tf;
   }
 
+  void TextPolicy::clear( TEXT_FLAGS tf ) {
+    _text_flags &= ~tf;
+  }
+
   void TextPolicy::add_handler( const std::string& label,
 				const stringFunctionPointer& sfp ){
     _tag_handlers.insert( make_pair( label, sfp ) );
+  }
+
+  stringFunctionPointer TextPolicy::get_handler( const std::string& label ) const{
+    auto pnt = _tag_handlers.find( label );
+    if ( pnt != _tag_handlers.end() ){
+      return *pnt->second;
+    }
+    else {
+      return 0;
+    }
   }
 
   ElementType AbstractElement::element_id() const {
@@ -1656,7 +1670,7 @@ namespace folia {
     }
     catch( const NoSuchText& ){
       try {
-	us = phon( tp._class);
+	us = phon( tp.get_class() );
       }
       catch( const NoSuchPhon&){
 	// No TextContent or Phone is allowed
@@ -1808,11 +1822,11 @@ namespace folia {
 
   UnicodeString AbstractElement::text_container_text( const TextPolicy& tp ) const {
     if ( isinstance( TextContent_t )
-	 && this->cls() != tp._class ) {
+	 && this->cls() != tp.get_class() ) {
       // take a shortcut for TextContent in wrong class
 #ifdef DEBUG_TEXT
       cerr << "TextContent shortcut, class=" << this->cls()
-	   << " but looking for: " << tp._class << endl;
+	   << " but looking for: " << tp.get_class() << endl;
 #endif
       return "";
     }
@@ -1831,7 +1845,7 @@ namespace folia {
 	  //This implements https://github.com/proycon/folia/issues/88
 	  //FoLiA >= v2.5 behaviour (introduced earlier in v2.4.1 but modified thereafter)
 	  const int l = result.length();
-	  UnicodeString text = d->text( tp._class );
+	  UnicodeString text = d->text( tp.get_class() );
 	  int begin = 0;
 	  int linenr = 0;
 	  for ( int i = 0; i < text.length(); ++i ) {
@@ -1894,7 +1908,7 @@ namespace folia {
 	}
 	else {
 	  //old FoLiA <= v2.4.1 behaviour, we don't trim anything
-	  result += d->text( tp._class );
+	  result += d->text( tp.get_class() );
 	}
       }
       else if ( d->printable() ){
@@ -1908,10 +1922,10 @@ namespace folia {
 	  vector<string> tvv = TiCC::split(tv);
 	  bool no_match = true;
 	  for ( const auto& v : tvv ){
-	    auto fun = tp._tag_handlers.find( v );
-	    if ( fun != tp._tag_handlers.end() ){
+	    stringFunctionPointer match = tp.get_handler( v );
+	    if ( match ){
 	      no_match = false;
-	      UnicodeString tmp_result = (*fun).second( d, tp );
+	      UnicodeString tmp_result = match( d, tp );
 	      result += tmp_result;
 	    }
 	  }
@@ -1968,8 +1982,8 @@ namespace folia {
       /// WARNING. Don't call text(tp) here. We will get into an infinite
       /// recursion. Can't we do better then calling ourself again, sort of?
       TextPolicy tmp = tp;
-      tmp._text_flags = TEXT_FLAGS( tmp._text_flags & ~TEXT_FLAGS::STRICT );
-      return text_content(tp._class,show_hidden)->text(tmp);
+      tmp.clear( TEXT_FLAGS::STRICT );
+      return text_content(tp.get_class(),show_hidden)->text(tmp);
     }
     else if ( !printable() || ( hidden() && !show_hidden ) ){
       throw NoSuchText( "NON printable element: " + xmltag() );
@@ -1985,7 +1999,7 @@ namespace folia {
 	if ( !trim ) {
 	  flags |= TEXT_FLAGS::NO_TRIM_SPACES;
 	}
-	result = text( tp._class, flags );
+	result = text( tp.get_class(), flags );
       }
       if ( result.isEmpty() ) {
 	throw NoSuchText( "on tag " + xmltag() + " nor it's children" );
@@ -2342,13 +2356,13 @@ namespace folia {
     if ( result.isEmpty() ) {
       // so no deeper text is found. Well, lets look here then
       bool hidden = tp.is_set( TEXT_FLAGS::HIDDEN );
-      result = text_content(tp._class,hidden)->text(tp);
+      result = text_content( tp.get_class(),hidden)->text(tp);
     }
 #ifdef DEBUG_TEXT
     cerr << "deeptext() for " << xmltag() << " result= '" << result << "'" << endl;
 #endif
     if ( result.isEmpty() ) {
-      throw NoSuchText( xmltag() + ":(class=" + tp._class +"): empty!" );
+      throw NoSuchText( xmltag() + ":(class=" + tp.get_class() +"): empty!" );
     }
     return result;
   }
@@ -5902,7 +5916,7 @@ namespace folia {
 	return cur_result;
       }
     }
-    throw NoSuchText( "cls=" + tp._class );
+    throw NoSuchText( "cls=" + tp.get_class() );
   }
   //#undef DEBUG_TEXT
 
@@ -6830,7 +6844,7 @@ namespace folia {
      */
     // cerr << "TEXT MARKUP CORRECTION " << this << endl;
     // cerr << "TEXT MARKUP CORRECTION parent cls=" << parent()->cls() << endl;
-    if ( tp._class == "original" ) {
+    if ( tp.get_class() == "original" ) {
       return TiCC::UnicodeFromUTF8(_original);
     }
     return AbstractElement::private_text( tp );
