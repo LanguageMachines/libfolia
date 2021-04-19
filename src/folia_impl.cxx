@@ -2544,31 +2544,8 @@ namespace folia {
      * \param cls the textclass the text should be in
      * \param flags the search parameters to use. See TEXT_FLAGS.
      */
-    bool hidden = ( TEXT_FLAGS::HIDDEN & flags ) == TEXT_FLAGS::HIDDEN;
-    bool strict = ( TEXT_FLAGS::STRICT & flags ) == TEXT_FLAGS::STRICT;
-#ifdef DEBUG_PHON
-    cerr << "PHON(" << cls << ") on node : " << xmltag() << " id=" << id() << endl;
-#endif
-    if ( strict ) {
-      return phon_content(cls)->phon();
-    }
-    else if ( !speakable() || ( this->hidden() && !hidden ) ) {
-      throw NoSuchPhon( "NON speakable element: " + xmltag() );
-    }
-    else {
-      TextPolicy tp(cls);
-      if ( hidden ){
-	tp.set( TEXT_FLAGS::HIDDEN );
-      }
-      UnicodeString result = deepphon( tp );
-      if ( result.isEmpty() ) {
-	result = phon_content(tp)->phon();
-      }
-      if ( result.isEmpty() ) {
-	throw NoSuchPhon( "on tag " + xmltag() + " nor it's children" );
-      }
-      return result;
-    }
+    TextPolicy tp( cls, flags );
+    return phon( tp );
   }
 
   const UnicodeString AbstractElement::deepphon( const TextPolicy& tp ) const {
@@ -4306,41 +4283,13 @@ namespace folia {
   }
 
   const UnicodeString PhonContent::phon( const string& cls,
-					 TEXT_FLAGS ) const {
+					 TEXT_FLAGS flags ) const {
     /// get the UnicodeString phon value
     /*!
      * \param cls the textclass the text should be in
-     * The second parameter is NOT used (yet)
      */
-#ifdef DEBUG_PHON
-    cerr << "PhonContent::PHON(" << cls << ") " << endl;
-#endif
-    UnicodeString result;
-    for ( const auto& el : data() ) {
-      // try to get text dynamically from children
-#ifdef DEBUG_PHON
-      cerr << "PhonContent: bekijk node[" << el->str(cls) << endl;
-#endif
-      try {
-#ifdef DEBUG_PHON
-	cerr << "roep text(" << cls << ") aan op " << el << endl;
-#endif
-	UnicodeString tmp = el->text( cls );
-#ifdef DEBUG_PHON
-	cerr << "PhonContent found '" << tmp << "'" << endl;
-#endif
-	result += tmp;
-      } catch ( const NoSuchPhon& e ) {
-#ifdef DEBUG_TEXT
-	cerr << "PhonContent::HELAAS" << endl;
-#endif
-      }
-    }
-    result.trim();
-#ifdef DEBUG_PHON
-    cerr << "PhonContent return " << result << endl;
-#endif
-    return result;
+    TextPolicy tp( cls, flags );
+    return phon( tp );
   }
 
   const string AllowGenerateID::generateId( const string& tag ){
