@@ -55,20 +55,16 @@ namespace folia {
   string VersionName() { return PACKAGE_STRING; } ///< Returns the PACKAGE_STRING info of the package
   string Version() { return VERSION; }  ///< Returns version of the library
 
-  TextPolicy::TextPolicy( const string& cl ):
-    _class("current"),
-    _text_flags(TEXT_FLAGS::NONE)
-  {
-    if ( !cl.empty() ){
-      _class = cl;
-    }
-  }
-
   TextPolicy::TextPolicy( const std::string& cls, const TEXT_FLAGS flags ):
     _class(cls),
     _text_flags( flags )
   {
   }
+
+  TextPolicy::TextPolicy( const TEXT_FLAGS flags ):
+    TextPolicy( "current", flags ) {
+  }
+
 
   ostream& operator<<( ostream& os, const TextPolicy& tp ){
     bool retain  = tp.is_set( TEXT_FLAGS::RETAIN );
@@ -1983,7 +1979,7 @@ namespace folia {
       /// recursion. Can't we do better then calling ourself again, sort of?
       TextPolicy tmp = tp;
       tmp.clear( TEXT_FLAGS::STRICT );
-      return text_content(tp.get_class(),show_hidden)->text(tmp);
+      return text_content(tmp)->text(tmp);
     }
     else if ( !printable() || ( hidden() && !show_hidden ) ){
       throw NoSuchText( "NON printable element: " + xmltag() );
@@ -2355,8 +2351,7 @@ namespace folia {
 #endif
     if ( result.isEmpty() ) {
       // so no deeper text is found. Well, lets look here then
-      bool hidden = tp.is_set( TEXT_FLAGS::HIDDEN );
-      result = text_content( tp.get_class(),hidden)->text(tp);
+      result = text_content(tp)->text(tp);
     }
 #ifdef DEBUG_TEXT
     cerr << "deeptext() for " << xmltag() << " result= '" << result << "'" << endl;
@@ -2388,6 +2383,60 @@ namespace folia {
      */
     TEXT_FLAGS flags = TEXT_FLAGS::RETAIN;
     return this->text(cls, flags );
+  }
+
+  const TextContent *AbstractElement::text_content( const TextPolicy& tp ) const {
+    /// Get the TextContent explicitly associated with this element.
+    /*!
+     * \param tp the TextPolicy to use
+     *
+     * Returns the TextContent instance rather than the actual text.
+     * (so it might return itself.. ;)
+     * Does not recurse into children with the sole exception of Correction
+     * might throw NoSuchText exception if not found.
+     */
+
+#ifdef DEBUG_TEXT
+    cerr << "text_content, policy= " << tp << endl;
+#endif
+    if ( isinstance(TextContent_t) ){
+#ifdef DEBUG_TEXT
+      cerr << "A textcontent!!" << endl;
+#endif
+      if  ( this->cls() == tp.get_class() ) {
+#ifdef DEBUG_TEXT
+	cerr << "return myself..." << endl;
+#endif
+	return dynamic_cast<const TextContent*>(this);
+      }
+      else {
+	throw NoSuchText( "TextContent::text_content(" + tp.get_class() + ")" );
+      }
+    }
+    bool show_hidden = tp.is_set( TEXT_FLAGS::HIDDEN );
+#ifdef DEBUG_TEXT
+    cerr << (!printable()?"NOT":"") << " printable: " << xmltag() << endl;
+    cerr << (!hidden()?"NOT":"") << " hidden: " << xmltag() << endl;
+#endif
+    if ( !printable() || ( hidden() && !show_hidden ) ) {
+      throw NoSuchText( "non-printable element: " +  xmltag() );
+    }
+#ifdef DEBUG_TEXT
+    cerr << "recurse into children...." << endl;
+#endif
+    for ( const auto& el : data() ) {
+      if ( el->isinstance(TextContent_t) && (el->cls() == tp.get_class() ) ) {
+	return dynamic_cast<TextContent*>(el);
+      }
+      else if ( el->element_id() == Correction_t) {
+	try {
+	  return el->text_content( tp );
+	} catch ( const NoSuchText& e ) {
+	  // continue search for other Corrections or a TextContent
+	}
+      }
+    }
+    throw NoSuchText( xmltag() + "::text_content(" + tp.get_class() + ")" );
   }
 
   const TextContent *AbstractElement::text_content( const string& cls,
@@ -5932,6 +5981,42 @@ namespace folia {
       //      }
     }
     return EMPTY_STRING;
+  }
+
+  const TextContent *Correction::text_content( const TextPolicy& tp ) const {
+    /// Get the TextContent explicitly associated with a Correction
+    /*!
+     * \param tp the TextPolicy to use
+     *
+     * Returns the TextContent instance rather than the actual text.
+     * (so it might return iself.. ;)
+     * recurses into children looking for New or Current nodes
+     * might throw NoSuchText exception if not found.
+     */
+    for ( const auto& el : data() ) {
+      if ( el->isinstance( New_t ) || el->isinstance( Current_t ) ) {
+	try {
+	  const TextContent *res = el->text_content( tp );
+	  return res;
+	}
+	catch (...){
+	}
+      }
+    }
+    for ( const auto& el : data() ) {
+      if ( el->isinstance( Original_t ) ) {
+	try {
+	  const TextContent *res = el->text_content( tp );
+	  return res;
+	}
+	catch ( ... ){
+	}
+      }
+      else if ( tp.get_class() == "current" && el->hastext( "original" ) ){
+	throw runtime_error( "text(original)= no longer supported" );
+      }
+    }
+    throw NoSuchText("wrong cls");
   }
 
   const TextContent *Correction::text_content( const string& cls,

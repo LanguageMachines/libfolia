@@ -131,9 +131,9 @@ namespace folia {
 
   class TextPolicy {
   public:
-    TextPolicy( const std::string& = "" );
-    TextPolicy( const std::string&,
-		const TEXT_FLAGS );
+    TextPolicy( const std::string& = "current",
+		const TEXT_FLAGS=TEXT_FLAGS::NONE );
+    TextPolicy( const TEXT_FLAGS );
     bool is_set( TEXT_FLAGS ) const;
     void set( TEXT_FLAGS );
     void clear( TEXT_FLAGS );
@@ -467,6 +467,7 @@ namespace folia {
     virtual Correction *correct( const std::string& = "" ) NOT_IMPLEMENTED;
 
     // TextContent
+    virtual const TextContent *text_content( const TextPolicy& ) const = 0;
     virtual const TextContent *text_content( const std::string& = "current",
 					     bool = false ) const = 0;
     TextContent *settext( const std::string&,
@@ -743,6 +744,7 @@ namespace folia {
     Word *addWord( const KWargs& );
     Word *addWord( const std::string& ="" );
     // TextContent
+    const TextContent *text_content( const TextPolicy& ) const;
     const TextContent *text_content( const std::string& = "current",
 				    bool = false ) const;
     // PhonContent
@@ -2843,6 +2845,7 @@ namespace folia {
     FoliaElement *getCurrent( size_t ) const;
     std::vector<Suggestion*> suggestions() const;
     Suggestion *suggestions( size_t ) const;
+    const TextContent *text_content( const TextPolicy& ) const;
     const TextContent *text_content( const std::string& = "current",
 				    bool = false ) const;
     const PhonContent *phon_content( const std::string& = "current",
