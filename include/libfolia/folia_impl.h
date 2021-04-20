@@ -801,7 +801,7 @@ namespace folia {
     void set_confidence( double d ) { _confidence = d; };
 
     const std::string language( const std::string& = "" ) const;
-
+    const std::string src() const { return _src; };
     // generic properties
     ElementType element_id() const;
     size_t occurrences() const;
