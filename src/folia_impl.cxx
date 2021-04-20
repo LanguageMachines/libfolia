@@ -1813,12 +1813,13 @@ namespace folia {
   }
 
   UnicodeString AbstractElement::text_container_text( const TextPolicy& tp ) const {
+    string desired_class = tp.get_class();
     if ( isinstance( TextContent_t )
-	 && this->cls() != tp.get_class() ) {
+	 && cls() != desired_class ) {
       // take a shortcut for TextContent in wrong class
 #ifdef DEBUG_TEXT
-      cerr << "TextContent shortcut, class=" << this->cls()
-	   << " but looking for: " << tp.get_class() << endl;
+      cerr << "TextContent shortcut, class=" << cls()
+	   << " but looking for: " << desired_class << endl;
 #endif
       return "";
     }
@@ -1837,7 +1838,7 @@ namespace folia {
 	  //This implements https://github.com/proycon/folia/issues/88
 	  //FoLiA >= v2.5 behaviour (introduced earlier in v2.4.1 but modified thereafter)
 	  const int l = result.length();
-	  UnicodeString text = d->text( tp.get_class() );
+	  UnicodeString text = d->text( tp );
 	  int begin = 0;
 	  int linenr = 0;
 	  for ( int i = 0; i < text.length(); ++i ) {
@@ -1900,7 +1901,7 @@ namespace folia {
 	}
 	else {
 	  //old FoLiA <= v2.4.1 behaviour, we don't trim anything
-	  result += d->text( tp.get_class() );
+	  result += d->text( tp );
 	}
       }
       else if ( d->printable() ){
@@ -1975,7 +1976,7 @@ namespace folia {
       /// recursion. Can't we do better then calling ourself again, sort of?
       TextPolicy tmp = tp;
       tmp.clear( TEXT_FLAGS::STRICT );
-      return text_content(tmp)->text(tmp);
+      return text_content(tmp)->text( tmp );
     }
     else if ( !printable() || ( hidden() && !show_hidden ) ){
       throw NoSuchText( "NON printable element: " + xmltag() );
@@ -2348,7 +2349,7 @@ namespace folia {
 #endif
     if ( result.isEmpty() ) {
       // so no deeper text is found. Well, lets look here then
-      result = text_content(tp)->text(tp);
+      result = text_content(tp)->text( tp );
     }
 #ifdef DEBUG_TEXT
     cerr << "deeptext() for " << xmltag() << " result= '" << result << "'" << endl;
@@ -2396,18 +2397,19 @@ namespace folia {
 #ifdef DEBUG_TEXT
     cerr << "text_content, policy= " << tp << endl;
 #endif
+    string desired_class = tp.get_class();
     if ( isinstance(TextContent_t) ){
 #ifdef DEBUG_TEXT
       cerr << "A textcontent!!" << endl;
 #endif
-      if  ( this->cls() == tp.get_class() ) {
+      if  ( this->cls() == desired_class ) {
 #ifdef DEBUG_TEXT
 	cerr << "return myself..." << endl;
 #endif
 	return dynamic_cast<const TextContent*>(this);
       }
       else {
-	throw NoSuchText( "TextContent::text_content(" + tp.get_class() + ")" );
+	throw NoSuchText( "TextContent::text_content(" + desired_class + ")" );
       }
     }
     bool show_hidden = tp.is_set( TEXT_FLAGS::HIDDEN );
@@ -2422,7 +2424,7 @@ namespace folia {
     cerr << "recurse into children...." << endl;
 #endif
     for ( const auto& el : data() ) {
-      if ( el->isinstance(TextContent_t) && (el->cls() == tp.get_class() ) ) {
+      if ( el->isinstance(TextContent_t) && (el->cls() == desired_class ) ) {
 	return dynamic_cast<TextContent*>(el);
       }
       else if ( el->element_id() == Correction_t) {
@@ -2433,7 +2435,7 @@ namespace folia {
 	}
       }
     }
-    throw NoSuchText( xmltag() + "::text_content(" + tp.get_class() + ")" );
+    throw NoSuchText( xmltag() + "::text_content(" + desired_class + ")" );
   }
 
   const TextContent *AbstractElement::text_content( const string& cls ) const {
@@ -2461,12 +2463,13 @@ namespace folia {
      * Does not recurse into children with the sole exception of Correction
      * might throw NoSuchPhon exception if not found.
      */
+    string desired_class = tp.get_class();
     if ( isinstance(PhonContent_t) ){
-      if  ( this->cls() ==tp.get_class() ) {
+      if  ( cls() == desired_class ){
 	return dynamic_cast<const PhonContent*>(this);
       }
       else {
-	throw NoSuchPhon( xmltag() + "::phon_content(" + tp.get_class() + ")" );
+	throw NoSuchPhon( xmltag() + "::phon_content(" + desired_class + ")" );
       }
     }
     bool show_hidden = tp.is_set( TEXT_FLAGS::HIDDEN );
@@ -2475,7 +2478,7 @@ namespace folia {
     }
 
     for ( const auto& el : _data ) {
-      if ( el->isinstance(PhonContent_t) && ( el->cls() == tp.get_class() ) ) {
+      if ( el->isinstance(PhonContent_t) && ( el->cls() == desired_class ) ) {
 	return dynamic_cast<PhonContent*>(el);
       }
       else if ( el->element_id() == Correction_t) {
@@ -2486,7 +2489,7 @@ namespace folia {
 	}
       }
     }
-    throw NoSuchPhon( xmltag() + "::phon_content(" + tp.get_class() + ")" );
+    throw NoSuchPhon( xmltag() + "::phon_content(" + desired_class + ")" );
   }
 
   const PhonContent *AbstractElement::phon_content( const string& cls ) const {
@@ -2573,7 +2576,7 @@ namespace folia {
 	cerr << "deepphon:bekijk node[" << child->xmltag() << "]" << endl;
 #endif
 	try {
-	  UnicodeString tmp = child->phon( tp.get_class() );
+	  UnicodeString tmp = child->phon( tp );
 #ifdef DEBUG_PHON
 	  cerr << "deepphon found '" << tmp << "'" << endl;
 #endif
@@ -4255,17 +4258,18 @@ namespace folia {
 #ifdef DEBUG_PHON
     cerr << "PhonContent::PHON, Policy= " << tp << endl;
 #endif
+    string desired_class = tp.get_class();
     UnicodeString result;
     for ( const auto& el : data() ) {
       // try to get text dynamically from children
 #ifdef DEBUG_PHON
-      cerr << "PhonContent: bekijk node[" << el->str( tp.get_class() ) << endl;
+      cerr << "PhonContent: bekijk node[" << el->str( tp ) << endl;
 #endif
       try {
 #ifdef DEBUG_PHON
-	cerr << "roep text(" << tp.get_class() << ") aan op " << el << endl;
+	cerr << "roep text(" << desired_class << ") aan op " << el << endl;
 #endif
-	UnicodeString tmp = el->text( tp.get_class() );
+	UnicodeString tmp = el->text( tp );
 #ifdef DEBUG_PHON
 	cerr << "PhonContent found '" << tmp << "'" << endl;
 #endif
