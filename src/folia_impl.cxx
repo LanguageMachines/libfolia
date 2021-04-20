@@ -2366,8 +2366,8 @@ namespace folia {
      * \return The Unicode Text found.
      * Will throw on error.
      */
-    TEXT_FLAGS flags = TEXT_FLAGS::STRICT;
-    return this->text(cls, flags );
+    TextPolicy tp( cls, TEXT_FLAGS::STRICT );
+    return this->text( tp );
   }
 
   const UnicodeString FoliaElement::toktext( const string& cls ) const {
@@ -2378,8 +2378,8 @@ namespace folia {
      * \return The Unicode Text found.
      * Will throw on error.
      */
-    TEXT_FLAGS flags = TEXT_FLAGS::RETAIN;
-    return this->text(cls, flags );
+    TextPolicy tp( cls, TEXT_FLAGS::RETAIN );
+    return this->text( tp );
   }
 
   const TextContent *AbstractElement::text_content( const TextPolicy& tp ) const {
@@ -4139,10 +4139,12 @@ namespace folia {
       throw UnresolvableTextContent( "Reference (ID " + _ref + ") has no such phonetic content (class=" + cls() + ")" );
     }
     else if ( doc()->checktext() || doc()->fixtext() ){
-      TEXT_FLAGS flags = TEXT_FLAGS::STRICT;
-      if ( !trim_spaces ) flags |= TEXT_FLAGS::NO_TRIM_SPACES;
-      UnicodeString mt = this->phon( this->cls(), flags );
-      UnicodeString pt = ref->phon( this->cls(), flags );
+      TextPolicy tp( cls(), TEXT_FLAGS::STRICT );
+      if ( !trim_spaces ) {
+	tp.set( TEXT_FLAGS::NO_TRIM_SPACES );
+      }
+      UnicodeString mt = this->phon( tp );
+      UnicodeString pt = ref->phon( tp );
       UnicodeString sub( pt, this->offset(), mt.length() );
       if ( mt != sub ){
 	if ( doc()->fixtext() ){
