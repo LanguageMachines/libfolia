@@ -1351,16 +1351,14 @@ namespace folia {
       // check text consistency for parents with text
       // but SKIP Corrections
       // no retain tokenization, strict for parent, deeper for child
-      TEXT_FLAGS flags = TEXT_FLAGS::STRICT;
-      if (!trim_spaces) {
-	flags |= TEXT_FLAGS::NO_TRIM_SPACES;
-      }
-      UnicodeString s1 = parent->text( cls, flags );
-      flags = TEXT_FLAGS::NONE;
+      TextPolicy tp( cls );
+      tp.set( TEXT_FLAGS::STRICT );
       if ( !trim_spaces ) {
-	flags |= TEXT_FLAGS::NO_TRIM_SPACES;
+	tp.set( TEXT_FLAGS::NO_TRIM_SPACES );
       }
-      UnicodeString s2 = this->text( cls, flags );
+      UnicodeString s1 = parent->text( tp );
+      tp.clear( TEXT_FLAGS::STRICT );
+      UnicodeString s2 = this->text( tp );
       s1 = normalize_spaces( s1 );
       s2 = normalize_spaces( s2 );
       bool test_fail;
@@ -1430,23 +1428,21 @@ namespace folia {
       // check the text for every text class
       for ( const auto& st : cls ){
 	UnicodeString s1, s2;
-        TEXT_FLAGS flags = TEXT_FLAGS::STRICT;
+	TextPolicy tp( st );
+        tp.set( TEXT_FLAGS::STRICT );
         if ( !trim_spaces ) {
-	  flags |= TEXT_FLAGS::NO_TRIM_SPACES;
+	  tp.set( TEXT_FLAGS::NO_TRIM_SPACES );
 	}
 	try {
-	  s1 = text( st, flags );  // no retain tokenization, strict
+	  s1 = text( tp );  // no retain tokenization, strict
 	}
 	catch (...){
 	}
 	if ( !s1.isEmpty() ){
 	  //	  cerr << "S1: " << s1 << endl;
-	  flags = TEXT_FLAGS::NONE;
-	  if ( !trim_spaces ) {
-	    flags |= TEXT_FLAGS::NO_TRIM_SPACES;
-	  }
+	  tp.clear( TEXT_FLAGS::STRICT );
 	  try {
-	    s2 = text( st, flags ); // no retain tokenization, no strict
+	    s2 = text( tp ); // no retain tokenization, no strict
 	  }
 	  catch (...){
 	  }
@@ -1991,11 +1987,12 @@ namespace folia {
       //
       UnicodeString result = deeptext( tp );
       if ( result.isEmpty() ) {
-	TEXT_FLAGS flags = TEXT_FLAGS::STRICT;
+	TextPolicy tmp = tp;
+	tmp.set( TEXT_FLAGS::STRICT );
 	if ( !trim ) {
-	  flags |= TEXT_FLAGS::NO_TRIM_SPACES;
+	  tmp.set( TEXT_FLAGS::NO_TRIM_SPACES );
 	}
-	result = text( tp.get_class(), flags );
+	result = text( tmp );
       }
       if ( result.isEmpty() ) {
 	throw NoSuchText( "on tag " + xmltag() + " nor it's children" );
@@ -4041,10 +4038,12 @@ namespace folia {
       throw UnresolvableTextContent( "Reference (ID " + _ref + ") has no such text (class=" + cls() + ")" );
     }
     else if ( doc()->checktext() || doc()->fixtext() ){
-      TEXT_FLAGS flags = TEXT_FLAGS::STRICT;
-      if ( !trim_spaces ) flags |= TEXT_FLAGS::NO_TRIM_SPACES;
-      UnicodeString mt = this->text( this->cls(), flags );
-      UnicodeString pt = ref->text( this->cls(), flags );
+      TextPolicy tp( cls(), TEXT_FLAGS::STRICT );
+      if ( !trim_spaces ) {
+	tp.set( TEXT_FLAGS::NO_TRIM_SPACES );
+      }
+      UnicodeString mt = this->text( tp );
+      UnicodeString pt = ref->text( tp );
       UnicodeString sub( pt, this->offset(), mt.length() );
       if ( mt != sub ){
 	if ( doc()->fixtext() ){
@@ -4114,7 +4113,7 @@ namespace folia {
     return 0;
   }
 
-  FoliaElement *PhonContent::get_reference(bool trim_spaces) const {
+  FoliaElement *PhonContent::get_reference( bool trim_spaces ) const {
     /// get the FoliaElement _ref is refering to
     /*!
      * \return the refered element OR the default parent when _ref is 0
