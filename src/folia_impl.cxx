@@ -90,12 +90,23 @@ namespace folia {
     _text_flags &= ~tf;
   }
 
-  void TextPolicy::add_handler( const std::string& label,
+  void TextPolicy::add_handler( const string& label,
 				const stringFunctionPointer& sfp ){
     _tag_handlers.insert( make_pair( label, sfp ) );
   }
 
-  stringFunctionPointer TextPolicy::get_handler( const std::string& label ) const{
+  stringFunctionPointer TextPolicy::remove_handler( const string& label ){
+    auto pnt = _tag_handlers.find( label );
+    if ( pnt != _tag_handlers.end() ){
+      _tag_handlers.erase( pnt );
+      return *pnt->second;
+    }
+    else {
+      return 0;
+    }
+  }
+
+  stringFunctionPointer TextPolicy::get_handler( const string& label ) const{
     auto pnt = _tag_handlers.find( label );
     if ( pnt != _tag_handlers.end() ){
       return *pnt->second;
@@ -2906,15 +2917,13 @@ namespace folia {
       string cls = c->cls();
       string st = c->sett();
       vector<TextContent*> tmp = select<TextContent>( st, false );
-      if ( !tmp.empty() ) {
-	for( const auto& t : tmp ){
-	  if ( t->cls() == cls ){
-	    throw DuplicateAnnotationError( "attempt to add <t> with class="
-					    + cls + " to element: " + _id
-					    + " which already has a <t> with that class" );
-	  }
+      if ( any_of( tmp.begin(),
+		   tmp.end(),
+		   [cls]( const TextContent *t) { return ( t->cls() == cls);} ) ){
+	throw DuplicateAnnotationError( "attempt to add <t> with class="
+					+ cls + " to element: " + _id
+					+ " which already has a <t> with that class" );
 	}
-      }
     }
     if ( c->is_textcontainer() ||
 	 c->element_id() == Word_t ){
@@ -3899,10 +3908,10 @@ namespace folia {
 	throw runtime_error( "Original not found as member of sentence!");
       }
     }
-    for ( const auto& nw : _new ) {
-      if ( ! nw->isinstance( Word_t) ) {
-	throw runtime_error("new word is not a Word instance" );
-      }
+    if ( any_of( _new.begin(),
+		 _new.end(),
+		 []( const FoliaElement *e ){ return !e->isinstance( Word_t ); } ) ){
+      throw runtime_error("new word is not a Word instance" );
     }
     auto ait = argsin.find("suggest");
     if ( ait != argsin.end() && ait->second == "true" ) {

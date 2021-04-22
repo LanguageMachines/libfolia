@@ -138,6 +138,7 @@ namespace folia {
     void set( TEXT_FLAGS );
     void clear( TEXT_FLAGS );
     void add_handler( const std::string&, const stringFunctionPointer& );
+    stringFunctionPointer remove_handler( const std::string& );
     stringFunctionPointer get_handler( const std::string& ) const;
     std::string get_class() const { return _class; };
     void set_class( const std::string& c ) { _class = c; };
