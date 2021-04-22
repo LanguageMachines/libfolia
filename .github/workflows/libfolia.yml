@@ -81,19 +81,19 @@ jobs:
         run: make
       - name: install
         run: sudo make install
+      - id: compiler
+        run: |
+          id=$(echo ${{matrix.compiler}} | cut -d\+ -f1)
+          echo "::set-output name=id::$id"
+      - run: echo "${{steps.compiler.outputs.id}}"
+      - name: show log
+        run: cat src/test-suite.log
       - name: make check
         id: check
         env:
           CXX: ${{ matrix.compiler }}
         run: LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib make check
         continue-on-error: true
-      - name: show log
-        run: cat src/test-suite.log
-      - id: compiler
-        run: |
-          id=$(echo ${{matrix.compiler}} | cut -d\+ -f1)
-          echo "::set-output name=id::$id"
-      - run: echo "${{steps.compiler.outputs.id}}"
       - name: Notify IRC of failure
         if: ${{ steps.check.outcome != 'success' }}
         uses: Gottox/irc-message-action@v1

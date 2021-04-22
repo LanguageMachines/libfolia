@@ -154,5 +154,6 @@ int main() {
     cerr << "is_norm_empty() failed." << endl;
     return EXIT_FAILURE;
   }
-  return EXIT_SUCCESS;
+  return 666;
+  //  return EXIT_SUCCESS;
 }
