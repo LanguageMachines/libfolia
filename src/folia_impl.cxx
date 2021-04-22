@@ -6252,10 +6252,12 @@ namespace folia {
      * \return the element with ElementType Head_t. throws when not found.
      */
     const vector<FoliaElement*>& data = this->data();
-    for ( const auto& h : data ){
-      if ( h->element_id() == Head_t ) {
-	return dynamic_cast<Head*>(h);
-      }
+    auto const hd = find_if( data.begin(),
+			     data.end(),
+			     []( const FoliaElement *h ){
+			       return h->element_id() == Head_t;} );
+    if ( hd != data.end() ){
+      return dynamic_cast<Head*>(*hd);
     }
     throw runtime_error( "No head" );
   }
@@ -6298,7 +6300,7 @@ namespace folia {
   }
 
   vector<AbstractSpanAnnotation*> AbstractElement::selectSpan() const {
-    /// select als SpanAnnotation nodes in the FoliaElement
+    /// select all SpanAnnotation nodes in the FoliaElement
     /*!
      * \return a list of SpanAnnotation nodes.
      * All possible Span types are collected in this list. (see SpanSet)
