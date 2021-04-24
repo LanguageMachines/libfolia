@@ -393,6 +393,13 @@ namespace folia {
       /// return the value of the preserve_spaces flag
       return _preserve_spaces;
     }
+    int get_warn_count( ) const {
+      /// return the number of warnings
+      return _warn_count;
+    }
+    void increment_warn_count() const { // const, but the _warn_count is mutable
+      ++_warn_count;
+    }
 
   private:
     void adjustTextMode();
@@ -460,13 +467,14 @@ namespace folia {
     mutable Mode mode;
     std::string _source_filename;
     std::string _version_string;
-    int major_version;
-    int minor_version;
-    int sub_version;
-    std::string patch_version;
+    int _major_version;
+    int _minor_version;
+    int _sub_version;
+    std::string _patch_version;
     bool _external_document;
     bool _incremental_parse;
     bool _preserve_spaces;
+    mutable int _warn_count;
     Document( const Document& ); // inhibit copies
     Document& operator=( const Document& ); // inhibit copies
   };

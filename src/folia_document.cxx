@@ -156,7 +156,7 @@ namespace folia {
   string Document::doc_version() const {
     /// return the FoLiA version of this Document
     stringstream ss;
-    ss << major_version << "." << minor_version << "." << sub_version;
+    ss << _major_version << "." << _minor_version << "." << _sub_version;
     return ss.str();
   }
 
@@ -190,9 +190,10 @@ namespace folia {
     _external_document = false;
     _incremental_parse = false;
     _preserve_spaces = false;
-    major_version = 0;
-    minor_version = 0;
-    sub_version = 0;
+    _warn_count = 0;
+    _major_version = 0;
+    _minor_version = 0;
+    _sub_version = 0;
   }
 
   Document::~Document(){
@@ -1404,11 +1405,11 @@ namespace folia {
       \return true when the Document's major version is lower than mjor OR
       it is equal, but the Document's minor version is lower than minor.
     */
-    if ( major_version < major ){
+    if ( _major_version < major ){
       return true;
     }
-    else if ( major_version == major ){
-      return minor_version < minor;
+    else if ( _major_version == major ){
+      return _minor_version < minor;
     }
     return false;
   }
@@ -1468,10 +1469,10 @@ namespace folia {
       //      cerr << "NO VERSION version " << _version_string << endl;
     }
     expand_version_string( _version_string,
-			   major_version,
-			   minor_version,
-			   sub_version,
-			   patch_version );
+			   _major_version,
+			   _minor_version,
+			   _sub_version,
+			   _patch_version );
     if ( check_version( _version_string ) > 0 ){
       cerr << "WARNING!!! the Document "
 	   << (_source_filename.empty()?"":"'")
@@ -1481,6 +1482,7 @@ namespace folia {
 	   << _version_string << " vs " << folia_version()
 	   << ")\n\t Any possible subsequent failures in parsing or processing may probably be attributed to this." << endl
 	   << "\t Please upgrade libfolia!" << endl;
+      increment_warn_count();
     }
 
     adjustTextMode();
@@ -1735,17 +1737,20 @@ namespace folia {
 
           bool warn = false;
           try {
-             txt->get_reference(false); //trim_spaces = false
-             msg += "\nHowever, according to the older rules (<v2.4.1) the offsets are accepted. So we are treating this as a warning rather than an error. We do recommend fixing this if this is a document you intend to publish.";
-             warn = true;
+	    txt->get_reference(false); //trim_spaces = false
+	    msg += "\nHowever, according to the older rules (<v2.4.1) the offsets are accepted. So we are treating this as a warning rather than an error. We do recommend fixing this if this is a document you intend to publish.";
+	    warn = true;
           } catch (UnresolvableTextContent& e2) {
-             msg += "\n(also checked against older rules prior to FoLiA v2.4.1)";
+	    msg += "\n(also checked against older rules prior to FoLiA v2.4.1)";
           }
 
-          if (warn)
-              cerr << "WARNING: " << msg << endl;
-          else
-              throw UnresolvableTextContent( msg );
+          if ( warn ){
+	    increment_warn_count();
+	    cerr << "WARNING: " << msg << endl;
+	  }
+          else {
+	    throw UnresolvableTextContent( msg );
+	  }
 	}
       }
     }
@@ -1775,17 +1780,20 @@ namespace folia {
 
           bool warn = false;
           try {
-             phon->get_reference(false); //trim_spaces = false
-             msg += "\nHowever, according to the older rules (<v2.4.1) the offsets are accepted. So we are treating this as a warning rather than an error. We do recommend fixing this if this is a document you intend to publish.";
-             warn = true;
+	    phon->get_reference(false); //trim_spaces = false
+	    msg += "\nHowever, according to the older rules (<v2.4.1) the offsets are accepted. So we are treating this as a warning rather than an error. We do recommend fixing this if this is a document you intend to publish.";
+	    warn = true;
           } catch (UnresolvableTextContent& e2) {
-             msg += "\n(also checked against older rules prior to FoLiA v2.4.1)";
+	    msg += "\n(also checked against older rules prior to FoLiA v2.4.1)";
           }
 
-          if (warn)
-              cerr << "WARNING: " << msg << endl;
-          else
-              throw UnresolvableTextContent( msg );
+          if (warn){
+	    increment_warn_count();
+	    cerr << "WARNING: " << msg << endl;
+	  }
+          else {
+	    throw UnresolvableTextContent( msg );
+	  }
 	}
       }
     }
