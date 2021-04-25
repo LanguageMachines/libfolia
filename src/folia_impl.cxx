@@ -1404,9 +1404,10 @@ namespace folia {
 	  + "(" + parent->id() + ") which already has "
 	  + "text in that class and value: \n'"
 	  + TiCC::UnicodeToUTF8(s1) + "'\n";
-        if (warn_only) {
+        if ( warn_only ) {
 	  msg += "However, according to the older rules (<v2.4.1) the text is consistent. So we are treating this as a warning rather than an error. We do recommend fixing this if this is a document you intend to publish.\n";
 	  cerr << "WARNING: inconsistent text: " << msg << endl;
+	  doc()->increment_warn_count();
         }
 	else {
 	  throw InconsistentText(msg);
@@ -1493,6 +1494,7 @@ namespace folia {
               if ( warn_only ) {
 		msg += "\nHOWEVER, according to the older rules (<v2.4.1) the text is consistent. So we are treating this as a warning rather than an error. We do recommend fixing this if this is a document you intend to publish.\n";
 		cerr << "WARNING: inconsistent text: " << msg << endl;
+		doc()->increment_warn_count();
               }
 	      else {
 #ifdef DEBUG_TEXT
