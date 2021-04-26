@@ -397,7 +397,13 @@ namespace folia {
       /// return the number of warnings
       return _warn_count;
     }
-    void increment_warn_count() const { // const, but the _warn_count is mutable
+    void reset_warn_count( ) {
+      /// reset the number of warnings to 0
+      _warn_count = 0;
+    }
+    void increment_warn_count() const {
+      /// increment the warning count
+      // NOTE: function is defined const, but the _warn_count is mutable
       ++_warn_count;
     }
 
