@@ -1483,7 +1483,9 @@ namespace folia {
 		  warn_only = true;
 		}
 		catch ( const InconsistentText& e ) {
+#ifdef DEBUG_TEXT
 		  cerr << "(tested according to older rules (<v2.4.1) as well, but this failed too)" << endl;
+#endif
 		  //ignore, we raise the newer error
 		}
               }
