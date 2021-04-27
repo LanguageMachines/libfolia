@@ -1256,6 +1256,113 @@ namespace folia {
     return att;
   }
 
+
+  void CheckText( const FoliaElement *parent,
+		  const FoliaElement *child,
+		  const string& cls ){
+    if ( parent
+	 && parent->element_id() != Correction_t
+	 && parent->hastext( cls ) ){
+      // check text consistency for parents with text
+      // but SKIP Corrections
+      UnicodeString s1 = parent->stricttext( cls );
+      UnicodeString s2 = child->stricttext( cls );
+      // cerr << "check parent: " << s1 << endl;
+      // cerr << "check child: " << s2 << endl;
+      // no retain tokenization, strict for both
+      s1 = normalize_spaces( s1 );
+      s2 = normalize_spaces( s2 );
+      if ( !s1.isEmpty() && !s2.isEmpty() ){
+	bool test_fail;
+	if ( child->isSubClass( TextContent_t )
+	     || child->isSubClass( AbstractTextMarkup_t )
+	     || child->isSubClass( String_t )
+	     || child->isSubClass( Word_t ) ){
+	  // Words and Strings are 'per definition' PART of their parents
+	  test_fail = ( s1.indexOf( s2 ) < 0 ); // aren't they?
+	}
+	else {
+	  // otherwise an exacte match is needed
+	  test_fail = ( s1 != s2 );
+	}
+	if ( test_fail ){
+	  throw InconsistentText( "adding text (class="
+				  + cls + ") from node: " + child->xmltag()
+				  + "(" + child->id() + ")"
+				  + " with value\n'" + TiCC::UnicodeToUTF8(s2)
+				  + "'\n to element: " + parent->xmltag() +
+				  + "(" + parent->id() + ") which already has "
+				  + "text in that class and value: \n'"
+				  + TiCC::UnicodeToUTF8(s1) + "'\n" );
+	}
+      }
+    }
+  }
+
+  void  CheckText2( const FoliaElement *parent,
+		    const FoliaElement *child,
+		    const string& cls,
+		    bool trim_spaces ){
+    if ( parent
+	 && parent->element_id() != Correction_t
+	 && parent->hastext( cls ) ){
+      // check text consistency for parents with text
+      // but SKIP Corrections
+      // no retain tokenization, strict for parent, deeper for child
+      TextPolicy tp( cls );
+      tp.set( TEXT_FLAGS::STRICT );
+      if ( !trim_spaces ) {
+	tp.set( TEXT_FLAGS::NO_TRIM_SPACES );
+      }
+      UnicodeString s1 = parent->text( tp );
+      tp.clear( TEXT_FLAGS::STRICT );
+      UnicodeString s2 = child->text( tp );
+      s1 = normalize_spaces( s1 );
+      s2 = normalize_spaces( s2 );
+      bool test_fail;
+      if ( child->isSubClass( Word_t )
+	   || child->isSubClass( String_t )
+	   || child->isSubClass( AbstractTextMarkup_t ) ) {
+	// Words, Strings and AbstractTextMarkup are 'per definition' PART of
+	// their text parents
+	test_fail = ( s1.indexOf( s2 ) < 0 ); // aren't they?
+      }
+      else {
+	// otherwise an exacte match is needed
+	test_fail = ( s1 != s2 );
+      }
+      if ( test_fail ){
+        bool warn_only = false;
+        if ( trim_spaces ) {
+	  //ok, we failed according to the >v2.4.1 rules
+	  //but do we also fail under the old rules?
+	  try {
+	    child->check_text_consistency(false);
+	    warn_only = true;
+	  } catch ( const InconsistentText& ) {
+	    //ignore, we raise the newer error
+	  }
+        }
+	string msg = "text (class="
+	  + cls + ") from node: " + child->xmltag()
+	  + "(" + child->id() + ")"
+	  + " with value\n'" + TiCC::UnicodeToUTF8(s2)
+	  + "'\n to element: " + parent->xmltag() +
+	  + "(" + parent->id() + ") which already has "
+	  + "text in that class and value: \n'"
+	  + TiCC::UnicodeToUTF8(s1) + "'\n";
+        if ( warn_only ) {
+	  msg += "However, according to the older rules (<v2.4.1) the text is consistent. So we are treating this as a warning rather than an error. We do recommend fixing this if this is a document you intend to publish.\n";
+	  cerr << "WARNING: inconsistent text: " << msg << endl;
+	  parent->doc()->increment_warn_count();
+        }
+	else {
+	  throw InconsistentText(msg);
+        }
+      }
+    }
+  }
+
   void AbstractElement::check_append_text_consistency( const FoliaElement *child ) const {
     /// check the text consistency of a new child against the Element.
     /*!
@@ -1295,43 +1402,7 @@ namespace folia {
       cls = child->index(0)->cls();
     }
     //    cerr << "PARENT? " << parent << endl;
-    if ( parent
-	 && parent->element_id() != Correction_t
-	 && parent->hastext( cls ) ){
-      // check text consistency for parents with text
-      // but SKIP Corrections
-      UnicodeString s1 = parent->stricttext( cls );
-      UnicodeString s2 = child->stricttext( cls );
-      // cerr << "check parent: " << s1 << endl;
-      // cerr << "check child: " << s2 << endl;
-      // no retain tokenization, strict for both
-      s1 = normalize_spaces( s1 );
-      s2 = normalize_spaces( s2 );
-      if ( !s1.isEmpty() && !s2.isEmpty() ){
-	bool test_fail;
-	if ( isSubClass( Word_t )
-	     || child->isSubClass( TextContent_t )
-	     || isSubClass( String_t )
-	     || child->isSubClass( Word_t ) ){
-	  // Words and Strings are 'per definition' PART of their parents
-	  test_fail = ( s1.indexOf( s2 ) < 0 ); // aren't they?
-	}
-	else {
-	  // otherwise an exacte match is needed
-	  test_fail = ( s1 != s2 );
-	}
-	if ( test_fail ){
-	  throw InconsistentText( "adding text (class="
-				  + cls + ") from node: " + child->xmltag()
-				  + "(" + child->id() + ")"
-				  + " with value\n'" + TiCC::UnicodeToUTF8(s2)
-				  + "'\n to element: " + parent->xmltag() +
-				  + "(" + parent->id() + ") which already has "
-				  + "text in that class and value: \n'"
-				  + TiCC::UnicodeToUTF8(s1) + "'\n" );
-	}
-      }
-    }
+    CheckText( parent, child, cls );
   }
 
   void AbstractElement::check_text_consistency( bool trim_spaces ) const {
@@ -1356,64 +1427,7 @@ namespace folia {
 
     string cls = this->cls();
     FoliaElement *parent = this->parent();
-    if ( parent
-	 && parent->element_id() != Correction_t
-	 && parent->hastext( cls ) ){
-      // check text consistency for parents with text
-      // but SKIP Corrections
-      // no retain tokenization, strict for parent, deeper for child
-      TextPolicy tp( cls );
-      tp.set( TEXT_FLAGS::STRICT );
-      if ( !trim_spaces ) {
-	tp.set( TEXT_FLAGS::NO_TRIM_SPACES );
-      }
-      UnicodeString s1 = parent->text( tp );
-      tp.clear( TEXT_FLAGS::STRICT );
-      UnicodeString s2 = this->text( tp );
-      s1 = normalize_spaces( s1 );
-      s2 = normalize_spaces( s2 );
-      bool test_fail;
-      if ( isSubClass( Word_t )
-	   || isSubClass( String_t )
-	   || isSubClass( AbstractTextMarkup_t ) ) {
-	// Words, Strings and AbstractTextMarkup are 'per definition' PART of
-	// their text parents
-	test_fail = ( s1.indexOf( s2 ) < 0 ); // aren't they?
-      }
-      else {
-	// otherwise an exacte match is needed
-	test_fail = ( s1 != s2 );
-      }
-      if ( test_fail ){
-        bool warn_only = false;
-        if ( trim_spaces ) {
-	  //ok, we failed according to the >v2.4.1 rules
-	  //but do we also fail under the old rules?
-	  try {
-	    this->check_text_consistency(false);
-	    warn_only = true;
-	  } catch ( const InconsistentText& ) {
-	    //ignore, we raise the newer error
-	  }
-        }
-	string msg = "text (class="
-	  + cls + ") from node: " + xmltag()
-	  + "(" + id() + ")"
-	  + " with value\n'" + TiCC::UnicodeToUTF8(s2)
-	  + "'\n to element: " + parent->xmltag() +
-	  + "(" + parent->id() + ") which already has "
-	  + "text in that class and value: \n'"
-	  + TiCC::UnicodeToUTF8(s1) + "'\n";
-        if ( warn_only ) {
-	  msg += "However, according to the older rules (<v2.4.1) the text is consistent. So we are treating this as a warning rather than an error. We do recommend fixing this if this is a document you intend to publish.\n";
-	  cerr << "WARNING: inconsistent text: " << msg << endl;
-	  doc()->increment_warn_count();
-        }
-	else {
-	  throw InconsistentText(msg);
-        }
-      }
-    }
+    CheckText2( parent, this, cls, trim_spaces );
   }
 
   //#define DEBUG_TEXT
