@@ -2804,9 +2804,9 @@ namespace folia {
       for ( auto pos = it->second.lower_bound(setname);
 	    pos != it->second.upper_bound(setname);
 	    ++pos ){
-	for ( const auto& p : pos->second.p ){
-	  result.push_back( get_processor(p) );
-	}
+	transform( pos->second.p.begin(), pos->second.p.end(),
+		   back_inserter(result),
+		   [&]( const string& p ){ return get_processor(p); } );
       }
     }
     return result;

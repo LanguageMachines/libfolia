@@ -31,6 +31,7 @@
 #include <cstdio>
 #include <string>
 #include <stdexcept>
+#include <algorithm>
 #include "ticcutils/PrettyPrint.h"
 #include "ticcutils/FileUtils.h"
 #include "ticcutils/XMLtools.h"
@@ -911,6 +912,16 @@ namespace folia {
 	      break;
 	    }
 	  }
+
+	  // We could use std::find_if here, but that is less readable:
+	  // auto const& a = find_if( atts.begin(), atts.end(),
+	  // 			   []( const pair<string,string>& av ){
+	  // 			     return av.first.find("xmlns:") == 0;
+	  // 			   } );
+	  // if ( a != atts.end() ){
+	  //   nsu = a->second;
+	  // }
+
 	  if ( nsu.empty() || nsu == NSFOLIA ){
 	    if ( local_name == "desc"
 		 || local_name == "content"

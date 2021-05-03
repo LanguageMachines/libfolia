@@ -55,7 +55,7 @@ namespace folia {
   string VersionName() { return PACKAGE_STRING; } ///< Returns the PACKAGE_STRING info of the package
   string Version() { return VERSION; }  ///< Returns version of the library
 
-  TextPolicy::TextPolicy( const std::string& cls, const TEXT_FLAGS flags ):
+  TextPolicy::TextPolicy( const string& cls, const TEXT_FLAGS flags ):
     _class(cls),
     _text_flags( flags )
   {
@@ -1740,7 +1740,7 @@ namespace folia {
      * the document level, where it will return the Documents language
      * Might return "" when no match is found
      */
-    std::set<ElementType> exclude;
+    set<ElementType> exclude;
     vector<LangAnnotation*> v = select<LangAnnotation>( st, exclude, false );
     if ( v.size() > 0 ){
       return v[0]->cls();
@@ -2043,7 +2043,7 @@ namespace folia {
     return private_text( tp );
   }
 
-  const UnicodeString AbstractElement::text( const std::string& cls,
+  const UnicodeString AbstractElement::text( const tring& cls,
 					     TEXT_FLAGS flags ) const {
     /// get the UnicodeString text value of an element
     /*!
@@ -3724,7 +3724,7 @@ namespace folia {
     return res;
   }
 
-  Word *AbstractElement::addWord( const std::string& s ){
+  Word *AbstractElement::addWord( const string& s ){
     /// add a Word given the string s
     /*!
       \param s a string with text OR an encode KWargs list
@@ -4786,7 +4786,7 @@ namespace folia {
      * \param args additonal arguments
      * \return the created Correcion
      */
-    const std::vector<FoliaElement*> sugg;
+    const vector<FoliaElement*> sugg;
     return correct( _old, _new, sugg, args );
   }
 
@@ -6057,10 +6057,10 @@ namespace folia {
     return text_content( tp );
   }
 
-  Correction *Correction::correct( const std::vector<FoliaElement*>&,
-				   const std::vector<FoliaElement*>& vc,
-				   const std::vector<FoliaElement*>& vn,
-				   const std::vector<FoliaElement*>& vs,
+  Correction *Correction::correct( const vector<FoliaElement*>&,
+				   const vector<FoliaElement*>& vc,
+				   const vector<FoliaElement*>& vn,
+				   const vector<FoliaElement*>& vs,
 				   const KWargs& args){
     /// correct a Correction
     /*!
@@ -6075,7 +6075,7 @@ namespace folia {
     return parent()->correct( new_vo, vc, vn, vs, args );
   }
 
-  Correction *Correction::correct( const std::string& args ){
+  Correction *Correction::correct( const string& args ){
     /// correct a Correction using an Attribute-value list
     /*!
      * \param args the list to parse into a KWargs struct
@@ -6089,10 +6089,10 @@ namespace folia {
     return parent()->correct( ov,nv,cv,sv, args );
   }
 
-  Correction *New::correct( const std::vector<FoliaElement*>& vo,
-			    const std::vector<FoliaElement*>& vc,
-			    const std::vector<FoliaElement*>& vn,
-			    const std::vector<FoliaElement*>& vs,
+  Correction *New::correct( const vector<FoliaElement*>& vo,
+			    const vector<FoliaElement*>& vc,
+			    const vector<FoliaElement*>& vn,
+			    const vector<FoliaElement*>& vs,
 			    const KWargs& args){
     /// create a Correction on the PARENT of this New node.
     /*!
@@ -6106,7 +6106,7 @@ namespace folia {
     return parent()->correct( vo, vc, vn, vs, args );
   }
 
-  Correction *New::correct( const std::string& args ){
+  Correction *New::correct( const string& args ){
     /// use an Attribute-Value list to create a Correction on the parent
     /// of this New node.
     /*!
@@ -6413,7 +6413,7 @@ namespace folia {
     return os;
   }
 
-  bool XmlText::setvalue( const std::string& s ){
+  bool XmlText::setvalue( const string& s ){
     /// set the value of an XmlText element in NFC endcoded UTF8
     /*!
      * \param s an UTF8 string
