@@ -237,7 +237,7 @@ namespace folia {
   processor::processor( Provenance *prov,
 			processor* parent,
 			const KWargs& atts_in ) {
-    /// initialize a procesor
+    /// initialize a processor
     /*!
       \param prov The provenance context
       \param parent A parent to connect to

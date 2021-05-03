@@ -700,11 +700,14 @@ namespace folia {
       if ( doc() && doc()->debug > 2 ) {
 	cerr << "set processor= " << val << " on " << classname() << endl;
       }
+      if ( annotation_type() == AnnotationType::NO_ANN ){
+	throw ValueError( "Unable to set processor on " + classname() + ". AnnotationType is None!" );
+      }
       if ( _set.empty() ){
 	_set = "None";
       }
       if ( !(ANNOTATOR & supported) ){
-	throw ValueError("attribute 'processor' is not supported for " + classname() );
+	throw ValueError( "attribute 'processor' is not supported for " + classname() );
       }
       else {
 	if ( doc() && doc()->get_processor(val) == 0 ){
