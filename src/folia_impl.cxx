@@ -1806,8 +1806,8 @@ namespace folia {
       }
     }
 
-    if ( !data().empty() ){
-      FoliaElement *last = data().back();
+    if ( !_data.empty() ){
+      FoliaElement *last = _data.back();
       if ( last &&
 	   last->isSubClass(AbstractStructureElement_t)
 	   && !last->space() ){
@@ -2043,7 +2043,7 @@ namespace folia {
     return private_text( tp );
   }
 
-  const UnicodeString AbstractElement::text( const tring& cls,
+  const UnicodeString AbstractElement::text( const string& cls,
 					     TEXT_FLAGS flags ) const {
     /// get the UnicodeString text value of an element
     /*!
@@ -2154,9 +2154,8 @@ namespace folia {
 #ifdef DEBUG_TEXT
     cerr << "FoLiA::TEXT(" << cls << ")" << endl;
 #endif
-    const vector<FoliaElement *>& data = this->data();
     UnicodeString result;
-    for ( const auto& d : data ){
+    for ( const auto& d : data() ){
       if ( !result.isEmpty() ){
 	const string& delim = d->get_delimiter( retain );
 	result += TiCC::UnicodeFromUTF8(delim);
@@ -2291,7 +2290,7 @@ namespace folia {
 #endif
     vector<UnicodeString> parts;
     vector<UnicodeString> seps;
-    for ( const auto& child : this->data() ) {
+    for ( const auto& child : data() ) {
       // try to get text dynamically from printable children
       // skipping the TextContent elements
 #ifdef DEBUG_TEXT
@@ -6128,15 +6127,18 @@ namespace folia {
      * recurses into children looking for New or Current
      * might throw NoSuchPhon exception if not found.
      */
-    for ( const auto& el: data() ) {
-      if ( el->isinstance( New_t ) || el->isinstance( Current_t ) ) {
-	return el->phon_content( tp );
-      }
+    const auto& it = find_if( data().begin(), data().end(),
+			[]( const FoliaElement *e ){
+			  return ( e->isinstance( New_t )
+				   || e->isinstance( Current_t ) ); } );
+    if ( it != data().end() ){
+      return (*it)->phon_content( tp );
     }
-    for ( const auto& el: data() ) {
-      if ( el->isinstance( Original_t ) ) {
-	return el->phon_content( tp );
-      }
+    const auto& it2 = find_if( data().begin(), data().end(),
+			       []( const FoliaElement *e ){
+				 return e->isinstance( Original_t ); } );
+    if ( it2 != data().end() ){
+      return (*it2)->phon_content( tp );
     }
     throw NoSuchPhon("wrong cls");
   }
@@ -6269,12 +6271,11 @@ namespace folia {
     /*!
      * \return the element with ElementType Head_t. throws when not found.
      */
-    const vector<FoliaElement*>& data = this->data();
-    auto const hd = find_if( data.begin(),
-			     data.end(),
+    auto const hd = find_if( data().begin(),
+			     data().end(),
 			     []( const FoliaElement *h ){
 			       return h->element_id() == Head_t;} );
-    if ( hd != data.end() ){
+    if ( hd != data().end() ){
       return dynamic_cast<Head*>(*hd);
     }
     throw runtime_error( "No head" );
@@ -6326,9 +6327,10 @@ namespace folia {
     vector<AbstractSpanAnnotation*> res;
     for ( const auto& el : SpanSet ) {
       vector<FoliaElement*> tmp = select( el );
-      for ( auto& sp : tmp ) {
-	res.push_back( dynamic_cast<AbstractSpanAnnotation*>( sp ) );
-      }
+      transform( tmp.begin(), tmp.end(),
+		 back_inserter(res),
+		 [&]( FoliaElement *e ){
+		   return dynamic_cast<AbstractSpanAnnotation*>( e ); } );
     }
     return res;
   }
@@ -6721,13 +6723,16 @@ namespace folia {
      * \param s a subset name
      * \return the first class of the first Feature node in subset s
      */
-    for ( const auto& el : data() ) {
-      if ( el->isSubClass( Feature_t ) &&
-	   el->subset() == s ) {
-	return el->cls();
-      }
+    const auto& it = find_if( _data.begin(), _data.end(),
+			      [s]( const FoliaElement *e ){
+				return ( e->isSubClass( Feature_t )
+					 && e->subset() == s ); } );
+    if ( it == _data.end() ){
+      return "";
     }
-    return "";
+    else {
+      return (*it)->cls();
+    }
   }
 
   ForeignMetaData::~ForeignMetaData(){
