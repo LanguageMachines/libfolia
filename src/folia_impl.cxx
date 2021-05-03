@@ -1447,12 +1447,12 @@ namespace folia {
 
       vector<TextContent*> tv = select<TextContent>( false );
       // first see which text classes are present
-      set<string> cls;
+      set<string> classes;
       for ( const auto& it : tv ){
-	cls.insert( it->cls() );
+	classes.insert( it->cls() );
       }
       // check the text for every text class
-      for ( const auto& st : cls ){
+      for ( const auto& st : classes ){
 	UnicodeString s1, s2;
 	TextPolicy tp( st );
         tp.set( TEXT_FLAGS::STRICT );
