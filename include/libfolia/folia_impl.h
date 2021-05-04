@@ -1559,10 +1559,7 @@ namespace folia {
   class Gap: public AbstractElement {
     friend void static_init();
   public:
-    explicit Gap( Document *d = 0 ):
-    AbstractElement( PROPS, d ) { classInit(); }
-  Gap( const KWargs& a, Document *d = 0 ):
-    AbstractElement( PROPS, d ) { classInit( a ); }
+    GENERATE_PUBLIC_CONSTRUCTORS( Gap, AbstractElement );
 
     const std::string content() const;
   private:
@@ -1572,10 +1569,7 @@ namespace folia {
   class Content: public AbstractElement {
     friend void static_init();
   public:
-    explicit Content( Document *d = 0 ):
-    AbstractElement( PROPS, d ) { classInit(); }
-  Content( const KWargs& a, Document *d = 0 ):
-    AbstractElement( PROPS, d ) { classInit( a ); }
+    GENERATE_PUBLIC_CONSTRUCTORS( Content, AbstractElement );
 
     FoliaElement* parseXml( const xmlNode * );
     xmlNode *xml( bool, bool = false ) const;
@@ -1589,10 +1583,7 @@ namespace folia {
   class Metric: public AbstractElement {
     friend void static_init();
   public:
-  explicit Metric( Document *d = 0 ):
-    AbstractElement( PROPS, d ) { classInit(); }
-  Metric( const KWargs& a, Document *d = 0 ):
-    AbstractElement( PROPS, d ) { classInit( a ); }
+    GENERATE_PUBLIC_CONSTRUCTORS( Metric, AbstractElement );
 
   private:
     static properties PROPS;
@@ -1861,10 +1852,7 @@ namespace folia {
   class AlternativeLayers: public AbstractElement {
     friend void static_init();
   public:
-    explicit AlternativeLayers( Document *d = 0 ):
-    AbstractElement( PROPS, d ){ classInit(); }
-  AlternativeLayers( const KWargs& a, Document *d = 0 ):
-    AbstractElement( PROPS, d ){ classInit( a ); }
+    GENERATE_PUBLIC_CONSTRUCTORS( AlternativeLayers, AbstractElement );
 
   private:
     static properties PROPS;
@@ -1971,7 +1959,7 @@ namespace folia {
     friend void static_init();
   public:
     explicit Feature( Document *d = 0 ):
-    Feature( PROPS, d ){ classInit(); }
+    Feature( PROPS, d ){ classInit(); }     /// <<==== !!!!
   Feature( const KWargs& a, Document *d = 0 ):
     AbstractElement( PROPS, d ){ classInit( a ); }
 
@@ -1980,7 +1968,7 @@ namespace folia {
     const std::string subset() const { return _subset; };
 
   protected:
-  Feature( const properties&p, Document *d = 0 ):
+  Feature( const properties&p, Document *d = 0 ):    /// <<==== !!!!
     AbstractElement( p, d ){ classInit(); }
 
   private:
@@ -2172,10 +2160,7 @@ namespace folia {
   class WordReference: public AbstractElement {
     friend void static_init();
   public:
-    explicit WordReference( Document *d = 0 ):
-    AbstractElement( PROPS, d ){ classInit(); }
-  WordReference( const KWargs& a, Document *d = 0 ):
-    AbstractElement( PROPS, d ){ classInit( a ); }
+    GENERATE_PUBLIC_CONSTRUCTORS( WordReference, AbstractElement );
   private:
     static properties PROPS;
     FoliaElement* parseXml( const xmlNode *node );
@@ -2205,10 +2190,7 @@ namespace folia {
     friend void static_init();
     friend class Relation;
   public:
-    explicit LinkReference( Document *d = 0 ):
-    AbstractElement( PROPS, d ){ classInit(); }
-  LinkReference( const KWargs& a, Document *d = 0 ):
-    AbstractElement( PROPS, d ){ classInit( a ); }
+    GENERATE_PUBLIC_CONSTRUCTORS( LinkReference, AbstractElement );
 
     KWargs collectAttributes() const;
     void setAttributes( KWargs& );
@@ -2556,10 +2538,7 @@ namespace folia {
   class Description: public AbstractElement {
     friend void static_init();
   public:
-  explicit Description( Document *d=0 ):
-    AbstractElement( PROPS, d ) { classInit(); }
-  Description( const KWargs& a, Document *d =0 ):
-    AbstractElement( PROPS, d ) { classInit( a ); }
+    GENERATE_PUBLIC_CONSTRUCTORS( Description, AbstractElement );
 
     const std::string description() const { return _value; };
     void setAttributes( KWargs& );
@@ -2574,10 +2553,7 @@ namespace folia {
   class Comment: public AbstractElement {
     friend void static_init();
   public:
-  explicit Comment( Document *d=0 ):
-    AbstractElement( PROPS, d ) { classInit(); }
-  Comment( const KWargs& a, Document *d =0 ):
-    AbstractElement( PROPS, d ) { classInit( a ); }
+    GENERATE_PUBLIC_CONSTRUCTORS( Comment, AbstractElement );
 
     const std::string comment() const { return _value; };
     void setAttributes( KWargs& );
@@ -2592,10 +2568,7 @@ namespace folia {
   class XmlComment: public AbstractElement {
     friend void static_init();
   public:
-  explicit XmlComment( Document *d=0 ):
-    AbstractElement( PROPS, d ) { classInit(); }
-  XmlComment( const KWargs& a, Document *d = 0 ):
-    AbstractElement( PROPS, d ) { classInit( a ); }
+    GENERATE_PUBLIC_CONSTRUCTORS( XmlComment, AbstractElement );
 
     FoliaElement* parseXml( const xmlNode * );
     xmlNode *xml( bool, bool=false ) const;
@@ -2611,10 +2584,7 @@ namespace folia {
   class XmlText: public AbstractElement {
     friend void static_init();
   public:
-  explicit XmlText( Document *d = 0 ):
-    AbstractElement( PROPS, d ) { classInit(); }
-  XmlText( const KWargs& a, Document *d = 0 ):
-    AbstractElement(PROPS, d ) { classInit( a ); }
+    GENERATE_PUBLIC_CONSTRUCTORS( XmlText, AbstractElement );
 
     FoliaElement* parseXml( const xmlNode * );
     xmlNode *xml( bool, bool=false ) const;
@@ -2629,10 +2599,7 @@ namespace folia {
   class External: public AbstractElement {
     friend void static_init();
   public:
-  explicit External( Document *d = 0 ):
-    AbstractElement( PROPS, d ) { classInit(); }
-  External( const KWargs& a, Document *d = 0 ):
-    AbstractElement( PROPS, d ) { classInit( a ); }
+    GENERATE_PUBLIC_CONSTRUCTORS( External, AbstractElement );
 
     FoliaElement* parseXml( const xmlNode * );
     void resolve_external();
