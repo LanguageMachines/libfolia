@@ -1105,7 +1105,7 @@ namespace folia {
 
   };
 
-#define GENERATE_PROP_CONSTRUCTORS( CLASS, BASE )               \
+#define GENERATE_PROTECTED_CONSTRUCTORS( CLASS, BASE )		\
   CLASS( const properties& props, Document *d=0 ):		\
     BASE( props, d ){ classInit(); };				\
   CLASS( Document *d=0 ):					\
@@ -1114,6 +1114,16 @@ namespace folia {
     BASE( props, p ){ classInit(); };				\
   CLASS( FoliaElement * p ):					\
     CLASS( PROPS, p ){}
+
+#define GENERATE_PUBLIC_CONSTRUCTORS( CLASS, BASE )               \
+  CLASS( const KWargs& a, Document *d=0 ):			  \
+    BASE( PROPS, d ){ classInit(a); };				  \
+ CLASS( Document *d=0 ):					  \
+  CLASS( KWargs(), d ){};					  \
+ CLASS( const KWargs& a, FoliaElement *p ):			  \
+  BASE( PROPS, p ){ classInit(a); };				  \
+ CLASS( FoliaElement *p ):					  \
+    CLASS( KWargs(), p ){}
 
 
   class AbstractStructureElement:
@@ -1124,7 +1134,7 @@ namespace folia {
       friend void static_init();
     protected:
       // DO NOT USE AbstractStructureElement as a real node!!
-      GENERATE_PROP_CONSTRUCTORS( AbstractStructureElement, AbstractElement );
+      GENERATE_PROTECTED_CONSTRUCTORS( AbstractStructureElement, AbstractElement );
     public:
       FoliaElement *append( FoliaElement* );
       std::vector<Paragraph*> paragraphs() const;
@@ -1171,7 +1181,7 @@ namespace folia {
       friend void static_init();
     protected:
       // DO NOT USE AbstractInlineAnnotation as a real node!!
-      GENERATE_PROP_CONSTRUCTORS( AbstractInlineAnnotation, AbstractElement );
+      GENERATE_PROTECTED_CONSTRUCTORS( AbstractInlineAnnotation, AbstractElement );
     private:
       static properties PROPS;
     };
@@ -1182,7 +1192,7 @@ namespace folia {
       friend void static_init();
     protected:
       // DO NOT USE AbstractHigherOrderAnnotation as a real node!!
-      GENERATE_PROP_CONSTRUCTORS( AbstractHigherOrderAnnotation, AbstractElement );
+      GENERATE_PROTECTED_CONSTRUCTORS( AbstractHigherOrderAnnotation, AbstractElement );
     private:
       static properties PROPS;
     };
@@ -1195,7 +1205,7 @@ namespace folia {
       friend void static_init();
     protected:
       // DO NOT USE AbstractSpanAnnotation as a real node!!
-      GENERATE_PROP_CONSTRUCTORS( AbstractSpanAnnotation, AbstractElement );
+      GENERATE_PROTECTED_CONSTRUCTORS( AbstractSpanAnnotation, AbstractElement );
     public:
       xmlNode *xml( bool, bool=false ) const;
       FoliaElement *append( FoliaElement* );
@@ -1210,11 +1220,7 @@ namespace folia {
   class SpanRelation: public AbstractElement {
     friend void static_init();
   public:
-    explicit SpanRelation( Document *d=0 ):
-    AbstractElement( PROPS, d ){ classInit(); }
-  SpanRelation( const KWargs& a, Document *d=0 ):
-    AbstractElement( PROPS, d ){ classInit( a ); }
-
+    GENERATE_PUBLIC_CONSTRUCTORS( SpanRelation, AbstractElement );
   private:
     static properties PROPS;
   };
@@ -1310,7 +1316,7 @@ namespace folia {
       friend void static_init();
     protected:
       // DO NOT USE AbstractTextMarkup as a real node!!
-      GENERATE_PROP_CONSTRUCTORS( AbstractTextMarkup, AbstractElement );
+      GENERATE_PROTECTED_CONSTRUCTORS( AbstractTextMarkup, AbstractElement );
     public:
       void setAttributes( KWargs& );
       KWargs collectAttributes() const;
@@ -1325,10 +1331,7 @@ namespace folia {
   class TextMarkupGap: public AbstractTextMarkup {
     friend void static_init();
   public:
-    explicit TextMarkupGap( Document *d=0 ):
-    AbstractTextMarkup( PROPS, d ) { classInit(); };
-  TextMarkupGap(  const KWargs& a, Document *d=0 ):
-    AbstractTextMarkup( PROPS, d ) { classInit(a); };
+    GENERATE_PUBLIC_CONSTRUCTORS( TextMarkupGap, AbstractTextMarkup );
   private:
     static properties PROPS;
   };
@@ -1336,10 +1339,7 @@ namespace folia {
   class TextMarkupString: public AbstractTextMarkup {
     friend void static_init();
   public:
-  explicit TextMarkupString( Document *d=0 ):
-    AbstractTextMarkup( PROPS, d ) { classInit(); };
-  TextMarkupString( const KWargs& a, Document *d=0 ):
-    AbstractTextMarkup( PROPS, d ) { classInit(a); };
+    GENERATE_PUBLIC_CONSTRUCTORS( TextMarkupString, AbstractTextMarkup );
   private:
     static properties PROPS;
   };
@@ -1347,11 +1347,7 @@ namespace folia {
   class TextMarkupCorrection: public AbstractTextMarkup {
     friend void static_init();
   public:
-    explicit TextMarkupCorrection( Document *d=0 ):
-    AbstractTextMarkup( PROPS, d ){ classInit(); };
-  TextMarkupCorrection( const KWargs& a, Document *d=0 ):
-    AbstractTextMarkup( PROPS, d ) { classInit(a); };
-
+    GENERATE_PUBLIC_CONSTRUCTORS( TextMarkupCorrection, AbstractTextMarkup );
     void setAttributes( KWargs& );
     KWargs collectAttributes() const;
   private:
@@ -1363,11 +1359,7 @@ namespace folia {
   class TextMarkupError: public AbstractTextMarkup {
     friend void static_init();
   public:
-    explicit TextMarkupError( Document *d=0 ):
-    AbstractTextMarkup( PROPS, d ){ classInit(); };
-  TextMarkupError( const KWargs& a, Document *d=0 ):
-    AbstractTextMarkup( PROPS, d ) { classInit(a); };
-
+    GENERATE_PUBLIC_CONSTRUCTORS( TextMarkupError, AbstractTextMarkup );
   private:
     static properties PROPS;
   };
@@ -1375,11 +1367,7 @@ namespace folia {
   class TextMarkupStyle: public AbstractTextMarkup {
     friend void static_init();
   public:
-    explicit TextMarkupStyle( Document *d=0 ):
-    AbstractTextMarkup( PROPS, d ){ classInit(); };
-  TextMarkupStyle( const KWargs& a, Document *d=0 ):
-    AbstractTextMarkup( PROPS, d ) { classInit(a); };
-
+    GENERATE_PUBLIC_CONSTRUCTORS( TextMarkupStyle, AbstractTextMarkup );
   private:
     static properties PROPS;
   };
@@ -1387,11 +1375,7 @@ namespace folia {
   class Hyphbreak: public AbstractTextMarkup {
     friend void static_init();
   public:
-    explicit Hyphbreak( Document *d=0 ):
-    AbstractTextMarkup( PROPS, d ){ classInit(); };
-  Hyphbreak( const KWargs& a, Document *d=0 ):
-    AbstractTextMarkup( PROPS, d ) { classInit(a); };
-
+    GENERATE_PUBLIC_CONSTRUCTORS( Hyphbreak, AbstractTextMarkup );
   private:
     static properties PROPS;
   };
@@ -1399,11 +1383,7 @@ namespace folia {
   class TextMarkupReference: public AbstractTextMarkup {
     friend void static_init();
   public:
-    explicit TextMarkupReference( Document *d=0 ):
-    AbstractTextMarkup( PROPS, d ){ classInit(); };
-  TextMarkupReference( const KWargs& a, Document *d=0 ):
-    AbstractTextMarkup( PROPS, d ) { classInit(a); };
-
+    GENERATE_PUBLIC_CONSTRUCTORS( TextMarkupReference, AbstractTextMarkup );
     KWargs collectAttributes() const;
     void setAttributes( KWargs& );
 
@@ -1419,10 +1399,7 @@ namespace folia {
   class TextMarkupHSpace: public AbstractTextMarkup {
     friend void static_init();
   public:
-    explicit TextMarkupHSpace( Document *d=0 ):
-    AbstractTextMarkup( PROPS, d ) { classInit(); };
-  TextMarkupHSpace(  const KWargs& a, Document *d=0 ):
-    AbstractTextMarkup( PROPS, d ) { classInit(a); };
+    GENERATE_PUBLIC_CONSTRUCTORS( TextMarkupHSpace, AbstractTextMarkup );
   private:
     const UnicodeString private_text( const TextPolicy& ) const;
     static properties PROPS;
@@ -1431,10 +1408,7 @@ namespace folia {
   class TextMarkupWhitespace: public AbstractTextMarkup {
     friend void static_init();
   public:
-    explicit TextMarkupWhitespace( Document *d=0 ):
-    AbstractTextMarkup( PROPS, d ) { classInit(); };
-  TextMarkupWhitespace(  const KWargs& a, Document *d=0 ):
-    AbstractTextMarkup( PROPS, d ) { classInit(a); };
+    GENERATE_PUBLIC_CONSTRUCTORS( TextMarkupWhitespace, AbstractTextMarkup );
   private:
     static properties PROPS;
   };
@@ -1442,10 +1416,7 @@ namespace folia {
   class TextMarkupLanguage: public AbstractTextMarkup {
     friend void static_init();
   public:
-    explicit TextMarkupLanguage( Document *d=0 ):
-    AbstractTextMarkup( PROPS, d ) { classInit(); };
-  TextMarkupLanguage(  const KWargs& a, Document *d=0 ):
-    AbstractTextMarkup( PROPS, d ) { classInit(a); };
+    GENERATE_PUBLIC_CONSTRUCTORS( TextMarkupLanguage, AbstractTextMarkup );
   private:
     static properties PROPS;
   };
@@ -2594,9 +2565,9 @@ namespace folia {
       friend void static_init();
     protected:
       // DO NOT USE AbstractAnnotationLayer as a real node!!
-      GENERATE_PROP_CONSTRUCTORS( AbstractAnnotationLayer, AbstractElement );
-    AbstractAnnotationLayer( const properties& props, const KWargs& a, Document *d = 0 ):
-      AbstractElement( props, d ) { classInit( a ); };
+      GENERATE_PROTECTED_CONSTRUCTORS( AbstractAnnotationLayer, AbstractElement );
+    /* AbstractAnnotationLayer( const properties& props, const KWargs& a, Document *d = 0 ): */
+    /*   AbstractElement( props, d ) { classInit( a ); }; */
   public:
     AbstractSpanAnnotation *findspan( const std::vector<FoliaElement*>& ) const;
     FoliaElement *append( FoliaElement * );
@@ -2610,7 +2581,7 @@ namespace folia {
     friend void static_init();
   protected:
     // DO NOT USE AbstractCorrectionChild as a real node!!
-    GENERATE_PROP_CONSTRUCTORS( AbstractCorrectionChild, AbstractElement );
+    GENERATE_PROTECTED_CONSTRUCTORS( AbstractCorrectionChild, AbstractElement );
   private:
     static properties PROPS;
   };
