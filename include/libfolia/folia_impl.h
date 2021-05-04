@@ -1801,11 +1801,7 @@ namespace folia {
   class List: public AbstractStructureElement {
     friend void static_init();
   public:
-    explicit List( Document *d=0 ):
-    AbstractStructureElement( PROPS, d ){ classInit(); }
-  List( const KWargs& a, Document *d = 0 ):
-    AbstractStructureElement( PROPS, d ){ classInit( a ); }
-
+    GENERATE_PUBLIC_CONSTRUCTORS( List, AbstractStructureElement );
   private:
     static properties PROPS;
   };
@@ -1813,10 +1809,7 @@ namespace folia {
   class Figure: public AbstractStructureElement {
     friend void static_init();
   public:
-    explicit Figure( Document *d=0 ):
-    AbstractStructureElement( PROPS, d ){ classInit(); }
-  Figure( const KWargs& a, Document *d = 0 ):
-    AbstractStructureElement( PROPS, d ){ classInit( a ); }
+    GENERATE_PUBLIC_CONSTRUCTORS( Figure, AbstractStructureElement );
     const UnicodeString caption() const;
   private:
     static properties PROPS;
@@ -1825,11 +1818,7 @@ namespace folia {
   class Paragraph: public AbstractStructureElement {
     friend void static_init();
   public:
-    explicit Paragraph( Document *d=0 ):
-    AbstractStructureElement( PROPS, d ){ classInit(); }
-  Paragraph( const KWargs& a, Document *d = 0 ):
-    AbstractStructureElement( PROPS, d ){ classInit( a ); }
-
+    GENERATE_PUBLIC_CONSTRUCTORS( Paragraph, AbstractStructureElement );
   private:
     static properties PROPS;
   };
@@ -1971,10 +1960,7 @@ namespace folia {
   class Quote: public AbstractStructureElement {
     friend void static_init();
   public:
-    explicit Quote( Document *d=0 ):
-    AbstractStructureElement( PROPS, d ){ classInit(); };
-  Quote( const KWargs& a, Document *d = 0 ):
-    AbstractStructureElement( PROPS, d ){ classInit( a ); };
+    GENERATE_PUBLIC_CONSTRUCTORS( Quote, AbstractStructureElement );
     std::vector<Word*> wordParts() const;
     const std::string& get_delimiter( bool=false) const;
   private:
@@ -2657,11 +2643,7 @@ namespace folia {
   class Note: public AbstractStructureElement {
     friend void static_init();
   public:
-  explicit Note( Document *d=0 ):
-    AbstractStructureElement( PROPS, d ){ classInit(); }
-  Note( const KWargs& a, Document *d = 0 ):
-    AbstractStructureElement( PROPS, d ){ classInit( a ); }
-
+    GENERATE_PUBLIC_CONSTRUCTORS( Note, AbstractStructureElement );
     void setAttributes( KWargs& );
   private:
     static properties PROPS;
@@ -2671,11 +2653,7 @@ namespace folia {
   class Definition: public AbstractStructureElement {
     friend void static_init();
   public:
-  explicit Definition( Document *d=0 ):
-    AbstractStructureElement( PROPS, d ){ classInit(); }
-  Definition( const KWargs& a, Document *d = 0 ):
-    AbstractStructureElement( PROPS, d ){ classInit( a ); }
-
+    GENERATE_PUBLIC_CONSTRUCTORS( Definition, AbstractStructureElement );
   private:
     static properties PROPS;
   };
@@ -2683,10 +2661,7 @@ namespace folia {
   class Term: public AbstractStructureElement {
     friend void static_init();
   public:
-  explicit Term( Document *d=0 ):
-    AbstractStructureElement( PROPS, d ){ classInit(); }
-  Term( const KWargs& a, Document *d = 0 ):
-    AbstractStructureElement( PROPS, d ){ classInit( a ); }
+    GENERATE_PUBLIC_CONSTRUCTORS( Term, AbstractStructureElement );
 
   private:
     static properties PROPS;
@@ -2695,10 +2670,7 @@ namespace folia {
   class Example: public AbstractStructureElement {
     friend void static_init();
   public:
-  explicit Example( Document *d=0 ):
-    AbstractStructureElement( PROPS, d ){ classInit(); }
-  Example( const KWargs& a, Document *d = 0 ):
-    AbstractStructureElement( PROPS, d ){ classInit( a ); }
+    GENERATE_PUBLIC_CONSTRUCTORS( Example, AbstractStructureElement );
 
   private:
     static properties PROPS;
@@ -2707,10 +2679,7 @@ namespace folia {
   class Entry: public AbstractStructureElement {
     friend void static_init();
   public:
-  explicit Entry( Document *d=0 ):
-    AbstractStructureElement( PROPS, d ){ classInit(); }
-  Entry( const KWargs& a, Document *d = 0 ):
-    AbstractStructureElement( PROPS, d ){ classInit( a ); }
+    GENERATE_PUBLIC_CONSTRUCTORS( Entry, AbstractStructureElement );
 
   private:
     static properties PROPS;
@@ -2723,10 +2692,7 @@ namespace folia {
       friend void static_init();
       friend class Note;
     public:
-      explicit Reference( Document *d=0 ):
-      AbstractStructureElement( PROPS, d ){ classInit(); }
-    Reference( const KWargs& a, Document *d = 0 ):
-      AbstractStructureElement( PROPS, d ){ classInit( a ); }
+      GENERATE_PUBLIC_CONSTRUCTORS( Reference, AbstractStructureElement );
 
       KWargs collectAttributes() const;
       void setAttributes( KWargs& );
