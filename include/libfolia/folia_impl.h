@@ -1518,10 +1518,7 @@ namespace folia {
   class Head: public AbstractStructureElement {
     friend void static_init();
   public:
-  explicit Head( Document *d = 0 ):
-    AbstractStructureElement( PROPS, d ) {  classInit(); }
-  Head( const KWargs& a, Document *d = 0 ):
-    AbstractStructureElement( PROPS, d ) {  classInit( a ); }
+    GENERATE_PUBLIC_CONSTRUCTORS( Head, AbstractStructureElement );
 
   private:
     static properties PROPS;
@@ -1530,11 +1527,7 @@ namespace folia {
   class TableHead: public AbstractStructureElement {
     friend void static_init();
   public:
-  explicit TableHead( Document *d = 0 ):
-    AbstractStructureElement( PROPS, d ) {  classInit( ); }
-  TableHead( const KWargs& a, Document *d = 0 ):
-    AbstractStructureElement( PROPS, d ) {  classInit( a ); }
-
+    GENERATE_PUBLIC_CONSTRUCTORS( TableHead, AbstractStructureElement );
   private:
     static properties PROPS;
   };
@@ -1542,10 +1535,7 @@ namespace folia {
   class Table: public AbstractStructureElement {
     friend void static_init();
   public:
-  explicit Table( Document *d = 0 ):
-    AbstractStructureElement( PROPS, d ) {  classInit(); };
-  Table( const KWargs& a, Document *d = 0  ):
-    AbstractStructureElement( PROPS, d ) {  classInit( a ); };
+    GENERATE_PUBLIC_CONSTRUCTORS( Table, AbstractStructureElement );
   private:
     static properties PROPS;
   };
