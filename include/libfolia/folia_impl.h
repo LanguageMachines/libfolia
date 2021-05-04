@@ -1118,11 +1118,11 @@ namespace folia {
 #define GENERATE_PUBLIC_CONSTRUCTORS( CLASS, BASE )               \
   CLASS( const KWargs& a, Document *d=0 ):			  \
     BASE( PROPS, d ){ classInit(a); };				  \
- CLASS( Document *d=0 ):					  \
-  CLASS( KWargs(), d ){};					  \
- CLASS( const KWargs& a, FoliaElement *p ):			  \
-  BASE( PROPS, p ){ classInit(a); };				  \
- CLASS( FoliaElement *p ):					  \
+  CLASS( Document *d=0 ):					  \
+    CLASS( KWargs(), d ){};				  \
+  CLASS( const KWargs& a, FoliaElement *p ):			  \
+    BASE( PROPS, p ){ classInit(a); };				  \
+  CLASS( FoliaElement *p ):					  \
     CLASS( KWargs(), p ){}
 
 
@@ -1818,16 +1818,10 @@ namespace folia {
     public AbstractStructureElement
   {
     friend void static_init();
-  public:
-    explicit AbstractSubtokenAnnotation( Document *d = 0 ):
-    AbstractSubtokenAnnotation( PROPS, d ) {  classInit(); }
-  AbstractSubtokenAnnotation( const KWargs& a, Document *d = 0 ):
-    AbstractStructureElement( PROPS, d ) {  classInit( a ); }
-
   protected:
-  AbstractSubtokenAnnotation( const properties& props, Document *d=0 ):
-    AbstractStructureElement( props, d ){ classInit(); };
-
+    // DO NOT USE AbstractSubtokenAnnotation as a real node!!
+    GENERATE_PROTECTED_CONSTRUCTORS( AbstractSubtokenAnnotation,
+				     AbstractStructureElement );
   private:
     static properties PROPS;
   };
@@ -1900,11 +1894,7 @@ namespace folia {
     {
       friend void static_init();
     public:
-      explicit Phoneme( Document *d=0 ):
-      AbstractSubtokenAnnotation( PROPS, d ){ classInit(); }
-    Phoneme( const KWargs& a, Document *d = 0 ):
-      AbstractSubtokenAnnotation( PROPS, d ){ classInit( a ); }
-
+      GENERATE_PUBLIC_CONSTRUCTORS( Phoneme, AbstractSubtokenAnnotation );
     private:
       static properties PROPS;
     };
@@ -2738,11 +2728,7 @@ namespace folia {
     {
       friend void static_init();
     public:
-      explicit Morpheme( Document *d=0 ):
-      AbstractSubtokenAnnotation( PROPS, d ){ classInit(); }
-    Morpheme( const KWargs& a, Document *d = 0 ):
-      AbstractSubtokenAnnotation( PROPS, d ){ classInit( a ); }
-
+      GENERATE_PUBLIC_CONSTRUCTORS( Morpheme, AbstractSubtokenAnnotation );
     private:
       static properties PROPS;
     };
