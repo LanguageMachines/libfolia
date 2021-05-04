@@ -1425,12 +1425,8 @@ namespace folia {
   class AbstractContentAnnotation: public AbstractElement {
     friend void static_init();
   protected:
-  AbstractContentAnnotation( const properties& props, Document *d=0 ):
-    AbstractElement( props, d ){ classInit(); };
-    explicit AbstractContentAnnotation( Document *d = 0 ):
-    AbstractContentAnnotation( PROPS, d ) {};
-  AbstractContentAnnotation( const KWargs& a, Document *d = 0 ):
-    AbstractElement( PROPS, d ) {  classInit( a ); }
+    // DO NOT USE AbstractContentAnnotation as a real node!!
+    GENERATE_PROTECTED_CONSTRUCTORS( AbstractContentAnnotation, AbstractElement );
   private:
     static properties PROPS;
   };
@@ -1442,10 +1438,8 @@ namespace folia {
     {
       friend void static_init();
     public:
-      explicit TextContent( Document *d = 0 ):
-      AbstractContentAnnotation( PROPS, d ){ classInit(); }
-    TextContent( const KWargs& a, Document *d=0 ):
-      AbstractContentAnnotation( PROPS, d ){ classInit(a); }
+      GENERATE_PUBLIC_CONSTRUCTORS( TextContent,
+				    AbstractContentAnnotation );
       void setAttributes( KWargs& );
       KWargs collectAttributes() const;
       int offset() const { return _offset; };
@@ -1472,10 +1466,8 @@ namespace folia {
   class PhonContent: public AbstractContentAnnotation {
     friend void static_init();
   public:
-  explicit PhonContent( Document *d = 0 ):
-    AbstractContentAnnotation(PROPS,d){ classInit(); }
-  PhonContent( const KWargs& a, Document *d = 0 ):
-    AbstractContentAnnotation(PROPS,d){ classInit( a ); }
+    GENERATE_PUBLIC_CONSTRUCTORS( PhonContent,
+				  AbstractContentAnnotation );
     void setAttributes( KWargs& );
     KWargs collectAttributes() const;
     const UnicodeString phon( const TextPolicy& ) const;
