@@ -614,6 +614,7 @@ namespace folia {
     //Constructor
   protected:
     AbstractElement( const properties& p, Document* = 0 );
+    AbstractElement( const properties& p, FoliaElement * );
   public:
     // expose static element Constructor
     virtual ~AbstractElement();
@@ -1104,6 +1105,17 @@ namespace folia {
 
   };
 
+#define GENERATE_PROP_CONSTRUCTORS( CLASS, BASE )               \
+  CLASS( const properties& props, Document *d=0 ):		\
+    BASE( props, d ){ classInit(); };				\
+  CLASS( Document *d=0 ):					\
+    CLASS( PROPS, d ){};			         	\
+  CLASS( const properties& props, FoliaElement *p ):		\
+    BASE( props, p ){ classInit(); };				\
+  CLASS( FoliaElement * p ):					\
+    CLASS( PROPS, p ){}
+
+
   class AbstractStructureElement:
     public AbstractElement,
     public AllowGenerateID,
@@ -1112,10 +1124,7 @@ namespace folia {
       friend void static_init();
     protected:
       // DO NOT USE AbstractStructureElement as a real node!!
-    AbstractStructureElement( const properties& props, Document *d=0 ):
-      AbstractElement( props, d ){ classInit(); };
-      explicit AbstractStructureElement( Document *d=0 ):
-      AbstractStructureElement( PROPS, d ){};
+      GENERATE_PROP_CONSTRUCTORS( AbstractStructureElement, AbstractElement );
     public:
       FoliaElement *append( FoliaElement* );
       std::vector<Paragraph*> paragraphs() const;
@@ -1162,11 +1171,7 @@ namespace folia {
       friend void static_init();
     protected:
       // DO NOT USE AbstractInlineAnnotation as a real node!!
-    AbstractInlineAnnotation( const properties& props, Document *d=0 ):
-      AbstractElement( props, d ){ classInit(); };
-      explicit AbstractInlineAnnotation( Document *d=0 ):
-      AbstractInlineAnnotation( PROPS, d ){};
-
+      GENERATE_PROP_CONSTRUCTORS( AbstractInlineAnnotation, AbstractElement );
     private:
       static properties PROPS;
     };
@@ -1177,14 +1182,10 @@ namespace folia {
       friend void static_init();
     protected:
       // DO NOT USE AbstractHigherOrderAnnotation as a real node!!
-    AbstractHigherOrderAnnotation( const properties& props, Document *d=0 ):
-      AbstractElement( props, d ){ classInit(); };
-      explicit AbstractHigherOrderAnnotation( Document *d=0 ):
-      AbstractHigherOrderAnnotation( PROPS, d ){};
+      GENERATE_PROP_CONSTRUCTORS( AbstractHigherOrderAnnotation, AbstractElement );
     private:
       static properties PROPS;
     };
-
 
   class AbstractSpanAnnotation:
     public AbstractElement,
@@ -1194,10 +1195,7 @@ namespace folia {
       friend void static_init();
     protected:
       // DO NOT USE AbstractSpanAnnotation as a real node!!
-    AbstractSpanAnnotation( const properties& props, Document *d=0 ):
-      AbstractElement( props, d ){ classInit(); };
-      explicit AbstractSpanAnnotation( Document *d=0 ):
-      AbstractSpanAnnotation( PROPS, d ){};
+      GENERATE_PROP_CONSTRUCTORS( AbstractSpanAnnotation, AbstractElement );
     public:
       xmlNode *xml( bool, bool=false ) const;
       FoliaElement *append( FoliaElement* );
@@ -1310,22 +1308,19 @@ namespace folia {
     public AllowXlink
     {
       friend void static_init();
-  protected:
+    protected:
       // DO NOT USE AbstractTextMarkup as a real node!!
-  AbstractTextMarkup( const properties& props, Document *d=0 ):
-      AbstractElement( props, d ){ classInit(); };
-      explicit AbstractTextMarkup( Document *d=0 ):
-    AbstractTextMarkup( PROPS, d ){};
-  public:
-    void setAttributes( KWargs& );
-    KWargs collectAttributes() const;
-    const FoliaElement* resolveid() const;
-  protected:
-    const std::string& get_delimiter( bool ) const { return EMPTY_STRING; };
-    std::string idref;
-  private:
-    static properties PROPS;
-  };
+      GENERATE_PROP_CONSTRUCTORS( AbstractTextMarkup, AbstractElement );
+    public:
+      void setAttributes( KWargs& );
+      KWargs collectAttributes() const;
+      const FoliaElement* resolveid() const;
+    protected:
+      const std::string& get_delimiter( bool ) const { return EMPTY_STRING; };
+      std::string idref;
+    private:
+      static properties PROPS;
+    };
 
   class TextMarkupGap: public AbstractTextMarkup {
     friend void static_init();
@@ -2599,10 +2594,7 @@ namespace folia {
       friend void static_init();
     protected:
       // DO NOT USE AbstractAnnotationLayer as a real node!!
-      explicit AbstractAnnotationLayer( Document *d = 0 ):
-      AbstractAnnotationLayer( PROPS, d ){};
-    AbstractAnnotationLayer( const properties& props, Document *d = 0 ):
-      AbstractElement( props, d ) { classInit(); };
+      GENERATE_PROP_CONSTRUCTORS( AbstractAnnotationLayer, AbstractElement );
     AbstractAnnotationLayer( const properties& props, const KWargs& a, Document *d = 0 ):
       AbstractElement( props, d ) { classInit( a ); };
   public:
@@ -2618,10 +2610,7 @@ namespace folia {
     friend void static_init();
   protected:
     // DO NOT USE AbstractCorrectionChild as a real node!!
-  AbstractCorrectionChild( const properties& props, Document *d=0 ):
-    AbstractElement( props, d ){ classInit(); };
-    explicit AbstractCorrectionChild( Document *d=0 ):
-    AbstractCorrectionChild( PROPS, d ){};
+    GENERATE_PROP_CONSTRUCTORS( AbstractCorrectionChild, AbstractElement );
   private:
     static properties PROPS;
   };
