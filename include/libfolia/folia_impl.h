@@ -1543,10 +1543,7 @@ namespace folia {
   class Row: public AbstractStructureElement {
     friend void static_init();
   public:
-  explicit Row( Document *d = 0 ):
-    AbstractStructureElement( PROPS, d ) {  classInit(); };
-  Row( const KWargs& a, Document *d = 0 ):
-    AbstractStructureElement( PROPS, d ) {  classInit( a ); };
+    GENERATE_PUBLIC_CONSTRUCTORS( Row, AbstractStructureElement );
   private:
     static properties PROPS;
   };
@@ -1554,10 +1551,7 @@ namespace folia {
   class Cell: public AbstractStructureElement {
     friend void static_init();
   public:
-    explicit Cell( Document *d = 0 ):
-    AbstractStructureElement( PROPS, d ) {  classInit(); };
-  Cell( const KWargs& a, Document *d ):
-    AbstractStructureElement( PROPS, d ) {  classInit( a ); };
+    GENERATE_PUBLIC_CONSTRUCTORS( Cell, AbstractStructureElement );
   private:
     static properties PROPS;
   };
@@ -1607,10 +1601,7 @@ namespace folia {
   class Division: public AbstractStructureElement {
     friend void static_init();
   public:
-    explicit Division( Document *d=0 ):
-    AbstractStructureElement( PROPS, d ) { classInit(); };
-  Division( const KWargs& a, Document *d = 0 ):
-    AbstractStructureElement( PROPS, d ) { classInit( a ); };
+    GENERATE_PUBLIC_CONSTRUCTORS( Division, AbstractStructureElement );
     Head *head() const;
   private:
     static properties PROPS;
@@ -1622,10 +1613,7 @@ namespace folia {
     {
       friend void static_init();
     public:
-      explicit Linebreak( Document *d=0 ):
-      AbstractStructureElement( PROPS, d ){ classInit(); };
-    Linebreak( const KWargs& a, Document *d = 0 ):
-      AbstractStructureElement( PROPS, d ){ classInit( a ); };
+      GENERATE_PUBLIC_CONSTRUCTORS( Linebreak, AbstractStructureElement );
       void setAttributes( KWargs& );
       KWargs collectAttributes() const;
     private:
@@ -1642,12 +1630,7 @@ namespace folia {
   class Whitespace: public AbstractStructureElement {
     friend void static_init();
   public:
-    explicit Whitespace( Document *d=0 ):
-    AbstractStructureElement( PROPS, d ){ classInit(); }
-  Whitespace( const KWargs& a, Document *d = 0 ):
-    AbstractStructureElement( PROPS, d ){ classInit( a ); }
-
-
+    GENERATE_PUBLIC_CONSTRUCTORS( Whitespace, AbstractStructureElement );
   private:
     const UnicodeString private_text( const TextPolicy& ) const {
       return "\n\n";
