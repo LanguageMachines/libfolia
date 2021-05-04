@@ -1644,10 +1644,7 @@ namespace folia {
   {
     friend void static_init();
   public:
-    explicit Word( Document *d = 0 ):
-    Word(PROPS, d ) {};
-  Word( const KWargs& a,  Document *d = 0 ):
-    AbstractStructureElement( PROPS, d ) { classInit( a ); };
+    GENERATE_PUBLIC_CONSTRUCTORS( Word, AbstractStructureElement );
 
     Correction *split( FoliaElement *, FoliaElement *,
 		       const std::string& = "" );
@@ -1681,11 +1678,7 @@ namespace folia {
   {
     friend void static_init();
   public:
-    explicit Hiddenword( Document *d=0 ):
-    AbstractStructureElement( PROPS, d ){ classInit(); }
-  Hiddenword( const KWargs& a, Document *d = 0 ):
-    AbstractStructureElement( PROPS, d ){ classInit( a ); }
-
+    GENERATE_PUBLIC_CONSTRUCTORS( Hiddenword, AbstractStructureElement );
   private:
     static properties PROPS;
   };
@@ -1693,10 +1686,7 @@ namespace folia {
   class Part: public AbstractStructureElement {
     friend void static_init();
   public:
-    explicit Part( Document *d=0 ):
-    AbstractStructureElement( PROPS, d ){ classInit(); }
-  Part( const KWargs& a, Document *d = 0 ):
-    AbstractStructureElement( PROPS, d ){ classInit( a ); }
+    GENERATE_PUBLIC_CONSTRUCTORS( Part, AbstractStructureElement );
 
   private:
     static properties PROPS;
@@ -1708,11 +1698,8 @@ namespace folia {
     public AllowGenerateID
     {
       friend void static_init();
-  public:
-      explicit String( Document *d=0 ):
-      AbstractElement( PROPS, d ){ classInit(); }
-    String( const KWargs& a, Document *d =0 ):
-      AbstractElement( PROPS, d ){ classInit( a ); }
+    public:
+      GENERATE_PUBLIC_CONSTRUCTORS( String, AbstractElement );
     private:
       static properties PROPS;
     };
@@ -1735,10 +1722,7 @@ namespace folia {
     {
       friend void static_init();
     public:
-      explicit Sentence( Document *d=0 ):
-      AbstractStructureElement( PROPS, d ){ classInit(); }
-    Sentence( const KWargs& a, Document *d =0 ):
-      AbstractStructureElement( PROPS, d ){ classInit( a ); }
+      GENERATE_PUBLIC_CONSTRUCTORS( Sentence, AbstractStructureElement );
 
       Correction *splitWord( FoliaElement *, FoliaElement *,
 			     FoliaElement *, const KWargs& );
@@ -1759,10 +1743,7 @@ namespace folia {
   class Speech: public AbstractStructureElement {
     friend void static_init();
   public:
-    explicit Speech( Document *d=0 ):
-    AbstractStructureElement( PROPS, d ){ classInit(); }
-  Speech( const KWargs& a, Document *d = 0 ):
-    AbstractStructureElement( PROPS, d ){ classInit( a ); }
+    GENERATE_PUBLIC_CONSTRUCTORS( Speech, AbstractStructureElement );
 
   private:
     static properties PROPS;
@@ -1771,10 +1752,7 @@ namespace folia {
   class Text: public AbstractStructureElement {
     friend void static_init();
   public:
-    explicit Text( Document *d=0 ):
-    AbstractStructureElement( PROPS, d ){ classInit(); }
-  Text( const KWargs& a, Document *d = 0 ):
-    AbstractStructureElement( PROPS, d ){ classInit( a ); }
+    GENERATE_PUBLIC_CONSTRUCTORS( Text, AbstractStructureElement );
   private:
     static properties PROPS;
   };
@@ -1782,10 +1760,7 @@ namespace folia {
   class Utterance: public AbstractStructureElement {
     friend void static_init();
   public:
-    explicit Utterance( Document *d=0 ):
-    AbstractStructureElement( PROPS, d ){ classInit(); }
-  Utterance( const KWargs& a, Document *d = 0 ):
-    AbstractStructureElement( PROPS, d ){ classInit( a ); }
+    GENERATE_PUBLIC_CONSTRUCTORS( Utterance, AbstractStructureElement );
 
   private:
     static properties PROPS;
@@ -1794,11 +1769,7 @@ namespace folia {
   class Event: public AbstractStructureElement {
     friend void static_init();
   public:
-    explicit Event( Document *d=0 ):
-    AbstractStructureElement( PROPS, d ){ classInit(); }
-  Event( const KWargs& a, Document *d = 0 ):
-    AbstractStructureElement( PROPS, d ){ classInit( a ); }
-
+    GENERATE_PUBLIC_CONSTRUCTORS( Event, AbstractStructureElement );
   private:
     static properties PROPS;
   };
@@ -1806,11 +1777,7 @@ namespace folia {
   class Caption: public AbstractStructureElement {
     friend void static_init();
   public:
-    explicit Caption( Document *d=0 ):
-    AbstractStructureElement( PROPS, d ){ classInit(); }
-  Caption( const KWargs& a, Document *d = 0 ):
-    AbstractStructureElement( PROPS, d ){ classInit( a ); }
-
+    GENERATE_PUBLIC_CONSTRUCTORS( Caption, AbstractStructureElement );
   private:
     static properties PROPS;
   };
@@ -1818,10 +1785,7 @@ namespace folia {
   class Label: public AbstractStructureElement {
     friend void static_init();
   public:
-   explicit Label( Document *d=0 ):
-    AbstractStructureElement( PROPS, d ){ classInit(); }
-  Label( const KWargs& a, Document *d = 0 ):
-    AbstractStructureElement( PROPS, d ){ classInit( a ); }
+    GENERATE_PUBLIC_CONSTRUCTORS( Label, AbstractStructureElement );
   private:
     static properties PROPS;
   };
@@ -1829,11 +1793,7 @@ namespace folia {
   class ListItem: public AbstractStructureElement {
     friend void static_init();
   public:
-    explicit ListItem( Document *d=0 ):
-    AbstractStructureElement( PROPS, d ){ classInit(); }
-  ListItem( const KWargs& a, Document *d = 0 ):
-    AbstractStructureElement( PROPS, d ){ classInit( a ); }
-
+    GENERATE_PUBLIC_CONSTRUCTORS( ListItem, AbstractStructureElement );
   private:
     static properties PROPS;
   };
