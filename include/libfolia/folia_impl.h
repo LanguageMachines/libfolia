@@ -1855,11 +1855,7 @@ namespace folia {
   class PosAnnotation: public AbstractInlineAnnotation {
     friend void static_init();
   public:
-    explicit PosAnnotation( Document *d=0 ):
-    AbstractInlineAnnotation( PROPS, d ){ classInit(); }
-  PosAnnotation( const KWargs& a, Document *d = 0 ):
-    AbstractInlineAnnotation( PROPS, d ){ classInit( a ); }
-
+    GENERATE_PUBLIC_CONSTRUCTORS( PosAnnotation, AbstractInlineAnnotation );
   private:
     static properties PROPS;
   };
@@ -1867,11 +1863,7 @@ namespace folia {
   class LemmaAnnotation: public AbstractInlineAnnotation {
     friend void static_init();
   public:
-    explicit LemmaAnnotation( Document *d=0 ):
-    AbstractInlineAnnotation( PROPS, d ){ classInit(); }
-  LemmaAnnotation( const KWargs& a, Document *d = 0 ):
-    AbstractInlineAnnotation( PROPS, d ){ classInit( a ); }
-
+    GENERATE_PUBLIC_CONSTRUCTORS( LemmaAnnotation, AbstractInlineAnnotation );
   private:
     static properties PROPS;
   };
@@ -1879,11 +1871,7 @@ namespace folia {
   class LangAnnotation: public AbstractInlineAnnotation {
     friend void static_init();
   public:
-    explicit LangAnnotation( Document *d=0 ):
-    AbstractInlineAnnotation( PROPS, d ){ classInit(); }
-  LangAnnotation( const KWargs& a, Document *d = 0 ):
-    AbstractInlineAnnotation( PROPS, d ){ classInit( a ); }
-
+    GENERATE_PUBLIC_CONSTRUCTORS( LangAnnotation, AbstractInlineAnnotation );
   private:
     static properties PROPS;
   };
@@ -1902,11 +1890,7 @@ namespace folia {
   class DomainAnnotation: public AbstractInlineAnnotation {
     friend void static_init();
   public:
-    explicit DomainAnnotation( Document *d=0 ):
-    AbstractInlineAnnotation( PROPS, d ){ classInit(); }
-  DomainAnnotation( const KWargs& a, Document *d = 0 ):
-    AbstractInlineAnnotation( PROPS, d ){ classInit( a ); }
-
+    GENERATE_PUBLIC_CONSTRUCTORS( DomainAnnotation, AbstractInlineAnnotation );
   private:
     static properties PROPS;
   };
@@ -1914,11 +1898,7 @@ namespace folia {
   class SenseAnnotation: public AbstractInlineAnnotation {
     friend void static_init();
   public:
-    explicit SenseAnnotation( Document *d=0 ):
-    AbstractInlineAnnotation( PROPS, d ){ classInit(); }
-  SenseAnnotation( const KWargs& a, Document *d = 0 ):
-    AbstractInlineAnnotation( PROPS, d ){ classInit( a ); }
-
+    GENERATE_PUBLIC_CONSTRUCTORS( SenseAnnotation, AbstractInlineAnnotation );
   private:
     static properties PROPS;
   };
@@ -1926,11 +1906,8 @@ namespace folia {
   class SubjectivityAnnotation: public AbstractInlineAnnotation {
     friend void static_init();
   public:
-    explicit SubjectivityAnnotation( Document *d=0 ):
-    AbstractInlineAnnotation( PROPS, d ){ classInit(); }
-  SubjectivityAnnotation( const KWargs& a, Document *d = 0 ):
-    AbstractInlineAnnotation( PROPS, d ){ classInit( a ); }
-
+    GENERATE_PUBLIC_CONSTRUCTORS( SubjectivityAnnotation,
+				  AbstractInlineAnnotation );
   private:
     static properties PROPS;
   };
@@ -2625,11 +2602,7 @@ namespace folia {
   class Correction: public AbstractInlineAnnotation {
     friend void static_init();
   public:
-  explicit Correction( Document *d=0 ):
-    AbstractInlineAnnotation( PROPS, d ){ classInit(); }
-  Correction( const KWargs& a, Document *d = 0 ):
-    AbstractInlineAnnotation( PROPS, d ){ classInit( a ); }
-
+    GENERATE_PUBLIC_CONSTRUCTORS( Correction, AbstractInlineAnnotation );
     bool hasNew() const;
     bool hasOriginal() const;
     bool hasCurrent() const;
@@ -2661,11 +2634,7 @@ namespace folia {
   class ErrorDetection: public AbstractInlineAnnotation  {
     friend void static_init();
   public:
-  explicit ErrorDetection( Document *d=0 ):
-    AbstractInlineAnnotation( PROPS, d ){ classInit(); }
-  ErrorDetection( const KWargs& a, Document *d = 0 ):
-    AbstractInlineAnnotation( PROPS, d ){ classInit( a ); }
-
+    GENERATE_PUBLIC_CONSTRUCTORS( ErrorDetection, AbstractInlineAnnotation );
   private:
     static properties PROPS;
   };
