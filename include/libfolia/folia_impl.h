@@ -2200,10 +2200,7 @@ namespace folia {
   class SyntacticUnit: public AbstractSpanAnnotation {
     friend void static_init();
   public:
-    explicit SyntacticUnit( Document *d = 0 ):
-    AbstractSpanAnnotation( PROPS, d ){ classInit(); }
-  SyntacticUnit( const KWargs& a, Document *d = 0 ):
-    AbstractSpanAnnotation( PROPS, d ){ classInit( a ); }
+    GENERATE_PUBLIC_CONSTRUCTORS( SyntacticUnit, AbstractSpanAnnotation );
 
   private:
     static properties PROPS;
@@ -2212,10 +2209,7 @@ namespace folia {
   class Chunk: public AbstractSpanAnnotation {
     friend void static_init();
   public:
-    explicit Chunk( Document *d=0 ):
-    AbstractSpanAnnotation( PROPS, d ){ classInit(); }
-  Chunk( const KWargs& a, Document *d = 0 ):
-    AbstractSpanAnnotation( PROPS, d ){ classInit( a ); }
+    GENERATE_PUBLIC_CONSTRUCTORS( Chunk, AbstractSpanAnnotation );
 
   private:
     static properties PROPS;
@@ -2224,10 +2218,7 @@ namespace folia {
   class Entity: public AbstractSpanAnnotation {
     friend void static_init();
   public:
-    explicit Entity( Document *d=0 ):
-    AbstractSpanAnnotation( PROPS, d ){ classInit(); }
-  Entity( const KWargs& a, Document *d = 0 ):
-    AbstractSpanAnnotation( PROPS, d ){ classInit( a ); }
+    GENERATE_PUBLIC_CONSTRUCTORS( Entity, AbstractSpanAnnotation );
 
   private:
     static properties PROPS;
@@ -2332,10 +2323,7 @@ namespace folia {
   class Dependency: public AbstractSpanAnnotation {
     friend void static_init();
   public:
-    explicit Dependency( Document *d=0 ):
-    AbstractSpanAnnotation( PROPS, d ){ classInit(); }
-  Dependency( const KWargs& a, Document *d = 0 ):
-    AbstractSpanAnnotation( PROPS, d ){ classInit( a ); }
+    GENERATE_PUBLIC_CONSTRUCTORS( Dependency, AbstractSpanAnnotation );
 
     Headspan *head() const;
     DependencyDependent *dependent() const;
@@ -2358,11 +2346,7 @@ namespace folia {
   class CoreferenceChain: public AbstractSpanAnnotation {
     friend void static_init();
   public:
-    explicit CoreferenceChain( Document *d=0 ):
-    AbstractSpanAnnotation( PROPS, d ){ classInit(); }
-  CoreferenceChain( const KWargs& a, Document *d = 0 ):
-    AbstractSpanAnnotation( PROPS, d ){ classInit( a ); }
-
+    GENERATE_PUBLIC_CONSTRUCTORS( CoreferenceChain, AbstractSpanAnnotation );
   private:
     static properties PROPS;
   };
@@ -2370,11 +2354,7 @@ namespace folia {
   class SemanticRole: public AbstractSpanAnnotation {
     friend void static_init();
   public:
-    explicit SemanticRole( Document *d=0 ):
-    AbstractSpanAnnotation( PROPS, d ){ classInit(); }
-  SemanticRole( const KWargs& a, Document *d = 0 ):
-    AbstractSpanAnnotation( PROPS, d ){ classInit( a ); }
-
+    GENERATE_PUBLIC_CONSTRUCTORS( SemanticRole, AbstractSpanAnnotation );
   private:
     static properties PROPS;
   };
@@ -2382,11 +2362,7 @@ namespace folia {
   class Predicate: public AbstractSpanAnnotation {
     friend void static_init();
   public:
-    explicit Predicate( Document *d=0 ):
-    AbstractSpanAnnotation( PROPS, d ){ classInit(); }
-  Predicate( const KWargs& a, Document *d = 0 ):
-    AbstractSpanAnnotation( PROPS, d ){ classInit( a ); }
-
+    GENERATE_PUBLIC_CONSTRUCTORS( Predicate, AbstractSpanAnnotation );
   private:
     static properties PROPS;
   };
@@ -2394,11 +2370,7 @@ namespace folia {
   class Sentiment: public AbstractSpanAnnotation {
     friend void static_init();
   public:
-    explicit Sentiment( Document *d=0 ):
-    AbstractSpanAnnotation( PROPS, d ){ classInit(); }
-  Sentiment( const KWargs& a, Document *d = 0 ):
-    AbstractSpanAnnotation( PROPS, d ){ classInit( a ); }
-
+    GENERATE_PUBLIC_CONSTRUCTORS( Sentiment, AbstractSpanAnnotation );
   private:
     static properties PROPS;
   };
@@ -2406,11 +2378,7 @@ namespace folia {
   class Modality: public AbstractSpanAnnotation {
     friend void static_init();
   public:
-    explicit Modality( Document *d=0 ):
-    AbstractSpanAnnotation( PROPS, d ){ classInit(); }
-  Modality( const KWargs& a, Document *d = 0 ):
-    AbstractSpanAnnotation( PROPS, d ){ classInit( a ); }
-
+    GENERATE_PUBLIC_CONSTRUCTORS( Modality, AbstractSpanAnnotation );
   private:
     static properties PROPS;
   };
@@ -2418,11 +2386,7 @@ namespace folia {
   class Statement: public AbstractSpanAnnotation {
     friend void static_init();
   public:
-    explicit Statement( Document *d=0 ):
-    AbstractSpanAnnotation( PROPS, d ){ classInit(); }
-  Statement( const KWargs& a, Document *d = 0 ):
-    AbstractSpanAnnotation( PROPS, d ){ classInit( a ); }
-
+    GENERATE_PUBLIC_CONSTRUCTORS( Statement, AbstractSpanAnnotation );
   private:
     static properties PROPS;
   };
@@ -2430,11 +2394,7 @@ namespace folia {
   class Observation: public AbstractSpanAnnotation {
     friend void static_init();
   public:
-    explicit Observation( Document *d=0 ):
-    AbstractSpanAnnotation( PROPS, d ){ classInit(); }
-  Observation( const KWargs& a, Document *d = 0 ):
-    AbstractSpanAnnotation( PROPS, d ){ classInit( a ); }
-
+    GENERATE_PUBLIC_CONSTRUCTORS( Observation, AbstractSpanAnnotation );
   private:
     static properties PROPS;
   };
@@ -2713,11 +2673,7 @@ namespace folia {
   class TimeSegment: public AbstractSpanAnnotation {
     friend void static_init();
   public:
-  explicit TimeSegment( Document *d=0 ):
-    AbstractSpanAnnotation( PROPS, d ){ classInit(); }
-  TimeSegment( const KWargs& a, Document *d = 0 ):
-    AbstractSpanAnnotation( PROPS, d ){ classInit( a ); }
-
+    GENERATE_PUBLIC_CONSTRUCTORS( TimeSegment, AbstractSpanAnnotation );
   private:
     static properties PROPS;
   };
