@@ -325,6 +325,17 @@ namespace folia {
   {
   }
 
+  AbstractElement::AbstractElement( const properties& p, FoliaElement *el ) :
+    /// Constructor for AbstractElements.
+    /*!
+     * \param p a properties block (required)
+     * \param d a parent document
+     */
+    AbstractElement( p, el->doc() )
+  {
+    el->append( this );
+  }
+
   AbstractElement::~AbstractElement( ) {
     /// Destructor for AbstractElements.
     bool debug = false;

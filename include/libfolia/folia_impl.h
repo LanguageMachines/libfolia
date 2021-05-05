@@ -182,9 +182,7 @@ namespace folia {
 	\return a new FoliaElement
 	may throw if a Document is required, but not available
       */
-      T *nt = new T(args, doc());
-      append( nt );
-      return nt;
+      return new T( args, this );
     }
 
     template <typename T>
@@ -194,9 +192,7 @@ namespace folia {
 	\return a new FoliaElement
 	may throw if a Document is required, but not available
       */
-      T *nt = new T(doc());
-      append( nt );
-      return nt;
+      return new T( this );
     }
 
     bool isSubClass( ElementType ) const;
@@ -925,50 +921,6 @@ namespace folia {
     /// return the size of the given vector
     return v.size(); }
 
-  template <typename T>
-    T *create( KWargs& args ){
-    /// create a new FoliaElement
-    /*!
-      \param args an attribute-value list of arguments to use
-      \return a new FoliaElement
-    */
-    return new T(args);
-  }
-
-  template <typename T>
-    T *create( ){
-    /// create a new FoliaElement
-    /*!
-      \return a new FoliaElement
-    */
-    return new T();
-  }
-
-  template <typename T>
-    T *create( KWargs& args, FoliaElement* p ){
-    /// create a new FoliaElement as a child of \e p
-    /*!
-      \param p the FoliaElement to connect to
-      \param args an attribute-value list of arguments to use
-      \return a new FoliaElement
-    */
-    T *nt = new T(args,p->doc());
-    p->append( nt );
-    return nt;
-  }
-
-  template <typename T>
-    T *create( FoliaElement* p ){
-    /// create a new FoliaElement as a child of \e p
-    /*!
-      \param p the FoliaElement to connect to
-      \return a new FoliaElement
-    */
-    T *nt = new T(p->doc());
-    p->append( nt );
-    return nt;
-  }
-
   inline const std::string str( const FoliaElement *e,
 				const std::string& cls = "current" ) {
     /// return the string value contained in \e e
@@ -1111,7 +1063,7 @@ namespace folia {
   CLASS( const properties& props, FoliaElement *p ):		\
     BASE( props, p ){ classInit(); }
 
-#define ADD_PUBLIC_CONSTRUCTORS( CLASS, BASE )               \
+#define ADD_PUBLIC_CONSTRUCTORS( CLASS, BASE )			  \
   CLASS( const KWargs& a, Document *d=0 ):			  \
     BASE( PROPS, d ){ classInit(a); };				  \
   CLASS( Document *d=0 ):					  \
