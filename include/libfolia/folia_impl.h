@@ -1119,7 +1119,7 @@ namespace folia {
   CLASS( const KWargs& a, Document *d=0 ):			  \
     BASE( PROPS, d ){ classInit(a); };				  \
   CLASS( Document *d=0 ):					  \
-    CLASS( KWargs(), d ){};				  \
+    CLASS( KWargs(), d ){};					  \
   CLASS( const KWargs& a, FoliaElement *p ):			  \
     BASE( PROPS, p ){ classInit(a); };				  \
   CLASS( FoliaElement *p ):					  \
@@ -1228,8 +1228,7 @@ namespace folia {
   class ForeignData: public AbstractElement {
     friend void static_init();
   public:
-    explicit ForeignData( Document *d=0 ):
-    ForeignData( PROPS, d ){};
+    GENERATE_PUBLIC_CONSTRUCTORS( ForeignData, AbstractElement );
     ~ForeignData();
 
     FoliaElement* parseXml( const xmlNode * );
@@ -1833,11 +1832,7 @@ namespace folia {
     {
     friend void static_init();
   public:
-    explicit Alternative( Document *d=0 ):
-    AbstractHigherOrderAnnotation( PROPS, d ){ classInit(); }
-  Alternative( const KWargs& a, Document *d = 0 ):
-    AbstractHigherOrderAnnotation( PROPS, d ){ classInit( a ); }
-
+    GENERATE_PUBLIC_CONSTRUCTORS( Alternative, AbstractHigherOrderAnnotation );
   private:
     static properties PROPS;
   };
@@ -2139,11 +2134,7 @@ namespace folia {
     {
       friend void static_init();
     public:
-      explicit Relation( Document *d = 0 ):
-      AbstractHigherOrderAnnotation( PROPS, d ){ classInit(); }
-    Relation( const KWargs& a, Document *d = 0 ):
-      AbstractHigherOrderAnnotation( PROPS, d ){ classInit( a ); }
-
+      GENERATE_PUBLIC_CONSTRUCTORS( Relation, AbstractHigherOrderAnnotation );
       std::vector<FoliaElement *>resolve() const;
       void setAttributes( KWargs& );
       KWargs collectAttributes() const;
@@ -2203,13 +2194,9 @@ namespace folia {
 
   class AbstractSpanRole: public AbstractSpanAnnotation {
     friend void static_init();
-  public:
-    explicit AbstractSpanRole( Document *d=0 ):
-    AbstractSpanRole( PROPS, d ){};
   protected:
-  AbstractSpanRole( const properties& props, Document *d=0 ):
-    AbstractSpanAnnotation( props, d ){ classInit(); }
-
+    // DO NOT USE AbstractSpanRole as a real node!!
+    GENERATE_PROTECTED_CONSTRUCTORS( AbstractSpanRole, AbstractSpanAnnotation );
   private:
     static properties PROPS;
   };
@@ -2217,10 +2204,7 @@ namespace folia {
   class Headspan: public AbstractSpanRole {
     friend void static_init();
   public:
-    explicit Headspan( Document *d=0 ):
-    AbstractSpanRole( PROPS, d ){ classInit(); }
-  Headspan( const KWargs& a, Document *d = 0 ):
-    AbstractSpanRole( PROPS, d ){ classInit( a ); }
+    GENERATE_PUBLIC_CONSTRUCTORS( Headspan, AbstractSpanRole );
   private:
     static properties PROPS;
   };
@@ -2228,11 +2212,7 @@ namespace folia {
   class DependencyDependent: public AbstractSpanRole {
     friend void static_init();
   public:
-    explicit DependencyDependent( Document *d=0 ):
-    AbstractSpanRole( PROPS, d ){ classInit(); }
-  DependencyDependent( const KWargs& a, Document *d = 0 ):
-    AbstractSpanRole( PROPS, d ){ classInit( a ); }
-
+    GENERATE_PUBLIC_CONSTRUCTORS( DependencyDependent, AbstractSpanRole );
   private:
     static properties PROPS;
   };
@@ -2240,11 +2220,7 @@ namespace folia {
   class Source: public AbstractSpanRole {
     friend void static_init();
   public:
-    explicit Source( Document *d=0 ):
-    AbstractSpanRole( PROPS, d ){ classInit(); }
-  Source( const KWargs& a, Document *d = 0 ):
-    AbstractSpanRole( PROPS, d ){ classInit( a ); }
-
+    GENERATE_PUBLIC_CONSTRUCTORS( Source, AbstractSpanRole );
   private:
     static properties PROPS;
   };
@@ -2252,11 +2228,7 @@ namespace folia {
   class Target: public AbstractSpanRole {
     friend void static_init();
   public:
-    explicit Target( Document *d=0 ):
-    AbstractSpanRole( PROPS, d ){ classInit(); }
-  Target( const KWargs& a, Document *d = 0 ):
-    AbstractSpanRole( PROPS, d ){ classInit( a ); }
-
+    GENERATE_PUBLIC_CONSTRUCTORS( Target, AbstractSpanRole );
   private:
     static properties PROPS;
   };
@@ -2264,11 +2236,7 @@ namespace folia {
   class Scope: public AbstractSpanRole {
     friend void static_init();
   public:
-    explicit Scope( Document *d=0 ):
-    AbstractSpanRole( PROPS, d ){ classInit(); }
-  Scope( const KWargs& a, Document *d = 0 ):
-    AbstractSpanRole( PROPS, d ){ classInit( a ); }
-
+    GENERATE_PUBLIC_CONSTRUCTORS( Scope, AbstractSpanRole );
   private:
     static properties PROPS;
   };
@@ -2276,11 +2244,7 @@ namespace folia {
   class Cue: public AbstractSpanRole {
     friend void static_init();
   public:
-    explicit Cue( Document *d=0 ):
-    AbstractSpanRole( PROPS, d ){ classInit(); }
-  Cue( const KWargs& a, Document *d = 0 ):
-    AbstractSpanRole( PROPS, d ){ classInit( a ); }
-
+    GENERATE_PUBLIC_CONSTRUCTORS( Cue, AbstractSpanRole );
   private:
     static properties PROPS;
   };
@@ -2288,11 +2252,7 @@ namespace folia {
   class StatementRelation: public AbstractSpanRole {
     friend void static_init();
   public:
-    explicit StatementRelation( Document *d=0 ):
-    AbstractSpanRole( PROPS, d ){ classInit(); }
-  StatementRelation( const KWargs& a, Document *d = 0 ):
-    AbstractSpanRole( PROPS, d ){ classInit( a ); }
-
+    GENERATE_PUBLIC_CONSTRUCTORS( StatementRelation, AbstractSpanRole );
   private:
     static properties PROPS;
   };
@@ -2301,7 +2261,6 @@ namespace folia {
     friend void static_init();
   public:
     GENERATE_PUBLIC_CONSTRUCTORS( Dependency, AbstractSpanAnnotation );
-
     Headspan *head() const;
     DependencyDependent *dependent() const;
   private:
@@ -2311,11 +2270,7 @@ namespace folia {
   class CoreferenceLink: public AbstractSpanRole {
     friend void static_init();
   public:
-    explicit CoreferenceLink( Document *d=0 ):
-    AbstractSpanRole( PROPS, d ){ classInit(); }
-  CoreferenceLink( const KWargs& a, Document *d = 0 ):
-    AbstractSpanRole( PROPS, d ){ classInit( a ); }
-
+    GENERATE_PUBLIC_CONSTRUCTORS( CoreferenceLink, AbstractSpanRole );
   private:
     static properties PROPS;
   };
@@ -2386,8 +2341,6 @@ namespace folia {
     protected:
       // DO NOT USE AbstractAnnotationLayer as a real node!!
       GENERATE_PROTECTED_CONSTRUCTORS( AbstractAnnotationLayer, AbstractElement );
-    /* AbstractAnnotationLayer( const properties& props, const KWargs& a, Document *d = 0 ): */
-    /*   AbstractElement( props, d ) { classInit( a ); }; */
   public:
     AbstractSpanAnnotation *findspan( const std::vector<FoliaElement*>& ) const;
     FoliaElement *append( FoliaElement * );
@@ -2409,10 +2362,8 @@ namespace folia {
   class New: public AbstractCorrectionChild {
     friend void static_init();
   public:
-  explicit New( Document *d=0 ):
-    AbstractCorrectionChild( PROPS, d ) { classInit(); }
-  New( const KWargs& a, Document *d = 0 ):
-    AbstractCorrectionChild( PROPS, d ) { classInit( a ); }
+    GENERATE_PUBLIC_CONSTRUCTORS( New, AbstractCorrectionChild );
+
     Correction *correct( const std::vector<FoliaElement*>&,
 			 const std::vector<FoliaElement*>&,
 			 const std::vector<FoliaElement*>&,
@@ -2426,11 +2377,7 @@ namespace folia {
   class Current: public AbstractCorrectionChild {
     friend void static_init();
   public:
-  explicit Current( Document *d=0 ):
-    AbstractCorrectionChild( PROPS, d ) { classInit(); }
-  Current( const KWargs& a, Document *d = 0 ):
-    AbstractCorrectionChild( PROPS, d ) { classInit( a ); }
-
+    GENERATE_PUBLIC_CONSTRUCTORS( Current, AbstractCorrectionChild );
   private:
     static properties PROPS;
   };
@@ -2438,11 +2385,7 @@ namespace folia {
   class Original: public AbstractCorrectionChild {
     friend void static_init();
   public:
-  explicit Original( Document *d=0 ):
-    AbstractCorrectionChild( PROPS, d ) { classInit(); }
-  Original( const KWargs& a, Document *d = 0 ):
-    AbstractCorrectionChild( PROPS, d ) { classInit( a ); }
-
+    GENERATE_PUBLIC_CONSTRUCTORS( Original, AbstractCorrectionChild );
   private:
     static properties PROPS;
   };
@@ -2450,10 +2393,7 @@ namespace folia {
   class Suggestion: public AbstractCorrectionChild {
     friend void static_init();
   public:
-  explicit Suggestion( Document *d=0 ):
-    AbstractCorrectionChild( PROPS, d ) { classInit(); }
-  Suggestion( const KWargs& a, Document *d = 0 ):
-    AbstractCorrectionChild( PROPS, d ) { classInit( a ); }
+    GENERATE_PUBLIC_CONSTRUCTORS( Suggestion, AbstractCorrectionChild );
     void setAttributes( KWargs& );
     KWargs collectAttributes() const;
   private:
@@ -2661,11 +2601,7 @@ namespace folia {
   class SyntaxLayer: public AbstractAnnotationLayer {
     friend void static_init();
   public:
-    explicit SyntaxLayer( Document *d=0 ):
-    AbstractAnnotationLayer( PROPS, d ){ classInit(); }
-  SyntaxLayer( const KWargs& a, Document *d = 0 ):
-    AbstractAnnotationLayer( PROPS, d ){ classInit( a ); }
-
+    GENERATE_PUBLIC_CONSTRUCTORS( SyntaxLayer, AbstractAnnotationLayer );
   private:
     static properties PROPS;
   };
@@ -2673,11 +2609,7 @@ namespace folia {
   class ChunkingLayer: public AbstractAnnotationLayer {
     friend void static_init();
   public:
-    explicit ChunkingLayer( Document *d=0 ):
-    AbstractAnnotationLayer( PROPS, d ){ classInit(); }
-  ChunkingLayer( const KWargs& a, Document *d = 0 ):
-    AbstractAnnotationLayer( PROPS, d ){ classInit( a ); }
-
+    GENERATE_PUBLIC_CONSTRUCTORS( ChunkingLayer, AbstractAnnotationLayer );
   private:
     static properties PROPS;
   };
@@ -2685,11 +2617,7 @@ namespace folia {
   class EntitiesLayer: public AbstractAnnotationLayer {
     friend void static_init();
   public:
-    explicit EntitiesLayer( Document *d=0 ):
-    AbstractAnnotationLayer( PROPS, d ){ classInit(); }
-  EntitiesLayer( const KWargs& a, Document *d = 0 ):
-    AbstractAnnotationLayer( PROPS, d ){ classInit( a ); }
-
+    GENERATE_PUBLIC_CONSTRUCTORS( EntitiesLayer, AbstractAnnotationLayer );
   private:
     static properties PROPS;
   };
@@ -2697,11 +2625,7 @@ namespace folia {
   class TimingLayer: public AbstractAnnotationLayer {
     friend void static_init();
   public:
-    explicit TimingLayer( Document *d=0 ):
-    AbstractAnnotationLayer( PROPS, d ){ classInit(); }
-  TimingLayer( const KWargs& a, Document *d = 0 ):
-    AbstractAnnotationLayer( PROPS, d ){ classInit( a ); }
-
+    GENERATE_PUBLIC_CONSTRUCTORS( TimingLayer, AbstractAnnotationLayer );
   private:
     static properties PROPS;
   };
