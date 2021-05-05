@@ -1105,13 +1105,13 @@ namespace folia {
 
   };
 
-#define GENERATE_PROTECTED_CONSTRUCTORS( CLASS, BASE )		\
+#define ADD_PROTECTED_CONSTRUCTORS( CLASS, BASE )		\
   CLASS( const properties& props, Document *d=0 ):		\
     BASE( props, d ){ classInit(); };				\
   CLASS( const properties& props, FoliaElement *p ):		\
     BASE( props, p ){ classInit(); }
 
-#define GENERATE_PUBLIC_CONSTRUCTORS( CLASS, BASE )               \
+#define ADD_PUBLIC_CONSTRUCTORS( CLASS, BASE )               \
   CLASS( const KWargs& a, Document *d=0 ):			  \
     BASE( PROPS, d ){ classInit(a); };				  \
   CLASS( Document *d=0 ):					  \
@@ -1130,7 +1130,7 @@ namespace folia {
       friend void static_init();
     protected:
       // DO NOT USE AbstractStructureElement as a real node!!
-      GENERATE_PROTECTED_CONSTRUCTORS( AbstractStructureElement, AbstractElement );
+      ADD_PROTECTED_CONSTRUCTORS( AbstractStructureElement, AbstractElement );
     public:
       FoliaElement *append( FoliaElement* );
       std::vector<Paragraph*> paragraphs() const;
@@ -1177,7 +1177,7 @@ namespace folia {
       friend void static_init();
     protected:
       // DO NOT USE AbstractInlineAnnotation as a real node!!
-      GENERATE_PROTECTED_CONSTRUCTORS( AbstractInlineAnnotation, AbstractElement );
+      ADD_PROTECTED_CONSTRUCTORS( AbstractInlineAnnotation, AbstractElement );
     private:
       static properties PROPS;
     };
@@ -1188,7 +1188,7 @@ namespace folia {
       friend void static_init();
     protected:
       // DO NOT USE AbstractHigherOrderAnnotation as a real node!!
-      GENERATE_PROTECTED_CONSTRUCTORS( AbstractHigherOrderAnnotation, AbstractElement );
+      ADD_PROTECTED_CONSTRUCTORS( AbstractHigherOrderAnnotation, AbstractElement );
     private:
       static properties PROPS;
     };
@@ -1207,7 +1207,7 @@ namespace folia {
       FoliaElement *wrefs( size_t ) const;
     protected:
       // DO NOT USE AbstractSpanAnnotation as a real node!!
-      GENERATE_PROTECTED_CONSTRUCTORS( AbstractSpanAnnotation, AbstractElement );
+      ADD_PROTECTED_CONSTRUCTORS( AbstractSpanAnnotation, AbstractElement );
     private:
       static properties PROPS;
     };
@@ -1215,7 +1215,7 @@ namespace folia {
   class SpanRelation: public AbstractElement {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( SpanRelation, AbstractElement );
+    ADD_PUBLIC_CONSTRUCTORS( SpanRelation, AbstractElement );
   private:
     static properties PROPS;
   };
@@ -1223,7 +1223,7 @@ namespace folia {
   class ForeignData: public AbstractElement {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( ForeignData, AbstractElement );
+    ADD_PUBLIC_CONSTRUCTORS( ForeignData, AbstractElement );
     ~ForeignData();
 
     FoliaElement* parseXml( const xmlNode * );
@@ -1314,7 +1314,7 @@ namespace folia {
       const FoliaElement* resolveid() const;
     protected:
       // DO NOT USE AbstractTextMarkup as a real node!!
-      GENERATE_PROTECTED_CONSTRUCTORS( AbstractTextMarkup, AbstractElement );
+      ADD_PROTECTED_CONSTRUCTORS( AbstractTextMarkup, AbstractElement );
       const std::string& get_delimiter( bool ) const { return EMPTY_STRING; };
       std::string idref;
     private:
@@ -1324,7 +1324,7 @@ namespace folia {
   class TextMarkupGap: public AbstractTextMarkup {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( TextMarkupGap, AbstractTextMarkup );
+    ADD_PUBLIC_CONSTRUCTORS( TextMarkupGap, AbstractTextMarkup );
   private:
     static properties PROPS;
   };
@@ -1332,7 +1332,7 @@ namespace folia {
   class TextMarkupString: public AbstractTextMarkup {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( TextMarkupString, AbstractTextMarkup );
+    ADD_PUBLIC_CONSTRUCTORS( TextMarkupString, AbstractTextMarkup );
   private:
     static properties PROPS;
   };
@@ -1340,7 +1340,7 @@ namespace folia {
   class TextMarkupCorrection: public AbstractTextMarkup {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( TextMarkupCorrection, AbstractTextMarkup );
+    ADD_PUBLIC_CONSTRUCTORS( TextMarkupCorrection, AbstractTextMarkup );
     void setAttributes( KWargs& );
     KWargs collectAttributes() const;
   private:
@@ -1352,7 +1352,7 @@ namespace folia {
   class TextMarkupError: public AbstractTextMarkup {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( TextMarkupError, AbstractTextMarkup );
+    ADD_PUBLIC_CONSTRUCTORS( TextMarkupError, AbstractTextMarkup );
   private:
     static properties PROPS;
   };
@@ -1360,7 +1360,7 @@ namespace folia {
   class TextMarkupStyle: public AbstractTextMarkup {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( TextMarkupStyle, AbstractTextMarkup );
+    ADD_PUBLIC_CONSTRUCTORS( TextMarkupStyle, AbstractTextMarkup );
   private:
     static properties PROPS;
   };
@@ -1368,7 +1368,7 @@ namespace folia {
   class Hyphbreak: public AbstractTextMarkup {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( Hyphbreak, AbstractTextMarkup );
+    ADD_PUBLIC_CONSTRUCTORS( Hyphbreak, AbstractTextMarkup );
   private:
     static properties PROPS;
   };
@@ -1376,7 +1376,7 @@ namespace folia {
   class TextMarkupReference: public AbstractTextMarkup {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( TextMarkupReference, AbstractTextMarkup );
+    ADD_PUBLIC_CONSTRUCTORS( TextMarkupReference, AbstractTextMarkup );
     KWargs collectAttributes() const;
     void setAttributes( KWargs& );
 
@@ -1392,7 +1392,7 @@ namespace folia {
   class TextMarkupHSpace: public AbstractTextMarkup {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( TextMarkupHSpace, AbstractTextMarkup );
+    ADD_PUBLIC_CONSTRUCTORS( TextMarkupHSpace, AbstractTextMarkup );
   private:
     const UnicodeString private_text( const TextPolicy& ) const;
     static properties PROPS;
@@ -1401,7 +1401,7 @@ namespace folia {
   class TextMarkupWhitespace: public AbstractTextMarkup {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( TextMarkupWhitespace, AbstractTextMarkup );
+    ADD_PUBLIC_CONSTRUCTORS( TextMarkupWhitespace, AbstractTextMarkup );
   private:
     static properties PROPS;
   };
@@ -1409,7 +1409,7 @@ namespace folia {
   class TextMarkupLanguage: public AbstractTextMarkup {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( TextMarkupLanguage, AbstractTextMarkup );
+    ADD_PUBLIC_CONSTRUCTORS( TextMarkupLanguage, AbstractTextMarkup );
   private:
     static properties PROPS;
   };
@@ -1419,7 +1419,7 @@ namespace folia {
     friend void static_init();
   protected:
     // DO NOT USE AbstractContentAnnotation as a real node!!
-    GENERATE_PROTECTED_CONSTRUCTORS( AbstractContentAnnotation, AbstractElement );
+    ADD_PROTECTED_CONSTRUCTORS( AbstractContentAnnotation, AbstractElement );
   private:
     static properties PROPS;
   };
@@ -1431,7 +1431,7 @@ namespace folia {
     {
       friend void static_init();
     public:
-      GENERATE_PUBLIC_CONSTRUCTORS( TextContent,
+      ADD_PUBLIC_CONSTRUCTORS( TextContent,
 				    AbstractContentAnnotation );
       void setAttributes( KWargs& );
       KWargs collectAttributes() const;
@@ -1459,7 +1459,7 @@ namespace folia {
   class PhonContent: public AbstractContentAnnotation {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( PhonContent,
+    ADD_PUBLIC_CONSTRUCTORS( PhonContent,
 				  AbstractContentAnnotation );
     void setAttributes( KWargs& );
     KWargs collectAttributes() const;
@@ -1484,11 +1484,7 @@ namespace folia {
   class FoLiA: public AbstractElement {
     friend void static_init();
   public:
-    explicit FoLiA( Document *d = 0 ):
-    AbstractElement( PROPS,d) { classInit(); }
-  FoLiA( const KWargs& a, Document *d = 0 ):
-    AbstractElement( PROPS, d ) { classInit( a ); }
-
+    ADD_PUBLIC_CONSTRUCTORS( FoLiA, AbstractElement );
     FoliaElement* parseXml( const xmlNode * );
     void setAttributes( KWargs& );
   private:
@@ -1499,11 +1495,7 @@ namespace folia {
   class DCOI: public AbstractElement {
     friend void static_init();
   public:
-    explicit DCOI( Document *d = 0 ):
-    AbstractElement( PROPS, d ) { classInit( ); }
-  DCOI( const KWargs& a, Document *d = 0 ):
-    AbstractElement( PROPS, d ) { classInit( a ); }
-
+    ADD_PUBLIC_CONSTRUCTORS( DCOI, AbstractElement );
   private:
     static properties PROPS;
   };
@@ -1511,7 +1503,7 @@ namespace folia {
   class Head: public AbstractStructureElement {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( Head, AbstractStructureElement );
+    ADD_PUBLIC_CONSTRUCTORS( Head, AbstractStructureElement );
 
   private:
     static properties PROPS;
@@ -1520,7 +1512,7 @@ namespace folia {
   class TableHead: public AbstractStructureElement {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( TableHead, AbstractStructureElement );
+    ADD_PUBLIC_CONSTRUCTORS( TableHead, AbstractStructureElement );
   private:
     static properties PROPS;
   };
@@ -1528,7 +1520,7 @@ namespace folia {
   class Table: public AbstractStructureElement {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( Table, AbstractStructureElement );
+    ADD_PUBLIC_CONSTRUCTORS( Table, AbstractStructureElement );
   private:
     static properties PROPS;
   };
@@ -1536,7 +1528,7 @@ namespace folia {
   class Row: public AbstractStructureElement {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( Row, AbstractStructureElement );
+    ADD_PUBLIC_CONSTRUCTORS( Row, AbstractStructureElement );
   private:
     static properties PROPS;
   };
@@ -1544,7 +1536,7 @@ namespace folia {
   class Cell: public AbstractStructureElement {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( Cell, AbstractStructureElement );
+    ADD_PUBLIC_CONSTRUCTORS( Cell, AbstractStructureElement );
   private:
     static properties PROPS;
   };
@@ -1552,7 +1544,7 @@ namespace folia {
   class Gap: public AbstractElement {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( Gap, AbstractElement );
+    ADD_PUBLIC_CONSTRUCTORS( Gap, AbstractElement );
 
     const std::string content() const;
   private:
@@ -1562,7 +1554,7 @@ namespace folia {
   class Content: public AbstractElement {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( Content, AbstractElement );
+    ADD_PUBLIC_CONSTRUCTORS( Content, AbstractElement );
 
     FoliaElement* parseXml( const xmlNode * );
     xmlNode *xml( bool, bool = false ) const;
@@ -1576,7 +1568,7 @@ namespace folia {
   class Metric: public AbstractElement {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( Metric, AbstractElement );
+    ADD_PUBLIC_CONSTRUCTORS( Metric, AbstractElement );
 
   private:
     static properties PROPS;
@@ -1585,7 +1577,7 @@ namespace folia {
   class Division: public AbstractStructureElement {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( Division, AbstractStructureElement );
+    ADD_PUBLIC_CONSTRUCTORS( Division, AbstractStructureElement );
     Head *head() const;
   private:
     static properties PROPS;
@@ -1597,7 +1589,7 @@ namespace folia {
     {
       friend void static_init();
     public:
-      GENERATE_PUBLIC_CONSTRUCTORS( Linebreak, AbstractStructureElement );
+      ADD_PUBLIC_CONSTRUCTORS( Linebreak, AbstractStructureElement );
       void setAttributes( KWargs& );
       KWargs collectAttributes() const;
     private:
@@ -1614,7 +1606,7 @@ namespace folia {
   class Whitespace: public AbstractStructureElement {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( Whitespace, AbstractStructureElement );
+    ADD_PUBLIC_CONSTRUCTORS( Whitespace, AbstractStructureElement );
   private:
     const UnicodeString private_text( const TextPolicy& ) const {
       return "\n\n";
@@ -1628,7 +1620,7 @@ namespace folia {
   {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( Word, AbstractStructureElement );
+    ADD_PUBLIC_CONSTRUCTORS( Word, AbstractStructureElement );
 
     Correction *split( FoliaElement *, FoliaElement *,
 		       const std::string& = "" );
@@ -1649,7 +1641,7 @@ namespace folia {
     MorphologyLayer *getMorphologyLayers( const std::string&,
 					  std::vector<MorphologyLayer*>& ) const;
   protected:
-    GENERATE_PROTECTED_CONSTRUCTORS( Word, AbstractStructureElement );
+    ADD_PROTECTED_CONSTRUCTORS( Word, AbstractStructureElement );
   private:
     static properties PROPS;
   };
@@ -1660,7 +1652,7 @@ namespace folia {
   {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( Hiddenword, AbstractStructureElement );
+    ADD_PUBLIC_CONSTRUCTORS( Hiddenword, AbstractStructureElement );
   private:
     static properties PROPS;
   };
@@ -1668,7 +1660,7 @@ namespace folia {
   class Part: public AbstractStructureElement {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( Part, AbstractStructureElement );
+    ADD_PUBLIC_CONSTRUCTORS( Part, AbstractStructureElement );
 
   private:
     static properties PROPS;
@@ -1681,7 +1673,7 @@ namespace folia {
     {
       friend void static_init();
     public:
-      GENERATE_PUBLIC_CONSTRUCTORS( String, AbstractElement );
+      ADD_PUBLIC_CONSTRUCTORS( String, AbstractElement );
     private:
       static properties PROPS;
     };
@@ -1689,7 +1681,7 @@ namespace folia {
   class PlaceHolder: public Word {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( PlaceHolder, Word );
+    ADD_PUBLIC_CONSTRUCTORS( PlaceHolder, Word );
     void setAttributes( KWargs& );
   private:
     static properties PROPS;
@@ -1700,7 +1692,7 @@ namespace folia {
     {
       friend void static_init();
     public:
-      GENERATE_PUBLIC_CONSTRUCTORS( Sentence, AbstractStructureElement );
+      ADD_PUBLIC_CONSTRUCTORS( Sentence, AbstractStructureElement );
 
       Correction *splitWord( FoliaElement *, FoliaElement *,
 			     FoliaElement *, const KWargs& );
@@ -1721,7 +1713,7 @@ namespace folia {
   class Speech: public AbstractStructureElement {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( Speech, AbstractStructureElement );
+    ADD_PUBLIC_CONSTRUCTORS( Speech, AbstractStructureElement );
 
   private:
     static properties PROPS;
@@ -1730,7 +1722,7 @@ namespace folia {
   class Text: public AbstractStructureElement {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( Text, AbstractStructureElement );
+    ADD_PUBLIC_CONSTRUCTORS( Text, AbstractStructureElement );
   private:
     static properties PROPS;
   };
@@ -1738,7 +1730,7 @@ namespace folia {
   class Utterance: public AbstractStructureElement {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( Utterance, AbstractStructureElement );
+    ADD_PUBLIC_CONSTRUCTORS( Utterance, AbstractStructureElement );
 
   private:
     static properties PROPS;
@@ -1747,7 +1739,7 @@ namespace folia {
   class Event: public AbstractStructureElement {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( Event, AbstractStructureElement );
+    ADD_PUBLIC_CONSTRUCTORS( Event, AbstractStructureElement );
   private:
     static properties PROPS;
   };
@@ -1755,7 +1747,7 @@ namespace folia {
   class Caption: public AbstractStructureElement {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( Caption, AbstractStructureElement );
+    ADD_PUBLIC_CONSTRUCTORS( Caption, AbstractStructureElement );
   private:
     static properties PROPS;
   };
@@ -1763,7 +1755,7 @@ namespace folia {
   class Label: public AbstractStructureElement {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( Label, AbstractStructureElement );
+    ADD_PUBLIC_CONSTRUCTORS( Label, AbstractStructureElement );
   private:
     static properties PROPS;
   };
@@ -1771,7 +1763,7 @@ namespace folia {
   class ListItem: public AbstractStructureElement {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( ListItem, AbstractStructureElement );
+    ADD_PUBLIC_CONSTRUCTORS( ListItem, AbstractStructureElement );
   private:
     static properties PROPS;
   };
@@ -1779,7 +1771,7 @@ namespace folia {
   class List: public AbstractStructureElement {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( List, AbstractStructureElement );
+    ADD_PUBLIC_CONSTRUCTORS( List, AbstractStructureElement );
   private:
     static properties PROPS;
   };
@@ -1787,7 +1779,7 @@ namespace folia {
   class Figure: public AbstractStructureElement {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( Figure, AbstractStructureElement );
+    ADD_PUBLIC_CONSTRUCTORS( Figure, AbstractStructureElement );
     const UnicodeString caption() const;
   private:
     static properties PROPS;
@@ -1796,7 +1788,7 @@ namespace folia {
   class Paragraph: public AbstractStructureElement {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( Paragraph, AbstractStructureElement );
+    ADD_PUBLIC_CONSTRUCTORS( Paragraph, AbstractStructureElement );
   private:
     static properties PROPS;
   };
@@ -1807,7 +1799,7 @@ namespace folia {
     friend void static_init();
   protected:
     // DO NOT USE AbstractSubtokenAnnotation as a real node!!
-    GENERATE_PROTECTED_CONSTRUCTORS( AbstractSubtokenAnnotation,
+    ADD_PROTECTED_CONSTRUCTORS( AbstractSubtokenAnnotation,
 				     AbstractStructureElement );
   private:
     static properties PROPS;
@@ -1820,7 +1812,7 @@ namespace folia {
     {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( Alternative, AbstractHigherOrderAnnotation );
+    ADD_PUBLIC_CONSTRUCTORS( Alternative, AbstractHigherOrderAnnotation );
   private:
     static properties PROPS;
   };
@@ -1829,7 +1821,7 @@ namespace folia {
   class AlternativeLayers: public AbstractElement {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( AlternativeLayers, AbstractElement );
+    ADD_PUBLIC_CONSTRUCTORS( AlternativeLayers, AbstractElement );
 
   private:
     static properties PROPS;
@@ -1838,7 +1830,7 @@ namespace folia {
   class PosAnnotation: public AbstractInlineAnnotation {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( PosAnnotation, AbstractInlineAnnotation );
+    ADD_PUBLIC_CONSTRUCTORS( PosAnnotation, AbstractInlineAnnotation );
   private:
     static properties PROPS;
   };
@@ -1846,7 +1838,7 @@ namespace folia {
   class LemmaAnnotation: public AbstractInlineAnnotation {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( LemmaAnnotation, AbstractInlineAnnotation );
+    ADD_PUBLIC_CONSTRUCTORS( LemmaAnnotation, AbstractInlineAnnotation );
   private:
     static properties PROPS;
   };
@@ -1854,7 +1846,7 @@ namespace folia {
   class LangAnnotation: public AbstractInlineAnnotation {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( LangAnnotation, AbstractInlineAnnotation );
+    ADD_PUBLIC_CONSTRUCTORS( LangAnnotation, AbstractInlineAnnotation );
   private:
     static properties PROPS;
   };
@@ -1865,7 +1857,7 @@ namespace folia {
     {
       friend void static_init();
     public:
-      GENERATE_PUBLIC_CONSTRUCTORS( Phoneme, AbstractSubtokenAnnotation );
+      ADD_PUBLIC_CONSTRUCTORS( Phoneme, AbstractSubtokenAnnotation );
     private:
       static properties PROPS;
     };
@@ -1873,7 +1865,7 @@ namespace folia {
   class DomainAnnotation: public AbstractInlineAnnotation {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( DomainAnnotation, AbstractInlineAnnotation );
+    ADD_PUBLIC_CONSTRUCTORS( DomainAnnotation, AbstractInlineAnnotation );
   private:
     static properties PROPS;
   };
@@ -1881,7 +1873,7 @@ namespace folia {
   class SenseAnnotation: public AbstractInlineAnnotation {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( SenseAnnotation, AbstractInlineAnnotation );
+    ADD_PUBLIC_CONSTRUCTORS( SenseAnnotation, AbstractInlineAnnotation );
   private:
     static properties PROPS;
   };
@@ -1889,7 +1881,7 @@ namespace folia {
   class SubjectivityAnnotation: public AbstractInlineAnnotation {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( SubjectivityAnnotation,
+    ADD_PUBLIC_CONSTRUCTORS( SubjectivityAnnotation,
 				  AbstractInlineAnnotation );
   private:
     static properties PROPS;
@@ -1898,7 +1890,7 @@ namespace folia {
   class Quote: public AbstractStructureElement {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( Quote, AbstractStructureElement );
+    ADD_PUBLIC_CONSTRUCTORS( Quote, AbstractStructureElement );
     std::vector<Word*> wordParts() const;
     const std::string& get_delimiter( bool=false) const;
   private:
@@ -1908,13 +1900,13 @@ namespace folia {
   class Feature: public AbstractElement {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( Feature, AbstractElement );
+    ADD_PUBLIC_CONSTRUCTORS( Feature, AbstractElement );
     void setAttributes( KWargs& );
     KWargs collectAttributes() const;
     const std::string subset() const { return _subset; };
 
   protected:
-    GENERATE_PROTECTED_CONSTRUCTORS( Feature, AbstractElement );
+    ADD_PROTECTED_CONSTRUCTORS( Feature, AbstractElement );
   private:
     std::string _subset;
     static properties PROPS;
@@ -1923,7 +1915,7 @@ namespace folia {
   class BegindatetimeFeature: public Feature {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( BegindatetimeFeature, Feature );
+    ADD_PUBLIC_CONSTRUCTORS( BegindatetimeFeature, Feature );
   private:
     static properties PROPS;
   };
@@ -1931,7 +1923,7 @@ namespace folia {
   class EnddatetimeFeature: public Feature {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( EnddatetimeFeature, Feature );
+    ADD_PUBLIC_CONSTRUCTORS( EnddatetimeFeature, Feature );
   private:
     static properties PROPS;
   };
@@ -1939,7 +1931,7 @@ namespace folia {
   class SynsetFeature: public Feature {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( SynsetFeature, Feature );
+    ADD_PUBLIC_CONSTRUCTORS( SynsetFeature, Feature );
   private:
     static properties PROPS;
   };
@@ -1947,7 +1939,7 @@ namespace folia {
   class ActorFeature: public Feature {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( ActorFeature, Feature );
+    ADD_PUBLIC_CONSTRUCTORS( ActorFeature, Feature );
   private:
     static properties PROPS;
   };
@@ -1955,7 +1947,7 @@ namespace folia {
   class PolarityFeature: public Feature {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( PolarityFeature, Feature );
+    ADD_PUBLIC_CONSTRUCTORS( PolarityFeature, Feature );
   private:
     static properties PROPS;
   };
@@ -1963,7 +1955,7 @@ namespace folia {
   class StrengthFeature: public Feature {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( StrengthFeature, Feature );
+    ADD_PUBLIC_CONSTRUCTORS( StrengthFeature, Feature );
   private:
     static properties PROPS;
   };
@@ -1972,7 +1964,7 @@ namespace folia {
   class HeadFeature: public Feature {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( HeadFeature, Feature );
+    ADD_PUBLIC_CONSTRUCTORS( HeadFeature, Feature );
   private:
     static properties PROPS;
   };
@@ -1980,7 +1972,7 @@ namespace folia {
   class ValueFeature: public Feature {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( ValueFeature, Feature );
+    ADD_PUBLIC_CONSTRUCTORS( ValueFeature, Feature );
   private:
     static properties PROPS;
   };
@@ -1988,7 +1980,7 @@ namespace folia {
   class FunctionFeature: public Feature {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( FunctionFeature, Feature );
+    ADD_PUBLIC_CONSTRUCTORS( FunctionFeature, Feature );
   private:
     static properties PROPS;
   };
@@ -1996,7 +1988,7 @@ namespace folia {
   class TimeFeature: public Feature {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( TimeFeature, Feature );
+    ADD_PUBLIC_CONSTRUCTORS( TimeFeature, Feature );
   private:
     static properties PROPS;
   };
@@ -2004,7 +1996,7 @@ namespace folia {
   class LevelFeature: public Feature {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( LevelFeature, Feature );
+    ADD_PUBLIC_CONSTRUCTORS( LevelFeature, Feature );
   private:
     static properties PROPS;
   };
@@ -2012,7 +2004,7 @@ namespace folia {
   class ModalityFeature: public Feature {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( ModalityFeature, Feature );
+    ADD_PUBLIC_CONSTRUCTORS( ModalityFeature, Feature );
   private:
     static properties PROPS;
   };
@@ -2020,7 +2012,7 @@ namespace folia {
   class StyleFeature: public Feature {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( StyleFeature, Feature );
+    ADD_PUBLIC_CONSTRUCTORS( StyleFeature, Feature );
   private:
     static properties PROPS;
   };
@@ -2028,7 +2020,7 @@ namespace folia {
   class FontFeature: public Feature {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( FontFeature, Feature );
+    ADD_PUBLIC_CONSTRUCTORS( FontFeature, Feature );
   private:
     static properties PROPS;
   };
@@ -2036,7 +2028,7 @@ namespace folia {
   class SizeFeature: public Feature {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( SizeFeature, Feature );
+    ADD_PUBLIC_CONSTRUCTORS( SizeFeature, Feature );
   private:
     static properties PROPS;
   };
@@ -2044,7 +2036,7 @@ namespace folia {
   class WordReference: public AbstractElement {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( WordReference, AbstractElement );
+    ADD_PUBLIC_CONSTRUCTORS( WordReference, AbstractElement );
   private:
     static properties PROPS;
     FoliaElement* parseXml( const xmlNode *node );
@@ -2055,7 +2047,7 @@ namespace folia {
     public AllowXlink {
       friend void static_init();
   public:
-      GENERATE_PUBLIC_CONSTRUCTORS( Relation, AbstractHigherOrderAnnotation );
+      ADD_PUBLIC_CONSTRUCTORS( Relation, AbstractHigherOrderAnnotation );
       std::vector<FoliaElement *>resolve() const;
       void setAttributes( KWargs& );
       KWargs collectAttributes() const;
@@ -2069,7 +2061,7 @@ namespace folia {
     friend void static_init();
     friend class Relation;
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( LinkReference, AbstractElement );
+    ADD_PUBLIC_CONSTRUCTORS( LinkReference, AbstractElement );
 
     KWargs collectAttributes() const;
     void setAttributes( KWargs& );
@@ -2089,7 +2081,7 @@ namespace folia {
   class SyntacticUnit: public AbstractSpanAnnotation {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( SyntacticUnit, AbstractSpanAnnotation );
+    ADD_PUBLIC_CONSTRUCTORS( SyntacticUnit, AbstractSpanAnnotation );
 
   private:
     static properties PROPS;
@@ -2098,7 +2090,7 @@ namespace folia {
   class Chunk: public AbstractSpanAnnotation {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( Chunk, AbstractSpanAnnotation );
+    ADD_PUBLIC_CONSTRUCTORS( Chunk, AbstractSpanAnnotation );
 
   private:
     static properties PROPS;
@@ -2107,7 +2099,7 @@ namespace folia {
   class Entity: public AbstractSpanAnnotation {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( Entity, AbstractSpanAnnotation );
+    ADD_PUBLIC_CONSTRUCTORS( Entity, AbstractSpanAnnotation );
 
   private:
     static properties PROPS;
@@ -2117,7 +2109,7 @@ namespace folia {
     friend void static_init();
   protected:
     // DO NOT USE AbstractSpanRole as a real node!!
-    GENERATE_PROTECTED_CONSTRUCTORS( AbstractSpanRole, AbstractSpanAnnotation );
+    ADD_PROTECTED_CONSTRUCTORS( AbstractSpanRole, AbstractSpanAnnotation );
   private:
     static properties PROPS;
   };
@@ -2125,7 +2117,7 @@ namespace folia {
   class Headspan: public AbstractSpanRole {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( Headspan, AbstractSpanRole );
+    ADD_PUBLIC_CONSTRUCTORS( Headspan, AbstractSpanRole );
   private:
     static properties PROPS;
   };
@@ -2133,7 +2125,7 @@ namespace folia {
   class DependencyDependent: public AbstractSpanRole {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( DependencyDependent, AbstractSpanRole );
+    ADD_PUBLIC_CONSTRUCTORS( DependencyDependent, AbstractSpanRole );
   private:
     static properties PROPS;
   };
@@ -2141,7 +2133,7 @@ namespace folia {
   class Source: public AbstractSpanRole {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( Source, AbstractSpanRole );
+    ADD_PUBLIC_CONSTRUCTORS( Source, AbstractSpanRole );
   private:
     static properties PROPS;
   };
@@ -2149,7 +2141,7 @@ namespace folia {
   class Target: public AbstractSpanRole {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( Target, AbstractSpanRole );
+    ADD_PUBLIC_CONSTRUCTORS( Target, AbstractSpanRole );
   private:
     static properties PROPS;
   };
@@ -2157,7 +2149,7 @@ namespace folia {
   class Scope: public AbstractSpanRole {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( Scope, AbstractSpanRole );
+    ADD_PUBLIC_CONSTRUCTORS( Scope, AbstractSpanRole );
   private:
     static properties PROPS;
   };
@@ -2165,7 +2157,7 @@ namespace folia {
   class Cue: public AbstractSpanRole {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( Cue, AbstractSpanRole );
+    ADD_PUBLIC_CONSTRUCTORS( Cue, AbstractSpanRole );
   private:
     static properties PROPS;
   };
@@ -2173,7 +2165,7 @@ namespace folia {
   class StatementRelation: public AbstractSpanRole {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( StatementRelation, AbstractSpanRole );
+    ADD_PUBLIC_CONSTRUCTORS( StatementRelation, AbstractSpanRole );
   private:
     static properties PROPS;
   };
@@ -2181,7 +2173,7 @@ namespace folia {
   class Dependency: public AbstractSpanAnnotation {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( Dependency, AbstractSpanAnnotation );
+    ADD_PUBLIC_CONSTRUCTORS( Dependency, AbstractSpanAnnotation );
     Headspan *head() const;
     DependencyDependent *dependent() const;
   private:
@@ -2191,7 +2183,7 @@ namespace folia {
   class CoreferenceLink: public AbstractSpanRole {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( CoreferenceLink, AbstractSpanRole );
+    ADD_PUBLIC_CONSTRUCTORS( CoreferenceLink, AbstractSpanRole );
   private:
     static properties PROPS;
   };
@@ -2199,7 +2191,7 @@ namespace folia {
   class CoreferenceChain: public AbstractSpanAnnotation {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( CoreferenceChain, AbstractSpanAnnotation );
+    ADD_PUBLIC_CONSTRUCTORS( CoreferenceChain, AbstractSpanAnnotation );
   private:
     static properties PROPS;
   };
@@ -2207,7 +2199,7 @@ namespace folia {
   class SemanticRole: public AbstractSpanAnnotation {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( SemanticRole, AbstractSpanAnnotation );
+    ADD_PUBLIC_CONSTRUCTORS( SemanticRole, AbstractSpanAnnotation );
   private:
     static properties PROPS;
   };
@@ -2215,7 +2207,7 @@ namespace folia {
   class Predicate: public AbstractSpanAnnotation {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( Predicate, AbstractSpanAnnotation );
+    ADD_PUBLIC_CONSTRUCTORS( Predicate, AbstractSpanAnnotation );
   private:
     static properties PROPS;
   };
@@ -2223,7 +2215,7 @@ namespace folia {
   class Sentiment: public AbstractSpanAnnotation {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( Sentiment, AbstractSpanAnnotation );
+    ADD_PUBLIC_CONSTRUCTORS( Sentiment, AbstractSpanAnnotation );
   private:
     static properties PROPS;
   };
@@ -2231,7 +2223,7 @@ namespace folia {
   class Modality: public AbstractSpanAnnotation {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( Modality, AbstractSpanAnnotation );
+    ADD_PUBLIC_CONSTRUCTORS( Modality, AbstractSpanAnnotation );
   private:
     static properties PROPS;
   };
@@ -2239,7 +2231,7 @@ namespace folia {
   class Statement: public AbstractSpanAnnotation {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( Statement, AbstractSpanAnnotation );
+    ADD_PUBLIC_CONSTRUCTORS( Statement, AbstractSpanAnnotation );
   private:
     static properties PROPS;
   };
@@ -2247,7 +2239,7 @@ namespace folia {
   class Observation: public AbstractSpanAnnotation {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( Observation, AbstractSpanAnnotation );
+    ADD_PUBLIC_CONSTRUCTORS( Observation, AbstractSpanAnnotation );
   private:
     static properties PROPS;
   };
@@ -2265,7 +2257,7 @@ namespace folia {
       KWargs collectAttributes() const;
     protected:
       // DO NOT USE AbstractAnnotationLayer as a real node!!
-      GENERATE_PROTECTED_CONSTRUCTORS( AbstractAnnotationLayer, AbstractElement );
+      ADD_PROTECTED_CONSTRUCTORS( AbstractAnnotationLayer, AbstractElement );
     private:
       static properties PROPS;
       void assignset( FoliaElement * );
@@ -2275,7 +2267,7 @@ namespace folia {
     friend void static_init();
   protected:
     // DO NOT USE AbstractCorrectionChild as a real node!!
-    GENERATE_PROTECTED_CONSTRUCTORS( AbstractCorrectionChild, AbstractElement );
+    ADD_PROTECTED_CONSTRUCTORS( AbstractCorrectionChild, AbstractElement );
   private:
     static properties PROPS;
   };
@@ -2283,7 +2275,7 @@ namespace folia {
   class New: public AbstractCorrectionChild {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( New, AbstractCorrectionChild );
+    ADD_PUBLIC_CONSTRUCTORS( New, AbstractCorrectionChild );
 
     Correction *correct( const std::vector<FoliaElement*>&,
 			 const std::vector<FoliaElement*>&,
@@ -2298,7 +2290,7 @@ namespace folia {
   class Current: public AbstractCorrectionChild {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( Current, AbstractCorrectionChild );
+    ADD_PUBLIC_CONSTRUCTORS( Current, AbstractCorrectionChild );
   private:
     static properties PROPS;
   };
@@ -2306,7 +2298,7 @@ namespace folia {
   class Original: public AbstractCorrectionChild {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( Original, AbstractCorrectionChild );
+    ADD_PUBLIC_CONSTRUCTORS( Original, AbstractCorrectionChild );
   private:
     static properties PROPS;
   };
@@ -2314,7 +2306,7 @@ namespace folia {
   class Suggestion: public AbstractCorrectionChild {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( Suggestion, AbstractCorrectionChild );
+    ADD_PUBLIC_CONSTRUCTORS( Suggestion, AbstractCorrectionChild );
     void setAttributes( KWargs& );
     KWargs collectAttributes() const;
   private:
@@ -2326,7 +2318,7 @@ namespace folia {
   class Description: public AbstractElement {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( Description, AbstractElement );
+    ADD_PUBLIC_CONSTRUCTORS( Description, AbstractElement );
 
     const std::string description() const { return _value; };
     void setAttributes( KWargs& );
@@ -2341,7 +2333,7 @@ namespace folia {
   class Comment: public AbstractElement {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( Comment, AbstractElement );
+    ADD_PUBLIC_CONSTRUCTORS( Comment, AbstractElement );
 
     const std::string comment() const { return _value; };
     void setAttributes( KWargs& );
@@ -2356,7 +2348,7 @@ namespace folia {
   class XmlComment: public AbstractElement {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( XmlComment, AbstractElement );
+    ADD_PUBLIC_CONSTRUCTORS( XmlComment, AbstractElement );
 
     FoliaElement* parseXml( const xmlNode * );
     xmlNode *xml( bool, bool=false ) const;
@@ -2372,7 +2364,7 @@ namespace folia {
   class XmlText: public AbstractElement {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( XmlText, AbstractElement );
+    ADD_PUBLIC_CONSTRUCTORS( XmlText, AbstractElement );
 
     FoliaElement* parseXml( const xmlNode * );
     xmlNode *xml( bool, bool=false ) const;
@@ -2387,7 +2379,7 @@ namespace folia {
   class External: public AbstractElement {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( External, AbstractElement );
+    ADD_PUBLIC_CONSTRUCTORS( External, AbstractElement );
 
     FoliaElement* parseXml( const xmlNode * );
     void resolve_external();
@@ -2398,7 +2390,7 @@ namespace folia {
   class Note: public AbstractStructureElement {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( Note, AbstractStructureElement );
+    ADD_PUBLIC_CONSTRUCTORS( Note, AbstractStructureElement );
     void setAttributes( KWargs& );
   private:
     static properties PROPS;
@@ -2408,7 +2400,7 @@ namespace folia {
   class Definition: public AbstractStructureElement {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( Definition, AbstractStructureElement );
+    ADD_PUBLIC_CONSTRUCTORS( Definition, AbstractStructureElement );
   private:
     static properties PROPS;
   };
@@ -2416,7 +2408,7 @@ namespace folia {
   class Term: public AbstractStructureElement {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( Term, AbstractStructureElement );
+    ADD_PUBLIC_CONSTRUCTORS( Term, AbstractStructureElement );
 
   private:
     static properties PROPS;
@@ -2425,7 +2417,7 @@ namespace folia {
   class Example: public AbstractStructureElement {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( Example, AbstractStructureElement );
+    ADD_PUBLIC_CONSTRUCTORS( Example, AbstractStructureElement );
 
   private:
     static properties PROPS;
@@ -2434,7 +2426,7 @@ namespace folia {
   class Entry: public AbstractStructureElement {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( Entry, AbstractStructureElement );
+    ADD_PUBLIC_CONSTRUCTORS( Entry, AbstractStructureElement );
 
   private:
     static properties PROPS;
@@ -2447,7 +2439,7 @@ namespace folia {
       friend void static_init();
       friend class Note;
     public:
-      GENERATE_PUBLIC_CONSTRUCTORS( Reference, AbstractStructureElement );
+      ADD_PUBLIC_CONSTRUCTORS( Reference, AbstractStructureElement );
 
       KWargs collectAttributes() const;
       void setAttributes( KWargs& );
@@ -2463,7 +2455,7 @@ namespace folia {
   class Correction: public AbstractInlineAnnotation {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( Correction, AbstractInlineAnnotation );
+    ADD_PUBLIC_CONSTRUCTORS( Correction, AbstractInlineAnnotation );
     bool hasNew() const;
     bool hasOriginal() const;
     bool hasCurrent() const;
@@ -2495,7 +2487,7 @@ namespace folia {
   class ErrorDetection: public AbstractInlineAnnotation  {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( ErrorDetection, AbstractInlineAnnotation );
+    ADD_PUBLIC_CONSTRUCTORS( ErrorDetection, AbstractInlineAnnotation );
   private:
     static properties PROPS;
   };
@@ -2503,7 +2495,7 @@ namespace folia {
   class TimeSegment: public AbstractSpanAnnotation {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( TimeSegment, AbstractSpanAnnotation );
+    ADD_PUBLIC_CONSTRUCTORS( TimeSegment, AbstractSpanAnnotation );
   private:
     static properties PROPS;
   };
@@ -2514,7 +2506,7 @@ namespace folia {
     {
       friend void static_init();
     public:
-      GENERATE_PUBLIC_CONSTRUCTORS( Morpheme, AbstractSubtokenAnnotation );
+      ADD_PUBLIC_CONSTRUCTORS( Morpheme, AbstractSubtokenAnnotation );
     private:
       static properties PROPS;
     };
@@ -2522,7 +2514,7 @@ namespace folia {
   class SyntaxLayer: public AbstractAnnotationLayer {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( SyntaxLayer, AbstractAnnotationLayer );
+    ADD_PUBLIC_CONSTRUCTORS( SyntaxLayer, AbstractAnnotationLayer );
   private:
     static properties PROPS;
   };
@@ -2530,7 +2522,7 @@ namespace folia {
   class ChunkingLayer: public AbstractAnnotationLayer {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( ChunkingLayer, AbstractAnnotationLayer );
+    ADD_PUBLIC_CONSTRUCTORS( ChunkingLayer, AbstractAnnotationLayer );
   private:
     static properties PROPS;
   };
@@ -2538,7 +2530,7 @@ namespace folia {
   class EntitiesLayer: public AbstractAnnotationLayer {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( EntitiesLayer, AbstractAnnotationLayer );
+    ADD_PUBLIC_CONSTRUCTORS( EntitiesLayer, AbstractAnnotationLayer );
   private:
     static properties PROPS;
   };
@@ -2546,7 +2538,7 @@ namespace folia {
   class TimingLayer: public AbstractAnnotationLayer {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( TimingLayer, AbstractAnnotationLayer );
+    ADD_PUBLIC_CONSTRUCTORS( TimingLayer, AbstractAnnotationLayer );
   private:
     static properties PROPS;
   };
@@ -2554,7 +2546,7 @@ namespace folia {
   class MorphologyLayer: public AbstractAnnotationLayer {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( MorphologyLayer, AbstractAnnotationLayer );
+    ADD_PUBLIC_CONSTRUCTORS( MorphologyLayer, AbstractAnnotationLayer );
   private:
     static properties PROPS;
   };
@@ -2562,7 +2554,7 @@ namespace folia {
   class PhonologyLayer: public AbstractAnnotationLayer {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( PhonologyLayer, AbstractAnnotationLayer );
+    ADD_PUBLIC_CONSTRUCTORS( PhonologyLayer, AbstractAnnotationLayer );
   private:
     static properties PROPS;
   };
@@ -2570,7 +2562,7 @@ namespace folia {
   class DependenciesLayer: public AbstractAnnotationLayer {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( DependenciesLayer, AbstractAnnotationLayer );
+    ADD_PUBLIC_CONSTRUCTORS( DependenciesLayer, AbstractAnnotationLayer );
   private:
     static properties PROPS;
   };
@@ -2578,7 +2570,7 @@ namespace folia {
   class CoreferenceLayer: public AbstractAnnotationLayer {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( CoreferenceLayer, AbstractAnnotationLayer );
+    ADD_PUBLIC_CONSTRUCTORS( CoreferenceLayer, AbstractAnnotationLayer );
   private:
     static properties PROPS;
   };
@@ -2586,7 +2578,7 @@ namespace folia {
   class SemanticRolesLayer: public AbstractAnnotationLayer {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( SemanticRolesLayer, AbstractAnnotationLayer );
+    ADD_PUBLIC_CONSTRUCTORS( SemanticRolesLayer, AbstractAnnotationLayer );
   private:
     static properties PROPS;
   };
@@ -2594,7 +2586,7 @@ namespace folia {
   class StatementLayer: public AbstractAnnotationLayer {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( StatementLayer, AbstractAnnotationLayer );
+    ADD_PUBLIC_CONSTRUCTORS( StatementLayer, AbstractAnnotationLayer );
   private:
     static properties PROPS;
   };
@@ -2602,7 +2594,7 @@ namespace folia {
   class SentimentLayer: public AbstractAnnotationLayer {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( SentimentLayer, AbstractAnnotationLayer );
+    ADD_PUBLIC_CONSTRUCTORS( SentimentLayer, AbstractAnnotationLayer );
   private:
     static properties PROPS;
   };
@@ -2610,7 +2602,7 @@ namespace folia {
   class ModalitiesLayer: public AbstractAnnotationLayer {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( ModalitiesLayer, AbstractAnnotationLayer );
+    ADD_PUBLIC_CONSTRUCTORS( ModalitiesLayer, AbstractAnnotationLayer );
   private:
     static properties PROPS;
   };
@@ -2618,7 +2610,7 @@ namespace folia {
   class ObservationLayer: public AbstractAnnotationLayer {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( ObservationLayer, AbstractAnnotationLayer );
+    ADD_PUBLIC_CONSTRUCTORS( ObservationLayer, AbstractAnnotationLayer );
   private:
     static properties PROPS;
   };
@@ -2626,7 +2618,7 @@ namespace folia {
   class SpanRelationLayer: public AbstractAnnotationLayer {
     friend void static_init();
   public:
-    GENERATE_PUBLIC_CONSTRUCTORS( SpanRelationLayer, AbstractAnnotationLayer );
+    ADD_PUBLIC_CONSTRUCTORS( SpanRelationLayer, AbstractAnnotationLayer );
   private:
     static properties PROPS;
   };
