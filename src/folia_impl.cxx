@@ -55,67 +55,6 @@ namespace folia {
   string VersionName() { return PACKAGE_STRING; } ///< Returns the PACKAGE_STRING info of the package
   string Version() { return VERSION; }  ///< Returns version of the library
 
-  TextPolicy::TextPolicy( const string& cls, const TEXT_FLAGS flags ):
-    _class(cls),
-    _text_flags( flags )
-  {
-  }
-
-  TextPolicy::TextPolicy( const TEXT_FLAGS flags ):
-    TextPolicy( "current", flags ) {
-  }
-
-
-  ostream& operator<<( ostream& os, const TextPolicy& tp ){
-    bool retain  = tp.is_set( TEXT_FLAGS::RETAIN );
-    bool strict  = tp.is_set( TEXT_FLAGS::STRICT );
-    bool hide    = tp.is_set( TEXT_FLAGS::HIDDEN );
-    bool trim = !tp.is_set( TEXT_FLAGS::NO_TRIM_SPACES );
-    os << (strict?"strict":"not strict") << "\t"
-       << (retain?"retain":"untokenized") << "\t"
-       << (hide?"show_hidden":"hide hidden") << "\t"
-       << (trim?"trimming spaces":"not trimming spaces");
-    return os;
-  }
-
-  bool TextPolicy::is_set( TEXT_FLAGS tf ) const {
-    return ( tf & _text_flags ) == tf;
-  }
-
-  void TextPolicy::set( TEXT_FLAGS tf ) {
-    _text_flags |= tf;
-  }
-
-  void TextPolicy::clear( TEXT_FLAGS tf ) {
-    _text_flags &= ~tf;
-  }
-
-  void TextPolicy::add_handler( const string& label,
-				const stringFunctionPointer& sfp ){
-    _tag_handlers.insert( make_pair( label, sfp ) );
-  }
-
-  stringFunctionPointer TextPolicy::remove_handler( const string& label ){
-    auto pnt = _tag_handlers.find( label );
-    if ( pnt != _tag_handlers.end() ){
-      _tag_handlers.erase( pnt );
-      return *pnt->second;
-    }
-    else {
-      return 0;
-    }
-  }
-
-  stringFunctionPointer TextPolicy::get_handler( const string& label ) const{
-    auto pnt = _tag_handlers.find( label );
-    if ( pnt != _tag_handlers.end() ){
-      return *pnt->second;
-    }
-    else {
-      return 0;
-    }
-  }
-
   ElementType AbstractElement::element_id() const {
     /// return the ELEMENT_ID property
     return _props.ELEMENT_ID;
