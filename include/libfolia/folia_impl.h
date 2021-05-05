@@ -1108,22 +1108,18 @@ namespace folia {
 #define GENERATE_PROTECTED_CONSTRUCTORS( CLASS, BASE )		\
   CLASS( const properties& props, Document *d=0 ):		\
     BASE( props, d ){ classInit(); };				\
-  CLASS( Document *d=0 ):					\
-    CLASS( PROPS, d ){};			         	\
   CLASS( const properties& props, FoliaElement *p ):		\
-    BASE( props, p ){ classInit(); };				\
-  CLASS( FoliaElement * p ):					\
-    CLASS( PROPS, p ){}
+    BASE( props, p ){ classInit(); }
 
 #define GENERATE_PUBLIC_CONSTRUCTORS( CLASS, BASE )               \
   CLASS( const KWargs& a, Document *d=0 ):			  \
     BASE( PROPS, d ){ classInit(a); };				  \
   CLASS( Document *d=0 ):					  \
-    CLASS( KWargs(), d ){};					  \
+    BASE( PROPS, d ){ classInit(); };				  \
   CLASS( const KWargs& a, FoliaElement *p ):			  \
     BASE( PROPS, p ){ classInit(a); };				  \
   CLASS( FoliaElement *p ):					  \
-    CLASS( KWargs(), p ){}
+    BASE( PROPS, p ){ classInit(); }
 
 
   class AbstractStructureElement:
@@ -1655,9 +1651,7 @@ namespace folia {
     MorphologyLayer *getMorphologyLayers( const std::string&,
 					  std::vector<MorphologyLayer*>& ) const;
   protected:
-  Word( const properties& p, Document *d=0 ):
-    AbstractStructureElement( p, d ) { classInit(); }
-
+    GENERATE_PROTECTED_CONSTRUCTORS( Word, AbstractStructureElement );
   private:
     static properties PROPS;
   };
@@ -1697,11 +1691,7 @@ namespace folia {
   class PlaceHolder: public Word {
     friend void static_init();
   public:
-    explicit PlaceHolder( Document *d=0 ):
-    Word( PROPS, d ){ classInit(); }
-  PlaceHolder( const KWargs& a, Document *d = 0 ):
-    Word( PROPS, d ){ classInit( a ); }
-
+    GENERATE_PUBLIC_CONSTRUCTORS( PlaceHolder, Word );
     void setAttributes( KWargs& );
   private:
     static properties PROPS;
@@ -1920,19 +1910,13 @@ namespace folia {
   class Feature: public AbstractElement {
     friend void static_init();
   public:
-    explicit Feature( Document *d = 0 ):
-    Feature( PROPS, d ){ classInit(); }     /// <<==== !!!!
-  Feature( const KWargs& a, Document *d = 0 ):
-    AbstractElement( PROPS, d ){ classInit( a ); }
-
+    GENERATE_PUBLIC_CONSTRUCTORS( Feature, AbstractElement );
     void setAttributes( KWargs& );
     KWargs collectAttributes() const;
     const std::string subset() const { return _subset; };
 
   protected:
-  Feature( const properties&p, Document *d = 0 ):    /// <<==== !!!!
-    AbstractElement( p, d ){ classInit(); }
-
+    GENERATE_PROTECTED_CONSTRUCTORS( Feature, AbstractElement );
   private:
     std::string _subset;
     static properties PROPS;
