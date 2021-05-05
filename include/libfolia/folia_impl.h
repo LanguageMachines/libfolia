@@ -2633,11 +2633,7 @@ namespace folia {
   class MorphologyLayer: public AbstractAnnotationLayer {
     friend void static_init();
   public:
-    explicit MorphologyLayer( Document *d=0 ):
-    AbstractAnnotationLayer( PROPS, d ){ classInit(); }
-  MorphologyLayer( const KWargs& a, Document *d = 0 ):
-    AbstractAnnotationLayer( PROPS, d ){ classInit( a ); }
-
+    GENERATE_PUBLIC_CONSTRUCTORS( MorphologyLayer, AbstractAnnotationLayer );
   private:
     static properties PROPS;
   };
@@ -2645,11 +2641,7 @@ namespace folia {
   class PhonologyLayer: public AbstractAnnotationLayer {
     friend void static_init();
   public:
-    explicit PhonologyLayer( Document *d=0 ):
-    AbstractAnnotationLayer( PROPS, d ){ classInit(); }
-  PhonologyLayer( const KWargs& a, Document *d = 0 ):
-    AbstractAnnotationLayer( PROPS, d ){ classInit( a ); }
-
+    GENERATE_PUBLIC_CONSTRUCTORS( PhonologyLayer, AbstractAnnotationLayer );
   private:
     static properties PROPS;
   };
@@ -2657,11 +2649,7 @@ namespace folia {
   class DependenciesLayer: public AbstractAnnotationLayer {
     friend void static_init();
   public:
-    explicit DependenciesLayer( Document *d=0 ):
-    AbstractAnnotationLayer( PROPS, d ){ classInit(); }
-  DependenciesLayer( const KWargs& a, Document *d = 0 ):
-    AbstractAnnotationLayer( PROPS, d ){ classInit( a ); }
-
+    GENERATE_PUBLIC_CONSTRUCTORS( DependenciesLayer, AbstractAnnotationLayer );
   private:
     static properties PROPS;
   };
@@ -2669,11 +2657,7 @@ namespace folia {
   class CoreferenceLayer: public AbstractAnnotationLayer {
     friend void static_init();
   public:
-    explicit CoreferenceLayer( Document *d=0 ):
-    AbstractAnnotationLayer( PROPS, d ){ classInit(); }
-  CoreferenceLayer( const KWargs& a, Document *d = 0 ):
-    AbstractAnnotationLayer( PROPS, d ){ classInit( a ); }
-
+    GENERATE_PUBLIC_CONSTRUCTORS( CoreferenceLayer, AbstractAnnotationLayer );
   private:
     static properties PROPS;
   };
@@ -2681,10 +2665,7 @@ namespace folia {
   class SemanticRolesLayer: public AbstractAnnotationLayer {
     friend void static_init();
   public:
-    explicit SemanticRolesLayer( Document *d=0 ):
-    AbstractAnnotationLayer( PROPS, d ){ classInit(); }
-  SemanticRolesLayer( const KWargs& a, Document *d = 0 ):
-    AbstractAnnotationLayer( PROPS, d ){ classInit( a ); }
+    GENERATE_PUBLIC_CONSTRUCTORS( SemanticRolesLayer, AbstractAnnotationLayer );
   private:
     static properties PROPS;
   };
@@ -2692,10 +2673,7 @@ namespace folia {
   class StatementLayer: public AbstractAnnotationLayer {
     friend void static_init();
   public:
-    explicit StatementLayer( Document *d=0 ):
-    AbstractAnnotationLayer( PROPS, d ){ classInit(); }
-  StatementLayer( const KWargs& a, Document *d = 0 ):
-    AbstractAnnotationLayer( PROPS, d ){ classInit( a ); }
+    GENERATE_PUBLIC_CONSTRUCTORS( StatementLayer, AbstractAnnotationLayer );
   private:
     static properties PROPS;
   };
@@ -2703,10 +2681,7 @@ namespace folia {
   class SentimentLayer: public AbstractAnnotationLayer {
     friend void static_init();
   public:
-    explicit SentimentLayer( Document *d=0 ):
-    AbstractAnnotationLayer( PROPS, d ){ classInit(); }
-  SentimentLayer( const KWargs& a, Document *d = 0 ):
-    AbstractAnnotationLayer( PROPS, d ){ classInit( a ); }
+    GENERATE_PUBLIC_CONSTRUCTORS( SentimentLayer, AbstractAnnotationLayer );
   private:
     static properties PROPS;
   };
@@ -2714,10 +2689,7 @@ namespace folia {
   class ModalitiesLayer: public AbstractAnnotationLayer {
     friend void static_init();
   public:
-    explicit ModalitiesLayer( Document *d=0 ):
-    AbstractAnnotationLayer( PROPS, d ){ classInit(); }
-  ModalitiesLayer( const KWargs& a, Document *d = 0 ):
-    AbstractAnnotationLayer( PROPS, d ){ classInit( a ); }
+    GENERATE_PUBLIC_CONSTRUCTORS( ModalitiesLayer, AbstractAnnotationLayer );
   private:
     static properties PROPS;
   };
@@ -2725,10 +2697,7 @@ namespace folia {
   class ObservationLayer: public AbstractAnnotationLayer {
     friend void static_init();
   public:
-    explicit ObservationLayer( Document *d=0  ):
-    AbstractAnnotationLayer( PROPS, d ){ classInit(); }
-  ObservationLayer( const KWargs& a, Document *d = 0 ):
-    AbstractAnnotationLayer( PROPS, d ){ classInit( a ); }
+    GENERATE_PUBLIC_CONSTRUCTORS( ObservationLayer, AbstractAnnotationLayer );
   private:
     static properties PROPS;
   };
@@ -2736,10 +2705,7 @@ namespace folia {
   class SpanRelationLayer: public AbstractAnnotationLayer {
     friend void static_init();
   public:
-    explicit SpanRelationLayer( Document *d=0  ):
-    AbstractAnnotationLayer( PROPS, d ){ classInit(); }
-  SpanRelationLayer( const KWargs& a, Document *d = 0 ):
-    AbstractAnnotationLayer( PROPS, d ){ classInit( a ); }
+    GENERATE_PUBLIC_CONSTRUCTORS( SpanRelationLayer, AbstractAnnotationLayer );
   private:
     static properties PROPS;
   };
