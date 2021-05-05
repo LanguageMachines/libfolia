@@ -1199,16 +1199,15 @@ namespace folia {
     public AllowInlineAnnotation
     {
       friend void static_init();
-    protected:
-      // DO NOT USE AbstractSpanAnnotation as a real node!!
-      GENERATE_PROTECTED_CONSTRUCTORS( AbstractSpanAnnotation, AbstractElement );
     public:
       xmlNode *xml( bool, bool=false ) const;
       FoliaElement *append( FoliaElement* );
 
       std::vector<FoliaElement*> wrefs() const;
       FoliaElement *wrefs( size_t ) const;
-
+    protected:
+      // DO NOT USE AbstractSpanAnnotation as a real node!!
+      GENERATE_PROTECTED_CONSTRUCTORS( AbstractSpanAnnotation, AbstractElement );
     private:
       static properties PROPS;
     };
@@ -1309,14 +1308,13 @@ namespace folia {
     public AllowXlink
     {
       friend void static_init();
-    protected:
-      // DO NOT USE AbstractTextMarkup as a real node!!
-      GENERATE_PROTECTED_CONSTRUCTORS( AbstractTextMarkup, AbstractElement );
     public:
       void setAttributes( KWargs& );
       KWargs collectAttributes() const;
       const FoliaElement* resolveid() const;
     protected:
+      // DO NOT USE AbstractTextMarkup as a real node!!
+      GENERATE_PROTECTED_CONSTRUCTORS( AbstractTextMarkup, AbstractElement );
       const std::string& get_delimiter( bool ) const { return EMPTY_STRING; };
       std::string idref;
     private:
@@ -1925,11 +1923,7 @@ namespace folia {
   class BegindatetimeFeature: public Feature {
     friend void static_init();
   public:
-    explicit BegindatetimeFeature( Document *d=0 ):
-    Feature( PROPS, d ){ classInit(); }
-  BegindatetimeFeature( const KWargs& a, Document *d = 0 ):
-    Feature( PROPS, d ){ classInit( a ); }
-
+    GENERATE_PUBLIC_CONSTRUCTORS( BegindatetimeFeature, Feature );
   private:
     static properties PROPS;
   };
@@ -1937,11 +1931,7 @@ namespace folia {
   class EnddatetimeFeature: public Feature {
     friend void static_init();
   public:
-  explicit EnddatetimeFeature( Document *d=0 ):
-    Feature( PROPS, d ){ classInit(); }
-  EnddatetimeFeature( const KWargs& a, Document *d = 0 ):
-    Feature( PROPS, d ){ classInit( a ); }
-
+    GENERATE_PUBLIC_CONSTRUCTORS( EnddatetimeFeature, Feature );
   private:
     static properties PROPS;
   };
@@ -1949,11 +1939,7 @@ namespace folia {
   class SynsetFeature: public Feature {
     friend void static_init();
   public:
-  explicit SynsetFeature( Document *d=0 ):
-    Feature( PROPS, d ){ classInit(); }
-  SynsetFeature( const KWargs& a, Document *d = 0 ):
-    Feature( PROPS, d ){ classInit( a ); }
-
+    GENERATE_PUBLIC_CONSTRUCTORS( SynsetFeature, Feature );
   private:
     static properties PROPS;
   };
@@ -1961,11 +1947,7 @@ namespace folia {
   class ActorFeature: public Feature {
     friend void static_init();
   public:
-    explicit ActorFeature( Document *d=0 ):
-    Feature( PROPS, d ){ classInit(); }
-  ActorFeature( const KWargs& a, Document *d = 0 ):
-    Feature( PROPS, d ){ classInit( a ); }
-
+    GENERATE_PUBLIC_CONSTRUCTORS( ActorFeature, Feature );
   private:
     static properties PROPS;
   };
@@ -1973,11 +1955,7 @@ namespace folia {
   class PolarityFeature: public Feature {
     friend void static_init();
   public:
-    explicit PolarityFeature( Document *d=0 ):
-    Feature( PROPS, d ){ classInit(); }
-  PolarityFeature( const KWargs& a, Document *d = 0 ):
-    Feature( PROPS, d ){ classInit( a ); }
-
+    GENERATE_PUBLIC_CONSTRUCTORS( PolarityFeature, Feature );
   private:
     static properties PROPS;
   };
@@ -1985,11 +1963,7 @@ namespace folia {
   class StrengthFeature: public Feature {
     friend void static_init();
   public:
-    explicit StrengthFeature( Document *d=0 ):
-    Feature( PROPS, d ){ classInit(); }
-  StrengthFeature( const KWargs& a, Document *d = 0 ):
-    Feature( PROPS, d ){ classInit( a ); }
-
+    GENERATE_PUBLIC_CONSTRUCTORS( StrengthFeature, Feature );
   private:
     static properties PROPS;
   };
@@ -1998,11 +1972,7 @@ namespace folia {
   class HeadFeature: public Feature {
     friend void static_init();
   public:
-    explicit HeadFeature( Document *d=0 ):
-    Feature( PROPS, d ){ classInit(); }
-  HeadFeature( const KWargs& a, Document *d = 0 ):
-    Feature( PROPS, d ){ classInit( a ); }
-
+    GENERATE_PUBLIC_CONSTRUCTORS( HeadFeature, Feature );
   private:
     static properties PROPS;
   };
@@ -2010,11 +1980,7 @@ namespace folia {
   class ValueFeature: public Feature {
     friend void static_init();
   public:
-    explicit ValueFeature( Document *d=0 ):
-    Feature( PROPS, d ){ classInit(); }
-  ValueFeature( const KWargs& a, Document *d = 0 ):
-    Feature( PROPS, d ){ classInit( a ); }
-
+    GENERATE_PUBLIC_CONSTRUCTORS( ValueFeature, Feature );
   private:
     static properties PROPS;
   };
@@ -2022,11 +1988,7 @@ namespace folia {
   class FunctionFeature: public Feature {
     friend void static_init();
   public:
-    explicit FunctionFeature( Document *d=0 ):
-    Feature( PROPS, d ){ classInit(); }
-  FunctionFeature( const KWargs& a, Document *d = 0 ):
-    Feature( PROPS, d ){ classInit( a ); }
-
+    GENERATE_PUBLIC_CONSTRUCTORS( FunctionFeature, Feature );
   private:
     static properties PROPS;
   };
@@ -2034,11 +1996,7 @@ namespace folia {
   class TimeFeature: public Feature {
     friend void static_init();
   public:
-    explicit TimeFeature( Document *d=0 ):
-    Feature( PROPS, d ){ classInit(); }
-  TimeFeature( const KWargs& a, Document *d = 0 ):
-    Feature( PROPS, d ){ classInit( a ); }
-
+    GENERATE_PUBLIC_CONSTRUCTORS( TimeFeature, Feature );
   private:
     static properties PROPS;
   };
@@ -2046,11 +2004,7 @@ namespace folia {
   class LevelFeature: public Feature {
     friend void static_init();
   public:
-    explicit LevelFeature( Document *d=0 ):
-    Feature( PROPS, d ){ classInit(); }
-  LevelFeature( const KWargs& a, Document *d = 0 ):
-    Feature( PROPS, d ){ classInit( a ); }
-
+    GENERATE_PUBLIC_CONSTRUCTORS( LevelFeature, Feature );
   private:
     static properties PROPS;
   };
@@ -2058,11 +2012,7 @@ namespace folia {
   class ModalityFeature: public Feature {
     friend void static_init();
   public:
-    explicit ModalityFeature( Document *d=0 ):
-    Feature( PROPS, d ){ classInit(); }
-  ModalityFeature( const KWargs& a, Document *d = 0 ):
-    Feature( PROPS, d ){ classInit( a ); }
-
+    GENERATE_PUBLIC_CONSTRUCTORS( ModalityFeature, Feature );
   private:
     static properties PROPS;
   };
@@ -2070,11 +2020,7 @@ namespace folia {
   class StyleFeature: public Feature {
     friend void static_init();
   public:
-    explicit StyleFeature( Document *d=0 ):
-    Feature( PROPS, d ){ classInit(); }
-  StyleFeature( const KWargs& a, Document *d = 0 ):
-    Feature( PROPS, d ){ classInit( a ); }
-
+    GENERATE_PUBLIC_CONSTRUCTORS( StyleFeature, Feature );
   private:
     static properties PROPS;
   };
@@ -2082,11 +2028,7 @@ namespace folia {
   class FontFeature: public Feature {
     friend void static_init();
   public:
-    explicit FontFeature( Document *d=0 ):
-    Feature( PROPS, d ){ classInit(); }
-  FontFeature( const KWargs& a, Document *d = 0 ):
-    Feature( PROPS, d ){ classInit( a ); }
-
+    GENERATE_PUBLIC_CONSTRUCTORS( FontFeature, Feature );
   private:
     static properties PROPS;
   };
@@ -2094,11 +2036,7 @@ namespace folia {
   class SizeFeature: public Feature {
     friend void static_init();
   public:
-    explicit SizeFeature( Document *d=0 ):
-    Feature( PROPS, d ){ classInit(); }
-  SizeFeature( const KWargs& a, Document *d = 0 ):
-    Feature( PROPS, d ){ classInit( a ); }
-
+    GENERATE_PUBLIC_CONSTRUCTORS( SizeFeature, Feature );
   private:
     static properties PROPS;
   };
@@ -2114,15 +2052,14 @@ namespace folia {
 
   class Relation:
     public AbstractHigherOrderAnnotation,
-    public AllowXlink
-    {
+    public AllowXlink {
       friend void static_init();
-    public:
+  public:
       GENERATE_PUBLIC_CONSTRUCTORS( Relation, AbstractHigherOrderAnnotation );
       std::vector<FoliaElement *>resolve() const;
       void setAttributes( KWargs& );
       KWargs collectAttributes() const;
-    private:
+  private:
       void init();
       static properties PROPS;
       std::string _format;
@@ -2322,17 +2259,17 @@ namespace folia {
     public AllowInlineAnnotation
     {
       friend void static_init();
+    public:
+      AbstractSpanAnnotation *findspan( const std::vector<FoliaElement*>& ) const;
+      FoliaElement *append( FoliaElement * );
+      KWargs collectAttributes() const;
     protected:
       // DO NOT USE AbstractAnnotationLayer as a real node!!
       GENERATE_PROTECTED_CONSTRUCTORS( AbstractAnnotationLayer, AbstractElement );
-  public:
-    AbstractSpanAnnotation *findspan( const std::vector<FoliaElement*>& ) const;
-    FoliaElement *append( FoliaElement * );
-    KWargs collectAttributes() const;
-  private:
-    static properties PROPS;
-    void assignset( FoliaElement * );
-  };
+    private:
+      static properties PROPS;
+      void assignset( FoliaElement * );
+    };
 
   class AbstractCorrectionChild: public AbstractElement {
     friend void static_init();
