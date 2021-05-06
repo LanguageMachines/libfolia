@@ -55,67 +55,6 @@ namespace folia {
   string VersionName() { return PACKAGE_STRING; } ///< Returns the PACKAGE_STRING info of the package
   string Version() { return VERSION; }  ///< Returns version of the library
 
-  TextPolicy::TextPolicy( const string& cls, const TEXT_FLAGS flags ):
-    _class(cls),
-    _text_flags( flags )
-  {
-  }
-
-  TextPolicy::TextPolicy( const TEXT_FLAGS flags ):
-    TextPolicy( "current", flags ) {
-  }
-
-
-  ostream& operator<<( ostream& os, const TextPolicy& tp ){
-    bool retain  = tp.is_set( TEXT_FLAGS::RETAIN );
-    bool strict  = tp.is_set( TEXT_FLAGS::STRICT );
-    bool hide    = tp.is_set( TEXT_FLAGS::HIDDEN );
-    bool trim = !tp.is_set( TEXT_FLAGS::NO_TRIM_SPACES );
-    os << (strict?"strict":"not strict") << "\t"
-       << (retain?"retain":"untokenized") << "\t"
-       << (hide?"show_hidden":"hide hidden") << "\t"
-       << (trim?"trimming spaces":"not trimming spaces");
-    return os;
-  }
-
-  bool TextPolicy::is_set( TEXT_FLAGS tf ) const {
-    return ( tf & _text_flags ) == tf;
-  }
-
-  void TextPolicy::set( TEXT_FLAGS tf ) {
-    _text_flags |= tf;
-  }
-
-  void TextPolicy::clear( TEXT_FLAGS tf ) {
-    _text_flags &= ~tf;
-  }
-
-  void TextPolicy::add_handler( const string& label,
-				const stringFunctionPointer& sfp ){
-    _tag_handlers.insert( make_pair( label, sfp ) );
-  }
-
-  stringFunctionPointer TextPolicy::remove_handler( const string& label ){
-    auto pnt = _tag_handlers.find( label );
-    if ( pnt != _tag_handlers.end() ){
-      _tag_handlers.erase( pnt );
-      return *pnt->second;
-    }
-    else {
-      return 0;
-    }
-  }
-
-  stringFunctionPointer TextPolicy::get_handler( const string& label ) const{
-    auto pnt = _tag_handlers.find( label );
-    if ( pnt != _tag_handlers.end() ){
-      return *pnt->second;
-    }
-    else {
-      return 0;
-    }
-  }
-
   ElementType AbstractElement::element_id() const {
     /// return the ELEMENT_ID property
     return _props.ELEMENT_ID;
@@ -325,6 +264,20 @@ namespace folia {
   {
   }
 
+  AbstractElement::AbstractElement( const properties& p, FoliaElement *el ) :
+    /// Constructor for AbstractElements.
+    /*!
+     * \param p a properties block (required)
+     * \param d a parent document
+     */
+    AbstractElement( p, el->doc() )
+  {
+    if ( !el ){
+      throw ValueError( "AbstractElement( p, e ) called with 0 p" );
+    }
+    el->append( this );
+  }
+
   AbstractElement::~AbstractElement( ) {
     /// Destructor for AbstractElements.
     bool debug = false;
@@ -397,7 +350,7 @@ namespace folia {
      * the anntotation-type, when de document allows this.
      */
 
-    if ( isSubClass(  AbstractCorrectionChild_t ) ){
+    if ( isSubClass( AbstractCorrectionChild_t ) ){
       return;
     }
 
@@ -557,10 +510,18 @@ namespace folia {
     Attrib supported = required_attributes() | optional_attributes();
     //#define LOG_SET_ATT
 #ifdef LOG_SET_ATT
-    int db_level = doc()->debug;
-    if ( element_id() == Paragraph_t ) {
-      doc()->setdebug(8);
-      cerr << "set attributes: " << kwargs << " on " << classname() << endl;
+    bool track = false;
+    int db_level = 0;
+    if ( doc() ){
+      db_level = doc()->debug;
+    }
+    if ( element_id() == New_t
+	 || element_id() == Original_t ) {
+      track = true;
+      if ( doc() ){
+	doc()->setdebug(0);
+      }
+      cerr << "set attributes: '" << kwargs << "' on " << classname() << endl;
       //      cerr << "required = " <<  toString(required_attributes()) << endl;
       //      cerr << "optional = " <<  optional_attributes() << endl;
       //cerr << "supported = " << supported << endl;
@@ -579,12 +540,27 @@ namespace folia {
       if ( !doc() ) {
 	throw runtime_error( "can't generate an ID without a doc" );
       }
-      FoliaElement *e = (*doc())[val];
-      if ( e ) {
-	_id = e->generateId( xmltag() );
+      if ( (!ID) & supported ) {
+	throw ValueError( "generate_id: xml:id is not supported for "
+			  + classname() );
+      }
+      if ( val == "auto()" ){
+	FoliaElement *par = parent();
+	if ( par ) {
+	  _id = par->generateId( xmltag() );
+	}
+	else {
+	  throw ValueError( "generate_id `auto()' not possible without parent" );
+	}
       }
       else {
-	throw ValueError("Unable to generate an id from ID= " + val );
+	FoliaElement *e = (*doc())[val];
+	if ( e ) {
+	  _id = e->generateId( xmltag() );
+	}
+	else {
+	  throw ValueError("Unable to generate an id from ID= " + val );
+	}
       }
     }
     else {
@@ -594,7 +570,16 @@ namespace folia {
       }
       if ( !val.empty() ) {
 	if ( (!ID) & supported ) {
-	  throw ValueError("xml:id is not supported for " + classname() );
+	  throw ValueError( "xml:id is not supported for " + classname() );
+	}
+	else if ( val == "auto()" ){
+	  FoliaElement *par = parent();
+	  if ( par ) {
+	    _id = par->generateId( xmltag() );
+	  }
+	  else {
+	    throw ValueError( "auto-generate of 'xml:id' not possible without parent" );
+	  }
 	}
 	else if ( isNCName( val ) ){
 	  _id = val;
@@ -949,7 +934,9 @@ namespace folia {
     kwargs.erase("typegroup"); //this is used in explicit form only, we can safely discard it
     addFeatureNodes( kwargs );
 #ifdef LOG_SET_ATT
-    doc()->setdebug(db_level);
+    if ( doc() ){
+      doc()->setdebug(db_level);
+    }
 #endif
   }
 
@@ -959,6 +946,7 @@ namespace folia {
      * \param kwargs a KWargs set of Key-Value pairs
      * the given keys must be in the AttributeFeatures set.
      * the values are used as class attribute for the new children
+     * will throw for unexpected attributes, except when in permisive mode
      */
     for ( const auto& it: kwargs ) {
       string tag = it.first;

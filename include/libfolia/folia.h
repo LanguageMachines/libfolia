@@ -28,7 +28,10 @@
 
 #include "libfolia/folia_types.h"
 #include "libfolia/folia_utils.h"
+#include "libfolia/folia_textpolicy.h"
+#include "libfolia/folia_metadata.h"
 #include "libfolia/folia_impl.h"
+#include "libfolia/folia_subclasses.h"
 #include "libfolia/folia_document.h"
 #include "libfolia/folia_engine.h"
 #include "libfolia/folia_provenance.h"
