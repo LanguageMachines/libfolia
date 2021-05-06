@@ -946,6 +946,7 @@ namespace folia {
      * \param kwargs a KWargs set of Key-Value pairs
      * the given keys must be in the AttributeFeatures set.
      * the values are used as class attribute for the new children
+     * will throw for unexpected attributes, except when in permisive mode
      */
     for ( const auto& it: kwargs ) {
       string tag = it.first;
