@@ -272,6 +272,9 @@ namespace folia {
      */
     AbstractElement( p, el->doc() )
   {
+    if ( !el ){
+      throw ValueError( "AbstractElement( p, e ) called with 0 p" );
+    }
     el->append( this );
   }
 
@@ -537,12 +540,27 @@ namespace folia {
       if ( !doc() ) {
 	throw runtime_error( "can't generate an ID without a doc" );
       }
-      FoliaElement *e = (*doc())[val];
-      if ( e ) {
-	_id = e->generateId( xmltag() );
+      if ( (!ID) & supported ) {
+	throw ValueError( "generate_id: xml:id is not supported for "
+			  + classname() );
+      }
+      if ( val == "auto()" ){
+	FoliaElement *par = parent();
+	if ( par ) {
+	  _id = par->generateId( xmltag() );
+	}
+	else {
+	  throw ValueError( "generate_id `auto()' not possible without parent" );
+	}
       }
       else {
-	throw ValueError("Unable to generate an id from ID= " + val );
+	FoliaElement *e = (*doc())[val];
+	if ( e ) {
+	  _id = e->generateId( xmltag() );
+	}
+	else {
+	  throw ValueError("Unable to generate an id from ID= " + val );
+	}
       }
     }
     else {
@@ -552,7 +570,16 @@ namespace folia {
       }
       if ( !val.empty() ) {
 	if ( (!ID) & supported ) {
-	  throw ValueError("xml:id is not supported for " + classname() );
+	  throw ValueError( "xml:id is not supported for " + classname() );
+	}
+	else if ( val == "auto()" ){
+	  FoliaElement *par = parent();
+	  if ( par ) {
+	    _id = par->generateId( xmltag() );
+	  }
+	  else {
+	    throw ValueError( "auto-generate of 'xml:id' not possible without parent" );
+	  }
 	}
 	else if ( isNCName( val ) ){
 	  _id = val;

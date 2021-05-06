@@ -276,14 +276,17 @@ namespace folia {
   };
 
 
-  class AbstractContentAnnotation: public AbstractElement {
-    friend void static_init();
-  protected:
-    // DO NOT USE AbstractContentAnnotation as a real node!!
-    ADD_PROTECTED_CONSTRUCTORS( AbstractContentAnnotation, AbstractElement );
-  private:
-    static properties PROPS;
-  };
+  class AbstractContentAnnotation:
+    public AbstractElement,
+    public AllowGenerateID
+    {
+      friend void static_init();
+    protected:
+      // DO NOT USE AbstractContentAnnotation as a real node!!
+      ADD_PROTECTED_CONSTRUCTORS( AbstractContentAnnotation, AbstractElement );
+    private:
+      static properties PROPS;
+    };
 
 
   class TextContent:
@@ -292,8 +295,7 @@ namespace folia {
     {
       friend void static_init();
     public:
-      ADD_PUBLIC_CONSTRUCTORS( TextContent,
-				    AbstractContentAnnotation );
+      ADD_PUBLIC_CONSTRUCTORS( TextContent, AbstractContentAnnotation );
       void setAttributes( KWargs& );
       KWargs collectAttributes() const;
       int offset() const { return _offset; };
