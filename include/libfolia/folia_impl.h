@@ -800,7 +800,7 @@ namespace folia {
     void check_text_consistency(bool = true) const;
     void check_text_consistency_while_parsing(bool = true); //can't we merge these two somehow?
     void check_append_text_consistency( const FoliaElement * ) const;
-    void check_declaration();
+    void check_set_declaration();
     void addFeatureNodes( const KWargs& args );
     Document *_mydoc;
     FoliaElement *_parent;

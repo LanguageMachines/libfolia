@@ -336,7 +336,7 @@ namespace folia {
     return 0;
   }
 
-  void AbstractElement::check_declaration(){
+  void AbstractElement::check_set_declaration(){
     /// check the declation consistency of an object.
     /// throws an exception on error
     /*!
@@ -346,6 +346,10 @@ namespace folia {
      * for the annotation-type of the object. This might auto-declare
      * the anntotation-type, when de document allows this.
      */
+
+    if ( isSubClass( AbstractCorrectionChild_t ) ){
+      return;
+    }
 
     if ( _mydoc ){
       string def;
@@ -503,15 +507,18 @@ namespace folia {
     Attrib supported = required_attributes() | optional_attributes();
     //#define LOG_SET_ATT
 #ifdef LOG_SET_ATT
+    bool track = false;
     int db_level = 0;
     if ( doc() ){
       db_level = doc()->debug;
     }
-    if ( element_id() == Paragraph_t ) {
+    if ( element_id() == New_t
+	 || element_id() == Original_t ) {
+      track = true;
       if ( doc() ){
-	doc()->setdebug(8);
+	doc()->setdebug(0);
       }
-      cerr << "set attributes: " << kwargs << " on " << classname() << endl;
+      cerr << "set attributes: '" << kwargs << "' on " << classname() << endl;
       //      cerr << "required = " <<  toString(required_attributes()) << endl;
       //      cerr << "optional = " <<  optional_attributes() << endl;
       //cerr << "supported = " << supported << endl;
@@ -576,7 +583,7 @@ namespace folia {
       }
     }
 
-    check_declaration();
+    check_set_declaration();
 
     _class.clear();
     val = kwargs.extract( "class" );
