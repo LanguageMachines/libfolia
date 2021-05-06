@@ -386,7 +386,7 @@ namespace folia {
     return 0;
   }
 
-  void AbstractElement::check_declaration(){
+  void AbstractElement::check_set_declaration(){
     /// check the declation consistency of an object.
     /// throws an exception on error
     /*!
@@ -396,6 +396,10 @@ namespace folia {
      * for the annotation-type of the object. This might auto-declare
      * the anntotation-type, when de document allows this.
      */
+
+    if ( isSubClass(  AbstractCorrectionChild_t ) ){
+      return;
+    }
 
     if ( _mydoc ){
       string def;
@@ -621,7 +625,7 @@ namespace folia {
       }
     }
 
-    check_declaration();
+    check_set_declaration();
 
     _class.clear();
     val = kwargs.extract( "class" );
