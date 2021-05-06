@@ -1,4 +1,5 @@
 INSTALL
+*~
 ChangeLog
 Makefile
 Makefile.in
@@ -21,6 +22,7 @@ stamp-h1
 docs/Makefile
 docs/Makefile.in
 folia.pc
+include/libfolia/*~
 include/Makefile
 include/Makefile.in
 include/libfolia/Makefile
@@ -36,6 +38,7 @@ m4/pkg.m4
 m4/ax_pthread.m4
 missing
 *.gz
+src/*~
 src/.deps/
 src/.libs/
 src/*.lo
