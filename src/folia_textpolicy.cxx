@@ -70,25 +70,25 @@ namespace folia {
   }
 
   void TextPolicy::add_handler( const string& label,
-				const stringFunctionPointer& sfp ){
+				const tag_handler& sfp ){
     _tag_handlers.insert( make_pair( label, sfp ) );
   }
 
-  stringFunctionPointer TextPolicy::remove_handler( const string& label ){
+  const TextPolicy::tag_handler TextPolicy::remove_handler( const string& label ){
     auto pnt = _tag_handlers.find( label );
     if ( pnt != _tag_handlers.end() ){
       _tag_handlers.erase( pnt );
-      return *pnt->second;
+      return pnt->second;
     }
     else {
       return 0;
     }
   }
 
-  stringFunctionPointer TextPolicy::get_handler( const string& label ) const{
+  const TextPolicy::tag_handler TextPolicy::get_handler( const string& label ) const{
     auto pnt = _tag_handlers.find( label );
     if ( pnt != _tag_handlers.end() ){
-      return *pnt->second;
+      return pnt->second;
     }
     else {
       return 0;

@@ -1939,7 +1939,7 @@ namespace folia {
 	  vector<string> tvv = TiCC::split(tv);
 	  bool no_match = true;
 	  for ( const auto& v : tvv ){
-	    stringFunctionPointer match = tp.get_handler( v );
+	    TextPolicy::tag_handler match = tp.get_handler( v );
 	    if ( match ){
 	      no_match = false;
 	      UnicodeString tmp_result = match( d, tp );

@@ -27,6 +27,9 @@
 #ifndef FOLIA_TEXTPOLICY_H
 #define FOLIA_TEXTPOLICY_H
 
+#include <string>
+#include <map>
+#include <functional>
 #include "ticcutils/Unicode.h"
 
 namespace folia {
@@ -73,26 +76,25 @@ namespace folia {
     return TEXT_FLAGS( ~(int)f1 );
   }
 
-  typedef icu::UnicodeString (*stringFunctionPointer)( const FoliaElement*,
-						       const TextPolicy& );
-
   class TextPolicy {
   public:
     TextPolicy( const std::string& = "current",
 		const TEXT_FLAGS=TEXT_FLAGS::NONE );
     TextPolicy( const TEXT_FLAGS );
+    using tag_handler = std::function<icu::UnicodeString(const FoliaElement*,
+							 const TextPolicy& )>;
     bool is_set( TEXT_FLAGS ) const;
     void set( TEXT_FLAGS );
     void clear( TEXT_FLAGS );
-    void add_handler( const std::string&, const stringFunctionPointer& );
-    stringFunctionPointer remove_handler( const std::string& );
-    stringFunctionPointer get_handler( const std::string& ) const;
+    void add_handler( const std::string&, const tag_handler& );
+    const tag_handler remove_handler( const std::string& );
+    const tag_handler get_handler( const std::string& ) const;
     std::string get_class() const { return _class; };
     void set_class( const std::string& c ) { _class = c; };
   private:
     std::string _class;
     TEXT_FLAGS _text_flags;
-    std::map<std::string, stringFunctionPointer> _tag_handlers;
+    std::map<std::string, tag_handler> _tag_handlers;
   };
 
 } // namespace folia
