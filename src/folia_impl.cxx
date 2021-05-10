@@ -5904,8 +5904,7 @@ namespace folia {
   const UnicodeString Correction::private_text( const TextPolicy& tp ) const {
     /// get the UnicodeString value of an Correction
     /*!
-     * \param cls The textclass we are looking for
-     * \param retaintok retain the tokenisation information
+     * \param tp the TextPolicy to use
      * \return the Unicode String representation found. Throws when
      * no text can be found.
      */
@@ -5913,6 +5912,10 @@ namespace folia {
     cerr << "TEXT(" << cls << ") on node : " << xmltag() << " id="
 	 << id() << " TextPolicy: " << tp << endl;
 #endif
+    CORRECTION_HANDLING ch = tp.get_correction_handling();
+    if ( tp.get_class() == "original" ){
+      ch = CORRECTION_HANDLING::ORIGINAL;
+    }
     // we cannot use text_content() on New, Original or Current,
     // because textcontent doesn't recurse!
     bool deletion = false;
@@ -6009,30 +6012,39 @@ namespace folia {
      * recurses into children looking for New or Current nodes
      * might throw NoSuchText exception if not found.
      */
-    for ( const auto& el : data() ) {
-      if ( el->isinstance( New_t ) || el->isinstance( Current_t ) ) {
-	try {
-	  const TextContent *res = el->text_content( tp );
-	  return res;
-	}
-	catch (...){
-	}
+    CORRECTION_HANDLING ch = tp.get_correction_handling();
+    if ( tp.get_class() == "original" ){
+      // backward compatability
+      ch = CORRECTION_HANDLING::ORIGINAL;
+    }
+    switch( ch ){
+    case CORRECTION_HANDLING::CURRENT:
+      // fallthrough
+    case CORRECTION_HANDLING::EITHER: {
+      const auto& it = find_if( data().begin(), data().end(),
+				[]( const FoliaElement *e ){
+				  return ( e->isinstance( New_t )
+					   || e->isinstance( Current_t ) ); } );
+      if ( it != data().end() ){
+	return (*it)->text_content( tp );
       }
     }
-    for ( const auto& el : data() ) {
-      if ( el->isinstance( Original_t ) ) {
-	try {
-	  const TextContent *res = el->text_content( tp );
-	  return res;
-	}
-	catch ( ... ){
-	}
-      }
-      else if ( tp.get_class() == "current" && el->hastext( "original" ) ){
-	throw runtime_error( "text(original)= no longer supported" );
+      break;
+    case CORRECTION_HANDLING::ORIGINAL: {
+      const auto& it = find_if( data().begin(), data().end(),
+				[]( const FoliaElement *e ){
+				  return e->isinstance( Original_t ); } );
+      if ( it != data().end() ){
+	return (*it)->text_content( tp );
       }
     }
+      break;
+    default:
+      // fallthrough
+      break;
+    };
     throw NoSuchText("wrong cls");
+    return 0;
   }
 
   const TextContent *Correction::text_content( const string& cls ) const {
@@ -6122,20 +6134,38 @@ namespace folia {
      * recurses into children looking for New or Current
      * might throw NoSuchPhon exception if not found.
      */
-    const auto& it = find_if( data().begin(), data().end(),
-			[]( const FoliaElement *e ){
-			  return ( e->isinstance( New_t )
-				   || e->isinstance( Current_t ) ); } );
-    if ( it != data().end() ){
-      return (*it)->phon_content( tp );
+    CORRECTION_HANDLING ch = tp.get_correction_handling();
+    if ( tp.get_class() == "original" ){
+      // backward compatability
+      ch = CORRECTION_HANDLING::ORIGINAL;
     }
-    const auto& it2 = find_if( data().begin(), data().end(),
-			       []( const FoliaElement *e ){
-				 return e->isinstance( Original_t ); } );
-    if ( it2 != data().end() ){
-      return (*it2)->phon_content( tp );
+    switch( ch ){
+    case CORRECTION_HANDLING::CURRENT:
+      // fallthrough
+    case CORRECTION_HANDLING::EITHER: {
+      const auto& it = find_if( data().begin(), data().end(),
+				[]( const FoliaElement *e ){
+				  return ( e->isinstance( New_t )
+					   || e->isinstance( Current_t ) ); } );
+      if ( it != data().end() ){
+	return (*it)->phon_content( tp );
+      }
+    }
+      break;
+    case CORRECTION_HANDLING::ORIGINAL: {
+      const auto& it = find_if( data().begin(), data().end(),
+				[]( const FoliaElement *e ){
+				  return e->isinstance( Original_t ); } );
+      if ( it != data().end() ){
+	return (*it)->phon_content( tp );
+      }
+    }
+      break;
+    default:
+      break;
     }
     throw NoSuchPhon("wrong cls");
+    return 0;
   }
 
   const PhonContent *Correction::phon_content( const string& cls ) const {

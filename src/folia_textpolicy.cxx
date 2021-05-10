@@ -36,7 +36,8 @@ namespace folia {
 
   TextPolicy::TextPolicy( const string& cls, const TEXT_FLAGS flags ):
     _class(cls),
-    _text_flags( flags )
+    _text_flags( flags ),
+    _correction_handling( CORRECTION_HANDLING::CURRENT )
   {
   }
 
@@ -44,6 +45,21 @@ namespace folia {
     TextPolicy( "current", flags ) {
   }
 
+  string toString( CORRECTION_HANDLING ch ){
+    switch( ch ){
+    case CORRECTION_HANDLING::CURRENT:
+      return "current";
+      break;
+    case CORRECTION_HANDLING::ORIGINAL:
+      return "original";
+      break;
+    case CORRECTION_HANDLING::EITHER:
+      return "either";
+      break;
+    default:
+      return "CORRECTION_HANDLING.toString() NOT implemented case";
+    }
+  }
 
   ostream& operator<<( ostream& os, const TextPolicy& tp ){
     bool retain  = tp.is_set( TEXT_FLAGS::RETAIN );
@@ -53,7 +69,8 @@ namespace folia {
     os << (strict?"strict":"not strict") << "\t"
        << (retain?"retain":"untokenized") << "\t"
        << (hide?"show_hidden":"hide hidden") << "\t"
-       << (trim?"trimming spaces":"not trimming spaces");
+       << (trim?"trimming spaces":"not trimming spaces") << "\t"
+       << "correction handling: " << toString( tp.get_correction_handling() );
     return os;
   }
 

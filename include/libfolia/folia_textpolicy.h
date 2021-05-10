@@ -76,6 +76,13 @@ namespace folia {
     return TEXT_FLAGS( ~(int)f1 );
   }
 
+  /// class to steer text searching in corrections.
+  enum class CORRECTION_HANDLING {
+    CURRENT=0,   //!< Search through <new> and <current> nodes. This is the default.
+      ORIGINAL=1, //!< Search through the <origina> nodes.
+      EITHER=2    //!< Search whatever comes our way
+      };
+
   class TextPolicy {
   public:
     TextPolicy( const std::string& = "current",
@@ -91,9 +98,17 @@ namespace folia {
     const tag_handler get_handler( const std::string& ) const;
     std::string get_class() const { return _class; };
     void set_class( const std::string& c ) { _class = c; };
+    CORRECTION_HANDLING get_correction_handling() const {
+      return _correction_handling;
+    };
+    void set_correction_handling( CORRECTION_HANDLING ch ) {
+      _correction_handling = ch;
+    };
+
   private:
     std::string _class;
     TEXT_FLAGS _text_flags;
+    CORRECTION_HANDLING _correction_handling;
     std::map<std::string, tag_handler> _tag_handlers;
   };
 
