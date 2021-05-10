@@ -5900,7 +5900,7 @@ namespace folia {
     return this;
   }
 
-  //#define DEBUG_TEXT
+  //#define DEBUG_TEXT_CORRECTION
   const UnicodeString Correction::private_text( const TextPolicy& tp ) const {
     /// get the UnicodeString value of an Correction
     /*!
@@ -5908,69 +5908,105 @@ namespace folia {
      * \return the Unicode String representation found. Throws when
      * no text can be found.
      */
-#ifdef DEBUG_TEXT
-    cerr << "TEXT(" << cls << ") on node : " << xmltag() << " id="
+#ifdef DEBUG_TEXT_CORRECTION
+    cerr << "TEXT(" << tp.get_class() << ") on node : " << xmltag() << " id="
 	 << id() << " TextPolicy: " << tp << endl;
 #endif
-    CORRECTION_HANDLING ch = tp.get_correction_handling();
-    if ( tp.get_class() == "original" ){
-      ch = CORRECTION_HANDLING::ORIGINAL;
-    }
+    //
     // we cannot use text_content() on New, Original or Current,
     // because textcontent doesn't recurse!
     bool deletion = false;
     UnicodeString new_result;
     UnicodeString org_result;
     UnicodeString cur_result;
-    for ( const auto& el : data() ) {
-#ifdef DEBUG_TEXT
+    CORRECTION_HANDLING ch = tp.get_correction_handling();
+    if ( tp.get_class() == "original" ){
+      // backward compatability
+      ch = CORRECTION_HANDLING::ORIGINAL;
+    }
+    if ( ch == CORRECTION_HANDLING::CURRENT
+	 || ch == CORRECTION_HANDLING::EITHER ){
+      for ( const auto& el : data() ) {
+#ifdef DEBUG_TEXT_CORRECTION
+	cerr << "data=" << el << endl;
+#endif
+	if ( el->isinstance( New_t ) ){
+	  if ( el->size() == 0 ){
+	    deletion = true;
+	  }
+	  else {
+	    try {
+	      new_result = el->private_text( tp );
+#ifdef DEBUG_TEXT_CORRECTION
+	      cerr << "New ==> '" << new_result << "'" << endl;
+#endif
+	    }
+	    catch ( ... ){
+	      // try other nodes
+	    }
+	  }
+	}
+	if ( new_result.isEmpty() ){
+	  if ( el->isinstance( Current_t ) ){
+	    try {
+	      cur_result = el->private_text( tp );
+#ifdef DEBUG_TEXT_CORRECTION
+	      cerr << "Current ==> '" << cur_result << "'" << endl;
+#endif
+	    }
+	    catch ( ... ){
+	      // try other nodes
+	    }
+	  }
+	  if ( cur_result.isEmpty() ){
+	    if ( el->isinstance( Original_t ) ){
+	      try {
+		org_result = el->private_text( tp );
+#ifdef DEBUG_TEXT_CORRECTION
+		cerr << "Original ==> '" << org_result << "'" << endl;
+#endif
+	      }
+	      catch ( ... ){
+		// try other nodes
+	      }
+	    }
+	  }
+	}
+      }
+    }
+    else if ( ch == CORRECTION_HANDLING::ORIGINAL ){
+      for ( const auto& el : data() ) {
+#ifdef DEBUG_TEXT_CORRECTION
       cerr << "data=" << el << endl;
 #endif
-      if ( el->isinstance( New_t ) ){
-	if ( el->size() == 0 ){
-	  deletion = true;
-	}
-	else {
+	if ( el->isinstance( Original_t ) ){
 	  try {
-	    new_result = el->private_text( tp );
+	    org_result = el->private_text( tp );
+#ifdef DEBUG_TEXT_CORRECTION
+	    cerr << "Orig ==> '" << org_result << "'" << endl;
+#endif
 	  }
 	  catch ( ... ){
 	    // try other nodes
 	  }
 	}
       }
-      else if ( el->isinstance( Original_t ) ){
-	try {
-	  org_result = el->private_text( tp );
-	}
-	catch ( ... ){
-	  // try other nodes
-	}
-      }
-      else if ( el->isinstance( Current_t ) ){
-	try {
-	  cur_result = el->private_text( tp );
-	}
-	catch ( ... ){
-	  // try other nodes
-	}
-      }
     }
     if ( !deletion ){
       if ( !new_result.isEmpty() ){
-#ifdef DEBUG_TEXT
+#ifdef DEBUG_TEXT_CORRECTION
 	cerr << "return new text '" << new_result << "'" << endl;
 #endif
 	return new_result;
       }
       else if ( !cur_result.isEmpty() ){
-#ifdef DEBUG_TEXT
+#ifdef DEBUG_TEXT_CORRECTION
 	cerr << "return cur text '" << cur_result << "'" << endl;
 #endif
 	return cur_result;
       }
       else if ( !org_result.isEmpty() ){
-#ifdef DEBUG_TEXT
+#ifdef DEBUG_TEXT_CORRECTION
 	cerr << "return ori text '" << org_result << "'" << endl;
 #endif
 	return org_result;
@@ -5978,15 +6014,18 @@ namespace folia {
     }
     else {
       if ( !cur_result.isEmpty() ){
-#ifdef DEBUG_TEXT
+#ifdef DEBUG_TEXT_CORRECTION
 	cerr << "Deletion: return cur text '" << cur_result << "'" << endl;
 #endif
 	return cur_result;
       }
+      else {
+	cerr << "some panic" << endl;
+      }
     }
     throw NoSuchText( "cls=" + tp.get_class() );
   }
-  //#undef DEBUG_TEXT
+#undef DEBUG_TEXT_CORRECTION
 
   const string& Correction::get_delimiter( bool retaintok ) const {
     /// get the default delimiter of a Correction

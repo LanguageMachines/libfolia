@@ -112,6 +112,7 @@ namespace folia {
     std::map<std::string, tag_handler> _tag_handlers;
   };
 
+  std::ostream& operator<<( std::ostream& os, const TextPolicy& );
 } // namespace folia
 
 #endif // FOLIA_TEXTPOLICY_H

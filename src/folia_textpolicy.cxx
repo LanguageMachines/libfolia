@@ -66,10 +66,11 @@ namespace folia {
     bool strict  = tp.is_set( TEXT_FLAGS::STRICT );
     bool hide    = tp.is_set( TEXT_FLAGS::HIDDEN );
     bool trim = !tp.is_set( TEXT_FLAGS::NO_TRIM_SPACES );
-    os << (strict?"strict":"not strict") << "\t"
-       << (retain?"retain":"untokenized") << "\t"
-       << (hide?"show_hidden":"hide hidden") << "\t"
-       << (trim?"trimming spaces":"not trimming spaces") << "\t"
+    os << "class=" << tp.get_class() << "\t"
+       << (strict?"strict":"not strict") << ", "
+       << (retain?"retain":"untokenized") << ", "
+       << (hide?"show_hidden":"hide hidden") << ", "
+       << (trim?"trimming spaces":"not trimming spaces") << ", "
        << "correction handling: " << toString( tp.get_correction_handling() );
     return os;
   }
