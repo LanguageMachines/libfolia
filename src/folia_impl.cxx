@@ -6216,7 +6216,9 @@ namespace folia {
      * recurses into children looking for New or Current
      * might throw NoSuchPhon exception if not found.
      */
+    // TODO: this implements correctionhandling::EITHER only
     TextPolicy tp( cls );
+    tp.set_correction_handling(CORRECTION_HANDLING::EITHER);
     return phon_content( tp );
   }
 
