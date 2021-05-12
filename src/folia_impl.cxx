@@ -1299,7 +1299,6 @@ namespace folia {
 		    const string& cls,
 		    bool trim_spaces ){
     if ( parent
-	 && parent->element_id() != Correction_t
 	 && parent->hastext( cls ) ){
       // check text consistency for parents with text
       // but SKIP Corrections
@@ -1439,7 +1438,6 @@ namespace folia {
 #ifdef DEBUG_TEXT
       cerr << "DEBUG: BEGIN check_text_consistency_while_parsing(" << trim_spaces << ")" << endl;
 #endif
-
       vector<TextContent*> tv = select<TextContent>( false );
       // first see which text classes are present
       set<string> classes;
@@ -1450,6 +1448,7 @@ namespace folia {
       for ( const auto& st : classes ){
 	UnicodeString s1, s2;
 	TextPolicy tp( st );
+	tp.set_correction_handling(CORRECTION_HANDLING::EITHER);
         tp.set( TEXT_FLAGS::STRICT );
         if ( !trim_spaces ) {
 	  tp.set( TEXT_FLAGS::NO_TRIM_SPACES );
@@ -2519,7 +2518,7 @@ namespace folia {
     /// Get the PhonContent explicitly associated with this element.
     /*!
      * \param cls the textclass to search for
-     * \param show_hidden if true also return text og 'hidden' nodes
+     * \param show_hidden if true also return text or 'hidden' nodes
      *
      * Returns the PhonContent instance rather than the actual text.
      * (so it might return iself.. ;)
@@ -5958,7 +5957,8 @@ namespace folia {
 	      // try other nodes
 	    }
 	  }
-	  if ( cur_result.isEmpty() ){
+	  if ( cur_result.isEmpty()
+	       && ch == CORRECTION_HANDLING::EITHER ){
 	    if ( el->isinstance( Original_t ) ){
 	      try {
 		org_result = el->private_text( tp );
@@ -5979,7 +5979,7 @@ namespace folia {
 #ifdef DEBUG_TEXT_CORRECTION
       cerr << "data=" << el << endl;
 #endif
-	if ( el->isinstance( Original_t ) ){
+      if ( el->isinstance( Original_t ) ){
 	  try {
 	    org_result = el->private_text( tp );
 #ifdef DEBUG_TEXT_CORRECTION
@@ -6018,9 +6018,6 @@ namespace folia {
 	cerr << "Deletion: return cur text '" << cur_result << "'" << endl;
 #endif
 	return cur_result;
-      }
-      else {
-	cerr << "some panic" << endl;
       }
     }
     throw NoSuchText( "cls=" + tp.get_class() );
@@ -6099,6 +6096,7 @@ namespace folia {
      */
     // TODO: this implements correctionhandling::EITHER only
     TextPolicy tp( cls );
+    tp.set_correction_handling(CORRECTION_HANDLING::EITHER);
     return text_content( tp );
   }
 
