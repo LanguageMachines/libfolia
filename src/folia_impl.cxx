@@ -273,7 +273,7 @@ namespace folia {
     AbstractElement( p, el->doc() )
   {
     if ( !el ){
-      throw ValueError( "AbstractElement( p, e ) called with 0 p" );
+      throw ValueError( "AbstractElement( p, e ) called with 0 e" );
     }
     el->append( this );
   }
@@ -2952,6 +2952,7 @@ namespace folia {
      *
      * Otherwise: The annotation type is checked. If not set yet and
      * the doc has autodeclare mode set, it is attempted to do so.
+     * For TextContent and PhonContent, a default is added too
      *
      * Also the ID is registered in the_doc.
      *
@@ -2967,7 +2968,23 @@ namespace folia {
 	// cerr << "set: " << _set << endl;
 	// so when appending a document-less child, make sure that
 	// an annotation declaration is present or added.
-	if ( doc()->autodeclare() ){
+	if ( annotation_type() ==  AnnotationType::TEXT ){
+	  if ( _set.empty() ){
+	    doc()->declare( AnnotationType::TEXT, DEFAULT_TEXT_SET );
+	  }
+	  else {
+	    doc()->declare( AnnotationType::TEXT, _set );
+	  }
+	}
+	else if ( annotation_type() == AnnotationType::PHON ){
+	  if ( _set.empty() ){
+	    doc()->declare( AnnotationType::PHON, DEFAULT_PHON_SET );
+	  }
+	  else {
+	    doc()->declare( AnnotationType::PHON, _set );
+	  }
+	}
+	else if ( doc()->autodeclare() ){
 	  doc()->auto_declare( annotation_type(), _set );
 	}
 	else {
@@ -2983,8 +3000,10 @@ namespace folia {
 	   && (CLASS & required_attributes() )
 	   && !_mydoc->declared( annotation_type(), _set ) ) {
 	throw DeclarationError( "Set " + _set + " is used in " + xmltag()
-			  + "element: " + myid + " but has no declaration " +
-			  "for " + toString( annotation_type() ) + "-annotation" );
+				+ "element: " + myid
+				+ " but has no declaration "
+				+ "for " + toString( annotation_type() )
+				+ "-annotation" );
       }
       if ( !myid.empty() ) {
 	_mydoc->add_doc_index( this, myid );
