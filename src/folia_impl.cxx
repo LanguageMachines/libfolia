@@ -3385,10 +3385,8 @@ namespace folia {
 	}
       }
       else if ( p->type == XML_ENTITY_REF_NODE ){
-	XmlText *t = new XmlText();
 	string txt = TextValue( p );
-	t->setvalue( txt );
-	append( t );
+	XmlText *t = add_child<XmlText>( txt );
 	if ( doc() && doc()->debug > 2 ) {
 	  cerr << "created " << t << "(" << t->text() << ")" << endl;
 	  cerr << "extended " << this << " met " << t << endl;
@@ -3401,9 +3399,7 @@ namespace folia {
 	  // non empty text is allowed (or even required) here
 	  string txt = TextValue( p );
 	  if ( !txt.empty() ) {
-	    XmlText *t = new XmlText();
-	    t->setvalue( txt );
-	    append( t );
+	    XmlText *t = add_child<XmlText>( txt );
 	    if ( doc() && doc()->debug > 2 ) {
 	      cerr << "created " << t << "(" << t->text() << ")" << endl;
 	      cerr << "extended " << this << " met " << t << endl;
@@ -3983,9 +3979,7 @@ namespace folia {
 	// can this ever happen?
 	throw ValueError( "TextContent: 'value' attribute may not be empty." );
       }
-      XmlText *t = new XmlText();
-      t->setvalue( value );
-      append( t );
+      add_child<XmlText>( value );
     }
     it = kwargs.find( "offset" );
     if ( it != kwargs.end() ) {
