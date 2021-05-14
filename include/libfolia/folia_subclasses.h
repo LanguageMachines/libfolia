@@ -1187,7 +1187,7 @@ namespace folia {
     void setAttributes( KWargs& );
     FoliaElement* parseXml( const xmlNode * );
     xmlNode *xml( bool, bool=false ) const;
-
+    void setvalue( const std::string& s ){ _value = s; };
   private:
     static properties PROPS;
     std::string _value;
@@ -1202,7 +1202,7 @@ namespace folia {
     void setAttributes( KWargs& );
     FoliaElement* parseXml( const xmlNode * );
     xmlNode *xml( bool, bool=false ) const;
-
+    void setvalue( const std::string& s ){ _value = s; };
   private:
     static properties PROPS;
     std::string _value;
@@ -1212,10 +1212,9 @@ namespace folia {
     friend void static_init();
   public:
     ADD_PUBLIC_CONSTRUCTORS( XmlComment, AbstractElement );
-
     FoliaElement* parseXml( const xmlNode * );
     xmlNode *xml( bool, bool=false ) const;
-
+    void setvalue( const std::string& s ){ _value = s; };
   private:
     const UnicodeString private_text( const TextPolicy& ) const {
       return "";
@@ -1230,7 +1229,7 @@ namespace folia {
     ADD_PUBLIC_CONSTRUCTORS( XmlText, AbstractElement );
     FoliaElement* parseXml( const xmlNode * );
     xmlNode *xml( bool, bool=false ) const;
-    bool setvalue( const std::string& );
+    void setvalue( const std::string& );
     const std::string& get_delimiter( bool ) const { return EMPTY_STRING; };
     void setAttributes( KWargs& );
   private:

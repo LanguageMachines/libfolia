@@ -6498,11 +6498,10 @@ namespace folia {
     return os;
   }
 
-  bool XmlText::setvalue( const string& s ){
+  void XmlText::setvalue( const string& s ){
     /// set the value of an XmlText element in NFC endcoded UTF8
     /*!
      * \param s an UTF8 string
-     * \return true always
      */
     static TiCC::UnicodeNormalizer norm;  // defaults to a NFC normalizer
     if ( !s.empty() ){
@@ -6511,7 +6510,6 @@ namespace folia {
       us = dumb_spaces( us );
       _value = TiCC::UnicodeToUTF8( us );
     }
-    return true;
   }
 
   const UnicodeString XmlText::private_text( const TextPolicy& ) const {
@@ -6990,9 +6988,7 @@ namespace folia {
     }
     it = kwargs.find( "text" );
     if ( it != kwargs.end() ) {
-      XmlText *txt = new XmlText();
-      txt->setvalue( it->second );
-      append(txt);
+      add_child<XmlText>( it->second );
       kwargs.erase( it );
     }
     AllowXlink::setAttributes( kwargs );

@@ -133,6 +133,20 @@ namespace folia {
       return new T( this );
     }
 
+    template <typename T>
+      inline T *add_child( const std::string& txt ){
+      /// create a new XmlText as child of 'this'
+      /*!
+	\param txt an value to be assigned as a "text" attribute
+	\return a new FoliaElement
+	this will not complie for any class that has NO IMPLEMENTATION for
+	setvalue(). (which ar most classes)
+      */
+      T *result = new T(this);
+      result->setvalue( txt );
+      return result;
+    }
+
     bool isSubClass( ElementType ) const;
     bool isSubClass( const FoliaElement *c ) const {
       /// check if the object is a subclass of the class of \e c
