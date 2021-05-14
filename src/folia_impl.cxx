@@ -6521,6 +6521,17 @@ namespace folia {
     return TiCC::UnicodeFromUTF8(_value);
   }
 
+  void XmlText::setAttributes( KWargs& args ){
+    string text = args.extract( "text" );
+    if ( !text.empty() ){
+      setvalue( text );
+    }
+    if ( !args.empty() ){
+      throw ValueError( "unsupported attribute for XmlText: "
+			+ args.begin()->first );
+    }
+  }
+
   xmlNode *XmlText::xml( bool, bool ) const {
     ///  convert an XmlText node to an xmlNode
     return xmlNewText( (const xmlChar*)_value.c_str() );

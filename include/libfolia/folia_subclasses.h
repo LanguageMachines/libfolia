@@ -1228,11 +1228,11 @@ namespace folia {
     friend void static_init();
   public:
     ADD_PUBLIC_CONSTRUCTORS( XmlText, AbstractElement );
-
     FoliaElement* parseXml( const xmlNode * );
     xmlNode *xml( bool, bool=false ) const;
     bool setvalue( const std::string& );
     const std::string& get_delimiter( bool ) const { return EMPTY_STRING; };
+    void setAttributes( KWargs& );
   private:
     const UnicodeString private_text( const TextPolicy& ) const;
     static properties PROPS;
