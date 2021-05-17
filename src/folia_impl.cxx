@@ -214,12 +214,12 @@ namespace folia {
     os << " <" << ae.classname();
     KWargs ats = ae.collectAttributes();
     if ( !ae.id().empty() ) {
-      os << " xml:id='" << ae.id() << '"';
+      os << " xml:id=\"" << ae.id() << '"';
       ats.erase("xml:id");
     }
 
     for ( const auto& it: ats ) {
-      os << " " << it.first << "='" << it.second << "'";
+      os << " " << it.first << "=\"" << it.second << '"';
     }
     os << " > {";
     for ( size_t i=0; i < ae.size(); ++i ) {
@@ -290,7 +290,7 @@ namespace folia {
     //   debug = false;
     // }
     if (debug ){
-      cerr << "delete " << xmltag() << " id=" << _id << " class= "
+      cerr << "\ndelete " << xmltag() << " id=" << _id << " class= "
     	   << cls() << " datasize= " << _data.size() << endl;
       cerr << "REFCOUNT = " << refcount() << endl;
     }
@@ -318,8 +318,9 @@ namespace folia {
       }
     }
     if ( debug ){
-      cerr << "\t\tsucces deleting element id=" << _id << " tag = " << xmltag() << " class= "
-     	   << cls() << " datasize= " << _data.size() << endl;
+      cerr << "\t\tsucces deleting element id=" << _id << " tag = "
+	   << xmltag() << " class= " << cls()
+	   << " datasize= " << _data.size() << endl;
     }
     if ( doc() ) {
       doc()->del_doc_index( _id );
@@ -3178,6 +3179,7 @@ namespace folia {
      */
     auto it = std::remove( _data.begin(), _data.end(), child );
     _data.erase( it, _data.end() );
+    child->set_parent(0);
     if ( del ) {
       if ( child->refcount() > 0 ){
 	// dont really delete yet!
@@ -3186,9 +3188,6 @@ namespace folia {
       else {
 	delete child;
       }
-    }
-    else {
-      child->set_parent(0);
     }
   }
 
@@ -3320,7 +3319,7 @@ namespace folia {
     /// split the node and all siblings into a set of nodes
     /*!
      * \param store
-     * recursively go throuhg this node and its children an collect all
+     * recursively go through this node and its children an collect all
      * node pointers in store.
      * Erase the _data array of every node
      *
