@@ -279,10 +279,12 @@ namespace folia {
   }
 
    AbstractElement::~AbstractElement( ) {
+     //     cerr << "really delete " << xmltag() << endl;
    }
 
   void AbstractElement::destroy( ) {
-    /// Destructor for AbstractElements.
+    /// Pseudo destructor for AbstractElements.
+    /// recursively destroys this nodes and it's children
     bool debug = false;
     // if ( xmltag() == "w"
     // 	 || xmltag() == "s"
@@ -293,41 +295,34 @@ namespace folia {
     //   debug = false;
     // }
     if (debug ){
-      cerr << "\ndelete " << xmltag() << " id=" << _id << " class= "
+      cerr << "\ndestroy " << xmltag() << " id=" << _id << " class= "
     	   << cls() << " datasize= " << _data.size() << endl;
       cerr << "REFCOUNT = " << refcount() << endl;
+      cerr << "AT= " << annotation_type() << " (" << _set << ")" << endl;
     }
     if ( refcount() > 0 ){
+      //      decrefcount();
       if ( doc() ) {
 	doc()->keepForDeletion( this );
       }
-      //      decrefcount();
     }
     else {
       for ( const auto& el : _data ) {
-	if ( el->refcount() == 0 ) {
-	  if ( debug ){
-	    cerr << "dus delete: " << el << endl;
-	  }
-	  // probably only != 0 for words
-	  delete el;
-	}
-	else if ( doc() ) {
-	  if ( debug ){
-	    cerr << "dus KEEP: " << el << endl;
-	  }
-	  doc()->keepForDeletion( el );
-	}
+	el->destroy();
       }
+      _data.clear();
     }
     if ( debug ){
-      cerr << "\t\tsucces deleting element id=" << _id << " tag = "
+      cerr << "\t\tfinished destroying element id=" << _id << " tag = "
 	   << xmltag() << " class= " << cls()
 	   << " datasize= " << _data.size() << endl;
     }
     if ( doc() ) {
       doc()->del_doc_index( _id );
       doc()->decrRef( annotation_type(), _set );
+    }
+    else {
+      delete this;
     }
   }
 
@@ -3178,7 +3173,7 @@ namespace folia {
     /// remove a child from a node
     /*!
      * \param child the element to remove
-     * \param del If true, really delete the child
+     * \param del If true, destroy the child
      */
     auto it = std::remove( _data.begin(), _data.end(), child );
     _data.erase( it, _data.end() );
@@ -3189,7 +3184,7 @@ namespace folia {
 	doc()->keepForDeletion( child );
       }
       else {
-	delete child;
+	child->destroy();
       }
     }
   }
@@ -3198,7 +3193,7 @@ namespace folia {
     /// remove a child from a node
     /*!
      * \param pos the index of the element to remove
-     * \param del If true, really delete the child
+     * \param del If true, really destroy the child
      */
     if ( pos < _data.size() ) {
       auto it = _data.begin();
@@ -3212,7 +3207,7 @@ namespace folia {
 	  doc()->keepForDeletion( *it );
 	}
 	else {
-	  delete *it;
+	  (*it)->destroy();
 	}
       }
       else {

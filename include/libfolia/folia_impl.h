@@ -558,15 +558,14 @@ namespace folia {
 
   class AbstractElement: public virtual FoliaElement {
   private:
+    //Constructor
     AbstractElement( const AbstractElement& ); // inhibit copies
     AbstractElement& operator=( const AbstractElement& ); // inhibit copies
-    //Constructor
   protected:
     AbstractElement( const properties& p, Document* = 0 );
     AbstractElement( const properties& p, FoliaElement * );
-  public:
-    // expose static element Constructor
     virtual ~AbstractElement();
+  public:
     void destroy();
     void classInit();
     void classInit( const KWargs& );

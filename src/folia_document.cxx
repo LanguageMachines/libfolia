@@ -206,7 +206,9 @@ namespace folia {
     xmlFree( (xmlChar*)_foliaNsIn_href );
     xmlFree( (xmlChar*)_foliaNsIn_prefix );
     sindex.clear();
-    delete foliadoc;
+    if ( foliadoc ){
+      foliadoc->destroy();
+    }
     set<FoliaElement*> bulk;
     for ( const auto& it : delSet ){
       it->unravel( bulk );
@@ -2423,16 +2425,19 @@ namespace folia {
 	st = default_set(type);
       }
       ++_annotationrefs[type][st];
-      //      cerr << "increment " << toString(type) << "(" << st << ")" << endl;
+      // cerr << "increment " << toString(type) << "(" << st << ") to: "
+      // 	   << _annotationrefs[type][s] << endl;
     }
   }
 
   void Document::decrRef( AnnotationType type,
 			  const string& s ){
     /// decrement the reference count for the AnnotationType/set combination
-    if ( type != AnnotationType::NO_ANN ){
+    if ( type != AnnotationType::NO_ANN
+	 && _annotationrefs[type][s] > 0 ){
       --_annotationrefs[type][s];
-      //      cerr << "decrement " << toString(type) << "(" << s << ")" << endl;
+      // cerr << "decrement " << toString(type) << "(" << s << ") to: "
+      // 	   << _annotationrefs[type][s] << endl;
     }
   }
 
