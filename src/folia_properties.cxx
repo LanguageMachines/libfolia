@@ -1565,6 +1565,9 @@ namespace folia {
       reverse_old[it.second] = it.first;
     }
 
+    for ( const auto& it : annotationtype_elementtype_map ){
+      element_annotation_map[it.second] = it.first;
+    }
   }
 
 
@@ -1711,6 +1714,7 @@ namespace folia {
   };
 
   map<string,string> reverse_old;
+  map<ElementType,AnnotationType> element_annotation_map;
 
   //foliaspec:wrefables
   //Elements that act as words and can be referable from span annotations

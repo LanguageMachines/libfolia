@@ -1136,7 +1136,7 @@ namespace folia {
 	    et = et_it->second;
 	    FoliaElement *tmp = AbstractElement::createElement( et );
 	    if ( tmp->required_attributes() & Attrib::CLASS ) {
-	      tmp->destroy();;
+	      tmp->destroy();
 	      throw XmlError( "setname may not be empty for " + prefix
 			      + "-annotation" );
 	    }
@@ -2516,9 +2516,7 @@ namespace folia {
       If set_name is empty ("") a match is found when a declarion for \e type
       exists
     */
-    FoliaElement *tmp = AbstractElement::createElement( et );
-    AnnotationType at = tmp->annotation_type();
-    tmp->destroy();
+    AnnotationType at = element_annotation_map[et];
     return declared( at, set_name );
   }
 

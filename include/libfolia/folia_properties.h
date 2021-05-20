@@ -64,11 +64,16 @@ namespace folia {
   };
 
   extern const std::set<std::string> AttributeFeatures;
+
   extern const std::map<ElementType,std::string> et_s_map;
   extern const std::map<std::string,ElementType> s_et_map;
+
   extern const std::map<AnnotationType,std::string> ant_s_map;
   extern const std::map<std::string,AnnotationType> s_ant_map;
+
   extern const std::map<AnnotationType, ElementType> annotationtype_elementtype_map;
+  extern std::map<ElementType,AnnotationType> element_annotation_map;
+
   extern const std::map<AnnotationType,std::string> annotationtype_xml_map;
   extern const std::map<std::string,std::string> oldtags;
   extern std::map<std::string,std::string> reverse_old;
