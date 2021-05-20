@@ -278,7 +278,10 @@ namespace folia {
     el->append( this );
   }
 
-  AbstractElement::~AbstractElement( ) {
+   AbstractElement::~AbstractElement( ) {
+   }
+
+  void AbstractElement::destroy( ) {
     /// Destructor for AbstractElements.
     bool debug = false;
     // if ( xmltag() == "w"

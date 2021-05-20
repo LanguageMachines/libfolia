@@ -96,6 +96,7 @@ namespace folia {
     friend bool operator==( const FoliaElement&, const FoliaElement& );
   public:
     virtual ~FoliaElement(){};
+    virtual void destroy() = 0;
     virtual void init() {};
     virtual size_t size() const = 0;
     virtual FoliaElement* index( size_t ) const = 0;
@@ -566,7 +567,7 @@ namespace folia {
   public:
     // expose static element Constructor
     virtual ~AbstractElement();
-
+    void destroy();
     void classInit();
     void classInit( const KWargs& );
 
