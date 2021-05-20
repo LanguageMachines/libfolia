@@ -94,8 +94,9 @@ namespace folia {
     friend std::ostream& operator<<( std::ostream&, const FoliaElement& );
     friend std::ostream& operator<<( std::ostream&, const FoliaElement* );
     friend bool operator==( const FoliaElement&, const FoliaElement& );
-  public:
+  protected:
     virtual ~FoliaElement(){};
+  public:
     virtual void destroy() = 0;
     virtual void init() {};
     virtual size_t size() const = 0;

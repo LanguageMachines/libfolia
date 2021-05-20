@@ -214,7 +214,7 @@ namespace folia {
       it->unravel( bulk );
     }
     for ( const auto& it : bulk ){
-      delete it;
+      it->destroy();
     }
     delete _metadata;
     delete _foreign_metadata;
@@ -1136,11 +1136,11 @@ namespace folia {
 	    et = et_it->second;
 	    FoliaElement *tmp = AbstractElement::createElement( et );
 	    if ( tmp->required_attributes() & Attrib::CLASS ) {
-	      delete tmp;
+	      tmp->destroy();;
 	      throw XmlError( "setname may not be empty for " + prefix
 			      + "-annotation" );
 	    }
-	    delete tmp;
+	    tmp->destroy();
 	  }
 	}
 	if ( set_name.empty() ){
@@ -1932,11 +1932,11 @@ namespace folia {
 	auto et = et_it->second;
 	FoliaElement *tmp = AbstractElement::createElement( et );
 	if ( tmp->required_attributes() & Attrib::CLASS ) {
-	  delete tmp;
+	  tmp->destroy();
 	  throw XmlError( "setname may not be empty for " + prefix
 			  + "-annotation" );
 	}
-	delete tmp;
+	tmp->destroy();
       }
       if ( st.empty() ){
 	st = "None";
@@ -2518,7 +2518,7 @@ namespace folia {
     */
     FoliaElement *tmp = AbstractElement::createElement( et );
     AnnotationType at = tmp->annotation_type();
-    delete tmp;
+    tmp->destroy();
     return declared( at, set_name );
   }
 

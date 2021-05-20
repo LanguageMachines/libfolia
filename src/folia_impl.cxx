@@ -3115,7 +3115,7 @@ namespace folia {
       throw;
     }
     catch ( const exception& ) {
-      delete child;
+      child->destroy();
       throw;
     }
     if ( ok ) {
@@ -3435,7 +3435,7 @@ namespace folia {
 	      t = t->parseXml( p );
 	    }
 	    catch ( const ValueError& e ){
-	      delete t;
+	      t->destroy();
 	      t = 0;
 	    }
 	  }
@@ -3717,7 +3717,7 @@ namespace folia {
       res = new Sentence( kw, doc() );
     }
     catch( const DuplicateIDError& e ) {
-      delete res;
+      res->destroy();
       throw;
     }
     append( res );
@@ -5091,7 +5091,7 @@ namespace folia {
     	// OK!
     	return AbstractElement::append( child );
       }
-      delete child;
+      child->destroy();
       throw DuplicateAnnotationError( "Word::append" );
     }
     return AbstractElement::append( child );
@@ -6600,8 +6600,8 @@ namespace folia {
 	      FoliaElement *old = par->replace( this, tmp->index(0) );
 	      doc()->del_doc_index( bogus_id );
 	      tmp->remove( (size_t)0, false );
-	      delete tmp;
-	      delete old;
+	      tmp->destroy();
+	      old->destroy();
 	    }
 	  }
 	  p = p->next;
@@ -6840,7 +6840,7 @@ namespace folia {
   ForeignMetaData::~ForeignMetaData(){
     /// destructor for ForeignMetaData
     for ( const auto& it : foreigners ){
-      delete it;
+      it->destroy();
     }
   }
 
