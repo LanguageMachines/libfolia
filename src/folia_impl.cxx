@@ -300,10 +300,20 @@ namespace folia {
       cerr << "REFCOUNT = " << refcount() << endl;
       cerr << "AT= " << annotation_type() << " (" << _set << ")" << endl;
     }
-    if ( refcount() > 0 ){
-      //      decrefcount();
-      if ( doc() ) {
+    if ( doc() ) {
+      doc()->del_doc_index( _id );
+      doc()->decrRef( annotation_type(), _set );
+      if ( debug ){
+	cerr << "\t\thalfway destroying element id=" << _id << " tag = "
+	     << xmltag() << " class= " << cls()
+	     << " datasize= " << _data.size() << endl;
+      }
+      if ( refcount() > 0 ){
+	decrefcount();
 	doc()->keepForDeletion( this );
+      }
+      else {
+	delete this;
       }
     }
     else {
@@ -311,17 +321,11 @@ namespace folia {
 	el->destroy();
       }
       _data.clear();
-    }
-    if ( debug ){
-      cerr << "\t\tfinished destroying element id=" << _id << " tag = "
-	   << xmltag() << " class= " << cls()
-	   << " datasize= " << _data.size() << endl;
-    }
-    if ( doc() ) {
-      doc()->del_doc_index( _id );
-      doc()->decrRef( annotation_type(), _set );
-    }
-    else {
+      if ( debug ){
+	cerr << "\t\tfinished destroying element id=" << _id << " tag = "
+	     << xmltag() << " class= " << cls()
+	     << " datasize= " << _data.size() << endl;
+      }
       delete this;
     }
   }
