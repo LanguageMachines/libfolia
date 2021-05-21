@@ -837,8 +837,7 @@ namespace folia {
       This is about C++ class inheritance: is our class a derivative of c's
       class?
     */
-    T1 t1((Document*)0);
-    return dynamic_cast<T2*>(&t1) != 0;
+    return isSubClass( T1::PROPS.ELEMENT_ID, T2::PROPS.ELEMENT_ID );
   }
 
   bool operator==( const FoliaElement&, const FoliaElement& );
