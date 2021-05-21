@@ -110,8 +110,7 @@ namespace folia {
 
     template <typename F>
       bool isinstance() const {
-      F obj((Document*)0);
-      return element_id() == obj.element_id();
+      return element_id() == F::PROPS.ELEMENT_ID;
     }
 
     template <typename T>
@@ -189,12 +188,11 @@ namespace folia {
       std::vector<F*> select( const std::string& st,
 			      const std::set<ElementType>& exclude,
 			      bool recurse = true ) const {
-      F obj((Document*)0);
-      std::vector<F*> res;
-      std::vector<FoliaElement*> tmp = select( obj.element_id(),
+      std::vector<FoliaElement*> tmp = select( F::PROPS.ELEMENT_ID,
 					       st,
 					       exclude,
 					       (recurse?SELECT_FLAGS::RECURSE : SELECT_FLAGS::LOCAL) );
+      std::vector<F*> res;
       for ( size_t i = 0; i < tmp.size(); ++i ){
 	res.push_back( dynamic_cast<F*>( tmp[i]) );
       }
@@ -204,11 +202,10 @@ namespace folia {
     template <typename F>
       std::vector<F*> select( const std::string& st,
 			      bool recurse = true ) const {
-      F obj((Document*)0);
-      std::vector<F*> res;
-      std::vector<FoliaElement*> tmp = select( obj.element_id(),
+      std::vector<FoliaElement*> tmp = select( F::PROPS.ELEMENT_ID,
 					       st,
 					       (recurse?SELECT_FLAGS::RECURSE : SELECT_FLAGS::LOCAL) );
+      std::vector<F*> res;
       for ( size_t i = 0; i < tmp.size(); ++i ){
 	res.push_back( dynamic_cast<F*>( tmp[i]) );
       }
@@ -218,11 +215,10 @@ namespace folia {
     template <typename F>
       std::vector<F*> select( const char* st,
 			      bool recurse = true ) const {
-      F obj((Document*)0);
-      std::vector<F*> res;
-      std::vector<FoliaElement*> tmp = select( obj.element_id(),
+      std::vector<FoliaElement*> tmp = select( F::PROPS.ELEMENT_ID,
 					       std::string(st),
 					       (recurse?SELECT_FLAGS::RECURSE : SELECT_FLAGS::LOCAL) );
+      std::vector<F*> res;
       for ( size_t i = 0; i < tmp.size(); ++i ){
 	res.push_back( dynamic_cast<F*>( tmp[i]) );
       }
@@ -232,11 +228,10 @@ namespace folia {
     template <typename F>
       std::vector<F*> select( const std::set<ElementType>& exclude,
 			      bool recurse = true ) const {
-      F obj((Document*)0);
-      std::vector<F*> res;
-      std::vector<FoliaElement*> tmp = select( obj.element_id(),
+      std::vector<FoliaElement*> tmp = select( F::PROPS.ELEMENT_ID,
 					       exclude,
 					       (recurse?SELECT_FLAGS::RECURSE : SELECT_FLAGS::LOCAL) );
+      std::vector<F*> res;
       for ( size_t i = 0; i < tmp.size(); ++i ){
 	res.push_back( dynamic_cast<F*>( tmp[i]) );
       }
@@ -245,10 +240,9 @@ namespace folia {
 
     template <typename F>
       std::vector<F*> select( bool recurse = true ) const {
-      F obj((Document*)0);
-      std::vector<F*> res;
-      std::vector<FoliaElement*> tmp = select( obj.element_id(),
+      std::vector<FoliaElement*> tmp = select( F::PROPS.ELEMENT_ID,
 					       (recurse?SELECT_FLAGS::RECURSE : SELECT_FLAGS::LOCAL) );
+      std::vector<F*> res;
       for ( size_t i = 0; i < tmp.size(); ++i ){
 	res.push_back( dynamic_cast<F*>( tmp[i]) );
       }
@@ -323,8 +317,7 @@ namespace folia {
 							    const std::string& = "" ) const NOT_IMPLEMENTED;
     template <typename F>
       std::vector<AbstractSpanAnnotation*> findspans( const std::string& st = "" ) const {
-      F obj((Document*)0);
-      return findspans( obj.element_id(), st );
+      return findspans( F::PROPS.ELEMENT_ID, st );
     }
     virtual AbstractSpanAnnotation *findspan( const std::vector<FoliaElement*>& ) const NOT_IMPLEMENTED;
 
@@ -368,7 +361,7 @@ namespace folia {
     virtual bool referable() const = 0;
     virtual bool is_textcontainer() const = 0;
     virtual bool is_phoncontainer() const = 0;
-
+    virtual const std::string& text_delimiter() const = 0;
     // Word
     virtual Word *previous() const NOT_IMPLEMENTED;
     virtual Word *next() const NOT_IMPLEMENTED;
@@ -758,6 +751,7 @@ namespace folia {
     bool referable() const;
     bool is_textcontainer() const;
     bool is_phoncontainer() const;
+    const std::string& text_delimiter() const;
     bool auth() const;
     bool xlink() const;
     bool setonly() const;

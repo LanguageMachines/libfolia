@@ -146,6 +146,11 @@ namespace folia {
     return _props.PHONCONTAINER;
   }
 
+  const string& AbstractElement::text_delimiter() const {
+    /// return the TEXTDELIMITER property
+    return _props.TEXTDELIMITER;
+  }
+
   bool AbstractElement::xlink() const {
     /// return the XLINK property
     return _props.XLINK;
@@ -1811,8 +1816,8 @@ namespace folia {
 	return EMPTY_STRING;
       }
     }
-    if ( _props.TEXTDELIMITER != "NONE" ) {
-      return _props.TEXTDELIMITER;
+    if ( text_delimiter() != "NONE" ) {
+      return text_delimiter();
     }
     else if ( _data.size() > 0 ) {
       // attempt to get a delimiter from the last child
