@@ -283,9 +283,9 @@ namespace folia {
     el->append( this );
   }
 
-   AbstractElement::~AbstractElement( ) {
-     //     cerr << "really delete " << xmltag() << endl;
-   }
+  AbstractElement::~AbstractElement( ) {
+    //     cerr << "really delete " << xmltag() << endl;
+  }
 
   void AbstractElement::destroy( ) {
     /// Pseudo destructor for AbstractElements.
@@ -332,6 +332,12 @@ namespace folia {
 	     << " datasize= " << _data.size() << endl;
       }
       delete this;
+    }
+  }
+
+  void destroy( FoliaElement *el ){
+    if ( el ){
+      el->destroy();
     }
   }
 
@@ -3746,7 +3752,7 @@ namespace folia {
       res->setAttributes( kw );
     }
     catch( const DuplicateIDError& e ) {
-      delete res;
+      res->destroy();
       throw;
     }
     append( res );

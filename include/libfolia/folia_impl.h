@@ -94,6 +94,7 @@ namespace folia {
     friend std::ostream& operator<<( std::ostream&, const FoliaElement& );
     friend std::ostream& operator<<( std::ostream&, const FoliaElement* );
     friend bool operator==( const FoliaElement&, const FoliaElement& );
+    friend void destroy( FoliaElement * );
   protected:
     virtual ~FoliaElement(){};
   public:
@@ -305,7 +306,9 @@ namespace folia {
 	res = new F( args, doc() );
       }
       catch( std::exception& ){
-	delete res;
+	if ( res ){
+	  res->destroy();
+	}
 	throw;
       }
       append( res );
@@ -549,6 +552,8 @@ namespace folia {
     static FoliaElement *createElement( const std::string&, Document * =0 );
 
   };
+
+  void destroy( FoliaElement *el );
 
   class AbstractElement: public virtual FoliaElement {
   private:
@@ -998,4 +1003,4 @@ namespace folia {
 
 } // namespace folia
 
-#endif
+#endif // FOLIA_IMPL_H
