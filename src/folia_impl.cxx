@@ -305,6 +305,10 @@ namespace folia {
       cerr << "REFCOUNT = " << refcount() << endl;
       cerr << "AT= " << annotation_type() << " (" << _set << ")" << endl;
     }
+    // if ( _parent ){
+    //   _parent->remove( this, false );
+    //   _parent = 0;
+    // }
     if ( doc() ) {
       doc()->del_doc_index( _id );
       doc()->decrRef( annotation_type(), _set );
@@ -3209,6 +3213,7 @@ namespace folia {
     /*!
      * \param pos the index of the element to remove
      * \param del If true, really destroy the child
+     will do nothing when pos is out of range
      */
     if ( pos < _data.size() ) {
       auto it = _data.begin();
@@ -3216,19 +3221,8 @@ namespace folia {
 	++it;
 	--pos;
       }
-      if ( del ) {
-	if ( (*it)->refcount() > 0 ){
-	  // dont really delete yet!
-	  doc()->keepForDeletion( *it );
-	}
-	else {
-	  (*it)->destroy();
-	}
-      }
-      else {
-	(*it)->set_parent(0);
-      }
-      _data.erase(it);
+      remove( *it, del );
+      return;
     }
   }
 
