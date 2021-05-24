@@ -318,7 +318,14 @@ namespace folia {
       }
       doc()->del_doc_index( _id );
     }
+    if ( _parent ){
+#ifdef DE_AND_CONSTRUCT_DEBUG
+      cerr << "STILL A PARENT: " << _parent << endl;
+#endif
+      _parent->remove( this, false );
+    }
     for ( const auto& el : _data ) {
+      el->set_parent(0);
       el->destroy();
     }
     _data.clear();
@@ -3185,12 +3192,22 @@ namespace folia {
      * \param child the element to remove
      * \param del If true, destroy the child
      */
+#ifdef DE_AND_CONSTRUCT_DEBUG
+    cerr << "\nremove " << child->xmltag() << " from " << xmltag()
+	 << " adres=" << (void*)this
+	 << " id=" << _id << " class= " << endl;
+#endif
     auto it = std::remove( _data.begin(), _data.end(), child );
     _data.erase( it, _data.end() );
     child->set_parent(0);
     if ( del ) {
       if ( child->refcount() > 0 ){
 	// dont really delete yet!
+#ifdef DE_AND_CONSTRUCT_DEBUG
+	cerr << "\t\tremove keepings element id=" << _id << " tag = "
+	     << child->xmltag() << " adres=" << (void*)child << endl;
+#endif
+
 	doc()->keepForDeletion( child );
       }
       else {
