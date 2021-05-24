@@ -30,6 +30,7 @@
 #include <cstring>
 #include <cstdio>
 #include <string>
+#include <stack>
 #include <stdexcept>
 #include <algorithm>
 #include "ticcutils/PrettyPrint.h"
@@ -1099,12 +1100,17 @@ namespace folia {
     else if ( !_header_done ){
       output_header();
     }
+    stack<FoliaElement*> rem_list;
     size_t len = _root_node->size();
     for ( size_t i=0; i < len; ++i ){
+      rem_list.push( _root_node->index(i) );
       *_os << "    " << _root_node->index(i)->xmlstring(true,2,false) << endl;
     }
-    for ( size_t i=0; i < len; ++i ){
-      _root_node->remove( i, true );
+    while ( !rem_list.empty() ){
+      // we've kept a stack of elements to remove, as removing at the back
+      // is the safest and cheapest thing to do
+      _root_node->remove( rem_list.top(), true );
+      rem_list.pop();
     }
     return true;
   }

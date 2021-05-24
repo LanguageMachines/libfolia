@@ -3208,24 +3208,6 @@ namespace folia {
     }
   }
 
-  void AbstractElement::remove( size_t pos, bool del ) {
-    /// remove a child from a node
-    /*!
-     * \param pos the index of the element to remove
-     * \param del If true, really destroy the child
-     will do nothing when pos is out of range
-     */
-    if ( pos < _data.size() ) {
-      auto it = _data.begin();
-      while ( pos > 0 ) {
-	++it;
-	--pos;
-      }
-      remove( *it, del );
-      return;
-    }
-  }
-
   FoliaElement* AbstractElement::index( size_t i ) const {
     /// return the child at index i
     /*!
@@ -6604,7 +6586,7 @@ namespace folia {
 	      tmp->AbstractElement::parseXml( p );
 	      FoliaElement *old = par->replace( this, tmp->index(0) );
 	      doc()->del_doc_index( bogus_id );
-	      tmp->remove( (size_t)0, false );
+	      tmp->remove( tmp->data()[0], false );
 	      tmp->destroy();
 	      old->destroy();
 	    }
