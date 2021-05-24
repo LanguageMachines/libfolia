@@ -251,6 +251,8 @@ namespace folia {
     return os;
   }
 
+  //#define DE_AND_CONSTRUCT_DEBUG
+
   AbstractElement::AbstractElement( const properties& p, Document *d ) :
     /// Constructor for AbstractElements.
     /*!
@@ -267,6 +269,9 @@ namespace folia {
     _preserve_spaces(SPACE_FLAGS::UNSET),
     _props(p)
   {
+#ifdef DE_AND_CONSTRUCT_DEBUG
+    cerr << "created an : " << xmltag() << " adres=" << (void*)this << endl;
+#endif
   }
 
   AbstractElement::AbstractElement( const properties& p, FoliaElement *el ) :
@@ -284,57 +289,57 @@ namespace folia {
   }
 
   AbstractElement::~AbstractElement( ) {
-    //     cerr << "really delete " << xmltag() << endl;
+#ifdef DE_AND_CONSTRUCT_DEBUG
+    cerr << "really delete " << xmltag() << " adres=" << (void*)this << endl;
+#endif
   }
 
   void AbstractElement::destroy( ) {
     /// Pseudo destructor for AbstractElements.
     /// recursively destroys this nodes and it's children
-    bool debug = false;
-    // if ( xmltag() == "w"
-    // 	 || xmltag() == "s"
-    // 	 || xmltag() == "entity"
-    // 	 || xmltag() == "entities"
-    // 	 || xmltag() == "morpheme"
-    // 	 || xmltag() == "morphology" ){
-    //   debug = false;
-    // }
-    if (debug ){
-      cerr << "\ndestroy " << xmltag() << " id=" << _id << " class= "
-    	   << cls() << " datasize= " << _data.size() << endl;
-      cerr << "REFCOUNT = " << refcount() << endl;
-      cerr << "AT= " << annotation_type() << " (" << _set << ")" << endl;
-    }
+#ifdef DE_AND_CONSTRUCT_DEBUG
+    cerr << "\ndestroy " << xmltag() << " adres=" << (void*)this
+	 << " id=" << _id << " class= "
+	 << cls() << " datasize= " << _data.size() << endl;
+    cerr << "REFCOUNT = " << refcount() << endl;
+    cerr << "AT= " << annotation_type() << " (" << _set << ")" << endl;
+#endif
     // if ( _parent ){
-    //   _parent->remove( this, false );
-    //   _parent = 0;
+    //    _parent->remove( this, false );
+    //    _parent = 0;
     // }
+    bool kept = false;
     if ( doc() ) {
       doc()->del_doc_index( _id );
       doc()->decrRef( annotation_type(), _set );
-      if ( debug ){
-	cerr << "\t\thalfway destroying element id=" << _id << " tag = "
-	     << xmltag() << " class= " << cls()
-	     << " datasize= " << _data.size() << endl;
-      }
+#ifdef DE_AND_CONSTRUCT_DEBUG
+      cerr << "\t\thalfway destroying element id=" << _id << " tag = "
+	   << xmltag() << " class= " << cls()
+	   << " datasize= " << _data.size() << endl;
+#endif
       if ( refcount() > 0 ){
 	decrefcount();
 	doc()->keepForDeletion( this );
+	kept = true;
       }
-      else {
-	delete this;
-      }
+    }
+    if ( kept ){
+#ifdef DE_AND_CONSTRUCT_DEBUG
+      cerr << "\t\tstill keeping element id=" << _id << " tag = "
+	   << xmltag() << " adres=" << (void*)this << " class= " << cls()
+	   << " datasize= " << _data.size() << endl;
+#endif
     }
     else {
       for ( const auto& el : _data ) {
 	el->destroy();
       }
       _data.clear();
-      if ( debug ){
-	cerr << "\t\tfinished destroying element id=" << _id << " tag = "
-	     << xmltag() << " class= " << cls()
-	     << " datasize= " << _data.size() << endl;
-      }
+#ifdef DE_AND_CONSTRUCT_DEBUG
+      cerr << "\t\tfinished destroying element id=" << _id << " tag = "
+	   << xmltag() << " adres=" << (void*)this << " class= " << cls()
+	   << " datasize= " << _data.size() << endl;
+#endif
       delete this;
     }
   }
@@ -3316,6 +3321,7 @@ namespace folia {
      * deleting nodes twice
      */
     resetrefcount();
+    _parent = 0;
     store.insert( this );
     auto dit = _data.begin();
     while ( dit != _data.end() ){
