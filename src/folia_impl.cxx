@@ -304,44 +304,30 @@ namespace folia {
     cerr << "REFCOUNT = " << refcount() << endl;
     cerr << "AT= " << annotation_type() << " (" << _set << ")" << endl;
 #endif
-    // if ( _parent ){
-    //    _parent->remove( this, false );
-    //    _parent = 0;
-    // }
-    bool kept = false;
     if ( doc() ) {
-      doc()->del_doc_index( _id );
       doc()->decrRef( annotation_type(), _set );
-#ifdef DE_AND_CONSTRUCT_DEBUG
-      cerr << "\t\thalfway destroying element id=" << _id << " tag = "
-	   << xmltag() << " class= " << cls()
-	   << " datasize= " << _data.size() << endl;
-#endif
       if ( refcount() > 0 ){
 	decrefcount();
 	doc()->keepForDeletion( this );
-	kept = true;
-      }
-    }
-    if ( kept ){
 #ifdef DE_AND_CONSTRUCT_DEBUG
-      cerr << "\t\tstill keeping element id=" << _id << " tag = "
-	   << xmltag() << " adres=" << (void*)this << " class= " << cls()
-	   << " datasize= " << _data.size() << endl;
+	cerr << "\t\tstill keeping element id=" << _id << " tag = "
+	     << xmltag() << " adres=" << (void*)this << " class= " << cls()
+	     << " datasize= " << _data.size() << endl;
 #endif
-    }
-    else {
-      for ( const auto& el : _data ) {
-	el->destroy();
+	return;
       }
-      _data.clear();
-#ifdef DE_AND_CONSTRUCT_DEBUG
-      cerr << "\t\tfinished destroying element id=" << _id << " tag = "
-	   << xmltag() << " adres=" << (void*)this << " class= " << cls()
-	   << " datasize= " << _data.size() << endl;
-#endif
-      delete this;
+      doc()->del_doc_index( _id );
     }
+    for ( const auto& el : _data ) {
+      el->destroy();
+    }
+    _data.clear();
+#ifdef DE_AND_CONSTRUCT_DEBUG
+    cerr << "\t\tfinished destroying element id=" << _id << " tag = "
+	 << xmltag() << " adres=" << (void*)this << " class= " << cls()
+	 << " datasize= " << _data.size() << endl;
+#endif
+    delete this;
   }
 
   void destroy( FoliaElement *el ){
@@ -3421,7 +3407,7 @@ namespace folia {
 	  string tag = "_XmlText";
 	  FoliaElement *t = createElement( tag, doc() );
 	  if ( t ) {
-	    if ( doc() && doc()->debug > 2 ) {
+	    if ( doc() && doc()->debug > 2 ){
 	      cerr << "created " << t << endl;
 	    }
 	    try {
@@ -3433,9 +3419,6 @@ namespace folia {
 	    }
 	  }
 	  if ( t ) {
-	    if ( doc() && doc()->debug > 2 ) {
-	      cerr << "extend " << this << " met " << t << endl;
-	    }
 	    string txt = t->str();
 	    txt = TiCC::trim(txt);
 	    if ( !txt.empty() ){
@@ -3449,6 +3432,11 @@ namespace folia {
 		throw XmlError( "found extra text '" + txt + "' inside element "
 				+ tg + ", NOT allowed there." );
 	      }
+	    }
+	    if ( doc() && doc()->debug > 2 ){
+	      cerr << "created " << t << "(" << t->text() << ")" << endl;
+	      cerr << "extended " << this << " met " << t << endl;
+	      cerr << "this.size()= " << size() << " t.size()=" << t->size() << endl;
 	    }
 	    append( t );
 	  }
