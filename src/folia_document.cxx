@@ -1134,13 +1134,11 @@ namespace folia {
 				 + prefix );
 	    }
 	    et = et_it->second;
-	    FoliaElement *tmp = AbstractElement::createElement( et );
-	    if ( tmp->required_attributes() & Attrib::CLASS ) {
-	      tmp->destroy();
+	    properties *prop = element_props[et];
+	    if ( prop->REQUIRED_ATTRIBS & Attrib::CLASS ) {
 	      throw XmlError( "setname may not be empty for " + prefix
 			      + "-annotation" );
 	    }
-	    tmp->destroy();
 	  }
 	}
 	if ( set_name.empty() ){
@@ -1930,13 +1928,11 @@ namespace folia {
 			     + prefix );
 	}
 	auto et = et_it->second;
-	FoliaElement *tmp = AbstractElement::createElement( et );
-	if ( tmp->required_attributes() & Attrib::CLASS ) {
-	  tmp->destroy();
+	properties *prop = element_props[et];
+	if ( prop->REQUIRED_ATTRIBS & Attrib::CLASS ) {
 	  throw XmlError( "setname may not be empty for " + prefix
 			  + "-annotation" );
 	}
-	tmp->destroy();
       }
       if ( st.empty() ){
 	st = "None";

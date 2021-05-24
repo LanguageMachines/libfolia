@@ -65,11 +65,7 @@ namespace folia {
       cerr << e.what() << endl;
       return 0;
     }
-    FoliaElement *el = private_createElement( et );
-    if ( doc ){
-      el->assignDoc( doc );
-    }
-    return el;
+    return createElement( et, doc );
   }
 
   FoliaElement *FoliaElement::createElement( ElementType et,
