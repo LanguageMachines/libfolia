@@ -998,6 +998,8 @@ namespace folia {
 
   UnicodeString trim_space( const UnicodeString& in );
   UnicodeString postprocess_spaces( const UnicodeString& in );
+  std::string tagToAtt( const FoliaElement* );
+  ElementType layertypeof( ElementType );
 
 } // namespace folia
 

@@ -145,25 +145,6 @@ namespace folia {
     static properties PROPS;
   };
 
-  class ForeignData: public AbstractElement {
-    friend void static_init();
-  public:
-  ForeignData( Document *d=0 ):
-    AbstractElement( PROPS, d ){ classInit(); };
-  ForeignData( FoliaElement *p ):
-    AbstractElement( PROPS, p ){ classInit(); }
-    ~ForeignData();
-    FoliaElement* parseXml( const xmlNode * );
-    xmlNode *xml( bool, bool=false ) const;
-    void set_data( const xmlNode * );
-    xmlNode* get_data() const;
-  private:
-    void init();
-    xmlNode *_foreign_data;
-  public:
-    static properties PROPS;
-  };
-
   const std::string EMPTY_STRING = "";
 
   class AbstractTextMarkup:
@@ -1391,6 +1372,28 @@ namespace folia {
     friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( SpanRelationLayer, AbstractAnnotationLayer );
+    static properties PROPS;
+  };
+
+  ///
+  /// ForeignData is special. It implements it's own destructor
+  ///
+  class ForeignData: public AbstractElement {
+    friend void static_init();
+  public:
+  ForeignData( Document *d=0 ):
+    AbstractElement( PROPS, d ){ classInit(); };
+  ForeignData( FoliaElement *p ):
+    AbstractElement( PROPS, p ){ classInit(); }
+    ~ForeignData();
+    FoliaElement* parseXml( const xmlNode * );
+    xmlNode *xml( bool, bool=false ) const;
+    void set_data( const xmlNode * );
+    xmlNode* get_data() const;
+  private:
+    void init();
+    xmlNode *_foreign_data;
+  public:
     static properties PROPS;
   };
 
