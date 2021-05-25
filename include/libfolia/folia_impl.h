@@ -552,9 +552,8 @@ namespace folia {
 
   };
 
-  void destroy( FoliaElement *el );
-
   class AbstractElement: public virtual FoliaElement {
+    friend void destroy( FoliaElement * );
   private:
     //Constructor
     AbstractElement( const AbstractElement& ); // inhibit copies
@@ -999,6 +998,7 @@ namespace folia {
   UnicodeString trim_space( const UnicodeString& in );
   UnicodeString postprocess_spaces( const UnicodeString& in );
   std::string tagToAtt( const FoliaElement* );
+  void destroy( FoliaElement *el );
 
 } // namespace folia
 

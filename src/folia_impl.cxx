@@ -2645,7 +2645,7 @@ namespace folia {
   void AbstractElement::replace( FoliaElement *child ) {
     /// replace a child element
     /*!
-     * \param child Teh element to substitute
+     * \param child The element to substitute
      * This function searches for A child of the same signature (type and set)
      * If found, that child is replaced.
      * If no such child element exists, this will act the same as append()
@@ -2659,7 +2659,7 @@ namespace folia {
       throw runtime_error( "Unable to replace. Multiple candidates found, unable to choose." );
     }
     else {
-      this->remove( replace[0], true );
+      replace[0]->destroy();
       append( child );
     }
   }
@@ -2711,7 +2711,7 @@ namespace folia {
       FoliaElement *p = index(i);
       if ( p->element_id() == TextContent_t ) {
 	if ( p->cls() == textclass ){
-	  this->remove(p,true);
+	  p->destroy();
 	  break;
 	}
       }
@@ -3140,8 +3140,8 @@ namespace folia {
 #endif
     auto it = std::remove( _data.begin(), _data.end(), child );
     _data.erase( it, _data.end() );
-    child->set_parent(0);
     if ( del ) {
+      child->set_parent(0);
       if ( child->refcount() > 0 ){
 	// dont really delete yet!
 #ifdef DE_AND_CONSTRUCT_DEBUG
