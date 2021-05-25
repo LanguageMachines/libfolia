@@ -297,6 +297,7 @@ namespace folia {
   void AbstractElement::destroy( ) {
     /// Pseudo destructor for AbstractElements.
     /// recursively destroys this nodes and it's children
+    /// Will also remove it from it's parent when no references are left
 #ifdef DE_AND_CONSTRUCT_DEBUG
     cerr << "\ndestroy " << xmltag() << " adres=" << (void*)this
 	 << " id=" << _id << " class= "
@@ -322,7 +323,7 @@ namespace folia {
 #ifdef DE_AND_CONSTRUCT_DEBUG
       cerr << "STILL A PARENT: " << _parent << endl;
 #endif
-      _parent->remove( this, false );
+      _parent->remove( this );
     }
     for ( const auto& el : _data ) {
       el->set_parent(0);
@@ -3127,11 +3128,10 @@ namespace folia {
     return this;
   }
 
-  void AbstractElement::remove( FoliaElement *child, bool del ) {
+  void AbstractElement::remove( FoliaElement *child ) {
     /// remove a child from a node
     /*!
      * \param child the element to remove
-     * \param del If true, destroy the child
      */
 #ifdef DE_AND_CONSTRUCT_DEBUG
     cerr << "\nremove " << child->xmltag() << " from " << xmltag()
@@ -3140,21 +3140,6 @@ namespace folia {
 #endif
     auto it = std::remove( _data.begin(), _data.end(), child );
     _data.erase( it, _data.end() );
-    if ( del ) {
-      child->set_parent(0);
-      if ( child->refcount() > 0 ){
-	// dont really delete yet!
-#ifdef DE_AND_CONSTRUCT_DEBUG
-	cerr << "\t\tremove keepings element id=" << _id << " tag = "
-	     << child->xmltag() << " adres=" << (void*)child << endl;
-#endif
-
-	doc()->keepForDeletion( child );
-      }
-      else {
-	child->destroy();
-      }
-    }
   }
 
   FoliaElement* AbstractElement::index( size_t i ) const {
@@ -3757,7 +3742,7 @@ namespace folia {
 	if ( original.empty() ) {
 	  FoliaElement *cur = corr->getCurrent();
 	  original.push_back( cur );
-	  corr->remove( cur, false );
+	  corr->remove( cur );
 	}
       }
     }
@@ -3819,7 +3804,7 @@ namespace folia {
       vector<Current*> v = corr->FoliaElement::select<Current>();
       //delete current if present
       for ( const auto& cur:v ) {
-	corr->remove( cur, false );
+	corr->remove( cur );
       }
 #ifdef DEBUG_CORRECT
       cerr << "after removing CUR: " << corr->xmlstring() << endl;
@@ -3882,7 +3867,7 @@ namespace folia {
 	      cerr << " corr before remove " << corr << endl;
 	      cerr << " remove  " << org << endl;
 #endif
-	      this->remove( org, false );
+	      this->remove( org );
 #ifdef DEBUG_CORRECT
 	      cerr << " corr after remove " << corr << endl;
 #endif
@@ -3956,7 +3941,7 @@ namespace folia {
 		cerr << " corr before remove " << corr << endl;
 		cerr << " remove  " << org << endl;
 #endif
-		this->remove( org, false );
+		this->remove( org );
 #ifdef DEBUG_CORRECT
 		cerr << " corr after remove " << corr << endl;
 #endif
@@ -3977,7 +3962,7 @@ namespace folia {
 #ifdef DEBUG_CORRECT
 	  cerr << " remove cur=" << cur << endl;
 #endif
-	  this->remove( cur, false );
+	  this->remove( cur );
 	}
       }
     }
@@ -3990,7 +3975,10 @@ namespace folia {
 	cerr << " remove  " << org << endl;
 #endif
 	bool dummyNode = ( org->id() == "dummy" );
-	corr->remove( org, dummyNode );
+	corr->remove( org );
+	if ( dummyNode ){
+	  org->destroy();
+	}
       }
     }
 #ifdef DEBUG_CORRECT

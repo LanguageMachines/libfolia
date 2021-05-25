@@ -2491,7 +2491,7 @@ namespace folia {
 	      tmp->AbstractElement::parseXml( p );
 	      FoliaElement *old = par->replace( this, tmp->index(0) );
 	      doc()->del_doc_index( bogus_id );
-	      tmp->remove( tmp->data()[0], false );
+	      tmp->remove( tmp->data()[0] );
 	      tmp->destroy();
 	      old->destroy();
 	    }

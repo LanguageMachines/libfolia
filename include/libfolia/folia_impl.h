@@ -168,7 +168,7 @@ namespace folia {
     virtual bool addable( const FoliaElement * ) const = 0;
     virtual FoliaElement *append( FoliaElement* ) = 0;
     virtual FoliaElement *postappend( ) = 0;
-    virtual void remove( FoliaElement *, bool = true ) = 0;
+    virtual void remove( FoliaElement * ) = 0;
     virtual std::vector<FoliaElement*> find_replacables( FoliaElement * ) const = 0;
     virtual void replace( FoliaElement * ) = 0;
     virtual FoliaElement* replace( FoliaElement *, FoliaElement* ) = 0;
@@ -587,7 +587,7 @@ namespace folia {
     // modify the internal data
     FoliaElement *append( FoliaElement* );
     FoliaElement *postappend( );
-    void remove( FoliaElement *, bool = true );
+    void remove( FoliaElement * );
     std::vector<FoliaElement*> find_replacables( FoliaElement * ) const;
     void replace( FoliaElement * );
     FoliaElement* replace( FoliaElement *, FoliaElement* );

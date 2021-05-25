@@ -1109,7 +1109,8 @@ namespace folia {
     while ( !rem_list.empty() ){
       // we've kept a stack of elements to remove, as removing at the back
       // is the safest and cheapest thing to do
-      _root_node->remove( rem_list.top(), true );
+      _root_node->remove( rem_list.top() );
+      destroy( rem_list.top() );
       rem_list.pop();
     }
     return true;
