@@ -526,14 +526,12 @@ namespace folia {
     Attrib supported = required_attributes() | optional_attributes();
     //#define LOG_SET_ATT
 #ifdef LOG_SET_ATT
-    bool track = false;
     int db_level = 0;
     if ( doc() ){
       db_level = doc()->debug;
     }
     if ( element_id() == New_t
 	 || element_id() == Original_t ) {
-      track = true;
       if ( doc() ){
 	doc()->setdebug(0);
       }
