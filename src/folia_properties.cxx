@@ -2229,7 +2229,7 @@ namespace folia {
     //
     // this trick assures that the static_int() function is called
     // exactly once en every run.
-    // This because the static i is initialized before main() starts.
+    // This because the static 'i' is initialized before main() starts.
     //
     struct initializer {
      initializer() {
