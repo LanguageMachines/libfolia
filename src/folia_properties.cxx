@@ -32,7 +32,7 @@
 #include "libfolia/folia_properties.h"
 
 //foliaspec:header
-//This file was last updated according to the FoLiA specification for version 2.5.0 on 2021-05-24 23:22:47, using foliaspec.py
+//This file was last updated according to the FoLiA specification for version 2.5.0 on 2021-05-25 09:37:12, using foliaspec.py
 //Code blocks after a foliaspec comment (until the next newline) are automatically generated. **DO NOT EDIT THOSE** and **DO NOT REMOVE ANY FOLIASPEC COMMENTS** !!!
 
 namespace folia {
@@ -645,7 +645,7 @@ namespace folia {
     /// This function should be called once.
     FoLiA::PROPS.XMLTAG = "FoLiA";
     FoLiA::PROPS.ACCEPTED_DATA += { Text_t, Speech_t };
-    element_props[AbstractAnnotationLayer_t] = &AbstractAnnotationLayer::PROPS;
+    element_props[BASE] = &FoLiA::PROPS;
 
     DCOI::PROPS.XMLTAG = "DCOI";
     DCOI::PROPS.ACCEPTED_DATA += { Text_t, Speech_t };
