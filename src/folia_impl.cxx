@@ -3740,6 +3740,7 @@ namespace folia {
 	  throw runtime_error( "Can't set both new= and current= !");
 	}
 	if ( original.empty() ) {
+	  // move the current to Original
 	  FoliaElement *cur = corr->getCurrent();
 	  original.push_back( cur );
 	  corr->remove( cur );
@@ -3854,7 +3855,7 @@ namespace folia {
 	    if ( !hooked ) {
 #ifdef DEBUG_CORRECT
 	      cerr << "it isn't hooked!" << endl;
-	      FoliaElement * tmp = replace( index(i), corr );
+	      FoliaElement *tmp = replace( index(i), corr );
 	      cerr << " corr after replace " << corr->xmlstring() << endl;
 	      cerr << " replaced " << tmp << endl;
 #else

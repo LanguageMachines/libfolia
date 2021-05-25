@@ -325,7 +325,7 @@ namespace folia {
   Correction *Sentence::insertword( FoliaElement *w,
 				    FoliaElement *p,
 				    const string& args ) {
-    /// create a Correction where a extra word is inserted
+    /// create a Correction where an extra word is inserted
     /*!
      * \param w the Word to insert
      * \param p the Word after which to insert
