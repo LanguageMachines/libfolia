@@ -387,21 +387,21 @@ namespace folia {
       for ( const auto& nw : _new ) {
 	sugg->append( nw );
       }
-      vector<FoliaElement *> nil1;
-      vector<FoliaElement *> nil2;
-      vector<FoliaElement *> sv;
-      vector<FoliaElement *> tmp = orig;
-      sv.push_back( sugg );
+      vector<FoliaElement *> o_tmp;
+      vector<FoliaElement *> c_tmp = orig;
+      vector<FoliaElement *> n_tmp;
+      vector<FoliaElement *> s_tmp;
+      s_tmp.push_back( sugg );
       KWargs args = argsin;
       args.erase("suggest");
-      return correct( nil1, tmp, nil2, sv, args );
+      return correct( o_tmp, c_tmp, n_tmp, s_tmp, args );
     }
     else {
-      vector<FoliaElement *> nil1;
-      vector<FoliaElement *> nil2;
       vector<FoliaElement *> o_tmp = orig;
+      vector<FoliaElement *> c_tmp;
       vector<FoliaElement *> n_tmp = _new;
-      return correct( o_tmp, nil1, n_tmp, nil2, argsin );
+      vector<FoliaElement *> s_tmp;
+      return correct( o_tmp, c_tmp, n_tmp, s_tmp, argsin );
     }
   }
 
@@ -557,7 +557,7 @@ namespace folia {
      * inclusive: offset and ref
      */
     KWargs attribs = AbstractElement::collectAttributes();
-    if ( cls() == "current" && !doc()->has_explicit() ) {
+    if ( cls() == "current" && doc() && !doc()->has_explicit() ) {
       attribs.erase( "class" );
     }
     if ( _offset >= 0 ) {

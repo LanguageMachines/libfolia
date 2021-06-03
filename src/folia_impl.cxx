@@ -2678,14 +2678,16 @@ namespace folia {
      *
      * when not found this function does nothing and returns 0
      */
+    FoliaElement *result = 0;
     auto it = find_if( _data.begin(),
 		       _data.end(),
 		       [&]( FoliaElement *el ){ return el == old; } );
     if ( it != _data.end() ){
       *it = _new;
+      result = old;
       _new->set_parent(this);
     }
-    return 0;
+    return result;
   }
 
   void AbstractElement::insert_after( FoliaElement *pos, FoliaElement *add ){
@@ -3817,17 +3819,6 @@ namespace folia {
       cerr << "after removing CUR: " << corr->xmlstring() << endl;
 #endif
     }
-    else {
-      vector<New*> old_new = corr->select<New>();
-      if ( !old_new.empty() && old_new[0]->size() == 0 ){
-	// there is aleady an EMPTY <new> tag!
-      }
-      else {
-	// create a <new> tag, might throw is there is a non-empty one
-	New *add_new = new New( doc );
-	corr->append(add_new);
-      }
-    }
     if ( !original.empty() ) {
 #ifdef DEBUG_CORRECT
       cerr << "there is original! " << endl;
@@ -3856,7 +3847,7 @@ namespace folia {
 #endif
 	  if ( index(i) == org ) {
 #ifdef DEBUG_CORRECT
-	    cerr << "OK hit on ORG" << endl;
+	    cerr << "OK hit on ORG :" << org << endl;
 #endif
 	    if ( !hooked ) {
 #ifdef DEBUG_CORRECT
@@ -3881,6 +3872,9 @@ namespace folia {
 	    }
 	  }
 	}
+      }
+      if ( add->size() == 0 ){
+	corr->remove( add );
       }
     }
     else if ( addnew ) {
