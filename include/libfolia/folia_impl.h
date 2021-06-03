@@ -782,6 +782,7 @@ namespace folia {
     void setAttributes( KWargs& );
     KWargs collectAttributes() const;
     xmlNs *foliaNs() const;
+    bool addable( const FoliaElement * ) const;
 
   private:
     int refcount() const { return _refcount; };
@@ -794,7 +795,6 @@ namespace folia {
     bool checkAtts();
     void set_typegroup( KWargs& ) const;
     bool acceptable( ElementType ) const;
-    bool addable( const FoliaElement * ) const;
     UnicodeString text_container_text( const TextPolicy& ) const;
     void check_text_consistency(bool = true) const;
     void check_text_consistency_while_parsing(bool = true); //can't we merge these two somehow?

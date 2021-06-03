@@ -1064,6 +1064,7 @@ namespace folia {
 			 const std::vector<FoliaElement*>&,
 			 const KWargs& );
     Correction *correct( const std::string& = "" );
+    bool addable( const FoliaElement * ) const;
     static properties PROPS;
   };
 
@@ -1072,6 +1073,7 @@ namespace folia {
   public:
     ADD_DEFAULT_CONSTRUCTORS( Current, AbstractCorrectionChild );
     static properties PROPS;
+    bool addable( const FoliaElement * ) const;
   };
 
   class Original: public AbstractCorrectionChild {
@@ -1079,6 +1081,7 @@ namespace folia {
   public:
     ADD_DEFAULT_CONSTRUCTORS( Original, AbstractCorrectionChild );
     static properties PROPS;
+    bool addable( const FoliaElement * ) const;
   };
 
   class Suggestion: public AbstractCorrectionChild {

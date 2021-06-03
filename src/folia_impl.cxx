@@ -1095,7 +1095,7 @@ namespace folia {
     KWargs attribs;
     bool Explicit = false;
     Attrib supported = required_attributes() | optional_attributes();
-    if ( doc()->has_explicit() ){
+    if ( doc() && doc()->has_explicit() ){
       Explicit = true;
       set_typegroup( attribs );
     }
@@ -1105,63 +1105,65 @@ namespace folia {
     if ( _preserve_spaces == SPACE_FLAGS::PRESERVE ) {
       attribs["xml:space"] = "preserve";
     }
-    string default_set = doc()->default_set( annotation_type() );
-    bool isDefaultSet = (_set == default_set);
-    if ( Explicit && _set != "None" && !default_set.empty() ){
-      if ( _set.empty() ){
-	attribs["set"] = default_set;
-      }
-      else {
-	attribs["set"] = _set;
-      }
-    }
-    else if ( _set != "None"
-	      && !_set.empty()
-	      && !isDefaultSet ){
-      string ali = doc()->alias( annotation_type(), _set );
-      if ( ali.empty() ){
-	attribs["set"] = _set;
-      }
-      else {
-	attribs["set"] = ali;
-      }
-    }
-    if ( !_class.empty() ) {
-      attribs["class"] = _class;
-    }
-    if ( !_processor.empty() ){
-      string tmp;
-      try {
-	tmp = doc()->default_processor( annotation_type(), _set );
-	if ( Explicit ){
-	  attribs["processor"] = tmp;
+    if ( doc() ){
+      string default_set = doc()->default_set( annotation_type() );
+      bool isDefaultSet = (_set == default_set);
+      if ( Explicit && _set != "None" && !default_set.empty() ){
+	if ( _set.empty() ){
+	  attribs["set"] = default_set;
+	}
+	else {
+	  attribs["set"] = _set;
 	}
       }
-      catch ( NoDefaultError& ){
+      else if ( _set != "None"
+		&& !_set.empty()
+		&& !isDefaultSet ){
+	string ali = doc()->alias( annotation_type(), _set );
+	if ( ali.empty() ){
+	  attribs["set"] = _set;
+	}
+	else {
+	  attribs["set"] = ali;
+	}
       }
-      catch ( ... ){
-	throw;
+      if ( !_class.empty() ) {
+	attribs["class"] = _class;
       }
-      if ( tmp != _processor ){
-	attribs["processor"] = _processor;
-      }
-    }
-    else {
-      bool isDefaultAnn = true;
-      if ( !_annotator.empty() &&
-	   _annotator != doc()->default_annotator( annotation_type(), _set ) ) {
-	isDefaultAnn = false;
-	attribs["annotator"] = _annotator;
-      }
-      if ( _annotator_type != UNDEFINED ){
-	AnnotatorType at = doc()->default_annotatortype( annotation_type(), _set );
-	if ( (!isDefaultSet || !isDefaultAnn)
-	     && _annotator_type != at ) {
-	  if ( _annotator_type == AUTO ) {
-	    attribs["annotatortype"] = "auto";
+      if ( !_processor.empty() ){
+	string tmp;
+	try {
+	  tmp = doc()->default_processor( annotation_type(), _set );
+	  if ( Explicit ){
+	    attribs["processor"] = tmp;
 	  }
-	  else if ( _annotator_type == MANUAL ) {
-	    attribs["annotatortype"] = "manual";
+	}
+	catch ( NoDefaultError& ){
+	}
+	catch ( ... ){
+	  throw;
+	}
+	if ( tmp != _processor ){
+	  attribs["processor"] = _processor;
+	}
+      }
+      else {
+	bool isDefaultAnn = true;
+	if ( !_annotator.empty() &&
+	     _annotator != doc()->default_annotator( annotation_type(), _set ) ) {
+	  isDefaultAnn = false;
+	  attribs["annotator"] = _annotator;
+	}
+	if ( _annotator_type != UNDEFINED ){
+	  AnnotatorType at = doc()->default_annotatortype( annotation_type(), _set );
+	  if ( (!isDefaultSet || !isDefaultAnn)
+	       && _annotator_type != at ) {
+	    if ( _annotator_type == AUTO ) {
+	      attribs["annotatortype"] = "auto";
+	    }
+	    else if ( _annotator_type == MANUAL ) {
+	      attribs["annotatortype"] = "manual";
+	    }
 	  }
 	}
       }
@@ -2847,45 +2849,49 @@ namespace folia {
     return true;
   }
 
-  bool AbstractElement::addable( const FoliaElement *c ) const {
-    /// test if an element \c might succesfully appended
+  bool AbstractElement::addable( const FoliaElement *parent ) const {
+    /// test if an element might succesfully appended to \parent
     /*!
-     * \param c the node to check
+     * \param parent the node to check
      * \return true if it doesn't throw
      *
      * \note It will allways throw an error, instead of returning false
      */
-    if ( !acceptable( c->element_id() ) ) {
-      string mess = "Unable to append object of type " + c->classname()
-	+ " to a <" + classname() + ">";
-      if ( !_id.empty() ){
-	mess += " (id=" + _id + ")";
+    if ( !parent->acceptable( element_id() ) ) {
+      string mess = "Unable to append object of type " + classname()
+	+ " to a <" + parent->classname() + ">";
+      if ( !parent->id().empty() ){
+	mess += " (id=" + parent->id() + ")";
       }
       throw ValueError( mess );
     }
-    if ( c->occurrences() > 0 ) {
-      vector<FoliaElement*> v = select( c->element_id(), SELECT_FLAGS::LOCAL );
+    if ( occurrences() > 0 ) {
+      vector<FoliaElement*> v = parent->select( element_id(),
+						SELECT_FLAGS::LOCAL );
       size_t count = v.size();
-      if ( count >= c->occurrences() ) {
-	throw DuplicateAnnotationError( "Unable to add another object of type " + c->classname() + " to " + classname() + ". There are already " + TiCC::toString(count) + " instances of this type, which is the maximum." );
+      if ( count >= occurrences() ) {
+	throw DuplicateAnnotationError( "Unable to add another object of type " + classname() + " to " + parent->classname() + ". There are already " + TiCC::toString(count) + " instances of this type, which is the maximum." );
       }
     }
-    if ( c->occurrences_per_set() > 0 &&
-	 (CLASS & c->required_attributes() || c->setonly() ) ){
-      vector<FoliaElement*> v = select( c->element_id(), c->sett(), SELECT_FLAGS::LOCAL );
+    if ( occurrences_per_set() > 0 &&
+	 (CLASS & required_attributes() || setonly() ) ){
+      vector<FoliaElement*> v = select( element_id(),
+					sett(),
+					SELECT_FLAGS::LOCAL );
       size_t count = v.size();
-      if ( count >= c->occurrences_per_set() ) {
-	throw DuplicateAnnotationError( "Unable to add another object of type " + c->classname() + " to " + classname() + ". There are already " + TiCC::toString(count) + " instances of this type and set (" + c->sett() + "), which is the maximum." );
+      if ( count >= occurrences_per_set() ) {
+	throw DuplicateAnnotationError( "Unable to add another object of type " + classname() + " to " + parent->classname() + ". There are already " + TiCC::toString(count) + " instances of this type and set (" + sett() + "), which is the maximum." );
       }
     }
-    if ( c->parent() &&
-	 !( c->element_id() == WordReference_t
-	    || c->referable() ) ){
-      throw XmlError( "attempt to reconnect node " + c->classname() + "("
-		      + c->id()
-		      + ") to a " + classname() + " node, id=" + _id
+    if ( _parent &&
+	 !( element_id() == WordReference_t
+	    || referable() ) ){
+      throw XmlError( "attempt to reconnect node " + classname() + "("
+		      + id()
+		      + ") to a " + parent->classname() + " node, id="
+		      + parent->id()
 		      + ", it was already connected to a "
-		      +  c->parent()->classname() + " id=" + c->parent()->id() );
+		      +  parent->classname() + " id=" + parent->id() );
     }
 #ifdef NOT_WORKING
     // this fails. needs attention
@@ -2902,29 +2908,29 @@ namespace folia {
       }
     }
 #endif
-    if ( c->element_id() == TextContent_t
-	 && element_id() == Word_t ) {
-      string val = c->str(c->cls());
+    if ( element_id() == TextContent_t
+	 && parent->element_id() == Word_t ) {
+      string val = str(cls());
       val = trim( val );
       if ( val.empty() ) {
-     	throw ValueError( "attempt to add an empty <t> to word: " + _id );
+     	throw ValueError( "attempt to add an empty <t> to word: " + parent->id() );
       }
     }
-    if ( c->element_id() == TextContent_t ){
-      string cls = c->cls();
-      string st = c->sett();
-      vector<TextContent*> tmp = select<TextContent>( st, false );
+    if ( element_id() == TextContent_t ){
+      string cls = this->cls();
+      string st = sett();
+      vector<TextContent*> tmp = parent->select<TextContent>( st, false );
       if ( any_of( tmp.begin(),
 		   tmp.end(),
 		   [cls]( const TextContent *t) { return ( t->cls() == cls);} ) ){
 	throw DuplicateAnnotationError( "attempt to add <t> with class="
-					+ cls + " to element: " + _id
+					+ cls + " to element: " + parent->id()
 					+ " which already has a <t> with that class" );
 	}
     }
-    if ( c->is_textcontainer() ||
-	 c->element_id() == Word_t ){
-      check_append_text_consistency( c );
+    if ( is_textcontainer() ||
+	 element_id() == Word_t ){
+      parent->check_append_text_consistency( this );
     }
     return true;
   }
@@ -3090,7 +3096,7 @@ namespace folia {
     }
     bool ok = false;
     try {
-      ok = addable( child );
+      ok = child->addable( this );
     }
     catch ( const XmlError& ) {
       // don't delete the offending child in case of illegal reconnection

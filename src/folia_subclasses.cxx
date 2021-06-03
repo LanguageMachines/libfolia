@@ -2099,6 +2099,64 @@ namespace folia {
     return parent()->correct( args );
   }
 
+  bool New::addable( const FoliaElement *parent ) const {
+    /// test if a New element might succesfully appended to \parent
+    /*!
+     * \param parent the node to check
+     * \return true if it doesn't throw
+     *
+     * \note It will allways throw an error, instead of returning false
+     */
+    if ( !AbstractElement::addable( parent ) ){
+      return false;
+    }
+    vector<FoliaElement*> v = parent->select( Current_t, SELECT_FLAGS::LOCAL );
+    if ( !v.empty() ){
+      throw XmlError( "Cant't add New element to Correction if there is a Current item" );
+    }
+    return true;
+  }
+
+  bool Original::addable( const FoliaElement *parent ) const {
+    /// test if a Original element might succesfully appended to \parent
+    /*!
+     * \param parent the node to check
+     * \return true if it doesn't throw
+     *
+     * \note It will allways throw an error, instead of returning false
+     */
+    if ( !AbstractElement::addable( parent ) ){
+      return false;
+    }
+    vector<FoliaElement*> v = parent->select( Current_t, SELECT_FLAGS::LOCAL );
+    if ( !v.empty() ){
+      throw XmlError( "Cant't add Original element to Correction if there is a Current item" );
+    }
+    return true;
+  }
+
+  bool Current::addable( const FoliaElement *parent ) const {
+    /// test if a Original element might succesfully appended to \parent
+    /*!
+     * \param parent the node to check
+     * \return true if it doesn't throw
+     *
+     * \note It will allways throw an error, instead of returning false
+     */
+    if ( !AbstractElement::addable( parent ) ){
+      return false;
+    }
+    vector<FoliaElement*> v = parent->select( New_t, SELECT_FLAGS::LOCAL );
+    if ( !v.empty() ){
+      throw XmlError( "Cant't add Current element to Correction if there is a New item" );
+    }
+    v = parent->select( Original_t, SELECT_FLAGS::LOCAL );
+    if ( !v.empty() ){
+      throw XmlError( "Cant't add Current element to Correction if there is an Original item" );
+    }
+    return true;
+  }
+
   const PhonContent *Correction::phon_content( const TextPolicy& tp ) const {
     /// Get the PhonContent explicitly associated with this element.
     /*!
