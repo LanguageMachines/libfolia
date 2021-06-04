@@ -3819,6 +3819,17 @@ namespace folia {
       cerr << "after removing CUR: " << corr->xmlstring() << endl;
 #endif
     }
+    else if ( !original.empty() ){
+      vector<New*> old_new = corr->select<New>();
+      if ( !old_new.empty() && old_new[0]->size() == 0 ){
+	// there is aleady an EMPTY <new> tag!
+      }
+      else {
+	// create a <new> tag, might throw is there is a non-empty one
+	New *add_new = new New( doc );
+	corr->append(add_new);
+      }
+    }
     if ( !original.empty() ) {
 #ifdef DEBUG_CORRECT
       cerr << "there is original! " << endl;
