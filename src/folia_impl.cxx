@@ -1354,11 +1354,11 @@ namespace folia {
 	    //ignore, we raise the newer error
 	  }
         }
-	string msg = "text (class="
+	string msg = "conflicting text (class="
 	  + cls + ") from node: " + child->xmltag()
 	  + "(" + child->id() + ")"
 	  + " with value\n'" + TiCC::UnicodeToUTF8(s2)
-	  + "'\n to element: " + parent->xmltag() +
+	  + "'\n with parent: " + parent->xmltag() +
 	  + "(" + parent->id() + ") which already has "
 	  + "text in that class and value: \n'"
 	  + TiCC::UnicodeToUTF8(s1) + "'\n";
