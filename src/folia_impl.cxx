@@ -938,7 +938,7 @@ namespace folia {
     }
     if ( doc() && !_id.empty() ) {
       try {
-	doc()->add_doc_index( this, _id );
+	doc()->add_doc_index( this );
       }
       catch ( const DuplicateIDError& e ){
 	if ( element_id() != WordReference_t ){
@@ -2989,18 +2989,17 @@ namespace folia {
 				  + "-annotation" );
 	}
       }
-      string myid = id();
       if ( !_set.empty()
 	   && (CLASS & required_attributes() )
 	   && !_mydoc->declared( annotation_type(), _set ) ) {
 	throw DeclarationError( "Set " + _set + " is used in " + xmltag()
-				+ "element: " + myid
+				+ "element: " + _id
 				+ " but has no declaration "
 				+ "for " + toString( annotation_type() )
 				+ "-annotation" );
       }
-      if ( !myid.empty() ) {
-	_mydoc->add_doc_index( this, myid );
+      if ( !_id.empty() ) {
+	_mydoc->add_doc_index( this );
       }
       // assume that children also might be doc-less
       for ( const auto& el : _data ) {

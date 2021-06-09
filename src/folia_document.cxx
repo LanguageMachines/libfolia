@@ -135,7 +135,7 @@ namespace folia {
       Document doc( "file='my_first.folia.xml', debug='3', mode='nochecktext'" ) This creates a document from the file \e my_first.folia.xml with a
       debugging level of 3 and textchecking set to OFF
 
-      Document doc( "xml:id='test'" ) creates an yet empty document with a
+      Document doc( "xml:id='test'" ) creates a yet empty document with a
       document ID with value 'test'
 
     */
@@ -231,9 +231,12 @@ namespace folia {
       \note mode is mutable, so this even sets mode on CONST documents!
 
       The following modes can be set:
-      '(no)permissive' (default is NO), '(no)strip' (default is NO),
-      '(no)canonical (default is NO), '(no)checktext (default is checktext),
-      '(no)fixtext (default is NO), (no)autodeclare (default is NO)
+      '(no)permissive' (default is NO),
+      '(no)strip' (default is NO),
+      '(no)canonical' (default is NO),
+      '(no)checktext' (default is checktext),
+      '(no)fixtext' (default is NO),
+      '(no)autodeclare' (default is NO)
 
       example:
 
@@ -448,13 +451,13 @@ namespace folia {
     return old_val;
   }
 
-  void Document::add_doc_index( FoliaElement* el, const string& id ){
+  void Document::add_doc_index( FoliaElement* el ){
     /// add a FoliaElement to the index
     /*!
       \param el the FoliaElement to add
-      \param id the id of the new element
-      will throw when the \em id is already in the index
+      will throw when \em el->id() is already in the index
      */
+    const string id = el->id();
     if ( id.empty() ) {
       return;
     }
@@ -2518,7 +2521,7 @@ namespace folia {
     /// return the default annotator for the type/setname combination.
     /*!
       \param type the AnnotationType
-      \param setname the AnnotationType. "*" means for ANY set.
+      \param setname the annotation set. An empty string ("") means ANY set.
       \return the annotator. May be empty ("") when there is none defined OR it
       is ambiguous.
     */
@@ -2554,7 +2557,7 @@ namespace folia {
     /// return the default annotator type for the type/setname combination.
     /*!
       \param type the AnnotationType
-      \param setname the AnnotationType. "*" means for ANY set.
+      \param setname the AnnotationType. An empty string ("") means ANY set.
       \return the annotator. May be empty ("") when there is none defined OR it
       is ambiguous.
     */
@@ -2596,7 +2599,7 @@ namespace folia {
     /// return the default datetime value for the type/setname combination.
     /*!
       \param type the AnnotationType
-      \param setname the AnnotationType. "*" means for ANY set.
+      \param setname the annotation set.  An empty string ("") means ANY set.
       \return the datetime value. May be empty ("") when there is none defined
       OR it is ambiguous.
     */
@@ -2627,7 +2630,7 @@ namespace folia {
     /// return the default processor type for the type/setname combination.
     /*!
       \param type the AnnotationType
-      \param setname the AnnotationType. "*" means for ANY set.
+      \param setname the annotation set.  An empty string ("") means ANY set.
       \return the processor. May be empty ("") when there is none defined OR it
       is ambiguous.
     */
@@ -2723,7 +2726,7 @@ namespace folia {
     /// return all the annotators for the type/setname combination.
     /*!
       \param type the AnnotationType
-      \param setname the AnnotationType. "*" means for ANY set.
+      \param setname the annotation set. An empty string ("") means ANY set.
       \return a list of annotators.
     */
     vector<string> result;
@@ -2749,7 +2752,7 @@ namespace folia {
     /// return all the processors for the type/setname combination.
     /*!
       \param type the AnnotationType
-      \param setname the AnnotationType. "*" means for ANY set.
+      \param setname the annotation set. An empty string ("") means ANY set.
       \return a list of processors.
     */
     vector<const processor*> result;

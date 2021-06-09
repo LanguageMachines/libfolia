@@ -183,7 +183,7 @@ namespace folia {
     processor *get_default_processor() const;
     processor *get_processor( const std::string& ) const;
     std::vector<processor*> get_processors_by_name( const std::string& ) const;
-    void add_doc_index( FoliaElement*, const std::string& );
+    void add_doc_index( FoliaElement * );
     void del_doc_index( const std::string& );
 
     FoliaElement *index( const std::string& ) const; //retrieve element with specified ID
