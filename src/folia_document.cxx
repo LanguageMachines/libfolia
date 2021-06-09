@@ -2074,7 +2074,7 @@ namespace folia {
 	// new style
 	auto set_pos = _annotationdefaults[type].find(setname);
 	if ( set_pos == _annotationdefaults[type].end() ){
-	  // no processer annotations yet
+	  // no processor annotations yet
 	  _annotationdefaults[type].insert( make_pair( setname,
 						       at_t(annotator,ant,d,format,procs) ) );
 
@@ -2341,41 +2341,6 @@ namespace folia {
     return false;
   }
 
-  bool Document::is_undeclared( const AnnotationType& type ) const {
-    /// check if ANY declaration for AnnotationType tyoe exists
-    /*!
-      \param type
-      \return true if NO declaration is found for \e type
-    */
-    if ( debug ){
-      cerr << "is_undeclared? ( " << folia::toString(type) << endl;
-    }
-    //
-    // just check if there is ANY declaration of this type
-    //
-    if ( type == AnnotationType::NO_ANN ){
-      if ( debug ){
-	cerr << "\t\t FALSE want NO_ANN" << endl;
-      }
-      return false;
-    }
-    const auto& it = _annotationdefaults.find(type);
-    if ( it == _annotationdefaults.end() ){
-      if ( debug ){
-	cerr << "There is NO declaration of type: " << folia::toString(type)
-	     << endl;
-      }
-      return true;
-    }
-    else {
-      if ( debug ){
-	cerr << "There IS at least one declaration of type: "
-	     << folia::toString(type) << endl;
-      }
-      return false;
-    }
-  }
-
   bool Document::declared( const AnnotationType& type,
 			   const string& set_name,
 			   const string& annotator,
@@ -2509,7 +2474,7 @@ namespace folia {
 
       For the type NO_ANN, the result is always true.
 
-      If set_name is empty ("") a match is found when a declarion for \e type
+      If set_name is empty ("") a match is found when a declarion for \et type
       exists
     */
     AnnotationType at = element_annotation_map[et];

@@ -201,7 +201,6 @@ namespace folia {
     bool declared( const AnnotationType&,
 		   const std::string& = "" ) const;
     bool declared( ElementType, const std::string& = "" ) const;
-    bool is_undeclared( const AnnotationType& ) const ;
     std::string unalias( AnnotationType,
 			 const std::string& ) const;
     std::string alias( AnnotationType,
@@ -304,7 +303,7 @@ namespace folia {
 	  const std::string& _d,
 	  const std::string& _f,
 	  const std::set<std::string>& _p ): a(_a),t(_t),d(_d),f(_f),p(_p){};
-      std::string a;   ///< the annotation type as a string
+      std::string a;   ///< the annotator as a string
       AnnotatorType t; ///< the annotator type
       std::string d;   ///< the timestamp as a string
       std::string f;   ///< the format
@@ -419,7 +418,7 @@ namespace folia {
     ///< input, so we can use that for output in the same order. (cannonical
     ///< mode
     std::map<AnnotationType,std::map<std::string,int> > _annotationrefs; ///<
-    ///< register the number of references to this AnnotationType/setename
+    ///< register the number of references to this AnnotationType/setname
     std::map<AnnotationType,std::map<std::string,std::string>> _alias_set; ///<
     ///< register the mapping from aliases to setnames per AnnotationType
     std::map<AnnotationType,std::map<std::string,std::string>> _set_alias; ///<

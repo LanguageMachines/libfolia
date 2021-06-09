@@ -2956,7 +2956,7 @@ namespace folia {
       _mydoc = the_doc;
       if ( annotation_type() != AnnotationType::NO_ANN
 	   && !the_doc->version_below( 2, 0 )
-	   && the_doc->is_undeclared( annotation_type() ) ){
+	   && !the_doc->declared( annotation_type() ) ){
 	// cerr << "assignDoc: " << this << endl;
 	// cerr << "ant: " << annotation_type() << endl;
 	// cerr << "set: " << _set << endl;
