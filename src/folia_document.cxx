@@ -486,11 +486,14 @@ namespace folia {
   }
 
   string Document::annotation_type_to_string( AnnotationType ann ) const {
-    /// return the ANNOTATIONTYPE translated to a string in a Document context
+    /// return the ANNOTATIONTYPE translated to a string in a Document context.
+    /// takes the version into account, for older labels
     /*!
       \param ann the annotationtype
-      \return a string representation of \e ann. Taking into account the version
-      of the Dcocument, translating to old labels for pre 1.6 versions
+      \return a string representation of \e ann.
+
+      Taking into account the version of the Dcocument, translating to
+      old labels for pre 1.6 versions
     */
     const string& result = toString( ann );
     if ( version_below(1,6) ){
@@ -512,7 +515,7 @@ namespace folia {
 
       For the first error encountered, a message is sent to stderr. Further
       errors are just counted. It is up to calling functions to react on a
-      an count != 0
+      a count > 0
      */
     int *cnt = (int*)mydata;
     if ( *cnt == 0 ){
