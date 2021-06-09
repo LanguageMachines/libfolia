@@ -78,8 +78,8 @@ namespace folia {
 
   /// class to steer text searching in corrections.
   enum class CORRECTION_HANDLING {
-    CURRENT=0,   //!< Search through <new> and <current> nodes. This is the default.
-      ORIGINAL=1, //!< Search through the <origina> nodes.
+    CURRENT=0,   //!< Search through \<new\> and \<current\> nodes. This is the default.
+      ORIGINAL=1, //!< Search through the \<original\> nodes.
       EITHER=2    //!< Search whatever comes our way
       };
 

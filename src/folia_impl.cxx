@@ -278,7 +278,7 @@ namespace folia {
     /// Constructor for AbstractElements.
     /*!
      * \param p a properties block (required)
-     * \param d a parent document
+     * \param el a parent node, to append to
      */
     AbstractElement( p, el->doc() )
   {
@@ -1994,12 +1994,7 @@ namespace folia {
   const UnicodeString AbstractElement::private_text( const TextPolicy& tp ) const {
     /// get the UnicodeString value of an element
     /*!
-     * \param cls The textclass we are looking for
-     * \param retaintok retain the tokenisation information
-     * \param strict If true, return the text of this level only
-     * when false, allow recursing into children
-     * \param show_hidden include text form 'hidden' nodes too.
-     * \param trim_spaces Trim leading and trailing spaces (defaults to True since FoLiA v2.4.1)
+     * \param tp The TextPolicy to use
      * \return the Unicode String representation found. Throws when
      * no text can be found
      */
@@ -2046,7 +2041,6 @@ namespace folia {
     /// get the UnicodeString text value of an element
     /*!
      * \param tp a TextPolicy
-     * \param flags the search parameters to use. See TEXT_FLAGS.
      */
 #ifdef DEBUG_TEXT
     cerr << "DEBUG <" << xmltag() << ">.text() Policy=" << tp << endl;
@@ -2452,7 +2446,6 @@ namespace folia {
     /// Get the TextContent explicitly associated with this element.
     /*!
      * \param cls the textclass to search for
-     * \param show_hidden if true also return text of 'hidden' nodes
      *
      * Returns the TextContent instance rather than the actual text.
      * (so it might return itself.. ;)
@@ -2466,7 +2459,7 @@ namespace folia {
   const PhonContent *AbstractElement::phon_content( const TextPolicy& tp ) const {
     /// Get the PhonContent explicitly associated with this element.
     /*!
-     * \param cls the textclass to search for
+     * \param tp the TextPolicy to use
      *
      * Returns the PhonContent instance rather than the actual text.
      * (so it might return iself.. ;)
@@ -2506,7 +2499,6 @@ namespace folia {
     /// Get the PhonContent explicitly associated with this element.
     /*!
      * \param cls the textclass to search for
-     * \param show_hidden if true also return text or 'hidden' nodes
      *
      * Returns the PhonContent instance rather than the actual text.
      * (so it might return iself.. ;)
@@ -2522,7 +2514,7 @@ namespace folia {
   const UnicodeString AbstractElement::phon( const TextPolicy& tp ) const {
     /// get the UnicodeString phon value of an element
     /*!
-     * \param cls the textclass the text should be in
+     * \param tp the TextPolic to use
      */
     bool hidden = tp.is_set( TEXT_FLAGS::HIDDEN );
     bool strict = tp.is_set( TEXT_FLAGS::STRICT );
@@ -2561,8 +2553,7 @@ namespace folia {
   const UnicodeString AbstractElement::deepphon( const TextPolicy& tp ) const {
     /// get the UnicodeString phon value of underlying elements
     /*!
-     * \param cls the textclass
-     * \param flags the search parameters to use
+     * \param tp the TextPolicu to use
      * \return The Unicode Text found.
      * Will throw on error.
      */
@@ -2852,7 +2843,7 @@ namespace folia {
   }
 
   bool AbstractElement::addable( const FoliaElement *parent ) const {
-    /// test if an element might succesfully appended to \parent
+    /// test if an element might succesfully appended to \em parent
     /*!
      * \param parent the node to check
      * \return true if it doesn't throw

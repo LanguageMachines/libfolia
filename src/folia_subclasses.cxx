@@ -728,7 +728,6 @@ namespace folia {
     /// get the UnicodeString phon value
     /*!
      * \param tp the TextPolicy to use
-     * The second parameter is NOT used (yet)
      */
 #ifdef DEBUG_PHON
     cerr << "PhonContent::PHON, Policy= " << tp << endl;
@@ -767,6 +766,7 @@ namespace folia {
     /// get the UnicodeString phon value
     /*!
      * \param cls the textclass the text should be in
+     * \param flags the TEXT_FLAGS for the TextPolicy to use
      */
     TextPolicy tp( cls, flags );
     return phon( tp );
@@ -2025,7 +2025,6 @@ namespace folia {
     /// Get the TextContent explicitly associated with a Correction
     /*!
      * \param cls the textclass to search for
-     * \param show_hidden if true also return text of 'hidden' nodes
      *
      * Returns the TextContent instance rather than the actual text.
      * (so it might return iself.. ;)
@@ -2100,7 +2099,7 @@ namespace folia {
   }
 
   bool New::addable( const FoliaElement *parent ) const {
-    /// test if a New element might succesfully appended to \parent
+    /// test if a New element might succesfully appended to \em parent
     /*!
      * \param parent the node to check
      * \return true if it doesn't throw
@@ -2118,7 +2117,7 @@ namespace folia {
   }
 
   bool Original::addable( const FoliaElement *parent ) const {
-    /// test if a Original element might succesfully appended to \parent
+    /// test if a Original element might succesfully appended to \em parent
     /*!
      * \param parent the node to check
      * \return true if it doesn't throw
@@ -2136,7 +2135,7 @@ namespace folia {
   }
 
   bool Current::addable( const FoliaElement *parent ) const {
-    /// test if a Original element might succesfully appended to \parent
+    /// test if a Original element might succesfully appended to \em parent
     /*!
      * \param parent the node to check
      * \return true if it doesn't throw
@@ -2160,7 +2159,7 @@ namespace folia {
   const PhonContent *Correction::phon_content( const TextPolicy& tp ) const {
     /// Get the PhonContent explicitly associated with this element.
     /*!
-     * \param cls the textclass to search for
+     * \param tp the TextPolicy to use
      *
      * Returns the PhonContent instance rather than the actual text.
      * (so it might return iself.. ;)
@@ -2205,7 +2204,6 @@ namespace folia {
     /// Get the PhonContent explicitly associated with this element.
     /*!
      * \param cls the textclass to search for
-     * \param show_hidden if true also return text og 'hidden' nodes
      *
      * Returns the PhonContent instance rather than the actual text.
      * (so it might return iself.. ;)

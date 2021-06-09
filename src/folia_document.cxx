@@ -2480,7 +2480,7 @@ namespace folia {
 
       For the type NO_ANN, the result is always true.
 
-      If set_name is empty ("") a match is found when a declarion for \et type
+      If set_name is empty ("") a match is found when a declarion for \em type
       exists
     */
     AnnotationType at = element_annotation_map[et];
