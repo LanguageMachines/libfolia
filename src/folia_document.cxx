@@ -2114,7 +2114,9 @@ namespace folia {
     /// remove a declaration for an AnnotationType/setname pair
     /*!
       \param type the AnnotationType
-      \param set_name the setname
+      \param set_name the setname. May be empty ("")
+
+      When \em set_name is "", ALL declarations of \em type are deleted
      */
     string setname = unalias(type,set_name);
     if ( debug ){
@@ -2211,6 +2213,7 @@ namespace folia {
     /// create a Text element as root for the document
     /*!
       \param args extra attribute-value pairs as attributes to use
+      \return the created Text node
     */
     Text *t = new Text( args );
     foliadoc->append( t );
@@ -2227,6 +2230,7 @@ namespace folia {
     /// create a Speech element as root for the document
     /*!
       \param args extra attribute-value pairs as attributes to use
+      \return the created Speech node
     */
     Speech *s = new Speech( args );
     foliadoc->append( s );
@@ -2386,6 +2390,10 @@ namespace folia {
   void Document::incrRef( AnnotationType type,
 			  const string& s ){
     /// increment the reference count for the AnnotationType/set combination
+    /*!
+      \param type the AnnotationType
+      \param s the setname
+    */
     if ( type != AnnotationType::NO_ANN ){
       string st = s;
       if ( st.empty() ){
@@ -2400,6 +2408,10 @@ namespace folia {
   void Document::decrRef( AnnotationType type,
 			  const string& s ){
     /// decrement the reference count for the AnnotationType/set combination
+    /*!
+      \param type the AnnotationType
+      \param s the setname
+    */
     if ( type != AnnotationType::NO_ANN
 	 && _annotationrefs[type][s] > 0 ){
       --_annotationrefs[type][s];
