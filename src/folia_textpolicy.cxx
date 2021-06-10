@@ -34,6 +34,11 @@ using namespace std;
 
 namespace folia {
 
+  /// create a TextPolicy object
+  /*!
+    \param cls a string representing a text-class
+    \param flags the TEXT_FLAGS settings to use
+  */
   TextPolicy::TextPolicy( const string& cls, const TEXT_FLAGS flags ):
     _class(cls),
     _text_flags( flags ),
@@ -41,11 +46,20 @@ namespace folia {
   {
   }
 
+  /// create a TextPolicy object for the 'current' text-class
+  /*!
+    \param flags the TEXT_FLAGS settings to use
+  */
   TextPolicy::TextPolicy( const TEXT_FLAGS flags ):
     TextPolicy( "current", flags ) {
   }
 
   string toString( CORRECTION_HANDLING ch ){
+    /// give a text representation for a CORRECION_HANDLING
+    /*!
+      \param ch the CORRECTION_HANDLING
+      \return a string representing the CORRECTION_HANDLING
+    */
     switch( ch ){
     case CORRECTION_HANDLING::CURRENT:
       return "current";
@@ -62,6 +76,12 @@ namespace folia {
   }
 
   ostream& operator<<( ostream& os, const TextPolicy& tp ){
+    /// Output a TextPolicy (for debugging purposes)
+    /*!
+      \param os the output stream
+      \param tp the TextPolicy
+      \return the outputstream after the \em tp is output.
+    */
     bool retain  = tp.is_set( TEXT_FLAGS::RETAIN );
     bool strict  = tp.is_set( TEXT_FLAGS::STRICT );
     bool hide    = tp.is_set( TEXT_FLAGS::HIDDEN );
@@ -76,23 +96,48 @@ namespace folia {
   }
 
   bool TextPolicy::is_set( TEXT_FLAGS tf ) const {
+    /// check is the flag is set
+    /*!
+      \param tf the TEXT_FLAGS flag to test
+      \return \em true when set, \em false otherwise
+    */
     return ( tf & _text_flags ) == tf;
   }
 
   void TextPolicy::set( TEXT_FLAGS tf ) {
+    /// set a flag
+    /*!
+      \param tf the TEXT_FLAGS flag to set
+    */
     _text_flags |= tf;
   }
 
   void TextPolicy::clear( TEXT_FLAGS tf ) {
+    /// clear a flag
+    /*!
+      \param tf the TEXT_FLAGS flag to clear (unset)
+    */
     _text_flags &= ~tf;
   }
 
   void TextPolicy::add_handler( const string& label,
-				const tag_handler& sfp ){
-    _tag_handlers.insert( make_pair( label, sfp ) );
+				const tag_handler& fp ){
+    /// add a tag_handler to the currect handlers
+    /*!
+      \param label a label to identify the handler
+      \param fp the function to register
+
+      may override an existing handler, if the label is already in use.
+    */
+    _tag_handlers.insert( make_pair( label, fp ) );
   }
 
   const TextPolicy::tag_handler TextPolicy::remove_handler( const string& label ){
+    /// remove a tag_handler
+    /*!
+      \param label the label to identify the handler
+      \return the function which is removed. Or 0 when the label didn't match
+    */
     auto pnt = _tag_handlers.find( label );
     if ( pnt != _tag_handlers.end() ){
       _tag_handlers.erase( pnt );
@@ -104,6 +149,11 @@ namespace folia {
   }
 
   const TextPolicy::tag_handler TextPolicy::get_handler( const string& label ) const{
+    /// return a tag_handler fir a give label
+    /*!
+      \param label the label to identify the handler
+      \return the function which is found. Or 0 when the label didn't match
+    */
     auto pnt = _tag_handlers.find( label );
     if ( pnt != _tag_handlers.end() ){
       return pnt->second;
