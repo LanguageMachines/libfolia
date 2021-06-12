@@ -960,7 +960,9 @@ namespace folia {
       \param attribute the attribute to set
       \param value the value of the attribute
 
-      This is only valid for the 'native' FoLiA metadata type
+      Will throw if the current metadata is NOT 'native'
+
+      May create a new NativeMetaData structure.
      */
     if ( !_metadata ){
       _metadata = new NativeMetaData( "native" );
@@ -976,6 +978,11 @@ namespace folia {
 
   const string Document::get_metadata( const string& attribute ) const {
     /// return the metadata value for a metadata attribute
+    /*!
+      \param attribute the attribitu to lookup
+      \return the requested metadata value. May return "" if no metadata is
+      available or the attribute is not found.
+     */
     if ( _metadata ){
       return _metadata->get_val( attribute );
     }
@@ -1030,7 +1037,7 @@ namespace folia {
     /*!
       \param args the argument list for creating the new provessor
       \param parent add the new processor as a child to this parent.
-      When the parent = 0, add to the provenance structure.
+      When the parent = 0, add to the Documents provenance structure.
 
       May create a new Provenance structure if not yet available.
     */
@@ -1631,11 +1638,12 @@ namespace folia {
   }
 
   void Document::addStyle( const string& type, const string& href ){
-    /// add a style-sheet
+    /// add style-sheet information
     /*!
       \param type Which type of sheet
       \param href the external link for this sheet
-      We assure that only one "text/sxl" style-sheet is present
+      We assure that only one "text/xsl" style-sheet is present. All
+      other style-sheets are silently added as is.
      */
     if ( type == "text/xsl" ){
       const auto& it = styles.find( type );
@@ -1654,7 +1662,7 @@ namespace folia {
       \param href the external link for this sheet
 
       \note this is sloppy, as multiple sheets with the same type may exist
-      (except for 'text/xslt') and we replace the first one only
+      (except for 'text/xslt') and we replace the first one only.
     */
     const auto& it = styles.find( type );
     if ( it != styles.end() ){
