@@ -55,11 +55,7 @@ namespace folia {
   const UnicodeString FoLiA::private_text( const TextPolicy& tp ) const {
     /// get the UnicodeString value of a FoLiA topnode
     /*!
-     * \param cls The textclass we are looking for
-     * \param retaintok retain the tokenisation information
-     * \param strict If true, return the text of the direct children only
-     * when false, allow recursing into children
-     * \param trim_spaces Trim leading and trailing spaces (defaults to True since FoLiA v2.4.1)
+     * \param tp The TextPolicy to use
      * \return the Unicode String representation found. Throws when
      * no text can be found
      */
@@ -99,7 +95,8 @@ namespace folia {
   FoliaElement *PhonContent::postappend( ) {
     /// perform some extra checks after appending a PhonContent
     if ( doc() ){
-      if ( doc()->checktext() && _offset != -1 ){
+      if ( doc()->checktext()
+	   && _offset != -1 ){
 	doc()->cache_phoncontent(this);
       }
       if ( !doc()->declared( AnnotationType::PHON ) ){
@@ -765,9 +762,10 @@ namespace folia {
 					 TEXT_FLAGS flags ) const {
     /// get the UnicodeString phon value
     /*!
-     * \param cls the textclass the text should be in
-     * \param flags the TEXT_FLAGS for the TextPolicy to use
-     */
+      \param cls the textclass the text should be in
+      \param flags the TEXT_FLAGS for the TextPolicy to use
+      \return the UnicodeString with the phon content
+    */
     TextPolicy tp( cls, flags );
     return phon( tp );
   }
@@ -2908,11 +2906,7 @@ namespace folia {
   const UnicodeString TextMarkupCorrection::private_text( const TextPolicy& tp ) const {
     /// get the UnicodeString value of a TextMarkupCorrection element
     /*!
-     * \param cls The textclass we are looking for
-     * \param retaintok retain the tokenisation information
-     * \param strict If true, return the text of this level only
-     * when false, allow recursing into children
-     * \param show_hidden include text form 'hidden' nodes too.
+     * \param tp The TextPolicy to use
      * \return the Unicode String representation found. Throws when
      * no text can be found
      */
