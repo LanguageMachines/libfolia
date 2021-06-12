@@ -57,7 +57,8 @@ namespace folia {
       \param os the output stream
       \param at the at_t object
     */
-    os << "<" << at.a << "," << TiCC::toString(at.t) << "," << at.d << "," << at.p << ">";
+    os << "<" << at._annotator << "," << TiCC::toString(at._ann_type)
+       << "," << at._date << "," << at._processors << ">";
     return os;
   }
 
@@ -1090,7 +1091,7 @@ namespace folia {
       if ( it.second.size() == 1 ){
 	// so 1 set
 	_orig_ann_default_sets.insert( make_pair(it.first,it.second.begin()->first) );
-	auto procs = it.second.begin()->second.p;
+	auto procs = it.second.begin()->second._processors;
 	if ( procs.size() == 1 ){
 	  _orig_ann_default_procs.insert( make_pair(it.first,*procs.begin()) );
 	}
@@ -2088,7 +2089,7 @@ namespace folia {
 	else {
 	  // add to the existing
 	  for ( const auto& p : procs ){
-	    set_pos->second.p.insert( p );
+	    set_pos->second._processors.insert( p );
 	  }
 	}
       }
@@ -2333,10 +2334,11 @@ namespace folia {
 	  cerr << "OK, found an entry for set='" << setname  << "'" << endl;
 	  cerr << "content: " << mit2->second << endl;
 	}
-	if ( mit2->second.a == annotator
-	     && mit2->second.t == annotator_type
-	     && ( (mit2->second.p.empty() && processor.empty() )
-		  || mit2->second.p.find(processor) != mit2->second.p.end() ) ){
+	if ( mit2->second._annotator == annotator
+	     && mit2->second._ann_type == annotator_type
+	     && ( (mit2->second._processors.empty() && processor.empty() )
+		  || ( mit2->second._processors.find(processor)
+		       != mit2->second._processors.end() ) ) ){
 	  if ( debug ){
 	    cerr << "\t\t declared ==> TRUE" << endl;
 	  }
@@ -2551,7 +2553,7 @@ namespace folia {
 	// 'wildcard' search
 	if ( mit1->second.size() == 1 ){
 	  // so it is unique
-	  result = mit1->second.begin()->second.a;
+	  result = mit1->second.begin()->second._annotator;
 	  return result;
 	}
       }
@@ -2559,7 +2561,7 @@ namespace folia {
 	if ( mit1->second.count( setname ) == 1 ){
 	  // so it is unique
 	  const auto& mit2 = mit1->second.find( setname );
-	  result = mit2->second.a;
+	  result = mit2->second._annotator;
 	}
       }
     }
@@ -2593,7 +2595,7 @@ namespace folia {
 	// 'wildcard' search
 	if ( mit1->second.size() == 1 ){
 	  // so it is unique
-	  result = mit1->second.begin()->second.t;
+	  result = mit1->second.begin()->second._ann_type;
 	}
 	return result;
       }
@@ -2601,7 +2603,7 @@ namespace folia {
 	if ( mit1->second.count( setname ) == 1 ){
 	  // so it is unique
 	  const auto& mit2 = mit1->second.find( setname );
-	  result = mit2->second.t;
+	  result = mit2->second._ann_type;
 	}
       }
     }
@@ -2625,14 +2627,14 @@ namespace folia {
 	// 'wildcard' search
 	if ( mit1->second.size() == 1 ){
 	  // so it is unique
-	  result = mit1->second.begin()->second.d;
+	  result = mit1->second.begin()->second._date;
 	}
       }
       else {
 	if ( mit1->second.count( setname ) == 1 ){
 	  // so it is unique
 	  const auto& mit2 = mit1->second.find( setname );
-	  result = mit2->second.d;
+	  result = mit2->second._date;
 	}
       }
     }
@@ -2662,9 +2664,9 @@ namespace folia {
       if ( setname.empty() ){
 	// 'wildcard' search
 	if ( it->second.size() == 1
-	     && it->second.begin()->second.p.size() == 1 ){
+	     && it->second.begin()->second._processors.size() == 1 ){
 	  // so it is unique for setname AND for the number of processors
-	  return *it->second.begin()->second.p.begin();
+	  return *it->second.begin()->second._processors.begin();
 	}
 	else {
 	  return "";
@@ -2676,7 +2678,8 @@ namespace folia {
 	if ( debug ){
 	  cerr << "found sub strings: " << s_it->second << endl;
 	}
-	results.insert( s_it->second.p.begin(), s_it->second.p.end() );
+	results.insert( s_it->second._processors.begin(),
+			s_it->second._processors.end() );
 	++s_it;
       }
       if ( results.size() == 1 ){
@@ -2754,7 +2757,9 @@ namespace folia {
       for ( auto pos = mit1->second.lower_bound(setname);
 	    pos != mit1->second.upper_bound(setname);
 	    ++pos ){
-	copy( pos->second.p.begin(), pos->second.p.end(), back_inserter(result) );
+	copy( pos->second._processors.begin(),
+	      pos->second._processors.end(),
+	      back_inserter(result) );
       }
     }
     //    cerr << "get default ==> " << result << endl;
@@ -2786,7 +2791,8 @@ namespace folia {
       for ( auto pos = it->second.lower_bound(setname);
 	    pos != it->second.upper_bound(setname);
 	    ++pos ){
-	transform( pos->second.p.begin(), pos->second.p.end(),
+	transform( pos->second._processors.begin(),
+		   pos->second._processors.end(),
 		   back_inserter(result),
 		   [&]( const string& p ){ return get_processor(p); } );
       }
@@ -2815,22 +2821,22 @@ namespace folia {
     const auto& mm = _annotationdefaults.find(type);
     auto it = mm->second.lower_bound(sett);
     while ( it != mm->second.upper_bound(sett) ){
-      string s = it->second.a;
+      string s = it->second._annotator;
       if ( !s.empty() ){
 	// old style
 	KWargs args;
 	args["annotator"] = s;
-	AnnotatorType ant = it->second.t;
+	AnnotatorType ant = it->second._ann_type;
 	if ( ant != UNDEFINED && ant != AUTO ){
 	  args["annotatortype"] = toString(ant);
 	}
 	if ( !strip() ){
-	  s = it->second.d;
+	  s = it->second._date;
 	  if ( !s.empty() ){
 	    args["datetime"] = s;
 	  }
 	}
-	s = it->second.f;
+	s = it->second._format;
 	if ( !s.empty() ){
 	  args["format"] = s;
 	}
@@ -2865,12 +2871,12 @@ namespace folia {
 	// we have new style processors
 	KWargs args;
 	if ( !strip() ){
-	  s = it->second.d;
+	  s = it->second._date;
 	  if ( !s.empty() ){
 	    args["datetime"] = s;
 	  }
 	}
-	s = it->second.f;
+	s = it->second._format;
 	if ( !s.empty() ){
 	  args["format"] = s;
 	}
@@ -2900,7 +2906,7 @@ namespace folia {
 	addAttributes( n, args );
 	xmlAddChild( node, n );
 	args.clear();
-	for ( const auto& p : it->second.p ){
+	for ( const auto& p : it->second._processors ){
 	  xmlNode *a = TiCC::XmlNewNode( foliaNs(), "annotator" );
 	  args["processor"] = p;
 	  addAttributes( a, args );

@@ -298,16 +298,21 @@ namespace folia {
     class at_t {
       friend std::ostream& operator<<( std::ostream& os, const at_t& at );
     public:
-    at_t( const std::string& _a,
-	  const AnnotatorType& _t,
-	  const std::string& _d,
-	  const std::string& _f,
-	  const std::set<std::string>& _p ): a(_a),t(_t),d(_d),f(_f),p(_p){};
-      std::string a;   ///< the annotator as a string
-      AnnotatorType t; ///< the annotator type
-      std::string d;   ///< the timestamp as a string
-      std::string f;   ///< the format
-      std::set<std::string> p; ///< the id's of all associated processors
+    at_t( const std::string& a,
+	  const AnnotatorType& t,
+	  const std::string& d,
+	  const std::string& f,
+	  const std::set<std::string>& p ):
+      _annotator(a),
+	_ann_type(t),
+	_date(d),
+	_format(f),
+	_processors(p){};
+      std::string _annotator;   ///< the annotator as a string
+      AnnotatorType _ann_type; ///< the annotator type
+      std::string _date;   ///< the timestamp as a string
+      std::string _format;   ///< the format
+      std::set<std::string> _processors; ///< the id's of all associated processors
     };
 
     void incrRef( AnnotationType, const std::string& );
