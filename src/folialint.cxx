@@ -135,7 +135,7 @@ int main( int argc, char* argv[] ){
       return EXIT_FAILURE;
     }
   }
-  catch( exception& e ){
+  catch( const exception& e ){
     cerr << "FAIL: " << e.what() << endl;
     exit( EXIT_FAILURE );
   }
@@ -215,7 +215,7 @@ int main( int argc, char* argv[] ){
 	}
       }
     }
-    catch( exception& e ){
+    catch( const exception& e ){
       cerr << inputName << " failed: " << e.what() << endl;
       ++fail_count;
     }

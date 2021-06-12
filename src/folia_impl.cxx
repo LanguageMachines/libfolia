@@ -1138,7 +1138,7 @@ namespace folia {
 	    attribs["processor"] = tmp;
 	  }
 	}
-	catch ( NoDefaultError& ){
+	catch ( const NoDefaultError& ){
 	}
 	catch ( ... ){
 	  throw;
