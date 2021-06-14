@@ -903,7 +903,7 @@ namespace folia {
   }
 
   string Document::metadata_type() const {
-    /// extract the metadata type
+    /// returns the metadata type
     /*!
       \return the metadata type or "native" when not set
     */
@@ -917,7 +917,7 @@ namespace folia {
   }
 
   string Document::metadata_file() const {
-    /// extract the metadata filename. if any
+    /// returns the metadata filename. if any
     /*!
       \return the metadata file name.
     */
@@ -955,7 +955,7 @@ namespace folia {
   }
 
   void Document::set_metadata( const string& attribute, const string& value ){
-    /// set a metadata value in the Document
+    /// add a metadata attribute/value pair to the Document
     /*!
       \param attribute the attribute to set
       \param value the value of the attribute
@@ -1816,7 +1816,7 @@ namespace folia {
   }
 
   FoliaElement* Document::parseXml( ){
-    /// parse a complete FoLiA tree from the XmlTree we have got
+    /// parse a complete FoLiA tree from the XmlTree we have got in _xmldoc
     parse_styles();
     xmlNode *root = xmlDocGetRootElement( _xmldoc );
     if ( root->ns ){
@@ -1884,6 +1884,8 @@ namespace folia {
     /*!
       \param type which default do we want to add
       \param _setname which setname to add
+      If _setname is empty, that is used, except for TEXT and PHON, which
+      have a default setname which is assigned
      */
     string setname = _setname;
     if ( setname.empty() ) {
@@ -2958,6 +2960,10 @@ namespace folia {
 
   void Document::append_processor( xmlNode *node, const processor *p ) const {
     /// add a processor xml structure to the parent 'node'
+    /*!
+      \param node the xml node to add to
+      \param p the processor of which to add te info
+    */
     xmlNode *pr = xmlAddChild( node, TiCC::XmlNewNode( foliaNs(), "processor" ) );
     KWargs atts;
     atts["xml:id"] = p->_id;
@@ -3288,7 +3294,7 @@ namespace folia {
 		    const string& args ): matchannotation(et) {
     /// create a Pattern structure for searching
     /*!
-      \param pat_vec a list if search terms (may be regular expressions)
+      \param pat_vec a list of search terms (may be regular expressions)
       \param et The kind of elements to match on
       \param args additionale search options as attribute/value pairs
     */
