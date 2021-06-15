@@ -51,7 +51,10 @@ namespace folia {
 
   using TiCC::operator<<;
 
-  xml_tree::xml_tree( int d, int i, const std::string& t, const std::string& c ):
+  xml_tree::xml_tree( int d,
+		      int i,
+		      const std::string& t,
+		      const std::string& c ):
     /// create an xml_tree element with the given parameters
     depth(d),
     index(i),
@@ -128,9 +131,16 @@ namespace folia {
   }
 
   Document *Engine::doc( bool disconnect ){
-    /// returns the associated FoLiA document. (assumes it is complete!)
-    /// \param disconnect handle control over to the caller.
-    /// The caller has to delete it to avoid memory leaks
+    /// returns the associated FoLiA document.
+    /*!
+      \param disconnect handle control over to the caller.
+      The caller has to delete it to avoid memory leaks
+
+      Will throw when the focument is not yet completed
+    */
+    if ( !_finished ){
+      throw XmlError( "unable to return a Document. Engine is not finished." );
+    }
     Document *result = _out_doc;
     if ( disconnect ){
       _out_doc = 0;
@@ -140,10 +150,12 @@ namespace folia {
 
   bool Engine::set_debug( bool d ) {
     /// switch debugging on/off depending on parameter 'd'
-    /// \param d when true switch debugging to ON, otherwise OFF
+    /*!
+      \param d when true switch debugging to ON, otherwise OFF
 
-    /// When debugging is switched ON and NO debug file is associated yet,
-    /// it is created.
+      When debugging is switched ON and NO debug file is associated yet,
+      it is created.
+    */
     bool res = _debug;
     if ( d ){
       if ( !_dbg_file ){
@@ -156,7 +168,7 @@ namespace folia {
   }
 
   void Engine::set_dbg_stream( TiCC::LogStream *ls ){
-    /// switch debugging to another stream
+    /// switch debugging to another LogStream
     if ( _dbg_file ){
       delete _dbg_file;
     }
@@ -166,10 +178,13 @@ namespace folia {
   void Engine::un_declare( const AnnotationType& at,
 			   const string& setname ){
     /// remove the annotation declaration for the given type and set
-    /// \param at the AnnotationType
-    /// \param setname the set so remove
-    /// \note an AnntotationType can have several set-names assigned to it.
-    /// When setname is empty ("") ALL set-names are removed
+    /*!
+      \param at the AnnotationType
+      \param setname the set so remove
+
+      \note an AnntotationType can have several set-names assigned to it.
+      When setname is empty ("") ALL set-names are removed
+    */
     if ( !ok() ){
       throw logic_error( "declare() called on invalid engine!" );
     }
@@ -185,11 +200,12 @@ namespace folia {
 			const string& setname,
 			const string& args ) {
     /// declare a set for a given annotation type
-    /// \param at the AnnotationType
-    /// \param setname The set-name to use
-    /// \param args additional arguments in string annotation
-    // args can be used to add extra arguments like a processor name or
-    // an annotator
+    /*!
+      \param at the AnnotationType
+      \param setname The set-name to use
+      \param args additional arguments in string annotation. Can be used to add
+      extra arguments like a processor name or an annotator
+    */
     KWargs kwargs( args );
     declare( at, setname, kwargs );
   }
@@ -198,11 +214,13 @@ namespace folia {
 			const string& setname,
 			const KWargs& args ) {
     /// declare a set for a given annotation type
-    /// \param at the AnnotationType
-    /// \param setname The set-name to use
-    /// \param args additional arguments as a KWargs attribute-value list
-    // args can be used to add extra arguments like a processor name or
-    // an annotator
+    /*!
+      \param at the AnnotationType
+      \param setname The set-name to use
+      \param args additional arguments as a KWargs attribute-value list.
+      can be used to add extra arguments like a processor name or
+      an annotator
+    */
     if ( !ok() ){
       throw logic_error( "declare() called on invalid engine!" );
     }
@@ -217,9 +235,11 @@ namespace folia {
   bool Engine::is_declared( const AnnotationType& at,
 			    const string& setname ) const {
     /// check if an annotation for the provided type and setname is present
-    /// \param at the AnnotationType
-    /// \param setname the set-name to test
-    /// \return true if declared, false otherwise.
+    /*!
+      \param at the AnnotationType
+      \param setname the set-name to test
+      \return true if declared, false otherwise.
+    */
     if ( !ok() ){
       throw logic_error( "is_declared() called on invalid engine!" );
     }
@@ -234,12 +254,14 @@ namespace folia {
 			    const AnnotatorType& annotator_type,
 			    const string& processor ) const {
     /// check if an annotation for the provided type and setname is present
-    /// \param at the AnnotationType
-    /// \param setname the set-name to test
-    /// \param annotator the name of the annotator to test
-    /// \param annotator_type the AnnotatorType to test
-    /// \param processor the desired processor
-    /// \return true if declared, false otherwise.
+    /*!
+      \param at the AnnotationType
+      \param setname the set-name to test
+      \param annotator the name of the annotator to test
+      \param annotator_type the AnnotatorType to test
+      \param processor the desired processor
+      \return true if declared, false otherwise.
+    */
     if ( !ok() ){
       throw logic_error( "is_declared() called on invalid engine!" );
     }
@@ -254,12 +276,14 @@ namespace folia {
 			    const string& annotator_type,
 			    const string& processor ) const {
     /// check if an annotation for the provided type and setname is present
-    /// \param at the AnnotationType
-    /// \param setname the set-name to test
-    /// \param annotator the name of the annotator to test
-    /// \param annotator_type the AnnotatorType to test, encoded as a string
-    /// \param processor the desired processor
-    /// \return true if declared, false otherwise.
+    /*!
+      \param at the AnnotationType
+      \param setname the set-name to test
+      \param annotator the name of the annotator to test
+      \param annotator_type the AnnotatorType to test, encoded as a string
+      \param processor the desired processor
+      \return true if declared, false otherwise.
+    */
     AnnotatorType ant = UNDEFINED;
     try {
       ant = TiCC::stringTo<AnnotatorType>(annotator_type);
@@ -273,8 +297,10 @@ namespace folia {
   void Engine::set_metadata( const std::string& att,
 			     const std::string& val){
     /// set a metadata value in the associated document
-    /// \param att the attribute to set
-    /// \param val the value of the attribute
+    /*!
+      \param att the attribute to set
+      \param val the value of the attribute
+    */
     if ( !ok() ){
       throw logic_error( "set_metadata() called on invalid engine!" );
     }
@@ -285,8 +311,10 @@ namespace folia {
 
   pair<string,string> extract_style( const string& value ){
     /// parse a string to extract an xml style-sheet value
-    /// \param value the line to parse
-    /// \return a pait of strings containing the type and the href values
+    /*!
+      \param value the line to parse
+      \return a pait of strings containing the type and the href values
+    */
     string type;
     string href;
     vector<string> v = TiCC::split( value );
@@ -307,9 +335,11 @@ namespace folia {
   }
 
   KWargs get_attributes( xmlTextReader *tr ){
-    /// extract a KWargs list from the current TextReader location
-    /// \param tr the xmlTextReader pointer
-    /// \return a KWargs list of all attribute/value pairs found
+    /// extract a KWargs attribute/value list from the TextReader location
+    /*!
+      \param tr the xmlTextReader pointer
+      \return a KWargs list of all attribute/value pairs found
+    */
     KWargs result;
     if ( xmlTextReaderHasAttributes(tr) ){
       xmlTextReaderMoveToFirstAttribute(tr);
@@ -325,10 +355,12 @@ namespace folia {
 
   xmlTextReader *create_text_reader( const string& buf ){
     /// create a new xmlTextRead on a buffer
-    /// \param buf the input buffer
-    // The buffer may contain a complete (FoLiA-) XML document as a string
-    // OR a filename denoting such a document, which may be .bz2 and .gz
-    // encoded
+    /*!
+      \param buf the input buffer.
+      The buffer may contain a complete (FoLiA-) XML document as a string
+      OR a filename denoting such a document, which may be .bz2 and .gz
+      encoded
+    */
     if ( TiCC::match_front( buf, "<?xml " ) ){
       return xmlReaderForMemory( buf.c_str(), buf.size(),
 				 "input_buffer", 0, XML_PARSER_OPTIONS );
@@ -336,8 +368,8 @@ namespace folia {
     else if ( TiCC::match_back( buf, ".bz2" ) ){
       string buffer = TiCC::bz2ReadFile( buf );
       if ( buffer.empty() ){
-	throw( runtime_error( "folia::Engine(), empty file? (" + buf
-			      + ")" ) );
+	throw runtime_error( "folia::Engine(), empty file? (" + buf
+			      + ")" );
       }
       //
       // next step fails for unclear reasons
@@ -360,7 +392,9 @@ namespace folia {
 
   void Engine::add_text( int depth ){
     /// when parsing, add a new XmlText node
-    /// \param depth the depth (location) in the tree where to add
+    /*!
+      \param depth the depth (location) in the tree where to add
+    */
     string value = (const char*)xmlTextReaderConstValue(_reader);
     string trimmed = TiCC::trim(value);
     if ( !trimmed.empty() ){
@@ -376,7 +410,9 @@ namespace folia {
 
   void Engine::add_comment( int depth ){
     /// when parsing, add a new _XmlComment node
-    /// \param depth the depth (location) in the tree where to add
+    /*!
+      \param depth the depth (location) in the tree where to add
+    */
     if ( _debug ){
       DBG << "add_comment " << endl;
     }
@@ -425,11 +461,13 @@ namespace folia {
   bool Engine::init_doc( const string& file_name,
 			 const string& out_name ){
     /// init an associated document for this Engine
-    /// \param file_name the input file to use for parsing
-    /// \param out_name when not empty, add an output-file with this name
+    /*!
+      \param file_name the input file to use for parsing
+      \param out_name when not empty, add an output-file with this name
 
-    /// Initializing includes parsing the Document's metadata, style-sheet
-    /// upto and including the top \<text or \<speech> node
+      Initializing includes parsing the Document's metadata, style-sheet
+      upto and including the top \<text or \<speech> node
+    */
     _ok = false;
     _out_doc = new Document();
     _out_doc->set_incremental( true );
@@ -554,8 +592,10 @@ namespace folia {
   void Engine::append_node( FoliaElement *t,
 			    int depth ){
     /// append a FoliaElement to the associated document
-    /// \param t the FoliaElement
-    /// \param depth the location use for adding
+    /*!
+      \param t the FoliaElement
+      \param depth the location use for adding
+    */
     if ( _debug ){
       DBG << "append_node(" << t << ") current node= " << _current_node << endl;
       DBG << "append_node(): last node= " << _last_added << endl;
@@ -602,9 +642,11 @@ namespace folia {
   FoliaElement *Engine::handle_match( const string& local_name,
 				      int depth ){
     /// expand a matched tag into a FoLiA subtree
-    /// \param local_name the tag to create
-    /// \param depth the location in the Document to attach to
-    /// \return an expanded FoLiA subtree
+    /*!
+      \param local_name the tag to create
+      \param depth the location in the Document to attach to
+      \return an expanded FoLiA subtree
+    */
     FoliaElement *t = AbstractElement::createElement( local_name, _out_doc );
     if ( t ){
       if ( _debug ){
@@ -631,16 +673,18 @@ namespace folia {
 
   FoliaElement *Engine::get_node( const string& tag ){
     /// return the next node in the Engine with 'tag'
-    /// \param tag the tag or a list of tags we are looking for
-    /// \return the FoliaElement found.
+    /*!
+      \param tag the tag or a list of tags we are looking for
+      \return the FoliaElement found.
 
-    /// tag may be a single tag like 'lemma' but also a list of '|' separated
-    /// tags like 'lemma|pos|description'. In the latter case all named tags
-    /// are tested and the first found is returned
-    ///
-    /// The returned FoliaElement is a FoLiA subtree expaned from the
-    /// xmlTextReader. Further parsing will continue at the next sibbling
-    /// of the parent.
+      tag may be a single tag like 'lemma' but also a list of '|' separated
+      tags like 'lemma|pos|description'. In the latter case all named tags
+      are tested and the first found is returned
+
+      The returned FoliaElement is a FoLiA subtree expaned from the
+      xmlTextReader. Further parsing will continue at the next sibbling
+      of the parent.
+    */
     if ( _done ){
       if ( _debug ){
 	DBG << "Engine::get_node(). we are done" << endl;
@@ -719,10 +763,12 @@ namespace folia {
   }
 
   xml_tree *Engine::create_simple_tree( const string& in_file ) const {
-    /// creating a lightweight tree for enumerating all XML_ELEMENTS encountered
-    /// \param in_file The file to create an xmlTextReader on. May be a string
-    /// buffer containing a complete XML file too
-    /// \return the light-weight tree with the relevant nodes
+    /// create a lightweight tree for enumerating all XML_ELEMENTS encountered
+    /*!
+      \param in_file The file to create an xmlTextReader on. May be a string
+      buffer containing a complete XML file too
+      \return the light-weight tree with the relevant nodes
+    */
     xmlTextReader *cur_reader = create_text_reader( in_file );
     if ( _debug ){
       DBG << "enumerate_nodes()" << endl;
@@ -810,10 +856,11 @@ namespace folia {
 
   int count_nodes( FoliaElement *fe ){
     /// count all 'real' FoliaElements including and below this one
-    /// \param fe the The element to start at
-    /// \return the 'size' of the subtree below fe
-
-    /// we need this number to know where to proceed processing
+    /*!
+      \param fe the The element to start at
+      \return the 'size' of the subtree below fe. We need this number to know
+      where to proceed processing
+    */
     int result = 0;
     //    cerr << "DEPTH " << fe << endl;
     if ( fe
@@ -835,9 +882,11 @@ namespace folia {
 
   int Engine::handle_content( const string& t_or_ph, int depth ){
     /// process a matched 't' or 'ph' tag into a FoLiA subtree
-    /// \param t_or_ph a t or ph tags
-    /// \param depth the location in the Document to attach to
-    /// \return the number of FoliaElement nodes added
+    /*!
+      \param t_or_ph a t or ph tags
+      \param depth the location in the Document to attach to
+      \return the number of FoliaElement nodes added
+    */
     KWargs atts = get_attributes( _reader );
     if ( _debug ){
       DBG << "expanding content of <" << t_or_ph << "> atts=" << atts << endl;
@@ -874,8 +923,10 @@ namespace folia {
   void Engine::handle_element( const string& local_name,
 			       int depth ){
     /// process a matched tag into a FoLiA subtree
-    /// \param local_name the tag
-    /// \param depth the location in the Document to attach to
+    /*!
+      \param local_name the tag
+      \param depth the location in the Document to attach to
+    */
     KWargs atts = get_attributes( _reader );
     if ( _debug ){
       DBG << "name=" << local_name << " atts=" << atts << endl;
@@ -1133,8 +1184,10 @@ namespace folia {
 
   void Engine::save( const string& name, bool do_canon ){
     /// save the associated Document to a file
-    /// \param name the file-name
-    /// \param do_canon output in Canonical format
+    /*!
+      \param name the file-name
+      \param do_canon output in Canonical format
+    */
     if ( _os && name == _out_name ){
       throw logic_error( "folia::Engine::save() impossible. Already connected to a stream with the same name (" + name + ")" );
     }
@@ -1143,36 +1196,42 @@ namespace folia {
 
   void Engine::save( ostream& os, bool do_canon ){
     /// save the associated Document to a stream
-    /// \param os the stream
-    /// \param do_canon output in Canonical format
+    /*!
+      \param os the stream
+      \param do_canon output in Canonical format
+    */
     _out_doc->save( os, ns_prefix, do_canon );
   }
 
 
   bool TextEngine::init_doc( const string& i, const string& o ){
     /// init an associated document for this TextEngine
-    /// \param i the input file to use for parsing
-    /// \param o when not empty, add an output-file with this name
-    ///
-    /// Sets the _in_file property to i and marks _is_setup FALSE
-    /// then calls Engine::init_doc to do the real work.
+    /*!
+      \param i the input file to use for parsing
+      \param o when not empty, add an output-file with this name
+
+      Sets the _in_file property to i and marks _is_setup FALSE
+      then calls Engine::init_doc to do the real work.
+    */
     _in_file = i;
     _is_setup = false;
     //    set_debug(true);
     return Engine::init_doc( i, o );
   }
 
-  void TextEngine::setup( const string& textclass, bool prefer_sent ){
+  void TextEngine::setup( const string& textclass, bool prefer_struct ){
     /// set the TextEngine ready for parsing
-    /// \param textclass Determines which textnodes to search for
-    /// \param prefer_sent If TRUE, set the TextEngine up for returning
-    /// Structure nodes like sentences or paragraphs above returning
-    /// just Word or String nodes
+    /*!
+      \param textclass Determines which textnodes to search for
+      \param prefer_struct If TRUE, set the TextEngine up for returning
+      Structure nodes like sentences or paragraphs above returning
+      just Word or String nodes
+    */
     string txtc = textclass;
     if ( txtc == "current" ){
       txtc.clear();
     }
-    text_parent_map = enumerate_text_parents( txtc, prefer_sent );
+    text_parent_map = enumerate_text_parents( txtc, prefer_struct );
     _next_text_node = _start_index;
     if ( !text_parent_map.empty() ){
       _next_text_node = text_parent_map.begin()->first;
@@ -1183,9 +1242,11 @@ namespace folia {
 
   xml_tree *get_structure_parent( const xml_tree *pnt ){
     ///  return the nearest StructureElement above this node
-    /// \param pnt a (text) element in the simple tree.
-    /// \return the first parent which is an AbstractStructureElement
-    /// and NOT a Word
+    /*!
+      \param pnt a (text) element in the simple tree.
+      \return the first parent which is an AbstractStructureElement
+      and NOT a Word
+    */
     if ( pnt->parent->tag != "w"
 	 && isSubClass( stringToElementType(pnt->parent->tag),
 			AbstractStructureElement_t ) ){
@@ -1198,12 +1259,12 @@ namespace folia {
 
   map<int,int> TextEngine::search_text_parents( const xml_tree* start,
 						const string& textclass,
-						bool prefer_sentences ) const{
+						bool prefer_struct ) const{
     /// scan the whole TextEngine for TextContent nodes
     /*!
       \param start the tree to search
       \param textclass the text-class we are interested in
-      \param prefer_sentences If TRUE, set the TextEngine up for returning
+      \param prefer_struct If TRUE, set the TextEngine up for returning
       Structure nodes like sentences or paragraphs above returning
       just Word or String nodes
       \return a map containing for every found text_parent the index of
@@ -1227,7 +1288,7 @@ namespace folia {
       }
       map<int,int> deeper = search_text_parents( pnt->link,
 						 textclass,
-						 prefer_sentences );
+						 prefer_struct );
       if ( !deeper.empty() ){
 	if ( _debug ){
 	  DBG << "deeper we found: " << deeper << endl;
@@ -1243,7 +1304,7 @@ namespace folia {
       while ( pnt ){
 	if ( pnt->tag == "t" && pnt->textclass == textclass ){
 	  // OK text in the right textclass
-	  if ( prefer_sentences ){
+	  if ( prefer_struct ){
 	    // search for a suitable parent
 	    xml_tree *par = get_structure_parent( pnt );
 	    int index = par->index;
@@ -1277,11 +1338,11 @@ namespace folia {
   }
 
   const map<int,int>& TextEngine::enumerate_text_parents( const string& textclass,
-							  bool prefer_sent ) {
+							  bool prefer_struct ) {
     /// Loop over the full input, looking for textnodes in class 'textclass'
     /*!
       \param textclass the text-class we are interested in
-      \param prefer_sent If TRUE, set the TextEngine up for returning
+      \param prefer_struct If TRUE, set the TextEngine up for returning
       Structure nodes like sentences or paragraphs above returning
       just Word or String nodes
       \return a reference to a map of text parent nodes
@@ -1301,14 +1362,14 @@ namespace folia {
     //
     // now search that tree for nodes in 'textclass'
     // if is a <t>, then remember the index of its parent
-    // but when 'prefer_sent' is specified, return the direct structure above
+    // but when 'prefer_struct' is specified, return the direct structure above
     // when present.
     text_parent_map.clear();
     xml_tree *rec_pnt = tree;
     while ( rec_pnt ){
       map<int,int> deeper = search_text_parents( rec_pnt->link,
 						 textclass,
-						 prefer_sent );
+						 prefer_struct );
       text_parent_map.insert( deeper.begin(), deeper.end() );
       rec_pnt = rec_pnt->next;
     }
@@ -1361,7 +1422,7 @@ namespace folia {
       }
       return 0;
     }
-    ///
+
     int ret = 0;
     if ( _external_node != 0 ){
       // so our last action was to output a pointer to a subtree.
