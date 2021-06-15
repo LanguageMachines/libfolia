@@ -134,13 +134,9 @@ namespace folia {
     /// returns the associated FoLiA document.
     /*!
       \param disconnect When true, handle control over to the caller.
-      The caller has to delete it to avoid memory leaks
+      The caller has to delete it then to avoid memory leaks
 
-      Will throw when the focument is not yet completed
     */
-    if ( !_finished ){
-      throw XmlError( "unable to return a Document. Engine is not finished." );
-    }
     Document *result = _out_doc;
     if ( disconnect ){
       _out_doc = 0;
