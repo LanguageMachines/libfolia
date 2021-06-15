@@ -105,12 +105,12 @@ namespace folia {
     Document *doc( bool=false ); // returns the doc. may disconnect
     xml_tree *create_simple_tree( const std::string& ) const;
   protected:
-    xmlTextReader *_reader; //!< the xmlTextReader we us for parsing the input
+    xmlTextReader *_reader; //!< the xmlTextReader we use for parsing the input
     Document *_out_doc;     //!< the output Document we are constructing
-    FoliaElement *_root_node;    //!< the root node (Speech or Text)
+    FoliaElement *_root_node;     //!< the root node (Speech or Text)
     FoliaElement *_external_node; //!< the last node we exposed to the world
-    FoliaElement *_current_node; //!< the FoliaElement at hand
-    FoliaElement *_last_added;   //!< the last added FoliaElement
+    FoliaElement *_current_node;  //!< the FoliaElement at hand
+    FoliaElement *_last_added;    //!< the last added FoliaElement
     int _last_depth;        //!< at what depth in the tree was the last addition
     int _start_index;       //!< the index of the first relevant node
     doctype _doc_type;      //!< do we process TEXT or SPEECH?

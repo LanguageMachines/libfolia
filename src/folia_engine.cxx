@@ -133,7 +133,7 @@ namespace folia {
   Document *Engine::doc( bool disconnect ){
     /// returns the associated FoLiA document.
     /*!
-      \param disconnect handle control over to the caller.
+      \param disconnect When true, handle control over to the caller.
       The caller has to delete it to avoid memory leaks
 
       Will throw when the focument is not yet completed
