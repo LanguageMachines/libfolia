@@ -74,7 +74,7 @@ namespace folia {
     virtual bool init_doc( const std::string&, const std::string& ="" );
     virtual ~Engine();
     FoliaElement *get_node( const std::string& );
-    bool next();
+    bool next() { return true; }; /// A stub. NOT needed!
     void save( const std::string&, bool=false );
     void save( std::ostream&, bool=false );
     bool output_header();

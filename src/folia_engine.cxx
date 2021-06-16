@@ -575,16 +575,6 @@ namespace folia {
     return _ok;
   }
 
-  bool Engine::next(){
-    /// advance the Engine's reading position
-    if ( _done ){
-      return false;
-    }
-    else {
-      return xmlTextReaderNext(_reader) == 1;
-    }
-  }
-
   void Engine::append_node( FoliaElement *t,
 			    int depth ){
     /// append a FoliaElement to the associated document
