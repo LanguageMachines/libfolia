@@ -680,6 +680,9 @@ namespace folia {
       // so we are the first time here, just get the first node
       ret = xmlTextReaderRead(_reader);
     }
+    if ( xmlTextReaderReadState(_reader) < 0 ){
+      throw runtime_error( "get_node() reading failed" );
+    }
     if ( ret == 0 ){
       if ( _debug ){
 	DBG << "get node name, DONE" << endl;
@@ -745,6 +748,9 @@ namespace folia {
       \return the light-weight tree with the relevant nodes
     */
     xmlTextReader *cur_reader = create_text_reader( in_file );
+    if ( xmlTextReaderReadState(cur_reader) < 0 ){
+      throw runtime_error( "create_simple_tree() init failed" );
+    }
     if ( _debug ){
       DBG << "enumerate_nodes()" << endl;
     }
