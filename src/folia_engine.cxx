@@ -478,9 +478,8 @@ namespace folia {
       throw( runtime_error( "folia::Engine(), init failed on '" + file_name
 			    + "' (File not found)" ) );
     }
-    int ret = xmlTextReaderRead(_reader);
     int index = 0;
-    while ( ret > 0 ){
+    while ( xmlTextReaderRead(_reader) > 0 ){
       int type =  xmlTextReaderNodeType(_reader );
       string local_name = (const char*)xmlTextReaderConstLocalName(_reader );
       switch ( type ){
@@ -568,7 +567,6 @@ namespace folia {
       default:
 	break;
       };
-      ret = xmlTextReaderRead(_reader);
     }
     _out_doc->save_orig_ann_defaults();
     _ok = true;
