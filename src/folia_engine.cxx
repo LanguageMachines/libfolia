@@ -590,7 +590,7 @@ namespace folia {
     /// append a FoliaElement to the associated document
     /*!
       \param t the FoliaElement
-      \param depth the location use for adding
+      \param depth the location to use for adding
     */
     if ( _debug ){
       DBG << "append_node(" << t << ") current node= " << _current_node << endl;
@@ -600,18 +600,12 @@ namespace folia {
       if ( _debug ){
 	DBG << "append_node(): EQUAL!" << endl;
       }
-      _current_node->append( t );
     }
     else if ( depth > _last_depth ){
       if ( _debug ){
 	DBG << "append_node(): DEEPER!" << endl;
       }
       _current_node = _last_added;
-      if ( _debug ){
-	DBG << "So now: current node = " << _current_node << endl;
-      }
-      _current_node->append( t );
-      _last_depth = depth;
     }
     else if ( depth < _last_depth  ){
       if ( _debug ){
@@ -623,12 +617,9 @@ namespace folia {
 	  DBG << "up node = " << _current_node << endl;
 	}
       }
-      if ( _debug ){
-	DBG << "at last, current node = " << _current_node << endl;
-      }
-      _current_node->append( t );
-      _last_depth = depth;
     }
+    _last_depth = depth;
+    _current_node->append( t );
     if ( _debug ){
       DBG << "append_node() result = " << _current_node << endl;
     }
