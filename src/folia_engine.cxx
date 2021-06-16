@@ -748,15 +748,11 @@ namespace folia {
     if ( _debug ){
       DBG << "enumerate_nodes()" << endl;
     }
-    int ret = xmlTextReaderRead(cur_reader);
-    if ( ret == 0 ){
-      throw runtime_error( "create_simple_tree() could not start" );
-    }
     xml_tree *records = 0;
     xml_tree *rec_pnt = 0;
     int index = 0;
     int current_depth = 0;
-    while ( ret ){
+    while ( xmlTextReaderRead(cur_reader) > 0 ){
       int depth = xmlTextReaderDepth(cur_reader);
       int type = xmlTextReaderNodeType(cur_reader);
       if ( type == XML_READER_TYPE_ELEMENT
@@ -823,7 +819,9 @@ namespace folia {
 	}
 	++index;
       }
-      ret = xmlTextReaderRead(cur_reader);
+    }
+    if ( xmlTextReaderReadState(cur_reader) < 0 ){
+      throw runtime_error( "create_simple_tree() failed" );
     }
     xmlFreeTextReader( cur_reader );
     return records;
