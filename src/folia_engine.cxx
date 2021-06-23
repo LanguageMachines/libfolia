@@ -615,11 +615,11 @@ namespace folia {
   }
 
   FoliaElement *Engine::handle_match( const string& local_name,
-				      int depth ){
+				      int new_depth ){
     /// expand a matched tag into a FoLiA subtree
     /*!
       \param local_name the tag to create
-      \param depth the location in the Document to attach to
+      \param new_depth the location in the Document to attach to
       \return an expanded FoLiA subtree
     */
     FoliaElement *t = AbstractElement::createElement( local_name, _out_doc );
@@ -629,7 +629,7 @@ namespace folia {
       }
       xmlNode *fd = xmlTextReaderExpand(_reader);
       t->parseXml( fd );
-      append_node( t, depth );
+      append_node( t, new_depth );
       _external_node = t;
       if ( _debug ){
 	DBG << "expose external node: " << t << endl;
@@ -859,11 +859,11 @@ namespace folia {
     return result;
   }
 
-  int Engine::handle_content( const string& t_or_ph, int depth ){
+  int Engine::handle_content( const string& t_or_ph, int new_depth ){
     /// process a matched 't' or 'ph' tag into a FoLiA subtree
     /*!
       \param t_or_ph a t or ph tags
-      \param depth the location in the Document to attach to
+      \param new_depth the location in the Document to attach to
       \return the number of FoliaElement nodes added
     */
     KWargs atts = get_attributes( _reader );
@@ -879,7 +879,7 @@ namespace folia {
       if ( _debug ){
 	DBG << "parsed " << t << endl;
       }
-      append_node( t, depth );
+      append_node( t, new_depth );
       // skip subtree
       xmlTextReaderNext(_reader);
       int type = xmlTextReaderNodeType(_reader);
@@ -900,11 +900,11 @@ namespace folia {
   }
 
   void Engine::handle_element( const string& local_name,
-			       int depth ){
+			       int new_depth ){
     /// process a matched tag into a FoLiA subtree
     /*!
       \param local_name the tag
-      \param depth the location in the Document to attach to
+      \param new_depth the location in the Document to attach to
     */
     KWargs atts = get_attributes( _reader );
     if ( _debug ){
@@ -923,7 +923,7 @@ namespace folia {
 			+ id );
       }
       ref->increfcount();
-      append_node( ref, depth );
+      append_node( ref, new_depth );
     }
     else {
       FoliaElement *t = AbstractElement::createElement( local_name, _out_doc );
@@ -931,7 +931,7 @@ namespace folia {
 	if ( local_name == "foreign-data" ){
 	  xmlNode *fd = xmlTextReaderExpand(_reader);
 	  t->parseXml( fd );
-	  append_node( t, depth );
+	  append_node( t, new_depth );
 	  // skip subtree
 	  xmlTextReaderNext(_reader);
 	}
@@ -984,14 +984,14 @@ namespace folia {
 	      DBG << "SET ATTRIBUTES: " << atts << endl;
 	    }
 	    t->setAttributes( atts );
-	    append_node( t, depth );
+	    append_node( t, new_depth );
 	  }
 	  else {
 	    if ( _debug ){
 	      DBG << "a node in an alien namespace'" << nsu << endl;
 	    }
 	    // just take as is...
-	    append_node( t, depth );
+	    append_node( t, new_depth );
 	    xmlNode *fd = xmlTextReaderExpand(_reader);
 	    t->parseXml( fd );
 	    // skip subtree

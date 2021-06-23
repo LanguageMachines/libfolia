@@ -979,7 +979,7 @@ namespace folia {
   const string Document::get_metadata( const string& attribute ) const {
     /// return the metadata value for a metadata attribute
     /*!
-      \param attribute the attribitu to lookup
+      \param attribute the attribite to lookup
       \return the requested metadata value. May return "" if no metadata is
       available or the attribute is not found.
      */
