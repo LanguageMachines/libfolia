@@ -2771,9 +2771,9 @@ namespace folia {
       catch (...){
       }
       deeper_u = normalize_spaces( deeper_u );
-      txt_u = strip_control_chars( txt_u );
       UnicodeString txt_check_u = normalize_spaces( txt_u );
-      if ( !deeper_u.isEmpty() && txt_check_u != deeper_u ){
+      if ( !deeper_u.isEmpty()
+	   && txt_check_u != deeper_u ){
 	throw InconsistentText( "settext(cls=" + cls + "): deeper text differs from attempted\ndeeper='" + TiCC::UnicodeToUTF8(deeper_u) + "'\nattempted='" + TiCC::UnicodeToUTF8(txt_u) + "'" );
       }
     }

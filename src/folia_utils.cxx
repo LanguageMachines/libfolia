@@ -44,7 +44,6 @@
 using namespace std;
 using namespace icu;
 using namespace TiCC;
-using namespace icu;
 
 namespace folia {
 
@@ -622,18 +621,8 @@ namespace folia {
     return result;
   }
 
-  icu::UnicodeString strip_control_chars( const icu::UnicodeString& input ){
-    UnicodeString result;
-    for ( int i=0; i < input.length(); ++i ){
-       if (input[i] == 0x0a || input[i] == 0x09  || input[i] == 0x0d || input[i] == 0x85 || input[i] == 0x2028 || !u_iscntrl(input[i])) { //newline/cr and tab and a few others are okay, other control characters are ignored
-          result += input[i];
-       }
-    }
-    return result;
-  }
-
-  icu::UnicodeString normalize_spaces( const icu::UnicodeString& input,
-				       bool replace_all_control_chars ){
+  UnicodeString normalize_spaces( const UnicodeString& input,
+				  bool replace_all_control_chars ){
     /// substitute NEWLINE, CARRIAGERETURN and TAB by spaces
     /// AND all multiple spaces by 1, also trims at back and front.
     /*!
@@ -644,7 +633,8 @@ namespace folia {
     UnicodeString result;
     bool is_space = false;
     for ( int i=0; i < input.length(); ++i ){
-      if ( u_isspace( input[i] ) ||  (replace_all_control_chars && u_iscntrl(input[i])) ){
+      if ( u_isspace( input[i] )
+	   || ( replace_all_control_chars && u_iscntrl( input[i] ) ) ){
 	if ( is_space ){
 	  continue;
 	}
