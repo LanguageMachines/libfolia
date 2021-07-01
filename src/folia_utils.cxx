@@ -621,20 +621,17 @@ namespace folia {
     return result;
   }
 
-  UnicodeString normalize_spaces( const UnicodeString& input,
-				  bool replace_all_control_chars ){
-    /// substitute NEWLINE, CARRIAGERETURN and TAB by spaces
+  UnicodeString normalize_spaces( const UnicodeString& input ){
+    /// substitute all spaces and control characters by spaces
     /// AND all multiple spaces by 1, also trims at back and front.
     /*!
       \param input the UnicodeString to normalize
-      \param replace_all_control_chars when true, substitute all control-chars
-      by a space too. (the default is true)
      */
     UnicodeString result;
     bool is_space = false;
     for ( int i=0; i < input.length(); ++i ){
       if ( u_isspace( input[i] )
-	   || ( replace_all_control_chars && u_iscntrl( input[i] ) ) ){
+	   || u_iscntrl( input[i] ) ){
 	if ( is_space ){
 	  continue;
 	}
