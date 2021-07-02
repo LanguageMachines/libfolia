@@ -628,10 +628,12 @@ namespace folia {
       \param input the UnicodeString to normalize
      */
     UnicodeString result;
+    UChar32 shy = 0x00ad;   // soft hyphen
     bool is_space = false;
     for ( int i=0; i < input.length(); ++i ){
-      if ( u_isspace( input[i] )
-	   || u_iscntrl( input[i] ) ){
+      if ( input[i] != shy
+	   && ( u_isspace( input[i] )
+		|| u_iscntrl( input[i] ) ) ){
 	if ( is_space ){
 	  continue;
 	}
