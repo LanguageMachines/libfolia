@@ -1,3 +1,15 @@
+2.9 2021-07-12
+[Ko vd Sloot]
+* Reworked the FoliaElement class hierarchy. Much clearer now
+* re-arranged file structure. Separating some files into smaller files
+* text extraction:
+  - numereous changes and additions to handle spaces better.
+  - refactored the code, using a new TextPolicy class for clarity
+  - added code for handling 'tag' attributes using callbacks
+* improved handling of Correction
+* numerous code refactorings for clearity and speed
+* adapted and improved documentation
+
 2.8.1 2021-04-07
 [Ko vd Sloot]
 * re-added the ltrim() function for backward compatibility
