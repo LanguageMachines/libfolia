@@ -1985,7 +1985,7 @@ namespace folia {
       result = postprocess_spaces(result);
     }
 #ifdef DEBUG_TEXT
-    cerr << "TEXT(" << tp._class << ") on a textcontainer :" << xmltag()
+    cerr << "TEXT(" << tp.get_class() << ") on a textcontainer :" << xmltag()
 	 << " returned '" << result << "'" << endl;
 #endif
       return result;
@@ -2002,7 +2002,7 @@ namespace folia {
     bool show_hidden = tp.is_set( TEXT_FLAGS::HIDDEN );
     bool trim = !tp.is_set( TEXT_FLAGS::NO_TRIM_SPACES );
 #ifdef DEBUG_TEXT
-    cerr << "TEXT(" << cls << ") on node : " << xmltag() << " id="
+    cerr << "TEXT(" << tp.get_class() << ") on node : " << xmltag() << " id="
 	 << id() << endl;
     cerr << "TextPolicy: " << tp << endl;
 #endif
