@@ -2057,6 +2057,7 @@ namespace folia {
     /*!
      * \param cls the textclass the text should be in
      * \param flags the search parameters to use. See TEXT_FLAGS.
+     * \param debug enables debugging when true
      */
     TextPolicy tp( cls, flags );
     tp.set_debug( debug );
@@ -2453,6 +2454,7 @@ namespace folia {
     /// Get the TextContent explicitly associated with this element.
     /*!
      * \param cls the textclass to search for
+     * \param debug enables debugging when true
      *
      * Returns the TextContent instance rather than the actual text.
      * (so it might return itself.. ;)
@@ -2508,6 +2510,7 @@ namespace folia {
     /// Get the PhonContent explicitly associated with this element.
     /*!
      * \param cls the textclass to search for
+     * \param debug enable debugging when true
      *
      * Returns the PhonContent instance rather than the actual text.
      * (so it might return iself.. ;)

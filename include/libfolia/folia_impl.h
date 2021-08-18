@@ -912,6 +912,7 @@ namespace folia {
     /*!
       \param e The FoliaElement
       \param cls the textclass we want
+      \param debug enables debugging when true
       \return the Unicode string value
     */
     if ( e ){
