@@ -159,7 +159,8 @@ namespace folia {
     protected:
       // DO NOT USE AbstractTextMarkup as a real node!!
       ADD_PROTECTED_CONSTRUCTORS( AbstractTextMarkup, AbstractElement );
-      const std::string& get_delimiter( bool ) const { return EMPTY_STRING; };
+      const std::string& get_delimiter( const TextPolicy& ) const {
+	return EMPTY_STRING; };
       std::string idref;
     public:
       static properties PROPS;
@@ -484,7 +485,7 @@ namespace folia {
     FoliaElement *append( FoliaElement * );
     const Word* resolveword( const std::string& ) const;
     void setAttributes( KWargs& );
-    const std::string& get_delimiter( bool=false) const;
+    const std::string& get_delimiter( const TextPolicy& ) const;
     MorphologyLayer *addMorphologyLayer( const KWargs& );
     MorphologyLayer *getMorphologyLayers( const std::string&,
 					  std::vector<MorphologyLayer*>& ) const;
@@ -713,7 +714,7 @@ namespace folia {
   public:
     ADD_DEFAULT_CONSTRUCTORS( Quote, AbstractStructureElement );
     std::vector<Word*> wordParts() const;
-    const std::string& get_delimiter( bool=false) const;
+    const std::string& get_delimiter( const TextPolicy& ) const;
     static properties PROPS;
   };
 
@@ -1148,7 +1149,8 @@ namespace folia {
     FoliaElement* parseXml( const xmlNode * );
     xmlNode *xml( bool, bool=false ) const;
     void setvalue( const std::string& );
-    const std::string& get_delimiter( bool ) const { return EMPTY_STRING; };
+    const std::string& get_delimiter( const TextPolicy& ) const {
+      return EMPTY_STRING; };
     void setAttributes( KWargs& );
     static properties PROPS;
   private:
@@ -1244,7 +1246,7 @@ namespace folia {
     const TextContent *text_content( const std::string& = "current" ) const;
     const PhonContent *phon_content( const TextPolicy& tp ) const;
     const PhonContent *phon_content( const std::string& = "current" ) const;
-    const std::string& get_delimiter( bool=false) const;
+    const std::string& get_delimiter( const TextPolicy& ) const;
     Correction *correct( const std::vector<FoliaElement*>&,
 			 const std::vector<FoliaElement*>&,
 			 const std::vector<FoliaElement*>&,

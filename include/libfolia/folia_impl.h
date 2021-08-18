@@ -337,21 +337,25 @@ namespace folia {
     bool hastext( const std::string& = "current" ) const;
     bool hasphon( const std::string& = "current" ) const;
     virtual void check_text_consistency(bool = true) const = 0;
-    virtual void check_text_consistency_while_parsing(bool = true) = 0; //can't we merge these two somehow?
+    virtual void check_text_consistency_while_parsing( bool = true,
+						       bool = false ) = 0; //can't we merge these two somehow?
     virtual void check_append_text_consistency( const FoliaElement * ) const = 0;
 
     virtual const std::string str( const std::string& = "current" ) const = 0;
     virtual const std::string str( const TextPolicy& ) const = 0;
 
-    const UnicodeString unicode( const std::string& cls = "current" ) const {
-      return text( cls, TEXT_FLAGS::NONE ); };
+    const UnicodeString unicode( const std::string& cls = "current",
+				 bool debug=false ) const {
+      return text( cls, TEXT_FLAGS::NONE, debug ); };
 
     virtual UnicodeString text_container_text( const TextPolicy& ) const = 0;
     virtual const UnicodeString private_text( const TextPolicy& ) const = 0;
     virtual const UnicodeString text( const TextPolicy & ) const = 0;
     virtual const UnicodeString text( const std::string&,
-				      TEXT_FLAGS = TEXT_FLAGS::NONE ) const = 0;
-    virtual const UnicodeString text( TEXT_FLAGS = TEXT_FLAGS::NONE ) const = 0;
+				      TEXT_FLAGS = TEXT_FLAGS::NONE,
+				      bool = false ) const = 0;
+    virtual const UnicodeString text( TEXT_FLAGS = TEXT_FLAGS::NONE,
+				      bool = false ) const = 0;
     const UnicodeString stricttext( const std::string& = "current" ) const;
     const UnicodeString toktext( const std::string& = "current" ) const;
     virtual const UnicodeString phon( const TextPolicy& ) const = 0;
@@ -415,7 +419,8 @@ namespace folia {
 
     // TextContent
     virtual const TextContent *text_content( const TextPolicy& ) const = 0;
-    virtual const TextContent *text_content( const std::string& = "current" ) const = 0;
+    virtual const TextContent *text_content( const std::string& = "current",
+					     bool debug = false ) const = 0;
     TextContent *settext( const std::string&,
 			  const std::string& = "current" );
     TextContent *settext( const std::string&,
@@ -432,10 +437,11 @@ namespace folia {
     void clear_textcontent( const std::string& = "current" );
     // PhonContent
     virtual const PhonContent *phon_content( const TextPolicy& ) const = 0;
-    virtual const PhonContent *phon_content( const std::string& = "current" ) const = 0;
+    virtual const PhonContent *phon_content( const std::string& = "current",
+					     bool debug=false ) const = 0;
 
     // properties
-    virtual const std::string& get_delimiter( bool=false ) const = 0;
+    virtual const std::string& get_delimiter( const TextPolicy& ) const = 0;
     virtual void setDateTime( const std::string& ) = 0;
     virtual const std::string getDateTime() const = 0;
     virtual const std::string pos( const std::string& = "" ) const NOT_IMPLEMENTED;
@@ -662,9 +668,11 @@ namespace folia {
     const UnicodeString private_text( const TextPolicy& ) const;
     const UnicodeString text( const TextPolicy & ) const;
     const UnicodeString text( const std::string&,
-			      TEXT_FLAGS = TEXT_FLAGS::NONE ) const;
-    const UnicodeString text( TEXT_FLAGS flags = TEXT_FLAGS::NONE ) const {
-      return text( "current", flags );
+			      TEXT_FLAGS = TEXT_FLAGS::NONE,
+			      bool = false ) const;
+    const UnicodeString text( TEXT_FLAGS flags = TEXT_FLAGS::NONE,
+			      bool debug = false ) const {
+      return text( "current", flags, debug );
     }
 
     const UnicodeString phon( const TextPolicy& ) const;
@@ -683,13 +691,15 @@ namespace folia {
     Word *addWord( const std::string& ="" );
     // TextContent
     const TextContent *text_content( const TextPolicy& ) const;
-    const TextContent *text_content( const std::string& = "current" ) const;
+    const TextContent *text_content( const std::string& = "current",
+				     bool = false ) const;
     // PhonContent
     const PhonContent *phon_content( const TextPolicy& tp ) const;
-    const PhonContent *phon_content( const std::string& = "current" ) const;
+    const PhonContent *phon_content( const std::string& = "current",
+				     bool = false ) const;
 
     // properties
-    const std::string& get_delimiter( bool=false ) const;
+    const std::string& get_delimiter( const TextPolicy& ) const;
 
     // attributes
     const std::string cls() const { return _class; };
@@ -797,7 +807,8 @@ namespace folia {
     bool acceptable( ElementType ) const;
     UnicodeString text_container_text( const TextPolicy& ) const;
     void check_text_consistency(bool = true) const;
-    void check_text_consistency_while_parsing(bool = true); //can't we merge these two somehow?
+    void check_text_consistency_while_parsing( bool = true,
+					       bool = false ); //can't we merge these two somehow?
     void check_append_text_consistency( const FoliaElement * ) const;
     void check_set_declaration();
     void addFeatureNodes( const KWargs& args );
@@ -895,7 +906,8 @@ namespace folia {
   }
 
   inline const UnicodeString text( const FoliaElement *e,
-				   const std::string& cls = "current" ) {
+				   const std::string& cls = "current",
+				   bool debug = false ) {
     /// return the Unicode value contained in \e e
     /*!
       \param e The FoliaElement
@@ -903,7 +915,7 @@ namespace folia {
       \return the Unicode string value
     */
     if ( e ){
-      return e->text( cls, TEXT_FLAGS::NONE );
+      return e->text( cls, TEXT_FLAGS::NONE, debug );
     }
     else {
       throw ValueError( "text() for empty element" );

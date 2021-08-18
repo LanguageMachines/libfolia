@@ -59,21 +59,20 @@ namespace folia {
      * \return the Unicode String representation found. Throws when
      * no text can be found
      */
-    bool retain = tp.is_set( TEXT_FLAGS::RETAIN );
-#ifdef DEBUG_TEXT
-    cerr << "FoLiA::TEXT(" << cls << ")" << endl;
-#endif
+    if ( tp.debug() ){
+      cerr << "FoLiA::TEXT(" << tp.get_class() << ")" << endl;
+    }
     UnicodeString result;
     for ( const auto& d : data() ){
       if ( !result.isEmpty() ){
-	const string& delim = d->get_delimiter( retain );
+	const string& delim = d->get_delimiter( tp );
 	result += TiCC::UnicodeFromUTF8(delim);
       }
       result += d->private_text( tp );
     }
-#ifdef DEBUG_TEXT
-    cerr << "FoLiA::TEXT returns '" << result << "'" << endl;
-#endif
+    if ( tp.debug() ){
+      cerr << "FoLiA::TEXT returns '" << result << "'" << endl;
+    }
     return result;
   }
 
@@ -188,33 +187,35 @@ namespace folia {
     return res;
   }
 
-  const string& Quote::get_delimiter( bool retaintok ) const {
+  const string& Quote::get_delimiter( const TextPolicy& tp ) const {
     /// get the default delimiter of a Quote object.
     /*!
-     * \param retaintok retain the tokenization assigned to this element
+     * \param tp the TextPolicy to use
      * \return a string representing the delimiter
      * When the last data item in the Quote is a sentence, we don't
      * want a delimiter and return ""
      */
-#ifdef DEBUG_TEXT_DEL
-    cerr << "IN " << xmltag() << "::get_delimiter (" << retaintok << ")" << endl;
-#endif
+    bool retaintok  = tp.is_set( TEXT_FLAGS::RETAIN );
+    if ( tp.debug() ){
+      cerr << "IN " << xmltag() << "::get_delimiter (" << retaintok << ")"
+	   << endl;
+    }
     const vector<FoliaElement*>& data = this->data();
     auto it = data.rbegin();
     while ( it != data.rend() ) {
       if ( (*it)->isinstance( Sentence_t ) ) {
 	// if a quote ends in a sentence, we don't want any delimiter
-#ifdef DEBUG_TEXT_DEL
-	cerr << "OUT " << xmltag() << "::get_delimiter ==>''" << endl;
-#endif
+	if ( tp.debug() ){
+	  cerr << "OUT " << xmltag() << "::get_delimiter ==>''" << endl;
+	}
 	return EMPTY_STRING;
       }
       else {
-	const string& res = (*it)->get_delimiter( retaintok );
-#ifdef DEBUG_TEXT_DEL
-	cerr << "OUT " << xmltag() << "::get_delimiter ==> '"
-	     << res << "'" << endl;
-#endif
+	const string& res = (*it)->get_delimiter( tp );
+	if ( tp.debug() ){
+	  cerr << "OUT " << xmltag() << "::get_delimiter ==> '"
+	       << res << "'" << endl;
+	}
 	return res;
       }
       ++it;
@@ -726,35 +727,35 @@ namespace folia {
     /*!
      * \param tp the TextPolicy to use
      */
-#ifdef DEBUG_PHON
-    cerr << "PhonContent::PHON, Policy= " << tp << endl;
-#endif
+    if ( tp.debug() ){
+      cerr << "PhonContent::PHON, Policy= " << tp << endl;
+    }
     string desired_class = tp.get_class();
     UnicodeString result;
     for ( const auto& el : data() ) {
       // try to get text dynamically from children
-#ifdef DEBUG_PHON
-      cerr << "PhonContent: bekijk node[" << el->str( tp ) << endl;
-#endif
+      if ( tp.debug() ){
+	cerr << "PhonContent: bekijk node[" << el->str( tp ) << endl;
+      }
       try {
-#ifdef DEBUG_PHON
-	cerr << "roep text(" << desired_class << ") aan op " << el << endl;
-#endif
+	if ( tp.debug() ){
+	  cerr << "roep text(" << desired_class << ") aan op " << el << endl;
+	}
 	UnicodeString tmp = el->text( tp );
-#ifdef DEBUG_PHON
+	if ( tp.debug() ){
 	cerr << "PhonContent found '" << tmp << "'" << endl;
-#endif
+	}
 	result += tmp;
       } catch ( const NoSuchPhon& e ) {
-#ifdef DEBUG_TEXT
-	cerr << "PhonContent::HELAAS" << endl;
-#endif
+	if ( tp.debug() ){
+	  cerr << "PhonContent::HELAAS" << endl;
+	}
       }
     }
     result.trim();
-#ifdef DEBUG_PHON
-    cerr << "PhonContent return " << result << endl;
-#endif
+    if ( tp.debug() ){
+      cerr << "PhonContent return " << result << endl;
+    }
     return result;
   }
 
@@ -1006,12 +1007,13 @@ namespace folia {
     AbstractElement::setAttributes( kwargs );
   }
 
-  const string& Word::get_delimiter( bool retaintok ) const {
+  const string& Word::get_delimiter( const TextPolicy& tp ) const {
     /// get the default delimiter of a Word
     /*!
-     * \param retaintok retain the tokenization assigned to this element
+     * \param tp the TextPolicy to use
      * \return a string representing the delimiter
      */
+    bool retaintok  = tp.is_set( TEXT_FLAGS::RETAIN );
     if ( space() || retaintok ) {
       return PROPS.TEXTDELIMITER;
     }
@@ -1960,15 +1962,15 @@ namespace folia {
   }
 #undef DEBUG_TEXT_CORRECTION
 
-  const string& Correction::get_delimiter( bool retaintok ) const {
+  const string& Correction::get_delimiter( const TextPolicy& tp ) const {
     /// get the default delimiter of a Correction
     /*!
-     * \param retaintok retain the tokenization assigned to this element
+     * \param tp the TextPolicy to use
      * \return a string representing the delimiter
      */
     for ( const auto& el : data() ) {
       //      if ( el->isinstance( New_t ) || el->isinstance( Current_t ) ) {
-      return el->get_delimiter( retaintok );
+      return el->get_delimiter( tp );
       //      }
     }
     return EMPTY_STRING;
@@ -2918,14 +2920,14 @@ namespace folia {
     return AbstractElement::private_text( tp );
   }
 
-  const UnicodeString TextMarkupHSpace::private_text( const TextPolicy& ) const {
+  const UnicodeString TextMarkupHSpace::private_text( const TextPolicy& tp ) const {
     /// get the UnicodeString value of a TextMarkupHSpace element
     /*!
      * \return A single space.
      */
-#ifdef DEBUG_TEXT
-    cerr << "TEXT MARKUP HSPACE " << " return ' '" << endl;
-#endif
+    if ( tp.debug() ){
+      cerr << "TEXT MARKUP HSPACE " << " return ' '" << endl;
+    }
     return " ";
   }
 

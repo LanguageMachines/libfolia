@@ -1441,10 +1441,8 @@ namespace folia {
     CheckText2( parent, this, cls, trim_spaces );
   }
 
-  //#define DEBUG_TEXT
-  //#define DEBUG_TEXT_DEL
-
-  void AbstractElement::check_text_consistency_while_parsing( bool trim_spaces ) {
+  void AbstractElement::check_text_consistency_while_parsing( bool trim_spaces,
+							      bool debug ) {
       // this block was moved from parseXml into a separate function
       // it remains to be seen how much overlaps with check_text_consistency()
       // and whether we can't make do with one function
@@ -1452,90 +1450,93 @@ namespace folia {
       // unlike the other function, this does do some fixing when requested
       //
 
-#ifdef DEBUG_TEXT
-      cerr << "DEBUG: BEGIN check_text_consistency_while_parsing(" << trim_spaces << ")" << endl;
-#endif
-      vector<TextContent*> tv = select<TextContent>( false );
-      // first see which text classes are present
-      set<string> classes;
-      for ( const auto& it : tv ){
-	classes.insert( it->cls() );
+    if ( debug ){
+      cerr << "DEBUG: BEGIN check_text_consistency_while_parsing("
+	   << trim_spaces << ")" << endl;
+    }
+    vector<TextContent*> tv = select<TextContent>( false );
+    // first see which text classes are present
+    set<string> classes;
+    for ( const auto& it : tv ){
+      classes.insert( it->cls() );
+    }
+    // check the text for every text class
+    for ( const auto& st : classes ){
+      UnicodeString s1, s2;
+      TextPolicy tp( st );
+      tp.set_correction_handling(CORRECTION_HANDLING::EITHER);
+      tp.set( TEXT_FLAGS::STRICT );
+      tp.set_debug( debug );
+      if ( !trim_spaces ) {
+	tp.set( TEXT_FLAGS::NO_TRIM_SPACES );
       }
-      // check the text for every text class
-      for ( const auto& st : classes ){
-	UnicodeString s1, s2;
-	TextPolicy tp( st );
-	tp.set_correction_handling(CORRECTION_HANDLING::EITHER);
-        tp.set( TEXT_FLAGS::STRICT );
-        if ( !trim_spaces ) {
-	  tp.set( TEXT_FLAGS::NO_TRIM_SPACES );
-	}
+      try {
+	s1 = text( tp );  // no retain tokenization, strict
+      }
+      catch (...){
+      }
+      if ( !s1.isEmpty() ){
+	//	  cerr << "S1: " << s1 << endl;
+	tp.clear( TEXT_FLAGS::STRICT );
 	try {
-	  s1 = text( tp );  // no retain tokenization, strict
+	  s2 = text( tp ); // no retain tokenization, no strict
 	}
 	catch (...){
 	}
-	if ( !s1.isEmpty() ){
-	  //	  cerr << "S1: " << s1 << endl;
-	  tp.clear( TEXT_FLAGS::STRICT );
-	  try {
-	    s2 = text( tp ); // no retain tokenization, no strict
+	//	  cerr << "S2: " << s2 << endl;
+	s1 = normalize_spaces( s1 );
+	s2 = normalize_spaces( s2 );
+	if ( !s2.isEmpty() && s1 != s2 ){
+	  if ( doc()->fixtext() ){
+	    //	      cerr << "FIX: " << s1 << "==>" << s2 << endl;
+	    KWargs args;
+	    args["value"] = TiCC::UnicodeToUTF8(s2);
+	    args["class"] = st;
+	    TextContent *node = new TextContent( args, doc() );
+	    this->replace( node );
 	  }
-	  catch (...){
-	  }
-	  //	  cerr << "S2: " << s2 << endl;
-	  s1 = normalize_spaces( s1 );
-	  s2 = normalize_spaces( s2 );
-	  if ( !s2.isEmpty() && s1 != s2 ){
-	    if ( doc()->fixtext() ){
-	      //	      cerr << "FIX: " << s1 << "==>" << s2 << endl;
-	      KWargs args;
-	      args["value"] = TiCC::UnicodeToUTF8(s2);
-	      args["class"] = st;
-	      TextContent *node = new TextContent( args, doc() );
-	      this->replace( node );
+	  else {
+	    bool warn_only = false;
+	    if ( trim_spaces ) {
+	      //ok, we failed according to the >v2.4.1 rules
+	      //but do we also fail under the old rules?
+	      try {
+		if ( debug ){
+		  cerr << "DEBUG: (testing according to older rules now)" << endl;
+		}
+		this->check_text_consistency_while_parsing(false);
+		warn_only = true;
+	      }
+	      catch ( const InconsistentText& e ) {
+		if ( debug ){
+		  cerr << "(tested according to older rules (<v2.4.1) as well, but this failed too)" << endl;
+		}
+		//ignore, we raise the newer error
+	      }
+	    }
+	    string msg = "node " + xmltag() + "(" + id()
+	      + ") has a mismatch for the text in set:" + st
+	      + "\nthe element text ='" + TiCC::UnicodeToUTF8(s1)
+	      + "'\n" + " the deeper text ='" + TiCC::UnicodeToUTF8(s2) + "'";
+	    if ( warn_only ) {
+	      msg += "\nHOWEVER, according to the older rules (<v2.4.1) the text is consistent. So we are treating this as a warning rather than an error. We do recommend fixing this if this is a document you intend to publish.\n";
+	      cerr << "WARNING: inconsistent text: " << msg << endl;
+	      doc()->increment_warn_count();
 	    }
 	    else {
-              bool warn_only = false;
-              if ( trim_spaces ) {
-		//ok, we failed according to the >v2.4.1 rules
-		//but do we also fail under the old rules?
-		try {
-#ifdef DEBUG_TEXT
-		  cerr << "DEBUG: (testing according to older rules now)" << endl;
-#endif
-		  this->check_text_consistency_while_parsing(false);
-		  warn_only = true;
-		}
-		catch ( const InconsistentText& e ) {
-#ifdef DEBUG_TEXT
-		  cerr << "(tested according to older rules (<v2.4.1) as well, but this failed too)" << endl;
-#endif
-		  //ignore, we raise the newer error
-		}
-              }
-	      string msg = "node " + xmltag() + "(" + id()
-		+ ") has a mismatch for the text in set:" + st
-		+ "\nthe element text ='" + TiCC::UnicodeToUTF8(s1)
-		+ "'\n" + " the deeper text ='" + TiCC::UnicodeToUTF8(s2) + "'";
-              if ( warn_only ) {
-		msg += "\nHOWEVER, according to the older rules (<v2.4.1) the text is consistent. So we are treating this as a warning rather than an error. We do recommend fixing this if this is a document you intend to publish.\n";
-		cerr << "WARNING: inconsistent text: " << msg << endl;
-		doc()->increment_warn_count();
-              }
-	      else {
-#ifdef DEBUG_TEXT
+	      if ( debug ){
 		cerr << "DEBUG: CONSISTENCYERROR check_text_consistency_while_parsing(" << trim_spaces << ")" << endl;
-#endif
-		throw InconsistentText(msg);
-              }
+	      }
+	      throw InconsistentText(msg);
 	    }
 	  }
 	}
       }
-#ifdef DEBUG_TEXT
-      cerr << "DEBUG: END-OK check_text_consistency_while_parsing(" << trim_spaces << ")" << endl;
-#endif
+    }
+    if ( debug ){
+      cerr << "DEBUG: END-OK check_text_consistency_while_parsing("
+	   << trim_spaces << ")" << endl;
+    }
   }
 
   xmlNode *AbstractElement::xml( bool recursive, bool kanon ) const {
@@ -1792,10 +1793,10 @@ namespace folia {
     }
   }
 
-  const string& AbstractElement::get_delimiter( bool retaintok ) const {
+  const string& AbstractElement::get_delimiter( const TextPolicy& tp ) const {
     /// get the default delimiter of this object.
     /*!
-     * \param retaintok retain the tokenization assigned to this element
+     * \param tp the TextPolicy to use
      * \return a string representing the delimiter
      *
      * If the object has a TEXTDELIMITER property thats is returned
@@ -1804,15 +1805,16 @@ namespace folia {
      * When this test fails, an empty string is returned, UNLESS the element has
      * the SPACE attribute AND retaintok is specified
      */
-
-#ifdef DEBUG_TEXT_DEL
-    cerr << "IN <" << xmltag() << ">:get_delimiter (" << retaintok << ")" << endl;
-#endif
+    bool retaintok  = tp.is_set( TEXT_FLAGS::RETAIN );
+    if ( tp.debug() ){
+      cerr << "IN <" << xmltag() << ">:get_delimiter (" << retaintok << ")"
+	   << endl;
+    }
     if ( (SPACE & optional_attributes()) ){
       if ( ! ( _space || retaintok ) ){
-#ifdef DEBUG_TEXT_DEL
-	cerr << " space = NO, return: '" << EMPTY_STRING << "'" << endl;
-#endif
+	if ( tp.debug() ){
+	  cerr << " space = NO, return: '" << EMPTY_STRING << "'" << endl;
+	}
 	return EMPTY_STRING;
       }
     }
@@ -1832,16 +1834,17 @@ namespace folia {
       // attempt to get a delimiter from the last child
       FoliaElement *last = _data.back();
       if ( last->isSubClass(AbstractStructureElement_t) ){
-	const string& det = last->get_delimiter( retaintok );
-#ifdef DEBUG_TEXT_DEL
-	cerr << "out <" << xmltag() << ">:get_delimiter ==> '" << det << "'" << endl;
-#endif
+	const string& det = last->get_delimiter( tp );
+	if ( tp.debug() ){
+	  cerr << "out <" << xmltag() << ">:get_delimiter ==> '" << det << "'"
+	       << endl;
+	}
 	return det;
       }
     }
-#ifdef DEBUG_TEXT_DEL
-    cerr << "out <" << xmltag() << ">:get_delimiter ==> ''" << endl;
-#endif
+    if ( tp.debug() ){
+      cerr << "out <" << xmltag() << ">:get_delimiter ==> ''" << endl;
+    }
     return EMPTY_STRING;
   }
 
@@ -1857,16 +1860,15 @@ namespace folia {
     if ( isinstance( TextContent_t )
 	 && cls() != desired_class ) {
       // take a shortcut for TextContent in wrong class
-#ifdef DEBUG_TEXT
-      cerr << "TextContent shortcut, class=" << cls()
-	   << " but looking for: " << desired_class << endl;
-#endif
+      if ( tp.debug() ){
+	cerr << "TextContent shortcut, class=" << cls()
+	     << " but looking for: " << desired_class << endl;
+      }
       return "";
     }
     UnicodeString result;
     bool pendingspace = false;
     bool trim_spaces = !tp.is_set( TEXT_FLAGS::NO_TRIM_SPACES);
-    bool retaintok  = tp.is_set( TEXT_FLAGS::RETAIN );
     for ( const auto& d : _data ){
       if (d->isinstance( XmlText_t)) {
 	// 'true' text child
@@ -1970,10 +1972,10 @@ namespace folia {
 	  result += d->text( tp );
 	}
 	if ( !result.isEmpty() ){
-	  const string& delim = d->get_delimiter( retaintok );
-#ifdef DEBUG_TEXT
-	  cerr << "append delimiter: '" << delim << "'" << endl;
-#endif
+	  const string& delim = d->get_delimiter( tp );
+	  if ( tp.debug() ){
+	    cerr << "append delimiter: '" << delim << "'" << endl;
+	  }
 	  result += TiCC::UnicodeFromUTF8(delim);
 	}
       }
@@ -1984,11 +1986,11 @@ namespace folia {
     if (trim_spaces && this->spaces_flag() != SPACE_FLAGS::PRESERVE) {
       result = postprocess_spaces(result);
     }
-#ifdef DEBUG_TEXT
-    cerr << "TEXT(" << tp.get_class() << ") on a textcontainer :" << xmltag()
-	 << " returned '" << result << "'" << endl;
-#endif
-      return result;
+    if ( tp.debug() ){
+      cerr << "TEXT(" << tp.get_class() << ") on a textcontainer :" << xmltag()
+	   << " returned '" << result << "'" << endl;
+    }
+    return result;
   }
 
   const UnicodeString AbstractElement::private_text( const TextPolicy& tp ) const {
@@ -2001,11 +2003,11 @@ namespace folia {
     bool strict = tp.is_set( TEXT_FLAGS::STRICT );
     bool show_hidden = tp.is_set( TEXT_FLAGS::HIDDEN );
     bool trim = !tp.is_set( TEXT_FLAGS::NO_TRIM_SPACES );
-#ifdef DEBUG_TEXT
-    cerr << "TEXT(" << tp.get_class() << ") on node : " << xmltag() << " id="
-	 << id() << endl;
-    cerr << "TextPolicy: " << tp << endl;
-#endif
+    if ( tp.debug() ){
+      cerr << "TEXT(" << tp.get_class() << ") on node : " << xmltag() << " id="
+	   << id() << endl;
+      cerr << "TextPolicy: " << tp << endl;
+    }
     if ( strict ) {
       /// WARNING. Don't call text(tp) here. We will get into an infinite
       /// recursion. Can't we do better then calling ourself again, sort of?
@@ -2042,23 +2044,25 @@ namespace folia {
     /*!
      * \param tp a TextPolicy
      */
-#ifdef DEBUG_TEXT
-    cerr << "DEBUG <" << xmltag() << ">.text() Policy=" << tp << endl;
-#endif
+    if ( tp.debug() ){
+      cerr << "DEBUG <" << xmltag() << ">.text() Policy=" << tp << endl;
+    }
     return private_text( tp );
   }
 
   const UnicodeString AbstractElement::text( const string& cls,
-					     TEXT_FLAGS flags ) const {
+					     TEXT_FLAGS flags,
+					     bool debug ) const {
     /// get the UnicodeString text value of an element
     /*!
      * \param cls the textclass the text should be in
      * \param flags the search parameters to use. See TEXT_FLAGS.
      */
     TextPolicy tp( cls, flags );
-#ifdef DEBUG_TEXT
-    cerr << "DEBUG <" << xmltag() << ">.text() Policy=" << tp << endl;
-#endif
+    tp.set_debug( debug );
+    if ( debug ){
+      cerr << "DEBUG <" << xmltag() << ">.text() Policy=" << tp << endl;
+    }
     return private_text( tp );
   }
 
@@ -2260,56 +2264,57 @@ namespace folia {
      * \return The Unicode Text found.
      * Will throw on error.
      */
-#ifdef DEBUG_TEXT
-    cerr << "deeptext, policy: " << tp << ", on node : " << xmltag() << " id=" << id() << ", cls=" << this->cls() << ")" << endl;
-    cerr << "deeptext: node has " << _data.size() << " children." << endl;
-#endif
+    if ( tp.debug() ){
+      cerr << "deeptext, policy: " << tp << ", on node : " << xmltag() << " id=" << id() << ", cls=" << this->cls() << ")" << endl;
+      cerr << "deeptext: node has " << _data.size() << " children." << endl;
+    }
     vector<UnicodeString> parts;
     vector<UnicodeString> seps;
     for ( const auto& child : data() ) {
       // try to get text dynamically from printable children
       // skipping the TextContent elements
-#ifdef DEBUG_TEXT
-      if ( !child->printable() ) {
-	cerr << "deeptext: node[" << child->xmltag() << "] NOT PRINTABLE! " << endl;
+      if ( tp.debug() ){
+	if ( !child->printable() ) {
+	  cerr << "deeptext: node[" << child->xmltag() << "] NOT PRINTABLE! "
+	       << endl;
+	}
       }
-#endif
       if ( child->printable()
 	   && ( is_structure( child )
 		|| child->isSubClass( AbstractSpanAnnotation_t )
 		|| child->isinstance( Correction_t ) )
 	   && !child->isinstance( TextContent_t ) ) {
-#ifdef DEBUG_TEXT
-	cerr << "deeptext:bekijk node[" << child->xmltag() << "]"<< endl;
-#endif
+	if ( tp.debug() ){
+	  cerr << "deeptext:bekijk node[" << child->xmltag() << "]"<< endl;
+	}
 	try {
 	  UnicodeString tmp = child->text( tp );
-#ifdef DEBUG_TEXT
-	  cerr << "deeptext found '" << tmp << "'" << endl;
-#endif
+	  if ( tp.debug() ){
+	    cerr << "deeptext found '" << tmp << "'" << endl;
+	  }
 	  parts.push_back(tmp);
 	  if ( child->isinstance( Sentence_t )
 	       && no_space_at_end(child) ){
 	    const string& delim = "";
-#ifdef DEBUG_TEXT
-	    cerr << "deeptext: no delimiter van "<< child->xmltag() << " on"
-		 << " last w of s" << endl;
-#endif
+	    if ( tp.debug() ){
+	      cerr << "deeptext: no delimiter van "<< child->xmltag() << " on"
+		   << " last w of s" << endl;
+	    }
 	    seps.push_back(TiCC::UnicodeFromUTF8(delim));
 	  }
 	  else {
 	    // get the delimiter
-	    bool retain = tp.is_set( TEXT_FLAGS::RETAIN );
-	    const string& delim = child->get_delimiter( retain );
-#ifdef DEBUG_TEXT
-	    cerr << "deeptext:delimiter van "<< child->xmltag() << " ='" << delim << "'" << endl;
-#endif
+	    const string& delim = child->get_delimiter( tp );
+	    if ( tp.debug() ){
+	      cerr << "deeptext:delimiter van "<< child->xmltag() << " ='"
+		   << delim << "'" << endl;
+	    }
 	    seps.push_back(TiCC::UnicodeFromUTF8(delim));
 	  }
 	} catch ( const NoSuchText& e ) {
-#ifdef DEBUG_TEXT
-	  cerr << "HELAAS" << endl;
-#endif
+	  if ( tp.debug() ){
+	    cerr << "HELAAS" << endl;
+	  }
 	}
       }
     }
@@ -2317,47 +2322,48 @@ namespace folia {
     // now construct the result;
     UnicodeString result;
     for ( size_t i=0; i < parts.size(); ++i ) {
-#ifdef DEBUG_TEXT
-      cerr << "part[" << i << "]='" << parts[i] << "'" << endl;
-      cerr << "sep[" << i << "]='" << seps[i] << "'" << endl;
-#endif
+      if ( tp.debug() ){
+	cerr << "part[" << i << "]='" << parts[i] << "'" << endl;
+	cerr << "sep[" << i << "]='" << seps[i] << "'" << endl;
+      }
       bool only_nl = false;
       bool end_is_nl = check_end( parts[i], only_nl );
       if ( end_is_nl ){
-#ifdef DEBUG_TEXT
-	cerr << "a newline after: '" << parts[i] << "'" << endl;
-	if ( i < parts.size()-1 ){
-	  cerr << "next sep='" << seps[i+1] << "'" << endl;
+	if ( tp.debug() ){
+	  cerr << "a newline after: '" << parts[i] << "'" << endl;
+	  if ( i < parts.size()-1 ){
+	    cerr << "next sep='" << seps[i+1] << "'" << endl;
+	  }
 	}
-#endif
 
 	if ( only_nl ){
 	  // only a newline
 	  result = trim_space( result );
-#ifdef DEBUG_TEXT
-	  cerr << "OK it is only newline(s)" << endl;
-	  cerr << "TRIMMED? '" << result << "'" << endl;
-#endif
+	  if ( tp.debug() ){
+	    cerr << "OK it is only newline(s)" << endl;
+	    cerr << "TRIMMED? '" << result << "'" << endl;
+	  }
 	}
       }
       result += parts[i];
       if ( !end_is_nl && i < parts.size()-1 ){
 	result += seps[i];
       }
-#ifdef DEBUG_TEXT
-      cerr << "result='" << result << "'" << endl;
-#endif
+      if ( tp.debug() ){
+	cerr << "result='" << result << "'" << endl;
+      }
     }
-#ifdef DEBUG_TEXT
-    cerr << "deeptext() for " << xmltag() << " step 3 " << endl;
-#endif
+    if ( tp.debug() ){
+      cerr << "deeptext() for " << xmltag() << " step 3 " << endl;
+    }
     if ( result.isEmpty() ) {
       // so no deeper text is found. Well, lets look here then
       result = text_content(tp)->text( tp );
     }
-#ifdef DEBUG_TEXT
-    cerr << "deeptext() for " << xmltag() << " result= '" << result << "'" << endl;
-#endif
+    if ( tp.debug() ){
+      cerr << "deeptext() for " << xmltag() << " result= '" << result << "'"
+	   << endl;
+    }
     if ( result.isEmpty() ) {
       throw NoSuchText( xmltag() + ":(class=" + tp.get_class() +"): empty!" );
     }
@@ -2398,18 +2404,18 @@ namespace folia {
      * might throw NoSuchText exception if not found.
      */
 
-#ifdef DEBUG_TEXT
-    cerr << "text_content, policy= " << tp << endl;
-#endif
+    if ( tp.debug() ){
+      cerr << "text_content, policy= " << tp << endl;
+    }
     string desired_class = tp.get_class();
     if ( isinstance(TextContent_t) ){
-#ifdef DEBUG_TEXT
-      cerr << "A textcontent!!" << endl;
-#endif
+      if ( tp.debug() ){
+	cerr << "A textcontent!!" << endl;
+      }
       if  ( this->cls() == desired_class ) {
-#ifdef DEBUG_TEXT
-	cerr << "return myself..." << endl;
-#endif
+	if ( tp.debug() ){
+	  cerr << "return myself..." << endl;
+	}
 	return dynamic_cast<const TextContent*>(this);
       }
       else {
@@ -2417,16 +2423,16 @@ namespace folia {
       }
     }
     bool show_hidden = tp.is_set( TEXT_FLAGS::HIDDEN );
-#ifdef DEBUG_TEXT
-    cerr << (!printable()?"NOT":"") << " printable: " << xmltag() << endl;
-    cerr << (!hidden()?"NOT":"") << " hidden: " << xmltag() << endl;
-#endif
+    if ( tp.debug() ){
+      cerr << (!printable()?"NOT":"") << " printable: " << xmltag() << endl;
+      cerr << (!hidden()?"NOT":"") << " hidden: " << xmltag() << endl;
+    }
     if ( !printable() || ( hidden() && !show_hidden ) ) {
       throw NoSuchText( "non-printable element: " +  xmltag() );
     }
-#ifdef DEBUG_TEXT
-    cerr << "recurse into children...." << endl;
-#endif
+    if ( tp.debug() ){
+      cerr << "recurse into children...." << endl;
+    }
     for ( const auto& el : data() ) {
       if ( el->isinstance(TextContent_t) && (el->cls() == desired_class ) ) {
 	return dynamic_cast<TextContent*>(el);
@@ -2442,7 +2448,8 @@ namespace folia {
     throw NoSuchText( xmltag() + "::text_content(" + desired_class + ")" );
   }
 
-  const TextContent *AbstractElement::text_content( const string& cls ) const {
+  const TextContent *AbstractElement::text_content( const string& cls,
+						    bool debug ) const {
     /// Get the TextContent explicitly associated with this element.
     /*!
      * \param cls the textclass to search for
@@ -2453,6 +2460,7 @@ namespace folia {
      * might throw NoSuchText exception if not found.
      */
     TextPolicy tp( cls );
+    tp.set_debug( debug );
     return text_content( tp );
   }
 
@@ -2495,7 +2503,8 @@ namespace folia {
     throw NoSuchPhon( xmltag() + "::phon_content(" + desired_class + ")" );
   }
 
-  const PhonContent *AbstractElement::phon_content( const string& cls ) const {
+  const PhonContent *AbstractElement::phon_content( const string& cls,
+						    bool debug ) const {
     /// Get the PhonContent explicitly associated with this element.
     /*!
      * \param cls the textclass to search for
@@ -2506,10 +2515,9 @@ namespace folia {
      * might throw NoSuchPhon exception if not found.
      */
     TextPolicy tp(cls );
+    tp.set_debug( debug );
     return phon_content( tp );
   }
-
-  //#define DEBUG_PHON
 
   const UnicodeString AbstractElement::phon( const TextPolicy& tp ) const {
     /// get the UnicodeString phon value of an element
@@ -2518,9 +2526,10 @@ namespace folia {
      */
     bool hidden = tp.is_set( TEXT_FLAGS::HIDDEN );
     bool strict = tp.is_set( TEXT_FLAGS::STRICT );
-#ifdef DEBUG_PHON
-    cerr << "PHON, Policy= " << tp << " on node : " << xmltag() << " id=" << id() << endl;
-#endif
+    if ( tp.debug() ){
+      cerr << "PHON, Policy= " << tp << " on node : " << xmltag() << " id="
+	   << id() << endl;
+    }
     if ( strict ) {
       return phon_content(tp)->phon();
     }
@@ -2557,42 +2566,43 @@ namespace folia {
      * \return The Unicode Text found.
      * Will throw on error.
      */
-#ifdef DEBUG_PHON
-    cerr << "deepPHON, policy= " << tp << ", on node : " << xmltag()
-	 << " id=" << id() << endl;
-    cerr << "deepphon: node has " << _data.size() << " children." << endl;
-#endif
+    if ( tp.debug() ){
+      cerr << "deepPHON, policy= " << tp << ", on node : " << xmltag()
+	   << " id=" << id() << endl;
+      cerr << "deepphon: node has " << _data.size() << " children." << endl;
+    }
     vector<UnicodeString> parts;
     vector<UnicodeString> seps;
     for ( const auto& child : _data ) {
       // try to get text dynamically from children
       // skip PhonContent elements
-#ifdef DEBUG_PHON
-      if ( !child->speakable() ) {
-	cerr << "deepphon: node[" << child->xmltag() << "] NOT SPEAKABLE! " << endl;
+      if ( tp.debug() ){
+	if ( !child->speakable() ) {
+	  cerr << "deepphon: node[" << child->xmltag() << "] NOT SPEAKABLE! "
+	     << endl;
+	}
       }
-#endif
       if ( child->speakable() && !child->isinstance( PhonContent_t ) ) {
-#ifdef DEBUG_PHON
-	cerr << "deepphon:bekijk node[" << child->xmltag() << "]" << endl;
-#endif
+	if ( tp.debug() ){
+	  cerr << "deepphon:bekijk node[" << child->xmltag() << "]" << endl;
+	}
 	try {
 	  UnicodeString tmp = child->phon( tp );
-#ifdef DEBUG_PHON
-	  cerr << "deepphon found '" << tmp << "'" << endl;
-#endif
+	  if ( tp.debug() ){
+	    cerr << "deepphon found '" << tmp << "'" << endl;
+	  }
 	  parts.push_back(tmp);
 	  // get the delimiter
-	  const string& delim = child->get_delimiter();
-#ifdef DEBUG_PHON
-	  cerr << "deepphon:delimiter van "<< child->xmltag()
-	       << " ='" << delim << "'" << endl;
-#endif
+	  const string& delim = child->get_delimiter(tp);
+	  if ( tp.debug() ){
+	    cerr << "deepphon:delimiter van "<< child->xmltag()
+		 << " ='" << delim << "'" << endl;
+	  }
 	  seps.push_back(TiCC::UnicodeFromUTF8(delim));
 	} catch ( const NoSuchPhon& e ) {
-#ifdef DEBUG_PHON
-	  cerr << "HELAAS" << endl;
-#endif
+	  if ( tp.debug() ){
+	    cerr << "HELAAS" << endl;
+	  }
 	}
       }
     }
@@ -2605,9 +2615,9 @@ namespace folia {
 	result += seps[i];
       }
     }
-#ifdef DEBUG_TEXT
-    cerr << "deepphon() for " << xmltag() << " step 3 " << endl;
-#endif
+    if ( tp.debug() ){
+      cerr << "deepphon() for " << xmltag() << " step 3 " << endl;
+    }
     if ( result.isEmpty() ) {
       try {
 	result = phon_content(tp)->phon();
@@ -2615,9 +2625,10 @@ namespace folia {
       catch ( ... ) {
       }
     }
-#ifdef DEBUG_TEXT
-    cerr << "deepphontext() for " << xmltag() << " result= '" << result << "'" << endl;
-#endif
+    if ( tp.debug() ){
+      cerr << "deepphontext() for " << xmltag() << " result= '" << result
+	   << "'" << endl;
+    }
     if ( result.isEmpty() ) {
       throw NoSuchPhon( xmltag() + ":(class=" + tp.get_class() +"): empty!" );
     }
