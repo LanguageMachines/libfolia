@@ -42,7 +42,8 @@ namespace folia {
   TextPolicy::TextPolicy( const string& cls, const TEXT_FLAGS flags ):
     _class(cls),
     _text_flags( flags ),
-    _correction_handling( CORRECTION_HANDLING::CURRENT )
+    _correction_handling( CORRECTION_HANDLING::CURRENT ),
+    _debug(false)
   {
   }
 

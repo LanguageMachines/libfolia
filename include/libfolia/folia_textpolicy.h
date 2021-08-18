@@ -104,12 +104,14 @@ namespace folia {
     void set_correction_handling( CORRECTION_HANDLING ch ) {
       _correction_handling = ch;
     };
-
+    bool debug() const { return _debug; };
+    void set_debug( bool d=true ) { _debug = d ; };
   private:
     std::string _class;
     TEXT_FLAGS _text_flags;
     CORRECTION_HANDLING _correction_handling;
     std::map<std::string, tag_handler> _tag_handlers;
+    bool _debug;
   };
 
   std::ostream& operator<<( std::ostream& os, const TextPolicy& );
