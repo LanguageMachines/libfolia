@@ -141,6 +141,11 @@ namespace folia {
     return _props.TEXTCONTAINER;
   }
 
+  bool AbstractElement::implicitspace() const {
+    /// return the IMPLICITSPACE property
+    return _props.IMPLICITSPACE;
+  }
+
   bool AbstractElement::is_phoncontainer() const {
     /// return the PHONCONTAINER property
     return _props.PHONCONTAINER;
@@ -1934,7 +1939,8 @@ namespace folia {
 	  if ( this->_preserve_spaces != SPACE_FLAGS::PRESERVE
 	       && text.length() > 0
 	       && result.length() > 0
-	       && is_space(text[text.length() - 1]) ){
+	       && is_space(text[text.length() - 1])
+	       && !is_space(result[result.length() - 1]) ){
 	    //this item has trailing spaces but we stripped them
 	    //this may be premature so
 	    //we reserve to output them later in case there is a next item
@@ -1949,7 +1955,7 @@ namespace folia {
       else if ( d->printable() ){
 	// this is some TextMarkup I hope
 	if (pendingspace) {
-	  result += " ";
+	  if (!d->implicitspace()) result += " ";
 	  pendingspace = false;
 	}
 	string tv = d->tag();

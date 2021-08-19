@@ -367,6 +367,7 @@ namespace folia {
     virtual bool referable() const = 0;
     virtual bool is_textcontainer() const = 0;
     virtual bool is_phoncontainer() const = 0;
+    virtual bool implicitspace() const = 0;
     virtual const std::string& text_delimiter() const = 0;
     // Word
     virtual Word *previous() const NOT_IMPLEMENTED;
@@ -763,6 +764,7 @@ namespace folia {
     bool referable() const;
     bool is_textcontainer() const;
     bool is_phoncontainer() const;
+    bool implicitspace() const;
     const std::string& text_delimiter() const;
     bool auth() const;
     bool xlink() const;
