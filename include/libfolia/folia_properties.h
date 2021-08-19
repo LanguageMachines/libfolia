@@ -60,6 +60,7 @@ namespace folia {
     bool AUTO_GENERATE_ID;
     bool TEXTCONTAINER;
     bool PHONCONTAINER;
+    bool IMPLICITSPACE;
     std::string LABEL;
   };
 
