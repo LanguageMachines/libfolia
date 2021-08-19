@@ -32,7 +32,7 @@
 #include "libfolia/folia_properties.h"
 
 //foliaspec:header
-//This file was last updated according to the FoLiA specification for version 2.5.0 on 2021-05-25 09:37:12, using foliaspec.py
+//This file was last updated according to the FoLiA specification for version 2.5.1 on 2021-08-19 11:28:55, using foliaspec.py
 //Code blocks after a foliaspec comment (until the next newline) are automatically generated. **DO NOT EDIT THOSE** and **DO NOT REMOVE ANY FOLIASPEC COMMENTS** !!!
 
 namespace folia {
@@ -49,7 +49,7 @@ namespace folia {
 
   //foliaspec:version_sub:SUB_VERSION
   //The FoLiA version (sub/rev)
-  const int SUB_VERSION = 0;
+  const int SUB_VERSION = 1;
 
   //foliaspec:namespace:NSFOLIA
   //The FoLiA XML namespace
@@ -1070,6 +1070,7 @@ namespace folia {
     Hyphbreak::PROPS = AbstractTextMarkup::PROPS;
     Hyphbreak::PROPS.ELEMENT_ID = Hyphbreak_t;
     Hyphbreak::PROPS.ANNOTATIONTYPE = AnnotationType::HYPHENATION;
+    Hyphbreak::PROPS.IMPLICITSPACE = true;
     Hyphbreak::PROPS.LABEL = "Hyphbreak";
     Hyphbreak::PROPS.TEXTDELIMITER = "";
     Hyphbreak::PROPS.XMLTAG = "t-hbr";
@@ -1105,6 +1106,7 @@ namespace folia {
     Linebreak::PROPS = AbstractStructureElement::PROPS;
     Linebreak::PROPS.ELEMENT_ID = Linebreak_t;
     Linebreak::PROPS.ANNOTATIONTYPE = AnnotationType::LINEBREAK;
+    Linebreak::PROPS.IMPLICITSPACE = true;
     Linebreak::PROPS.LABEL = "Linebreak";
     Linebreak::PROPS.TEXTDELIMITER = "";
     Linebreak::PROPS.XLINK = true;
@@ -1581,6 +1583,7 @@ namespace folia {
     TextMarkupHSpace::PROPS = AbstractTextMarkup::PROPS;
     TextMarkupHSpace::PROPS.ELEMENT_ID = TextMarkupHSpace_t;
     TextMarkupHSpace::PROPS.ANNOTATIONTYPE = AnnotationType::HSPACE;
+    TextMarkupHSpace::PROPS.IMPLICITSPACE = true;
     TextMarkupHSpace::PROPS.TEXTDELIMITER = "";
     TextMarkupHSpace::PROPS.XMLTAG = "t-hspace";
     element_props[TextMarkupHSpace_t] = &TextMarkupHSpace::PROPS;
@@ -1613,6 +1616,7 @@ namespace folia {
     TextMarkupWhitespace::PROPS = AbstractTextMarkup::PROPS;
     TextMarkupWhitespace::PROPS.ELEMENT_ID = TextMarkupWhitespace_t;
     TextMarkupWhitespace::PROPS.ANNOTATIONTYPE = AnnotationType::WHITESPACE;
+    TextMarkupWhitespace::PROPS.IMPLICITSPACE = true;
     TextMarkupWhitespace::PROPS.TEXTDELIMITER = "";
     TextMarkupWhitespace::PROPS.XMLTAG = "t-whitespace";
     element_props[TextMarkupWhitespace_t] = &TextMarkupWhitespace::PROPS;
@@ -1656,6 +1660,7 @@ namespace folia {
     Whitespace::PROPS = AbstractStructureElement::PROPS;
     Whitespace::PROPS.ELEMENT_ID = Whitespace_t;
     Whitespace::PROPS.ANNOTATIONTYPE = AnnotationType::WHITESPACE;
+    Whitespace::PROPS.IMPLICITSPACE = true;
     Whitespace::PROPS.LABEL = "Whitespace";
     Whitespace::PROPS.TEXTDELIMITER = "";
     Whitespace::PROPS.XMLTAG = "whitespace";
@@ -1988,6 +1993,7 @@ namespace folia {
       AUTH = true;
       AUTO_GENERATE_ID = false;
       HIDDEN = false;
+      IMPLICITSPACE = false;
       OCCURRENCES = 0;
       OCCURRENCES_PER_SET = 0;
       OPTIONAL_ATTRIBS = NO_ATT;
