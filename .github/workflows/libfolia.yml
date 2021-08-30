@@ -106,7 +106,7 @@ jobs:
         run: |
           git clone --depth=1 --single-branch https://github.com/LanguageMachines/foliatest.git;
           cd foliatest;
-	  ./src/testaction.sh;
+          ./src/testaction.sh;
           TEST_STAT=$(cat status.tmp)
           echo "test_status=$TEST_STAT" >> $GITHUB_ENV
         continue-on-error: true
