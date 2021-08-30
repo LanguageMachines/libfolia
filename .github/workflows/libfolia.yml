@@ -114,6 +114,14 @@ jobs:
           sudo make install;
           cd ..;
 
+      - name: install FoliaPY
+        run: |
+          git clone https://github.com/proycon/foliapy;
+          cd foliapy;
+          # get folia-repo with examples
+          git submodule init && git submodule update;
+          cd ..
+
       - name: run foliatests
         run: |
           cd foliatest;
