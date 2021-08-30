@@ -123,6 +123,10 @@ jobs:
           cd ..
 
       - name: run foliatests
+        env:
+          FOLIAPATH: ../foliapy/folia-repo
+          EXPECT: 0
+          LD_LIBRARY_PATH: $LD_LIBRARY_PATH:/usr/local/lib
         run: |
           cd foliatest;
           ./src/testaction.sh;
