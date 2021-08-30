@@ -14,7 +14,7 @@ on:
 jobs:
   notification:
     runs-on: ubuntu-latest
-    name: Notify start to \#gitlama
+    name: Notify start to gitlama
     steps:
       - name: IRC notification
         uses: Gottox/irc-message-action@v1
@@ -102,9 +102,20 @@ jobs:
           message: |-
             Building Make check with ${{ matrix.compiler }} by ${{ github.actor }} on ${{ matrix.os }}: FAILED
 
-      - name: foliatests
+      - name: install foliatest
+        env:
+          CXX: ${{ matrix.compiler }}
         run: |
-          git clone --depth=1 --single-branch https://github.com/LanguageMachines/foliatest.git;
+          git clone --depth=1 https://github.com/LanguageMachines/foliatest.git
+          cd foliatest;
+          bash bootstrap.sh;
+          ./configure;
+          make;
+          sudo make install;
+          cd ..;
+
+      - name: run foliatests
+        run: |
           cd foliatest;
           ./src/testaction.sh;
           TEST_STAT=$(cat status.tmp)
