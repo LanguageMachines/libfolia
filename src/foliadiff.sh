@@ -1,7 +1,15 @@
 # /bin/sh -x
 if [ "$exe" = "" ]
 then
-    exe="$HOME/usr/local/bin/folialint"
+    if which folialint >/dev/null 2>/dev/null
+    then
+	exe=$(which folialint)
+    fi
+fi
+
+if [ "$exe" = "" ]
+then
+   exe="$HOME/usr/local/bin/folialint"
     if [ ! -f $exe ]
     then
 	exe="/exp/sloot/usr/local/bin/folialint"
@@ -11,6 +19,10 @@ then
 	    if [ ! -f $exe ]
 	    then
 		exe="/usr/bin/folialint"
+		if [ ! -f $exe ]
+		then
+		    exe=""
+		fi
 	    fi
 	fi
     fi
