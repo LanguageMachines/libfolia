@@ -356,22 +356,21 @@ namespace folia {
       return "";
     }
     //    cerr << "try to read a date-time " << s << endl;
-    vector<string> date_time;
-    size_t num = TiCC::split_at( s, date_time, "T");
-    if ( num == 0 ){
-      num = TiCC::split_at( s, date_time, " ");
-      if ( num == 0 ){
+    vector<string> date_time = TiCC::split_at( s, "T" );
+    if ( date_time.size() == 0 ){
+      date_time = TiCC::split_at( s, " " );
+      if ( date_time.size() == 0 ){
 	cerr << "failed to read a date-time " << s << endl;
 	return "";
       }
     }
     //    cerr << "found " << num << " parts" << endl;
+    size_t num = date_time.size();
     tm time = tm();
     if ( num == 1 || num == 2 ){
       //      cerr << "parse date " << date_time[0] << endl;
-      vector<string> date_parts;
-      size_t dnum = TiCC::split_at( date_time[0], date_parts, "-" );
-      switch ( dnum ){
+      vector<string> date_parts = TiCC::split_at( date_time[0], "-" );
+      switch ( date_parts.size() ){
       case 3: {
 	int mday = stringTo<int>( date_parts[2] );
 	time.tm_mday = mday;
@@ -394,10 +393,9 @@ namespace folia {
     }
     if ( num == 2 ){
       //      cerr << "parse time " << date_time[1] << endl;
-      vector<string> date_parts;
-      size_t dnum = TiCC::split_at( date_time[1], date_parts, ":" );
+      vector<string> date_parts = TiCC::split_at( date_time[1], ":" );
       //      cerr << "parts " << date_parts << endl;
-      switch ( dnum ){
+      switch ( date_parts.size() ){
       case 4:
 	// ignore
       case 3: {
@@ -431,21 +429,23 @@ namespace folia {
       return "";
     }
     //    cerr << "try to read a time " << s << endl;
-    vector<string> time_parts;
     tm time = tm();
-    int num = TiCC::split_at( s, time_parts, ":" );
-    if ( num != 3 ){
+    vector<string> time_parts = TiCC::split_at( s, ":" );
+    if ( time_parts.size() != 3 ){
       cerr << "failed to read a time " << s << endl;
       return "";
     }
     time.tm_min = stringTo<int>( time_parts[1] );
     time.tm_hour = stringTo<int>( time_parts[0] );
     string secs = time_parts[2];
-    num = TiCC::split_at( secs, time_parts, "." );
-    time.tm_sec = stringTo<int>( time_parts[0] );
+    time_parts = TiCC::split_at( secs, "." );
     string mil_sec = "000";
-    if ( num == 2 ){
+    if ( time_parts.size() == 2 ){
+      time.tm_sec = stringTo<int>( time_parts[0] );
       mil_sec = time_parts[1];
+    }
+    if ( time_parts.size() == 1 ){
+      time.tm_sec = stringTo<int>( time_parts[0] );
     }
     char buf[100];
     strftime( buf, 100, "%X", &time );
