@@ -2021,10 +2021,12 @@ namespace folia {
     return 0;
   }
 
-  const TextContent *Correction::text_content( const string& cls ) const {
+  const TextContent *Correction::text_content( const string& cls,
+					       bool debug ) const {
     /// Get the TextContent explicitly associated with a Correction
     /*!
      * \param cls the textclass to search for
+     * \param debug enables debugging when true
      *
      * Returns the TextContent instance rather than the actual text.
      * (so it might return iself.. ;)
@@ -2033,6 +2035,7 @@ namespace folia {
      */
     // TODO: this implements correctionhandling::EITHER only
     TextPolicy tp( cls );
+    tp.set_debug( debug );
     tp.set_correction_handling(CORRECTION_HANDLING::EITHER);
     return text_content( tp );
   }
@@ -2200,10 +2203,12 @@ namespace folia {
     return 0;
   }
 
-  const PhonContent *Correction::phon_content( const string& cls ) const {
+  const PhonContent *Correction::phon_content( const string& cls,
+					       bool debug ) const {
     /// Get the PhonContent explicitly associated with this element.
     /*!
      * \param cls the textclass to search for
+     * \param debug enables debugging when true
      *
      * Returns the PhonContent instance rather than the actual text.
      * (so it might return iself.. ;)
@@ -2212,6 +2217,7 @@ namespace folia {
      */
     // TODO: this implements correctionhandling::EITHER only
     TextPolicy tp( cls );
+    tp.set_debug( debug );
     tp.set_correction_handling(CORRECTION_HANDLING::EITHER);
     return phon_content( tp );
   }

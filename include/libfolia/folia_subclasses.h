@@ -1243,9 +1243,11 @@ namespace folia {
     std::vector<Suggestion*> suggestions() const;
     Suggestion *suggestions( size_t ) const;
     const TextContent *text_content( const TextPolicy& ) const;
-    const TextContent *text_content( const std::string& = "current" ) const;
+    const TextContent *text_content( const std::string& = "current",
+				     bool = false ) const;
     const PhonContent *phon_content( const TextPolicy& tp ) const;
-    const PhonContent *phon_content( const std::string& = "current" ) const;
+    const PhonContent *phon_content( const std::string& = "current",
+				     bool = false ) const;
     const std::string& get_delimiter( const TextPolicy& ) const;
     Correction *correct( const std::vector<FoliaElement*>&,
 			 const std::vector<FoliaElement*>&,
