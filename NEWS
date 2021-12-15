@@ -1,3 +1,10 @@
+2.10 2021-12-15
+[Ko vd Sloot]
+* several code improvements, suggested by CPPcheck and scan-build
+* start using TextPolicy::debug
+[Maarten van Gompel]
+* impemented implicitspace logic for whitespace issue proycon/folia#101
+
 2.9 2021-07-12
 [Ko vd Sloot]
 * Reworked the FoliaElement class hierarchy. Much clearer now
