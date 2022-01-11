@@ -60,7 +60,7 @@ namespace folia {
      * no text can be found
      */
     if ( tp.debug() ){
-      cerr << "FoLiA::TEXT(" << tp.get_class() << ")" << endl;
+      cerr << "FoLiA::private_text(" << tp.get_class() << ")" << endl;
     }
     UnicodeString result;
     for ( const auto& d : data() ){
@@ -471,14 +471,15 @@ namespace folia {
     /// find the 'true' parent of a TextContent
     /*!
      * recurse the parent() nodes upward. halt at the second parent
-     * that is a Structure, String or Subtoken
+     * that is a Structure, String or Subtoken which may hold TextContent
      */
     int depth = 0;
     FoliaElement *p = parent();
     while ( p ){
-      if ( p->isSubClass( String_t )
-	   || p->isSubClass( AbstractStructureElement_t )
-	   || p->isSubClass( AbstractSubtokenAnnotation_t ) ){
+      if ( ( p->isSubClass( String_t )
+	     || p->isSubClass( AbstractStructureElement_t )
+	     || p->isSubClass( AbstractSubtokenAnnotation_t ) )
+	   && p->acceptable( TextContent_t ) ){
 	if ( ++depth == 2 ){
 	  return p;
 	}
