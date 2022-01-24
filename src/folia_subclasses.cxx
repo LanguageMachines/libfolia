@@ -2938,6 +2938,51 @@ namespace folia {
     return " ";
   }
 
+  const UnicodeString Cell::private_text( const TextPolicy& tp ) const {
+    bool my_debug = tp.debug();
+    //    my_debug = true;
+    if ( my_debug ){
+      cerr << "Cell private text, tp=" << tp << endl;
+    }
+    UnicodeString result;
+    try {
+      // check for direct text, then we are almost done
+      const TextContent *tc = text_content( tp.get_class() );
+      result = tc->text( tp );
+      if ( my_debug ){
+	cerr << "the Cell has it's own text part:" << result << endl;
+      }
+    }
+    catch ( const NoSuchText& ){
+      // no direct text, gather it from the children
+      for ( const auto& d : data() ){
+	UnicodeString part;
+	try {
+	  part = d->text( tp );
+	}
+	catch ( ... ){
+	}
+	if ( !part.isEmpty() ){
+	  if ( my_debug ){
+	    cerr << "d=" << d->xmltag() << " has some text part:" << part << endl;
+	  }
+	  if ( !result.isEmpty() ){
+	    result += " ";
+	}
+	  result += part;
+	}
+      }
+      if ( result.isEmpty() ){
+	result = " "; // this will trigger appending of
+	              // the delimitter one level above
+      }
+    }
+    if ( my_debug ){
+      cerr << "Cell private text, returns '" << result << "'" << endl;
+    }
+    return result;
+  }
+
   const FoliaElement* AbstractTextMarkup::resolveid() const {
     /// return the FoliaElement refered to by idref
     /*!
