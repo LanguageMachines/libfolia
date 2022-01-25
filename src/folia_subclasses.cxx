@@ -2930,6 +2930,7 @@ namespace folia {
   const UnicodeString TextMarkupHSpace::private_text( const TextPolicy& tp ) const {
     /// get the UnicodeString value of a TextMarkupHSpace element
     /*!
+     * \param tp the TextPolicy to use. (ignored except for debug)
      * \return A single space.
      */
     if ( tp.debug() ){
@@ -2938,7 +2939,55 @@ namespace folia {
     return " ";
   }
 
+  const UnicodeString Row::private_text( const TextPolicy& tp ) const {
+    /// get the UnicodeString value of a Row
+    /*!
+     * \param tp the TextPolicy to use
+     * \return the Unicode String representation found. Throws when
+     * no text can be found.
+     */
+    bool my_debug = tp.debug();
+    //    my_debug = true;
+    if ( my_debug ){
+      cerr << "Row private text, tp=" << tp << endl;
+    }
+    UnicodeString result;
+    for ( const auto& d : data() ){
+      UnicodeString part;
+      try {
+	part = d->text( tp );
+      }
+      catch ( ... ){
+      }
+      if ( !part.isEmpty() ){
+	if ( my_debug ){
+	  cerr << "d=" << d->xmltag() << " has some text part:" << part << endl;
+	}
+	if ( !result.isEmpty() ){
+	  result += TiCC::UnicodeFromUTF8( d->get_delimiter( tp ) );
+	}
+	result += part;
+      }
+    }
+    if ( result.isEmpty() ){
+      // special case, a row without any text in its children. Thus "empty"
+      result = " "; // this will trigger appending of
+                    // the delimitter one level above
+    }
+    if ( my_debug ){
+      cerr << "Row private text, returns '" << result << "'" << endl;
+    }
+    return result;
+  }
+
+
   const UnicodeString Cell::private_text( const TextPolicy& tp ) const {
+    /// get the UnicodeString value of a Cell
+    /*!
+     * \param tp the TextPolicy to use
+     * \return the Unicode String representation found. Throws when
+     * no text can be found.
+     */
     bool my_debug = tp.debug();
     //    my_debug = true;
     if ( my_debug ){

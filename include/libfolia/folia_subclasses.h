@@ -382,6 +382,7 @@ namespace folia {
     friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( Row, AbstractStructureElement );
+    const UnicodeString private_text( const TextPolicy& ) const;
     static properties PROPS;
   };
 
