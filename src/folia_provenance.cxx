@@ -33,6 +33,7 @@
 #include <fstream>
 #include <string>
 #include <stdexcept>
+#include <numeric>
 #include "ticcutils/PrettyPrint.h"
 #include "ticcutils/XMLtools.h"
 #include "ticcutils/StringOps.h"
@@ -222,10 +223,12 @@ namespace folia {
 	// not a number, just add .1 then, and pray
 	v.back() += ".1";
       }
-      for ( const auto& it :  v ){
-	new_id += it + ".";
-      }
-      new_id.pop_back();
+      auto dot_insert = []( string& a, string& b ){
+			  return std::move(a) + "." + b;
+			};
+      new_id = std::accumulate( std::next(v.begin()), v.end(),
+				v[0],
+				dot_insert );
     }
     else {
       new_id = id() + ".1";
