@@ -710,11 +710,11 @@ namespace folia {
     /*!
      * \param par the FoliaElement to search
      * \return a vector of matching elements
-     * search in the DIRECT children for nodes with the same tag, set and text
+     * search in the DIRECT children for nodes with the same tag and text
      * class as the element par
      */
     vector<FoliaElement *> result;
-    vector<TextContent*> v = par->FoliaElement::select<TextContent>( sett(),
+    vector<TextContent*> v = par->FoliaElement::select<TextContent>( "",
 								     false );
     copy_if( v.begin(),
 	     v.end(),
