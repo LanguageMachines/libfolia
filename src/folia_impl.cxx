@@ -2797,9 +2797,16 @@ namespace folia {
 	throw InconsistentText( "settext(cls=" + cls + "): deeper text differs from attempted\ndeeper='" + TiCC::UnicodeToUTF8(deeper_u) + "'\nattempted='" + TiCC::UnicodeToUTF8(txt_u) + "'" );
       }
     }
+    string sett;
+    if ( doc() ){
+      sett = doc()->default_set( AnnotationType::TEXT );
+    }
     KWargs args;
     args["value"] = TiCC::UnicodeToUTF8(txt_u);
     args["class"] = cls;
+    if ( !sett.empty() ){
+      args["set"] = sett;
+    }
     if ( offset >= 0 ){
       args["offset"] = TiCC::toString(offset);
     }
