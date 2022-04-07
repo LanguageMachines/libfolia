@@ -1117,14 +1117,27 @@ namespace folia {
       string tag = TiCC::Name( n );
       if ( tag.length() > 11 && tag.substr( tag.length() - 11 ) == "-annotation" ){
 	string prefix = tag.substr( 0,  tag.length() - 11 );
-	AnnotationType at_type
-	  = TiCC::stringTo<AnnotationType>( prefix );
+	AnnotationType at_type = TiCC::stringTo<AnnotationType>( prefix );
 	if ( debug ){
 	  cerr << "parse " << prefix << "-annotation" << endl;
 	}
 	KWargs atts = getAttributes( n );
 	ElementType et = BASE;
 	string set_name = atts.extract("set" );
+	if ( prefix == "text" ){
+	  //
+	  // Temporary exception. see: https://github.com/proycon/folia/issues/104
+	  //
+	  string def_set = default_set( at_type );
+	  auto const at_it = _annotationdefaults.find( at_type );
+	  if ( at_it != _annotationdefaults.end() // some Text annotation
+	       && def_set != set_name ){ // not same default
+	    string my_set = at_it->second.begin()->first;
+	    throw XmlError( "Multiple text_annotation: cannot add '" + set_name
+			    + "' as text_annotation declaration,"
+			    + " we already have: '" + my_set + "'" );
+	  }
+	}
 	if ( set_name.empty() ){
 	  if ( version_below( 1, 6 ) ){
 	    set_name = "undefined"; // default value
@@ -2049,6 +2062,20 @@ namespace folia {
       throw XmlError( "declare(): illegal value '"
 		      + annotator_type + "' for annotator type" );
     }
+    if ( type == AnnotationType::TEXT ){
+      //
+      // Temporary exception. see: https://github.com/proycon/folia/issues/104
+      //
+      string def_set = default_set( type );
+      auto const at_it = _annotationdefaults.find( type );
+      if ( at_it != _annotationdefaults.end() // some Text annotation
+	   && def_set != setname ){           // not same default
+	string my_set = at_it->second.begin()->first;
+	throw XmlError( "Multiple text_annotation: cannot add '" + setname
+			+ "' as text_annotation declaration,"
+			+ " we already have: '" + my_set + "'" );
+      }
+    }
     if ( !_alias.empty() ){
       string set_ali = alias(type,setname);
       if ( !set_ali.empty() ){
@@ -2822,6 +2849,21 @@ namespace folia {
      */
     AnnotationType type = pair.first;
     string sett = pair.second;
+    if ( type == AnnotationType::TEXT ){
+      //
+      // Temporary exception. see: https://github.com/proycon/folia/issues/104
+      //
+      string def_set = default_set( type );
+      auto const at_it = _annotationdefaults.find( type );
+      if ( at_it != _annotationdefaults.end() // some Text annotation
+	   && def_set != sett ){              // not same default
+	string my_set = at_it->second.begin()->first;
+	throw XmlError( "Multiple text_annotation: cannot add '" + sett
+			+ "' as text_annotation declaration,"
+			+ " we already have: '" + my_set + "'" );
+      }
+    }
+
     string label = annotation_type_to_string( type );
     if ( done.find(label+sett) != done.end() ){
       return;
