@@ -645,7 +645,7 @@ namespace folia {
 	if ( _set.empty() ){
 	  if ( !doc()->declared( annotation_type(), "None" ) ) {
 	    cerr << endl << doc()->annotationdefaults() << endl << endl;
-	    throw ValueError( xmltag() +": An empty set is used but that has no declaration "
+	    throw DeclarationError( xmltag() +": An empty set is used but that has no declaration "
 			      "for " + toString( annotation_type() )
 			      + "-annotation" );
 	  }

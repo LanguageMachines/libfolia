@@ -1876,6 +1876,9 @@ namespace folia {
 	catch ( const XmlError& e ){
 	  throw;
 	}
+	catch ( const DeclarationError& e ){
+	  throw;
+	}
 	catch ( const exception& e ){
 	  throw XmlError( e.what() );
 	}
@@ -2081,20 +2084,20 @@ namespace folia {
       if ( !set_ali.empty() ){
 	if ( set_ali != setname
 	     && set_ali != _alias ){
-	  throw XmlError( "setname: '" + setname + "' already has an alias: '"
+	  throw DeclarationError( "setname: '" + setname + "' already has an alias: '"
 			  + set_ali );
 	}
       }
       string ali_ali = alias(type,_alias);
       string ali_set = unalias(type,_alias);
       if ( ali_ali != _alias ){
-	throw XmlError( "alias: '" + _alias +
+	throw DeclarationError( "alias: '" + _alias +
 			"' is also in use as a setname for set:'"
 			+ ali_set + "'" );
       }
       if ( ali_set != _alias
 	   && ali_set != setname ){
-	throw XmlError( "alias: '" + _alias + "' already used for setname: '"
+	throw DeclarationError( "alias: '" + _alias + "' already used for setname: '"
 			+ ali_set + "'" );
       }
     }
@@ -2162,7 +2165,7 @@ namespace folia {
 	   << setname << ")" << endl;
     }
     if ( _annotationrefs[type][setname] != 0 ){
-      throw XmlError( "unable to undeclare " + toString(type) + "-type("
+      throw DeclarationError( "unable to undeclare " + toString(type) + "-type("
 		      + setname + ") (references remain)" );
     }
     auto const adt = _annotationdefaults.find(type);
@@ -2335,6 +2338,7 @@ namespace folia {
 
       Otherwise, all values are checked for a match
     */
+    //    return declared( type, set_name );
     if ( debug ){
       cerr << "isdeclared? ( " << folia::toString(type) << "," << set_name << ","
 	   << annotator << "," << toString(annotator_type) << "," << processor
