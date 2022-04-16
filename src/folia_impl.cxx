@@ -1161,13 +1161,16 @@ namespace folia {
 	}
 	if ( _annotator_type != UNDEFINED ){
 	  AnnotatorType at = doc()->default_annotatortype( annotation_type(), _set );
-	  if ( (!isDefaultSet || !isDefaultAnn)
-	       && _annotator_type != at ) {
-	    if ( _annotator_type == AUTO ) {
-	      attribs["annotatortype"] = "auto";
-	    }
-	    else if ( _annotator_type == MANUAL ) {
-	      attribs["annotatortype"] = "manual";
+	  if ( !isDefaultSet
+	       || !isDefaultAnn
+	       || _annotator_type != at){
+	    if ( _annotator_type != at ) {
+	      if ( _annotator_type == AUTO ){
+		attribs["annotatortype"] = "auto";
+	      }
+	      else if ( _annotator_type == MANUAL ) {
+		attribs["annotatortype"] = "manual";
+	      }
 	    }
 	  }
 	}

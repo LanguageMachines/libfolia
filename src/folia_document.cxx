@@ -2101,7 +2101,18 @@ namespace folia {
 			+ ali_set + "'" );
       }
     }
-    if ( !declared( type, setname, annotator, ant, _processors ) ){
+    if ( declared( type, setname, annotator, ant, _processors ) ){
+      if ( _processors.empty() ){
+	// old style
+	auto at = _annotationdefaults[type].find( setname );
+	string d = date_time;
+	if ( d == "now()" ){
+	  d = get_ISO_date();
+	}
+	at->second = at_t(annotator,ant,d,format,_processors);
+      }
+    }
+    else {
       set<string> procs = _processors;
       if ( !unalias(type,setname).empty()
 	   && unalias(type,setname) != setname ){
@@ -2338,7 +2349,9 @@ namespace folia {
 
       Otherwise, all values are checked for a match
     */
-    //    return declared( type, set_name );
+    if ( processor.empty() ){ // OLD style
+      return declared( type, set_name );
+    }
     if ( debug ){
       cerr << "isdeclared? ( " << folia::toString(type) << "," << set_name << ","
 	   << annotator << "," << toString(annotator_type) << "," << processor
