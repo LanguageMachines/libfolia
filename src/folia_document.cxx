@@ -2429,11 +2429,11 @@ namespace folia {
       processors.
     */
     if ( processors.empty() ){
-      return declared( type, set_name, annotator, annotator_type, "" );
+      return declared( type, set_name );
     }
     else {
-      for ( const auto& s : processors ){
-	if ( declared( type, set_name, annotator, annotator_type, s ) ){
+      for ( const auto& processor : processors ){
+	if ( declared( type, set_name, "", AUTO, processor ) ){
 	  return true;
 	}
       }
