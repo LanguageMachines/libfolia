@@ -2101,19 +2101,19 @@ namespace folia {
 			+ ali_set + "'" );
       }
     }
-    if ( declared( type, setname, annotator, ant, _processors ) ){
-      if ( _processors.empty() ){
+    set<string> procs = _processors;
+    if ( declared( type, setname, annotator, ant, procs ) ){
+      if ( procs.empty() ){
 	// old style
 	auto at = _annotationdefaults[type].find( setname );
 	string d = date_time;
 	if ( d == "now()" ){
 	  d = get_ISO_date();
 	}
-	at->second = at_t(annotator,ant,d,format,_processors);
+	at->second = at_t(annotator,ant,d,format,procs);
       }
     }
     else {
-      set<string> procs = _processors;
       if ( !unalias(type,setname).empty()
 	   && unalias(type,setname) != setname ){
 	throw XmlError( "setname: '" + setname
@@ -2246,7 +2246,7 @@ namespace folia {
   }
 
   multimap<AnnotationType, string> Document::unused_declarations( ) const {
-    /// search for declarations not referencec in the Document
+    /// search for declarations not referenced in the Document
     /*!
       \return a list of all AnntotationType/setname pairs that are not used
      */
@@ -2349,56 +2349,54 @@ namespace folia {
 
       Otherwise, all values are checked for a match
     */
-    if ( processor.empty() ){ // OLD style
-      return declared( type, set_name );
-    }
     if ( debug ){
       cerr << "isdeclared? ( " << folia::toString(type) << "," << set_name << ","
 	   << annotator << "," << toString(annotator_type) << "," << processor
 	   << ") " << endl;
     }
-    //
-    // We DO NOT check the date. if all parameters match, it is OK
-    //
     if ( type == AnnotationType::NO_ANN ){
       if ( debug ){
 	cerr << "\t\t TRUE want NO_ANN" << endl;
       }
       return true;
     }
-    if ( !processor.empty()
-	 && !get_processor( processor ) ){
-      throw XmlError( folia::toString(type)
-		      + "-annotation is referring an undefined processor '"
-		      + processor + "'" );
+    if ( processor.empty() ){ // OLD style
+      return declared( type, set_name );
     }
-    string setname = unalias(type,set_name);
-    const auto& it1 = _annotationdefaults.find(type);
-    if ( it1 != _annotationdefaults.end() ){
-      if ( debug ){
-	cerr << "OK, found an entry for type: " << folia::toString(type) << endl;
+    else {
+      //
+      // We DO NOT check the date. if all parameters match, it is OK
+      //
+      if ( !get_processor( processor ) ){
+	throw XmlError( folia::toString(type)
+			+ "-annotation is referring an undefined processor '"
+			+ processor + "'" );
       }
-      if ( setname.empty() ){
-	// 'wildcard' for setname
-	return true;
-      }
-      auto mit2 = it1->second.lower_bound(setname);
-      while ( mit2 != it1->second.upper_bound(setname) ){
+      string setname = unalias(type,set_name);
+      const auto& it1 = _annotationdefaults.find(type);
+      if ( it1 != _annotationdefaults.end() ){
 	if ( debug ){
-	  cerr << "OK, found an entry for set='" << setname  << "'" << endl;
-	  cerr << "content: " << mit2->second << endl;
+	  cerr << "OK, found an entry for type: " << folia::toString(type) << endl;
 	}
-	if ( mit2->second._annotator == annotator
-	     && mit2->second._ann_type == annotator_type
-	     && ( (mit2->second._processors.empty() && processor.empty() )
-		  || ( mit2->second._processors.find(processor)
-		       != mit2->second._processors.end() ) ) ){
+	if ( setname.empty() ){
+	  // 'wildcard' for setname
+	return true;
+	}
+	auto const& mit2 = it1->second.find(setname);
+	if ( mit2 != it1->second.end() ){
 	  if ( debug ){
-	    cerr << "\t\t declared ==> TRUE" << endl;
+	    cerr << "OK, found an entry for set='" << setname  << "'" << endl;
+	    cerr << "content: " << *mit2 << endl;
 	  }
-	  return true;
+	  if ( mit2->second._processors.empty()
+	       || ( mit2->second._processors.find(processor)
+		    != mit2->second._processors.end() ) ){
+	    if ( debug ){
+	      cerr << "\t\t declared ==> TRUE" << endl;
+	    }
+	    return true;
+	  }
 	}
-	++mit2;
       }
     }
     if ( debug ){

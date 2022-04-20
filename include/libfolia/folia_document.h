@@ -369,7 +369,7 @@ namespace folia {
     std::string doc_version() const;
     std::string update_version();
     bool version_below( int, int ) const;
-    const std::map<AnnotationType,std::multimap<std::string,at_t>>& annotationdefaults() const { return _annotationdefaults; };
+    const std::map<AnnotationType,std::map<std::string,at_t>>& annotationdefaults() const { return _annotationdefaults; };
     void parse_metadata( const xmlNode * );
     void setDocumentProps( KWargs& );
     Provenance *provenance() const {
@@ -413,7 +413,7 @@ namespace folia {
 
   private:
     void adjustTextMode();
-    std::map<AnnotationType,std::multimap<std::string,at_t> > _annotationdefaults;   ///< stores all declared annotations per AnnotationType
+    std::map<AnnotationType,std::map<std::string,at_t> > _annotationdefaults;   ///< stores all declared annotations per AnnotationType
     ///< every AnnotationType can have multiple annotations even with the same
     ///< setnames. hence a multimap
     std::map<AnnotationType,std::map<std::string,bool> > _groupannotations; ///<
