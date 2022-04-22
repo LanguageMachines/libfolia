@@ -723,7 +723,7 @@ namespace folia {
 	  throw ValueError("attribute 'processor' has unknown value: " + val );
 	}
 	if ( doc()
-	     && !doc()->declared( annotation_type(), _set, "", _annotator_type, val ) ){
+	     && !doc()->declared( annotation_type(), _set, val ) ){
 	  if (	!doc()->version_below( 2, 0 )
 		&& doc()->autodeclare() ) {
 	    KWargs args;

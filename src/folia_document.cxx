@@ -2102,10 +2102,10 @@ namespace folia {
       }
     }
     set<string> procs = _processors;
-    if ( declared( type, setname, annotator, ant, procs ) ){
+    if ( declared( type, setname, procs ) ){
       auto at = _annotationdefaults[type].find( setname );
       if ( procs.empty() ){
-	// old style
+	// old style, overwrite the exsisting annotator info
 	string d = date_time;
 	if ( d == "now()" ){
 	  d = get_ISO_date();
@@ -2120,31 +2120,26 @@ namespace folia {
       }
     }
     else {
-      if ( !unalias(type,setname).empty()
-	   && unalias(type,setname) != setname ){
-	throw XmlError( "setname: '" + setname
-			+ "' is also in use as an alias" );
-      }
+      // No declaration yet
       string d = date_time;
       if ( d == "now()" ){
 	d = get_ISO_date();
       }
       if ( procs.empty() ){
-	// old style
-	_annotationdefaults[type].insert( make_pair( setname,
-						     at_t(annotator,ant,d,format,procs) ) );
+	// old style, insert new annotator info
+	at_t new_a(annotator,ant,d,format,procs);
+	_annotationdefaults[type].insert( make_pair( setname, new_a ) );
       }
       else {
 	// new style
 	auto set_pos = _annotationdefaults[type].find(setname);
 	if ( set_pos == _annotationdefaults[type].end() ){
-	  // no processor annotations yet
-	  _annotationdefaults[type].insert( make_pair( setname,
-						       at_t(annotator,ant,d,format,procs) ) );
-
+	  // insert new processor annotations
+	  at_t new_a(annotator,ant,d,format,procs);
+	  _annotationdefaults[type].insert( make_pair( setname, new_a ) );
 	}
 	else {
-	  // add to the existing
+	  // there is already some, add to the existing
 	  for ( const auto& p : procs ){
 	    set_pos->second._processors.insert( p );
 	  }
@@ -2335,16 +2330,12 @@ namespace folia {
 
   bool Document::declared( const AnnotationType& type,
 			   const string& set_name,
-			   const string& annotator,
-			   const AnnotatorType& annotator_type,
 			   const string& processor ) const {
     /// check if a given combination of AnnotationType, setname, annotators etc.
     /// is declared
     /*!
       \param type the AnnotationType
       \param set_name a setname OR an alias (may be empty)
-      \param annotator the annotator to check (may be empty)
-      \param annotator_type the annotator_type to check (may be UNDEFINED)
       \param processor the processor to match (may be empty)
       \return true when all values match.
 
@@ -2357,8 +2348,7 @@ namespace folia {
     */
     if ( debug ){
       cerr << "isdeclared? ( " << folia::toString(type) << "," << set_name << ","
-	   << annotator << "," << toString(annotator_type) << "," << processor
-	   << ") " << endl;
+	   << processor << ") " << endl;
     }
     if ( type == AnnotationType::NO_ANN ){
       if ( debug ){
@@ -2413,16 +2403,12 @@ namespace folia {
 
   bool Document::declared( const AnnotationType& type,
 			   const string& set_name,
-			   const string& annotator,
-			   const AnnotatorType& annotator_type,
 			   const set<string>& processors ) const {
     /// check if a given combination of AnnotationType, setname, annotators etc.
     /// is declared
     /*!
       \param type the AnnotationType
       \param set_name a setname OR an alias (may be empty)
-      \param annotator the annotator to check (may be empty)
-      \param annotator_type the annotator_type to check (may be UNDEFINED)
       \param processors a list of processors to match (may be empty)
       \return true when all values match.
 
@@ -2439,7 +2425,7 @@ namespace folia {
     }
     else {
       for ( const auto& processor : processors ){
-	if ( declared( type, set_name, "", AUTO, processor ) ){
+	if ( declared( type, set_name, processor ) ){
 	  return true;
 	}
       }

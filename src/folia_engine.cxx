@@ -246,15 +246,11 @@ namespace folia {
 
   bool Engine::is_declared( const AnnotationType& at,
 			    const string& setname,
-			    const string& annotator,
-			    const AnnotatorType& annotator_type,
 			    const string& processor ) const {
     /// check if an annotation for the provided type and setname is present
     /*!
       \param at the AnnotationType
       \param setname the set-name to test
-      \param annotator the name of the annotator to test
-      \param annotator_type the AnnotatorType to test
       \param processor the desired processor
       \return true if declared, false otherwise.
     */
@@ -262,32 +258,8 @@ namespace folia {
       throw logic_error( "is_declared() called on invalid engine!" );
     }
     else {
-      return _out_doc->declared( at, setname, annotator, annotator_type, processor );
+      return _out_doc->declared( at, setname, processor );
     }
-  }
-
-  bool Engine::is_declared( const AnnotationType& at,
-			    const string& setname,
-			    const string& annotator,
-			    const string& annotator_type,
-			    const string& processor ) const {
-    /// check if an annotation for the provided type and setname is present
-    /*!
-      \param at the AnnotationType
-      \param setname the set-name to test
-      \param annotator the name of the annotator to test
-      \param annotator_type the AnnotatorType to test, encoded as a string
-      \param processor the desired processor
-      \return true if declared, false otherwise.
-    */
-    AnnotatorType ant = UNDEFINED;
-    try {
-      ant = TiCC::stringTo<AnnotatorType>(annotator_type);
-    }
-    catch (...){
-      throw logic_error( annotator_type + " is NOT a valid annotator type" );
-    }
-    return is_declared( at, setname, annotator, ant, processor );
   }
 
   void Engine::set_metadata( const std::string& att,

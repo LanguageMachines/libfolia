@@ -190,14 +190,10 @@ namespace folia {
     FoliaElement* operator []( const std::string& ) const ; //index as operator
     bool declared( const AnnotationType&,
 		   const std::string&,
-		   const std::string&,
-		   const AnnotatorType&,
-		   const std::string& ) const;
+		   const std::set<std::string>& ) const;
     bool declared( const AnnotationType&,
 		   const std::string&,
-		   const std::string&,
-		   const AnnotatorType&,
-		   const std::set<std::string>& ) const;
+		   const std::string& ) const;
     bool declared( const AnnotationType&,
 		   const std::string& = "" ) const;
     bool declared( ElementType, const std::string& = "" ) const;
