@@ -237,11 +237,6 @@ namespace folia {
     void declare( AnnotationType,
 		  const std::string&,
 		  const KWargs& );
-    void declare( AnnotationType,
-		  const std::string&, const std::string&, const std::string&,
-		  const std::string&, const std::string&,
-		  const std::set<std::string>&,
-		  const std::string& = "" );
     void un_declare( AnnotationType,
 		     const std::string& );
     const xmlDoc *XmlDoc() const {
@@ -454,6 +449,12 @@ namespace folia {
     void add_one_anno( const std::pair<AnnotationType,std::string>&,
 		       xmlNode *,
 		       std::set<std::string>& ) const;
+    void internal_declare( AnnotationType,
+			   const std::string&,
+			   const std::string&, const std::string&,
+			   const std::string&, const std::string&,
+			   const std::set<std::string>&,
+			   const std::string& = "" );
     std::map<std::string, FoliaElement* > sindex; ///< the lookup table
     ///< for FoliaElements by index (xml:id) (not all nodes do have an index)
     //    std::vector<FoliaElement*> data;

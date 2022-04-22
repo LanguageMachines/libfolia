@@ -1213,7 +1213,8 @@ namespace folia {
 	if ( !annotator.empty() && !processors.empty() ){
 	  throw XmlError( tag + "-annotation: has both <annotator> node(s) and annotator attribute." );
 	}
-	declare( at_type, set_name, format, annotator, ann_type, datetime,
+	internal_declare( at_type, set_name, format,
+			  annotator, ann_type, datetime,
 		 processors, alias );
 	if ( !atts.empty() ){
 
@@ -1990,7 +1991,7 @@ namespace folia {
     if ( args.size() != 0 ){
       throw XmlError( "declaration: expected 'annotator', 'annotatortype', 'processor', 'alias' or 'datetime', got '" + args.begin()->first + "'" );
     }
-    declare( type, st, f, a, t, d, processors, alias );
+    internal_declare( type, st, f, a, t, d, processors, alias );
   }
 
   string Document::unalias( AnnotationType type,
@@ -2031,14 +2032,14 @@ namespace folia {
     return setname;
   }
 
-  void Document::declare( AnnotationType type,
-			  const string& setname,
-			  const string& format,
-			  const string& annotator,
-			  const string& annotator_type,
-			  const string& date_time,
-			  const set<string>& _processors,
-			  const string& _alias ){
+  void Document::internal_declare( AnnotationType type,
+				   const string& setname,
+				   const string& format,
+				   const string& annotator,
+				   const string& annotator_type,
+				   const string& date_time,
+				   const set<string>& _processors,
+				   const string& _alias ){
     /// Add an annotation declaration
     /*!
       \param type The AnnotationType for which to add a setname
@@ -2052,7 +2053,7 @@ namespace folia {
       \param _alias an alias value for the setname
     */
     if ( debug ){
-      cerr << "declare( " << folia::toString(type) << "," << setname
+      cerr << "internal_declare( " << folia::toString(type) << "," << setname
 	   << ", format=" << format << "," << annotator << ","
 	   << annotator_type << "," << date_time << "," << _alias << ","
 	   << _processors << ") " << endl;
@@ -2062,7 +2063,7 @@ namespace folia {
       ant = TiCC::stringTo<AnnotatorType>( annotator_type );
     }
     catch (...) {
-      throw XmlError( "declare(): illegal value '"
+      throw XmlError( "internal_declare(): illegal value '"
 		      + annotator_type + "' for annotator type" );
     }
     if ( type == AnnotationType::TEXT ){
@@ -2360,13 +2361,10 @@ namespace folia {
       return declared( type, set_name );
     }
     else {
-      //
-      // We DO NOT check the date. if all parameters match, it is OK
-      //
       if ( !get_processor( processor ) ){
-	throw XmlError( folia::toString(type)
-			+ "-annotation is referring an undefined processor '"
-			+ processor + "'" );
+	throw DeclarationError( folia::toString(type)
+				+ "-annotation is referring an undefined "
+				+ "processor '" + processor + "'" );
       }
       string setname = unalias(type,set_name);
       const auto& it1 = _annotationdefaults.find(type);
@@ -2376,7 +2374,7 @@ namespace folia {
 	}
 	if ( setname.empty() ){
 	  // 'wildcard' for setname
-	return true;
+	  return true;
 	}
 	auto const& mit2 = it1->second.find(setname);
 	if ( mit2 != it1->second.end() ){
