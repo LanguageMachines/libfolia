@@ -1913,12 +1913,7 @@ namespace folia {
 	setname = DEFAULT_PHON_SET;
       }
     }
-    if ( setname.empty() ){
-      declare( type, "" );
-    }
-    else {
-      declare( type, setname );
-    }
+    declare( type, setname );
   }
 
   void Document::declare( AnnotationType type,
