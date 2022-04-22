@@ -2103,14 +2103,20 @@ namespace folia {
     }
     set<string> procs = _processors;
     if ( declared( type, setname, annotator, ant, procs ) ){
+      auto at = _annotationdefaults[type].find( setname );
       if ( procs.empty() ){
 	// old style
-	auto at = _annotationdefaults[type].find( setname );
 	string d = date_time;
 	if ( d == "now()" ){
 	  d = get_ISO_date();
 	}
 	at->second = at_t(annotator,ant,d,format,procs);
+      }
+      else {
+	// add the processor id to the set of processsor ID's names
+	for ( const auto& p : procs ){
+	  at->second._processors.insert( p );
+	}
       }
     }
     else {
@@ -2519,15 +2525,18 @@ namespace folia {
 	cerr << "lookup: " << set_name << " (" << s_name << ")" << endl;
       }
       const auto& mit2 = mit1->second.find(s_name);
-      if ( debug ){
-	if ( mit2 != mit1->second.end() ){
+      if ( mit2 != mit1->second.end() ){
+	if ( debug ){
 	  cerr << "return TRUE" << endl;
 	}
-	else {
+	return true;
+      }
+      else {
+	if ( debug ){
 	  cerr << "return FALSE" << endl;
 	}
+	return false;
       }
-      return mit2 != mit1->second.end();
     }
     if ( debug ){
       cerr << "return DIRECTLY FALSE" << endl;
