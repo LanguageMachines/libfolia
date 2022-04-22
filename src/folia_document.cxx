@@ -2108,7 +2108,7 @@ namespace folia {
       if ( d == "now()" ){
 	d = get_ISO_date();
       }
-      if ( declared( type, setname, procs ) ){
+      if ( declared( type, setname ) ){
 	// old style, overwrite the existing annotator info
 	auto at = _annotationdefaults[type].find( setname );
 	at->second = at_t(annotator,ant,d,format,procs);
