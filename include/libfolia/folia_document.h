@@ -189,12 +189,6 @@ namespace folia {
     FoliaElement *index( const std::string& ) const; //retrieve element with specified ID
     FoliaElement* operator []( const std::string& ) const ; //index as operator
     bool declared( const AnnotationType&,
-		   const std::string&,
-		   const std::set<std::string>& ) const;
-    bool declared( const AnnotationType&,
-		   const std::string&,
-		   const std::string& ) const;
-    bool declared( const AnnotationType&,
 		   const std::string& = "" ) const;
     bool declared( ElementType, const std::string& = "" ) const;
     std::string unalias( AnnotationType,

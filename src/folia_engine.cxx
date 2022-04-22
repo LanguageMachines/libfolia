@@ -244,24 +244,6 @@ namespace folia {
     }
   }
 
-  bool Engine::is_declared( const AnnotationType& at,
-			    const string& setname,
-			    const string& processor ) const {
-    /// check if an annotation for the provided type and setname is present
-    /*!
-      \param at the AnnotationType
-      \param setname the set-name to test
-      \param processor the desired processor
-      \return true if declared, false otherwise.
-    */
-    if ( !ok() ){
-      throw logic_error( "is_declared() called on invalid engine!" );
-    }
-    else {
-      return _out_doc->declared( at, setname, processor );
-    }
-  }
-
   void Engine::set_metadata( const std::string& att,
 			     const std::string& val){
     /// set a metadata value in the associated document
