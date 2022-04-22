@@ -1215,7 +1215,7 @@ namespace folia {
 	}
 	internal_declare( at_type, set_name, format,
 			  annotator, ann_type, datetime,
-		 processors, alias );
+			  processors, alias );
 	if ( !atts.empty() ){
 
 	  throw XmlError( "found invalid attribute(s) in <" + prefix
@@ -2103,35 +2103,37 @@ namespace folia {
       }
     }
     set<string> procs = _processors;
-    if ( declared( type, setname, procs ) ){
-      auto at = _annotationdefaults[type].find( setname );
-      if ( procs.empty() ){
-	// old style, overwrite the exsisting annotator info
-	string d = date_time;
-	if ( d == "now()" ){
-	  d = get_ISO_date();
-	}
+    if ( procs.empty() ){
+      string d = date_time;
+      if ( d == "now()" ){
+	d = get_ISO_date();
+      }
+      if ( declared( type, setname, procs ) ){
+	// old style, overwrite the existing annotator info
+	auto at = _annotationdefaults[type].find( setname );
 	at->second = at_t(annotator,ant,d,format,procs);
       }
       else {
+	// old style, insert new annotator info
+	at_t new_a(annotator,ant,d,format,procs);
+	_annotationdefaults[type].insert( make_pair( setname, new_a ) );
+      }
+    }
+    else {
+      // new style, using processors
+      if ( declared( type, setname ) ){
+	auto at = _annotationdefaults[type].find( setname );
 	// add the processor id to the set of processsor ID's names
 	for ( const auto& p : procs ){
 	  at->second._processors.insert( p );
 	}
       }
-    }
-    else {
-      // No declaration yet
-      string d = date_time;
-      if ( d == "now()" ){
-	d = get_ISO_date();
-      }
-      if ( procs.empty() ){
-	// old style, insert new annotator info
-	at_t new_a(annotator,ant,d,format,procs);
-	_annotationdefaults[type].insert( make_pair( setname, new_a ) );
-      }
       else {
+	// No declaration yet
+	string d = date_time;
+	if ( d == "now()" ){
+	  d = get_ISO_date();
+	}
 	// new style
 	auto set_pos = _annotationdefaults[type].find(setname);
 	if ( set_pos == _annotationdefaults[type].end() ){
@@ -2146,20 +2148,20 @@ namespace folia {
 	  }
 	}
       }
-      if ( debug ){
-	cerr << "ADD to sort: " << folia::toString(type) << " ("
-	     << setname << ")"  << endl;
-      }
-      _anno_sort.push_back(make_pair(type,setname));
-      _annotationrefs[type][setname] = 0;
-      if ( !_alias.empty() ){
-	_alias_set[type][_alias] = setname;
-	_set_alias[type][setname] = _alias;
-      }
-      else {
-	_alias_set[type][setname] = setname;
-	_set_alias[type][setname] = setname;
-      }
+    }
+    if ( debug ){
+      cerr << "ADD to sort: " << folia::toString(type) << " ("
+	   << setname << ")"  << endl;
+    }
+    _anno_sort.push_back(make_pair(type,setname));
+    _annotationrefs[type][setname] = 0;
+    if ( !_alias.empty() ){
+      _alias_set[type][_alias] = setname;
+      _set_alias[type][setname] = _alias;
+    }
+    else {
+      _alias_set[type][setname] = setname;
+      _set_alias[type][setname] = setname;
     }
   }
 
