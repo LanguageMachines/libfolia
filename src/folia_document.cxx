@@ -2032,46 +2032,74 @@ namespace folia {
     /// search for an annotation declaration for this type:setname
     /*!
       \param type the AnnotationType
-      \param setname set name
+      \param setname set name, may be empty, triggering a 'wildcard' result
       \return a pointer to the declaration found, or 0 when not found
     */
     at_t *current = 0;
     auto const& t_it = _annotationdefaults.find( type );
     if ( t_it != _annotationdefaults.end() ){
-      auto s_it = t_it->second.find( setname );
-      if ( s_it == t_it->second.end() ){
-	s_it = t_it->second.find( unalias(type,setname) );
-	if ( s_it != t_it->second.end() ){
-	  current = &s_it->second;
+      // there is a match on type
+      if ( setname.empty() ){
+	// 'wildcard' search
+	if ( t_it->second.size() == 1 ){
+	  // so it is unique, return it's first entry
+	  current = &t_it->second.begin()->second;
 	}
       }
       else {
-	current = &s_it->second;
+	auto s_it = t_it->second.find( setname );
+	if ( s_it != t_it->second.end() ){
+	  // there is also a match on setname
+	  // return it
+	  current = &s_it->second;
+	}
+	else {
+	  s_it = t_it->second.find( unalias(type,setname) );
+	  if ( s_it != t_it->second.end() ){
+	    // OK, a match on an alias
+	    // return it
+	    current = &s_it->second;
+	  }
+	}
       }
     }
     return current;
   }
 
-  Document::at_t const* Document::lookup_default( AnnotationType type,
-						  const string& setname )const {
+  Document::at_t const *Document::lookup_default( AnnotationType type,
+						  const string& setname ) const {
     /// search for an annotation declaration for this type:setname
     /*!
       \param type the AnnotationType
-      \param setname set name
-      \return a const pointer to the declaration found, or 0 when not found
+      \param setname set name, may be empty, triggering a 'wildcard' result
+      \return a pointer to the declaration found, or 0 when not found
     */
-    at_t const *current = 0;
+    const at_t *current = 0;
     auto const& t_it = _annotationdefaults.find( type );
     if ( t_it != _annotationdefaults.end() ){
-      auto s_it = t_it->second.find( setname );
-      if ( s_it == t_it->second.end() ){
-	s_it = t_it->second.find( unalias(type,setname) );
-	if ( s_it != t_it->second.end() ){
-	  current = &s_it->second;
+      // there is a match on type
+      if ( setname.empty() ){
+	// 'wildcard' search
+	if ( t_it->second.size() == 1 ){
+	  // so it is unique, return it's first entry
+	  current = &t_it->second.begin()->second;
 	}
       }
       else {
-	current = &s_it->second;
+	auto s_it = t_it->second.find( setname );
+	if ( s_it != t_it->second.end() ){
+	  // there is also a match on setname
+	  // return it
+	  current = &s_it->second;
+	}
+	else {
+	  s_it = t_it->second.find( unalias(type,setname) );
+	  if ( s_it != t_it->second.end() ){
+	    // OK, a match on an alias
+	    // return it
+	    current = &s_it->second;
+	  }
+	}
       }
     }
     return current;
@@ -2518,24 +2546,10 @@ namespace folia {
     if ( type == AnnotationType::NO_ANN ){
       return "";
     }
-    const auto& mit1 = _annotationdefaults.find(type);
     string result;
-    if ( mit1 != _annotationdefaults.end() ){
-      if ( setname.empty() ){
-	// 'wildcard' search
-	if ( mit1->second.size() == 1 ){
-	  // so it is unique
-	  result = mit1->second.begin()->second._annotator;
-	  return result;
-	}
-      }
-      else {
-	if ( mit1->second.count( setname ) == 1 ){
-	  // so it is unique
-	  const auto& mit2 = mit1->second.find( setname );
-	  result = mit2->second._annotator;
-	}
-      }
+    const auto* cur = lookup_default( type, setname );
+    if ( cur != 0 ){
+      result = cur->_annotator;
     }
     //    cerr << "get default ==> " << result << endl;
     return result;
