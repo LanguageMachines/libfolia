@@ -301,6 +301,8 @@ namespace folia {
     };
     at_t *lookup_default( AnnotationType,
 			  const std::string& );
+    at_t const *lookup_default( AnnotationType,
+				const std::string& ) const;
 
     void incrRef( AnnotationType, const std::string& );
     void decrRef( AnnotationType, const std::string& );

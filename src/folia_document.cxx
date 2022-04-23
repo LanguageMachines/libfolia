@@ -2029,7 +2029,38 @@ namespace folia {
 
   Document::at_t* Document::lookup_default( AnnotationType type,
 					    const string& setname ){
+    /// search for an annotation declaration for this type:setname
+    /*!
+      \param type the AnnotationType
+      \param setname set name
+      \return a pointer to the declaration found, or 0 when not found
+    */
     at_t *current = 0;
+    auto const& t_it = _annotationdefaults.find( type );
+    if ( t_it != _annotationdefaults.end() ){
+      auto s_it = t_it->second.find( setname );
+      if ( s_it == t_it->second.end() ){
+	s_it = t_it->second.find( unalias(type,setname) );
+	if ( s_it != t_it->second.end() ){
+	  current = &s_it->second;
+	}
+      }
+      else {
+	current = &s_it->second;
+      }
+    }
+    return current;
+  }
+
+  Document::at_t const* Document::lookup_default( AnnotationType type,
+						  const string& setname )const {
+    /// search for an annotation declaration for this type:setname
+    /*!
+      \param type the AnnotationType
+      \param setname set name
+      \return a const pointer to the declaration found, or 0 when not found
+    */
+    at_t const *current = 0;
     auto const& t_it = _annotationdefaults.find( type );
     if ( t_it != _annotationdefaults.end() ){
       auto s_it = t_it->second.find( setname );
@@ -2380,7 +2411,7 @@ namespace folia {
     }
     if ( type == AnnotationType::NO_ANN ){
       if ( debug ){
-	cerr << "always true for NO_ANN" << endl;
+	cerr << "declared() always true for NO_ANN" << endl;
       }
       return true;
     }
@@ -2395,7 +2426,7 @@ namespace folia {
       if ( set_name.empty() ){
 	// 'wildcard' for setname
 	if ( debug ){
-	  cerr << "return TRUE" << endl;
+	  cerr << "declared() for empty setname return TRUE" << endl;
 	}
 	return true;
       }
@@ -2406,7 +2437,7 @@ namespace folia {
       const auto& mit2 = mit1->second.find(s_name);
       if ( mit2 != mit1->second.end() ){
 	if ( debug ){
-	  cerr << "return TRUE" << endl;
+	  cerr << "declared() return TRUE" << endl;
 	}
 	return true;
       }
@@ -2459,13 +2490,15 @@ namespace folia {
     string result;
     const auto& mit1 = _annotationdefaults.find(type);
     if ( mit1 != _annotationdefaults.end() ){
-      if ( debug ){
-	cerr << "vind tussen " <<  mit1->second << endl;
-      }
+      // found a matching type
       if ( mit1->second.size() == 1 ){
 	// so it is unique
 	result = mit1->second.begin()->first;
       }
+      else if ( debug ){
+	cerr << "setname is not unique " << endl;
+      }
+
     }
     if ( debug ){
       cerr << "default_set ==> " << result << endl;
@@ -2488,7 +2521,6 @@ namespace folia {
     const auto& mit1 = _annotationdefaults.find(type);
     string result;
     if ( mit1 != _annotationdefaults.end() ){
-      //      cerr << "vind tussen " <<  mit1->second << endl;
       if ( setname.empty() ){
 	// 'wildcard' search
 	if ( mit1->second.size() == 1 ){
@@ -2691,18 +2723,12 @@ namespace folia {
     if ( type == AnnotationType::NO_ANN ){
       return result;
     }
-    const auto& mit1 = _annotationdefaults.find(type);
-    if ( mit1 != _annotationdefaults.end() ){
-      //    cerr << "vond iets voor " << toString(type) << endl;
-      for ( auto pos = mit1->second.lower_bound(setname);
-	    pos != mit1->second.upper_bound(setname);
-	    ++pos ){
-	copy( pos->second._processors.begin(),
-	      pos->second._processors.end(),
-	      back_inserter(result) );
+    auto const& cur = lookup_default( type, setname );
+    if ( cur != 0 ){
+      for ( const auto& p : cur->_processors ){
+     	result.push_back( p );
       }
     }
-    //    cerr << "get default ==> " << result << endl;
     return result;
 
   }
@@ -2723,19 +2749,12 @@ namespace folia {
     if ( type == AnnotationType::NO_ANN ){
       return result;
     }
-    auto const& it = _annotationdefaults.find(type);
-    if ( it != _annotationdefaults.end() ){
-      if ( debug ){
-	cerr << "found some defs: " << it->second << endl;
-      }
-      for ( auto pos = it->second.lower_bound(setname);
-	    pos != it->second.upper_bound(setname);
-	    ++pos ){
-	transform( pos->second._processors.begin(),
-		   pos->second._processors.end(),
-		   back_inserter(result),
-		   [&]( const string& p ){ return get_processor(p); } );
-      }
+    auto const& cur = lookup_default( type, setname );
+    if ( cur != 0 ){
+      transform( cur->_processors.begin(),
+		 cur->_processors.end(),
+		 back_inserter(result),
+		 [&]( const string& p ){ return get_processor(p); } );
     }
     return result;
   }
