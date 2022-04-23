@@ -299,6 +299,8 @@ namespace folia {
       std::string _format;   ///< the format
       std::set<std::string> _processors; ///< the id's of all associated processors
     };
+    at_t *lookup_default( AnnotationType,
+			  const std::string& );
 
     void incrRef( AnnotationType, const std::string& );
     void decrRef( AnnotationType, const std::string& );

@@ -2027,6 +2027,25 @@ namespace folia {
     return setname;
   }
 
+  Document::at_t* Document::lookup_default( AnnotationType type,
+					    const string& setname ){
+    at_t *current = 0;
+    auto const& t_it = _annotationdefaults.find( type );
+    if ( t_it != _annotationdefaults.end() ){
+      auto s_it = t_it->second.find( setname );
+      if ( s_it == t_it->second.end() ){
+	s_it = t_it->second.find( unalias(type,setname) );
+	if ( s_it != t_it->second.end() ){
+	  current = &s_it->second;
+	}
+      }
+      else {
+	current = &s_it->second;
+      }
+    }
+    return current;
+  }
+
   void Document::internal_declare( AnnotationType type,
 				   const string& setname,
 				   const string& format,
@@ -2098,51 +2117,32 @@ namespace folia {
       }
     }
     set<string> procs = _processors;
-    if ( procs.empty() ){
-      string d = date_time;
-      if ( d == "now()" ){
-	d = get_ISO_date();
-      }
-      if ( declared( type, setname ) ){
-	// old style, overwrite the existing annotator info
-	auto at = _annotationdefaults[type].find( setname );
-	at->second = at_t(annotator,ant,d,format,procs);
-      }
-      else {
-	// old style, insert new annotator info
-	at_t new_a(annotator,ant,d,format,procs);
-	_annotationdefaults[type].insert( make_pair( setname, new_a ) );
-      }
-    }
-    else {
-      // new style, using processors
-      if ( declared( type, setname ) ){
-	auto at = _annotationdefaults[type].find( setname );
-	// add the processor id to the set of processsor ID's names
+    at_t *current = lookup_default( type, setname );
+    if ( current != 0 ){
+      // there is already a fitting declaration, enrich it.
+      if ( !procs.empty() ){
+	// add the extra processor id's to the set of processsor ID's
 	for ( const auto& p : procs ){
-	  at->second._processors.insert( p );
+	  current->_processors.insert( p );
 	}
       }
       else {
-	// No declaration yet
+	// old style, overwrite the existing annotator info
 	string d = date_time;
 	if ( d == "now()" ){
 	  d = get_ISO_date();
 	}
-	// new style
-	auto set_pos = _annotationdefaults[type].find(setname);
-	if ( set_pos == _annotationdefaults[type].end() ){
-	  // insert new processor annotations
-	  at_t new_a(annotator,ant,d,format,procs);
-	  _annotationdefaults[type].insert( make_pair( setname, new_a ) );
-	}
-	else {
-	  // there is already some, add to the existing
-	  for ( const auto& p : procs ){
-	    set_pos->second._processors.insert( p );
-	  }
-	}
+	*current = at_t(annotator,ant,d,format,procs);
       }
+    }
+    else {
+      // No declaration yet, create one
+      string d = date_time;
+      if ( d == "now()" ){
+	d = get_ISO_date();
+      }
+      at_t new_a(annotator,ant,d,format,procs);
+      _annotationdefaults[type].insert( make_pair( setname, new_a ) );
     }
     if ( debug ){
       cerr << "ADD to sort: " << folia::toString(type) << " ("
