@@ -2035,6 +2035,9 @@ namespace folia {
       \param setname set name, may be empty, triggering a 'wildcard' result
       \return a pointer to the declaration found, or 0 when not found
     */
+    if ( type == AnnotationType::NO_ANN ){
+      return 0;
+    }
     at_t *current = 0;
     auto const& t_it = _annotationdefaults.find( type );
     if ( t_it != _annotationdefaults.end() ){
@@ -2074,6 +2077,9 @@ namespace folia {
       \param setname set name, may be empty, triggering a 'wildcard' result
       \return a pointer to the declaration found, or 0 when not found
     */
+    if ( type == AnnotationType::NO_ANN ){
+      return 0;
+    }
     const at_t *current = 0;
     auto const& t_it = _annotationdefaults.find( type );
     if ( t_it != _annotationdefaults.end() ){
@@ -2443,43 +2449,19 @@ namespace folia {
       }
       return true;
     }
-    if ( debug ){
-      cerr << "Doorzoek: " << _annotationdefaults << endl;
-    }
-    const auto& mit1 = _annotationdefaults.find(type);
-    if ( mit1 != _annotationdefaults.end() ){
+    auto *cur = lookup_default( type, set_name );
+    if ( cur != 0 ){
       if ( debug ){
-	cerr << "found some: " << mit1->second << endl;
+	cerr << "declared() ==> true" << endl;
       }
-      if ( set_name.empty() ){
-	// 'wildcard' for setname
-	if ( debug ){
-	  cerr << "declared() for empty setname return TRUE" << endl;
-	}
-	return true;
-      }
-      string s_name = unalias(type,set_name);
+      return true;
+    }
+    else {
       if ( debug ){
-	cerr << "lookup: " << set_name << " (" << s_name << ")" << endl;
+	cerr << "declared() ==> false" << endl;
       }
-      const auto& mit2 = mit1->second.find(s_name);
-      if ( mit2 != mit1->second.end() ){
-	if ( debug ){
-	  cerr << "declared() return TRUE" << endl;
-	}
-	return true;
-      }
-      else {
-	if ( debug ){
-	  cerr << "return FALSE" << endl;
-	}
-	return false;
-      }
+      return false;
     }
-    if ( debug ){
-      cerr << "return DIRECTLY FALSE" << endl;
-    }
-    return false;
   }
 
   bool Document::declared( ElementType et,
@@ -2543,9 +2525,6 @@ namespace folia {
       \return the annotator. May be empty ("") when there is none defined OR it
       is ambiguous.
     */
-    if ( type == AnnotationType::NO_ANN ){
-      return "";
-    }
     string result;
     const auto* cur = lookup_default( type, setname );
     if ( cur != 0 ){
@@ -2569,29 +2548,9 @@ namespace folia {
       cerr << "lookup: " << folia::toString(type) << endl;
     }
     AnnotatorType result = UNDEFINED;
-    if ( type == AnnotationType::NO_ANN ){
-      return result;
-    }
-    const auto& mit1 = _annotationdefaults.find(type);
-    if ( mit1 != _annotationdefaults.end() ){
-      if ( debug ){
-	cerr << "found a hit for type=" << folia::toString( type ) << endl;
-      }
-      if ( setname.empty() ){
-	// 'wildcard' search
-	if ( mit1->second.size() == 1 ){
-	  // so it is unique
-	  result = mit1->second.begin()->second._ann_type;
-	}
-	return result;
-      }
-      else {
-	if ( mit1->second.count( setname ) == 1 ){
-	  // so it is unique
-	  const auto& mit2 = mit1->second.find( setname );
-	  result = mit2->second._ann_type;
-	}
-      }
+    const auto* cur = lookup_default( type, setname );
+    if ( cur != 0 ){
+      result = cur->_ann_type;
     }
     //  cerr << "get default ==> " << result << endl;
     return result;
@@ -2606,23 +2565,10 @@ namespace folia {
       \return the datetime value. May be empty ("") when there is none defined
       OR it is ambiguous.
     */
-    const auto& mit1 = _annotationdefaults.find(type);
     string result;
-    if ( mit1 != _annotationdefaults.end() ){
-      if ( setname.empty() ){
-	// 'wildcard' search
-	if ( mit1->second.size() == 1 ){
-	  // so it is unique
-	  result = mit1->second.begin()->second._date;
-	}
-      }
-      else {
-	if ( mit1->second.count( setname ) == 1 ){
-	  // so it is unique
-	  const auto& mit2 = mit1->second.find( setname );
-	  result = mit2->second._date;
-	}
-      }
+    const auto* cur = lookup_default( type, setname );
+    if ( cur != 0 ){
+      result = cur->_date;
     }
     //  cerr << "get default ==> " << result << endl;
     return result;
@@ -2641,46 +2587,22 @@ namespace folia {
       cerr << "defaultprocessor(" << toString( type ) << ","
 	   << setname << ")" << endl;
     }
-    auto const& it = _annotationdefaults.find(type);
-    if ( it != _annotationdefaults.end() ){
-      if ( debug ){
-	cerr << "found some defs: " << it->second << endl;
-	cerr << "NOW search for set: " << setname << endl;
+    string result;
+    auto const *cur = lookup_default( type, setname );
+    if ( cur != 0 ){
+      if ( cur->_processors.size() == 1 ){
+	result = *cur->_processors.begin();
       }
-      if ( setname.empty() ){
-	// 'wildcard' search
-	if ( it->second.size() == 1
-	     && it->second.begin()->second._processors.size() == 1 ){
-	  // so it is unique for setname AND for the number of processors
-	  return *it->second.begin()->second._processors.begin();
-	}
-	else {
-	  return "";
-	}
-      }
-      set<string> results;
-      auto s_it = it->second.lower_bound(setname);
-      while ( s_it != it->second.upper_bound(setname) ){
-	if ( debug ){
-	  cerr << "found sub strings: " << s_it->second << endl;
-	}
-	results.insert( s_it->second._processors.begin(),
-			s_it->second._processors.end() );
-	++s_it;
-      }
-      if ( results.size() == 1 ){
-	// so we found exactly 1 processor
-	return *results.begin();
-      }
-      else if ( results.size() > 1 ){
+      else if ( cur->_processors.size() > 1 ){
 	auto const& as = annotationtype_xml_map.find(type);
 	if ( as != annotationtype_xml_map.end() ){
 	  throw NoDefaultError("No processor specified for <"
-			       + as->second +  ">, but the presence of multiple declarations prevent assigning a default");
+			       + as->second
+			       +  ">, but the presence of multiple declarations prevent assigning a default");
 	}
       }
     }
-    return "";
+    return result;
   }
 
   string Document::original_default_set( AnnotationType type ) const {
@@ -2734,9 +2656,6 @@ namespace folia {
       \return a list of annotators.
     */
     vector<string> result;
-    if ( type == AnnotationType::NO_ANN ){
-      return result;
-    }
     auto const& cur = lookup_default( type, setname );
     if ( cur != 0 ){
       for ( const auto& p : cur->_processors ){
@@ -2759,9 +2678,6 @@ namespace folia {
     if ( debug ){
       cerr << "getprocessors(" << toString( type ) << ","
 	   << setname << ")" << endl;
-    }
-    if ( type == AnnotationType::NO_ANN ){
-      return result;
     }
     auto const& cur = lookup_default( type, setname );
     if ( cur != 0 ){
