@@ -2534,24 +2534,10 @@ namespace folia {
     if ( type == AnnotationType::NO_ANN ){
       return "";
     }
-    const auto& mit1 = _annotationdefaults.find(type);
     string result;
-    if ( mit1 != _annotationdefaults.end() ){
-      if ( setname.empty() ){
-	// 'wildcard' search
-	if ( mit1->second.size() == 1 ){
-	  // so it is unique
-	  result = mit1->second.begin()->second._annotator;
-	  return result;
-	}
-      }
-      else {
-	if ( mit1->second.count( setname ) == 1 ){
-	  // so it is unique
-	  const auto& mit2 = mit1->second.find( setname );
-	  result = mit2->second._annotator;
-	}
-      }
+    auto const& cur = lookup_default( type, setname );
+    if ( cur != 0 ){
+      result = cur->_annotator;
     }
     //    cerr << "get default ==> " << result << endl;
     return result;
