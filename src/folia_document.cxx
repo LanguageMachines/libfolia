@@ -2761,12 +2761,9 @@ namespace folia {
 	  args["groupannotations"] = "yes";
 	}
       }
-      const auto& ti = _set_alias.find(type);
-      if ( ti != _set_alias.end() ){
-      	const auto& alias = ti->second.find(setname);
-      	if ( alias->second != setname ){
-      	  args["alias"] = alias->second;
-      	}
+      string ali = alias( type, setname );
+      if ( ali != setname ){
+	args["alias"] = ali;
       }
       string a = it->second._annotator;
       if ( !a.empty() ){
