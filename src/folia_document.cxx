@@ -2032,21 +2032,29 @@ namespace folia {
     /// search for an annotation declaration for this type:setname
     /*!
       \param type the AnnotationType
-      \param setname set name
+      \param setname set name, may be empty for wildcard search
       \return a pointer to the declaration found, or 0 when not found
     */
     at_t *current = 0;
     auto const& t_it = _annotationdefaults.find( type );
     if ( t_it != _annotationdefaults.end() ){
-      auto s_it = t_it->second.find( setname );
-      if ( s_it == t_it->second.end() ){
-	s_it = t_it->second.find( unalias(type,setname) );
-	if ( s_it != t_it->second.end() ){
-	  current = &s_it->second;
+      if ( setname.empty() ){
+	if ( t_it->second.size() == 1 ){
+	  // so only one annotation declared for 'type'
+	  current = &t_it->second.begin()->second;
 	}
       }
       else {
-	current = &s_it->second;
+	auto s_it = t_it->second.find( setname );
+	if ( s_it == t_it->second.end() ){
+	  s_it = t_it->second.find( unalias(type,setname) );
+	  if ( s_it != t_it->second.end() ){
+	    current = &s_it->second;
+	  }
+	}
+	else {
+	  current = &s_it->second;
+	}
       }
     }
     return current;
@@ -2057,21 +2065,29 @@ namespace folia {
     /// search for an annotation declaration for this type:setname
     /*!
       \param type the AnnotationType
-      \param setname set name
+      \param setname set name, may be empty for wildcard search
       \return a const pointer to the declaration found, or 0 when not found
     */
     at_t const *current = 0;
     auto const& t_it = _annotationdefaults.find( type );
     if ( t_it != _annotationdefaults.end() ){
-      auto s_it = t_it->second.find( setname );
-      if ( s_it == t_it->second.end() ){
-	s_it = t_it->second.find( unalias(type,setname) );
-	if ( s_it != t_it->second.end() ){
-	  current = &s_it->second;
+      if ( setname.empty() ){
+	if ( t_it->second.size() == 1 ){
+	  // so only one annotation declared for 'type'
+	  current = &t_it->second.begin()->second;
 	}
       }
       else {
-	current = &s_it->second;
+	auto s_it = t_it->second.find( setname );
+	if ( s_it == t_it->second.end() ){
+	  s_it = t_it->second.find( unalias(type,setname) );
+	  if ( s_it != t_it->second.end() ){
+	    current = &s_it->second;
+	  }
+	}
+	else {
+	  current = &s_it->second;
+	}
       }
     }
     return current;
@@ -2769,6 +2785,7 @@ namespace folia {
       \param done a set of "labels" to keep track of already handled cases
 
      */
+    //    cerr << "add one anno: " << pair << endl;
     AnnotationType type = pair.first;
     string sett = pair.second;
     if ( type == AnnotationType::TEXT ){

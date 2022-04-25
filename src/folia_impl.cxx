@@ -412,7 +412,7 @@ namespace folia {
       }
       if ( annotation_type() != AnnotationType::NO_ANN
 	   && !_mydoc->version_below( 2, 0 ) ){
-	if ( !_mydoc->declared( annotation_type() ) ){
+	if ( !_mydoc->declared( annotation_type(), _set ) ){
 	  if ( _mydoc->autodeclare() ){
 	    _mydoc->auto_declare( annotation_type(), _set );
 	  }
