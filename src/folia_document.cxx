@@ -2050,19 +2050,10 @@ namespace folia {
 	}
       }
       else {
-	auto s_it = t_it->second.find( setname );
+	// setname may be an alias, so resolve
+	auto s_it = t_it->second.find( unalias(type,setname) );
 	if ( s_it != t_it->second.end() ){
-	  // there is also a match on setname
-	  // return it
 	  current = &s_it->second;
-	}
-	else {
-	  s_it = t_it->second.find( unalias(type,setname) );
-	  if ( s_it != t_it->second.end() ){
-	    // OK, a match on an alias
-	    // return it
-	    current = &s_it->second;
-	  }
 	}
       }
     }
@@ -2092,19 +2083,10 @@ namespace folia {
 	}
       }
       else {
-	auto s_it = t_it->second.find( setname );
+	// setname may be an alias, so resolve
+	auto s_it = t_it->second.find( unalias(type,setname) );
 	if ( s_it != t_it->second.end() ){
-	  // there is also a match on setname
-	  // return it
 	  current = &s_it->second;
-	}
-	else {
-	  s_it = t_it->second.find( unalias(type,setname) );
-	  if ( s_it != t_it->second.end() ){
-	    // OK, a match on an alias
-	    // return it
-	    current = &s_it->second;
-	  }
 	}
       }
     }
@@ -2241,7 +2223,7 @@ namespace folia {
     }
     if ( _annotationrefs[type][setname] != 0 ){
       throw DeclarationError( "unable to undeclare " + toString(type) + "-type("
-		      + setname + ") (references remain)" );
+		      + setname + ") (some references remain)" );
     }
     auto const adt = _annotationdefaults.find(type);
     if ( adt != _annotationdefaults.end() ){
@@ -2449,19 +2431,44 @@ namespace folia {
       }
       return true;
     }
-    auto *cur = lookup_default( type, set_name );
-    if ( cur != 0 ){
-      if ( debug ){
-	cerr << "declared() ==> true" << endl;
-      }
-      return true;
+    if ( debug ){
+      cerr << "Doorzoek: " << _annotationdefaults << endl;
     }
-    else {
+    const auto& mit1 = _annotationdefaults.find(type);
+    if ( mit1 != _annotationdefaults.end() ){
       if ( debug ){
-	cerr << "declared() ==> false" << endl;
+	cerr << "found some: " << mit1->second << endl;
       }
-      return false;
+      if ( set_name.empty() ){
+	// 'wildcard' for setname
+	if ( debug ){
+	  cerr << "declared() for empty setname return TRUE" << endl;
+	}
+	return true;
+      }
+      // set_name may be an alias, so resolve
+      string s_name = unalias(type,set_name);
+      if ( debug ){
+	cerr << "lookup: " << set_name << " (" << s_name << ")" << endl;
+      }
+      const auto& mit2 = mit1->second.find(s_name);
+      if ( mit2 != mit1->second.end() ){
+	if ( debug ){
+	  cerr << "declared() return TRUE" << endl;
+	}
+	return true;
+      }
+      else {
+	if ( debug ){
+	  cerr << "return FALSE" << endl;
+	}
+	return false;
+      }
     }
+    if ( debug ){
+      cerr << "return DIRECTLY FALSE" << endl;
+    }
+    return false;
   }
 
   bool Document::declared( ElementType et,
@@ -2525,8 +2532,11 @@ namespace folia {
       \return the annotator. May be empty ("") when there is none defined OR it
       is ambiguous.
     */
+    if ( type == AnnotationType::NO_ANN ){
+      return "";
+    }
     string result;
-    const auto* cur = lookup_default( type, setname );
+    auto const& cur = lookup_default( type, setname );
     if ( cur != 0 ){
       result = cur->_annotator;
     }
@@ -2548,7 +2558,10 @@ namespace folia {
       cerr << "lookup: " << folia::toString(type) << endl;
     }
     AnnotatorType result = UNDEFINED;
-    const auto* cur = lookup_default( type, setname );
+    if ( type == AnnotationType::NO_ANN ){
+      return result;
+    }
+    auto const& cur = lookup_default( type, setname );
     if ( cur != 0 ){
       result = cur->_ann_type;
     }
@@ -2588,7 +2601,7 @@ namespace folia {
 	   << setname << ")" << endl;
     }
     string result;
-    auto const *cur = lookup_default( type, setname );
+    const auto cur = lookup_default( type, setname );
     if ( cur != 0 ){
       if ( cur->_processors.size() == 1 ){
 	result = *cur->_processors.begin();
@@ -2699,6 +2712,7 @@ namespace folia {
       \param done a set of "labels" to keep track of already handled cases
 
      */
+    //    cerr << "add one anno: " << pair << endl;
     AnnotationType type = pair.first;
     string sett = pair.second;
     if ( type == AnnotationType::TEXT ){
