@@ -2045,14 +2045,9 @@ namespace folia {
 	}
       }
       else {
-	auto s_it = t_it->second.find( setname );
-	if ( s_it == t_it->second.end() ){
-	  s_it = t_it->second.find( unalias(type,setname) );
-	  if ( s_it != t_it->second.end() ){
-	    current = &s_it->second;
-	  }
-	}
-	else {
+	// setname may be an alias, so resolve
+	auto s_it = t_it->second.find( unalias(type,setname) );
+	if ( s_it != t_it->second.end() ){
 	  current = &s_it->second;
 	}
       }
@@ -2078,14 +2073,9 @@ namespace folia {
 	}
       }
       else {
-	auto s_it = t_it->second.find( setname );
-	if ( s_it == t_it->second.end() ){
-	  s_it = t_it->second.find( unalias(type,setname) );
-	  if ( s_it != t_it->second.end() ){
-	    current = &s_it->second;
-	  }
-	}
-	else {
+	// setname may be an alias, so resolve
+	auto s_it = t_it->second.find( unalias(type,setname) );
+	if ( s_it != t_it->second.end() ){
 	  current = &s_it->second;
 	}
       }
@@ -2223,7 +2213,7 @@ namespace folia {
     }
     if ( _annotationrefs[type][setname] != 0 ){
       throw DeclarationError( "unable to undeclare " + toString(type) + "-type("
-		      + setname + ") (references remain)" );
+		      + setname + ") (some references remain)" );
     }
     auto const adt = _annotationdefaults.find(type);
     if ( adt != _annotationdefaults.end() ){
@@ -2446,6 +2436,7 @@ namespace folia {
 	}
 	return true;
       }
+      // set_name may be an alias, so resolve
       string s_name = unalias(type,set_name);
       if ( debug ){
 	cerr << "lookup: " << set_name << " (" << s_name << ")" << endl;
