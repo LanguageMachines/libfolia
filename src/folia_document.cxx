@@ -2780,11 +2780,11 @@ namespace folia {
       xmlNode *n = TiCC::XmlNewNode( foliaNs(), label );
       addAttributes( n, args );
       xmlAddChild( node, n );
-      args.clear();
       for ( const auto& p : it->second._processors ){
+	KWargs pargs;
 	xmlNode *a = TiCC::XmlNewNode( foliaNs(), "annotator" );
-	args["processor"] = p;
-	addAttributes( a, args );
+	pargs["processor"] = p;
+	addAttributes( a, pargs );
 	xmlAddChild( n, a );
       }
     }
