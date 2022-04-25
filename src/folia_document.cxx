@@ -2735,87 +2735,55 @@ namespace folia {
     const auto& mm = _annotationdefaults.find(type);
     auto it = mm->second.lower_bound(sett);
     while ( it != mm->second.upper_bound(sett) ){
-      string s = it->second._annotator;
-      if ( !s.empty() ){
+      KWargs args;
+      if ( !strip() ){
+	string d = it->second._date;
+	if ( !d.empty() ){
+	  args["datetime"] = d;
+	}
+      }
+      string f = it->second._format;
+      if ( !f.empty() ){
+	args["format"] = f;
+      }
+      string s = it->first;
+      if ( s == "None" ){ // "empty" set
+	// skip
+      }
+      else if ( s != "undefined" ){ // the default
+	args["set"] = s;
+      }
+      auto const& t_it = _groupannotations.find(type);
+      if ( t_it != _groupannotations.end() ){
+	auto const& s_it = t_it->second.find(s);
+	if ( s_it != t_it->second.end()
+	     && s_it->second ){
+	  args["groupannotations"] = "yes";
+	}
+      }
+      const auto& ti = _set_alias.find(type);
+      if ( ti != _set_alias.end() ){
+	const auto& alias = ti->second.find(s);
+	if ( alias->second != s ){
+	  args["alias"] = alias->second;
+	}
+      }
+
+      if ( it->second._processors.empty() ){
 	// old style
-	KWargs args;
-	args["annotator"] = s;
+	string s = it->second._annotator;
+	if ( !s.empty() ){
+	  args["annotator"] = s;
+	}
 	AnnotatorType ant = it->second._ann_type;
 	if ( ant != UNDEFINED && ant != AUTO ){
 	  args["annotatortype"] = toString(ant);
-	}
-	if ( !strip() ){
-	  s = it->second._date;
-	  if ( !s.empty() ){
-	    args["datetime"] = s;
-	  }
-	}
-	s = it->second._format;
-	if ( !s.empty() ){
-	  args["format"] = s;
-	}
-	s = it->first;
-	if ( s == "None" ){ // "empty" set
-	  // skip
-	}
-	else if ( s != "undefined" ){ // the default
-	  args["set"] = s;
-	}
-	auto const& t_it = _groupannotations.find(type);
-	if ( t_it != _groupannotations.end() ){
-	  auto const& s_it = t_it->second.find(s);
-	  if ( s_it != t_it->second.end()
-	       && s_it->second ){
-	    args["groupannotations"] = "yes";
-	  }
-	}
-
-	const auto& ti = _set_alias.find(type);
-	if ( ti != _set_alias.end() ){
-	  const auto& alias = ti->second.find(s);
-	  if ( alias->second != s ){
-	    args["alias"] = alias->second;
-	  }
 	}
 	xmlNode *n = TiCC::XmlNewNode( foliaNs(), label );
 	addAttributes( n, args );
 	xmlAddChild( node, n );
       }
       else {
-	// we have new style processors
-	KWargs args;
-	if ( !strip() ){
-	  s = it->second._date;
-	  if ( !s.empty() ){
-	    args["datetime"] = s;
-	  }
-	}
-	s = it->second._format;
-	if ( !s.empty() ){
-	  args["format"] = s;
-	}
-	s = it->first;
-	if ( s == "None" ){ // "empty" set
-	  // skip
-	}
-	else if ( s != "undefined" ){ // the default
-	  args["set"] = s;
-	}
-	const auto& ti = _set_alias.find(type);
-	if ( ti != _set_alias.end() ){
-	  const auto& alias = ti->second.find(s);
-	  if ( alias->second != s ){
-	    args["alias"] = alias->second;
-	  }
-	}
-	auto const& t_it = _groupannotations.find(type);
-	if ( t_it != _groupannotations.end() ){
-	  auto const& s_it = t_it->second.find(s);
-	  if ( s_it != t_it->second.end()
-	       && s_it->second ){
-	    args["groupannotations"] = "yes";
-	  }
-	}
 	xmlNode *n = TiCC::XmlNewNode( foliaNs(), label );
 	addAttributes( n, args );
 	xmlAddChild( node, n );
