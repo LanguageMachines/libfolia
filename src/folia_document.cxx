@@ -2733,8 +2733,8 @@ namespace folia {
     done.insert(label+sett);
     label += "-annotation";
     const auto& mm = _annotationdefaults.find(type);
-    auto it = mm->second.lower_bound(sett);
-    while ( it != mm->second.upper_bound(sett) ){
+    const auto& it = mm->second.find(sett);
+    if ( it != mm->second.end() ){
       KWargs args;
       if ( !strip() ){
 	string d = it->second._date;
@@ -2746,16 +2746,16 @@ namespace folia {
       if ( !f.empty() ){
 	args["format"] = f;
       }
-      string s = it->first;
-      if ( s == "None" ){ // "empty" set
+      string setname = it->first;
+      if ( setname == "None" ){ // "empty" set
 	// skip
       }
-      else if ( s != "undefined" ){ // the default
-	args["set"] = s;
+      else if ( setname != "undefined" ){ // the default
+	args["set"] = setname;
       }
       auto const& t_it = _groupannotations.find(type);
       if ( t_it != _groupannotations.end() ){
-	auto const& s_it = t_it->second.find(s);
+	auto const& s_it = t_it->second.find(setname);
 	if ( s_it != t_it->second.end()
 	     && s_it->second ){
 	  args["groupannotations"] = "yes";
@@ -2763,39 +2763,30 @@ namespace folia {
       }
       const auto& ti = _set_alias.find(type);
       if ( ti != _set_alias.end() ){
-	const auto& alias = ti->second.find(s);
-	if ( alias->second != s ){
-	  args["alias"] = alias->second;
-	}
+      	const auto& alias = ti->second.find(setname);
+      	if ( alias->second != setname ){
+      	  args["alias"] = alias->second;
+      	}
+      }
+      string a = it->second._annotator;
+      if ( !a.empty() ){
+	args["annotator"] = a;
+      }
+      AnnotatorType ant = it->second._ann_type;
+      if ( ant != UNDEFINED && ant != AUTO ){
+	args["annotatortype"] = toString(ant);
       }
 
-      if ( it->second._processors.empty() ){
-	// old style
-	string s = it->second._annotator;
-	if ( !s.empty() ){
-	  args["annotator"] = s;
-	}
-	AnnotatorType ant = it->second._ann_type;
-	if ( ant != UNDEFINED && ant != AUTO ){
-	  args["annotatortype"] = toString(ant);
-	}
-	xmlNode *n = TiCC::XmlNewNode( foliaNs(), label );
-	addAttributes( n, args );
-	xmlAddChild( node, n );
+      xmlNode *n = TiCC::XmlNewNode( foliaNs(), label );
+      addAttributes( n, args );
+      xmlAddChild( node, n );
+      args.clear();
+      for ( const auto& p : it->second._processors ){
+	xmlNode *a = TiCC::XmlNewNode( foliaNs(), "annotator" );
+	args["processor"] = p;
+	addAttributes( a, args );
+	xmlAddChild( n, a );
       }
-      else {
-	xmlNode *n = TiCC::XmlNewNode( foliaNs(), label );
-	addAttributes( n, args );
-	xmlAddChild( node, n );
-	args.clear();
-	for ( const auto& p : it->second._processors ){
-	  xmlNode *a = TiCC::XmlNewNode( foliaNs(), "annotator" );
-	  args["processor"] = p;
-	  addAttributes( a, args );
-	  xmlAddChild( n, a );
-	}
-      }
-      ++it;
     }
   }
 
