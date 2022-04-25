@@ -2690,12 +2690,12 @@ namespace folia {
   }
 
   void Document::add_one_anno( const pair<AnnotationType,string>& pair,
-			       xmlNode *node,
+			       xmlNode *root,
 			       set<string>& done ) const {
     /// create an annotation declaration entry under the xmlNode node
     /*!
       \param pair an AnnotationType/setname pair
-      \param node the node we want to add to
+      \param root the node we want to add to
       \param done a set of "labels" to keep track of already handled cases
 
      */
@@ -2722,102 +2722,60 @@ namespace folia {
     }
     done.insert(label+sett);
     label += "-annotation";
-    const auto& mm = _annotationdefaults.find(type);
-    auto it = mm->second.lower_bound(sett);
-    while ( it != mm->second.upper_bound(sett) ){
-      string s = it->second._annotator;
+    const auto *it = lookup_default( type, sett );
+    if ( it != 0 ){
+      string s;
+      KWargs args;
+      if ( !strip() ){
+	s = it->_date;
+	if ( !s.empty() ){
+	  args["datetime"] = s;
+	}
+      }
+      s = it->_format;
       if ( !s.empty() ){
-	// old style
-	KWargs args;
-	args["annotator"] = s;
-	AnnotatorType ant = it->second._ann_type;
-	if ( ant != UNDEFINED && ant != AUTO ){
-	  args["annotatortype"] = toString(ant);
-	}
-	if ( !strip() ){
-	  s = it->second._date;
-	  if ( !s.empty() ){
-	    args["datetime"] = s;
-	  }
-	}
-	s = it->second._format;
-	if ( !s.empty() ){
-	  args["format"] = s;
-	}
-	s = it->first;
-	if ( s == "None" ){ // "empty" set
-	  // skip
-	}
-	else if ( s != "undefined" ){ // the default
-	  args["set"] = s;
-	}
-	auto const& t_it = _groupannotations.find(type);
-	if ( t_it != _groupannotations.end() ){
-	  auto const& s_it = t_it->second.find(s);
-	  if ( s_it != t_it->second.end()
-	       && s_it->second ){
-	    args["groupannotations"] = "yes";
-	  }
-	}
-
-	const auto& ti = _set_alias.find(type);
-	if ( ti != _set_alias.end() ){
-	  const auto& alias = ti->second.find(s);
-	  if ( alias->second != s ){
-	    args["alias"] = alias->second;
-	  }
-	}
-	xmlNode *n = TiCC::XmlNewNode( foliaNs(), label );
-	addAttributes( n, args );
-	xmlAddChild( node, n );
+	args["format"] = s;
       }
-      else {
-	// we have new style processors
-	KWargs args;
-	if ( !strip() ){
-	  s = it->second._date;
-	  if ( !s.empty() ){
-	    args["datetime"] = s;
-	  }
-	}
-	s = it->second._format;
-	if ( !s.empty() ){
-	  args["format"] = s;
-	}
-	s = it->first;
-	if ( s == "None" ){ // "empty" set
-	  // skip
-	}
-	else if ( s != "undefined" ){ // the default
-	  args["set"] = s;
-	}
-	const auto& ti = _set_alias.find(type);
-	if ( ti != _set_alias.end() ){
-	  const auto& alias = ti->second.find(s);
-	  if ( alias->second != s ){
-	    args["alias"] = alias->second;
-	  }
-	}
-	auto const& t_it = _groupannotations.find(type);
-	if ( t_it != _groupannotations.end() ){
-	  auto const& s_it = t_it->second.find(s);
-	  if ( s_it != t_it->second.end()
-	       && s_it->second ){
-	    args["groupannotations"] = "yes";
-	  }
-	}
-	xmlNode *n = TiCC::XmlNewNode( foliaNs(), label );
-	addAttributes( n, args );
-	xmlAddChild( node, n );
-	args.clear();
-	for ( const auto& p : it->second._processors ){
-	  xmlNode *a = TiCC::XmlNewNode( foliaNs(), "annotator" );
-	  args["processor"] = p;
-	  addAttributes( a, args );
-	  xmlAddChild( n, a );
+      s = sett;
+      if ( s == "None" ){ // "empty" set
+	// skip
+      }
+      else if ( s != "undefined" ){ // the default
+	args["set"] = s;
+      }
+      auto const& t_it = _groupannotations.find(type);
+      if ( t_it != _groupannotations.end() ){
+	auto const& s_it = t_it->second.find(s);
+	if ( s_it != t_it->second.end()
+	     && s_it->second ){
+	  args["groupannotations"] = "yes";
 	}
       }
-      ++it;
+      const auto& ti = _set_alias.find(type);
+      if ( ti != _set_alias.end() ){
+	const auto& alias = ti->second.find(s);
+	if ( alias->second != s ){
+	  args["alias"] = alias->second;
+	}
+      }
+      string an = it->_annotator;
+      if ( !an.empty() ){
+	args["annotator"] = an;
+      }
+      AnnotatorType ant = it->_ann_type;
+      if ( ant != UNDEFINED && ant != AUTO ){
+	args["annotatortype"] = toString(ant);
+      }
+      xmlNode *annotation_node = TiCC::XmlNewNode( foliaNs(), label );
+      addAttributes( annotation_node, args );
+      xmlAddChild( root, annotation_node );
+      for ( const auto& p : it->_processors ){
+	KWargs pargs;
+	xmlNode *a = TiCC::XmlNewNode( foliaNs(), "annotator" );
+	pargs["processor"] = p;
+	addAttributes( a, pargs );
+	xmlAddChild( annotation_node, a );
+      }
     }
   }
 
