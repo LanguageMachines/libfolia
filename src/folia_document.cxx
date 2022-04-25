@@ -2613,46 +2613,22 @@ namespace folia {
       cerr << "defaultprocessor(" << toString( type ) << ","
 	   << setname << ")" << endl;
     }
-    auto const& it = _annotationdefaults.find(type);
-    if ( it != _annotationdefaults.end() ){
-      if ( debug ){
-	cerr << "found some defs: " << it->second << endl;
-	cerr << "NOW search for set: " << setname << endl;
+    string result;
+    const auto cur = lookup_default( type, setname );
+    if ( cur != 0 ){
+      if ( cur->_processors.size() == 1 ){
+	result = *cur->_processors.begin();
       }
-      if ( setname.empty() ){
-	// 'wildcard' search
-	if ( it->second.size() == 1
-	     && it->second.begin()->second._processors.size() == 1 ){
-	  // so it is unique for setname AND for the number of processors
-	  return *it->second.begin()->second._processors.begin();
-	}
-	else {
-	  return "";
-	}
-      }
-      set<string> results;
-      auto s_it = it->second.lower_bound(setname);
-      while ( s_it != it->second.upper_bound(setname) ){
-	if ( debug ){
-	  cerr << "found sub strings: " << s_it->second << endl;
-	}
-	results.insert( s_it->second._processors.begin(),
-			s_it->second._processors.end() );
-	++s_it;
-      }
-      if ( results.size() == 1 ){
-	// so we found exactly 1 processor
-	return *results.begin();
-      }
-      else if ( results.size() > 1 ){
+      else if ( cur->_processors.size() > 1 ){
 	auto const& as = annotationtype_xml_map.find(type);
 	if ( as != annotationtype_xml_map.end() ){
 	  throw NoDefaultError("No processor specified for <"
-			       + as->second +  ">, but the presence of multiple declarations prevent assigning a default");
+			       + as->second
+			       +  ">, but the presence of multiple declarations prevent assigning a default");
 	}
       }
     }
-    return "";
+    return result;
   }
 
   string Document::original_default_set( AnnotationType type ) const {
