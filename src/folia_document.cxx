@@ -2368,8 +2368,8 @@ namespace folia {
 	// 'wildcard' for setname
 	return true;
       }
-      auto mit2 = it1->second.lower_bound(setname);
-      while ( mit2 != it1->second.upper_bound(setname) ){
+      auto mit2 = it1->second.find(setname);
+      if ( mit2 != it1->second.end() ){
 	if ( debug ){
 	  cerr << "OK, found an entry for set='" << setname  << "'" << endl;
 	  cerr << "content: " << mit2->second << endl;
@@ -2384,7 +2384,6 @@ namespace folia {
 	  }
 	  return true;
 	}
-	++mit2;
       }
     }
     if ( debug ){
