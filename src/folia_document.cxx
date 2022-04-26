@@ -2808,16 +2808,21 @@ namespace folia {
 						   "annotations" ) );
     set<string> done;
     if ( canonical() ){
-      multimap<AnnotationType,
-	       pair<AnnotationType,string>> ordered;
+      // _anno_sort contains type:setname pair ordered on appearance
+      map<AnnotationType,
+	  pair<AnnotationType,string>> ordered;
       for ( const auto& pair : _anno_sort ){
+	// this sorts the _anno_sort entries on AnnotationType
+
 	ordered.insert(make_pair(pair.first,pair));
       }
+      // so now we can output in a canonical way
       for ( const auto& it : ordered ){
 	add_one_anno( it.second, node, done );
       }
     }
     else {
+      // output in order off appearance
       for ( const auto& pair : _anno_sort ){
 	add_one_anno( pair, node, done );
       }

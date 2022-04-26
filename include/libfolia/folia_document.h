@@ -403,8 +403,6 @@ namespace folia {
   private:
     void adjustTextMode();
     std::map<AnnotationType,std::map<std::string,at_t> > _annotationdefaults;   ///< stores all declared annotations per AnnotationType
-    ///< every AnnotationType can have multiple annotations even with the same
-    ///< setnames. hence a multimap
     std::map<AnnotationType,std::map<std::string,bool> > _groupannotations; ///<
     ///< register which annotations are GROUP annotations
     std::vector<std::pair<AnnotationType,std::string>> _anno_sort; ///<
