@@ -2723,8 +2723,7 @@ namespace folia {
 
     string label = annotation_type_to_string( type );
     if ( done.find(label+sett) != done.end() ){
-      cerr << "duo: " << label+sett << endl;
-      //      return;
+      return;
     }
     done.insert(label+sett);
     label += "-annotation";
