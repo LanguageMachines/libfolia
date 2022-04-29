@@ -2126,9 +2126,9 @@ namespace folia {
 	   << annotator_type << "," << date_time << "," << _alias << ","
 	   << _processors << ") " << endl;
     }
-    AnnotatorType ant = UNDEFINED;
+    AnnotatorType anno_type = UNDEFINED;
     try {
-      ant = TiCC::stringTo<AnnotatorType>( annotator_type );
+      anno_type = TiCC::stringTo<AnnotatorType>( annotator_type );
     }
     catch (...) {
       throw XmlError( "internal_declare(): illegal value '"
@@ -2174,20 +2174,20 @@ namespace folia {
       }
       else {
 	// old style, overwrite the existing annotator info
-	string d = date_time;
-	if ( d == "now()" ){
-	  d = get_ISO_date();
+	string date = date_time;
+	if ( date == "now()" ){
+	  date = get_ISO_date();
 	}
-	*current = at_t(annotator,ant,d,format,procs);
+	*current = at_t(annotator,anno_type,date,format,procs);
       }
     }
     else {
       // No declaration yet, create one
-      string d = date_time;
-      if ( d == "now()" ){
-	d = get_ISO_date();
+      string date = date_time;
+      if ( date == "now()" ){
+	date = get_ISO_date();
       }
-      at_t new_a(annotator,ant,d,format,procs);
+      at_t new_a(annotator,anno_type,date,format,procs);
       _annotationdefaults[type].insert( make_pair( setname, new_a ) );
     }
     if ( debug ){
@@ -2723,7 +2723,8 @@ namespace folia {
 
     string label = annotation_type_to_string( type );
     if ( done.find(label+sett) != done.end() ){
-      return;
+      cerr << "duo: " << label+sett << endl;
+      //      return;
     }
     done.insert(label+sett);
     label += "-annotation";
@@ -2767,9 +2768,9 @@ namespace folia {
       if ( !an.empty() ){
 	args["annotator"] = an;
       }
-      AnnotatorType ant = it->_ann_type;
-      if ( ant != UNDEFINED && ant != AUTO ){
-	args["annotatortype"] = toString(ant);
+      AnnotatorType anno_type = it->_ann_type;
+      if ( anno_type != UNDEFINED && anno_type != AUTO ){
+	args["annotatortype"] = toString(anno_type);
       }
       xmlNode *annotation_node = TiCC::XmlNewNode( foliaNs(), label );
       addAttributes( annotation_node, args );
