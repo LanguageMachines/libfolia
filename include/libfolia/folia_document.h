@@ -401,6 +401,7 @@ namespace folia {
     }
 
   private:
+    void test_temporary_text_exception( const std::string& ) const;
     void adjustTextMode();
     std::map<AnnotationType,std::map<std::string,at_t> > _annotationdefaults;   ///< stores all declared annotations per AnnotationType
     std::map<AnnotationType,std::map<std::string,bool> > _groupannotations; ///<
