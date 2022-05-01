@@ -444,8 +444,7 @@ namespace folia {
     void append_processor( xmlNode *, const processor * ) const;
     xmlDoc *to_xmlDoc( const std::string& ="" ) const;
     void add_one_anno( const std::pair<AnnotationType,std::string>&,
-		       xmlNode *,
-		       std::set<std::string>& ) const;
+		       xmlNode * ) const;
     void internal_declare( AnnotationType,
 			   const std::string&,
 			   const std::string&, const std::string&,

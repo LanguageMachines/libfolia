@@ -62,6 +62,21 @@ namespace folia {
     return os;
   }
 
+  ostream& operator<<( ostream& os, const Document::at_t *at ){
+    /// output an at_t structure (Debugging only)
+    /*!
+      \param os the output stream
+      \param at a ponter to the the at_t object
+    */
+    if ( at == NULL ){
+      os << "Nill";
+    }
+    else {
+      os << *at;
+    }
+    return os;
+  }
+
   Document::Document(){
     /// create and initalize a FoLiA Document.
     init();
@@ -2166,8 +2181,15 @@ namespace folia {
     at_t *current = lookup_default( type, setname );
     if ( current != 0 ){
       // there is already a fitting declaration, enrich it.
+      if ( debug ){
+	cerr << "a declaration exists for: " << type << ":" << setname << endl;
+	cerr << "value: " << current << endl;
+      }
       if ( !procs.empty() ){
 	// add the extra processor id's to the set of processsor ID's
+	if ( debug ){
+	  cerr << "add extra procs: " << procs << endl;
+	}
 	for ( const auto& p : procs ){
 	  current->_processors.insert( p );
 	}
@@ -2179,23 +2201,32 @@ namespace folia {
 	  date = get_ISO_date();
 	}
 	*current = at_t(annotator,anno_type,date,format,procs);
+	if ( debug ){
+	  cerr << "overwrite with " << current << endl;
+	}
+      }
+      if ( debug ){
+	cerr << "NOW: " << current << endl;
       }
     }
     else {
       // No declaration yet, create one
+      if ( debug ){
+	cerr << "NO declaration exists for: " << type << ":" << setname << endl;
+      }
       string date = date_time;
       if ( date == "now()" ){
 	date = get_ISO_date();
       }
       at_t new_a(annotator,anno_type,date,format,procs);
       _annotationdefaults[type].insert( make_pair( setname, new_a ) );
+      if ( debug ){
+	cerr << "ADD to sort: " << folia::toString(type) << " ("
+	     << setname << ")"  << endl;
+      }
+      _anno_sort.push_back(make_pair(type,setname));
+      _annotationrefs[type][setname] = 0;
     }
-    if ( debug ){
-      cerr << "ADD to sort: " << folia::toString(type) << " ("
-	   << setname << ")"  << endl;
-    }
-    _anno_sort.push_back(make_pair(type,setname));
-    _annotationrefs[type][setname] = 0;
     if ( !_alias.empty() ){
       _alias_set[type][_alias] = setname;
       _set_alias[type][setname] = _alias;
@@ -2702,15 +2733,12 @@ namespace folia {
   }
 
   void Document::add_one_anno( const pair<AnnotationType,string>& pair,
-			       xmlNode *root,
-			       set<string>& done ) const {
+			       xmlNode *root ) const {
     /// create an annotation declaration entry under the xmlNode node
     /*!
       \param pair an AnnotationType/setname pair
       \param root the node we want to add to
-      \param done a set of "labels" to keep track of already handled cases
-
-     */
+    */
     //    cerr << "add one anno: " << pair << endl;
     AnnotationType type = pair.first;
     string sett = pair.second;
@@ -2722,10 +2750,11 @@ namespace folia {
     }
 
     string label = annotation_type_to_string( type );
-    if ( done.find(label+sett) != done.end() ){
-      return;
-    }
-    done.insert(label+sett);
+    // cerr << "/nDO: '" << label+sett << "'" << endl;
+    // if ( done.find(label+sett) != done.end() ){
+    //   return;
+    // }
+    // //    done.insert(label+sett);
     label += "-annotation";
     const auto *it = lookup_default( type, sett );
     if ( it != 0 ){
@@ -2797,7 +2826,6 @@ namespace folia {
     xmlNode *node = xmlAddChild( metadata,
 				 TiCC::XmlNewNode( foliaNs(),
 						   "annotations" ) );
-    set<string> done;
     if ( canonical() ){
       // _anno_sort contains type:setname pair ordered on appearance
       map<AnnotationType,
@@ -2809,13 +2837,13 @@ namespace folia {
       }
       // so now we can output in a canonical way
       for ( const auto& it : ordered ){
-	add_one_anno( it.second, node, done );
+	add_one_anno( it.second, node );
       }
     }
     else {
       // output in order off appearance
       for ( const auto& pair : _anno_sort ){
-	add_one_anno( pair, node, done );
+	add_one_anno( pair, node );
       }
     }
   }
