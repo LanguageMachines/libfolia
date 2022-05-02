@@ -535,6 +535,7 @@ namespace folia {
 	  }
 	}
 	if ( sane && tmp1 ){
+	  destroy( tmp1 );
 	  FoliaElement *tmp2 = 0;
 	  try {
 	    tmp2 = AbstractElement::createElement( et );
@@ -551,12 +552,13 @@ namespace folia {
 	      cerr << "the element type " << tmp2->element_id() << " of " << s
 		   << " != " << et << " (" << toString(tmp2->element_id())
 		   << " != " << toString(et) << ")" << endl;
-	    sane = false;
+	      sane = false;
 	    }
 	    if ( s != tmp2->xmltag() && s != "headfeature" ){
 	      cerr << "the xmltag " << tmp2->xmltag() << " != " << s << endl;
-	    sane = false;
+	      sane = false;
 	    }
+	    destroy(tmp2);
 	  }
 	}
       }
