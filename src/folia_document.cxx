@@ -51,22 +51,24 @@ const char *output_encoding = "UTF-8";
 namespace folia {
   using TiCC::operator<<;
 
-  ostream& operator<<( ostream& os, const Document::at_t& at ){
-    /// output an at_t structure (Debugging only)
+  ostream& operator<<( ostream& os,
+		       const Document::annotation_info& at ){
+    /// output an annotation_info structure (Debugging only)
     /*!
       \param os the output stream
-      \param at the at_t object
+      \param at the annotation_info object
     */
     os << "<" << at._annotator << "," << TiCC::toString(at._ann_type)
        << "," << at._date << "," << at._processors << ">";
     return os;
   }
 
-  ostream& operator<<( ostream& os, const Document::at_t *at ){
-    /// output an at_t structure (Debugging only)
+  ostream& operator<<( ostream& os,
+		       const Document::annotation_info *at ){
+    /// output an annotation_info structure (Debugging only)
     /*!
       \param os the output stream
-      \param at a ponter to the the at_t object
+      \param at a pointer to the the annotation_info object
     */
     if ( at == NULL ){
       os << "Nill";
@@ -1138,6 +1140,11 @@ namespace folia {
 
   void Document::parse_annotations( const xmlNode *node ){
     /// parse all annotation declarations from the Xml tree given by node
+    /*!
+      \param node an XML node to extract annotation data from
+
+      The data found will be appended to the Document
+    */
     if ( debug ){
       cerr << "parse annotations " << TiCC::Name(node) << endl;
     }
@@ -1145,7 +1152,8 @@ namespace folia {
     _anno_sort.clear();
     while ( n ){
       string tag = TiCC::Name( n );
-      if ( tag.length() > 11 && tag.substr( tag.length() - 11 ) == "-annotation" ){
+      if ( tag.length() > 11
+	   && tag.substr( tag.length() - 11 ) == "-annotation" ){
 	string prefix = tag.substr( 0,  tag.length() - 11 );
 	AnnotationType at_type = TiCC::stringTo<AnnotationType>( prefix );
 	if ( debug ){
@@ -1255,6 +1263,11 @@ namespace folia {
 
   void Document::parse_provenance( const xmlNode *node ){
     /// parse provenance data from the XmlTree under node
+    /*!
+      \param node an XML node to extract provenance data from
+
+      The data found will be appended to the Document
+    */
     Provenance *result = new Provenance(this);
     xmlNode *n = node->children;
     while ( n ){
@@ -1270,6 +1283,11 @@ namespace folia {
 
   void Document::parse_submeta( const xmlNode *node ){
     /// parse sub metadata from the XmlTree under node
+    /*!
+      \param node an XML node to extract submeta data from
+
+      The data found will be appended to the Document
+    */
     if ( node ){
       KWargs node_att = getAttributes( node );
       string id = node_att["xml:id"];
@@ -1579,6 +1597,11 @@ namespace folia {
 
   void Document::parse_metadata( const xmlNode *node ){
     /// parse metadata information from the XmlTree under node
+    /*!
+      \param node an XML node to extract meta data from
+
+      The data found will be appended to the Document
+    */
     KWargs atts = getAttributes( node );
     string type = TiCC::lowercase(atts["type"]);
     if ( type.empty() ){
@@ -1853,6 +1876,9 @@ namespace folia {
 
   FoliaElement* Document::parseXml( ){
     /// parse a complete FoLiA tree from the XmlTree we have got in _xmldoc
+    /*!
+      \return an FoLiA element node, whicht is the root of the FoLiA Document
+    */
     parse_styles();
     xmlNode *root = xmlDocGetRootElement( _xmldoc );
     if ( root->ns ){
@@ -2049,8 +2075,8 @@ namespace folia {
     return setname;
   }
 
-  Document::at_t* Document::lookup_default( AnnotationType type,
-					    const string& setname ){
+  Document::annotation_info* Document::lookup_default( AnnotationType type,
+						       const string& setname ){
     /// search for an annotation declaration for this type:setname
     /*!
       \param type the AnnotationType
@@ -2060,7 +2086,7 @@ namespace folia {
     if ( type == AnnotationType::NO_ANN ){
       return 0;
     }
-    at_t *current = 0;
+    annotation_info *current = 0;
     auto const& t_it = _annotationdefaults.find( type );
     if ( t_it != _annotationdefaults.end() ){
       // there is a match on type
@@ -2082,8 +2108,8 @@ namespace folia {
     return current;
   }
 
-  Document::at_t const *Document::lookup_default( AnnotationType type,
-						  const string& setname ) const {
+  Document::annotation_info const *Document::lookup_default( AnnotationType type,
+							     const string& setname ) const {
     /// search for an annotation declaration for this type:setname
     /*!
       \param type the AnnotationType
@@ -2093,7 +2119,7 @@ namespace folia {
     if ( type == AnnotationType::NO_ANN ){
       return 0;
     }
-    const at_t *current = 0;
+    const annotation_info *current = 0;
     auto const& t_it = _annotationdefaults.find( type );
     if ( t_it != _annotationdefaults.end() ){
       // there is a match on type
@@ -2178,7 +2204,7 @@ namespace folia {
       }
     }
     set<string> procs = _processors;
-    at_t *current = lookup_default( type, setname );
+    annotation_info *current = lookup_default( type, setname );
     if ( current != 0 ){
       // there is already a fitting declaration, enrich it.
       if ( debug ){
@@ -2200,7 +2226,7 @@ namespace folia {
 	if ( date == "now()" ){
 	  date = get_ISO_date();
 	}
-	*current = at_t(annotator,anno_type,date,format,procs);
+	*current = annotation_info(annotator,anno_type,date,format,procs);
 	if ( debug ){
 	  cerr << "overwrite with " << current << endl;
 	}
@@ -2218,7 +2244,7 @@ namespace folia {
       if ( date == "now()" ){
 	date = get_ISO_date();
       }
-      at_t new_a(annotator,anno_type,date,format,procs);
+      annotation_info new_a(annotator,anno_type,date,format,procs);
       _annotationdefaults[type].insert( make_pair( setname, new_a ) );
       if ( debug ){
 	cerr << "ADD to sort: " << folia::toString(type) << " ("

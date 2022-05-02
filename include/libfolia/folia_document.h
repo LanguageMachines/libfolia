@@ -280,16 +280,17 @@ namespace folia {
     bool set_autodeclare( bool ) const; // defined const, but the mode is mutable!
     bool set_explicit( bool ) const; // defined const, but the mode is mutable!
     /// this class holds annotation declaration information
-    class at_t {
-      friend std::ostream& operator<<( std::ostream& os, const at_t& at );
+    class annotation_info {
+      friend std::ostream& operator<<( std::ostream& os,
+				       const annotation_info& at );
     public:
-    at_t( const std::string& a,
-	  const AnnotatorType& t,
-	  const std::string& d,
-	  const std::string& f,
-	  const std::set<std::string>& p ):
+    annotation_info( const std::string& a,
+		     const AnnotatorType& t,
+		     const std::string& d,
+		     const std::string& f,
+		     const std::set<std::string>& p ):
       _annotator(a),
-	_ann_type(t),
+      _ann_type(t),
 	_date(d),
 	_format(f),
 	_processors(p){};
@@ -299,10 +300,10 @@ namespace folia {
       std::string _format;   ///< the format
       std::set<std::string> _processors; ///< the id's of all associated processors
     };
-    at_t *lookup_default( AnnotationType,
-			  const std::string& );
-    at_t const *lookup_default( AnnotationType,
-				const std::string& ) const;
+    annotation_info *lookup_default( AnnotationType,
+				     const std::string& );
+    annotation_info const *lookup_default( AnnotationType,
+					   const std::string& ) const;
 
     void incrRef( AnnotationType, const std::string& );
     void decrRef( AnnotationType, const std::string& );
@@ -358,7 +359,7 @@ namespace folia {
     std::string doc_version() const;
     std::string update_version();
     bool version_below( int, int ) const;
-    const std::map<AnnotationType,std::map<std::string,at_t>>& annotationdefaults() const { return _annotationdefaults; };
+    const std::map<AnnotationType,std::map<std::string,annotation_info>>& annotationdefaults() const { return _annotationdefaults; };
     void parse_metadata( const xmlNode * );
     void setDocumentProps( KWargs& );
     Provenance *provenance() const {
@@ -403,7 +404,7 @@ namespace folia {
   private:
     void test_temporary_text_exception( const std::string& ) const;
     void adjustTextMode();
-    std::map<AnnotationType,std::map<std::string,at_t> > _annotationdefaults;   ///< stores all declared annotations per AnnotationType
+    std::map<AnnotationType,std::map<std::string,annotation_info> > _annotationdefaults;   ///< stores all declared annotations per AnnotationType
     std::map<AnnotationType,std::map<std::string,bool> > _groupannotations; ///<
     ///< register which annotations are GROUP annotations
     std::vector<std::pair<AnnotationType,std::string>> _anno_sort; ///<
@@ -507,7 +508,8 @@ namespace folia {
     return os;
   }
 
-  std::ostream& operator<<( std::ostream& os, const Document::at_t& at );
+  std::ostream& operator<<( std::ostream& os,
+			    const Document::annotation_info& at );
 
   void expand_version_string( const std::string&,
 			      int&, int&, int&, std::string& );
