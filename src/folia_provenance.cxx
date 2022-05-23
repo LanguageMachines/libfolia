@@ -223,7 +223,7 @@ namespace folia {
 	// not a number, just add .1 then, and pray
 	v.back() += ".1";
       }
-      auto dot_insert = []( string& a, string& b ){
+      auto dot_insert = []( string& a, const string& b ){
 			  return std::move(a) + "." + b;
 			};
       new_id = std::accumulate( std::next(v.begin()), v.end(),
