@@ -1337,7 +1337,7 @@ namespace folia {
 
       next_text_parent should be called until no more candidates are found.
       At that moment, the complete input FoLiA is parsed and stored in _out_doc
-      adn can be saved or handled over for further processing.
+      and can be saved or handled over for further processing.
 
     */
     if ( _done ){
@@ -1359,7 +1359,7 @@ namespace folia {
     int ret = 0;
     if ( _external_node != 0 ){
       // so our last action was to output a pointer to a subtree.
-      // continue with the next node, avoiding the subtree
+      // continue with the next node, avoiding this subtree
       _external_node = 0;
       ret = xmlTextReaderNext(_reader);
     }
