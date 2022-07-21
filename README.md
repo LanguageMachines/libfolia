@@ -9,6 +9,7 @@ Libfolia: FoLiA Library for C++
     Libfolia (c) CLS/ILK 2010 - 2022
     Centre for Language Studies, Radboud University Nijmegen
     Induction of Linguistic Knowledge Research Group, Tilburg University
+    KNAW Humanities Cluster
 
 **Website:** https://proycon.github.io/folia/
 **Source repository:** https://LanguageMachines.github.io/libfolia
