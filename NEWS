@@ -1,3 +1,15 @@
+2.11 2022-07-22
+[Ko vd Sloot]
+* Significant refactoring, code cleaning, code reduction, and extra comments
+* fixed memory leaks in the test (and also tests destroy() function now)
+* Added some safeguards against multiple setnames for text_annotation. This is a limitation discussed in https://github.com/proycon/folia/issues/104
+* added code to handle text extraction for "empty" rows.
+* implemented a fix for empty cell's. https://github.com/proycon/foliatools/issues/41
+* added a fix for text offsets in embedded elements in a structure that may NOT carry text itself. Like cell inside a table.
+
+[Maarten van Gompel]
+* codemeta.json: updated metadata according to (proposed) CLARIAH requirements
+
 2.10 2021-12-15
 [Ko vd Sloot]
 * several code improvements, suggested by CPPcheck and scan-build
