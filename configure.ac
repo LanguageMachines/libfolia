@@ -1,8 +1,8 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-AC_PREREQ(2.59)
-AC_INIT([libfolia], [2.12], [lamasoftware@science.ru.nl]) #also adapt in codemeta.json!
+AC_PREREQ([2.69])
+AC_INIT([libfolia],[2.12],[lamasoftware@science.ru.nl]) #also adapt in codemeta.json!
 AM_INIT_AUTOMAKE([foreign])
 AC_CONFIG_SRCDIR([configure.ac])
 AC_CONFIG_MACRO_DIR([m4])
@@ -23,7 +23,6 @@ if $cxx_flags_were_set; then
 fi
 
 # use libtool
-AC_PROG_LIBTOOL
 LT_INIT
 
 # when running tests, use CXX
@@ -35,6 +34,7 @@ AC_OPENMP
 # Checks for libraries.
 
 # Checks for header files.
+AC_CHECK_HEADERS([netdb.h sys/socket.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STDBOOL
@@ -43,6 +43,7 @@ AC_TYPE_SIZE_T
 
 # Checks for library functions.
 AC_CHECK_FUNCS([localtime_r])
+AC_CHECK_FUNCS([gethostname memset select])
 
 AX_PTHREAD([],[AC_MSG_ERROR([We need pthread support!])])
 LIBS="$PTHREAD_LIBS $LIBS"
@@ -74,7 +75,7 @@ PKG_CHECK_MODULES([ICU], [icu-uc >= 50 icu-io] )
 CXXFLAGS="$CXXFLAGS $ICU_CFLAGS"
 LIBS="$ICU_LIBS $LIBS"
 
-AC_OUTPUT([
+AC_CONFIG_FILES([
   Makefile
   folia.pc
   m4/Makefile
@@ -82,3 +83,4 @@ AC_OUTPUT([
   include/Makefile
   include/libfolia/Makefile
 ])
+AC_OUTPUT
