@@ -265,14 +265,14 @@ namespace folia {
       \param value the line to parse
       \return a pait of strings containing the type and the href values
     */
-    string type;
-    string href;
     vector<string> v = TiCC::split( value );
     if ( v.size() == 2 ){
+      string type;
       vector<string> w = TiCC::split_at( v[0], "=" );
       if ( w.size() == 2 && w[0] == "type" ){
 	type = w[1].substr(1,w[1].length()-2);
       }
+      string href;
       w = TiCC::split_at( v[1], "=" );
       if ( w.size() == 2 && w[0] == "href" ){
 	href = w[1].substr(1,w[1].length()-2);

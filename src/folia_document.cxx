@@ -535,7 +535,7 @@ namespace folia {
       errors are just counted. It is up to calling functions to react on a
       a count > 0
      */
-    int *cnt = (int*)mydata;
+    int *cnt = static_cast<int*>(mydata);
     if ( *cnt == 0 ){
       string line = "\n";
       if ( error->file ){
@@ -3463,25 +3463,24 @@ namespace folia {
 	  if ( done ){
 	    vector<Word*> keep = matched;
 	    //	  cerr << "findnodes() tussenresultaat ==> " << matched << endl;
-	    vector<Word*> tmp1;
+	    vector<Word*> left_v;
 	    if ( leftcontext > 0 ){
-	      tmp1 = matched[0]->leftcontext(leftcontext);
-	      //	    cerr << "findnodes() tmp1 ==> " << tmp1 << endl;
-	      copy( matched.begin(), matched.end(), back_inserter(tmp1) );
-	      //	    cerr << "findnodes() tmp1 na copy ==> " << tmp1 << endl;
+	      left_v = matched[0]->leftcontext(leftcontext);
+	      //	    cerr << "findnodes() left ==> " << left_v << endl;
+	      copy( matched.begin(), matched.end(), back_inserter(left_v) );
+	      //	    cerr << "findnodes() after copy left_v ==> " << left_v << endl;
 	    }
 	    else {
-	      tmp1 = matched;
+	      left_v = matched;
 	    }
-	    vector<Word*> tmp2;
 	    if ( rightcontext > 0 ){
-	      tmp2 = matched.back()->rightcontext(rightcontext);
-	      //	    cerr << "findnodes() tmp2 ==> " << tmp2 << endl;
-	      copy( tmp2.begin(), tmp2.end(), back_inserter(tmp1) );
-	      //	    cerr << "findnodes() tmp2 na copy ==> " << tmp2 << endl;
+	      vector<Word*> right_v = matched.back()->rightcontext(rightcontext);
+	      //	    cerr << "findnodes() right_v ==> " << right_v << endl;
+	      copy( right_v.begin(), right_v.end(), back_inserter(left_v) );
+	      //	    cerr << "findnodes() right_v na copy ==> " << right_v << endl;
 	    }
-	    result.push_back(tmp1);
-	    //	  cerr << "findnodes() tussenresultaat 2 ==> " << tmp1 << endl;
+	    //	  cerr << "findnodes() tussenresultaat 2 ==> " << left_v << endl;
+	    result.push_back(left_v);
 	    if ( flag ){
 	      matched = keep;
 	    }
