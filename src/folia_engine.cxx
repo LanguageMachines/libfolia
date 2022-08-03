@@ -294,8 +294,8 @@ namespace folia {
     if ( xmlTextReaderHasAttributes(tr) ){
       xmlTextReaderMoveToFirstAttribute(tr);
       do {
-	string att = (const char*)xmlTextReaderConstName(tr);
-	string val = (const char*)xmlTextReaderConstValue(tr);
+	string att = reinterpret_cast<const char*>(xmlTextReaderConstName(tr));
+	string val = reinterpret_cast<const char*>(xmlTextReaderConstValue(tr));
 	result[att] = val;
       }
       while ( xmlTextReaderMoveToNextAttribute(tr) );
@@ -345,7 +345,7 @@ namespace folia {
     /*!
       \param depth the depth (location) in the tree where to add
     */
-    string value = (const char*)xmlTextReaderConstValue(_reader);
+    string value = reinterpret_cast<const char*>(xmlTextReaderConstValue(_reader));
     string trimmed = TiCC::trim(value);
     if ( !trimmed.empty() ){
       throw XmlError( "spurious text " + trimmed + " found." );
@@ -374,7 +374,7 @@ namespace folia {
   void Engine::add_default_node( int depth ){
     /// when debugging, output a message. Does nothing else
     if ( _debug ){
-      string local_name = (const char*)xmlTextReaderConstLocalName(_reader);
+      string local_name = reinterpret_cast<const char*>(xmlTextReaderConstLocalName(_reader));
       int type = xmlTextReaderNodeType(_reader);
       DBG << "add_node " << type <<  " name=" << local_name
 	  << " depth " << _last_depth << " ==> " << depth << endl;
@@ -435,7 +435,7 @@ namespace folia {
     int index = 0;
     while ( xmlTextReaderRead(_reader) > 0 ){
       int type =  xmlTextReaderNodeType(_reader );
-      string local_name = (const char*)xmlTextReaderConstLocalName(_reader );
+      string local_name = reinterpret_cast<const char*>(xmlTextReaderConstLocalName(_reader ));
       switch ( type ){
       case XML_READER_TYPE_ELEMENT:
 	++index;
@@ -444,12 +444,12 @@ namespace folia {
 	  const xmlChar *pnt = xmlTextReaderConstPrefix(_reader);
 	  if ( pnt ){
 	    _out_doc->_foliaNsIn_prefix = xmlStrdup(pnt );
-	    ns_prefix = (const char*)pnt;
+	    ns_prefix = reinterpret_cast<const char*>(pnt);
 	  }
 	  pnt = xmlTextReaderConstNamespaceUri(_reader);
 	  if ( pnt ){
 	    _out_doc->_foliaNsIn_href = xmlStrdup(pnt);
-	    string ns = (const char*)_out_doc->_foliaNsIn_href;
+	    string ns = reinterpret_cast<const char*>(_out_doc->_foliaNsIn_href);
 	    if ( ns != NSFOLIA ){
 	      _ok = false;
 	      throw XmlError( "Folia Document should have namespace declaration "
@@ -510,7 +510,7 @@ namespace folia {
       case XML_READER_TYPE_PROCESSING_INSTRUCTION:
 	// A PI
 	if ( local_name == "xml-stylesheet" ){
-	  string sv = (const char*)xmlTextReaderConstValue(_reader);
+	  string sv = reinterpret_cast<const char *>(xmlTextReaderConstValue(_reader));
 	  pair<string,string> p = extract_style( sv );
 	  _out_doc->addStyle( p.first, p.second );
 	}
@@ -654,7 +654,7 @@ namespace folia {
       int new_depth = xmlTextReaderDepth(_reader);
       switch ( type ){
       case XML_READER_TYPE_ELEMENT: {
-	string local_name = (const char*)xmlTextReaderConstLocalName(_reader);
+	string local_name = reinterpret_cast<const char *>(xmlTextReaderConstLocalName(_reader));
 	if ( _debug ){
 	  DBG << "get node XML_ELEMENT name=" << local_name
 	      << " depth " << _last_depth << " ==> " << new_depth << endl;
@@ -717,7 +717,7 @@ namespace folia {
       int type = xmlTextReaderNodeType(cur_reader);
       if ( type == XML_READER_TYPE_ELEMENT
 	   || type == XML_READER_TYPE_COMMENT ){
-	string local_name = (const char*)xmlTextReaderConstLocalName(cur_reader);
+	string local_name = reinterpret_cast<const char *>(xmlTextReaderConstLocalName(cur_reader));
 	KWargs atts = get_attributes( cur_reader );
 	string nsu;
 	string txt_class;
@@ -838,7 +838,7 @@ namespace folia {
       xmlTextReaderNext(_reader);
       int type = xmlTextReaderNodeType(_reader);
       if ( type == XML_READER_TYPE_TEXT ){
-	string value = (const char*)xmlTextReaderConstValue(_reader);
+	string value = reinterpret_cast<const char*>(xmlTextReaderConstValue(_reader));
 	string trimmed = TiCC::trim(value);
 	if ( !trimmed.empty() ){
 	  throw XmlError( "spurious text " + trimmed + " found after node <"
@@ -918,7 +918,7 @@ namespace folia {
 	      }
 	      else {
 		xmlTextReaderRead(_reader);
-		const char *val = (const char*)xmlTextReaderConstValue(_reader);
+		const char *val = reinterpret_cast<const char *>(xmlTextReaderConstValue(_reader));
 		if ( val ) {
 		  if ( _debug ){
 		    DBG << "processing a <" << local_name << "> with value '"
@@ -972,14 +972,12 @@ namespace folia {
     }
     if ( !_os ){
       throw logic_error( "folia::Engine::output_header() impossible. No output file specified!" );
-      return false;
     }
     if ( _finished ){
       return true;
     }
     else if ( _header_done ){
       throw logic_error( "folia::Engine::output_header() is called twice!" );
-      return false;
     }
     _header_done = true;
     stringstream ss;
@@ -1055,7 +1053,6 @@ namespace folia {
     }
     if ( !_os ){
       throw logic_error( "folia::Engine::output_footer() impossible. No output file specified!" );
-      return false;
     }
     else if ( flush() ){
       *_os << _footer << endl;
@@ -1076,7 +1073,6 @@ namespace folia {
     }
     if ( !_os ){
       throw logic_error( "folia::Engine::flush() impossible. No outputfile specified!" );
-      return false;
     }
     if ( _finished ){
       return true;
@@ -1107,7 +1103,6 @@ namespace folia {
     }
     if ( !_os ){
       throw logic_error( "folia::Engine::finish() impossible. No outputfile specified!" );
-      return false;
     }
     if ( _finished ){
       return true;
@@ -1384,7 +1379,7 @@ namespace folia {
       int new_depth = xmlTextReaderDepth(_reader);
       switch ( type ){
       case XML_READER_TYPE_ELEMENT: {
-	string local_name = (const char*)xmlTextReaderConstLocalName(_reader);
+	string local_name = reinterpret_cast<const char *>(xmlTextReaderConstLocalName(_reader));
 	if ( _debug ){
 	  DBG << "next element: " << local_name << " cnt =" << _node_count << endl;
 	}

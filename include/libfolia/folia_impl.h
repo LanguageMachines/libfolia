@@ -814,6 +814,7 @@ namespace folia {
     void check_append_text_consistency( const FoliaElement * ) const;
     void check_set_declaration();
     void addFeatureNodes( const KWargs& args );
+    void dbg( const std::string& ) const;
     Document *_mydoc;
     FoliaElement *_parent;
     bool _auth;

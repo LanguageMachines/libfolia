@@ -256,7 +256,12 @@ namespace folia {
     return os;
   }
 
-  //#define DE_AND_CONSTRUCT_DEBUG
+  void AbstractElement::dbg( const string& msg ) const{
+    cerr << msg << ": " << "<" << xmltag() << ">"
+	 << " address=" << reinterpret_cast<const void*>(this) << endl;
+  }
+
+  #define DE_AND_CONSTRUCT_DEBUG
 
   AbstractElement::AbstractElement( const properties& p, Document *d ) :
     /// Constructor for AbstractElements.
@@ -275,7 +280,7 @@ namespace folia {
     _props(p)
   {
 #ifdef DE_AND_CONSTRUCT_DEBUG
-    cerr << "created an : " << xmltag() << " adres=" << (void*)this << endl;
+    dbg( "created" );
 #endif
   }
 
@@ -295,7 +300,7 @@ namespace folia {
 
   AbstractElement::~AbstractElement( ) {
 #ifdef DE_AND_CONSTRUCT_DEBUG
-    cerr << "really delete " << xmltag() << " adres=" << (void*)this << endl;
+    dbg( "really delete" );
 #endif
   }
 
@@ -304,11 +309,11 @@ namespace folia {
     /// recursively destroys this nodes and it's children
     /// Will also remove it from it's parent when no references are left
 #ifdef DE_AND_CONSTRUCT_DEBUG
-    cerr << "\ndestroy " << xmltag() << " adres=" << (void*)this
-	 << " id=" << _id << " class= "
+    dbg( "\ndestroy" );
+    cerr << "  id=" << _id << " class= "
 	 << cls() << " datasize= " << _data.size() << endl;
-    cerr << "REFCOUNT = " << refcount() << endl;
-    cerr << "AT= " << annotation_type() << " (" << _set << ")" << endl;
+    cerr << "  REFCOUNT = " << refcount() << endl;
+    cerr << "  AT= " << annotation_type() << " (" << _set << ")" << endl;
 #endif
     if ( doc() ) {
       doc()->decrRef( annotation_type(), _set );
@@ -316,8 +321,9 @@ namespace folia {
 	decrefcount();
 	doc()->keepForDeletion( this );
 #ifdef DE_AND_CONSTRUCT_DEBUG
-	cerr << "\t\tstill keeping element id=" << _id << " tag = "
-	     << xmltag() << " adres=" << (void*)this << " class= " << cls()
+	cerr << "\t\tstill keeping element id=" << _id << " ";
+	dbg( "" );
+	cerr << " class= " << cls()
 	     << " datasize= " << _data.size() << endl;
 #endif
 	return;
@@ -336,8 +342,8 @@ namespace folia {
     }
     _data.clear();
 #ifdef DE_AND_CONSTRUCT_DEBUG
-    cerr << "\t\tfinished destroying element id=" << _id << " tag = "
-	 << xmltag() << " adres=" << (void*)this << " class= " << cls()
+    dbg( "\tfinished destroying element" );
+    cerr << "\t id=" << _id << " class= " << cls()
 	 << " datasize= " << _data.size() << endl;
 #endif
     delete this;
@@ -3162,9 +3168,9 @@ namespace folia {
      * \param child the element to remove
      */
 #ifdef DE_AND_CONSTRUCT_DEBUG
-    cerr << "\nremove " << child->xmltag() << " from " << xmltag()
-	 << " adres=" << (void*)this
-	 << " id=" << _id << " class= " << endl;
+    cerr << "\nremove " << child->xmltag();
+    dbg( " from" );
+    cerr << " id=" << _id << " class= " << endl;
 #endif
     auto it = std::remove( _data.begin(), _data.end(), child );
     _data.erase( it, _data.end() );
