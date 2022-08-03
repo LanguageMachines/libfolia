@@ -340,24 +340,6 @@ namespace folia {
     return xmlReaderForFile( buf.c_str(), 0, XML_PARSER_OPTIONS );
   }
 
-  void Engine::add_text( int depth ){
-    /// when parsing, add a new XmlText node
-    /*!
-      \param depth the depth (location) in the tree where to add
-    */
-    string value = reinterpret_cast<const char*>(xmlTextReaderConstValue(_reader));
-    string trimmed = TiCC::trim(value);
-    if ( !trimmed.empty() ){
-      throw XmlError( "spurious text " + trimmed + " found." );
-    }
-    if ( _debug ){
-      DBG << "add_text(" << value << ") depth=" << depth << endl;
-    }
-    XmlText *txt = new XmlText();
-    txt->setvalue( value );
-    append_node( txt, depth );
-  }
-
   void Engine::add_comment( int depth ){
     /// when parsing, add a new _XmlComment node
     /*!
@@ -675,17 +657,14 @@ namespace folia {
 	}
       }
 	break;
-      case XML_READER_TYPE_TEXT: {
-	add_text( new_depth );
-      }
+      case XML_READER_TYPE_TEXT:
+	throw XmlError( "spurious text found." );
 	break;
-      case XML_READER_TYPE_COMMENT: {
+      case XML_READER_TYPE_COMMENT:
 	add_comment( new_depth );
-      }
 	break;
-      default: {
+      default:
 	add_default_node( new_depth );
-      }
 	break;
       }
       ret = xmlTextReaderRead(_reader);
@@ -1411,17 +1390,14 @@ namespace folia {
 	}
       }
 	break;
-      case XML_READER_TYPE_TEXT: {
-	add_text( new_depth );
-      }
+      case XML_READER_TYPE_TEXT:
+	throw XmlError( "spurious text found." );
 	break;
-      case XML_READER_TYPE_COMMENT: {
+      case XML_READER_TYPE_COMMENT:
 	add_comment( new_depth );
-      }
 	break;
-      default: {
+      default:
 	add_default_node( new_depth );
-      }
 	break;
       }
       ret = xmlTextReaderRead(_reader);

@@ -1549,7 +1549,8 @@ namespace folia {
     ///  convert the Description to an xmlNode
     xmlNode *e = AbstractElement::xml( false, false );
     if ( !_value.empty() ){
-      xmlAddChild( e, xmlNewText( (const xmlChar*)_value.c_str()) );
+      xmlAddChild( e,
+		   xmlNewText( reinterpret_cast<const xmlChar*>(_value.c_str())) );
     }
     return e;
   }
@@ -1583,7 +1584,8 @@ namespace folia {
     ///  convert the Comment to an xmlNode
     xmlNode *e = AbstractElement::xml( false, false );
     if ( !_value.empty() ){
-      xmlAddChild( e, xmlNewText( (const xmlChar*)_value.c_str()) );
+      xmlAddChild( e,
+		   xmlNewText( reinterpret_cast<const xmlChar*>(_value.c_str())) );
     }
     return e;
   }
@@ -1774,7 +1776,7 @@ namespace folia {
      */
     xmlNode *e = AbstractElement::xml( recursive, false );
     xmlAddChild( e, xmlNewCDataBlock( 0,
-				      (const xmlChar*)value.c_str() ,
+				      reinterpret_cast<const xmlChar*>(value.c_str()),
 				      value.length() ) );
     return e;
   }
@@ -2019,7 +2021,6 @@ namespace folia {
       break;
     };
     throw NoSuchText("wrong cls");
-    return 0;
   }
 
   const TextContent *Correction::text_content( const string& cls,
@@ -2201,7 +2202,6 @@ namespace folia {
       break;
     }
     throw NoSuchPhon("wrong cls");
-    return 0;
   }
 
   const PhonContent *Correction::phon_content( const string& cls,
@@ -2497,7 +2497,7 @@ namespace folia {
 
   xmlNode *XmlText::xml( bool, bool ) const {
     ///  convert an XmlText node to an xmlNode
-    return xmlNewText( (const xmlChar*)_value.c_str() );
+    return xmlNewText( reinterpret_cast<const xmlChar*>(_value.c_str()) );
   }
 
   FoliaElement* XmlText::parseXml( const xmlNode *node ) {
@@ -2670,7 +2670,7 @@ namespace folia {
 
   xmlNode *XmlComment::xml( bool, bool ) const {
     ///  convert an XmlComment node to an xmlNode
-    return xmlNewComment( (const xmlChar*)_value.c_str() );
+    return xmlNewComment( reinterpret_cast<const xmlChar*>(_value.c_str()) );
   }
 
   FoliaElement* XmlComment::parseXml( const xmlNode *node ) {
@@ -2798,7 +2798,7 @@ namespace folia {
     /*!
      * performs sanity check to avoid adding FoLiA nodes
      */
-    xmlNode *p = (xmlNode *)node->children;
+    xmlNode *p = const_cast<xmlNode *>(node->children);
     while ( p ){
       string pref;
       string ns = getNS( p, pref );
@@ -2807,7 +2807,7 @@ namespace folia {
       }
       p = p->next;
     }
-    _foreign_data = xmlCopyNode( (xmlNode*)node, 1 );
+    _foreign_data = xmlCopyNode( const_cast<xmlNode*>(node), 1 );
   }
 
   void clean_ns( xmlNode *node, const string& ns ){
@@ -2819,7 +2819,7 @@ namespace folia {
     xmlNs *p = node->nsDef;
     xmlNs *prev = 0;
     while ( p ){
-      string val = (char *)p->href;
+      string val = reinterpret_cast<const char *>(p->href);
       if ( val == ns ){
 	if ( prev ){
 	  prev->next = p->next;
