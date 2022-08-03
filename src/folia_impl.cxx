@@ -261,7 +261,7 @@ namespace folia {
 	 << " address=" << reinterpret_cast<const void*>(this) << endl;
   }
 
-  #define DE_AND_CONSTRUCT_DEBUG
+  //  #define DE_AND_CONSTRUCT_DEBUG
 
   AbstractElement::AbstractElement( const properties& p, Document *d ) :
     /// Constructor for AbstractElements.
@@ -3381,41 +3381,22 @@ namespace folia {
 	}
 	else {
 	  // This MUST be 'empty space', so only spaces and tabs formatting
-	  string tag = "_XmlText";
-	  FoliaElement *t = createElement( tag, doc() );
-	  if ( t ) {
-	    if ( doc() && doc()->debug > 2 ){
-	      cerr << "created " << t << endl;
+	  string txt = TextValue( p );
+	  txt = TiCC::trim( txt );
+	  if ( !txt.empty() ){
+	    if ( p->prev ){
+	      string tg = "<" + Name(p->prev) + ">";
+	      throw XmlError( "found extra text '" + txt + "' after element "
+			      + tg + ", NOT allowed there." );
 	    }
-	    try {
-	      t = t->parseXml( p );
-	    }
-	    catch ( const ValueError& e ){
-	      t->destroy();
-	      t = 0;
+	    else {
+	      string tg = "<" + Name(p->parent) + ">";
+	      throw XmlError( "found extra text '" + txt + "' inside element "
+			      + tg + ", NOT allowed there." );
 	    }
 	  }
-	  if ( t ) {
-	    string txt = t->str();
-	    txt = TiCC::trim(txt);
-	    if ( !txt.empty() ){
-	      if ( p->prev ){
-		string tg = "<" + Name(p->prev) + ">";
-		throw XmlError( "found extra text '" + txt + "' after element "
-				+ tg + ", NOT allowed there." );
-	      }
-	      else {
-		string tg = "<" + Name(p->parent) + ">";
-		throw XmlError( "found extra text '" + txt + "' inside element "
-				+ tg + ", NOT allowed there." );
-	      }
-	    }
-	    if ( doc() && doc()->debug > 2 ){
-	      cerr << "created " << t << "(" << t->text() << ")" << endl;
-	      cerr << "extended " << this << " met " << t << endl;
-	      cerr << "this.size()= " << size() << " t.size()=" << t->size() << endl;
-	    }
-	    append( t );
+	  else {
+	    // just skip it
 	  }
 	}
       }
