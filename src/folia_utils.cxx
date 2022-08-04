@@ -25,6 +25,7 @@
 */
 /** @file folia_utils.cxx */
 
+#include <cassert>
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -255,6 +256,14 @@ namespace folia {
     return folia::toString( *this );
   }
 
+  string att_name( xmlAttr *node ){
+    return string( reinterpret_cast<const char *>(node->name) );
+  }
+
+  string att_content( xmlAttr *node ){
+    return string( reinterpret_cast<const char *>(node->children->content) );
+  }
+
   KWargs getAttributes( const xmlNode *node ){
     /// extract a KWargs list from an xmlNode
     /*!
@@ -265,17 +274,17 @@ namespace folia {
     if ( node ){
       xmlAttr *a = node->properties;
       while ( a ){
-	if ( a->atype == XML_ATTRIBUTE_ID && string((char*)a->name) == "id" ){
-	  atts["xml:id"] = (char *)a->children->content;
+	if ( a->atype == XML_ATTRIBUTE_ID && att_name(a) == "id" ){
+	  atts["xml:id"] = att_content(a);
 	}
 	else if ( a->ns == 0 || a->ns->prefix == 0 ){
-	  atts[(char*)a->name] = (char *)a->children->content;
+	  atts[att_name(a)] = att_content(a);
 	}
 	else {
-	  string pref = string( (const char*)a->ns->prefix);
-	  string att  = string( (const char*)a->name);
+	  string pref = string( reinterpret_cast<const char*>(a->ns->prefix));
+	  string att  = att_name(a);
 	  if ( pref == "xlink" ){
-	    atts["xlink:"+att] = (char *)a->children->content;
+	    atts["xlink:"+att] = att_content(a);
 	  }
 	  // else {
 	  //   cerr << "attribute PREF=" << pref << endl;
@@ -297,25 +306,30 @@ namespace folia {
     KWargs attribs = atts;
     auto it = attribs.find("xml:id");
     if ( it != attribs.end() ){ // xml:id is special
-      xmlSetProp( node, XML_XML_ID, (const xmlChar *)it->second.c_str() );
+      xmlSetProp( node,
+		  XML_XML_ID,
+		  reinterpret_cast<const xmlChar *>(it->second.c_str()) );
       attribs.erase(it);
     }
     it = attribs.find("lang");
     if ( it != attribs.end() ){ // lang is special too
-      xmlNodeSetLang( node, (const xmlChar*)it->second.c_str() );
+      xmlNodeSetLang( node,
+		  reinterpret_cast<const xmlChar *>(it->second.c_str()) );
       attribs.erase(it);
     }
     it = attribs.find("id");
     if ( it != attribs.end() ){
-      xmlSetProp( node, (const xmlChar*)("id"), (const xmlChar *)it->second.c_str() );
+      xmlSetProp( node,
+		  reinterpret_cast<const xmlChar*>("id"),
+		  reinterpret_cast<const xmlChar *>(it->second.c_str()) );
       attribs.erase(it);
     }
     // and now the rest
     it = attribs.begin();
     while ( it != attribs.end() ){
       xmlSetProp( node,
-		  (const xmlChar*)it->first.c_str(),
-		  (const xmlChar*)it->second.c_str() );
+		  reinterpret_cast<const xmlChar*>(it->first.c_str()),
+		  reinterpret_cast<const xmlChar*>(it->second.c_str()) );
       ++it;
     }
   }
@@ -572,7 +586,8 @@ namespace folia {
       \param s the inputstring
       \return true if \e s may be used as an NCName (e.g. for xml:id)
     */
-    int test = xmlValidateNCName( (const xmlChar*)s.c_str(), 0 );
+    int test = xmlValidateNCName( reinterpret_cast<const xmlChar*>(s.c_str()),
+				  0 );
     if ( test != 0 ){
       return false;
     }
@@ -597,9 +612,9 @@ namespace folia {
       string pre;
       string val;
       if ( p->prefix ){
-	pre = (char *)p->prefix;
+	pre = reinterpret_cast<const char *>(p->prefix);
       }
-      val = (char *)p->href;
+      val = reinterpret_cast<const char *>(p->href);
       result[pre] = val;
       p = p->next;
     }
@@ -616,7 +631,7 @@ namespace folia {
     if ( node ){
       xmlChar *tmp = xmlNodeGetContent( node );
       if ( tmp ){
-	result = string( (char *)tmp );
+	result = string( reinterpret_cast<char *>(tmp) );
 	xmlFree( tmp );
       }
     }
@@ -649,26 +664,6 @@ namespace folia {
     }
     result.trim(); // remove leading and trailing whitespace;
     return result;
-  }
-
-  UnicodeString ltrim( const UnicodeString& in ){
-    /// remove leading whitespace (including newlines and tabs)
-    int begin = in.length();
-    for ( int i = 0; i < in.length(); ++i ) {
-      if ( !u_isspace(in[i]) ){
-	begin = i;
-	break;
-      }
-    }
-    if (begin == 0) {
-      return in;
-    }
-    else if (begin == in.length()) {
-      return "";
-    }
-    else {
-      return UnicodeString(in, begin, in.length() - begin);
-    }
   }
 
   bool is_norm_empty(const std::string& s) {

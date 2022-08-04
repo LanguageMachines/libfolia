@@ -2517,7 +2517,7 @@ namespace folia {
 
   static void error_sink(void *mydata, xmlError *error ) {
     /// helper function for Xml parsing
-    int *cnt = (int*)mydata;
+    int *cnt = static_cast<int*>(mydata);
     if ( *cnt == 0 ) {
       cerr << "\nXML-error: " << error->message << endl;
     }
