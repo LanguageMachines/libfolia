@@ -256,7 +256,12 @@ namespace folia {
     return os;
   }
 
-  //#define DE_AND_CONSTRUCT_DEBUG
+  void AbstractElement::dbg( const string& msg ) const{
+    cerr << msg << ": " << "<" << xmltag() << ">"
+	 << " address=" << reinterpret_cast<const void*>(this) << endl;
+  }
+
+  //  #define DE_AND_CONSTRUCT_DEBUG
 
   AbstractElement::AbstractElement( const properties& p, Document *d ) :
     /// Constructor for AbstractElements.
@@ -275,7 +280,7 @@ namespace folia {
     _props(p)
   {
 #ifdef DE_AND_CONSTRUCT_DEBUG
-    cerr << "created an : " << xmltag() << " adres=" << (void*)this << endl;
+    dbg( "created" );
 #endif
   }
 
@@ -295,7 +300,7 @@ namespace folia {
 
   AbstractElement::~AbstractElement( ) {
 #ifdef DE_AND_CONSTRUCT_DEBUG
-    cerr << "really delete " << xmltag() << " adres=" << (void*)this << endl;
+    dbg( "really delete" );
 #endif
   }
 
@@ -304,11 +309,11 @@ namespace folia {
     /// recursively destroys this nodes and it's children
     /// Will also remove it from it's parent when no references are left
 #ifdef DE_AND_CONSTRUCT_DEBUG
-    cerr << "\ndestroy " << xmltag() << " adres=" << (void*)this
-	 << " id=" << _id << " class= "
+    dbg( "\ndestroy" );
+    cerr << "  id=" << _id << " class= "
 	 << cls() << " datasize= " << _data.size() << endl;
-    cerr << "REFCOUNT = " << refcount() << endl;
-    cerr << "AT= " << annotation_type() << " (" << _set << ")" << endl;
+    cerr << "  REFCOUNT = " << refcount() << endl;
+    cerr << "  AT= " << annotation_type() << " (" << _set << ")" << endl;
 #endif
     if ( doc() ) {
       doc()->decrRef( annotation_type(), _set );
@@ -316,8 +321,9 @@ namespace folia {
 	decrefcount();
 	doc()->keepForDeletion( this );
 #ifdef DE_AND_CONSTRUCT_DEBUG
-	cerr << "\t\tstill keeping element id=" << _id << " tag = "
-	     << xmltag() << " adres=" << (void*)this << " class= " << cls()
+	cerr << "\t\tstill keeping element id=" << _id << " ";
+	dbg( "" );
+	cerr << " class= " << cls()
 	     << " datasize= " << _data.size() << endl;
 #endif
 	return;
@@ -336,8 +342,8 @@ namespace folia {
     }
     _data.clear();
 #ifdef DE_AND_CONSTRUCT_DEBUG
-    cerr << "\t\tfinished destroying element id=" << _id << " tag = "
-	 << xmltag() << " adres=" << (void*)this << " class= " << cls()
+    dbg( "\tfinished destroying element" );
+    cerr << "\t id=" << _id << " class= " << cls()
 	 << " datasize= " << _data.size() << endl;
 #endif
     delete this;
@@ -1242,12 +1248,12 @@ namespace folia {
      */
     xmlNode *n = xml( true, false );
     if ( add_ns ){
-      xmlSetNs( n, xmlNewNs( n, (const xmlChar *)NSFOLIA.c_str(), 0 ) );
+      xmlSetNs( n, xmlNewNs( n, reinterpret_cast<const xmlChar *>(NSFOLIA.c_str()), 0 ) );
     }
     xmlBuffer *buf = xmlBufferCreate();
     //    xmlKeepBlanksDefault(0);
     xmlNodeDump( buf, 0, n, indent, (format?1:0) );
-    string result = (const char*)xmlBufferContent( buf );
+    string result = reinterpret_cast<const char*>( xmlBufferContent( buf ) );
     xmlBufferFree( buf );
     xmlFreeNode( n );
     return result;
@@ -3162,9 +3168,9 @@ namespace folia {
      * \param child the element to remove
      */
 #ifdef DE_AND_CONSTRUCT_DEBUG
-    cerr << "\nremove " << child->xmltag() << " from " << xmltag()
-	 << " adres=" << (void*)this
-	 << " id=" << _id << " class= " << endl;
+    cerr << "\nremove " << child->xmltag();
+    dbg( " from" );
+    cerr << " id=" << _id << " class= " << endl;
 #endif
     auto it = std::remove( _data.begin(), _data.end(), child );
     _data.erase( it, _data.end() );
@@ -3375,41 +3381,22 @@ namespace folia {
 	}
 	else {
 	  // This MUST be 'empty space', so only spaces and tabs formatting
-	  string tag = "_XmlText";
-	  FoliaElement *t = createElement( tag, doc() );
-	  if ( t ) {
-	    if ( doc() && doc()->debug > 2 ){
-	      cerr << "created " << t << endl;
+	  string txt = TextValue( p );
+	  txt = TiCC::trim( txt );
+	  if ( !txt.empty() ){
+	    if ( p->prev ){
+	      string tg = "<" + Name(p->prev) + ">";
+	      throw XmlError( "found extra text '" + txt + "' after element "
+			      + tg + ", NOT allowed there." );
 	    }
-	    try {
-	      t = t->parseXml( p );
-	    }
-	    catch ( const ValueError& e ){
-	      t->destroy();
-	      t = 0;
+	    else {
+	      string tg = "<" + Name(p->parent) + ">";
+	      throw XmlError( "found extra text '" + txt + "' inside element "
+			      + tg + ", NOT allowed there." );
 	    }
 	  }
-	  if ( t ) {
-	    string txt = t->str();
-	    txt = TiCC::trim(txt);
-	    if ( !txt.empty() ){
-	      if ( p->prev ){
-		string tg = "<" + Name(p->prev) + ">";
-		throw XmlError( "found extra text '" + txt + "' after element "
-				+ tg + ", NOT allowed there." );
-	      }
-	      else {
-		string tg = "<" + Name(p->parent) + ">";
-		throw XmlError( "found extra text '" + txt + "' inside element "
-				+ tg + ", NOT allowed there." );
-	      }
-	    }
-	    if ( doc() && doc()->debug > 2 ){
-	      cerr << "created " << t << "(" << t->text() << ")" << endl;
-	      cerr << "extended " << this << " met " << t << endl;
-	      cerr << "this.size()= " << size() << " t.size()=" << t->size() << endl;
-	    }
-	    append( t );
+	  else {
+	    // just skip it
 	  }
 	}
       }

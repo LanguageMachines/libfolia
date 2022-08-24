@@ -221,8 +221,8 @@ namespace folia {
       but not yet really destroyed. (because they might still be referenced)
      */
     xmlFreeDoc( _xmldoc );
-    xmlFree( (xmlChar*)_foliaNsIn_href );
-    xmlFree( (xmlChar*)_foliaNsIn_prefix );
+    xmlFree( const_cast<xmlChar*>(_foliaNsIn_href) );
+    xmlFree( const_cast<xmlChar*>(_foliaNsIn_prefix) );
     sindex.clear();
     if ( foliadoc ){
       foliadoc->destroy();
@@ -535,7 +535,7 @@ namespace folia {
       errors are just counted. It is up to calling functions to react on a
       a count > 0
      */
-    int *cnt = (int*)mydata;
+    int *cnt = static_cast<int*>(mydata);
     if ( *cnt == 0 ){
       string line = "\n";
       if ( error->file ){
@@ -615,7 +615,6 @@ namespace folia {
      */
     if ( foliadoc ){
       throw logic_error( "Document is already initialized" );
-      return false;
     }
     int cnt = 0;
     xmlSetStructuredErrorFunc( &cnt, (xmlStructuredErrorFunc)error_sink );
@@ -725,7 +724,7 @@ namespace folia {
     xmlChar *buf; int size;
     xmlDocDumpFormatMemoryEnc( outDoc, &buf, &size,
 			       output_encoding, 0 ); // no formatting
-    string result = string( (const char *)buf, size );
+    string result = string( reinterpret_cast<const char *>(buf), size );
     xmlFree( buf );
     xmlFreeDoc( outDoc );
     _foliaNsOut = 0;
@@ -2960,7 +2959,7 @@ namespace folia {
       KWargs args;
       args["id"] = it.first;
       addAttributes( m, args );
-      xmlAddChild( m, xmlNewText( (const xmlChar*)it.second.c_str()) );
+      xmlAddChild( m, xmlNewText( reinterpret_cast<const xmlChar*>(it.second.c_str())) );
     }
     for ( const auto& s : p->_processors ){
       append_processor( pr, s );
@@ -3005,7 +3004,7 @@ namespace folia {
 	  KWargs args;
 	  args["id"] = av.first;
 	  addAttributes( m, args );
-	  xmlAddChild( m, xmlNewText( (const xmlChar*)av.second.c_str()) );
+	  xmlAddChild( m, xmlNewText( reinterpret_cast<const xmlChar*>(av.second.c_str())) );
 	  xmlAddChild( sm, m );
 	}
       }
@@ -3041,7 +3040,7 @@ namespace folia {
 	addAttributes( node, atts );
 	for ( const auto& it : _metadata->get_avs() ){
 	  xmlNode *m = TiCC::XmlNewNode( foliaNs(), "meta" );
-	  xmlAddChild( m, xmlNewText( (const xmlChar*)it.second.c_str()) );
+	  xmlAddChild( m, xmlNewText( reinterpret_cast<const xmlChar*>(it.second.c_str())) );
 	  KWargs meta_atts;
 	  meta_atts["id"] = it.first;
 	  addAttributes( m, meta_atts );
@@ -3076,10 +3075,10 @@ namespace folia {
     */
     for ( const auto& it : styles ){
       string content = "type=\"" + it.first + "\" href=\"" + it.second + "\"";
-      xmlAddChild( (xmlNode*)doc,
+      xmlAddChild( reinterpret_cast<xmlNode*>(doc),
 		   xmlNewDocPI( doc,
-				(const xmlChar*)"xml-stylesheet",
-				(const xmlChar*)content.c_str() ) );
+				reinterpret_cast<const xmlChar*>("xml-stylesheet"),
+				reinterpret_cast<const xmlChar*>(content.c_str()) ) );
     }
   }
 
@@ -3088,21 +3087,27 @@ namespace folia {
     /*!
       \param ns_label a namespace label to use. (default "")
     */
-    xmlDoc *outDoc = xmlNewDoc( (const xmlChar*)"1.0" );
+    xmlDoc *outDoc = xmlNewDoc( reinterpret_cast<const xmlChar*>("1.0") );
     add_styles( outDoc );
-    xmlNode *root = xmlNewDocNode( outDoc, 0, (const xmlChar*)"FoLiA", 0 );
+    xmlNode *root = xmlNewDocNode( outDoc,
+				   0,
+				   reinterpret_cast<const xmlChar*>("FoLiA"),
+				   0 );
     xmlDocSetRootElement( outDoc, root );
-    xmlNs *xl = xmlNewNs( root, (const xmlChar *)"http://www.w3.org/1999/xlink",
-			  (const xmlChar *)"xlink" );
+    xmlNs *xl = xmlNewNs( root,
+			  reinterpret_cast<const xmlChar *>("http://www.w3.org/1999/xlink"),
+			  reinterpret_cast<const xmlChar *>("xlink") );
     xmlSetNs( root, xl );
     if ( _foliaNsIn_href == 0 ){
       if ( ns_label.empty() ){
-	_foliaNsOut = xmlNewNs( root, (const xmlChar *)NSFOLIA.c_str(), 0 );
+	_foliaNsOut = xmlNewNs( root,
+				reinterpret_cast<const xmlChar *>(NSFOLIA.c_str()),
+				0 );
       }
       else {
 	_foliaNsOut = xmlNewNs( root,
-				(const xmlChar *)NSFOLIA.c_str(),
-				(const xmlChar*)ns_label.c_str() );
+				reinterpret_cast<const xmlChar *>(NSFOLIA.c_str()),
+				reinterpret_cast<const xmlChar *>(ns_label.c_str()) );
       }
     }
     else {
@@ -3152,7 +3157,7 @@ namespace folia {
       xmlChar *buf; int size;
       xmlDocDumpFormatMemoryEnc( outDoc, &buf, &size,
 				 output_encoding, 1 );
-      result = string( (const char *)buf, size );
+      result = string( reinterpret_cast<const char *>(buf), size );
       xmlFree( buf );
       xmlFreeDoc( outDoc );
       _foliaNsOut = 0;
@@ -3463,25 +3468,24 @@ namespace folia {
 	  if ( done ){
 	    vector<Word*> keep = matched;
 	    //	  cerr << "findnodes() tussenresultaat ==> " << matched << endl;
-	    vector<Word*> tmp1;
+	    vector<Word*> left_v;
 	    if ( leftcontext > 0 ){
-	      tmp1 = matched[0]->leftcontext(leftcontext);
-	      //	    cerr << "findnodes() tmp1 ==> " << tmp1 << endl;
-	      copy( matched.begin(), matched.end(), back_inserter(tmp1) );
-	      //	    cerr << "findnodes() tmp1 na copy ==> " << tmp1 << endl;
+	      left_v = matched[0]->leftcontext(leftcontext);
+	      //	    cerr << "findnodes() left ==> " << left_v << endl;
+	      copy( matched.begin(), matched.end(), back_inserter(left_v) );
+	      //	    cerr << "findnodes() after copy left_v ==> " << left_v << endl;
 	    }
 	    else {
-	      tmp1 = matched;
+	      left_v = matched;
 	    }
-	    vector<Word*> tmp2;
 	    if ( rightcontext > 0 ){
-	      tmp2 = matched.back()->rightcontext(rightcontext);
-	      //	    cerr << "findnodes() tmp2 ==> " << tmp2 << endl;
-	      copy( tmp2.begin(), tmp2.end(), back_inserter(tmp1) );
-	      //	    cerr << "findnodes() tmp2 na copy ==> " << tmp2 << endl;
+	      vector<Word*> right_v = matched.back()->rightcontext(rightcontext);
+	      //	    cerr << "findnodes() right_v ==> " << right_v << endl;
+	      copy( right_v.begin(), right_v.end(), back_inserter(left_v) );
+	      //	    cerr << "findnodes() right_v na copy ==> " << right_v << endl;
 	    }
-	    result.push_back(tmp1);
-	    //	  cerr << "findnodes() tussenresultaat 2 ==> " << tmp1 << endl;
+	    //	  cerr << "findnodes() tussenresultaat 2 ==> " << left_v << endl;
+	    result.push_back(left_v);
 	    if ( flag ){
 	      matched = keep;
 	    }
