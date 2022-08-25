@@ -432,7 +432,7 @@ namespace folia {
 	return "";
       }
     }
-    // cerr << "read _date time = " << toString(time) << endl;
+    //  cerr << "read _date time = " << toString(time) << endl;
     char buf[100];
     strftime( buf, 100, "%Y-%m-%dT%X", &time );
     return buf;
