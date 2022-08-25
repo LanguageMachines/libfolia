@@ -3574,7 +3574,6 @@ namespace folia {
       res = new Sentence( kw, doc() );
     }
     catch( const DuplicateIDError& e ) {
-      res->destroy();
       throw;
     }
     append( res );
