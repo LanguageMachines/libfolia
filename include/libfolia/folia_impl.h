@@ -790,28 +790,28 @@ namespace folia {
     void unravel( std::set<FoliaElement*>& );
 
   protected:
-    xmlNode *xml( bool, bool = false ) const;
-    void setAttributes( KWargs& );
-    KWargs collectAttributes() const;
+    xmlNode *xml( bool, bool = false ) const override;
+    void setAttributes( KWargs& ) override;
+    KWargs collectAttributes() const override;
     xmlNs *foliaNs() const;
-    bool addable( const FoliaElement * ) const;
+    bool addable( const FoliaElement * ) const override;
 
   private:
-    int refcount() const { return _refcount; };
-    void increfcount() { ++_refcount; };
-    void decrefcount() { --_refcount; };
-    void resetrefcount() { _refcount = 0; };
-    void setAuth( bool b ){ _auth = b; };
-    void setDateTime( const std::string& );
-    const std::string getDateTime() const;
-    bool checkAtts();
+    int refcount() const override { return _refcount; };
+    void increfcount() override { ++_refcount; };
+    void decrefcount() override { --_refcount; };
+    void resetrefcount() override { _refcount = 0; };
+    void setAuth( bool b ) override { _auth = b; };
+    void setDateTime( const std::string& ) override;
+    const std::string getDateTime() const override;
+    bool checkAtts() override;
     void set_typegroup( KWargs& ) const;
-    bool acceptable( ElementType ) const;
-    UnicodeString text_container_text( const TextPolicy& ) const;
-    void check_text_consistency(bool = true) const;
+    bool acceptable( ElementType ) const override;
+    UnicodeString text_container_text( const TextPolicy& ) const override;
+    void check_text_consistency(bool = true) const override;
     void check_text_consistency_while_parsing( bool = true,
-					       bool = false ); //can't we merge these two somehow?
-    void check_append_text_consistency( const FoliaElement * ) const;
+					       bool = false ) override; //can't we merge these two somehow?
+    void check_append_text_consistency( const FoliaElement * ) const override;
     void check_set_declaration();
     void addFeatureNodes( const KWargs& args );
     void dbg( const std::string& ) const;
@@ -946,7 +946,7 @@ namespace folia {
   class AllowGenerateID: public virtual FoliaElement {
   public:
     void setMaxId( FoliaElement * );
-    const std::string generateId( const std::string& tag );
+    const std::string generateId( const std::string& tag ) override;
   private:
     std::map<std::string, int> id_map;
   };
@@ -958,29 +958,29 @@ namespace folia {
 			 const std::vector<FoliaElement*>&,
  			 const std::vector<FoliaElement*>&,
 			 const std::vector<FoliaElement*>&,
-			 const KWargs& );
+			 const KWargs& ) override;
     Correction *correct( FoliaElement*,
 			 FoliaElement*,
-			 const KWargs& );
+			 const KWargs& ) override;
     Correction* correct( FoliaElement*,
 			 FoliaElement*,
 			 const std::vector<FoliaElement*>&,
-			 const KWargs& );
-    Correction *correct( const std::string& = "" );
+			 const KWargs& ) override;
+    Correction *correct( const std::string& = "" ) override;
   };
 
   class AllowXlink: public virtual FoliaElement {
   public:
-    const std::string href() const;
-    void setAttributes( KWargs& );
-    KWargs collectAttributes() const;
+    const std::string href() const override;
+    void setAttributes( KWargs& ) override;
+    KWargs collectAttributes() const override;
   protected:
     std::map<std::string,std::string> _xlink;
   };
 
   class AllowInlineAnnotation: public AllowCorrections {
   public:
-    bool allowannotations() const { return true; };
+    bool allowannotations() const override { return true; };
     template <typename F>
       std::vector<F*> annotations( const std::string& s = "" ) const {
       return FoliaElement::annotations<F>( s );
@@ -997,15 +997,15 @@ namespace folia {
     }
 
     std::vector<Alternative *> alternatives( ElementType = BASE,
-					     const std::string& = "" ) const;
+					     const std::string& = "" ) const override;
 
 
-    PosAnnotation *addPosAnnotation( const KWargs& );
+    PosAnnotation *addPosAnnotation( const KWargs& ) override;
     PosAnnotation *getPosAnnotations( const std::string&,
-				      std::vector<PosAnnotation*>& ) const;
-    LemmaAnnotation *addLemmaAnnotation( const KWargs& );
+				      std::vector<PosAnnotation*>& ) const override;
+    LemmaAnnotation *addLemmaAnnotation( const KWargs& ) override;
     LemmaAnnotation *getLemmaAnnotations( const std::string&,
-					  std::vector<LemmaAnnotation*>& ) const;
+					  std::vector<LemmaAnnotation*>& ) const override;
 
   };
   std::string VersionName();
