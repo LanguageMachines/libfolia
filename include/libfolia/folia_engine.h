@@ -71,7 +71,7 @@ namespace folia {
        */
       init_doc(i,o);
     };
-    virtual bool init_doc( const std::string&, const std::string& ="" );
+    bool init_doc( const std::string&, const std::string& ="" );
     virtual ~Engine();
     FoliaElement *get_node( const std::string& );
     bool next() { return true; }; /// A stub. NOT needed!
@@ -135,18 +135,18 @@ namespace folia {
 		  _node_count(0),
 		  _is_setup(false)
     {
-  };
-  TextEngine( const std::string& i, const std::string& o="" ):
-    TextEngine(){
+    };
+    TextEngine( const std::string& i, const std::string& o="" ):
+      TextEngine(){
       /// construct a TextEngine
       /*!
 	\param i the input file
 	\param o an optional output file
 	To be able to use the TextEngine, a call to setup() is still needed
-       */
+      */
       init_doc( i, o );
     }
-    bool init_doc( const std::string&, const std::string& ="" ) override;
+    bool init_doc( const std::string&, const std::string& ="" );
     void setup( const std::string& ="", bool = false );
     const std::map<int,int>& enumerate_text_parents( const std::string& ="",
 						     bool = false );

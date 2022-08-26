@@ -88,7 +88,7 @@ namespace folia {
   class ExternalMetaData: public MetaData {
   public:
   ExternalMetaData( const std::string& t,
-		    const std::string& src ): MetaData(t) { _src = src; };
+		    const std::string& src ): MetaData(t), _src(src) {};
     std::string datatype() const override { return "ExternalMetaData"; };
     std::string src() const override { return _src; };
   private:

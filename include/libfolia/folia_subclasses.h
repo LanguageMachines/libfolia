@@ -314,7 +314,7 @@ namespace folia {
     friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( PhonContent,
-				  AbstractContentAnnotation );
+			      AbstractContentAnnotation );
     void setAttributes( KWargs& ) override;
     KWargs collectAttributes() const override;
     const UnicodeString phon( const TextPolicy& ) const;
