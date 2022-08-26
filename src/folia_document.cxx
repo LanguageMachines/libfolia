@@ -2591,7 +2591,7 @@ namespace folia {
       return "";
     }
     string result;
-    auto const& cur = lookup_default( type, setname );
+    auto const cur = lookup_default( type, setname );
     if ( cur != 0 ){
       result = cur->_annotator;
     }
@@ -2616,7 +2616,7 @@ namespace folia {
     if ( type == AnnotationType::NO_ANN ){
       return result;
     }
-    auto const& cur = lookup_default( type, setname );
+    auto const cur = lookup_default( type, setname );
     if ( cur != 0 ){
       result = cur->_ann_type;
     }
@@ -2724,7 +2724,7 @@ namespace folia {
       \return a list of annotators.
     */
     vector<string> result;
-    auto const& cur = lookup_default( type, setname );
+    auto const cur = lookup_default( type, setname );
     if ( cur != 0 ){
       for ( const auto& p : cur->_processors ){
      	result.push_back( p );
@@ -2747,7 +2747,7 @@ namespace folia {
       cerr << "getprocessors(" << toString( type ) << ","
 	   << setname << ")" << endl;
     }
-    auto const& cur = lookup_default( type, setname );
+    auto const cur = lookup_default( type, setname );
     if ( cur != 0 ){
       transform( cur->_processors.begin(),
 		 cur->_processors.end(),

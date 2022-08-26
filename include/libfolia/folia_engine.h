@@ -130,7 +130,12 @@ namespace folia {
 
   class TextEngine: public Engine {
   public:
-  TextEngine(): Engine(){}; //!< default construcor. Needs a call to init_doc()
+    TextEngine(): Engine(), //!< default construcor. Needs a call to init_doc()
+		  _next_text_node(0),
+		  _node_count(0),
+		  _is_setup(false)
+    {
+  };
   TextEngine( const std::string& i, const std::string& o="" ):
     TextEngine(){
       /// construct a TextEngine

@@ -30,7 +30,7 @@
 namespace folia {
 
 #define ADD_PROTECTED_CONSTRUCTORS( CLASS, BASE )		\
-  CLASS( const properties& props, Document *d=0 ):		\
+  explicit CLASS( const properties& props, Document *d=0 ):		\
     BASE( props, d ){ classInit(); };				\
   CLASS( const properties& props, FoliaElement *p ):		\
     BASE( props, p ){ classInit(); }
@@ -39,13 +39,13 @@ namespace folia {
  protected:							  \
    ~CLASS() {};							  \
  public:							  \
-  CLASS( const KWargs& a, Document *d=0 ):			  \
+  explicit CLASS( const KWargs& a, Document *d=0 ):			  \
     BASE( PROPS, d ){ classInit(a); };				  \
-  CLASS( Document *d=0 ):					  \
+  explicit CLASS( Document *d=0 ):					  \
     BASE( PROPS, d ){ classInit(); };				  \
   CLASS( const KWargs& a, FoliaElement *p ):			  \
     BASE( PROPS, p ){ classInit(a); };				  \
-  CLASS( FoliaElement *p ):					  \
+  explicit CLASS( FoliaElement *p ):					  \
     BASE( PROPS, p ){ classInit(); }
 
   class AbstractStructureElement:

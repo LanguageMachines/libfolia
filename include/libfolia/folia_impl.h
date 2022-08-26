@@ -570,16 +570,16 @@ namespace folia {
     AbstractElement( const properties& p, FoliaElement * );
     virtual ~AbstractElement();
   public:
-    void destroy();
+    void destroy() override;
     void classInit();
     void classInit( const KWargs& );
 
     //functions regarding contained data
-    size_t size() const { return _data.size(); };
-    FoliaElement* index( size_t ) const;
-    FoliaElement* rindex( size_t ) const;
+    size_t size() const override { return _data.size(); };
+    FoliaElement* index( size_t ) const override;
+    FoliaElement* rindex( size_t ) const override;
 
-    bool isinstance( ElementType et ) const {
+    bool isinstance( ElementType et ) const override {
       /// return true when the object is an instance of the type parameter
       /*!
       \param et the type to check against
@@ -587,26 +587,26 @@ namespace folia {
       return et == element_id();
     }
 
-    void assignDoc( Document* );
-    FoliaElement *parent() const { return _parent; };
-    void set_parent( FoliaElement *p ) { _parent = p ; };
+    void assignDoc( Document* ) override ;
+    FoliaElement *parent() const override { return _parent; };
+    void set_parent( FoliaElement *p ) override { _parent = p ; };
 
     // modify the internal data
-    FoliaElement *append( FoliaElement* );
-    FoliaElement *postappend( );
-    void remove( FoliaElement * );
-    std::vector<FoliaElement*> find_replacables( FoliaElement * ) const;
-    void replace( FoliaElement * );
-    FoliaElement* replace( FoliaElement *, FoliaElement* );
-    void insert_after( FoliaElement *, FoliaElement * );
-    const std::vector<FoliaElement*>& data() const { return _data; };
+    FoliaElement *append( FoliaElement* ) override;
+    FoliaElement *postappend( ) override;
+    void remove( FoliaElement * ) override;
+    std::vector<FoliaElement*> find_replacables( FoliaElement * ) const override;
+    void replace( FoliaElement * ) override;
+    FoliaElement* replace( FoliaElement *, FoliaElement* ) override;
+    void insert_after( FoliaElement *, FoliaElement * ) override;
+    const std::vector<FoliaElement*>& data() const override { return _data; };
 
     // Sentences
-    Sentence *addSentence( const KWargs& );
+    Sentence *addSentence( const KWargs& ) override;
 
     // MetaData
-    const MetaData *get_metadata() const;
-    const std::string get_metadata( const std::string&  ) const;
+    const MetaData *get_metadata() const override;
+    const std::string get_metadata( const std::string&  ) const override;
 
     // Selections
     template <typename F>
@@ -639,12 +639,12 @@ namespace folia {
       return FoliaElement::select<F>( exclude, recurse );
     }
 
-    const std::string annotator( ) const { return _annotator; };
-    void annotator( const std::string& a ) { _annotator = a; };
-    const std::string processor( ) const { return _processor; };
-    void processor( const std::string& p ) { _processor = p; };
-    AnnotatorType annotatortype() const { return _annotator_type; };
-    void annotatortype( AnnotatorType t ) { _annotator_type =  t; };
+    const std::string annotator( ) const override { return _annotator; };
+    void annotator( const std::string& a ) override { _annotator = a; };
+    const std::string processor( ) const override { return _processor; };
+    void processor( const std::string& p ) override { _processor = p; };
+    AnnotatorType annotatortype() const override { return _annotator_type; };
+    void annotatortype( AnnotatorType t ) override { _annotator_type =  t; };
 
     template <typename F>
       F *addAnnotation( const KWargs& args ) {
@@ -652,142 +652,142 @@ namespace folia {
     }
 
     // Span annotations
-    std::vector<AbstractSpanAnnotation*> selectSpan() const;
+    std::vector<AbstractSpanAnnotation*> selectSpan() const override;
 
     // features
-    std::vector<std::string> feats( const std::string& ) const;
-    const std::string feat( const std::string& ) const;
+    std::vector<std::string> feats( const std::string& ) const override;
+    const std::string feat( const std::string& ) const override;
 
     //XML parsing
-    FoliaElement* parseXml( const xmlNode * );
+    FoliaElement* parseXml( const xmlNode * ) override;
 
     // text/string content
 
-    const std::string str( const std::string& = "current" ) const;
-    const std::string str( const TextPolicy& ) const;
+    const std::string str( const std::string& = "current" ) const override;
+    const std::string str( const TextPolicy& ) const override ;
 
-    const UnicodeString private_text( const TextPolicy& ) const;
-    const UnicodeString text( const TextPolicy & ) const;
+    const UnicodeString private_text( const TextPolicy& ) const override;
+    const UnicodeString text( const TextPolicy & ) const override;
     const UnicodeString text( const std::string&,
 			      TEXT_FLAGS = TEXT_FLAGS::NONE,
-			      bool = false ) const;
+			      bool = false ) const override;
     const UnicodeString text( TEXT_FLAGS flags = TEXT_FLAGS::NONE,
-			      bool debug = false ) const {
+			      bool debug = false ) const override {
       return text( "current", flags, debug );
     }
 
-    const UnicodeString phon( const TextPolicy& ) const;
+    const UnicodeString phon( const TextPolicy& ) const override;
     const UnicodeString phon( const std::string&,
-			      TEXT_FLAGS = TEXT_FLAGS::NONE ) const;
-    const UnicodeString phon( TEXT_FLAGS flags = TEXT_FLAGS::NONE ) const {
+			      TEXT_FLAGS = TEXT_FLAGS::NONE ) const override;
+    const UnicodeString phon( TEXT_FLAGS flags = TEXT_FLAGS::NONE ) const override {
       return phon( "current", flags );
     }
 
-    const UnicodeString deeptext( const TextPolicy& ) const;
-    const UnicodeString deepphon( const TextPolicy& ) const;
+    const UnicodeString deeptext( const TextPolicy& ) const override;
+    const UnicodeString deepphon( const TextPolicy& ) const override;
 
     // Word
-    const Word* resolveword( const std::string& ) const { return 0; };
-    Word *addWord( const KWargs& );
-    Word *addWord( const std::string& ="" );
+    const Word* resolveword( const std::string& ) const override { return 0; };
+    Word *addWord( const KWargs& ) override;
+    Word *addWord( const std::string& ="" ) override;
     // TextContent
-    const TextContent *text_content( const TextPolicy& ) const;
+    const TextContent *text_content( const TextPolicy& ) const override;
     const TextContent *text_content( const std::string& = "current",
-				     bool = false ) const;
+				     bool = false ) const override;
     // PhonContent
-    const PhonContent *phon_content( const TextPolicy& tp ) const;
+    const PhonContent *phon_content( const TextPolicy& tp ) const override;
     const PhonContent *phon_content( const std::string& = "current",
-				     bool = false ) const;
+				     bool = false ) const override;
 
     // properties
-    const std::string& get_delimiter( const TextPolicy& ) const;
+    const std::string& get_delimiter( const TextPolicy& ) const override;
 
     // attributes
-    const std::string cls() const { return _class; };
-    void set_cls( const std::string& cls ){ _class = cls; };
-    void update_cls( const std::string& c ) { set_cls( c ); } // deprecated
+    const std::string cls() const override { return _class; };
+    void set_cls( const std::string& cls ) override { _class = cls; };
+    void update_cls( const std::string& c ){ set_cls( c ); } // deprecated
 
-    const std::string sett() const { return _set; };
-    void set_set( const std::string& st ){ _set = st; };
+    const std::string sett() const override { return _set; };
+    void set_set( const std::string& st ) override { _set = st; };
 
-    const std::string tag() const { return _tags; };
-    const std::string set_tag( const std::string&  );
+    const std::string tag() const override { return _tags; };
+    const std::string set_tag( const std::string&  ) override;
     const std::string settag( const std::string& t ){
       return set_tag(t); };                              //deprecated
 
-    const std::string n() const { return _n; };
-    void set_n( const std::string& n ){ _n = n; };
+    const std::string n() const override { return _n; };
+    void set_n( const std::string& n ) override { _n = n; };
 
-    const std::string id() const { return _id; };
+    const std::string id() const override { return _id; };
 
-    const std::string begintime() const { return _begintime; };
-    void set_begintime( const std::string& bt ){ _begintime = bt; };
+    const std::string begintime() const override { return _begintime; };
+    void set_begintime( const std::string& bt ) override { _begintime = bt; };
 
-    const std::string endtime() const { return _endtime; };
-    void set_endtime( const std::string& bt ){ _endtime = bt; };
+    const std::string endtime() const override { return _endtime; };
+    void set_endtime( const std::string& bt ) override { _endtime = bt; };
 
-    const std::string textclass() const { return _textclass; };
-    void textclass( const std::string& tc ){ _textclass = tc; };
+    const std::string textclass() const override { return _textclass; };
+    void textclass( const std::string& tc ) { _textclass = tc; };
 
-    const std::string speech_src() const;
-    void set_speech_src( const std::string& ) NOT_IMPLEMENTED;
+    const std::string speech_src() const override;
+    void set_speech_src( const std::string& ) override NOT_IMPLEMENTED;
 
-    const std::string speech_speaker() const;
-    void set_speech_speaker( const std::string& ) NOT_IMPLEMENTED;
+    const std::string speech_speaker() const override;
+    void set_speech_speaker( const std::string& ) override NOT_IMPLEMENTED;
 
-    bool space() const { return _space; };
-    bool set_space( bool b ) { bool s =_space; _space =  b; return s; };
+    bool space() const override { return _space; };
+    bool set_space( bool b ) override { bool s =_space; _space =  b; return s; };
 
-    SPACE_FLAGS spaces_flag() const { return _preserve_spaces; };
-    void set_spaces_flag( SPACE_FLAGS f ) { _preserve_spaces = f; };
+    SPACE_FLAGS spaces_flag() const override { return _preserve_spaces; };
+    void set_spaces_flag( SPACE_FLAGS f ) override { _preserve_spaces = f; };
 
-    double confidence() const { return _confidence; };
-    void confidence( double d ) { _confidence = d; };
-    void set_confidence( double d ) { _confidence = d; };
+    double confidence() const override { return _confidence; };
+    void confidence( double d ) override { _confidence = d; };
+    void set_confidence( double d ) override { _confidence = d; };
 
-    const std::string language( const std::string& = "" ) const;
-    const std::string src() const { return _src; };
+    const std::string language( const std::string& = "" ) const override;
+    const std::string src() const override { return _src; };
     // generic properties
-    ElementType element_id() const;
-    size_t occurrences() const;
-    size_t occurrences_per_set() const;
-    Attrib required_attributes() const;
-    Attrib optional_attributes() const;
+    ElementType element_id() const override;
+    size_t occurrences() const override;
+    size_t occurrences_per_set() const override;
+    Attrib required_attributes() const override;
+    Attrib optional_attributes() const override;
     bool hidden() const;
-    const std::string& xmltag() const;
-    const std::string& default_subset() const;
-    AnnotationType annotation_type() const;
+    const std::string& xmltag() const override;
+    const std::string& default_subset() const override;
+    AnnotationType annotation_type() const override;
     const std::set<ElementType>& accepted_data() const;
     const std::set<ElementType>& required_data() const;
-    bool printable() const;
-    bool speakable() const;
-    bool referable() const;
-    bool is_textcontainer() const;
-    bool is_phoncontainer() const;
-    bool implicitspace() const;
-    const std::string& text_delimiter() const;
-    bool auth() const;
-    bool xlink() const;
-    bool setonly() const;
-    bool auto_generate_id() const;
+    bool printable() const override;
+    bool speakable() const override;
+    bool referable() const override;
+    bool is_textcontainer() const override;
+    bool is_phoncontainer() const override;
+    bool implicitspace() const override;
+    const std::string& text_delimiter() const override;
+    bool auth() const override;
+    bool xlink() const override;
+    bool setonly() const override;
+    bool auto_generate_id() const override;
 
-    Document *doc() const { return _mydoc; };
+    Document *doc() const override { return _mydoc; };
 
 
     std::vector<FoliaElement*> select( ElementType,
-				       SELECT_FLAGS = SELECT_FLAGS::RECURSE ) const;
+				       SELECT_FLAGS = SELECT_FLAGS::RECURSE ) const override;
     std::vector<FoliaElement*> select( ElementType,
 				       const std::set<ElementType>& ,
-				       SELECT_FLAGS = SELECT_FLAGS::RECURSE ) const;
+				       SELECT_FLAGS = SELECT_FLAGS::RECURSE ) const override;
     std::vector<FoliaElement*> select( ElementType,
 				       const std::string&,
-				       SELECT_FLAGS = SELECT_FLAGS::RECURSE ) const;
+				       SELECT_FLAGS = SELECT_FLAGS::RECURSE ) const override;
     std::vector<FoliaElement*> select( ElementType,
 				       const std::string&,
 				       const std::set<ElementType>& ,
-				       SELECT_FLAGS = SELECT_FLAGS::RECURSE ) const;
+				       SELECT_FLAGS = SELECT_FLAGS::RECURSE ) const override;
 
-    void unravel( std::set<FoliaElement*>& );
+    void unravel( std::set<FoliaElement*>& ) override;
 
   protected:
     xmlNode *xml( bool, bool = false ) const override;

@@ -56,19 +56,19 @@ namespace folia {
   class NativeMetaData: public MetaData {
   public:
     explicit NativeMetaData( const std::string& t ): MetaData(t) {};
-    void add_av( const std::string& a, const std::string& v )
+    void add_av( const std::string& a, const std::string& v ) override
     { _attribs[a] = v; };
-    const KWargs& get_avs() const {
+    const KWargs& get_avs() const override {
       return _attribs;
     }
-    const std::string get_val( const std::string& at ) const {
+    const std::string get_val( const std::string& at ) const override {
       auto const& it = _attribs.find( at );
       if ( it != _attribs.end() ){
 	return it->second;
       }
       return "";
     }
-    std::string datatype() const { return "NativeMetaData"; };
+    std::string datatype() const override { return "NativeMetaData"; };
   private:
     KWargs _attribs;
   };
@@ -77,9 +77,10 @@ namespace folia {
   public:
   ForeignMetaData( const std::string& t ): MetaData(t) {};
     ~ForeignMetaData();
-    void add_foreign( const xmlNode * );
-    std::string datatype() const { return "ForeignMetaData"; };
-    const std::vector<FoliaElement*> get_foreigners() const { return foreigners;};
+    void add_foreign( const xmlNode * ) override;
+    std::string datatype() const override { return "ForeignMetaData"; };
+    const std::vector<FoliaElement*> get_foreigners() const override {
+      return foreigners;};
   private:
     std::vector<FoliaElement*> foreigners;
   };
@@ -88,8 +89,8 @@ namespace folia {
   public:
   ExternalMetaData( const std::string& t,
 		    const std::string& src ): MetaData(t) { _src = src; };
-    std::string datatype() const { return "ExternalMetaData"; };
-    std::string src() const { return _src; };
+    std::string datatype() const override { return "ExternalMetaData"; };
+    std::string src() const override { return _src; };
   private:
     std::string _src;
   };
