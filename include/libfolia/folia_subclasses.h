@@ -58,17 +58,17 @@ namespace folia {
       // DO NOT USE AbstractStructureElement as a real node!!
       ADD_PROTECTED_CONSTRUCTORS( AbstractStructureElement, AbstractElement );
     public:
-      FoliaElement *append( FoliaElement* );
-      std::vector<Paragraph*> paragraphs() const;
-      std::vector<Sentence*> sentences() const;
-      std::vector<Word*> words( const std::string& ="" ) const;
-      Sentence *sentences( size_t ) const;
-      Sentence *rsentences( size_t ) const;
-      Paragraph *paragraphs( size_t ) const;
-      Paragraph *rparagraphs( size_t ) const;
-      Word *words( size_t, const std::string& ="" ) const;
-      Word *rwords( size_t, const std::string& ="" ) const;
-      const Word* resolveword( const std::string& ) const;
+      FoliaElement *append( FoliaElement* ) override;
+      std::vector<Paragraph*> paragraphs() const override;
+      std::vector<Sentence*> sentences() const override;
+      std::vector<Word*> words( const std::string& ="" ) const override;
+      Sentence *sentences( size_t ) const override;
+      Sentence *rsentences( size_t ) const override;
+      Paragraph *paragraphs( size_t ) const override;
+      Paragraph *rparagraphs( size_t ) const override;
+      Word *words( size_t, const std::string& ="" ) const override;
+      Word *rwords( size_t, const std::string& ="" ) const override;
+      const Word* resolveword( const std::string& ) const override;
       static properties PROPS;
     };
 
@@ -76,23 +76,23 @@ namespace folia {
     /// Interface class that is inherited by word-like (wrefable)
     /// elements (Word, Hiddenword, Morpheme, Phoneme)
   public:
-    Sentence *sentence() const;
-    Paragraph *paragraph() const;
-    Division *division() const;
-    const std::string pos( const std::string& = "" ) const;
-    const std::string lemma( const std::string& = "" ) const;
+    Sentence *sentence() const override;
+    Paragraph *paragraph() const override;
+    Division *division() const override;
+    const std::string pos( const std::string& = "" ) const override;
+    const std::string lemma( const std::string& = "" ) const override;
     SenseAnnotation *sense( const std::string& = "" ) const;
     DomainAnnotation *domain( const std::string& = "" ) const;
-    std::vector<Morpheme *> morphemes( const std::string& ="" ) const;
+    std::vector<Morpheme *> morphemes( const std::string& ="" ) const override;
     std::vector<Phoneme *> phonemes( const std::string& ="" ) const;
-    Morpheme *morpheme( size_t, const std::string& ="" ) const;
+    Morpheme *morpheme( size_t, const std::string& ="" ) const override;
     Phoneme *phoneme( size_t, const std::string& ="" ) const;
     std::vector<Correction *> getcorrections( const std::string& ="",
 					      const std::string& ="" ) const NOT_IMPLEMENTED;
     Correction *getcorrection( const std::string& ="",
 			       const std::string& ="" ) const NOT_IMPLEMENTED;
     std::vector<AbstractSpanAnnotation*> findspans( ElementType,
-						    const std::string& ="" ) const;
+						    const std::string& ="" ) const override;
   };
 
   class AbstractInlineAnnotation:
@@ -126,10 +126,10 @@ namespace folia {
       friend void static_init();
     public:
       xmlNode *xml( bool, bool=false ) const override;
-      FoliaElement *append( FoliaElement* );
+      FoliaElement *append( FoliaElement* ) override;
 
-      std::vector<FoliaElement*> wrefs() const;
-      FoliaElement *wrefs( size_t ) const;
+      std::vector<FoliaElement*> wrefs() const override;
+      FoliaElement *wrefs( size_t ) const override;
     protected:
       // DO NOT USE AbstractSpanAnnotation as a real node!!
       ADD_PROTECTED_CONSTRUCTORS( AbstractSpanAnnotation, AbstractElement );
@@ -153,13 +153,13 @@ namespace folia {
     {
       friend void static_init();
     public:
-      void setAttributes( KWargs& );
-      KWargs collectAttributes() const;
-      const FoliaElement* resolveid() const;
+      void setAttributes( KWargs& ) override;
+      KWargs collectAttributes() const override;
+      const FoliaElement* resolveid() const override;
     protected:
       // DO NOT USE AbstractTextMarkup as a real node!!
       ADD_PROTECTED_CONSTRUCTORS( AbstractTextMarkup, AbstractElement );
-      const std::string& get_delimiter( const TextPolicy& ) const {
+      const std::string& get_delimiter( const TextPolicy& ) const override {
 	return EMPTY_STRING; };
       std::string idref;
     public:
@@ -186,12 +186,12 @@ namespace folia {
     friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( TextMarkupCorrection, AbstractTextMarkup );
-    void setAttributes( KWargs& );
-    KWargs collectAttributes() const;
+    void setAttributes( KWargs& ) override;
+    KWargs collectAttributes() const override;
   public:
     static properties PROPS;
   private:
-    const UnicodeString private_text( const TextPolicy& ) const;
+    const UnicodeString private_text( const TextPolicy& ) const override;
     std::string _original;
   };
 
@@ -223,11 +223,11 @@ namespace folia {
     friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( TextMarkupReference, AbstractTextMarkup );
-    KWargs collectAttributes() const;
-    void setAttributes( KWargs& );
+    KWargs collectAttributes() const override;
+    void setAttributes( KWargs& ) override;
 
   private:
-    void init();
+    void init() override;
     std::string ref_id;
     std::string ref_type;
     std::string _type;
@@ -242,7 +242,7 @@ namespace folia {
   public:
     ADD_DEFAULT_CONSTRUCTORS( TextMarkupHSpace, AbstractTextMarkup );
   private:
-    const UnicodeString private_text( const TextPolicy& ) const;
+    const UnicodeString private_text( const TextPolicy& ) const override;
   public:
     static properties PROPS;
   };
@@ -284,22 +284,24 @@ namespace folia {
       friend void static_init();
     public:
       ADD_DEFAULT_CONSTRUCTORS( TextContent, AbstractContentAnnotation );
-      void setAttributes( KWargs& );
-      KWargs collectAttributes() const;
-      int offset() const { return _offset; };
-      std::vector<FoliaElement*> find_replacables( FoliaElement * ) const;
-      const std::string set_to_current() { // Don't use without thinking twice!
+      void setAttributes( KWargs& ) override;
+      KWargs collectAttributes() const override;
+      int offset() const override { return _offset; };
+      std::vector<FoliaElement*> find_replacables( FoliaElement * ) const override;
+      const std::string set_to_current() override {
+	// Don't use without thinking twice!
 	std::string res = cls();
 	set_cls( "current" );
 	return res;
       }
-      FoliaElement *postappend();
+      FoliaElement *postappend() override;
       FoliaElement *get_reference(bool trim_spaces=true) const;
       std::string ref() const { return _ref; };
     private:
-      void init();
+      void init() override;
       FoliaElement *find_default_reference() const;
-      void set_offset( int o ) const { _offset = o; }; // this MUST be const,
+      void set_offset( int o ) const override { _offset = o; };
+      // this MUST be const,
       // only used for 'fixing up' invalid offsets. keep it private!
       // therefore _offset  has to be mutable!
       mutable int _offset;
@@ -313,19 +315,20 @@ namespace folia {
   public:
     ADD_DEFAULT_CONSTRUCTORS( PhonContent,
 				  AbstractContentAnnotation );
-    void setAttributes( KWargs& );
-    KWargs collectAttributes() const;
+    void setAttributes( KWargs& ) override;
+    KWargs collectAttributes() const override;
     const UnicodeString phon( const TextPolicy& ) const;
     const UnicodeString phon( const std::string& = "current",
 			      TEXT_FLAGS = TEXT_FLAGS::NONE ) const;
-    int offset() const { return _offset; };
-    FoliaElement *postappend();
+    int offset() const override { return _offset; };
+    FoliaElement *postappend() override;
     FoliaElement *get_reference(bool trim_spaces=true) const;
     std::string ref() const { return _ref; };
   public:
-    void init();
+    void init() override;
     FoliaElement *find_default_reference() const;
-    void set_offset( int o ) const { _offset = o; }; // this MUST be const,
+    void set_offset( int o ) const override { _offset = o; };
+    // this MUST be const,
     // only used for 'fixing up' invalid offsets. keep it private!
     // therefore _offset  has to be mutable!
     mutable int _offset;
@@ -339,10 +342,10 @@ namespace folia {
     friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( FoLiA, AbstractElement );
-    FoliaElement* parseXml( const xmlNode * );
-    void setAttributes( KWargs& );
+    FoliaElement* parseXml( const xmlNode * ) override;
+    void setAttributes( KWargs& ) override;
   private:
-    const UnicodeString private_text( const TextPolicy& ) const;
+    const UnicodeString private_text( const TextPolicy& ) const override;
   public:
     static properties PROPS;
   };
@@ -382,7 +385,7 @@ namespace folia {
     friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( Row, AbstractStructureElement );
-    const UnicodeString private_text( const TextPolicy& ) const;
+    const UnicodeString private_text( const TextPolicy& ) const override;
     static properties PROPS;
   };
 
@@ -390,7 +393,7 @@ namespace folia {
     friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( Cell, AbstractStructureElement );
-    const UnicodeString private_text( const TextPolicy& ) const;
+    const UnicodeString private_text( const TextPolicy& ) const override;
     static properties PROPS;
   };
 
@@ -398,7 +401,7 @@ namespace folia {
     friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( Gap, AbstractElement );
-    const std::string content() const;
+    const std::string content() const override;
     static properties PROPS;
   };
 
@@ -407,10 +410,10 @@ namespace folia {
   public:
     ADD_DEFAULT_CONSTRUCTORS( Content, AbstractElement );
 
-    FoliaElement* parseXml( const xmlNode * );
+    FoliaElement* parseXml( const xmlNode * ) override;
     xmlNode *xml( bool, bool = false ) const override;
-    const std::string content() const { return value; };
-    void setAttributes( KWargs& );
+    const std::string content() const override { return value; };
+    void setAttributes( KWargs& ) override;
   private:
     std::string value;
   public:
@@ -439,11 +442,11 @@ namespace folia {
       friend void static_init();
     public:
       ADD_DEFAULT_CONSTRUCTORS( Linebreak, AbstractStructureElement );
-      void setAttributes( KWargs& );
-      KWargs collectAttributes() const;
+      void setAttributes( KWargs& ) override;
+      KWargs collectAttributes() const override;
     private:
-      void init();
-      const UnicodeString private_text( const TextPolicy& ) const {
+      void init() override;
+      const UnicodeString private_text( const TextPolicy& ) const override {
 	return "\n";
       }
       std::string _pagenr;
@@ -458,7 +461,7 @@ namespace folia {
   public:
     ADD_DEFAULT_CONSTRUCTORS( Whitespace, AbstractStructureElement );
   private:
-    const UnicodeString private_text( const TextPolicy& ) const {
+    const UnicodeString private_text( const TextPolicy& ) const override {
       return "\n\n";
     }
   public:
@@ -474,23 +477,23 @@ namespace folia {
     ADD_DEFAULT_CONSTRUCTORS( Word, AbstractStructureElement );
 
     Correction *split( FoliaElement *, FoliaElement *,
-		       const std::string& = "" );
-    Correction *incorrection() const;
-    Word *previous() const;
-    Word *next() const;
+		       const std::string& = "" ) override;
+    Correction *incorrection() const override;
+    Word *previous() const override;
+    Word *next() const override;
     std::vector<Word*> context( size_t,
-				const std::string& ="" ) const;
+				const std::string& ="" ) const override;
     std::vector<Word*> leftcontext( size_t,
-				    const std::string& = "" ) const;
+				    const std::string& = "" ) const override;
     std::vector<Word*> rightcontext( size_t,
-				     const std::string& ="" ) const;
-    FoliaElement *append( FoliaElement * );
-    const Word* resolveword( const std::string& ) const;
-    void setAttributes( KWargs& );
-    const std::string& get_delimiter( const TextPolicy& ) const;
-    MorphologyLayer *addMorphologyLayer( const KWargs& );
+				     const std::string& ="" ) const override;
+    FoliaElement *append( FoliaElement * ) override;
+    const Word* resolveword( const std::string& ) const override;
+    void setAttributes( KWargs& ) override;
+    const std::string& get_delimiter( const TextPolicy& ) const override;
+    MorphologyLayer *addMorphologyLayer( const KWargs& ) override;
     MorphologyLayer *getMorphologyLayers( const std::string&,
-					  std::vector<MorphologyLayer*>& ) const;
+					  std::vector<MorphologyLayer*>& ) const override;
   protected:
     ADD_PROTECTED_CONSTRUCTORS( Word, AbstractStructureElement );
   public:
@@ -529,7 +532,7 @@ namespace folia {
     friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( PlaceHolder, Word );
-    void setAttributes( KWargs& );
+    void setAttributes( KWargs& ) override;
     static properties PROPS;
   };
 
@@ -716,7 +719,7 @@ namespace folia {
   public:
     ADD_DEFAULT_CONSTRUCTORS( Quote, AbstractStructureElement );
     std::vector<Word*> wordParts() const;
-    const std::string& get_delimiter( const TextPolicy& ) const;
+    const std::string& get_delimiter( const TextPolicy& ) const override;
     static properties PROPS;
   };
 
@@ -724,9 +727,9 @@ namespace folia {
     friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( Feature, AbstractElement );
-    void setAttributes( KWargs& );
-    KWargs collectAttributes() const;
-    const std::string subset() const { return _subset; };
+    void setAttributes( KWargs& ) override;
+    KWargs collectAttributes() const override;
+    const std::string subset() const override { return _subset; };
 
   protected:
     ADD_PROTECTED_CONSTRUCTORS( Feature, AbstractElement );
@@ -847,7 +850,7 @@ namespace folia {
     ADD_DEFAULT_CONSTRUCTORS( WordReference, AbstractElement );
     static properties PROPS;
   private:
-    FoliaElement* parseXml( const xmlNode *node );
+    FoliaElement* parseXml( const xmlNode *node ) override;
   };
 
   class Relation:
@@ -856,12 +859,12 @@ namespace folia {
       friend void static_init();
   public:
       ADD_DEFAULT_CONSTRUCTORS( Relation, AbstractHigherOrderAnnotation );
-      std::vector<FoliaElement *>resolve() const;
-      void setAttributes( KWargs& );
-      KWargs collectAttributes() const;
+      std::vector<FoliaElement *>resolve() const override;
+      void setAttributes( KWargs& ) override;
+      KWargs collectAttributes() const override;
       static properties PROPS;
   private:
-      void init();
+      void init() override;
       std::string _format;
     };
 
@@ -871,15 +874,15 @@ namespace folia {
   public:
     ADD_DEFAULT_CONSTRUCTORS( LinkReference, AbstractElement );
 
-    KWargs collectAttributes() const;
-    void setAttributes( KWargs& );
+    KWargs collectAttributes() const override;
+    void setAttributes( KWargs& ) override;
     const std::string refid() const { return ref_id; };
     const std::string type() const { return ref_type; };
     const std::string t() const { return _t; };
     static properties PROPS;
 
   private:
-    FoliaElement* parseXml( const xmlNode *node );
+    FoliaElement* parseXml( const xmlNode *node ) override;
     FoliaElement *resolve_element( const Relation *ref ) const;
     std::string ref_id;
     std::string ref_type;
@@ -1037,9 +1040,9 @@ namespace folia {
     {
       friend void static_init();
     public:
-      AbstractSpanAnnotation *findspan( const std::vector<FoliaElement*>& ) const;
-      FoliaElement *append( FoliaElement * );
-      KWargs collectAttributes() const;
+      AbstractSpanAnnotation *findspan( const std::vector<FoliaElement*>& ) const override;
+      FoliaElement *append( FoliaElement * ) override;
+      KWargs collectAttributes() const override;
       static properties PROPS;
     protected:
       // DO NOT USE AbstractAnnotationLayer as a real node!!
@@ -1065,9 +1068,9 @@ namespace folia {
 			 const std::vector<FoliaElement*>&,
 			 const std::vector<FoliaElement*>&,
 			 const std::vector<FoliaElement*>&,
-			 const KWargs& );
-    Correction *correct( const std::string& = "" );
-    bool addable( const FoliaElement * ) const;
+			 const KWargs& ) override;
+    Correction *correct( const std::string& = "" ) override;
+    bool addable( const FoliaElement * ) const override;
     static properties PROPS;
   };
 
@@ -1076,7 +1079,7 @@ namespace folia {
   public:
     ADD_DEFAULT_CONSTRUCTORS( Current, AbstractCorrectionChild );
     static properties PROPS;
-    bool addable( const FoliaElement * ) const;
+    bool addable( const FoliaElement * ) const override;
   };
 
   class Original: public AbstractCorrectionChild {
@@ -1084,15 +1087,15 @@ namespace folia {
   public:
     ADD_DEFAULT_CONSTRUCTORS( Original, AbstractCorrectionChild );
     static properties PROPS;
-    bool addable( const FoliaElement * ) const;
+    bool addable( const FoliaElement * ) const override;
   };
 
   class Suggestion: public AbstractCorrectionChild {
     friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( Suggestion, AbstractCorrectionChild );
-    void setAttributes( KWargs& );
-    KWargs collectAttributes() const;
+    void setAttributes( KWargs& ) override;
+    KWargs collectAttributes() const override;
     static properties PROPS;
   private:
     std::string _split;
@@ -1104,9 +1107,9 @@ namespace folia {
   public:
     ADD_DEFAULT_CONSTRUCTORS( Description, AbstractElement );
 
-    const std::string description() const { return _value; };
-    void setAttributes( KWargs& );
-    FoliaElement* parseXml( const xmlNode * );
+    const std::string description() const override { return _value; };
+    void setAttributes( KWargs& ) override;
+    FoliaElement* parseXml( const xmlNode * ) override;
     xmlNode *xml( bool, bool=false ) const override;
     void setvalue( const std::string& s ){ _value = s; };
     static properties PROPS;
@@ -1120,8 +1123,8 @@ namespace folia {
     ADD_DEFAULT_CONSTRUCTORS( Comment, AbstractElement );
 
     const std::string comment() const { return _value; };
-    void setAttributes( KWargs& );
-    FoliaElement* parseXml( const xmlNode * );
+    void setAttributes( KWargs& ) override;
+    FoliaElement* parseXml( const xmlNode * ) override;
     xmlNode *xml( bool, bool=false ) const override;
     void setvalue( const std::string& s ){ _value = s; };
     static properties PROPS;
@@ -1133,12 +1136,12 @@ namespace folia {
     friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( XmlComment, AbstractElement );
-    FoliaElement* parseXml( const xmlNode * );
+    FoliaElement* parseXml( const xmlNode * ) override;
     xmlNode *xml( bool, bool=false ) const override;
     void setvalue( const std::string& s ){ _value = s; };
     static properties PROPS;
   private:
-    const UnicodeString private_text( const TextPolicy& ) const {
+    const UnicodeString private_text( const TextPolicy& ) const override {
       return "";
     }
     std::string _value;
@@ -1148,15 +1151,15 @@ namespace folia {
     friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( XmlText, AbstractElement );
-    FoliaElement* parseXml( const xmlNode * );
+    FoliaElement* parseXml( const xmlNode * ) override;
     xmlNode *xml( bool, bool=false ) const override;
     void setvalue( const std::string& );
-    const std::string& get_delimiter( const TextPolicy& ) const {
+    const std::string& get_delimiter( const TextPolicy& ) const override {
       return EMPTY_STRING; };
-    void setAttributes( KWargs& );
+    void setAttributes( KWargs& ) override;
     static properties PROPS;
   private:
-    const UnicodeString private_text( const TextPolicy& ) const;
+    const UnicodeString private_text( const TextPolicy& ) const override;
     std::string _value; //UTF8 value
   };
 
@@ -1165,7 +1168,7 @@ namespace folia {
   public:
     ADD_DEFAULT_CONSTRUCTORS( External, AbstractElement );
 
-    FoliaElement* parseXml( const xmlNode * );
+    FoliaElement* parseXml( const xmlNode * ) override;
     void resolve_external();
     static properties PROPS;
   };
@@ -1174,7 +1177,7 @@ namespace folia {
     friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( Note, AbstractStructureElement );
-    void setAttributes( KWargs& );
+    void setAttributes( KWargs& ) override;
     static properties PROPS;
   private:
     std::string ref_id;
@@ -1217,11 +1220,11 @@ namespace folia {
     public:
       ADD_DEFAULT_CONSTRUCTORS( Reference, AbstractStructureElement );
 
-      KWargs collectAttributes() const;
-      void setAttributes( KWargs& );
+      KWargs collectAttributes() const override;
+      void setAttributes( KWargs& ) override;
       static properties PROPS;
     private:
-      void init();
+      void init() override;
       std::string ref_id;
       std::string ref_type;
       std::string _format;
@@ -1250,16 +1253,16 @@ namespace folia {
     const PhonContent *phon_content( const TextPolicy& tp ) const;
     const PhonContent *phon_content( const std::string& = "current",
 				     bool = false ) const;
-    const std::string& get_delimiter( const TextPolicy& ) const;
+    const std::string& get_delimiter( const TextPolicy& ) const override;
     Correction *correct( const std::vector<FoliaElement*>&,
 			 const std::vector<FoliaElement*>&,
 			 const std::vector<FoliaElement*>&,
 			 const std::vector<FoliaElement*>&,
-			 const KWargs& );
-    Correction *correct( const std::string& = "" );
+			 const KWargs& ) override;
+    Correction *correct( const std::string& = "" ) override;
     static properties PROPS;
   private:
-    const UnicodeString private_text( const TextPolicy& ) const;
+    const UnicodeString private_text( const TextPolicy& ) const override;
   };
 
   class ErrorDetection: public AbstractInlineAnnotation  {
@@ -1395,12 +1398,12 @@ namespace folia {
   ForeignData( FoliaElement *p ):
     AbstractElement( PROPS, p ){ classInit(); }
     ~ForeignData();
-    FoliaElement* parseXml( const xmlNode * );
+    FoliaElement* parseXml( const xmlNode * ) override;
     xmlNode *xml( bool, bool=false ) const override;
     void set_data( const xmlNode * );
     xmlNode* get_data() const;
   private:
-    void init();
+    void init() override;
     xmlNode *_foreign_data;
   public:
     static properties PROPS;

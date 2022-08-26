@@ -112,6 +112,7 @@ namespace folia {
     _current_node(0),
     _last_added(0),
     _last_depth(2),
+    _start_index(0),
     _doc_type( TEXT ),
     _dbg_file(0),
     _os(0),
@@ -531,7 +532,7 @@ namespace folia {
       }
       _current_node = _last_added;
     }
-    else if ( depth < _last_depth  ){
+    else { // so depth < _last_depth
       if ( _debug ){
 	DBG << "append_node(): UP!" << endl;
       }
