@@ -2723,13 +2723,11 @@ namespace folia {
       \param setname the annotation set. An empty string ("") means ANY set.
       \return a list of annotators.
     */
-    vector<string> result;
     auto const cur = lookup_default( type, setname );
-    if ( cur != 0 ){
-      for ( const auto& p : cur->_processors ){
-     	result.push_back( p );
-      }
-    }
+    vector<string> result;
+    std::copy( cur->_processors.cbegin(),
+	       cur->_processors.cend(),
+	       std::back_inserter( result ) );
     return result;
 
   }

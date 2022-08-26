@@ -2867,15 +2867,15 @@ namespace folia {
      */
 
     auto it = accepted_data().find( t );
-    if ( it == accepted_data().end() ) {
-      for ( const auto& et : accepted_data() ) {
-	if ( folia::isSubClass( t, et ) ) {
-	  return true;
-	}
-      }
-      return false;
+    if ( it != accepted_data().end() ) {
+      return true;
     }
-    return true;
+    else {
+      return any_of( accepted_data().cbegin(),
+		     accepted_data().cend(),
+		     [t]( const ElementType& et) {
+		       return ( folia::isSubClass( t, et ) ); } );
+    }
   }
 
   bool AbstractElement::addable( const FoliaElement *parent ) const {
@@ -2949,8 +2949,8 @@ namespace folia {
       string cls = this->cls();
       string st = sett();
       vector<TextContent*> tmp = parent->select<TextContent>( st, false );
-      if ( any_of( tmp.begin(),
-		   tmp.end(),
+      if ( any_of( tmp.cbegin(),
+		   tmp.cend(),
 		   [cls]( const TextContent *t) { return ( t->cls() == cls);} ) ){
 	throw DuplicateAnnotationError( "attempt to add <t> with class="
 					+ cls + " to element: " + parent->id()
