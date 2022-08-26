@@ -566,7 +566,7 @@ namespace folia {
       if ( !doc() ) {
 	throw runtime_error( "can't generate an ID without a doc" );
       }
-      if ( (!ID) & supported ) {
+      if ( !(ID & supported) ) {
 	throw ValueError( "generate_id: xml:id is not supported for "
 			  + classname() );
       }
@@ -595,7 +595,7 @@ namespace folia {
 	val = kwargs.extract( "_id" ); // for backward compatibility
       }
       if ( !val.empty() ) {
-	if ( (!ID) & supported ) {
+	if ( ! (ID & supported) ) {
 	  throw ValueError( "xml:id is not supported for " + classname() );
 	}
 	else if ( val == "auto()" ){
@@ -1894,19 +1894,19 @@ namespace folia {
 	  //This implements https://github.com/proycon/folia/issues/88
 	  //FoLiA >= v2.5 behaviour (introduced earlier in v2.4.1 but modified thereafter)
 	  const int l = result.length();
-	  UnicodeString text = d->text( tp );
+	  UnicodeString txt = d->text( tp );
 	  int begin = 0;
 	  int linenr = 0;
-	  for ( int i = 0; i < text.length(); ++i ) {
-	    if ( text[i] == 0x000a
-		 || (i == text.length() - 1) ) {
+	  for ( int i = 0; i < txt.length(); ++i ) {
+	    if ( txt[i] == 0x000a
+		 || (i == txt.length() - 1) ) {
 	      //newline or end
 	      UnicodeString line;
-	      if ( text[i] == 0x000a ) { //newline
-		line = UnicodeString(text, begin, i - begin);
+	      if ( txt[i] == 0x000a ) { //newline
+		line = UnicodeString(txt, begin, i - begin);
 	      }
 	      else {
-		line = UnicodeString(text, begin, text.length() - begin);
+		line = UnicodeString(txt, begin, txt.length() - begin);
 	      }
 	      begin = i+1;
 
@@ -1946,9 +1946,9 @@ namespace folia {
 	  }
 
 	  if ( this->_preserve_spaces != SPACE_FLAGS::PRESERVE
-	       && text.length() > 0
+	       && txt.length() > 0
 	       && result.length() > 0
-	       && is_space(text[text.length() - 1])
+	       && is_space(txt[txt.length() - 1])
 	       && !is_space(result[result.length() - 1]) ){
 	    //this item has trailing spaces but we stripped them
 	    //this may be premature so
@@ -2122,7 +2122,7 @@ namespace folia {
 	  doc()->parse_metadata( p );
 	  meta_found = true;
 	}
-	else if ( p && TiCC::getNS(p) == NSFOLIA ){
+	else if ( TiCC::getNS(p) == NSFOLIA ){
 	  string tag = TiCC::Name( p );
 	  if ( !meta_found  && !doc()->version_below(1,6) ){
 	    throw XmlError( "Expecting element metadata, got '" + tag + "'" );
@@ -2701,7 +2701,7 @@ namespace folia {
     FoliaElement *result = 0;
     auto it = find_if( _data.begin(),
 		       _data.end(),
-		       [&]( FoliaElement *el ){ return el == old; } );
+		       [&]( const FoliaElement *el ){ return el == old; } );
     if ( it != _data.end() ){
       *it = _new;
       result = old;
