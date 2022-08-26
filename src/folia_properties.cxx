@@ -645,6 +645,7 @@ namespace folia {
     /// This function should be called once.
     FoLiA::PROPS.XMLTAG = "FoLiA";
     FoLiA::PROPS.ACCEPTED_DATA += { Text_t, Speech_t };
+    FoLiA::PROPS.OPTIONAL_ATTRIBS = ID;
     element_props[BASE] = &FoLiA::PROPS;
 
     DCOI::PROPS.XMLTAG = "DCOI";
