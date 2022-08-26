@@ -469,9 +469,9 @@ namespace folia {
 	else if ( local_name == "text" ){
 	  _doc_type = TEXT;
 	  KWargs args = get_attributes(_reader);
-	  FoliaElement *text =_out_doc->setTextRoot( args );
-	  _root_node = text;
-	  _current_node = text;
+	  FoliaElement *text_node =_out_doc->setTextRoot( args );
+	  _root_node = text_node;
+	  _current_node = text_node;
 	  _ok = true;
 	  _start_index = index;
 	  _out_doc->save_orig_ann_defaults();
@@ -1060,8 +1060,8 @@ namespace folia {
       output_header();
     }
     stack<FoliaElement*> rem_list;
-    size_t len = _root_node->size();
-    for ( size_t i=0; i < len; ++i ){
+    size_t length = _root_node->size();
+    for ( size_t i=0; i < length; ++i ){
       rem_list.push( _root_node->index(i) );
       *_os << "    " << _root_node->index(i)->xmlstring(true,2,false) << endl;
     }

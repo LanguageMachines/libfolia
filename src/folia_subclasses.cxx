@@ -2485,9 +2485,9 @@ namespace folia {
   }
 
   void XmlText::setAttributes( KWargs& args ){
-    string text = args.extract( "text" );
-    if ( !text.empty() ){
-      setvalue( text );
+    string txt = args.extract( "text" );
+    if ( !txt.empty() ){
+      setvalue( txt );
     }
     if ( !args.empty() ){
       throw ValueError( "unsupported attribute for XmlText: "

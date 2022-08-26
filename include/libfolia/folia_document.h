@@ -146,9 +146,9 @@ namespace folia {
     Speech* setSpeechRoot( const KWargs& );
     FoliaElement *getRoot();
     // backward compatible:
-    Text* addText( KWargs& a ){ return setTextRoot( a ); };
+    Text* addText( const KWargs& a ){ return setTextRoot( a ); };
     Text* addText( Text *t ){ return dynamic_cast<Text*>( append(t) ); };
-    Speech* addSpeech( KWargs& a ){ return setSpeechRoot( a ); };
+    Speech* addSpeech( const KWargs& a ){ return setSpeechRoot( a ); };
     Speech* addSpeech( Speech *s ){ return dynamic_cast<Speech*>( append(s) ); };
 
     void set_foreign_metadata( xmlNode * );

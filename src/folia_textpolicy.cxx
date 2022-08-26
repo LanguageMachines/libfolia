@@ -141,8 +141,9 @@ namespace folia {
     */
     auto pnt = _tag_handlers.find( label );
     if ( pnt != _tag_handlers.end() ){
+      auto ret_val = pnt->second;
       _tag_handlers.erase( pnt );
-      return pnt->second;
+      return ret_val;
     }
     else {
       return 0;

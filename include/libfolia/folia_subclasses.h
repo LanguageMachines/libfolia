@@ -125,7 +125,7 @@ namespace folia {
     {
       friend void static_init();
     public:
-      xmlNode *xml( bool, bool=false ) const;
+      xmlNode *xml( bool, bool=false ) const override;
       FoliaElement *append( FoliaElement* );
 
       std::vector<FoliaElement*> wrefs() const;
@@ -408,7 +408,7 @@ namespace folia {
     ADD_DEFAULT_CONSTRUCTORS( Content, AbstractElement );
 
     FoliaElement* parseXml( const xmlNode * );
-    xmlNode *xml( bool, bool = false ) const;
+    xmlNode *xml( bool, bool = false ) const override;
     const std::string content() const { return value; };
     void setAttributes( KWargs& );
   private:
@@ -1107,7 +1107,7 @@ namespace folia {
     const std::string description() const { return _value; };
     void setAttributes( KWargs& );
     FoliaElement* parseXml( const xmlNode * );
-    xmlNode *xml( bool, bool=false ) const;
+    xmlNode *xml( bool, bool=false ) const override;
     void setvalue( const std::string& s ){ _value = s; };
     static properties PROPS;
   private:
@@ -1122,7 +1122,7 @@ namespace folia {
     const std::string comment() const { return _value; };
     void setAttributes( KWargs& );
     FoliaElement* parseXml( const xmlNode * );
-    xmlNode *xml( bool, bool=false ) const;
+    xmlNode *xml( bool, bool=false ) const override;
     void setvalue( const std::string& s ){ _value = s; };
     static properties PROPS;
   private:
@@ -1134,7 +1134,7 @@ namespace folia {
   public:
     ADD_DEFAULT_CONSTRUCTORS( XmlComment, AbstractElement );
     FoliaElement* parseXml( const xmlNode * );
-    xmlNode *xml( bool, bool=false ) const;
+    xmlNode *xml( bool, bool=false ) const override;
     void setvalue( const std::string& s ){ _value = s; };
     static properties PROPS;
   private:
@@ -1149,7 +1149,7 @@ namespace folia {
   public:
     ADD_DEFAULT_CONSTRUCTORS( XmlText, AbstractElement );
     FoliaElement* parseXml( const xmlNode * );
-    xmlNode *xml( bool, bool=false ) const;
+    xmlNode *xml( bool, bool=false ) const override;
     void setvalue( const std::string& );
     const std::string& get_delimiter( const TextPolicy& ) const {
       return EMPTY_STRING; };
@@ -1396,7 +1396,7 @@ namespace folia {
     AbstractElement( PROPS, p ){ classInit(); }
     ~ForeignData();
     FoliaElement* parseXml( const xmlNode * );
-    xmlNode *xml( bool, bool=false ) const;
+    xmlNode *xml( bool, bool=false ) const override;
     void set_data( const xmlNode * );
     xmlNode* get_data() const;
   private:

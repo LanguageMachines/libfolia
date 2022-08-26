@@ -141,7 +141,7 @@ namespace folia {
        */
       init_doc( i, o );
     }
-    bool init_doc( const std::string&, const std::string& ="" );
+    bool init_doc( const std::string&, const std::string& ="" ) override;
     void setup( const std::string& ="", bool = false );
     const std::map<int,int>& enumerate_text_parents( const std::string& ="",
 						     bool = false );
