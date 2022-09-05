@@ -41,18 +41,18 @@ namespace folia {
   /// the values may be logically 'or'-ed, like RETAIN|HIDDEN
   enum class TEXT_FLAGS {
     NONE=0,     //!< None of the flags is set. This is the default.
-      RETAIN=1, //!< When returning text, keep al tokenization.
-      STRICT=2, /*!< return only text from the current textcontent sibling.
+    RETAIN=1,   //!< When returning text, keep al tokenization.
+    STRICT=2,   /*!< return only text from the current textcontent sibling.
 		  The default is NOT STRICT, meaning to get text from deeper
 		  textcontent nodes too. (stopping at the first that HAS text)
-		*/
-      HIDDEN=4,  //!< Include text from 'hidden' nodes.
-      NO_TRIM_SPACES=8 /*!< Do not trim leading and trailing spaces (was the default
-                          prior to FoLiA v2.4.1, see
-                          https://github.com/proycon/folia/issues/92
-                        */
+	        */
+    HIDDEN=4,   //!< Include text from 'hidden' nodes.
+    NO_TRIM_SPACES=8 /*!< Do not trim leading and trailing spaces (was the
+		       default prior to FoLiA v2.4.1, see
+		       https://github.com/proycon/folia/issues/92
+		     */
 
-      };
+  };
 
   inline TEXT_FLAGS operator&( TEXT_FLAGS f1, TEXT_FLAGS f2 ){
     return (TEXT_FLAGS)((int)f1&(int)f2);
