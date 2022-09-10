@@ -31,6 +31,7 @@
 #include <map>
 #include <functional>
 #include "ticcutils/Unicode.h"
+#include "ticcutils/enum_flags.h"
 
 namespace folia {
 
@@ -42,46 +43,25 @@ namespace folia {
   enum class TEXT_FLAGS {
     NONE=0,     //!< None of the flags is set. This is the default.
     RETAIN=1,   //!< When returning text, keep al tokenization.
-    STRICT=2,   /*!< return only text from the current textcontent sibling.
-		  The default is NOT STRICT, meaning to get text from deeper
-		  textcontent nodes too. (stopping at the first that HAS text)
-	        */
-    HIDDEN=4,   //!< Include text from 'hidden' nodes.
-    NO_TRIM_SPACES=8 /*!< Do not trim leading and trailing spaces (was the
-		       default prior to FoLiA v2.4.1, see
-		       https://github.com/proycon/folia/issues/92
-		     */
-
+    STRICT=1<<1,  /*!< return only text from the current textcontent sibling.
+		    The default is NOT STRICT, meaning to get text from deeper
+		    textcontent nodes too. (stopping at the first that HAS text)
+		  */
+    HIDDEN=1<<2,   //!< Include text from 'hidden' nodes.
+    NO_TRIM_SPACES=1<<3 /*!< Do not trim leading and trailing spaces (was the
+			  default prior to FoLiA v2.4.1, see
+			  https://github.com/proycon/folia/issues/92
+			*/
   };
 
-  inline TEXT_FLAGS operator&( TEXT_FLAGS f1, TEXT_FLAGS f2 ){
-    return (TEXT_FLAGS)((int)f1&(int)f2);
-  }
-
-  inline TEXT_FLAGS operator|( TEXT_FLAGS f1, TEXT_FLAGS f2 ){
-    return (TEXT_FLAGS) ((int)f1|(int)f2);
-  }
-
-  inline TEXT_FLAGS& operator|=( TEXT_FLAGS& f1, TEXT_FLAGS f2 ){
-    f1 = (f1 | f2);
-    return f1;
-  }
-
-  inline TEXT_FLAGS& operator&=( TEXT_FLAGS& f1, TEXT_FLAGS f2 ){
-    f1 = (f1 & f2);
-    return f1;
-  }
-
-  inline TEXT_FLAGS operator~( TEXT_FLAGS f1 ){
-    return TEXT_FLAGS( ~(int)f1 );
-  }
+  DEFINE_ENUM_FLAG_OPERATORS(TEXT_FLAGS);
 
   /// class to steer text searching in corrections.
   enum class CORRECTION_HANDLING {
     CURRENT=0,   //!< Search through \<new\> and \<current\> nodes. This is the default.
-      ORIGINAL=1, //!< Search through the \<original\> nodes.
-      EITHER=2    //!< Search whatever comes our way
-      };
+    ORIGINAL=1, //!< Search through the \<original\> nodes.
+    EITHER=2    //!< Search whatever comes our way
+  };
 
   class TextPolicy {
   public:
