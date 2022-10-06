@@ -1852,6 +1852,11 @@ namespace folia {
     cerr << "TEXT(" << tp.get_class() << ") on node : " << xmltag() << " id="
 	 << id() << " TextPolicy: " << tp << endl;
 #endif
+    if ( tp.debug() ){
+      cerr << "PRIVATE_TEXT(" << tp.get_class() << ") on node : " << xmltag() << " id="
+	   << id() << endl;
+      cerr << "TextPolicy: " << tp << endl;
+    }
     //
     // we cannot use text_content() on New, Original or Current,
     // because textcontent doesn't recurse!
@@ -1933,24 +1938,25 @@ namespace folia {
 	}
       }
     }
+    UnicodeString final_result;
     if ( !deletion ){
       if ( !new_result.isEmpty() ){
 #ifdef DEBUG_TEXT_CORRECTION
 	cerr << "return new text '" << new_result << "'" << endl;
 #endif
-	return new_result;
+	final_result = new_result;
       }
       else if ( !cur_result.isEmpty() ){
 #ifdef DEBUG_TEXT_CORRECTION
 	cerr << "return cur text '" << cur_result << "'" << endl;
 #endif
-	return cur_result;
+	final_result = cur_result;
       }
       else if ( !org_result.isEmpty() ){
 #ifdef DEBUG_TEXT_CORRECTION
 	cerr << "return ori text '" << org_result << "'" << endl;
 #endif
-	return org_result;
+	final_result = org_result;
       }
     }
     else {
@@ -1958,10 +1964,17 @@ namespace folia {
 #ifdef DEBUG_TEXT_CORRECTION
 	cerr << "Deletion: return cur text '" << cur_result << "'" << endl;
 #endif
-	return cur_result;
+	final_result = cur_result;
       }
     }
-    throw NoSuchText( "cls=" + tp.get_class() );
+    if ( final_result.isEmpty() ){
+      throw NoSuchText( "cls=" + tp.get_class() );
+    }
+    if ( tp.debug() ){
+      cerr << "PRIVATE_TEXT(" << tp.get_class() << ") on correction gave '"
+	   << final_result << "'" << endl;
+    }
+    return final_result;
   }
 #undef DEBUG_TEXT_CORRECTION
 

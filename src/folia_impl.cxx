@@ -1518,7 +1518,7 @@ namespace folia {
 		if ( debug ){
 		  cerr << "DEBUG: (testing according to older rules now)" << endl;
 		}
-		this->check_text_consistency_while_parsing(false);
+		this->check_text_consistency_while_parsing( false, debug );
 		warn_only = true;
 	      }
 	      catch ( const InconsistentText& e ) {
@@ -2019,7 +2019,7 @@ namespace folia {
     bool show_hidden = tp.is_set( TEXT_FLAGS::HIDDEN );
     bool trim = !tp.is_set( TEXT_FLAGS::NO_TRIM_SPACES );
     if ( tp.debug() ){
-      cerr << "TEXT(" << tp.get_class() << ") on node : " << xmltag() << " id="
+      cerr << "PRIVATE_TEXT(" << tp.get_class() << ") on node : " << xmltag() << " id="
 	   << id() << endl;
       cerr << "TextPolicy: " << tp << endl;
     }
@@ -3405,7 +3405,7 @@ namespace folia {
     if ( doc() && ( doc()->checktext() || doc()->fixtext() )
 	 && this->printable()
 	 && !isSubClass( Morpheme_t ) && !isSubClass( Phoneme_t) ){
-      check_text_consistency_while_parsing();
+      check_text_consistency_while_parsing( true, doc()->debug > 2 );
     }
     return this;
   }
