@@ -2309,10 +2309,12 @@ namespace folia {
 	  cerr << "found some mixed stuff: " << elts << endl;
 	}
 	FoliaElement *last = elts.back();
+	result = !last->space();
 	if ( debug ){
-	  cerr << "no space? last: " << last << endl;
+	  cerr << "no space? last: " << last
+	       << (result?" WEL":" NIET") << endl;
 	}
-	return !last->space();
+	return result;
       }
     }
     return result;

@@ -2233,6 +2233,30 @@ namespace folia {
     return phon_content( tp );
   }
 
+  bool Correction::space() const {
+    // The space propertie of a correction is defined by that of
+    // it's (Word) members. Start searching with the New node and so on
+    // THIS IS A GROSS HACK
+    bool result = AbstractElement::space();
+    FoliaElement *e = getNew();
+    if ( !e ){
+      e = getOriginal();
+    }
+    if ( !e ){
+      e = getCurrent();
+    }
+    if ( e ){
+      vector<Word*> wv = e->select<Word>(false);
+      if ( !wv.empty() ){
+	FoliaElement *last = wv.back();
+	// cerr << "Correction::space!" << last << " ==> "
+	//      << (last->space()?"YES":"NO") << endl;
+	result = last->space();
+      }
+    }
+    return result;
+  }
+
   bool Correction::hasNew() const {
     ///  check if this Correction has a New node
     vector<FoliaElement*> v = select( New_t, SELECT_FLAGS::LOCAL );

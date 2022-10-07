@@ -1260,6 +1260,7 @@ namespace folia {
 			 const std::vector<FoliaElement*>&,
 			 const KWargs& ) override;
     Correction *correct( const std::string& = "" ) override;
+    bool space() const override;
     static properties PROPS;
   private:
     const UnicodeString private_text( const TextPolicy& ) const override;
