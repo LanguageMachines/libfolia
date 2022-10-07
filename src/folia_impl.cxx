@@ -2298,9 +2298,17 @@ namespace folia {
       cerr << "no space? s: " << s << endl;
     }
     if ( s ){
-      vector<Word*> words = s->select<Word>(false);
-      if ( !words.empty() ){
-	Word *last = words.back();
+      set<ElementType> wanted = {Word_t,Correction_t};
+      set<ElementType> excl;
+      vector<FoliaElement*> elts = s->select_set( wanted,
+						  "",
+						  excl,
+						  SELECT_FLAGS::LOCAL );
+      if ( !elts.empty() ){
+	if ( debug ){
+	  cerr << "found some mixed stuff: " << elts << endl;
+	}
+	FoliaElement *last = elts.back();
 	if ( debug ){
 	  cerr << "no space? last: " << last << endl;
 	}
