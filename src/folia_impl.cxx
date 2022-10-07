@@ -1282,6 +1282,7 @@ namespace folia {
     return att;
   }
 
+  //#define DEBUG_CHECK_TEXT
 
   void CheckText( const FoliaElement *parent,
 		  const FoliaElement *child,
@@ -1293,8 +1294,10 @@ namespace folia {
       // but SKIP Corrections
       UnicodeString s1 = parent->stricttext( cls );
       UnicodeString s2 = child->stricttext( cls );
-      // cerr << "check parent: " << s1 << endl;
-      // cerr << "check child: " << s2 << endl;
+#ifdef DEBUG_CHECK_TEXT
+      cerr << "check_text parent: " << s1 << endl;
+      cerr << "check_text child: " << s2 << endl;
+#endif
       // no retain tokenization, strict for both
       s1 = normalize_spaces( s1 );
       s2 = normalize_spaces( s2 );
@@ -1323,8 +1326,15 @@ namespace folia {
 	}
       }
     }
+#ifdef DEBUG_CHECK_TEXT
+    else {
+      cerr << "skipping check for " << parent << endl;
+    }
+#endif
+
   }
 
+  //#define DEBUG_CHECK_TEXT_2
   void  CheckText2( const FoliaElement *parent,
 		    const FoliaElement *child,
 		    const string& cls,
@@ -1339,6 +1349,9 @@ namespace folia {
       if ( !trim_spaces ) {
 	tp.set( TEXT_FLAGS::NO_TRIM_SPACES );
       }
+#ifdef DEBUG_CHECK_TEXT_2
+      tp.set_debug();
+#endif
       UnicodeString s1 = parent->text( tp );
       tp.clear( TEXT_FLAGS::STRICT );
       UnicodeString s2 = child->text( tp );
@@ -1404,20 +1417,29 @@ namespace folia {
      * For all other cases, the text of the child should match the parents text.
      * \note Matching is opaque to spaces, newlines and tabs
      */
-    //    cerr << "VOOR checkappend I am=" << this << endl;
-    //    cerr << "VOOR checkappend child=" << child << endl;
+#if defined DEBUG_CHECK_TEXT || defined DEBUG_CHECKTEXT_2
+    cerr << "VOOR checkappend I am=" << this << endl;
+    cerr << "VOOR checkappend child=" << child << endl;
+#endif
     if ( !doc() || !doc()->checktext() || doc()->fixtext() ){
+#if defined DEBUG_CHECK_TEXT || defined DEBUG_CHECKTEXT_2
+      cerr << "quick return" << endl;
+#endif
       return;
     }
     string cls = child->cls();
-    //    cerr << "HIER 2 " << cls << endl;
+#if defined DEBUG_CHECK_TEXT || defined DEBUG_CHECKTEXT_2
+    cerr << "HIER 2 " << cls << endl;
+#endif
     if ( child->size() == 0
 	 || ( child->is_textcontainer()
 	      && !child->hastext( cls ) ) ){
       // no use to proceed. not adding real text
       return;
     }
-    //    cerr << "HIER 3 " << endl;
+#if defined DEBUG_CHECK_TEXT || defined DEBUG_CHECKTEXT_2
+    cerr << "HIER 3 " << endl;
+#endif
     const FoliaElement *parent = 0;
     if ( child->is_textcontainer() ){
       parent = this->parent();
@@ -1426,7 +1448,9 @@ namespace folia {
       parent = this;
       cls = child->index(0)->cls();
     }
-    //    cerr << "PARENT? " << parent << endl;
+#if defined DEBUG_CHECK_TEXT || defined DEBUG_CHECKTEXT_2
+    cerr << "PARENT? " << parent << endl;
+#endif
     CheckText( parent, child, cls );
   }
 
@@ -1463,10 +1487,12 @@ namespace folia {
       //
       // unlike the other function, this does do some fixing when requested
       //
-
+#if defined DEBUG_CHECK_TEXT || defined DEBUG_CHECKTEXT_2
+    debug = true;
+#endif
     if ( debug ){
-      cerr << "DEBUG: BEGIN check_text_consistency_while_parsing("
-	   << trim_spaces << ")" << endl;
+    cerr << "DEBUG: BEGIN check_text_consistency_while_parsing("
+	 << trim_spaces << ")" << endl;
     }
     vector<TextContent*> tv = select<TextContent>( false );
     // first see which text classes are present
@@ -1490,19 +1516,25 @@ namespace folia {
       catch (...){
       }
       if ( !s1.isEmpty() ){
-	//	  cerr << "S1: " << s1 << endl;
+	if ( debug ){
+	  cerr << "S1: " << s1 << endl;
+	}
 	tp.clear( TEXT_FLAGS::STRICT );
 	try {
 	  s2 = text( tp ); // no retain tokenization, no strict
 	}
 	catch (...){
 	}
-	//	  cerr << "S2: " << s2 << endl;
+	if (debug ){
+	  cerr << "S2: " << s2 << endl;
+	}
 	s1 = normalize_spaces( s1 );
 	s2 = normalize_spaces( s2 );
 	if ( !s2.isEmpty() && s1 != s2 ){
 	  if ( doc()->fixtext() ){
-	    //	      cerr << "FIX: " << s1 << "==>" << s2 << endl;
+	    if ( debug ){
+	      cerr << "FIX: " << s1 << "==>" << s2 << endl;
+	    }
 	    KWargs args;
 	    args["value"] = TiCC::UnicodeToUTF8(s2);
 	    args["class"] = st;
@@ -2253,20 +2285,25 @@ namespace folia {
     return found_nl > 0;
   }
 
-  bool no_space_at_end( FoliaElement *s ){
+  bool no_space_at_end( FoliaElement *s, bool debug ){
     /// given a FoliaElement check if the last Word in it has space()
     /*!
      * \param s a FoliaElement
+     * \param dbug set to true for more info
      * \return true if the element contains Word children and the last
      * one has space()
      */
     bool result = false;
-    //    cerr << "no space? s: " << s << endl;
+    if ( debug ){
+      cerr << "no space? s: " << s << endl;
+    }
     if ( s ){
       vector<Word*> words = s->select<Word>(false);
       if ( !words.empty() ){
 	Word *last = words.back();
-	//	cerr << "no space? last: " << last << endl;
+	if ( debug ){
+	  cerr << "no space? last: " << last << endl;
+	}
 	return !last->space();
       }
     }
@@ -2310,7 +2347,7 @@ namespace folia {
 	  }
 	  parts.push_back(tmp);
 	  if ( child->isinstance( Sentence_t )
-	       && no_space_at_end(child) ){
+	       && no_space_at_end(child,tp.debug()) ){
 	    const string& delim = "";
 	    if ( tp.debug() ){
 	      cerr << "deeptext: no delimiter van "<< child->xmltag() << " on"
@@ -3236,6 +3273,48 @@ namespace folia {
 	// not at this level, search deeper when recurse is true
 	if ( exclude.find( el->element_id() ) == exclude.end() ) {
 	  vector<FoliaElement*> tmp = el->select( et, st, exclude, flag );
+	  res.insert( res.end(), tmp.begin(), tmp.end() );
+	}
+      }
+    }
+    return res;
+  }
+
+  vector<FoliaElement*> AbstractElement::select_set( const set<ElementType>& elts,
+						     const string& st,
+						     const set<ElementType>& exclude,
+						     SELECT_FLAGS flag ) const {
+    /// A generic 'select()' function which returns all matching elements
+    ///   it searches a FoLiA node for matching sibblings.
+    ///   returns a mixed vector of FoLiAElement nodes
+    /*!
+     * \param elts a set of types of elements we are looking for
+     * \param st when not empty ("") we also must match on the 'sett' of the nodes
+     * \param exclude a set of ElementType to exclude from searching.
+     * These are skipped, and NOT recursed into.
+     * \param flag determines special search stategies:
+     *     - RECURSE : recurse the whole FoLia from the given node downwards
+     *                 returning all matching nodes, even within matches
+     *                 This is the default.
+     *     - LOCAL   : just look at the direct sibblings of the node
+     *     - TOP_HIT : like recurse, but do NOT recurse into sibblings
+     *               of matching node
+     * \return An ordered vector of FoLiAElement nodes that match the conditions
+     *
+     */
+    vector<FoliaElement*> res;
+    for ( const auto& el : _data ) {
+      if ( elts.find(el->element_id()) != elts.end() &&
+	   ( st.empty() || el->sett() == st ) ) {
+	res.push_back( el );
+	if ( flag == SELECT_FLAGS::TOP_HIT ){
+	  flag = SELECT_FLAGS::LOCAL;
+	}
+      }
+      if ( flag != SELECT_FLAGS::LOCAL ){
+	// not at this level, search deeper when recurse is true
+	if ( exclude.find( el->element_id() ) == exclude.end() ) {
+	  vector<FoliaElement*> tmp = el->select_set( elts, st, exclude, flag );
 	  res.insert( res.end(), tmp.begin(), tmp.end() );
 	}
       }

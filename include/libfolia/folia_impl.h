@@ -538,6 +538,10 @@ namespace folia {
 					       const std::string&,
 					       const std::set<ElementType>& ,
 					       SELECT_FLAGS = SELECT_FLAGS::RECURSE ) const = 0;
+    virtual std::vector<FoliaElement*> select_set( const std::set<ElementType>&,
+						   const std::string&,
+						   const std::set<ElementType>& ,
+						   SELECT_FLAGS = SELECT_FLAGS::RECURSE ) const = 0;
     // some 'internal stuff
     virtual int refcount() const = 0;
     virtual void increfcount() = 0;
@@ -786,6 +790,10 @@ namespace folia {
 				       const std::string&,
 				       const std::set<ElementType>& ,
 				       SELECT_FLAGS = SELECT_FLAGS::RECURSE ) const override;
+    std::vector<FoliaElement*> select_set( const std::set<ElementType>&,
+					   const std::string&,
+					   const std::set<ElementType>& ,
+					   SELECT_FLAGS = SELECT_FLAGS::RECURSE ) const override;
 
     void unravel( std::set<FoliaElement*>& ) override;
 

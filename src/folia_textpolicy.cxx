@@ -92,7 +92,7 @@ namespace folia {
        << (retain?"retain":"untokenized") << ", "
        << (hide?"show_hidden":"hide hidden") << ", "
        << (trim?"trimming spaces":"not trimming spaces") << ", "
-       << "correction handling: " << toString( tp.get_correction_handling() );
+       << "cor_handling: " << toString( tp.get_correction_handling() );
     return os;
   }
 

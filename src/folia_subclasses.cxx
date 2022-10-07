@@ -1841,6 +1841,7 @@ namespace folia {
   }
 
   //#define DEBUG_TEXT_CORRECTION
+
   const UnicodeString Correction::private_text( const TextPolicy& tp ) const {
     /// get the UnicodeString value of an Correction
     /*!
@@ -1848,13 +1849,9 @@ namespace folia {
      * \return the Unicode String representation found. Throws when
      * no text can be found.
      */
-#ifdef DEBUG_TEXT_CORRECTION
-    cerr << "TEXT(" << tp.get_class() << ") on node : " << xmltag() << " id="
-	 << id() << " TextPolicy: " << tp << endl;
-#endif
     if ( tp.debug() ){
-      cerr << "PRIVATE_TEXT(" << tp.get_class() << ") on node : " << xmltag() << " id="
-	   << id() << endl;
+      cerr << "PRIVATE_TEXT(" << tp.get_class() << ") on node : " << xmltag()
+	   << " id=" << id() << endl;
       cerr << "TextPolicy: " << tp << endl;
     }
     //
