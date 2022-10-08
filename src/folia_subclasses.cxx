@@ -1850,7 +1850,7 @@ namespace folia {
      * no text can be found.
      */
     if ( tp.debug() ){
-      cerr << "PRIVATE_TEXT(" << tp.get_class() << ") on node : " << xmltag()
+      cerr << "PRIVATE_TEXT(" << tp.get_class() << ") on CORRECTION"
 	   << " id=" << id() << endl;
       cerr << "TextPolicy: " << tp << endl;
     }
