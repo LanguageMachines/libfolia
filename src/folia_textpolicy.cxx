@@ -151,7 +151,7 @@ namespace folia {
   }
 
   const TextPolicy::tag_handler TextPolicy::get_handler( const string& label ) const{
-    /// return a tag_handler fir a give label
+    /// return a tag_handler for a give label
     /*!
       \param label the label to identify the handler
       \return the function which is found. Or 0 when the label didn't match
