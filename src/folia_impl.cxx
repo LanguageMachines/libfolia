@@ -2298,11 +2298,9 @@ namespace folia {
       cerr << "no space? s: " << s << endl;
     }
     if ( s ){
-      set<ElementType> wanted = {Word_t,Correction_t};
-      set<ElementType> excl;
-      vector<FoliaElement*> elts = s->select_set( wanted,
+      vector<FoliaElement*> elts = s->select_set( {Word_t,Correction_t},
 						  "",
-						  excl,
+						  {},
 						  SELECT_FLAGS::LOCAL );
       if ( !elts.empty() ){
 	if ( debug ){
@@ -2328,7 +2326,8 @@ namespace folia {
      * Will throw on error.
      */
     if ( tp.debug() ){
-      cerr << "deeptext, policy: " << tp << ", on node : " << xmltag() << " id=" << id() << ", cls=" << this->cls() << ")" << endl;
+      cerr << "deeptext, policy: " << tp << ", on node : <" << xmltag()
+	   << " id=" << id() << ", cls=" << this->cls() << ">" << endl;
       cerr << "deeptext: node has " << _data.size() << " children." << endl;
     }
     vector<UnicodeString> parts;
