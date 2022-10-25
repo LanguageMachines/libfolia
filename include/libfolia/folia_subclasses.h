@@ -547,10 +547,10 @@ namespace folia {
 			     FoliaElement *, const KWargs& );
       Correction *mergewords( FoliaElement *,
 			      const std::vector<FoliaElement *>&,
-			      const std::string& = "" );
-      Correction *deleteword( FoliaElement *, const std::string& args );
+			      const std::string& = "" ) override;
+      Correction *deleteword( FoliaElement *, const std::string& ) override;
       Correction *insertword( FoliaElement *, FoliaElement *,
-			      const std::string& args );
+			      const std::string& ) override;
       std::vector<Word*> wordParts() const override;
       static properties PROPS;
     private:
