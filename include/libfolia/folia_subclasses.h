@@ -317,9 +317,9 @@ namespace folia {
 			      AbstractContentAnnotation );
     void setAttributes( KWargs& ) override;
     KWargs collectAttributes() const override;
-    const UnicodeString phon( const TextPolicy& ) const;
+    const UnicodeString phon( const TextPolicy& ) const override;
     const UnicodeString phon( const std::string& = "current",
-			      TEXT_FLAGS = TEXT_FLAGS::NONE ) const;
+			      TEXT_FLAGS = TEXT_FLAGS::NONE ) const override;
     int offset() const override { return _offset; };
     FoliaElement *postappend() override;
     FoliaElement *get_reference(bool trim_spaces=true) const;
@@ -551,7 +551,7 @@ namespace folia {
       Correction *deleteword( FoliaElement *, const std::string& args );
       Correction *insertword( FoliaElement *, FoliaElement *,
 			      const std::string& args );
-      std::vector<Word*> wordParts() const;
+      std::vector<Word*> wordParts() const override;
       static properties PROPS;
     private:
       Correction *correctWords( const std::vector<FoliaElement *>&,
@@ -718,7 +718,7 @@ namespace folia {
     friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( Quote, AbstractStructureElement );
-    std::vector<Word*> wordParts() const;
+    std::vector<Word*> wordParts() const override;
     const std::string& get_delimiter( const TextPolicy& ) const override;
     static properties PROPS;
   };
@@ -1239,20 +1239,20 @@ namespace folia {
     bool hasOriginal() const;
     bool hasCurrent() const;
     bool hasSuggestions() const;
-    New *getNew() const;
-    FoliaElement *getNew( size_t ) const;
-    Original *getOriginal() const;
-    FoliaElement *getOriginal( size_t ) const;
-    Current *getCurrent() const;
-    FoliaElement *getCurrent( size_t ) const;
-    std::vector<Suggestion*> suggestions() const;
-    Suggestion *suggestions( size_t ) const;
-    const TextContent *text_content( const TextPolicy& ) const;
+    New *getNew() const override;
+    FoliaElement *getNew( size_t ) const override;
+    Original *getOriginal() const override;
+    FoliaElement *getOriginal( size_t ) const override;
+    Current *getCurrent() const override;
+    FoliaElement *getCurrent( size_t ) const override;
+    std::vector<Suggestion*> suggestions() const override;
+    Suggestion *suggestions( size_t ) const override;
+    const TextContent *text_content( const TextPolicy& ) const override;
     const TextContent *text_content( const std::string& = "current",
-				     bool = false ) const;
-    const PhonContent *phon_content( const TextPolicy& tp ) const;
+				     bool = false ) const override;
+    const PhonContent *phon_content( const TextPolicy& tp ) const override;
     const PhonContent *phon_content( const std::string& = "current",
-				     bool = false ) const;
+				     bool = false ) const override;
     const std::string& get_delimiter( const TextPolicy& ) const override;
     Correction *correct( const std::vector<FoliaElement*>&,
 			 const std::vector<FoliaElement*>&,

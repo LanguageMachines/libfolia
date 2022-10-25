@@ -141,7 +141,7 @@ namespace folia {
       /*!
 	\param txt an value to be assigned as a "text" attribute
 	\return a new FoliaElement
-	this will not complie for any class that has NO IMPLEMENTATION for
+	this will not compile for any class that has NO IMPLEMENTATION for
 	setvalue(). (which ar most classes)
       */
       T *result = new T(this);
