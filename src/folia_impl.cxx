@@ -304,6 +304,7 @@ namespace folia {
 #endif
   }
 
+  //#define DE_AND_CONSTRUCT_DEBUG
   void AbstractElement::destroy( ) {
     /// Pseudo destructor for AbstractElements.
     /// recursively destroys this nodes and it's children
@@ -336,6 +337,12 @@ namespace folia {
 #endif
       _parent->remove( this );
     }
+#ifdef DE_AND_CONSTRUCT_DEBUG
+    else {
+      cerr << "Object has no PARENT: " << endl;
+    }
+    cerr << "object has " << _data.size() << " children" << endl;
+#endif
     for ( const auto& el : _data ) {
       el->set_parent(0);
       el->destroy();
@@ -348,6 +355,7 @@ namespace folia {
 #endif
     delete this;
   }
+#undef DE_AND_CONSTUCT_DEBUG
 
   void destroy( FoliaElement *el ){
     if ( el ){
@@ -3178,7 +3186,8 @@ namespace folia {
       throw;
     }
     catch ( const exception& ) {
-      child->destroy();
+      //      child->destroy(); This somehow crashes.
+      // we are exiting the program anyway
       throw;
     }
     if ( ok ) {
