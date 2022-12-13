@@ -15,17 +15,26 @@ jobs:
   notification:
     runs-on: ubuntu-latest
     name: Notify start to gitlama
+    outputs:
+      branch: ${{ steps.extract_branch.outputs.branch }}
     steps:
+      - name: Extract Branch name
+        shell: bash
+        run: echo "branch=$(echo ${GITHUB_REF#refs/heads/})" >> $GITHUB_OUTPUT
+        id: extract_branch
       - name: IRC notification
         uses: Gottox/irc-message-action@v1
         with:
           server: irc.uvt.nl
           channel: '#gitlama'
           nickname: GitHub
-          message: |-
-            ${{ github.actor }} started a build of ${{ github.event.repository.name }}
+          message: >
+            ${{ github.actor }} started a build of
+            ${{ github.event.repository.name }}
+            [${{ steps.extract_branch.outputs.branch }}]
 
   build:
+    needs: notification
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -33,6 +42,11 @@ jobs:
         compiler: [g++, clang++]
 
     steps:
+      - name: Cancel Previous Runs
+        uses: styfle/cancel-workflow-action@0.9.0
+        with:
+          access_token: ${{ github.token }}
+
       - uses: actions/checkout@v2
       - name: Install Build Environment
         run: |
@@ -84,7 +98,7 @@ jobs:
       - id: compiler
         run: |
           id=$(echo ${{matrix.compiler}} | cut -d\+ -f1)
-          echo "::set-output name=id::$id"
+          echo "id=$id" >> GITHUB_OUTPUT
       - run: echo "${{steps.compiler.outputs.id}}"
       - name: make check
         id: check
@@ -99,8 +113,10 @@ jobs:
           server: irc.uvt.nl
           channel: '#gitlama'
           nickname: GH-${{ runner.os }}-${{ steps.compiler.outputs.id }}
-          message: |-
-            Building Make check with ${{ matrix.compiler }} by ${{ github.actor }} on ${{ matrix.os }}: FAILED
+          message: >
+            Building Frog [${{ needs.notification.outputs.branch }}]
+            with ${{ matrix.compiler }} by ${{ github.actor }} on
+            ${{ matrix.os }}: FAILED Make Check
 
       - name: install foliatest
         env:
@@ -141,8 +157,11 @@ jobs:
           server: irc.uvt.nl
           channel: '#gitlama'
           nickname: GH-${{ runner.os }}-${{ steps.compiler.outputs.id }}
-          message: |-
-            ${{ github.event.repository.name }} with ${{ matrix.compiler }} build by ${{ github.actor }} on ${{ matrix.os }}: FAILED
+          message: >
+            LibFolia
+            [${{ needs.notification.outputs.branch }}]
+            build with ${{ matrix.compiler }} by ${{ github.actor }}
+            on ${{ matrix.os }}: FAILED
 
       - name: Notify IRC of succes
         if: ${{ env.test_status == '0' }}
@@ -151,5 +170,8 @@ jobs:
           server: irc.uvt.nl
           channel: '#gitlama'
           nickname: GH-${{ runner.os }}-${{ steps.compiler.outputs.id }}
-          message: |-
-            ${{ github.event.repository.name }} with ${{ matrix.compiler }} build by ${{ github.actor }} on ${{ matrix.os }}: SUCCESS
+          message: >
+            LibFolia
+            [${{ needs.notification.outputs.branch }}]
+            build with ${{ matrix.compiler }} by ${{ github.actor }}
+            on ${{ matrix.os }}: SUCCESS
