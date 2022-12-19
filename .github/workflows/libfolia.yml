@@ -108,15 +108,12 @@ jobs:
         continue-on-error: true
       - name: Notify IRC of failure
         if: ${{ steps.check.outcome != 'success' }}
-        uses: Gottox/irc-message-action@v1
+        uses: Gottox/irc-message-action@v2
         with:
           server: irc.uvt.nl
           channel: '#gitlama'
           nickname: GH-${{ runner.os }}-${{ steps.compiler.outputs.id }}
-          message: >
-            Building Frog [${{ needs.notification.outputs.branch }}]
-            with ${{ matrix.compiler }} by ${{ github.actor }} on
-            ${{ matrix.os }}: FAILED Make Check
+          message: "libfolia [${{ needs.notification.outputs.branch }}] make check with ${{ matrix.compiler }} on ${{ matrix.os }}: \u00034FAILED\u0003"
 
       - name: install foliatest
         env:
