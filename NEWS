@@ -1,3 +1,13 @@
+2.12 2023-01-02
+[Ko van der Sloot]
+* fix for https://github.com/LanguageMachines/libfolia/issues/49
+* ABI breached, so bunped the .so file version
+* cleaner C++ code, more C++11 now, removing CppCheck warnings
+* using more recent TiccUtils (for enum_flags.h)
+* several small improvements
+* improved GitHub action
+
+
 2.11 2022-07-22
 [Ko vd Sloot]
 * Significant refactoring, code cleaning, code reduction, and extra comments
