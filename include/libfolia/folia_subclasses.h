@@ -217,6 +217,10 @@ namespace folia {
     ADD_DEFAULT_CONSTRUCTORS( Hyphbreak, AbstractTextMarkup );
   public:
     static properties PROPS;
+  private:
+    const UnicodeString private_text( const TextPolicy& ) const override {
+      return "";
+    }
   };
 
   class TextMarkupReference: public AbstractTextMarkup {
