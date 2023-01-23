@@ -1,3 +1,11 @@
+2.13 2023-01-23
+[Ko van der Sloot]
+* removed dependency on libtar
+* quick fix for ignoring text inside <t-hbr> https://github.com/proycon/foliapy/issues/25
+
+[Maarten van Gompel]
+* updated minimum required libxml2 version
+
 2.12 2023-01-02
 [Ko van der Sloot]
 * fix for https://github.com/LanguageMachines/libfolia/issues/49
