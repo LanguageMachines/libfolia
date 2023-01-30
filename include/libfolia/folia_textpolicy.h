@@ -48,10 +48,13 @@ namespace folia {
 		    textcontent nodes too. (stopping at the first that HAS text)
 		  */
     HIDDEN=1<<2,   //!< Include text from 'hidden' nodes.
-    NO_TRIM_SPACES=1<<3 /*!< Do not trim leading and trailing spaces (was the
+    NO_TRIM_SPACES=1<<3, /*!< Do not trim leading and trailing spaces (was the
 			  default prior to FoLiA v2.4.1, see
 			  https://github.com/proycon/folia/issues/92
-			*/
+			 */
+    ADD_FORMATTING=1<<4, /*!< When returning text, re-add formatting,
+			   like (soft) hypens
+			 */
   };
 
   DEFINE_ENUM_FLAG_OPERATORS(TEXT_FLAGS);

@@ -218,9 +218,7 @@ namespace folia {
   public:
     static properties PROPS;
   private:
-    const UnicodeString private_text( const TextPolicy& ) const override {
-      return "";
-    }
+    const UnicodeString private_text( const TextPolicy& ) const override;
   };
 
   class TextMarkupReference: public AbstractTextMarkup {

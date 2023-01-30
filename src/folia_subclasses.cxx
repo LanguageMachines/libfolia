@@ -2973,6 +2973,15 @@ namespace folia {
     return " ";
   }
 
+  const UnicodeString Hyphbreak::private_text( const TextPolicy& tp ) const {
+    if ( tp.is_set( TEXT_FLAGS::ADD_FORMATTING ) ){
+      return TiCC::UnicodeFromUTF8(cls());
+    }
+    else {
+      return "";
+    }
+  }
+
   const UnicodeString Row::private_text( const TextPolicy& tp ) const {
     /// get the UnicodeString value of a Row
     /*!
