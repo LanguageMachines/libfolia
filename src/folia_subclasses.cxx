@@ -2234,7 +2234,7 @@ namespace folia {
   }
 
   bool Correction::space() const {
-    // The space propertie of a correction is defined by that of
+    // The space property of a correction is defined by that of
     // it's (Word) members. Start searching with the New node and so on
     // THIS IS A GROSS HACK
     bool result = AbstractElement::space();

@@ -292,9 +292,6 @@ namespace folia {
      */
     AbstractElement( p, el->doc() )
   {
-    if ( !el ){
-      throw ValueError( "AbstractElement( p, e ) called with 0 e" );
-    }
     el->append( this );
   }
 
