@@ -144,7 +144,7 @@ int main() {
 	 << "                 but expected:'" << wanted << "'" << endl;
     return EXIT_FAILURE;
   }
-  if ( !is_norm_empty( TiCC::UnicodeToUTF8(dirty) ) ){
+  if ( !is_norm_empty( dirty ) ){
     cerr << "is_norm_empty() failed." << endl;
     return EXIT_FAILURE;
   }

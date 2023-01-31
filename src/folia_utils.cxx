@@ -666,9 +666,9 @@ namespace folia {
     return result;
   }
 
-  bool is_norm_empty(const std::string& s) {
+  bool is_norm_empty( const UnicodeString& s) {
       /// checks if the string is empty after normalization (strips all control characters), strings with only spaces/newslines etc are considered empty too
-      return normalize_spaces(TiCC::UnicodeFromUTF8(s)).isEmpty();
+      return normalize_spaces(s).isEmpty();
   }
 
   string get_ISO_date() {
