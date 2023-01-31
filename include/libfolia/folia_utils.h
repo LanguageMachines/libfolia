@@ -154,6 +154,17 @@ namespace folia {
   bool Attrib_sanity_check();
   bool ET_sanity_check();
 
+  ///
+  /// some xml goodies
+  ///
+  inline const xmlChar *to_xmlChar( const char *in ){
+    return reinterpret_cast<const xmlChar *>(in);
+  }
+
+  inline const char *to_char( const xmlChar *in ){
+    return reinterpret_cast<const char *>(in);
+  }
+
   bool isNCName( const std::string& );
   bool checkNS( const xmlNode *, const std::string& );
   std::map<std::string,std::string> getNS_definitions( const xmlNode * );

@@ -209,7 +209,7 @@ namespace folia {
   }
 
   string KWargs::extract( const string& att ){
-    /// lookup and removed an attribute
+    /// lookup and remove an attribute
     /*!
       \param att The attribute to check
       \return the value if present, otherwise ""
@@ -257,11 +257,11 @@ namespace folia {
   }
 
   string att_name( xmlAttr *node ){
-    return string( reinterpret_cast<const char *>(node->name) );
+    return string( to_char(node->name) );
   }
 
   string att_content( xmlAttr *node ){
-    return string( reinterpret_cast<const char *>(node->children->content) );
+    return string( to_char(node->children->content) );
   }
 
   KWargs getAttributes( const xmlNode *node ){
@@ -281,7 +281,7 @@ namespace folia {
 	  atts[att_name(a)] = att_content(a);
 	}
 	else {
-	  string pref = string( reinterpret_cast<const char*>(a->ns->prefix));
+	  string pref = string( to_char(a->ns->prefix) );
 	  string att  = att_name(a);
 	  if ( pref == "xlink" ){
 	    atts["xlink:"+att] = att_content(a);
@@ -308,28 +308,28 @@ namespace folia {
     if ( it != attribs.end() ){ // xml:id is special
       xmlSetProp( node,
 		  XML_XML_ID,
-		  reinterpret_cast<const xmlChar *>(it->second.c_str()) );
+		  to_xmlChar(it->second.c_str()) );
       attribs.erase(it);
     }
     it = attribs.find("lang");
     if ( it != attribs.end() ){ // lang is special too
       xmlNodeSetLang( node,
-		  reinterpret_cast<const xmlChar *>(it->second.c_str()) );
+		      to_xmlChar(it->second.c_str()) );
       attribs.erase(it);
     }
     it = attribs.find("id");
     if ( it != attribs.end() ){
       xmlSetProp( node,
-		  reinterpret_cast<const xmlChar*>("id"),
-		  reinterpret_cast<const xmlChar *>(it->second.c_str()) );
+		  to_xmlChar("id"),
+		  to_xmlChar(it->second.c_str()) );
       attribs.erase(it);
     }
     // and now the rest
     it = attribs.begin();
     while ( it != attribs.end() ){
       xmlSetProp( node,
-		  reinterpret_cast<const xmlChar*>(it->first.c_str()),
-		  reinterpret_cast<const xmlChar*>(it->second.c_str()) );
+		  to_xmlChar(it->first.c_str()),
+		  to_xmlChar(it->second.c_str()) );
       ++it;
     }
   }
@@ -586,7 +586,7 @@ namespace folia {
       \param s the inputstring
       \return true if \e s may be used as an NCName (e.g. for xml:id)
     */
-    int test = xmlValidateNCName( reinterpret_cast<const xmlChar*>(s.c_str()),
+    int test = xmlValidateNCName( to_xmlChar(s.c_str()),
 				  0 );
     if ( test != 0 ){
       return false;
@@ -612,9 +612,9 @@ namespace folia {
       string pre;
       string val;
       if ( p->prefix ){
-	pre = reinterpret_cast<const char *>(p->prefix);
+	pre = to_char(p->prefix);
       }
-      val = reinterpret_cast<const char *>(p->href);
+      val = to_char(p->href);
       result[pre] = val;
       p = p->next;
     }
@@ -631,7 +631,7 @@ namespace folia {
     if ( node ){
       xmlChar *tmp = xmlNodeGetContent( node );
       if ( tmp ){
-	result = string( reinterpret_cast<char *>(tmp) );
+	result = string( to_char(tmp) );
 	xmlFree( tmp );
       }
     }

@@ -1550,7 +1550,7 @@ namespace folia {
     xmlNode *e = AbstractElement::xml( false, false );
     if ( !_value.empty() ){
       xmlAddChild( e,
-		   xmlNewText( reinterpret_cast<const xmlChar*>(_value.c_str())) );
+		   xmlNewText( to_xmlChar(_value.c_str())) );
     }
     return e;
   }
@@ -1585,7 +1585,7 @@ namespace folia {
     xmlNode *e = AbstractElement::xml( false, false );
     if ( !_value.empty() ){
       xmlAddChild( e,
-		   xmlNewText( reinterpret_cast<const xmlChar*>(_value.c_str())) );
+		   xmlNewText( to_xmlChar(_value.c_str())) );
     }
     return e;
   }
@@ -1776,7 +1776,7 @@ namespace folia {
      */
     xmlNode *e = AbstractElement::xml( recursive, false );
     xmlAddChild( e, xmlNewCDataBlock( 0,
-				      reinterpret_cast<const xmlChar*>(value.c_str()),
+				      to_xmlChar(value.c_str()),
 				      value.length() ) );
     return e;
   }
@@ -2531,7 +2531,7 @@ namespace folia {
 
   xmlNode *XmlText::xml( bool, bool ) const {
     ///  convert an XmlText node to an xmlNode
-    return xmlNewText( reinterpret_cast<const xmlChar*>(_value.c_str()) );
+    return xmlNewText( to_xmlChar(_value.c_str()) );
   }
 
   FoliaElement* XmlText::parseXml( const xmlNode *node ) {
@@ -2704,7 +2704,7 @@ namespace folia {
 
   xmlNode *XmlComment::xml( bool, bool ) const {
     ///  convert an XmlComment node to an xmlNode
-    return xmlNewComment( reinterpret_cast<const xmlChar*>(_value.c_str()) );
+    return xmlNewComment( to_xmlChar(_value.c_str()) );
   }
 
   FoliaElement* XmlComment::parseXml( const xmlNode *node ) {
@@ -2853,7 +2853,7 @@ namespace folia {
     xmlNs *p = node->nsDef;
     xmlNs *prev = 0;
     while ( p ){
-      string val = reinterpret_cast<const char *>(p->href);
+      string val = to_char(p->href);
       if ( val == ns ){
 	if ( prev ){
 	  prev->next = p->next;

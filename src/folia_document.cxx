@@ -724,7 +724,7 @@ namespace folia {
     xmlChar *buf; int size;
     xmlDocDumpFormatMemoryEnc( outDoc, &buf, &size,
 			       output_encoding, 0 ); // no formatting
-    string result = string( reinterpret_cast<const char *>(buf), size );
+    string result = string( to_char(buf), size );
     xmlFree( buf );
     xmlFreeDoc( outDoc );
     _foliaNsOut = 0;
@@ -2957,7 +2957,7 @@ namespace folia {
       KWargs args;
       args["id"] = it.first;
       addAttributes( m, args );
-      xmlAddChild( m, xmlNewText( reinterpret_cast<const xmlChar*>(it.second.c_str())) );
+      xmlAddChild( m, xmlNewText( to_xmlChar(it.second.c_str())) );
     }
     for ( const auto& s : p->_processors ){
       append_processor( pr, s );
@@ -3002,7 +3002,7 @@ namespace folia {
 	  KWargs args;
 	  args["id"] = av.first;
 	  addAttributes( m, args );
-	  xmlAddChild( m, xmlNewText( reinterpret_cast<const xmlChar*>(av.second.c_str())) );
+	  xmlAddChild( m, xmlNewText( to_xmlChar(av.second.c_str())) );
 	  xmlAddChild( sm, m );
 	}
       }
@@ -3038,7 +3038,7 @@ namespace folia {
 	addAttributes( node, atts );
 	for ( const auto& it : _metadata->get_avs() ){
 	  xmlNode *m = TiCC::XmlNewNode( foliaNs(), "meta" );
-	  xmlAddChild( m, xmlNewText( reinterpret_cast<const xmlChar*>(it.second.c_str())) );
+	  xmlAddChild( m, xmlNewText( to_xmlChar(it.second.c_str())) );
 	  KWargs meta_atts;
 	  meta_atts["id"] = it.first;
 	  addAttributes( m, meta_atts );
@@ -3075,8 +3075,8 @@ namespace folia {
       string content = "type=\"" + it.first + "\" href=\"" + it.second + "\"";
       xmlAddChild( reinterpret_cast<xmlNode*>(doc),
 		   xmlNewDocPI( doc,
-				reinterpret_cast<const xmlChar*>("xml-stylesheet"),
-				reinterpret_cast<const xmlChar*>(content.c_str()) ) );
+				to_xmlChar("xml-stylesheet"),
+				to_xmlChar(content.c_str()) ) );
     }
   }
 
@@ -3085,27 +3085,27 @@ namespace folia {
     /*!
       \param ns_label a namespace label to use. (default "")
     */
-    xmlDoc *outDoc = xmlNewDoc( reinterpret_cast<const xmlChar*>("1.0") );
+    xmlDoc *outDoc = xmlNewDoc( to_xmlChar("1.0") );
     add_styles( outDoc );
     xmlNode *root = xmlNewDocNode( outDoc,
 				   0,
-				   reinterpret_cast<const xmlChar*>("FoLiA"),
+				   to_xmlChar("FoLiA"),
 				   0 );
     xmlDocSetRootElement( outDoc, root );
     xmlNs *xl = xmlNewNs( root,
-			  reinterpret_cast<const xmlChar *>("http://www.w3.org/1999/xlink"),
-			  reinterpret_cast<const xmlChar *>("xlink") );
+			  to_xmlChar("http://www.w3.org/1999/xlink"),
+			  to_xmlChar("xlink") );
     xmlSetNs( root, xl );
     if ( _foliaNsIn_href == 0 ){
       if ( ns_label.empty() ){
 	_foliaNsOut = xmlNewNs( root,
-				reinterpret_cast<const xmlChar *>(NSFOLIA.c_str()),
+				to_xmlChar(NSFOLIA.c_str()),
 				0 );
       }
       else {
 	_foliaNsOut = xmlNewNs( root,
-				reinterpret_cast<const xmlChar *>(NSFOLIA.c_str()),
-				reinterpret_cast<const xmlChar *>(ns_label.c_str()) );
+				to_xmlChar(NSFOLIA.c_str()),
+				to_xmlChar(ns_label.c_str()) );
       }
     }
     else {
@@ -3155,7 +3155,7 @@ namespace folia {
       xmlChar *buf; int size;
       xmlDocDumpFormatMemoryEnc( outDoc, &buf, &size,
 				 output_encoding, 1 );
-      result = string( reinterpret_cast<const char *>(buf), size );
+      result = string( to_char(buf), size );
       xmlFree( buf );
       xmlFreeDoc( outDoc );
       _foliaNsOut = 0;

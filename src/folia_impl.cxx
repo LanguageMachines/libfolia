@@ -1256,12 +1256,12 @@ namespace folia {
      */
     xmlNode *n = xml( true, false );
     if ( add_ns ){
-      xmlSetNs( n, xmlNewNs( n, reinterpret_cast<const xmlChar *>(NSFOLIA.c_str()), 0 ) );
+      xmlSetNs( n, xmlNewNs( n, to_xmlChar(NSFOLIA.c_str()), 0 ) );
     }
     xmlBuffer *buf = xmlBufferCreate();
     //    xmlKeepBlanksDefault(0);
     xmlNodeDump( buf, 0, n, indent, (format?1:0) );
-    string result = reinterpret_cast<const char*>( xmlBufferContent( buf ) );
+    string result = to_char( xmlBufferContent( buf ) );
     xmlBufferFree( buf );
     xmlFreeNode( n );
     return result;
