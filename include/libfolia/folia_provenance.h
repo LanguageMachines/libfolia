@@ -149,7 +149,10 @@ namespace folia {
     friend std::ostream& operator<<( std::ostream&, const Provenance& );
   public:
     /// initalize a Provenance structure connected to a Document
-  Provenance( Document *doc ): _doc(doc),_first_proc(0){};
+    explicit Provenance( Document *doc ):
+      _doc(doc),
+      _first_proc(0)
+    {};
     ~Provenance();
     void parse_processor( const xmlNode *, processor * =0 );
     processor *get_processor_by_id( const std::string& ) const;

@@ -70,7 +70,7 @@ namespace folia {
   public:
     TextPolicy( const std::string& = "current",
 		const TEXT_FLAGS=TEXT_FLAGS::NONE );
-    TextPolicy( const TEXT_FLAGS );
+    explicit TextPolicy( const TEXT_FLAGS );
     using tag_handler = std::function<icu::UnicodeString(const FoliaElement*,
 							 const TextPolicy& )>;
     bool is_set( TEXT_FLAGS ) const;

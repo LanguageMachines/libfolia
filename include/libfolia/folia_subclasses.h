@@ -1396,10 +1396,16 @@ namespace folia {
   class ForeignData: public AbstractElement {
     friend void static_init();
   public:
-  ForeignData( Document *d=0 ):
-    AbstractElement( PROPS, d ){ classInit(); };
-  ForeignData( FoliaElement *p ):
-    AbstractElement( PROPS, p ){ classInit(); }
+    explicit ForeignData( Document *d=0 ):
+      AbstractElement( PROPS, d )
+    {
+      classInit();
+    };
+    explicit ForeignData( FoliaElement *p ):
+      AbstractElement( PROPS, p )
+    {
+      classInit();
+    }
     ~ForeignData();
     FoliaElement* parseXml( const xmlNode * ) override;
     xmlNode *xml( bool, bool=false ) const override;
