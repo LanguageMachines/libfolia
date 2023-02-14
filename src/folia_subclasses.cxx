@@ -2964,18 +2964,25 @@ namespace folia {
   const UnicodeString TextMarkupHSpace::private_text( const TextPolicy& tp ) const {
     /// get the UnicodeString value of a TextMarkupHSpace element
     /*!
-     * \param tp the TextPolicy to use. (ignored except for debug)
-     * \return A single space.
+     * \param tp the TextPolicy to use
+     \return One space OR the embedded XmlText value if ADD_FORMATTING is set
      */
-    if ( tp.debug() ){
-      cerr << "TEXT MARKUP HSPACE " << " return ' '" << endl;
+    if ( tp.is_set( TEXT_FLAGS::ADD_FORMATTING ) ){
+      return AbstractElement::private_text( tp );
     }
-    return " ";
+    else {
+      return " ";
+    }
   }
 
   const UnicodeString Hyphbreak::private_text( const TextPolicy& tp ) const {
+    /// get the UnicodeString value of a Hyphbreak element
+    /*!
+     * \param tp the TextPolicy to use
+     \return One space OR the embedded XmlText value if ADD_FORMATTING is set
+     */
     if ( tp.is_set( TEXT_FLAGS::ADD_FORMATTING ) ){
-      return TiCC::UnicodeFromUTF8(cls());
+      return AbstractElement::private_text( tp );
     }
     else {
       return "";
