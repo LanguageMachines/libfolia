@@ -2965,28 +2965,34 @@ namespace folia {
     /// get the UnicodeString value of a TextMarkupHSpace element
     /*!
      * \param tp the TextPolicy to use
-     \return One space OR the embedded XmlText value if ADD_FORMATTING is set
+     * \return the embedded XmlText value if ADD_FORMATTING is set
+     * OR one space
      */
+    UnicodeString result = " ";
     if ( tp.is_set( TEXT_FLAGS::ADD_FORMATTING ) ){
-      return AbstractElement::private_text( tp );
+      result = AbstractElement::private_text( tp );
+      if ( result.isEmpty() ){
+	result = " ";
+      }
     }
-    else {
-      return " ";
-    }
+    return result;
   }
 
   const UnicodeString Hyphbreak::private_text( const TextPolicy& tp ) const {
     /// get the UnicodeString value of a Hyphbreak element
     /*!
      * \param tp the TextPolicy to use
-     \return One space OR the embedded XmlText value if ADD_FORMATTING is set
+     * \return When tp.ADD_FORMATTING is set, the embedded XmlText value
+     *         or one '-', otherwise an empty string;
      */
+    UnicodeString result;
     if ( tp.is_set( TEXT_FLAGS::ADD_FORMATTING ) ){
-      return AbstractElement::private_text( tp );
+      result = AbstractElement::private_text( tp );
+      if ( result.isEmpty() ){
+	result = "-";
+      }
     }
-    else {
-      return "";
-    }
+    return result;
   }
 
   const UnicodeString Row::private_text( const TextPolicy& tp ) const {
