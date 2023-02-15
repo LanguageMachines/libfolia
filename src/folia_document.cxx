@@ -1192,7 +1192,8 @@ namespace folia {
 	    et = et_it->second;
 	    properties *prop = element_props[et];
 	    if ( prop->REQUIRED_ATTRIBS & Attrib::CLASS ) {
-	      throw XmlError( "setname may not be empty for " + prefix
+	      throw XmlError( _source_filename + ": "
+			      + "setname may not be empty for " + prefix
 			      + "-annotation" );
 	    }
 	  }
@@ -1208,7 +1209,8 @@ namespace folia {
 	string gran_val = atts.extract( "groupannotations" );
 	if ( !gran_val.empty() ){
 	  if ( !isSubClass( et, AbstractSpanAnnotation_t ) ){
-	    throw XmlError( "attribute 'groupannotations' not allowed for '"
+	    throw XmlError( _source_filename + ": "
+			    + "attribute 'groupannotations' not allowed for '"
 			    + prefix + "-annotation" );
 	  }
 	  if ( gran_val == "yes"
@@ -1216,7 +1218,8 @@ namespace folia {
 	    _groupannotations[at_type][set_name] = true;
 	  }
 	  else {
-	    throw XmlError( "invalid value '" + gran_val
+	    throw XmlError( _source_filename + ": "
+			    + "invalid value '" + gran_val
 			    + "' for attribute groupannotations" );
 	  }
 	}
@@ -1232,23 +1235,32 @@ namespace folia {
 	  }
 	  if ( subtag == "annotator" ){
 	    KWargs args = getAttributes( sub );
-	    if ( args["processor"].empty() ){
-	      throw XmlError( tag + "-annotation: <annotator> misses attribute 'processor'" );
+	    string proc_id = args["processor"];
+	    if ( proc_id.empty() ){
+	      throw XmlError( _source_filename + ": " + tag
+			      + " <annotator> misses attribute 'processor'" );
 	    }
-	    processors.insert( args["processor"] );
+	    if ( !get_processor( proc_id ) ){
+	      throw XmlError( _source_filename + ": " + tag
+			      + " uses undefined processor: '"
+			      + proc_id + "'" );
+	    }
+	    processors.insert( proc_id );
 	  }
 	  sub = sub->next;
 	}
 	if ( !annotator.empty() && !processors.empty() ){
-	  throw XmlError( tag + "-annotation: has both <annotator> node(s) and annotator attribute." );
+	  throw XmlError(  _source_filename + ": " + tag
+			   + " has both <annotator> node(s) and annotator attribute." );
 	}
 	internal_declare( at_type, set_name, format,
 			  annotator, ann_type, datetime,
 			  processors, alias );
 	if ( !atts.empty() ){
 
-	  throw XmlError( "found invalid attribute(s) in <" + prefix
-			  + "-declaration> " + atts.toString() );
+	  throw XmlError(  _source_filename + ": "
+			   + "found invalid attribute(s) in <" + prefix
+			   + "-declaration> " + atts.toString() );
 	}
       }
       n = n->next;
