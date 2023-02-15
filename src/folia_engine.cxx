@@ -408,7 +408,7 @@ namespace folia {
       _os = new ofstream( out_name );
       _out_name = out_name;
     }
-    _out_doc->_source_filename = file_name;
+    _out_doc->_source_name = file_name;
     _reader = create_text_reader( file_name );
     if ( _reader == 0 ){
       _ok = false;

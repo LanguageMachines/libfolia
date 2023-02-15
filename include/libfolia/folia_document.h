@@ -96,6 +96,7 @@ namespace folia {
       EXPLICIT=64      //!< add all set information
     };
     friend class Engine;
+
   public:
     Document();
     explicit Document( const KWargs& );
@@ -368,7 +369,7 @@ namespace folia {
     };
     const std::string& filename() const {
       /// return the filename the Document was created from
-      return _source_filename;
+      return _source_name;
     };
     void save_orig_ann_defaults();
     void set_incremental( bool b ) {
@@ -469,7 +470,7 @@ namespace folia {
     std::map<std::string,MetaData *> submetadata;
     std::multimap<std::string,std::string> styles;
     mutable Mode mode;
-    std::string _source_filename;
+    std::string _source_name;
     std::string _version_string;
     int _major_version;
     int _minor_version;

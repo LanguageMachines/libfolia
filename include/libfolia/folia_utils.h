@@ -123,6 +123,13 @@ namespace folia {
     explicit DeclarationError( const std::string& s ): std::runtime_error( "DeclarationError: " + s ){};
   };
 
+  class DocumentError: public std::runtime_error {
+  public:
+    DocumentError( const std::string& document,
+		   const std::string& message ):
+      std::runtime_error( document + ": " + message ){};
+  };
+
   ///
   /// KWargs is a class to hold attribute/value entries,
   ///

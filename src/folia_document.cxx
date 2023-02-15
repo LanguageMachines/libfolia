@@ -567,7 +567,7 @@ namespace folia {
     if ( foliadoc ){
       throw logic_error( "Document is already initialized" );
     }
-    _source_filename = file_name;
+    _source_name = file_name;
     if ( TiCC::match_back( file_name, ".bz2" ) ){
       string buffer = TiCC::bz2ReadFile( file_name );
       return read_from_string( buffer );
@@ -579,7 +579,7 @@ namespace folia {
 			   XML_PARSER_OPTIONS );
     if ( _xmldoc ){
       if ( cnt > 0 ){
-	throw XmlError( "document is invalid" );
+	throw DocumentError( file_name, "document is invalid" );
       }
       if ( debug ){
 	cout << "read a doc from " << file_name << endl;
@@ -604,7 +604,7 @@ namespace folia {
     if ( debug ){
       cout << "Failed to read a doc from " << file_name << endl;
     }
-    throw XmlError( "No valid FoLiA read" );
+    throw DocumentError( file_name, "No valid FoLiA read" );
   }
 
   bool Document::read_from_string( const string& buffer ){
@@ -621,8 +621,9 @@ namespace folia {
     _xmldoc = xmlReadMemory( buffer.c_str(), buffer.length(), 0, 0,
 			     XML_PARSER_OPTIONS );
     if ( _xmldoc ){
+      _source_name = "memory-string";
       if ( cnt > 0 ){
-	throw XmlError( "document is invalid" );
+	throw DocumentError( _source_name, "document is invalid" );
       }
       if ( debug ){
 	cout << "read a doc from string" << endl;
@@ -1131,9 +1132,10 @@ namespace folia {
     if ( at_it != _annotationdefaults.end() // some Text annotation
 	 && def_set != set_name ){ // not same default
       string my_set = at_it->second.begin()->first;
-      throw XmlError( "Multiple text_annotation: cannot add '" + set_name
-		      + "' as text_annotation declaration,"
-		      + " we already have: '" + my_set + "'" );
+      throw DocumentError( _source_name,
+			   "Multiple text_annotation: cannot add '" + set_name
+			   + "' as text_annotation declaration,"
+			   + " we already have: '" + my_set + "'" );
     }
   }
 
@@ -1192,9 +1194,9 @@ namespace folia {
 	    et = et_it->second;
 	    properties *prop = element_props[et];
 	    if ( prop->REQUIRED_ATTRIBS & Attrib::CLASS ) {
-	      throw XmlError( _source_filename + ": "
-			      + "setname may not be empty for " + prefix
-			      + "-annotation" );
+	      throw DocumentError( _source_name,
+				   "setname may not be empty for " + prefix
+				   + "-annotation" );
 	    }
 	  }
 	}
@@ -1209,18 +1211,18 @@ namespace folia {
 	string gran_val = atts.extract( "groupannotations" );
 	if ( !gran_val.empty() ){
 	  if ( !isSubClass( et, AbstractSpanAnnotation_t ) ){
-	    throw XmlError( _source_filename + ": "
-			    + "attribute 'groupannotations' not allowed for '"
-			    + prefix + "-annotation" );
+	    throw DocumentError( _source_name,
+				 "attribute 'groupannotations' not allowed for '"
+				 + prefix + "-annotation" );
 	  }
 	  if ( gran_val == "yes"
 	       || gran_val == "true" ){
 	    _groupannotations[at_type][set_name] = true;
 	  }
 	  else {
-	    throw XmlError( _source_filename + ": "
-			    + "invalid value '" + gran_val
-			    + "' for attribute groupannotations" );
+	    throw DocumentError( _source_name,
+				 "invalid value '" + gran_val
+				 + "' for attribute groupannotations" );
 	  }
 	}
 	else {
@@ -1237,30 +1239,31 @@ namespace folia {
 	    KWargs args = getAttributes( sub );
 	    string proc_id = args["processor"];
 	    if ( proc_id.empty() ){
-	      throw XmlError( _source_filename + ": " + tag
-			      + " <annotator> misses attribute 'processor'" );
+	      throw DocumentError( _source_name,
+				   tag + " <annotator> misses attribute 'processor'" );
 	    }
 	    if ( !get_processor( proc_id ) ){
-	      throw XmlError( _source_filename + ": " + tag
-			      + " uses undefined processor: '"
-			      + proc_id + "'" );
+	      throw DocumentError( _source_name,
+				   tag + " uses undefined processor: '"
+				   + proc_id + "'" );
 	    }
 	    processors.insert( proc_id );
 	  }
 	  sub = sub->next;
 	}
 	if ( !annotator.empty() && !processors.empty() ){
-	  throw XmlError(  _source_filename + ": " + tag
-			   + " has both <annotator> node(s) and annotator attribute." );
+	  throw DocumentError( _source_name,
+			       tag
+			       + " has both <annotator> node(s) and annotator attribute." );
 	}
 	internal_declare( at_type, set_name, format,
 			  annotator, ann_type, datetime,
 			  processors, alias );
 	if ( !atts.empty() ){
 
-	  throw XmlError(  _source_filename + ": "
-			   + "found invalid attribute(s) in <" + prefix
-			   + "-declaration> " + atts.toString() );
+	  throw DocumentError( _source_name,
+			       "found invalid attribute(s) in <" + prefix
+			       + "-declaration> " + atts.toString() );
 	}
       }
       n = n->next;
@@ -1554,9 +1557,9 @@ namespace folia {
 			   _patch_version );
     if ( check_version( _version_string ) > 0 ){
       cerr << "WARNING!!! the Document "
-	   << (_source_filename.empty()?"":"'")
-	   << _source_filename
-	   << (_source_filename.empty()?"":"' ")
+	   << (_source_name.empty()?"":"'")
+	   << _source_name
+	   << (_source_name.empty()?"":"' ")
 	   << "is created for newer FoLiA version than this library ("
 	   << _version_string << " vs " << folia_version()
 	   << ")\n\t Any possible subsequent failures in parsing or processing may probably be attributed to this." << endl
@@ -1582,7 +1585,8 @@ namespace folia {
 	_id = value;
       }
       else {
-	throw XmlError( "'" + value + "' is not a valid NCName." );
+	throw DocumentError( _source_name,
+			     "'" + value + "' is not a valid NCName." );
       }
       happy = true;
       kwargs["xml:id"] = value;
@@ -1718,7 +1722,8 @@ namespace folia {
     if ( type == "text/xsl" ){
       const auto& it = styles.find( type );
       if ( it != styles.end() ){
-	throw XmlError( "multiple 'text/xsl' style-sheets defined." );
+	throw DocumentError( _source_name,
+			     "multiple 'text/xsl' style-sheets defined." );
       }
     }
     styles.insert( make_pair( type, href ) );
@@ -1766,7 +1771,8 @@ namespace folia {
 	  addStyle( type, href );
 	}
 	else {
-	  throw XmlError( "problem parsing line: " + content );
+	  throw DocumentError( _source_name,
+			       "problem parsing line: " + content );
 	}
       }
       pnt = pnt->next;
@@ -1917,13 +1923,15 @@ namespace folia {
 	    fixupNs( root, defNs );
 	  }
 	  else {
-	    throw XmlError( "Folia Document should have namespace declaration "
-			    + NSFOLIA + " but none found " );
+	    throw DocumentError( _source_name,
+				 "Folia Document should have namespace declaration "
+				 + NSFOLIA + " but none found " );
 	  }
 	}
 	else if ( ns != NSFOLIA ){
-	  throw XmlError( "Folia Document should have namespace declaration "
-			  + NSFOLIA + " but found: " + ns );
+	  throw DocumentError( _source_name,
+			       "Folia Document should have namespace declaration "
+			       + NSFOLIA + " but found: " + ns );
 	}
 	try {
 	  FoLiA *folia = new FoLiA( this );
@@ -1933,6 +1941,9 @@ namespace folia {
 	catch ( const InconsistentText& e ){
 	  throw;
 	}
+	catch ( const DocumentError& e ){
+	  throw;
+	}
 	catch ( const XmlError& e ){
 	  throw;
 	}
@@ -1940,15 +1951,15 @@ namespace folia {
 	  throw;
 	}
 	catch ( const exception& e ){
-	  throw XmlError( e.what() );
+	  throw DocumentError( _source_name, e.what() );
 	}
       }
       else if ( TiCC::Name( root ) == "DCOI" &&
 		checkNS( root, NSDCOI ) ){
-	throw XmlError( "DCOI format not supported" );
+	throw DocumentError( _source_name, "DCOI format not supported" );
       }
       else {
-	throw XmlError( "root node must be FoLiA" );
+	throw DocumentError( _source_name, "root node must be FoLiA" );
       }
     }
     return result;
@@ -2018,8 +2029,9 @@ namespace folia {
 	auto et = et_it->second;
 	properties *prop = element_props[et];
 	if ( prop->REQUIRED_ATTRIBS & Attrib::CLASS ) {
-	  throw XmlError( "setname may not be empty for " + prefix
-			  + "-annotation" );
+	  throw DocumentError( _source_name,
+			       "setname may not be empty for " + prefix
+			       + "-annotation" );
 	}
       }
       if ( st.empty() ){
@@ -2043,7 +2055,8 @@ namespace folia {
     args.erase("alias");
     args.erase("processor");
     if ( args.size() != 0 ){
-      throw XmlError( "declaration: expected 'annotator', 'annotatortype', 'processor', 'alias' or 'datetime', got '" + args.begin()->first + "'" );
+      throw DocumentError( _source_name,
+			   "declaration: expected 'annotator', 'annotatortype', 'processor', 'alias' or 'datetime', got '" + args.begin()->first + "'" );
     }
     internal_declare( type, st, f, a, t, d, processors, alias );
   }
@@ -2430,14 +2443,16 @@ namespace folia {
 
     FoliaElement *root = getRoot();
     if ( root ){
-      throw XmlError( "cannot append a root element to a Document. Already there." );
+      throw DocumentError( _source_name,
+			   "cannot append a root element to a Document. Already there." );
     }
     if ( t->element_id() == Text_t
 	 || t->element_id() == Speech_t ) {
       foliadoc->append( t );
       return t;
     }
-    throw XmlError( "Only can append 'text' or 'speech' as root of a Document." );
+    throw DocumentError( _source_name,
+			 "Only can append 'text' or 'speech' as root of a Document." );
   }
 
   void Document::incrRef( AnnotationType type,
