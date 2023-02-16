@@ -2497,6 +2497,13 @@ namespace folia {
     return os;
   }
 
+  void XmlText::setuvalue( const UnicodeString& us ){
+    /*!
+     * \param us a Unicode string
+     */
+    _value = TiCC::UnicodeToUTF8( us );
+  }
+
   void XmlText::setvalue( const string& s ){
     /// set the value of an XmlText element in NFC endcoded UTF8
     /*!

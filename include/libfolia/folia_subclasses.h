@@ -1156,6 +1156,7 @@ namespace folia {
     FoliaElement* parseXml( const xmlNode * ) override;
     xmlNode *xml( bool, bool=false ) const override;
     void setvalue( const std::string& );
+    void setuvalue( const UnicodeString& );
     const std::string& get_delimiter( const TextPolicy& ) const override {
       return EMPTY_STRING; };
     void setAttributes( KWargs& ) override;
