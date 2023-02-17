@@ -2977,7 +2977,9 @@ namespace folia {
      */
     UnicodeString result = " ";
     if ( tp.is_set( TEXT_FLAGS::ADD_FORMATTING ) ){
-      result = AbstractElement::private_text( tp );
+      TextPolicy tmp(tp);
+      tmp.set( TEXT_FLAGS::NO_TRIM_SPACES );
+      result = AbstractElement::private_text( tmp );
       if ( result.isEmpty() ){
 	result = " ";
       }
@@ -2994,7 +2996,9 @@ namespace folia {
      */
     UnicodeString result;
     if ( tp.is_set( TEXT_FLAGS::ADD_FORMATTING ) ){
-      result = AbstractElement::private_text( tp );
+      TextPolicy tmp(tp);
+      tmp.set( TEXT_FLAGS::NO_TRIM_SPACES );
+      result = AbstractElement::private_text( tmp );
       if ( result.isEmpty() ){
 	result = "-";
       }

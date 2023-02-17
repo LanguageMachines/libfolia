@@ -1919,8 +1919,7 @@ namespace folia {
     }
     UnicodeString result;
     bool pendingspace = false;
-    bool trim_spaces = !tp.is_set( TEXT_FLAGS::NO_TRIM_SPACES)
-      && !tp.is_set( TEXT_FLAGS::ADD_FORMATTING );
+    bool trim_spaces = !tp.is_set( TEXT_FLAGS::NO_TRIM_SPACES);
     for ( const auto& d : _data ){
       if (d->isinstance( XmlText_t)) {
 	// 'true' text child
