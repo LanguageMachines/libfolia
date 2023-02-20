@@ -4,6 +4,7 @@ on:
   push:
     branches: [master]
     paths:
+      - configure.ac
       - 'src/**'
       - 'include/**'
       - .github/workflows/libfolia.yml
