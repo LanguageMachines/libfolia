@@ -1,3 +1,14 @@
+2.14 2023-02-20
+[Ko van der Sloot]
+* implemented an ADD_FORMATTING TextPolicy to extract otherwise hidden
+  text from <t-hspace> and <t-hyph> Markup elements
+  (see https://github.com/proycon/foliapy/issues/25)
+* fix for https://github.com/LanguageMachines/libfolia/issues/51
+* General improvements:
+  - include a filename when throwing during Document processing
+  - added setutest() member for XmlText class
+  - general code quality
+
 2.13 2023-01-23
 [Ko van der Sloot]
 * removed dependency on libtar
