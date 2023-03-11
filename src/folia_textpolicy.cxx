@@ -94,6 +94,7 @@ namespace folia {
        << (add_format?"add_format":"no format") << ", "
        << (hide?"show_hidden":"hide hidden") << ", "
        << (trim?"trimming spaces":"not trimming spaces") << ", "
+       << (add_format?"restore formatting":"not restoring formatting") << ", "
        << "cor_handling: " << toString( tp.get_correction_handling() );
     return os;
   }
