@@ -3002,6 +3002,7 @@ namespace folia {
       if ( result.isEmpty() ){
 	result = "-";
       }
+      result += "\n";
     }
     return result;
   }
