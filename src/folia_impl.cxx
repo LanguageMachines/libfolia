@@ -2993,7 +2993,14 @@ namespace folia {
       string val = str(cls());
       val = trim( val );
       if ( val.empty() ) {
-     	throw ValueError( "attempt to add an empty <t> to word: " + parent->id() );
+	if ( index(0)->implicitspace() ){
+	  // OK, an "empty" text is allowed for elements with the
+	  // implicitspace property
+	}
+	else {
+	  throw ValueError( "attempt to add an empty <t> to word: "
+			    + parent->id() );
+	}
       }
     }
     if ( element_id() == TextContent_t ){
