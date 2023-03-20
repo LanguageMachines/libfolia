@@ -521,6 +521,14 @@ namespace folia {
       }
       UnicodeString mt = this->text( tp );
       UnicodeString pt = ref->text( tp );
+      if ( this->offset() < 0
+	   || this->offset() > pt.length() ){
+	throw UnresolvableTextContent( "Reference (ID " + ref->id() +
+				       ",class=" + cls()
+				       + " found, but offset out of range"
+				       + " [0-" + TiCC::toString( pt.length() )
+				       + "] in " + TiCC::UnicodeToUTF8(pt) );
+      }
       UnicodeString sub( pt, this->offset(), mt.length() );
       if ( mt != sub ){
 	if ( doc()->fixtext() ){
@@ -622,6 +630,14 @@ namespace folia {
       }
       UnicodeString mt = this->phon( tp );
       UnicodeString pt = ref->phon( tp );
+      if ( this->offset() < 0
+	   || this->offset() > pt.length() ){
+	throw UnresolvableTextContent( "Reference (ID " + ref->id() +
+				       ",class=" + cls()
+				       + " found, but offset out of range"
+				       + " [0-" + TiCC::toString( pt.length() )
+				       + "] in " + TiCC::UnicodeToUTF8(pt) );
+      }
       UnicodeString sub( pt, this->offset(), mt.length() );
       if ( mt != sub ){
 	if ( doc()->fixtext() ){
