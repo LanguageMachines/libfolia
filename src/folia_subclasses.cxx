@@ -494,7 +494,7 @@ namespace folia {
     /// get the FoliaElement _ref is refering to and does offset validation
     /*!
      * \param cumulated_offset current position, after checking the previous
-     reference
+     reference. Will be updated with the size of this TextContent
      * \param trim_spaces (default true)
      * \return the refered element OR the default parent when _ref is 0
      */
@@ -630,7 +630,7 @@ namespace folia {
     /// get the FoliaElement _ref is refering to and does offset validation
     /*!
      * \param cumulated_offset current position, after checking the previous
-     reference
+     reference. Will be updated with the size of this TextContent
      * \param trim_spaces (default true)
      * \return the refered element OR the default parent when _ref is 0
      */
