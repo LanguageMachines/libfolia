@@ -489,9 +489,13 @@ namespace folia {
     return 0;
   }
 
-  FoliaElement *TextContent::get_reference(bool trim_spaces) const {
+  FoliaElement *TextContent::get_reference( bool trim_spaces,
+					    int next_offset ) const {
     /// get the FoliaElement _ref is refering to and does offset validation
     /*!
+     * \param trim_spaces (default true)
+     * \param next_offset The offset named in the next node. Used to check
+     special case when there is an allowed empty textcontent
      * \return the refered element OR the default parent when _ref is 0
      */
     FoliaElement *ref = 0;
@@ -529,28 +533,44 @@ namespace folia {
 				       + " [0-" + TiCC::toString( pt.length() )
 				       + "] in " + TiCC::UnicodeToUTF8(pt) );
       }
-      UnicodeString sub( pt, this->offset(), mt.length() );
-      if ( mt != sub ){
-	if ( doc()->fixtext() ){
-	  int pos = pt.indexOf( mt );
-	  if ( pos < 0 ){
-	    throw UnresolvableTextContent( "Reference (ID " + ref->id() +
-					   ",class=" + cls()
-					   + " found, but no substring match "
-					   + TiCC::UnicodeToUTF8(mt)
-					   + " in " +  TiCC::UnicodeToUTF8(pt) );
+      if ( mt.isEmpty() ){
+	if ( next_offset != -1
+	     && this->offset() != next_offset ){
+	  throw UnresolvableTextContent( "Reference (ID " + ref->id() +
+					 ",class=" + cls()
+					 + " found, but offset should probably"
+					 + " be "
+					 + TiCC::toString( next_offset )
+					 + " in " + TiCC::UnicodeToUTF8(pt) );
+	}
+      }
+      else {
+	UnicodeString sub( pt, this->offset(), mt.length() );
+	if ( mt != sub ){
+	  if ( doc()->fixtext() ){
+	    int pos = pt.indexOf( mt );
+	    if ( pos < 0 ){
+	      throw UnresolvableTextContent( "Reference (ID " + ref->id() +
+					     ",class=" + cls()
+					     + " found, but no substring match "
+					     + TiCC::UnicodeToUTF8(mt) + " in "
+					     + TiCC::UnicodeToUTF8(pt) );
+	    }
+	    else {
+	      this->set_offset( pos );
+	    }
 	  }
 	  else {
-	    this->set_offset( pos );
+	    throw UnresolvableTextContent( "Reference (ID " + ref->id() +
+					   ",class='" + cls()
+					   + "') found, but no text match at "
+					   + "offset="
+					   + TiCC::toString(offset())
+					   + " Expected '"
+					   + TiCC::UnicodeToUTF8(mt)
+					   + "' but got '"
+					   + TiCC::UnicodeToUTF8(sub) + "'" );
 	  }
-	}
-	else {
-	  throw UnresolvableTextContent( "Reference (ID " + ref->id() +
-					 ",class='" + cls()
-					 + "') found, but no text match at "
-					 + "offset=" + TiCC::toString(offset())
-					 + " Expected '" + TiCC::UnicodeToUTF8(mt)
-					 + "' but got '" +  TiCC::UnicodeToUTF8(sub) + "'" );
 	}
       }
     }
@@ -598,9 +618,13 @@ namespace folia {
     return 0;
   }
 
-  FoliaElement *PhonContent::get_reference( bool trim_spaces ) const {
-    /// get the FoliaElement _ref is refering to
+  FoliaElement *PhonContent::get_reference( bool trim_spaces,
+					    int next_offset ) const {
+    /// get the FoliaElement _ref is refering to and does offset validation
     /*!
+     * \param trim_spaces (default true)
+     * \param next_offset The offset named in the next node. Used to check
+     special case when there is an allowed empty textcontent
      * \return the refered element OR the default parent when _ref is 0
      */
     FoliaElement *ref = 0;
@@ -638,28 +662,41 @@ namespace folia {
 				       + " [0-" + TiCC::toString( pt.length() )
 				       + "] in " + TiCC::UnicodeToUTF8(pt) );
       }
-      UnicodeString sub( pt, this->offset(), mt.length() );
-      if ( mt != sub ){
-	if ( doc()->fixtext() ){
-	  int pos = pt.indexOf( mt );
-	  if ( pos < 0 ){
-	    throw UnresolvableTextContent( "Reference (ID " + ref->id() +
-					   ",class=" + cls()
-					   + " found, but no substring match "
-					   + TiCC::UnicodeToUTF8(mt)
-					   + " in " +  TiCC::UnicodeToUTF8(pt) );
-	  }
-	  else {
-	    this->set_offset( pos );
-	  }
-	}
-	else {
+      if ( mt.isEmpty() ){
+	if ( next_offset != -1
+	     && this->offset() != next_offset ){
 	  throw UnresolvableTextContent( "Reference (ID " + ref->id() +
 					 ",class=" + cls()
-					 + " found, but no text match at "
-					 + "offset=" + TiCC::toString(offset())
-					 + " Expected " + TiCC::UnicodeToUTF8(mt)
-					 + " but got " +  TiCC::UnicodeToUTF8(sub) );
+					 + " found, but offset should probably"
+					 + " be "
+					 + TiCC::toString( next_offset )
+					 + " in " + TiCC::UnicodeToUTF8(pt) );
+	}
+      }
+      else {
+	UnicodeString sub( pt, this->offset(), mt.length() );
+	if ( mt != sub ){
+	  if ( doc()->fixtext() ){
+	    int pos = pt.indexOf( mt );
+	    if ( pos < 0 ){
+	      throw UnresolvableTextContent( "Reference (ID " + ref->id() +
+					     ",class=" + cls()
+					     + " found, but no substring match "
+					     + TiCC::UnicodeToUTF8(mt)
+					     + " in " +  TiCC::UnicodeToUTF8(pt) );
+	    }
+	    else {
+	      this->set_offset( pos );
+	    }
+	  }
+	  else {
+	    throw UnresolvableTextContent( "Reference (ID " + ref->id() +
+					   ",class=" + cls()
+					   + " found, but no text match at "
+					   + "offset=" + TiCC::toString(offset())
+					   + " Expected " + TiCC::UnicodeToUTF8(mt)
+					   + " but got " +  TiCC::UnicodeToUTF8(sub) );
+	  }
 	}
       }
     }

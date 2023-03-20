@@ -772,7 +772,7 @@ namespace folia {
     return foliadoc->text( tp );
   }
 
-  UnicodeString Document::text( const std::string& cls,
+  UnicodeString Document::text( const string& cls,
 				bool retaintok,
 				bool strict ) const {
     /// return the text content of the whole document, restricted by the
@@ -1803,15 +1803,23 @@ namespace folia {
       offsets used.
      */
     set<TextContent*> t_done;
-    for ( const auto& txt : t_offset_validation_buffer ){
+    for ( auto txt_it=t_offset_validation_buffer.begin();
+	  txt_it != t_offset_validation_buffer.end();
+	  ++txt_it ){
+      TextContent *txt = *txt_it;
       if ( t_done.find( txt ) != t_done.end() ){
 	continue;
       }
       t_done.insert(txt);
       int offset = txt->offset();
       if ( offset != -1 ){
+	int next_offset = -1;
+	auto bla = std::next(txt_it);
+	if ( bla != t_offset_validation_buffer.end() ){
+	  next_offset = (*bla)->offset();
+	}
 	try {
-	  txt->get_reference();
+	  txt->get_reference(true,next_offset);
 	}
 	catch( const UnresolvableTextContent& e ){
 	  string msg = "Text for " + txt->parent()->xmltag() + "(ID="
@@ -1828,7 +1836,7 @@ namespace folia {
 
           bool warn = false;
           try {
-	    txt->get_reference(false); //trim_spaces = false
+	    txt->get_reference(false,next_offset); //trim_spaces = false
 	    msg += "\nHowever, according to the older rules (<v2.4.1) the offsets are accepted. So we are treating this as a warning rather than an error. We do recommend fixing this if this is a document you intend to publish.";
 	    warn = true;
           } catch ( const UnresolvableTextContent& ) {
@@ -1854,7 +1862,7 @@ namespace folia {
       int offset = phon->offset();
       if ( offset != -1 ){
 	try {
-	  phon->get_reference();
+	  phon->get_reference(true);
 	}
 	catch( const UnresolvableTextContent& e ){
 	  string msg = "Phoneme for " + phon->parent()->xmltag() + ", ID="
@@ -3283,8 +3291,8 @@ namespace folia {
     }
   }
 
-  Pattern::Pattern( const std::vector<std::string>& pat_vec,
-		    const std::string& args ) : matchannotation(BASE) {
+  Pattern::Pattern( const vector<string>& pat_vec,
+		    const string& args ) : matchannotation(BASE) {
     /// create a Pattern structure for searching
     /*!
       \param pat_vec a list if search terms (may be regular expressions)
