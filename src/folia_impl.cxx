@@ -2993,11 +2993,16 @@ namespace folia {
       string val = str(cls());
       val = trim( val );
       if ( val.empty() ) {
-	if ( index(0)->implicitspace() ){
-	  // OK, an "empty" text is allowed for elements with the
-	  // implicitspace property
+	// we have to check for a child with the IMPLICITSPACE property
+	// if so, an "empty" text is allowed.
+	bool has_implicit = false;
+	for ( const auto it : _data ){
+	  if ( it->implicitspace() ){
+	    has_implicit = true;
+	    break; // we are done here
+	  }
 	}
-	else {
+	if ( !has_implicit ){
 	  throw ValueError( "attempt to add an empty <t> to word: "
 			    + parent->id() );
 	}
