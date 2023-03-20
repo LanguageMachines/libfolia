@@ -297,7 +297,7 @@ namespace folia {
 	return res;
       }
       FoliaElement *postappend() override;
-      FoliaElement *get_reference(bool,int=-1) const;
+      FoliaElement *get_reference( int&, bool=true ) const;
       std::string ref() const { return _ref; };
     private:
       void init() override;
@@ -310,7 +310,7 @@ namespace folia {
       std::string _ref;
     public:
       static properties PROPS;
-    };
+  };
 
   class PhonContent: public AbstractContentAnnotation {
     friend void static_init();
@@ -324,7 +324,7 @@ namespace folia {
 			      TEXT_FLAGS = TEXT_FLAGS::NONE ) const override;
     int offset() const override { return _offset; };
     FoliaElement *postappend() override;
-    FoliaElement *get_reference(bool,int=-1) const;
+    FoliaElement *get_reference( int&, bool=true ) const;
     std::string ref() const { return _ref; };
   public:
     void init() override;

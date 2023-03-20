@@ -489,15 +489,23 @@ namespace folia {
     return 0;
   }
 
-  FoliaElement *TextContent::get_reference( bool trim_spaces,
-					    int next_offset ) const {
+  FoliaElement *TextContent::get_reference( int& cumulated_offset,
+					    bool trim_spaces ) const {
     /// get the FoliaElement _ref is refering to and does offset validation
     /*!
+     * \param cumulated_offset current position, after checking the previous
+     reference
      * \param trim_spaces (default true)
-     * \param next_offset The offset named in the next node. Used to check
-     special case when there is an allowed empty textcontent
      * \return the refered element OR the default parent when _ref is 0
      */
+    if ( doc()->checktext() || doc()->fixtext() ){
+      TextPolicy tp( cls(), TEXT_FLAGS::STRICT );
+      if ( !trim_spaces ) {
+	tp.set( TEXT_FLAGS::NO_TRIM_SPACES );
+      }
+      UnicodeString mt = this->text( tp );
+      cumulated_offset += mt.length();
+    }
     FoliaElement *ref = 0;
     if ( _offset == -1 ){
       return 0;
@@ -534,13 +542,12 @@ namespace folia {
 				       + "] in " + TiCC::UnicodeToUTF8(pt) );
       }
       if ( mt.isEmpty() ){
-	if ( next_offset != -1
-	     && this->offset() != next_offset ){
+	if ( this->offset() != cumulated_offset ){
 	  throw UnresolvableTextContent( "Reference (ID " + ref->id() +
 					 ",class=" + cls()
 					 + " found, but offset should probably"
 					 + " be "
-					 + TiCC::toString( next_offset )
+					 + TiCC::toString( cumulated_offset )
 					 + " in " + TiCC::UnicodeToUTF8(pt) );
 	}
       }
@@ -618,15 +625,23 @@ namespace folia {
     return 0;
   }
 
-  FoliaElement *PhonContent::get_reference( bool trim_spaces,
-					    int next_offset ) const {
+  FoliaElement *PhonContent::get_reference( int& cumulated_offset,
+					    bool trim_spaces ) const {
     /// get the FoliaElement _ref is refering to and does offset validation
     /*!
+     * \param cumulated_offset current position, after checking the previous
+     reference
      * \param trim_spaces (default true)
-     * \param next_offset The offset named in the next node. Used to check
-     special case when there is an allowed empty textcontent
      * \return the refered element OR the default parent when _ref is 0
      */
+    if ( doc()->checktext() || doc()->fixtext() ){
+      TextPolicy tp( cls(), TEXT_FLAGS::STRICT );
+      if ( !trim_spaces ) {
+	tp.set( TEXT_FLAGS::NO_TRIM_SPACES );
+      }
+      UnicodeString mt = this->text( tp );
+      cumulated_offset += mt.length();
+    }
     FoliaElement *ref = 0;
     if ( _offset == -1 ){
       return 0;
@@ -663,13 +678,12 @@ namespace folia {
 				       + "] in " + TiCC::UnicodeToUTF8(pt) );
       }
       if ( mt.isEmpty() ){
-	if ( next_offset != -1
-	     && this->offset() != next_offset ){
+	if ( this->offset() != cumulated_offset ){
 	  throw UnresolvableTextContent( "Reference (ID " + ref->id() +
 					 ",class=" + cls()
 					 + " found, but offset should probably"
 					 + " be "
-					 + TiCC::toString( next_offset )
+					 + TiCC::toString( cumulated_offset )
 					 + " in " + TiCC::UnicodeToUTF8(pt) );
 	}
       }

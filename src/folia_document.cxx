@@ -1803,6 +1803,7 @@ namespace folia {
       offsets used.
      */
     set<TextContent*> t_done;
+    int cumulated_offset = 0;
     for ( auto txt_it=t_offset_validation_buffer.begin();
 	  txt_it != t_offset_validation_buffer.end();
 	  ++txt_it ){
@@ -1813,13 +1814,8 @@ namespace folia {
       t_done.insert(txt);
       int offset = txt->offset();
       if ( offset != -1 ){
-	int next_offset = -1;
-	auto bla = std::next(txt_it);
-	if ( bla != t_offset_validation_buffer.end() ){
-	  next_offset = (*bla)->offset();
-	}
 	try {
-	  txt->get_reference(true,next_offset);
+	  txt->get_reference(cumulated_offset);
 	}
 	catch( const UnresolvableTextContent& e ){
 	  string msg = "Text for " + txt->parent()->xmltag() + "(ID="
@@ -1836,7 +1832,7 @@ namespace folia {
 
           bool warn = false;
           try {
-	    txt->get_reference(false,next_offset); //trim_spaces = false
+	    txt->get_reference( cumulated_offset, false ); //trim_spaces = false
 	    msg += "\nHowever, according to the older rules (<v2.4.1) the offsets are accepted. So we are treating this as a warning rather than an error. We do recommend fixing this if this is a document you intend to publish.";
 	    warn = true;
           } catch ( const UnresolvableTextContent& ) {
@@ -1854,6 +1850,7 @@ namespace folia {
       }
     }
     set<PhonContent*> p_done;
+    cumulated_offset = 0;
     for ( const auto& phon : p_offset_validation_buffer ){
       if ( p_done.find( phon ) != p_done.end() ){
 	continue;
@@ -1862,7 +1859,7 @@ namespace folia {
       int offset = phon->offset();
       if ( offset != -1 ){
 	try {
-	  phon->get_reference(true);
+	  phon->get_reference( cumulated_offset );
 	}
 	catch( const UnresolvableTextContent& e ){
 	  string msg = "Phoneme for " + phon->parent()->xmltag() + ", ID="
@@ -1879,7 +1876,7 @@ namespace folia {
 
           bool warn = false;
           try {
-	    phon->get_reference(false); //trim_spaces = false
+	    phon->get_reference(cumulated_offset, false ); //trim_spaces = false
 	    msg += "\nHowever, according to the older rules (<v2.4.1) the offsets are accepted. So we are treating this as a warning rather than an error. We do recommend fixing this if this is a document you intend to publish.";
 	    warn = true;
           } catch ( const UnresolvableTextContent& ) {
