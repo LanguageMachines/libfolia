@@ -535,20 +535,32 @@ namespace folia {
       UnicodeString pt = ref->text( tp );
       if ( this->offset() < 0
 	   || this->offset() > pt.length() ){
-	throw UnresolvableTextContent( "Reference (ID " + ref->id() +
-				       ",class=" + cls()
-				       + " found, but offset out of range"
-				       + " [0-" + TiCC::toString( pt.length() )
-				       + "] in " + TiCC::UnicodeToUTF8(pt) );
+	if ( doc()->fixtext() ){
+	  this->set_offset( cumulated_offset );
+	}
+	else {
+	  throw UnresolvableTextContent( "Reference (ID " + ref->id()
+					 + ",class=" + cls()
+					 + " found, but offset out of range"
+					 + " [0-"
+					 + TiCC::toString( pt.length() )
+					 + "] in " + TiCC::UnicodeToUTF8(pt) );
+	}
       }
       if ( mt.isEmpty() ){
+	// the very rare case of an empty element (e.g. <t-hbr/>)
 	if ( this->offset() != cumulated_offset ){
-	  throw UnresolvableTextContent( "Reference (ID " + ref->id() +
-					 ",class=" + cls()
-					 + " found, but offset should probably"
-					 + " be "
-					 + TiCC::toString( cumulated_offset )
-					 + " in " + TiCC::UnicodeToUTF8(pt) );
+	  if ( doc()->fixtext() ){
+	    this->set_offset( cumulated_offset );
+	  }
+	  else {
+	    throw UnresolvableTextContent( "Reference (ID " + ref->id()
+					   + ",class=" + cls()
+					   + " found, but offset should probably"
+					   + " be "
+					   + TiCC::toString( cumulated_offset )
+					   + " in " + TiCC::UnicodeToUTF8(pt) );
+	  }
 	}
       }
       else {
@@ -557,8 +569,9 @@ namespace folia {
 	  if ( doc()->fixtext() ){
 	    int pos = pt.indexOf( mt );
 	    if ( pos < 0 ){
-	      throw UnresolvableTextContent( "Reference (ID " + ref->id() +
-					     ",class=" + cls()
+	      // no substring found, offset cannot be set
+	      throw UnresolvableTextContent( "Reference (ID " + ref->id()
+					     + ",class=" + cls()
 					     + " found, but no substring match "
 					     + TiCC::UnicodeToUTF8(mt) + " in "
 					     + TiCC::UnicodeToUTF8(pt) );
@@ -671,20 +684,32 @@ namespace folia {
       UnicodeString pt = ref->phon( tp );
       if ( this->offset() < 0
 	   || this->offset() > pt.length() ){
-	throw UnresolvableTextContent( "Reference (ID " + ref->id() +
-				       ",class=" + cls()
-				       + " found, but offset out of range"
-				       + " [0-" + TiCC::toString( pt.length() )
-				       + "] in " + TiCC::UnicodeToUTF8(pt) );
+	if ( doc()->fixtext() ){
+	  this->set_offset( cumulated_offset );
+	}
+	else {
+	  throw UnresolvableTextContent( "Reference (ID " + ref->id()
+					 + ",class=" + cls()
+					 + " found, but offset out of range"
+					 + " [0-"
+					 + TiCC::toString( pt.length() )
+					 + "] in " + TiCC::UnicodeToUTF8(pt) );
+	}
       }
       if ( mt.isEmpty() ){
+	// the very rare case of an empty element (e.g. <t-hbr/>)
 	if ( this->offset() != cumulated_offset ){
-	  throw UnresolvableTextContent( "Reference (ID " + ref->id() +
-					 ",class=" + cls()
-					 + " found, but offset should probably"
-					 + " be "
-					 + TiCC::toString( cumulated_offset )
-					 + " in " + TiCC::UnicodeToUTF8(pt) );
+	  if ( doc()->fixtext() ){
+	    this->set_offset( cumulated_offset );
+	  }
+	  else {
+	    throw UnresolvableTextContent( "Reference (ID " + ref->id() +
+					   ",class=" + cls()
+					   + " found, but offset should probably"
+					   + " be "
+					   + TiCC::toString( cumulated_offset )
+					   + " in " + TiCC::UnicodeToUTF8(pt) );
+	  }
 	}
       }
       else {
@@ -693,23 +718,28 @@ namespace folia {
 	  if ( doc()->fixtext() ){
 	    int pos = pt.indexOf( mt );
 	    if ( pos < 0 ){
-	      throw UnresolvableTextContent( "Reference (ID " + ref->id() +
-					     ",class=" + cls()
+	      // no substring found, offset cannot be set
+	      throw UnresolvableTextContent( "Reference (ID " + ref->id()
+					     + ",class=" + cls()
 					     + " found, but no substring match "
 					     + TiCC::UnicodeToUTF8(mt)
-					     + " in " +  TiCC::UnicodeToUTF8(pt) );
+					     + " in "
+					     + TiCC::UnicodeToUTF8(pt) );
 	    }
 	    else {
 	      this->set_offset( pos );
 	    }
 	  }
 	  else {
-	    throw UnresolvableTextContent( "Reference (ID " + ref->id() +
-					   ",class=" + cls()
+	    throw UnresolvableTextContent( "Reference (ID " + ref->id()
+					   + ",class=" + cls()
 					   + " found, but no text match at "
-					   + "offset=" + TiCC::toString(offset())
-					   + " Expected " + TiCC::UnicodeToUTF8(mt)
-					   + " but got " +  TiCC::UnicodeToUTF8(sub) );
+					   + "offset="
+					   + TiCC::toString(offset())
+					   + " Expected "
+					   + TiCC::UnicodeToUTF8(mt)
+					   + " but got "
+					   + TiCC::UnicodeToUTF8(sub) );
 	  }
 	}
       }
