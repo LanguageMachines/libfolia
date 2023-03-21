@@ -80,7 +80,7 @@ namespace folia {
     /// perform some extra checks after appending a TextContent
     if ( doc() ){
       if ( doc()->checktext()
-	   && _offset != -1
+	   && offset() != -1
 	   && ( parent() && parent()->auth() ) ){
 	doc()->cache_textcontent(this);
       }
@@ -95,7 +95,7 @@ namespace folia {
     /// perform some extra checks after appending a PhonContent
     if ( doc() ){
       if ( doc()->checktext()
-	   && _offset != -1 ){
+	   && offset() != -1 ){
 	doc()->cache_phoncontent(this);
       }
       if ( !doc()->declared( AnnotationType::PHON ) ){
@@ -403,8 +403,8 @@ namespace folia {
     }
   }
 
-  void TextContent::setAttributes( KWargs& kwargs ) {
-    /// set the TextContent attributes given a set of Key-Value pairs.
+  void AbstractContentAnnotation::setAttributes( KWargs& kwargs ) {
+    /// set the AbstractContent attributes given a set of Key-Value pairs.
     /*!
      * \param kwargs a KWargs set of Key-Value pairs
      *
@@ -417,7 +417,7 @@ namespace folia {
       kwargs.erase(it);
       if ( value.empty() ) {
 	// can this ever happen?
-	throw ValueError( "TextContent: 'value' attribute may not be empty." );
+	throw ValueError( "Content: 'value' attribute may not be empty." );
       }
       add_child<XmlText>( value );
     }
@@ -438,8 +438,19 @@ namespace folia {
     if ( it == kwargs.end() ) {
       kwargs["class"] = "current";
     }
-    AllowXlink::setAttributes(kwargs);
     AbstractElement::setAttributes(kwargs);
+  }
+
+  void TextContent::setAttributes( KWargs& kwargs ) {
+    /// set the TextContent attributes given a set of Key-Value pairs.
+    /*!
+     * \param kwargs a KWargs set of Key-Value pairs
+     *
+     * checks and sets the special attributes for TextContent:
+     * value, offset, ref, class
+     */
+    AllowXlink::setAttributes(kwargs);
+    AbstractContentAnnotation::setAttributes(kwargs);
   }
 
   void PhonContent::setAttributes( KWargs& kwargs ) {
@@ -450,21 +461,7 @@ namespace folia {
      * checks and sets the special attributes for PhonContent:
      * offset, ref, class
      */
-    auto it = kwargs.find( "offset" );
-    if ( it != kwargs.end() ) {
-      _offset = stringTo<int>(it->second);
-      kwargs.erase(it);
-    }
-    else {
-      _offset = -1;
-    }
-    if ( kwargs.is_present( "ref" ) ) {
-      throw NotImplementedError( "ref attribute in PhonContent" );
-    }
-    if ( !kwargs.is_present( "class" ) ){
-      kwargs["class"] = "current";
-    }
-    AbstractElement::setAttributes(kwargs);
+    AbstractContentAnnotation::setAttributes(kwargs);
   }
 
   FoliaElement *TextContent::find_default_reference() const {
@@ -489,9 +486,10 @@ namespace folia {
     return 0;
   }
 
-  FoliaElement *TextContent::get_reference( int& cumulated_offset,
-					    bool trim_spaces ) const {
-    /// get the FoliaElement _ref is refering to and does offset validation
+  FoliaElement *AbstractContentAnnotation::get_reference( int& cumulated_offset,
+							  bool trim_spaces ) const {
+    /// get the FoliaElement where he _ref member is refering to
+    /// and does offset validation
     /*!
      * \param cumulated_offset current position, after checking the previous
      reference. Will be updated with the size of this TextContent
@@ -521,7 +519,7 @@ namespace folia {
       ref = find_default_reference();
     }
     if ( !ref ){
-      throw UnresolvableTextContent( "Default reference for textcontent not found!" );
+      throw UnresolvableTextContent( "Default reference for content not found!" );
     }
     else if ( !ref->hastext( cls() ) ){
       throw UnresolvableTextContent( "Reference (ID " + _ref + ") has no such text (class=" + cls() + ")" );
@@ -597,11 +595,11 @@ namespace folia {
     return ref;
   }
 
-  KWargs TextContent::collectAttributes() const {
-    /// extract all Attribute-Value pairs for TextContent
+  KWargs AbstractContentAnnotation::collectAttributes() const {
+    /// extract all Attribute-Value pairs for Content
     /*!
      * \return a KWargs set of Attribute-value pairs
-     * inclusive: offset and ref
+     * inclusive: _offset and _ref
      */
     KWargs attribs = AbstractElement::collectAttributes();
     if ( cls() == "current" && doc() && !doc()->has_explicit() ) {
@@ -613,8 +611,29 @@ namespace folia {
     if ( !_ref.empty() ) {
       attribs["ref"] = _ref;
     }
+    return attribs;
+  }
+
+
+  KWargs TextContent::collectAttributes() const {
+    /// extract all Attribute-Value pairs for TextContent
+    /*!
+     * \return a KWargs set of Attribute-value pairs
+     * inclusive: offset and ref
+     */
+    KWargs attribs = AbstractContentAnnotation::collectAttributes();
     KWargs more = AllowXlink::collectAttributes();
     attribs.insert( more.begin(), more.end() );
+    return attribs;
+  }
+
+  KWargs PhonContent::collectAttributes() const {
+    /// extract all Attribute-Value pairs for PhonContent
+    /*!
+     * \return a KWargs set of Attribute-value pairs
+     * inclusive: offset
+     */
+    KWargs attribs = AbstractContentAnnotation::collectAttributes();
     return attribs;
   }
 
@@ -636,131 +655,6 @@ namespace folia {
       p = p->parent();
     }
     return 0;
-  }
-
-  FoliaElement *PhonContent::get_reference( int& cumulated_offset,
-					    bool trim_spaces ) const {
-    /// get the FoliaElement _ref is refering to and does offset validation
-    /*!
-     * \param cumulated_offset current position, after checking the previous
-     reference. Will be updated with the size of this TextContent
-     * \param trim_spaces (default true)
-     * \return the refered element OR the default parent when _ref is 0
-     */
-    if ( doc()->checktext() || doc()->fixtext() ){
-      TextPolicy tp( cls(), TEXT_FLAGS::STRICT );
-      if ( !trim_spaces ) {
-	tp.set( TEXT_FLAGS::NO_TRIM_SPACES );
-      }
-      UnicodeString mt = this->text( tp );
-      cumulated_offset += mt.length();
-    }
-    FoliaElement *ref = 0;
-    if ( _offset == -1 ){
-      return 0;
-    }
-    else if ( !_ref.empty() ){
-      try{
-	ref = (*doc())[_ref];
-      }
-      catch (...){
-      }
-    }
-    else {
-      ref = find_default_reference();
-    }
-    if ( !ref ){
-      throw UnresolvableTextContent( "Default reference for phonetic content not found!" );
-    }
-    else if ( !ref->hasphon( cls() ) ){
-      throw UnresolvableTextContent( "Reference (ID " + _ref + ") has no such phonetic content (class=" + cls() + ")" );
-    }
-    else if ( doc()->checktext() || doc()->fixtext() ){
-      TextPolicy tp( cls(), TEXT_FLAGS::STRICT );
-      if ( !trim_spaces ) {
-	tp.set( TEXT_FLAGS::NO_TRIM_SPACES );
-      }
-      UnicodeString mt = this->phon( tp );
-      UnicodeString pt = ref->phon( tp );
-      if ( this->offset() < 0
-	   || this->offset() > pt.length() ){
-	if ( doc()->fixtext() ){
-	  this->set_offset( cumulated_offset );
-	}
-	else {
-	  throw UnresolvableTextContent( "Reference (ID " + ref->id()
-					 + ",class=" + cls()
-					 + " found, but offset out of range"
-					 + " [0-"
-					 + TiCC::toString( pt.length() )
-					 + "] in " + TiCC::UnicodeToUTF8(pt) );
-	}
-      }
-      if ( mt.isEmpty() ){
-	// the very rare case of an empty element (e.g. <t-hbr/>)
-	if ( this->offset() != cumulated_offset ){
-	  if ( doc()->fixtext() ){
-	    this->set_offset( cumulated_offset );
-	  }
-	  else {
-	    throw UnresolvableTextContent( "Reference (ID " + ref->id() +
-					   ",class=" + cls()
-					   + " found, but offset should probably"
-					   + " be "
-					   + TiCC::toString( cumulated_offset )
-					   + " in " + TiCC::UnicodeToUTF8(pt) );
-	  }
-	}
-      }
-      else {
-	UnicodeString sub( pt, this->offset(), mt.length() );
-	if ( mt != sub ){
-	  if ( doc()->fixtext() ){
-	    int pos = pt.indexOf( mt );
-	    if ( pos < 0 ){
-	      // no substring found, offset cannot be set
-	      throw UnresolvableTextContent( "Reference (ID " + ref->id()
-					     + ",class=" + cls()
-					     + " found, but no substring match "
-					     + TiCC::UnicodeToUTF8(mt)
-					     + " in "
-					     + TiCC::UnicodeToUTF8(pt) );
-	    }
-	    else {
-	      this->set_offset( pos );
-	    }
-	  }
-	  else {
-	    throw UnresolvableTextContent( "Reference (ID " + ref->id()
-					   + ",class=" + cls()
-					   + " found, but no text match at "
-					   + "offset="
-					   + TiCC::toString(offset())
-					   + " Expected "
-					   + TiCC::UnicodeToUTF8(mt)
-					   + " but got "
-					   + TiCC::UnicodeToUTF8(sub) );
-	  }
-	}
-      }
-    }
-    return ref;
-  }
-
-  KWargs PhonContent::collectAttributes() const {
-    /// extract all Attribute-Value pairs for PhonContent
-    /*!
-     * \return a KWargs set of Attribute-value pairs
-     * inclusive: offset
-     */
-    KWargs attribs = AbstractElement::collectAttributes();
-    if ( cls() == "current" && !doc()->has_explicit() ) {
-      attribs.erase( "class" );
-    }
-    if ( _offset >= 0 ) {
-      attribs["offset"] = TiCC::toString( _offset );
-    }
-    return attribs;
   }
 
   void Linebreak::setAttributes( KWargs& kwargs ){
@@ -3210,12 +3104,7 @@ namespace folia {
     }
   }
 
-  void TextContent::init() {
-    /// set default value on creation
-    _offset = -1;
-  }
-
-  void PhonContent::init() {
+  void AbstractContentAnnotation::init() {
     /// set default value on creation
     _offset = -1;
   }

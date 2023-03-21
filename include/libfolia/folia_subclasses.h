@@ -265,7 +265,6 @@ namespace folia {
     static properties PROPS;
   };
 
-
   class AbstractContentAnnotation:
     public AbstractElement,
     public AllowGenerateID
@@ -275,9 +274,20 @@ namespace folia {
       // DO NOT USE AbstractContentAnnotation as a real node!!
       ADD_PROTECTED_CONSTRUCTORS( AbstractContentAnnotation, AbstractElement );
     public:
+      void setAttributes( KWargs& ) override;
+      KWargs collectAttributes() const override;
+      FoliaElement *get_reference( int&, bool=true ) const;
+      int offset() const override { return _offset; };
+      std::string ref() const { return _ref; };
+    private:
+      void init() override;
+      virtual FoliaElement *find_default_reference() const = 0;
+      void set_offset( int o ) const override { _offset = o; };
+      mutable int _offset;
+      std::string _ref;
+    public:
       static properties PROPS;
     };
-
 
   class TextContent:
     public AbstractContentAnnotation,
@@ -288,7 +298,6 @@ namespace folia {
       ADD_DEFAULT_CONSTRUCTORS( TextContent, AbstractContentAnnotation );
       void setAttributes( KWargs& ) override;
       KWargs collectAttributes() const override;
-      int offset() const override { return _offset; };
       std::vector<FoliaElement*> find_replacables( FoliaElement * ) const override;
       const std::string set_to_current() override {
 	// Don't use without thinking twice!
@@ -297,17 +306,8 @@ namespace folia {
 	return res;
       }
       FoliaElement *postappend() override;
-      FoliaElement *get_reference( int&, bool=true ) const;
-      std::string ref() const { return _ref; };
     private:
-      void init() override;
       FoliaElement *find_default_reference() const;
-      void set_offset( int o ) const override { _offset = o; };
-      // this MUST be const,
-      // only used for 'fixing up' invalid offsets. keep it private!
-      // therefore _offset  has to be mutable!
-      mutable int _offset;
-      std::string _ref;
     public:
       static properties PROPS;
   };
@@ -322,19 +322,9 @@ namespace folia {
     const UnicodeString phon( const TextPolicy& ) const override;
     const UnicodeString phon( const std::string& = "current",
 			      TEXT_FLAGS = TEXT_FLAGS::NONE ) const override;
-    int offset() const override { return _offset; };
     FoliaElement *postappend() override;
-    FoliaElement *get_reference( int&, bool=true ) const;
-    std::string ref() const { return _ref; };
   public:
-    void init() override;
     FoliaElement *find_default_reference() const;
-    void set_offset( int o ) const override { _offset = o; };
-    // this MUST be const,
-    // only used for 'fixing up' invalid offsets. keep it private!
-    // therefore _offset  has to be mutable!
-    mutable int _offset;
-    std::string _ref;
   public:
     static properties PROPS;
 
