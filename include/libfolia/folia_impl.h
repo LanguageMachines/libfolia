@@ -422,6 +422,9 @@ namespace folia {
     virtual const TextContent *text_content( const TextPolicy& ) const = 0;
     virtual const TextContent *text_content( const std::string& = "current",
 					     bool debug = false ) const = 0;
+    virtual TextContent *text_content( const TextPolicy& ) = 0;
+    virtual TextContent *text_content( const std::string& = "current",
+					     bool debug = false ) = 0;
     TextContent *settext( const std::string&,
 			  const std::string& = "current" );
     TextContent *settext( const std::string&,
@@ -440,6 +443,9 @@ namespace folia {
     virtual const PhonContent *phon_content( const TextPolicy& ) const = 0;
     virtual const PhonContent *phon_content( const std::string& = "current",
 					     bool debug=false ) const = 0;
+    virtual PhonContent *phon_content( const TextPolicy& ) = 0;
+    virtual PhonContent *phon_content( const std::string& = "current",
+				       bool debug=false ) = 0;
 
     // properties
     virtual const std::string& get_delimiter( const TextPolicy& ) const = 0;
@@ -698,10 +704,17 @@ namespace folia {
     const TextContent *text_content( const TextPolicy& ) const override;
     const TextContent *text_content( const std::string& = "current",
 				     bool = false ) const override;
+    TextContent *text_content( const TextPolicy& ) override;
+    TextContent *text_content( const std::string& = "current",
+				     bool = false ) override;
     // PhonContent
     const PhonContent *phon_content( const TextPolicy& tp ) const override;
     const PhonContent *phon_content( const std::string& = "current",
 				     bool = false ) const override;
+
+    PhonContent *phon_content( const TextPolicy& tp ) override;
+    PhonContent *phon_content( const std::string& = "current",
+				     bool = false ) override;
 
     // properties
     const std::string& get_delimiter( const TextPolicy& ) const override;

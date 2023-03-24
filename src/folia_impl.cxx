@@ -2515,6 +2515,11 @@ namespace folia {
     throw NoSuchText( xmltag() + "::text_content(" + desired_class + ")" );
   }
 
+  TextContent *AbstractElement::text_content( const TextPolicy& tp ) {
+    return const_cast<TextContent*>
+      ( static_cast<const AbstractElement &>(*this).text_content( tp ) );
+  }
+
   const TextContent *AbstractElement::text_content( const string& cls,
 						    bool debug ) const {
     /// Get the TextContent explicitly associated with this element.
@@ -2530,6 +2535,12 @@ namespace folia {
     TextPolicy tp( cls );
     tp.set_debug( debug );
     return text_content( tp );
+  }
+
+  TextContent *AbstractElement::text_content( const string& cls,
+					      bool debug ) {
+    return const_cast<TextContent*>
+      ( static_cast<const AbstractElement &>(*this).text_content( cls, debug ) );
   }
 
   const PhonContent *AbstractElement::phon_content( const TextPolicy& tp ) const {
@@ -2571,6 +2582,11 @@ namespace folia {
     throw NoSuchPhon( xmltag() + "::phon_content(" + desired_class + ")" );
   }
 
+  PhonContent *AbstractElement::phon_content( const TextPolicy& tp ) {
+    return const_cast<PhonContent*>
+      ( static_cast<const AbstractElement &>(*this).phon_content( tp ) );
+  }
+
   const PhonContent *AbstractElement::phon_content( const string& cls,
 						    bool debug ) const {
     /// Get the PhonContent explicitly associated with this element.
@@ -2586,6 +2602,12 @@ namespace folia {
     TextPolicy tp(cls );
     tp.set_debug( debug );
     return phon_content( tp );
+  }
+
+  PhonContent *AbstractElement::phon_content( const string& cls,
+					      bool debug ) {
+    return const_cast<PhonContent*>
+      ( static_cast<const AbstractElement &>(*this).phon_content( cls, debug ) );
   }
 
   const UnicodeString AbstractElement::phon( const TextPolicy& tp ) const {
