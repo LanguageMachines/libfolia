@@ -1920,6 +1920,13 @@ namespace folia {
     UnicodeString result;
     bool pendingspace = false;
     bool trim_spaces = !tp.is_set( TEXT_FLAGS::NO_TRIM_SPACES);
+    if ( tp.debug() ){
+      cerr << "TextContainer.text() " << xmltag() << "[";
+      for ( const auto& d : _data ){
+	cerr << d->xmltag() << ",";
+      }
+      cerr << "]" << endl;
+    }
     for ( const auto& d : _data ){
       if ( d->isinstance( XmlText_t ) ) {
 	// 'true' text child
@@ -1951,9 +1958,9 @@ namespace folia {
 	      if ( _preserve_spaces == SPACE_FLAGS::PRESERVE) {
 		if ( line.length() > 0
 		     && line[line.length() - 1] == 0x000d) {
-		  //carriage return
-		  //remove artefacts of any DOS-style line endings (not sure if still
-		  //needed here but better safe than sorry)
+		  // carriage return
+		  // remove artefacts of any DOS-style line endings
+		  // (not sure if still needed here but better safe than sorry)
 		  line = UnicodeString(line, 0, line.length() - 1);
 		}
 		subresult = line;
@@ -2512,7 +2519,8 @@ namespace folia {
       else if ( el->element_id() == Correction_t) {
 	try {
 	  return el->text_content( tp );
-	} catch ( const NoSuchText& e ) {
+	}
+	catch ( const NoSuchText& e ) {
 	  // continue search for other Corrections or a TextContent
 	}
       }
