@@ -2059,22 +2059,23 @@ namespace folia {
 	   << id() << endl;
       cerr << "TextPolicy: " << tp << endl;
     }
+    UnicodeString result;
     if ( strict ) {
       /// WARNING. Don't call text(tp) here. We will get into an infinite
       /// recursion. Can't we do better then calling ourself again, sort of?
       TextPolicy tmp = tp;
       tmp.clear( TEXT_FLAGS::STRICT );
-      return text_content(tmp)->text( tmp );
+      result = text_content(tmp)->text( tmp );
     }
     else if ( !printable() || ( hidden() && !show_hidden ) ){
       throw NoSuchText( "NON printable element: " + xmltag() );
     }
     else if ( is_textcontainer() ){
-      return text_container_text( tp );
+      result = text_container_text( tp );
     }
     else {
       //
-      UnicodeString result = deeptext( tp );
+      result = deeptext( tp );
       if ( result.isEmpty() ) {
 	TextPolicy tmp = tp;
 	tmp.set( TEXT_FLAGS::STRICT );
@@ -2086,8 +2087,12 @@ namespace folia {
       if ( result.isEmpty() ) {
 	throw NoSuchText( "on tag " + xmltag() + " nor it's children" );
       }
-      return result;
     }
+    if ( tp.debug() ){
+      cerr << "PRIVATE_TEXT on node : " << xmltag() << " returns: '" << result
+	   << "'" << endl;
+    }
+    return result;
   }
 
   const UnicodeString AbstractElement::text( const TextPolicy& tp ) const {
@@ -2377,7 +2382,8 @@ namespace folia {
 	    }
 	    seps.push_back(TiCC::UnicodeFromUTF8(delim));
 	  }
-	} catch ( const NoSuchText& e ) {
+	}
+	catch ( const NoSuchText& e ) {
 	  if ( tp.debug() ){
 	    cerr << "HELAAS" << endl;
 	  }

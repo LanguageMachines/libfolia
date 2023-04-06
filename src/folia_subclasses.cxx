@@ -2509,10 +2509,13 @@ namespace folia {
     }
   }
 
-  const UnicodeString XmlText::private_text( const TextPolicy& ) const {
+  const UnicodeString XmlText::private_text( const TextPolicy& tp ) const {
     /// get the UnicodeString value of an XmlText element
     /*!
      */
+    if ( tp.debug() ){
+      cerr << "XmlText::PRIVATE_TEXT returns: '" << _value << "'" << endl;
+    }
     return TiCC::UnicodeFromUTF8(_value);
   }
 
@@ -2975,6 +2978,9 @@ namespace folia {
 	result = " ";
       }
     }
+    if ( tp.debug() ){
+      cerr << "XmlText::PRIVATE_TEXT returns: '" << result << "'" << endl;
+    }
     return result;
   }
 
@@ -2994,6 +3000,9 @@ namespace folia {
 	result = "-";
       }
       result += "\n";
+    }
+    if ( tp.debug() ){
+      cerr << "XmlText::PRIVATE_TEXT returns: '" << result << "'" << endl;
     }
     return result;
   }
