@@ -1921,9 +1921,9 @@ namespace folia {
     bool pendingspace = false;
     bool trim_spaces = !tp.is_set( TEXT_FLAGS::NO_TRIM_SPACES);
     for ( const auto& d : _data ){
-      if (d->isinstance( XmlText_t)) {
+      if ( d->isinstance( XmlText_t ) ) {
 	// 'true' text child
-	if (pendingspace) {
+	if ( pendingspace ) {
 	  result += " ";
 	  pendingspace = false;
 	}
@@ -1981,20 +1981,19 @@ namespace folia {
 	      linenr++;
 	    }
 	  }
-
 	  if ( this->_preserve_spaces != SPACE_FLAGS::PRESERVE
 	       && txt.length() > 0
 	       && result.length() > 0
 	       && is_space(txt[txt.length() - 1])
 	       && !is_space(result[result.length() - 1]) ){
-	    //this item has trailing spaces but we stripped them
-	    //this may be premature so
-	    //we reserve to output them later in case there is a next item
+	    // this item has trailing spaces but we stripped them
+	    // this may be premature so
+	    // we reserve to output them later in case there is a next item
 	    pendingspace = true;
 	  }
 	}
 	else {
-	  //old FoLiA <= v2.4.1 behaviour, we don't trim anything
+	  // old FoLiA <= v2.4.1 behaviour, we don't trim anything
 	  result += d->text( tp );
 	}
       }
@@ -2876,7 +2875,12 @@ namespace folia {
       UnicodeString txt_check_u = normalize_spaces( txt_u );
       if ( !deeper_u.isEmpty()
 	   && txt_check_u != deeper_u ){
-	throw InconsistentText( "settext(cls=" + cls + "): deeper text differs from attempted\ndeeper='" + TiCC::UnicodeToUTF8(deeper_u) + "'\nattempted='" + TiCC::UnicodeToUTF8(txt_u) + "'" );
+	throw InconsistentText( xmltag() + "::settext(cls=" + cls
+				+ "): deeper text differs from attempted\n"
+				+ "   deeper='"
+				+ TiCC::UnicodeToUTF8(deeper_u)
+				+ "'\nattempted='"
+				+ TiCC::UnicodeToUTF8(txt_u) + "'" );
       }
     }
     string sett;
