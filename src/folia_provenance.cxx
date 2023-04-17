@@ -111,6 +111,7 @@ namespace folia {
 
     if ((gai_result = getaddrinfo(hostname, "http", &hints, &info)) != 0) {
       cerr << "failure in getaddrinfo: " << gai_strerror(gai_result) << endl;
+      freeaddrinfo(info);
       exit(1);
     }
 
