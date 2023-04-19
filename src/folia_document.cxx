@@ -3164,7 +3164,6 @@ namespace folia {
       attribs["external"] = "yes";
     }
     addAttributes( root, attribs );
-
     xmlNode *md = xmlAddChild( root, TiCC::XmlNewNode( foliaNs(), "metadata" ) );
     add_annotations( md );
     add_provenance( md );

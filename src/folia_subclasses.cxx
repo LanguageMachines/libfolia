@@ -87,6 +87,7 @@ namespace folia {
       if ( !doc()->declared( AnnotationType::TEXT ) ){
 	doc()->declare( AnnotationType::TEXT, DEFAULT_TEXT_SET );
       }
+      doc()->add_textclass( cls() );
     }
     return this;
   }
@@ -101,6 +102,7 @@ namespace folia {
       if ( !doc()->declared( AnnotationType::PHON ) ){
 	doc()->declare( AnnotationType::PHON, DEFAULT_PHON_SET );
       }
+      doc()->add_textclass( cls() );
     }
     return this;
   }
@@ -439,6 +441,9 @@ namespace folia {
       kwargs["class"] = "current";
     }
     AbstractElement::setAttributes(kwargs);
+    if ( doc() ){
+      doc()->add_textclass( cls() );
+    }
   }
 
   void TextContent::setAttributes( KWargs& kwargs ) {

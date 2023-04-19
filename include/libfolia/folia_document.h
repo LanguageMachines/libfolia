@@ -401,6 +401,9 @@ namespace folia {
       // NOTE: function is defined const, but the _warn_count is mutable
       ++_warn_count;
     }
+    void add_textclass( const std::string& tc ){
+      textclasses.insert( tc );
+    }
 
   private:
     void test_temporary_text_exception( const std::string& ) const;
@@ -426,7 +429,8 @@ namespace folia {
     ///< for folia::Engine we need to register the original mapping from a
     ///< AnnoationType to a processor name, because in the process more mappings
     ///< can be added, loosing the default.
-
+    std::set<std::string> textclasses; ///<
+    /// < we keep track of all textclasses found in the document
     std::vector<TextContent*> t_offset_validation_buffer; ///< we register all
     ///< TextContent nodes here to quickly access them for offset checks
     ///< that check is performed directly after parsing
