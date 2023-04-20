@@ -1500,7 +1500,7 @@ namespace folia {
 	 << trim_spaces << ")" << endl;
     }
     vector<TextContent*> tv = select<TextContent>( false );
-    // first see which text classes are present
+    // first see which text classes are present under this node
     set<string> classes;
     for ( const auto& it : tv ){
       classes.insert( it->cls() );
