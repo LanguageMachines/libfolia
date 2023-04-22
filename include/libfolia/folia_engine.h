@@ -62,13 +62,13 @@ namespace folia {
 		   SPEECH //!< the topnode is \<speech>
     };
     Engine(); //!< default constructor. needs a call to init_doc() to get started
-  Engine( const std::string& i, const std::string& o="" ):
-    Engine() {
+    Engine( const std::string& i, const std::string& o="" ):
+      Engine() {
       /// construct and initialize an engine.
       /*!
 	\param i name of the inputfile
 	\param o optional name of an outputfile
-       */
+      */
       init_doc(i,o);
     };
     bool init_doc( const std::string&, const std::string& ="" );

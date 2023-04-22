@@ -237,7 +237,6 @@ namespace folia {
     return new_id;
   }
 
-
   processor::processor( Provenance *prov,
 			processor* parent,
 			const KWargs& atts_in ) {
