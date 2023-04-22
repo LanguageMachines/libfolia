@@ -1740,7 +1740,7 @@ namespace folia {
     // append referable children as WREFS
     //   EXCEPT when there are NO references to it
     for ( const auto& el : data() ) {
-      if ( el-referable()
+      if ( el->referable()
 	   && el->refcount() > 0 ){
 	xmlNode *t = XmlNewNode( foliaNs(), "wref" );
 	KWargs attribs;
