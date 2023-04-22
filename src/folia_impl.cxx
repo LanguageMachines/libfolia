@@ -1499,14 +1499,8 @@ namespace folia {
     cerr << "DEBUG: BEGIN check_text_consistency_while_parsing("
 	 << trim_spaces << ")" << endl;
     }
-    vector<TextContent*> tv = select<TextContent>( false );
-    // first see which text classes are present under this node
-    set<string> classes;
-    for ( const auto& it : tv ){
-      classes.insert( it->cls() );
-    }
-    // check the text for every text class
-    for ( const auto& st : classes ){
+    // check the text for every possible text class
+    for ( const auto& st : doc()->textclasses() ){
       UnicodeString s1, s2;
       TextPolicy tp( st );
       tp.set_correction_handling(CORRECTION_HANDLING::EITHER);
