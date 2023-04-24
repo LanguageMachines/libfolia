@@ -21,7 +21,7 @@
   For questions and suggestions, see:
       https://github.com/LanguageMachines/ticcutils/issues
   or send mail to:
-      lamasoftware (at ) science.ru.nl
+      lamasoftware (at) science.ru.nl
 */
 #include <cassert>
 #include <iostream>
@@ -444,7 +444,7 @@ namespace folia {
 	  if ( !in_args.empty() ){
 	    id = in_args["xml:id"];
 	  }
-	  for ( auto it =in_args.begin(); it != in_args.end();  ){
+	  for ( auto it = in_args.begin(); it != in_args.end(); ){
 	    // remove all xmlns attributes
 	    if ( it->first.find( "xmlns" ) == 0 ){
 	      it = in_args.erase( it );

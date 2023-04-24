@@ -307,7 +307,7 @@ namespace folia {
       }
       FoliaElement *postappend() override;
     private:
-      FoliaElement *find_default_reference() const;
+      FoliaElement *find_default_reference() const override;
     public:
       static properties PROPS;
   };
@@ -324,7 +324,7 @@ namespace folia {
 			      TEXT_FLAGS = TEXT_FLAGS::NONE ) const override;
     FoliaElement *postappend() override;
   public:
-    FoliaElement *find_default_reference() const;
+    FoliaElement *find_default_reference() const override;
   public:
     static properties PROPS;
 
