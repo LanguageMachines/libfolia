@@ -1607,7 +1607,7 @@ namespace folia {
      * \return the appended child
      *
      * will throw on error
-     * if the child has the  'referable' property, check that is not refered
+     * if the child has the 'referable' property, check that it is not refered
      * to already
      */
     if ( child->referable() ){
