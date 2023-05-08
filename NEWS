@@ -1,3 +1,15 @@
+2.15 2023-02-20
+[Ko van der Sloot]
+* fixed a terrible typo/bug in subclasses.cxx:
+   using el-referable(), where el->referable() was meant
+* plugged a small potential memory-leak
+* fixed some offset problems in text handling
+* fixed https://github.com/LanguageMachines/libfolia/issues/52
+* foliadiff script now returns better message on failure
+* switching to C++14
+* code polishing
+* updated GitHub action
+
 2.14 2023-02-20
 [Ko van der Sloot]
 * implemented an ADD_FORMATTING TextPolicy to extract otherwise hidden
