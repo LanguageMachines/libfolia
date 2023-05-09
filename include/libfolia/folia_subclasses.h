@@ -29,24 +29,43 @@
 
 namespace folia {
 
-#define ADD_PROTECTED_CONSTRUCTORS( CLASS, BASE )		\
+#define ADD_PROTECTED_CONSTRUCTORS( CLASS, BASE )			\
   explicit CLASS( const properties& props, Document *d=0 ):		\
-    BASE( props, d ){ classInit(); };				\
-  CLASS( const properties& props, FoliaElement *p ):		\
+    BASE( props, d ){ classInit(); };					\
+  CLASS( const properties& props, FoliaElement *p ):			\
     BASE( props, p ){ classInit(); }
 
+#define ADD_PROTECTED_CONSTRUCTORS_INIT( CLASS, BASE, INIT )		\
+  explicit CLASS( const properties& props, Document *d=0 ):		\
+    BASE( props, d ), INIT { classInit(); };				\
+  CLASS( const properties& props, FoliaElement *p ):			\
+    BASE( props, p ), INIT { classInit(); }
+
 #define ADD_DEFAULT_CONSTRUCTORS( CLASS, BASE )			  \
+  protected:							  \
+  ~CLASS() {};							  \
+public:									\
+ explicit CLASS( const KWargs& a, Document *d=0 ):			\
+   BASE( PROPS, d ){ classInit(a); };					\
+ explicit CLASS( Document *d=0 ):					\
+   BASE( PROPS, d ){ classInit(); };					\
+ CLASS( const KWargs& a, FoliaElement *p ):				\
+   BASE( PROPS, p ){ classInit(a); };					\
+ explicit CLASS( FoliaElement *p ):					\
+   BASE( PROPS, p ){ classInit(); }
+
+#define ADD_DEFAULT_CONSTRUCTORS_INIT( CLASS, BASE, INIT )	  \
  protected:							  \
    ~CLASS() {};							  \
  public:							  \
-  explicit CLASS( const KWargs& a, Document *d=0 ):			  \
-    BASE( PROPS, d ){ classInit(a); };				  \
-  explicit CLASS( Document *d=0 ):					  \
-    BASE( PROPS, d ){ classInit(); };				  \
-  CLASS( const KWargs& a, FoliaElement *p ):			  \
-    BASE( PROPS, p ){ classInit(a); };				  \
-  explicit CLASS( FoliaElement *p ):					  \
-    BASE( PROPS, p ){ classInit(); }
+ explicit CLASS( const KWargs& a, Document *d=0 ):			\
+   BASE( PROPS, d ), INIT { classInit(a); };				\
+ explicit CLASS( Document *d=0 ):					\
+   BASE( PROPS, d ), INIT { classInit(); };				\
+ CLASS( const KWargs& a, FoliaElement *p ):				\
+   BASE( PROPS, p ), INIT { classInit(a); };				\
+ explicit CLASS( FoliaElement *p ):					\
+   BASE( PROPS, p ), INIT { classInit(); }
 
   class AbstractStructureElement:
     public AbstractElement,
@@ -268,26 +287,26 @@ namespace folia {
   class AbstractContentAnnotation:
     public AbstractElement,
     public AllowGenerateID
-    {
-      friend void static_init();
-    protected:
-      // DO NOT USE AbstractContentAnnotation as a real node!!
-      ADD_PROTECTED_CONSTRUCTORS( AbstractContentAnnotation, AbstractElement );
-    public:
-      void setAttributes( KWargs& ) override;
-      KWargs collectAttributes() const override;
-      FoliaElement *get_reference( int&, bool=true ) const;
-      int offset() const override { return _offset; };
-      std::string ref() const { return _ref; };
-    private:
-      void init() override;
-      virtual FoliaElement *find_default_reference() const = 0;
-      void set_offset( int o ) const override { _offset = o; };
-      mutable int _offset;
-      std::string _ref;
-    public:
-      static properties PROPS;
-    };
+  {
+    friend void static_init();
+  protected:
+    // DO NOT USE AbstractContentAnnotation as a real node!!
+    ADD_PROTECTED_CONSTRUCTORS_INIT( AbstractContentAnnotation, AbstractElement, _offset(0) );
+  public:
+    void setAttributes( KWargs& ) override;
+    KWargs collectAttributes() const override;
+    FoliaElement *get_reference( int&, bool=true ) const;
+    int offset() const override { return _offset; };
+    std::string ref() const { return _ref; };
+  private:
+    void init() override;
+    virtual FoliaElement *find_default_reference() const = 0;
+    void set_offset( int o ) const override { _offset = o; };
+    mutable int _offset;
+    std::string _ref;
+  public:
+    static properties PROPS;
+  };
 
   class TextContent:
     public AbstractContentAnnotation,
@@ -433,7 +452,7 @@ namespace folia {
     {
       friend void static_init();
     public:
-      ADD_DEFAULT_CONSTRUCTORS( Linebreak, AbstractStructureElement );
+      ADD_DEFAULT_CONSTRUCTORS_INIT( Linebreak, AbstractStructureElement, _newpage(false) );
       void setAttributes( KWargs& ) override;
       KWargs collectAttributes() const override;
     private:
@@ -1388,12 +1407,14 @@ namespace folia {
     friend void static_init();
   public:
     explicit ForeignData( Document *d=0 ):
-      AbstractElement( PROPS, d )
+      AbstractElement( PROPS, d ),
+      _foreign_data(0)
     {
       classInit();
     };
     explicit ForeignData( FoliaElement *p ):
-      AbstractElement( PROPS, p )
+      AbstractElement( PROPS, p ),
+      _foreign_data(0)
     {
       classInit();
     }
