@@ -527,7 +527,7 @@ namespace folia {
     /// helper function for libxml2 to catch and display problems in an
     /// orderly fashion
     /*!
-      \param a pointer to a struct to hold persisten data. In our case just an
+      \param a pointer to a struct to hold persistent data. In our case just an
       int.
       \param error an xmlEror structure created by a libxml2 function
 
@@ -545,7 +545,17 @@ namespace folia {
 	}
       }
       line += " XML-error: " + string(error->message);
-      cerr << line << endl;
+      cerr << line;
+      if ( error->ctxt ){
+	xmlParserCtxt *ctx = (xmlParserCtxt*)error->ctxt;
+	xmlBuffer *buffer = xmlBufferCreate();
+	int size = xmlNodeDump(buffer, ctx->myDoc, ctx->node, 0, 1 );
+	cerr << string( ctx->nodeNr*2, ' ') << buffer->content << endl;
+	xmlBufferFree( buffer );
+	if ( error->int2 != 0 ){
+	  cerr << string( std::min(error->int2,size), ' ') << "^" << endl;
+	}
+      }
     }
     (*cnt)++;
     return;
