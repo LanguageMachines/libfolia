@@ -652,12 +652,14 @@ namespace folia {
 	   && ( u_isspace( input[i] )
 		|| u_iscntrl( input[i] ) ) ){
 	if ( is_space ){
+	  // already a space added, skip this character
 	  continue;
 	}
 	is_space = true;
 	result += " ";
       }
       else {
+	// normal character, keep it
 	is_space = false;
 	result += input[i];
       }

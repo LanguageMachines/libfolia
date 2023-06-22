@@ -547,7 +547,7 @@ namespace folia {
       line += " XML-error: " + string(error->message);
       cerr << line;
       if ( error->ctxt ){
-	xmlParserCtxt *ctx = (xmlParserCtxt*)error->ctxt;
+	xmlParserCtxt *ctx = static_cast<xmlParserCtxt*>(error->ctxt);
 	xmlBuffer *buffer = xmlBufferCreate();
 	int size = xmlNodeDump(buffer, ctx->myDoc, ctx->node, 0, 1 );
 	cerr << string( ctx->nodeNr*2, ' ') << buffer->content << endl;

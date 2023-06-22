@@ -3028,14 +3028,10 @@ namespace folia {
       val = trim( val );
       if ( val.empty() ) {
 	// we have to check for a child with the IMPLICITSPACE property
-	// if so, an "empty" text is allowed.
-	bool has_implicit = false;
-	for ( const auto it : _data ){
-	  if ( it->implicitspace() ){
-	    has_implicit = true;
-	    break; // we are done here
-	  }
-	}
+	// ONLY in that case, an "empty" text is allowed.
+	auto implicit = []( auto elt ){ return elt->implicitspace(); };
+	bool has_implicit = std::any_of( _data.begin(), _data.end(),
+					 implicit );
 	if ( !has_implicit ){
 	  throw ValueError( "attempt to add an empty <t> to word: "
 			    + parent->id() );
