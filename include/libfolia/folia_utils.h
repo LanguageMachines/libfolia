@@ -34,7 +34,6 @@
 #include <exception>
 #include <ctime>
 #include "unicode/unistr.h"
-#include "unicode/unistr.h"
 #include <unicode/ustream.h>
 #include "libxml/tree.h"
 
