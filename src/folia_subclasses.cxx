@@ -2555,7 +2555,7 @@ namespace folia {
     return this;
   }
 
-  static void error_sink(void *mydata, xmlError *error ) {
+  static void error_sink(void *mydata, const xmlError *error ) {
     /// helper function for Xml parsing
     int *cnt = static_cast<int*>(mydata);
     if ( *cnt == 0 ) {
