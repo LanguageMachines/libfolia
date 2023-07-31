@@ -205,6 +205,7 @@ namespace folia {
     { AbstractStructureElement_t,  "_AbstractStructureElement" },
     { AbstractSubtokenAnnotation_t,  "_AbstractSubtokenAnnotation" },
     { AbstractTextMarkup_t,  "_AbstractTextMarkup" },
+    { AbstractFeature_t,  "_AbstractFeature" },
     { ActorFeature_t,  "actor" },
     { Alternative_t,  "alt" },
     { AlternativeLayers_t,  "altlayers" },
@@ -342,6 +343,7 @@ namespace folia {
     { "_AbstractStructureElement", AbstractStructureElement_t  },
     { "_AbstractSubtokenAnnotation", AbstractSubtokenAnnotation_t  },
     { "_AbstractTextMarkup", AbstractTextMarkup_t  },
+    { "_AbstractFeature", AbstractFeature_t  },
     { "actor", ActorFeature_t  },
     { "alt", Alternative_t  },
     { "altlayers", AlternativeLayers_t  },
@@ -502,6 +504,7 @@ namespace folia {
   properties ABSTRACT_SPAN_ROLE_PROPERTIES;
   properties ABSTRACT_SUBTOKEN_ANNOTATION_PROPERTIES;
   properties ABSTRACT_TEXT_MARKUP_PROPERTIES;
+  properties ABSTRACT_FEATURE_PROPERTIES;
   //these are not in the external specification yet:
   properties FoLiA::PROPS = DEFAULT_PROPERTIES;
   properties DCOI::PROPS = DEFAULT_PROPERTIES;
@@ -691,7 +694,7 @@ namespace folia {
     element_props[AbstractHigherOrderAnnotation_t] = &ABSTRACT_HIGHER_ORDER_ANNOTATION_PROPERTIES;
 //------ AbstractInlineAnnotation -------
     ABSTRACT_INLINE_ANNOTATION_PROPERTIES.ELEMENT_ID = AbstractInlineAnnotation_t;
-    ABSTRACT_INLINE_ANNOTATION_PROPERTIES.ACCEPTED_DATA += {Comment_t, Description_t, Feature_t, ForeignData_t, Metric_t};
+    ABSTRACT_INLINE_ANNOTATION_PROPERTIES.ACCEPTED_DATA += {Comment_t, Description_t, AbstractFeature_t, ForeignData_t, Metric_t};
     ABSTRACT_INLINE_ANNOTATION_PROPERTIES.OCCURRENCES_PER_SET = 1;
     ABSTRACT_INLINE_ANNOTATION_PROPERTIES.OPTIONAL_ATTRIBS = ID|CLASS|ANNOTATOR|N|CONFIDENCE|DATETIME|SRC|BEGINTIME|ENDTIME|SPEAKER|TEXTCLASS|METADATA|TAG;
     ABSTRACT_INLINE_ANNOTATION_PROPERTIES.REQUIRED_ATTRIBS = CLASS;
@@ -706,12 +709,12 @@ namespace folia {
 //------ AbstractSpanRole -------
     ABSTRACT_SPAN_ROLE_PROPERTIES = ABSTRACT_SPAN_ANNOTATION_PROPERTIES;
     ABSTRACT_SPAN_ROLE_PROPERTIES.ELEMENT_ID = AbstractSpanRole_t;
-    ABSTRACT_SPAN_ROLE_PROPERTIES.ACCEPTED_DATA += {AbstractInlineAnnotation_t, Comment_t, Description_t, Feature_t, ForeignData_t, LinkReference_t, Metric_t, Relation_t, WordReference_t, Hiddenword_t, Morpheme_t, Phoneme_t, Word_t};
+    ABSTRACT_SPAN_ROLE_PROPERTIES.ACCEPTED_DATA += {AbstractInlineAnnotation_t, Comment_t, Description_t, AbstractFeature_t, ForeignData_t, LinkReference_t, Metric_t, Relation_t, WordReference_t, Hiddenword_t, Morpheme_t, Phoneme_t, Word_t};
     ABSTRACT_SPAN_ROLE_PROPERTIES.OPTIONAL_ATTRIBS = ID|TAG;
     element_props[AbstractSpanRole_t] = &ABSTRACT_SPAN_ROLE_PROPERTIES;
 //------ AbstractStructureElement -------
     ABSTRACT_STRUCTURE_PROPERTIES.ELEMENT_ID = AbstractStructureElement_t;
-    ABSTRACT_STRUCTURE_PROPERTIES.ACCEPTED_DATA += {AbstractAnnotationLayer_t, Alternative_t, AlternativeLayers_t, Comment_t, Correction_t, Description_t, External_t, Feature_t, ForeignData_t, Metric_t, Part_t, Relation_t};
+    ABSTRACT_STRUCTURE_PROPERTIES.ACCEPTED_DATA += {AbstractAnnotationLayer_t, Alternative_t, AlternativeLayers_t, Comment_t, Correction_t, Description_t, External_t, AbstractFeature_t, ForeignData_t, Metric_t, Part_t, Relation_t};
     ABSTRACT_STRUCTURE_PROPERTIES.AUTO_GENERATE_ID = true;
     ABSTRACT_STRUCTURE_PROPERTIES.OPTIONAL_ATTRIBS = ID|CLASS|ANNOTATOR|N|CONFIDENCE|DATETIME|SRC|BEGINTIME|ENDTIME|SPEAKER|METADATA|SPACE|TAG;
     ABSTRACT_STRUCTURE_PROPERTIES.PRINTABLE = true;
@@ -721,7 +724,7 @@ namespace folia {
     element_props[AbstractStructureElement_t] = &ABSTRACT_STRUCTURE_PROPERTIES;
 //------ AbstractSubtokenAnnotation -------
     ABSTRACT_SUBTOKEN_ANNOTATION_PROPERTIES.ELEMENT_ID = AbstractSubtokenAnnotation_t;
-    ABSTRACT_SUBTOKEN_ANNOTATION_PROPERTIES.ACCEPTED_DATA += {AbstractAnnotationLayer_t, Alternative_t, AlternativeLayers_t, Comment_t, Correction_t, Description_t, Feature_t, ForeignData_t, Metric_t, Part_t, Relation_t};
+    ABSTRACT_SUBTOKEN_ANNOTATION_PROPERTIES.ACCEPTED_DATA += {AbstractAnnotationLayer_t, Alternative_t, AlternativeLayers_t, Comment_t, Correction_t, Description_t, AbstractFeature_t, ForeignData_t, Metric_t, Part_t, Relation_t};
     ABSTRACT_SUBTOKEN_ANNOTATION_PROPERTIES.AUTO_GENERATE_ID = true;
     ABSTRACT_SUBTOKEN_ANNOTATION_PROPERTIES.OPTIONAL_ATTRIBS = ID|CLASS|ANNOTATOR|N|CONFIDENCE|DATETIME|SRC|BEGINTIME|ENDTIME|SPEAKER|METADATA|TAG;
     ABSTRACT_SUBTOKEN_ANNOTATION_PROPERTIES.PRINTABLE = true;
@@ -1729,10 +1732,11 @@ namespace folia {
      { AbstractStructureElement_t, {  } },
      { AbstractSubtokenAnnotation_t, {  } },
      { AbstractTextMarkup_t, {  } },
-     { ActorFeature_t, { Feature_t,AbstractHigherOrderAnnotation_t } },
+     { AbstractFeature_t, {  } },
+     { ActorFeature_t, { AbstractFeature_t,AbstractHigherOrderAnnotation_t } },
      { Alternative_t, { AbstractHigherOrderAnnotation_t } },
      { AlternativeLayers_t, { AbstractHigherOrderAnnotation_t } },
-     { BegindatetimeFeature_t, { Feature_t,AbstractHigherOrderAnnotation_t } },
+     { BegindatetimeFeature_t, { AbstractFeature_t,AbstractHigherOrderAnnotation_t } },
      { Caption_t, { AbstractStructureElement_t } },
      { Cell_t, { AbstractStructureElement_t } },
      { Chunk_t, { AbstractSpanAnnotation_t } },
@@ -1752,7 +1756,7 @@ namespace folia {
      { Description_t, { AbstractHigherOrderAnnotation_t } },
      { Division_t, { AbstractStructureElement_t } },
      { DomainAnnotation_t, { AbstractInlineAnnotation_t } },
-     { EnddatetimeFeature_t, { Feature_t,AbstractHigherOrderAnnotation_t } },
+     { EnddatetimeFeature_t, { AbstractFeature_t,AbstractHigherOrderAnnotation_t } },
      { EntitiesLayer_t, { AbstractAnnotationLayer_t } },
      { Entity_t, { AbstractSpanAnnotation_t } },
      { Entry_t, { AbstractStructureElement_t } },
@@ -1760,21 +1764,21 @@ namespace folia {
      { Event_t, { AbstractStructureElement_t } },
      { Example_t, { AbstractStructureElement_t } },
      { External_t, { AbstractHigherOrderAnnotation_t } },
-     { Feature_t, { AbstractHigherOrderAnnotation_t } },
+     { Feature_t, { AbstractHigherOrderAnnotation_t, AbstractFeature_t } },
      { Figure_t, { AbstractStructureElement_t } },
-     { FontFeature_t, { Feature_t,AbstractHigherOrderAnnotation_t } },
+     { FontFeature_t, { AbstractFeature_t,AbstractHigherOrderAnnotation_t } },
      { ForeignData_t, { AbstractHigherOrderAnnotation_t } },
-     { FunctionFeature_t, { Feature_t,AbstractHigherOrderAnnotation_t } },
+     { FunctionFeature_t, { AbstractFeature_t,AbstractHigherOrderAnnotation_t } },
      { Gap_t, { AbstractHigherOrderAnnotation_t } },
      { Head_t, { AbstractStructureElement_t } },
-     { HeadFeature_t, { Feature_t,AbstractHigherOrderAnnotation_t } },
+     { HeadFeature_t, { AbstractFeature_t,AbstractHigherOrderAnnotation_t } },
      { Headspan_t, { AbstractSpanRole_t,AbstractSpanAnnotation_t } },
      { Hiddenword_t, { AbstractStructureElement_t } },
      { Hyphbreak_t, { AbstractTextMarkup_t } },
      { Label_t, { AbstractStructureElement_t } },
      { LangAnnotation_t, { AbstractInlineAnnotation_t } },
      { LemmaAnnotation_t, { AbstractInlineAnnotation_t } },
-     { LevelFeature_t, { Feature_t,AbstractHigherOrderAnnotation_t } },
+     { LevelFeature_t, { AbstractFeature_t,AbstractHigherOrderAnnotation_t } },
      { Linebreak_t, { AbstractStructureElement_t } },
      { LinkReference_t, {  } },
      { List_t, { AbstractStructureElement_t } },
@@ -1782,7 +1786,7 @@ namespace folia {
      { Metric_t, { AbstractHigherOrderAnnotation_t } },
      { ModalitiesLayer_t, { AbstractAnnotationLayer_t } },
      { Modality_t, { AbstractSpanAnnotation_t } },
-     { ModalityFeature_t, { Feature_t,AbstractHigherOrderAnnotation_t } },
+     { ModalityFeature_t, { AbstractFeature_t,AbstractHigherOrderAnnotation_t } },
      { Morpheme_t, { AbstractSubtokenAnnotation_t } },
      { MorphologyLayer_t, { AbstractAnnotationLayer_t } },
      { New_t, { AbstractCorrectionChild_t } },
@@ -1795,7 +1799,7 @@ namespace folia {
      { PhonContent_t, { AbstractContentAnnotation_t } },
      { Phoneme_t, { AbstractSubtokenAnnotation_t } },
      { PhonologyLayer_t, { AbstractAnnotationLayer_t } },
-     { PolarityFeature_t, { Feature_t,AbstractHigherOrderAnnotation_t } },
+     { PolarityFeature_t, { AbstractFeature_t,AbstractHigherOrderAnnotation_t } },
      { PosAnnotation_t, { AbstractInlineAnnotation_t } },
      { Predicate_t, { AbstractSpanAnnotation_t } },
      { Quote_t, { AbstractStructureElement_t } },
@@ -1809,7 +1813,7 @@ namespace folia {
      { Sentence_t, { AbstractStructureElement_t } },
      { Sentiment_t, { AbstractSpanAnnotation_t } },
      { SentimentLayer_t, { AbstractAnnotationLayer_t } },
-     { SizeFeature_t, { Feature_t,AbstractHigherOrderAnnotation_t } },
+     { SizeFeature_t, { AbstractFeature_t,AbstractHigherOrderAnnotation_t } },
      { Source_t, { AbstractSpanRole_t,AbstractSpanAnnotation_t } },
      { SpanRelation_t, { AbstractHigherOrderAnnotation_t } },
      { SpanRelationLayer_t, { AbstractAnnotationLayer_t } },
@@ -1817,12 +1821,12 @@ namespace folia {
      { Statement_t, { AbstractSpanAnnotation_t } },
      { StatementLayer_t, { AbstractAnnotationLayer_t } },
      { StatementRelation_t, { AbstractSpanRole_t,AbstractSpanAnnotation_t } },
-     { StrengthFeature_t, { Feature_t,AbstractHigherOrderAnnotation_t } },
+     { StrengthFeature_t, { AbstractFeature_t,AbstractHigherOrderAnnotation_t } },
      { String_t, { AbstractHigherOrderAnnotation_t } },
-     { StyleFeature_t, { Feature_t,AbstractHigherOrderAnnotation_t } },
+     { StyleFeature_t, { AbstractFeature_t,AbstractHigherOrderAnnotation_t } },
      { SubjectivityAnnotation_t, { AbstractInlineAnnotation_t } },
      { Suggestion_t, { AbstractCorrectionChild_t } },
-     { SynsetFeature_t, { Feature_t,AbstractHigherOrderAnnotation_t } },
+     { SynsetFeature_t, { AbstractFeature_t,AbstractHigherOrderAnnotation_t } },
      { SyntacticUnit_t, { AbstractSpanAnnotation_t } },
      { SyntaxLayer_t, { AbstractAnnotationLayer_t } },
      { Table_t, { AbstractStructureElement_t } },
@@ -1840,11 +1844,11 @@ namespace folia {
      { TextMarkupString_t, { AbstractTextMarkup_t } },
      { TextMarkupStyle_t, { AbstractTextMarkup_t } },
      { TextMarkupWhitespace_t, { AbstractTextMarkup_t } },
-     { TimeFeature_t, { Feature_t,AbstractHigherOrderAnnotation_t } },
+     { TimeFeature_t, { AbstractFeature_t,AbstractHigherOrderAnnotation_t } },
      { TimeSegment_t, { AbstractSpanAnnotation_t } },
      { TimingLayer_t, { AbstractAnnotationLayer_t } },
      { Utterance_t, { AbstractStructureElement_t } },
-     { ValueFeature_t, { Feature_t,AbstractHigherOrderAnnotation_t } },
+     { ValueFeature_t, { AbstractFeature_t,AbstractHigherOrderAnnotation_t } },
      { Whitespace_t, { AbstractStructureElement_t } },
      { Word_t, { AbstractStructureElement_t } },
      { WordReference_t, {  } },
@@ -2157,6 +2161,7 @@ namespace folia {
     case AbstractSpanRole_t:
     case AbstractAnnotationLayer_t:
     case AbstractTextMarkup_t:
+    case AbstractFeature_t:
     case AbstractInlineAnnotation_t:
     case AbstractStructureElement_t:
     case AbstractCorrectionChild_t:

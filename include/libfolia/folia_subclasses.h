@@ -649,7 +649,7 @@ public:									\
   protected:
     // DO NOT USE AbstractSubtokenAnnotation as a real node!!
     ADD_PROTECTED_CONSTRUCTORS( AbstractSubtokenAnnotation,
-				     AbstractStructureElement );
+				AbstractStructureElement );
   public:
     //    static properties PROPS;
   };
@@ -735,124 +735,129 @@ public:									\
     static properties PROPS;
   };
 
-  class Feature: public AbstractElement {
+  class AbstractFeature: public AbstractElement {
     friend void static_init();
   public:
-    ADD_DEFAULT_CONSTRUCTORS( Feature, AbstractElement );
     void setAttributes( KWargs& ) override;
     KWargs collectAttributes() const override;
     const std::string subset() const override { return _subset; };
-
   protected:
-    ADD_PROTECTED_CONSTRUCTORS( Feature, AbstractElement );
+    // DO NOT USE AbstractStructureElement as a real node!!
+    ADD_PROTECTED_CONSTRUCTORS( AbstractFeature, AbstractElement );
   public:
     std::string _subset;
+  };
+
+  class Feature: public AbstractFeature {
+    friend void static_init();
+  public:
+    ADD_DEFAULT_CONSTRUCTORS( Feature, AbstractFeature );
     static properties PROPS;
   };
 
-  class BegindatetimeFeature: public Feature {
+  class BegindatetimeFeature: public AbstractFeature {
     friend void static_init();
   public:
-    ADD_DEFAULT_CONSTRUCTORS( BegindatetimeFeature, Feature );
+    ADD_DEFAULT_CONSTRUCTORS( BegindatetimeFeature, AbstractFeature );
     static properties PROPS;
   };
 
-  class EnddatetimeFeature: public Feature {
+  class EnddatetimeFeature: public AbstractFeature {
     friend void static_init();
   public:
-    ADD_DEFAULT_CONSTRUCTORS( EnddatetimeFeature, Feature );
+    ADD_DEFAULT_CONSTRUCTORS( EnddatetimeFeature, AbstractFeature );
     static properties PROPS;
   };
 
-  class SynsetFeature: public Feature {
+  class SynsetFeature: public AbstractFeature {
     friend void static_init();
   public:
-    ADD_DEFAULT_CONSTRUCTORS( SynsetFeature, Feature );
+    ADD_DEFAULT_CONSTRUCTORS( SynsetFeature, AbstractFeature );
     static properties PROPS;
   };
 
-  class ActorFeature: public Feature {
+  class ActorFeature: public AbstractFeature {
     friend void static_init();
   public:
-    ADD_DEFAULT_CONSTRUCTORS( ActorFeature, Feature );
+    ADD_DEFAULT_CONSTRUCTORS( ActorFeature, AbstractFeature );
     static properties PROPS;
   };
 
-  class PolarityFeature: public Feature {
+  class PolarityFeature: public AbstractFeature {
     friend void static_init();
   public:
-    ADD_DEFAULT_CONSTRUCTORS( PolarityFeature, Feature );
+    ADD_DEFAULT_CONSTRUCTORS( PolarityFeature, AbstractFeature );
     static properties PROPS;
   };
 
-  class StrengthFeature: public Feature {
+  class StrengthFeature: public AbstractFeature {
     friend void static_init();
   public:
-    ADD_DEFAULT_CONSTRUCTORS( StrengthFeature, Feature );
+    ADD_DEFAULT_CONSTRUCTORS( StrengthFeature, AbstractFeature );
     static properties PROPS;
   };
 
 
-  class HeadFeature: public Feature {
+  class HeadFeature: public AbstractFeature {
     friend void static_init();
   public:
-    ADD_DEFAULT_CONSTRUCTORS( HeadFeature, Feature );
+    ADD_DEFAULT_CONSTRUCTORS( HeadFeature, AbstractFeature );
     static properties PROPS;
   };
 
-  class ValueFeature: public Feature {
+  class ValueFeature: public AbstractFeature {
     friend void static_init();
   public:
-    ADD_DEFAULT_CONSTRUCTORS( ValueFeature, Feature );
+    ADD_DEFAULT_CONSTRUCTORS( ValueFeature, AbstractFeature );
     static properties PROPS;
   };
 
-  class FunctionFeature: public Feature {
+  class FunctionFeature: public AbstractFeature {
     friend void static_init();
   public:
-    ADD_DEFAULT_CONSTRUCTORS( FunctionFeature, Feature );
+    ADD_DEFAULT_CONSTRUCTORS( FunctionFeature, AbstractFeature );
     static properties PROPS;
   };
 
-  class TimeFeature: public Feature {
+  class TimeFeature: public AbstractFeature {
     friend void static_init();
   public:
-    ADD_DEFAULT_CONSTRUCTORS( TimeFeature, Feature );
+    ADD_DEFAULT_CONSTRUCTORS( TimeFeature, AbstractFeature );
     static properties PROPS;
   };
 
-  class LevelFeature: public Feature {
+  class LevelFeature: public AbstractFeature {
     friend void static_init();
   public:
-    ADD_DEFAULT_CONSTRUCTORS( LevelFeature, Feature );
+    ADD_DEFAULT_CONSTRUCTORS( LevelFeature, AbstractFeature );
     static properties PROPS;
   };
 
-  class ModalityFeature: public Feature {
+  class ModalityFeature: public AbstractFeature {
     friend void static_init();
   public:
-    ADD_DEFAULT_CONSTRUCTORS( ModalityFeature, Feature );
+    ADD_DEFAULT_CONSTRUCTORS( ModalityFeature, AbstractFeature );
     static properties PROPS;
   };
 
-  class StyleFeature: public Feature {
+  class StyleFeature: public AbstractFeature {
     friend void static_init();
   public:
-    ADD_DEFAULT_CONSTRUCTORS( StyleFeature, Feature );
+    ADD_DEFAULT_CONSTRUCTORS( StyleFeature, AbstractFeature );
     static properties PROPS;
   };
 
-  class FontFeature: public Feature {
+  class FontFeature: public AbstractFeature {
     friend void static_init();
   public:
-    ADD_DEFAULT_CONSTRUCTORS( FontFeature, Feature );
+    ADD_DEFAULT_CONSTRUCTORS( FontFeature, AbstractFeature );
     static properties PROPS;
   };
 
-  class SizeFeature: public Feature {
+  class SizeFeature: public AbstractFeature {
     friend void static_init();
   public:
-    ADD_DEFAULT_CONSTRUCTORS( SizeFeature, Feature );
+    ADD_DEFAULT_CONSTRUCTORS( SizeFeature, AbstractFeature );
     static properties PROPS;
   };
 

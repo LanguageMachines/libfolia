@@ -2756,7 +2756,7 @@ namespace folia {
   }
 
 
-  void Feature::setAttributes( KWargs& kwargs ) {
+  void AbstractFeature::setAttributes( KWargs& kwargs ) {
     /// set the Feature attributes given a set of Key-Value pairs.
     /*!
      * \param kwargs a KWargs set of Key-Value pairs
@@ -2788,7 +2788,7 @@ namespace folia {
     set_cls( it->second );
   }
 
-  KWargs Feature::collectAttributes() const {
+  KWargs AbstractFeature::collectAttributes() const {
     /// extract all Attribute-Value pairs for Feature
     /*!
      * \return a KWargs set of Attribute-value pairs
