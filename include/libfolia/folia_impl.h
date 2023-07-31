@@ -816,7 +816,7 @@ namespace folia {
     KWargs collectAttributes() const override;
     xmlNs *foliaNs() const;
     bool addable( const FoliaElement * ) const override;
-
+    const properties& props() const { return _props; };
   private:
     int refcount() const override { return _refcount; };
     void increfcount() override { ++_refcount; };
@@ -865,17 +865,6 @@ namespace folia {
   bool isSubClass( const ElementType e1, const ElementType e2 );
 
   bool isSubClass( const FoliaElement *e1, const FoliaElement *e2 );
-
-  template <typename T1, typename T2>
-    bool isSubClass(){
-    /// templated check if Type T1 is a subclass of Type T2
-    /*!
-      \return true if T1 is a SubClass of T2.
-      This is about C++ class inheritance: is our class a derivative of c's
-      class?
-    */
-    return isSubClass( T1::PROPS.ELEMENT_ID, T2::PROPS.ELEMENT_ID );
-  }
 
   bool operator==( const FoliaElement&, const FoliaElement& );
   inline bool operator!=( const FoliaElement& e1, const FoliaElement& e2 ){

@@ -88,7 +88,7 @@ public:									\
       Word *words( size_t, const std::string& ="" ) const override;
       Word *rwords( size_t, const std::string& ="" ) const override;
       const Word* resolveword( const std::string& ) const override;
-      static properties PROPS;
+      //      static properties PROPS;
     };
 
   class AbstractWord: public virtual FoliaElement {
@@ -123,7 +123,7 @@ public:									\
       // DO NOT USE AbstractInlineAnnotation as a real node!!
       ADD_PROTECTED_CONSTRUCTORS( AbstractInlineAnnotation, AbstractElement );
     public:
-      static properties PROPS;
+      //      static properties PROPS;
     };
 
   class AbstractHigherOrderAnnotation:
@@ -134,7 +134,7 @@ public:									\
       // DO NOT USE AbstractHigherOrderAnnotation as a real node!!
       ADD_PROTECTED_CONSTRUCTORS( AbstractHigherOrderAnnotation, AbstractElement );
     public:
-      static properties PROPS;
+      //      static properties PROPS;
     };
 
   class AbstractSpanAnnotation:
@@ -153,7 +153,7 @@ public:									\
       // DO NOT USE AbstractSpanAnnotation as a real node!!
       ADD_PROTECTED_CONSTRUCTORS( AbstractSpanAnnotation, AbstractElement );
     public:
-      static properties PROPS;
+      //      static properties PROPS;
     };
 
   class SpanRelation: public AbstractElement {
@@ -182,7 +182,7 @@ public:									\
 	return EMPTY_STRING; };
       std::string idref;
     public:
-      static properties PROPS;
+      //      static properties PROPS;
     };
 
   class TextMarkupGap: public AbstractTextMarkup {
@@ -305,7 +305,7 @@ public:									\
     mutable int _offset;
     std::string _ref;
   public:
-    static properties PROPS;
+    //    static properties PROPS;
   };
 
   class TextContent:
@@ -532,14 +532,15 @@ public:									\
     public AbstractElement,
     public AllowInlineAnnotation,
     public AllowGenerateID
-    {
-      friend void static_init();
-    public:
-      ADD_DEFAULT_CONSTRUCTORS( String, AbstractElement );
-      static properties PROPS;
-    };
+  {
+    friend void static_init();
+  public:
+    ADD_DEFAULT_CONSTRUCTORS( String, AbstractElement );
+    static properties PROPS;
+  };
 
-  class PlaceHolder: public Word {
+  class PlaceHolder: public Word
+  {
     friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( PlaceHolder, Word );
@@ -650,7 +651,7 @@ public:									\
     ADD_PROTECTED_CONSTRUCTORS( AbstractSubtokenAnnotation,
 				     AbstractStructureElement );
   public:
-    static properties PROPS;
+    //    static properties PROPS;
   };
 
   class Alternative:
@@ -926,7 +927,7 @@ public:									\
   protected:
     // DO NOT USE AbstractSpanRole as a real node!!
     ADD_PROTECTED_CONSTRUCTORS( AbstractSpanRole, AbstractSpanAnnotation );
-    static properties PROPS;
+    //    static properties PROPS;
   };
 
   class Headspan: public AbstractSpanRole {
@@ -1054,7 +1055,7 @@ public:									\
       AbstractSpanAnnotation *findspan( const std::vector<FoliaElement*>& ) const override;
       FoliaElement *append( FoliaElement * ) override;
       KWargs collectAttributes() const override;
-      static properties PROPS;
+      //      static properties PROPS;
     protected:
       // DO NOT USE AbstractAnnotationLayer as a real node!!
       ADD_PROTECTED_CONSTRUCTORS( AbstractAnnotationLayer, AbstractElement );
@@ -1067,7 +1068,7 @@ public:									\
   protected:
     // DO NOT USE AbstractCorrectionChild as a real node!!
     ADD_PROTECTED_CONSTRUCTORS( AbstractCorrectionChild, AbstractElement );
-    static properties PROPS;
+    //    static properties PROPS;
   };
 
   class New: public AbstractCorrectionChild {

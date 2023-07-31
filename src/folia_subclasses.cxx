@@ -1507,13 +1507,16 @@ namespace folia {
      *
      * checks and sets the special attributes for PlaceHolder: text
      */
-    if ( !kwargs.is_present("text") ) {
+    string value = kwargs.extract( "text" );
+    if ( value.empty() ) {
       throw ValueError("text attribute is required for " + classname() );
     }
-    else if ( kwargs.size() != 1 ) {
+    else {
+      settext( value );
+    }
+    if ( kwargs.size() > 0 ) {
       throw ValueError("only the text attribute is supported for " + classname() );
     }
-    Word::setAttributes( kwargs );
   }
 
   const UnicodeString Figure::caption() const {
