@@ -32,7 +32,7 @@
 #include "libfolia/folia_properties.h"
 
 //foliaspec:header
-//This file was last updated according to the FoLiA specification for version 2.5.1 on 2021-08-19 11:28:55, using foliaspec.py
+//This file was last updated according to the FoLiA specification for version 2.5.2 on 2023-08-01 12:53:45, using foliaspec.py
 //Code blocks after a foliaspec comment (until the next newline) are automatically generated. **DO NOT EDIT THOSE** and **DO NOT REMOVE ANY FOLIASPEC COMMENTS** !!!
 
 namespace folia {
@@ -49,7 +49,7 @@ namespace folia {
 
   //foliaspec:version_sub:SUB_VERSION
   //The FoLiA version (sub/rev)
-  const int SUB_VERSION = 1;
+  const int SUB_VERSION = 2;
 
   //foliaspec:namespace:NSFOLIA
   //The FoLiA XML namespace
@@ -82,6 +82,7 @@ namespace folia {
     { AnnotationType::ENTITY,  "entity" },
     { AnnotationType::ENTRY,  "entry" },
     { AnnotationType::ERRORDETECTION,  "errordetection" },
+    { AnnotationType::ETYMOLOGY,  "etymology" },
     { AnnotationType::EVENT,  "event" },
     { AnnotationType::EXAMPLE,  "example" },
     { AnnotationType::EXTERNAL,  "external" },
@@ -146,6 +147,7 @@ namespace folia {
     { "entity", AnnotationType::ENTITY },
     { "entry", AnnotationType::ENTRY },
     { "errordetection", AnnotationType::ERRORDETECTION },
+    { "etymology", AnnotationType::ETYMOLOGY },
     { "event", AnnotationType::EVENT },
     { "example", AnnotationType::EXAMPLE },
     { "external", AnnotationType::EXTERNAL },
@@ -233,6 +235,7 @@ namespace folia {
     { Entity_t,  "entity" },
     { Entry_t,  "entry" },
     { ErrorDetection_t,  "errordetection" },
+    { EtymologyAnnotation_t,  "etymology" },
     { Event_t,  "event" },
     { Example_t,  "ex" },
     { External_t,  "external" },
@@ -370,6 +373,7 @@ namespace folia {
     { "entity", Entity_t  },
     { "entry", Entry_t  },
     { "errordetection", ErrorDetection_t  },
+    { "etymology", EtymologyAnnotation_t  },
     { "event", Event_t  },
     { "ex", Example_t  },
     { "external", External_t  },
@@ -540,6 +544,7 @@ namespace folia {
   properties Entity::PROPS = DEFAULT_PROPERTIES;
   properties Entry::PROPS = DEFAULT_PROPERTIES;
   properties ErrorDetection::PROPS = DEFAULT_PROPERTIES;
+  properties EtymologyAnnotation::PROPS = DEFAULT_PROPERTIES;
   properties Event::PROPS = DEFAULT_PROPERTIES;
   properties Example::PROPS = DEFAULT_PROPERTIES;
   properties External::PROPS = DEFAULT_PROPERTIES;
@@ -945,6 +950,13 @@ namespace folia {
     ErrorDetection::PROPS.OCCURRENCES_PER_SET = 0;
     ErrorDetection::PROPS.XMLTAG = "errordetection";
     element_props[ErrorDetection_t] = &ErrorDetection::PROPS;
+//------ EtymologyAnnotation -------
+    EtymologyAnnotation::PROPS = AbstractInlineAnnotation::PROPS;
+    EtymologyAnnotation::PROPS.ELEMENT_ID = EtymologyAnnotation_t;
+    EtymologyAnnotation::PROPS.ANNOTATIONTYPE = AnnotationType::ETYMOLOGY;
+    EtymologyAnnotation::PROPS.LABEL = "Etymology";
+    EtymologyAnnotation::PROPS.XMLTAG = "etymology";
+    element_props[EtymologyAnnotation_t] = &EtymologyAnnotation::PROPS;
 //------ Event -------
     Event::PROPS = AbstractStructureElement::PROPS;
     Event::PROPS.ELEMENT_ID = Event_t;
@@ -1748,6 +1760,7 @@ namespace folia {
      { Entity_t, { AbstractSpanAnnotation_t } },
      { Entry_t, { AbstractStructureElement_t } },
      { ErrorDetection_t, { AbstractInlineAnnotation_t } },
+     { EtymologyAnnotation_t, { AbstractInlineAnnotation_t } },
      { Event_t, { AbstractStructureElement_t } },
      { Example_t, { AbstractStructureElement_t } },
      { External_t, { AbstractHigherOrderAnnotation_t } },
@@ -1875,6 +1888,7 @@ namespace folia {
     {  AnnotationType::ENTITY, Entity_t },
     {  AnnotationType::ENTRY, Entry_t },
     {  AnnotationType::ERRORDETECTION, ErrorDetection_t },
+    {  AnnotationType::ETYMOLOGY, EtymologyAnnotation_t },
     {  AnnotationType::EVENT, Event_t },
     {  AnnotationType::EXAMPLE, Example_t },
     {  AnnotationType::EXTERNAL, External_t },
@@ -1938,6 +1952,7 @@ namespace folia {
     {  AnnotationType::ENTITY, "entity" },
     {  AnnotationType::ENTRY, "entry" },
     {  AnnotationType::ERRORDETECTION, "errordetection" },
+    {  AnnotationType::ETYMOLOGY, "etymology" },
     {  AnnotationType::EVENT, "event" },
     {  AnnotationType::EXAMPLE, "ex" },
     {  AnnotationType::EXTERNAL, "external" },
@@ -2141,6 +2156,7 @@ namespace folia {
     case Cue_t: return new Cue();
     case Hiddenword_t: return new Hiddenword();
     case Hyphbreak_t: return new Hyphbreak();
+    case EtymologyAnnotation_t: return new EtymologyAnnotation();
     case AbstractContentAnnotation_t:
     case AbstractHigherOrderAnnotation_t:
     case AbstractSubtokenAnnotation_t:

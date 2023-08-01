@@ -717,6 +717,14 @@ public:									\
     static properties PROPS;
   };
 
+  class EtymologyAnnotation: public AbstractInlineAnnotation {
+    friend void static_init();
+  public:
+    ADD_DEFAULT_CONSTRUCTORS( EtymologyAnnotation,
+			      AbstractInlineAnnotation );
+    static properties PROPS;
+  };
+
   class SubjectivityAnnotation: public AbstractInlineAnnotation {
     friend void static_init();
   public:
