@@ -605,96 +605,92 @@ public:								\
     const std::string& get_delimiter( const TextPolicy& ) const override;
   };
 
-  class AbstractFeature: public AbstractElement {
+  class Feature: public AbstractElement {
     // DO NOT USE AbstractStructureElement as a real node!!
   protected:
-    ADD_PROTECTED_CONSTRUCTORS( AbstractFeature, AbstractElement );
+    ADD_PROTECTED_CONSTRUCTORS( Feature, AbstractElement );
   public:
+    ADD_DEFAULT_CONSTRUCTORS( Feature, AbstractElement );
     void setAttributes( KWargs& ) override;
     KWargs collectAttributes() const override;
     const std::string subset() const override { return _subset; };
     std::string _subset;
   };
 
-  class Feature: public AbstractFeature {
+  class BegindatetimeFeature: public Feature {
   public:
-    ADD_DEFAULT_CONSTRUCTORS( Feature, AbstractFeature );
+    ADD_DEFAULT_CONSTRUCTORS( BegindatetimeFeature, Feature );
   };
 
-  class BegindatetimeFeature: public AbstractFeature {
+  class EnddatetimeFeature: public Feature {
   public:
-    ADD_DEFAULT_CONSTRUCTORS( BegindatetimeFeature, AbstractFeature );
+    ADD_DEFAULT_CONSTRUCTORS( EnddatetimeFeature, Feature );
   };
 
-  class EnddatetimeFeature: public AbstractFeature {
+  class SynsetFeature: public Feature {
   public:
-    ADD_DEFAULT_CONSTRUCTORS( EnddatetimeFeature, AbstractFeature );
+    ADD_DEFAULT_CONSTRUCTORS( SynsetFeature, Feature );
   };
 
-  class SynsetFeature: public AbstractFeature {
+  class ActorFeature: public Feature {
   public:
-    ADD_DEFAULT_CONSTRUCTORS( SynsetFeature, AbstractFeature );
+    ADD_DEFAULT_CONSTRUCTORS( ActorFeature, Feature );
   };
 
-  class ActorFeature: public AbstractFeature {
+  class PolarityFeature: public Feature {
   public:
-    ADD_DEFAULT_CONSTRUCTORS( ActorFeature, AbstractFeature );
+    ADD_DEFAULT_CONSTRUCTORS( PolarityFeature, Feature );
   };
 
-  class PolarityFeature: public AbstractFeature {
+  class StrengthFeature: public Feature {
   public:
-    ADD_DEFAULT_CONSTRUCTORS( PolarityFeature, AbstractFeature );
-  };
-
-  class StrengthFeature: public AbstractFeature {
-  public:
-    ADD_DEFAULT_CONSTRUCTORS( StrengthFeature, AbstractFeature );
+    ADD_DEFAULT_CONSTRUCTORS( StrengthFeature, Feature );
   };
 
 
-  class HeadFeature: public AbstractFeature {
+  class HeadFeature: public Feature {
   public:
-    ADD_DEFAULT_CONSTRUCTORS( HeadFeature, AbstractFeature );
+    ADD_DEFAULT_CONSTRUCTORS( HeadFeature, Feature );
   };
 
-  class ValueFeature: public AbstractFeature {
+  class ValueFeature: public Feature {
   public:
-    ADD_DEFAULT_CONSTRUCTORS( ValueFeature, AbstractFeature );
+    ADD_DEFAULT_CONSTRUCTORS( ValueFeature, Feature );
   };
 
-  class FunctionFeature: public AbstractFeature {
+  class FunctionFeature: public Feature {
   public:
-    ADD_DEFAULT_CONSTRUCTORS( FunctionFeature, AbstractFeature );
+    ADD_DEFAULT_CONSTRUCTORS( FunctionFeature, Feature );
   };
 
-  class TimeFeature: public AbstractFeature {
+  class TimeFeature: public Feature {
   public:
-    ADD_DEFAULT_CONSTRUCTORS( TimeFeature, AbstractFeature );
+    ADD_DEFAULT_CONSTRUCTORS( TimeFeature, Feature );
   };
 
-  class LevelFeature: public AbstractFeature {
+  class LevelFeature: public Feature {
   public:
-    ADD_DEFAULT_CONSTRUCTORS( LevelFeature, AbstractFeature );
+    ADD_DEFAULT_CONSTRUCTORS( LevelFeature, Feature );
   };
 
-  class ModalityFeature: public AbstractFeature {
+  class ModalityFeature: public Feature {
   public:
-    ADD_DEFAULT_CONSTRUCTORS( ModalityFeature, AbstractFeature );
+    ADD_DEFAULT_CONSTRUCTORS( ModalityFeature, Feature );
   };
 
-  class StyleFeature: public AbstractFeature {
+  class StyleFeature: public Feature {
   public:
-    ADD_DEFAULT_CONSTRUCTORS( StyleFeature, AbstractFeature );
+    ADD_DEFAULT_CONSTRUCTORS( StyleFeature, Feature );
   };
 
-  class FontFeature: public AbstractFeature {
+  class FontFeature: public Feature {
   public:
-    ADD_DEFAULT_CONSTRUCTORS( FontFeature, AbstractFeature );
+    ADD_DEFAULT_CONSTRUCTORS( FontFeature, Feature );
   };
 
-  class SizeFeature: public AbstractFeature {
+  class SizeFeature: public Feature {
   public:
-    ADD_DEFAULT_CONSTRUCTORS( SizeFeature, AbstractFeature );
+    ADD_DEFAULT_CONSTRUCTORS( SizeFeature, Feature );
   };
 
   class WordReference: public AbstractElement {

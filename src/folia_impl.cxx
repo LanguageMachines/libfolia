@@ -1066,7 +1066,7 @@ namespace folia {
     if ( isSubClass( AbstractStructureElement_t ) ){
       attribs["typegroup"] = "structure";
     }
-    else if ( isSubClass( AbstractFeature_t ) ){
+    else if ( isSubClass( Feature_t ) ){
       attribs["typegroup"] = "feature";
     }
     else if ( isSubClass( AbstractInlineAnnotation_t ) ){
@@ -1273,7 +1273,7 @@ namespace folia {
      * otherwise not, and the empty string is returned.
      */
     string att;
-    if ( c->isSubClass( AbstractFeature_t ) ) {
+    if ( c->isSubClass( Feature_t ) ) {
       att = c->xmltag();
       if ( att == "feat" ) {
 	// "feat" is a Feature_t too. exclude!
@@ -4240,7 +4240,7 @@ namespace folia {
      */
     vector<string> result;
     for ( const auto& el : data() ) {
-      if ( el->isSubClass( AbstractFeature_t ) &&
+      if ( el->isSubClass( Feature_t ) &&
 	   el->subset() == s ) {
 	result.push_back( el->cls() );
       }
@@ -4256,7 +4256,7 @@ namespace folia {
      */
     const auto& it = find_if( _data.begin(), _data.end(),
 			      [s]( const FoliaElement *e ){
-				return ( e->isSubClass( AbstractFeature_t )
+				return ( e->isSubClass( Feature_t )
 					 && e->subset() == s ); } );
     if ( it == _data.end() ){
       return "";
