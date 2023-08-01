@@ -32,7 +32,7 @@
 #include "libfolia/folia_properties.h"
 
 //foliaspec:header
-//This file was last updated according to the FoLiA specification for version 2.5.1 on 2021-08-19 11:28:55, using foliaspec.py
+//This file was last updated according to the FoLiA specification for version 2.5.3 on 2023-08-01 16:29:45, using foliaspec.py
 //Code blocks after a foliaspec comment (until the next newline) are automatically generated. **DO NOT EDIT THOSE** and **DO NOT REMOVE ANY FOLIASPEC COMMENTS** !!!
 
 namespace folia {
@@ -235,7 +235,7 @@ namespace folia {
     { Entity_t,  "entity" },
     { Entry_t,  "entry" },
     { ErrorDetection_t,  "errordetection" },
-    { EtymologyAnnotation_t, "etymology" },
+    { EtymologyAnnotation_t,  "etymology" },
     { Event_t,  "event" },
     { Example_t,  "ex" },
     { External_t,  "external" },
@@ -1761,10 +1761,11 @@ namespace folia {
      { Entity_t, { AbstractSpanAnnotation_t } },
      { Entry_t, { AbstractStructureElement_t } },
      { ErrorDetection_t, { AbstractInlineAnnotation_t } },
+     { EtymologyAnnotation_t, { AbstractInlineAnnotation_t } },
      { Event_t, { AbstractStructureElement_t } },
      { Example_t, { AbstractStructureElement_t } },
      { External_t, { AbstractHigherOrderAnnotation_t } },
-     { Feature_t, { AbstractHigherOrderAnnotation_t, Feature_t } },
+     { Feature_t, { AbstractHigherOrderAnnotation_t } },
      { Figure_t, { AbstractStructureElement_t } },
      { FontFeature_t, { Feature_t,AbstractHigherOrderAnnotation_t } },
      { ForeignData_t, { AbstractHigherOrderAnnotation_t } },
@@ -1888,6 +1889,7 @@ namespace folia {
     {  AnnotationType::ENTITY, Entity_t },
     {  AnnotationType::ENTRY, Entry_t },
     {  AnnotationType::ERRORDETECTION, ErrorDetection_t },
+    {  AnnotationType::ETYMOLOGY, EtymologyAnnotation_t },
     {  AnnotationType::EVENT, Event_t },
     {  AnnotationType::EXAMPLE, Example_t },
     {  AnnotationType::EXTERNAL, External_t },
@@ -1951,6 +1953,7 @@ namespace folia {
     {  AnnotationType::ENTITY, "entity" },
     {  AnnotationType::ENTRY, "entry" },
     {  AnnotationType::ERRORDETECTION, "errordetection" },
+    {  AnnotationType::ETYMOLOGY, "etymology" },
     {  AnnotationType::EVENT, "event" },
     {  AnnotationType::EXAMPLE, "ex" },
     {  AnnotationType::EXTERNAL, "external" },
