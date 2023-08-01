@@ -586,6 +586,12 @@ public:								\
     ADD_DEFAULT_CONSTRUCTORS( SenseAnnotation, AbstractInlineAnnotation );
   };
 
+  class EtymologyAnnotation: public AbstractInlineAnnotation {
+  public:
+    ADD_DEFAULT_CONSTRUCTORS( EtymologyAnnotation,
+			      AbstractInlineAnnotation );
+  };
+
   class SubjectivityAnnotation: public AbstractInlineAnnotation {
   public:
     ADD_DEFAULT_CONSTRUCTORS( SubjectivityAnnotation,

@@ -82,6 +82,7 @@ namespace folia {
     { AnnotationType::ENTITY,  "entity" },
     { AnnotationType::ENTRY,  "entry" },
     { AnnotationType::ERRORDETECTION,  "errordetection" },
+    { AnnotationType::ETYMOLOGY,  "etymology" },
     { AnnotationType::EVENT,  "event" },
     { AnnotationType::EXAMPLE,  "example" },
     { AnnotationType::EXTERNAL,  "external" },
@@ -234,6 +235,7 @@ namespace folia {
     { Entity_t,  "entity" },
     { Entry_t,  "entry" },
     { ErrorDetection_t,  "errordetection" },
+    { EtymologyAnnotation_t, "etymology" },
     { Event_t,  "event" },
     { Example_t,  "ex" },
     { External_t,  "external" },
@@ -372,6 +374,7 @@ namespace folia {
     { "entity", Entity_t  },
     { "entry", Entry_t  },
     { "errordetection", ErrorDetection_t  },
+    { "etymology", EtymologyAnnotation_t  },
     { "event", Event_t  },
     { "ex", Example_t  },
     { "external", External_t  },
@@ -543,6 +546,7 @@ namespace folia {
   properties Entity::PROPS = DEFAULT_PROPERTIES;
   properties Entry::PROPS = DEFAULT_PROPERTIES;
   properties ErrorDetection::PROPS = DEFAULT_PROPERTIES;
+  properties EtymologyAnnotation::PROPS = DEFAULT_PROPERTIES;
   properties Event::PROPS = DEFAULT_PROPERTIES;
   properties Example::PROPS = DEFAULT_PROPERTIES;
   properties External::PROPS = DEFAULT_PROPERTIES;
@@ -948,6 +952,13 @@ namespace folia {
     ErrorDetection::PROPS.OCCURRENCES_PER_SET = 0;
     ErrorDetection::PROPS.XMLTAG = "errordetection";
     element_props[ErrorDetection_t] = &ErrorDetection::PROPS;
+//------ SubjectivityAnnotation -------
+    EtymologyAnnotation::PROPS = ABSTRACT_INLINE_ANNOTATION_PROPERTIES;
+    EtymologyAnnotation::PROPS.ELEMENT_ID = EtymologyAnnotation_t;
+    EtymologyAnnotation::PROPS.ANNOTATIONTYPE = AnnotationType::ETYMOLOGY;
+    EtymologyAnnotation::PROPS.LABEL = "Etymology";
+    EtymologyAnnotation::PROPS.XMLTAG = "etomology";
+    element_props[EtymologyAnnotation_t] = &EtymologyAnnotation::PROPS;
 //------ Event -------
     Event::PROPS = ABSTRACT_STRUCTURE_PROPERTIES;
     Event::PROPS.ELEMENT_ID = Event_t;
