@@ -507,8 +507,8 @@ namespace folia {
   properties ABSTRACT_SUBTOKEN_ANNOTATION_PROPERTIES;
   properties ABSTRACT_TEXT_MARKUP_PROPERTIES;
   properties ABSTRACT_FEATURE_PROPERTIES;
-  //these are not in the external specification yet:
   properties DEFAULT_PROPERTIES;
+  //these are also not in the external specification yet: (libfolia internal)
   properties FoLiA::PROPS = DEFAULT_PROPERTIES;
   properties DCOI::PROPS = DEFAULT_PROPERTIES;
   properties XmlComment::PROPS = DEFAULT_PROPERTIES;
