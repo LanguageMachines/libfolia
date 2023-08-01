@@ -19,9 +19,9 @@
   along with this program; if not, see <http://www.gnu.org/licenses/>.
 
   For questions and suggestions, see:
-      https://github.com/LanguageMachines/ticcutils/issues
+  https://github.com/LanguageMachines/ticcutils/issues
   or send mail to:
-      lamasoftware (at ) science.ru.nl
+  lamasoftware (at ) science.ru.nl
 */
 
 #ifndef FOLIA_SUBCLASSES_H
@@ -29,67 +29,74 @@
 
 namespace folia {
 
-#define ADD_PROTECTED_CONSTRUCTORS( CLASS, BASE )			\
-  explicit CLASS( const properties& props, Document *d=0 ):		\
-    BASE( props, d ){ classInit(); };					\
-  CLASS( const properties& props, FoliaElement *p ):			\
-    BASE( props, p ){ classInit(); }
+#define ADD_PROTECTED_CONSTRUCTORS( CLASS, BASE )		\
+  friend void static_init();					\
+protected:							\
+ explicit CLASS( const properties& props, Document *d=0 ):	\
+   BASE( props, d ){ classInit(); };				\
+ CLASS( const properties& props, FoliaElement *p ):		\
+   BASE( props, p ){ classInit(); }
 
-#define ADD_PROTECTED_CONSTRUCTORS_INIT( CLASS, BASE, INIT )		\
-  explicit CLASS( const properties& props, Document *d=0 ):		\
-    BASE( props, d ), INIT { classInit(); };				\
-  CLASS( const properties& props, FoliaElement *p ):			\
-    BASE( props, p ), INIT { classInit(); }
+#define ADD_PROTECTED_CONSTRUCTORS_INIT( CLASS, BASE, INIT )	\
+  friend void static_init();					\
+protected:							\
+ explicit CLASS( const properties& props, Document *d=0 ):	\
+   BASE( props, d ), INIT { classInit(); };			\
+ CLASS( const properties& props, FoliaElement *p ):		\
+   BASE( props, p ), INIT { classInit(); }
 
-#define ADD_DEFAULT_CONSTRUCTORS( CLASS, BASE )			  \
-  protected:							  \
-  ~CLASS() {};							  \
-public:									\
- explicit CLASS( const KWargs& a, Document *d=0 ):			\
-   BASE( PROPS, d ){ classInit(a); };					\
- explicit CLASS( Document *d=0 ):					\
-   BASE( PROPS, d ){ classInit(); };					\
- CLASS( const KWargs& a, FoliaElement *p ):				\
-   BASE( PROPS, p ){ classInit(a); };					\
- explicit CLASS( FoliaElement *p ):					\
-   BASE( PROPS, p ){ classInit(); }
+#define ADD_DEFAULT_CONSTRUCTORS( CLASS, BASE )		\
+  friend void static_init();				\
+protected:						\
+ ~CLASS() {};						\
+public:							\
+ explicit CLASS( const KWargs& a, Document *d=0 ):	\
+   BASE( PROPS, d ){ classInit(a); };			\
+ explicit CLASS( Document *d=0 ):			\
+   BASE( PROPS, d ){ classInit(); };			\
+ CLASS( const KWargs& a, FoliaElement *p ):		\
+   BASE( PROPS, p ){ classInit(a); };			\
+ explicit CLASS( FoliaElement *p ):			\
+   BASE( PROPS, p ){ classInit(); }			\
+ static properties PROPS
 
-#define ADD_DEFAULT_CONSTRUCTORS_INIT( CLASS, BASE, INIT )	  \
- protected:							  \
-   ~CLASS() {};							  \
- public:							  \
- explicit CLASS( const KWargs& a, Document *d=0 ):			\
-   BASE( PROPS, d ), INIT { classInit(a); };				\
- explicit CLASS( Document *d=0 ):					\
-   BASE( PROPS, d ), INIT { classInit(); };				\
- CLASS( const KWargs& a, FoliaElement *p ):				\
-   BASE( PROPS, p ), INIT { classInit(a); };				\
- explicit CLASS( FoliaElement *p ):					\
-   BASE( PROPS, p ), INIT { classInit(); }
 
-  class AbstractStructureElement:
+#define ADD_DEFAULT_CONSTRUCTORS_INIT( CLASS, BASE, INIT )	\
+ friend void static_init();					\
+protected:							\
+ ~CLASS() {};							\
+public:								\
+ explicit CLASS( const KWargs& a, Document *d=0 ):		\
+   BASE( PROPS, d ), INIT { classInit(a); };			\
+ explicit CLASS( Document *d=0 ):				\
+   BASE( PROPS, d ), INIT { classInit(); };			\
+ CLASS( const KWargs& a, FoliaElement *p ):			\
+   BASE( PROPS, p ), INIT { classInit(a); };			\
+ explicit CLASS( FoliaElement *p ):				\
+   BASE( PROPS, p ), INIT { classInit(); }			\
+   static properties PROPS
+
+ class AbstractStructureElement:
     public AbstractElement,
     public AllowGenerateID,
     public AllowInlineAnnotation
-    {
-      friend void static_init();
-    protected:
-      // DO NOT USE AbstractStructureElement as a real node!!
-      ADD_PROTECTED_CONSTRUCTORS( AbstractStructureElement, AbstractElement );
-    public:
-      FoliaElement *append( FoliaElement* ) override;
-      std::vector<Paragraph*> paragraphs() const override;
-      std::vector<Sentence*> sentences() const override;
-      std::vector<Word*> words( const std::string& ="" ) const override;
-      Sentence *sentences( size_t ) const override;
-      Sentence *rsentences( size_t ) const override;
-      Paragraph *paragraphs( size_t ) const override;
-      Paragraph *rparagraphs( size_t ) const override;
-      Word *words( size_t, const std::string& ="" ) const override;
-      Word *rwords( size_t, const std::string& ="" ) const override;
-      const Word* resolveword( const std::string& ) const override;
-      //      static properties PROPS;
-    };
+ {
+   // DO NOT USE AbstractStructureElement as a real node!!
+ protected:
+   ADD_PROTECTED_CONSTRUCTORS( AbstractStructureElement, AbstractElement );
+ public:
+   FoliaElement *append( FoliaElement* ) override;
+   std::vector<Paragraph*> paragraphs() const override;
+   std::vector<Sentence*> sentences() const override;
+   std::vector<Word*> words( const std::string& ="" ) const override;
+   Sentence *sentences( size_t ) const override;
+   Sentence *rsentences( size_t ) const override;
+   Paragraph *paragraphs( size_t ) const override;
+   Paragraph *rparagraphs( size_t ) const override;
+   Word *words( size_t, const std::string& ="" ) const override;
+   Word *rwords( size_t, const std::string& ="" ) const override;
+   const Word* resolveword( const std::string& ) const override;
+ };
 
   class AbstractWord: public virtual FoliaElement {
     /// Interface class that is inherited by word-like (wrefable)
@@ -117,51 +124,39 @@ public:									\
   class AbstractInlineAnnotation:
     public AbstractElement,
     public AllowGenerateID
-    {
-      friend void static_init();
-    protected:
-      // DO NOT USE AbstractInlineAnnotation as a real node!!
-      ADD_PROTECTED_CONSTRUCTORS( AbstractInlineAnnotation, AbstractElement );
-    public:
-      //      static properties PROPS;
-    };
+  {
+    // DO NOT USE AbstractInlineAnnotation as a real node!!
+  protected:
+    ADD_PROTECTED_CONSTRUCTORS( AbstractInlineAnnotation, AbstractElement );
+  };
 
   class AbstractHigherOrderAnnotation:
     public AbstractElement
-    {
-      friend void static_init();
-    protected:
-      // DO NOT USE AbstractHigherOrderAnnotation as a real node!!
-      ADD_PROTECTED_CONSTRUCTORS( AbstractHigherOrderAnnotation, AbstractElement );
-    public:
-      //      static properties PROPS;
-    };
+  {
+    // DO NOT USE AbstractHigherOrderAnnotation as a real node!!
+  protected:
+    ADD_PROTECTED_CONSTRUCTORS( AbstractHigherOrderAnnotation, AbstractElement );
+  };
 
   class AbstractSpanAnnotation:
     public AbstractElement,
     public AllowGenerateID,
     public AllowInlineAnnotation
-    {
-      friend void static_init();
-    public:
-      xmlNode *xml( bool, bool=false ) const override;
-      FoliaElement *append( FoliaElement* ) override;
+  {
+    // DO NOT USE AbstractSpanAnnotation as a real node!!
+  protected:
+    ADD_PROTECTED_CONSTRUCTORS( AbstractSpanAnnotation, AbstractElement );
+  public:
+    xmlNode *xml( bool, bool=false ) const override;
+    FoliaElement *append( FoliaElement* ) override;
 
-      std::vector<FoliaElement*> wrefs() const override;
-      FoliaElement *wrefs( size_t ) const override;
-    protected:
-      // DO NOT USE AbstractSpanAnnotation as a real node!!
-      ADD_PROTECTED_CONSTRUCTORS( AbstractSpanAnnotation, AbstractElement );
-    public:
-      //      static properties PROPS;
-    };
+    std::vector<FoliaElement*> wrefs() const override;
+    FoliaElement *wrefs( size_t ) const override;
+  };
 
   class SpanRelation: public AbstractElement {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( SpanRelation, AbstractElement );
-  public:
-    static properties PROPS;
   };
 
   const std::string EMPTY_STRING = "";
@@ -169,79 +164,58 @@ public:									\
   class AbstractTextMarkup:
     public AbstractElement,
     public AllowXlink
-    {
-      friend void static_init();
-    public:
-      void setAttributes( KWargs& ) override;
-      KWargs collectAttributes() const override;
-      const FoliaElement* resolveid() const override;
-    protected:
-      // DO NOT USE AbstractTextMarkup as a real node!!
-      ADD_PROTECTED_CONSTRUCTORS( AbstractTextMarkup, AbstractElement );
-      const std::string& get_delimiter( const TextPolicy& ) const override {
-	return EMPTY_STRING; };
-      std::string idref;
-    public:
-      //      static properties PROPS;
-    };
+  {
+    // DO NOT USE AbstractTextMarkup as a real node!!
+  protected:
+    ADD_PROTECTED_CONSTRUCTORS( AbstractTextMarkup, AbstractElement );
+  public:
+    void setAttributes( KWargs& ) override;
+    KWargs collectAttributes() const override;
+    const FoliaElement* resolveid() const override;
+  protected:
+    const std::string& get_delimiter( const TextPolicy& ) const override {
+      return EMPTY_STRING; };
+    std::string idref;
+  };
 
   class TextMarkupGap: public AbstractTextMarkup {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( TextMarkupGap, AbstractTextMarkup );
-  public:
-    static properties PROPS;
   };
 
   class TextMarkupString: public AbstractTextMarkup {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( TextMarkupString, AbstractTextMarkup );
-  public:
-    static properties PROPS;
   };
 
   class TextMarkupCorrection: public AbstractTextMarkup {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( TextMarkupCorrection, AbstractTextMarkup );
     void setAttributes( KWargs& ) override;
     KWargs collectAttributes() const override;
-  public:
-    static properties PROPS;
   private:
     const UnicodeString private_text( const TextPolicy& ) const override;
     std::string _original;
   };
 
   class TextMarkupError: public AbstractTextMarkup {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( TextMarkupError, AbstractTextMarkup );
-  public:
-    static properties PROPS;
   };
 
   class TextMarkupStyle: public AbstractTextMarkup {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( TextMarkupStyle, AbstractTextMarkup );
-  public:
-    static properties PROPS;
   };
 
   class Hyphbreak: public AbstractTextMarkup {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( Hyphbreak, AbstractTextMarkup );
-  public:
-    static properties PROPS;
   private:
     const UnicodeString private_text( const TextPolicy& ) const override;
   };
 
   class TextMarkupReference: public AbstractTextMarkup {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( TextMarkupReference, AbstractTextMarkup );
     KWargs collectAttributes() const override;
@@ -253,44 +227,31 @@ public:									\
     std::string ref_type;
     std::string _type;
     std::string _format;
-
-  public:
-    static properties PROPS;
   };
 
   class TextMarkupHSpace: public AbstractTextMarkup {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( TextMarkupHSpace, AbstractTextMarkup );
   private:
     const UnicodeString private_text( const TextPolicy& ) const override;
-  public:
-    static properties PROPS;
   };
 
   class TextMarkupWhitespace: public AbstractTextMarkup {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( TextMarkupWhitespace, AbstractTextMarkup );
-  public:
-    static properties PROPS;
   };
 
   class TextMarkupLanguage: public AbstractTextMarkup {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( TextMarkupLanguage, AbstractTextMarkup );
-  public:
-    static properties PROPS;
   };
 
   class AbstractContentAnnotation:
     public AbstractElement,
     public AllowGenerateID
   {
-    friend void static_init();
-  protected:
     // DO NOT USE AbstractContentAnnotation as a real node!!
+  protected:
     ADD_PROTECTED_CONSTRUCTORS_INIT( AbstractContentAnnotation, AbstractElement, _offset(0) );
   public:
     void setAttributes( KWargs& ) override;
@@ -304,35 +265,29 @@ public:									\
     void set_offset( int o ) const override { _offset = o; };
     mutable int _offset;
     std::string _ref;
-  public:
-    //    static properties PROPS;
   };
 
   class TextContent:
     public AbstractContentAnnotation,
     public AllowXlink
-    {
-      friend void static_init();
-    public:
-      ADD_DEFAULT_CONSTRUCTORS( TextContent, AbstractContentAnnotation );
-      void setAttributes( KWargs& ) override;
-      KWargs collectAttributes() const override;
-      std::vector<FoliaElement*> find_replacables( FoliaElement * ) const override;
-      const std::string set_to_current() override {
-	// Don't use without thinking twice!
-	std::string res = cls();
-	set_cls( "current" );
-	return res;
-      }
-      FoliaElement *postappend() override;
-    private:
-      FoliaElement *find_default_reference() const override;
-    public:
-      static properties PROPS;
+  {
+  public:
+    ADD_DEFAULT_CONSTRUCTORS( TextContent, AbstractContentAnnotation );
+    void setAttributes( KWargs& ) override;
+    KWargs collectAttributes() const override;
+    std::vector<FoliaElement*> find_replacables( FoliaElement * ) const override;
+    const std::string set_to_current() override {
+      // Don't use without thinking twice!
+      std::string res = cls();
+      set_cls( "current" );
+      return res;
+    }
+    FoliaElement *postappend() override;
+  private:
+    FoliaElement *find_default_reference() const override;
   };
 
   class PhonContent: public AbstractContentAnnotation {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( PhonContent,
 			      AbstractContentAnnotation );
@@ -344,80 +299,56 @@ public:									\
     FoliaElement *postappend() override;
   public:
     FoliaElement *find_default_reference() const override;
-  public:
-    static properties PROPS;
-
   };
 
   class FoLiA: public AbstractElement {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( FoLiA, AbstractElement );
     FoliaElement* parseXml( const xmlNode * ) override;
     void setAttributes( KWargs& ) override;
   private:
     const UnicodeString private_text( const TextPolicy& ) const override;
-  public:
-    static properties PROPS;
   };
 
   class DCOI: public AbstractElement {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( DCOI, AbstractElement );
-  public:
-    static properties PROPS;
   };
 
   class Head: public AbstractStructureElement {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( Head, AbstractStructureElement );
-
-  private:
-    static properties PROPS;
   };
 
   class TableHead: public AbstractStructureElement {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( TableHead, AbstractStructureElement );
-    static properties PROPS;
   };
 
   class Table: public AbstractStructureElement {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( Table, AbstractStructureElement );
-    static properties PROPS;
   };
 
   class Row: public AbstractStructureElement {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( Row, AbstractStructureElement );
     const UnicodeString private_text( const TextPolicy& ) const override;
-    static properties PROPS;
   };
 
   class Cell: public AbstractStructureElement {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( Cell, AbstractStructureElement );
     const UnicodeString private_text( const TextPolicy& ) const override;
-    static properties PROPS;
   };
 
   class Gap: public AbstractElement {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( Gap, AbstractElement );
     const std::string content() const override;
-    static properties PROPS;
   };
 
   class Content: public AbstractElement {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( Content, AbstractElement );
 
@@ -427,63 +358,53 @@ public:									\
     void setAttributes( KWargs& ) override;
   private:
     std::string value;
-  public:
-    static properties PROPS;
   };
 
   class Metric: public AbstractElement {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( Metric, AbstractElement );
-    static properties PROPS;
   };
 
   class Division: public AbstractStructureElement {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( Division, AbstractStructureElement );
     Head *head() const;
-    static properties PROPS;
   };
 
   class Linebreak:
     public AbstractStructureElement,
     public AllowXlink
-    {
-      friend void static_init();
-    public:
-      ADD_DEFAULT_CONSTRUCTORS_INIT( Linebreak, AbstractStructureElement, _newpage(false) );
-      void setAttributes( KWargs& ) override;
-      KWargs collectAttributes() const override;
-    private:
-      void init() override;
-      const UnicodeString private_text( const TextPolicy& ) const override {
-	return "\n";
-      }
-      std::string _pagenr;
-      std::string _linenr;
-      bool _newpage;
-    public:
-      static properties PROPS;
-    };
+  {
+  public:
+    ADD_DEFAULT_CONSTRUCTORS_INIT( Linebreak, AbstractStructureElement, _newpage(false) );
+    void setAttributes( KWargs& ) override;
+    KWargs collectAttributes() const override;
+  private:
+    void init() override;
+    const UnicodeString private_text( const TextPolicy& ) const override {
+      return "\n";
+    }
+    std::string _pagenr;
+    std::string _linenr;
+    bool _newpage;
+  };
 
   class Whitespace: public AbstractStructureElement {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( Whitespace, AbstractStructureElement );
   private:
     const UnicodeString private_text( const TextPolicy& ) const override {
       return "\n\n";
     }
-  public:
-    static properties PROPS;
   };
 
   class Word:
     public AbstractStructureElement,
     public AbstractWord
   {
-    friend void static_init();
+  protected:
+    ADD_PROTECTED_CONSTRUCTORS( Word, AbstractStructureElement );
+  public:
   public:
     ADD_DEFAULT_CONSTRUCTORS( Word, AbstractStructureElement );
 
@@ -505,27 +426,19 @@ public:									\
     MorphologyLayer *addMorphologyLayer( const KWargs& ) override;
     MorphologyLayer *getMorphologyLayers( const std::string&,
 					  std::vector<MorphologyLayer*>& ) const override;
-  protected:
-    ADD_PROTECTED_CONSTRUCTORS( Word, AbstractStructureElement );
-  public:
-    static properties PROPS;
   };
 
   class Hiddenword:
     public AbstractStructureElement,
     public AbstractWord
   {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( Hiddenword, AbstractStructureElement );
-    static properties PROPS;
   };
 
   class Part: public AbstractStructureElement {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( Part, AbstractStructureElement );
-    static properties PROPS;
   };
 
   class String:
@@ -533,339 +446,254 @@ public:									\
     public AllowInlineAnnotation,
     public AllowGenerateID
   {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( String, AbstractElement );
-    static properties PROPS;
   };
 
   class PlaceHolder: public Word
   {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( PlaceHolder, Word );
     void setAttributes( KWargs& ) override;
-    static properties PROPS;
   };
 
   class Sentence:
     public AbstractStructureElement
-    {
-      friend void static_init();
-    public:
-      ADD_DEFAULT_CONSTRUCTORS( Sentence, AbstractStructureElement );
+  {
+  public:
+    ADD_DEFAULT_CONSTRUCTORS( Sentence, AbstractStructureElement );
 
-      Correction *splitWord( FoliaElement *, FoliaElement *,
-			     FoliaElement *, const KWargs& );
-      Correction *mergewords( FoliaElement *,
+    Correction *splitWord( FoliaElement *, FoliaElement *,
+			   FoliaElement *, const KWargs& );
+    Correction *mergewords( FoliaElement *,
+			    const std::vector<FoliaElement *>&,
+			    const std::string& = "" ) override;
+    Correction *deleteword( FoliaElement *, const std::string& ) override;
+    Correction *insertword( FoliaElement *, FoliaElement *,
+			    const std::string& ) override;
+    std::vector<Word*> wordParts() const override;
+  private:
+    Correction *correctWords( const std::vector<FoliaElement *>&,
 			      const std::vector<FoliaElement *>&,
-			      const std::string& = "" ) override;
-      Correction *deleteword( FoliaElement *, const std::string& ) override;
-      Correction *insertword( FoliaElement *, FoliaElement *,
-			      const std::string& ) override;
-      std::vector<Word*> wordParts() const override;
-      static properties PROPS;
-    private:
-      Correction *correctWords( const std::vector<FoliaElement *>&,
-				const std::vector<FoliaElement *>&,
-				const KWargs& );
-    };
+			      const KWargs& );
+  };
 
   class Speech: public AbstractStructureElement {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( Speech, AbstractStructureElement );
-    static properties PROPS;
   };
 
   class Text: public AbstractStructureElement {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( Text, AbstractStructureElement );
-    static properties PROPS;
   };
 
   class Utterance: public AbstractStructureElement {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( Utterance, AbstractStructureElement );
-    static properties PROPS;
   };
 
   class Event: public AbstractStructureElement {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( Event, AbstractStructureElement );
-    static properties PROPS;
   };
 
   class Caption: public AbstractStructureElement {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( Caption, AbstractStructureElement );
-    static properties PROPS;
   };
 
   class Label: public AbstractStructureElement {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( Label, AbstractStructureElement );
-    static properties PROPS;
   };
 
   class ListItem: public AbstractStructureElement {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( ListItem, AbstractStructureElement );
-    static properties PROPS;
   };
 
   class List: public AbstractStructureElement {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( List, AbstractStructureElement );
-    static properties PROPS;
   };
 
   class Figure: public AbstractStructureElement {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( Figure, AbstractStructureElement );
     const UnicodeString caption() const;
-    static properties PROPS;
   };
 
   class Paragraph: public AbstractStructureElement {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( Paragraph, AbstractStructureElement );
-    static properties PROPS;
   };
 
   class AbstractSubtokenAnnotation:
     public AbstractStructureElement
   {
-    friend void static_init();
-  protected:
     // DO NOT USE AbstractSubtokenAnnotation as a real node!!
+  protected:
     ADD_PROTECTED_CONSTRUCTORS( AbstractSubtokenAnnotation,
 				AbstractStructureElement );
-  public:
-    //    static properties PROPS;
   };
 
   class Alternative:
     public AbstractHigherOrderAnnotation,
     public AllowInlineAnnotation,
     public AllowGenerateID
-    {
-    friend void static_init();
+  {
   public:
     ADD_DEFAULT_CONSTRUCTORS( Alternative, AbstractHigherOrderAnnotation );
-    static properties PROPS;
   };
 
 
   class AlternativeLayers: public AbstractElement {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( AlternativeLayers, AbstractElement );
-    static properties PROPS;
   };
 
   class PosAnnotation: public AbstractInlineAnnotation {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( PosAnnotation, AbstractInlineAnnotation );
-    static properties PROPS;
   };
 
   class LemmaAnnotation: public AbstractInlineAnnotation {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( LemmaAnnotation, AbstractInlineAnnotation );
-    static properties PROPS;
   };
 
   class LangAnnotation: public AbstractInlineAnnotation {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( LangAnnotation, AbstractInlineAnnotation );
-    static properties PROPS;
   };
 
   class Phoneme:
     public AbstractSubtokenAnnotation,
     public AbstractWord
-    {
-      friend void static_init();
-    public:
-      ADD_DEFAULT_CONSTRUCTORS( Phoneme, AbstractSubtokenAnnotation );
-      static properties PROPS;
-    };
+  {
+  public:
+    ADD_DEFAULT_CONSTRUCTORS( Phoneme, AbstractSubtokenAnnotation );
+  };
 
   class DomainAnnotation: public AbstractInlineAnnotation {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( DomainAnnotation, AbstractInlineAnnotation );
-    static properties PROPS;
   };
 
   class SenseAnnotation: public AbstractInlineAnnotation {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( SenseAnnotation, AbstractInlineAnnotation );
-    static properties PROPS;
   };
 
   class SubjectivityAnnotation: public AbstractInlineAnnotation {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( SubjectivityAnnotation,
-				  AbstractInlineAnnotation );
-    static properties PROPS;
+			      AbstractInlineAnnotation );
   };
 
   class Quote: public AbstractStructureElement {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( Quote, AbstractStructureElement );
     std::vector<Word*> wordParts() const override;
     const std::string& get_delimiter( const TextPolicy& ) const override;
-    static properties PROPS;
   };
 
   class AbstractFeature: public AbstractElement {
-    friend void static_init();
+    // DO NOT USE AbstractStructureElement as a real node!!
+  protected:
+    ADD_PROTECTED_CONSTRUCTORS( AbstractFeature, AbstractElement );
   public:
     void setAttributes( KWargs& ) override;
     KWargs collectAttributes() const override;
     const std::string subset() const override { return _subset; };
-  protected:
-    // DO NOT USE AbstractStructureElement as a real node!!
-    ADD_PROTECTED_CONSTRUCTORS( AbstractFeature, AbstractElement );
-  public:
     std::string _subset;
   };
 
   class Feature: public AbstractFeature {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( Feature, AbstractFeature );
-    static properties PROPS;
   };
 
   class BegindatetimeFeature: public AbstractFeature {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( BegindatetimeFeature, AbstractFeature );
-    static properties PROPS;
   };
 
   class EnddatetimeFeature: public AbstractFeature {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( EnddatetimeFeature, AbstractFeature );
-    static properties PROPS;
   };
 
   class SynsetFeature: public AbstractFeature {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( SynsetFeature, AbstractFeature );
-    static properties PROPS;
   };
 
   class ActorFeature: public AbstractFeature {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( ActorFeature, AbstractFeature );
-    static properties PROPS;
   };
 
   class PolarityFeature: public AbstractFeature {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( PolarityFeature, AbstractFeature );
-    static properties PROPS;
   };
 
   class StrengthFeature: public AbstractFeature {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( StrengthFeature, AbstractFeature );
-    static properties PROPS;
   };
 
 
   class HeadFeature: public AbstractFeature {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( HeadFeature, AbstractFeature );
-    static properties PROPS;
   };
 
   class ValueFeature: public AbstractFeature {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( ValueFeature, AbstractFeature );
-    static properties PROPS;
   };
 
   class FunctionFeature: public AbstractFeature {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( FunctionFeature, AbstractFeature );
-    static properties PROPS;
   };
 
   class TimeFeature: public AbstractFeature {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( TimeFeature, AbstractFeature );
-    static properties PROPS;
   };
 
   class LevelFeature: public AbstractFeature {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( LevelFeature, AbstractFeature );
-    static properties PROPS;
   };
 
   class ModalityFeature: public AbstractFeature {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( ModalityFeature, AbstractFeature );
-    static properties PROPS;
   };
 
   class StyleFeature: public AbstractFeature {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( StyleFeature, AbstractFeature );
-    static properties PROPS;
   };
 
   class FontFeature: public AbstractFeature {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( FontFeature, AbstractFeature );
-    static properties PROPS;
   };
 
   class SizeFeature: public AbstractFeature {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( SizeFeature, AbstractFeature );
-    static properties PROPS;
   };
 
   class WordReference: public AbstractElement {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( WordReference, AbstractElement );
-    static properties PROPS;
   private:
     FoliaElement* parseXml( const xmlNode *node ) override;
   };
@@ -873,20 +701,17 @@ public:									\
   class Relation:
     public AbstractHigherOrderAnnotation,
     public AllowXlink {
-      friend void static_init();
   public:
-      ADD_DEFAULT_CONSTRUCTORS( Relation, AbstractHigherOrderAnnotation );
-      std::vector<FoliaElement *>resolve() const override;
-      void setAttributes( KWargs& ) override;
-      KWargs collectAttributes() const override;
-      static properties PROPS;
+    ADD_DEFAULT_CONSTRUCTORS( Relation, AbstractHigherOrderAnnotation );
+    std::vector<FoliaElement *>resolve() const override;
+    void setAttributes( KWargs& ) override;
+    KWargs collectAttributes() const override;
   private:
-      void init() override;
-      std::string _format;
-    };
+    void init() override;
+    std::string _format;
+  };
 
   class LinkReference: public AbstractElement {
-    friend void static_init();
     friend class Relation;
   public:
     ADD_DEFAULT_CONSTRUCTORS( LinkReference, AbstractElement );
@@ -896,8 +721,6 @@ public:									\
     const std::string refid() const { return ref_id; };
     const std::string type() const { return ref_type; };
     const std::string t() const { return _t; };
-    static properties PROPS;
-
   private:
     FoliaElement* parseXml( const xmlNode *node ) override;
     FoliaElement *resolve_element( const Relation *ref ) const;
@@ -907,146 +730,106 @@ public:									\
   };
 
   class SyntacticUnit: public AbstractSpanAnnotation {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( SyntacticUnit, AbstractSpanAnnotation );
-    static properties PROPS;
   };
 
   class Chunk: public AbstractSpanAnnotation {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( Chunk, AbstractSpanAnnotation );
-    static properties PROPS;
   };
 
   class Entity: public AbstractSpanAnnotation {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( Entity, AbstractSpanAnnotation );
-    static properties PROPS;
   };
 
   class AbstractSpanRole: public AbstractSpanAnnotation {
-    friend void static_init();
-  protected:
     // DO NOT USE AbstractSpanRole as a real node!!
+  protected:
     ADD_PROTECTED_CONSTRUCTORS( AbstractSpanRole, AbstractSpanAnnotation );
-    //    static properties PROPS;
   };
 
   class Headspan: public AbstractSpanRole {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( Headspan, AbstractSpanRole );
-    static properties PROPS;
   };
 
   class DependencyDependent: public AbstractSpanRole {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( DependencyDependent, AbstractSpanRole );
-    static properties PROPS;
   };
 
   class Source: public AbstractSpanRole {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( Source, AbstractSpanRole );
-    static properties PROPS;
   };
 
   class Target: public AbstractSpanRole {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( Target, AbstractSpanRole );
-    static properties PROPS;
   };
 
   class Scope: public AbstractSpanRole {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( Scope, AbstractSpanRole );
-    static properties PROPS;
   };
 
   class Cue: public AbstractSpanRole {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( Cue, AbstractSpanRole );
-    static properties PROPS;
   };
 
   class StatementRelation: public AbstractSpanRole {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( StatementRelation, AbstractSpanRole );
-    static properties PROPS;
   };
 
   class Dependency: public AbstractSpanAnnotation {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( Dependency, AbstractSpanAnnotation );
     Headspan *head() const;
     DependencyDependent *dependent() const;
-    static properties PROPS;
   };
 
   class CoreferenceLink: public AbstractSpanRole {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( CoreferenceLink, AbstractSpanRole );
-    static properties PROPS;
   };
 
   class CoreferenceChain: public AbstractSpanAnnotation {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( CoreferenceChain, AbstractSpanAnnotation );
-    static properties PROPS;
   };
 
   class SemanticRole: public AbstractSpanAnnotation {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( SemanticRole, AbstractSpanAnnotation );
-    static properties PROPS;
   };
 
   class Predicate: public AbstractSpanAnnotation {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( Predicate, AbstractSpanAnnotation );
-    static properties PROPS;
   };
 
   class Sentiment: public AbstractSpanAnnotation {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( Sentiment, AbstractSpanAnnotation );
-    static properties PROPS;
   };
 
   class Modality: public AbstractSpanAnnotation {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( Modality, AbstractSpanAnnotation );
-    static properties PROPS;
   };
 
   class Statement: public AbstractSpanAnnotation {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( Statement, AbstractSpanAnnotation );
-    static properties PROPS;
   };
 
   class Observation: public AbstractSpanAnnotation {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( Observation, AbstractSpanAnnotation );
-    static properties PROPS;
   };
 
 
@@ -1054,30 +837,25 @@ public:									\
     public AbstractElement,
     public AllowGenerateID,
     public AllowInlineAnnotation
-    {
-      friend void static_init();
-    public:
-      AbstractSpanAnnotation *findspan( const std::vector<FoliaElement*>& ) const override;
-      FoliaElement *append( FoliaElement * ) override;
-      KWargs collectAttributes() const override;
-      //      static properties PROPS;
-    protected:
-      // DO NOT USE AbstractAnnotationLayer as a real node!!
-      ADD_PROTECTED_CONSTRUCTORS( AbstractAnnotationLayer, AbstractElement );
-    private:
-      void assignset( FoliaElement * );
-    };
+  {
+    // DO NOT USE AbstractAnnotationLayer as a real node!!
+  protected:
+    ADD_PROTECTED_CONSTRUCTORS( AbstractAnnotationLayer, AbstractElement );
+  public:
+    AbstractSpanAnnotation *findspan( const std::vector<FoliaElement*>& ) const override;
+    FoliaElement *append( FoliaElement * ) override;
+    KWargs collectAttributes() const override;
+  private:
+    void assignset( FoliaElement * );
+  };
 
   class AbstractCorrectionChild: public AbstractElement {
-    friend void static_init();
-  protected:
     // DO NOT USE AbstractCorrectionChild as a real node!!
+  protected:
     ADD_PROTECTED_CONSTRUCTORS( AbstractCorrectionChild, AbstractElement );
-    //    static properties PROPS;
   };
 
   class New: public AbstractCorrectionChild {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( New, AbstractCorrectionChild );
 
@@ -1088,39 +866,31 @@ public:									\
 			 const KWargs& ) override;
     Correction *correct( const std::string& = "" ) override;
     bool addable( const FoliaElement * ) const override;
-    static properties PROPS;
   };
 
   class Current: public AbstractCorrectionChild {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( Current, AbstractCorrectionChild );
-    static properties PROPS;
     bool addable( const FoliaElement * ) const override;
   };
 
   class Original: public AbstractCorrectionChild {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( Original, AbstractCorrectionChild );
-    static properties PROPS;
     bool addable( const FoliaElement * ) const override;
   };
 
   class Suggestion: public AbstractCorrectionChild {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( Suggestion, AbstractCorrectionChild );
     void setAttributes( KWargs& ) override;
     KWargs collectAttributes() const override;
-    static properties PROPS;
   private:
     std::string _split;
     std::string _merge;
   };
 
   class Description: public AbstractElement {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( Description, AbstractElement );
 
@@ -1129,13 +899,11 @@ public:									\
     FoliaElement* parseXml( const xmlNode * ) override;
     xmlNode *xml( bool, bool=false ) const override;
     void setvalue( const std::string& s ){ _value = s; };
-    static properties PROPS;
   private:
     std::string _value;
   };
 
   class Comment: public AbstractElement {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( Comment, AbstractElement );
 
@@ -1144,19 +912,16 @@ public:									\
     FoliaElement* parseXml( const xmlNode * ) override;
     xmlNode *xml( bool, bool=false ) const override;
     void setvalue( const std::string& s ){ _value = s; };
-    static properties PROPS;
   private:
     std::string _value;
   };
 
   class XmlComment: public AbstractElement {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( XmlComment, AbstractElement );
     FoliaElement* parseXml( const xmlNode * ) override;
     xmlNode *xml( bool, bool=false ) const override;
     void setvalue( const std::string& s ){ _value = s; };
-    static properties PROPS;
   private:
     const UnicodeString private_text( const TextPolicy& ) const override {
       return "";
@@ -1165,7 +930,6 @@ public:									\
   };
 
   class XmlText: public AbstractElement {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( XmlText, AbstractElement );
     FoliaElement* parseXml( const xmlNode * ) override;
@@ -1175,82 +939,66 @@ public:									\
     const std::string& get_delimiter( const TextPolicy& ) const override {
       return EMPTY_STRING; };
     void setAttributes( KWargs& ) override;
-    static properties PROPS;
   private:
     const UnicodeString private_text( const TextPolicy& ) const override;
     std::string _value; //UTF8 value
   };
 
   class External: public AbstractElement {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( External, AbstractElement );
 
     FoliaElement* parseXml( const xmlNode * ) override;
     void resolve_external();
-    static properties PROPS;
   };
 
   class Note: public AbstractStructureElement {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( Note, AbstractStructureElement );
     void setAttributes( KWargs& ) override;
-    static properties PROPS;
   private:
     std::string ref_id;
   };
 
   class Definition: public AbstractStructureElement {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( Definition, AbstractStructureElement );
-    static properties PROPS;
   };
 
   class Term: public AbstractStructureElement {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( Term, AbstractStructureElement );
-    static properties PROPS;
   };
 
   class Example: public AbstractStructureElement {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( Example, AbstractStructureElement );
-    static properties PROPS;
   };
 
   class Entry: public AbstractStructureElement {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( Entry, AbstractStructureElement );
-    static properties PROPS;
   };
 
   class Reference:
     public AbstractStructureElement,
     public AllowXlink
-    {
-      friend void static_init();
-      friend class Note;
-    public:
-      ADD_DEFAULT_CONSTRUCTORS( Reference, AbstractStructureElement );
+  {
+    friend class Note;
+  public:
+    ADD_DEFAULT_CONSTRUCTORS( Reference, AbstractStructureElement );
 
-      KWargs collectAttributes() const override;
-      void setAttributes( KWargs& ) override;
-      static properties PROPS;
-    private:
-      void init() override;
-      std::string ref_id;
-      std::string ref_type;
-      std::string _format;
-    };
+    KWargs collectAttributes() const override;
+    void setAttributes( KWargs& ) override;
+  private:
+    void init() override;
+    std::string ref_id;
+    std::string ref_type;
+    std::string _format;
+  };
 
 
   class Correction: public AbstractInlineAnnotation {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( Correction, AbstractInlineAnnotation );
     bool hasNew() const;
@@ -1279,131 +1027,96 @@ public:									\
 			 const KWargs& ) override;
     Correction *correct( const std::string& = "" ) override;
     bool space() const override;
-    static properties PROPS;
   private:
     const UnicodeString private_text( const TextPolicy& ) const override;
   };
 
   class ErrorDetection: public AbstractInlineAnnotation  {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( ErrorDetection, AbstractInlineAnnotation );
-    static properties PROPS;
   };
 
   class TimeSegment: public AbstractSpanAnnotation {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( TimeSegment, AbstractSpanAnnotation );
-    static properties PROPS;
   };
 
   class Morpheme:
     public AbstractSubtokenAnnotation,
     public AbstractWord
-    {
-      friend void static_init();
-    public:
-      ADD_DEFAULT_CONSTRUCTORS( Morpheme, AbstractSubtokenAnnotation );
-      static properties PROPS;
-    };
+  {
+  public:
+    ADD_DEFAULT_CONSTRUCTORS( Morpheme, AbstractSubtokenAnnotation );
+  };
 
   class SyntaxLayer: public AbstractAnnotationLayer {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( SyntaxLayer, AbstractAnnotationLayer );
-    static properties PROPS;
   };
 
   class ChunkingLayer: public AbstractAnnotationLayer {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( ChunkingLayer, AbstractAnnotationLayer );
-    static properties PROPS;
   };
 
   class EntitiesLayer: public AbstractAnnotationLayer {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( EntitiesLayer, AbstractAnnotationLayer );
-    static properties PROPS;
   };
 
   class TimingLayer: public AbstractAnnotationLayer {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( TimingLayer, AbstractAnnotationLayer );
-    static properties PROPS;
   };
 
   class MorphologyLayer: public AbstractAnnotationLayer {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( MorphologyLayer, AbstractAnnotationLayer );
-    static properties PROPS;
   };
 
   class PhonologyLayer: public AbstractAnnotationLayer {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( PhonologyLayer, AbstractAnnotationLayer );
-    static properties PROPS;
   };
 
   class DependenciesLayer: public AbstractAnnotationLayer {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( DependenciesLayer, AbstractAnnotationLayer );
-    static properties PROPS;
   };
 
   class CoreferenceLayer: public AbstractAnnotationLayer {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( CoreferenceLayer, AbstractAnnotationLayer );
-    static properties PROPS;
   };
 
   class SemanticRolesLayer: public AbstractAnnotationLayer {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( SemanticRolesLayer, AbstractAnnotationLayer );
-    static properties PROPS;
   };
 
   class StatementLayer: public AbstractAnnotationLayer {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( StatementLayer, AbstractAnnotationLayer );
-    static properties PROPS;
   };
 
   class SentimentLayer: public AbstractAnnotationLayer {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( SentimentLayer, AbstractAnnotationLayer );
-    static properties PROPS;
   };
 
   class ModalitiesLayer: public AbstractAnnotationLayer {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( ModalitiesLayer, AbstractAnnotationLayer );
-    static properties PROPS;
   };
 
   class ObservationLayer: public AbstractAnnotationLayer {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( ObservationLayer, AbstractAnnotationLayer );
-    static properties PROPS;
   };
 
   class SpanRelationLayer: public AbstractAnnotationLayer {
-    friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( SpanRelationLayer, AbstractAnnotationLayer );
-    static properties PROPS;
   };
 
   ///

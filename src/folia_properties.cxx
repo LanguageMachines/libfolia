@@ -493,7 +493,7 @@ namespace folia {
 				     SemanticRolesLayer_t,
 				     TimeSegment_t };
 
-  properties DEFAULT_PROPERTIES;
+  // Abstract properties are not in the external specification
   properties ABSTRACT_STRUCTURE_PROPERTIES;
   properties ABSTRACT_ANNOTATION_LAYER_PROPERTIES;
   properties ABSTRACT_CONTENT_ANNOTATION_PROPERTIES;
@@ -506,6 +506,7 @@ namespace folia {
   properties ABSTRACT_TEXT_MARKUP_PROPERTIES;
   properties ABSTRACT_FEATURE_PROPERTIES;
   //these are not in the external specification yet:
+  properties DEFAULT_PROPERTIES;
   properties FoLiA::PROPS = DEFAULT_PROPERTIES;
   properties DCOI::PROPS = DEFAULT_PROPERTIES;
   properties XmlComment::PROPS = DEFAULT_PROPERTIES;
@@ -514,16 +515,6 @@ namespace folia {
 
   //foliaspec:instantiateelementproperties
   //Instantiates all element properties for the first time, setting them to the default properties
-  //  properties AbstractAnnotationLayer::PROPS = DEFAULT_PROPERTIES;
-  //  properties AbstractContentAnnotation::PROPS = DEFAULT_PROPERTIES;
-  //  properties AbstractCorrectionChild::PROPS = DEFAULT_PROPERTIES;
-  //  properties AbstractHigherOrderAnnotation::PROPS = DEFAULT_PROPERTIES;
-  //  properties AbstractInlineAnnotation::PROPS = DEFAULT_PROPERTIES;
-  //  properties AbstractSpanAnnotation::PROPS = DEFAULT_PROPERTIES;
-  //  properties AbstractSpanRole::PROPS = DEFAULT_PROPERTIES;
-  //  properties AbstractStructureElement::PROPS = DEFAULT_PROPERTIES;
-  //  properties AbstractSubtokenAnnotation::PROPS = DEFAULT_PROPERTIES;
-  //  properties AbstractTextMarkup::PROPS = DEFAULT_PROPERTIES;
   properties ActorFeature::PROPS = DEFAULT_PROPERTIES;
   properties Alternative::PROPS = DEFAULT_PROPERTIES;
   properties AlternativeLayers::PROPS = DEFAULT_PROPERTIES;
