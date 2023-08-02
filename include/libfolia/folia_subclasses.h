@@ -405,7 +405,6 @@ public:								\
   protected:
     ADD_PROTECTED_CONSTRUCTORS( Word, AbstractStructureElement );
   public:
-  public:
     ADD_DEFAULT_CONSTRUCTORS( Word, AbstractStructureElement );
 
     Correction *split( FoliaElement *, FoliaElement *,
@@ -606,7 +605,6 @@ public:								\
   };
 
   class Feature: public AbstractElement {
-    // DO NOT USE AbstractStructureElement as a real node!!
   protected:
     ADD_PROTECTED_CONSTRUCTORS( Feature, AbstractElement );
   public:
