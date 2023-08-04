@@ -2756,14 +2756,14 @@ namespace folia {
   }
 
 
-  void Feature::setAttributes( KWargs& kwargs ) {
+  void AbstractFeature::setAttributes( KWargs& kwargs ) {
     /// set the Feature attributes given a set of Key-Value pairs.
     /*!
      * \param kwargs a KWargs set of Key-Value pairs
      *
-     * checks and sets the special attributes for Feature
+     * checks and sets the special attributes for AbstractFeature
      * subset, class
-     * \note Feature is special. So DON'T call setAttributes
+     * \note Feature's are special. So DON'T call setAttributes
      */
     auto it = kwargs.find( "subset" );
     if ( it == kwargs.end() ) {
@@ -2788,8 +2788,8 @@ namespace folia {
     set_cls( it->second );
   }
 
-  KWargs Feature::collectAttributes() const {
-    /// extract all Attribute-Value pairs for Feature
+  KWargs AbstractFeature::collectAttributes() const {
+    /// extract all Attribute-Value pairs for AbstractFeature
     /*!
      * \return a KWargs set of Attribute-value pairs
      * inclusive: subset
