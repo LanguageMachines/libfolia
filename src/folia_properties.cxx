@@ -1175,7 +1175,7 @@ namespace folia {
 //------ Modality -------
     Modality::PROPS = ABSTRACT_SPAN_ANNOTATION_PROPERTIES;
     Modality::PROPS.ELEMENT_ID = Modality_t;
-    Modality::PROPS.ACCEPTED_DATA += {Feature_t, AbstractInlineAnnotation_t, Comment_t, Cue_t, Description_t, ForeignData_t, LinkReference_t, Metric_t, PolarityFeature_t, Relation_t, Scope_t, Source_t, StrengthFeature_t, Target_t};
+    Modality::PROPS.ACCEPTED_DATA += {AbstractFeature_t, AbstractInlineAnnotation_t, Comment_t, Cue_t, Description_t, ForeignData_t, LinkReference_t, Metric_t, PolarityFeature_t, Relation_t, Scope_t, Source_t, StrengthFeature_t, Target_t};
     Modality::PROPS.ANNOTATIONTYPE = AnnotationType::MODALITY;
     Modality::PROPS.LABEL = "Modality";
     Modality::PROPS.XMLTAG = "modality";
@@ -1733,6 +1733,7 @@ namespace folia {
   static const map<ElementType, set<ElementType> > typeHierarchy = {      { AbstractAnnotationLayer_t, {  } },
      { AbstractContentAnnotation_t, {  } },
      { AbstractCorrectionChild_t, {  } },
+     { AbstractFeature_t, { AbstractHigherOrderAnnotation_t } },
      { AbstractHigherOrderAnnotation_t, {  } },
      { AbstractInlineAnnotation_t, {  } },
      { AbstractSpanAnnotation_t, {  } },
@@ -1772,7 +1773,7 @@ namespace folia {
      { Event_t, { AbstractStructureElement_t } },
      { Example_t, { AbstractStructureElement_t } },
      { External_t, { AbstractHigherOrderAnnotation_t } },
-     { Feature_t, { AbstractFeature_t, AbstractHigherOrderAnnotation_t } },
+     { Feature_t, { AbstractFeature_t,AbstractHigherOrderAnnotation_t } },
      { Figure_t, { AbstractStructureElement_t } },
      { FontFeature_t, { AbstractFeature_t,AbstractHigherOrderAnnotation_t } },
      { ForeignData_t, { AbstractHigherOrderAnnotation_t } },
