@@ -32,7 +32,7 @@
 #include "libfolia/folia_properties.h"
 
 //foliaspec:header
-//This file was last updated according to the FoLiA specification for version 2.5.3 on 2023-08-01 16:29:45, using foliaspec.py
+//This file was last updated according to the FoLiA specification for version 2.5.4 on 2023-08-05 10:31:30, using foliaspec.py
 //Code blocks after a foliaspec comment (until the next newline) are automatically generated. **DO NOT EDIT THOSE** and **DO NOT REMOVE ANY FOLIASPEC COMMENTS** !!!
 
 namespace folia {
@@ -49,7 +49,7 @@ namespace folia {
 
   //foliaspec:version_sub:SUB_VERSION
   //The FoLiA version (sub/rev)
-  const int SUB_VERSION = 3;
+  const int SUB_VERSION = 4;
 
   //foliaspec:namespace:NSFOLIA
   //The FoLiA XML namespace
@@ -386,7 +386,7 @@ namespace folia {
     { "function", FunctionFeature_t  },
     { "gap", Gap_t  },
     { "head", Head_t  },
-    { "headfeature", HeadFeature_t },
+    { "headfeature", HeadFeature_t  },
     { "hd", Headspan_t  },
     { "hiddenw", Hiddenword_t  },
     { "t-hbr", Hyphbreak_t  },
@@ -742,6 +742,12 @@ namespace folia {
     ABSTRACT_TEXT_MARKUP_PROPERTIES.TEXTDELIMITER = "";
     ABSTRACT_TEXT_MARKUP_PROPERTIES.XLINK = true;
     element_props[AbstractTextMarkup_t] = &ABSTRACT_TEXT_MARKUP_PROPERTIES;
+//------ ActorFeature -------
+    ActorFeature::PROPS = ABSTRACT_FEATURE_PROPERTIES;
+    ActorFeature::PROPS.ELEMENT_ID = ActorFeature_t;
+    ActorFeature::PROPS.SUBSET = "actor";
+    ActorFeature::PROPS.XMLTAG = "actor";
+    element_props[ActorFeature_t] = &ActorFeature::PROPS;
 //------ Alternative -------
     Alternative::PROPS = ABSTRACT_HIGHER_ORDER_ANNOTATION_PROPERTIES;
     Alternative::PROPS.ELEMENT_ID = Alternative_t;
@@ -768,6 +774,12 @@ namespace folia {
     AlternativeLayers::PROPS.SPEAKABLE = false;
     AlternativeLayers::PROPS.XMLTAG = "altlayers";
     element_props[AlternativeLayers_t] = &AlternativeLayers::PROPS;
+//------ BegindatetimeFeature -------
+    BegindatetimeFeature::PROPS = ABSTRACT_FEATURE_PROPERTIES;
+    BegindatetimeFeature::PROPS.ELEMENT_ID = BegindatetimeFeature_t;
+    BegindatetimeFeature::PROPS.SUBSET = "begindatetime";
+    BegindatetimeFeature::PROPS.XMLTAG = "begindatetime";
+    element_props[BegindatetimeFeature_t] = &BegindatetimeFeature::PROPS;
 //------ Caption -------
     Caption::PROPS = ABSTRACT_STRUCTURE_ELEMENT_PROPERTIES;
     Caption::PROPS.ELEMENT_ID = Caption_t;
@@ -927,6 +939,12 @@ namespace folia {
     DomainAnnotation::PROPS.OCCURRENCES_PER_SET = 0;
     DomainAnnotation::PROPS.XMLTAG = "domain";
     element_props[DomainAnnotation_t] = &DomainAnnotation::PROPS;
+//------ EnddatetimeFeature -------
+    EnddatetimeFeature::PROPS = ABSTRACT_FEATURE_PROPERTIES;
+    EnddatetimeFeature::PROPS.ELEMENT_ID = EnddatetimeFeature_t;
+    EnddatetimeFeature::PROPS.SUBSET = "enddatetime";
+    EnddatetimeFeature::PROPS.XMLTAG = "enddatetime";
+    element_props[EnddatetimeFeature_t] = &EnddatetimeFeature::PROPS;
 //------ EntitiesLayer -------
     EntitiesLayer::PROPS = ABSTRACT_ANNOTATION_LAYER_PROPERTIES;
     EntitiesLayer::PROPS.ELEMENT_ID = EntitiesLayer_t;
@@ -993,24 +1011,6 @@ namespace folia {
     External::PROPS.SPEAKABLE = true;
     External::PROPS.XMLTAG = "external";
     element_props[External_t] = &External::PROPS;
-//------ ActorFeature -------
-    ActorFeature::PROPS = ABSTRACT_FEATURE_PROPERTIES;
-    ActorFeature::PROPS.ELEMENT_ID = ActorFeature_t;
-    ActorFeature::PROPS.SUBSET = "actor";
-    ActorFeature::PROPS.XMLTAG = "actor";
-    element_props[ActorFeature_t] = &ActorFeature::PROPS;
-//------ BegindatetimeFeature -------
-    BegindatetimeFeature::PROPS = ABSTRACT_FEATURE_PROPERTIES;
-    BegindatetimeFeature::PROPS.ELEMENT_ID = BegindatetimeFeature_t;
-    BegindatetimeFeature::PROPS.SUBSET = "begindatetime";
-    BegindatetimeFeature::PROPS.XMLTAG = "begindatetime";
-    element_props[BegindatetimeFeature_t] = &BegindatetimeFeature::PROPS;
-//------ EnddatetimeFeature -------
-    EnddatetimeFeature::PROPS = ABSTRACT_FEATURE_PROPERTIES;
-    EnddatetimeFeature::PROPS.ELEMENT_ID = EnddatetimeFeature_t;
-    EnddatetimeFeature::PROPS.SUBSET = "enddatetime";
-    EnddatetimeFeature::PROPS.XMLTAG = "enddatetime";
-    element_props[EnddatetimeFeature_t] = &EnddatetimeFeature::PROPS;
 //------ Feature -------
     Feature::PROPS = ABSTRACT_FEATURE_PROPERTIES;
     Feature::PROPS.ELEMENT_ID = Feature_t;
@@ -1066,7 +1066,7 @@ namespace folia {
     HeadFeature::PROPS = ABSTRACT_FEATURE_PROPERTIES;
     HeadFeature::PROPS.ELEMENT_ID = HeadFeature_t;
     HeadFeature::PROPS.SUBSET = "head";
-    HeadFeature::PROPS.XMLTAG = "head";
+    HeadFeature::PROPS.XMLTAG = "headfeature";
     element_props[HeadFeature_t] = &HeadFeature::PROPS;
 //------ Headspan -------
     Headspan::PROPS = ABSTRACT_SPAN_ROLE_PROPERTIES;
@@ -1181,7 +1181,7 @@ namespace folia {
     Modality::PROPS.XMLTAG = "modality";
     element_props[Modality_t] = &Modality::PROPS;
 //------ ModalityFeature -------
-    ModalityFeature::PROPS = Feature::PROPS;
+    ModalityFeature::PROPS = ABSTRACT_FEATURE_PROPERTIES;
     ModalityFeature::PROPS.ELEMENT_ID = ModalityFeature_t;
     ModalityFeature::PROPS.SUBSET = "mod";
     ModalityFeature::PROPS.XMLTAG = "mod";
@@ -1189,7 +1189,7 @@ namespace folia {
 //------ Morpheme -------
     Morpheme::PROPS = ABSTRACT_SUBTOKEN_ANNOTATION_PROPERTIES;
     Morpheme::PROPS.ELEMENT_ID = Morpheme_t;
-    Morpheme::PROPS.ACCEPTED_DATA += {AbstractAnnotationLayer_t, Feature_t, AbstractInlineAnnotation_t, Alternative_t, AlternativeLayers_t, Comment_t, Correction_t, Description_t, ForeignData_t, FunctionFeature_t, Metric_t, Morpheme_t, Part_t, PhonContent_t, Relation_t, String_t, TextContent_t};
+    Morpheme::PROPS.ACCEPTED_DATA += {AbstractAnnotationLayer_t, AbstractFeature_t, AbstractInlineAnnotation_t, Alternative_t, AlternativeLayers_t, Comment_t, Correction_t, Description_t, ForeignData_t, FunctionFeature_t, Metric_t, Morpheme_t, Part_t, PhonContent_t, Relation_t, String_t, TextContent_t};
     Morpheme::PROPS.ANNOTATIONTYPE = AnnotationType::MORPHOLOGICAL;
     Morpheme::PROPS.LABEL = "Morpheme";
     Morpheme::PROPS.TEXTDELIMITER = "";
