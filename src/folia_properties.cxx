@@ -838,7 +838,7 @@ namespace folia {
 //------ CoreferenceLink -------
     CoreferenceLink::PROPS = ABSTRACT_SPAN_ROLE_PROPERTIES;
     CoreferenceLink::PROPS.ELEMENT_ID = CoreferenceLink_t;
-    CoreferenceLink::PROPS.ACCEPTED_DATA += {AbstractFeature_t, AbstractInlineAnnotation_t, Comment_t, Description_t, ForeignData_t, Headspan_t, LinkReference_t, Metric_t, ModalityFeature_t, Relation_t, TimeFeature_t, WordReference_t, Hiddenword_t, Morpheme_t, Phoneme_t, Word_t};
+    CoreferenceLink::PROPS.ACCEPTED_DATA += {AbstractFeature_t, AbstractInlineAnnotation_t, Comment_t, Description_t, ForeignData_t, Headspan_t, LevelFeature_t, LinkReference_t, Metric_t, ModalityFeature_t, Relation_t, TimeFeature_t, WordReference_t, Hiddenword_t, Morpheme_t, Phoneme_t, Word_t};
     CoreferenceLink::PROPS.ANNOTATIONTYPE = AnnotationType::COREFERENCE;
     CoreferenceLink::PROPS.LABEL = "Coreference Link";
     CoreferenceLink::PROPS.XMLTAG = "coreferencelink";
@@ -993,12 +993,6 @@ namespace folia {
     External::PROPS.SPEAKABLE = true;
     External::PROPS.XMLTAG = "external";
     element_props[External_t] = &External::PROPS;
-//------ Feature -------
-    Feature::PROPS = ABSTRACT_FEATURE_PROPERTIES;
-    Feature::PROPS.ELEMENT_ID = Feature_t;
-    Feature::PROPS.LABEL = "Feature";
-    Feature::PROPS.XMLTAG = "feat";
-    element_props[Feature_t] = &Feature::PROPS;
 //------ ActorFeature -------
     ActorFeature::PROPS = ABSTRACT_FEATURE_PROPERTIES;
     ActorFeature::PROPS.ELEMENT_ID = ActorFeature_t;
@@ -1017,6 +1011,12 @@ namespace folia {
     EnddatetimeFeature::PROPS.SUBSET = "enddatetime";
     EnddatetimeFeature::PROPS.XMLTAG = "enddatetime";
     element_props[EnddatetimeFeature_t] = &EnddatetimeFeature::PROPS;
+//------ Feature -------
+    Feature::PROPS = ABSTRACT_FEATURE_PROPERTIES;
+    Feature::PROPS.ELEMENT_ID = Feature_t;
+    Feature::PROPS.LABEL = "Feature";
+    Feature::PROPS.XMLTAG = "feat";
+    element_props[Feature_t] = &Feature::PROPS;
 //------ Figure -------
     Figure::PROPS = ABSTRACT_STRUCTURE_ELEMENT_PROPERTIES;
     Figure::PROPS.ELEMENT_ID = Figure_t;
