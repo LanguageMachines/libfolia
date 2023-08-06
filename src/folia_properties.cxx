@@ -32,7 +32,7 @@
 #include "libfolia/folia_properties.h"
 
 //foliaspec:header
-//This file was last updated according to the FoLiA specification for version 2.5.4 on 2023-08-05 10:31:30, using foliaspec.py
+//This file was last updated according to the FoLiA specification for version 2.5.4 on 2023-08-06 10:32:26, using foliaspec.py
 //Code blocks after a foliaspec comment (until the next newline) are automatically generated. **DO NOT EDIT THOSE** and **DO NOT REMOVE ANY FOLIASPEC COMMENTS** !!!
 
 namespace folia {
@@ -62,7 +62,7 @@ namespace folia {
   const string DEFAULT_PHON_SET = "https://raw.githubusercontent.com/proycon/folia/master/setdefinitions/phon.foliaset.ttl";
 
   //foliaspec:attributefeatures
-  const set<string> AttributeFeatures = { "actor", "begindatetime", "enddatetime", "font", "function", "headfeature", "level", "mod", "polarity", "size", "strength", "style", "synset", "time", "value" };
+  const set<string> AttributeFeatures = { "actor", "begindatetime", "enddatetime", "feat", "font", "function", "headfeature", "level", "mod", "polarity", "size", "strength", "style", "synset", "time", "value" };
 
   //foliaspec:annotationtype_string_map
   //A mapping from annotation types to strings
@@ -386,7 +386,7 @@ namespace folia {
     { "function", FunctionFeature_t  },
     { "gap", Gap_t  },
     { "head", Head_t  },
-    { "headfeature", HeadFeature_t  },
+    { "headfeature", HeadFeature_t },
     { "hd", Headspan_t  },
     { "hiddenw", Hiddenword_t  },
     { "t-hbr", Hyphbreak_t  },
@@ -1014,7 +1014,7 @@ namespace folia {
 //------ Feature -------
     Feature::PROPS = ABSTRACT_FEATURE_PROPERTIES;
     Feature::PROPS.ELEMENT_ID = Feature_t;
-    Feature::PROPS.LABEL = "Feature";
+    Feature::PROPS.SUBSET = "feat";
     Feature::PROPS.XMLTAG = "feat";
     element_props[Feature_t] = &Feature::PROPS;
 //------ Figure -------
@@ -1066,7 +1066,7 @@ namespace folia {
     HeadFeature::PROPS = ABSTRACT_FEATURE_PROPERTIES;
     HeadFeature::PROPS.ELEMENT_ID = HeadFeature_t;
     HeadFeature::PROPS.SUBSET = "head";
-    HeadFeature::PROPS.XMLTAG = "headfeature";
+    HeadFeature::PROPS.XMLTAG = "head";
     element_props[HeadFeature_t] = &HeadFeature::PROPS;
 //------ Headspan -------
     Headspan::PROPS = ABSTRACT_SPAN_ROLE_PROPERTIES;
@@ -1789,7 +1789,6 @@ namespace folia {
      { LemmaAnnotation_t, { AbstractInlineAnnotation_t } },
      { LevelFeature_t, { AbstractFeature_t,AbstractHigherOrderAnnotation_t } },
      { Linebreak_t, { AbstractStructureElement_t } },
-     { LinkReference_t, {  } },
      { List_t, { AbstractStructureElement_t } },
      { ListItem_t, { AbstractStructureElement_t } },
      { Metric_t, { AbstractHigherOrderAnnotation_t } },
@@ -1860,7 +1859,6 @@ namespace folia {
      { ValueFeature_t, { AbstractFeature_t,AbstractHigherOrderAnnotation_t } },
      { Whitespace_t, { AbstractStructureElement_t } },
      { Word_t, { AbstractStructureElement_t } },
-     { WordReference_t, {  } },
      { PlaceHolder_t , { Word_t, AbstractStructureElement_t } }
   };
 
