@@ -32,7 +32,7 @@
 #include "libfolia/folia_properties.h"
 
 //foliaspec:header
-//This file was last updated according to the FoLiA specification for version 2.5.4 on 2023-08-06 10:32:26, using foliaspec.py
+//This file was last updated according to the FoLiA specification for version 2.5.4 on 2023-08-07 17:21:34, using foliaspec.py
 //Code blocks after a foliaspec comment (until the next newline) are automatically generated. **DO NOT EDIT THOSE** and **DO NOT REMOVE ANY FOLIASPEC COMMENTS** !!!
 
 namespace folia {
@@ -1850,7 +1850,7 @@ namespace folia {
      { Utterance_t, { AbstractStructureElement_t } },
      { ValueFeature_t, { AbstractFeature_t,AbstractHigherOrderAnnotation_t } },
      { Whitespace_t, { AbstractStructureElement_t } },
-     { Word_t, { AbstractStructureElement_t } }
+     { Word_t, { AbstractStructureElement_t } },
   };
 
   //foliaspec:oldtags_map
