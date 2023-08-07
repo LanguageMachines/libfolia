@@ -328,7 +328,6 @@ namespace folia {
     { Whitespace_t,  "whitespace" },
     { Word_t,  "w" },
     { WordReference_t,  "wref" },
-    { PlaceHolder_t, "_PlaceHolder" },
     { XmlComment_t, "_XmlComment" },
     { XmlText_t, "_XmlText" }
   };
@@ -467,7 +466,6 @@ namespace folia {
     { "whitespace", Whitespace_t  },
     { "w", Word_t  },
     { "wref", WordReference_t  },
-    { "_PlaceHolder", PlaceHolder_t  },
     { "_XmlComment", XmlComment_t  },
     { "_XmlText", XmlText_t  }
   };
@@ -514,7 +512,6 @@ namespace folia {
   properties FoLiA::PROPS = DEFAULT_PROPERTIES;
   properties DCOI::PROPS = DEFAULT_PROPERTIES;
   properties XmlComment::PROPS = DEFAULT_PROPERTIES;
-  properties PlaceHolder::PROPS = DEFAULT_PROPERTIES;
   properties XmlText::PROPS = DEFAULT_PROPERTIES;
 
   //foliaspec:instantiateelementproperties
@@ -1714,11 +1711,6 @@ namespace folia {
     XmlComment::PROPS.XMLTAG = "_XmlComment";
     XmlComment::PROPS.ELEMENT_ID = XmlComment_t;
 
-    PlaceHolder::PROPS = Word::PROPS;
-    PlaceHolder::PROPS.XMLTAG="_PlaceHolder";
-    PlaceHolder::PROPS.ELEMENT_ID = PlaceHolder_t;
-    PlaceHolder::PROPS.REQUIRED_ATTRIBS = NO_ATT;
-
     for ( const auto& it : oldtags ){
       reverse_old[it.second] = it.first;
     }
@@ -1858,8 +1850,7 @@ namespace folia {
      { Utterance_t, { AbstractStructureElement_t } },
      { ValueFeature_t, { AbstractFeature_t,AbstractHigherOrderAnnotation_t } },
      { Whitespace_t, { AbstractStructureElement_t } },
-     { Word_t, { AbstractStructureElement_t } },
-     { PlaceHolder_t , { Word_t, AbstractStructureElement_t } }
+     { Word_t, { AbstractStructureElement_t } }
   };
 
   //foliaspec:oldtags_map
@@ -2104,7 +2095,6 @@ namespace folia {
     case CoreferenceLink_t: return new CoreferenceLink();
     case CoreferenceChain_t:  return new CoreferenceChain();
     case Alternative_t: return new Alternative();
-    case PlaceHolder_t: return new PlaceHolder();
     case AlternativeLayers_t: return new AlternativeLayers();
     case SyntacticUnit_t: return new SyntacticUnit();
     case WordReference_t: return new WordReference();

@@ -235,7 +235,8 @@ namespace folia {
       else if ( pnt->isinstance( Sentence_t ) ) {
 	KWargs args;
 	args["text"] = pnt->id();
-	PlaceHolder *p = new PlaceHolder( args, doc() );
+	args["placeholder"] = "yes";
+	Word *p = new Word( args, doc() );
 	doc()->keepForDeletion( p );
 	result.push_back( p );
       }
@@ -1001,6 +1002,10 @@ namespace folia {
     if ( !value.empty() ) {
       settext( value );
     }
+    value = kwargs.extract( "placeholder" );
+    if ( !value.empty() ) {
+      _is_placeholder = value == "yes";
+    }
     AbstractElement::setAttributes( kwargs );
   }
 
@@ -1194,11 +1199,11 @@ namespace folia {
     /// return the (Word) context the Word is in.
     /*!
      * \param size limits the number of context words
-     * \param val string value of the PlaceHolder for the Word itself
+     * \param val string value of the placeholder for the Word itself
      * \return a list of (maximum) size Word nodes surrounding the Word.
      *
      * The result is a list of Word nodes of length 'size', where the Word
-     * itself is replaced by the 0 pointer, or a PlaceHolder with value val
+     * itself is replaced by the 0 pointer, or a placeholder with value val
      * in the middle of the list.
      */
     vector<Word*> result;
@@ -1217,7 +1222,8 @@ namespace folia {
 	    else {
 	      KWargs args;
 	      args["text"] = val;
-	      PlaceHolder *p = new PlaceHolder( args );
+	      args["placeholder"] = "yes";
+	      Word *p = new Word( args );
 	      doc()->keepForDeletion( p );
 	      result.push_back( p );
 	    }
@@ -1233,7 +1239,8 @@ namespace folia {
 	      else {
 		KWargs args;
 		args["text"] = val;
-		PlaceHolder *p = new PlaceHolder( args );
+		args["placeholder"] = "yes";
+		Word *p = new Word( args );
 		doc()->keepForDeletion( p );
 		result.push_back( p );
 	      }
@@ -1252,11 +1259,11 @@ namespace folia {
     /// return the left (Word) context the Word is in.
     /*!
      * \param size limits the number of context words
-     * \param val string value of the PlaceHolder for the Word itself
+     * \param val string value of the placeholder for the Word itself
      * \return a list of (maximum) size Word nodes preceding teh Word
      *
      * The result is a list of Word nodes of length 'size', where the Word
-     * itself is replaced by the 0 pointer, or a PlaceHolder with value val
+     * itself is replaced by the 0 pointer, or a placeholder with value val
      * at the end of the list.
      */
     //  cerr << "leftcontext : " << size << endl;
@@ -1276,7 +1283,8 @@ namespace folia {
 	    else {
 	      KWargs args;
 	      args["text"] = val;
-	      PlaceHolder *p = new PlaceHolder( args );
+	      args["placeholder"] = "yes";
+	      Word *p = new Word( args );
 	      doc()->keepForDeletion( p );
 	      result.push_back( p );
 	    }
@@ -1296,11 +1304,11 @@ namespace folia {
     /// return the rigth (Word) context the Word is in.
     /*!
      * \param size limits the number of context words
-     * \param val string value of the PlaceHolder for the Word itself
+     * \param val string value of the placeholder for the Word itself
      * \return a list of (maximum) size Word nodes succeeding the Word
      *
      * The result is a list of Word nodes of length 'size', where the Word
-     * itself is replaced by the 0 pointer, or a PlaceHolder with value val
+     * itself is replaced by the 0 pointer, or a placeholder with value val
      * at the beginning of the list.
      */
     vector<Word*> result;
@@ -1321,7 +1329,8 @@ namespace folia {
 	      else {
 		KWargs args;
 		args["text"] = val;
-		PlaceHolder *p = new PlaceHolder( args );
+		args["placeholder"] = "yes";
+		Word *p = new Word( args );
 		doc()->keepForDeletion( p );
 		result.push_back( p );
 	      }
@@ -1500,25 +1509,6 @@ namespace folia {
     return result;
   }
 
-  void PlaceHolder::setAttributes( KWargs& kwargs ) {
-    /// set the PlaceHolder attributes given a set of Key-Value pairs.
-    /*!
-     * \param kwargs a KWargs set of Key-Value pairs
-     *
-     * checks and sets the special attributes for PlaceHolder: text
-     */
-    string value = kwargs.extract( "text" );
-    if ( value.empty() ) {
-      throw ValueError("text attribute is required for " + classname() );
-    }
-    else {
-      settext( value );
-    }
-    if ( kwargs.size() > 0 ) {
-      throw ValueError("only the text attribute is supported for " + classname() );
-    }
-  }
-
   const UnicodeString Figure::caption() const {
     /// return the caption of a Figure
     /*!
@@ -1622,7 +1612,8 @@ namespace folia {
       }
     }
     AbstractElement::append( child );
-    if ( child->isinstance(PlaceHolder_t) ) {
+    if ( child->isinstance(Word_t)
+	 && dynamic_cast<Word*>(child)->is_placeholder() ) {
       child->increfcount();
     }
     return child;

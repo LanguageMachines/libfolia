@@ -403,9 +403,9 @@ public:								\
     public AbstractWord
   {
   protected:
-    ADD_PROTECTED_CONSTRUCTORS( Word, AbstractStructureElement );
+    ADD_PROTECTED_CONSTRUCTORS_INIT( Word, AbstractStructureElement, _is_placeholder(false) );
   public:
-    ADD_DEFAULT_CONSTRUCTORS( Word, AbstractStructureElement );
+    ADD_DEFAULT_CONSTRUCTORS_INIT( Word, AbstractStructureElement, _is_placeholder(false) );
 
     Correction *split( FoliaElement *, FoliaElement *,
 		       const std::string& = "" ) override;
@@ -425,6 +425,9 @@ public:								\
     MorphologyLayer *addMorphologyLayer( const KWargs& ) override;
     MorphologyLayer *getMorphologyLayers( const std::string&,
 					  std::vector<MorphologyLayer*>& ) const override;
+    bool is_placeholder() const { return _is_placeholder; };
+  private:
+    bool _is_placeholder;
   };
 
   class Hiddenword:
@@ -447,13 +450,6 @@ public:								\
   {
   public:
     ADD_DEFAULT_CONSTRUCTORS( String, AbstractElement );
-  };
-
-  class PlaceHolder: public Word
-  {
-  public:
-    ADD_DEFAULT_CONSTRUCTORS( PlaceHolder, Word );
-    void setAttributes( KWargs& ) override;
   };
 
   class Sentence:
