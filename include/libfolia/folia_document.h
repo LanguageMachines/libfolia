@@ -51,6 +51,8 @@ namespace folia {
   class Pattern {
     friend std::ostream& operator<<( std::ostream&, const Pattern& );
   public:
+    // cppcheck-suppress noExplicitConstructor
+    // We want to be able to use const char parameters AND string
     Pattern( const std::vector<std::string>&,
 	     const ElementType = BASE,
 	     const std::string& = "" );

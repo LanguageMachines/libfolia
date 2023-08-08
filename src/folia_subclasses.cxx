@@ -1377,6 +1377,8 @@ namespace folia {
 	    AbstractSpanAnnotation *as = dynamic_cast<AbstractSpanAnnotation*>(f);
 	    if ( as ) {
 	      vector<FoliaElement*> wrefv = f->wrefs();
+	      // cppcheck-suppress constVariable
+	      // false positive. wr IS const declared
 	      for ( const auto& wr : wrefv ){
 		if ( wr == this ) {
 		  result.push_back(as);
@@ -1661,7 +1663,8 @@ namespace folia {
 	  }
 	}
       }
-      if ( c_set.empty() ){
+      if ( c_set.empty() ){  // cppcheck-suppress knownConditionTrueFalse
+	// false positive. c_set can be changed in previous for loop
 	auto v = child->suggestions();
 	for ( const auto& el : v ) {
 	  if ( el->isSubClass( AbstractSpanAnnotation_t ) ) {
@@ -2230,10 +2233,12 @@ namespace folia {
     if ( !e ){
       e = getOriginal();
     }
-    if ( !e ){
+    if ( !e ){  // cppcheck-suppress knownConditionTrueFalse
+	// false positive. e can be changed in previous if statement
       e = getCurrent();
     }
-    if ( e ){
+    if ( e ){  // cppcheck-suppress knownConditionTrueFalse
+	// false positive. e can be changed in previous if statement
       vector<Word*> wv = e->select<Word>(false);
       if ( !wv.empty() ){
 	FoliaElement *last = wv.back();

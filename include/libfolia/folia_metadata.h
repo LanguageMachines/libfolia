@@ -37,6 +37,8 @@ namespace folia {
 
   class MetaData {
   public:
+    // cppcheck-suppress noExplicitConstructor
+    // We want to be able to use const char parameters AND string
   MetaData( const std::string& type ): _type(type){};
     virtual ~MetaData(){};
     virtual void add_av( const std::string&, const std::string& ) META_NOT_IMPLEMENTED;
@@ -75,6 +77,8 @@ namespace folia {
 
   class ForeignMetaData: public MetaData {
   public:
+    // cppcheck-suppress noExplicitConstructor
+    // We want to be able to use const char parameters AND string
   ForeignMetaData( const std::string& t ): MetaData(t) {};
     ~ForeignMetaData();
     void add_foreign( const xmlNode * ) override;

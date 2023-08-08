@@ -53,6 +53,8 @@ namespace folia {
   class KeyError: public std::out_of_range {
   public:
     explicit KeyError(): std::out_of_range( "key out of range" ){};
+    // cppcheck-suppress noExplicitConstructor
+    // We want to be able to use const char parameters AND string
     KeyError( const std::string& s ): std::out_of_range( "key out of range: " + s ){};
   };
 
