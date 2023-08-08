@@ -2893,14 +2893,12 @@ namespace folia {
 						   "annotations" ) );
     if ( canonical() ){
       // _anno_sort contains type:setname pair ordered on appearance
-      map<AnnotationType,
-	  pair<AnnotationType,string>> ordered;
+      map<AnnotationType, pair<AnnotationType,string>> ordered;
       for ( const auto& pair : _anno_sort ){
 	// this sorts the _anno_sort entries on AnnotationType
-
 	ordered.insert(make_pair(pair.first,pair));
       }
-      // so now we can output in a canonical way
+      // so now we can append annotations in a canonical way
       for ( const auto& it : ordered ){
 	add_one_anno( it.second, node );
       }
