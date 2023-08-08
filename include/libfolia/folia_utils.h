@@ -163,12 +163,16 @@ namespace folia {
   ///
   /// some xml goodies
   ///
-  inline const xmlChar *to_xmlChar( const char *in ){
-    return reinterpret_cast<const xmlChar *>(in);
+  inline const xmlChar *to_xmlChar( const std::string& in ){
+    return reinterpret_cast<const xmlChar *>(in.c_str());
   }
 
-  inline const char *to_char( const xmlChar *in ){
+  inline const std::string to_string( const xmlChar *in ){
     return reinterpret_cast<const char *>(in);
+  }
+
+  inline const std::string to_string( const xmlChar *in, size_t size ){
+    return std::string( reinterpret_cast<const char *>(in), size );
   }
 
   bool isNCName( const std::string& );

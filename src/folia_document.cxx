@@ -735,7 +735,7 @@ namespace folia {
     xmlChar *buf; int size;
     xmlDocDumpFormatMemoryEnc( outDoc, &buf, &size,
 			       output_encoding, 0 ); // no formatting
-    string result = string( to_char(buf), size );
+    string result = to_string( buf, size );
     xmlFree( buf );
     xmlFreeDoc( outDoc );
     _foliaNsOut = 0;
@@ -2997,7 +2997,7 @@ namespace folia {
       KWargs args;
       args["id"] = it.first;
       addAttributes( m, args );
-      xmlAddChild( m, xmlNewText( to_xmlChar(it.second.c_str())) );
+      xmlAddChild( m, xmlNewText( to_xmlChar(it.second) ) );
     }
     for ( const auto& s : p->_processors ){
       append_processor( pr, s );
@@ -3042,7 +3042,7 @@ namespace folia {
 	  KWargs args;
 	  args["id"] = av.first;
 	  addAttributes( m, args );
-	  xmlAddChild( m, xmlNewText( to_xmlChar(av.second.c_str())) );
+	  xmlAddChild( m, xmlNewText( to_xmlChar(av.second) ) );
 	  xmlAddChild( sm, m );
 	}
       }
@@ -3078,7 +3078,7 @@ namespace folia {
 	addAttributes( node, atts );
 	for ( const auto& it : _metadata->get_avs() ){
 	  xmlNode *m = TiCC::XmlNewNode( foliaNs(), "meta" );
-	  xmlAddChild( m, xmlNewText( to_xmlChar(it.second.c_str())) );
+	  xmlAddChild( m, xmlNewText( to_xmlChar(it.second) ) );
 	  KWargs meta_atts;
 	  meta_atts["id"] = it.first;
 	  addAttributes( m, meta_atts );
@@ -3116,7 +3116,7 @@ namespace folia {
       xmlAddChild( reinterpret_cast<xmlNode*>(doc),
 		   xmlNewDocPI( doc,
 				to_xmlChar("xml-stylesheet"),
-				to_xmlChar(content.c_str()) ) );
+				to_xmlChar( content ) ) );
     }
   }
 
@@ -3139,13 +3139,13 @@ namespace folia {
     if ( _foliaNsIn_href == 0 ){
       if ( ns_label.empty() ){
 	_foliaNsOut = xmlNewNs( root,
-				to_xmlChar(NSFOLIA.c_str()),
+				to_xmlChar(NSFOLIA),
 				0 );
       }
       else {
 	_foliaNsOut = xmlNewNs( root,
-				to_xmlChar(NSFOLIA.c_str()),
-				to_xmlChar(ns_label.c_str()) );
+				to_xmlChar(NSFOLIA),
+				to_xmlChar(ns_label) );
       }
     }
     else {
@@ -3194,7 +3194,7 @@ namespace folia {
       xmlChar *buf; int size;
       xmlDocDumpFormatMemoryEnc( outDoc, &buf, &size,
 				 output_encoding, 1 );
-      result = string( to_char(buf), size );
+      result = to_string( buf, size );
       xmlFree( buf );
       xmlFreeDoc( outDoc );
       _foliaNsOut = 0;

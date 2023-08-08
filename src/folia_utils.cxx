@@ -257,11 +257,11 @@ namespace folia {
   }
 
   string att_name( xmlAttr *node ){
-    return string( to_char(node->name) );
+    return to_string( node->name );
   }
 
   string att_content( xmlAttr *node ){
-    return string( to_char(node->children->content) );
+    return to_string( node->children->content );
   }
 
   KWargs getAttributes( const xmlNode *node ){
@@ -281,7 +281,7 @@ namespace folia {
 	  atts[att_name(a)] = att_content(a);
 	}
 	else {
-	  string pref = string( to_char(a->ns->prefix) );
+	  string pref = to_string( a->ns->prefix );
 	  string att  = att_name(a);
 	  if ( pref == "xlink" ){
 	    atts["xlink:"+att] = att_content(a);
@@ -308,28 +308,28 @@ namespace folia {
     if ( it != attribs.end() ){ // xml:id is special
       xmlSetProp( node,
 		  XML_XML_ID,
-		  to_xmlChar(it->second.c_str()) );
+		  to_xmlChar(it->second) );
       attribs.erase(it);
     }
     it = attribs.find("lang");
     if ( it != attribs.end() ){ // lang is special too
       xmlNodeSetLang( node,
-		      to_xmlChar(it->second.c_str()) );
+		      to_xmlChar(it->second) );
       attribs.erase(it);
     }
     it = attribs.find("id");
     if ( it != attribs.end() ){
       xmlSetProp( node,
 		  to_xmlChar("id"),
-		  to_xmlChar(it->second.c_str()) );
+		  to_xmlChar(it->second) );
       attribs.erase(it);
     }
     // and now the rest
     it = attribs.begin();
     while ( it != attribs.end() ){
       xmlSetProp( node,
-		  to_xmlChar(it->first.c_str()),
-		  to_xmlChar(it->second.c_str()) );
+		  to_xmlChar(it->first),
+		  to_xmlChar(it->second) );
       ++it;
     }
   }
@@ -586,8 +586,7 @@ namespace folia {
       \param s the inputstring
       \return true if \e s may be used as an NCName (e.g. for xml:id)
     */
-    int test = xmlValidateNCName( to_xmlChar(s.c_str()),
-				  0 );
+    int test = xmlValidateNCName( to_xmlChar(s), 0 );
     if ( test != 0 ){
       return false;
     }
@@ -612,9 +611,9 @@ namespace folia {
       string pre;
       string val;
       if ( p->prefix ){
-	pre = to_char(p->prefix);
+	pre = to_string(p->prefix);
       }
-      val = to_char(p->href);
+      val = to_string(p->href);
       result[pre] = val;
       p = p->next;
     }
@@ -631,7 +630,7 @@ namespace folia {
     if ( node ){
       xmlChar *tmp = xmlNodeGetContent( node );
       if ( tmp ){
-	result = string( to_char(tmp) );
+	result = to_string(tmp );
 	xmlFree( tmp );
       }
     }

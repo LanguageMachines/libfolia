@@ -1538,8 +1538,7 @@ namespace folia {
     ///  convert the Description to an xmlNode
     xmlNode *e = AbstractElement::xml( false, false );
     if ( !_value.empty() ){
-      xmlAddChild( e,
-		   xmlNewText( to_xmlChar(_value.c_str())) );
+      xmlAddChild( e, xmlNewText( to_xmlChar(_value) ) );
     }
     return e;
   }
@@ -1573,8 +1572,7 @@ namespace folia {
     ///  convert the Comment to an xmlNode
     xmlNode *e = AbstractElement::xml( false, false );
     if ( !_value.empty() ){
-      xmlAddChild( e,
-		   xmlNewText( to_xmlChar(_value.c_str())) );
+      xmlAddChild( e, xmlNewText( to_xmlChar(_value) ) );
     }
     return e;
   }
@@ -1766,7 +1764,7 @@ namespace folia {
      */
     xmlNode *e = AbstractElement::xml( recursive, false );
     xmlAddChild( e, xmlNewCDataBlock( 0,
-				      to_xmlChar(value.c_str()),
+				      to_xmlChar(value),
 				      value.length() ) );
     return e;
   }
@@ -2531,7 +2529,7 @@ namespace folia {
 
   xmlNode *XmlText::xml( bool, bool ) const {
     ///  convert an XmlText node to an xmlNode
-    return xmlNewText( to_xmlChar(_value.c_str()) );
+    return xmlNewText( to_xmlChar(_value) );
   }
 
   FoliaElement* XmlText::parseXml( const xmlNode *node ) {
@@ -2704,7 +2702,7 @@ namespace folia {
 
   xmlNode *XmlComment::xml( bool, bool ) const {
     ///  convert an XmlComment node to an xmlNode
-    return xmlNewComment( to_xmlChar(_value.c_str()) );
+    return xmlNewComment( to_xmlChar(_value) );
   }
 
   FoliaElement* XmlComment::parseXml( const xmlNode *node ) {
@@ -2853,7 +2851,7 @@ namespace folia {
     xmlNs *p = node->nsDef;
     xmlNs *prev = 0;
     while ( p ){
-      string val = to_char(p->href);
+      string val = to_string(p->href);
       if ( val == ns ){
 	if ( prev ){
 	  prev->next = p->next;
