@@ -2723,6 +2723,24 @@ namespace folia {
     return this;
   }
 
+  xmlNode *PI::xml( bool, bool ) const {
+    ///  convert an PI node to a processing instruction
+    return xmlNewDocPI( const_cast<xmlDoc*>(doc()->XmlDoc()),
+			to_xmlChar(_target.c_str()),
+			to_xmlChar(_content.c_str() ) );
+  }
+
+  FoliaElement* PI::parseXml( const xmlNode *node ) {
+    /// parse a Processing Instruction node
+    /*!
+     * \param node a PI
+     * \return the parsed tree. Throws on error.
+     */
+    _target = Name( node );
+    _content = TextValue( node );
+    return this;
+  }
+
   KWargs Suggestion::collectAttributes() const {
     /// extract all Attribute-Value pairs for Suggestion
     /*!

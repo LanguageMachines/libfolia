@@ -1645,6 +1645,7 @@ namespace folia {
       list<FoliaElement *> textelements;
       list<FoliaElement *> otherelements;
       list<FoliaElement *> commentelements;
+      list<FoliaElement *> PIelements;
       multimap<ElementType, FoliaElement *, std::greater<ElementType>> otherelementsMap;
       for ( const auto& el : _data ) {
 	if ( attribute_elements.find(el) == attribute_elements.end() ) {
@@ -1666,6 +1667,11 @@ namespace folia {
 		   && textelements.empty() ) {
 		commentelements.push_back( el );
 	      }
+	      else if ( el->isinstance(PI_t)
+		   && currenttextelements.empty()
+		   && textelements.empty() ) {
+		PIelements.push_back( el );
+	      }
 	      else {
 		otherelements.push_back( el );
 	      }
@@ -1675,6 +1681,9 @@ namespace folia {
       }
       for ( const auto& cel : commentelements ) {
 	xmlAddChild( e, cel->xml( recursive, kanon ) );
+      }
+      for ( const auto& pel : PIelements ) {
+	xmlAddChild( e, pel->xml( recursive, kanon ) );
       }
       for ( const auto& tel : currenttextelements ) {
 	xmlAddChild( e, tel->xml( recursive, false ) );
@@ -2183,6 +2192,12 @@ namespace folia {
 	    }
 	  }
 	}
+      }
+      else if ( p->type == XML_PI_NODE ){
+	// found a processing instruction
+	// for now, just ignore
+	cerr << "skipping PI: " << Name( p )
+	     << " : " << TextValue( p ) << endl;
       }
       else if ( p->type == XML_TEXT_NODE ){
 	// This MUST be 'empty space', so only spaces and tabs formatting
@@ -3474,6 +3489,23 @@ namespace folia {
 	}
 	else if ( doc() && !doc()->permissive() ){
 	  throw XmlError( "FoLiA parser terminated" );
+	}
+      }
+      else if ( p->type == XML_PI_NODE ){
+	// found a processing instruction
+	string tag = "PI";
+	FoliaElement *t = createElement( tag, doc() );
+	if ( t ) {
+	  if ( doc() && doc()->debug > 2 ) {
+	    cerr << "created " << t << endl;
+	  }
+	  t = t->parseXml( p );
+	  if ( t ) {
+	    if ( doc() && doc()->debug > 2 ) {
+	      cerr << "extend " << this << " met " << t << endl;
+	    }
+	    append( t );
+	  }
 	}
       }
       else if ( p->type == XML_COMMENT_NODE ) {

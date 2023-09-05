@@ -329,7 +329,8 @@ namespace folia {
     { WordReference_t,  "wref" },
     { PlaceHolder_t, "_PlaceHolder" },
     { XmlComment_t, "_XmlComment" },
-    { XmlText_t, "_XmlText" }
+    { XmlText_t, "_XmlText" },
+    { PI_t, "PI" }
   };
 
   //foliaspec:string_elementtype_map
@@ -467,7 +468,8 @@ namespace folia {
     { "wref", WordReference_t  },
     { "_PlaceHolder", PlaceHolder_t  },
     { "_XmlComment", XmlComment_t  },
-    { "_XmlText", XmlText_t  }
+    { "_XmlText", XmlText_t  },
+    { "PI", PI_t }
   };
 
   //foliaspec:default_ignore
@@ -503,6 +505,7 @@ namespace folia {
   properties XmlComment::PROPS = DEFAULT_PROPERTIES;
   properties PlaceHolder::PROPS = DEFAULT_PROPERTIES;
   properties XmlText::PROPS = DEFAULT_PROPERTIES;
+  properties PI::PROPS = DEFAULT_PROPERTIES;
 
   //foliaspec:instantiateelementproperties
   //Instantiates all element properties for the first time, setting them to the default properties
@@ -1706,6 +1709,9 @@ namespace folia {
     XmlComment::PROPS.XMLTAG = "_XmlComment";
     XmlComment::PROPS.ELEMENT_ID = XmlComment_t;
 
+    PI::PROPS.XMLTAG = "PI";
+    PI::PROPS.ELEMENT_ID = PI_t;
+
     PlaceHolder::PROPS = Word::PROPS;
     PlaceHolder::PROPS.XMLTAG="_PlaceHolder";
     PlaceHolder::PROPS.ELEMENT_ID = PlaceHolder_t;
@@ -2004,7 +2010,7 @@ namespace folia {
       //Default properties which all elements inherit
       ELEMENT_ID = BASE;
       ACCEPTED_DATA.insert(XmlComment_t);
-      ACCEPTED_DATA += {Description_t, Comment_t};
+      ACCEPTED_DATA += {Description_t, Comment_t,PI_t};
       ANNOTATIONTYPE = AnnotationType::NO_ANN;
       AUTH = true;
       AUTO_GENERATE_ID = false;
@@ -2071,6 +2077,7 @@ namespace folia {
     case LangAnnotation_t: return new LangAnnotation();
     case XmlComment_t: return new XmlComment();
     case XmlText_t: return new XmlText();
+    case PI_t: return new PI();
     case External_t: return new External();
     case Note_t: return new Note();
     case Reference_t: return new Reference();

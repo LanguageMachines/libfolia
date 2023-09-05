@@ -1166,6 +1166,21 @@ public:									\
     std::string _value;
   };
 
+  class PI: public AbstractElement {
+    friend void static_init();
+  public:
+    ADD_DEFAULT_CONSTRUCTORS( PI, AbstractElement );
+    FoliaElement* parseXml( const xmlNode * ) override;
+    xmlNode *xml( bool, bool=false ) const override;
+    static properties PROPS;
+  private:
+    const UnicodeString private_text( const TextPolicy& ) const override {
+      return "";
+    }
+    std::string _target;
+    std::string _content;
+  };
+
   class XmlText: public AbstractElement {
     friend void static_init();
   public:
