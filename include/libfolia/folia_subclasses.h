@@ -1166,10 +1166,10 @@ public:									\
     std::string _value;
   };
 
-  class PI: public AbstractElement {
+  class ProcessingInstruction: public AbstractElement {
     friend void static_init();
   public:
-    ADD_DEFAULT_CONSTRUCTORS( PI, AbstractElement );
+    ADD_DEFAULT_CONSTRUCTORS( ProcessingInstruction, AbstractElement );
     FoliaElement* parseXml( const xmlNode * ) override;
     xmlNode *xml( bool, bool=false ) const override;
     static properties PROPS;

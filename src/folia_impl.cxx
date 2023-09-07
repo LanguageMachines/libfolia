@@ -1667,7 +1667,7 @@ namespace folia {
 		   && textelements.empty() ) {
 		commentelements.push_back( el );
 	      }
-	      else if ( el->isinstance(PI_t)
+	      else if ( el->isinstance(ProcessingInstruction_t)
 		   && currenttextelements.empty()
 		   && textelements.empty() ) {
 		PIelements.push_back( el );
