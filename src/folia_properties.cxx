@@ -1709,6 +1709,9 @@ namespace folia {
     XmlComment::PROPS.XMLTAG = "_XmlComment";
     XmlComment::PROPS.ELEMENT_ID = XmlComment_t;
 
+    ProcessingInstruction::PROPS.XMLTAG = "PI";
+    ProcessingInstruction::PROPS.ELEMENT_ID = ProcessingInstruction_t;
+
     PlaceHolder::PROPS = Word::PROPS;
     PlaceHolder::PROPS.XMLTAG="_PlaceHolder";
     PlaceHolder::PROPS.ELEMENT_ID = PlaceHolder_t;
