@@ -1762,6 +1762,7 @@ namespace folia {
     /// retrieve all style-sheets from the current XmlTree
     xmlNode *pnt = _xmldoc->children;
     while ( pnt ){
+      // search for Processing Instructions, ignore all but stylesheet ones
       if ( pnt->type == XML_PI_NODE && TiCC::Name(pnt) == "xml-stylesheet" ){
 	string content = TextValue(pnt);
 	string type;

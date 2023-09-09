@@ -2194,10 +2194,9 @@ namespace folia {
 	}
       }
       else if ( p->type == XML_PI_NODE ){
-	// found a processing instruction
-	// for now, just ignore
-	cerr << "skipping PI: " << Name( p )
-	     << " : " << TextValue( p ) << endl;
+	// found a processing instruction on the top level
+	// When this is a style-sheet, it is already handled
+	// otherwise just skip
       }
       else if ( p->type == XML_TEXT_NODE ){
 	// This MUST be 'empty space', so only spaces and tabs formatting
