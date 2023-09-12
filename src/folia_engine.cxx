@@ -720,8 +720,13 @@ namespace folia {
       int depth = xmlTextReaderDepth(cur_reader);
       int type = xmlTextReaderNodeType(cur_reader);
       if ( type == XML_READER_TYPE_ELEMENT
-	   || type == XML_READER_TYPE_COMMENT ){
+	|| type == XML_READER_TYPE_PROCESSING_INSTRUCTION
+	|| type == XML_READER_TYPE_COMMENT ){
 	string local_name = to_char(xmlTextReaderConstLocalName(cur_reader));
+	if ( local_name == "xml-stylesheet" ){
+	  // IGNORE!
+	  continue;
+	}
 	KWargs atts = get_attributes( cur_reader );
 	string nsu;
 	string txt_class;
