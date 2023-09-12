@@ -124,6 +124,7 @@ namespace folia {
     int handle_content( const std::string&, int );
     void add_default_node( int );
     void add_comment( int );
+    void add_PI( int );
     void add_text( int );
     void append_node( FoliaElement *, int );
   };

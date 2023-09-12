@@ -354,6 +354,21 @@ namespace folia {
     append_node( t, depth );
   }
 
+  void Engine::add_PI( int depth ){
+    /// when parsing, add a new ProcessingInstruction node
+    /*!
+      \param depth the depth (location) in the tree where to add
+    */
+    if ( _debug ){
+      DBG << "add_PI " << endl;
+    }
+    string tag = "PI";
+    FoliaElement *t = AbstractElement::createElement( tag, _out_doc );
+    xmlNode *fd = xmlTextReaderExpand(_reader);
+    t->parseXml( fd );
+    append_node( t, depth );
+  }
+
   void Engine::add_default_node( int depth ){
     /// when debugging, output a message. Does nothing else
     if ( _debug ){
@@ -660,6 +675,15 @@ namespace folia {
 	break;
       case XML_READER_TYPE_TEXT:
 	throw XmlError( "spurious text found." );
+	break;
+      case XML_READER_TYPE_PROCESSING_INSTRUCTION:
+	if ( tags.find( "PI" ) != tags.end() ){
+	  _external_node = handle_match( "PI", new_depth );
+	  return _external_node;
+	}
+	else {
+	  add_PI( new_depth );
+	}
 	break;
       case XML_READER_TYPE_COMMENT:
 	add_comment( new_depth );
@@ -1396,6 +1420,9 @@ namespace folia {
 	break;
       case XML_READER_TYPE_COMMENT:
 	add_comment( new_depth );
+	break;
+      case XML_READER_TYPE_PROCESSING_INSTRUCTION:
+	add_PI( new_depth );
 	break;
       default:
 	add_default_node( new_depth );
