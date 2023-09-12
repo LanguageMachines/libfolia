@@ -2956,6 +2956,28 @@ namespace folia {
     return v[0]->description();
   }
 
+  vector<ProcessingInstruction*> AbstractElement::getPI( const string& target ){
+    /// get PI nodes for this Element. Non recursive.
+    /*!
+     * \param target Only return PI's with this target. Or all if target
+     * is empty
+     * \return all targets found
+     */
+    auto PIS = select<ProcessingInstruction>(false);
+    if ( target.empty() ){
+      return PIS;
+    }
+    else {
+      vector<ProcessingInstruction*> result;
+      for ( const auto& it : PIS ){
+	if ( it->target() == target ){
+	  result.push_back( it );
+	}
+      }
+      return result;
+    }
+  }
+
   bool AbstractElement::acceptable( ElementType t ) const {
     /// test if this ElementType is acceptable for the current node
     /*!
