@@ -719,13 +719,21 @@ namespace folia {
     while ( xmlTextReaderRead(cur_reader) > 0 ){
       int depth = xmlTextReaderDepth(cur_reader);
       int type = xmlTextReaderNodeType(cur_reader);
+      string PI_value;
       if ( type == XML_READER_TYPE_ELEMENT
 	|| type == XML_READER_TYPE_PROCESSING_INSTRUCTION
 	|| type == XML_READER_TYPE_COMMENT ){
 	string local_name = to_char(xmlTextReaderConstLocalName(cur_reader));
-	if ( local_name == "xml-stylesheet" ){
-	  // IGNORE!
-	  continue;
+	if (type == XML_READER_TYPE_PROCESSING_INSTRUCTION ){
+	  if ( local_name == "xml-stylesheet" ){
+	    // IGNORE!
+	    continue;
+	  }
+	  local_name = "?" + local_name;
+	  auto pnt = xmlTextReaderConstValue(cur_reader);
+	  if ( pnt ){
+	    PI_value = to_char(pnt);
+	  }
 	}
 	KWargs atts = get_attributes( cur_reader );
 	string nsu;
@@ -744,6 +752,9 @@ namespace folia {
 	  }
 	}
 	if ( nsu.empty() || nsu == NSFOLIA ){
+	  if (type == XML_READER_TYPE_PROCESSING_INSTRUCTION ){
+	    txt_class = PI_value;
+	  }
 	  xml_tree *add_rec = new xml_tree( depth, index, local_name, txt_class );
 	  if ( _debug ){
 	    DBG << "new record " << index << " " << local_name << " ("
