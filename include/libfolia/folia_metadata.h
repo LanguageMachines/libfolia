@@ -37,7 +37,7 @@ namespace folia {
 
   class MetaData {
   public:
-  MetaData( const std::string& type ): _type(type){};
+    MetaData( const std::string& type ): _type(type){};
     virtual ~MetaData(){};
     virtual void add_av( const std::string&, const std::string& ) META_NOT_IMPLEMENTED;
     virtual const KWargs& get_avs() const META_NOT_IMPLEMENTED;

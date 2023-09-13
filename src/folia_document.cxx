@@ -1629,8 +1629,14 @@ namespace folia {
     */
     KWargs atts = getAttributes( node );
     string type = TiCC::lowercase(atts["type"]);
+    if ( debug > 5 ){
+      cerr << "metadata type='" << type << "'" << endl;
+    }
     if ( type.empty() ){
       type = "native";
+      if ( debug > 5 ){
+	cerr << "metadata type FORCED to'" << type << "'" << endl;
+      }
     }
     string src = atts["src"];
     if ( !src.empty() ){
@@ -1638,6 +1644,9 @@ namespace folia {
     }
     else if ( type == "native" || type == "imdi" ){
       _metadata = new NativeMetaData( type );
+    }
+    else {
+      _foreign_metadata = new ForeignMetaData( type );
     }
     xmlNode *m = node->children;
     xmlNode *a_node = 0;
@@ -3092,7 +3101,7 @@ namespace folia {
     if ( _foreign_metadata ){
       if ( !_metadata ){
 	KWargs atts;
-	atts["type"] = "foreign";
+	atts["type"] = _foreign_metadata->type();
 	addAttributes( node, atts );
       }
       for ( const auto& foreign : _foreign_metadata->get_foreigners() ) {
