@@ -517,6 +517,7 @@ namespace folia {
 	}
 	break;
       default:
+	// Just ignore COMMENT and such?
 	break;
       };
     }
@@ -719,85 +720,100 @@ namespace folia {
     while ( xmlTextReaderRead(cur_reader) > 0 ){
       int depth = xmlTextReaderDepth(cur_reader);
       int type = xmlTextReaderNodeType(cur_reader);
-      string PI_value;
-      if ( type == XML_READER_TYPE_ELEMENT
-	|| type == XML_READER_TYPE_PROCESSING_INSTRUCTION
-	|| type == XML_READER_TYPE_COMMENT ){
-	string local_name = to_char(xmlTextReaderConstLocalName(cur_reader));
-	if (type == XML_READER_TYPE_PROCESSING_INSTRUCTION ){
+      string local_name = to_char(xmlTextReaderConstLocalName(cur_reader));
+      xml_tree *add_rec = 0;
+      switch ( type ){
+      case XML_READER_TYPE_ELEMENT:
+	{
+	  KWargs atts = get_attributes( cur_reader );
+	  string nsu;
+	  string txt_class;
+	  for ( auto const& v : atts ){
+	    if ( v.first == "xmlns:xlink" ){
+	      // only at top level
+	      continue;
+	    }
+	    if ( v.first.find("xmlns") == 0 ){
+	      nsu = v.second;
+	    }
+	    if ( v.first == "textclass"
+		 || ( local_name == "t" && v.first == "class" ) ){
+	      txt_class = v.second;
+	    }
+	  }
+	  if ( nsu.empty() || nsu == NSFOLIA ){
+	    add_rec = new xml_tree( depth, index, local_name, txt_class );
+	  }
+	  else {
+	    if ( _debug ){
+	      DBG << "name=" << local_name << " atts=" << atts << endl;
+	      DBG << "create_simple_tree() node in alien namespace '"
+		<< nsu << "' is SKIPPED!" << endl;
+	    }
+	  }
+	  ++index;
+	}
+	break;
+      case XML_READER_TYPE_PROCESSING_INSTRUCTION:
+	{
 	  if ( local_name == "xml-stylesheet" ){
 	    // IGNORE!
 	    continue;
 	  }
-	  local_name = "?" + local_name;
+	  local_name = "?" + local_name; //just some cosmetics
+	  string _value;
 	  auto pnt = xmlTextReaderConstValue(cur_reader);
 	  if ( pnt ){
-	    PI_value = to_char(pnt);
+	    _value = to_char(pnt);
 	  }
+	  add_rec = new xml_tree( depth, index, local_name, _value );
+	  ++index;
 	}
-	KWargs atts = get_attributes( cur_reader );
-	string nsu;
-	string txt_class;
-	for ( auto const& v : atts ){
-	  if ( v.first == "xmlns:xlink" ){
-	    // only at top level
-	    continue;
-	  }
-	  if ( v.first.find("xmlns") == 0 ){
-	    nsu = v.second;
-	  }
-	  if ( v.first == "textclass"
-	       || ( local_name == "t" && v.first == "class" ) ){
-	    txt_class = v.second;
-	  }
+	break;
+      case XML_READER_TYPE_COMMENT:
+	{
+	  add_rec = new xml_tree( depth, index, local_name, "" );
+	  ++index;
 	}
-	if ( nsu.empty() || nsu == NSFOLIA ){
-	  if (type == XML_READER_TYPE_PROCESSING_INSTRUCTION ){
-	    txt_class = PI_value;
-	  }
-	  xml_tree *add_rec = new xml_tree( depth, index, local_name, txt_class );
-	  if ( _debug ){
-	    DBG << "new record " << index << " " << local_name << " ("
-		<< depth << ")" << endl;
+	break;
+      default:
+	// ignore all other stuff
+	break;
+      }
+      if ( add_rec ){
+	if ( _debug ){
+	  DBG << "new record " << index << " " << local_name << " ("
+	      << depth << ")" << endl;
+	}
+	if ( rec_pnt == 0 ){
+	  records = add_rec;
+	  rec_pnt = records;
+	}
+	else if ( depth == current_depth ){
+	  add_rec->parent = rec_pnt->parent;
+	  rec_pnt->next = add_rec;
+	  rec_pnt = rec_pnt->next;
+	}
+	else if ( depth > current_depth ){
+	  add_rec->parent = rec_pnt;
+	  rec_pnt->link = add_rec;
+	  rec_pnt = rec_pnt->link;
+	}
+	else { // depth < current_depth
+	  while ( rec_pnt && rec_pnt->depth > depth ){
+	    rec_pnt = rec_pnt->parent;
 	  }
 	  if ( rec_pnt == 0 ){
-	    records = add_rec;
 	    rec_pnt = records;
 	  }
-	  else if ( depth == current_depth ){
-	    add_rec->parent = rec_pnt->parent;
-	    rec_pnt->next = add_rec;
+	  while ( rec_pnt->next ){
 	    rec_pnt = rec_pnt->next;
 	  }
-	  else if ( depth > current_depth ){
-	    add_rec->parent = rec_pnt;
-	    rec_pnt->link = add_rec;
-	    rec_pnt = rec_pnt->link;
-	  }
-	  else { // depth < current_depth
-	    while ( rec_pnt && rec_pnt->depth > depth ){
-	      rec_pnt = rec_pnt->parent;
-	    }
-	    if ( rec_pnt == 0 ){
-	      rec_pnt = records;
-	    }
-	    while ( rec_pnt->next ){
-	      rec_pnt = rec_pnt->next;
-	    }
-	    add_rec->parent = rec_pnt->parent;
-	    rec_pnt->next = add_rec;
-	    rec_pnt = rec_pnt->next;
-	  }
-	  current_depth = rec_pnt->depth;
+	  add_rec->parent = rec_pnt->parent;
+	  rec_pnt->next = add_rec;
+	  rec_pnt = rec_pnt->next;
 	}
-	else {
-	  if ( _debug ){
-	    DBG << "name=" << local_name << " atts=" << atts << endl;
-	    DBG << "create_simple_tree() node in alien namespace '"
-		<< nsu << "' is SKIPPED!" << endl;
-	  }
-	}
-	++index;
+	current_depth = rec_pnt->depth;
       }
     }
     if ( xmlTextReaderReadState(cur_reader) < 0 ){
