@@ -751,13 +751,12 @@ namespace folia {
 		<< nsu << "' is SKIPPED!" << endl;
 	    }
 	  }
-	  ++index;
 	}
 	break;
       case XML_READER_TYPE_PROCESSING_INSTRUCTION:
 	{
 	  if ( local_name == "xml-stylesheet" ){
-	    // IGNORE!
+	    // Ignore. stylesheet is handled separately
 	    continue;
 	  }
 	  local_name = "?" + local_name; //just some cosmetics
@@ -767,13 +766,11 @@ namespace folia {
 	    _value = to_char(pnt);
 	  }
 	  add_rec = new xml_tree( depth, index, local_name, _value );
-	  ++index;
 	}
 	break;
       case XML_READER_TYPE_COMMENT:
 	{
 	  add_rec = new xml_tree( depth, index, local_name, "" );
-	  ++index;
 	}
 	break;
       default:
@@ -781,6 +778,7 @@ namespace folia {
 	break;
       }
       if ( add_rec ){
+	++index;
 	if ( _debug ){
 	  DBG << "new record " << index << " " << local_name << " ("
 	      << depth << ")" << endl;
