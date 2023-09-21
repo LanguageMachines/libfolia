@@ -4,7 +4,7 @@
 * Clearer error messages (adding filename, if present)
 * some code cleaned/clarified
 * added code to parse, store and output XML's Processing Instruction nodes
-* added Etymologie annotation
+* added Etymology annotation
 
 2.15 2023-05-08
 [Ko van der Sloot]
