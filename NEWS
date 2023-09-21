@@ -1,4 +1,12 @@
-2.15 2023-02-20
+2.16 2023-09-21
+[Ko van der Sloot]
+* fix for https://github.com/LanguageMachines/libfolia/issues/54
+* Clearer error messages (adding filename, if present)
+* some code cleaned/clarified
+* added code to parse, store and output XML's Processing Instruction nodes
+* added Etymologie annotation
+
+2.15 2023-05-08
 [Ko van der Sloot]
 * fixed a terrible typo/bug in subclasses.cxx:
    using el-referable(), where el->referable() was meant
