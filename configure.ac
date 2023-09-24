@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.69])
-AC_INIT([libfolia],[2.16],[lamasoftware@science.ru.nl]) #also adapt in codemeta.json!
+AC_INIT([libfolia],[2.17],[lamasoftware@science.ru.nl]) #also adapt in codemeta.json!
 AM_INIT_AUTOMAKE([foreign])
 AC_CONFIG_SRCDIR([configure.ac])
 AC_CONFIG_MACRO_DIR([m4])
@@ -67,7 +67,7 @@ PKG_CHECK_MODULES([XML2], [libxml-2.0 >= 2.9.4] )
 CXXFLAGS="$CXXFLAGS $XML2_CFLAGS"
 LIBS="$XML2_LIBS $LIBS"
 
-PKG_CHECK_MODULES([ticcutils], [ticcutils >= 0.30] )
+PKG_CHECK_MODULES([ticcutils], [ticcutils >= 0.33] )
 CXXFLAGS="$CXXFLAGS $ticcutils_CFLAGS"
 LIBS="$ticcutils_LIBS $LIBS"
 

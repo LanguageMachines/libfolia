@@ -475,16 +475,16 @@ namespace folia {
       \param el the FoliaElement to add
       will throw when \em el->id() is already in the index
      */
-    const string id = el->id();
-    if ( id.empty() ) {
+    const string my_id = el->id();
+    if ( my_id.empty() ) {
       return;
     }
-    auto it = sindex.find( id );
+    auto it = sindex.find( my_id );
     if ( it == sindex.end() ){
-      sindex[id] = el;
+      sindex[my_id] = el;
     }
     else {
-      throw DuplicateIDError( id );
+      throw DuplicateIDError( my_id );
     }
   }
 
@@ -1217,7 +1217,7 @@ namespace folia {
 	string annotator = atts.extract( "annotator" );
 	string ann_type = atts.extract( "annotatortype" );
 	string datetime = parseDate( atts.extract( "datetime" ) );
-	string alias = atts.extract( "alias" );
+	string my_alias = atts.extract( "alias" );
 	string gran_val = atts.extract( "groupannotations" );
 	if ( !gran_val.empty() ){
 	  if ( !isSubClass( et, AbstractSpanAnnotation_t ) ){
@@ -1268,7 +1268,7 @@ namespace folia {
 	}
 	internal_declare( at_type, set_name, format,
 			  annotator, ann_type, datetime,
-			  processors, alias );
+			  processors, my_alias );
 	if ( !atts.empty() ){
 
 	  throw DocumentError( _source_name,
@@ -1314,11 +1314,11 @@ namespace folia {
     */
     if ( node ){
       KWargs node_att = getAttributes( node );
-      string id = node_att["xml:id"];
-      if ( id.empty() ){
+      string my_id = node_att["xml:id"];
+      if ( my_id.empty() ){
 	throw MetaDataError( "submetadata without xml:id" );
       }
-      //      cerr << "parse submetadata, id=" << id << endl;
+      //      cerr << "parse submetadata, id=" << my_id << endl;
       string type = node_att["type"];
       //      cerr << "parse submetadata, type=" << type << endl;
       if ( type.empty() ){
@@ -1326,16 +1326,16 @@ namespace folia {
       }
       string src = node_att["src"];
       if ( !src.empty() ){
-	submetadata[id] = new ExternalMetaData( type, src );
-	//	cerr << "created External metadata, id=" << id << endl;
+	submetadata[my_id] = new ExternalMetaData( type, src );
+	//	cerr << "created External metadata, id=" << my_id << endl;
       }
       else if ( type == "native" ){
-	submetadata[id] = new NativeMetaData( type );
-	//	cerr << "created Native metadata, id=" << id << endl;
+	submetadata[my_id] = new NativeMetaData( type );
+	//	cerr << "created Native metadata, id=" << my_id << endl;
       }
       else {
-	submetadata[id] = 0;
-	//	cerr << "set metadata to 0, id=" << id << endl;
+	submetadata[my_id] = 0;
+	//	cerr << "set metadata to 0, id=" << my_id << endl;
       }
       xmlNode *p = node->children;
       while ( p ){
@@ -1347,8 +1347,8 @@ namespace folia {
 	      KWargs att = getAttributes( p );
 	      string sid = att["id"];
 	      if ( !txt.empty() ){
-		submetadata[id]->add_av( sid, txt );
-		// cerr << "added node to id=" << id
+		submetadata[my_id]->add_av( sid, txt );
+		// cerr << "added node to id=" << my_id
 		//      << "(" << sid << "," << txt << ")" << endl;
 	      }
 	    }
@@ -1361,13 +1361,13 @@ namespace folia {
 	    if ( type == "native" ){
 	      throw MetaDataError("Encountered a foreign-data element but metadata type is native!");
 	    }
-	    else if ( submetadata[id] == 0 ){
-	      submetadata[id] = new ForeignMetaData( type );
-	      //	      cerr << "add new Foreign " << id << endl;
+	    else if ( submetadata[my_id] == 0 ){
+	      submetadata[my_id] = new ForeignMetaData( type );
+	      //	      cerr << "add new Foreign " << my_id << endl;
 	    }
-	    //	    cerr << "in  Foreign " << submetadata[id]->type() << endl;
-	    submetadata[id]->add_foreign( p );
-	    //	    cerr << "added a foreign id=" << id << endl;
+	    //	  cerr << "in  Foreign " << submetadata[my_id]->type() << endl;
+	    submetadata[my_id]->add_foreign( p );
+	    //	    cerr << "added a foreign id=" << my_id << endl;
 	  }
 	}
 	p = p->next;
@@ -1629,8 +1629,14 @@ namespace folia {
     */
     KWargs atts = getAttributes( node );
     string type = TiCC::lowercase(atts["type"]);
+    if ( debug > 5 ){
+      cerr << "metadata type='" << type << "'" << endl;
+    }
     if ( type.empty() ){
       type = "native";
+      if ( debug > 5 ){
+	cerr << "metadata type FORCED to'" << type << "'" << endl;
+      }
     }
     string src = atts["src"];
     if ( !src.empty() ){
@@ -1638,6 +1644,9 @@ namespace folia {
     }
     else if ( type == "native" || type == "imdi" ){
       _metadata = new NativeMetaData( type );
+    }
+    else {
+      _foreign_metadata = new ForeignMetaData( type );
     }
     xmlNode *m = node->children;
     xmlNode *a_node = 0;
@@ -1762,6 +1771,7 @@ namespace folia {
     /// retrieve all style-sheets from the current XmlTree
     xmlNode *pnt = _xmldoc->children;
     while ( pnt ){
+      // search for Processing Instructions, ignore all but stylesheet ones
       if ( pnt->type == XML_PI_NODE && TiCC::Name(pnt) == "xml-stylesheet" ){
 	string content = TextValue(pnt);
 	string type;
@@ -2058,7 +2068,7 @@ namespace folia {
     string t = args["annotatortype"];
     string f = args["format"];
     string d = args["datetime"];
-    string alias = args["alias"];
+    string my_alias = args["alias"];
     string processor = args["processor"];
     if ( !processor.empty() ){
       processors.insert( processor );
@@ -2073,11 +2083,11 @@ namespace folia {
       throw DocumentError( _source_name,
 			   "declaration: expected 'annotator', 'annotatortype', 'processor', 'alias' or 'datetime', got '" + args.begin()->first + "'" );
     }
-    internal_declare( type, st, f, a, t, d, processors, alias );
+    internal_declare( type, st, f, a, t, d, processors, my_alias );
   }
 
   string Document::unalias( AnnotationType type,
-			    const string& alias ) const {
+			    const string& my_alias ) const {
     /// resolve an alias for a setname to the full setname
     /*!
       \param type the AnnotationType
@@ -2087,12 +2097,12 @@ namespace folia {
     */
     const auto& ti = _alias_set.find(type);
     if ( ti != _alias_set.end() ){
-      const auto& sti = ti->second.find( alias );
+      const auto& sti = ti->second.find( my_alias );
       if ( sti != ti->second.end() ){
 	return sti->second;
       }
     }
-    return alias;
+    return my_alias;
   }
 
   string Document::alias( AnnotationType type,
@@ -3089,7 +3099,7 @@ namespace folia {
     if ( _foreign_metadata ){
       if ( !_metadata ){
 	KWargs atts;
-	atts["type"] = "foreign";
+	atts["type"] = _foreign_metadata->type();
 	addAttributes( node, atts );
       }
       for ( const auto& foreign : _foreign_metadata->get_foreigners() ) {
@@ -3557,7 +3567,7 @@ namespace folia {
     bool start = true;
     bool unsetwildcards = false;
     set<int> variablewildcards;
-    int index = 0;
+    int ind = 0;
     for ( const auto& it : pats ){
       //    cerr << "bekijk patroon : " << *it << endl;
       if ( start ){
@@ -3568,7 +3578,7 @@ namespace folia {
 	throw runtime_error( "findnodes(): If multiple patterns are provided, they must all have the same length!" );
       }
       if ( it.variablesize() ){
-	if ( index > 0 && variablewildcards.empty() ){
+	if ( ind > 0 && variablewildcards.empty() ){
 	  unsetwildcards = true;
 	}
 	else {
@@ -3582,7 +3592,7 @@ namespace folia {
       else if ( !variablewildcards.empty() ){
 	unsetwildcards = true;
       }
-      ++index;
+      ++ind;
     }
     if ( unsetwildcards ){
       for ( auto& it : pats ){

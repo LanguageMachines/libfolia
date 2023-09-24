@@ -1645,6 +1645,7 @@ namespace folia {
       list<FoliaElement *> textelements;
       list<FoliaElement *> otherelements;
       list<FoliaElement *> commentelements;
+      list<FoliaElement *> PIelements;
       multimap<ElementType, FoliaElement *, std::greater<ElementType>> otherelementsMap;
       for ( const auto& el : _data ) {
 	if ( attribute_elements.find(el) == attribute_elements.end() ) {
@@ -1666,6 +1667,11 @@ namespace folia {
 		   && textelements.empty() ) {
 		commentelements.push_back( el );
 	      }
+	      else if ( el->isinstance(ProcessingInstruction_t)
+		   && currenttextelements.empty()
+		   && textelements.empty() ) {
+		PIelements.push_back( el );
+	      }
 	      else {
 		otherelements.push_back( el );
 	      }
@@ -1675,6 +1681,9 @@ namespace folia {
       }
       for ( const auto& cel : commentelements ) {
 	xmlAddChild( e, cel->xml( recursive, kanon ) );
+      }
+      for ( const auto& pel : PIelements ) {
+	xmlAddChild( e, pel->xml( recursive, kanon ) );
       }
       for ( const auto& tel : currenttextelements ) {
 	xmlAddChild( e, tel->xml( recursive, false ) );
@@ -2183,6 +2192,11 @@ namespace folia {
 	    }
 	  }
 	}
+      }
+      else if ( p->type == XML_PI_NODE ){
+	// found a processing instruction on the top level
+	// When this is a style-sheet, it is already handled
+	// otherwise just skip
       }
       else if ( p->type == XML_TEXT_NODE ){
 	// This MUST be 'empty space', so only spaces and tabs formatting
@@ -2942,6 +2956,28 @@ namespace folia {
     return v[0]->description();
   }
 
+  vector<ProcessingInstruction*> AbstractElement::getPI( const string& target ){
+    /// get PI nodes for this Element. Non recursive.
+    /*!
+     * \param target Only return PI's with this target. Or all if target
+     * is empty
+     * \return all targets found
+     */
+    auto PIS = select<ProcessingInstruction>(false);
+    if ( target.empty() ){
+      return PIS;
+    }
+    else {
+      vector<ProcessingInstruction*> result;
+      for ( const auto& it : PIS ){
+	if ( it->target() == target ){
+	  result.push_back( it );
+	}
+      }
+      return result;
+    }
+  }
+
   bool AbstractElement::acceptable( ElementType t ) const {
     /// test if this ElementType is acceptable for the current node
     /*!
@@ -3474,6 +3510,23 @@ namespace folia {
 	}
 	else if ( doc() && !doc()->permissive() ){
 	  throw XmlError( "FoLiA parser terminated" );
+	}
+      }
+      else if ( p->type == XML_PI_NODE ){
+	// found a processing instruction
+	string tag = "PI";
+	FoliaElement *t = createElement( tag, doc() );
+	if ( t ) {
+	  if ( doc() && doc()->debug > 2 ) {
+	    cerr << "created " << t << endl;
+	  }
+	  t = t->parseXml( p );
+	  if ( t ) {
+	    if ( doc() && doc()->debug > 2 ) {
+	      cerr << "extend " << this << " met " << t << endl;
+	    }
+	    append( t );
+	  }
 	}
       }
       else if ( p->type == XML_COMMENT_NODE ) {

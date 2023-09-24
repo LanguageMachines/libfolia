@@ -2720,6 +2720,24 @@ namespace folia {
     return this;
   }
 
+  xmlNode *ProcessingInstruction::xml( bool, bool ) const {
+    ///  convert a PI xmlNode
+    return xmlNewDocPI( const_cast<xmlDoc*>(doc()->XmlDoc()),
+			to_xmlChar(_target.c_str()),
+			to_xmlChar(_content.c_str() ) );
+  }
+
+  FoliaElement* ProcessingInstruction::parseXml( const xmlNode *node ) {
+    /// parse a PI xmlNode
+    /*!
+     * \param node a PI
+     * \return the parsed tree. Throws on error.
+     */
+    _target = Name( node );
+    _content = TextValue( node );
+    return this;
+  }
+
   KWargs Suggestion::collectAttributes() const {
     /// extract all Attribute-Value pairs for Suggestion
     /*!

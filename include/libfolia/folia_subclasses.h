@@ -928,6 +928,22 @@ public:								\
     std::string _value;
   };
 
+  class ProcessingInstruction: public AbstractElement {
+    friend void static_init();
+  public:
+    ADD_DEFAULT_CONSTRUCTORS( ProcessingInstruction, AbstractElement );
+    FoliaElement* parseXml( const xmlNode * ) override;
+    xmlNode *xml( bool, bool=false ) const override;
+    const std::string target() const { return _target; };
+    const std::string content() const { return _content; };
+  private:
+    const UnicodeString private_text( const TextPolicy& ) const override {
+      return "";
+    }
+    std::string _target;
+    std::string _content;
+  };
+
   class XmlText: public AbstractElement {
   public:
     ADD_DEFAULT_CONSTRUCTORS( XmlText, AbstractElement );

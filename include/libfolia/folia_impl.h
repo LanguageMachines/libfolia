@@ -67,6 +67,7 @@ namespace folia {
   class Paragraph;
   class Morpheme;
   class MetaData;
+  class ProcessingInstruction;
 
   /// class used to steer 'select()' behaviour
   enum class SELECT_FLAGS {
@@ -447,6 +448,9 @@ namespace folia {
     virtual PhonContent *phon_content( const std::string& = "current",
 				       bool debug=false ) = 0;
 
+    // Processing Instruction
+    virtual std::vector<ProcessingInstruction*> getPI( const std::string& = "" ) = 0;
+
     // properties
     virtual const std::string& get_delimiter( const TextPolicy& ) const = 0;
     virtual void setDateTime( const std::string& ) = 0;
@@ -715,6 +719,8 @@ namespace folia {
     PhonContent *phon_content( const TextPolicy& tp ) override;
     PhonContent *phon_content( const std::string& = "current",
 				     bool = false ) override;
+
+    std::vector<ProcessingInstruction*> getPI( const std::string& = "" ) override;
 
     // properties
     const std::string& get_delimiter( const TextPolicy& ) const override;

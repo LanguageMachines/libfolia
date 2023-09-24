@@ -354,6 +354,21 @@ namespace folia {
     append_node( t, depth );
   }
 
+  void Engine::add_PI( int depth ){
+    /// when parsing, add a new ProcessingInstruction node
+    /*!
+      \param depth the depth (location) in the tree where to add
+    */
+    if ( _debug ){
+      DBG << "add_PI " << endl;
+    }
+    string tag = "PI";
+    FoliaElement *t = AbstractElement::createElement( tag, _out_doc );
+    xmlNode *fd = xmlTextReaderExpand(_reader);
+    t->parseXml( fd );
+    append_node( t, depth );
+  }
+
   void Engine::add_default_node( int depth ){
     /// when debugging, output a message. Does nothing else
     if ( _debug ){
@@ -502,6 +517,7 @@ namespace folia {
 	}
 	break;
       default:
+	// Just ignore COMMENT and such?
 	break;
       };
     }
@@ -661,6 +677,15 @@ namespace folia {
       case XML_READER_TYPE_TEXT:
 	throw XmlError( "spurious text found." );
 	break;
+      case XML_READER_TYPE_PROCESSING_INSTRUCTION:
+	if ( tags.find( "PI" ) != tags.end() ){
+	  _external_node = handle_match( "PI", new_depth );
+	  return _external_node;
+	}
+	else {
+	  add_PI( new_depth );
+	}
+	break;
       case XML_READER_TYPE_COMMENT:
 	add_comment( new_depth );
 	break;
@@ -695,69 +720,98 @@ namespace folia {
     while ( xmlTextReaderRead(cur_reader) > 0 ){
       int depth = xmlTextReaderDepth(cur_reader);
       int type = xmlTextReaderNodeType(cur_reader);
-      if ( type == XML_READER_TYPE_ELEMENT
-	   || type == XML_READER_TYPE_COMMENT ){
-	string local_name = to_string(xmlTextReaderConstLocalName(cur_reader));
-	KWargs atts = get_attributes( cur_reader );
-	string nsu;
-	string txt_class;
-	for ( auto const& v : atts ){
-	  if ( v.first == "xmlns:xlink" ){
-	    // only at top level
+      string local_name = TiCC::to_char(xmlTextReaderConstLocalName(cur_reader));
+      xml_tree *add_rec = 0;
+      switch ( type ){
+      case XML_READER_TYPE_ELEMENT:
+	{
+	  KWargs atts = get_attributes( cur_reader );
+	  string nsu;
+	  string txt_class;
+	  for ( auto const& v : atts ){
+	    if ( v.first == "xmlns:xlink" ){
+	      // only at top level
+	      continue;
+	    }
+	    if ( v.first.find("xmlns") == 0 ){
+	      nsu = v.second;
+	    }
+	    if ( v.first == "textclass"
+		 || ( local_name == "t" && v.first == "class" ) ){
+	      txt_class = v.second;
+	    }
+	  }
+	  if ( nsu.empty() || nsu == NSFOLIA ){
+	    add_rec = new xml_tree( depth, index, local_name, txt_class );
+	  }
+	  else {
+	    if ( _debug ){
+	      DBG << "name=" << local_name << " atts=" << atts << endl;
+	      DBG << "create_simple_tree() node in alien namespace '"
+		<< nsu << "' is SKIPPED!" << endl;
+	    }
+	  }
+	}
+	break;
+      case XML_READER_TYPE_PROCESSING_INSTRUCTION:
+	{
+	  if ( local_name == "xml-stylesheet" ){
+	    // Ignore. stylesheet is handled separately
 	    continue;
 	  }
-	  if ( v.first.find("xmlns") == 0 ){
-	    nsu = v.second;
+	  local_name = "?" + local_name; //just some cosmetics
+	  string _value;
+	  auto pnt = xmlTextReaderConstValue(cur_reader);
+	  if ( pnt ){
+	    _value = TiCC::to_char(pnt);
 	  }
-	  if ( v.first == "textclass"
-	       || ( local_name == "t" && v.first == "class" ) ){
-	    txt_class = v.second;
-	  }
+	  add_rec = new xml_tree( depth, index, local_name, _value );
 	}
-	if ( nsu.empty() || nsu == NSFOLIA ){
-	  xml_tree *add_rec = new xml_tree( depth, index, local_name, txt_class );
-	  if ( _debug ){
-	    DBG << "new record " << index << " " << local_name << " ("
-		<< depth << ")" << endl;
+	break;
+      case XML_READER_TYPE_COMMENT:
+	{
+	  add_rec = new xml_tree( depth, index, local_name, "" );
+	}
+	break;
+      default:
+	// ignore all other stuff
+	break;
+      }
+      if ( add_rec ){
+	++index;
+	if ( _debug ){
+	  DBG << "new record " << index << " " << local_name << " ("
+	      << depth << ")" << endl;
+	}
+	if ( rec_pnt == 0 ){
+	  records = add_rec;
+	  rec_pnt = records;
+	}
+	else if ( depth == current_depth ){
+	  add_rec->parent = rec_pnt->parent;
+	  rec_pnt->next = add_rec;
+	  rec_pnt = rec_pnt->next;
+	}
+	else if ( depth > current_depth ){
+	  add_rec->parent = rec_pnt;
+	  rec_pnt->link = add_rec;
+	  rec_pnt = rec_pnt->link;
+	}
+	else { // depth < current_depth
+	  while ( rec_pnt && rec_pnt->depth > depth ){
+	    rec_pnt = rec_pnt->parent;
 	  }
 	  if ( rec_pnt == 0 ){
-	    records = add_rec;
 	    rec_pnt = records;
 	  }
-	  else if ( depth == current_depth ){
-	    add_rec->parent = rec_pnt->parent;
-	    rec_pnt->next = add_rec;
+	  while ( rec_pnt->next ){
 	    rec_pnt = rec_pnt->next;
 	  }
-	  else if ( depth > current_depth ){
-	    add_rec->parent = rec_pnt;
-	    rec_pnt->link = add_rec;
-	    rec_pnt = rec_pnt->link;
-	  }
-	  else { // depth < current_depth
-	    while ( rec_pnt && rec_pnt->depth > depth ){
-	      rec_pnt = rec_pnt->parent;
-	    }
-	    if ( rec_pnt == 0 ){
-	      rec_pnt = records;
-	    }
-	    while ( rec_pnt->next ){
-	      rec_pnt = rec_pnt->next;
-	    }
-	    add_rec->parent = rec_pnt->parent;
-	    rec_pnt->next = add_rec;
-	    rec_pnt = rec_pnt->next;
-	  }
-	  current_depth = rec_pnt->depth;
+	  add_rec->parent = rec_pnt->parent;
+	  rec_pnt->next = add_rec;
+	  rec_pnt = rec_pnt->next;
 	}
-	else {
-	  if ( _debug ){
-	    DBG << "name=" << local_name << " atts=" << atts << endl;
-	    DBG << "create_simple_tree() node in alien namespace '"
-		<< nsu << "' is SKIPPED!" << endl;
-	  }
-	}
-	++index;
+	current_depth = rec_pnt->depth;
       }
     }
     if ( xmlTextReaderReadState(cur_reader) < 0 ){
@@ -1396,6 +1450,9 @@ namespace folia {
 	break;
       case XML_READER_TYPE_COMMENT:
 	add_comment( new_depth );
+	break;
+      case XML_READER_TYPE_PROCESSING_INSTRUCTION:
+	add_PI( new_depth );
 	break;
       default:
 	add_default_node( new_depth );

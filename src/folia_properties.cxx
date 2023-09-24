@@ -32,7 +32,7 @@
 #include "libfolia/folia_properties.h"
 
 //foliaspec:header
-//This file was last updated according to the FoLiA specification for version 2.5.4 on 2023-08-07 17:21:34, using foliaspec.py
+//This file was last updated according to the FoLiA specification for version 2.5.3 on 2023-09-09 22:02:50, using foliaspec.py
 //Code blocks after a foliaspec comment (until the next newline) are automatically generated. **DO NOT EDIT THOSE** and **DO NOT REMOVE ANY FOLIASPEC COMMENTS** !!!
 
 namespace folia {
@@ -329,6 +329,7 @@ namespace folia {
     { Word_t,  "w" },
     { WordReference_t,  "wref" },
     { XmlComment_t, "_XmlComment" },
+    { ProcessingInstruction_t, "PI" },
     { XmlText_t, "_XmlText" }
   };
 
@@ -467,6 +468,7 @@ namespace folia {
     { "w", Word_t  },
     { "wref", WordReference_t  },
     { "_XmlComment", XmlComment_t  },
+    { "PI", ProcessingInstruction_t  },
     { "_XmlText", XmlText_t  }
   };
 
@@ -513,6 +515,7 @@ namespace folia {
   properties DCOI::PROPS = DEFAULT_PROPERTIES;
   properties XmlComment::PROPS = DEFAULT_PROPERTIES;
   properties XmlText::PROPS = DEFAULT_PROPERTIES;
+  properties ProcessingInstruction::PROPS = DEFAULT_PROPERTIES;
 
   //foliaspec:instantiateelementproperties
   //Instantiates all element properties for the first time, setting them to the default properties
@@ -1711,6 +1714,9 @@ namespace folia {
     XmlComment::PROPS.XMLTAG = "_XmlComment";
     XmlComment::PROPS.ELEMENT_ID = XmlComment_t;
 
+    ProcessingInstruction::PROPS.XMLTAG = "PI";
+    ProcessingInstruction::PROPS.ELEMENT_ID = ProcessingInstruction_t;
+
     for ( const auto& it : oldtags ){
       reverse_old[it.second] = it.first;
     }
@@ -2002,6 +2008,7 @@ namespace folia {
       //Default properties which all elements inherit
       ELEMENT_ID = BASE;
       ACCEPTED_DATA.insert(XmlComment_t);
+      ACCEPTED_DATA.insert(ProcessingInstruction_t);
       ACCEPTED_DATA += {Description_t, Comment_t};
       ANNOTATIONTYPE = AnnotationType::NO_ANN;
       AUTH = true;
@@ -2069,6 +2076,7 @@ namespace folia {
     case LangAnnotation_t: return new LangAnnotation();
     case XmlComment_t: return new XmlComment();
     case XmlText_t: return new XmlText();
+    case ProcessingInstruction_t: return new ProcessingInstruction();
     case External_t: return new External();
     case Note_t: return new Note();
     case Reference_t: return new Reference();
