@@ -720,7 +720,7 @@ namespace folia {
     PhonContent *phon_content( const std::string& = "current",
 				     bool = false ) override;
 
-    std::vector<ProcessingInstruction*> getPI( const std::string& = "" );
+    std::vector<ProcessingInstruction*> getPI( const std::string& = "" ) override;
 
     // properties
     const std::string& get_delimiter( const TextPolicy& ) const override;
