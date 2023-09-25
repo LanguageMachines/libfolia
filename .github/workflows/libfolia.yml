@@ -2,7 +2,9 @@ name: C/C++ CI
 
 on:
   push:
-    branches: [master]
+    branches:
+      - master
+      - PROPS
     paths:
       - configure.ac
       - 'src/**'
@@ -119,7 +121,7 @@ jobs:
         env:
           CXX: ${{ matrix.compiler }}
         run: |
-          git clone --depth=1 https://github.com/LanguageMachines/foliatest.git
+          git clone --branch ${{ steps.extract_branch.outputs.branch }} --depth=1 https://github.com/LanguageMachines/foliatest.git
           cd foliatest;
           bash bootstrap.sh;
           ./configure;

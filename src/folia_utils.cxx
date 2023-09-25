@@ -256,11 +256,11 @@ namespace folia {
     return folia::toString( *this );
   }
 
-  string att_name( xmlAttr *node ){
+  string att_name( const xmlAttr *node ){
     return to_string( node->name );
   }
 
-  string att_content( xmlAttr *node ){
+  string att_content( const xmlAttr *node ){
     return to_string( node->children->content );
   }
 

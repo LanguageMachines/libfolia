@@ -59,7 +59,7 @@ void usage(){
   cerr << "\t--permissive\t\t Accept some unwise constructions." << endl;
 }
 
-int main( int argc, char* argv[] ){
+int main( int argc, const char* argv[] ){
   string outputName;
   bool permissive;
   bool warn;

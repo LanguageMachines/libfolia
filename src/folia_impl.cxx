@@ -257,7 +257,7 @@ namespace folia {
   }
 
   void AbstractElement::dbg( const string& msg ) const{
-    cerr << msg << ": " << "<" << xmltag() << ">"
+    cerr << msg << ": " << "<" << AbstractElement::xmltag() << ">"
 	 << " address=" << reinterpret_cast<const void*>(this) << endl;
   }
 
@@ -980,16 +980,16 @@ namespace folia {
      * will throw for unexpected attributes, except when in permisive mode
      */
     for ( const auto& it: kwargs ) {
-      string tag = it.first;
-      if ( tag == "head" ) {
+      string f_tag = it.first;
+      if ( f_tag == "head" ) {
 	// "head" is special because the tag is "headfeature"
 	// this to avoid conflicts with the "head" tag!
-	tag = "headfeature";
+	f_tag = "headfeature";
       }
-      if ( AttributeFeatures.find( tag ) == AttributeFeatures.end() ) {
-	string message = "unsupported attribute: " + tag + "='" + it.second
+      if ( AttributeFeatures.find( f_tag ) == AttributeFeatures.end() ) {
+	string message = "unsupported attribute: " + f_tag + "='" + it.second
 	  + "' for node with tag '" + classname() + "'";
-	if ( tag == "id" ){
+	if ( f_tag == "id" ){
 	  message += "\ndid you mean xml:id?";
 	}
 	if ( doc() && doc()->permissive() ) {
@@ -1001,7 +1001,7 @@ namespace folia {
       }
       KWargs newa;
       newa["class"] = it.second;
-      FoliaElement *new_node = createElement( tag, doc() );
+      FoliaElement *new_node = createElement( f_tag, doc() );
       new_node->setAttributes( newa );
       append( new_node );
     }
@@ -1432,31 +1432,31 @@ namespace folia {
 #endif
       return;
     }
-    string cls = child->cls();
+    string c_cls = child->cls();
 #if defined DEBUG_CHECK_TEXT || defined DEBUG_CHECKTEXT_2
-    cerr << "HIER 2 " << cls << endl;
+    cerr << "HIER 2 " << c_cls << endl;
 #endif
     if ( child->size() == 0
 	 || ( child->is_textcontainer()
-	      && !child->hastext( cls ) ) ){
+	      && !child->hastext( c_cls ) ) ){
       // no use to proceed. not adding real text
       return;
     }
 #if defined DEBUG_CHECK_TEXT || defined DEBUG_CHECKTEXT_2
     cerr << "HIER 3 " << endl;
 #endif
-    const FoliaElement *parent = 0;
+    const FoliaElement *par = 0;
     if ( child->is_textcontainer() ){
-      parent = this->parent();
+      par = this->parent();
     }
     else {
-      parent = this;
-      cls = child->index(0)->cls();
+      par = this;
+      c_cls = child->index(0)->cls();
     }
 #if defined DEBUG_CHECK_TEXT || defined DEBUG_CHECKTEXT_2
-    cerr << "PARENT? " << parent << endl;
+    cerr << "PARENT? " << par << endl;
 #endif
-    CheckText( parent, child, cls );
+    CheckText( par, child, c_cls );
   }
 
   void AbstractElement::check_text_consistency( bool trim_spaces ) const {
@@ -1479,9 +1479,9 @@ namespace folia {
       return;
     }
 
-    string cls = this->cls();
-    FoliaElement *parent = this->parent();
-    CheckText2( parent, this, cls, trim_spaces );
+    string my_cls = cls();
+    FoliaElement *par = parent();
+    CheckText2( par, this, my_cls, trim_spaces );
   }
 
   void AbstractElement::check_text_consistency_while_parsing( bool trim_spaces,
@@ -2636,7 +2636,7 @@ namespace folia {
     /*!
      * \param tp the TextPolic to use
      */
-    bool hidden = tp.is_set( TEXT_FLAGS::HIDDEN );
+    bool show_hidden = tp.is_set( TEXT_FLAGS::HIDDEN );
     bool strict = tp.is_set( TEXT_FLAGS::STRICT );
     if ( tp.debug() ){
       cerr << "PHON, Policy= " << tp << " on node : " << xmltag() << " id="
@@ -2645,7 +2645,7 @@ namespace folia {
     if ( strict ) {
       return phon_content(tp)->phon();
     }
-    else if ( !speakable() || ( this->hidden() && !hidden ) ) {
+    else if ( !speakable() || ( this->hidden() && !show_hidden ) ) {
       throw NoSuchPhon( "NON speakable element: " + xmltag() );
     }
     else {
@@ -2905,15 +2905,15 @@ namespace folia {
 				+ TiCC::UnicodeToUTF8(txt_u) + "'" );
       }
     }
-    string sett;
+    string my_set;
     if ( doc() ){
-      sett = doc()->default_set( AnnotationType::TEXT );
+      my_set = doc()->default_set( AnnotationType::TEXT );
     }
     KWargs args;
     args["value"] = TiCC::UnicodeToUTF8(txt_u);
     args["class"] = cls;
-    if ( !sett.empty() ){
-      args["set"] = sett;
+    if ( !my_set.empty() ){
+      args["set"] = my_set;
     }
     if ( offset >= 0 ){
       args["offset"] = TiCC::toString(offset);
@@ -3075,14 +3075,15 @@ namespace folia {
       }
     }
     if ( element_id() == TextContent_t ){
-      string cls = this->cls();
+      string my_cls = cls();
       string st = sett();
       vector<TextContent*> tmp = parent->select<TextContent>( st, false );
       if ( any_of( tmp.cbegin(),
 		   tmp.cend(),
-		   [cls]( const TextContent *t) { return ( t->cls() == cls);} ) ){
+		   [my_cls]( const TextContent *t) { return ( t->cls() == my_cls);} ) ){
 	throw DuplicateAnnotationError( "attempt to add <t> with class="
-					+ cls + " to element: " + parent->id()
+					+ my_cls + " to element: "
+					+ parent->id()
 					+ " which already has a <t> with that class" );
 	}
     }
@@ -3494,8 +3495,8 @@ namespace folia {
 	continue;
       }
       if ( p->type == XML_ELEMENT_NODE ) {
-	string tag = Name( p );
-	FoliaElement *t = createElement( tag, doc() );
+	string xml_tag = Name( p );
+	FoliaElement *t = createElement( xml_tag, doc() );
 	if ( t ) {
 	  if ( doc() && doc()->debug > 2 ) {
 	    cerr << "created " << t << endl;
@@ -3514,8 +3515,8 @@ namespace folia {
       }
       else if ( p->type == XML_PI_NODE ){
 	// found a processing instruction
-	string tag = "PI";
-	FoliaElement *t = createElement( tag, doc() );
+	string xml_tag = "PI";
+	FoliaElement *t = createElement( xml_tag, doc() );
 	if ( t ) {
 	  if ( doc() && doc()->debug > 2 ) {
 	    cerr << "created " << t << endl;
@@ -3530,8 +3531,8 @@ namespace folia {
 	}
       }
       else if ( p->type == XML_COMMENT_NODE ) {
-	string tag = "_XmlComment";
-	FoliaElement *t = createElement( tag, doc() );
+	string xml_tag = "_XmlComment";
+	FoliaElement *t = createElement( xml_tag, doc() );
 	if ( t ) {
 	  if ( doc() && doc()->debug > 2 ) {
 	    cerr << "created " << t << endl;
@@ -3756,8 +3757,8 @@ namespace folia {
     Sentence *res = 0;
     KWargs kw = in_args;
     if ( !kw.is_present("xml:id") ){
-      string id = generateId( "s" );
-      kw["xml:id"] = id;
+      string new_id = generateId( "s" );
+      kw["xml:id"] = new_id;
     }
     try {
       res = new Sentence( kw, doc() );
@@ -3779,8 +3780,8 @@ namespace folia {
     Word *res = new Word( doc() );
     KWargs kw = in_args;
     if ( !kw.is_present("xml:id") ){
-      string id = generateId( "w" );
-      kw["xml:id"] = id;
+      string new_id = generateId( "w" );
+      kw["xml:id"] = new_id;
     }
     try {
       res->setAttributes( kw );

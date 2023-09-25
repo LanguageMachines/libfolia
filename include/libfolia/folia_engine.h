@@ -71,18 +71,18 @@ namespace folia {
 	\param i name of the inputfile
 	\param o optional name of an outputfile
       */
-      init_doc(i,o);
+      Engine::init_doc(i,o);
     };
-    bool init_doc( const std::string&, const std::string& ="" );
     virtual ~Engine();
+    virtual bool init_doc( const std::string&, const std::string& ="" );
     FoliaElement *get_node( const std::string& );
     bool next() { return true; }; /// A stub. NOT needed!
     void save( const std::string&, bool=false );
     void save( std::ostream&, bool=false );
     bool output_header();
-    bool output_footer();
-    bool flush();
-    bool finish();
+    void output_footer();
+    void flush();
+    void finish();
     /// return the status of the Engine. True when still valid. False otherwise.
     bool ok() const { return _ok; };
     void un_declare( const AnnotationType&,
@@ -149,9 +149,9 @@ namespace folia {
 	\param o an optional output file
 	To be able to use the TextEngine, a call to setup() is still needed
       */
-      init_doc( i, o );
+      TextEngine::init_doc( i, o );
     }
-    bool init_doc( const std::string&, const std::string& ="" );
+    bool init_doc( const std::string&, const std::string& ="" ) override;
     void setup( const std::string& ="", bool = false );
     const std::map<int,int>& enumerate_text_parents( const std::string& ="",
 						     bool = false );

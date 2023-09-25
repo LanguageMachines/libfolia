@@ -368,7 +368,7 @@ public:								\
   class Division: public AbstractStructureElement {
   public:
     ADD_DEFAULT_CONSTRUCTORS( Division, AbstractStructureElement );
-    Head *head() const;
+    Head *head() const override;
   };
 
   class Linebreak:
@@ -516,7 +516,7 @@ public:								\
   class Figure: public AbstractStructureElement {
   public:
     ADD_DEFAULT_CONSTRUCTORS( Figure, AbstractStructureElement );
-    const UnicodeString caption() const;
+    const UnicodeString caption() const override;
   };
 
   class Paragraph: public AbstractStructureElement {
@@ -787,8 +787,8 @@ public:								\
   class Dependency: public AbstractSpanAnnotation {
   public:
     ADD_DEFAULT_CONSTRUCTORS( Dependency, AbstractSpanAnnotation );
-    Headspan *head() const;
-    DependencyDependent *dependent() const;
+    Headspan *head() const override;
+    DependencyDependent *dependent() const override;
   };
 
   class CoreferenceLink: public AbstractSpanRole {
@@ -845,7 +845,7 @@ public:								\
     FoliaElement *append( FoliaElement * ) override;
     KWargs collectAttributes() const override;
   private:
-    void assignset( FoliaElement * );
+    void assignset( const  FoliaElement * );
   };
 
   class AbstractCorrectionChild: public AbstractElement {

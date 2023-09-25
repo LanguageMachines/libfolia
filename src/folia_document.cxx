@@ -2466,7 +2466,7 @@ namespace folia {
       Is only accepts Speech or Text nodes as root.
      */
 
-    FoliaElement *root = getRoot();
+    const FoliaElement *root = getRoot();
     if ( root ){
       throw DocumentError( _source_name,
 			   "cannot append a root element to a Document. Already there." );
@@ -2862,9 +2862,9 @@ namespace folia {
       }
       const auto& ti = _set_alias.find(type);
       if ( ti != _set_alias.end() ){
-	const auto& alias = ti->second.find(s);
-	if ( alias->second != s ){
-	  args["alias"] = alias->second;
+	const auto& al = ti->second.find(s);
+	if ( al->second != s ){
+	  args["alias"] = al->second;
 	}
       }
       string an = it->_annotator;
@@ -3038,7 +3038,7 @@ namespace folia {
       KWargs atts;
       atts["xml:id"] = it.first;
       addAttributes( sm, atts );
-      MetaData *md = submetadata.find(it.first)->second;
+      const MetaData *md = submetadata.find(it.first)->second;
       string type = md->type();
       atts.clear();
       atts["type"] = type;
@@ -3187,7 +3187,7 @@ namespace folia {
     add_provenance( md );
     add_metadata( md );
     for ( size_t i=0; i < foliadoc->size(); ++i ){
-      FoliaElement* el = foliadoc->index(i);
+      const FoliaElement* el = foliadoc->index(i);
       xmlAddChild( root, el->xml( true, canonical() ) );
     }
     return outDoc;
