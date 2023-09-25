@@ -121,7 +121,7 @@ jobs:
         env:
           CXX: ${{ matrix.compiler }}
         run: |
-          git clone --branch ${{ steps.extract_branch.outputs.branch }} --depth=1 https://github.com/LanguageMachines/foliatest.git
+          git clone --branch ${{ needs.notification.outputs.branch }} --depth=1 https://github.com/LanguageMachines/foliatest.git
           cd foliatest;
           bash bootstrap.sh;
           ./configure;
