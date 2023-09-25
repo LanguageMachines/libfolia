@@ -1174,7 +1174,7 @@ public:									\
     xmlNode *xml( bool, bool=false ) const override;
     static properties PROPS;
     const std::string target() const { return _target; };
-    const std::string content() const { return _content; };
+    const std::string content() const override { return _content; };
   private:
     const UnicodeString private_text( const TextPolicy& ) const override {
       return "";

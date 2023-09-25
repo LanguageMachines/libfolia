@@ -71,16 +71,16 @@ namespace folia {
       */
       init_doc(i,o);
     };
-    bool init_doc( const std::string&, const std::string& ="" );
     virtual ~Engine();
+    virtual bool init_doc( const std::string&, const std::string& ="" );
     FoliaElement *get_node( const std::string& );
     bool next() { return true; }; /// A stub. NOT needed!
     void save( const std::string&, bool=false );
     void save( std::ostream&, bool=false );
     bool output_header();
-    bool output_footer();
-    bool flush();
-    bool finish();
+    void output_footer();
+    void flush();
+    void finish();
     /// return the status of the Engine. True when still valid. False otherwise.
     bool ok() const { return _ok; };
     void un_declare( const AnnotationType&,
@@ -147,7 +147,7 @@ namespace folia {
       */
       init_doc( i, o );
     }
-    bool init_doc( const std::string&, const std::string& ="" );
+    bool init_doc( const std::string&, const std::string& ="" ) override;
     void setup( const std::string& ="", bool = false );
     const std::map<int,int>& enumerate_text_parents( const std::string& ="",
 						     bool = false );

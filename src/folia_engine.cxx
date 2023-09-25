@@ -917,7 +917,7 @@ namespace folia {
       FoliaElement *t = AbstractElement::createElement( local_name, _out_doc );
       if ( t ){
 	if ( local_name == "foreign-data" ){
-	  xmlNode *fd = xmlTextReaderExpand(_reader);
+	  const xmlNode *fd = xmlTextReaderExpand(_reader);
 	  t->parseXml( fd );
 	  append_node( t, new_depth );
 	  // skip subtree
@@ -980,7 +980,7 @@ namespace folia {
 	    }
 	    // just take as is...
 	    append_node( t, new_depth );
-	    xmlNode *fd = xmlTextReaderExpand(_reader);
+	    const xmlNode *fd = xmlTextReaderExpand(_reader);
 	    t->parseXml( fd );
 	    // skip subtree
 	    xmlTextReaderNext(_reader);
@@ -1074,7 +1074,7 @@ namespace folia {
     return true;
   }
 
-  bool Engine::output_footer(){
+  void Engine::output_footer(){
     /// output the remains of the associated Document
     /// might call flush() first
 
@@ -1082,23 +1082,19 @@ namespace folia {
     if ( _debug ){
       DBG << "Engine::output_footer()" << endl;
     }
-    if ( _finished ){
-      return true;
-    }
-    if ( !_os ){
-      throw logic_error( "folia::Engine::output_footer() impossible. No output file specified!" );
-    }
-    else if ( flush() ){
-      *_os << _footer << endl;
-      _finished = true;
-      return true;
-    }
-    else {
-      return false;
+    if ( !_finished ){
+      if ( !_os ){
+	throw logic_error( "folia::Engine::output_footer() impossible. No output file specified!" );
+      }
+      else {
+	flush();
+	*_os << _footer << endl;
+	_finished = true;
+      }
     }
   }
 
-  bool Engine::flush() {
+  void Engine::flush() {
     /// output all NEW information in the output Document to the output stream
 
     /// may call output_header() first
@@ -1108,29 +1104,27 @@ namespace folia {
     if ( !_os ){
       throw logic_error( "folia::Engine::flush() impossible. No outputfile specified!" );
     }
-    if ( _finished ){
-      return true;
+    if ( !_finished ){
+      if ( !_header_done ){
+	output_header();
+      }
+      stack<FoliaElement*> rem_list;
+      size_t length = _root_node->size();
+      for ( size_t i=0; i < length; ++i ){
+	rem_list.push( _root_node->index(i) );
+	*_os << "    " << _root_node->index(i)->xmlstring(true,2,false) << endl;
+      }
+      while ( !rem_list.empty() ){
+	// we've kept a stack of elements to remove, as removing at the back
+	// is the safest and cheapest thing to do
+	_root_node->remove( rem_list.top() );
+	destroy( rem_list.top() );
+	rem_list.pop();
+      }
     }
-    else if ( !_header_done ){
-      output_header();
-    }
-    stack<FoliaElement*> rem_list;
-    size_t length = _root_node->size();
-    for ( size_t i=0; i < length; ++i ){
-      rem_list.push( _root_node->index(i) );
-      *_os << "    " << _root_node->index(i)->xmlstring(true,2,false) << endl;
-    }
-    while ( !rem_list.empty() ){
-      // we've kept a stack of elements to remove, as removing at the back
-      // is the safest and cheapest thing to do
-      _root_node->remove( rem_list.top() );
-      destroy( rem_list.top() );
-      rem_list.pop();
-    }
-    return true;
   }
 
-  bool Engine::finish() {
+  void Engine::finish() {
     /// finalize the Engine bij calling output_footer
     if ( _debug ){
       DBG << "Engine::finish()" << endl;
@@ -1138,10 +1132,9 @@ namespace folia {
     if ( !_os ){
       throw logic_error( "folia::Engine::finish() impossible. No outputfile specified!" );
     }
-    if ( _finished ){
-      return true;
+    if ( !_finished ){
+      output_footer();
     }
-    return output_footer();
   }
 
   void Engine::save( const string& name, bool do_canon ){
@@ -1268,7 +1261,7 @@ namespace folia {
 	  // OK text in the right textclass
 	  if ( prefer_struct ){
 	    // search for a suitable parent
-	    xml_tree *par = get_structure_parent( pnt );
+	    const xml_tree *par = get_structure_parent( pnt );
 	    int index = par->index;
 	    int next = INT_MAX;
 	    if ( par->next ){
