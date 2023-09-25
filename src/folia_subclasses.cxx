@@ -2724,8 +2724,8 @@ namespace folia {
   xmlNode *ProcessingInstruction::xml( bool, bool ) const {
     ///  convert a PI xmlNode
     return xmlNewDocPI( const_cast<xmlDoc*>(doc()->XmlDoc()),
-			to_xmlChar(_target.c_str()),
-			to_xmlChar(_content.c_str() ) );
+			to_xmlChar(_target),
+			to_xmlChar(_content) );
   }
 
   FoliaElement* ProcessingInstruction::parseXml( const xmlNode *node ) {
