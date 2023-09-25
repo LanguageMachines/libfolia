@@ -4006,7 +4006,7 @@ namespace folia {
 #ifdef DEBUG_CORRECT
       cerr << "after adding NEW: " << corr->xmlstring() << endl;
 #endif
-      vector<Current*> v = corr->FoliaElement::select<Current>();
+      vector<Current*> v = corr->select<Current>();
       //delete current if present
       for ( const auto& cur:v ) {
 	corr->remove( cur );
@@ -4164,7 +4164,7 @@ namespace folia {
 	  cerr << "parent = " << org->parent() << endl;
 #endif
 	}
-	vector<Current*> v = corr->FoliaElement::select<Current>();
+	vector<Current*> v = corr->select<Current>();
 	//delete current if present
 	for ( const auto& cur: v ) {
 #ifdef DEBUG_CORRECT

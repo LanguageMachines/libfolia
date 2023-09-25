@@ -660,11 +660,6 @@ namespace folia {
     AnnotatorType annotatortype() const override { return _annotator_type; };
     void annotatortype( AnnotatorType t ) override { _annotator_type =  t; };
 
-    template <typename F>
-      F *addAnnotation( const KWargs& args ) {
-      return FoliaElement::addAnnotation<F>( args );
-    }
-
     // Span annotations
     std::vector<AbstractSpanAnnotation*> selectSpan() const override;
 
