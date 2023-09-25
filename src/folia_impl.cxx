@@ -257,7 +257,7 @@ namespace folia {
   }
 
   void AbstractElement::dbg( const string& msg ) const{
-    cerr << msg << ": " << "<" << xmltag() << ">"
+    cerr << msg << ": " << "<" << AbstractElement::xmltag() << ">"
 	 << " address=" << reinterpret_cast<const void*>(this) << endl;
   }
 

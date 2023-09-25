@@ -442,7 +442,7 @@ public:									\
     friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( Division, AbstractStructureElement );
-    Head *head() const;
+    Head *head() const override;
     static properties PROPS;
   };
 
@@ -630,7 +630,7 @@ public:									\
     friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( Figure, AbstractStructureElement );
-    const UnicodeString caption() const;
+    const UnicodeString caption() const override;
     static properties PROPS;
   };
 
@@ -990,8 +990,8 @@ public:									\
     friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( Dependency, AbstractSpanAnnotation );
-    Headspan *head() const;
-    DependencyDependent *dependent() const;
+    Headspan *head() const override;
+    DependencyDependent *dependent() const override;
     static properties PROPS;
   };
 
@@ -1067,7 +1067,7 @@ public:									\
       // DO NOT USE AbstractAnnotationLayer as a real node!!
       ADD_PROTECTED_CONSTRUCTORS( AbstractAnnotationLayer, AbstractElement );
     private:
-      void assignset( FoliaElement * );
+      void assignset( const FoliaElement * );
     };
 
   class AbstractCorrectionChild: public AbstractElement {

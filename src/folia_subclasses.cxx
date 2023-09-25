@@ -197,8 +197,8 @@ namespace folia {
      * When the last data item in the Quote is a sentence, we don't
      * want a delimiter and return ""
      */
-    bool retaintok  = tp.is_set( TEXT_FLAGS::RETAIN );
     if ( tp.debug() ){
+      bool retaintok  = tp.is_set( TEXT_FLAGS::RETAIN );
       cerr << "IN " << xmltag() << "::get_delimiter (" << retaintok << ")"
 	   << endl;
     }
@@ -509,24 +509,24 @@ namespace folia {
       UnicodeString mt = this->text( tp );
       cumulated_offset += mt.length();
     }
-    FoliaElement *ref = 0;
+    FoliaElement *the_ref = 0;
     if ( _offset == -1 ){
       return 0;
     }
     else if ( !_ref.empty() ){
       try{
-	ref = (*doc())[_ref];
+	the_ref = (*doc())[_ref];
       }
       catch (...){
       }
     }
     else {
-      ref = find_default_reference();
+      the_ref = find_default_reference();
     }
-    if ( !ref ){
+    if ( !the_ref ){
       throw UnresolvableTextContent( "Default reference for content not found!" );
     }
-    else if ( !ref->hastext( cls() ) ){
+    else if ( !the_ref->hastext( cls() ) ){
       throw UnresolvableTextContent( "Reference (ID " + _ref + ") has no such text (class=" + cls() + ")" );
     }
     else if ( doc()->checktext() || doc()->fixtext() ){
@@ -535,14 +535,14 @@ namespace folia {
 	tp.set( TEXT_FLAGS::NO_TRIM_SPACES );
       }
       UnicodeString mt = this->text( tp );
-      UnicodeString pt = ref->text( tp );
+      UnicodeString pt = the_ref->text( tp );
       if ( this->offset() < 0
 	   || this->offset() > pt.length() ){
 	if ( doc()->fixtext() ){
 	  this->set_offset( cumulated_offset );
 	}
 	else {
-	  throw UnresolvableTextContent( "Reference (ID " + ref->id()
+	  throw UnresolvableTextContent( "Reference (ID " + the_ref->id()
 					 + ",class=" + cls()
 					 + " found, but offset out of range"
 					 + " [0-"
@@ -557,7 +557,7 @@ namespace folia {
 	    this->set_offset( cumulated_offset );
 	  }
 	  else {
-	    throw UnresolvableTextContent( "Reference (ID " + ref->id()
+	    throw UnresolvableTextContent( "Reference (ID " + the_ref->id()
 					   + ",class=" + cls()
 					   + " found, but offset should probably"
 					   + " be "
@@ -573,7 +573,7 @@ namespace folia {
 	    int pos = pt.indexOf( mt );
 	    if ( pos < 0 ){
 	      // no substring found, offset cannot be set
-	      throw UnresolvableTextContent( "Reference (ID " + ref->id()
+	      throw UnresolvableTextContent( "Reference (ID " + the_ref->id()
 					     + ",class=" + cls()
 					     + " found, but no substring match "
 					     + TiCC::UnicodeToUTF8(mt) + " in "
@@ -584,7 +584,7 @@ namespace folia {
 	    }
 	  }
 	  else {
-	    throw UnresolvableTextContent( "Reference (ID " + ref->id() +
+	    throw UnresolvableTextContent( "Reference (ID " + the_ref->id() +
 					   ",class='" + cls()
 					   + "') found, but no text match at "
 					   + "offset="
@@ -597,7 +597,7 @@ namespace folia {
 	}
       }
     }
-    return ref;
+    return the_ref;
   }
 
   KWargs AbstractContentAnnotation::collectAttributes() const {
@@ -715,7 +715,7 @@ namespace folia {
     copy_if( v.begin(),
 	     v.end(),
 	     back_inserter(result),
-	     [&]( FoliaElement *el ){ return el->cls() == cls(); } );
+	     [&]( const FoliaElement *el ){ return el->cls() == cls(); } );
     return result;
   }
 
@@ -1496,7 +1496,7 @@ namespace folia {
     vector<LinkReference*> v = FoliaElement::select<LinkReference>();
     transform( v.begin(), v.end(),
 	       back_inserter(result),
-	       [&]( LinkReference *r ){ return r->resolve_element(this); } );
+	       [&]( const LinkReference *r ){ return r->resolve_element(this); } );
     return result;
   }
 
@@ -1625,7 +1625,7 @@ namespace folia {
     return child;
   }
 
-  void AbstractAnnotationLayer::assignset( FoliaElement *child ) {
+  void AbstractAnnotationLayer::assignset( const FoliaElement *child ) {
     // If there is no set (yet), try to get the set from the child
     // but not if it is the default set.
     // for a Correction child, we look deeper.
@@ -1639,10 +1639,10 @@ namespace folia {
       }
     }
     else if ( child->isinstance(Correction_t) ) {
-      Original *org = child->getOriginal();
+      const Original *org = child->getOriginal();
       if ( org ) {
 	for ( size_t i=0; i < org->size(); ++i ) {
-	  FoliaElement *el = org->index(i);
+	  const FoliaElement *el = org->index(i);
 	  if ( el->isSubClass( AbstractSpanAnnotation_t ) ) {
 	    string st = el->sett();
 	    if ( !st.empty()
@@ -1654,10 +1654,10 @@ namespace folia {
 	}
       }
       if ( c_set.empty() ){
-	New *nw = child->getNew();
+	const New *nw = child->getNew();
 	if ( nw ) {
 	  for ( size_t i=0; i < nw->size(); ++i ) {
-	    FoliaElement *el = nw->index(i);
+	    const FoliaElement *el = nw->index(i);
 	    if ( el->isSubClass( AbstractSpanAnnotation_t ) ) {
 	      string st = el->sett();
 	      if ( !st.empty()
@@ -2234,7 +2234,7 @@ namespace folia {
     // it's (Word) members. Start searching with the New node and so on
     // THIS IS A GROSS HACK
     bool result = AbstractElement::space();
-    FoliaElement *e = getNew();
+    const FoliaElement *e = getNew();
     if ( !e ){
       e = getOriginal();
     }
@@ -2244,7 +2244,7 @@ namespace folia {
     if ( e ){
       vector<Word*> wv = e->select<Word>(false);
       if ( !wv.empty() ){
-	FoliaElement *last = wv.back();
+	const FoliaElement *last = wv.back();
 	// cerr << "Correction::space!" << last << " ==> "
 	//      << (last->space()?"YES":"NO") << endl;
 	result = last->space();
@@ -2277,7 +2277,7 @@ namespace folia {
      * \param index the position in the children of the New node
      * \return the child or 0 if not available
      */
-    New *n = getNew();
+    const New *n = getNew();
     return n->index(index);
   }
 
@@ -2305,7 +2305,7 @@ namespace folia {
      * \param index the position in the children of the Original node
      * \return the child or 0 if not available
      */
-    Original *n = getOriginal();
+    const Original *n = getOriginal();
     return n->index(index);
   }
 
@@ -2333,7 +2333,7 @@ namespace folia {
      * \param index the position in the children of the Current node
      * \return the child or 0 if not available
      */
-    Current *n = getCurrent();
+    const Current *n = getCurrent();
     return n->index(index);
   }
 
@@ -2428,7 +2428,8 @@ namespace folia {
 	res.push_back( el );
       }
       else {
-	AbstractSpanAnnotation *as = dynamic_cast<AbstractSpanAnnotation*>(el);
+	const AbstractSpanAnnotation *as
+	  = dynamic_cast<AbstractSpanAnnotation*>(el);
 	if ( as != 0 ) {
 	  vector<FoliaElement*> sub = as->wrefs();
 	  copy( sub.begin(), sub.end(), back_inserter(res) );
@@ -2580,7 +2581,7 @@ namespace folia {
       xmlSetStructuredErrorFunc( &cnt, (xmlStructuredErrorFunc)error_sink );
       xmlDoc *extdoc = xmlReadFile( src.c_str(), 0, XML_PARSER_OPTIONS );
       if ( extdoc ) {
-	xmlNode *root = xmlDocGetRootElement( extdoc );
+	const xmlNode *root = xmlDocGetRootElement( extdoc );
 	xmlNode *p = root->children;
 	while ( p ) {
 	  if ( p->type == XML_ELEMENT_NODE ) {

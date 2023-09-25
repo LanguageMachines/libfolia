@@ -248,21 +248,21 @@ namespace folia {
     */
     _type = AUTO;
     KWargs atts = atts_in;
-    string name = atts.extract("name");
-    if ( name.empty() ){
+    string name_value = atts.extract("name");
+    if ( name_value.empty() ){
       throw XmlError( "processor: missing 'name' attribute" );
     }
     else {
-      _name = name;
+      _name = name_value;
     }
 #ifdef PROC_DEBUG
     cerr << "new processor(" << atts_in << ")" << endl;
 #endif
-    string id = atts.extract("id");
-    if ( id.empty() ){
-      id = atts.extract("xml:id");
+    string id_val = atts.extract("id");
+    if ( id_val.empty() ){
+      id_val = atts.extract("xml:id");
     }
-    if ( id.empty() ){
+    if ( id_val.empty() ){
       string gen = atts.extract("generate_id");
       if ( gen.empty() ){
 	throw XmlError( "processor: missing 'xml:id' attribute" );
@@ -271,49 +271,51 @@ namespace folia {
       cerr << "new processor generate_id() gen==" << gen << endl;
 #endif
       if ( gen == "auto()" ){
-	id = generate_id( prov, _name );
+	id_val = generate_id( prov, _name );
 #ifdef PROC_DEBUG
-	cerr << "new processor generate_id(" << _name << ") ==>" << id << endl;
+	cerr << "new processor generate_id(" << _name << ") ==>"
+	     << id_val << endl;
 #endif
       }
       else if ( gen == "next()" ){
 	if ( !parent ){
 	  // fall back to auto()
-	  id = generate_id( prov, _name );
+	  id_val = generate_id( prov, _name );
 	  //	throw invalid_argument( "processor id=next() impossible. No parent" );
 	}
 	else {
-	  id = parent->calculate_next_id();
+	  id_val = parent->calculate_next_id();
 	}
 #ifdef PROC_DEBUG
 	cerr << "new processor calculate_next() ==>" << id << endl;
 #endif
       }
       else {
-	id = generate_id( prov, gen );
+	id_val = generate_id( prov, gen );
 #ifdef PROC_DEBUG
-	cerr << "new processor generate_id(" << gen << ") ==>" << id << endl;
+	cerr << "new processor generate_id(" << gen << ") ==>"
+	     << id_val << endl;
 #endif
       }
     }
-    else if ( id == "next()" ){
+    else if ( id_val == "next()" ){
       if ( !parent ){
 	// fall back to auto()
-	id = generate_id( prov, _name );
+	id_val = generate_id( prov, _name );
 	//	throw invalid_argument( "processor id=next() impossible. No parent" );
       }
       else {
-	id = parent->calculate_next_id();
+	id_val = parent->calculate_next_id();
       }
 #ifdef PROC_DEBUG
-      cerr << "new processor calculate SPECIAAL() ==>" << id << endl;
+      cerr << "new processor calculate SPECIAAL() ==>" << id_val << endl;
 #endif
     }
-    processor *check = prov->get_processor_by_id( id );
+    const processor *check = prov->get_processor_by_id( id_val );
     if ( check ){
-      throw DuplicateIDError( "processor '" + id + "' already exists" );
+      throw DuplicateIDError( "processor '" + id_val + "' already exists" );
     }
-    _id = id;
+    _id = id_val;
     for ( const auto& att : atts ){
       if ( att.first == "begindatetime" ){
 	if ( att.second == "now()" ){

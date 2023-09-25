@@ -69,7 +69,7 @@ namespace folia {
 	\param i name of the inputfile
 	\param o optional name of an outputfile
       */
-      init_doc(i,o);
+      Engine::init_doc(i,o);
     };
     virtual ~Engine();
     virtual bool init_doc( const std::string&, const std::string& ="" );
@@ -145,7 +145,7 @@ namespace folia {
 	\param o an optional output file
 	To be able to use the TextEngine, a call to setup() is still needed
       */
-      init_doc( i, o );
+      TextEngine::init_doc( i, o );
     }
     bool init_doc( const std::string&, const std::string& ="" ) override;
     void setup( const std::string& ="", bool = false );
