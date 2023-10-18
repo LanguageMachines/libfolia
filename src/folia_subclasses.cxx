@@ -2506,10 +2506,8 @@ namespace folia {
     /*!
      * \param s an UTF8 string
      */
-    static TiCC::UnicodeNormalizer norm;  // defaults to a NFC normalizer
     if ( !s.empty() ){
       UnicodeString us = TiCC::UnicodeFromUTF8(s);
-      us = norm.normalize( us );
       us = dumb_spaces( us );
       _value = TiCC::UnicodeToUTF8( us );
     }
