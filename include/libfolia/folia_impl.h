@@ -159,7 +159,7 @@ namespace folia {
 	This is about C++ class inheritance: is our class a derivative of c's
 	class?
       */
-      return dynamic_cast<decltype(c)>(this) != 0;
+      return dynamic_cast<decltype(c)>(this) != nullptr;
     };
 
     virtual void assignDoc( Document* ) = 0;

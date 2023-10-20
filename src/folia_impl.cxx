@@ -1696,7 +1696,7 @@ namespace folia {
     }
 
     string my_cls = cls();
-    FoliaElement *par = parent();
+    const FoliaElement *par = parent();
     CheckText2( par, this, my_cls, trim_spaces );
   }
 
@@ -2062,7 +2062,7 @@ namespace folia {
     }
 
     if ( !_data.empty() ){
-      FoliaElement *last = _data.back();
+      const FoliaElement *last = _data.back();
       if ( last &&
 	   last->isSubClass(AbstractStructureElement_t)
 	   && !last->space() ){
@@ -4125,7 +4125,7 @@ namespace folia {
       cerr << "start to look for original " << endl;
 #endif
       for ( size_t i=0; i < len(addnew); ++ i ) {
-	FoliaElement *p = addnew->index(i);
+	const FoliaElement *p = addnew->index(i);
 #ifdef DEBUG_CORRECT
 	cerr << "bekijk " << p << endl;
 #endif

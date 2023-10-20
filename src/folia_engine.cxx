@@ -364,7 +364,7 @@ namespace folia {
     }
     string tag = "PI";
     FoliaElement *t = AbstractElement::createElement( tag, _out_doc );
-    xmlNode *fd = xmlTextReaderExpand(_reader);
+    const xmlNode *fd = xmlTextReaderExpand(_reader);
     t->parseXml( fd );
     append_node( t, depth );
   }
@@ -821,7 +821,7 @@ namespace folia {
     return records;
   }
 
-  int count_nodes( FoliaElement *fe ){
+  int count_nodes( const FoliaElement *fe ){
     /// count all 'real' FoliaElements including and below this one
     /*!
       \param fe the The element to start at
