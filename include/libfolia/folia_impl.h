@@ -576,10 +576,10 @@ namespace folia {
     friend void destroy( FoliaElement * );
   private:
     //Constructor
-    AbstractElement( const AbstractElement& ); // inhibit copies
-    AbstractElement& operator=( const AbstractElement& ); // inhibit copies
+    AbstractElement( const AbstractElement& ) = delete; // inhibit copies
+    AbstractElement& operator=( const AbstractElement& ) = delete; // inhibit copies
   protected:
-    AbstractElement( const properties& p, Document* = 0 );
+    explicit AbstractElement( const properties& p, Document* = 0 );
     AbstractElement( const properties& p, FoliaElement * );
     virtual ~AbstractElement();
   public:
