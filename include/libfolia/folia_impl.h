@@ -159,7 +159,7 @@ namespace folia {
 	This is about C++ class inheritance: is our class a derivative of c's
 	class?
       */
-      return dynamic_cast<decltype(c)>(this) != 0;
+      return dynamic_cast<decltype(c)>(this) != nullptr;
     };
 
     virtual void assignDoc( Document* ) = 0;
@@ -342,12 +342,11 @@ namespace folia {
 						       bool = false ) = 0; //can't we merge these two somehow?
     virtual void check_append_text_consistency( const FoliaElement * ) const = 0;
 
-    virtual const std::string str( const std::string& = "current" ) const = 0;
-    virtual const std::string str( const TextPolicy& ) const = 0;
+    const std::string str( const std::string& = "current" ) const;
+    const std::string str( const TextPolicy& ) const;
 
-    const UnicodeString unicode( const std::string& cls = "current",
-				 bool debug=false ) const {
-      return text( cls, TEXT_FLAGS::NONE, debug ); };
+    virtual const UnicodeString unicode( const std::string& = "current" ) const = 0;
+    virtual const UnicodeString unicode( const TextPolicy& ) const = 0;
 
     virtual UnicodeString text_container_text( const TextPolicy& ) const = 0;
     virtual const UnicodeString private_text( const TextPolicy& ) const = 0;
@@ -672,8 +671,8 @@ namespace folia {
 
     // text/string content
 
-    const std::string str( const std::string& = "current" ) const override;
-    const std::string str( const TextPolicy& ) const override ;
+    const UnicodeString unicode( const std::string& = "current" ) const override;
+    const UnicodeString unicode( const TextPolicy& ) const override ;
 
     const UnicodeString private_text( const TextPolicy& ) const override;
     const UnicodeString text( const TextPolicy & ) const override;

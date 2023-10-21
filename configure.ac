@@ -67,7 +67,8 @@ PKG_CHECK_MODULES([XML2], [libxml-2.0 >= 2.9.4] )
 CXXFLAGS="$CXXFLAGS $XML2_CFLAGS"
 LIBS="$XML2_LIBS $LIBS"
 
-PKG_CHECK_MODULES([ticcutils], [ticcutils >= 0.33] )
+PKG_CHECK_MODULES([ticcutils], [ticcutils >= 0.34] )
+
 CXXFLAGS="$CXXFLAGS $ticcutils_CFLAGS"
 LIBS="$ticcutils_LIBS $LIBS"
 

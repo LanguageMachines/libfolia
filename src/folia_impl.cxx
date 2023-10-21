@@ -1264,6 +1264,222 @@ namespace folia {
     return result;
   }
 
+  const string FoliaElement::str( const string& cls ) const {
+    /// return the UTF8 value of this element
+    /*!
+     * \param cls The desired textclass
+     * \return the string value (UTF8 encoded)
+     *
+     * if this is a TextContent or it may contain TextContent
+     * then return the associated text()
+     *
+     * if this is a PhonContent or it may contain PhonContent
+     * then return the associated phon()
+     *
+     * otherwise return the empty string
+     */
+    return TiCC::UnicodeToUTF8( unicode( cls ) );
+  }
+
+  const string FoliaElement::str( const TextPolicy& tp ) const {
+    /// return the UTF8 value of this element
+    /*!
+     * \param tp the TextPolicy to use
+     * \return the string value (UTF8 encoded)
+     *
+     * if this is a TextContent or it may contain TextContent
+     * then return the associated text()
+     *
+     * if this is a PhonContent or it may contain PhonContent
+     * then return the associated phon()
+     *
+     * otherwise return the empty string
+     */
+    return TiCC::UnicodeToUTF8( unicode( tp ) );
+  }
+
+    bool FoliaElement::hastext( const string& cls ) const {
+    /// check if the element has a TextContent with class 'cls'
+    /*!
+     * \param cls The desired textclass
+     * \return true if there is a TextContent available. Otherwise false
+     */
+    try {
+      this->text_content(cls);
+      return true;
+    } catch ( const NoSuchText& e ) {
+      return false;
+    }
+  }
+
+  bool FoliaElement::hasphon( const string& cls ) const {
+    /// check if the element has a PhonContent with class 'cls'
+    /*!
+     * \param cls The desired textclass
+     * \return true if there is a PhonContent available. Otherwise false
+     */
+    try {
+      this->phon_content(cls);
+      return true;
+    } catch ( const NoSuchPhon& e ) {
+      return false;
+    }
+  }
+
+  const UnicodeString FoliaElement::stricttext( const string& cls ) const {
+    /// get the UnicodeString value of TextContent children only
+    /*!
+     * \param cls the textclass
+     * \return The Unicode Text found.
+     * Will throw on error.
+     */
+    TextPolicy tp( cls, TEXT_FLAGS::STRICT );
+    return this->text( tp );
+  }
+
+  const UnicodeString FoliaElement::toktext( const string& cls ) const {
+    /// get the UnicodeString value of TextContent children only, retaining
+    /// tokenization
+    /*!
+     * \param cls the textclass
+     * \return The Unicode Text found.
+     * Will throw on error.
+     */
+    TextPolicy tp( cls, TEXT_FLAGS::RETAIN );
+    return this->text( tp );
+  }
+
+    void FoliaElement::clear_textcontent( const string& textclass ){
+    for ( size_t i=0; i < size(); ++i ){
+      FoliaElement *p = index(i);
+      if ( p->element_id() == TextContent_t ) {
+	if ( p->cls() == textclass ){
+	  p->destroy();
+	  break;
+	}
+      }
+    }
+  }
+
+  TextContent *FoliaElement::settext( const string& txt,
+				      const string& cls ){
+    /// append a TextContent child of class txt with value txt
+    /*!
+     * \param txt the UTF8 text value
+     * \param cls the textclass of the new TextContent
+     * \return the new created TextContent
+     * may throw on error
+     *
+     * when the associated document has the checktext mode, (which is the
+     * default) both text consistency and the offset are checked.
+     */
+    return settext( txt, -1, cls );
+  }
+
+  TextContent *FoliaElement::setutext( const UnicodeString& txt,
+				       const string& cls ){
+    /// append a TextContent child of class cls with value txt
+    /*!
+     * \param txt the Unicode text value
+     * \param cls the textclass of the new TextContent
+     * \return the new created TextContent
+     * may throw on error
+     *
+     * when the associated document has the checktext mode, (which is the
+     * default) both text consistency and the offset are checked.
+     */
+    string utf8 = TiCC::UnicodeToUTF8(txt);
+    return settext( utf8, cls );
+  }
+
+  TextContent *FoliaElement::settext( const string& txt,
+				      int offset,
+				      const string& cls ){
+    /// append a TextContent child of class cls with value txt
+    /*!
+     * \param txt the UTF8 text value
+     * \param offset offset of the text in the text of the parent,
+              when offset < 0 it is ignored.
+     * \param cls the textclass of the new TextContent
+     * \return the new created TextContent
+     * may throw on error
+     *
+     * when the associated document has the checktext mode, (which is the
+     * default) both text consistency and the offset are checked.
+     */
+    UnicodeString txt_u = TiCC::UnicodeFromUTF8( txt );
+    if ( doc() && doc()->checktext()
+	 && !isSubClass( Morpheme_t ) && !isSubClass( Phoneme_t) ){
+      UnicodeString deeper_u;
+      try {
+	deeper_u = text( cls );
+	// get deep original text: no retain tokenization, no strict
+      }
+      catch (...){
+      }
+      deeper_u = normalize_spaces( deeper_u );
+      UnicodeString txt_check_u = normalize_spaces( txt_u );
+      if ( !deeper_u.isEmpty()
+	   && txt_check_u != deeper_u ){
+	throw InconsistentText( xmltag() + "::settext(cls=" + cls
+				+ "): deeper text differs from attempted\n"
+				+ "   deeper='"
+				+ TiCC::UnicodeToUTF8(deeper_u)
+				+ "'\nattempted='"
+				+ TiCC::UnicodeToUTF8(txt_u) + "'" );
+      }
+    }
+    string my_set;
+    if ( doc() ){
+      my_set = doc()->default_set( AnnotationType::TEXT );
+    }
+    KWargs args;
+    args["value"] = TiCC::UnicodeToUTF8(txt_u);
+    args["class"] = cls;
+    if ( !my_set.empty() ){
+      args["set"] = my_set;
+    }
+    if ( offset >= 0 ){
+      args["offset"] = TiCC::toString(offset);
+    }
+    TextContent *node = new TextContent( args, doc() );
+    replace( node );
+    return node;
+  }
+
+  TextContent *FoliaElement::setutext( const UnicodeString& txt,
+				       int offset,
+				       const string& cls ){
+    /// append a TextContent child of class cls with value txt
+    /*!
+     * \param txt the Unicode text value
+     * \param offset offset of the text in the text of the parent,
+              when offset < 0 it is ignored.
+     * \param cls the textclass of the new TextContent
+     * \return the new created TextContent
+     * may throw on error
+     *
+     * when the associated document has the checktext mode, (which is the
+     * default) both text consistency and the offset are checked.
+     */
+    string utf8 = TiCC::UnicodeToUTF8(txt);
+    return settext( utf8, offset, cls );
+  }
+
+  const string FoliaElement::description() const {
+    /// return the string value of the description tag (if present)
+    /*!
+     * \return a string
+     * search for Description nodes in this object.
+     * When 1 or more are found, return the value of the first one
+     */
+    vector<FoliaElement *> v = select( Description_t, SELECT_FLAGS::LOCAL );
+    if ( v.size() == 0 ) {
+      return "";
+    }
+    return v[0]->description();
+  }
+
   string tagToAtt( const FoliaElement* c ) {
     /// helper function. Given an element of type Feature_t, return the tag value
     /*!
@@ -1480,7 +1696,7 @@ namespace folia {
     }
 
     string my_cls = cls();
-    FoliaElement *par = parent();
+    const FoliaElement *par = parent();
     CheckText2( par, this, my_cls, trim_spaces );
   }
 
@@ -1708,11 +1924,11 @@ namespace folia {
     return e;
   }
 
-  const string AbstractElement::str( const string& cls ) const {
-    /// return the text value of this element
+  const UnicodeString AbstractElement::unicode( const string& cls ) const {
+    /// return the Unicode text value of this element
     /*!
      * \param cls The desired textclass
-     * \return the string value (UTF8 encoded)
+     * \return the Unicode value
      *
      * if this is a TextContent or it may contain TextContent
      * then return the associated text()
@@ -1734,14 +1950,14 @@ namespace folia {
 	// No TextContent or Phone is allowed
       }
     }
-    return TiCC::UnicodeToUTF8( us );
+    return us;
   }
 
-  const string AbstractElement::str( const TextPolicy& tp ) const {
-    /// return the text value of this element
+  const UnicodeString AbstractElement::unicode( const TextPolicy& tp ) const {
+    /// return the Unicode text value of this element
     /*!
      * \param tp the TextPolicy to use
-     * \return the string value (UTF8 encoded)
+     * \return the UnicodeString
      *
      * if this is a TextContent or it may contain TextContent
      * then return the associated text()
@@ -1763,7 +1979,7 @@ namespace folia {
 	// No TextContent or Phone is allowed
       }
     }
-    return TiCC::UnicodeToUTF8( us );
+    return us;
   }
 
   const string AbstractElement::speech_src() const {
@@ -1819,34 +2035,6 @@ namespace folia {
     }
   }
 
-  bool FoliaElement::hastext( const string& cls ) const {
-    /// check if the element has a TextContent with class 'cls'
-    /*!
-     * \param cls The desired textclass
-     * \return true if there is a TextContent available. Otherwise false
-     */
-    try {
-      this->text_content(cls);
-      return true;
-    } catch ( const NoSuchText& e ) {
-      return false;
-    }
-  }
-
-  bool FoliaElement::hasphon( const string& cls ) const {
-    /// check if the element has a PhonContent with class 'cls'
-    /*!
-     * \param cls The desired textclass
-     * \return true if there is a PhonContent available. Otherwise false
-     */
-    try {
-      this->phon_content(cls);
-      return true;
-    } catch ( const NoSuchPhon& e ) {
-      return false;
-    }
-  }
-
   const string& AbstractElement::get_delimiter( const TextPolicy& tp ) const {
     /// get the default delimiter of this object.
     /*!
@@ -1874,7 +2062,7 @@ namespace folia {
     }
 
     if ( !_data.empty() ){
-      FoliaElement *last = _data.back();
+      const FoliaElement *last = _data.back();
       if ( last &&
 	   last->isSubClass(AbstractStructureElement_t)
 	   && !last->space() ){
@@ -2457,29 +2645,6 @@ namespace folia {
     return result;
   }
 
-  const UnicodeString FoliaElement::stricttext( const string& cls ) const {
-    /// get the UnicodeString value of TextContent children only
-    /*!
-     * \param cls the textclass
-     * \return The Unicode Text found.
-     * Will throw on error.
-     */
-    TextPolicy tp( cls, TEXT_FLAGS::STRICT );
-    return this->text( tp );
-  }
-
-  const UnicodeString FoliaElement::toktext( const string& cls ) const {
-    /// get the UnicodeString value of TextContent children only, retaining
-    /// tokenization
-    /*!
-     * \param cls the textclass
-     * \return The Unicode Text found.
-     * Will throw on error.
-     */
-    TextPolicy tp( cls, TEXT_FLAGS::RETAIN );
-    return this->text( tp );
-  }
-
   const TextContent *AbstractElement::text_content( const TextPolicy& tp ) const {
     /// Get the TextContent explicitly associated with this element.
     /*!
@@ -2823,137 +2988,6 @@ namespace folia {
     if ( it == _data.end() ) {
       throw runtime_error( "insert_after(): previous not found" );
     }
-  }
-
-  void FoliaElement::clear_textcontent( const string& textclass ){
-    for ( size_t i=0; i < size(); ++i ){
-      FoliaElement *p = index(i);
-      if ( p->element_id() == TextContent_t ) {
-	if ( p->cls() == textclass ){
-	  p->destroy();
-	  break;
-	}
-      }
-    }
-  }
-
-  TextContent *FoliaElement::settext( const string& txt,
-				      const string& cls ){
-    /// append a TextContent child of class txt with value txt
-    /*!
-     * \param txt the UTF8 text value
-     * \param cls the textclass of the new TextContent
-     * \return the new created TextContent
-     * may throw on error
-     *
-     * when the associated document has the checktext mode, (which is the
-     * default) both text consistency and the offset are checked.
-     */
-    return settext( txt, -1, cls );
-  }
-
-  TextContent *FoliaElement::setutext( const UnicodeString& txt,
-				       const string& cls ){
-    /// append a TextContent child of class cls with value txt
-    /*!
-     * \param txt the Unicode text value
-     * \param cls the textclass of the new TextContent
-     * \return the new created TextContent
-     * may throw on error
-     *
-     * when the associated document has the checktext mode, (which is the
-     * default) both text consistency and the offset are checked.
-     */
-    string utf8 = TiCC::UnicodeToUTF8(txt);
-    return settext( utf8, cls );
-  }
-
-  TextContent *FoliaElement::settext( const string& txt,
-				      int offset,
-				      const string& cls ){
-    /// append a TextContent child of class cls with value txt
-    /*!
-     * \param txt the UTF8 text value
-     * \param offset offset of the text in the text of the parent,
-              when offset < 0 it is ignored.
-     * \param cls the textclass of the new TextContent
-     * \return the new created TextContent
-     * may throw on error
-     *
-     * when the associated document has the checktext mode, (which is the
-     * default) both text consistency and the offset are checked.
-     */
-    UnicodeString txt_u = TiCC::UnicodeFromUTF8( txt );
-    if ( doc() && doc()->checktext()
-	 && !isSubClass( Morpheme_t ) && !isSubClass( Phoneme_t) ){
-      UnicodeString deeper_u;
-      try {
-	deeper_u = text( cls );
-	// get deep original text: no retain tokenization, no strict
-      }
-      catch (...){
-      }
-      deeper_u = normalize_spaces( deeper_u );
-      UnicodeString txt_check_u = normalize_spaces( txt_u );
-      if ( !deeper_u.isEmpty()
-	   && txt_check_u != deeper_u ){
-	throw InconsistentText( xmltag() + "::settext(cls=" + cls
-				+ "): deeper text differs from attempted\n"
-				+ "   deeper='"
-				+ TiCC::UnicodeToUTF8(deeper_u)
-				+ "'\nattempted='"
-				+ TiCC::UnicodeToUTF8(txt_u) + "'" );
-      }
-    }
-    string my_set;
-    if ( doc() ){
-      my_set = doc()->default_set( AnnotationType::TEXT );
-    }
-    KWargs args;
-    args["value"] = TiCC::UnicodeToUTF8(txt_u);
-    args["class"] = cls;
-    if ( !my_set.empty() ){
-      args["set"] = my_set;
-    }
-    if ( offset >= 0 ){
-      args["offset"] = TiCC::toString(offset);
-    }
-    TextContent *node = new TextContent( args, doc() );
-    replace( node );
-    return node;
-  }
-
-  TextContent *FoliaElement::setutext( const UnicodeString& txt,
-				       int offset,
-				       const string& cls ){
-    /// append a TextContent child of class cls with value txt
-    /*!
-     * \param txt the Unicode text value
-     * \param offset offset of the text in the text of the parent,
-              when offset < 0 it is ignored.
-     * \param cls the textclass of the new TextContent
-     * \return the new created TextContent
-     * may throw on error
-     *
-     * when the associated document has the checktext mode, (which is the
-     * default) both text consistency and the offset are checked.
-     */
-    string utf8 = TiCC::UnicodeToUTF8(txt);
-    return settext( utf8, offset, cls );
-  }
-
-  const string FoliaElement::description() const {
-    /// return the string value of the description tag (if present)
-    /*!
-     * \return a string
-     * search for Description nodes in this object.
-     * When 1 or more are found, return the value of the first one
-     */
-    vector<FoliaElement *> v = select( Description_t, SELECT_FLAGS::LOCAL );
-    if ( v.size() == 0 ) {
-      return "";
-    }
-    return v[0]->description();
   }
 
   vector<ProcessingInstruction*> AbstractElement::getPI( const string& target ){
@@ -4091,7 +4125,7 @@ namespace folia {
       cerr << "start to look for original " << endl;
 #endif
       for ( size_t i=0; i < len(addnew); ++ i ) {
-	FoliaElement *p = addnew->index(i);
+	const FoliaElement *p = addnew->index(i);
 #ifdef DEBUG_CORRECT
 	cerr << "bekijk " << p << endl;
 #endif
