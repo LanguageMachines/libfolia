@@ -605,22 +605,6 @@ namespace folia {
     return false;
   }
 
-  map<string,string> getNS_definitions( const xmlNode *node ){
-    map<string,string> result;
-    xmlNs *p = node->nsDef;
-    while ( p ){
-      string pre;
-      string val;
-      if ( p->prefix ){
-	pre = to_char(p->prefix);
-      }
-      val = to_char(p->href);
-      result[pre] = val;
-      p = p->next;
-    }
-    return result;
-  }
-
   string TextValue( const xmlNode *node ){
     /// extract the string content of an xmlNode
     /*!
