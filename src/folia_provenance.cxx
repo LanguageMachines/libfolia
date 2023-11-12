@@ -137,12 +137,19 @@ namespace folia {
   }
 
   void processor::get_system_defaults(){
-    /// set the sytem information in this processor
+    /// set the system information in this processor
     /*!
       will set the hostname, the username, the current time and the FoLiA
       version
+
+      The hostname is cached, to avoid excessive call to getaddrinfo()
     */
-    _host = getfqdn();
+    if ( _host.empty() ){
+      _host = getfqdn();
+    }
+    if ( _host.empty() ){
+      throw runtime_error( "unable te get a hostname" );
+    }
     _begindatetime = get_ISO_date();
     _folia_version = folia::folia_version();
     _user = get_user();
