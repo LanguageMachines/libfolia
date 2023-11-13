@@ -52,8 +52,8 @@ namespace folia {
     friend std::ostream& operator<<( std::ostream&, const Pattern& );
   public:
     explicit Pattern( const std::vector<std::string>&,
-	     const ElementType = BASE,
-	     const std::string& = "" );
+		      const ElementType = BASE,
+		      const std::string& = "" );
     Pattern( const std::vector<std::string>&,  const std::string& );
 
     ~Pattern();
