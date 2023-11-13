@@ -678,13 +678,16 @@ namespace folia {
     /*!
       \return a string with the hostname
     */
-    string result;
+    string result = "unknown";
     struct addrinfo hints, *info, *p;
     int gai_result;
 
     char hostname[1024];
     hostname[1023] = '\0';
-    gethostname(hostname, 1023);
+    if ( gethostname(hostname, 1023) != 0 ){
+      cerr << "gethostname failed, using 'unknown'" << endl;
+      return result;
+    }
 
     memset(&hints, 0, sizeof hints);
     hints.ai_family = AF_UNSPEC; /*either IPV4 or IPV6*/
@@ -695,7 +698,7 @@ namespace folia {
       cerr << "getaddrinfo failed: " << gai_strerror(gai_result)
 	   << " using 'unknown' as hostname" << endl;
       freeaddrinfo(info);
-      return "unknown";
+      return result;
     }
 
     for ( p = info; p != NULL; p = p->ai_next ) {
