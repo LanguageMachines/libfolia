@@ -692,9 +692,10 @@ namespace folia {
     hints.ai_flags = AI_CANONNAME;
 
     if ((gai_result = getaddrinfo(hostname, "http", &hints, &info)) != 0) {
-      cerr << "failure in getaddrinfo: " << gai_strerror(gai_result) << endl;
+      cerr << "getaddrinfo failed: " << gai_strerror(gai_result)
+	   << " using 'unknown' as hostname" << endl;
       freeaddrinfo(info);
-      exit(1);
+      return "unknown";
     }
 
     for ( p = info; p != NULL; p = p->ai_next ) {
