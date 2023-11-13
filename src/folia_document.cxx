@@ -631,7 +631,7 @@ namespace folia {
     _xmldoc = xmlReadMemory( buffer.c_str(), buffer.length(), 0, 0,
 			     XML_PARSER_OPTIONS );
     if ( _xmldoc ){
-      _source_name = "memory-string";
+      _source_name = "memory-buffer";
       if ( cnt > 0 ){
 	throw DocumentError( _source_name, "document is invalid" );
       }
