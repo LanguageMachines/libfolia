@@ -25,10 +25,6 @@
 */
 #include <cassert>
 #include <cstdlib>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <unistd.h>
-#include <netdb.h>
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -91,58 +87,15 @@ namespace folia {
     return os;
   }
 
-  string getfqdn( ){
-    /// function to get the hostname of the machine we are running on
-    /*!
-      \return a string with the hostname
-    */
-    string result;
-    struct addrinfo hints, *info, *p;
-    int gai_result;
-
-    char hostname[1024];
-    hostname[1023] = '\0';
-    gethostname(hostname, 1023);
-
-    memset(&hints, 0, sizeof hints);
-    hints.ai_family = AF_UNSPEC; /*either IPV4 or IPV6*/
-    hints.ai_socktype = SOCK_STREAM;
-    hints.ai_flags = AI_CANONNAME;
-
-    if ((gai_result = getaddrinfo(hostname, "http", &hints, &info)) != 0) {
-      cerr << "failure in getaddrinfo: " << gai_strerror(gai_result) << endl;
-      freeaddrinfo(info);
-      exit(1);
-    }
-
-    for ( p = info; p != NULL; p = p->ai_next ) {
-      result = p->ai_canonname;
-      break;
-    }
-    freeaddrinfo(info);
-    return result;
-  }
-
-  string get_user(){
-    /// function to get the username of the program
-    /*!
-      \return a string with the username
-    */
-    string result;
-    const char *env = getenv( "USER" );
-    if ( env ){
-      result = env;
-    }
-    return result;
-  }
-
   void processor::get_system_defaults(){
-    /// set the sytem information in this processor
+    /// set the system information in this processor
     /*!
       will set the hostname, the username, the current time and the FoLiA
       version
+
+      The hostname is cached, to avoid excessive call to getaddrinfo()
     */
-    _host = getfqdn();
+    _host = host_name;
     _begindatetime = get_ISO_date();
     _folia_version = folia::folia_version();
     _user = get_user();

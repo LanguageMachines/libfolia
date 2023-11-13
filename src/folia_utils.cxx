@@ -33,6 +33,10 @@
 #include <map>
 #include <set>
 #include <list>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <unistd.h>
+#include <netdb.h>
 #include <stdexcept>
 #include <algorithm>
 #include "ticcutils/StringOps.h"
@@ -604,22 +608,6 @@ namespace folia {
     return false;
   }
 
-  map<string,string> getNS_definitions( const xmlNode *node ){
-    map<string,string> result;
-    xmlNs *p = node->nsDef;
-    while ( p ){
-      string pre;
-      string val;
-      if ( p->prefix ){
-	pre = to_string(p->prefix);
-      }
-      val = to_string(p->href);
-      result[pre] = val;
-      p = p->next;
-    }
-    return result;
-  }
-
   string TextValue( const xmlNode *node ){
     /// extract the string content of an xmlNode
     /*!
@@ -682,6 +670,58 @@ namespace folia {
     strftime( buf, 100, "%Y-%m-%dT%X", &curtime );
     string res = buf;
     return res;
+  }
+
+  string get_fqdn( ){
+    /// function to get the hostname of the machine we are running on
+    /*!
+      \return a string with the hostname
+    */
+    string result = "unknown";
+    struct addrinfo hints, *info, *p;
+    int gai_result;
+
+    char hostname[1024];
+    hostname[1023] = '\0';
+    if ( gethostname(hostname, 1023) != 0 ){
+      cerr << "gethostname failed, using 'unknown'" << endl;
+      return result;
+    }
+
+    memset(&hints, 0, sizeof hints);
+    hints.ai_family = AF_UNSPEC; /*either IPV4 or IPV6*/
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_flags = AI_CANONNAME;
+
+    if ((gai_result = getaddrinfo(hostname, "http", &hints, &info)) != 0) {
+      cerr << "getaddrinfo failed: " << gai_strerror(gai_result)
+	   << ", using 'unknown' as hostname" << endl;
+      freeaddrinfo(info);
+      return result;
+    }
+
+    for ( p = info; p != NULL; p = p->ai_next ) {
+      result = p->ai_canonname;
+      break;
+    }
+    freeaddrinfo(info);
+    return result;
+  }
+
+  string get_user(){
+    /// function to get the username of the program
+    /*!
+      \return a string with the username
+    */
+    string result;
+    const char *env = getenv( "USER" );
+    if ( env ){
+      result = env;
+    }
+    else {
+      result = "unknown";
+    }
+    return result;
   }
 
 } //namespace folia

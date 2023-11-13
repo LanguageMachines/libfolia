@@ -92,7 +92,7 @@ jobs:
           CXX: ${{ matrix.compiler }}
         run: ./configure
       - name: Static Code-check
-        run: cppcheck --enable=all --suppress=missingIncludeSystem -I include -I /usr/local/include --quiet --error-exitcode=0 .
+        run: cppcheck --enable=all --suppress=missingIncludeSystem -I include -I /usr/local/include --force --quiet --error-exitcode=0 .
       - name: make
         run: make
       - name: install
@@ -117,6 +117,10 @@ jobs:
           nickname: GH-${{ runner.os }}-${{ steps.compiler.outputs.id }}
           message: "libfolia [${{ needs.notification.outputs.branch }}] make check with ${{ matrix.compiler }} on ${{ matrix.os }}: \u00034FAILED\u0003"
 
+      - name: Show log of failed check
+        if: ${{ steps.check.outcome != 'success' }}
+        run: |
+          cat src/test-suite.log;
       - name: install foliatest
         env:
           CXX: ${{ matrix.compiler }}

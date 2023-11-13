@@ -95,6 +95,7 @@ namespace folia {
   extern const std::string NSIMDI;
   extern const std::string DEFAULT_TEXT_SET;
   extern const std::string DEFAULT_PHON_SET;
+  extern std::string host_name;
 
   bool isAttributeFeature( const std::string& );
 

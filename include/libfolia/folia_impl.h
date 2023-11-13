@@ -576,10 +576,10 @@ namespace folia {
     friend void destroy( FoliaElement * );
   private:
     //Constructor
-    AbstractElement( const AbstractElement& ); // inhibit copies
-    AbstractElement& operator=( const AbstractElement& ); // inhibit copies
+    AbstractElement( const AbstractElement& ) = delete; // inhibit copies
+    AbstractElement& operator=( const AbstractElement& ) = delete; // inhibit copies
   protected:
-    AbstractElement( const properties& p, Document* = 0 );
+    explicit AbstractElement( const properties& p, Document* = 0 );
     AbstractElement( const properties& p, FoliaElement * );
     virtual ~AbstractElement();
   public:
@@ -991,21 +991,6 @@ namespace folia {
   class AllowInlineAnnotation: public AllowCorrections {
   public:
     bool allowannotations() const override { return true; };
-    template <typename F>
-      std::vector<F*> annotations( const std::string& s = "" ) const {
-      return FoliaElement::annotations<F>( s );
-    }
-
-    template <typename F>
-      int has_annotation( const std::string& st = "" ) const {
-      return FoliaElement::has_annotation<F>(st);
-    }
-
-    template <typename F>
-      F *annotation( const std::string& st = "" ) const {
-      return FoliaElement::annotation<F>(st);
-    }
-
     std::vector<Alternative *> alternatives( ElementType = BASE,
 					     const std::string& = "" ) const override;
 

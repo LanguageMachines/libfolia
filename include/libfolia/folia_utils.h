@@ -186,6 +186,8 @@ namespace folia {
   bool is_norm_empty( const icu::UnicodeString&  );
 
   std::string get_ISO_date();
+  std::string get_fqdn();
+  std::string get_user();
 
 } // namespace folia
 

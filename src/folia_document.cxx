@@ -631,7 +631,7 @@ namespace folia {
     _xmldoc = xmlReadMemory( buffer.c_str(), buffer.length(), 0, 0,
 			     XML_PARSER_OPTIONS );
     if ( _xmldoc ){
-      _source_name = "memory-string";
+      _source_name = "memory-buffer";
       if ( cnt > 0 ){
 	throw DocumentError( _source_name, "document is invalid" );
       }
@@ -1933,7 +1933,7 @@ namespace folia {
       string dum;
       cerr << "root = " << TiCC::Name( root ) << endl;
       cerr << "in namespace " << TiCC::getNS( root, dum ) << endl;
-      cerr << "namespace list" << getNS_definitions( root ) << endl;
+      cerr << "namespace list" << TiCC::getDefinedNS( root ) << endl;
     }
     FoliaElement *result = 0;
     if ( root  ){
