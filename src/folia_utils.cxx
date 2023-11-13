@@ -696,7 +696,7 @@ namespace folia {
 
     if ((gai_result = getaddrinfo(hostname, "http", &hints, &info)) != 0) {
       cerr << "getaddrinfo failed: " << gai_strerror(gai_result)
-	   << " using 'unknown' as hostname" << endl;
+	   << ", using 'unknown' as hostname" << endl;
       freeaddrinfo(info);
       return result;
     }
