@@ -2256,17 +2256,20 @@ namespace folia {
     }
   }
 
+  string host_name;
+
   namespace {
     //
-    // this trick assures that the static_int() function is called
+    // this trick assures that the static_init() function is called
     // exactly once en every run.
     // This because the static 'i' is initialized before main() starts.
     //
     struct initializer {
      initializer() {
-	 static_init();
-	//	print_type_hierarchy( cout );
-      }
+       static_init();
+       host_name = get_fqdn();
+       //	print_type_hierarchy( cout );
+     }
       ~initializer() {
 	// cout << "Unloading the properties" << endl;
 	// cout << "but don't care.." << endl;
