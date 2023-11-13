@@ -53,9 +53,9 @@ namespace folia {
   public:
     // cppcheck-suppress noExplicitConstructor
     // We want to be able to use const char parameters AND string
-    Pattern( const std::vector<std::string>&,
-	     const ElementType = BASE,
-	     const std::string& = "" );
+    explicit Pattern( const std::vector<std::string>&,
+		      const ElementType = BASE,
+		      const std::string& = "" );
     Pattern( const std::vector<std::string>&,  const std::string& );
 
     ~Pattern();
