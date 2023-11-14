@@ -81,8 +81,8 @@ jobs:
                          --quiet --error-exitcode=0"
              else
                 cpc_opts="--enable=all --inline-suppr --force \
-                          -I include -I /usr/local/include \
-                          -I /usr/local/opt/icu4c/include \
+                          -I include -I /usr/local/include/ticcutils \
+                          -I /usr/local/include/libxml \
                           --suppress=missingIncludeSystem \
                           --quiet --error-exitcode=0"
              fi
