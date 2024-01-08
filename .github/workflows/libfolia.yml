@@ -82,7 +82,7 @@ jobs:
              else
                 cpc_opts="--enable=all --inline-suppr --force \
                           -I include -I /usr/local/include/ticcutils \
-                          -I /usr/local/include/libxml \
+                          -I /usr/local/opt/libxml2/include \
                           --suppress=missingIncludeSystem \
                           --quiet --error-exitcode=0"
              fi
