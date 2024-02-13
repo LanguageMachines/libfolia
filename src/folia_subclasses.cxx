@@ -2077,7 +2077,7 @@ namespace folia {
     vector<FoliaElement*> cv;
     vector<FoliaElement*> sv;
     ov.push_back( this );
-    return parent()->correct( ov,nv,cv,sv, args );
+    return parent()->correct( ov,nv,cv,sv, KWargs(args) );
   }
 
   Correction *New::correct( const vector<FoliaElement*>& vo,

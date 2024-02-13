@@ -139,7 +139,7 @@ namespace folia {
   ///
   class KWargs : public std::map<std::string, std::string> {
   public:
-    KWargs( const std::string& ="" );
+    explicit KWargs( const std::string& ="" );
     bool is_present( const std::string& ) const;
     std::string lookup( const std::string& );
     std::string extract( const std::string& );
