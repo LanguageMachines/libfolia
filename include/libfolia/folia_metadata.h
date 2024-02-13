@@ -37,7 +37,7 @@ namespace folia {
 
   class MetaData {
   public:
-    MetaData( const std::string& type ): _type(type){};
+    explicit MetaData( const std::string& type ): _type(type){};
     virtual ~MetaData(){};
     virtual void add_av( const std::string&, const std::string& ) META_NOT_IMPLEMENTED;
     virtual const KWargs& get_avs() const META_NOT_IMPLEMENTED;
@@ -75,7 +75,7 @@ namespace folia {
 
   class ForeignMetaData: public MetaData {
   public:
-  ForeignMetaData( const std::string& t ): MetaData(t) {};
+  explicit ForeignMetaData( const std::string& t ): MetaData(t) {};
     ~ForeignMetaData();
     void add_foreign( const xmlNode * ) override;
     std::string datatype() const override { return "ForeignMetaData"; };

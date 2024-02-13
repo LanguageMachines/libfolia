@@ -68,8 +68,8 @@ namespace folia {
 
   class TextPolicy {
   public:
-    TextPolicy( const std::string& = "current",
-		const TEXT_FLAGS=TEXT_FLAGS::NONE );
+    explicit TextPolicy( const std::string& = "current",
+			 const TEXT_FLAGS=TEXT_FLAGS::NONE );
     explicit TextPolicy( const TEXT_FLAGS );
     using tag_handler = std::function<icu::UnicodeString(const FoliaElement*,
 							 const TextPolicy& )>;
