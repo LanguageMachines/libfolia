@@ -137,7 +137,7 @@ namespace folia {
 		  _is_setup(false)
     {
     };
-    TextEngine( const std::string& i, const std::string& o="" ):
+    explicit TextEngine( const std::string& i, const std::string& o="" ):
       TextEngine(){
       /// construct a TextEngine
       /*!

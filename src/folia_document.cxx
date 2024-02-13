@@ -3011,7 +3011,7 @@ namespace folia {
       addAttributes( m, args );
       xmlAddChild( m, xmlNewText( to_xmlChar(it.second.c_str())) );
     }
-    for ( const auto& s : p->_processors ){
+    for ( const auto* s : p->_processors ){
       append_processor( pr, s );
     }
   }
@@ -3028,7 +3028,7 @@ namespace folia {
     xmlNode *node = xmlAddChild( metadata,
 				 TiCC::XmlNewNode( foliaNs(),
 						   "provenance" ) );
-    for ( const auto& p : _provenance->processors ){
+    for ( const auto* p : _provenance->processors ){
       append_processor( node, p );
     }
   }
@@ -3064,7 +3064,7 @@ namespace folia {
 	addAttributes( sm, args );
       }
       else if ( md->datatype() == "ForeignMetaData" ){
-	for ( const auto& foreign : md->get_foreigners() ) {
+	for ( const auto* foreign : md->get_foreigners() ) {
 	  xmlNode *f = foreign->xml( true, false );
 	  xmlAddChild( sm, f );
 	}
@@ -3104,7 +3104,7 @@ namespace folia {
 	atts["type"] = _foreign_metadata->type();
 	addAttributes( node, atts );
       }
-      for ( const auto& foreign : _foreign_metadata->get_foreigners() ) {
+      for ( const auto* foreign : _foreign_metadata->get_foreigners() ) {
 	xmlNode *f = foreign->xml( true, false );
 	xmlAddChild( node, f );
       }

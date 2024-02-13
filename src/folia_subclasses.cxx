@@ -63,7 +63,7 @@ namespace folia {
       cerr << "FoLiA::private_text(" << tp.get_class() << ")" << endl;
     }
     UnicodeString result;
-    for ( const auto& d : data() ){
+    for ( const auto* d : data() ){
       if ( !result.isEmpty() ){
 	const string& delim = d->get_delimiter( tp );
 	result += TiCC::UnicodeFromUTF8(delim);
@@ -368,7 +368,7 @@ namespace folia {
      *   splitword() , mergewords(), deleteword(), insertword() instead
      */
     // sanity check:
-    for ( const auto& org : orig ) {
+    for ( const auto* org : orig ) {
       if ( !org || !org->isinstance( Word_t) ) {
 	throw runtime_error("Original word is not a Word instance" );
       }
@@ -1362,13 +1362,13 @@ namespace folia {
       const FoliaElement *e = parent();
       if ( e ) {
 	vector<FoliaElement*> v = e->select( layertype, st, SELECT_FLAGS::LOCAL );
-	for ( const auto& el : v ){
+	for ( const auto* el : v ){
 	  for ( size_t k=0; k < el->size(); ++k ) {
 	    FoliaElement *f = el->index(k);
 	    AbstractSpanAnnotation *as = dynamic_cast<AbstractSpanAnnotation*>(f);
 	    if ( as ) {
 	      vector<FoliaElement*> wrefv = f->wrefs();
-	      for ( const auto& wr : wrefv ){
+	      for ( const auto* wr : wrefv ){
 		if ( wr == this ) {
 		  result.push_back(as);
 		}
@@ -1671,7 +1671,7 @@ namespace folia {
       }
       if ( c_set.empty() ){
 	auto v = child->suggestions();
-	for ( const auto& el : v ) {
+	for ( const auto* el : v ) {
 	  if ( el->isSubClass( AbstractSpanAnnotation_t ) ) {
 	    string st = el->sett();
 	    if ( !st.empty()

@@ -1834,7 +1834,7 @@ namespace folia {
       map<string,int> af_map;
       // first we search al features that can be serialized to an attribute
       // and count them!
-      for ( const auto& el : _data ) {
+      for ( const auto* el : _data ) {
 	string at = tagToAtt( el );
 	if ( !at.empty() ) {
 	  ++af_map[at];
@@ -1895,22 +1895,22 @@ namespace folia {
 	  }
 	}
       }
-      for ( const auto& cel : commentelements ) {
+      for ( const auto* cel : commentelements ) {
 	xmlAddChild( e, cel->xml( recursive, kanon ) );
       }
-      for ( const auto& pel : PIelements ) {
+      for ( const auto* pel : PIelements ) {
 	xmlAddChild( e, pel->xml( recursive, kanon ) );
       }
-      for ( const auto& tel : currenttextelements ) {
+      for ( const auto* tel : currenttextelements ) {
 	xmlAddChild( e, tel->xml( recursive, false ) );
 	// don't change the internal sequences of TextContent elements
       }
-      for ( const auto& tel : textelements ) {
+      for ( const auto* tel : textelements ) {
 	xmlAddChild( e, tel->xml( recursive, false ) );
 	// don't change the internal sequences of TextContent elements
       }
       if ( !kanon ) {
-	for ( const auto& oem : otherelements ) {
+	for ( const auto* oem : otherelements ) {
 	  xmlAddChild( e, oem->xml( recursive, kanon ) );
 	}
       }
@@ -2074,7 +2074,7 @@ namespace folia {
     }
     else if ( _data.size() > 0 ) {
       // attempt to get a delimiter from the last child
-      FoliaElement *last = _data.back();
+      const FoliaElement *last = _data.back();
       if ( last->isSubClass(AbstractStructureElement_t) ){
 	const string& det = last->get_delimiter( tp );
 	if ( tp.debug() ){
@@ -2113,7 +2113,7 @@ namespace folia {
     bool trim_spaces = !tp.is_set( TEXT_FLAGS::NO_TRIM_SPACES);
     if ( tp.debug() ){
       cerr << "TextContainer.text() " << xmltag() << "[";
-      for ( const auto& d : _data ){
+      for ( const auto* d : _data ){
 	cerr << d->xmltag() << ",";
       }
       cerr << "]" << endl;
@@ -2544,7 +2544,7 @@ namespace folia {
     }
     vector<UnicodeString> parts;
     vector<UnicodeString> seps;
-    for ( const auto& child : data() ) {
+    for ( const auto* child : _data ) {
       // try to get text dynamically from printable children
       // skipping the TextContent elements
       if ( tp.debug() ){
@@ -2850,7 +2850,7 @@ namespace folia {
     }
     vector<UnicodeString> parts;
     vector<UnicodeString> seps;
-    for ( const auto& child : _data ) {
+    for ( const auto* child : _data ) {
       // try to get text dynamically from children
       // skip PhonContent elements
       if ( tp.debug() ){
@@ -4327,7 +4327,7 @@ namespace folia {
      * it check the subset and collects the matching ones
      */
     vector<string> result;
-    for ( const auto& el : data() ) {
+    for ( const auto* el : _data ) {
       if ( el->isSubClass( Feature_t ) &&
 	   el->subset() == s ) {
 	result.push_back( el->cls() );

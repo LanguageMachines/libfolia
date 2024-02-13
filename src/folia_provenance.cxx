@@ -469,7 +469,7 @@ namespace folia {
     /// output the provenance context (debugging only)
     os << "provenance data" << endl;
     os << "NAMES: " << p._names << endl;
-    for ( const auto& pr : p.processors ){
+    for ( const auto* pr : p.processors ){
       pr->print( os, 2 );
       os << endl;
     }
