@@ -276,7 +276,7 @@ namespace folia {
     */
     KWargs atts;
     if ( node ){
-      xmlAttr *a = node->properties;
+      const xmlAttr *a = node->properties;
       while ( a ){
 	if ( a->atype == XML_ATTRIBUTE_ID && att_name(a) == "id" ){
 	  atts["xml:id"] = att_content(a);
@@ -300,13 +300,14 @@ namespace folia {
     return atts;
   }
 
-  void addAttributes( xmlNode *node, const KWargs& atts ){
+  void addAttributes( const xmlNode *_node, const KWargs& atts ){
     /// add all attributes from 'atts' as attribute nodes to 'node`
     /*!
       \param node The xmlNode to add to
       \param atts The list of attribute/value pairs
       some special care is taken for attributes 'xml:id', 'id' and 'lang'
     */
+    xmlNode *node = const_cast<xmlNode*>(_node); // strange libxml2 interface
     KWargs attribs = atts;
     auto it = attribs.find("xml:id");
     if ( it != attribs.end() ){ // xml:id is special
@@ -679,7 +680,7 @@ namespace folia {
       \return a string with the hostname
     */
     string result = "unknown";
-    struct addrinfo hints, *info, *p;
+    struct addrinfo hints, *info;
     int gai_result;
 
     char hostname[1024];
@@ -700,7 +701,7 @@ namespace folia {
       freeaddrinfo(info);
       return result;
     }
-
+    const struct addrinfo *p;
     for ( p = info; p != NULL; p = p->ai_next ) {
       result = p->ai_canonname;
       break;

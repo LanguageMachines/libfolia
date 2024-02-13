@@ -443,7 +443,7 @@ namespace folia {
       processors.push_back( main );
     }
     //    cerr << "created procesor(" << node_atts << ")" << endl;
-    xmlNode *n = node->children;
+    const xmlNode *n = node->children;
     while ( n ){
       string tag = TiCC::Name( n );
       if ( tag == "processor" ){

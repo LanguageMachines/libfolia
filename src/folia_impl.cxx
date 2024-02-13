@@ -2350,7 +2350,7 @@ namespace folia {
     }
     setAttributes( atts );
     bool meta_found = false;
-    xmlNode *p = node->children;
+    const xmlNode *p = node->children;
     while ( p ){
       if ( p->type == XML_ELEMENT_NODE ){
 	if ( TiCC::Name(p) == "metadata" &&
@@ -2497,7 +2497,7 @@ namespace folia {
     return found_nl > 0;
   }
 
-  bool no_space_at_end( FoliaElement *s, bool debug ){
+  bool no_space_at_end( const FoliaElement *s, bool debug ){
     /// given a FoliaElement check if the last Word in it has space()
     /*!
      * \param s a FoliaElement
@@ -2518,7 +2518,7 @@ namespace folia {
 	if ( debug ){
 	  cerr << "found some mixed stuff: " << elts << endl;
 	}
-	FoliaElement *last = elts.back();
+	const FoliaElement *last = elts.back();
 	result = !last->space();
 	if ( debug ){
 	  cerr << "no space? last: " << last
@@ -3516,7 +3516,7 @@ namespace folia {
     }
 
     setAttributes( att );
-    xmlNode *p = node->children;
+    const xmlNode *p = node->children;
     while ( p ) {
       string pref;
       string ns = getNS( p, pref );
@@ -3582,7 +3582,7 @@ namespace folia {
       }
       else if ( p->type == XML_ENTITY_REF_NODE ){
 	string txt = TextValue( p );
-	XmlText *t = add_child<XmlText>( txt );
+	const XmlText *t = add_child<XmlText>( txt );
 	if ( doc() && doc()->debug > 2 ) {
 	  cerr << "created " << t << "(" << t->text() << ")" << endl;
 	  cerr << "extended " << this << " met " << t << endl;
@@ -3595,7 +3595,7 @@ namespace folia {
 	  // non empty text is allowed (or even required) here
 	  string txt = TextValue( p );
 	  if ( !txt.empty() ) {
-	    XmlText *t = add_child<XmlText>( txt );
+	    const XmlText *t = add_child<XmlText>( txt );
 	    if ( doc() && doc()->debug > 2 ) {
 	      cerr << "created " << t << "(" << t->text() << ")" << endl;
 	      cerr << "extended " << this << " met " << t << endl;
@@ -4093,7 +4093,7 @@ namespace folia {
 	    if ( !hooked ) {
 #ifdef DEBUG_CORRECT
 	      cerr << "it isn't hooked!" << endl;
-	      FoliaElement *tmp = replace( index(i), corr );
+	      const FoliaElement *tmp = replace( index(i), corr );
 	      cerr << " corr after replace " << corr->xmlstring() << endl;
 	      cerr << " replaced " << tmp << endl;
 #else
@@ -4169,7 +4169,7 @@ namespace folia {
 	      if ( !hooked ) {
 #ifdef DEBUG_CORRECT
 		cerr << "it isn't hooked!" << endl;
-		FoliaElement *tmp = replace( index(i), corr );
+		const FoliaElement *tmp = replace( index(i), corr );
 		cerr << " corr after replace " << corr << endl;
 		cerr << " replaced " << tmp << endl;
 #else

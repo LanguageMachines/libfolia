@@ -1797,7 +1797,7 @@ namespace folia {
      */
     KWargs att = getAttributes( node );
     setAttributes( att );
-    xmlNode *p = node->children;
+    const xmlNode *p = node->children;
     bool isCdata = false;
     bool isText = false;
     while ( p ) {
@@ -2855,7 +2855,7 @@ namespace folia {
     /*!
      * performs sanity check to avoid adding FoLiA nodes
      */
-    xmlNode *p = const_cast<xmlNode *>(node->children);
+    const xmlNode *p = node->children;
     while ( p ){
       string pref;
       string ns = getNS( p, pref );

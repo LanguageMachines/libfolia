@@ -959,7 +959,7 @@ namespace folia {
 
   void Document::parse_imdi( const xmlNode *node ){
     /// set IMDI values. DEPRECATED
-    xmlNode *n = TiCC::xPath( node, "//imdi:Session/imdi:Title" );
+    const xmlNode *n = TiCC::xPath( node, "//imdi:Session/imdi:Title" );
     if ( n ){
       _metadata->add_av( "title", TiCC::XmlContent( n ) );
     }
@@ -1239,7 +1239,7 @@ namespace folia {
 	  _groupannotations[at_type][set_name] = false;
 	}
 	set<string> processors;
-	xmlNode *sub = n->children;
+	const xmlNode *sub = n->children;
 	while ( sub ){
 	  string subtag = TiCC::Name( sub );
 	  if ( debug ){
@@ -1293,7 +1293,7 @@ namespace folia {
       The data found will be appended to the Document
     */
     Provenance *result = new Provenance(this);
-    xmlNode *n = node->children;
+    const xmlNode *n = node->children;
     while ( n ){
       string tag = TiCC::Name( n );
       if ( tag == "processor" ){
@@ -1337,7 +1337,7 @@ namespace folia {
 	submetadata[my_id] = 0;
 	//	cerr << "set metadata to 0, id=" << my_id << endl;
       }
-      xmlNode *p = node->children;
+      const xmlNode *p = node->children;
       while ( p ){
 	if ( p->type == XML_ELEMENT_NODE ){
 	  if ( TiCC::Name(p) == "meta" &&
@@ -1649,7 +1649,7 @@ namespace folia {
       _foreign_metadata = new ForeignMetaData( type );
     }
     xmlNode *m = node->children;
-    xmlNode *a_node = 0;
+    const xmlNode *a_node = 0;
     while ( m ){
       if ( TiCC::Name(m)  == "METATRANSCRIPT" ){
 	if ( !checkNS( m, NSIMDI ) || type != "imdi" ){
@@ -1769,7 +1769,7 @@ namespace folia {
 
   void Document::parse_styles(){
     /// retrieve all style-sheets from the current XmlTree
-    xmlNode *pnt = _xmldoc->children;
+    const xmlNode *pnt = _xmldoc->children;
     while ( pnt ){
       // search for Processing Instructions, ignore all but stylesheet ones
       if ( pnt->type == XML_PI_NODE && TiCC::Name(pnt) == "xml-stylesheet" ){
