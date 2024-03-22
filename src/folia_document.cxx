@@ -200,7 +200,6 @@ namespace folia {
     _provenance = 0;
     _xmldoc = 0;
     foliadoc = 0;
-    prelude = 0;
     _foliaNsIn_href = 0;
     _foliaNsIn_prefix = 0;
     _foliaNsOut = 0;
@@ -1808,7 +1807,7 @@ namespace folia {
 	    if ( debug > 2 ) {
 	      cerr << "extend " << this << " met " << t << endl;
 	    }
-	    prelude = t;
+	    preludes.push_back(t);
 	  }
 	}
       }
@@ -3157,9 +3156,9 @@ namespace folia {
     */
     xmlDoc *outDoc = xmlNewDoc( to_xmlChar("1.0") );
     add_styles( outDoc );
-    if ( prelude ){
+    for ( const auto& pr: preludes ){
       xmlAddChild( reinterpret_cast<xmlNode*>(outDoc),
-		   prelude->xml( true, canonical() ) );
+		   pr->xml( true, canonical() ) );
     }
     xmlNode *root = xmlNewDocNode( outDoc,
 				   0,
