@@ -200,6 +200,7 @@ namespace folia {
     _provenance = 0;
     _xmldoc = 0;
     foliadoc = 0;
+    prelude = 0;
     _foliaNsIn_href = 0;
     _foliaNsIn_prefix = 0;
     _foliaNsOut = 0;
@@ -1795,6 +1796,22 @@ namespace folia {
 			       "problem parsing line: " + content );
 	}
       }
+      else if ( pnt->type == XML_COMMENT_NODE ) {
+	string xml_tag = "_XmlComment";
+	FoliaElement *t = AbstractElement::createElement( xml_tag, this );
+	if ( t ) {
+	  if ( debug > 2 ) {
+	    cerr << "created " << t << endl;
+	  }
+	  t = t->parseXml( pnt );
+	  if ( t ) {
+	    if ( debug > 2 ) {
+	      cerr << "extend " << this << " met " << t << endl;
+	    }
+	    prelude = t;
+	  }
+	}
+      }
       pnt = pnt->next;
     }
   }
@@ -2472,12 +2489,13 @@ namespace folia {
 			   "cannot append a root element to a Document. Already there." );
     }
     if ( t->element_id() == Text_t
+	 || t->element_id() == XmlComment_t
 	 || t->element_id() == Speech_t ) {
       foliadoc->append( t );
       return t;
     }
     throw DocumentError( _source_name,
-			 "Only can append 'text' or 'speech' as root of a Document." );
+			 "Only can append 'text' or 'speech' as root of a Document. (attempted=" + t->xmltag() );
   }
 
   void Document::incrRef( AnnotationType type,
@@ -3139,6 +3157,10 @@ namespace folia {
     */
     xmlDoc *outDoc = xmlNewDoc( to_xmlChar("1.0") );
     add_styles( outDoc );
+    if ( prelude ){
+      xmlAddChild( reinterpret_cast<xmlNode*>(outDoc),
+		   prelude->xml( true, canonical() ) );
+    }
     xmlNode *root = xmlNewDocNode( outDoc,
 				   0,
 				   to_xmlChar("FoLiA"),

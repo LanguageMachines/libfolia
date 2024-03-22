@@ -466,6 +466,7 @@ namespace folia {
     std::string _id;
     std::set<FoliaElement *> delSet;
     FoliaElement *foliadoc;
+    FoliaElement *prelude;
     xmlDoc *_xmldoc;
     const xmlChar* _foliaNsIn_href;
     const xmlChar* _foliaNsIn_prefix;

@@ -2381,6 +2381,22 @@ namespace folia {
 	  }
 	}
       }
+      else if ( p->type == XML_COMMENT_NODE ) {
+	string xml_tag = "_XmlComment";
+	FoliaElement *t = createElement( xml_tag, doc() );
+	if ( t ) {
+	  if ( doc() && doc()->debug > 2 ) {
+	    cerr << "created " << t << endl;
+	  }
+	  t = t->parseXml( p );
+	  if ( t ) {
+	    if ( doc() && doc()->debug > 2 ) {
+	      cerr << "extend " << this << " met " << t << endl;
+	    }
+	    append( t );
+	  }
+	}
+      }
       else if ( p->type == XML_PI_NODE ){
 	// found a processing instruction on the top level
 	// When this is a style-sheet, it is already handled
