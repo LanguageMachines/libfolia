@@ -2517,7 +2517,7 @@ namespace folia {
     /// given a FoliaElement check if the last Word in it has space()
     /*!
      * \param s a FoliaElement
-     * \param dbug set to true for more info
+     * \param debug set to true for more info
      * \return true if the element contains Word children and the last
      * one has space()
      */

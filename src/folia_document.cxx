@@ -2107,7 +2107,7 @@ namespace folia {
     /// resolve an alias for a setname to the full setname
     /*!
       \param type the AnnotationType
-      \param alias the alias to resolve
+      \param my_alias the alias to resolve
       \return the setname belonging to alias for this type, or alias if not
       found
     */

@@ -303,7 +303,7 @@ namespace folia {
   void addAttributes( const xmlNode *_node, const KWargs& atts ){
     /// add all attributes from 'atts' as attribute nodes to 'node`
     /*!
-      \param node The xmlNode to add to
+      \param _node The xmlNode to add to
       \param atts The list of attribute/value pairs
       some special care is taken for attributes 'xml:id', 'id' and 'lang'
     */
