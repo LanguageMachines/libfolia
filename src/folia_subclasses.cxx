@@ -3033,8 +3033,8 @@ namespace folia {
     /// get the UnicodeString value of a Row
     /*!
      * \param tp the TextPolicy to use
-     * \return the Unicode String representation found. Throws when
-     * no text can be found.
+     * \return the Unicode String representation found.
+     * when no text can be found, a SPACE is returned
      */
     bool my_debug = tp.debug();
     //    my_debug = true;
@@ -3075,8 +3075,8 @@ namespace folia {
     /// get the UnicodeString value of a Cell
     /*!
      * \param tp the TextPolicy to use
-     * \return the Unicode String representation found. Throws when
-     * no text can be found.
+     * \return the Unicode String representation found.
+     * when no text can be found, a SPACE is returned
      */
     bool my_debug = tp.debug();
     //    my_debug = true;
