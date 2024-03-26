@@ -4206,7 +4206,7 @@ namespace folia {
 	      }
 	    }
 	  }
-	  // now we conect org to the new original node
+	  // now we connect org to the new original node
 	  org->set_parent( 0 );
 	  add->append( org );
 #ifdef DEBUG_CORRECT
@@ -4275,6 +4275,7 @@ namespace folia {
 	corr->confidence( stringTo<double>(it->second) );
       }
     }
+    corr->check_type_consistency();
     return corr;
   }
 

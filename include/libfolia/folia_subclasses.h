@@ -1272,6 +1272,8 @@ public:									\
     friend void static_init();
   public:
     ADD_DEFAULT_CONSTRUCTORS( Correction, AbstractInlineAnnotation );
+    FoliaElement *parseXml( const xmlNode * ) override;
+    void check_type_consistency() const;
     bool hasNew() const;
     bool hasOriginal() const;
     bool hasCurrent() const;

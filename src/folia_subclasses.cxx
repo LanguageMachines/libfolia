@@ -1836,6 +1836,56 @@ namespace folia {
     return this;
   }
 
+  void Correction::check_type_consistency() const {
+    /// we check if the children have the same element type.
+    /// We are a bit lax, only checking the first childs
+    FoliaElement *n = getNew(0);
+    while ( n && n->element_id() == Correction_t ){
+      n = n->getNew(0);
+    }
+    FoliaElement *c = getCurrent(0);
+    while ( c && c->element_id() == Correction_t ){
+      c = c->getCurrent(0);
+    }
+    FoliaElement *o = getOriginal(0);
+    while ( o && o->element_id() == Correction_t ){
+      o = o->getOriginal(0);
+    }
+    if ( n ){
+      if ( o ){
+	if ( n->element_id() != o->element_id() ){
+	  throw XmlError( "type mismatch in Correction: New=" + n->xmltag()
+			  + " but Original=" + o->xmltag() );
+	}
+      }
+      if ( c ){
+	if ( n->element_id() != c->element_id() ){
+	  throw XmlError( "type mismatch in Correction: New=" + n->xmltag()
+			  + " but Current=" + c->xmltag() );
+	}
+      }
+    }
+    else if ( o ){
+      if ( c ){
+	if ( o->element_id() != c->element_id() ){
+	  throw XmlError( "type mismatch in Correction: Original=" + o->xmltag()
+			  + " but Current=" + c->xmltag() );
+	}
+      }
+    }
+  }
+
+  FoliaElement* Correction::parseXml( const xmlNode *node ) {
+    /// parse a Correction from node
+    /*!
+     * \param node a Correction
+     * \return the parsed tree. Throws on error.
+     */
+    FoliaElement *result = AbstractElement::parseXml( node );
+    check_type_consistency();
+    return result;
+  }
+
   //#define DEBUG_TEXT_CORRECTION
 
   const UnicodeString Correction::private_text( const TextPolicy& tp ) const {
@@ -2278,7 +2328,7 @@ namespace folia {
      * \return the child or 0 if not available
      */
     const New *n = getNew();
-    if ( n ){
+    if ( n && n->size() > 0 ){
       return n->index(index);
     }
     return 0;
@@ -2309,7 +2359,7 @@ namespace folia {
      * \return the child or 0 if not available
      */
     const Original *n = getOriginal();
-    if ( n ){
+    if ( n && n->size() > 0 ){
       return n->index(index);
     }
     return 0;
@@ -2340,7 +2390,7 @@ namespace folia {
      * \return the child or 0 if not available
      */
     const Current *n = getCurrent();
-    if ( n ){
+    if ( n && n->size() > 0 ){
       return n->index(index);
     }
     return 0;
