@@ -2278,7 +2278,10 @@ namespace folia {
      * \return the child or 0 if not available
      */
     const New *n = getNew();
-    return n->index(index);
+    if ( n ){
+      return n->index(index);
+    }
+    return 0;
   }
 
   bool Correction::hasOriginal() const {
@@ -2306,7 +2309,10 @@ namespace folia {
      * \return the child or 0 if not available
      */
     const Original *n = getOriginal();
-    return n->index(index);
+    if ( n ){
+      return n->index(index);
+    }
+    return 0;
   }
 
   bool Correction::hasCurrent( ) const {
@@ -2316,13 +2322,13 @@ namespace folia {
   }
 
   Current *Correction::getCurrent( ) const {
-    /// extract the Cuurent node of a Correction
+    /// extract the Current node of a Correction
     /*!
      * \return the new node or 0 if not available
      */
     vector<Current*> v = FoliaElement::select<Current>( false );
     if ( v.empty() ) {
-      throw NoSuchAnnotation( "current" );
+      return 0;
     }
     return v[0];
   }
@@ -2334,7 +2340,10 @@ namespace folia {
      * \return the child or 0 if not available
      */
     const Current *n = getCurrent();
-    return n->index(index);
+    if ( n ){
+      return n->index(index);
+    }
+    return 0;
   }
 
   bool Correction::hasSuggestions( ) const {
