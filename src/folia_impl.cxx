@@ -3371,6 +3371,22 @@ namespace folia {
     throw range_error( "[] index out of range" );
   }
 
+  FoliaElement* AbstractElement::opaque_index( size_t i ) const {
+    /// return the child at index i
+    /*!
+     * \param i the index
+     * \return the child at index i or highet skipping XmlComment
+     *
+     * Will throw when the index is out of range
+     */
+    if ( i < _data.size() ) {
+      while ( _data[i]->element_id() == XmlComment_t
+	      && ++i < _data.size() );
+      return _data[i];
+    }
+    throw range_error( "[] index out of range" );
+  }
+
   FoliaElement* AbstractElement::rindex( size_t ri ) const {
     /// return the child at reversed index ri
     /*!

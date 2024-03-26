@@ -2326,10 +2326,11 @@ namespace folia {
     /*!
      * \param index the position in the children of the New node
      * \return the child or 0 if not available
+     *  will skip XmlComment nodes
      */
     const New *n = getNew();
     if ( n && n->size() > 0 ){
-      return n->index(index);
+      return n->opaque_index(index);
     }
     return 0;
   }
@@ -2357,10 +2358,11 @@ namespace folia {
     /*!
      * \param index the position in the children of the Original node
      * \return the child or 0 if not available
+     *  will skip XmlComment nodes
      */
     const Original *n = getOriginal();
     if ( n && n->size() > 0 ){
-      return n->index(index);
+      return n->opaque_index(index);
     }
     return 0;
   }
@@ -2388,10 +2390,11 @@ namespace folia {
     /*!
      * \param index the position in the children of the Current node
      * \return the child or 0 if not available
+     *  will skip XmlComment nodes
      */
     const Current *n = getCurrent();
     if ( n && n->size() > 0 ){
-      return n->index(index);
+      return n->opaque_index(index);
     }
     return 0;
   }

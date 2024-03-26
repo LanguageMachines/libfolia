@@ -103,6 +103,7 @@ namespace folia {
     virtual void init() {};
     virtual size_t size() const = 0;
     virtual FoliaElement* index( size_t ) const = 0;
+    virtual FoliaElement* opaque_index( size_t ) const = 0;
     virtual FoliaElement* rindex( size_t ) const = 0;
     FoliaElement* operator[]( size_t i ) const {
       return index(i);
@@ -590,6 +591,7 @@ namespace folia {
     //functions regarding contained data
     size_t size() const override { return _data.size(); };
     FoliaElement* index( size_t ) const override;
+    FoliaElement* opaque_index( size_t ) const override;
     FoliaElement* rindex( size_t ) const override;
 
     bool isinstance( ElementType et ) const override {
