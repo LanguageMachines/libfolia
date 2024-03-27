@@ -1273,6 +1273,7 @@ public:									\
   public:
     ADD_DEFAULT_CONSTRUCTORS( Correction, AbstractInlineAnnotation );
     FoliaElement *parseXml( const xmlNode * ) override;
+    bool addable( const FoliaElement * ) const override;
     void check_type_consistency() const;
     bool hasNew() const;
     bool hasOriginal() const;

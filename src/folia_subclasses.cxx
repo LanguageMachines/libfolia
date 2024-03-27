@@ -2159,6 +2159,62 @@ namespace folia {
     return parent()->correct( args );
   }
 
+  bool Correction::addable( const FoliaElement *parent ) const {
+    /// test if a Correction element might succesfully appended to \em parent
+    /*!
+     * \param parent the node to check
+     * \return true if it doesn't throw
+     *
+     * \note It will allways throw an error, instead of returning false
+     */
+    if ( !AbstractElement::addable( parent ) ){
+      return false;
+    }
+    FoliaElement *n = getNew(0);
+    if ( n ){
+      if ( !parent->acceptable( n->element_id() ) ) {
+	string mess = "Unable to append object <" + n->classname() + ">";
+	if ( !n->id().empty() ){
+	  mess += " (id=" + n->id() + ")";
+	}
+	mess += " inside <new> to a <" + parent->classname() + ">";
+	if ( !parent->id().empty() ){
+	  mess += " (id=" + parent->id() + ")";
+	}
+	throw XmlError( mess );
+      }
+    }
+    n = getOriginal(0);
+    if ( n ){
+      if ( !parent->acceptable( n->element_id() ) ) {
+	string mess = "Unable to append object <" + n->classname() + ">";
+	if ( !n->id().empty() ){
+	  mess += " (id=" + n->id() + ")";
+	}
+	mess += " inside <original> to a <" + parent->classname() + ">";
+	if ( !parent->id().empty() ){
+	  mess += " (id=" + parent->id() + ")";
+	}
+	throw XmlError( mess );
+      }
+    }
+    n = getCurrent(0);
+    if ( n ){
+      if ( !parent->acceptable( n->element_id() ) ) {
+	string mess = "Unable to append object <" + n->classname() + ">";
+	if ( !n->id().empty() ){
+	  mess += " (id=" + n->id() + ")";
+	}
+	mess += " inside <current> to a <" + parent->classname() + ">";
+	if ( !parent->id().empty() ){
+	  mess += " (id=" + parent->id() + ")";
+	}
+	throw XmlError( mess );
+      }
+    }
+    return true;
+  }
+
   bool New::addable( const FoliaElement *parent ) const {
     /// test if a New element might succesfully appended to \em parent
     /*!
