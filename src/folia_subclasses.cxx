@@ -1854,8 +1854,15 @@ namespace folia {
     if ( n ){
       if ( o ){
 	if ( n->element_id() != o->element_id() ){
-	  throw XmlError( "type mismatch in Correction: New=" + n->xmltag()
-			  + " but Original=" + o->xmltag() );
+	  if ( get_abstract_parent( n ) ==
+	       get_abstract_parent( o )
+	       && get_abstract_parent( n->element_id() ) != BASE ){
+	    // OK
+	  }
+	  else {
+	    throw XmlError( "type mismatch in Correction: New=" + n->xmltag()
+			    + " but Original=" + o->xmltag() );
+	  }
 	}
       }
       if ( c ){

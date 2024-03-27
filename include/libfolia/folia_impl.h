@@ -1028,6 +1028,8 @@ namespace folia {
   UnicodeString postprocess_spaces( const UnicodeString& in );
   std::string tagToAtt( const FoliaElement* );
   void destroy( FoliaElement *el );
+  ElementType get_abstract_parent( const ElementType et );
+  ElementType get_abstract_parent( const folia::FoliaElement * );
 
 } // namespace folia
 
