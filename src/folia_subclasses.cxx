@@ -1836,6 +1836,20 @@ namespace folia {
     return this;
   }
 
+  bool compatible_types( const FoliaElement *e1,
+			 const FoliaElement *e2 ){
+    if ( e1->element_id() == e2->element_id() ){
+      return true;
+    }
+    else if ( get_abstract_parent( e1 ) == get_abstract_parent( e2 )
+	      && get_abstract_parent( e1->element_id() ) != BASE ){
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
+
   void Correction::check_type_consistency() const {
     /// we check if the children have the same element type.
     /// We are a bit lax, only checking the first childs
@@ -1853,20 +1867,13 @@ namespace folia {
     }
     if ( n ){
       if ( o ){
-	if ( n->element_id() != o->element_id() ){
-	  if ( get_abstract_parent( n ) ==
-	       get_abstract_parent( o )
-	       && get_abstract_parent( n->element_id() ) != BASE ){
-	    // OK
-	  }
-	  else {
-	    throw XmlError( "type mismatch in Correction: New=" + n->xmltag()
-			    + " but Original=" + o->xmltag() );
-	  }
+	if ( !compatible_types( n,o ) ){
+	  throw XmlError( "type mismatch in Correction: New=" + n->xmltag()
+			  + " but Original=" + o->xmltag() );
 	}
       }
       if ( c ){
-	if ( n->element_id() != c->element_id() ){
+	if ( !compatible_types( n,c ) ){
 	  throw XmlError( "type mismatch in Correction: New=" + n->xmltag()
 			  + " but Current=" + c->xmltag() );
 	}
@@ -1874,7 +1881,7 @@ namespace folia {
     }
     else if ( o ){
       if ( c ){
-	if ( o->element_id() != c->element_id() ){
+	if ( !compatible_types( c,o ) ){
 	  throw XmlError( "type mismatch in Correction: Original=" + o->xmltag()
 			  + " but Current=" + c->xmltag() );
 	}
