@@ -33,17 +33,21 @@ namespace folia {
   explicit CLASS( const properties& props, Document *d=0 ):		\
     BASE( props, d ){ classInit(); };					\
   CLASS( const properties& props, FoliaElement *p ):			\
-    BASE( props, p ){ classInit(); }
+    BASE( props, p ){ classInit(); };					\
+  CLASS( const CLASS& ) = delete;					\
+  CLASS& operator=( const CLASS& ) = delete
 
 #define ADD_PROTECTED_CONSTRUCTORS_INIT( CLASS, BASE, INIT )		\
   explicit CLASS( const properties& props, Document *d=0 ):		\
     BASE( props, d ), INIT { classInit(); };				\
   CLASS( const properties& props, FoliaElement *p ):			\
-    BASE( props, p ), INIT { classInit(); }
+    BASE( props, p ), INIT { classInit(); }; \
+  CLASS( const CLASS& ) = delete;	     \
+  CLASS& operator=( const CLASS& ) = delete
 
 #define ADD_DEFAULT_CONSTRUCTORS( CLASS, BASE )			  \
   protected:							  \
-  ~CLASS() {};							  \
+  ~CLASS() {};								\
 public:									\
  explicit CLASS( const KWargs& a, Document *d=0 ):			\
    BASE( PROPS, d ){ classInit(a); };					\
