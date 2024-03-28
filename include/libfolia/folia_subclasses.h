@@ -41,8 +41,8 @@ namespace folia {
   explicit CLASS( const properties& props, Document *d=0 ):		\
     BASE( props, d ), INIT { classInit(); };				\
   CLASS( const properties& props, FoliaElement *p ):			\
-    BASE( props, p ), INIT { classInit(); }; \
-  CLASS( const CLASS& ) = delete;	     \
+    BASE( props, p ), INIT { classInit(); };				\
+  CLASS( const CLASS& ) = delete;					\
   CLASS& operator=( const CLASS& ) = delete
 
 #define ADD_DEFAULT_CONSTRUCTORS( CLASS, BASE )			  \
@@ -69,31 +69,33 @@ public:									\
  CLASS( const KWargs& a, FoliaElement *p ):				\
    BASE( PROPS, p ), INIT { classInit(a); };				\
  explicit CLASS( FoliaElement *p ):					\
-   BASE( PROPS, p ), INIT { classInit(); }
+   BASE( PROPS, p ), INIT { classInit(); }				\
+  CLASS( const CLASS& ) = delete;					\
+  CLASS& operator=( const CLASS& ) = delete
 
   class AbstractStructureElement:
     public AbstractElement,
     public AllowGenerateID,
     public AllowInlineAnnotation
-    {
-      friend void static_init();
-    protected:
-      // DO NOT USE AbstractStructureElement as a real node!!
-      ADD_PROTECTED_CONSTRUCTORS( AbstractStructureElement, AbstractElement );
-    public:
-      FoliaElement *append( FoliaElement* ) override;
-      std::vector<Paragraph*> paragraphs() const override;
-      std::vector<Sentence*> sentences() const override;
-      std::vector<Word*> words( const std::string& ="" ) const override;
-      Sentence *sentences( size_t ) const override;
-      Sentence *rsentences( size_t ) const override;
-      Paragraph *paragraphs( size_t ) const override;
-      Paragraph *rparagraphs( size_t ) const override;
-      Word *words( size_t, const std::string& ="" ) const override;
-      Word *rwords( size_t, const std::string& ="" ) const override;
-      const Word* resolveword( const std::string& ) const override;
-      static properties PROPS;
-    };
+  {
+    friend void static_init();
+  protected:
+    // DO NOT USE AbstractStructureElement as a real node!!
+    ADD_PROTECTED_CONSTRUCTORS( AbstractStructureElement, AbstractElement );
+  public:
+    FoliaElement *append( FoliaElement* ) override;
+    std::vector<Paragraph*> paragraphs() const override;
+    std::vector<Sentence*> sentences() const override;
+    std::vector<Word*> words( const std::string& ="" ) const override;
+    Sentence *sentences( size_t ) const override;
+    Sentence *rsentences( size_t ) const override;
+    Paragraph *paragraphs( size_t ) const override;
+    Paragraph *rparagraphs( size_t ) const override;
+    Word *words( size_t, const std::string& ="" ) const override;
+    Word *rwords( size_t, const std::string& ="" ) const override;
+    const Word* resolveword( const std::string& ) const override;
+    static properties PROPS;
+  };
 
   class AbstractWord: public virtual FoliaElement {
     /// Interface class that is inherited by word-like (wrefable)
