@@ -1853,15 +1853,15 @@ namespace folia {
   void Correction::check_type_consistency() const {
     /// we check if the children have the same element type.
     /// We are a bit lax, only checking the first childs
-    FoliaElement *n = getNew(0);
+    const FoliaElement *n = getNew(0);
     while ( n && n->element_id() == Correction_t ){
       n = n->getNew(0);
     }
-    FoliaElement *c = getCurrent(0);
+    const FoliaElement *c = getCurrent(0);
     while ( c && c->element_id() == Correction_t ){
       c = c->getCurrent(0);
     }
-    FoliaElement *o = getOriginal(0);
+    const FoliaElement *o = getOriginal(0);
     while ( o && o->element_id() == Correction_t ){
       o = o->getOriginal(0);
     }
@@ -2184,7 +2184,7 @@ namespace folia {
     if ( !AbstractElement::addable( parent ) ){
       return false;
     }
-    FoliaElement *n = getNew(0);
+    const FoliaElement *n = getNew(0);
     if ( n ){
       if ( !parent->acceptable( n->element_id() ) ) {
 	string mess = "Unable to append object <" + n->classname() + ">";
