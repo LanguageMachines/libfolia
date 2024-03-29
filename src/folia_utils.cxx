@@ -637,21 +637,24 @@ namespace folia {
     UChar32 shy = 0x00ad;   // soft hyphen
     bool is_space = false;
     for ( int i=0; i < input.length(); ++i ){
-      if ( input[i] != shy
-	   && ( u_isspace( input[i] )
-		|| u_iscntrl( input[i] ) ) ){
-	if ( is_space ){
-	  // already a space added, skip this character
+      if ( input[i] != shy ){
+	if ( u_isspace( input[i] ) ){
+	  if ( is_space ){
+	    // already a space added, skip this one
+	    continue;
+	  }
+	  is_space = true;
+	  result += " ";
 	  continue;
 	}
-	is_space = true;
-	result += " ";
+	else if ( u_iscntrl( input[i] ) ){
+	  // ignore
+	  continue;
+	}
       }
-      else {
-	// normal character, keep it
-	is_space = false;
-	result += input[i];
-      }
+      // normal character, keep it
+      is_space = false;
+      result += input[i];
     }
     result.trim(); // remove leading and trailing whitespace;
     return result;
