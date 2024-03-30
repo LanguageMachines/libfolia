@@ -635,9 +635,11 @@ namespace folia {
      */
     UnicodeString result;
     UChar32 shy = 0x00ad;   // soft hyphen
+    UChar32 ltro = 0x202d;   // Left To Right Override
     bool is_space = false;
     for ( int i=0; i < input.length(); ++i ){
-      if ( input[i] != shy ){
+      if ( input[i] != shy
+	   && input[i] != ltro  ){
 	if ( u_isspace( input[i] ) ){
 	  if ( is_space ){
 	    // already a space added, skip this one
@@ -648,6 +650,9 @@ namespace folia {
 	  continue;
 	}
 	else if ( u_iscntrl( input[i] ) ){
+	  // cerr << "Normalize, skipping: '" << TiCC::format_non_printable( TiCC::UnicodeString( input[i] )) << "'" << endl;
+	  // cerr << input[i] << endl;
+
 	  // ignore
 	  continue;
 	}
