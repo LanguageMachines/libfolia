@@ -2364,7 +2364,14 @@ namespace folia {
 	else if ( TiCC::getNS(p) == NSFOLIA ){
 	  string tag = TiCC::Name( p );
 	  if ( !meta_found  && !doc()->version_below(1,6) ){
-	    throw XmlError( "Expecting element metadata, got '" + tag + "'" );
+	    if ( doc()->autodeclare() ){
+	      doc()->fixup_metadata();
+	      meta_found = true;
+	      // and jus go on. assuming <text> to come
+	    }
+	    else {
+	      throw XmlError( "Expecting element metadata, got '" + tag + "'" );
+	    }
 	  }
 	  FoliaElement *t = AbstractElement::createElement( tag, doc() );
 	  if ( t ){

@@ -153,6 +153,7 @@ namespace folia {
     Speech* addSpeech( Speech *s ){ return dynamic_cast<Speech*>( append(s) ); };
 
     void set_foreign_metadata( xmlNode * );
+    void fixup_metadata();
     void addStyle( const std::string&, const std::string& );
     void replaceStyle( const std::string&, const std::string& );
     UnicodeString text( const std::string& = "current",

@@ -1620,6 +1620,10 @@ namespace folia {
     }
   }
 
+  void Document::fixup_metadata(){
+    _metadata = new NativeMetaData( "native" );
+  }
+
   void Document::parse_metadata( const xmlNode *node ){
     /// parse metadata information from the XmlTree under node
     /*!
