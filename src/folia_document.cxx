@@ -3160,7 +3160,7 @@ namespace folia {
     */
     xmlDoc *outDoc = xmlNewDoc( to_xmlChar("1.0") );
     add_styles( outDoc );
-    for ( const auto& pr: preludes ){
+    for ( const auto* pr: preludes ){
       xmlAddChild( reinterpret_cast<xmlNode*>(outDoc),
 		   pr->xml( true, canonical() ) );
     }
