@@ -1361,14 +1361,15 @@ namespace folia {
     if ( layertype != BASE ) {
       const FoliaElement *e = parent();
       if ( e ) {
-	vector<FoliaElement*> v = e->select( layertype, st, SELECT_FLAGS::LOCAL );
-	for ( const auto* el : v ){
+	const vector<FoliaElement*> v
+	  = e->select( layertype, st, SELECT_FLAGS::LOCAL );
+	for ( const auto* const el : v ){
 	  for ( size_t k=0; k < el->size(); ++k ) {
 	    FoliaElement *f = el->index(k);
 	    AbstractSpanAnnotation *as = dynamic_cast<AbstractSpanAnnotation*>(f);
 	    if ( as ) {
-	      vector<FoliaElement*> wrefv = f->wrefs();
-	      for ( const auto* wr : wrefv ){
+	      const vector<FoliaElement*> wrefv = f->wrefs();
+	      for ( const auto *const wr : wrefv ){
 		if ( wr == this ) {
 		  result.push_back(as);
 		}
