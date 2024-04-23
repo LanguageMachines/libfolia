@@ -1795,6 +1795,11 @@ namespace folia {
 	  }
 	}
       }
+      else {
+	auto is_text_node = []( auto elt ){ return elt->element_id() == XmlText_t; };
+	text_found[st] = std::any_of( _data.begin(), _data.end(),
+				      is_text_node );
+      }
     }
     if ( element_id() == TextContent_t ){
       bool none_found = true;
