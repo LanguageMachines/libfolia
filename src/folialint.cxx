@@ -178,6 +178,7 @@ int main( int argc, const char* argv[] ){
       cmd += mode;
       //      cerr << "running " << cmd << endl;
       folia::Document d( cmd );
+      d.set_canonical(kanon);
       if ( !d.version_below(2,0)
 	   && !(kanon||strip)
 	   && d.get_processors_by_name( "folialint" ).empty() ){
@@ -192,7 +193,7 @@ int main( int argc, const char* argv[] ){
 	proc->set_metadata( "valid", "yes" );
       }
       if ( !outputName.empty() ){
-	d.save( outputName, kanon );
+	d.save( outputName );
       }
       else if ( !nooutput ){
 	cout << d;
