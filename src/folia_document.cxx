@@ -2924,8 +2924,8 @@ namespace folia {
 						   "annotations" ) );
     if ( canonical() ){
       // _anno_sort contains type:setname pair ordered on appearance
-      map<AnnotationType,
-	  pair<AnnotationType,string>> ordered;
+      multimap<AnnotationType,
+	       pair<AnnotationType,string>> ordered;
       for ( const auto& pair : _anno_sort ){
 	// this sorts the _anno_sort entries on AnnotationType
 
