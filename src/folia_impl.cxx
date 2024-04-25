@@ -1715,7 +1715,7 @@ namespace folia {
     cerr << "DEBUG: BEGIN check_text_consistency_while_parsing("
 	 << trim_spaces << ")" << endl;
     }
-    map<string,bool> text_found;
+    //    map<string,bool> text_found;
     // check the text for every possible text class
     for ( const auto& st : doc()->textclasses() ){
       UnicodeString s1, s2;
@@ -1732,7 +1732,7 @@ namespace folia {
       catch (...){
       }
       if ( !s1.isEmpty() ){
-	text_found[st] = true;
+	//	text_found[st] = true;
 	if ( debug ){
 	  cerr << "S1: " << s1 << endl;
 	}
@@ -1795,30 +1795,20 @@ namespace folia {
 	  }
 	}
       }
-      else {
-	auto is_text_node = []( auto elt ){ return elt->element_id() == XmlText_t; };
-	text_found[st] = std::any_of( _data.begin(), _data.end(),
-				      is_text_node );
-      }
+      // else {
+      // 	auto is_text_node = []( auto elt ){ return elt->element_id() == XmlText_t; };
+      // 	text_found[st] = std::any_of( _data.begin(), _data.end(),
+      // 				      is_text_node );
+      // }
     }
     if ( element_id() == TextContent_t ){
-      bool none_found = true;
-      for ( const auto& it : text_found ){
-	if ( it.second ) {
-	  none_found = false;
-	}
-      }
-      if ( none_found ){
-	// we have to check for a child with the IMPLICITSPACE property
-	// ONLY in that case, an "empty" text is allowed.
-	auto implicit = []( auto elt ){ return elt->implicitspace(); };
-	bool has_implicit = std::any_of( _data.begin(), _data.end(),
-					 implicit );
-	if ( has_implicit ){
-	  none_found = false;
-	}
-      }
-      if ( none_found ){
+      // we have to check for at least one XmlText or TEXTCONTAINER child
+      auto valid_text = []( auto elt ){
+	return ( elt->element_id() == XmlText_t
+		 || elt->is_textcontainer() ); };
+      bool found = std::any_of( _data.begin(), _data.end(),
+				valid_text );
+      if ( !found ){
 	string msg = "Empty text content elements are not allowed. Parsing <"
 	  + xmltag() + ">, id=" + id();
 	throw XmlError( msg );
