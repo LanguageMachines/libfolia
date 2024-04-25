@@ -41,7 +41,7 @@ void usage(){
   cerr << "\t-V, --version\t\t Show versions" << endl;
   cerr << "\t--strip\t\t\t strip variable items from the FoLiA. Like all dates." << endl;
   cerr << "\t\t\t\t This is usefull to generate FoLiA that can be diffed." << endl;
-  cerr << "\t--output='file'\t\t name an outputfile. (default is stdout)" << endl;
+  cerr << "\t-o or --output='file'\t\t name an outputfile. (default is stdout)" << endl;
   cerr << "\t--nooutput\t\t Suppress output. Only warnings/errors are displayed." << endl;
   cerr << "\t--nochecktext\t\t DO NOT check if text is consistent inside structure tags." << endl;
   cerr << "\t\t\t\t Default is to do so." << endl;
@@ -74,7 +74,7 @@ int main( int argc, const char* argv[] ){
   vector<string> fileNames;
   string command;
   try {
-    TiCC::CL_Options Opts( "hVd:ax",
+    TiCC::CL_Options Opts( "hVd:axo:",
 			   "nochecktext,debug:,permissive,strip,output:,"
 			   "nooutput,help,fixtext,warn,version,canonical,"
 			   "KANON,explicit,autodeclare");
@@ -112,7 +112,7 @@ int main( int argc, const char* argv[] ){
       return EXIT_FAILURE;
     }
     Opts.extract( "debug", debug ) || Opts.extract( 'd', debug );
-    Opts.extract( "output", outputName );
+    Opts.extract( "output", outputName ) || Opts.extract( 'o', outputName );
     autodeclare = Opts.extract( "autodeclare" ) || Opts.extract( 'a' );
 
     if ( !Opts.empty() ){
@@ -178,7 +178,6 @@ int main( int argc, const char* argv[] ){
       cmd += mode;
       //      cerr << "running " << cmd << endl;
       folia::Document d( cmd );
-      d.set_canonical(kanon);
       if ( !d.version_below(2,0)
 	   && !(kanon||strip)
 	   && d.get_processors_by_name( "folialint" ).empty() ){
@@ -193,9 +192,10 @@ int main( int argc, const char* argv[] ){
 	proc->set_metadata( "valid", "yes" );
       }
       if ( !outputName.empty() ){
-	d.save( outputName );
+	d.save( outputName, kanon );
       }
       else if ( !nooutput ){
+	d.set_canonical(kanon);
 	cout << d;
       }
       else {
