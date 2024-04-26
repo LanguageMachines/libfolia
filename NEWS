@@ -1,3 +1,16 @@
+2.18 2024-04-26]
+[Ko van der Sloot]
+* buming the .so version due to ABI breaks
+* fix for --canonical option in folialint
+* fix for https://github.com/LanguageMachines/libfolia/issues/56
+* improved checking for emtpy <t> nodes
+* several code improvements. const correctness etc.
+* fix for https://github.com/LanguageMachines/libfolia/issues/55
+* better check for illegal Correction's:
+  https://github.com/proycon/folia/issues/77
+* added Doxygen config
+* better handling of XML comment nodes
+
 2.17 2023-10-21
 [Ko van der Sloot]
 * assume ticcutils >= 0.34 to force NFC normalization
