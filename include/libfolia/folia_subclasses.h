@@ -45,9 +45,9 @@ namespace folia {
   CLASS( const CLASS& ) = delete;					\
   CLASS& operator=( const CLASS& ) = delete
 
-#define ADD_DEFAULT_CONSTRUCTORS( CLASS, BASE )			  \
-  protected:							  \
-  ~CLASS() {};								\
+#define ADD_DEFAULT_CONSTRUCTORS( CLASS, BASE )				\
+  protected:								\
+  ~CLASS() override {};							\
 public:									\
  explicit CLASS( const KWargs& a, Document *d=0 ):			\
    BASE( PROPS, d ){ classInit(a); };					\
@@ -60,7 +60,7 @@ public:									\
 
 #define ADD_DEFAULT_CONSTRUCTORS_INIT( CLASS, BASE, INIT )	  \
  protected:							  \
-   ~CLASS() {};							  \
+ ~CLASS() override {};						  \
  public:							  \
  explicit CLASS( const KWargs& a, Document *d=0 ):			\
    BASE( PROPS, d ), INIT { classInit(a); };				\
@@ -303,7 +303,7 @@ public:									\
     KWargs collectAttributes() const override;
     FoliaElement *get_reference( int&, bool=true ) const;
     int offset() const override { return _offset; };
-    std::string ref() const { return _ref; };
+    const std::string& ref() const { return _ref; };
   private:
     void init() override;
     virtual FoliaElement *find_default_reference() const = 0;
@@ -901,9 +901,9 @@ public:									\
 
     KWargs collectAttributes() const override;
     void setAttributes( KWargs& ) override;
-    const std::string refid() const { return ref_id; };
-    const std::string type() const { return ref_type; };
-    const std::string t() const { return _t; };
+    const std::string& refid() const { return ref_id; };
+    const std::string& type() const { return ref_type; };
+    const std::string& t() const { return _t; };
     static properties PROPS;
 
   private:
@@ -1147,7 +1147,7 @@ public:									\
   public:
     ADD_DEFAULT_CONSTRUCTORS( Comment, AbstractElement );
 
-    const std::string comment() const { return _value; };
+    const std::string& comment() const { return _value; };
     void setAttributes( KWargs& ) override;
     FoliaElement* parseXml( const xmlNode * ) override;
     xmlNode *xml( bool, bool=false ) const override;
@@ -1179,7 +1179,7 @@ public:									\
     FoliaElement* parseXml( const xmlNode * ) override;
     xmlNode *xml( bool, bool=false ) const override;
     static properties PROPS;
-    const std::string target() const { return _target; };
+    const std::string& target() const { return _target; };
     const std::string content() const override { return _content; };
   private:
     const UnicodeString private_text( const TextPolicy& ) const override {
@@ -1452,7 +1452,7 @@ public:									\
     {
       classInit();
     }
-    ~ForeignData();
+    ~ForeignData() override;
     FoliaElement* parseXml( const xmlNode * ) override;
     xmlNode *xml( bool, bool=false ) const override;
     void set_data( const xmlNode * );

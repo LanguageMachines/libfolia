@@ -527,7 +527,7 @@ namespace folia {
     }
 
     virtual const std::string content() const NOT_IMPLEMENTED;
-    virtual const std::string src() const NOT_IMPLEMENTED;
+    virtual const std::string& src() const NOT_IMPLEMENTED;
     virtual const UnicodeString caption() const NOT_IMPLEMENTED;
     virtual std::vector<FoliaElement *> resolve() const NOT_IMPLEMENTED;
     virtual const FoliaElement* resolveid() const NOT_IMPLEMENTED;
@@ -770,7 +770,7 @@ namespace folia {
     void set_confidence( double d ) override { _confidence = d; };
 
     const std::string language( const std::string& = "" ) const override;
-    const std::string src() const override { return _src; };
+    const std::string& src() const override { return _src; };
     // generic properties
     ElementType element_id() const override;
     size_t occurrences() const override;

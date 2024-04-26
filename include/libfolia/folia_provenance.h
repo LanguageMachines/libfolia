@@ -51,15 +51,15 @@ namespace folia {
     void get_system_defaults();
     std::string generate_id( Provenance*, const std::string& );
     std::string calculate_next_id();
-    std::string name() const {
+    const std::string& name() const {
       /// return the \e name of this processor
       return _name;
     };
-    std::string annotator() const {
+    const std::string& annotator() const {
       /// return the \e name of this processor
       return _name;
     };
-    std::string id() const {
+    const std::string& id() const {
       /// return the \e id property of this processor
       return _id;
     };
@@ -71,51 +71,51 @@ namespace folia {
       /// return the \e AnnotatorType property of this processor
       return _type;
     };
-    std::string version() const {
+    const std::string& version() const {
       /// return the \e version property of this processor
       return _version;
     };
-    std::string document_version() const {
+    const std::string& document_version() const {
       /// return the \e document version property of this processor
       return _document_version;
     };
-    std::string folia_version() const {
+    const std::string& folia_version() const {
       /// return the \e folia_version property of this processor
       return _folia_version;
     };
-    std::string command() const {
+    const std::string& command() const {
       /// return the \e commandline property of this processor
       return _command;
     };
-    std::string host() const {
+    const std::string& host() const {
       /// return the \e host property of this processor
       return _host;
     };
-    std::string user() const {
+    const std::string& user() const {
       /// return the \e user property of this processor
       return _user;
     };
-    std::string begindatetime() const {
+    const std::string& begindatetime() const {
       /// return the \e begindatetime property of this processor
       return _begindatetime;
     };
-    std::string enddatetime() const {
+    const std::string& enddatetime() const {
       /// return the \e enddatetime property of this processor
       return _enddatetime;
     };
-    std::string resourcelink() const {
+    const std::string& resourcelink() const {
       /// return the \e resourcelink property of this processor
       return _resourcelink;
     };
-    std::string src() const {
+    const std::string& src() const {
       /// return the \e src property of this processor
       return _src;
     };
-    std::string format() const {
+    const std::string& format() const {
       /// return the \e format property of this processor
       return _format;
     };
-    std::vector<processor*> sub_processors() const {
+    const std::vector<processor*>& sub_processors() const {
       /// return the list of sub processors of this processor
       return _processors;
     };

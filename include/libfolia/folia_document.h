@@ -220,7 +220,7 @@ namespace folia {
 
     FoliaElement* parseXml( );
 
-    std::string id() const {
+    const std::string& id() const {
       /// return the Document id value
       return _id;
     };
@@ -405,7 +405,7 @@ namespace folia {
     void add_textclass( const std::string& tc ){
       _textclasses.insert( tc );
     }
-    const std::set<std::string> textclasses() const {
+    const std::set<std::string>& textclasses() const {
       return _textclasses;
     }
   private:

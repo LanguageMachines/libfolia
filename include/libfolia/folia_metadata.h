@@ -46,7 +46,7 @@ namespace folia {
     }
     virtual void add_foreign( const xmlNode * ) META_NOT_IMPLEMENTED;
     virtual std::string datatype() const { return "BaseMetaData"; };
-    std::string type() const { return _type; };
+    const std::string& type() const { return _type; };
     virtual std::string src() const META_NOT_IMPLEMENTED;
     virtual const std::vector<FoliaElement*> get_foreigners() const META_NOT_IMPLEMENTED;
   private:

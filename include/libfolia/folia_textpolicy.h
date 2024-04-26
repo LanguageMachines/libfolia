@@ -79,7 +79,7 @@ namespace folia {
     void add_handler( const std::string&, const tag_handler& );
     const tag_handler remove_handler( const std::string& );
     const tag_handler get_handler( const std::string& ) const;
-    std::string get_class() const { return _class; };
+    const std::string& get_class() const { return _class; };
     void set_class( const std::string& c ) { _class = c; };
     CORRECTION_HANDLING get_correction_handling() const {
       return _correction_handling;
