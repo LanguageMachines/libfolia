@@ -1344,9 +1344,9 @@ namespace folia {
 	       checkNS( p, NSFOLIA ) ){
 	    if ( type == "native" ){
 	      string txt = TiCC::XmlContent( p );
-	      KWargs att = getAttributes( p );
-	      string sid = att["id"];
 	      if ( !txt.empty() ){
+		KWargs att = getAttributes( p );
+		string sid = att["id"];
 		submetadata[my_id]->add_av( sid, txt );
 		// cerr << "added node to id=" << my_id
 		//      << "(" << sid << "," << txt << ")" << endl;
