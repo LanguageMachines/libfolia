@@ -552,7 +552,8 @@ namespace folia {
 	int size = xmlNodeDump(buffer, ctx->myDoc, ctx->node, 0, 1 );
 	cerr << string( ctx->nodeNr*2, ' ') << buffer->content << endl;
 	xmlBufferFree( buffer );
-	if ( error->int2 != 0 ){
+	if ( size >=0
+	     && error->int2 != 0 ){
 	  cerr << string( std::min(error->int2,size), ' ') << "^" << endl;
 	}
       }
