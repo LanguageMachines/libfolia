@@ -32,7 +32,7 @@
 #include "libfolia/folia_properties.h"
 
 //foliaspec:header
-//This file was last updated according to the FoLiA specification for version 2.5.4 on 2024-05-08 16:28:06, using foliaspec.py
+//This file was last updated according to the FoLiA specification for version 2.5.4 on 2024-05-08 22:41:07, using foliaspec.py
 //Code blocks after a foliaspec comment (until the next newline) are automatically generated. **DO NOT EDIT THOSE** and **DO NOT REMOVE ANY FOLIASPEC COMMENTS** !!!
 
 namespace folia {
@@ -757,6 +757,7 @@ namespace folia {
     element_props[AbstractTextMarkup_t] = &ABSTRACT_TEXT_MARKUP_PROPERTIES;
 //------ ActorFeature -------
     ActorFeature::PROPS = ABSTRACT_FEATURE_PROPERTIES;
+    abstract_parents[ActorFeature_t] = AbstractFeature_t;
     ActorFeature::PROPS.ELEMENT_ID = ActorFeature_t;
     ActorFeature::PROPS.SUBSET = "actor";
     ActorFeature::PROPS.XMLTAG = "actor";
@@ -791,6 +792,7 @@ namespace folia {
     element_props[AlternativeLayers_t] = &AlternativeLayers::PROPS;
 //------ BegindatetimeFeature -------
     BegindatetimeFeature::PROPS = ABSTRACT_FEATURE_PROPERTIES;
+    abstract_parents[BegindatetimeFeature_t] = AbstractFeature_t;
     BegindatetimeFeature::PROPS.ELEMENT_ID = BegindatetimeFeature_t;
     BegindatetimeFeature::PROPS.SUBSET = "begindatetime";
     BegindatetimeFeature::PROPS.XMLTAG = "begindatetime";
@@ -975,6 +977,7 @@ namespace folia {
     element_props[DomainAnnotation_t] = &DomainAnnotation::PROPS;
 //------ EnddatetimeFeature -------
     EnddatetimeFeature::PROPS = ABSTRACT_FEATURE_PROPERTIES;
+    abstract_parents[EnddatetimeFeature_t] = AbstractFeature_t;
     EnddatetimeFeature::PROPS.ELEMENT_ID = EnddatetimeFeature_t;
     EnddatetimeFeature::PROPS.SUBSET = "enddatetime";
     EnddatetimeFeature::PROPS.XMLTAG = "enddatetime";
@@ -1055,32 +1058,11 @@ namespace folia {
     element_props[External_t] = &External::PROPS;
 //------ Feature -------
     Feature::PROPS = ABSTRACT_FEATURE_PROPERTIES;
-    abstract_parents[Feature_t] = AbstractHigherOrderAnnotation_t;
+    abstract_parents[Feature_t] = AbstractFeature_t;
     Feature::PROPS.ELEMENT_ID = Feature_t;
     Feature::PROPS.SUBSET = "feat";
     Feature::PROPS.XMLTAG = "feat";
     element_props[Feature_t] = &Feature::PROPS;
-//------ ActorFeature -------
-    ActorFeature::PROPS = Feature::PROPS;
-    abstract_parents[ActorFeature_t] = Feature_t;
-    ActorFeature::PROPS.ELEMENT_ID = ActorFeature_t;
-    ActorFeature::PROPS.SUBSET = "actor";
-    ActorFeature::PROPS.XMLTAG = "actor";
-    element_props[ActorFeature_t] = &ActorFeature::PROPS;
-//------ BegindatetimeFeature -------
-    BegindatetimeFeature::PROPS = Feature::PROPS;
-    abstract_parents[BegindatetimeFeature_t] = Feature_t;
-    BegindatetimeFeature::PROPS.ELEMENT_ID = BegindatetimeFeature_t;
-    BegindatetimeFeature::PROPS.SUBSET = "begindatetime";
-    BegindatetimeFeature::PROPS.XMLTAG = "begindatetime";
-    element_props[BegindatetimeFeature_t] = &BegindatetimeFeature::PROPS;
-//------ EnddatetimeFeature -------
-    EnddatetimeFeature::PROPS = Feature::PROPS;
-    abstract_parents[EnddatetimeFeature_t] = Feature_t;
-    EnddatetimeFeature::PROPS.ELEMENT_ID = EnddatetimeFeature_t;
-    EnddatetimeFeature::PROPS.SUBSET = "enddatetime";
-    EnddatetimeFeature::PROPS.XMLTAG = "enddatetime";
-    element_props[EnddatetimeFeature_t] = &EnddatetimeFeature::PROPS;
 //------ Figure -------
     Figure::PROPS = ABSTRACT_STRUCTURE_ELEMENT_PROPERTIES;
     abstract_parents[Figure_t] = AbstractStructureElement_t;
@@ -1094,7 +1076,7 @@ namespace folia {
     element_props[Figure_t] = &Figure::PROPS;
 //------ FontFeature -------
     FontFeature::PROPS = ABSTRACT_FEATURE_PROPERTIES;
-    abstract_parents[FontFeature_t] = Feature_t;
+    abstract_parents[FontFeature_t] = AbstractFeature_t;
     FontFeature::PROPS.ELEMENT_ID = FontFeature_t;
     FontFeature::PROPS.SUBSET = "font";
     FontFeature::PROPS.XMLTAG = "font";
@@ -1107,7 +1089,7 @@ namespace folia {
     element_props[ForeignData_t] = &ForeignData::PROPS;
 //------ FunctionFeature -------
     FunctionFeature::PROPS = ABSTRACT_FEATURE_PROPERTIES;
-    abstract_parents[FunctionFeature_t] = Feature_t;
+    abstract_parents[FunctionFeature_t] = AbstractFeature_t;
     FunctionFeature::PROPS.ELEMENT_ID = FunctionFeature_t;
     FunctionFeature::PROPS.SUBSET = "function";
     FunctionFeature::PROPS.XMLTAG = "function";
@@ -1134,7 +1116,7 @@ namespace folia {
     element_props[Head_t] = &Head::PROPS;
 //------ HeadFeature -------
     HeadFeature::PROPS = ABSTRACT_FEATURE_PROPERTIES;
-    abstract_parents[HeadFeature_t] = Feature_t;
+    abstract_parents[HeadFeature_t] = AbstractFeature_t;
     HeadFeature::PROPS.ELEMENT_ID = HeadFeature_t;
     HeadFeature::PROPS.SUBSET = "head";
     HeadFeature::PROPS.XMLTAG = "head";
@@ -1196,7 +1178,7 @@ namespace folia {
     element_props[LemmaAnnotation_t] = &LemmaAnnotation::PROPS;
 //------ LevelFeature -------
     LevelFeature::PROPS = ABSTRACT_FEATURE_PROPERTIES;
-    abstract_parents[LevelFeature_t] = Feature_t;
+    abstract_parents[LevelFeature_t] = AbstractFeature_t;
     LevelFeature::PROPS.ELEMENT_ID = LevelFeature_t;
     LevelFeature::PROPS.SUBSET = "level";
     LevelFeature::PROPS.XMLTAG = "level";
@@ -1266,7 +1248,7 @@ namespace folia {
     element_props[Modality_t] = &Modality::PROPS;
 //------ ModalityFeature -------
     ModalityFeature::PROPS = ABSTRACT_FEATURE_PROPERTIES;
-    abstract_parents[ModalityFeature_t] = Feature_t;
+    abstract_parents[ModalityFeature_t] = AbstractFeature_t;
     ModalityFeature::PROPS.ELEMENT_ID = ModalityFeature_t;
     ModalityFeature::PROPS.SUBSET = "mod";
     ModalityFeature::PROPS.XMLTAG = "mod";
@@ -1388,7 +1370,7 @@ namespace folia {
     element_props[PhonologyLayer_t] = &PhonologyLayer::PROPS;
 //------ PolarityFeature -------
     PolarityFeature::PROPS = ABSTRACT_FEATURE_PROPERTIES;
-    abstract_parents[PolarityFeature_t] = Feature_t;
+    abstract_parents[PolarityFeature_t] = AbstractFeature_t;
     PolarityFeature::PROPS.ELEMENT_ID = PolarityFeature_t;
     PolarityFeature::PROPS.SUBSET = "polarity";
     PolarityFeature::PROPS.XMLTAG = "polarity";
@@ -1520,7 +1502,7 @@ namespace folia {
     element_props[SentimentLayer_t] = &SentimentLayer::PROPS;
 //------ SizeFeature -------
     SizeFeature::PROPS = ABSTRACT_FEATURE_PROPERTIES;
-    abstract_parents[SizeFeature_t] = Feature_t;
+    abstract_parents[SizeFeature_t] = AbstractFeature_t;
     SizeFeature::PROPS.ELEMENT_ID = SizeFeature_t;
     SizeFeature::PROPS.SUBSET = "size";
     SizeFeature::PROPS.XMLTAG = "size";
@@ -1591,7 +1573,7 @@ namespace folia {
     element_props[StatementRelation_t] = &StatementRelation::PROPS;
 //------ StrengthFeature -------
     StrengthFeature::PROPS = ABSTRACT_FEATURE_PROPERTIES;
-    abstract_parents[StrengthFeature_t] = Feature_t;
+    abstract_parents[StrengthFeature_t] = AbstractFeature_t;
     StrengthFeature::PROPS.ELEMENT_ID = StrengthFeature_t;
     StrengthFeature::PROPS.SUBSET = "strength";
     StrengthFeature::PROPS.XMLTAG = "strength";
@@ -1610,7 +1592,7 @@ namespace folia {
     element_props[String_t] = &String::PROPS;
 //------ StyleFeature -------
     StyleFeature::PROPS = ABSTRACT_FEATURE_PROPERTIES;
-    abstract_parents[StyleFeature_t] = Feature_t;
+    abstract_parents[StyleFeature_t] = AbstractFeature_t;
     StyleFeature::PROPS.ELEMENT_ID = StyleFeature_t;
     StyleFeature::PROPS.SUBSET = "style";
     StyleFeature::PROPS.XMLTAG = "style";
@@ -1635,7 +1617,7 @@ namespace folia {
     element_props[Suggestion_t] = &Suggestion::PROPS;
 //------ SynsetFeature -------
     SynsetFeature::PROPS = ABSTRACT_FEATURE_PROPERTIES;
-    abstract_parents[SynsetFeature_t] = Feature_t;
+    abstract_parents[SynsetFeature_t] = AbstractFeature_t;
     SynsetFeature::PROPS.ELEMENT_ID = SynsetFeature_t;
     SynsetFeature::PROPS.SUBSET = "synset";
     SynsetFeature::PROPS.XMLTAG = "synset";
@@ -1785,7 +1767,7 @@ namespace folia {
     element_props[TextMarkupWhitespace_t] = &TextMarkupWhitespace::PROPS;
 //------ TimeFeature -------
     TimeFeature::PROPS = ABSTRACT_FEATURE_PROPERTIES;
-    abstract_parents[TimeFeature_t] = Feature_t;
+    abstract_parents[TimeFeature_t] = AbstractFeature_t;
     TimeFeature::PROPS.ELEMENT_ID = TimeFeature_t;
     TimeFeature::PROPS.SUBSET = "time";
     TimeFeature::PROPS.XMLTAG = "time";
@@ -1819,7 +1801,7 @@ namespace folia {
     element_props[Utterance_t] = &Utterance::PROPS;
 //------ ValueFeature -------
     ValueFeature::PROPS = ABSTRACT_FEATURE_PROPERTIES;
-    abstract_parents[ValueFeature_t] = Feature_t;
+    abstract_parents[ValueFeature_t] = AbstractFeature_t;
     ValueFeature::PROPS.ELEMENT_ID = ValueFeature_t;
     ValueFeature::PROPS.SUBSET = "value";
     ValueFeature::PROPS.XMLTAG = "value";
