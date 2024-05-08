@@ -443,7 +443,7 @@ namespace folia {
       processors.push_back( main );
     }
     //    cerr << "created procesor(" << node_atts << ")" << endl;
-    xmlNode *n = node->children;
+    const xmlNode *n = node->children;
     while ( n ){
       string tag = TiCC::Name( n );
       if ( tag == "processor" ){
@@ -469,7 +469,7 @@ namespace folia {
     /// output the provenance context (debugging only)
     os << "provenance data" << endl;
     os << "NAMES: " << p._names << endl;
-    for ( const auto& pr : p.processors ){
+    for ( const auto* pr : p.processors ){
       pr->print( os, 2 );
       os << endl;
     }

@@ -63,7 +63,7 @@ namespace folia {
       cerr << "FoLiA::private_text(" << tp.get_class() << ")" << endl;
     }
     UnicodeString result;
-    for ( const auto& d : data() ){
+    for ( const auto* d : data() ){
       if ( !result.isEmpty() ){
 	const string& delim = d->get_delimiter( tp );
 	result += TiCC::UnicodeFromUTF8(delim);
@@ -369,7 +369,7 @@ namespace folia {
      *   splitword() , mergewords(), deleteword(), insertword() instead
      */
     // sanity check:
-    for ( const auto& org : orig ) {
+    for ( const auto* org : orig ) {
       if ( !org || !org->isinstance( Word_t) ) {
 	throw runtime_error("Original word is not a Word instance" );
       }
@@ -1370,16 +1370,15 @@ namespace folia {
     if ( layertype != BASE ) {
       const FoliaElement *e = parent();
       if ( e ) {
-	vector<FoliaElement*> v = e->select( layertype, st, SELECT_FLAGS::LOCAL );
-	for ( const auto& el : v ){
+	const vector<FoliaElement*> v
+	  = e->select( layertype, st, SELECT_FLAGS::LOCAL );
+	for ( const auto* const el : v ){
 	  for ( size_t k=0; k < el->size(); ++k ) {
 	    FoliaElement *f = el->index(k);
 	    AbstractSpanAnnotation *as = dynamic_cast<AbstractSpanAnnotation*>(f);
 	    if ( as ) {
-	      vector<FoliaElement*> wrefv = f->wrefs();
-	      // cppcheck-suppress constVariable
-	      // false positive. wr IS const declared
-	      for ( const auto& wr : wrefv ){
+	      const vector<FoliaElement*> wrefv = f->wrefs();
+	      for ( const auto *const wr : wrefv ){
 		if ( wr == this ) {
 		  result.push_back(as);
 		}
@@ -1666,7 +1665,7 @@ namespace folia {
       if ( c_set.empty() ){  // cppcheck-suppress knownConditionTrueFalse
 	// false positive. c_set can be changed in previous for loop
 	auto v = child->suggestions();
-	for ( const auto& el : v ) {
+	for ( const auto* el : v ) {
 	  if ( el->isSubClass( AbstractSpanAnnotation_t ) ) {
 	    string st = el->sett();
 	    if ( !st.empty()
@@ -1792,7 +1791,7 @@ namespace folia {
      */
     KWargs att = getAttributes( node );
     setAttributes( att );
-    xmlNode *p = node->children;
+    const xmlNode *p = node->children;
     bool isCdata = false;
     bool isText = false;
     while ( p ) {
@@ -1829,6 +1828,70 @@ namespace folia {
       throw XmlError( "CDATA or Text expected in Content node" );
     }
     return this;
+  }
+
+  bool compatible_types( const FoliaElement *e1,
+			 const FoliaElement *e2 ){
+    if ( e1->element_id() == e2->element_id() ){
+      return true;
+    }
+    else if ( get_abstract_parent( e1 ) == get_abstract_parent( e2 )
+	      && get_abstract_parent( e1->element_id() ) != BASE ){
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
+
+  void Correction::check_type_consistency() const {
+    /// we check if the children have the same element type.
+    /// We are a bit lax, only checking the first childs
+    const FoliaElement *n = getNew(0);
+    while ( n && n->element_id() == Correction_t ){
+      n = n->getNew(0);
+    }
+    const FoliaElement *c = getCurrent(0);
+    while ( c && c->element_id() == Correction_t ){
+      c = c->getCurrent(0);
+    }
+    const FoliaElement *o = getOriginal(0);
+    while ( o && o->element_id() == Correction_t ){
+      o = o->getOriginal(0);
+    }
+    if ( n ){
+      if ( o ){
+	if ( !compatible_types( n,o ) ){
+	  throw XmlError( "type mismatch in Correction: New=" + n->xmltag()
+			  + " but Original=" + o->xmltag() );
+	}
+      }
+      if ( c ){
+	if ( !compatible_types( n,c ) ){
+	  throw XmlError( "type mismatch in Correction: New=" + n->xmltag()
+			  + " but Current=" + c->xmltag() );
+	}
+      }
+    }
+    else if ( o ){
+      if ( c ){
+	if ( !compatible_types( c,o ) ){
+	  throw XmlError( "type mismatch in Correction: Original=" + o->xmltag()
+			  + " but Current=" + c->xmltag() );
+	}
+      }
+    }
+  }
+
+  FoliaElement* Correction::parseXml( const xmlNode *node ) {
+    /// parse a Correction from node
+    /*!
+     * \param node a Correction
+     * \return the parsed tree. Throws on error.
+     */
+    FoliaElement *result = AbstractElement::parseXml( node );
+    check_type_consistency();
+    return result;
   }
 
   //#define DEBUG_TEXT_CORRECTION
@@ -2072,7 +2135,7 @@ namespace folia {
     vector<FoliaElement*> cv;
     vector<FoliaElement*> sv;
     ov.push_back( this );
-    return parent()->correct( ov,nv,cv,sv, args );
+    return parent()->correct( ov,nv,cv,sv, KWargs(args) );
   }
 
   Correction *New::correct( const vector<FoliaElement*>& vo,
@@ -2102,6 +2165,62 @@ namespace folia {
      * to use correct() on the PARENT (Correction) of this node
      */
     return parent()->correct( args );
+  }
+
+  bool Correction::addable( const FoliaElement *parent ) const {
+    /// test if a Correction element might succesfully appended to \em parent
+    /*!
+     * \param parent the node to check
+     * \return true if it doesn't throw
+     *
+     * \note It will allways throw an error, instead of returning false
+     */
+    if ( !AbstractElement::addable( parent ) ){
+      return false;
+    }
+    const FoliaElement *n = getNew(0);
+    if ( n ){
+      if ( !parent->acceptable( n->element_id() ) ) {
+	string mess = "Unable to append object <" + n->classname() + ">";
+	if ( !n->id().empty() ){
+	  mess += " (id=" + n->id() + ")";
+	}
+	mess += " inside <new> to a <" + parent->classname() + ">";
+	if ( !parent->id().empty() ){
+	  mess += " (id=" + parent->id() + ")";
+	}
+	throw XmlError( mess );
+      }
+    }
+    n = getOriginal(0);
+    if ( n ){
+      if ( !parent->acceptable( n->element_id() ) ) {
+	string mess = "Unable to append object <" + n->classname() + ">";
+	if ( !n->id().empty() ){
+	  mess += " (id=" + n->id() + ")";
+	}
+	mess += " inside <original> to a <" + parent->classname() + ">";
+	if ( !parent->id().empty() ){
+	  mess += " (id=" + parent->id() + ")";
+	}
+	throw XmlError( mess );
+      }
+    }
+    n = getCurrent(0);
+    if ( n ){
+      if ( !parent->acceptable( n->element_id() ) ) {
+	string mess = "Unable to append object <" + n->classname() + ">";
+	if ( !n->id().empty() ){
+	  mess += " (id=" + n->id() + ")";
+	}
+	mess += " inside <current> to a <" + parent->classname() + ">";
+	if ( !parent->id().empty() ){
+	  mess += " (id=" + parent->id() + ")";
+	}
+	throw XmlError( mess );
+      }
+    }
+    return true;
   }
 
   bool New::addable( const FoliaElement *parent ) const {
@@ -2273,9 +2392,13 @@ namespace folia {
     /*!
      * \param index the position in the children of the New node
      * \return the child or 0 if not available
+     *  will skip XmlComment nodes
      */
     const New *n = getNew();
-    return n->index(index);
+    if ( n && n->size() > 0 ){
+      return n->opaque_index(index);
+    }
+    return 0;
   }
 
   bool Correction::hasOriginal() const {
@@ -2301,9 +2424,13 @@ namespace folia {
     /*!
      * \param index the position in the children of the Original node
      * \return the child or 0 if not available
+     *  will skip XmlComment nodes
      */
     const Original *n = getOriginal();
-    return n->index(index);
+    if ( n && n->size() > 0 ){
+      return n->opaque_index(index);
+    }
+    return 0;
   }
 
   bool Correction::hasCurrent( ) const {
@@ -2313,13 +2440,13 @@ namespace folia {
   }
 
   Current *Correction::getCurrent( ) const {
-    /// extract the Cuurent node of a Correction
+    /// extract the Current node of a Correction
     /*!
      * \return the new node or 0 if not available
      */
     vector<Current*> v = FoliaElement::select<Current>( false );
     if ( v.empty() ) {
-      throw NoSuchAnnotation( "current" );
+      return 0;
     }
     return v[0];
   }
@@ -2329,9 +2456,13 @@ namespace folia {
     /*!
      * \param index the position in the children of the Current node
      * \return the child or 0 if not available
+     *  will skip XmlComment nodes
      */
     const Current *n = getCurrent();
-    return n->index(index);
+    if ( n && n->size() > 0 ){
+      return n->opaque_index(index);
+    }
+    return 0;
   }
 
   bool Correction::hasSuggestions( ) const {
@@ -2852,7 +2983,7 @@ namespace folia {
     /*!
      * performs sanity check to avoid adding FoLiA nodes
      */
-    xmlNode *p = const_cast<xmlNode *>(node->children);
+    const xmlNode *p = node->children;
     while ( p ){
       string pref;
       string ns = getNS( p, pref );
@@ -3030,8 +3161,8 @@ namespace folia {
     /// get the UnicodeString value of a Row
     /*!
      * \param tp the TextPolicy to use
-     * \return the Unicode String representation found. Throws when
-     * no text can be found.
+     * \return the Unicode String representation found.
+     * when no text can be found, a SPACE is returned
      */
     bool my_debug = tp.debug();
     //    my_debug = true;
@@ -3072,8 +3203,8 @@ namespace folia {
     /// get the UnicodeString value of a Cell
     /*!
      * \param tp the TextPolicy to use
-     * \return the Unicode String representation found. Throws when
-     * no text can be found.
+     * \return the Unicode String representation found.
+     * when no text can be found, a SPACE is returned
      */
     bool my_debug = tp.debug();
     //    my_debug = true;

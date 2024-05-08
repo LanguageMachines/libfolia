@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.69])
-AC_INIT([libfolia],[2.18],[lamasoftware@science.ru.nl]) #also adapt in codemeta.json!
+AC_INIT([libfolia],[2.19],[lamasoftware@science.ru.nl]) #also adapt in codemeta.json!
 AM_INIT_AUTOMAKE([foreign])
 AC_CONFIG_SRCDIR([configure.ac])
 AC_CONFIG_MACRO_DIR([m4])
@@ -60,6 +60,17 @@ else
     export PKG_CONFIG_PATH="$prefix/lib/pkgconfig:$PKG_CONFIG_PATH"
 fi
 
+AC_CHECK_PROGS([DOXYGEN], [doxygen])
+if test -z "$DOXYGEN"; then
+   AC_MSG_WARN([Doxygen not found - continue without Doxygen support])
+else
+   AC_CHECK_PROGS([DOT], [dot])
+   if test -z "$DOT"; then
+      AC_MSG_ERROR([Doxygen needs dot, please install dot first])
+   fi
+fi
+AM_CONDITIONAL([HAVE_DOXYGEN], [test -n "$DOXYGEN"])
+
 AC_OSX_PKG( [icu4c] )
 
 PKG_PROG_PKG_CONFIG
@@ -81,6 +92,7 @@ AC_CONFIG_FILES([
   folia.pc
   m4/Makefile
   src/Makefile
+  docs/Makefile
   include/Makefile
   include/libfolia/Makefile
 ])

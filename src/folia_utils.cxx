@@ -276,7 +276,7 @@ namespace folia {
     */
     KWargs atts;
     if ( node ){
-      xmlAttr *a = node->properties;
+      const xmlAttr *a = node->properties;
       while ( a ){
 	if ( a->atype == XML_ATTRIBUTE_ID && att_name(a) == "id" ){
 	  atts["xml:id"] = att_content(a);
@@ -300,13 +300,14 @@ namespace folia {
     return atts;
   }
 
-  void addAttributes( xmlNode *node, const KWargs& atts ){
+  void addAttributes( const xmlNode *_node, const KWargs& atts ){
     /// add all attributes from 'atts' as attribute nodes to 'node`
     /*!
-      \param node The xmlNode to add to
+      \param _node The xmlNode to add to
       \param atts The list of attribute/value pairs
       some special care is taken for attributes 'xml:id', 'id' and 'lang'
     */
+    xmlNode *node = const_cast<xmlNode*>(_node); // strange libxml2 interface
     KWargs attribs = atts;
     auto it = attribs.find("xml:id");
     if ( it != attribs.end() ){ // xml:id is special
@@ -635,21 +636,24 @@ namespace folia {
     UChar32 shy = 0x00ad;   // soft hyphen
     bool is_space = false;
     for ( int i=0; i < input.length(); ++i ){
-      if ( input[i] != shy
-	   && ( u_isspace( input[i] )
-		|| u_iscntrl( input[i] ) ) ){
-	if ( is_space ){
-	  // already a space added, skip this character
+      if ( input[i] != shy ){
+	if ( u_isspace( input[i] ) ){
+	  if ( is_space ){
+	    // already a space added, skip this one
+	    continue;
+	  }
+	  is_space = true;
+	  result += " ";
 	  continue;
 	}
-	is_space = true;
-	result += " ";
+	else if ( u_iscntrl( input[i] ) ){
+	  // ignore
+	  continue;
+	}
       }
-      else {
-	// normal character, keep it
-	is_space = false;
-	result += input[i];
-      }
+      // normal character, keep it
+      is_space = false;
+      result += input[i];
     }
     result.trim(); // remove leading and trailing whitespace;
     return result;
@@ -678,7 +682,7 @@ namespace folia {
       \return a string with the hostname
     */
     string result = "unknown";
-    struct addrinfo hints, *info, *p;
+    struct addrinfo hints, *info;
     int gai_result;
 
     char hostname[1024];
@@ -694,13 +698,13 @@ namespace folia {
     hints.ai_flags = AI_CANONNAME;
 
     if ((gai_result = getaddrinfo(hostname, "http", &hints, &info)) != 0) {
-      cerr << "getaddrinfo failed: " << gai_strerror(gai_result)
-	   << ", using '" << hostname << "' as hostname" << endl;
+      //      cerr << "getaddrinfo failed: " << gai_strerror(gai_result)
+      //	   << ", using 'unknown' as hostname" << endl;
       freeaddrinfo(info);
       result = hostname;
       return result;
     }
-
+    const struct addrinfo *p;
     for ( p = info; p != NULL; p = p->ai_next ) {
       result = p->ai_canonname;
       break;

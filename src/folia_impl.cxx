@@ -1794,6 +1794,19 @@ namespace folia {
 	}
       }
     }
+    if ( element_id() == TextContent_t ){
+      // we have to check for at least one XmlText or TEXTCONTAINER child
+      auto valid_text = []( auto elt ){
+	return ( elt->element_id() == XmlText_t
+		 || elt->is_textcontainer() ); };
+      bool found = std::any_of( _data.begin(), _data.end(),
+				valid_text );
+      if ( !found ){
+	string msg = "Empty text content elements are not allowed. Parsing <"
+	  + xmltag() + ">, id=" + id();
+	throw XmlError( msg );
+      }
+    }
     if ( debug ){
       cerr << "DEBUG: END-OK check_text_consistency_while_parsing("
 	   << trim_spaces << ")" << endl;
@@ -1834,7 +1847,7 @@ namespace folia {
       map<string,int> af_map;
       // first we search al features that can be serialized to an attribute
       // and count them!
-      for ( const auto& el : _data ) {
+      for ( const auto* el : _data ) {
 	string at = tagToAtt( el );
 	if ( !at.empty() ) {
 	  ++af_map[at];
@@ -1895,22 +1908,22 @@ namespace folia {
 	  }
 	}
       }
-      for ( const auto& cel : commentelements ) {
+      for ( const auto* cel : commentelements ) {
 	xmlAddChild( e, cel->xml( recursive, kanon ) );
       }
-      for ( const auto& pel : PIelements ) {
+      for ( const auto* pel : PIelements ) {
 	xmlAddChild( e, pel->xml( recursive, kanon ) );
       }
-      for ( const auto& tel : currenttextelements ) {
+      for ( const auto* tel : currenttextelements ) {
 	xmlAddChild( e, tel->xml( recursive, false ) );
 	// don't change the internal sequences of TextContent elements
       }
-      for ( const auto& tel : textelements ) {
+      for ( const auto* tel : textelements ) {
 	xmlAddChild( e, tel->xml( recursive, false ) );
 	// don't change the internal sequences of TextContent elements
       }
       if ( !kanon ) {
-	for ( const auto& oem : otherelements ) {
+	for ( const auto* oem : otherelements ) {
 	  xmlAddChild( e, oem->xml( recursive, kanon ) );
 	}
       }
@@ -2074,7 +2087,7 @@ namespace folia {
     }
     else if ( _data.size() > 0 ) {
       // attempt to get a delimiter from the last child
-      FoliaElement *last = _data.back();
+      const FoliaElement *last = _data.back();
       if ( last->isSubClass(AbstractStructureElement_t) ){
 	const string& det = last->get_delimiter( tp );
 	if ( tp.debug() ){
@@ -2113,7 +2126,7 @@ namespace folia {
     bool trim_spaces = !tp.is_set( TEXT_FLAGS::NO_TRIM_SPACES);
     if ( tp.debug() ){
       cerr << "TextContainer.text() " << xmltag() << "[";
-      for ( const auto& d : _data ){
+      for ( const auto* d : _data ){
 	cerr << d->xmltag() << ",";
       }
       cerr << "]" << endl;
@@ -2350,7 +2363,7 @@ namespace folia {
     }
     setAttributes( atts );
     bool meta_found = false;
-    xmlNode *p = node->children;
+    const xmlNode *p = node->children;
     while ( p ){
       if ( p->type == XML_ELEMENT_NODE ){
 	if ( TiCC::Name(p) == "metadata" &&
@@ -2364,7 +2377,14 @@ namespace folia {
 	else if ( TiCC::getNS(p) == NSFOLIA ){
 	  string tag = TiCC::Name( p );
 	  if ( !meta_found  && !doc()->version_below(1,6) ){
-	    throw XmlError( "Expecting element metadata, got '" + tag + "'" );
+	    if ( doc()->autodeclare() ){
+	      doc()->fixup_metadata();
+	      meta_found = true;
+	      // and jus go on. assuming <text> to come
+	    }
+	    else {
+	      throw XmlError( "Expecting element metadata, got '" + tag + "'" );
+	    }
 	  }
 	  FoliaElement *t = AbstractElement::createElement( tag, doc() );
 	  if ( t ){
@@ -2378,6 +2398,22 @@ namespace folia {
 	      }
 	      this->append( t );
 	    }
+	  }
+	}
+      }
+      else if ( p->type == XML_COMMENT_NODE ) {
+	string xml_tag = "_XmlComment";
+	FoliaElement *t = createElement( xml_tag, doc() );
+	if ( t ) {
+	  if ( doc() && doc()->debug > 2 ) {
+	    cerr << "created " << t << endl;
+	  }
+	  t = t->parseXml( p );
+	  if ( t ) {
+	    if ( doc() && doc()->debug > 2 ) {
+	      cerr << "extend " << this << " met " << t << endl;
+	    }
+	    append( t );
 	  }
 	}
       }
@@ -2497,11 +2533,11 @@ namespace folia {
     return found_nl > 0;
   }
 
-  bool no_space_at_end( FoliaElement *s, bool debug ){
+  bool no_space_at_end( const FoliaElement *s, bool debug ){
     /// given a FoliaElement check if the last Word in it has space()
     /*!
      * \param s a FoliaElement
-     * \param dbug set to true for more info
+     * \param debug set to true for more info
      * \return true if the element contains Word children and the last
      * one has space()
      */
@@ -2518,7 +2554,7 @@ namespace folia {
 	if ( debug ){
 	  cerr << "found some mixed stuff: " << elts << endl;
 	}
-	FoliaElement *last = elts.back();
+	const FoliaElement *last = elts.back();
 	result = !last->space();
 	if ( debug ){
 	  cerr << "no space? last: " << last
@@ -2544,7 +2580,7 @@ namespace folia {
     }
     vector<UnicodeString> parts;
     vector<UnicodeString> seps;
-    for ( const auto& child : data() ) {
+    for ( const auto* child : _data ) {
       // try to get text dynamically from printable children
       // skipping the TextContent elements
       if ( tp.debug() ){
@@ -2850,7 +2886,7 @@ namespace folia {
     }
     vector<UnicodeString> parts;
     vector<UnicodeString> seps;
-    for ( const auto& child : _data ) {
+    for ( const auto* child : _data ) {
       // try to get text dynamically from children
       // skip PhonContent elements
       if ( tp.debug() ){
@@ -3355,6 +3391,22 @@ namespace folia {
     throw range_error( "[] index out of range" );
   }
 
+  FoliaElement* AbstractElement::opaque_index( size_t i ) const {
+    /// return the child at index i
+    /*!
+     * \param i the index
+     * \return the child at index i or highet skipping XmlComment
+     *
+     * Will throw when the index is out of range
+     */
+    if ( i < _data.size() ) {
+      while ( _data[i]->element_id() == XmlComment_t
+	      && ++i < _data.size() );
+      return _data[i];
+    }
+    throw range_error( "[] index out of range" );
+  }
+
   FoliaElement* AbstractElement::rindex( size_t ri ) const {
     /// return the child at reversed index ri
     /*!
@@ -3516,7 +3568,7 @@ namespace folia {
     }
 
     setAttributes( att );
-    xmlNode *p = node->children;
+    const xmlNode *p = node->children;
     while ( p ) {
       string pref;
       string ns = getNS( p, pref );
@@ -3582,7 +3634,7 @@ namespace folia {
       }
       else if ( p->type == XML_ENTITY_REF_NODE ){
 	string txt = TextValue( p );
-	XmlText *t = add_child<XmlText>( txt );
+	const XmlText *t = add_child<XmlText>( txt );
 	if ( doc() && doc()->debug > 2 ) {
 	  cerr << "created " << t << "(" << t->text() << ")" << endl;
 	  cerr << "extended " << this << " met " << t << endl;
@@ -3595,7 +3647,7 @@ namespace folia {
 	  // non empty text is allowed (or even required) here
 	  string txt = TextValue( p );
 	  if ( !txt.empty() ) {
-	    XmlText *t = add_child<XmlText>( txt );
+	    const XmlText *t = add_child<XmlText>( txt );
 	    if ( doc() && doc()->debug > 2 ) {
 	      cerr << "created " << t << "(" << t->text() << ")" << endl;
 	      cerr << "extended " << this << " met " << t << endl;
@@ -4093,7 +4145,7 @@ namespace folia {
 	    if ( !hooked ) {
 #ifdef DEBUG_CORRECT
 	      cerr << "it isn't hooked!" << endl;
-	      FoliaElement *tmp = replace( index(i), corr );
+	      const FoliaElement *tmp = replace( index(i), corr );
 	      cerr << " corr after replace " << corr->xmlstring() << endl;
 	      cerr << " replaced " << tmp << endl;
 #else
@@ -4169,7 +4221,7 @@ namespace folia {
 	      if ( !hooked ) {
 #ifdef DEBUG_CORRECT
 		cerr << "it isn't hooked!" << endl;
-		FoliaElement *tmp = replace( index(i), corr );
+		const FoliaElement *tmp = replace( index(i), corr );
 		cerr << " corr after replace " << corr << endl;
 		cerr << " replaced " << tmp << endl;
 #else
@@ -4190,7 +4242,7 @@ namespace folia {
 	      }
 	    }
 	  }
-	  // now we conect org to the new original node
+	  // now we connect org to the new original node
 	  org->set_parent( 0 );
 	  add->append( org );
 #ifdef DEBUG_CORRECT
@@ -4259,6 +4311,7 @@ namespace folia {
 	corr->confidence( stringTo<double>(it->second) );
       }
     }
+    corr->check_type_consistency();
     return corr;
   }
 

@@ -155,6 +155,7 @@ namespace folia {
     Speech* addSpeech( Speech *s ){ return dynamic_cast<Speech*>( append(s) ); };
 
     void set_foreign_metadata( xmlNode * );
+    void fixup_metadata();
     void addStyle( const std::string&, const std::string& );
     void replaceStyle( const std::string&, const std::string& );
     UnicodeString text( const std::string& = "current",
@@ -221,7 +222,7 @@ namespace folia {
 
     FoliaElement* parseXml( );
 
-    std::string id() const {
+    const std::string& id() const {
       /// return the Document id value
       return _id;
     };
@@ -406,7 +407,7 @@ namespace folia {
     void add_textclass( const std::string& tc ){
       _textclasses.insert( tc );
     }
-    const std::set<std::string> textclasses() const {
+    const std::set<std::string>& textclasses() const {
       return _textclasses;
     }
   private:
@@ -468,6 +469,7 @@ namespace folia {
     std::string _id;
     std::set<FoliaElement *> delSet;
     FoliaElement *foliadoc;
+    std::list<FoliaElement*> preludes;
     xmlDoc *_xmldoc;
     const xmlChar* _foliaNsIn_href;
     const xmlChar* _foliaNsIn_prefix;

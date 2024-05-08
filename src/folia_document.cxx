@@ -552,7 +552,8 @@ namespace folia {
 	int size = xmlNodeDump(buffer, ctx->myDoc, ctx->node, 0, 1 );
 	cerr << string( ctx->nodeNr*2, ' ') << buffer->content << endl;
 	xmlBufferFree( buffer );
-	if ( error->int2 != 0 ){
+	if ( size >=0
+	     && error->int2 != 0 ){
 	  cerr << string( std::min(error->int2,size), ' ') << "^" << endl;
 	}
       }
@@ -959,7 +960,7 @@ namespace folia {
 
   void Document::parse_imdi( const xmlNode *node ){
     /// set IMDI values. DEPRECATED
-    xmlNode *n = TiCC::xPath( node, "//imdi:Session/imdi:Title" );
+    const xmlNode *n = TiCC::xPath( node, "//imdi:Session/imdi:Title" );
     if ( n ){
       _metadata->add_av( "title", TiCC::XmlContent( n ) );
     }
@@ -1239,7 +1240,7 @@ namespace folia {
 	  _groupannotations[at_type][set_name] = false;
 	}
 	set<string> processors;
-	xmlNode *sub = n->children;
+	const xmlNode *sub = n->children;
 	while ( sub ){
 	  string subtag = TiCC::Name( sub );
 	  if ( debug ){
@@ -1293,7 +1294,7 @@ namespace folia {
       The data found will be appended to the Document
     */
     Provenance *result = new Provenance(this);
-    xmlNode *n = node->children;
+    const xmlNode *n = node->children;
     while ( n ){
       string tag = TiCC::Name( n );
       if ( tag == "processor" ){
@@ -1337,16 +1338,16 @@ namespace folia {
 	submetadata[my_id] = 0;
 	//	cerr << "set metadata to 0, id=" << my_id << endl;
       }
-      xmlNode *p = node->children;
+      const xmlNode *p = node->children;
       while ( p ){
 	if ( p->type == XML_ELEMENT_NODE ){
 	  if ( TiCC::Name(p) == "meta" &&
 	       checkNS( p, NSFOLIA ) ){
 	    if ( type == "native" ){
 	      string txt = TiCC::XmlContent( p );
-	      KWargs att = getAttributes( p );
-	      string sid = att["id"];
 	      if ( !txt.empty() ){
+		KWargs att = getAttributes( p );
+		string sid = att["id"];
 		submetadata[my_id]->add_av( sid, txt );
 		// cerr << "added node to id=" << my_id
 		//      << "(" << sid << "," << txt << ")" << endl;
@@ -1620,6 +1621,10 @@ namespace folia {
     }
   }
 
+  void Document::fixup_metadata(){
+    _metadata = new NativeMetaData( "native" );
+  }
+
   void Document::parse_metadata( const xmlNode *node ){
     /// parse metadata information from the XmlTree under node
     /*!
@@ -1649,7 +1654,7 @@ namespace folia {
       _foreign_metadata = new ForeignMetaData( type );
     }
     xmlNode *m = node->children;
-    xmlNode *a_node = 0;
+    const xmlNode *a_node = 0;
     while ( m ){
       if ( TiCC::Name(m)  == "METATRANSCRIPT" ){
 	if ( !checkNS( m, NSIMDI ) || type != "imdi" ){
@@ -1769,7 +1774,7 @@ namespace folia {
 
   void Document::parse_styles(){
     /// retrieve all style-sheets from the current XmlTree
-    xmlNode *pnt = _xmldoc->children;
+    const xmlNode *pnt = _xmldoc->children;
     while ( pnt ){
       // search for Processing Instructions, ignore all but stylesheet ones
       if ( pnt->type == XML_PI_NODE && TiCC::Name(pnt) == "xml-stylesheet" ){
@@ -1793,6 +1798,22 @@ namespace folia {
 	else {
 	  throw DocumentError( _source_name,
 			       "problem parsing line: " + content );
+	}
+      }
+      else if ( pnt->type == XML_COMMENT_NODE ) {
+	string xml_tag = "_XmlComment";
+	FoliaElement *t = AbstractElement::createElement( xml_tag, this );
+	if ( t ) {
+	  if ( debug > 2 ) {
+	    cerr << "created " << t << endl;
+	  }
+	  t = t->parseXml( pnt );
+	  if ( t ) {
+	    if ( debug > 2 ) {
+	      cerr << "extend " << this << " met " << t << endl;
+	    }
+	    preludes.push_back(t);
+	  }
 	}
       }
       pnt = pnt->next;
@@ -2091,7 +2112,7 @@ namespace folia {
     /// resolve an alias for a setname to the full setname
     /*!
       \param type the AnnotationType
-      \param alias the alias to resolve
+      \param my_alias the alias to resolve
       \return the setname belonging to alias for this type, or alias if not
       found
     */
@@ -2472,12 +2493,13 @@ namespace folia {
 			   "cannot append a root element to a Document. Already there." );
     }
     if ( t->element_id() == Text_t
+	 || t->element_id() == XmlComment_t
 	 || t->element_id() == Speech_t ) {
       foliadoc->append( t );
       return t;
     }
     throw DocumentError( _source_name,
-			 "Only can append 'text' or 'speech' as root of a Document." );
+			 "Only can append 'text' or 'speech' as root of a Document. (attempted=" + t->xmltag() );
   }
 
   void Document::incrRef( AnnotationType type,
@@ -2903,7 +2925,8 @@ namespace folia {
 						   "annotations" ) );
     if ( canonical() ){
       // _anno_sort contains type:setname pair ordered on appearance
-      map<AnnotationType, pair<AnnotationType,string>> ordered;
+      multimap<AnnotationType,
+	       pair<AnnotationType,string>> ordered;
       for ( const auto& pair : _anno_sort ){
 	// this sorts the _anno_sort entries on AnnotationType
 	ordered.insert(make_pair(pair.first,pair));
@@ -3009,7 +3032,7 @@ namespace folia {
       addAttributes( m, args );
       xmlAddChild( m, xmlNewText( to_xmlChar(it.second) ) );
     }
-    for ( const auto& s : p->_processors ){
+    for ( const auto* s : p->_processors ){
       append_processor( pr, s );
     }
   }
@@ -3026,7 +3049,7 @@ namespace folia {
     xmlNode *node = xmlAddChild( metadata,
 				 TiCC::XmlNewNode( foliaNs(),
 						   "provenance" ) );
-    for ( const auto& p : _provenance->processors ){
+    for ( const auto* p : _provenance->processors ){
       append_processor( node, p );
     }
   }
@@ -3062,7 +3085,7 @@ namespace folia {
 	addAttributes( sm, args );
       }
       else if ( md->datatype() == "ForeignMetaData" ){
-	for ( const auto& foreign : md->get_foreigners() ) {
+	for ( const auto* foreign : md->get_foreigners() ) {
 	  xmlNode *f = foreign->xml( true, false );
 	  xmlAddChild( sm, f );
 	}
@@ -3102,7 +3125,7 @@ namespace folia {
 	atts["type"] = _foreign_metadata->type();
 	addAttributes( node, atts );
       }
-      for ( const auto& foreign : _foreign_metadata->get_foreigners() ) {
+      for ( const auto* foreign : _foreign_metadata->get_foreigners() ) {
 	xmlNode *f = foreign->xml( true, false );
 	xmlAddChild( node, f );
       }
@@ -3137,6 +3160,10 @@ namespace folia {
     */
     xmlDoc *outDoc = xmlNewDoc( to_xmlChar("1.0") );
     add_styles( outDoc );
+    for ( const auto* pr: preludes ){
+      xmlAddChild( reinterpret_cast<xmlNode*>(outDoc),
+		   pr->xml( true, canonical() ) );
+    }
     xmlNode *root = xmlNewDocNode( outDoc,
 				   0,
 				   to_xmlChar("FoLiA"),

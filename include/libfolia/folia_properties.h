@@ -79,7 +79,7 @@ namespace folia {
   extern const std::map<std::string,std::string> oldtags;
   extern std::map<std::string,std::string> reverse_old;
   extern std::map<ElementType,properties*> element_props;
-
+  extern std::map<ElementType,ElementType> abstract_parents;
   extern const std::set<ElementType> default_ignore;
   extern const std::set<ElementType> default_ignore_annotations;
   extern const std::set<ElementType> default_ignore_structure;

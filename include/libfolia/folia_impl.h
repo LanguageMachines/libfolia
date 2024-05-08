@@ -103,6 +103,7 @@ namespace folia {
     virtual void init() {};
     virtual size_t size() const = 0;
     virtual FoliaElement* index( size_t ) const = 0;
+    virtual FoliaElement* opaque_index( size_t ) const = 0;
     virtual FoliaElement* rindex( size_t ) const = 0;
     FoliaElement* operator[]( size_t i ) const {
       return index(i);
@@ -526,7 +527,7 @@ namespace folia {
     }
 
     virtual const std::string content() const NOT_IMPLEMENTED;
-    virtual const std::string src() const NOT_IMPLEMENTED;
+    virtual const std::string& src() const NOT_IMPLEMENTED;
     virtual const UnicodeString caption() const NOT_IMPLEMENTED;
     virtual std::vector<FoliaElement *> resolve() const NOT_IMPLEMENTED;
     virtual const FoliaElement* resolveid() const NOT_IMPLEMENTED;
@@ -590,6 +591,7 @@ namespace folia {
     //functions regarding contained data
     size_t size() const override { return _data.size(); };
     FoliaElement* index( size_t ) const override;
+    FoliaElement* opaque_index( size_t ) const override;
     FoliaElement* rindex( size_t ) const override;
 
     bool isinstance( ElementType et ) const override {
@@ -763,7 +765,7 @@ namespace folia {
     void set_confidence( double d ) override { _confidence = d; };
 
     const std::string language( const std::string& = "" ) const override;
-    const std::string src() const override { return _src; };
+    const std::string& src() const override { return _src; };
     // generic properties
     ElementType element_id() const override;
     size_t occurrences() const override;
@@ -1010,6 +1012,8 @@ namespace folia {
   UnicodeString postprocess_spaces( const UnicodeString& in );
   std::string tagToAtt( const FoliaElement* );
   void destroy( FoliaElement *el );
+  ElementType get_abstract_parent( const ElementType et );
+  ElementType get_abstract_parent( const folia::FoliaElement * );
 
 } // namespace folia
 

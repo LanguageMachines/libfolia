@@ -35,7 +35,9 @@ protected:							\
  explicit CLASS( const properties& props, Document *d=0 ):	\
    BASE( props, d ){ classInit(); };				\
  CLASS( const properties& props, FoliaElement *p ):		\
-   BASE( props, p ){ classInit(); }
+   BASE( props, p ){ classInit(); };				\
+ CLASS( const CLASS& ) = delete;				\
+ CLASS& operator=( const CLASS& ) = delete
 
 #define ADD_PROTECTED_CONSTRUCTORS_INIT( CLASS, BASE, INIT )	\
   friend void static_init();					\
@@ -43,12 +45,15 @@ protected:							\
  explicit CLASS( const properties& props, Document *d=0 ):	\
    BASE( props, d ), INIT { classInit(); };			\
  CLASS( const properties& props, FoliaElement *p ):		\
-   BASE( props, p ), INIT { classInit(); }
+   BASE( props, p ), INIT { classInit(); };			\
+ CLASS( const CLASS& ) = delete;				\
+ CLASS& operator=( const CLASS& ) = delete
+
 
 #define ADD_DEFAULT_CONSTRUCTORS( CLASS, BASE )		\
   friend void static_init();				\
 protected:						\
- ~CLASS() {};						\
+ ~CLASS() override {};						\
 public:							\
  explicit CLASS( const KWargs& a, Document *d=0 ):	\
    BASE( PROPS, d ){ classInit(a); };			\
@@ -60,21 +65,20 @@ public:							\
    BASE( PROPS, p ){ classInit(); }			\
  static properties PROPS
 
-
-#define ADD_DEFAULT_CONSTRUCTORS_INIT( CLASS, BASE, INIT )	\
- friend void static_init();					\
-protected:							\
- ~CLASS() {};							\
-public:								\
- explicit CLASS( const KWargs& a, Document *d=0 ):		\
-   BASE( PROPS, d ), INIT { classInit(a); };			\
- explicit CLASS( Document *d=0 ):				\
-   BASE( PROPS, d ), INIT { classInit(); };			\
- CLASS( const KWargs& a, FoliaElement *p ):			\
-   BASE( PROPS, p ), INIT { classInit(a); };			\
- explicit CLASS( FoliaElement *p ):				\
-   BASE( PROPS, p ), INIT { classInit(); }			\
-   static properties PROPS
+#define ADD_DEFAULT_CONSTRUCTORS_INIT( CLASS, BASE, INIT )		\
+  friend void static_init();						\
+protected:								\
+ ~CLASS() override {};							\
+public:									\
+ explicit CLASS( const KWargs& a, Document *d=0 ):			\
+   BASE( PROPS, d ), INIT { classInit(a); };				\
+ explicit CLASS( Document *d=0 ):					\
+   BASE( PROPS, d ), INIT { classInit(); };				\
+ CLASS( const KWargs& a, FoliaElement *p ):				\
+   BASE( PROPS, p ), INIT { classInit(a); };				\
+ explicit CLASS( FoliaElement *p ):					\
+   BASE( PROPS, p ), INIT { classInit(); };				\
+ static properties PROPS
 
  class AbstractStructureElement:
     public AbstractElement,
@@ -258,7 +262,7 @@ public:								\
     KWargs collectAttributes() const override;
     FoliaElement *get_reference( int&, bool=true ) const;
     int offset() const override { return _offset; };
-    std::string ref() const { return _ref; };
+    const std::string& ref() const { return _ref; };
   private:
     void init() override;
     virtual FoliaElement *find_default_reference() const = 0;
@@ -717,9 +721,10 @@ public:								\
 
     KWargs collectAttributes() const override;
     void setAttributes( KWargs& ) override;
-    const std::string refid() const { return ref_id; };
-    const std::string type() const { return ref_type; };
-    const std::string t() const { return _t; };
+    const std::string& refid() const { return ref_id; };
+    const std::string& type() const { return ref_type; };
+    const std::string& t() const { return _t; };
+
   private:
     FoliaElement* parseXml( const xmlNode *node ) override;
     FoliaElement *resolve_element( const Relation *ref ) const;
@@ -906,7 +911,7 @@ public:								\
   public:
     ADD_DEFAULT_CONSTRUCTORS( Comment, AbstractElement );
 
-    const std::string comment() const { return _value; };
+    const std::string& comment() const { return _value; };
     void setAttributes( KWargs& ) override;
     FoliaElement* parseXml( const xmlNode * ) override;
     xmlNode *xml( bool, bool=false ) const override;
@@ -934,7 +939,7 @@ public:								\
     ADD_DEFAULT_CONSTRUCTORS( ProcessingInstruction, AbstractElement );
     FoliaElement* parseXml( const xmlNode * ) override;
     xmlNode *xml( bool, bool=false ) const override;
-    const std::string target() const { return _target; };
+    const std::string& target() const { return _target; };
     const std::string content() const override { return _content; };
   private:
     const UnicodeString private_text( const TextPolicy& ) const override {
@@ -1016,6 +1021,9 @@ public:								\
   class Correction: public AbstractInlineAnnotation {
   public:
     ADD_DEFAULT_CONSTRUCTORS( Correction, AbstractInlineAnnotation );
+    FoliaElement *parseXml( const xmlNode * ) override;
+    bool addable( const FoliaElement * ) const override;
+    void check_type_consistency() const;
     bool hasNew() const;
     bool hasOriginal() const;
     bool hasCurrent() const;
@@ -1152,7 +1160,7 @@ public:								\
     {
       classInit();
     }
-    ~ForeignData();
+    ~ForeignData() override;
     FoliaElement* parseXml( const xmlNode * ) override;
     xmlNode *xml( bool, bool=false ) const override;
     void set_data( const xmlNode * );

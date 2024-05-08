@@ -1,6 +1,6 @@
 ACLOCAL_AMFLAGS = -I m4 --install
 
-SUBDIRS = src include m4
+SUBDIRS = src include docs m4
 
 EXTRA_DIST = bootstrap.sh AUTHORS TODO NEWS README.md folia.pc.in codemeta.json
 

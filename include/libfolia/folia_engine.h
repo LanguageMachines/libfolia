@@ -62,9 +62,7 @@ namespace folia {
 		   SPEECH //!< the topnode is \<speech>
     };
     Engine(); //!< default constructor. needs a call to init_doc() to get started
-    // cppcheck-suppress noExplicitConstructor
-    // We want to be able to use const char parameters AND string
-    Engine( const std::string& i, const std::string& o="" ):
+    explicit Engine( const std::string& i, const std::string& o="" ):
       Engine() {
       /// construct and initialize an engine.
       /*!
@@ -139,9 +137,7 @@ namespace folia {
 		  _is_setup(false)
     {
     };
-    // cppcheck-suppress noExplicitConstructor
-    // We want to be able to use const char parameters AND string
-    TextEngine( const std::string& i, const std::string& o="" ):
+    explicit TextEngine( const std::string& i, const std::string& o="" ):
       TextEngine(){
       /// construct a TextEngine
       /*!

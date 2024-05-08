@@ -1,8 +1,13 @@
 name: Delete old workflow runs
 on:
   schedule:
+<<<<<<< HEAD
     - cron: '0 15 14 * *'
 # Run monthly, at 15:00 on the 14t day of month. (testing)
+=======
+    - cron: '0 20 23 * *'
+# Run monthly, at 20:00 on the 23th day of month.
+>>>>>>> master
 
 jobs:
   del_runs:
