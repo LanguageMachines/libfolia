@@ -32,7 +32,7 @@
 #include "libfolia/folia_properties.h"
 
 //foliaspec:header
-//This file was last updated according to the FoLiA specification for version 2.5.3 on 2024-03-27 15:47:30, using foliaspec.py
+//This file was last updated according to the FoLiA specification for version 2.5.4 on 2024-05-08 16:28:06, using foliaspec.py
 //Code blocks after a foliaspec comment (until the next newline) are automatically generated. **DO NOT EDIT THOSE** and **DO NOT REMOVE ANY FOLIASPEC COMMENTS** !!!
 
 namespace folia {
@@ -329,7 +329,6 @@ namespace folia {
     { Word_t,  "w" },
     { WordReference_t,  "wref" },
     { XmlComment_t, "_XmlComment" },
-    { ProcessingInstruction_t, "PI" },
     { XmlText_t, "_XmlText" }
   };
 
@@ -468,7 +467,6 @@ namespace folia {
     { "w", Word_t  },
     { "wref", WordReference_t  },
     { "_XmlComment", XmlComment_t  },
-    { "PI", ProcessingInstruction_t  },
     { "_XmlText", XmlText_t  }
   };
 
@@ -2157,7 +2155,6 @@ namespace folia {
       //Default properties which all elements inherit
       ELEMENT_ID = BASE;
       ACCEPTED_DATA.insert(XmlComment_t);
-      ACCEPTED_DATA.insert(ProcessingInstruction_t);
       ACCEPTED_DATA += {Description_t, Comment_t};
       ANNOTATIONTYPE = AnnotationType::NO_ANN;
       AUTH = true;
