@@ -329,6 +329,7 @@ namespace folia {
     { Word_t,  "w" },
     { WordReference_t,  "wref" },
     { XmlComment_t, "_XmlComment" },
+    { ProcessingInstruction_t, "PI" },
     { XmlText_t, "_XmlText" }
   };
 
@@ -467,6 +468,7 @@ namespace folia {
     { "w", Word_t  },
     { "wref", WordReference_t  },
     { "_XmlComment", XmlComment_t  },
+    { "PI", ProcessingInstruction_t  },
     { "_XmlText", XmlText_t  }
   };
 
@@ -2155,6 +2157,7 @@ namespace folia {
       //Default properties which all elements inherit
       ELEMENT_ID = BASE;
       ACCEPTED_DATA.insert(XmlComment_t);
+      ACCEPTED_DATA.insert(ProcessingInstruction_t);
       ACCEPTED_DATA += {Description_t, Comment_t};
       ANNOTATIONTYPE = AnnotationType::NO_ANN;
       AUTH = true;
