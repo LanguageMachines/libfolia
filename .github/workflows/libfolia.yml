@@ -79,7 +79,6 @@ jobs:
       - name: Configure CppCheck
         run: |
              if [ "$RUNNER_OS" == "Linux" ]; then
-<<<<<<< HEAD
                 cpc_opts="--enable=all --inline-suppr --force \
                          -I include -I /usr/local/include \
                          --quiet --error-exitcode=0"
@@ -89,11 +88,6 @@ jobs:
                           -I /usr/local/opt/libxml2/include \
                           --suppress=missingIncludeSystem \
                           --quiet --error-exitcode=0"
-=======
-                cpc_opts="--enable=warning,style --inline-suppr --force -I include -I /usr/local/include --quiet --error-exitcode=0"
-             else
-                cpc_opts="--enable=warning,style --inline-suppr --force -I include --check-level=exhaustive --quiet --error-exitcode=0"
->>>>>>> master
              fi
              echo "cpc_opts=$cpc_opts" >> $GITHUB_ENV
       - name: install TiccUtils
