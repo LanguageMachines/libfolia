@@ -77,7 +77,7 @@ namespace folia {
   public:
 
   explicit ForeignMetaData( const std::string& t ): MetaData(t) {};
-    ~ForeignMetaData();
+    ~ForeignMetaData() override;
     void add_foreign( const xmlNode * ) override;
     std::string datatype() const override { return "ForeignMetaData"; };
     const std::vector<FoliaElement*> get_foreigners() const override {

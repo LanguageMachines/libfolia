@@ -582,7 +582,7 @@ namespace folia {
   protected:
     explicit AbstractElement( const properties& p, Document* = 0 );
     AbstractElement( const properties& p, FoliaElement * );
-    virtual ~AbstractElement();
+    virtual ~AbstractElement() override;
   public:
     void destroy() override;
     void classInit();

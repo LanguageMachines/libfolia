@@ -4380,7 +4380,7 @@ namespace folia {
      * it check the subset and collects the matching ones
      */
     vector<string> result;
-    for ( const auto& el : data() ) {
+    for ( const auto *el : data() ) {
       if ( el->isSubClass( AbstractFeature_t ) &&
 	   el->subset() == s ) {
 	result.push_back( el->cls() );

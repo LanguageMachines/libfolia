@@ -84,8 +84,8 @@ jobs:
                          --quiet --error-exitcode=0"
              else
                 cpc_opts="--enable=all --inline-suppr --force \
-                          -I include -I /usr/local/include/ticcutils \
-                          -I /usr/local/opt/libxml2/include \
+                          --check-level=exhaustive \
+                          --suppress=missingInclude \
                           --suppress=missingIncludeSystem \
                           --quiet --error-exitcode=0"
              fi
