@@ -103,12 +103,25 @@ namespace folia {
 
   //#define PROC_DEBUG
 
+  string filter_non_NC( const string& name ){
+    string out;
+    for ( auto const& c : name ){
+      if ( c == ' ' ){
+	out += "_";
+      }
+      else {
+	out += c;
+      }
+    }
+    return out;
+  }
+
   string processor::generate_id( Provenance *prov,
-				 const string& name ){
+				 const string& in_name ){
     /// generate an processor id
     /*!
       \param prov the provenance data context
-      \param name use this name as base for the id
+      \param in_name use this name as base for the id
       \return the new id
 
       First we lookup \em name in the Provenance \em prov. If it is found
@@ -118,7 +131,9 @@ namespace folia {
       Some care is taken to make sure NO existing id is generated, when this
       would happen we add extra '_' characters to name
     */
+
     string new_id;
+    string name = filter_non_NC(in_name);
     auto it = prov->_names.find(name);
     if ( it == prov->_names.end() ){
 #ifdef PROC_DEBUG

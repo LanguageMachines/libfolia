@@ -559,6 +559,8 @@ namespace folia {
     virtual void resetrefcount() = 0;
     virtual void setAttributes( KWargs& ) = 0;
     virtual void set_processor( const std::string& ) = 0;
+    virtual void annotator2processor( const std::string&,
+				      const std::string& ) = 0;
     virtual KWargs collectAttributes() const = 0;
     virtual void setAuth( bool b ) = 0;
     virtual bool auth( ) const = 0;
@@ -816,6 +818,9 @@ namespace folia {
   protected:
     xmlNode *xml( bool, bool = false ) const override;
     void set_processor( const std::string& ) override;
+    void annotator2processor( const std::string&,
+			      const std::string& ) override;
+
     void setAttributes( KWargs& ) override;
     KWargs collectAttributes() const override;
     xmlNs *foliaNs() const;

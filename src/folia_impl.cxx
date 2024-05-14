@@ -518,7 +518,7 @@ namespace folia {
   }
 
   void AbstractElement::set_processor( const string& val ){
-    if ( doc() && doc()->debug > 2 ) {
+    if ( doc() && doc()->debug > 2 ){
       cerr << "set processor= " << val << " on " << classname() << endl;
     }
     if ( annotation_type() == AnnotationType::NO_ANN ){
@@ -531,28 +531,74 @@ namespace folia {
       if ( doc() && doc()->get_processor(val) == 0 ){
 	throw ValueError("attribute 'processor' has unknown value: " + val );
       }
-      if ( doc()
-	   && !doc()->declared( annotation_type(), _set ) ){
-	cerr << "version_below: " << std::to_string(doc()->version_below( 2, 0 )) << endl;
-	cerr << "autodeclare= " << std::to_string(doc()->autodeclare()) << endl;
-	if (	!doc()->version_below( 2, 0 )
-		&& doc()->autodeclare() ) {
-	  KWargs args;
-	  args["processor"] = val;
-	  args["annotatortype"] = _annotator_type;
-	  doc()->declare( annotation_type(), _set, args );
+      if ( doc() ){
+	auto annotators = doc()->get_annotators( annotation_type(), _set );
+	bool found = false;
+	for ( const auto& a : annotators ){
+	  if ( a == val ) {
+	    found = true;
+	  }
 	}
-	else {
-	  throw DeclarationError( "Processor '" + val
-				  + "' is used for annotationtype '"
-				  + toString( annotation_type() )
-				  + "' with set='" + _set +"'"
-				  + " but there is no corresponding <annotator>"
-				  + " referring to it in the annotation"
-				  + " declaration block." );
+	if ( !found ){
+	  if ( !doc()->version_below( 2, 0 )
+	       && doc()->autodeclare() ) {
+	    KWargs args;
+	    args["processor"] = val;
+	    args["annotatortype"] = _annotator_type;
+	    doc()->declare( annotation_type(), _set, args );
+	  }
+	  else {
+	    throw DeclarationError( "Processor '" + val
+				    + "' is used for annotationtype '"
+				    + toString( annotation_type() )
+				    + "' with set='" + _set +"'"
+				    + " but there is no corresponding <annotator>"
+				    + " referring to it in the annotation"
+				    + " declaration block." );
+	  }
 	}
       }
       _processor = val;
+    }
+  }
+
+  void AbstractElement::annotator2processor( const string& annotator,
+					     const string& an_type ){
+    Provenance *prov = doc()->provenance();
+    folia::processor *par = doc()->get_default_processor();
+    if ( !par ){
+      if ( prov ) {
+	par = prov->get_top_processor();
+      }
+      else {
+	prov = new Provenance( doc() );
+	//	cerr << "created new Provenance: " << prov << endl;
+      }
+    }
+    AnnotatorType at = AUTO;
+    if ( !an_type.empty() ){
+      at = stringTo<AnnotatorType>( an_type );
+    }
+    auto procs = doc()->get_processors( annotation_type(), _set );
+    if ( procs.empty() ) {
+      KWargs args;
+      args["name"] = annotator;
+      args["annotatortype"] = an_type;
+      args["generate_id"] = "auto()";
+      folia::processor *new_p = new folia::processor( prov, par, args );
+      set_processor( new_p->name() );
+      //      cerr << "created new processor: " << new_p << endl;
+    }
+    else {
+      const folia::processor *found=0;
+      for ( const auto& p : procs ){
+	if ( p->annotator() == annotator
+	     && p->annotatortype() == at ){
+	  found = p;
+	  break;
+	}
+      }
+      set_processor( found->name() );
     }
   }
 
@@ -713,6 +759,35 @@ namespace folia {
       }
     }
 
+    val = kwargs.extract( "processor" );
+    if ( !val.empty() ){
+      if ( !(ANNOTATOR & supported) ){
+	throw ValueError( "attribute 'processor' is not supported for " + classname() );
+      }
+      set_processor( val );
+    }
+    else if ( (ANNOTATOR & supported) && doc() ){
+      string def;
+      try {
+	def = doc()->default_processor( annotation_type(), _set );
+      }
+      catch ( const NoDefaultError& e ){
+	if ( doc()->is_incremental() ){
+	  // when there is NO default processor, AND we are parsing using
+	  // folia::Engine, we must check if there WAS a processor originally
+	  // which is 'obscured' by newly added declarations
+	  def = doc()->original_default_processor( annotation_type() );
+	  if ( doc()->debug > 2 ) {
+	    cerr << "from original got default processor='" <<  def << "'" << endl;
+	  }
+	}
+	else {
+	  throw;
+	}
+      }
+      _processor = def;
+    }
+
     _annotator.clear();
     val = kwargs.extract( "annotator" );
     if ( !val.empty() ) {
@@ -720,7 +795,23 @@ namespace folia {
 	throw ValueError("attribute 'annotator' is not supported for " + classname() );
       }
       else {
-	_annotator = val;
+	if ( !_processor.empty()
+	     && val != doc()->get_processor(_processor)->name() ){
+	  if ( doc() && doc()->autodeclare() ){
+	    annotator2processor( val,
+				 kwargs.lookup( "annotatortype" ) );
+	  }
+	  else {
+	    throw DeclarationError( "Autodeclarations are disabled but an "
+				    "annotator (" + val + ") was specified "
+				    "that differs from the one in the declared "
+				    "processor for this annotation type: "
+				    + toString(annotation_type()) );
+	  }
+	}
+	else {
+	  _annotator = val;
+	}
       }
     }
     else {
@@ -754,34 +845,6 @@ namespace folia {
       }
     }
 
-    val = kwargs.extract( "processor" );
-    if ( !val.empty() ){
-      if ( !(ANNOTATOR & supported) ){
-	throw ValueError( "attribute 'processor' is not supported for " + classname() );
-      }
-      set_processor( val );
-    }
-    else if ( (ANNOTATOR & supported) && doc() ){
-      string def;
-      try {
-	def = doc()->default_processor( annotation_type(), _set );
-      }
-      catch ( const NoDefaultError& e ){
-	if ( doc()->is_incremental() ){
-	  // when there is NO default processor, AND we are parsing using
-	  // folia::Engine, we must check if there WAS a processor originally
-	  // which is 'obscured' by newly added declarations
-	  def = doc()->original_default_processor( annotation_type() );
-	  if ( doc()->debug > 2 ) {
-	    cerr << "from original got default processor='" <<  def << "'" << endl;
-	  }
-	}
-	else {
-	  throw;
-	}
-      }
-      _processor = def;
-    }
     _confidence = -1;
     val = kwargs.extract( "confidence" );
     if ( !val.empty() ) {
