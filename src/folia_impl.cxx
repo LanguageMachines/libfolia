@@ -517,9 +517,9 @@ namespace folia {
     }
   }
 
-  void AbstractElement::set_processor_id( const string& val ){
+  void AbstractElement::set_processor_name( const string& val ){
     if ( doc() && doc()->debug > 2 ){
-      cerr << "set processor_id= " << val << " on " << classname() << endl;
+      cerr << "set processor_name= " << val << " on " << classname() << endl;
     }
     if ( annotation_type() == AnnotationType::NO_ANN ){
       throw ValueError( "Unable to set processor on " + classname() + ". AnnotationType is None!" );
@@ -586,7 +586,7 @@ namespace folia {
       args["annotatortype"] = an_type;
       args["generate_id"] = "auto()";
       folia::processor *new_p = new folia::processor( prov, par, args );
-      set_processor_id( new_p->name() );
+      set_processor_name( new_p->name() );
       //      cerr << "created new processor: " << new_p << endl;
     }
     else {
@@ -598,7 +598,7 @@ namespace folia {
 	  break;
 	}
       }
-      set_processor_id( found->name() );
+      set_processor_name( found->name() );
     }
   }
 
@@ -764,7 +764,7 @@ namespace folia {
       if ( !(ANNOTATOR & supported) ){
 	throw ValueError( "attribute 'processor' is not supported for " + classname() );
       }
-      set_processor_id( val );
+      set_processor_name( val );
     }
     else if ( (ANNOTATOR & supported) && doc() ){
       string def;
