@@ -986,7 +986,7 @@ namespace folia {
 	// this to avoid conflicts with the "head" tag!
 	f_tag = "headfeature";
       }
-      if ( AttributeFeatures.find( f_tag ) == AttributeFeatures.end() ) {
+      if ( !isAttributeFeature(f_tag) ){
 	string message = "unsupported attribute: " + f_tag + "='" + it.second
 	  + "' for node with tag '" + classname() + "'";
 	if ( f_tag == "id" ){
