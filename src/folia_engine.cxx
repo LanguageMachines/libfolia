@@ -1418,14 +1418,15 @@ namespace folia {
 	  _external_node = handle_match( local_name, new_depth );
 	  int skips = count_nodes( _external_node );
 	  // we are to output a tree of skips nodes
+	  if ( _debug ){
+	    DBG << " increment _node_count=" << _node_count << " with: "
+		<< skips << " to " << _node_count + skips << " searching for: "
+		<< _next_text_node << " which gives node: "
+		<< text_parent_map[_next_text_node] << endl;
+	  }
 	  _node_count += skips; // so next time we resume with this count
 	  _next_text_node = text_parent_map[_next_text_node];
 	  // and we have to search for _next_text_node
-	  if ( _debug ){
-	    DBG << " increment _node_count with: " << skips << " to "
-		<< _node_count << " searching for: "
-		<< _next_text_node << endl;
-	  }
 	  return _external_node;
 	}
 	else if ( local_name == "t"
