@@ -517,9 +517,9 @@ namespace folia {
     }
   }
 
-  void AbstractElement::set_processor( const string& val ){
+  void AbstractElement::set_processor_id( const string& val ){
     if ( doc() && doc()->debug > 2 ){
-      cerr << "set processor= " << val << " on " << classname() << endl;
+      cerr << "set processor_id= " << val << " on " << classname() << endl;
     }
     if ( annotation_type() == AnnotationType::NO_ANN ){
       throw ValueError( "Unable to set processor on " + classname() + ". AnnotationType is None!" );
@@ -558,7 +558,7 @@ namespace folia {
 	  }
 	}
       }
-      _processor = val;
+      _processor_id = val;
     }
   }
 
@@ -586,7 +586,7 @@ namespace folia {
       args["annotatortype"] = an_type;
       args["generate_id"] = "auto()";
       folia::processor *new_p = new folia::processor( prov, par, args );
-      set_processor( new_p->name() );
+      set_processor_id( new_p->name() );
       //      cerr << "created new processor: " << new_p << endl;
     }
     else {
@@ -598,7 +598,7 @@ namespace folia {
 	  break;
 	}
       }
-      set_processor( found->name() );
+      set_processor_id( found->name() );
     }
   }
 
@@ -764,7 +764,7 @@ namespace folia {
       if ( !(ANNOTATOR & supported) ){
 	throw ValueError( "attribute 'processor' is not supported for " + classname() );
       }
-      set_processor( val );
+      set_processor_id( val );
     }
     else if ( (ANNOTATOR & supported) && doc() ){
       string def;
@@ -785,7 +785,7 @@ namespace folia {
 	  throw;
 	}
       }
-      _processor = def;
+      _processor_id = def;
     }
 
     _annotator.clear();
@@ -795,8 +795,8 @@ namespace folia {
 	throw ValueError("attribute 'annotator' is not supported for " + classname() );
       }
       else {
-	if ( !_processor.empty()
-	     && val != doc()->get_processor(_processor)->name() ){
+	if ( !_processor_id.empty()
+	     && val != doc()->get_processor(_processor_id)->name() ){
 	  if ( doc() && doc()->autodeclare() ){
 	    annotator2processor( val,
 				 kwargs.lookup( "annotatortype" ) );
@@ -1214,7 +1214,7 @@ namespace folia {
       if ( !_class.empty() ) {
 	attribs["class"] = _class;
       }
-      if ( !_processor.empty() ){
+      if ( !_processor_id.empty() ){
 	string tmp;
 	try {
 	  tmp = doc()->default_processor( annotation_type(), _set );
@@ -1227,8 +1227,8 @@ namespace folia {
 	catch ( ... ){
 	  throw;
 	}
-	if ( tmp != _processor ){
-	  attribs["processor"] = _processor;
+	if ( tmp != _processor_id ){
+	  attribs["processor"] = _processor_id;
 	}
       }
       else {

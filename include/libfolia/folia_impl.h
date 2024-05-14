@@ -254,11 +254,11 @@ namespace folia {
     // annotations
 
     virtual bool allowannotations() const { return false; };
-    virtual const std::string annotator( ) const = 0;
+    virtual const std::string& annotator( ) const = 0;
     virtual void annotator( const std::string& ) = 0;
     virtual AnnotatorType annotatortype() const = 0;
-    virtual const std::string processor() const = 0;
-    virtual void processor( const std::string& ) = 0;
+    virtual const std::string& processor_id() const = 0;
+    virtual void processor_id( const std::string& ) = 0;
     virtual void annotatortype( AnnotatorType t ) =  0;
     virtual AnnotationType annotation_type() const = 0;
     virtual PosAnnotation *addPosAnnotation( const KWargs& ) NOT_IMPLEMENTED;
@@ -457,18 +457,18 @@ namespace folia {
     virtual const std::string getDateTime() const = 0;
     virtual const std::string pos( const std::string& = "" ) const NOT_IMPLEMENTED;
     virtual const std::string lemma( const std::string& = "" ) const NOT_IMPLEMENTED;
-    virtual const std::string cls() const = 0;
+    virtual const std::string& cls() const = 0;
     virtual void set_cls( const std::string& ) = 0;
-    virtual const std::string sett() const = 0;
+    virtual const std::string& sett() const = 0;
     virtual void set_set( const std::string& ) = 0;
-    virtual const std::string n() const = 0;
+    virtual const std::string& n() const = 0;
     virtual void set_n( const std::string& ) = 0;
-    virtual const std::string tag() const = 0;
+    virtual const std::string& tag() const = 0;
     virtual const std::string set_tag( const std::string& ) = 0;
-    virtual const std::string id() const = 0;
-    virtual const std::string begintime() const = 0;
+    virtual const std::string& id() const = 0;
+    virtual const std::string& begintime() const = 0;
     virtual void set_begintime( const std::string& ) = 0;
-    virtual const std::string endtime() const = 0;
+    virtual const std::string& endtime() const = 0;
     virtual void set_endtime( const std::string& ) = 0;
     virtual const std::string speech_src() const = 0;
     virtual void set_speech_src( const std::string& ) = 0;
@@ -558,7 +558,7 @@ namespace folia {
     virtual void decrefcount() = 0;
     virtual void resetrefcount() = 0;
     virtual void setAttributes( KWargs& ) = 0;
-    virtual void set_processor( const std::string& ) = 0;
+    virtual void set_processor_id( const std::string& ) = 0;
     virtual void annotator2processor( const std::string&,
 				      const std::string& ) = 0;
     virtual KWargs collectAttributes() const = 0;
@@ -567,7 +567,7 @@ namespace folia {
     virtual bool xlink() const = 0;
     virtual const std::string href() const NOT_IMPLEMENTED;
     virtual const std::string generateId( const std::string& ) NOT_IMPLEMENTED;
-    virtual const std::string textclass() const NOT_IMPLEMENTED;
+    virtual const std::string& textclass() const NOT_IMPLEMENTED;
     virtual void unravel( std::set<FoliaElement*>& ) NOT_IMPLEMENTED;
     static FoliaElement *private_createElement( ElementType );
   public:
@@ -657,10 +657,10 @@ namespace folia {
       return FoliaElement::select<F>( exclude, recurse );
     }
 
-    const std::string annotator( ) const override { return _annotator; };
+    const std::string& annotator( ) const override { return _annotator; };
     void annotator( const std::string& a ) override { _annotator = a; };
-    const std::string processor( ) const override { return _processor; };
-    void processor( const std::string& p ) override { _processor = p; };
+    const std::string& processor_id( ) const override { return _processor_id; };
+    void processor_id( const std::string& p ) override { _processor_id = p; };
     AnnotatorType annotatortype() const override { return _annotator_type; };
     void annotatortype( AnnotatorType t ) override { _annotator_type =  t; };
 
@@ -725,30 +725,30 @@ namespace folia {
     const std::string& get_delimiter( const TextPolicy& ) const override;
 
     // attributes
-    const std::string cls() const override { return _class; };
+    const std::string& cls() const override { return _class; };
     void set_cls( const std::string& cls ) override { _class = cls; };
     void update_cls( const std::string& c ){ set_cls( c ); } // deprecated
 
-    const std::string sett() const override { return _set; };
+    const std::string& sett() const override { return _set; };
     void set_set( const std::string& st ) override { _set = st; };
 
-    const std::string tag() const override { return _tags; };
+    const std::string& tag() const override { return _tags; };
     const std::string set_tag( const std::string&  ) override;
     const std::string settag( const std::string& t ){
       return set_tag(t); };                              //deprecated
 
-    const std::string n() const override { return _n; };
+    const std::string& n() const override { return _n; };
     void set_n( const std::string& n ) override { _n = n; };
 
-    const std::string id() const override { return _id; };
+    const std::string& id() const override { return _id; };
 
-    const std::string begintime() const override { return _begintime; };
+    const std::string& begintime() const override { return _begintime; };
     void set_begintime( const std::string& bt ) override { _begintime = bt; };
 
-    const std::string endtime() const override { return _endtime; };
+    const std::string& endtime() const override { return _endtime; };
     void set_endtime( const std::string& bt ) override { _endtime = bt; };
 
-    const std::string textclass() const override { return _textclass; };
+    const std::string& textclass() const override { return _textclass; };
     void textclass( const std::string& tc ) { _textclass = tc; };
 
     const std::string speech_src() const override;
@@ -817,7 +817,7 @@ namespace folia {
 
   protected:
     xmlNode *xml( bool, bool = false ) const override;
-    void set_processor( const std::string& ) override;
+    void set_processor_id( const std::string& ) override;
     void annotator2processor( const std::string&,
 			      const std::string& ) override;
 
@@ -860,7 +860,7 @@ namespace folia {
     std::string _speaker;
     std::string _textclass;
     std::string _metadata;
-    std::string _processor;
+    std::string _processor_id;
     std::string _set;
     std::string _class;
     std::string _id;
