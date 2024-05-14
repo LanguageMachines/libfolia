@@ -62,7 +62,7 @@ namespace folia {
   const string DEFAULT_PHON_SET = "https://raw.githubusercontent.com/proycon/folia/master/setdefinitions/phon.foliaset.ttl";
 
   //foliaspec:attributefeatures
-  const set<string> AttributeFeatures = { "actor", "begindatetime", "enddatetime", "feat", "font", "function", "headfeature", "level", "mod", "polarity", "size", "strength", "style", "synset", "time", "value" };
+  const set<string> AttributeFeatures = { "actor", "begindatetime", "enddatetime", "font", "function", "headfeature", "level", "mod", "polarity", "size", "strength", "style", "synset", "time", "value" };
 
   //foliaspec:annotationtype_string_map
   //A mapping from annotation types to strings
