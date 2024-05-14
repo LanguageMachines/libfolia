@@ -257,7 +257,7 @@ namespace folia {
     virtual const std::string& annotator( ) const = 0;
     virtual void annotator( const std::string& ) = 0;
     virtual AnnotatorType annotatortype() const = 0;
-    virtual const std::string& processor_id() const = 0;
+    virtual const std::string& processor() const = 0;
     virtual void processor_id( const std::string& ) = 0;
     virtual void annotatortype( AnnotatorType t ) =  0;
     virtual AnnotationType annotation_type() const = 0;
@@ -659,7 +659,7 @@ namespace folia {
 
     const std::string& annotator( ) const override { return _annotator; };
     void annotator( const std::string& a ) override { _annotator = a; };
-    const std::string& processor_id( ) const override { return _processor_id; };
+    const std::string& processor( ) const override { return _processor_id; };
     void processor_id( const std::string& p ) override { _processor_id = p; };
     AnnotatorType annotatortype() const override { return _annotator_type; };
     void annotatortype( AnnotatorType t ) override { _annotator_type =  t; };
