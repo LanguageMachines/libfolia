@@ -517,6 +517,45 @@ namespace folia {
     }
   }
 
+  void AbstractElement::set_processor( const string& val ){
+    if ( doc() && doc()->debug > 2 ) {
+      cerr << "set processor= " << val << " on " << classname() << endl;
+    }
+    if ( annotation_type() == AnnotationType::NO_ANN ){
+      throw ValueError( "Unable to set processor on " + classname() + ". AnnotationType is None!" );
+    }
+    if ( _set.empty() ){
+      _set = "None";
+    }
+    else {
+      if ( doc() && doc()->get_processor(val) == 0 ){
+	throw ValueError("attribute 'processor' has unknown value: " + val );
+      }
+      if ( doc()
+	   && !doc()->declared( annotation_type(), _set ) ){
+	cerr << "version_below: " << std::to_string(doc()->version_below( 2, 0 )) << endl;
+	cerr << "autodeclare= " << std::to_string(doc()->autodeclare()) << endl;
+	if (	!doc()->version_below( 2, 0 )
+		&& doc()->autodeclare() ) {
+	  KWargs args;
+	  args["processor"] = val;
+	  args["annotatortype"] = _annotator_type;
+	  doc()->declare( annotation_type(), _set, args );
+	}
+	else {
+	  throw DeclarationError( "Processor '" + val
+				  + "' is used for annotationtype '"
+				  + toString( annotation_type() )
+				  + "' with set='" + _set +"'"
+				  + " but there is no corresponding <annotator>"
+				  + " referring to it in the annotation"
+				  + " declaration block." );
+	}
+      }
+      _processor = val;
+    }
+  }
+
   void AbstractElement::setAttributes( KWargs& kwargs ) {
     /// set the objects attributes given a set of Key-Value pairs.
     /*!
@@ -717,43 +756,10 @@ namespace folia {
 
     val = kwargs.extract( "processor" );
     if ( !val.empty() ){
-      if ( doc() && doc()->debug > 2 ) {
-	cerr << "set processor= " << val << " on " << classname() << endl;
-      }
-      if ( annotation_type() == AnnotationType::NO_ANN ){
-	throw ValueError( "Unable to set processor on " + classname() + ". AnnotationType is None!" );
-      }
-      if ( _set.empty() ){
-	_set = "None";
-      }
       if ( !(ANNOTATOR & supported) ){
 	throw ValueError( "attribute 'processor' is not supported for " + classname() );
       }
-      else {
-	if ( doc() && doc()->get_processor(val) == 0 ){
-	  throw ValueError("attribute 'processor' has unknown value: " + val );
-	}
-	if ( doc()
-	     && !doc()->declared( annotation_type(), _set ) ){
-	  if (	!doc()->version_below( 2, 0 )
-		&& doc()->autodeclare() ) {
-	    KWargs args;
-	    args["processor"] = val;
-	    args["annotatortype"] = _annotator_type;
-	    doc()->declare( annotation_type(), _set, args );
-	  }
-	  else {
-	    throw DeclarationError( "Processor '" + val
-				    + "' is used for annotationtype '"
-				    + toString( annotation_type() )
-				    + "' with set='" + _set +"'"
-				    + " but there is no corresponding <annotator>"
-				    + " referring to it in the annotation"
-				    + " declaration block." );
-	  }
-	}
-	_processor = val;
-      }
+      set_processor( val );
     }
     else if ( (ANNOTATOR & supported) && doc() ){
       string def;
@@ -776,7 +782,6 @@ namespace folia {
       }
       _processor = def;
     }
-
     _confidence = -1;
     val = kwargs.extract( "confidence" );
     if ( !val.empty() ) {
