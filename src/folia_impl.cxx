@@ -565,40 +565,36 @@ namespace folia {
   void AbstractElement::annotator2processor( const string& annotator,
 					     const string& an_type ){
     Provenance *prov = doc()->provenance();
-    folia::processor *par = doc()->get_default_processor();
-    if ( !par ){
-      if ( prov ) {
-	par = prov->get_top_processor();
-      }
-      else {
-	prov = new Provenance( doc() );
-	//	cerr << "created new Provenance: " << prov << endl;
-      }
+    if ( !prov ){
+      prov = new Provenance( doc() );
+      //	cerr << "created new Provenance: " << prov << endl;
     }
+    folia::processor *top = doc()->get_default_processor();
     AnnotatorType at = AUTO;
     if ( !an_type.empty() ){
       at = stringTo<AnnotatorType>( an_type );
     }
     auto procs = doc()->get_processors( annotation_type(), _set );
-    if ( procs.empty() ) {
+    const folia::processor *found=0;
+    for ( const auto& p : procs ){
+      if ( p->annotator() == annotator
+	   && p->annotatortype() == at ){
+	found = p;
+	break;
+      }
+    }
+    if ( found ) {
+      set_processor_name( found->name() );
+    }
+    else {
+      // no matching processor. create a simple one
       KWargs args;
       args["name"] = annotator;
       args["annotatortype"] = an_type;
       args["generate_id"] = "auto()";
-      folia::processor *new_p = new folia::processor( prov, par, args );
+      folia::processor *new_p = new folia::processor( prov, top, args );
       set_processor_name( new_p->name() );
       //      cerr << "created new processor: " << new_p << endl;
-    }
-    else {
-      const folia::processor *found=0;
-      for ( const auto& p : procs ){
-	if ( p->annotator() == annotator
-	     && p->annotatortype() == at ){
-	  found = p;
-	  break;
-	}
-      }
-      set_processor_name( found->name() );
     }
   }
 
@@ -799,7 +795,7 @@ namespace folia {
 	     && val != doc()->get_processor(_processor_id)->name() ){
 	  if ( doc() && doc()->autodeclare() ){
 	    annotator2processor( val,
-				 kwargs.lookup( "annotatortype" ) );
+				 kwargs.extract( "annotatortype" ) );
 	  }
 	  else {
 	    throw DeclarationError( "Autodeclarations are disabled but an "

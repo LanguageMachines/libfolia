@@ -432,7 +432,7 @@ namespace folia {
     ///< can be added, loosing the default.
     std::map<AnnotationType,std::string> _orig_ann_default_procs;///<
     ///< for folia::Engine we need to register the original mapping from a
-    ///< AnnoationType to a processor name, because in the process more mappings
+    ///< AnnotationType to a processor name, because in the process more mappings
     ///< can be added, loosing the default.
     std::set<std::string> _textclasses; ///<
     /// < we keep track of all textclasses found in the document
