@@ -71,7 +71,13 @@ namespace folia {
 
   class XmlError: public std::runtime_error {
   public:
-    explicit XmlError( const std::string& s ): std::runtime_error( "XML error: " + s ){};
+    explicit XmlError( const std::string& s ):
+      std::runtime_error( "XML error: " + s ){};
+    XmlError( const std::string& s,
+	      const std::string& file,
+	      long int line ):
+      std::runtime_error( "XML error in " + file + " (line "
+			  + std::to_string(line) + ") " + s ){};
   };
 
   class MetaDataError: public std::runtime_error {
@@ -129,6 +135,11 @@ namespace folia {
     DocumentError( const std::string& document,
 		   const std::string& message ):
       std::runtime_error( document + ": " + message ){};
+    DocumentError( const std::string& document,
+		   const std::string& message,
+		   long int line ):
+      std::runtime_error( document + ": (line " + std::to_string(line) + ") "
+			  + message ){};
   };
 
   ///

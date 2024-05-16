@@ -2163,7 +2163,7 @@ namespace folia {
 //foliaspec:end:defaultproperties
   }
 
-  const int XML_PARSER_OPTIONS = XML_PARSE_NSCLEAN|XML_PARSE_HUGE;
+  const int XML_PARSER_OPTIONS = XML_PARSE_NSCLEAN|XML_PARSE_HUGE|XML_PARSE_BIG_LINES;
 
   FoliaElement *FoliaElement::private_createElement( ElementType et ){
     switch ( et ){

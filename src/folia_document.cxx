@@ -1207,7 +1207,8 @@ namespace folia {
 	    if ( prop->REQUIRED_ATTRIBS & Attrib::CLASS ) {
 	      throw DocumentError( _source_name,
 				   "setname may not be empty for " + prefix
-				   + "-annotation" );
+				   + "-annotation",
+				   xmlGetLineNo(n) );
 	    }
 	  }
 	}
@@ -1224,7 +1225,8 @@ namespace folia {
 	  if ( !isSubClass( et, AbstractSpanAnnotation_t ) ){
 	    throw DocumentError( _source_name,
 				 "attribute 'groupannotations' not allowed for '"
-				 + prefix + "-annotation" );
+				 + prefix + "-annotation",
+				 xmlGetLineNo(n) );
 	  }
 	  if ( gran_val == "yes"
 	       || gran_val == "true" ){
@@ -1233,7 +1235,8 @@ namespace folia {
 	  else {
 	    throw DocumentError( _source_name,
 				 "invalid value '" + gran_val
-				 + "' for attribute groupannotations" );
+				 + "' for attribute groupannotations",
+				 xmlGetLineNo(n) );
 	  }
 	}
 	else {
@@ -1251,12 +1254,14 @@ namespace folia {
 	    string proc_id = args["processor"];
 	    if ( proc_id.empty() ){
 	      throw DocumentError( _source_name,
-				   tag + " <annotator> misses attribute 'processor'" );
+				   tag + " <annotator> misses attribute 'processor'",
+				   xmlGetLineNo(n) );
 	    }
 	    if ( !get_processor( proc_id ) ){
 	      throw DocumentError( _source_name,
 				   tag + " uses undefined processor: '"
-				   + proc_id + "'" );
+				   + proc_id + "'",
+				   xmlGetLineNo(n) );
 	    }
 	    processors.insert( proc_id );
 	  }
@@ -1265,7 +1270,8 @@ namespace folia {
 	if ( !annotator.empty() && !processors.empty() ){
 	  throw DocumentError( _source_name,
 			       tag
-			       + " has both <annotator> node(s) and annotator attribute." );
+			       + " has both <annotator> node(s) and annotator attribute.",
+			       xmlGetLineNo(n) );
 	}
 	internal_declare( at_type, set_name, format,
 			  annotator, ann_type, datetime,
@@ -1274,7 +1280,8 @@ namespace folia {
 
 	  throw DocumentError( _source_name,
 			       "found invalid attribute(s) in <" + prefix
-			       + "-declaration> " + atts.toString() );
+			       + "-declaration> " + atts.toString(),
+			       xmlGetLineNo(n) );
 	}
       }
       n = n->next;
@@ -1797,8 +1804,9 @@ namespace folia {
 	}
 	else {
 	  throw DocumentError( _source_name,
-			       "problem parsing line: " + content );
-	}
+			       "problem parsing line: " + content,
+			       xmlGetLineNo(pnt) );
+      }
       }
       else if ( pnt->type == XML_COMMENT_NODE ) {
 	string xml_tag = "_XmlComment";

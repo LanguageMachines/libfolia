@@ -466,6 +466,8 @@ namespace folia {
     virtual const std::string& tag() const = 0;
     virtual const std::string set_tag( const std::string& ) = 0;
     virtual const std::string& id() const = 0;
+    virtual long int line_number() const = 0;
+    virtual void set_line_number( long int ) = 0;
     virtual const std::string& begintime() const = 0;
     virtual void set_begintime( const std::string& ) = 0;
     virtual const std::string& endtime() const = 0;
@@ -742,6 +744,9 @@ namespace folia {
 
     const std::string& id() const override { return _id; };
 
+    long int line_number() const override { return _line_no; };
+    void set_line_number( long int _num ) override { _line_no = _num; };
+
     const std::string& begintime() const override { return _begintime; };
     void set_begintime( const std::string& bt ) override { _begintime = bt; };
 
@@ -851,6 +856,7 @@ namespace folia {
     bool _space;
     AnnotatorType _annotator_type;
     int _refcount;
+    long int _line_no;
     double _confidence;
     std::string _annotator;
     std::string _n;

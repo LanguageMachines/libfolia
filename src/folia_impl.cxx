@@ -2426,9 +2426,11 @@ namespace folia {
       throw XmlError( "FoLiA root without Document" );
     }
     setAttributes( atts );
+    set_line_number( xmlGetLineNo(node) );
     bool meta_found = false;
     const xmlNode *p = node->children;
     while ( p ){
+      set_line_number( xmlGetLineNo(p) );
       if ( p->type == XML_ELEMENT_NODE ){
 	if ( TiCC::Name(p) == "metadata" &&
 	     checkNS( p, NSFOLIA ) ){
@@ -2447,7 +2449,9 @@ namespace folia {
 	      // and jus go on. assuming <text> to come
 	    }
 	    else {
-	      throw XmlError( "Expecting element metadata, got '" + tag + "'" );
+	      throw XmlError( "Expecting element metadata, got '" + tag + "'",
+			      doc()->filename(),
+			      line_number() );
 	    }
 	  }
 	  FoliaElement *t = AbstractElement::createElement( tag, doc() );
@@ -2494,12 +2498,18 @@ namespace folia {
 	  if ( p->prev ){
 	    string tg = "<" + Name(p->prev) + ">";
 	    throw XmlError( "found extra text '" + txt + "' after element "
-			    + tg + ", NOT allowed there." );
+			    + tg + ", NOT allowed there.",
+			    doc()->filename(),
+			    line_number() );
+
 	  }
 	  else {
 	    string tg = "<" + Name(p->parent) + ">";
 	    throw XmlError( "found extra text '" + txt + "' inside element "
-			    + tg + ", NOT allowed there." );
+			    + tg + ", NOT allowed there.",
+			    doc()->filename(),
+			    line_number() );
+
 	  }
 	}
       }
@@ -3632,8 +3642,10 @@ namespace folia {
     }
 
     setAttributes( att );
+    set_line_number( xmlGetLineNo(node) );
     const xmlNode *p = node->children;
     while ( p ) {
+      set_line_number( xmlGetLineNo(p) );
       string pref;
       string ns = getNS( p, pref );
       if ( !ns.empty() && ns != NSFOLIA ){
@@ -3727,12 +3739,18 @@ namespace folia {
 	    if ( p->prev ){
 	      string tg = "<" + Name(p->prev) + ">";
 	      throw XmlError( "found extra text '" + txt + "' after element "
-			      + tg + ", NOT allowed there." );
+			      + tg + ", NOT allowed there.",
+			      doc()->filename(),
+			      line_number() );
+
 	    }
 	    else {
 	      string tg = "<" + Name(p->parent) + ">";
 	      throw XmlError( "found extra text '" + txt + "' inside element "
-			      + tg + ", NOT allowed there." );
+			      + tg + ", NOT allowed there.",
+			      doc()->filename(),
+			      line_number() );
+
 	    }
 	  }
 	  else {
