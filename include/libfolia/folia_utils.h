@@ -44,6 +44,7 @@ namespace folia {
   enum AnnotationType : int;
   enum AnnotatorType : int;
   enum ElementType : unsigned int;
+  class FoliaElement;
 
   class ArgsError: public std::runtime_error {
   public:
@@ -66,58 +67,70 @@ namespace folia {
 
   class ValueError: public std::runtime_error {
   public:
-    explicit ValueError( const std::string& s ): std::runtime_error( s ){};
+    explicit ValueError( const std::string& s ):
+      std::runtime_error( s ){};
   };
 
   class XmlError: public std::runtime_error {
   public:
     explicit XmlError( const std::string& s ):
       std::runtime_error( "XML error: " + s ){};
-    XmlError( const std::string& s,
-	      const std::string& file,
-	      long int line ):
-      std::runtime_error( "XML error in " + file + " (line "
-			  + std::to_string(line) + ") " + s ){};
+    XmlError( const FoliaElement *elt,
+	      const std::string& mess );
   };
 
   class MetaDataError: public std::runtime_error {
   public:
-    explicit MetaDataError( const std::string& s ): std::runtime_error( "MetaData problem: " + s ){};
+    explicit MetaDataError( const std::string& s ):
+      std::runtime_error( "MetaData problem: " + s ){};
   };
 
   class NoSuchAnnotation: public std::runtime_error {
   public:
-    explicit NoSuchAnnotation( const std::string& s ): std::runtime_error( "no such annotation: " + s ){};
+    explicit NoSuchAnnotation( const std::string& s ):
+      std::runtime_error( "no such annotation: " + s ){};
   };
 
   class NoSuchText: public std::runtime_error {
   public:
-    explicit NoSuchText( const std::string& s ): std::runtime_error( "no such text: " + s ){};
+    explicit NoSuchText( const std::string& s ):
+      std::runtime_error( "no such text: " + s ){};
   };
 
   class NoSuchPhon: public std::runtime_error {
   public:
-    explicit NoSuchPhon( const std::string& s ): std::runtime_error( "no such phoneme: " + s ){};
+    explicit NoSuchPhon( const std::string& s ):
+      std::runtime_error( "no such phoneme: " + s ){};
   };
 
   class DuplicateAnnotationError: public std::runtime_error {
   public:
-    explicit DuplicateAnnotationError( const std::string& s ): std::runtime_error( s ){};
+    explicit DuplicateAnnotationError( const std::string& s ):
+      std::runtime_error( s ){};
+    explicit DuplicateAnnotationError( const FoliaElement *,
+				       const std::string& );
   };
 
   class DuplicateIDError: public std::runtime_error {
   public:
-    explicit DuplicateIDError( const std::string& s ): std::runtime_error( "duplicate ID : " + s ){};
+    explicit DuplicateIDError( const std::string& s ):
+      std::runtime_error( "duplicate ID : " + s ){};
+    explicit DuplicateIDError( const FoliaElement *,
+			       const std::string& s );
   };
 
   class NoDefaultError: public std::runtime_error {
   public:
-    explicit NoDefaultError( const std::string& s ): std::runtime_error( "No Default found: " + s ){};
+    explicit NoDefaultError( const std::string& s ):
+      std::runtime_error( "No Default found: " + s ){};
   };
 
   class InconsistentText: public std::runtime_error {
   public:
-    explicit InconsistentText( const std::string& s ): std::runtime_error( "inconsistent text: " + s ){};
+    explicit InconsistentText( const std::string& s ):
+      std::runtime_error( "inconsistent text: " + s ){};
+    explicit InconsistentText( const FoliaElement *,
+			       const std::string& s );
   };
 
   class UnresolvableTextContent: public std::runtime_error {

@@ -52,6 +52,34 @@ using namespace TiCC;
 
 namespace folia {
 
+  DuplicateIDError::DuplicateIDError( const FoliaElement *elt,
+				      const std::string& mess ):
+    std::runtime_error( "Duplicate ID: "
+			+ (elt->doc()?elt->doc()->filename():"")
+			+ " ( at line=" + std::to_string( elt->line_number() )
+			+ " ):" + mess ){};
+
+  DuplicateAnnotationError::DuplicateAnnotationError( const FoliaElement *elt,
+						      const std::string& mess ):
+    std::runtime_error( "Duplicate Annotation: "
+			+ (elt->doc()?elt->doc()->filename():"")
+			+ " ( at line=" + std::to_string( elt->line_number() )
+			+ " ):" + mess ){};
+
+  XmlError::XmlError( const FoliaElement *elt,
+		      const std::string& mess ):
+    std::runtime_error( "XML error: "
+			+ (elt->doc()?elt->doc()->filename():"")
+			+ " ( at line=" + std::to_string( elt->line_number() )
+			+ " ):" + mess ){};
+
+  InconsistentText::InconsistentText( const FoliaElement *elt,
+				      const std::string& mess ):
+    std::runtime_error( "inconsistent text: "
+			+ (elt->doc()?elt->doc()->filename():"")
+			+ " ( at line=" + std::to_string( elt->line_number() )
+			+ " ):" + mess ){};
+
   FoliaElement *FoliaElement::createElement( const string& tag,
 					     Document *doc ){
     /// create a new FoliaElement

@@ -418,7 +418,8 @@ namespace folia {
 	  _set = def;
 	}
 	else if ( CLASS & required_attributes() ){
-	  throw XmlError( "unable to assign a default set for tag: " + xmltag() );
+	  throw XmlError( this,
+			  "unable to assign a default set for tag: " + xmltag() );
 	}
       }
       if ( annotation_type() != AnnotationType::NO_ANN
@@ -469,7 +470,8 @@ namespace folia {
       type = val;
     }
     if ( type != "simple" && type != "locator" ) {
-      throw XmlError( "only xlink:types: 'simple' and 'locator' are supported!" );
+      throw XmlError( this,
+		      "only xlink:types: 'simple' and 'locator' are supported!" );
     }
     _xlink["type"] = type;
     val = kwargs.extract( "xlink:href" );
@@ -477,7 +479,8 @@ namespace folia {
       _xlink["href"] = val;
     }
     else if ( type == "locator" ){
-      throw XmlError( "xlink:type='locator' requires an 'xlink:href' attribute" );
+      throw XmlError( this,
+		      "xlink:type='locator' requires an 'xlink:href' attribute" );
     }
     val = kwargs.extract( "xlink:role" );
     if ( !val.empty() ) {
@@ -490,28 +493,32 @@ namespace folia {
     val = kwargs.extract( "xlink:label" );
     if ( !val.empty() ) {
       if ( type == "simple" ){
-	throw XmlError( "xlink:type='simple' may not have an 'xlink:label' attribute" );
+	throw XmlError( this,
+			"xlink:type='simple' may not have an 'xlink:label' attribute" );
       }
       _xlink["label"] = val;
     }
     val = kwargs.extract( "xlink:arcrole" );
     if ( !val.empty() ) {
       if ( type == "locator" ){
-	throw XmlError( "xlink:type='locator' may not have an 'xlink:arcrole' attribute" );
+	throw XmlError( this,
+			"xlink:type='locator' may not have an 'xlink:arcrole' attribute" );
       }
       _xlink["arcrole"] = val;
     }
     val = kwargs.extract( "xlink:show" );
     if ( !val.empty() ) {
       if ( type == "locator" ){
-	throw XmlError( "xlink:type='locator' may not have an 'xlink:show' attribute" );
+	throw XmlError( this,
+			"xlink:type='locator' may not have an 'xlink:show' attribute" );
       }
       _xlink["show"] = val;
     }
     val = kwargs.extract( "xlink:actuate" );
     if ( !val.empty() ) {
       if ( type == "locator" ){
-	throw XmlError( "xlink:type='locator' may not have an 'xlink:actuate' attribute" );
+	throw XmlError( this,
+			"xlink:type='locator' may not have an 'xlink:actuate' attribute" );
       }
       _xlink["actuate"] = val;
     }
@@ -697,7 +704,8 @@ namespace folia {
 	  _id = val;
 	}
 	else {
-	  throw XmlError( "'" + val + "' is not a valid NCName." );
+	  throw XmlError( this,
+			  "'" + val + "' is not a valid NCName." );
 	}
       }
     }
@@ -1060,7 +1068,7 @@ namespace folia {
 	  cerr << message << endl;
 	}
 	else {
-	  throw XmlError( message );
+	  throw XmlError( this, message );
 	}
       }
       KWargs newa;
@@ -1485,7 +1493,8 @@ namespace folia {
       UnicodeString txt_check_u = normalize_spaces( txt_u );
       if ( !deeper_u.isEmpty()
 	   && txt_check_u != deeper_u ){
-	throw InconsistentText( xmltag() + "::settext(cls=" + cls
+	throw InconsistentText( this,
+				xmltag() + "::settext(cls=" + cls
 				+ "): deeper text differs from attempted\n"
 				+ "   deeper='"
 				+ TiCC::UnicodeToUTF8(deeper_u)
@@ -1600,7 +1609,8 @@ namespace folia {
 	  test_fail = ( s1 != s2 );
 	}
 	if ( test_fail ){
-	  throw InconsistentText( "adding text (class="
+	  throw InconsistentText( child,
+				  "adding text (class="
 				  + cls + ") from node: " + child->xmltag()
 				  + "(" + child->id() + ")"
 				  + " with value\n'" + TiCC::UnicodeToUTF8(s2)
@@ -1680,7 +1690,7 @@ namespace folia {
 	  parent->doc()->increment_warn_count();
         }
 	else {
-	  throw InconsistentText(msg);
+	  throw InconsistentText( child, msg);
         }
       }
     }
@@ -1852,7 +1862,7 @@ namespace folia {
 	      if ( debug ){
 		cerr << "DEBUG: CONSISTENCYERROR check_text_consistency_while_parsing(" << trim_spaces << ")" << endl;
 	      }
-	      throw InconsistentText(msg);
+	      throw InconsistentText( this, msg);
 	    }
 	  }
 	}
@@ -1868,7 +1878,7 @@ namespace folia {
       if ( !found ){
 	string msg = "Empty text content elements are not allowed. Parsing <"
 	  + xmltag() + ">, id=" + id();
-	throw XmlError( msg );
+	throw XmlError( this, msg );
       }
     }
     if ( debug ){
@@ -2423,7 +2433,7 @@ namespace folia {
      */
     KWargs atts = getAttributes( node );
     if ( !doc() ){
-      throw XmlError( "FoLiA root without Document" );
+      throw XmlError( this, "FoLiA root without Document" );
     }
     setAttributes( atts );
     set_line_number( xmlGetLineNo(node) );
@@ -2449,9 +2459,8 @@ namespace folia {
 	      // and jus go on. assuming <text> to come
 	    }
 	    else {
-	      throw XmlError( "Expecting element metadata, got '" + tag + "'",
-			      doc()->filename(),
-			      line_number() );
+	      throw XmlError( this,
+			      "Expecting element metadata, got '" + tag + "'" );
 	    }
 	  }
 	  FoliaElement *t = AbstractElement::createElement( tag, doc() );
@@ -2497,19 +2506,15 @@ namespace folia {
 	if ( !txt.empty() ){
 	  if ( p->prev ){
 	    string tg = "<" + Name(p->prev) + ">";
-	    throw XmlError( "found extra text '" + txt + "' after element "
-			    + tg + ", NOT allowed there.",
-			    doc()->filename(),
-			    line_number() );
-
+	    throw XmlError( this,
+			    "found extra text '" + txt + "' after element "
+			    + tg + ", NOT allowed there." );
 	  }
 	  else {
 	    string tg = "<" + Name(p->parent) + ">";
-	    throw XmlError( "found extra text '" + txt + "' inside element "
-			    + tg + ", NOT allowed there.",
-			    doc()->filename(),
-			    line_number() );
-
+	    throw XmlError( this,
+			    "found extra text '" + txt + "' inside element "
+			    + tg + ", NOT allowed there." );
 	  }
 	}
       }
@@ -3164,7 +3169,11 @@ namespace folia {
 						SELECT_FLAGS::LOCAL );
       size_t count = v.size();
       if ( count >= occurrences() ) {
-	throw DuplicateAnnotationError( "Unable to add another object of type " + classname() + " to " + parent->classname() + ". There are already " + TiCC::toString(count) + " instances of this type, which is the maximum." );
+	string mess = "Unable to add another object of type " + classname()
+	  + " to " + parent->classname() + ". There are already "
+	  + TiCC::toString(count)
+	  + " instances of this type, which is the maximum.";
+	throw DuplicateAnnotationError( this, mess );
       }
     }
     if ( occurrences_per_set() > 0 &&
@@ -3174,13 +3183,18 @@ namespace folia {
 					SELECT_FLAGS::LOCAL );
       size_t count = v.size();
       if ( count >= occurrences_per_set() ) {
-	throw DuplicateAnnotationError( "Unable to add another object of type " + classname() + " to " + parent->classname() + ". There are already " + TiCC::toString(count) + " instances of this type and set (" + sett() + "), which is the maximum." );
+	string mess = "Unable to add another object of type " + classname()
+	  + " to " + parent->classname() + ". There are already "
+	  + TiCC::toString(count) + " instances of this type and set ("
+	  + sett() + "), which is the maximum.";
+	throw DuplicateAnnotationError( this, mess );
       }
     }
     if ( _parent &&
 	 !( element_id() == WordReference_t
 	    || referable() ) ){
-      throw XmlError( "attempt to reconnect node " + classname() + "("
+      throw XmlError( this,
+		      "attempt to reconnect node " + classname() + "("
 		      + id()
 		      + ") to a " + parent->classname() + " node, id="
 		      + parent->id()
@@ -3195,7 +3209,8 @@ namespace folia {
       	string tc = ref->textclass();
       	string rtval = ref->str(tc);
       	if ( tval != rtval ){
-      	  throw XmlError( "WordReference id=" + id + " has another value for "
+      	  throw XmlError( this,
+			  "WordReference id=" + id + " has another value for "
       			  + "the t attribute than it's reference. ("
       			  + tval + " versus " + rtval + ")" );
       	}
@@ -3225,7 +3240,8 @@ namespace folia {
       if ( any_of( tmp.cbegin(),
 		   tmp.cend(),
 		   [my_cls]( const TextContent *t) { return ( t->cls() == my_cls);} ) ){
-	throw DuplicateAnnotationError( "attempt to add <t> with class="
+	throw DuplicateAnnotationError( this,
+					"attempt to add <t> with class="
 					+ my_cls + " to element: "
 					+ parent->id()
 					+ " which already has a <t> with that class" );
@@ -3394,7 +3410,8 @@ namespace folia {
      * will throw on error
      */
     if ( !child ){
-      throw XmlError( "attempt to append an empty node to a " + classname() );
+      throw XmlError( this,
+		      "attempt to append an empty node to a " + classname() );
     }
     bool ok = false;
     try {
@@ -3672,7 +3689,7 @@ namespace folia {
 	  }
 	}
 	else if ( doc() && !doc()->permissive() ){
-	  throw XmlError( "FoLiA parser terminated" );
+	  throw XmlError( this, "FoLiA parser terminated" );
 	}
       }
       else if ( p->type == XML_PI_NODE ){
@@ -3738,19 +3755,15 @@ namespace folia {
 	  if ( !txt.empty() ){
 	    if ( p->prev ){
 	      string tg = "<" + Name(p->prev) + ">";
-	      throw XmlError( "found extra text '" + txt + "' after element "
-			      + tg + ", NOT allowed there.",
-			      doc()->filename(),
-			      line_number() );
-
+	      throw XmlError( this,
+			      "found extra text '" + txt + "' after element "
+			      + tg + ", NOT allowed there." );
 	    }
 	    else {
 	      string tg = "<" + Name(p->parent) + ">";
-	      throw XmlError( "found extra text '" + txt + "' inside element "
-			      + tg + ", NOT allowed there.",
-			      doc()->filename(),
-			      line_number() );
-
+	      throw XmlError( this,
+			      "found extra text '" + txt + "' inside element "
+			      + tg + ", NOT allowed there." );
 	    }
 	  }
 	  else {
@@ -3994,7 +4007,8 @@ namespace folia {
       // if no ID, look upward.
       FoliaElement *par = parent();
       if ( !par ){
-	throw XmlError( "unable to generate an ID. No StructureElement parent found?" );
+	throw XmlError( this,
+			"unable to generate an ID. No StructureElement parent found?" );
       }
       // cerr << "call on parent:" << par << endl;
       return par->generateId( tag );
