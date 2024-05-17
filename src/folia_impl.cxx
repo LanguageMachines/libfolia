@@ -276,6 +276,7 @@ namespace folia {
     _space(true),
     _annotator_type(UNDEFINED),
     _refcount(0),
+    _line_no(-1),
     _confidence(-1),
     _preserve_spaces(SPACE_FLAGS::UNSET),
     _props(p)

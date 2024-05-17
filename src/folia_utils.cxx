@@ -52,65 +52,64 @@ using namespace TiCC;
 
 namespace folia {
 
+  string output_elem( const FoliaElement *elt ){
+    string result = (elt->doc()?elt->doc()->filename():"")
+      + ( elt->line_number()>=0?
+	  ": (line="
+	  + std::to_string( elt->line_number() ) + ")"
+	  :"" );
+    return result;
+  }
+
   ValueError::ValueError( const FoliaElement *elt,
 			  const std::string& mess ):
-    std::runtime_error( (elt->doc()?elt->doc()->filename():"")
-			+ " ( at line=" + std::to_string( elt->line_number() )
-			+ " ): Value error: " + mess ){};
+    std::runtime_error( output_elem( elt)
+			+ ": Value error: " + mess ){};
 
   DeclarationError::DeclarationError( const FoliaElement *elt,
 				      const std::string& mess ):
-    std::runtime_error( (elt->doc()?elt->doc()->filename():"")
-			+ " ( at line=" + std::to_string( elt->line_number() )
-			+ " ): Declaration error: " + mess ){};
+    std::runtime_error( output_elem( elt)
+			+ ": Declaration error: " + mess ){};
 
   DuplicateIDError::DuplicateIDError( const FoliaElement *elt,
 				      const std::string& mess ):
-    std::runtime_error( (elt->doc()?elt->doc()->filename():"")
-			+ " ( at line=" + std::to_string( elt->line_number() )
-			+ " ): Duplicate ID: " + mess ){};
+    std::runtime_error( output_elem( elt)
+			+ ": Duplicate ID: " + mess ){};
 
   DuplicateAnnotationError::DuplicateAnnotationError( const FoliaElement *elt,
 						      const std::string& mess ):
-    std::runtime_error( (elt->doc()?elt->doc()->filename():"")
-			+ " ( at line=" + std::to_string( elt->line_number() )
-			+ " ): Duplicate Annotation: " + mess ){};
+    std::runtime_error( output_elem( elt)
+			+ ": Duplicate Annotation: " + mess ){};
 
   NoSuchAnnotation::NoSuchAnnotation( const FoliaElement *elt,
 				      const std::string& mess ):
-    std::runtime_error( (elt->doc()?elt->doc()->filename():"")
-			+ " ( at line=" + std::to_string( elt->line_number() )
-			+ " ): no such annotation: " + mess ){};
+    std::runtime_error( output_elem( elt)
+			+ ": no such annotation: " + mess ){};
 
   XmlError::XmlError( const FoliaElement *elt,
 		      const std::string& mess ):
-    std::runtime_error( (elt->doc()?elt->doc()->filename():"")
-			+ " ( at line=" + std::to_string( elt->line_number() )
-			+ " ): XML error: " + mess ){};
+    std::runtime_error( output_elem( elt)
+			+ ": XML error: " + mess ){};
 
   InconsistentText::InconsistentText( const FoliaElement *elt,
 				      const std::string& mess ):
-    std::runtime_error( (elt->doc()?elt->doc()->filename():"")
-			+ " ( at line=" + std::to_string( elt->line_number() )
-			+ " ): inconsistent text: " + mess ){};
+    std::runtime_error( output_elem( elt)
+			+ ": inconsistent text: " + mess ){};
 
   UnresolvableTextContent::UnresolvableTextContent( const FoliaElement *elt,
 						    const std::string& mess ):
-    std::runtime_error( (elt->doc()?elt->doc()->filename():"")
-			+ " ( at line=" + std::to_string( elt->line_number() )
-			+ " ): unresolvable text: " + mess ){};
+    std::runtime_error( output_elem( elt)
+			+ ": unresolvable text: " + mess ){};
 
   NoSuchText::NoSuchText( const FoliaElement *elt,
 			  const std::string& mess ):
-    std::runtime_error( (elt->doc()?elt->doc()->filename():"")
-			+ " ( at line=" + std::to_string( elt->line_number() )
-			+ " ): NO text content: " + mess ){};
+    std::runtime_error(	output_elem( elt)
+			+ ": NO text content: " + mess ){};
 
   NoSuchPhon::NoSuchPhon( const FoliaElement *elt,
 			  const std::string& mess ):
-    std::runtime_error( (elt->doc()?elt->doc()->filename():"")
-			+ " ( at line=" + std::to_string( elt->line_number() )
-			+ " ): NO phon content: " + mess ){};
+    std::runtime_error( output_elem( elt)
+			+ ": NO phon content: " + mess ){};
 
   FoliaElement *FoliaElement::createElement( const string& tag,
 					     Document *doc ){
