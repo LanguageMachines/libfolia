@@ -1130,7 +1130,15 @@ namespace folia {
       }
       KWargs newa;
       newa["class"] = it.second;
-      FoliaElement *new_node = createElement( f_tag, doc() );
+      FoliaElement *new_node;
+      try {
+	new_node = createElement( f_tag, doc() );
+      }
+      catch( const exception& e ){
+	throw ValueError( this,
+			  string("adding features failed (")
+			  + e.what() + ")" );
+      }
       new_node->setAttributes( newa );
       append( new_node );
     }
@@ -2521,35 +2529,47 @@ namespace folia {
 			      "Expecting element metadata, got '" + tag + "'" );
 	    }
 	  }
-	  FoliaElement *t = AbstractElement::createElement( tag, doc() );
+	  FoliaElement *t=0;
+	  try {
+	    t = AbstractElement::createElement( tag, doc() );
+	  }
+	  catch ( const exception& e ){
+	    throw XmlError( this,
+			    string( "parsing <" ) + tag + "> failed:\n\t"
+			    + e.what() );
+	  }
+	  if ( doc()->debug > 2 ){
+	    cerr << "created " << t << endl;
+	  }
+	  t = t->parseXml( p );
 	  if ( t ){
 	    if ( doc()->debug > 2 ){
-	      cerr << "created " << t << endl;
+	      cerr << "extend " << this << " met " << tag << endl;
 	    }
-	    t = t->parseXml( p );
-	    if ( t ){
-	      if ( doc()->debug > 2 ){
-		cerr << "extend " << this << " met " << tag << endl;
-	      }
-	      this->append( t );
-	    }
+	    this->append( t );
 	  }
 	}
       }
       else if ( p->type == XML_COMMENT_NODE ) {
 	string xml_tag = "_XmlComment";
-	FoliaElement *t = createElement( xml_tag, doc() );
+	FoliaElement *t;
+	try {
+	  t = createElement( xml_tag, doc() );
+	}
+	catch ( const exception& e ){
+	  throw XmlError( this,
+			  string( "parsing <" ) + xml_tag + "> failed:\n\t"
+			  + e.what() );
+	}
+	if ( doc() && doc()->debug > 2 ) {
+	  cerr << "created " << t << endl;
+	}
+	t = t->parseXml( p );
 	if ( t ) {
 	  if ( doc() && doc()->debug > 2 ) {
-	    cerr << "created " << t << endl;
+	    cerr << "extend " << this << " met " << t << endl;
 	  }
-	  t = t->parseXml( p );
-	  if ( t ) {
-	    if ( doc() && doc()->debug > 2 ) {
-	      cerr << "extend " << this << " met " << t << endl;
-	    }
-	    append( t );
-	  }
+	  append( t );
 	}
       }
       else if ( p->type == XML_PI_NODE ){
@@ -3759,54 +3779,71 @@ namespace folia {
       }
       if ( p->type == XML_ELEMENT_NODE ) {
 	string xml_tag = Name( p );
-	FoliaElement *t = createElement( xml_tag, doc() );
-	if ( t ) {
-	  if ( doc() && doc()->debug > 2 ) {
-	    cerr << "created " << t << endl;
-	  }
-	  t = t->parseXml( p );
-	  if ( t ) {
-	    if ( doc() && doc()->debug > 2 ) {
-	      cerr << "extend " << this << " met " << t << endl;
-	    }
-	    append( t );
+	FoliaElement *t = 0;
+	try {
+	  t = createElement( xml_tag, doc() );
+	}
+	catch ( const exception& e ){
+	  if ( doc() && !doc()->permissive() ){
+	    throw XmlError( this,
+			    string( "parsing <" ) + xml_tag + "> failed:\n\t"
+			    + e.what() );
 	  }
 	}
-	else if ( doc() && !doc()->permissive() ){
-	  throw XmlError( this, "FoLiA parser terminated" );
+	if ( doc() && doc()->debug > 2 ) {
+	  cerr << "created " << t << endl;
+	}
+	t = t->parseXml( p );
+	if ( t ) {
+	  if ( doc() && doc()->debug > 2 ) {
+	    cerr << "extend " << this << " met " << t << endl;
+	  }
+	  append( t );
 	}
       }
       else if ( p->type == XML_PI_NODE ){
 	// found a processing instruction
 	string xml_tag = "PI";
-	FoliaElement *t = createElement( xml_tag, doc() );
+	FoliaElement *t;
+	try {
+	  t = createElement( xml_tag, doc() );
+	}
+	catch ( const exception& e ){
+	  throw XmlError( this,
+			  string( "parsing " ) + xml_tag + " failed:\n\t"
+			  + e.what() );
+	}
+	if ( doc() && doc()->debug > 2 ) {
+	  cerr << "created " << t << endl;
+	}
+	t = t->parseXml( p );
 	if ( t ) {
 	  if ( doc() && doc()->debug > 2 ) {
-	    cerr << "created " << t << endl;
+	    cerr << "extend " << this << " met " << t << endl;
 	  }
-	  t = t->parseXml( p );
-	  if ( t ) {
-	    if ( doc() && doc()->debug > 2 ) {
-	      cerr << "extend " << this << " met " << t << endl;
-	    }
-	    append( t );
-	  }
+	  append( t );
 	}
       }
       else if ( p->type == XML_COMMENT_NODE ) {
 	string xml_tag = "_XmlComment";
-	FoliaElement *t = createElement( xml_tag, doc() );
+	FoliaElement *t;
+	try {
+	  t = createElement( xml_tag, doc() );
+	}
+	catch ( const exception& e ){
+	  throw XmlError( this,
+			  string( "parsing " ) + xml_tag + " failed:\n\t"
+			  + e.what() );
+	}
+	if ( doc() && doc()->debug > 2 ) {
+	  cerr << "created " << t << endl;
+	}
+	t = t->parseXml( p );
 	if ( t ) {
 	  if ( doc() && doc()->debug > 2 ) {
-	    cerr << "created " << t << endl;
+	    cerr << "extend " << this << " met " << t << endl;
 	  }
-	  t = t->parseXml( p );
-	  if ( t ) {
-	    if ( doc() && doc()->debug > 2 ) {
-	      cerr << "extend " << this << " met " << t << endl;
-	    }
-	    append( t );
-	  }
+	  append( t );
 	}
       }
       else if ( p->type == XML_ENTITY_REF_NODE ){

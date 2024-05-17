@@ -121,14 +121,7 @@ namespace folia {
       \return a new FoliaElement
       throws if the tag is unknown
     */
-    ElementType et = BASE;
-    try {
-      et = stringToElementType( tag );
-    }
-    catch ( const ValueError& e ){
-      cerr << e.what() << endl;
-      return 0;
-    }
+    ElementType et = stringToElementType( tag );
     return createElement( et, doc );
   }
 

@@ -217,7 +217,7 @@ int main( int argc, const char* argv[] ){
       }
     }
     catch( const exception& e ){
-      cerr << inputName << " failed: " << e.what() << endl;
+      cerr << e.what() << endl;
       ++fail_count;
     }
   }

@@ -1884,7 +1884,8 @@ namespace folia {
 	    txt->get_reference( cumulated_offset, false ); //trim_spaces = false
 	    msg += "\nHowever, according to the older rules (<v2.4.1) the offsets are accepted. So we are treating this as a warning rather than an error. We do recommend fixing this if this is a document you intend to publish.";
 	    warn = true;
-          } catch ( const UnresolvableTextContent& ) {
+          }
+	  catch ( const UnresolvableTextContent& ) {
 	    msg += "\n(also checked against older rules prior to FoLiA v2.4.1)";
           }
 
@@ -1928,7 +1929,8 @@ namespace folia {
 	    phon->get_reference(cumulated_offset, false ); //trim_spaces = false
 	    msg += "\nHowever, according to the older rules (<v2.4.1) the offsets are accepted. So we are treating this as a warning rather than an error. We do recommend fixing this if this is a document you intend to publish.";
 	    warn = true;
-          } catch ( const UnresolvableTextContent& ) {
+          }
+	  catch ( const UnresolvableTextContent& ) {
 	    msg += "\n(also checked against older rules prior to FoLiA v2.4.1)";
           }
 
@@ -2002,6 +2004,9 @@ namespace folia {
 	  throw;
 	}
 	catch ( const DeclarationError& e ){
+	  throw;
+	}
+	catch ( const ValueError& e ){
 	  throw;
 	}
 	catch ( const exception& e ){
