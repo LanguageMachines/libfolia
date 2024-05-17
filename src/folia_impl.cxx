@@ -2410,7 +2410,7 @@ namespace folia {
       result = text_content(tmp)->text( tmp );
     }
     else if ( !printable() || ( hidden() && !show_hidden ) ){
-      throw NoSuchText( "NON printable element: " + xmltag() );
+      throw NoSuchText( this, "NON printable element: " + xmltag() );
     }
     else if ( is_textcontainer() ){
       result = text_container_text( tp );
@@ -2427,7 +2427,8 @@ namespace folia {
 	result = text( tmp );
       }
       if ( result.isEmpty() ) {
-	throw NoSuchText( "on tag " + xmltag() + " nor it's children" );
+	throw NoSuchText( this,
+			  "on tag " + xmltag() + " nor it's children" );
       }
     }
     if ( tp.debug() ){
@@ -2812,7 +2813,8 @@ namespace folia {
 	   << endl;
     }
     if ( result.isEmpty() ) {
-      throw NoSuchText( xmltag() + ":(class=" + tp.get_class() +"): empty!" );
+      throw NoSuchText( this,
+			xmltag() + ":(class=" + tp.get_class() +"): empty!" );
     }
     return result;
   }
@@ -2843,7 +2845,8 @@ namespace folia {
 	return dynamic_cast<const TextContent*>(this);
       }
       else {
-	throw NoSuchText( "TextContent::text_content(" + desired_class + ")" );
+	throw NoSuchText( this,
+			  "TextContent::text_content(" + desired_class + ")" );
       }
     }
     bool show_hidden = tp.is_set( TEXT_FLAGS::HIDDEN );
@@ -2852,7 +2855,8 @@ namespace folia {
       cerr << (!hidden()?"NOT":"") << " hidden: " << xmltag() << endl;
     }
     if ( !printable() || ( hidden() && !show_hidden ) ) {
-      throw NoSuchText( "non-printable element: " +  xmltag() );
+      throw NoSuchText( this,
+			"non-printable element: " +  xmltag() );
     }
     if ( tp.debug() ){
       cerr << "recurse into children...." << endl;
@@ -2870,7 +2874,8 @@ namespace folia {
 	}
       }
     }
-    throw NoSuchText( xmltag() + "::text_content(" + desired_class + ")" );
+    throw NoSuchText( this,
+		      xmltag() + "::text_content(" + desired_class + ")" );
   }
 
   TextContent *AbstractElement::text_content( const TextPolicy& tp ) {
@@ -2917,12 +2922,14 @@ namespace folia {
 	return dynamic_cast<const PhonContent*>(this);
       }
       else {
-	throw NoSuchPhon( xmltag() + "::phon_content(" + desired_class + ")" );
+	throw NoSuchPhon( this,
+			  xmltag() + "::phon_content(" + desired_class + ")" );
       }
     }
     bool show_hidden = tp.is_set( TEXT_FLAGS::HIDDEN );
     if ( !speakable() || ( hidden() && !show_hidden ) ) {
-      throw NoSuchPhon( "non-speakable element: " + xmltag() );
+      throw NoSuchPhon( this,
+			"non-speakable element: " + xmltag() );
     }
 
     for ( const auto& el : _data ) {
@@ -2937,7 +2944,8 @@ namespace folia {
 	}
       }
     }
-    throw NoSuchPhon( xmltag() + "::phon_content(" + desired_class + ")" );
+    throw NoSuchPhon( this,
+		      xmltag() + "::phon_content(" + desired_class + ")" );
   }
 
   PhonContent *AbstractElement::phon_content( const TextPolicy& tp ) {
@@ -2983,7 +2991,8 @@ namespace folia {
       return phon_content(tp)->phon();
     }
     else if ( !speakable() || ( this->hidden() && !show_hidden ) ) {
-      throw NoSuchPhon( "NON speakable element: " + xmltag() );
+      throw NoSuchPhon( this,
+			"NON speakable element: " + xmltag() );
     }
     else {
       UnicodeString result = deepphon( tp );
@@ -2991,7 +3000,8 @@ namespace folia {
 	result = phon_content(tp)->phon();
       }
       if ( result.isEmpty() ) {
-	throw NoSuchPhon( "on tag " + xmltag() + " nor it's children" );
+	throw NoSuchPhon( this,
+			  "on tag " + xmltag() + " nor it's children" );
       }
       return result;
     }
@@ -3079,7 +3089,8 @@ namespace folia {
 	   << "'" << endl;
     }
     if ( result.isEmpty() ) {
-      throw NoSuchPhon( xmltag() + ":(class=" + tp.get_class() +"): empty!" );
+      throw NoSuchPhon( this,
+			xmltag() + ":(class=" + tp.get_class() +"): empty!" );
     }
     return result;
   }

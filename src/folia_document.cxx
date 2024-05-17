@@ -2110,7 +2110,9 @@ namespace folia {
     args.erase("processor");
     if ( args.size() != 0 ){
       throw DocumentError( _source_name,
-			   "declaration: expected 'annotator', 'annotatortype', 'processor', 'alias' or 'datetime', got '" + args.begin()->first + "'" );
+			   "declaration: expected 'annotator', 'annotatortype'"
+			   " 'processor', 'alias' or 'datetime', got '"
+			   + args.begin()->first + "'" );
     }
     internal_declare( type, st, f, a, t, d, processors, my_alias );
   }
@@ -2498,7 +2500,8 @@ namespace folia {
     const FoliaElement *root = getRoot();
     if ( root ){
       throw DocumentError( _source_name,
-			   "cannot append a root element to a Document. Already there." );
+			   "cannot append a root element to a Document. "
+			   "Already there." );
     }
     if ( t->element_id() == Text_t
 	 || t->element_id() == XmlComment_t
@@ -2507,7 +2510,8 @@ namespace folia {
       return t;
     }
     throw DocumentError( _source_name,
-			 "Only can append 'text' or 'speech' as root of a Document. (attempted=" + t->xmltag() );
+			 "Only can append 'text' or 'speech' as root of a "
+			 "Document. (attempted=" + t->xmltag() );
   }
 
   void Document::incrRef( AnnotationType type,

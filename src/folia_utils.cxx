@@ -94,6 +94,24 @@ namespace folia {
 			+ " ( at line=" + std::to_string( elt->line_number() )
 			+ " ): inconsistent text: " + mess ){};
 
+  UnresolvableTextContent::UnresolvableTextContent( const FoliaElement *elt,
+						    const std::string& mess ):
+    std::runtime_error( (elt->doc()?elt->doc()->filename():"")
+			+ " ( at line=" + std::to_string( elt->line_number() )
+			+ " ): unresolvable text: " + mess ){};
+
+  NoSuchText::NoSuchText( const FoliaElement *elt,
+			  const std::string& mess ):
+    std::runtime_error( (elt->doc()?elt->doc()->filename():"")
+			+ " ( at line=" + std::to_string( elt->line_number() )
+			+ " ): NO text content: " + mess ){};
+
+  NoSuchPhon::NoSuchPhon( const FoliaElement *elt,
+			  const std::string& mess ):
+    std::runtime_error( (elt->doc()?elt->doc()->filename():"")
+			+ " ( at line=" + std::to_string( elt->line_number() )
+			+ " ): NO phon content: " + mess ){};
+
   FoliaElement *FoliaElement::createElement( const string& tag,
 					     Document *doc ){
     /// create a new FoliaElement

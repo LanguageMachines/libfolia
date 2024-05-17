@@ -89,12 +89,16 @@ namespace folia {
   public:
     explicit NoSuchText( const std::string& s ):
       std::runtime_error( "no such text: " + s ){};
+    explicit NoSuchText( const FoliaElement *,
+			 const std::string& );
   };
 
   class NoSuchPhon: public std::runtime_error {
   public:
     explicit NoSuchPhon( const std::string& s ):
       std::runtime_error( "no such phoneme: " + s ){};
+    explicit NoSuchPhon( const FoliaElement *,
+			 const std::string& );
   };
 
   class DuplicateAnnotationError: public std::runtime_error {
@@ -131,6 +135,8 @@ namespace folia {
   public:
     explicit UnresolvableTextContent( const std::string& s ):
       std::runtime_error( "Unresolvable text: " + s ){};
+    explicit UnresolvableTextContent( const FoliaElement *,
+				      const std::string& );
   };
 
   class DeclarationError: public std::runtime_error {

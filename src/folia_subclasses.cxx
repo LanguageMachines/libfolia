@@ -527,10 +527,14 @@ namespace folia {
       the_ref = find_default_reference();
     }
     if ( !the_ref ){
-      throw UnresolvableTextContent( "Default reference for content not found!" );
+      throw UnresolvableTextContent( this,
+				     "Default reference for content not found!" );
     }
     else if ( !the_ref->hastext( cls() ) ){
-      throw UnresolvableTextContent( "Reference (ID " + _ref + ") has no such text (class=" + cls() + ")" );
+      throw UnresolvableTextContent( this,
+				     "Reference (ID " + _ref
+				     + ") has no such text (class="
+				     + cls() + ")" );
     }
     else if ( doc()->checktext() || doc()->fixtext() ){
       TextPolicy tp( cls(), TEXT_FLAGS::STRICT );
@@ -545,7 +549,8 @@ namespace folia {
 	  this->set_offset( cumulated_offset );
 	}
 	else {
-	  throw UnresolvableTextContent( "Reference (ID " + the_ref->id()
+	  throw UnresolvableTextContent( this,
+					 "Reference (ID " + the_ref->id()
 					 + ",class=" + cls()
 					 + " found, but offset out of range"
 					 + " [0-"
@@ -560,7 +565,8 @@ namespace folia {
 	    this->set_offset( cumulated_offset );
 	  }
 	  else {
-	    throw UnresolvableTextContent( "Reference (ID " + the_ref->id()
+	    throw UnresolvableTextContent( this,
+					   "Reference (ID " + the_ref->id()
 					   + ",class=" + cls()
 					   + " found, but offset should probably"
 					   + " be "
@@ -576,7 +582,8 @@ namespace folia {
 	    int pos = pt.indexOf( mt );
 	    if ( pos < 0 ){
 	      // no substring found, offset cannot be set
-	      throw UnresolvableTextContent( "Reference (ID " + the_ref->id()
+	      throw UnresolvableTextContent( this,
+					     "Reference (ID " + the_ref->id()
 					     + ",class=" + cls()
 					     + " found, but no substring match "
 					     + TiCC::UnicodeToUTF8(mt) + " in "
@@ -587,7 +594,8 @@ namespace folia {
 	    }
 	  }
 	  else {
-	    throw UnresolvableTextContent( "Reference (ID " + the_ref->id() +
+	    throw UnresolvableTextContent( this,
+					   "Reference (ID " + the_ref->id() +
 					   ",class='" + cls()
 					   + "') found, but no text match at "
 					   + "offset="
@@ -1056,7 +1064,7 @@ namespace folia {
     	return AbstractElement::append( child );
       }
       child->destroy();
-      throw DuplicateAnnotationError( "Word::append" );
+      throw DuplicateAnnotationError( this, "Word::append" );
     }
     return AbstractElement::append( child );
   }
@@ -1523,7 +1531,7 @@ namespace folia {
      */
     vector<FoliaElement *> v = select(Caption_t);
     if ( v.empty() ) {
-      throw NoSuchText("caption");
+      throw NoSuchText( this, "caption");
     }
     else {
       return v[0]->text();
@@ -1691,7 +1699,8 @@ namespace folia {
       set_set( c_set );
     }
     else if ( sett() != c_set ){
-      throw DuplicateAnnotationError( "appending child: " + child->xmltag()
+      throw DuplicateAnnotationError( this,
+				      "appending child: " + child->xmltag()
 				      + " with set='"
 				      +  c_set + "' to " + xmltag()
 				      + " failed while it already has set='"
@@ -2032,7 +2041,7 @@ namespace folia {
       }
     }
     if ( final_result.isEmpty() ){
-      throw NoSuchText( "cls=" + tp.get_class() );
+      throw NoSuchText( this, "cls=" + tp.get_class() );
     }
     if ( tp.debug() ){
       cerr << "PRIVATE_TEXT(" << tp.get_class() << ") on correction gave '"
@@ -2097,7 +2106,7 @@ namespace folia {
       // fallthrough
       break;
     };
-    throw NoSuchText("wrong cls");
+    throw NoSuchText( this, "wrong cls");
   }
 
   const TextContent *Correction::text_content( const string& cls,
@@ -2338,7 +2347,7 @@ namespace folia {
     default:
       break;
     }
-    throw NoSuchPhon("wrong cls");
+    throw NoSuchPhon( this, "wrong cls");
   }
 
   const PhonContent *Correction::phon_content( const string& cls,
@@ -2518,7 +2527,7 @@ namespace folia {
     if ( hd != data().end() ){
       return dynamic_cast<Head*>(*hd);
     }
-    throw runtime_error( "No head" );
+    throw NoSuchAnnotation( this, "head" );
   }
 
   const string Gap::content() const {
@@ -2931,7 +2940,8 @@ namespace folia {
     if ( it == kwargs.end() ) {
       _subset = default_subset();
       if ( _subset.empty() ){
-	throw ValueError( this, "subset attribute is required for "
+	throw ValueError( this,
+			  "subset attribute is required for "
 			  + classname() );
       }
     }
