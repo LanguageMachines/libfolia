@@ -52,33 +52,47 @@ using namespace TiCC;
 
 namespace folia {
 
+  ValueError::ValueError( const FoliaElement *elt,
+			  const std::string& mess ):
+    std::runtime_error( (elt->doc()?elt->doc()->filename():"")
+			+ " ( at line=" + std::to_string( elt->line_number() )
+			+ " ): Value error: " + mess ){};
+
+  DeclarationError::DeclarationError( const FoliaElement *elt,
+				      const std::string& mess ):
+    std::runtime_error( (elt->doc()?elt->doc()->filename():"")
+			+ " ( at line=" + std::to_string( elt->line_number() )
+			+ " ): Declaration error: " + mess ){};
+
   DuplicateIDError::DuplicateIDError( const FoliaElement *elt,
 				      const std::string& mess ):
-    std::runtime_error( "Duplicate ID: "
-			+ (elt->doc()?elt->doc()->filename():"")
+    std::runtime_error( (elt->doc()?elt->doc()->filename():"")
 			+ " ( at line=" + std::to_string( elt->line_number() )
-			+ " ):" + mess ){};
+			+ " ): Duplicate ID: " + mess ){};
 
   DuplicateAnnotationError::DuplicateAnnotationError( const FoliaElement *elt,
 						      const std::string& mess ):
-    std::runtime_error( "Duplicate Annotation: "
-			+ (elt->doc()?elt->doc()->filename():"")
+    std::runtime_error( (elt->doc()?elt->doc()->filename():"")
 			+ " ( at line=" + std::to_string( elt->line_number() )
-			+ " ):" + mess ){};
+			+ " ): Duplicate Annotation: " + mess ){};
+
+  NoSuchAnnotation::NoSuchAnnotation( const FoliaElement *elt,
+				      const std::string& mess ):
+    std::runtime_error( (elt->doc()?elt->doc()->filename():"")
+			+ " ( at line=" + std::to_string( elt->line_number() )
+			+ " ): no such annotation: " + mess ){};
 
   XmlError::XmlError( const FoliaElement *elt,
 		      const std::string& mess ):
-    std::runtime_error( "XML error: "
-			+ (elt->doc()?elt->doc()->filename():"")
+    std::runtime_error( (elt->doc()?elt->doc()->filename():"")
 			+ " ( at line=" + std::to_string( elt->line_number() )
-			+ " ):" + mess ){};
+			+ " ): XML error: " + mess ){};
 
   InconsistentText::InconsistentText( const FoliaElement *elt,
 				      const std::string& mess ):
-    std::runtime_error( "inconsistent text: "
-			+ (elt->doc()?elt->doc()->filename():"")
+    std::runtime_error( (elt->doc()?elt->doc()->filename():"")
 			+ " ( at line=" + std::to_string( elt->line_number() )
-			+ " ):" + mess ){};
+			+ " ): inconsistent text: " + mess ){};
 
   FoliaElement *FoliaElement::createElement( const string& tag,
 					     Document *doc ){

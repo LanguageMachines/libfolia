@@ -248,7 +248,8 @@ namespace folia {
 	// ignore
       }
       else {
-	throw XmlError( "Word or Sentence expected in Quote. got: "
+	throw XmlError( this,
+			"Word or Sentence expected in Quote. got: "
 			+ pnt->classname() );
       }
     }
@@ -420,7 +421,8 @@ namespace folia {
       kwargs.erase(it);
       if ( value.empty() ) {
 	// can this ever happen?
-	throw ValueError( "Content: 'value' attribute may not be empty." );
+	throw ValueError( this,
+			  "Content: 'value' attribute may not be empty." );
       }
       add_child<XmlText>( value );
     }
@@ -1400,7 +1402,8 @@ namespace folia {
     KWargs atts = getAttributes( node );
     string id = atts["id"];
     if ( id.empty() ) {
-      throw XmlError( "empty id in WordReference" );
+      throw XmlError( this,
+		      "empty id in WordReference" );
     }
     if ( doc()->debug ) {
       cerr << "Found word reference: " << id << endl;
@@ -1408,7 +1411,8 @@ namespace folia {
     FoliaElement *ref = (*doc())[id];
     if ( ref ) {
       if ( !ref->referable() ){
-	throw XmlError( "WordReference id=" + id + " refers to a non-referable word: "
+	throw XmlError( this,
+			"WordReference id=" + id + " refers to a non-referable word: "
 			+ ref->xmltag() );
       }
       // Disabled test! should consider the textclass of the yet unknown
@@ -1429,7 +1433,8 @@ namespace folia {
       ref->increfcount();
     }
     else {
-      throw XmlError( "Unresolvable id " + id + " in WordReference" );
+      throw XmlError( this,
+		      "Unresolvable id " + id + " in WordReference" );
     }
     delete this;
     return ref;
@@ -1444,7 +1449,8 @@ namespace folia {
     KWargs att = getAttributes( node );
     string val = att["id"];
     if ( val.empty() ) {
-      throw XmlError( "ID required for LinkReference" );
+      throw XmlError( this,
+		      "ID required for LinkReference" );
     }
     ref_id = val;
     if ( doc()->debug ) {
@@ -1606,7 +1612,8 @@ namespace folia {
       // cerr << "append a word: " << child << " to " << this << endl;
       // cerr << "refcnt=" << child->refcount() << endl;
       if ( child->refcount() == 0 ){
-	throw XmlError( "connecting a <w> to an <" + xmltag()
+	throw XmlError( this,
+			"connecting a <w> to an <" + xmltag()
        			+ "> is forbidden, use <wref>" );
       }
     }
@@ -1797,7 +1804,8 @@ namespace folia {
     while ( p ) {
       if ( p->type == XML_CDATA_SECTION_NODE ) {
 	if ( isText ) {
-	  throw XmlError( "intermixing text and CDATA in Content node" );
+	  throw XmlError( this,
+			  "intermixing text and CDATA in Content node" );
 	}
 	value += TextValue( p );
 	isCdata = !value.empty();
@@ -1809,7 +1817,8 @@ namespace folia {
 	tmp = TiCC::trim(tmp);
 	if ( !tmp.empty()
 	     && isCdata ) {
-	  throw XmlError( "intermixing CDATA and text in Content node" );
+	  throw XmlError( this,
+			  "intermixing CDATA and text in Content node" );
 	}
 	isText = !tmp.empty();
 	value += tmp;
@@ -1825,7 +1834,8 @@ namespace folia {
       p = p->next;
     }
     if ( value.empty() ) {
-      throw XmlError( "CDATA or Text expected in Content node" );
+      throw XmlError( this,
+		      "CDATA or Text expected in Content node" );
     }
     return this;
   }
@@ -1862,13 +1872,15 @@ namespace folia {
     if ( n ){
       if ( o ){
 	if ( !compatible_types( n,o ) ){
-	  throw XmlError( "type mismatch in Correction: New=" + n->xmltag()
+	  throw XmlError( this,
+			  "type mismatch in Correction: New=" + n->xmltag()
 			  + " but Original=" + o->xmltag() );
 	}
       }
       if ( c ){
 	if ( !compatible_types( n,c ) ){
-	  throw XmlError( "type mismatch in Correction: New=" + n->xmltag()
+	  throw XmlError( this,
+			  "type mismatch in Correction: New=" + n->xmltag()
 			  + " but Current=" + c->xmltag() );
 	}
       }
@@ -1876,7 +1888,8 @@ namespace folia {
     else if ( o ){
       if ( c ){
 	if ( !compatible_types( c,o ) ){
-	  throw XmlError( "type mismatch in Correction: Original=" + o->xmltag()
+	  throw XmlError( this,
+			  "type mismatch in Correction: Original=" + o->xmltag()
 			  + " but Current=" + c->xmltag() );
 	}
       }
@@ -2189,7 +2202,7 @@ namespace folia {
 	if ( !parent->id().empty() ){
 	  mess += " (id=" + parent->id() + ")";
 	}
-	throw XmlError( mess );
+	throw XmlError( this, mess );
       }
     }
     n = getOriginal(0);
@@ -2203,7 +2216,7 @@ namespace folia {
 	if ( !parent->id().empty() ){
 	  mess += " (id=" + parent->id() + ")";
 	}
-	throw XmlError( mess );
+	throw XmlError( this, mess );
       }
     }
     n = getCurrent(0);
@@ -2217,7 +2230,7 @@ namespace folia {
 	if ( !parent->id().empty() ){
 	  mess += " (id=" + parent->id() + ")";
 	}
-	throw XmlError( mess );
+	throw XmlError( this, mess );
       }
     }
     return true;
@@ -2236,7 +2249,8 @@ namespace folia {
     }
     vector<FoliaElement*> v = parent->select( Current_t, SELECT_FLAGS::LOCAL );
     if ( !v.empty() ){
-      throw XmlError( "Cant't add New element to Correction if there is a Current item" );
+      throw XmlError( this,
+		      "Cant't add New element to Correction if there is a Current item" );
     }
     return true;
   }
@@ -2254,7 +2268,8 @@ namespace folia {
     }
     vector<FoliaElement*> v = parent->select( Current_t, SELECT_FLAGS::LOCAL );
     if ( !v.empty() ){
-      throw XmlError( "Cant't add Original element to Correction if there is a Current item" );
+      throw XmlError( this,
+		      "Cant't add Original element to Correction if there is a Current item" );
     }
     return true;
   }
@@ -2272,11 +2287,13 @@ namespace folia {
     }
     vector<FoliaElement*> v = parent->select( New_t, SELECT_FLAGS::LOCAL );
     if ( !v.empty() ){
-      throw XmlError( "Cant't add Current element to Correction if there is a New item" );
+      throw XmlError( this,
+		      "Cant't add Current element to Correction if there is a New item" );
     }
     v = parent->select( Original_t, SELECT_FLAGS::LOCAL );
     if ( !v.empty() ){
-      throw XmlError( "Cant't add Current element to Correction if there is an Original item" );
+      throw XmlError( this,
+		      "Cant't add Current element to Correction if there is an Original item" );
     }
     return true;
   }
@@ -2484,7 +2501,7 @@ namespace folia {
      */
     vector<Suggestion*> v = suggestions();
     if ( v.empty() || index >= v.size() ) {
-      throw NoSuchAnnotation( "suggestion" );
+      throw NoSuchAnnotation( this, "suggestion" );
     }
     return v[index];
   }
@@ -2511,7 +2528,7 @@ namespace folia {
      */
     vector<FoliaElement*> cv = select( Content_t );
     if ( cv.empty() ) {
-      throw NoSuchAnnotation( "content" );
+      throw NoSuchAnnotation( this, "content" );
     }
     return cv[0]->content();
   }
@@ -2523,7 +2540,7 @@ namespace folia {
      */
     vector<Headspan*> v = FoliaElement::select<Headspan>();
     if ( v.size() < 1 ) {
-      throw NoSuchAnnotation( "head" );
+      throw NoSuchAnnotation( this, "head" );
     }
     return v[0];
   }
@@ -2536,7 +2553,7 @@ namespace folia {
      */
     vector<DependencyDependent *> v = FoliaElement::select<DependencyDependent>();
     if ( v.empty() ) {
-      throw NoSuchAnnotation( "dependent" );
+      throw NoSuchAnnotation( this, "dependent" );
     }
     return v[0];
   }
@@ -2657,7 +2674,8 @@ namespace folia {
       setvalue( txt );
     }
     if ( !args.empty() ){
-      throw ValueError( "unsupported attribute for XmlText: "
+      throw ValueError( this,
+			"unsupported attribute for XmlText: "
 			+ args.begin()->first );
     }
   }
@@ -2676,7 +2694,8 @@ namespace folia {
     string txt = TextValue( node );
     txt = trim( txt );
     if ( txt.empty() ) {
-      throw ValueError( "TextContent may not be empty" );
+      throw ValueError( this,
+			"TextContent may not be empty" );
     }
     setvalue( txt );
     return this;
@@ -2731,11 +2750,12 @@ namespace folia {
 	xmlFreeDoc( extdoc );
       }
       else {
-	throw XmlError( "resolving external " + src + " failed" );
+	throw XmlError( this, "resolving external " + src + " failed" );
       }
     }
     catch ( const exception& e ) {
-      throw XmlError( "resolving external " + src + " failed: "
+      throw XmlError( this,
+		      "resolving external " + src + " failed: "
 		      + e.what() );
     }
   }
@@ -2911,21 +2931,26 @@ namespace folia {
     if ( it == kwargs.end() ) {
       _subset = default_subset();
       if ( _subset.empty() ){
-	throw ValueError("subset attribute is required for " + classname() );
+	throw ValueError( this, "subset attribute is required for "
+			  + classname() );
       }
     }
     else {
       if ( it->second.empty() ) {
-	throw ValueError("subset attribute may never be empty: " + classname() );
+	throw ValueError( this,
+			  "subset attribute may never be empty: "
+			  + classname() );
       }
       _subset = it->second;
     }
     it = kwargs.find( "class" );
     if ( it == kwargs.end() ) {
-      throw ValueError("class attribute is required for " + classname() );
+      throw ValueError( this,
+			"class attribute is required for " + classname() );
     }
     if ( it->second.empty() ) {
-      throw ValueError("class attribute may never be empty: " + classname() );
+      throw ValueError( this,
+			"class attribute may never be empty: " + classname() );
     }
     set_cls( it->second );
   }
@@ -2988,7 +3013,8 @@ namespace folia {
       string pref;
       string ns = getNS( p, pref );
       if ( ns == NSFOLIA ){
-	throw XmlError( "ForeignData MAY NOT be in the FoLiA namespace" );
+	throw XmlError( this,
+			"ForeignData MAY NOT be in the FoLiA namespace" );
       }
       p = p->next;
     }
@@ -3057,7 +3083,8 @@ namespace folia {
     if ( it != kwargs.end() ) {
       auto it2 = kwargs.find( "xml:id" );
       if ( it2 != kwargs.end() ) {
-	throw ValueError("Both 'id' and 'xml:id found for " + classname() );
+	throw ValueError( this,
+			  "Both 'id' and 'xml:id found for " + classname() );
       }
       idref = it->second;
       kwargs.erase( it );

@@ -51,14 +51,6 @@ namespace folia {
     explicit ArgsError( const std::string& s ): std::runtime_error( "error in argument list: " + s  ){};
   };
 
-  class KeyError: public std::out_of_range {
-  public:
-    explicit KeyError(): std::out_of_range( "key out of range" ){};
-    // cppcheck-suppress noExplicitConstructor
-    // We want to be able to use const char parameters AND string
-    KeyError( const std::string& s ): std::out_of_range( "key out of range: " + s ){};
-  };
-
   class NotImplementedError: public std::runtime_error {
   public:
     explicit NotImplementedError( const std::string& s ):
@@ -69,6 +61,8 @@ namespace folia {
   public:
     explicit ValueError( const std::string& s ):
       std::runtime_error( s ){};
+    explicit ValueError( const FoliaElement *,
+			 const std::string& s );
   };
 
   class XmlError: public std::runtime_error {
@@ -87,8 +81,8 @@ namespace folia {
 
   class NoSuchAnnotation: public std::runtime_error {
   public:
-    explicit NoSuchAnnotation( const std::string& s ):
-      std::runtime_error( "no such annotation: " + s ){};
+    NoSuchAnnotation( const FoliaElement *,
+		      const std::string& );
   };
 
   class NoSuchText: public std::runtime_error {
@@ -107,16 +101,16 @@ namespace folia {
   public:
     explicit DuplicateAnnotationError( const std::string& s ):
       std::runtime_error( s ){};
-    explicit DuplicateAnnotationError( const FoliaElement *,
-				       const std::string& );
+    DuplicateAnnotationError( const FoliaElement *,
+			      const std::string& );
   };
 
   class DuplicateIDError: public std::runtime_error {
   public:
     explicit DuplicateIDError( const std::string& s ):
       std::runtime_error( "duplicate ID : " + s ){};
-    explicit DuplicateIDError( const FoliaElement *,
-			       const std::string& s );
+    DuplicateIDError( const FoliaElement *,
+		      const std::string& );
   };
 
   class NoDefaultError: public std::runtime_error {
@@ -129,18 +123,22 @@ namespace folia {
   public:
     explicit InconsistentText( const std::string& s ):
       std::runtime_error( "inconsistent text: " + s ){};
-    explicit InconsistentText( const FoliaElement *,
-			       const std::string& s );
+    InconsistentText( const FoliaElement *,
+		      const std::string& );
   };
 
   class UnresolvableTextContent: public std::runtime_error {
   public:
-    explicit UnresolvableTextContent( const std::string& s ): std::runtime_error( "Unresolvable text: " + s ){};
+    explicit UnresolvableTextContent( const std::string& s ):
+      std::runtime_error( "Unresolvable text: " + s ){};
   };
 
   class DeclarationError: public std::runtime_error {
   public:
-    explicit DeclarationError( const std::string& s ): std::runtime_error( "DeclarationError: " + s ){};
+    explicit DeclarationError( const std::string& s ):
+      std::runtime_error( "DeclarationError: " + s ){};
+    DeclarationError( const FoliaElement *,
+		      const std::string& );
   };
 
   class DocumentError: public std::runtime_error {

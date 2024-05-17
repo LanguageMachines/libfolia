@@ -208,7 +208,8 @@ namespace folia {
      */
     Attrib supported = required_attributes() | optional_attributes();
     if ( !(TAG & supported) ) {
-      throw ValueError( "settag is not supported for " + classname() );
+      throw ValueError( this,
+			"settag() is not supported for " + classname() );
     }
     string r = _tags;
     _tags = t;
@@ -391,7 +392,8 @@ namespace folia {
       string def;
       if ( !_set.empty() ){
 	if ( !doc()->declared( annotation_type(), _set ) ) {
-	  throw DeclarationError( "Set '" + _set
+	  throw DeclarationError( this,
+				  "Set '" + _set
 				  + "' is used but has no declaration " +
 				  "for " + toString( annotation_type() )
 				  + "-annotation" );
@@ -429,7 +431,8 @@ namespace folia {
 	    _mydoc->auto_declare( annotation_type(), _set );
 	  }
 	  else {
-	    throw DeclarationError( "Encountered an instance of <"
+	    throw DeclarationError( this,
+				    "Encountered an instance of <"
 				    + xmltag()
 				    + "> without a proper "
 				    + toString(annotation_type())
@@ -443,7 +446,8 @@ namespace folia {
 	    _mydoc->auto_declare( annotation_type(), _set );
 	  }
 	  else {
-	    throw DeclarationError( "Encountered an instance of <"
+	    throw DeclarationError( this,
+				    "Encountered an instance of <"
 				    + xmltag()
 				    + "> without a proper "
 				    + toString(annotation_type())
@@ -529,14 +533,17 @@ namespace folia {
       cerr << "set processor_name= " << val << " on " << classname() << endl;
     }
     if ( annotation_type() == AnnotationType::NO_ANN ){
-      throw ValueError( "Unable to set processor on " + classname() + ". AnnotationType is None!" );
+      throw ValueError( this,
+			"Unable to set processor on " + classname()
+			+ ". AnnotationType is None!" );
     }
     if ( _set.empty() ){
       _set = "None";
     }
     else {
       if ( doc() && doc()->get_processor(val) == 0 ){
-	throw ValueError("attribute 'processor' has unknown value: " + val );
+	throw ValueError( this,
+			  "attribute 'processor' has unknown value: " + val );
       }
       if ( doc() ){
 	auto annotators = doc()->get_annotators( annotation_type(), _set );
@@ -555,7 +562,8 @@ namespace folia {
 	    doc()->declare( annotation_type(), _set, args );
 	  }
 	  else {
-	    throw DeclarationError( "Processor '" + val
+	    throw DeclarationError( this,
+				    "Processor '" + val
 				    + "' is used for annotationtype '"
 				    + toString( annotation_type() )
 				    + "' with set='" + _set +"'"
@@ -660,7 +668,8 @@ namespace folia {
 	throw runtime_error( "can't generate an ID without a doc" );
       }
       if ( !(ID & supported) ) {
-	throw ValueError( "generate_id: xml:id is not supported for "
+	throw ValueError( this,
+			  "generate_id: xml:id is not supported for "
 			  + classname() );
       }
       if ( val == "auto()" ){
@@ -669,7 +678,8 @@ namespace folia {
 	  _id = par->generateId( xmltag() );
 	}
 	else {
-	  throw ValueError( "generate_id `auto()' not possible without parent" );
+	  throw ValueError( this,
+			    "generate_id `auto()' not possible without parent" );
 	}
       }
       else {
@@ -678,7 +688,8 @@ namespace folia {
 	  _id = e->generateId( xmltag() );
 	}
 	else {
-	  throw ValueError("Unable to generate an id from ID= " + val );
+	  throw ValueError( this,
+			    "Unable to generate an id from ID= " + val );
 	}
       }
     }
@@ -689,7 +700,8 @@ namespace folia {
       }
       if ( !val.empty() ) {
 	if ( ! (ID & supported) ) {
-	  throw ValueError( "xml:id is not supported for " + classname() );
+	  throw ValueError( this,
+			    "xml:id is not supported for " + classname() );
 	}
 	else if ( val == "auto()" ){
 	  FoliaElement *par = parent();
@@ -697,7 +709,8 @@ namespace folia {
 	    _id = par->generateId( xmltag() );
 	  }
 	  else {
-	    throw ValueError( "auto-generate of 'xml:id' not possible without parent" );
+	    throw ValueError( this,
+			      "auto-generate of 'xml:id' not possible without parent" );
 	  }
 	}
 	else if ( isNCName( val ) ){
@@ -714,10 +727,14 @@ namespace folia {
     val = kwargs.extract( "set" );
     if ( !val.empty() ) {
       if ( !doc() ) {
-	throw ValueError( "attribute set=" + val + " is used on a node without a document." );
+	throw ValueError( this,
+			  "attribute set=" + val
+			  + " is used on a node without a document." );
       }
       if ( !( (CLASS & supported) || setonly() ) ) {
-	throw ValueError("attribute 'set' is not supported for " + classname());
+	throw ValueError( this,
+			  "attribute 'set' is not supported for "
+			  + classname() );
       }
       else {
 	string st = doc()->unalias( annotation_type(), val );
@@ -736,18 +753,21 @@ namespace folia {
     val = kwargs.extract( "class" );
     if ( !val.empty() ) {
       if ( !( CLASS & supported ) ) {
-	throw ValueError("Class is not supported for " + classname() );
+	throw ValueError( this,
+			  "Class is not supported for " + classname() );
       }
       if ( element_id() != TextContent_t && element_id() != PhonContent_t ) {
 	if ( !doc() ) {
-	  throw ValueError( "Class=" + val + " is used on a node without a document." );
+	  throw ValueError( this,
+			    "Class=" + val + " is used on a node without a document." );
 	}
 	if ( _set.empty() ){
 	  if ( !doc()->declared( annotation_type(), "None" ) ) {
 	    cerr << endl << doc()->annotationdefaults() << endl << endl;
-	    throw DeclarationError( xmltag() +": An empty set is used but that has no declaration "
-			      "for " + toString( annotation_type() )
-			      + "-annotation" );
+	    throw DeclarationError( this,
+				    xmltag() +": An empty set is used but that has no declaration "
+				    "for " + toString( annotation_type() )
+				    + "-annotation" );
 	  }
 	  _set = "None";
 	}
@@ -758,15 +778,17 @@ namespace folia {
 
     if ( element_id() != TextContent_t && element_id() != PhonContent_t ) {
       if ( !_class.empty() && _set.empty() ) {
-	throw ValueError("Set is required for <" + classname() +
-			 " class=\"" + _class + "\"> assigned without set."  );
+	throw ValueError( this,
+			  "Set is required for <" + classname() +
+			  " class=\"" + _class + "\"> assigned without set."  );
       }
     }
 
     val = kwargs.extract( "processor" );
     if ( !val.empty() ){
       if ( !(ANNOTATOR & supported) ){
-	throw ValueError( "attribute 'processor' is not supported for " + classname() );
+	throw ValueError( this,
+			  "attribute 'processor' is not supported for " + classname() );
       }
       set_processor_name( val );
     }
@@ -796,7 +818,9 @@ namespace folia {
     val = kwargs.extract( "annotator" );
     if ( !val.empty() ) {
       if ( !(ANNOTATOR & supported) ) {
-	throw ValueError("attribute 'annotator' is not supported for " + classname() );
+	throw ValueError( this,
+			  "attribute 'annotator' is not supported for "
+			  + classname() );
       }
       else {
 	if ( !_processor_id.empty()
@@ -806,7 +830,8 @@ namespace folia {
 				 kwargs.extract( "annotatortype" ) );
 	  }
 	  else {
-	    throw DeclarationError( "Autodeclarations are disabled but an "
+	    throw DeclarationError( this,
+				    "Autodeclarations are disabled but an "
 				    "annotator (" + val + ") was specified "
 				    "that differs from the one in the declared "
 				    "processor for this annotation type: "
@@ -830,12 +855,14 @@ namespace folia {
     val = kwargs.extract( "annotatortype" );
     if ( !val.empty() ) {
       if ( ! (ANNOTATOR & supported) ) {
-	throw ValueError("Annotatortype is not supported for " + classname() );
+	throw ValueError( this,
+			  "Annotatortype is not supported for " + classname() );
       }
       else {
 	_annotator_type = stringTo<AnnotatorType>( val );
 	if ( _annotator_type == UNDEFINED ) {
-	  throw ValueError( "annotatortype must be 'auto' or 'manual', got '"
+	  throw ValueError( this,
+			    "annotatortype must be 'auto' or 'manual', got '"
 			    + val + "'" );
 	}
       }
@@ -853,17 +880,22 @@ namespace folia {
     val = kwargs.extract( "confidence" );
     if ( !val.empty() ) {
       if ( !(CONFIDENCE & supported) ) {
-	throw ValueError("Confidence is not supported for " + classname() );
+	throw ValueError( this,
+			  "Confidence is not supported for " + classname() );
       }
       else {
 	try {
 	  _confidence = stringTo<double>(val);
 	  if ( _confidence < 0 || _confidence > 1.0 ){
-	    throw ValueError("Confidence must be a floating point number between 0 and 1, got " + TiCC::toString(_confidence) );
+	    throw ValueError( this,
+			      "Confidence must be a floating point number "
+			      "between 0 and 1, got "
+			      + TiCC::toString(_confidence) );
 	  }
 	}
 	catch (...) {
-	  throw ValueError( "invalid Confidence value: " + val
+	  throw ValueError( this,
+			    "invalid Confidence value: " + val
 			    + " (not a number?)");
 	}
       }
@@ -873,7 +905,8 @@ namespace folia {
     val = kwargs.extract( "n" );
     if ( !val.empty() ) {
       if ( !(N & supported) ) {
-	throw ValueError("N attribute is not supported for " + classname() );
+	throw ValueError( this,
+			  "N attribute is not supported for " + classname() );
       }
       else {
 	_n = val;
@@ -883,12 +916,16 @@ namespace folia {
     val = kwargs.extract( "datetime" );
     if ( !val.empty() ) {
       if ( !(DATETIME & supported) ) {
-	throw ValueError("datetime attribute is not supported for " + classname() );
+	throw ValueError( this,
+			  "datetime attribute is not supported for "
+			  + classname() );
       }
       else {
 	string time = parseDate( val );
 	if ( time.empty() ){
-	  throw ValueError( "invalid datetime, must be in YYYY-MM-DDThh:mm:ss format: " + val );
+	  throw ValueError( this,
+			    "invalid datetime, must be in YYYY-MM-DDThh:mm:ss"
+			    "format: " + val );
 	}
 	_datetime = time;
       }
@@ -903,12 +940,16 @@ namespace folia {
     val = kwargs.extract( "begintime" );
     if ( !val.empty() ) {
       if ( !(BEGINTIME & supported) ) {
-	throw ValueError( "begintime attribute is not supported for " + classname() );
+	throw ValueError( this,
+			  "begintime attribute is not supported for "
+			  + classname() );
       }
       else {
 	string time = parseTime( val );
 	if ( time.empty() ) {
-	  throw ValueError( "invalid begintime, must be in HH:MM:SS.mmm format: " + val );
+	  throw ValueError( this,
+			    "invalid begintime, must be in HH:MM:SS.mmm "
+			    "format: " + val );
 	}
 	_begintime = time;
       }
@@ -919,12 +960,15 @@ namespace folia {
     val = kwargs.extract( "endtime" );
     if ( !val.empty() ) {
       if ( !(ENDTIME & supported) ) {
-	throw ValueError( "endtime attribute is not supported for " + classname() );
+	throw ValueError( this,
+			  "endtime attribute is not supported for "
+			  + classname() );
       }
       else {
 	string time = parseTime( val );
 	if ( time.empty() ) {
-	  throw ValueError( "invalid endtime, must be in HH:MM:SS.mmm format: " + val );
+	  throw ValueError( this, "invalid endtime, must be in HH:MM:SS.mmm "
+			    "format: " + val );
 	}
 	_endtime = time;
       }
@@ -936,7 +980,8 @@ namespace folia {
     val = kwargs.extract( "src" );
     if ( !val.empty() ) {
       if ( !(SRC & supported) ) {
-	throw ValueError( "src attribute is not supported for " + classname() );
+	throw ValueError( this,
+			  "src attribute is not supported for " + classname() );
       }
       else {
 	_src = val;
@@ -948,7 +993,8 @@ namespace folia {
     val = kwargs.extract( "tag" );
     if ( !val.empty() ) {
       if ( !(TAG & supported) ) {
-	throw ValueError( "tag attribute is not supported for " + classname() );
+	throw ValueError( this,
+			  "tag attribute is not supported for " + classname() );
       }
       else {
 	_tags = val;
@@ -964,7 +1010,9 @@ namespace folia {
     val = kwargs.extract( "space" );
     if ( !val.empty() ) {
       if ( !(SPACE & supported) ){
-	throw ValueError( "space attribute is not supported for " + classname() );
+	throw ValueError( this,
+			  "space attribute is not supported for "
+			  + classname() );
       }
       else {
 	if ( val == "no" ) {
@@ -974,7 +1022,9 @@ namespace folia {
 	  _space = true;
 	}
 	else {
-	  throw ValueError( "invalid value for space attribute: '" + val + "'" );
+	  throw ValueError( this,
+			    "invalid value for space attribute: '"
+			    + val + "'" );
 	}
       }
     }
@@ -982,12 +1032,15 @@ namespace folia {
     val = kwargs.extract( "metadata" );
     if ( !val.empty() ) {
       if ( !(METADATA & supported) ) {
-	throw ValueError( "Metadata attribute is not supported for " + classname() );
+	throw ValueError( this,
+			  "Metadata attribute is not supported for "
+			  + classname() );
       }
       else {
 	_metadata = val;
 	if ( doc() && doc()->get_submetadata( _metadata ) == 0 ){
-	  throw KeyError( "No such metadata defined: " + _metadata );
+	  throw ValueError( this,
+			    "No such metadata defined: " + _metadata );
 	}
       }
     }
@@ -997,7 +1050,9 @@ namespace folia {
     val = kwargs.extract( "speaker" );
     if ( !val.empty() ) {
       if ( !(SPEAKER & supported) ) {
-	throw ValueError( "speaker attribute is not supported for " + classname() );
+	throw ValueError( this,
+			  "speaker attribute is not supported for "
+			  + classname() );
       }
       else {
 	_speaker = val;
@@ -1010,7 +1065,9 @@ namespace folia {
     val = kwargs.extract( "textclass" );
     if ( !val.empty() ) {
       if ( !(TEXTCLASS & supported) ) {
-	throw ValueError( "textclass attribute is not supported for " + classname() );
+	throw ValueError( this,
+			  "textclass attribute is not supported for "
+			  + classname() );
       }
       else {
 	_textclass = val;
@@ -3162,7 +3219,7 @@ namespace folia {
       if ( !parent->id().empty() ){
 	mess += " (id=" + parent->id() + ")";
       }
-      throw ValueError( mess );
+      throw ValueError( this, mess );
     }
     if ( occurrences() > 0 ) {
       vector<FoliaElement*> v = parent->select( element_id(),
@@ -3228,7 +3285,8 @@ namespace folia {
 	bool has_implicit = std::any_of( _data.begin(), _data.end(),
 					 implicit );
 	if ( !has_implicit ){
-	  throw ValueError( "attempt to add an empty <t> to word: "
+	  throw ValueError( this,
+			    "attempt to add an empty <t> to word: "
 			    + parent->id() );
 	}
       }
@@ -3299,7 +3357,8 @@ namespace folia {
 	  doc()->auto_declare( annotation_type(), _set );
 	}
 	else {
-	  throw DeclarationError( "Encountered an instance of <"
+	  throw DeclarationError( this,
+				  "Encountered an instance of <"
 				  + xmltag()
 				  + "> without a proper declaration for "
 				  + toString(annotation_type())
@@ -3309,7 +3368,8 @@ namespace folia {
       if ( !_set.empty()
 	   && (CLASS & required_attributes() )
 	   && !_mydoc->declared( annotation_type(), _set ) ) {
-	throw DeclarationError( "Set " + _set + " is used in " + xmltag()
+	throw DeclarationError( this,
+				"Set " + _set + " is used in " + xmltag()
 				+ "element: " + _id
 				+ " but has no declaration "
 				+ "for " + toString( annotation_type() )
@@ -3332,55 +3392,68 @@ namespace folia {
      */
     if ( _id.empty()
 	 && (ID & required_attributes() ) ) {
-      throw ValueError( "attribute 'ID' is required for " + classname() );
+      throw ValueError( this,
+			"attribute 'ID' is required for " + classname() );
     }
     if ( _set.empty()
 	 && (CLASS & required_attributes() ) ) {
-      throw ValueError( "attribute 'set' is required for " + classname() );
+      throw ValueError( this,
+			"attribute 'set' is required for " + classname() );
     }
     if ( _class.empty()
 	 && ( CLASS & required_attributes() ) ) {
-      throw ValueError( "attribute 'class' is required for " + classname() );
+      throw ValueError( this,
+			"attribute 'class' is required for " + classname() );
     }
     if ( _annotator.empty()
 	 && ( ANNOTATOR & required_attributes() ) ) {
-      throw ValueError( "attribute 'annotator' is required for " + classname() );
+      throw ValueError( this,
+			"attribute 'annotator' is required for " + classname() );
     }
     if ( _annotator_type == UNDEFINED
 	 && ( ANNOTATOR & required_attributes() ) ) {
-      throw ValueError( "attribute 'Annotatortype' is required for " + classname() );
+      throw ValueError( this,
+			"attribute 'Annotatortype' is required for " + classname() );
     }
     if ( _confidence == -1 &&
 	 ( CONFIDENCE & required_attributes() ) ) {
-      throw ValueError( "attribute 'confidence' is required for " + classname() );
+      throw ValueError( this,
+			"attribute 'confidence' is required for " + classname() );
     }
     if ( _n.empty()
 	 && ( N & required_attributes() ) ) {
-      throw ValueError( "attribute 'n' is required for " + classname() );
+      throw ValueError( this,
+			"attribute 'n' is required for " + classname() );
     }
     if ( _datetime.empty()
 	 && ( DATETIME & required_attributes() ) ) {
-      throw ValueError( "attribute 'datetime' is required for " + classname() );
+      throw ValueError( this,
+			"attribute 'datetime' is required for " + classname() );
     }
     if ( _begintime.empty()
 	 && ( BEGINTIME & required_attributes() ) ) {
-      throw ValueError( "attribute 'begintime' is required for " + classname() );
+      throw ValueError( this,
+			"attribute 'begintime' is required for " + classname() );
     }
     if ( _endtime.empty()
 	 && ( ENDTIME & required_attributes() ) ) {
-      throw ValueError( "attribute 'endtime' is required for " + classname() );
+      throw ValueError( this,
+			"attribute 'endtime' is required for " + classname() );
     }
     if ( _src.empty()
 	 && ( SRC & required_attributes() ) ) {
-      throw ValueError( "attribute 'src' is required for " + classname() );
+      throw ValueError( this,
+			"attribute 'src' is required for " + classname() );
     }
     if ( _metadata.empty()
 	 && ( METADATA & required_attributes() ) ) {
-      throw ValueError( "attribute 'metadata' is required for " + classname() );
+      throw ValueError( this,
+			"attribute 'metadata' is required for " + classname() );
     }
     if ( _speaker.empty()
 	 && ( SPEAKER & required_attributes() ) ) {
-      throw ValueError( "attribute 'speaker' is required for " + classname() );
+      throw ValueError( this,
+			"attribute 'speaker' is required for " + classname() );
     }
     return true;
   }
@@ -3788,12 +3861,14 @@ namespace folia {
      */
     Attrib supported = required_attributes() | optional_attributes();
     if ( !(DATETIME & supported) ) {
-      throw ValueError("datetime is not supported for " + classname() );
+      throw ValueError( this,
+			"datetime is not supported for " + classname() );
     }
     else {
       string time = parseDate( s );
       if ( time.empty() ) {
-	throw ValueError( "invalid datetime, must be in YYYY-MM-DDThh:mm:ss format: " + s );
+	throw ValueError( this,
+			  "invalid datetime, must be in YYYY-MM-DDThh:mm:ss format: " + s );
       }
       _datetime = time;
     }
@@ -4113,10 +4188,12 @@ namespace folia {
 	corr = dynamic_cast<Correction*>(doc->index(it->second));
       }
       catch ( const exception& e ) {
-	throw ValueError("reuse= must point to an existing correction id!");
+	throw ValueError( this,
+			  "reuse= must point to an existing correction id!" );
       }
       if ( !corr->isinstance( Correction_t ) ) {
-	throw ValueError("reuse= must point to an existing correction id!");
+	throw ValueError( this,
+			  "reuse= must point to an existing correction id!" );
       }
       hooked = true;
       if ( !_new.empty() && corr->hasCurrent() ) {
