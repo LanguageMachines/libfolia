@@ -27,6 +27,7 @@
 #ifndef FOLIA_IMPL_H
 #define FOLIA_IMPL_H
 
+#include <type_traits>
 #include <set>
 #include <map>
 #include <vector>
@@ -876,6 +877,17 @@ namespace folia {
     std::vector<FoliaElement*> _data;
     const properties& _props;
   };
+
+  template <typename T1, typename T2>
+  bool isSubClass(){
+    /// templated check if Type T1 is a subclass of Type T2
+    /*!
+      \return true if T1 is a SubClass of T2.
+      This is about C++ class inheritance: is our class a derivative of c's
+      class?
+    */
+    return std::is_convertible<T1*,T2*>::value;
+  }
 
   bool isSubClass( const ElementType e1, const ElementType e2 );
 
