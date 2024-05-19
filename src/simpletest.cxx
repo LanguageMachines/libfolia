@@ -28,6 +28,7 @@
 #include <iostream>
 #include <string>
 #include <map>
+#include <cassert>
 #include "ticcutils/StringOps.h"
 #include "ticcutils/Unicode.h"
 #include "libfolia/folia.h"
@@ -148,5 +149,16 @@ int main() {
     cerr << "is_norm_empty() failed." << endl;
     return EXIT_FAILURE;
   }
+
+  assert( ( isSubClass<AbstractWord,Word>() == 0 ) );
+  assert( ( isSubClass<Word,AbstractWord>() == 1 ) );
+  assert( ( isSubClass<AbstractStructureElement,Word>() == 0 ) );
+  assert( ( isSubClass<Word,AbstractStructureElement>() == 1 ) );
+  assert( ( isSubClass<AbstractElement, AbstractWord>() == 0 ) );
+  assert( ( isSubClass<AbstractWord, FoliaElement>() == 1 ) );
+  assert( ( isSubClass<AbstractWord, AbstractElement>() == 0 ) );
+  assert( ( isSubClass<AbstractElement,Word>() == 0 ) );
+  assert( ( isSubClass<Word,AbstractElement>() == 1 ) );
+  assert( ( isSubClass<Word,Word>() == 1 ) );
   return EXIT_SUCCESS;
 }
