@@ -615,6 +615,7 @@ public:									\
   };
 
   class Feature: public AbstractFeature {
+  public:
     ADD_DEFAULT_CONSTRUCTORS( Feature, AbstractFeature );
   };
 

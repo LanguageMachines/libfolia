@@ -160,5 +160,6 @@ int main() {
   assert( ( isSubClass<AbstractElement,Word>() == 0 ) );
   assert( ( isSubClass<Word,AbstractElement>() == 1 ) );
   assert( ( isSubClass<Word,Word>() == 1 ) );
+  assert( ( isSubClass<AllowXlink,FoliaElement>() == 1 ) );
   return EXIT_SUCCESS;
 }
