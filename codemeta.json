@@ -7,7 +7,7 @@
     "@type": "SoftwareSourceCode",
     "identifier": "libfolia",
     "name": "libfolia",
-    "version": "2.19",
+    "version": "2.20",
     "description": "This is a C++ Library for working with the Format for Linguistic Annotation (FoLiA).",
     "license": "https://spdx.org/licenses/GPL-3.0-only",
 	"url": "https://github.com/LanguageMachines/libfolia",
