@@ -1,4 +1,15 @@
-2.18 2024-04-26]
+2.19 2024-05-27
+[Ko van der Sloot]
+* again bumped the .so version, as we break the ABI
+* Refactored the Class hierarchy for clearer code
+  - introducing an AbstracFeature class as base for all derived Features
+* improved exception and error handling, including line numbers in messages
+  when possible
+* added code to detect mismatch between annotators and processors (were not
+  detected until now)
+* cleaner en better C++ code, const correctness and such...
+
+2.18 2024-04-26
 [Ko van der Sloot]
 * buming the .so version due to ABI breaks
 * fix for --canonical option in folialint
