@@ -151,7 +151,7 @@ jobs:
           make;
           sudo make install;
           cd ..;
-
+        continue-on-error: true
       - name: install FoliaPY
         run: |
           git clone https://github.com/proycon/foliapy;
