@@ -1122,13 +1122,13 @@ namespace folia {
       But we only need those that would return a default annotation or
       default processor.
      */
-    for ( const auto& it : _annotationdefaults ){
-      if ( it.second.size() == 1 ){
+    for ( const auto& [ann,value] : _annotationdefaults ){
+      if ( value.size() == 1 ){
 	// so 1 set
-	_orig_ann_default_sets.insert( make_pair(it.first,it.second.begin()->first) );
-	auto procs = it.second.begin()->second._processors;
+	_orig_ann_default_sets.insert( make_pair(ann,value.begin()->first) );
+	auto procs = value.begin()->second._processors;
 	if ( procs.size() == 1 ){
-	  _orig_ann_default_procs.insert( make_pair(it.first,*procs.begin()) );
+	  _orig_ann_default_procs.insert( make_pair(ann,*procs.begin()) );
 	}
       }
     }
@@ -2438,10 +2438,10 @@ namespace folia {
       \return a list of all AnntotationType/setname pairs that are not used
      */
     multimap<AnnotationType,string> result;
-    for ( const auto& tit : _annotationrefs ){
-      for ( const auto& mit : tit.second ){
-	if ( mit.second == 0 ){
-	  result.insert( make_pair(tit.first, mit.first ) );
+    for ( const auto& [ant,ref] : _annotationrefs ){
+      for ( const auto& [name,dec] : ref ){
+	if ( dec == 0 ){
+	  result.insert( make_pair(ant, name ) );
 	}
       }
     }
@@ -3042,12 +3042,12 @@ namespace folia {
       atts["format"] = p->_format;
     }
     addAttributes( pr, atts );
-    for ( const auto& it : p->_metadata ){
+    for ( const auto& [meta_id,val] : p->_metadata ){
       xmlNode *m = xmlAddChild( pr, TiCC::XmlNewNode( foliaNs(), "meta" ) );
       KWargs args;
-      args["id"] = it.first;
+      args["id"] = meta_id;
       addAttributes( m, args );
-      xmlAddChild( m, xmlNewText( to_xmlChar(it.second) ) );
+      xmlAddChild( m, xmlNewText( to_xmlChar(val) ) );
     }
     for ( const auto* s : p->_processors ){
       append_processor( pr, s );
@@ -3073,26 +3073,26 @@ namespace folia {
 
   void Document::add_submetadata( xmlNode *node ) const {
     /// add a submetadata block to node
-    for ( const auto& it : submetadata ){
+    for ( const auto& [id,vals] : submetadata ){
       xmlNode *sm = TiCC::XmlNewNode( foliaNs(), "submetadata" );
       KWargs atts;
-      atts["xml:id"] = it.first;
+      atts["xml:id"] = id;
       addAttributes( sm, atts );
-      const MetaData *md = submetadata.find(it.first)->second;
+      const MetaData *md = submetadata.find(id)->second;
       string type = md->type();
       atts.clear();
       atts["type"] = type;
       addAttributes( sm, atts );
       xmlAddChild( node, sm );
       if ( type == "native" ){
-	atts = it.second->get_avs();
+	atts = vals->get_avs();
 	// cerr << "atts: " << atts << endl;
-	for ( const auto& av : atts ){
+	for ( const auto& [id,val] : atts ){
 	  xmlNode *m = TiCC::XmlNewNode( foliaNs(), "meta" );
 	  KWargs args;
-	  args["id"] = av.first;
+	  args["id"] = id;
 	  addAttributes( m, args );
-	  xmlAddChild( m, xmlNewText( to_xmlChar(av.second) ) );
+	  xmlAddChild( m, xmlNewText( to_xmlChar(val) ) );
 	  xmlAddChild( sm, m );
 	}
       }
@@ -3126,11 +3126,11 @@ namespace folia {
 	KWargs atts;
 	atts["type"] = _metadata->type();
 	addAttributes( node, atts );
-	for ( const auto& it : _metadata->get_avs() ){
+	for ( const auto& [id,val] : _metadata->get_avs() ){
 	  xmlNode *m = TiCC::XmlNewNode( foliaNs(), "meta" );
-	  xmlAddChild( m, xmlNewText( to_xmlChar(it.second) ) );
+	  xmlAddChild( m, xmlNewText( to_xmlChar(val) ) );
 	  KWargs meta_atts;
-	  meta_atts["id"] = it.first;
+	  meta_atts["id"] = id;
 	  addAttributes( m, meta_atts );
 	  xmlAddChild( node, m );
 	}

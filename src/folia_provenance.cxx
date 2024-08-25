@@ -284,60 +284,60 @@ namespace folia {
       throw DuplicateIDError( "processor '" + id_val + "' already exists" );
     }
     _id = id_val;
-    for ( const auto& att : atts ){
-      if ( att.first == "begindatetime" ){
-	if ( att.second == "now()" ){
+    for ( const auto& [att,val] : atts ){
+      if ( att == "begindatetime" ){
+	if ( val == "now()" ){
 	  _begindatetime = get_ISO_date();
 	}
 	else {
-	  _begindatetime = att.second;
+	  _begindatetime = val;
 	}
       }
-      else if ( att.first == "enddatetime" ){
-	if ( att.second == "now()" ){
+      else if ( att == "enddatetime" ){
+	if ( val == "now()" ){
 	  _enddatetime = get_ISO_date();
 	}
 	else {
-	  _enddatetime = att.second;
+	  _enddatetime = val;
 	}
       }
-      else if ( att.first == "version" ){
-	_version = att.second;
+      else if ( att == "version" ){
+	_version = val;
       }
-      else if ( att.first == "document_version" ){
-	_document_version = att.second;
+      else if ( att == "document_version" ){
+	_document_version = val;
       }
-      else if ( att.first == "command" ){
-	_command = att.second;
+      else if ( att == "command" ){
+	_command = val;
       }
-      else if ( att.first == "folia_version" ){
-	_folia_version = att.second;
+      else if ( att == "folia_version" ){
+	_folia_version = val;
       }
-      else if ( att.first == "type" ){
+      else if ( att == "type" ){
 	try {
-	  _type = TiCC::stringTo<AnnotatorType>( att.second );
+	  _type = TiCC::stringTo<AnnotatorType>( val );
 	}
 	catch (...){
 	  throw XmlError( "processor: invalid value for 'type' attribute: "
-			  + att.second );
+			  + val );
 	}
       }
-      else if ( att.first == "host" ){
-	_host = att.second;
+      else if ( att == "host" ){
+	_host = val;
       }
-      else if ( att.first == "resourcelink" ){
-	_resourcelink = att.second;
+      else if ( att == "resourcelink" ){
+	_resourcelink = val;
       }
-      else if ( att.first == "user" ){
-	_user = att.second;
+      else if ( att == "user" ){
+	_user = val;
       }
-      else if ( att.first == "src" ){
-	_src = att.second;
+      else if ( att == "src" ){
+	_src = val;
       }
-      else if ( att.first == "format" ){
-	_format = att.second;
+      else if ( att == "format" ){
+	_format = val;
       }
-      else if ( att.first == "generator" ){
+      else if ( att == "generator" ){
 	// we automagicly add a subprocessor.
 	KWargs g_atts;
 	g_atts["folia_version"] = folia::folia_version();
