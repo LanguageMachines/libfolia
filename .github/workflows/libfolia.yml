@@ -164,7 +164,7 @@ jobs:
           channel: '#gitlama'
           nickname: GH-${{ runner.os }}-${{ steps.compiler.outputs.id }}
           message: "libfolia [${{ needs.notification.outputs.branch }}] make check with ${{ matrix.compiler }} on ${{ matrix.os }}: \u00034FAILED\u0003 in step ${{ env.action_status }}"
-
+        continue-on-error: true
       - name: install foliatest
         id: foliatest
         if: ${{ env.action_status == '' }}
@@ -213,6 +213,7 @@ jobs:
           channel: '#gitlama'
           nickname: GH-${{ runner.os }}-${{ steps.compiler.outputs.id }}
           message: "libfolia [${{ needs.notification.outputs.branch }}] build with ${{ matrix.compiler }} by ${{ github.actor }} on ${{ matrix.os }}: \u00034FAIL\u0003 in foliatests (${{ env.test_status }} errors)"
+        continue-on-error: true
 
       - name: Notify IRC of succes
         if: ${{ env.action_status == '' }} && ${{ env.test_status == '0' }}
@@ -222,3 +223,4 @@ jobs:
           channel: '#gitlama'
           nickname: GH-${{ runner.os }}-${{ steps.compiler.outputs.id }}
           message: "libfolia [${{ needs.notification.outputs.branch }}] build with ${{ matrix.compiler }} by ${{ github.actor }} on ${{ matrix.os }}: \u00033SUCCESS\u0003"
+        continue-on-error: true
