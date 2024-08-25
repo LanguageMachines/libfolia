@@ -37,6 +37,7 @@ jobs:
             ${{ github.actor }} started a build of
             ${{ github.event.repository.name }}
             [${{ steps.extract_branch.outputs.branch }}]
+            "${{ github.event.head_commit.message }}"
 
   build:
     needs: notification
@@ -81,16 +82,21 @@ jobs:
              if [ "$RUNNER_OS" == "Linux" ]; then
                 cpc_opts="--enable=all --inline-suppr --force \
                          -I include -I /usr/local/include \
-                         --quiet --error-exitcode=0"
+                         --std=c++17 --quiet --error-exitcode=0"
              else
                 cpc_opts="--enable=all --inline-suppr --force \
                           --check-level=exhaustive \
                           --suppress=missingInclude \
                           --suppress=missingIncludeSystem \
-                          --quiet --error-exitcode=0"
+                          --std=c++17 --quiet --error-exitcode=0"
              fi
              echo "cpc_opts=$cpc_opts" >> $GITHUB_ENV
+      - id: compiler ID
+        run: |
+          id=$(echo ${{matrix.compiler}} | cut -d\+ -f1)
+          echo "id=$id" >> $GITHUB_OUTPUT
       - name: install TiccUtils
+        id: ticcutils
         env:
           CXX: ${{ matrix.compiler }}
         run: |
@@ -101,46 +107,67 @@ jobs:
           make;
           sudo make install;
           cd ..;
-
+        continue-on-error: true
+      - name: get status ticcutils
+        if: ${{ steps.ticcutils.outcome != 'success' }}
+        run: echo "action_status=ticcutils" >> $GITHUB_ENV
+      - name: Static Code-check
+        run: cppcheck ${{ env.cpc_opts }} .
       - name: bootstrap
         run: sh bootstrap.sh
       - name: configure
+        id: configure
         env:
           CXX: ${{ matrix.compiler }}
         run: ./configure
-      - name: Static Code-check
-        run: cppcheck ${{ env.cpc_opts }} .
+        continue-on-error: true
+      - name: get status configure
+        if: ${{ steps.configure.outcome != 'success' }}
+        run: echo "action_status=configure" >> $GITHUB_ENV
       - name: make
+        id: make
+        if: ${{ env.action_status == '' }}
         run: make
+        continue-on-error: true
+      - name: get status make
+        if: ${{ steps.make.outcome != 'success' }}
+        run: echo "action_status=make" >> $GITHUB_ENV
       - name: install
+        id: install
+        if: ${{ env.action_status == '' }}
         run: sudo make install
-      - id: compiler
-        run: |
-          id=$(echo ${{matrix.compiler}} | cut -d\+ -f1)
-          echo "id=$id" >> $GITHUB_OUTPUT
-      - run: echo "${{steps.compiler.outputs.id}}"
+        continue-on-error: true
+      - name: get status install
+        if: ${{ steps.install.outcome != 'success' }}
+        run: echo "action_status=install" >> $GITHUB_ENV
       - name: make check
         id: check
         env:
           CXX: ${{ matrix.compiler }}
           LD_LIBRARY_PATH: $LD_LIBRARY_PATH:/usr/local/lib
+        if: ${{ env.action_status == '' }}
         run: make check
         continue-on-error: true
+      - name: get status check
+        if: ${{ steps.check.outcome != 'success' }}
+        run: echo "action_status=check" >> $GITHUB_ENV
       - name: Show log of failed check
         if: ${{ steps.check.outcome != 'success' }}
         run: |
           cat src/test-suite.log
         continue-on-error: true
       - name: Notify IRC of failure
-        if: ${{ steps.check.outcome != 'success' }}
+        if: ${{ env.action_status != '' }}
         uses: Gottox/irc-message-action@v2
         with:
           server: irc.uvt.nl
           channel: '#gitlama'
           nickname: GH-${{ runner.os }}-${{ steps.compiler.outputs.id }}
-          message: "libfolia [${{ needs.notification.outputs.branch }}] make check with ${{ matrix.compiler }} on ${{ matrix.os }}: \u00034FAILED\u0003"
+          message: "libfolia [${{ needs.notification.outputs.branch }}] make check with ${{ matrix.compiler }} on ${{ matrix.os }}: \u00034FAILED\u0003 in step ${{ env.action_status }}"
 
       - name: install foliatest
+        id: foliatest
+        if: ${{ env.action_status == '' }}
         env:
           CXX: ${{ matrix.compiler }}
         run: |
@@ -152,7 +179,12 @@ jobs:
           sudo make install;
           cd ..;
         continue-on-error: true
+      - name: get status foliatest
+        if: ${{ steps.foliatest.outcome != 'success' }}
+        run: echo "action_status=foliatest" >> $GITHUB_ENV
+
       - name: install FoliaPY
+        if: ${{ env.action_status == '' }}
         run: |
           git clone https://github.com/proycon/foliapy;
           cd foliapy;
@@ -161,6 +193,8 @@ jobs:
           cd ..
 
       - name: run foliatests
+        id: foliatests
+        if: ${{ env.action_status == '' }}
         env:
           FOLIAPATH: ../foliapy/folia-repo
           EXPECT: 0
@@ -171,18 +205,17 @@ jobs:
           TEST_STAT=$(cat status.tmp)
           echo "test_status=$TEST_STAT" >> $GITHUB_ENV
         continue-on-error: true
-
       - name: Notify IRC of failure
-        if: ${{ env.test_status != '0' }}
+        if: ${{ env.action_status == '' }} && ${{ env.test_status != '0' }}
         uses: Gottox/irc-message-action@v2
         with:
           server: irc.uvt.nl
           channel: '#gitlama'
           nickname: GH-${{ runner.os }}-${{ steps.compiler.outputs.id }}
-          message: "libfolia [${{ needs.notification.outputs.branch }}] build with ${{ matrix.compiler }} by ${{ github.actor }} on ${{ matrix.os }}: \u00034FAIL\u0003"
+          message: "libfolia [${{ needs.notification.outputs.branch }}] build with ${{ matrix.compiler }} by ${{ github.actor }} on ${{ matrix.os }}: \u00034FAIL\u0003 in foliatests (${{ env.test_status }} errors)"
 
       - name: Notify IRC of succes
-        if: ${{ env.test_status == '0' }}
+        if: ${{ env.action_status == '' }} && ${{ env.test_status == '0' }}
         uses: Gottox/irc-message-action@v2
         with:
           server: irc.uvt.nl
