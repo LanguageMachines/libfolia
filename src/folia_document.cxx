@@ -3161,8 +3161,8 @@ namespace folia {
     /*!
       \param doc the output document
     */
-    for ( const auto& it : styles ){
-      string content = "type=\"" + it.first + "\" href=\"" + it.second + "\"";
+    for ( const auto& [type,ref] : styles ){
+      string content = "type=\"" + type + "\" href=\"" + ref + "\"";
       xmlAddChild( reinterpret_cast<xmlNode*>(doc),
 		   xmlNewDocPI( doc,
 				to_xmlChar("xml-stylesheet"),

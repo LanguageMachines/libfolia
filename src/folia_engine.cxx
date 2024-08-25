@@ -728,17 +728,17 @@ namespace folia {
 	  KWargs atts = get_attributes( cur_reader );
 	  string nsu;
 	  string txt_class;
-	  for ( auto const& v : atts ){
-	    if ( v.first == "xmlns:xlink" ){
+	  for ( auto const& [att,val] : atts ){
+	    if ( att == "xmlns:xlink" ){
 	      // only at top level
 	      continue;
 	    }
-	    if ( v.first.find("xmlns") == 0 ){
-	      nsu = v.second;
+	    if ( att.find("xmlns") == 0 ){
+	      nsu = val;
 	    }
-	    if ( v.first == "textclass"
-		 || ( local_name == "t" && v.first == "class" ) ){
-	      txt_class = v.second;
+	    if ( att == "textclass"
+		 || ( local_name == "t" && att == "class" ) ){
+	      txt_class = val;
 	    }
 	  }
 	  if ( nsu.empty() || nsu == NSFOLIA ){

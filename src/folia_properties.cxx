@@ -1847,12 +1847,12 @@ namespace folia {
     ProcessingInstruction::PROPS.XMLTAG = "PI";
     ProcessingInstruction::PROPS.ELEMENT_ID = ProcessingInstruction_t;
 
-    for ( const auto& it : oldtags ){
-      reverse_old[it.second] = it.first;
+    for ( const auto& [tag,val] : oldtags ){
+      reverse_old[val] = tag;
     }
 
-    for ( const auto& it : annotationtype_elementtype_map ){
-      element_annotation_map[it.second] = it.first;
+    for ( const auto& [ann,et] : annotationtype_elementtype_map ){
+      element_annotation_map[et] = ann;
     }
   }
 
@@ -2375,9 +2375,9 @@ namespace folia {
 
   void print_type_hierarchy( ostream& os ){
     /// output the type hierarchy. DEBUGGING PURPOSES ONLY
-    for ( auto const& top : typeHierarchy ){
-      os << toString(top.first) << endl;
-      for ( auto const& el : top.second ){
+    for ( auto const& [parent,child] : typeHierarchy ){
+      os << toString(parent) << endl;
+      for ( auto const& el : child ){
 	os << "     -- " << toString(el) << endl;
       }
     }
@@ -2388,7 +2388,7 @@ namespace folia {
   namespace {
     //
     // this trick assures that the static_init() function is called
-    // exactly once en every run.
+    // exactly once on every run.
     // This because the static 'i' is initialized before main() starts.
     //
     struct initializer {

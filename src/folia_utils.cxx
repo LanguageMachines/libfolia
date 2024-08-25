@@ -557,17 +557,16 @@ namespace folia {
 
   bool ET_sanity_check(){
     bool sane = true;
-    for ( auto const& it : s_et_map ){
-      ElementType et = it.second;
+    for ( auto const& [sett,et] : s_et_map ){
       if ( et_s_map.find(et) == et_s_map.end() ){
-	cerr << "no et_s found for ElementType(" << int(et) << ")" << endl;
+	cerr << "for set=" << sett
+	     << ", no et_s found, ElementType(" << int(et) << ")" << endl;
 	return false;
       }
     }
-    for ( auto const& it : et_s_map ){
-      ElementType et = it.first;
-      if ( s_et_map.find(it.second) == s_et_map.end() ){
-	cerr << "no string found for ElementType(" << int(it.first) << ")" << endl;
+    for ( auto const& [et,sett] : et_s_map ){
+      if ( s_et_map.find(sett) == s_et_map.end() ){
+	cerr << "no string found for ElementType(" << int(et) << ")" << endl;
 	return false;
       }
       string s;

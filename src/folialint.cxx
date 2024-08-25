@@ -210,8 +210,8 @@ int main( int argc, const char* argv[] ){
 	multimap<folia::AnnotationType, string> und = d.unused_declarations();
 	if ( !und.empty() ){
 	  cerr << "the following annotationsets are declared but unused: " << endl;
-	  for ( const auto& it : und ){
-	    cerr << folia::toString( it.first )<< "-annotation, set=" << it.second << endl;
+	  for ( const auto& [ann,sett] : und ){
+	    cerr << folia::toString( ann )<< "-annotation, set=" << sett << endl;
 	  }
 	}
       }

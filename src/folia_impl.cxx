@@ -229,8 +229,8 @@ namespace folia {
       ats.erase("xml:id");
     }
 
-    for ( const auto& it: ats ) {
-      os << " " << it.first << "=\"" << it.second << '"';
+    for ( const auto& [att,val] : ats ) {
+      os << " " << att << "=\"" << val << '"';
     }
     os << " > {";
     for ( size_t i=0; i < ae.size(); ++i ) {
@@ -1109,15 +1109,15 @@ namespace folia {
      * the values are used as class attribute for the new children
      * will throw for unexpected attributes, except when in permisive mode
      */
-    for ( const auto& it: kwargs ) {
-      string f_tag = it.first;
+    for ( const auto& [feat,val] : kwargs ) {
+      string f_tag = feat;
       if ( f_tag == "head" ) {
 	// "head" is special because the tag is "headfeature"
 	// this to avoid conflicts with the "head" tag!
 	f_tag = "headfeature";
       }
       if ( !isAttributeFeature(f_tag) ){
-	string message = "unsupported attribute: " + f_tag + "='" + it.second
+	string message = "unsupported attribute: " + f_tag + "='" + val
 	  + "' for node with tag '" + classname() + "'";
 	if ( f_tag == "id" ){
 	  message += "\ndid you mean xml:id?";
@@ -1130,7 +1130,7 @@ namespace folia {
 	}
       }
       KWargs newa;
-      newa["class"] = it.second;
+      newa["class"] = val;
       FoliaElement *new_node;
       try {
 	new_node = createElement( f_tag, doc() );
