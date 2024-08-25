@@ -180,7 +180,7 @@ jobs:
           cd ..;
         continue-on-error: true
       - name: get status foliatest
-        if: ${{ steps.foliatest.outcome != 'success' }}
+        if: ${{ env.action_status == '' }} && ${{ steps.foliatest.outcome != 'success' }}
         run: echo "action_status=foliatest" >> $GITHUB_ENV
 
       - name: install FoliaPY
@@ -206,7 +206,7 @@ jobs:
           echo "test_status=$TEST_STAT" >> $GITHUB_ENV
         continue-on-error: true
       - name: Notify IRC of failure
-        if: ${{ env.action_status == '' }} && ${{ env.test_status != '0' }}
+        if: ${{ env.test_status != '0' }}
         uses: Gottox/irc-message-action@v2
         with:
           server: irc.uvt.nl
