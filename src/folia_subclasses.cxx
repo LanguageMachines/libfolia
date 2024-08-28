@@ -2082,7 +2082,7 @@ namespace folia {
     }
     switch( ch ){
     case CORRECTION_HANDLING::CURRENT:
-      // fallthrough
+      [[fallthrough]];
     case CORRECTION_HANDLING::EITHER: {
       const auto& it = find_if( data().begin(), data().end(),
 				[]( const FoliaElement *e ){
@@ -2103,7 +2103,7 @@ namespace folia {
     }
       break;
     default:
-      // fallthrough
+      [[fallthrough]];
       break;
     };
     throw NoSuchText( this, "wrong cls");
@@ -2324,7 +2324,7 @@ namespace folia {
     }
     switch( ch ){
     case CORRECTION_HANDLING::CURRENT:
-      // fallthrough
+      [[fallthrough]];
     case CORRECTION_HANDLING::EITHER: {
       const auto& it = find_if( data().begin(), data().end(),
 				[]( const FoliaElement *e ){
