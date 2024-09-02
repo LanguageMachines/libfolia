@@ -2103,7 +2103,6 @@ namespace folia {
     }
       break;
     default:
-      [[fallthrough]];
       break;
     };
     throw NoSuchText( this, "wrong cls");
