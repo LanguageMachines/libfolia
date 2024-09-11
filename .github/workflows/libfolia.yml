@@ -116,9 +116,10 @@ jobs:
           cd ..;
         continue-on-error: true
       - name: get status foliatest
-        if: ${{ env.action_status == '' && steps.foliatest.outcome != 'success' }}
-        run: echo "action_status=foliatest" >> $GITHUB_ENV
-
+        uses: LanguageMachines/ticcactions/get_status@v1
+        with:
+          the-step: foliatest
+          outcome: ${{ steps.foliatest.outcome }}
       - name: install FoliaPY
         if: ${{ env.action_status == '' }}
         run: |
@@ -139,7 +140,7 @@ jobs:
           cd foliatest;
           ./src/testaction.sh;
           TEST_STAT=$(cat status.tmp)
-          echo "action_details=$TEST_STAT" >> $GITHUB_ENV
+          echo "action_details=$TEST_STAT errors" >> $GITHUB_ENV
         continue-on-error: true
       - name: Notify IRC of end result
         uses: LanguageMachines/ticcactions/irc_status@v1
@@ -147,5 +148,6 @@ jobs:
           module: libfolia
           branch: ${{ github.ref_name }}
           nickname: ${{ env.nick }}
+          step: testing
           status: ${{ env.action_status }}
           details: ${{ env.action_details }}
