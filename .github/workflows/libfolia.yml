@@ -52,7 +52,7 @@ jobs:
       - uses: LanguageMachines/ticcactions/cpp-dependencies@v1
 
       - name: Configure CppCheck
-        if:  ${{ env.action_status == '' }}
+        if: ${{ env.action_status == '' }}
         run: |
              if [ "$RUNNER_OS" == "Linux" ]; then
                 cpc_opts="--enable=all --inline-suppr --force \
@@ -69,7 +69,7 @@ jobs:
       - uses: LanguageMachines/ticcactions/irc_nick@v1
       - name: install TiccUtils
         id: ticcutils
-        if:  ${{ env.action_status == '' }}
+        if: ${{ env.action_status == '' }}
         env:
           CXX: ${{ matrix.compiler }}
         run: |
@@ -82,10 +82,12 @@ jobs:
           cd ..;
         continue-on-error: true
       - name: get status ticcutils
-        if: ${{ steps.ticcutils.outcome != 'success' }}
-        run: echo "action_status=ticcutils" >> $GITHUB_ENV
+        uses: LanguageMachines/ticcactions/get_status@v1
+        with:
+          the_step: ticcutils
+          outcome: ${{ steps.ticcutils.outcome }}
       - name: Static Code-check
-        if:  ${{ env.action_status == '' }}
+        if: ${{ env.action_status == '' }}
         run: cppcheck ${{ env.cpc_opts }} .
 
       - uses: LanguageMachines/ticcactions/cpp-safe-build@v1
