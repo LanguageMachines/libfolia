@@ -55,15 +55,17 @@ jobs:
         if: ${{ env.action_status == '' }}
         run: |
              if [ "$RUNNER_OS" == "Linux" ]; then
-                cpc_opts="--enable=all --inline-suppr --force \
-                         -I include -I /usr/local/include \
-                         --std=c++17 --quiet --error-exitcode=0"
+               sudo apt-get install cppcheck
+               cpc_opts="--enable=all --inline-suppr --force \
+                        -I include -I /usr/local/include \
+                        --std=c++17 --quiet --error-exitcode=0"
              else
-                cpc_opts="--enable=all --inline-suppr --force \
-                          --check-level=exhaustive \
-                          --suppress=missingInclude \
-                          --suppress=missingIncludeSystem \
-                          --std=c++17 --quiet --error-exitcode=0"
+               brew install cppcheck
+               cpc_opts="--enable=all --inline-suppr --force \
+                         --check-level=exhaustive \
+                         --suppress=missingInclude \
+                         --suppress=missingIncludeSystem \
+                         --std=c++17 --quiet --error-exitcode=0"
              fi
              echo "cpc_opts=$cpc_opts" >> $GITHUB_ENV
       - uses: LanguageMachines/ticcactions/irc_nick@v1
