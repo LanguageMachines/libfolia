@@ -58,7 +58,6 @@ jobs:
         with:
           module: ticcutils
 
-
       - name: Static Code-check
         if: ${{ env.action_status == '' }}
         run: cppcheck ${{ env.cpc_opts }} .
@@ -75,24 +74,10 @@ jobs:
           details: ${{ env.action_details }}
         continue-on-error: true
       - name: install foliatest
-        id: foliatest
-        if: ${{ env.action_status == '' }}
-        env:
-          CXX: ${{ matrix.compiler }}
-        run: |
-          git clone --depth=1 https://github.com/LanguageMachines/foliatest.git
-          cd foliatest;
-          bash bootstrap.sh;
-          ./configure;
-          make;
-          sudo make install;
-          cd ..;
-        continue-on-error: true
-      - name: get status foliatest
-        uses: LanguageMachines/ticcactions/get-status@v1
+        uses: LanguageMachines/ticcactions/cpp-submodule-build@v1
         with:
-          the-step: foliatest
-          outcome: ${{ steps.foliatest.outcome }}
+          module: foliatest
+
       - name: install FoliaPY
         if: ${{ env.action_status == '' }}
         run: |
