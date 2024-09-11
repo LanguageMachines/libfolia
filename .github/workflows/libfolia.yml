@@ -54,32 +54,17 @@ jobs:
       - uses: LanguageMachines/ticcactions/setup-cppcheck@v1
       - uses: LanguageMachines/ticcactions/irc-nick@v1
 
-      - name: install TiccUtils
-        id: ticcutils
-        if: ${{ env.action_status == '' }}
-        env:
-          CXX: ${{ matrix.compiler }}
-        run: |
-          git clone https://github.com/LanguageMachines/ticcutils;
-          cd ticcutils;
-          bash bootstrap.sh;
-          ./configure;
-          make;
-          sudo make install;
-          cd ..;
-        continue-on-error: true
-      - name: get status ticcutils
-        uses: LanguageMachines/ticcactions/get-status@v1
+      - uses: LanguageMachines/ticcactions/cpp-submodule-build@v1
         with:
-          the-step: ticcutils
-          outcome: ${{ steps.ticcutils.outcome }}
+	  module: ticcutils
+
       - name: Static Code-check
         if: ${{ env.action_status == '' }}
         run: cppcheck ${{ env.cpc_opts }} .
 
       - uses: LanguageMachines/ticcactions/cpp-safe-build@v1
 
-      - name: Notify IRC of test results
+      - name: Notify IRC of build results
         uses: LanguageMachines/ticcactions/irc-status@v1
         with:
           module: libfolia
