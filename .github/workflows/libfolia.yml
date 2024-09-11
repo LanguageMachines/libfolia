@@ -85,6 +85,7 @@ jobs:
         if: ${{ steps.ticcutils.outcome != 'success' }}
         run: echo "action_status=ticcutils" >> $GITHUB_ENV
       - name: Static Code-check
+        if:  ${{ env.action_status == '' }}
         run: cppcheck ${{ env.cpc_opts }} .
 
       - uses: LanguageMachines/ticcactions/cpp-safe-build@v1
