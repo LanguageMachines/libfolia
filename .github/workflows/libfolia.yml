@@ -1,3 +1,4 @@
+---
 name: C/C++ CI
 
 on:
@@ -52,6 +53,7 @@ jobs:
       - uses: LanguageMachines/ticcactions/cpp-dependencies@v1
       - uses: LanguageMachines/ticcactions/setup-cppcheck@v1
       - uses: LanguageMachines/ticcactions/irc-nick@v1
+
       - name: install TiccUtils
         id: ticcutils
         if: ${{ env.action_status == '' }}
