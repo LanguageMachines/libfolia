@@ -73,6 +73,7 @@ jobs:
           status: ${{ env.action_status }}
           details: ${{ env.action_details }}
         continue-on-error: true
+
       - name: install foliatest
         uses: LanguageMachines/ticcactions/cpp-submodule-build@v1
         with:
