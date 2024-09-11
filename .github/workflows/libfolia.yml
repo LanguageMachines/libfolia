@@ -84,7 +84,7 @@ jobs:
       - name: get status ticcutils
         uses: LanguageMachines/ticcactions/get_status@v1
         with:
-          the_step: ticcutils
+          the-step: ticcutils
           outcome: ${{ steps.ticcutils.outcome }}
       - name: Static Code-check
         if: ${{ env.action_status == '' }}
@@ -95,7 +95,7 @@ jobs:
       - name: Notify IRC of test results
         uses: LanguageMachines/ticcactions/irc_status@v1
         with:
-          module: lifolia
+          module: libfolia
           branch: ${{ github.ref_name }}
           nickname: ${{ env.nick }}
           status: ${{ env.action_status }}
@@ -107,7 +107,7 @@ jobs:
         env:
           CXX: ${{ matrix.compiler }}
         run: |
-          git clone --branch ${{ needs.notification.outputs.branch }} --depth=1 https://github.com/LanguageMachines/foliatest.git
+          git clone --depth=1 https://github.com/LanguageMachines/foliatest.git
           cd foliatest;
           bash bootstrap.sh;
           ./configure;
