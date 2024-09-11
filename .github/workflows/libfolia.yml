@@ -52,6 +52,7 @@ jobs:
       - uses: LanguageMachines/ticcactions/cpp-dependencies@v1
 
       - name: Configure CppCheck
+        if:  ${{ env.action_status == '' }}
         run: |
              if [ "$RUNNER_OS" == "Linux" ]; then
                 cpc_opts="--enable=all --inline-suppr --force \
@@ -68,6 +69,7 @@ jobs:
       - uses: LanguageMachines/ticcactions/irc_nick@v1
       - name: install TiccUtils
         id: ticcutils
+        if:  ${{ env.action_status == '' }}
         env:
           CXX: ${{ matrix.compiler }}
         run: |
