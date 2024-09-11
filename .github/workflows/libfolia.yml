@@ -58,6 +58,7 @@ jobs:
         with:
           module: ticcutils
 
+
       - name: Static Code-check
         if: ${{ env.action_status == '' }}
         run: cppcheck ${{ env.cpc_opts }} .
