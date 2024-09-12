@@ -3087,10 +3087,10 @@ namespace folia {
       if ( type == "native" ){
 	atts = vals->get_avs();
 	// cerr << "atts: " << atts << endl;
-	for ( const auto& [id,val] : atts ){
+	for ( const auto& [m_id,val] : atts ){
 	  xmlNode *m = TiCC::XmlNewNode( foliaNs(), "meta" );
 	  KWargs args;
-	  args["id"] = id;
+	  args["id"] = m_id;
 	  addAttributes( m, args );
 	  xmlAddChild( m, xmlNewText( to_xmlChar(val) ) );
 	  xmlAddChild( sm, m );
