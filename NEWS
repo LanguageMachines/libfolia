@@ -1,3 +1,9 @@
+2.20 2024-09-12
+[Ko van der Sloot]
+* require C++17 now
+* small refactorings
+* cleanup in GetiHub CI file
+
 2.19 2024-05-27
 [Ko van der Sloot]
 * again bumped the .so version, as we break the ABI
