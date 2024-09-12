@@ -7,7 +7,7 @@ on:
   push:
     branches:
       - master
-      - actions
+
     paths:
       - configure.ac
       - 'src/**'
@@ -24,8 +24,6 @@ jobs:
     steps:
       - name: IRC notification
         uses: LanguageMachines/ticcactions/irc-init@v1
-        with:
-          module: libfolia
 
   build:
     needs: notification
@@ -67,7 +65,6 @@ jobs:
       - name: Notify IRC of build results
         uses: LanguageMachines/ticcactions/irc-status@v1
         with:
-          module: libfolia
           branch: ${{ github.ref_name }}
           nickname: ${{ env.nick }}
           status: ${{ env.action_status }}
@@ -104,7 +101,6 @@ jobs:
       - name: Notify IRC of end result
         uses: LanguageMachines/ticcactions/irc-status@v1
         with:
-          module: libfolia
           branch: ${{ github.ref_name }}
           nickname: ${{ env.nick }}
           step: testing
