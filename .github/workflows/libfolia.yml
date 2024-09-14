@@ -3,7 +3,7 @@ name: C/C++ CI
 
 on:
   schedule:
-    - cron: "0 3 4 * 5"  # run test once a month
+    - cron: "0 20 4 * *"  # Run monthly, at 20:00 on the 4th day of month.
   push:
     branches:
       - master
@@ -96,6 +96,10 @@ jobs:
           cd foliatest;
           ./src/testaction.sh;
           TEST_STAT=$(cat status.tmp)
+          if [ $TEST_STAT != 0 ]
+          then
+            echo "action_status=foliatests" >> $GITHUB_ENV
+          fi
           echo "action_details=$TEST_STAT errors" >> $GITHUB_ENV
         continue-on-error: true
       - name: Notify IRC of end result
