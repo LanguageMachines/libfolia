@@ -509,8 +509,8 @@ namespace folia {
 	// A PI
 	if ( local_name == "xml-stylesheet" ){
 	  string sv = to_string(xmlTextReaderConstValue(_reader));
-	  pair<string,string> p = extract_style( sv );
-	  _out_doc->addStyle( p.first, p.second );
+	  auto const [type,href] = extract_style( sv );
+	  _out_doc->addStyle( type, href );
 	}
 	else {
 	  cerr << "unhandled PI: " << local_name << endl;
@@ -925,9 +925,9 @@ namespace folia {
 	}
 	else {
 	  string nsu;
-	  for ( auto const& v : atts ){
-	    if ( v.first.find("xmlns:") == 0 ){
-	      nsu = v.second;
+	  for ( auto const& [ns,ref] : atts ){
+	    if ( ns.find("xmlns:") == 0 ){
+	      nsu = ref;
 	      break;
 	    }
 	  }

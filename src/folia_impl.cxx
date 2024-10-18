@@ -2068,8 +2068,8 @@ namespace folia {
 	}
       }
       else {
-	for ( const auto& oem : otherelementsMap ) {
-	  xmlAddChild( e, oem.second->xml( recursive, kanon ) );
+	for ( const auto& [dummy,elt] : otherelementsMap ) {
+	  xmlAddChild( e, elt->xml( recursive, kanon ) );
 	}
       }
       check_text_consistency();

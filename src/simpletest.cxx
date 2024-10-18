@@ -63,16 +63,15 @@ int main() {
     }
   }
   cout << "AnnotationType sanity" << endl;
-  for ( const auto& it : ant_s_map ){
-    string in_ans = it.second;
-    AnnotationType ant = stringToAnnotationType( in_ans );
+  for ( const auto& [a_type,a_string] : ant_s_map ){
+    AnnotationType ant = stringToAnnotationType( a_string );
     string out_ans = folia::toString( ant );
-    if ( out_ans != in_ans ){
-      cout << "insane AnnotationType: " << in_ans << " !=" << out_ans << endl;
+    if ( out_ans != a_string ){
+      cout << "insane AnnotationType: " << a_string << " !=" << out_ans << endl;
       exit( EXIT_FAILURE );
     }
-    if ( ant != it.first ){
-      cout << "insane AnnotationType: " << ant << " !=" << it.first << endl;
+    if ( ant != a_type ){
+      cout << "insane AnnotationType: " << ant << " !=" << a_type << endl;
       exit( EXIT_FAILURE );
     }
   }

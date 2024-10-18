@@ -236,8 +236,8 @@ namespace folia {
     }
     delete _metadata;
     delete _foreign_metadata;
-    for ( const auto& it : submetadata ){
-      delete it.second;
+    for ( const auto& [dummy, val] : submetadata ){
+      delete val;
     }
     delete _provenance;
   }
@@ -2949,8 +2949,8 @@ namespace folia {
 	ordered.insert(make_pair(pair.first,pair));
       }
       // so now we can append annotations in a canonical way
-      for ( const auto& it : ordered ){
-	add_one_anno( it.second, node );
+      for ( const auto& [dummy,anno] : ordered ){
+	add_one_anno( anno, node );
       }
     }
     else {

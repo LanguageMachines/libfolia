@@ -533,13 +533,14 @@ namespace folia {
       cerr << "s_ant_map and ant_s_map are different in size!" << endl;
       return false;
     }
-    for ( auto const& it : ant_s_map ){
+    for ( auto const& [a_type,dummy] : ant_s_map ){
       string s;
       try {
-	s = toString( it.first );
+	s = toString( a_type );
       }
       catch (...){
-	cerr << "no string translation for AnnotationType(" << int(it.first) << ")" << endl;
+	cerr << "no string translation for AnnotationType("
+	     << int(a_type) << ")" << endl;
 	sane = false;
       }
       if ( !s.empty() ){
