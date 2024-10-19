@@ -558,8 +558,8 @@ namespace folia {
 	  if ( !doc()->version_below( 2, 0 )
 	       && doc()->autodeclare() ) {
 	    KWargs args;
-	    args["processor"] = val;
-	    args["annotatortype"] = _annotator_type;
+	    args.add("processor",val);
+	    args.add("annotatortype",toString(_annotator_type));
 	    doc()->declare( annotation_type(), _set, args );
 	  }
 	  else {
@@ -605,9 +605,9 @@ namespace folia {
     else {
       // no matching processor. create a simple one
       KWargs args;
-      args["name"] = annotator;
-      args["annotatortype"] = an_type;
-      args["generate_id"] = "auto()";
+      args.add("name",annotator);
+      args.add("annotatortype",an_type);
+      args.add("generate_id","auto()" );
       folia::processor *new_p = new folia::processor( prov, top, args );
       set_processor_name( new_p->name() );
       //      cerr << "created new processor: " << new_p << endl;
@@ -1246,16 +1246,14 @@ namespace folia {
      * Might also use declaration defaults and alias declarations to extract
      * default values
      */
-    KWargs attribs;
     bool Explicit = false;
     Attrib supported = required_attributes() | optional_attributes();
+    KWargs attribs;
     if ( doc() && doc()->has_explicit() ){
       Explicit = true;
       set_typegroup( attribs );
     }
-    if ( !_id.empty() ) {
-      attribs["xml:id"] = _id;
-    }
+    attribs.add("xml:id",_id);
     if ( _preserve_spaces == SPACE_FLAGS::PRESERVE ) {
       attribs["xml:space"] = "preserve";
     }
@@ -1281,9 +1279,7 @@ namespace folia {
 	  attribs["set"] = ali;
 	}
       }
-      if ( !_class.empty() ) {
-	attribs["class"] = _class;
-      }
+      attribs.add("class",_class);
       if ( !_processor_id.empty() ){
 	string tmp;
 	try {
@@ -1329,24 +1325,12 @@ namespace folia {
 	 _datetime != doc()->default_datetime( annotation_type(), _set ) ) {
       attribs["datetime"] = _datetime;
     }
-    if ( !_begintime.empty() ) {
-      attribs["begintime"] = _begintime;
-    }
-    if ( !_endtime.empty() ) {
-      attribs["endtime"] = _endtime;
-    }
-    if ( !_src.empty() ) {
-      attribs["src"] = _src;
-    }
-    if ( !_tags.empty() ) {
-      attribs["tag"] = _tags;
-    }
-    if ( !_metadata.empty() ) {
-      attribs["metadata"] = _metadata;
-    }
-    if ( !_speaker.empty() ) {
-      attribs["speaker"] = _speaker;
-    }
+    attribs.add("begintime",_begintime);
+    attribs.add("endtime",_endtime);
+    attribs.add("src",_src);
+    attribs.add("tag",_tags);
+    attribs.add("metadata",_metadata);
+    attribs.add("speaker", _speaker);
     if ( ( TEXTCLASS & supported)
 	 && ( !_textclass.empty() &&
 	      ( _textclass != "current" || Explicit ) ) ){
@@ -1356,9 +1340,7 @@ namespace folia {
     if ( _confidence >= 0 ) {
       attribs["confidence"] = toDoubleString(_confidence);
     }
-    if ( !_n.empty() ) {
-      attribs["n"] = _n;
-    }
+    attribs.add("n", _n);
     if ( !_auth ) {
       attribs["auth"] = "no";
     }
@@ -1573,11 +1555,9 @@ namespace folia {
       my_set = doc()->default_set( AnnotationType::TEXT );
     }
     KWargs args;
-    args["value"] = TiCC::UnicodeToUTF8(txt_u);
-    args["class"] = cls;
-    if ( !my_set.empty() ){
-      args["set"] = my_set;
-    }
+    args.addu("value",txt_u);
+    args.add("class",cls);
+    args.add("set", my_set);
     if ( offset >= 0 ){
       args["offset"] = TiCC::toString(offset);
     }
@@ -1891,8 +1871,8 @@ namespace folia {
 	      cerr << "FIX: " << s1 << "==>" << s2 << endl;
 	    }
 	    KWargs args;
-	    args["value"] = TiCC::UnicodeToUTF8(s2);
-	    args["class"] = st;
+	    args.addu("value",s2);
+	    args.add("class",st);
 	    TextContent *node = new TextContent( args, doc() );
 	    this->replace( node );
 	  }
@@ -1997,7 +1977,7 @@ namespace folia {
       for ( const auto& el : _data ) {
 	string at = tagToAtt( el );
 	if ( !at.empty() && af_map[at] == 1 ) {
-	  attribs[at] = el->cls();
+	  attribs.add(at,el->cls());
 	  attribute_elements.insert( el );
 	}
       }
@@ -4217,7 +4197,7 @@ namespace folia {
     auto it = args.find("new");
     if ( it != args.end() ) {
       KWargs my_args;
-      my_args["value"] = it->second;
+      my_args.add("value",it->second);
       TextContent *t = new TextContent( my_args, doc );
       _new.push_back( t );
       args.erase( it );
@@ -4225,7 +4205,7 @@ namespace folia {
     it = args.find("suggestion");
     if ( it != args.end() ) {
       KWargs my_args;
-      my_args["value"] = it->second;
+      my_args.add("value",it->second);
       TextContent *t = new TextContent( my_args, doc );
       suggestions.push_back( t );
       args.erase( it );

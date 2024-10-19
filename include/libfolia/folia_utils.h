@@ -175,6 +175,7 @@ namespace folia {
     std::string extract( const std::string& );
     std::string toString();
     bool add( const std::string&, const std::string& );
+    bool addu( const std::string&, const icu::UnicodeString& );
     void init( const std::string& );
   };
 
