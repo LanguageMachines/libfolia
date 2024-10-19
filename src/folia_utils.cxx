@@ -241,6 +241,22 @@ namespace folia {
       throw ArgsError( s + ", unbalanced '?" );
   }
 
+  bool KWargs::add( const std::string& att, const std::string& val ){
+    /// insert an attribute/valus pair into KWargs
+    /*!
+      \param att name of the attribute
+      \param val the valye of the attribute
+      \return false if nothing is inserted. (only when att or val empty)
+    */
+    if ( att.empty() || val.empty() ){
+      return false;
+    }
+    else {
+      (*this)[att] = val;
+      return true;
+    }
+  }
+
   bool KWargs::is_present( const string& att ) const {
     /// check if an attribute is present in the KWargs
     /*!

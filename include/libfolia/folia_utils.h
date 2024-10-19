@@ -174,6 +174,7 @@ namespace folia {
     std::string lookup( const std::string& );
     std::string extract( const std::string& );
     std::string toString();
+    bool add( const std::string&, const std::string& );
     void init( const std::string& );
   };
 
