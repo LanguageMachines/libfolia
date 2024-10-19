@@ -298,12 +298,12 @@ namespace folia {
   /// "att1='val1', att2='val2', ..., attn='valn'"
   ///
     string result;
-    auto it = args.begin();
-    while ( it != args.end() ){
-      result += it->first + "='" + it->second + "'";
-      ++it;
-      if ( it != args.end() )
-	result += ",";
+    for ( const auto& [arg,val] : args ){
+      result += arg + "='" + val + "'";
+      result += ",";
+    }
+    if ( !result.empty() ){
+      result.pop_back(); // remove last ','
     }
     return result;
   }
@@ -382,11 +382,10 @@ namespace folia {
       attribs.erase(it);
     }
     // and now the rest
-    it = attribs.begin();
-    while ( it != attribs.end() ){
+    for ( const auto& [at,val] : attribs ){
       xmlSetProp( node,
-		  to_xmlChar(it->first),
-		  to_xmlChar(it->second) );
+		  to_xmlChar(at),
+		  to_xmlChar(val) );
       ++it;
     }
   }

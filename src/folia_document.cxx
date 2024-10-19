@@ -510,7 +510,7 @@ namespace folia {
       \param ann the annotationtype
       \return a string representation of \e ann.
 
-      Taking into account the version of the Dcocument, translating to
+      Taking into account the version of the Document, translating to
       old labels for pre 1.6 versions
     */
     const string& result = toString( ann );
@@ -2864,11 +2864,6 @@ namespace folia {
     }
 
     string label = annotation_type_to_string( type );
-    // cerr << "/nDO: '" << label+sett << "'" << endl;
-    // if ( done.find(label+sett) != done.end() ){
-    //   return;
-    // }
-    // //    done.insert(label+sett);
     label += "-annotation";
     const auto *it = lookup_default( type, sett );
     if ( it != 0 ){
