@@ -347,16 +347,16 @@ namespace folia {
       const xmlAttr *a = node->properties;
       while ( a ){
 	if ( a->atype == XML_ATTRIBUTE_ID && att_name(a) == "id" ){
-	  atts["xml:id"] = att_content(a);
+	  atts.add("xml:id",att_content(a));
 	}
 	else if ( a->ns == 0 || a->ns->prefix == 0 ){
-	  atts[att_name(a)] = att_content(a);
+	  atts.add(att_name(a), att_content(a));
 	}
 	else {
 	  string pref = to_string( a->ns->prefix );
 	  string att  = att_name(a);
 	  if ( pref == "xlink" ){
-	    atts["xlink:"+att] = att_content(a);
+	    atts.add("xlink:"+att, att_content(a));
 	  }
 	  // else {
 	  //   cerr << "attribute PREF=" << pref << endl;

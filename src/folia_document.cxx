@@ -122,7 +122,7 @@ namespace folia {
       // (read_from_file/read_from_string create a foliadoc OR throw )
       if ( args.find( "version" ) == args.end() ){
 	// no version attribute. set it to the current default
-	args["version"] = folia_version();
+	args.add("version",folia_version());
       }
       // create an 'empty' document using the args, with a FoLiA root node.
       foliadoc = new FoLiA( args, this );
@@ -159,7 +159,7 @@ namespace folia {
     */
     KWargs args = getArgs(s);
     if ( args.empty() ){
-      args["file"] = s;
+      args.add("file", s);
     }
     init_args( args );
   }
@@ -1607,7 +1607,7 @@ namespace folia {
 			     "'" + value + "' is not a valid NCName." );
       }
       happy = true;
-      kwargs["xml:id"] = value;
+      kwargs.add("xml:id", value);
     }
     if ( !foliadoc && !happy ){
       throw runtime_error( "No Document ID specified" );
@@ -2871,43 +2871,37 @@ namespace folia {
       KWargs args;
       if ( !strip() ){
 	s = it->_date;
-	if ( !s.empty() ){
-	  args["datetime"] = s;
-	}
+	args.add("datetime", s);
       }
       s = it->_format;
-      if ( !s.empty() ){
-	args["format"] = s;
-      }
+      args.add("format", s);
       s = sett;
       if ( s == "None" ){ // "empty" set
 	// skip
       }
       else if ( s != "undefined" ){ // the default
-	args["set"] = s;
+	args.add("set", s);
       }
       auto const& t_it = _groupannotations.find(type);
       if ( t_it != _groupannotations.end() ){
 	auto const& s_it = t_it->second.find(s);
 	if ( s_it != t_it->second.end()
 	     && s_it->second ){
-	  args["groupannotations"] = "yes";
+	  args.add("groupannotations","yes");
 	}
       }
       const auto& ti = _set_alias.find(type);
       if ( ti != _set_alias.end() ){
 	const auto& al = ti->second.find(s);
 	if ( al->second != s ){
-	  args["alias"] = al->second;
+	  args.add("alias", al->second);
 	}
       }
       string an = it->_annotator;
-      if ( !an.empty() ){
-	args["annotator"] = an;
-      }
+      args.add("annotator", an);
       AnnotatorType anno_type = it->_ann_type;
       if ( anno_type != UNDEFINED && anno_type != AUTO ){
-	args["annotatortype"] = toString(anno_type);
+	args.add("annotatortype",toString(anno_type));
       }
       xmlNode *annotation_node = TiCC::XmlNewNode( foliaNs(), label );
       addAttributes( annotation_node, args );
@@ -2915,7 +2909,7 @@ namespace folia {
       for ( const auto& p : it->_processors ){
 	KWargs pargs;
 	xmlNode *a = TiCC::XmlNewNode( foliaNs(), "annotator" );
-	pargs["processor"] = p;
+	pargs.add("processor", p);
 	addAttributes( a, pargs );
 	xmlAddChild( annotation_node, a );
       }
@@ -3018,7 +3012,7 @@ namespace folia {
     for ( const auto& [meta_id,val] : p->_metadata ){
       xmlNode *m = xmlAddChild( pr, TiCC::XmlNewNode( foliaNs(), "meta" ) );
       KWargs args;
-      args["id"] = meta_id;
+      args.add("id", meta_id);
       addAttributes( m, args );
       xmlAddChild( m, xmlNewText( to_xmlChar(val) ) );
     }
@@ -3049,12 +3043,12 @@ namespace folia {
     for ( const auto& [id,vals] : submetadata ){
       xmlNode *sm = TiCC::XmlNewNode( foliaNs(), "submetadata" );
       KWargs atts;
-      atts["xml:id"] = id;
+      atts.add("xml:id",id);
       addAttributes( sm, atts );
       const MetaData *md = submetadata.find(id)->second;
       string type = md->type();
       atts.clear();
-      atts["type"] = type;
+      atts.add("type", type);
       addAttributes( sm, atts );
       xmlAddChild( node, sm );
       if ( type == "native" ){
@@ -3063,7 +3057,7 @@ namespace folia {
 	for ( const auto& [m_id,val] : atts ){
 	  xmlNode *m = TiCC::XmlNewNode( foliaNs(), "meta" );
 	  KWargs args;
-	  args["id"] = m_id;
+	  args.add("id", m_id);
 	  addAttributes( m, args );
 	  xmlAddChild( m, xmlNewText( to_xmlChar(val) ) );
 	  xmlAddChild( sm, m );
@@ -3071,7 +3065,7 @@ namespace folia {
       }
       else if ( md->datatype() == "ExternalMetaData" ){
 	KWargs args;
-	args["src"] = md->src();
+	args.add("src", md->src());
 	addAttributes( sm, args );
       }
       else if ( md->datatype() == "ForeignMetaData" ){
@@ -3087,17 +3081,15 @@ namespace folia {
     /// add a metadata block to node
     if ( _metadata ){
       if ( _metadata->datatype() == "ExternalMetaData" ){
-	KWargs atts;
-	atts["type"] = "external";
 	string src = _metadata->src();
-	if ( !src.empty() ){
-	  atts["src"] = src;
-	}
+	KWargs atts;
+	atts.add("type","external");
+	atts.add("src", src);
 	addAttributes( node, atts );
       }
       else {
 	KWargs atts;
-	atts["type"] = _metadata->type();
+	atts.add("type", _metadata->type());
 	addAttributes( node, atts );
 	for ( const auto& [id,val] : _metadata->get_avs() ){
 	  xmlNode *m = TiCC::XmlNewNode( foliaNs(), "meta" );
