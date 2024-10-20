@@ -1555,7 +1555,7 @@ namespace folia {
       my_set = doc()->default_set( AnnotationType::TEXT );
     }
     KWargs args;
-    args.addu("value",txt_u);
+    args.add("value",TiCC::UnicodeToUTF8(txt_u));
     args.add("class",cls);
     args.add("set", my_set);
     if ( offset >= 0 ){
@@ -1871,7 +1871,7 @@ namespace folia {
 	      cerr << "FIX: " << s1 << "==>" << s2 << endl;
 	    }
 	    KWargs args;
-	    args.addu("value",s2);
+	    args.add("value",TiCC::UnicodeToUTF8(s2));
 	    args.add("class",st);
 	    TextContent *node = new TextContent( args, doc() );
 	    this->replace( node );

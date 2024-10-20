@@ -257,10 +257,6 @@ namespace folia {
     }
   }
 
-  bool KWargs::addu( const std::string& att, const UnicodeString& uval ){
-    return add( att, TiCC::UnicodeToUTF8(uval) );
-  }
-
   bool KWargs::is_present( const string& att ) const {
     /// check if an attribute is present in the KWargs
     /*!
