@@ -2964,78 +2964,56 @@ namespace folia {
     */
     xmlNode *pr = xmlAddChild( node, TiCC::XmlNewNode( foliaNs(), "processor" ) );
     KWargs atts;
-    atts["xml:id"] = p->_id;
-    atts["name"] = p->_name;
+    atts.add("xml:id",p->_id);
+    atts.add("name", p->_name);
     if ( p->_type != AUTO || has_explicit() ){
-      atts["type"] = toString(p->_type);
+      atts.add("type",toString(p->_type));
     }
     if ( !strip() ){
-      if ( !p->_version.empty() ){
-	atts["version"] = p->_version;
-      }
-      if ( !p->_folia_version.empty() ){
-	atts["folia_version"] = p->_folia_version;
-      }
-      if ( !p->_command.empty() ){
-	atts["command"] = p->_command;
-      }
-      if ( !p->_host.empty() ){
-	atts["host"] = p->_host;
-      }
-      if ( !p->_user.empty() ){
-	atts["user"] = p->_user;
-      }
-      if ( !p->_begindatetime.empty() ){
-	atts["begindatetime"] = p->_begindatetime;
-      }
-      if ( !p->_enddatetime.empty() ){
-	atts["enddatetime"] = p->_enddatetime;
-      }
+      atts.add("version",p->_version);
+      atts.add("folia_version", p->_folia_version);
+      atts.add("command",p->_command);
+      atts.add("host", p->_host);
+      atts.add("user", p->_user);
+      atts.add("begindatetime", p->_begindatetime);
+      atts.add("enddatetime",p->_enddatetime);
     }
     else {
       if ( p->_name == "libfolia" ){
-	atts["name"] = "stripped";
+	atts.add("name","stripped");
       }
       else if ( p->_name == "foliapy" ){
-	atts["name"] = "stripped";
+	atts.add("name","stripped");
       }
-      else if ( !p->_name.empty() ){
-	atts["name"] = p->_name;
+      else {
+	atts.add("name", p->_name);
       }
       if ( !p->_version.empty() ){
-	atts["version"] = "stripped";
+	atts.add("version","stripped");
       }
       if ( !p->_folia_version.empty() ){
-	atts["folia_version"] = "stripped";
+	atts.add("folia_version","stripped");
       }
       if ( !p->_command.empty() ){
-	atts["command"] = "stripped";
+	atts.add("command","stripped");
       }
       if ( !p->_host.empty() ){
-	atts["host"] = "stripped";
+	atts.add("host","stripped");
       }
       if ( !p->_user.empty() ){
-	atts["user"] = "stripped";
+	atts.add("user","stripped");
       }
       if ( !p->_begindatetime.empty() ){
-	atts["begindatetime"] = "stripped";
+	atts.add("begindatetime","stripped");
       }
       if ( !p->_enddatetime.empty() ){
-	atts["enddatetime"] = "stripped";
+	atts.add("enddatetime","stripped");
       }
     }
-    if ( !p->_document_version.empty() ){
-      atts["document_version"] = p->_document_version;
-    }
-    if ( !p->_resourcelink.empty() ){
-      atts["resourcelink"] = p->_resourcelink;
-    }
-    if ( !p->_src.empty() ){
-      atts["src"] = p->_src;
-    }
-    if ( !p->_format.empty() ){
-      atts["format"] = p->_format;
-    }
+    atts.add("document_version",p->_document_version);
+    atts.add("resourcelink", p->_resourcelink);
+    atts.add("src",p->_src);
+    atts.add("format", p->_format);
     addAttributes( pr, atts );
     for ( const auto& [meta_id,val] : p->_metadata ){
       xmlNode *m = xmlAddChild( pr, TiCC::XmlNewNode( foliaNs(), "meta" ) );
@@ -3125,7 +3103,7 @@ namespace folia {
 	  xmlNode *m = TiCC::XmlNewNode( foliaNs(), "meta" );
 	  xmlAddChild( m, xmlNewText( to_xmlChar(val) ) );
 	  KWargs meta_atts;
-	  meta_atts["id"] = id;
+	  meta_atts.add("id",id);
 	  addAttributes( m, meta_atts );
 	  xmlAddChild( node, m );
 	}
@@ -3134,7 +3112,7 @@ namespace folia {
     if ( _foreign_metadata ){
       if ( !_metadata ){
 	KWargs atts;
-	atts["type"] = _foreign_metadata->type();
+	atts.add("type",_foreign_metadata->type());
 	addAttributes( node, atts );
       }
       for ( const auto* foreign : _foreign_metadata->get_foreigners() ) {
@@ -3145,7 +3123,7 @@ namespace folia {
     if ( !_metadata
 	 && !_foreign_metadata ){
       KWargs atts;
-      atts["type"] = "native";
+      atts.add("type","native");
       addAttributes( node, atts );
     }
     add_submetadata( node );
@@ -3204,21 +3182,16 @@ namespace folia {
     }
     xmlSetNs( root, _foliaNsOut );
     KWargs attribs;
-    attribs["xml:id"] = foliadoc->id();
-    if ( strip() ){
-      attribs["generator"] = "";
-      attribs["version"] = "";
-    }
-    else {
-      attribs["generator"] = "libfolia-v" + library_version();
-      attribs["version"] = _version_string;
-      // attribs["version"] = folia_version();
+    attribs.add("xml:id",foliadoc->id());
+    if ( !strip() ){
+      attribs.add("generator", "libfolia-v" + library_version());
+      attribs.add("version",_version_string);
     }
     if ( has_explicit() ){
-      attribs["form"] = "explicit";
+      attribs.add("form","explicit");
     }
     if ( _external_document ){
-      attribs["external"] = "yes";
+      attribs.add("external","yes");
     }
     addAttributes( root, attribs );
     xmlNode *md = xmlAddChild( root, TiCC::XmlNewNode( foliaNs(), "metadata" ) );
