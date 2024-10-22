@@ -45,6 +45,7 @@ namespace folia {
   enum AnnotatorType : int;
   enum ElementType : unsigned int;
   class FoliaElement;
+  class KWargs;
 
   class ArgsError: public std::runtime_error {
   public:
@@ -117,6 +118,15 @@ namespace folia {
 		      const std::string& );
   };
 
+  class DuplicateAttributeError: public std::runtime_error {
+  public:
+    explicit DuplicateAttributeError( const std::string& s ):
+      std::runtime_error( "duplicate attribute : " + s ){};
+    DuplicateAttributeError( const KWargs&,
+			     const std::string&,
+			     const std::string& );
+  };
+
   class NoDefaultError: public std::runtime_error {
   public:
     explicit NoDefaultError( const std::string& s ):
@@ -170,11 +180,13 @@ namespace folia {
   class KWargs : public std::map<const std::string, std::string> {
   public:
     explicit KWargs( const std::string& ="" );
+    KWargs( const std::string&, const std::string& );
     bool is_present( const std::string& ) const;
-    std::string lookup( const std::string& );
+    std::string lookup( const std::string& ) const;
     std::string extract( const std::string& );
     std::string toString();
     bool add( const std::string&, const std::string& );
+    bool replace( const std::string&, const std::string& );
     void init( const std::string& );
   };
 

@@ -92,15 +92,15 @@ int main() {
   FoliaElement *s = new Sentence( kw, &d );
   text->append( s );
   kw.clear();
-  kw["text"] = "De";
+  kw.add("text","De");
   s->addWord( kw );
-  kw["text"] = "site";
+  kw.replace("text","site");
   s->addWord( kw );
-  kw["text"] = "staat";
+  kw.replace("text","staat");
   s->addWord( kw );
-  kw["text"] = "online";
+  kw.replace("text","online");
   s->addWord( kw );
-  kw["text"] = ".";
+  kw.replace("text", ".");
   s->addWord( kw );
   if ( d[id+".s.1"]->size() != 5 ) {
     cout << " Unexpected sentence size, " <<  d[id+".s.1"]->size() << ", expected 5" << endl;

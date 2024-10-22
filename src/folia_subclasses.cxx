@@ -149,7 +149,7 @@ namespace folia {
     if ( has_annotation<MorphologyLayer>( st ) > 0 ) {
       // ok, there is already one, so create an Alternative
       KWargs kw;
-      kw["xml:id"] = generateId( newId );
+      kw.add("xml:id", generateId( newId ));
       if ( !doc()->declared( AnnotationType::ALTERNATIVE ) ){
 	doc()->declare( AnnotationType::ALTERNATIVE, "" );
       }
@@ -234,8 +234,8 @@ namespace folia {
       }
       else if ( pnt->isinstance( Sentence_t ) ) {
 	KWargs args;
-	args["text"] = pnt->id();
-	args["placeholder"] = "yes";
+	args.add("text", pnt->id() );
+	args.add("placeholder","yes");
 	Word *p = new Word( args, doc() );
 	doc()->keepForDeletion( p );
 	result.push_back( p );
@@ -341,8 +341,8 @@ namespace folia {
       throw runtime_error( "insertword(): new word is not a Word " );
     }
     KWargs kwargs;
-    kwargs["text"] = "dummy";
-    kwargs["xml:id"] = "dummy";
+    kwargs.add("text","dummy");
+    kwargs.add("xml:id","dummy");
     Word *dummy = new Word( kwargs );
     dummy->set_parent( this ); // we create a dummy Word.
     // now we insert it as member of the Sentence.
@@ -441,7 +441,7 @@ namespace folia {
     }
     it = kwargs.find( "class" );
     if ( it == kwargs.end() ) {
-      kwargs["class"] = "current";
+      kwargs.add("class","current");
     }
     AbstractElement::setAttributes(kwargs);
     if ( doc() ){
@@ -622,7 +622,7 @@ namespace folia {
       attribs.erase( "class" );
     }
     if ( _offset >= 0 ) {
-      attribs["offset"] = TiCC::toString( _offset );
+      attribs.add("offset",TiCC::toString( _offset ));
     }
     attribs.add("ref",_ref);
     return attribs;
@@ -1221,8 +1221,8 @@ namespace folia {
 	    }
 	    else {
 	      KWargs args;
-	      args["text"] = val;
-	      args["placeholder"] = "yes";
+	      args.add("text", val);
+	      args.add("placeholder", "yes");
 	      Word *p = new Word( args );
 	      doc()->keepForDeletion( p );
 	      result.push_back( p );
@@ -1238,8 +1238,8 @@ namespace folia {
 	      }
 	      else {
 		KWargs args;
-		args["text"] = val;
-		args["placeholder"] = "yes";
+		args.add("text",val);
+		args.add("placeholder", "yes");
 		Word *p = new Word( args );
 		doc()->keepForDeletion( p );
 		result.push_back( p );
@@ -1282,8 +1282,8 @@ namespace folia {
 	    }
 	    else {
 	      KWargs args;
-	      args["text"] = val;
-	      args["placeholder"] = "yes";
+	      args.add("text", val);
+	      args.add("placeholder","yes");
 	      Word *p = new Word( args );
 	      doc()->keepForDeletion( p );
 	      result.push_back( p );
@@ -1328,8 +1328,8 @@ namespace folia {
 	      }
 	      else {
 		KWargs args;
-		args["text"] = val;
-		args["placeholder"] = "yes";
+		args.add("text",val);
+		args.add("placeholder","yes");
 		Word *p = new Word( args );
 		doc()->keepForDeletion( p );
 		result.push_back( p );
@@ -1556,7 +1556,7 @@ namespace folia {
      */
     KWargs att = getAttributes( node );
     if ( !att.is_present("value") ) {
-      att["value"] = XmlContent( node );
+      att.add("value", XmlContent( node ) );
     }
     setAttributes( att );
     return this;
@@ -1590,7 +1590,7 @@ namespace folia {
      */
     KWargs att = getAttributes( node );
     if ( !att.is_present("value") ) {
-      att["value"] = XmlContent( node );
+      att.add("value", XmlContent( node ) );
     }
     setAttributes( att );
     return this;
@@ -1744,7 +1744,7 @@ namespace folia {
 	   && el->refcount() > 0 ){
 	xmlNode *t = XmlNewNode( foliaNs(), "wref" );
 	KWargs attribs;
-	attribs["id"] = el->id();
+	attribs.add("id", el->id());
 	string txt = el->str( el->textclass() );
 	attribs.add("t",txt);
 	addAttributes( t, attribs );
@@ -2731,7 +2731,7 @@ namespace folia {
 	      const string bogus_id = "Arglebargleglop-glyf";
 	      FoliaElement *par = parent();
 	      KWargs args = par->collectAttributes();
-	      args["xml:id"] = bogus_id;
+	      args.add("xml:id", bogus_id);
 	      Text *tmp = new Text( args, doc() );
 	      tmp->AbstractElement::parseXml( p );
 	      FoliaElement *old = par->replace( this, tmp->index(0) );
@@ -2947,7 +2947,7 @@ namespace folia {
      * inclusive: subset
      */
     KWargs attribs = AbstractElement::collectAttributes();
-    attribs["subset"] = _subset;
+    attribs.add("subset",_subset);
     return attribs;
   }
 

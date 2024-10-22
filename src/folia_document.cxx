@@ -2907,9 +2907,8 @@ namespace folia {
       addAttributes( annotation_node, args );
       xmlAddChild( root, annotation_node );
       for ( const auto& p : it->_processors ){
-	KWargs pargs;
 	xmlNode *a = TiCC::XmlNewNode( foliaNs(), "annotator" );
-	pargs.add("processor", p);
+	KWargs pargs("processor", p);
 	addAttributes( a, pargs );
 	xmlAddChild( annotation_node, a );
       }
@@ -2959,11 +2958,11 @@ namespace folia {
     xmlNode *pr = xmlAddChild( node, TiCC::XmlNewNode( foliaNs(), "processor" ) );
     KWargs atts;
     atts.add("xml:id",p->_id);
-    atts.add("name", p->_name);
     if ( p->_type != AUTO || has_explicit() ){
       atts.add("type",toString(p->_type));
     }
     if ( !strip() ){
+      atts.add("name", p->_name);
       atts.add("version",p->_version);
       atts.add("folia_version", p->_folia_version);
       atts.add("command",p->_command);
@@ -3011,8 +3010,7 @@ namespace folia {
     addAttributes( pr, atts );
     for ( const auto& [meta_id,val] : p->_metadata ){
       xmlNode *m = xmlAddChild( pr, TiCC::XmlNewNode( foliaNs(), "meta" ) );
-      KWargs args;
-      args.add("id", meta_id);
+      KWargs args("id", meta_id);
       addAttributes( m, args );
       xmlAddChild( m, xmlNewText( to_xmlChar(val) ) );
     }
@@ -3040,12 +3038,11 @@ namespace folia {
 
   void Document::add_submetadata( xmlNode *node ) const {
     /// add a submetadata block to node
-    for ( const auto& [id,vals] : submetadata ){
+    for ( const auto& [sid,vals] : submetadata ){
       xmlNode *sm = TiCC::XmlNewNode( foliaNs(), "submetadata" );
-      KWargs atts;
-      atts.add("xml:id",id);
+      KWargs atts("xml:id",sid);
       addAttributes( sm, atts );
-      const MetaData *md = submetadata.find(id)->second;
+      const MetaData *md = submetadata.find(sid)->second;
       string type = md->type();
       atts.clear();
       atts.add("type", type);
@@ -3056,16 +3053,14 @@ namespace folia {
 	// cerr << "atts: " << atts << endl;
 	for ( const auto& [m_id,val] : atts ){
 	  xmlNode *m = TiCC::XmlNewNode( foliaNs(), "meta" );
-	  KWargs args;
-	  args.add("id", m_id);
+	  KWargs args("id", m_id);
 	  addAttributes( m, args );
 	  xmlAddChild( m, xmlNewText( to_xmlChar(val) ) );
 	  xmlAddChild( sm, m );
 	}
       }
       else if ( md->datatype() == "ExternalMetaData" ){
-	KWargs args;
-	args.add("src", md->src());
+	KWargs args("src", md->src());
 	addAttributes( sm, args );
       }
       else if ( md->datatype() == "ForeignMetaData" ){
@@ -3088,14 +3083,12 @@ namespace folia {
 	addAttributes( node, atts );
       }
       else {
-	KWargs atts;
-	atts.add("type", _metadata->type());
+	KWargs atts("type", _metadata->type());
 	addAttributes( node, atts );
-	for ( const auto& [id,val] : _metadata->get_avs() ){
+	for ( const auto& [mid,val] : _metadata->get_avs() ){
 	  xmlNode *m = TiCC::XmlNewNode( foliaNs(), "meta" );
 	  xmlAddChild( m, xmlNewText( to_xmlChar(val) ) );
-	  KWargs meta_atts;
-	  meta_atts.add("id",id);
+	  KWargs meta_atts("id",mid);
 	  addAttributes( m, meta_atts );
 	  xmlAddChild( node, m );
 	}
@@ -3103,8 +3096,7 @@ namespace folia {
     }
     if ( _foreign_metadata ){
       if ( !_metadata ){
-	KWargs atts;
-	atts.add("type",_foreign_metadata->type());
+	KWargs atts("type",_foreign_metadata->type());
 	addAttributes( node, atts );
       }
       for ( const auto* foreign : _foreign_metadata->get_foreigners() ) {
@@ -3114,8 +3106,7 @@ namespace folia {
     }
     if ( !_metadata
 	 && !_foreign_metadata ){
-      KWargs atts;
-      atts.add("type","native");
+      KWargs atts("type","native");
       addAttributes( node, atts );
     }
     add_submetadata( node );
@@ -3175,7 +3166,7 @@ namespace folia {
     xmlSetNs( root, _foliaNsOut );
     KWargs attribs;
     attribs.add("xml:id",foliadoc->id());
-    if ( !strip() ){
+    if ( !strip() ) {
       attribs.add("generator", "libfolia-v" + library_version());
       attribs.add("version",_version_string);
     }

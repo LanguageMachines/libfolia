@@ -608,7 +608,7 @@ namespace folia {
       args.add("name",annotator);
       args.add("annotatortype",an_type);
       args.add("generate_id","auto()" );
-      folia::processor *new_p = new folia::processor( prov, top, args );
+      const folia::processor *new_p = new folia::processor( prov, top, args );
       set_processor_name( new_p->name() );
       //      cerr << "created new processor: " << new_p << endl;
     }
@@ -1109,8 +1109,8 @@ namespace folia {
      * the values are used as class attribute for the new children
      * will throw for unexpected attributes, except when in permisive mode
      */
-    for ( const auto& [feat,val] : kwargs ) {
-      string f_tag = feat;
+    for ( const auto& [f_feat,val] : kwargs ) {
+      string f_tag = f_feat;
       if ( f_tag == "head" ) {
 	// "head" is special because the tag is "headfeature"
 	// this to avoid conflicts with the "head" tag!

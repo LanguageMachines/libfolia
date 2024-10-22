@@ -76,6 +76,12 @@ namespace folia {
     std::runtime_error( output_elem( elt)
 			+ ": Duplicate ID: " + mess ){};
 
+  DuplicateAttributeError::DuplicateAttributeError( const KWargs& args,
+						    const std::string& att,
+						    const std::string& val ):
+    std::runtime_error( "Duplicate attribute: '" + att + "' with val="
+			+ val + ", current value: " + args.lookup(att) ){};
+
   DuplicateAnnotationError::DuplicateAnnotationError( const FoliaElement *elt,
 						      const std::string& mess ):
     std::runtime_error( output_elem( elt)
@@ -139,13 +145,22 @@ namespace folia {
     return el;
   }
 
-  KWargs::KWargs( const std::string& s ){
+  KWargs::KWargs( const string& s ){
     /// create a KWargs from an input string
     /*!
       \param s The input string, in the following format:
       "att1='val1', att2='val2', ..., attn='valn'"
     */
     init( s );
+  }
+
+  KWargs::KWargs( const string& att, const string& val ){
+    /// create a KWargs with one att-val pair
+    /*!
+      \param att the attribute
+      \param val the attribute
+    */
+    add( att, val );
   }
 
   void KWargs::init( const string& s ){
@@ -187,7 +202,10 @@ namespace folia {
 	    if ( att.empty() || val.empty() ){
 	      throw ArgsError( s + ", (''?)" );
 	    }
-	    (*this)[att] = val;
+	    if ( !add(att,val) ){
+	      throw ArgsError( "Duplicate attribute '" + att + "' in"
+			       + " arguments list " + s );
+	    }
 	    att.clear();
 	    val.clear();
 	    quoted = false;
@@ -242,18 +260,46 @@ namespace folia {
   }
 
   bool KWargs::add( const std::string& att, const std::string& val ){
-    /// insert an attribute/valus pair into KWargs
+    /// insert an attribute/value pair into KWargs
     /*!
       \param att name of the attribute
-      \param val the valye of the attribute
-      \return false if nothing is inserted. (only when att or val empty)
+      \param val the value of the attribute
+      \return false if nothing is inserted.
+              so when att or val empty. or att already present
+    */
+    if ( att.empty() || val.empty() ){
+      return false;
+    }
+    else if ( is_present( att ) ){
+      throw DuplicateAttributeError( *this, att, val );
+    }
+    else {
+      insert( make_pair(att,val) );
+      return true;
+    }
+  }
+
+  bool KWargs::replace( const std::string& att, const std::string& val ){
+    /// replace an attribute/values pair with a new value
+    /// don't do anyting when the attribute is not present
+    /*!
+      \param att name of the attribute
+      \param val the value of the attribute
+      \return false if nothing is inserted.
+              so when att or val empty or att not present
     */
     if ( att.empty() || val.empty() ){
       return false;
     }
     else {
-      (*this)[att] = val;
-      return true;
+      auto it = find( att );
+      if ( it != end() ){
+	// already present. remove
+	erase(it);
+	// and add
+	return add( att, val );
+      }
+      return false;
     }
   }
 
@@ -266,7 +312,7 @@ namespace folia {
     return find(att) != end();
   }
 
-  string KWargs::lookup( const string& att ){
+  string KWargs::lookup( const string& att ) const {
     /// lookup an attribute
     /*!
       \param att The attribute to check
