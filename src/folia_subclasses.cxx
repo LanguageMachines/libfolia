@@ -698,7 +698,9 @@ namespace folia {
     KWargs atts = AbstractElement::collectAttributes();
     atts.add("linenr",_linenr);
     atts.add("pagenr",_pagenr);
-    atts.add("newpage","yes");
+    if ( _newpage ){
+      atts.add("newpage","yes");
+    }
     KWargs more = AllowXlink::collectAttributes();
     atts.insert( more.begin(), more.end() );
     return atts;

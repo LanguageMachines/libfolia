@@ -238,8 +238,9 @@ namespace folia {
 	}
       }
       else if ( let == ' ' ){
-	if ( quoted )
+	if ( quoted ){
 	  val += let;
+	}
       }
       else if ( parseatt ){
 	att += let;
@@ -255,8 +256,9 @@ namespace folia {
 	throw ArgsError( s + ", unquoted value or missing , ?" );
       }
     }
-    if ( quoted )
+    if ( quoted ){
       throw ArgsError( s + ", unbalanced '?" );
+    }
   }
 
   bool KWargs::add( const std::string& att, const std::string& val ){
@@ -713,12 +715,14 @@ namespace folia {
 
   bool checkNS( const xmlNode *n, const string& ns ){
     string tns = TiCC::getNS(n);
-    if ( tns == ns )
+    if ( tns == ns ){
       return true;
-    else
+    }
+    else {
       throw runtime_error( "namespace conflict for tag:" + TiCC::Name(n)
 			   + ", wanted:" + ns
 			   + " got:" + tns );
+    }
     return false;
   }
 
