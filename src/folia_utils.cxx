@@ -283,7 +283,7 @@ namespace folia {
 
   bool KWargs::replace( const std::string& att, const std::string& val ){
     /// replace an attribute/values pair with a new value
-    /// don't do anyting when the attribute is not present
+    /// don't do anything when the attribute is not present
     /*!
       \param att name of the attribute
       \param val the value of the attribute

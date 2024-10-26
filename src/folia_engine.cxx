@@ -297,7 +297,7 @@ namespace folia {
       do {
 	string att = to_string(xmlTextReaderConstName(tr));
 	string val = to_string(xmlTextReaderConstValue(tr));
-	result.add(att, val);
+	result[att] = val;
       }
       while ( xmlTextReaderMoveToNextAttribute(tr) );
     }
@@ -509,8 +509,8 @@ namespace folia {
 	// A PI
 	if ( local_name == "xml-stylesheet" ){
 	  string sv = to_string(xmlTextReaderConstValue(_reader));
-	  auto const [tp,href] = extract_style( sv );
-	  _out_doc->addStyle( tp, href );
+	  auto const [type,href] = extract_style( sv );
+	  _out_doc->addStyle( type, href );
 	}
 	else {
 	  cerr << "unhandled PI: " << local_name << endl;
@@ -964,7 +964,7 @@ namespace folia {
 		    DBG << "processing a <" << local_name << "> with value '"
 			<< val << "'" << endl;
 		  }
-		  atts.add("value", val);
+		  atts["value"] = val;
 		}
 	      }
 	    }

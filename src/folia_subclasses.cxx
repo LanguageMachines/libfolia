@@ -149,7 +149,7 @@ namespace folia {
     if ( has_annotation<MorphologyLayer>( st ) > 0 ) {
       // ok, there is already one, so create an Alternative
       KWargs kw;
-      kw.add("xml:id", generateId( newId ));
+      kw["xml:id"] = generateId( newId );
       if ( !doc()->declared( AnnotationType::ALTERNATIVE ) ){
 	doc()->declare( AnnotationType::ALTERNATIVE, "" );
       }
@@ -234,8 +234,8 @@ namespace folia {
       }
       else if ( pnt->isinstance( Sentence_t ) ) {
 	KWargs args;
-	args.add("text", pnt->id() );
-	args.add("placeholder","yes");
+	args["text"] = pnt->id();
+	args["placeholder"] = "yes";
 	Word *p = new Word( args, doc() );
 	doc()->keepForDeletion( p );
 	result.push_back( p );
@@ -341,8 +341,8 @@ namespace folia {
       throw runtime_error( "insertword(): new word is not a Word " );
     }
     KWargs kwargs;
-    kwargs.add("text","dummy");
-    kwargs.add("xml:id","dummy");
+    kwargs["text"] = "dummy";
+    kwargs["xml:id"] = "dummy";
     Word *dummy = new Word( kwargs );
     dummy->set_parent( this ); // we create a dummy Word.
     // now we insert it as member of the Sentence.
@@ -441,7 +441,7 @@ namespace folia {
     }
     it = kwargs.find( "class" );
     if ( it == kwargs.end() ) {
-      kwargs.add("class","current");
+      kwargs["class"] = "current";
     }
     AbstractElement::setAttributes(kwargs);
     if ( doc() ){
@@ -622,9 +622,11 @@ namespace folia {
       attribs.erase( "class" );
     }
     if ( _offset >= 0 ) {
-      attribs.add("offset",TiCC::toString( _offset ));
+      attribs["offset"] = TiCC::toString( _offset );
     }
-    attribs.add("ref",_ref);
+    if ( !_ref.empty() ) {
+      attribs["ref"] = _ref;
+    }
     return attribs;
   }
 
@@ -696,10 +698,14 @@ namespace folia {
      * inclusive: linenr, pagenr and newpage
      */
     KWargs atts = AbstractElement::collectAttributes();
-    atts.add("linenr",_linenr);
-    atts.add("pagenr",_pagenr);
+    if ( ! _linenr.empty() ){
+      atts["linenr"] = _linenr;
+    }
+    if ( ! _pagenr.empty() ){
+      atts["pagenr"] = _pagenr;
+    }
     if ( _newpage ){
-      atts.add("newpage","yes");
+      atts["newpage"] = "yes";
     }
     KWargs more = AllowXlink::collectAttributes();
     atts.insert( more.begin(), more.end() );
@@ -973,9 +979,11 @@ namespace folia {
      * inclusive: ref_id and type
      */
     KWargs atts;
-    atts.add("id",ref_id);
-    atts.add("type", ref_type);
-    atts.add("t", _t);
+    atts["id"] = ref_id;
+    atts["type"] = ref_type;
+    if ( !_t.empty() ) {
+      atts["t"] = _t;
+    }
     return atts;
   }
 
@@ -1223,8 +1231,8 @@ namespace folia {
 	    }
 	    else {
 	      KWargs args;
-	      args.add("text", val);
-	      args.add("placeholder", "yes");
+	      args["text"] = val;
+	      args["placeholder"] = "yes";
 	      Word *p = new Word( args );
 	      doc()->keepForDeletion( p );
 	      result.push_back( p );
@@ -1240,8 +1248,8 @@ namespace folia {
 	      }
 	      else {
 		KWargs args;
-		args.add("text",val);
-		args.add("placeholder", "yes");
+		args["text"] = val;
+		args["placeholder"] = "yes";
 		Word *p = new Word( args );
 		doc()->keepForDeletion( p );
 		result.push_back( p );
@@ -1284,8 +1292,8 @@ namespace folia {
 	    }
 	    else {
 	      KWargs args;
-	      args.add("text", val);
-	      args.add("placeholder","yes");
+	      args["text"] = val;
+	      args["placeholder"] = "yes";
 	      Word *p = new Word( args );
 	      doc()->keepForDeletion( p );
 	      result.push_back( p );
@@ -1330,8 +1338,8 @@ namespace folia {
 	      }
 	      else {
 		KWargs args;
-		args.add("text",val);
-		args.add("placeholder","yes");
+		args["text"] = val;
+		args["placeholder"] = "yes";
 		Word *p = new Word( args );
 		doc()->keepForDeletion( p );
 		result.push_back( p );
@@ -1495,8 +1503,8 @@ namespace folia {
      * inclusive: format
      */
     KWargs atts = AbstractElement::collectAttributes();
-    if ( _format != "text/folia+xml" ) {
-      atts.add("format", _format);
+    if ( !_format.empty() && _format != "text/folia+xml" ) {
+      atts["format"] = _format;
     }
     KWargs more = AllowXlink::collectAttributes();
     atts.insert( more.begin(), more.end() );
@@ -1558,7 +1566,7 @@ namespace folia {
      */
     KWargs att = getAttributes( node );
     if ( !att.is_present("value") ) {
-      att.add("value", XmlContent( node ) );
+      att["value"] = XmlContent( node );
     }
     setAttributes( att );
     return this;
@@ -1592,7 +1600,7 @@ namespace folia {
      */
     KWargs att = getAttributes( node );
     if ( !att.is_present("value") ) {
-      att.add("value", XmlContent( node ) );
+      att["value"] = XmlContent( node );
     }
     setAttributes( att );
     return this;
@@ -1746,9 +1754,11 @@ namespace folia {
 	   && el->refcount() > 0 ){
 	xmlNode *t = XmlNewNode( foliaNs(), "wref" );
 	KWargs attribs;
-	attribs.add("id", el->id());
+	attribs["id"] = el->id();
 	string txt = el->str( el->textclass() );
-	attribs.add("t",txt);
+	if ( !txt.empty() ) {
+	  attribs["t"] = txt;
+	}
 	addAttributes( t, attribs );
 	xmlAddChild( e, t );
       }
@@ -2733,7 +2743,7 @@ namespace folia {
 	      const string bogus_id = "Arglebargleglop-glyf";
 	      FoliaElement *par = parent();
 	      KWargs args = par->collectAttributes();
-	      args.add("xml:id", bogus_id);
+	      args["xml:id"] = bogus_id;
 	      Text *tmp = new Text( args, doc() );
 	      tmp->AbstractElement::parseXml( p );
 	      FoliaElement *old = par->replace( this, tmp->index(0) );
@@ -2792,10 +2802,14 @@ namespace folia {
      * inclusive: id, type, format
      */
     KWargs atts = AbstractElement::collectAttributes();
-    atts.add("id",ref_id);
-    atts.add("type",ref_type);
-    if ( _format != "text/folia+xml" ) {
-      atts.add("format", _format);
+    if ( !ref_id.empty() ){
+      atts["id"] = ref_id;
+    }
+    if ( !ref_type.empty() ){
+      atts["type"] = ref_type;
+    }
+    if ( !_format.empty() && _format != "text/folia+xml" ) {
+      atts["format"] = _format;
     }
     KWargs more = AllowXlink::collectAttributes();
     atts.insert( more.begin(), more.end() );
@@ -2823,10 +2837,14 @@ namespace folia {
      * inclusive: id, type and format
      */
     KWargs atts = AbstractTextMarkup::collectAttributes();
-    atts.add("id",ref_id);
-    atts.add("type",ref_type);
-    if ( _format != "text/folia+xml" ) {
-      atts.add("format",_format);
+    if ( !ref_id.empty() ){
+      atts["id"] = ref_id;
+    }
+    if ( !ref_type.empty() ){
+      atts["type"] = ref_type;
+    }
+    if ( !_format.empty() && _format != "text/folia+xml" ) {
+      atts["format"] = _format;
     }
     return atts;
   }
@@ -2885,8 +2903,12 @@ namespace folia {
      * inclusive: split and merge
      */
     KWargs atts = AbstractElement::collectAttributes();
-    atts.add("split",_split);
-    atts.add("merge",_merge);
+    if ( !_split.empty() ) {
+      atts["split"] = _split;
+    }
+    if ( !_merge.empty() ) {
+      atts["merge"] = _merge;
+    }
     return atts;
   }
 
@@ -2949,7 +2971,7 @@ namespace folia {
      * inclusive: subset
      */
     KWargs attribs = AbstractElement::collectAttributes();
-    attribs.add("subset",_subset);
+    attribs["subset"] = _subset;
     return attribs;
   }
 
@@ -3050,7 +3072,9 @@ namespace folia {
      * inclusive: id
      */
     KWargs attribs = AbstractElement::collectAttributes();
-    attribs.add("id",idref);
+    if ( !idref.empty() ) {
+      attribs["id"] = idref;
+    }
     KWargs more = AllowXlink::collectAttributes();
     attribs.insert( more.begin(), more.end() );
     return attribs;
@@ -3090,7 +3114,9 @@ namespace folia {
      * inclusive: original
      */
     KWargs attribs = AbstractTextMarkup::collectAttributes();
-    attribs.add("original", _original);
+    if ( !_original.empty() ) {
+      attribs["original"] = _original;
+    }
     return attribs;
   }
 

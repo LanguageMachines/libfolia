@@ -2318,9 +2318,8 @@ namespace folia {
       \param e2 an ElementType
       \return true if e1 is in the typeHierarchy of e2
     */
-    if ( e1 == e2 ){
+    if ( e1 == e2 )
       return true;
-    }
     const auto& it = typeHierarchy.find( e1 );
     if ( it != typeHierarchy.end() ){
       return it->second.find( e2 ) != it->second.end();

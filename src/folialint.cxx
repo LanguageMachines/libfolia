@@ -182,11 +182,11 @@ int main( int argc, const char* argv[] ){
 	   && !(kanon||strip)
 	   && d.get_processors_by_name( "folialint" ).empty() ){
 	folia::KWargs args;
-	args.add("name","folialint");
-	args.add("id","folialint");
-	args.add("generator","yes");
-	args.add("begindatetime","now()");
-	args.add("command",command);
+	args["name"] = "folialint";
+	args["id"] = "folialint";
+	args["generator"] = "yes";
+	args["begindatetime"] = "now()";
+	args["command"] = command;
 	folia::processor *proc = d.add_processor( args );
 	proc->get_system_defaults();
 	proc->set_metadata( "valid", "yes" );
