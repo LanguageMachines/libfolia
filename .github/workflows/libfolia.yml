@@ -68,6 +68,8 @@ jobs:
         uses: LanguageMachines/ticcactions/cpp-submodule-build@v1
         with:
           module: foliatest
+          branch: ${{ github.ref_name }}
+          # so for develop builds, also test the develop branch of foliatest
 
       - name: install FoliaPY
         if: ${{ env.action_status == '' }}
