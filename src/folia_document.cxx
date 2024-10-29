@@ -3210,11 +3210,7 @@ namespace folia {
     xmlSetNs( root, _foliaNsOut );
     KWargs attribs;
     attribs["xml:id"] = foliadoc->id();
-    if ( strip() ){
-      attribs["generator"] = "";
-      attribs["version"] = "";
-    }
-    else {
+    if ( !strip ){
       attribs["generator"] = "libfolia-v" + library_version();
       attribs["version"] = _version_string;
       // attribs["version"] = folia_version();
