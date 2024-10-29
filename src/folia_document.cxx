@@ -1641,12 +1641,12 @@ namespace folia {
     */
     KWargs atts = getAttributes( node );
     string type = TiCC::lowercase(atts["type"]);
-    if ( debug > 5 ){
+    if ( debug == 3 ){
       cerr << "metadata type='" << type << "'" << endl;
     }
     if ( type.empty() ){
       type = "native";
-      if ( debug > 5 ){
+      if ( debug == 3 ){
 	cerr << "metadata type FORCED to'" << type << "'" << endl;
       }
     }
@@ -1677,7 +1677,7 @@ namespace folia {
       }
       else if ( TiCC::Name( m ) == "annotations" &&
 		checkNS( m, NSFOLIA ) ){
-	if ( debug > 1 ){
+	if ( debug == 3 ){
 	  cerr << "found annotations" << endl;
 	}
 	// defer parsing until AFTER provenance data
@@ -1685,7 +1685,7 @@ namespace folia {
       }
       else if ( TiCC::Name( m ) == "provenance" &&
 		checkNS( m, NSFOLIA ) ){
-	if ( debug > 1 ){
+	if ( debug == 3 ){
 	  cerr << "found provenance data" << endl;
 	}
 	parse_provenance( m );
@@ -1693,7 +1693,7 @@ namespace folia {
       }
       else if ( TiCC::Name( m ) == "meta" &&
 		checkNS( m, NSFOLIA ) ){
-	if ( debug > 1 ){
+	if ( debug == 3 ){
 	  cerr << "found meta node:" << getAttributes(m) << endl;
 	}
 	if ( !_metadata ){
@@ -1812,12 +1812,12 @@ namespace folia {
 	string xml_tag = "_XmlComment";
 	FoliaElement *t = AbstractElement::createElement( xml_tag, this );
 	if ( t ) {
-	  if ( debug > 2 ) {
+	  if ( debug == 3 ) {
 	    cerr << "created " << t << endl;
 	  }
 	  t = t->parseXml( pnt );
 	  if ( t ) {
-	    if ( debug > 2 ) {
+	    if ( debug == 3 ) {
 	      cerr << "extend " << this << " met " << t << endl;
 	    }
 	    preludes.push_back(t);
@@ -1960,7 +1960,7 @@ namespace folia {
       }
       _foliaNsIn_href = xmlStrdup( root->ns->href );
     }
-    if ( debug > 2 ){
+    if ( debug == 3 ){
       string dum;
       cerr << "root = " << TiCC::Name( root ) << endl;
       cerr << "in namespace " << TiCC::getNS( root, dum ) << endl;
@@ -2567,51 +2567,51 @@ namespace folia {
       exists
 
     */
-    if ( debug ){
+    if ( debug == 4 ){
       cerr << "declared(" << folia::toString(type) << ",'"
 	   << set_name << "')" << endl;
     }
     if ( type == AnnotationType::NO_ANN ){
-      if ( debug ){
+      if ( debug == 4 ){
 	cerr << "declared() always true for NO_ANN" << endl;
       }
       return true;
     }
-    if ( debug ){
+    if ( debug == 4 ){
       cerr << "Doorzoek: " << _annotationdefaults << endl;
     }
     const auto& mit1 = _annotationdefaults.find(type);
     if ( mit1 != _annotationdefaults.end() ){
-      if ( debug ){
+      if ( debug == 4 ){
 	cerr << "found some: " << mit1->second << endl;
       }
       if ( set_name.empty() ){
 	// 'wildcard' for setname
-	if ( debug ){
+	if ( debug == 4 ){
 	  cerr << "declared() for empty setname return TRUE" << endl;
 	}
 	return true;
       }
       // set_name may be an alias, so resolve
       string s_name = unalias(type,set_name);
-      if ( debug ){
+      if ( debug == 4 ){
 	cerr << "lookup: " << set_name << " (" << s_name << ")" << endl;
       }
       const auto& mit2 = mit1->second.find(s_name);
       if ( mit2 != mit1->second.end() ){
-	if ( debug ){
+	if ( debug == 4 ){
 	  cerr << "declared() return TRUE" << endl;
 	}
 	return true;
       }
       else {
-	if ( debug ){
+	if ( debug  == 4 ){
 	  cerr << "return FALSE" << endl;
 	}
 	return false;
       }
     }
-    if ( debug ){
+    if ( debug == 4 ){
       cerr << "return DIRECTLY FALSE" << endl;
     }
     return false;
@@ -2646,7 +2646,7 @@ namespace folia {
       return "";
     }
     // search a set. it must be unique. Otherwise return ""
-    if ( debug ){
+    if ( debug == 4 ){
       cerr << "\nzoek voor '" << toString(type) << "' de default set in:\n"
 	   <<  _annotationdefaults << endl;
     }
@@ -2658,12 +2658,12 @@ namespace folia {
 	// so it is unique
 	result = mit1->second.begin()->first;
       }
-      else if ( debug ){
+      else if ( debug == 4 ){
 	cerr << "setname is not unique " << endl;
       }
 
     }
-    if ( debug ){
+    if ( debug == 4 ){
       cerr << "default_set ==> " << result << endl;
     }
     return result;
@@ -2699,7 +2699,7 @@ namespace folia {
       \return the annotator. May be empty ("") when there is none defined OR it
       is ambiguous.
     */
-    if ( debug ){
+    if ( debug == 4 ){
       cerr << "annotationdefaults= " <<  _annotationdefaults << endl;
       cerr << "lookup: " << folia::toString(type) << endl;
     }
@@ -2742,7 +2742,7 @@ namespace folia {
       \return the processor. May be empty ("") when there is none defined OR it
       is ambiguous.
     */
-    if ( debug ){
+    if ( debug == 4 ){
       cerr << "defaultprocessor(" << toString( type ) << ","
 	   << setname << ")" << endl;
     }
@@ -2832,7 +2832,7 @@ namespace folia {
       \return a list of processors.
     */
     vector<const processor*> result;
-    if ( debug ){
+    if ( debug  ){
       cerr << "getprocessors(" << toString( type ) << ","
 	   << setname << ")" << endl;
     }
@@ -3210,7 +3210,7 @@ namespace folia {
     xmlSetNs( root, _foliaNsOut );
     KWargs attribs;
     attribs["xml:id"] = foliadoc->id();
-    if ( !strip ){
+    if ( !strip() ){
       attribs["generator"] = "libfolia-v" + library_version();
       attribs["version"] = _version_string;
       // attribs["version"] = folia_version();

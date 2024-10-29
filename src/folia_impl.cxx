@@ -401,11 +401,11 @@ namespace folia {
 	}
       }
       else {
-	if ( _mydoc->debug > 2 ) {
+	if ( _mydoc->debug == 4 ) {
 	  cerr << "get def for " <<  annotation_type() << endl;
 	}
 	def = doc()->default_set( annotation_type() );
-	if ( doc()->debug > 2 ) {
+	if ( doc()->debug == 4 ) {
 	  cerr << "got def='" <<  def << "'" << endl;
 	}
 	if ( doc()->is_incremental() && def.empty() ){
@@ -413,7 +413,7 @@ namespace folia {
 	  // folia::Engine, we must check if there WAS an empty set originally
 	  // which is 'obscured' by newly added declarations
 	  def = doc()->original_default_set( annotation_type() );
-	  if ( doc()->debug > 2 ) {
+	  if ( doc()->debug == 4 ) {
 	    cerr << "from original got def='" <<  def << "'" << endl;
 	  }
 	}
@@ -530,7 +530,7 @@ namespace folia {
   }
 
   void AbstractElement::set_processor_name( const string& val ){
-    if ( doc() && doc()->debug > 2 ){
+    if ( doc() && doc()->debug == 6 ){
       cerr << "set processor_name= " << val << " on " << classname() << endl;
     }
     if ( annotation_type() == AnnotationType::NO_ANN ){
@@ -659,7 +659,7 @@ namespace folia {
       // cerr << "AUTH : " << _auth << endl;
     }
 #endif
-    if ( doc() && doc()->debug > 2 ) {
+    if ( doc() && doc()->debug == 4 ) {
       cerr << "set attributes: " << kwargs << " on " << classname() << endl;
     }
 
@@ -804,7 +804,7 @@ namespace folia {
 	  // folia::Engine, we must check if there WAS a processor originally
 	  // which is 'obscured' by newly added declarations
 	  def = doc()->original_default_processor( annotation_type() );
-	  if ( doc()->debug > 2 ) {
+	  if ( doc()->debug == 5 ) {
 	    cerr << "from original got default processor='" <<  def << "'" << endl;
 	  }
 	}
@@ -1871,7 +1871,7 @@ namespace folia {
       catch (...){
       }
       if ( !s1.isEmpty() ){
-	if ( debug ){
+	if ( debug  ){
 	  cerr << "S1: " << s1 << endl;
 	}
 	tp.clear( TEXT_FLAGS::STRICT );
@@ -1880,14 +1880,14 @@ namespace folia {
 	}
 	catch (...){
 	}
-	if (debug ){
+	if ( debug ){
 	  cerr << "S2: " << s2 << endl;
 	}
 	s1 = normalize_spaces( s1 );
 	s2 = normalize_spaces( s2 );
 	if ( !s2.isEmpty() && s1 != s2 ){
 	  if ( doc()->fixtext() ){
-	    if ( debug ){
+	    if ( debug  ){
 	      cerr << "FIX: " << s1 << "==>" << s2 << endl;
 	    }
 	    KWargs args;
@@ -2511,7 +2511,7 @@ namespace folia {
       if ( p->type == XML_ELEMENT_NODE ){
 	if ( TiCC::Name(p) == "metadata" &&
 	     checkNS( p, NSFOLIA ) ){
-	  if ( doc()->debug > 1 ){
+	  if ( doc()->debug == 3 ){
 	    cerr << "Found metadata" << endl;
 	  }
 	  doc()->parse_metadata( p );
@@ -2539,12 +2539,12 @@ namespace folia {
 			    string( "parsing <" ) + tag + "> failed:\n\t"
 			    + e.what() );
 	  }
-	  if ( doc()->debug > 2 ){
+	  if ( doc()->debug == 3 ){
 	    cerr << "created " << t << endl;
 	  }
 	  t = t->parseXml( p );
 	  if ( t ){
-	    if ( doc()->debug > 2 ){
+	    if ( doc()->debug == 3 ){
 	      cerr << "extend " << this << " met " << tag << endl;
 	    }
 	    this->append( t );
@@ -2562,12 +2562,12 @@ namespace folia {
 			  string( "parsing <" ) + xml_tag + "> failed:\n\t"
 			  + e.what() );
 	}
-	if ( doc() && doc()->debug > 2 ) {
+	if ( doc() && doc()->debug == 3 ) {
 	  cerr << "created " << t << endl;
 	}
 	t = t->parseXml( p );
 	if ( t ) {
-	  if ( doc() && doc()->debug > 2 ) {
+	  if ( doc() && doc()->debug == 3 ) {
 	    cerr << "extend " << this << " met " << t << endl;
 	  }
 	  append( t );
@@ -3791,12 +3791,12 @@ namespace folia {
 			    + e.what() );
 	  }
 	}
-	if ( doc() && doc()->debug > 2 ) {
+	if ( doc() && doc()->debug == 3 ) {
 	  cerr << "created " << t << endl;
 	}
 	t = t->parseXml( p );
 	if ( t ) {
-	  if ( doc() && doc()->debug > 2 ) {
+	  if ( doc() && doc()->debug == 3 ) {
 	    cerr << "extend " << this << " met " << t << endl;
 	  }
 	  append( t );
@@ -3814,12 +3814,12 @@ namespace folia {
 			  string( "parsing " ) + xml_tag + " failed:\n\t"
 			  + e.what() );
 	}
-	if ( doc() && doc()->debug > 2 ) {
+	if ( doc() && doc()->debug == 3 ) {
 	  cerr << "created " << t << endl;
 	}
 	t = t->parseXml( p );
 	if ( t ) {
-	  if ( doc() && doc()->debug > 2 ) {
+	  if ( doc() && doc()->debug == 3 ) {
 	    cerr << "extend " << this << " met " << t << endl;
 	  }
 	  append( t );
@@ -3836,12 +3836,12 @@ namespace folia {
 			  string( "parsing " ) + xml_tag + " failed:\n\t"
 			  + e.what() );
 	}
-	if ( doc() && doc()->debug > 2 ) {
+	if ( doc() && doc()->debug == 3 ) {
 	  cerr << "created " << t << endl;
 	}
 	t = t->parseXml( p );
 	if ( t ) {
-	  if ( doc() && doc()->debug > 2 ) {
+	  if ( doc() && doc()->debug == 3 ) {
 	    cerr << "extend " << this << " met " << t << endl;
 	  }
 	  append( t );
@@ -3850,7 +3850,7 @@ namespace folia {
       else if ( p->type == XML_ENTITY_REF_NODE ){
 	string txt = TextValue( p );
 	const XmlText *t = add_child<XmlText>( txt );
-	if ( doc() && doc()->debug > 2 ) {
+	if ( doc() && doc()->debug ==3 ) {
 	  cerr << "created " << t << "(" << t->text() << ")" << endl;
 	  cerr << "extended " << this << " met " << t << endl;
 	  cerr << "this.size()= " << size() << " t.size()=" << t->size() << endl;
@@ -3863,7 +3863,7 @@ namespace folia {
 	  string txt = TextValue( p );
 	  if ( !txt.empty() ) {
 	    const XmlText *t = add_child<XmlText>( txt );
-	    if ( doc() && doc()->debug > 2 ) {
+	    if ( doc() && doc()->debug == 3 ) {
 	      cerr << "created " << t << "(" << t->text() << ")" << endl;
 	      cerr << "extended " << this << " met " << t << endl;
 	      cerr << "this.size()= " << size() << " t.size()=" << t->size() << endl;

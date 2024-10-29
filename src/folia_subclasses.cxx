@@ -1413,7 +1413,7 @@ namespace folia {
       throw XmlError( this,
 		      "empty id in WordReference" );
     }
-    if ( doc()->debug ) {
+    if ( doc()->debug == 3 ) {
       cerr << "Found word reference: " << id << endl;
     }
     FoliaElement *ref = (*doc())[id];
@@ -1461,7 +1461,7 @@ namespace folia {
 		      "ID required for LinkReference" );
     }
     ref_id = val;
-    if ( doc()->debug ) {
+    if ( doc()->debug == 3 ) {
       cerr << "Found LinkReference ID " << ref_id << endl;
     }
     ref_type = att["type"];
