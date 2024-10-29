@@ -3178,6 +3178,9 @@ namespace folia {
     /*!
       \param ns_label a namespace label to use. (default "")
     */
+    if ( debug == SERIALIZE ){
+      cerr << "to_xmlDoc: start serializing" << endl;
+    }
     xmlDoc *outDoc = xmlNewDoc( to_xmlChar("1.0") );
     add_styles( outDoc );
     for ( const auto* pr: preludes ){
@@ -3189,6 +3192,9 @@ namespace folia {
 				   to_xmlChar("FoLiA"),
 				   0 );
     xmlDocSetRootElement( outDoc, root );
+    if ( debug == SERIALIZE ){
+      cerr << "to_xmlDoc: created root" << endl;
+    }
     xmlNs *xl = xmlNewNs( root,
 			  to_xmlChar("http://www.w3.org/1999/xlink"),
 			  to_xmlChar("xlink") );
@@ -3211,12 +3217,14 @@ namespace folia {
 			      _foliaNsIn_prefix );
     }
     xmlSetNs( root, _foliaNsOut );
+    if ( debug == SERIALIZE ){
+      cerr << "to_xmlDoc: added namespaces" << endl;
+    }
     KWargs attribs;
     attribs["xml:id"] = foliadoc->id();
     if ( !strip() ){
       attribs["generator"] = "libfolia-v" + library_version();
       attribs["version"] = _version_string;
-      // attribs["version"] = folia_version();
     }
     if ( has_explicit() ){
       attribs["form"] = "explicit";
@@ -3224,14 +3232,24 @@ namespace folia {
     if ( _external_document ){
       attribs["external"] = "yes";
     }
+    if ( debug == SERIALIZE ){
+      cerr << "to_xmlDoc: add attributes to root: " << attribs << endl;
+    }
     addAttributes( root, attribs );
     xmlNode *md = xmlAddChild( root, TiCC::XmlNewNode( foliaNs(), "metadata" ) );
     add_annotations( md );
     add_provenance( md );
     add_metadata( md );
+
+    if ( debug == SERIALIZE ){
+      cerr << "to_xmlDoc: after add attributes" << endl;
+    }
     for ( size_t i=0; i < foliadoc->size(); ++i ){
       const FoliaElement* el = foliadoc->index(i);
       xmlAddChild( root, el->xml( true, canonical() ) );
+    }
+    if ( debug == SERIALIZE ){
+      cerr << "to_xmlDoc: done" << endl;
     }
     return outDoc;
   }
