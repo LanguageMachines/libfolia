@@ -107,7 +107,8 @@ namespace folia {
       ANNOTATIONS=4,   //!< debug annotations
       TEXTHANDLING=8,  //!< debug text handling
       PROVENANCE=16,   //!< debug provenance
-      ATTRIBUTES=32   //!< debug Attribute operations
+      ATTRIBUTES=32,   //!< debug Attribute operations
+      SERIALIZE=64     //!< debug output generator
     };
 
     Document();

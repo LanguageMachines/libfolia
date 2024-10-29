@@ -3243,6 +3243,9 @@ namespace folia {
     */
     string result;
     if ( foliadoc ){
+      if ( debug == SERIALIZE ){
+	cerr << "save document in a string" << endl;
+      }
       xmlDoc *outDoc = to_xmlDoc( ns_label );
       xmlChar *buf; int size;
       xmlDocDumpFormatMemoryEnc( outDoc, &buf, &size,
@@ -3254,6 +3257,9 @@ namespace folia {
     }
     else {
       throw runtime_error( "can't save, no doc" );
+    }
+    if ( debug == SERIALIZE ){
+      cerr << "succesfully saved document in a string" << endl;
     }
     return result;
   }
@@ -3268,8 +3274,14 @@ namespace folia {
       automaticly detects .gz and .bz2 filenames and will handle accordingly
     */
     if ( foliadoc ){
+      if ( debug == SERIALIZE ){
+	cerr << "save document in file '" << file_name << "'" << endl;
+      }
       long int res = 0;
       if ( TiCC::match_back( file_name, ".bz2" ) ){
+	if ( debug == SERIALIZE ){
+	  cerr << "toXML(). Output type is .bz2" << endl;
+	}
 	string tmpname = file_name.substr( 0, file_name.length() - 3 ) + "tmp";
 	if ( toXml( tmpname, ns_label ) ){
 	  bool stat = TiCC::bz2Compress( tmpname, file_name );
@@ -3282,6 +3294,9 @@ namespace folia {
       else {
 	xmlDoc *outDoc = to_xmlDoc( ns_label );
 	if ( TiCC::match_back( file_name, ".gz" ) ){
+	  if ( debug == SERIALIZE ){
+	    cerr << "toXML(). Output type is .gz" << endl;
+	  }
 	  xmlSetDocCompressMode(outDoc,9);
 	}
 	res = xmlSaveFormatFileEnc( file_name.c_str(),
@@ -3291,11 +3306,23 @@ namespace folia {
 	_foliaNsOut = 0;
       }
       if ( res == -1 ){
+	if ( debug == SERIALIZE ){
+	  cerr << "cannot save document to file '" << file_name << "'" << endl;
+	  cerr << "(xmlSave error: " << res << ")" << endl;
+	}
 	return false;
       }
     }
     else {
+      if ( debug == SERIALIZE ){
+	cerr << "cannot save document to file '" << file_name << "'" << endl;
+	cerr << "(internal document is empty)" << endl;
+      }
       return false;
+    }
+    if ( debug == SERIALIZE ){
+      cerr << "succesfully saved document in file '"
+	   << file_name << "'" << endl;
     }
     return true;
   }
