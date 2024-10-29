@@ -83,6 +83,7 @@ namespace folia {
 
   class Document {
     friend std::ostream& operator<<( std::ostream& os, const Document *d );
+    friend class Engine;
     /// enum Mode determines runtime characteristic of the document
     /*!
       The default settings are CHECKTEXT and AUTODECLARE
@@ -97,9 +98,18 @@ namespace folia {
       AUTODECLARE=32,  //!< Automagicly add missing Annotation Declarations
       EXPLICIT=64      //!< add all set information
     };
-    friend class Engine;
 
   public:
+    enum DebugMode {
+      NODEBUG=0,       //!< nodebug.
+      PARSING=1,       //!< debug parsing
+      DECLARATIONS=2,  //!< debug declarations
+      ANNOTATIONS=4,   //!< debug annotations
+      TEXTHANDLING=8,  //!< debug text handling
+      PROVENANCE=16,   //!< debug provenance
+      ATTRIBUTES=32   //!< debug Attribute operations
+    };
+
     Document();
     explicit Document( const KWargs& );
     explicit Document( const std::string& );

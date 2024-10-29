@@ -401,11 +401,11 @@ namespace folia {
 	}
       }
       else {
-	if ( _mydoc->debug == 4 ) {
+	if ( _mydoc->debug == Document::DECLARATIONS ) {
 	  cerr << "get def for " <<  annotation_type() << endl;
 	}
 	def = doc()->default_set( annotation_type() );
-	if ( doc()->debug == 4 ) {
+	if ( doc()->debug == Document::DECLARATIONS ) {
 	  cerr << "got def='" <<  def << "'" << endl;
 	}
 	if ( doc()->is_incremental() && def.empty() ){
@@ -413,7 +413,7 @@ namespace folia {
 	  // folia::Engine, we must check if there WAS an empty set originally
 	  // which is 'obscured' by newly added declarations
 	  def = doc()->original_default_set( annotation_type() );
-	  if ( doc()->debug == 4 ) {
+	  if ( doc()->debug == Document::DECLARATIONS ) {
 	    cerr << "from original got def='" <<  def << "'" << endl;
 	  }
 	}
@@ -530,7 +530,7 @@ namespace folia {
   }
 
   void AbstractElement::set_processor_name( const string& val ){
-    if ( doc() && doc()->debug == 6 ){
+    if ( doc() && doc()->debug == Document::PROVENANCE ){
       cerr << "set processor_name= " << val << " on " << classname() << endl;
     }
     if ( annotation_type() == AnnotationType::NO_ANN ){
@@ -659,7 +659,7 @@ namespace folia {
       // cerr << "AUTH : " << _auth << endl;
     }
 #endif
-    if ( doc() && doc()->debug == 4 ) {
+    if ( doc() && doc()->debug == Document::ATTRIBUTES ) {
       cerr << "set attributes: " << kwargs << " on " << classname() << endl;
     }
 
@@ -804,7 +804,7 @@ namespace folia {
 	  // folia::Engine, we must check if there WAS a processor originally
 	  // which is 'obscured' by newly added declarations
 	  def = doc()->original_default_processor( annotation_type() );
-	  if ( doc()->debug == 5 ) {
+	  if ( doc()->debug == Document::PROVENANCE ) {
 	    cerr << "from original got default processor='" <<  def << "'" << endl;
 	  }
 	}
@@ -1841,7 +1841,7 @@ namespace folia {
   }
 
   void AbstractElement::check_text_consistency_while_parsing( bool trim_spaces,
-							      bool debug ) {
+							      bool text_debug ) {
       // this block was moved from parseXml into a separate function
       // it remains to be seen how much overlaps with check_text_consistency()
       // and whether we can't make do with one function
@@ -1851,7 +1851,7 @@ namespace folia {
 #if defined DEBUG_CHECK_TEXT || defined DEBUG_CHECKTEXT_2
     debug = true;
 #endif
-    if ( debug ){
+    if ( text_debug ){
     cerr << "DEBUG: BEGIN check_text_consistency_while_parsing("
 	 << trim_spaces << ")" << endl;
     }
@@ -1861,7 +1861,7 @@ namespace folia {
       TextPolicy tp( st );
       tp.set_correction_handling(CORRECTION_HANDLING::EITHER);
       tp.set( TEXT_FLAGS::STRICT );
-      tp.set_debug( debug );
+      tp.set_debug( text_debug );
       if ( !trim_spaces ) {
 	tp.set( TEXT_FLAGS::NO_TRIM_SPACES );
       }
@@ -1871,7 +1871,7 @@ namespace folia {
       catch (...){
       }
       if ( !s1.isEmpty() ){
-	if ( debug  ){
+	if ( text_debug  ){
 	  cerr << "S1: " << s1 << endl;
 	}
 	tp.clear( TEXT_FLAGS::STRICT );
@@ -1880,14 +1880,14 @@ namespace folia {
 	}
 	catch (...){
 	}
-	if ( debug ){
+	if ( text_debug ){
 	  cerr << "S2: " << s2 << endl;
 	}
 	s1 = normalize_spaces( s1 );
 	s2 = normalize_spaces( s2 );
 	if ( !s2.isEmpty() && s1 != s2 ){
 	  if ( doc()->fixtext() ){
-	    if ( debug  ){
+	    if ( text_debug  ){
 	      cerr << "FIX: " << s1 << "==>" << s2 << endl;
 	    }
 	    KWargs args;
@@ -1902,14 +1902,14 @@ namespace folia {
 	      //ok, we failed according to the >v2.4.1 rules
 	      //but do we also fail under the old rules?
 	      try {
-		if ( debug ){
+		if ( text_debug ){
 		  cerr << "DEBUG: (testing according to older rules now)" << endl;
 		}
-		this->check_text_consistency_while_parsing( false, debug );
+		this->check_text_consistency_while_parsing( false, text_debug );
 		warn_only = true;
 	      }
 	      catch ( const InconsistentText& e ) {
-		if ( debug ){
+		if ( text_debug ){
 		  cerr << "(tested according to older rules (<v2.4.1) as well, but this failed too)" << endl;
 		}
 		//ignore, we raise the newer error
@@ -1925,7 +1925,7 @@ namespace folia {
 	      doc()->increment_warn_count();
 	    }
 	    else {
-	      if ( debug ){
+	      if ( text_debug ){
 		cerr << "DEBUG: CONSISTENCYERROR check_text_consistency_while_parsing(" << trim_spaces << ")" << endl;
 	      }
 	      throw InconsistentText( this, msg);
@@ -1947,7 +1947,7 @@ namespace folia {
 	throw XmlError( this, msg );
       }
     }
-    if ( debug ){
+    if ( text_debug ){
       cerr << "DEBUG: END-OK check_text_consistency_while_parsing("
 	   << trim_spaces << ")" << endl;
     }
@@ -2511,7 +2511,7 @@ namespace folia {
       if ( p->type == XML_ELEMENT_NODE ){
 	if ( TiCC::Name(p) == "metadata" &&
 	     checkNS( p, NSFOLIA ) ){
-	  if ( doc()->debug == 3 ){
+	  if ( doc()->debug == Document::PARSING ){
 	    cerr << "Found metadata" << endl;
 	  }
 	  doc()->parse_metadata( p );
@@ -2539,12 +2539,12 @@ namespace folia {
 			    string( "parsing <" ) + tag + "> failed:\n\t"
 			    + e.what() );
 	  }
-	  if ( doc()->debug == 3 ){
+	  if ( doc()->debug == Document::PARSING ){
 	    cerr << "created " << t << endl;
 	  }
 	  t = t->parseXml( p );
 	  if ( t ){
-	    if ( doc()->debug == 3 ){
+	    if ( doc()->debug == Document::PARSING ){
 	      cerr << "extend " << this << " met " << tag << endl;
 	    }
 	    this->append( t );
@@ -2562,12 +2562,12 @@ namespace folia {
 			  string( "parsing <" ) + xml_tag + "> failed:\n\t"
 			  + e.what() );
 	}
-	if ( doc() && doc()->debug == 3 ) {
+	if ( doc() && doc()->debug == Document::PARSING ) {
 	  cerr << "created " << t << endl;
 	}
 	t = t->parseXml( p );
 	if ( t ) {
-	  if ( doc() && doc()->debug == 3 ) {
+	  if ( doc() && doc()->debug == Document::PARSING ) {
 	    cerr << "extend " << this << " met " << t << endl;
 	  }
 	  append( t );
@@ -3791,12 +3791,12 @@ namespace folia {
 			    + e.what() );
 	  }
 	}
-	if ( doc() && doc()->debug == 3 ) {
+	if ( doc() && doc()->debug == Document::PARSING ) {
 	  cerr << "created " << t << endl;
 	}
 	t = t->parseXml( p );
 	if ( t ) {
-	  if ( doc() && doc()->debug == 3 ) {
+	  if ( doc() && doc()->debug == Document::PARSING ) {
 	    cerr << "extend " << this << " met " << t << endl;
 	  }
 	  append( t );
@@ -3814,12 +3814,12 @@ namespace folia {
 			  string( "parsing " ) + xml_tag + " failed:\n\t"
 			  + e.what() );
 	}
-	if ( doc() && doc()->debug == 3 ) {
+	if ( doc() && doc()->debug == Document::PARSING ) {
 	  cerr << "created " << t << endl;
 	}
 	t = t->parseXml( p );
 	if ( t ) {
-	  if ( doc() && doc()->debug == 3 ) {
+	  if ( doc() && doc()->debug == Document::PARSING ) {
 	    cerr << "extend " << this << " met " << t << endl;
 	  }
 	  append( t );
@@ -3836,12 +3836,12 @@ namespace folia {
 			  string( "parsing " ) + xml_tag + " failed:\n\t"
 			  + e.what() );
 	}
-	if ( doc() && doc()->debug == 3 ) {
+	if ( doc() && doc()->debug == Document::PARSING ) {
 	  cerr << "created " << t << endl;
 	}
 	t = t->parseXml( p );
 	if ( t ) {
-	  if ( doc() && doc()->debug == 3 ) {
+	  if ( doc() && doc()->debug == Document::PARSING ) {
 	    cerr << "extend " << this << " met " << t << endl;
 	  }
 	  append( t );
@@ -3850,7 +3850,7 @@ namespace folia {
       else if ( p->type == XML_ENTITY_REF_NODE ){
 	string txt = TextValue( p );
 	const XmlText *t = add_child<XmlText>( txt );
-	if ( doc() && doc()->debug ==3 ) {
+	if ( doc() && doc()->debug == Document::PARSING ) {
 	  cerr << "created " << t << "(" << t->text() << ")" << endl;
 	  cerr << "extended " << this << " met " << t << endl;
 	  cerr << "this.size()= " << size() << " t.size()=" << t->size() << endl;
@@ -3863,7 +3863,7 @@ namespace folia {
 	  string txt = TextValue( p );
 	  if ( !txt.empty() ) {
 	    const XmlText *t = add_child<XmlText>( txt );
-	    if ( doc() && doc()->debug == 3 ) {
+	    if ( doc() && doc()->debug == Document::PARSING ) {
 	      cerr << "created " << t << "(" << t->text() << ")" << endl;
 	      cerr << "extended " << this << " met " << t << endl;
 	      cerr << "this.size()= " << size() << " t.size()=" << t->size() << endl;
@@ -3898,7 +3898,8 @@ namespace folia {
     if ( doc() && ( doc()->checktext() || doc()->fixtext() )
 	 && this->printable()
 	 && !isSubClass( Morpheme_t ) && !isSubClass( Phoneme_t) ){
-      check_text_consistency_while_parsing( true, doc()->debug > 2 );
+      check_text_consistency_while_parsing( true,
+					    doc()->debug == Document::TEXTHANDLING );
     }
     return this;
   }
