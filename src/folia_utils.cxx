@@ -416,17 +416,23 @@ namespace folia {
     return atts;
   }
 
-  void addAttributes( const xmlNode *_node, const KWargs& atts ){
+  void addAttributes( const xmlNode *_node,
+		      const KWargs& atts,
+		      bool debug ){
     /// add all attributes from 'atts' as attribute nodes to 'node`
     /*!
       \param _node The xmlNode to add to
       \param atts The list of attribute/value pairs
+      \param debug do we want to debug? (default false)
       some special care is taken for attributes 'xml:id', 'id' and 'lang'
     */
     xmlNode *node = const_cast<xmlNode*>(_node); // strange libxml2 interface
     KWargs attribs = atts;
     auto it = attribs.find("xml:id");
     if ( it != attribs.end() ){ // xml:id is special
+      if ( debug ){
+	cerr << "set xml:id " << it->second << endl;
+      }
       xmlSetProp( node,
 		  XML_XML_ID,
 		  to_xmlChar(it->second) );
@@ -434,12 +440,18 @@ namespace folia {
     }
     it = attribs.find("lang");
     if ( it != attribs.end() ){ // lang is special too
+      if ( debug ){
+	cerr << "set lang " << it->second << endl;
+      }
       xmlNodeSetLang( node,
 		      to_xmlChar(it->second) );
       attribs.erase(it);
     }
     it = attribs.find("id");
     if ( it != attribs.end() ){
+      if ( debug ){
+	cerr << "set id " << it->second << endl;
+      }
       xmlSetProp( node,
 		  to_xmlChar("id"),
 		  to_xmlChar(it->second) );
@@ -447,6 +459,9 @@ namespace folia {
     }
     // and now the rest
     for ( const auto& [at,val] : attribs ){
+      if ( debug ){
+	cerr << "add attribute: [" << at << "," << val << "]" << endl;
+      }
       xmlSetProp( node,
 		  to_xmlChar(at),
 		  to_xmlChar(val) );

@@ -3235,7 +3235,7 @@ namespace folia {
     if ( debug == SERIALIZE ){
       cerr << "to_xmlDoc: add attributes to root: " << attribs << endl;
     }
-    addAttributes( root, attribs );
+    addAttributes( root, attribs, debug == SERIALIZE );
     xmlNode *md = xmlAddChild( root, TiCC::XmlNewNode( foliaNs(), "metadata" ) );
     add_annotations( md );
     add_provenance( md );

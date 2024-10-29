@@ -193,7 +193,7 @@ namespace folia {
   KWargs getArgs( const std::string& );
   std::string toString( const KWargs& );
 
-  void addAttributes( const xmlNode *, const KWargs& );
+  void addAttributes( const xmlNode *, const KWargs&, bool=false );
   KWargs getAttributes( const xmlNode * );
 
   std::string parseDate( const std::string& );
