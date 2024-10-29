@@ -416,7 +416,7 @@ namespace folia {
     return atts;
   }
 
-  void addAttributes( const xmlNode *_node,
+  void addAttributes( xmlNode *node,
 		      const KWargs& atts,
 		      bool debug ){
     /// add all attributes from 'atts' as attribute nodes to 'node`
@@ -426,7 +426,6 @@ namespace folia {
       \param debug do we want to debug? (default false)
       some special care is taken for attributes 'xml:id', 'id' and 'lang'
     */
-    xmlNode *node = const_cast<xmlNode*>(_node); // strange libxml2 interface
     KWargs attribs = atts;
     auto it = attribs.find("xml:id");
     if ( it != attribs.end() ){ // xml:id is special
@@ -461,6 +460,8 @@ namespace folia {
     for ( const auto& [at,val] : attribs ){
       if ( debug ){
 	cerr << "add attribute: [" << at << "," << val << "]" << endl;
+	cerr << "AT=" << to_xmlChar(at) << endl;
+	cerr << "VAL=" << to_xmlChar(val) << endl;
       }
       xmlSetProp( node,
 		  to_xmlChar(at),
