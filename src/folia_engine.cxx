@@ -297,7 +297,7 @@ namespace folia {
       do {
 	string att = to_string(xmlTextReaderConstName(tr));
 	string val = to_string(xmlTextReaderConstValue(tr));
-	result[att] = val;
+	result.add(att, val);
       }
       while ( xmlTextReaderMoveToNextAttribute(tr) );
     }
@@ -964,7 +964,7 @@ namespace folia {
 		    DBG << "processing a <" << local_name << "> with value '"
 			<< val << "'" << endl;
 		  }
-		  atts["value"] = val;
+		  atts.add("value", val);
 		}
 	      }
 	    }
