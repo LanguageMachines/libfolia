@@ -466,7 +466,6 @@ namespace folia {
       xmlSetProp( node,
 		  to_xmlChar(at),
 		  to_xmlChar(val) );
-      ++it;
     }
   }
 
