@@ -133,39 +133,39 @@ namespace folia {
     */
 
     string new_id;
-    string name = filter_non_NC(in_name);
-    auto it = prov->_names.find(name);
+    string f_name = filter_non_NC(in_name);
+    auto it = prov->_names.find(f_name);
     if ( it == prov->_names.end() ){
 #ifdef PROC_DEBUG
-      cerr << "generate_id, " << name << " not found in " <<prov->_names << endl;
+      cerr << "generate_id, " << f_name << " not found in " <<prov->_names << endl;
 #endif
-      if ( !isNCName(name) ){
-	throw XmlError( "generated_id: '" + name
+      if ( !isNCName(f_name) ){
+	throw XmlError( "generated_id: '" + f_name
 			+ "' is not a valid base for an NCName." );
       }
-      prov->_names[name].insert(1);
-      new_id = name + ".1";
+      prov->_names[f_name].insert(1);
+      new_id = f_name + ".1";
     }
     else {
 #ifdef PROC_DEBUG
-      cerr << "generate_id, " << name << " found " << endl;
+      cerr << "generate_id, " << f_name << " found " << endl;
 #endif
       int val = *(it->second.rbegin());
 #ifdef PROC_DEBUG
       cerr << "generate_id, val=" << val << endl;
 #endif
-      prov->_names[name].insert(++val);
+      prov->_names[f_name].insert(++val);
 #ifdef PROC_DEBUG
       cerr << "generate_id, ++val=" << val << endl;
 #endif
-      new_id = name + "." + TiCC::toString(val);
+      new_id = f_name + "." + TiCC::toString(val);
     }
     if ( prov->get_processor_by_id(new_id) != 0 ){
 #ifdef PROC_DEBUG
       cerr << "generate_id, id=" << new_id << " exists, loop!" << endl;
 #endif
       // oops creating an existing one. Not good
-      return generate_id( prov, name + "_1" );
+      return generate_id( prov, f_name + "_1" );
     }
     return new_id;
   }
@@ -340,11 +340,11 @@ namespace folia {
       else if ( att == "generator" ){
 	// we automagicly add a subprocessor.
 	KWargs g_atts;
-	g_atts["folia_version"] = folia::folia_version();
-	g_atts["version"] = library_version();
-	g_atts["type"] = "GENERATOR";
-	g_atts["id"] = _id + ".generator";
-	g_atts["name"] = "libfolia";
+	g_atts.add("folia_version", folia::folia_version());
+	g_atts.add("version", library_version());
+	g_atts.add("type","GENERATOR");
+	g_atts.add("id",_id + ".generator");
+	g_atts.add("name","libfolia");
 	processor *sub = new processor( prov, this, g_atts );
 	this->_processors.push_back( sub );
       }
