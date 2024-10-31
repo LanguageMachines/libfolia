@@ -3917,11 +3917,7 @@ namespace folia {
      * an ALTERNATIVE node is added
      */
     KWargs args = inargs;
-    string st;
-    auto it = args.find("set" );
-    if ( it != args.end() ) {
-      st = it->second;
-    }
+    string st = args.lookup("set" );
     string newId = args.extract("generate_id" );
     if ( newId.empty() ){
       newId = "alt-pos";
@@ -4187,27 +4183,25 @@ namespace folia {
     vector<FoliaElement*> original = _original;
     vector<FoliaElement*> _new = _newv;
     vector<FoliaElement*> suggestions = _suggestions;
-    auto it = args.find("new");
-    if ( it != args.end() ) {
-      KWargs my_args("value",it->second);
+    string val = args.extract("new");
+    if ( !val.empty() ){
+      KWargs my_args("value",val);
       TextContent *t = new TextContent( my_args, doc );
       _new.push_back( t );
-      args.erase( it );
     }
     else {
-      it = args.find("suggestion");
-      if ( it != args.end() ) {
-	KWargs my_args("value",it->second);
+      val = args.extract("suggestion");
+      if ( !val.empty() ){
+	KWargs my_args("value",val);
 	TextContent *t = new TextContent( my_args, doc );
 	suggestions.push_back( t );
-	args.erase( it );
       }
     }
-    it = args.find("reuse");
-    if ( it != args.end() ) {
+    val = args.lookup("reuse");
+    if ( !val.empty() ){
       // reuse an existing correction instead of making a new one
       try {
-	corr = dynamic_cast<Correction*>(doc->index(it->second));
+	corr = dynamic_cast<Correction*>(doc->index(val));
       }
       catch ( const exception& e ) {
 	throw ValueError( this,
@@ -4491,19 +4485,19 @@ namespace folia {
       }
     }
 
-    it = args.find("reuse");
-    if ( it != args.end() ) {
-      it = args.find("annotator");
-      if ( it != args.end() ) {
-	corr->annotator( it->second );
+    val = args.extract("reuse");
+    if ( !val.empty() ){
+      val = args.extract("annotator");
+      if ( !val.empty() ){
+	corr->annotator( val );
       }
-      it = args.find("annotatortype");
-      if ( it != args.end() ){
-	corr->annotatortype( stringTo<AnnotatorType>(it->second) );
+      val = args.extract("annotatortype");
+      if ( !val.empty() ){
+	corr->annotatortype( stringTo<AnnotatorType>(val) );
       }
-      it = args.find("confidence");
-      if ( it != args.end() ) {
-	corr->confidence( stringTo<double>(it->second) );
+      val = args.extract("confidence");
+      if ( !val.empty() ) {
+	corr->confidence( stringTo<double>(val) );
       }
     }
     corr->check_type_consistency();

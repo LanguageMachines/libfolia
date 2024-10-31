@@ -137,11 +137,7 @@ namespace folia {
      * an ALTERNATIVE node is added
      */
     KWargs args = inargs;
-    string st;
-    auto it = args.find("set" );
-    if ( it != args.end() ) {
-      st = it->second;
-    }
+    string st = args.lookup("set" );
     string newId = args.extract("generate_id" );
     if ( newId.empty() ){
       newId = "alt-mor";
@@ -382,8 +378,8 @@ namespace folia {
 		 []( const FoliaElement *e ){ return !e->isinstance( Word_t ); } ) ){
       throw runtime_error("new word is not a Word instance" );
     }
-    auto ait = argsin.find("suggest");
-    if ( ait != argsin.end() && ait->second == "true" ) {
+    string sugval = argsin.lookup("suggest");
+    if ( sugval == "true" ) {
       FoliaElement *sugg = new Suggestion();
       for ( const auto& nw : _new ) {
 	sugg->append( nw );
@@ -414,32 +410,20 @@ namespace folia {
      * checks and sets the special attributes for TextContent:
      * value, offset, ref, class
      */
-    auto it = kwargs.find( "value" );
-    if ( it != kwargs.end() ) {
-      string value = it->second;
-      kwargs.erase(it);
-      if ( value.empty() ) {
-	// can this ever happen?
-	throw ValueError( this,
-			  "Content: 'value' attribute may not be empty." );
-      }
+    string value = kwargs.extract( "value" );
+    if ( !value.empty() ){
       add_child<XmlText>( value );
     }
-    it = kwargs.find( "offset" );
-    if ( it != kwargs.end() ) {
-      _offset = stringTo<int>(it->second);
-      kwargs.erase(it);
+    value = kwargs.extract( "offset" );
+    if ( !value.empty() ){
+      _offset = stringTo<int>(value);
     }
     else {
       _offset = -1;
     }
-    it = kwargs.find( "ref" );
-    if ( it != kwargs.end() ) {
-      _ref = it->second;
-      kwargs.erase(it);
-    }
-    it = kwargs.find( "class" );
-    if ( it == kwargs.end() ) {
+    _ref = kwargs.extract( "ref" );
+    value = kwargs.lookup( "class" );
+    if ( value.empty() ) {
       kwargs.add("class","current");
     }
     AbstractElement::setAttributes(kwargs);
@@ -1717,13 +1701,10 @@ namespace folia {
     /// extract all Attribute-Value pairs for AbstractAnnotationLayer
     /*!
      * \return a KWargs set of Attribute-value pairs
-     * inclusive: set
+     * exclude: set
      */
     KWargs attribs = AbstractElement::collectAttributes();
-    auto it = attribs.find("set");
-    if ( it != attribs.end() ) {
-      attribs.erase(it);
-    }
+    attribs.extract("set");
     return attribs;
   }
 
@@ -2910,7 +2891,7 @@ namespace folia {
      *
      * checks and sets the special attributes for AbstractFeature
      * subset, class
-     * \note Feature's are special. So DON'T call setAttributes
+     * \note Feature's are special. So DON'T call ::setAttributes
      */
     auto it = kwargs.find( "subset" );
     if ( it == kwargs.end() ) {
@@ -3063,20 +3044,18 @@ namespace folia {
      * checks and sets the special attributes for AbstractTextMarkup:
      * id, text
      */
-    auto it = kwargs.find( "id" );
-    if ( it != kwargs.end() ) {
-      auto it2 = kwargs.find( "xml:id" );
-      if ( it2 != kwargs.end() ) {
+    string id = kwargs.extract( "id" );
+    if ( !id.empty() ){
+      string xid = kwargs.lookup( "xml:id" );
+      if ( !xid.empty() ) {
 	throw ValueError( this,
 			  "Both 'id' and 'xml:id found for " + classname() );
       }
-      idref = it->second;
-      kwargs.erase( it );
+      idref = id;
     }
-    it = kwargs.find( "text" );
-    if ( it != kwargs.end() ) {
-      add_child<XmlText>( it->second );
-      kwargs.erase( it );
+    string txt = kwargs.extract( "text" );
+    if ( !txt.empty() ){
+      add_child<XmlText>( txt );
     }
     AllowXlink::setAttributes( kwargs );
     AbstractElement::setAttributes( kwargs );
