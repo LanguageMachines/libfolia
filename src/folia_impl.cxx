@@ -3978,11 +3978,7 @@ namespace folia {
      * an ALTERNATIVE node is added
      */
     KWargs args = inargs;
-    string st;
-    auto it = args.find("set" );
-    if ( it != args.end() ) {
-      st = it->second;
-    }
+    string st = args.lookup("set");
     string newId = args.extract("generate_id" );
     if ( newId.empty() ){
       newId = "alt-lem";
@@ -4040,7 +4036,7 @@ namespace folia {
     KWargs kw = in_args;
     if ( !kw.is_present("xml:id") ){
       string new_id = generateId( "s" );
-      kw["xml:id"] = new_id;
+      kw.add("xml:id", new_id);
     }
     try {
       res = new Sentence( kw, doc() );
@@ -4063,7 +4059,7 @@ namespace folia {
     KWargs kw = in_args;
     if ( !kw.is_present("xml:id") ){
       string new_id = generateId( "w" );
-      kw["xml:id"] = new_id;
+      kw.add("xml:id",new_id);
     }
     try {
       res->setAttributes( kw );
@@ -4088,7 +4084,7 @@ namespace folia {
     */
     KWargs args = getArgs(s);
     if ( args.empty() ){
-      args["text"] = s;
+      args.add("text",s);
     }
     return addWord( args );
   }
@@ -4193,19 +4189,19 @@ namespace folia {
     vector<FoliaElement*> suggestions = _suggestions;
     auto it = args.find("new");
     if ( it != args.end() ) {
-      KWargs my_args;
-      my_args["value"] = it->second;
+      KWargs my_args("value",it->second);
       TextContent *t = new TextContent( my_args, doc );
       _new.push_back( t );
       args.erase( it );
     }
-    it = args.find("suggestion");
-    if ( it != args.end() ) {
-      KWargs my_args;
-      my_args["value"] = it->second;
-      TextContent *t = new TextContent( my_args, doc );
-      suggestions.push_back( t );
-      args.erase( it );
+    else {
+      it = args.find("suggestion");
+      if ( it != args.end() ) {
+	KWargs my_args("value",it->second);
+	TextContent *t = new TextContent( my_args, doc );
+	suggestions.push_back( t );
+	args.erase( it );
+      }
     }
     it = args.find("reuse");
     if ( it != args.end() ) {
@@ -4241,7 +4237,7 @@ namespace folia {
       args2.erase("suggestion" );
       args2.erase("suggestions" );
       string id = generateId( "correction" );
-      args2["xml:id"] = id;
+      args2.add("xml:id",id);
       corr = new Correction( args2, doc );
     }
 #ifdef DEBUG_CORRECT
