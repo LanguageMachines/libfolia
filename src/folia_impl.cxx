@@ -558,8 +558,8 @@ namespace folia {
 	  if ( !doc()->version_below( 2, 0 )
 	       && doc()->autodeclare() ) {
 	    KWargs args;
-	    args["processor"] = val;
-	    args["annotatortype"] = _annotator_type;
+	    args.add("processor",val);
+	    args.add("annotatortype",toString(_annotator_type));
 	    doc()->declare( annotation_type(), _set, args );
 	  }
 	  else {
@@ -605,10 +605,10 @@ namespace folia {
     else {
       // no matching processor. create a simple one
       KWargs args;
-      args["name"] = annotator;
-      args["annotatortype"] = an_type;
-      args["generate_id"] = "auto()";
-      folia::processor *new_p = new folia::processor( prov, top, args );
+      args.add("name",annotator);
+      args.add("annotatortype",an_type);
+      args.add("generate_id","auto()");
+      const folia::processor *new_p = new folia::processor( prov, top, args );
       set_processor_name( new_p->name() );
       //      cerr << "created new processor: " << new_p << endl;
     }
@@ -1109,8 +1109,8 @@ namespace folia {
      * the values are used as class attribute for the new children
      * will throw for unexpected attributes, except when in permisive mode
      */
-    for ( const auto& [feat,val] : kwargs ) {
-      string f_tag = feat;
+    for ( const auto& [f_feat,val] : kwargs ) {
+      string f_tag = f_feat;
       if ( f_tag == "head" ) {
 	// "head" is special because the tag is "headfeature"
 	// this to avoid conflicts with the "head" tag!
@@ -1129,8 +1129,7 @@ namespace folia {
 	  throw XmlError( this, message );
 	}
       }
-      KWargs newa;
-      newa["class"] = val;
+      KWargs newa("class",val);
       FoliaElement *new_node;
       try {
 	new_node = createElement( f_tag, doc() );
@@ -1168,32 +1167,32 @@ namespace folia {
       if ( type == "simple" || type == "locator" ){
 	it = _xlink.find("href");
 	if ( it != _xlink.end() ){
-	  attribs["xlink:href"] = it->second;
-	  attribs["xlink:type"] = type;
+	  attribs.add("xlink:href",it->second);
+	  attribs.add("xlink:type",type);
 	}
 	it = _xlink.find("role");
 	if ( it != _xlink.end() ){
-	  attribs["xlink:role"] = it->second;
+	  attribs.add("xlink:role",it->second);
 	}
 	it = _xlink.find("arcrole");
 	if ( it != _xlink.end() ){
-	  attribs["xlink:arcrole"] = it->second;
+	  attribs.add("xlink:arcrole",it->second);
 	}
 	it = _xlink.find("show");
 	if ( it != _xlink.end() ){
-	  attribs["xlink:show"] = it->second;
+	  attribs.add("xlink:show",it->second);
 	}
 	it = _xlink.find("actuate");
 	if ( it != _xlink.end() ){
-	  attribs["xlink:actuate"] = it->second;
+	  attribs.add("xlink:actuate",it->second);
 	}
 	it = _xlink.find("title");
 	if ( it != _xlink.end() ){
-	  attribs["xlink:title"] = it->second;
+	  attribs.add("xlink:title",it->second);
 	}
 	it = _xlink.find("label");
 	if ( it != _xlink.end() ){
-	  attribs["xlink:label"] = it->second;
+	  attribs.add("xlink:label",it->second);
 	}
       }
     }
@@ -1202,37 +1201,37 @@ namespace folia {
 
   void AbstractElement::set_typegroup( KWargs& attribs ) const {
     if ( isSubClass( AbstractStructureElement_t ) ){
-      attribs["typegroup"] = "structure";
+      attribs.add("typegroup","structure");
     }
     else if ( isSubClass( AbstractFeature_t ) ){
-      attribs["typegroup"] = "feature";
+      attribs.add("typegroup","feature");
     }
     else if ( isSubClass( AbstractInlineAnnotation_t ) ){
-      attribs["typegroup"] = "inline";
+      attribs.add("typegroup","inline");
     }
     else if ( isSubClass( AbstractHigherOrderAnnotation_t ) ){
-      attribs["typegroup"] = "higherorder";
+      attribs.add("typegroup","higherorder");
     }
     else if ( isSubClass(  AbstractSpanRole_t ) ){
-      attribs["typegroup"] = "spanrole";
+      attribs.add("typegroup","spanrole");
     }
     else if ( isSubClass(  AbstractSpanAnnotation_t ) ){
-      attribs["typegroup"] = "span";
+      attribs.add("typegroup","span");
     }
     else if ( isSubClass(  AbstractTextMarkup_t ) ){
-      attribs["typegroup"] = "textmarkup";
+      attribs.add("typegroup","textmarkup");
     }
     else if ( isSubClass(  AbstractContentAnnotation_t ) ){
-      attribs["typegroup"] = "content";
+      attribs.add("typegroup","content");
     }
     else if ( isSubClass(  AbstractAnnotationLayer_t ) ){
-      attribs["typegroup"] = "layer";
+      attribs.add("typegroup","layer");
     }
     else if ( isSubClass(  AbstractSubtokenAnnotation_t ) ){
-      attribs["typegroup"] = "subtoken";
+      attribs.add("typegroup","subtoken");
     }
     else if ( isSubClass(  AbstractCorrectionChild_t ) ){
-      attribs["typegroup"] = "correctionchild";
+      attribs.add("typegroup","correctionchild");
     }
     else {
       cerr << "UNHANDLED " << element_id() << endl;
@@ -1246,28 +1245,26 @@ namespace folia {
      * Might also use declaration defaults and alias declarations to extract
      * default values
      */
-    KWargs attribs;
     bool Explicit = false;
     Attrib supported = required_attributes() | optional_attributes();
+    KWargs attribs;
     if ( doc() && doc()->has_explicit() ){
       Explicit = true;
       set_typegroup( attribs );
     }
-    if ( !_id.empty() ) {
-      attribs["xml:id"] = _id;
-    }
+    attribs.add("xml:id",_id);
     if ( _preserve_spaces == SPACE_FLAGS::PRESERVE ) {
-      attribs["xml:space"] = "preserve";
+      attribs.add("xml:space","preserve");
     }
     if ( doc() ){
       string default_set = doc()->default_set( annotation_type() );
       bool isDefaultSet = (_set == default_set);
       if ( Explicit && _set != "None" && !default_set.empty() ){
 	if ( _set.empty() ){
-	  attribs["set"] = default_set;
+	  attribs.add("set",default_set);
 	}
 	else {
-	  attribs["set"] = _set;
+	  attribs.add("set",_set);
 	}
       }
       else if ( _set != "None"
@@ -1275,21 +1272,19 @@ namespace folia {
 		&& !isDefaultSet ){
 	string ali = doc()->alias( annotation_type(), _set );
 	if ( ali.empty() ){
-	  attribs["set"] = _set;
+	  attribs.add("set",_set);
 	}
 	else {
-	  attribs["set"] = ali;
+	  attribs.add("set",ali);
 	}
       }
-      if ( !_class.empty() ) {
-	attribs["class"] = _class;
-      }
+      attribs.add("class",_class);
       if ( !_processor_id.empty() ){
 	string tmp;
 	try {
 	  tmp = doc()->default_processor( annotation_type(), _set );
 	  if ( Explicit ){
-	    attribs["processor"] = tmp;
+	    attribs.add("processor",tmp);
 	  }
 	}
 	catch ( const NoDefaultError& ){
@@ -1298,7 +1293,7 @@ namespace folia {
 	  throw;
 	}
 	if ( tmp != _processor_id ){
-	  attribs["processor"] = _processor_id;
+	  attribs.add("processor",_processor_id);
 	}
       }
       else {
@@ -1306,7 +1301,7 @@ namespace folia {
 	if ( !_annotator.empty() &&
 	     _annotator != doc()->default_annotator( annotation_type(), _set ) ) {
 	  isDefaultAnn = false;
-	  attribs["annotator"] = _annotator;
+	  attribs.add("annotator",_annotator);
 	}
 	if ( _annotator_type != UNDEFINED ){
 	  AnnotatorType at = doc()->default_annotatortype( annotation_type(), _set );
@@ -1315,10 +1310,10 @@ namespace folia {
 	       || _annotator_type != at){
 	    if ( _annotator_type != at ) {
 	      if ( _annotator_type == AUTO ){
-		attribs["annotatortype"] = "auto";
+		attribs.add("annotatortype","auto");
 	      }
 	      else if ( _annotator_type == MANUAL ) {
-		attribs["annotatortype"] = "manual";
+		attribs.add("annotatortype","manual");
 	      }
 	    }
 	  }
@@ -1327,44 +1322,30 @@ namespace folia {
     }
     if ( !_datetime.empty() &&
 	 _datetime != doc()->default_datetime( annotation_type(), _set ) ) {
-      attribs["datetime"] = _datetime;
+      attribs.add("datetime",_datetime);
     }
-    if ( !_begintime.empty() ) {
-      attribs["begintime"] = _begintime;
-    }
-    if ( !_endtime.empty() ) {
-      attribs["endtime"] = _endtime;
-    }
-    if ( !_src.empty() ) {
-      attribs["src"] = _src;
-    }
-    if ( !_tags.empty() ) {
-      attribs["tag"] = _tags;
-    }
-    if ( !_metadata.empty() ) {
-      attribs["metadata"] = _metadata;
-    }
-    if ( !_speaker.empty() ) {
-      attribs["speaker"] = _speaker;
-    }
+    attribs.add("begintime",_begintime);
+    attribs.add("endtime",_endtime);
+    attribs.add("src",_src);
+    attribs.add("tag",_tags);
+    attribs.add("metadata",_metadata);
+    attribs.add("speaker",_speaker);
     if ( ( TEXTCLASS & supported)
 	 && ( !_textclass.empty() &&
 	      ( _textclass != "current" || Explicit ) ) ){
-      attribs["textclass"] = _textclass;
+      attribs.add("textclass",_textclass);
     }
 
     if ( _confidence >= 0 ) {
-      attribs["confidence"] = toDoubleString(_confidence);
+      attribs.add("confidence",toDoubleString(_confidence));
     }
-    if ( !_n.empty() ) {
-      attribs["n"] = _n;
-    }
+    attribs.add("n",_n);
     if ( !_auth ) {
-      attribs["auth"] = "no";
+      attribs.add("auth","no");
     }
     if ( SPACE & optional_attributes() ){
       if ( !_space ) {
-	attribs["space"] = "no";
+	attribs.add("space","no");
       }
     }
     return attribs;
@@ -1573,13 +1554,11 @@ namespace folia {
       my_set = doc()->default_set( AnnotationType::TEXT );
     }
     KWargs args;
-    args["value"] = TiCC::UnicodeToUTF8(txt_u);
-    args["class"] = cls;
-    if ( !my_set.empty() ){
-      args["set"] = my_set;
-    }
+    args.add("value",TiCC::UnicodeToUTF8(txt_u));
+    args.add("class",cls);
+    args.add("set",my_set);
     if ( offset >= 0 ){
-      args["offset"] = TiCC::toString(offset);
+      args.add("offset",TiCC::toString(offset));
     }
     TextContent *node = new TextContent( args, doc() );
     replace( node );
@@ -1891,8 +1870,8 @@ namespace folia {
 	      cerr << "FIX: " << s1 << "==>" << s2 << endl;
 	    }
 	    KWargs args;
-	    args["value"] = TiCC::UnicodeToUTF8(s2);
-	    args["class"] = st;
+	    args.add("value", TiCC::UnicodeToUTF8(s2));
+	    args.add("class",st);
 	    TextContent *node = new TextContent( args, doc() );
 	    this->replace( node );
 	  }
@@ -1975,7 +1954,7 @@ namespace folia {
     }
     else if ( doc()->preserve_spaces() ){
       // this subtree should go back to "default" then
-      attribs["xml:space"] = "default";
+      attribs.add("xml:space","default");
       // and the doc needs to know it
       doc()->set_preserve_spaces(false);
     }
@@ -1997,7 +1976,7 @@ namespace folia {
       for ( const auto& el : _data ) {
 	string at = tagToAtt( el );
 	if ( !at.empty() && af_map[at] == 1 ) {
-	  attribs[at] = el->cls();
+	  attribs.add(at,el->cls());
 	  attribute_elements.insert( el );
 	}
       }
@@ -3757,12 +3736,11 @@ namespace folia {
     KWargs att = getAttributes( node );
     int sp = xmlNodeGetSpacePreserve(node);
     if ( sp == 1 ){
-      att["xml:space"] = "preserve";
+      att.add("xml:space","preserve");
     }
     else if ( sp == 0 ){
-      att["xml:space"] = "default";
+      att.add("xml:space","default");
     }
-
     setAttributes( att );
     set_line_number( xmlGetLineNo(node) );
     const xmlNode *p = node->children;
@@ -3950,8 +3928,7 @@ namespace folia {
     }
     if ( has_annotation<PosAnnotation>( st ) > 0 ) {
       // ok, there is already one, so create an Alternative
-      KWargs kw;
-      kw["xml:id"] = generateId( newId );
+      KWargs kw("xml:id", generateId( newId ));
       if ( !doc()->declared( AnnotationType::ALTERNATIVE ) ){
 	doc()->declare( AnnotationType::ALTERNATIVE, "" );
       }
@@ -4012,8 +3989,7 @@ namespace folia {
     }
     if ( has_annotation<LemmaAnnotation>( st ) > 0 ) {
       // ok, there is already one, so create an Alternative
-      KWargs kw;
-      kw["xml:id"] = generateId( newId );
+      KWargs kw( "xml:id",generateId( newId ));
       if ( !doc()->declared( AnnotationType::ALTERNATIVE ) ){
 	doc()->declare( AnnotationType::ALTERNATIVE, "" );
       }
