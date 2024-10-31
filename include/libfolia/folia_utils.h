@@ -229,7 +229,7 @@ namespace folia {
   std::string get_ISO_date();
   std::string get_fqdn();
   std::string get_user();
-
+  std::string create_NCName( const std::string& );
 } // namespace folia
 
 namespace TiCC {

@@ -728,6 +728,60 @@ namespace folia {
     return true;
   }
 
+  string create_NCName( const string& s ){
+    /// create a valid NCName
+    /*!
+      \param s a string to be used as template
+      \return a string that is a valid NCname
+
+      Make sure tese prerequisits are met:
+      An xsd:NCName value must start with either a letter or underscore ( _ )
+      and may contain only letters, digits, underscores ( _ ), hyphens ( - ),
+      and periods ( . ).
+    */
+    string valid = "_-.";
+    if ( isNCName( s ) ){
+      return s;
+    }
+    else {
+      string result = s;
+      while ( !result.empty()
+	      && ( result.front() == '_'
+		   || !isalpha(s.front() ) ) ){
+	result.erase(result.begin());
+      }
+      if ( result.empty() ){
+	throw XmlError( "unable to create a valid NCName from '"
+			+ s + "'" );
+      }
+      if ( isNCName( result ) ){
+	return result;
+      }
+      else {
+	auto it = result.begin();
+	while ( it != result.end() ){
+	  if ( !isalnum(*it) ){
+	    if ( valid.find(*it) == string::npos ){
+	      it = result.erase(it);
+	    }
+	  }
+	  else {
+	    ++it;
+	  }
+	}
+	if ( result.empty() ){
+	  throw XmlError( "unable to create a valid NCName from '"
+			  + s + "'" );
+	}
+	else if ( !isNCName( result ) ){
+	  throw XmlError( "unable to create a valid NCName from '"
+			  + s + "'" );
+	}
+	return result;
+      }
+    }
+  }
+
   bool checkNS( const xmlNode *n, const string& ns ){
     string tns = TiCC::getNS(n);
     if ( tns == ns ){

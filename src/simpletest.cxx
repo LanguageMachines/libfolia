@@ -160,5 +160,27 @@ int main() {
   assert( ( isSubClass<Word,AbstractElement>() == 1 ) );
   assert( ( isSubClass<Word,Word>() == 1 ) );
   assert( ( isSubClass<AllowXlink,FoliaElement>() == 1 ) );
+  {
+    bool caught = false;
+    try {
+      create_NCName("123");
+    }
+    catch ( ... ){
+      caught = true;
+    }
+    assert( caught == true );
+  }
+  {
+    string s = create_NCName("aap!noot");
+    assert( s == "aapnoot" );
+  }
+  {
+    string s = create_NCName("A#12!3");
+    assert( s == "A123" );
+  }
+  {
+    string s = create_NCName("appeltaart");
+    assert( s == "appeltaart" );
+  }
   return EXIT_SUCCESS;
 }
