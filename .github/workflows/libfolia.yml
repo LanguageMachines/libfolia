@@ -105,3 +105,4 @@ jobs:
           step: testing
           status: ${{ env.action_status }}
           details: ${{ env.action_details }}
+        continue-on-error: true
