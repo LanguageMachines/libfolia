@@ -177,7 +177,7 @@ namespace folia {
   ///
   /// KWargs is a map, so it kan be indexed (on attribute), iterated etc.
   ///
-  class KWargs : public std::map<const std::string, std::string> {
+  class KWargs : public std::map<std::string, std::string> {
   public:
     explicit KWargs( const std::string& ="" );
     KWargs( const std::string&, const std::string& );
