@@ -1598,9 +1598,9 @@ namespace folia {
       _external_document = false;
     }
     bool happy = false;
-    value = kwargs.extract( "_id" ); // for backward compatibility
+    value = kwargs.extract( "xml:id" );
     if ( value.empty() ){
-      value = kwargs.extract( "xml:id" );
+      value = kwargs.extract( "_id" ); // for backward compatibility
     }
     if ( !value.empty() ){
       if ( isNCName( value ) ){

@@ -103,19 +103,6 @@ namespace folia {
 
   //#define PROC_DEBUG
 
-  string filter_non_NC( const string& name ){
-    string out;
-    for ( auto const& c : name ){
-      if ( c == ' ' ){
-	out += "_";
-      }
-      else {
-	out += c;
-      }
-    }
-    return out;
-  }
-
   string processor::generate_id( Provenance *prov,
 				 const string& in_name ){
     /// generate an processor id
@@ -128,38 +115,30 @@ namespace folia {
       we generate a new id as sub-id of the name. When not found, we just create
       a new id \e 'name.1'
 
-      Some care is taken to make sure NO existing id is generated, when this
-      would happen we add extra '_' characters to name
     */
 
     string new_id;
-    string f_name = filter_non_NC(in_name);
+    string f_name = create_NCName(in_name);
     auto it = prov->_names.find(f_name);
     if ( it == prov->_names.end() ){
 #ifdef PROC_DEBUG
-      cerr << "generate_id, " << f_name << " not found in " <<prov->_names << endl;
+      cerr << "generate_id, " << f_name << " is new, add it " << endl;
 #endif
-      if ( !isNCName(f_name) ){
-	throw XmlError( "generated_id: '" + f_name
-			+ "' is not a valid base for an NCName." );
-      }
       prov->_names[f_name].insert(1);
       new_id = f_name + ".1";
     }
     else {
-#ifdef PROC_DEBUG
-      cerr << "generate_id, " << f_name << " found " << endl;
-#endif
       int val = *(it->second.rbegin());
 #ifdef PROC_DEBUG
+      cerr << "generate_id, " << f_name << " already there " << endl;
       cerr << "generate_id, val=" << val << endl;
 #endif
       prov->_names[f_name].insert(++val);
-#ifdef PROC_DEBUG
-      cerr << "generate_id, ++val=" << val << endl;
-#endif
       new_id = f_name + "." + TiCC::toString(val);
     }
+#ifdef PROC_DEBUG
+    cerr << "generate_id, generated new id" << new_id << endl;
+#endif
     if ( prov->get_processor_by_id(new_id) != 0 ){
 #ifdef PROC_DEBUG
       cerr << "generate_id, id=" << new_id << " exists, loop!" << endl;

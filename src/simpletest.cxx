@@ -179,7 +179,11 @@ int main() {
     assert( s == "A123" );
   }
   {
-    string s = create_NCName("_appel-taart.met_slagroom_");
+    string s = create_NCName(".-_!A#12!3");
+    assert( s == "_A123" );
+  }
+  {
+    string s = create_NCName("_appel-taart.met slagroom_");
     assert( s == "_appel-taart.met_slagroom_" );
   }
   return EXIT_SUCCESS;
