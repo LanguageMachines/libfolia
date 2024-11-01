@@ -739,20 +739,23 @@ namespace folia {
       and may contain only letters, digits, underscores ( _ ), hyphens ( - ),
       and periods ( . ).
     */
-    string valid = "_-.";
     if ( isNCName( s ) ){
       return s;
     }
     else {
       string result = s;
       while ( !result.empty()
-	      && ( result.front() == '_'
-		   || !isalpha(s.front() ) ) ){
+	      && ( result.front() == '.'
+		   || result.front() == '-'
+		   || !isalpha(result.front() ) ) ){
+	if ( result.front() == '_' ){
+	  break;
+	}
 	result.erase(result.begin());
       }
       if ( result.empty() ){
 	throw XmlError( "unable to create a valid NCName from '"
-			+ s + "'" );
+			+ s + "', would be empty" );
       }
       if ( isNCName( result ) ){
 	return result;
@@ -760,10 +763,19 @@ namespace folia {
       else {
 	auto it = result.begin();
 	while ( it != result.end() ){
-	  if ( !isalnum(*it) ){
-	    if ( valid.find(*it) == string::npos ){
-	      it = result.erase(it);
-	    }
+	  if ( *it == ' ' ){
+	    // replace spaces by '_'
+	    *it = '_';
+	    ++it;
+	  }
+	  else if ( *it == '-'
+		    || *it == '_'
+		    || *it == '.' ){
+	    // not alphanumeric, but allowed
+	    ++it;
+	  }
+	  else if ( !isalnum(*it) ){
+	    it = result.erase(it);
 	  }
 	  else {
 	    ++it;
@@ -771,7 +783,7 @@ namespace folia {
 	}
 	if ( result.empty() ){
 	  throw XmlError( "unable to create a valid NCName from '"
-			  + s + "'" );
+			  + s + "', (empty result)" );
 	}
 	else if ( !isNCName( result ) ){
 	  throw XmlError( "unable to create a valid NCName from '"
