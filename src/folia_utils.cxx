@@ -734,7 +734,7 @@ namespace folia {
       \param s a string to be used as template
       \return a string that is a valid NCname
 
-      Make sure tese prerequisits are met:
+      Make sure these prerequisites are met:
       An xsd:NCName value must start with either a letter or underscore ( _ )
       and may contain only letters, digits, underscores ( _ ), hyphens ( - ),
       and periods ( . ).

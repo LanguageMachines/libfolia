@@ -179,8 +179,8 @@ int main() {
     assert( s == "A123" );
   }
   {
-    string s = create_NCName("appel-taart_met_slagroom");
-    assert( s == "appel-taart_met_slagroom" );
+    string s = create_NCName("_appel-taart.met_slagroom_");
+    assert( s == "_appel-taart.met_slagroom_" );
   }
   return EXIT_SUCCESS;
 }
