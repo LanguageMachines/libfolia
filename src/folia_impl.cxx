@@ -638,31 +638,29 @@ namespace folia {
       }
     }
     Attrib supported = required_attributes() | optional_attributes();
-    //#define LOG_SET_ATT
-#ifdef LOG_SET_ATT
-    int db_level = 0;
+    bool att_dbg = false;
+    Document::DebugMode doc_dbg = Document::NODEBUG;
+    // we will switch it off temporarely. so remember
     if ( doc() ){
-      db_level = doc()->debug;
+      doc_dbg = doc()->debug;
+      att_dbg = ( doc_dbg == Document::ATTRIBUTES );
     }
-    if ( element_id() == New_t
-	 || element_id() == Original_t ) {
-      if ( doc() ){
-	doc()->setdebug(0);
+    if ( att_dbg ) {
+      if ( element_id() == New_t
+	   || element_id() == Original_t ) {
+	if ( doc() ){
+	  doc()->setdebug(Document::NODEBUG);
+	}
+	cerr << "set attributes: '" << kwargs << "' on " << classname() << endl;
+	// cerr << "required = " <<  toString(required_attributes()) << endl;
+	// cerr << "optional = " <<  optional_attributes() << endl;
+	// cerr << "supported = " << supported << endl;
+	// cerr << "ID & supported = " << (ID & supported) << endl;
+	// cerr << "ID & _required = " << (ID & required_attributes() ) << endl;
+	// cerr << "_id=" << _id << endl;
+	// cerr << "AUTH : " << _auth << endl;
       }
-      cerr << "set attributes: '" << kwargs << "' on " << classname() << endl;
-      //      cerr << "required = " <<  toString(required_attributes()) << endl;
-      //      cerr << "optional = " <<  optional_attributes() << endl;
-      //cerr << "supported = " << supported << endl;
-      //      cerr << "ID & supported = " << (ID & supported) << endl;
-      //      cerr << "ID & _required = " << (ID & required_attributes() ) << endl;
-      // cerr << "_id=" << _id << endl;
-      // cerr << "AUTH : " << _auth << endl;
     }
-#endif
-    if ( doc() && doc()->debug == Document::ATTRIBUTES ) {
-      cerr << "set attributes: " << kwargs << " on " << classname() << endl;
-    }
-
     string val = kwargs.extract( "generate_id" );
     if ( !val.empty() ) {
       if ( !doc() ) {
@@ -1091,14 +1089,10 @@ namespace folia {
 	  throw;
 	}
       }
+      doc()->setdebug( doc_dbg );
     }
     kwargs.erase("typegroup"); //this is used in explicit form only, we can safely discard it
     addFeatureNodes( kwargs );
-#ifdef LOG_SET_ATT
-    if ( doc() ){
-      doc()->setdebug(db_level);
-    }
-#endif
   }
 
   void AbstractElement::addFeatureNodes( const KWargs& kwargs ) {
@@ -1621,11 +1615,10 @@ namespace folia {
     return att;
   }
 
-  //#define DEBUG_CHECK_TEXT
-
   void CheckText( const FoliaElement *parent,
 		  const FoliaElement *child,
-		  const string& cls ){
+		  const string& cls,
+		  bool txt_dbg ){
     if ( parent
 	 && parent->element_id() != Correction_t
 	 && parent->hastext( cls ) ){
@@ -1633,10 +1626,10 @@ namespace folia {
       // but SKIP Corrections
       UnicodeString s1 = parent->stricttext( cls );
       UnicodeString s2 = child->stricttext( cls );
-#ifdef DEBUG_CHECK_TEXT
-      cerr << "check_text parent: " << s1 << endl;
-      cerr << "check_text child: " << s2 << endl;
-#endif
+      if ( txt_dbg ){
+	cerr << "check_text parent: " << s1 << endl;
+	cerr << "check_text child: " << s2 << endl;
+      }
       // no retain tokenization, strict for both
       s1 = normalize_spaces( s1 );
       s2 = normalize_spaces( s2 );
@@ -1666,19 +1659,16 @@ namespace folia {
 	}
       }
     }
-#ifdef DEBUG_CHECK_TEXT
-    else {
+    else if ( txt_dbg ){
       cerr << "skipping check for " << parent << endl;
     }
-#endif
-
   }
 
-  //#define DEBUG_CHECK_TEXT_2
   void  CheckText2( const FoliaElement *parent,
 		    const FoliaElement *child,
 		    const string& cls,
-		    bool trim_spaces ){
+		    bool trim_spaces,
+		    bool txt_dbg ){
     if ( parent
 	 && parent->hastext( cls ) ){
       // check text consistency for parents with text
@@ -1689,9 +1679,9 @@ namespace folia {
       if ( !trim_spaces ) {
 	tp.set( TEXT_FLAGS::NO_TRIM_SPACES );
       }
-#ifdef DEBUG_CHECK_TEXT_2
-      tp.set_debug();
-#endif
+      if ( txt_dbg ){
+	tp.set_debug();
+      }
       UnicodeString s1 = parent->text( tp );
       tp.clear( TEXT_FLAGS::STRICT );
       UnicodeString s2 = child->text( tp );
@@ -1757,29 +1747,33 @@ namespace folia {
      * For all other cases, the text of the child should match the parents text.
      * \note Matching is opaque to spaces, newlines and tabs
      */
-#if defined DEBUG_CHECK_TEXT || defined DEBUG_CHECKTEXT_2
-    cerr << "VOOR checkappend I am=" << this << endl;
-    cerr << "VOOR checkappend child=" << child << endl;
-#endif
+    bool txt_cst_dbg = false;
+    if ( doc() ){
+      txt_cst_dbg = ( doc()->debug == Document::TEXT_CONSISTENCY );
+    }
+    if ( txt_cst_dbg ){
+      cerr << "BEFORE checkappend I am=" << this << endl;
+      cerr << "      checkappend child=" << child << endl;
+    }
     if ( !doc() || !doc()->checktext() || doc()->fixtext() ){
-#if defined DEBUG_CHECK_TEXT || defined DEBUG_CHECKTEXT_2
-      cerr << "quick return" << endl;
-#endif
+      if ( txt_cst_dbg ){
+	cerr << "quick return" << endl;
+      }
       return;
     }
     string c_cls = child->cls();
-#if defined DEBUG_CHECK_TEXT || defined DEBUG_CHECKTEXT_2
-    cerr << "HIER 2 " << c_cls << endl;
-#endif
+    if ( txt_cst_dbg ){
+      cerr << "class=" << c_cls << endl;
+    }
     if ( child->size() == 0
 	 || ( child->is_textcontainer()
 	      && !child->hastext( c_cls ) ) ){
       // no use to proceed. not adding real text
+      if ( txt_cst_dbg ){
+	cerr << "nothing wrong here , exit()" << endl;
+      }
       return;
     }
-#if defined DEBUG_CHECK_TEXT || defined DEBUG_CHECKTEXT_2
-    cerr << "HIER 3 " << endl;
-#endif
     const FoliaElement *par = 0;
     if ( child->is_textcontainer() ){
       par = this->parent();
@@ -1788,10 +1782,10 @@ namespace folia {
       par = this;
       c_cls = child->index(0)->cls();
     }
-#if defined DEBUG_CHECK_TEXT || defined DEBUG_CHECKTEXT_2
-    cerr << "PARENT? " << par << endl;
-#endif
-    CheckText( par, child, c_cls );
+    if ( txt_cst_dbg ){
+      cerr << "PARENT = " << par << endl;
+    }
+    CheckText( par, child, c_cls, txt_cst_dbg );
   }
 
   void AbstractElement::check_text_consistency( bool trim_spaces ) const {
@@ -1813,26 +1807,26 @@ namespace folia {
     if ( !doc() || !doc()->checktext() || !printable() ){
       return;
     }
-
+    bool txt_cst_dbg = false;
+    if ( doc() ){
+      txt_cst_dbg = ( doc()->debug == Document::TEXT_CONSISTENCY );
+    }
     string my_cls = cls();
     const FoliaElement *par = parent();
-    CheckText2( par, this, my_cls, trim_spaces );
+    CheckText2( par, this, my_cls, trim_spaces, txt_cst_dbg );
   }
 
   void AbstractElement::check_text_consistency_while_parsing( bool trim_spaces,
-							      bool text_debug ) {
+							      bool txt_dbg ) {
       // this block was moved from parseXml into a separate function
       // it remains to be seen how much overlaps with check_text_consistency()
       // and whether we can't make do with one function
       //
       // unlike the other function, this does do some fixing when requested
       //
-#if defined DEBUG_CHECK_TEXT || defined DEBUG_CHECKTEXT_2
-    debug = true;
-#endif
-    if ( text_debug ){
-    cerr << "DEBUG: BEGIN check_text_consistency_while_parsing("
-	 << trim_spaces << ")" << endl;
+    if ( txt_dbg ){
+      cerr << "DEBUG: BEGIN check_text_consistency_while_parsing("
+	   << trim_spaces << ")" << endl;
     }
     // check the text for every possible text class
     for ( const auto& st : doc()->textclasses() ){
@@ -1840,7 +1834,7 @@ namespace folia {
       TextPolicy tp( st );
       tp.set_correction_handling(CORRECTION_HANDLING::EITHER);
       tp.set( TEXT_FLAGS::STRICT );
-      tp.set_debug( text_debug );
+      tp.set_debug( txt_dbg );
       if ( !trim_spaces ) {
 	tp.set( TEXT_FLAGS::NO_TRIM_SPACES );
       }
@@ -1850,7 +1844,7 @@ namespace folia {
       catch (...){
       }
       if ( !s1.isEmpty() ){
-	if ( text_debug  ){
+	if ( txt_dbg  ){
 	  cerr << "S1: " << s1 << endl;
 	}
 	tp.clear( TEXT_FLAGS::STRICT );
@@ -1859,14 +1853,14 @@ namespace folia {
 	}
 	catch (...){
 	}
-	if ( text_debug ){
+	if ( txt_dbg ){
 	  cerr << "S2: " << s2 << endl;
 	}
 	s1 = normalize_spaces( s1 );
 	s2 = normalize_spaces( s2 );
 	if ( !s2.isEmpty() && s1 != s2 ){
 	  if ( doc()->fixtext() ){
-	    if ( text_debug  ){
+	    if ( txt_dbg  ){
 	      cerr << "FIX: " << s1 << "==>" << s2 << endl;
 	    }
 	    KWargs args;
@@ -1881,14 +1875,14 @@ namespace folia {
 	      //ok, we failed according to the >v2.4.1 rules
 	      //but do we also fail under the old rules?
 	      try {
-		if ( text_debug ){
+		if ( txt_dbg ){
 		  cerr << "DEBUG: (testing according to older rules now)" << endl;
 		}
-		this->check_text_consistency_while_parsing( false, text_debug );
+		this->check_text_consistency_while_parsing( false, txt_dbg );
 		warn_only = true;
 	      }
 	      catch ( const InconsistentText& e ) {
-		if ( text_debug ){
+		if ( txt_dbg ){
 		  cerr << "(tested according to older rules (<v2.4.1) as well, but this failed too)" << endl;
 		}
 		//ignore, we raise the newer error
@@ -1904,7 +1898,7 @@ namespace folia {
 	      doc()->increment_warn_count();
 	    }
 	    else {
-	      if ( text_debug ){
+	      if ( txt_dbg ){
 		cerr << "DEBUG: CONSISTENCYERROR check_text_consistency_while_parsing(" << trim_spaces << ")" << endl;
 	      }
 	      throw InconsistentText( this, msg);
@@ -1926,7 +1920,7 @@ namespace folia {
 	throw XmlError( this, msg );
       }
     }
-    if ( text_debug ){
+    if ( txt_dbg ){
       cerr << "DEBUG: END-OK check_text_consistency_while_parsing("
 	   << trim_spaces << ")" << endl;
     }
@@ -2439,16 +2433,16 @@ namespace folia {
 
   const UnicodeString AbstractElement::text( const string& cls,
 					     TEXT_FLAGS flags,
-					     bool debug ) const {
+					     bool txt_dbg ) const {
     /// get the UnicodeString text value of an element
     /*!
      * \param cls the textclass the text should be in
      * \param flags the search parameters to use. See TEXT_FLAGS.
-     * \param debug enables debugging when true
+     * \param txt_dbg enables debugging when true
      */
     TextPolicy tp( cls, flags );
-    tp.set_debug( debug );
-    if ( debug ){
+    tp.set_debug( txt_dbg );
+    if ( txt_dbg ){
       cerr << "DEBUG <" << xmltag() << ">.text() Policy=" << tp << endl;
     }
     return private_text( tp );
@@ -2670,16 +2664,16 @@ namespace folia {
     return found_nl > 0;
   }
 
-  bool no_space_at_end( const FoliaElement *s, bool debug ){
+  bool no_space_at_end( const FoliaElement *s, bool txt_dbg ){
     /// given a FoliaElement check if the last Word in it has space()
     /*!
      * \param s a FoliaElement
-     * \param debug set to true for more info
+     * \param txt_dbg set to true for more info
      * \return true if the element contains Word children and the last
      * one has space()
      */
     bool result = false;
-    if ( debug ){
+    if ( txt_dbg ){
       cerr << "no space? s: " << s << endl;
     }
     if ( s ){
@@ -2688,12 +2682,12 @@ namespace folia {
 						  {},
 						  SELECT_FLAGS::LOCAL );
       if ( !elts.empty() ){
-	if ( debug ){
+	if ( txt_dbg ){
 	  cerr << "found some mixed stuff: " << elts << endl;
 	}
 	const FoliaElement *last = elts.back();
 	result = !last->space();
-	if ( debug ){
+	if ( txt_dbg ){
 	  cerr << "no space? last: " << last
 	       << (result?" WEL":" NIET") << endl;
 	}
@@ -2884,11 +2878,11 @@ namespace folia {
   }
 
   const TextContent *AbstractElement::text_content( const string& cls,
-						    bool debug ) const {
+						    bool txt_dbg ) const {
     /// Get the TextContent explicitly associated with this element.
     /*!
      * \param cls the textclass to search for
-     * \param debug enables debugging when true
+     * \param txt_dbg enables debugging when true
      *
      * Returns the TextContent instance rather than the actual text.
      * (so it might return itself.. ;)
@@ -2896,14 +2890,14 @@ namespace folia {
      * might throw NoSuchText exception if not found.
      */
     TextPolicy tp( cls );
-    tp.set_debug( debug );
+    tp.set_debug( txt_dbg );
     return text_content( tp );
   }
 
   TextContent *AbstractElement::text_content( const string& cls,
-					      bool debug ) {
+					      bool txt_dbg ) {
     return const_cast<TextContent*>
-      ( static_cast<const AbstractElement &>(*this).text_content( cls, debug ) );
+      ( static_cast<const AbstractElement &>(*this).text_content( cls, txt_dbg ) );
   }
 
   const PhonContent *AbstractElement::phon_content( const TextPolicy& tp ) const {
@@ -2954,11 +2948,11 @@ namespace folia {
   }
 
   const PhonContent *AbstractElement::phon_content( const string& cls,
-						    bool debug ) const {
+						    bool txt_dbg ) const {
     /// Get the PhonContent explicitly associated with this element.
     /*!
      * \param cls the textclass to search for
-     * \param debug enable debugging when true
+     * \param txt_dbg enable txt_dbgging when true
      *
      * Returns the PhonContent instance rather than the actual text.
      * (so it might return iself.. ;)
@@ -2966,14 +2960,14 @@ namespace folia {
      * might throw NoSuchPhon exception if not found.
      */
     TextPolicy tp(cls );
-    tp.set_debug( debug );
+    tp.set_debug( txt_dbg );
     return phon_content( tp );
   }
 
   PhonContent *AbstractElement::phon_content( const string& cls,
-					      bool debug ) {
+					      bool txt_dbg ) {
     return const_cast<PhonContent*>
-      ( static_cast<const AbstractElement &>(*this).phon_content( cls, debug ) );
+      ( static_cast<const AbstractElement &>(*this).phon_content( cls, txt_dbg ) );
   }
 
   const UnicodeString AbstractElement::phon( const TextPolicy& tp ) const {
@@ -4150,8 +4144,6 @@ namespace folia {
     }
   }
 
-  //#define DEBUG_CORRECT 1
-
   Correction * AllowCorrections::correct( const vector<FoliaElement*>& _original,
 					  const vector<FoliaElement*>& _current,
 					  const vector<FoliaElement*>& _newv,
@@ -4166,14 +4158,18 @@ namespace folia {
      * \param args_in additional arguments
      * \return the Correction node. Might throw on problems
      */
-#ifdef DEBUG_CORRECT
-    cerr << "correct " << this << endl;
-    cerr << "original= " << _original << endl;
-    cerr << "current = " << _current << endl;
-    cerr << "new     = " << _newv << endl;
-    cerr << "suggestions     = " << _suggestions << endl;
-    cerr << "args in     = " << args_in << endl;
-#endif
+    bool corr_debug = false;
+    if ( doc() ){
+      corr_debug = ( doc()->debug == Document::CORRECTION );
+    }
+    if ( corr_debug ){
+      cerr << "correct " << this << endl;
+      cerr << "original= " << _original << endl;
+      cerr << "current = " << _current << endl;
+      cerr << "new     = " << _newv << endl;
+      cerr << "suggestions     = " << _suggestions << endl;
+      cerr << "args in     = " << args_in << endl;
+    }
     // Apply a correction
     Document *doc = this->doc();
     Correction *corr = 0;
@@ -4234,9 +4230,9 @@ namespace folia {
       args2.add("xml:id",id);
       corr = new Correction( args2, doc );
     }
-#ifdef DEBUG_CORRECT
-    cerr << "now corr= " << corr << endl;
-#endif
+    if ( corr_debug ){
+      cerr << "now corr= " << corr << endl;
+    }
     if ( !_current.empty() ) {
       if ( !original.empty() || !_new.empty() ) {
 	throw runtime_error("When setting current=, original= and new= can not be set!");
@@ -4255,14 +4251,14 @@ namespace folia {
 	  }
 	}
       }
-#ifdef DEBUG_CORRECT
-      cerr << "now corr= " << corr << endl;
-#endif
+      if ( corr_debug ){
+	cerr << "now corr= " << corr << endl;
+      }
     }
     if ( !_new.empty() ) {
-#ifdef DEBUG_CORRECT
-      cerr << "there is new! " << endl;
-#endif
+      if ( corr_debug ){
+	cerr << "there is new! " << endl;
+      }
       vector<New*> old_new = corr->select<New>();
       if ( !old_new.empty() && old_new[0]->size() == 0 ){
 	// there is an EMPTY <new> tag!
@@ -4278,17 +4274,17 @@ namespace folia {
 	nw->set_parent(0);
 	addnew->append( nw );
       }
-#ifdef DEBUG_CORRECT
-      cerr << "after adding NEW: " << corr->xmlstring() << endl;
-#endif
+      if ( corr_debug ){
+	cerr << "after adding NEW: " << corr->xmlstring() << endl;
+      }
       vector<Current*> v = corr->select<Current>();
       //delete current if present
       for ( const auto& cur:v ) {
 	corr->remove( cur );
       }
-#ifdef DEBUG_CORRECT
-      cerr << "after removing CUR: " << corr->xmlstring() << endl;
-#endif
+      if ( corr_debug ){
+	cerr << "after removing CUR: " << corr->xmlstring() << endl;
+      }
     }
     else if ( !original.empty() ){
       vector<New*> old_new = corr->select<New>();
@@ -4302,55 +4298,56 @@ namespace folia {
       }
     }
     if ( !original.empty() ) {
-#ifdef DEBUG_CORRECT
-      cerr << "there is original! " << endl;
-#endif
+      if ( corr_debug ){
+	cerr << "there is original! " << endl;
+      }
       FoliaElement *add = new Original( doc );
       corr->replace(add);
-#ifdef DEBUG_CORRECT
-      cerr << " corr after replacing original " << corr->xmlstring() << endl;
-      cerr << " new original= " << add << endl;
-#endif
+      if ( corr_debug ){
+	cerr << " corr after replacing original " << corr->xmlstring() << endl;
+	cerr << " new original= " << add << endl;
+      }
       for ( const auto& org: original ) {
-#ifdef DEBUG_CORRECT
-	cerr << " examine org " << org << endl;
-#endif
+	if ( corr_debug ){
+	  cerr << " examine org " << org << endl;
+	}
 	bool dummyNode = ( org->id() == "dummy" );
 	if ( !dummyNode ) {
 	  org->set_parent(0);
 	  add->append( org );
 	}
-#ifdef DEBUG_CORRECT
-	cerr << " NOW original= " << add << endl;
-#endif
+	if ( corr_debug ){
+	  cerr << " NOW original= " << add << endl;
+	}
 	for ( size_t i=0; i < size(); ++i ) {
-#ifdef DEBUG_CORRECT
-	  cerr << "in loop, bekijk " << index(i) << endl;
-#endif
+	  if ( corr_debug ){
+	    cerr << "in loop, bekijk " << index(i) << endl;
+	  }
 	  if ( index(i) == org ) {
-#ifdef DEBUG_CORRECT
-	    cerr << "OK hit on ORG :" << org << endl;
-#endif
+	    if ( corr_debug ){
+	      cerr << "OK hit on ORG :" << org << endl;
+	    }
 	    if ( !hooked ) {
-#ifdef DEBUG_CORRECT
-	      cerr << "it isn't hooked!" << endl;
-	      const FoliaElement *tmp = replace( index(i), corr );
-	      cerr << " corr after replace " << corr->xmlstring() << endl;
-	      cerr << " replaced " << tmp << endl;
-#else
-	      replace( index(i), corr );
-#endif
+	      if ( corr_debug ){
+		cerr << "it isn't hooked!" << endl;
+		const FoliaElement *tmp = replace( index(i), corr );
+		cerr << " corr after replace " << corr->xmlstring() << endl;
+		cerr << " replaced " << tmp << endl;
+	      }
+	      else {
+		replace( index(i), corr );
+	      }
 	      hooked = true;
 	    }
 	    else {
-#ifdef DEBUG_CORRECT
-	      cerr << " corr before remove " << corr << endl;
-	      cerr << " remove  " << org << endl;
-#endif
+	      if ( corr_debug ){
+		cerr << " corr before remove " << corr << endl;
+		cerr << " remove  " << org << endl;
+	      }
 	      this->remove( org );
-#ifdef DEBUG_CORRECT
-	      cerr << " corr after remove " << corr << endl;
-#endif
+	      if ( corr_debug ){
+		cerr << " corr after remove " << corr << endl;
+	      }
 	    }
 	  }
 	}
@@ -4362,14 +4359,14 @@ namespace folia {
     else if ( addnew ) {
       // original not specified, find automagically:
       vector<FoliaElement *> orig;
-#ifdef DEBUG_CORRECT
-      cerr << "start to look for original " << endl;
-#endif
+      if ( corr_debug ){
+	cerr << "start to look for original " << endl;
+      }
       for ( size_t i=0; i < len(addnew); ++ i ) {
 	const FoliaElement *p = addnew->index(i);
-#ifdef DEBUG_CORRECT
-	cerr << "bekijk " << p << endl;
-#endif
+	if ( corr_debug ){
+	  cerr << "bekijk " << p << endl;
+	}
 	vector<FoliaElement*> v = p->find_replacables( this );
 	// for ( const auto& el: v ) {
 	//   orig.push_back( el );
@@ -4380,83 +4377,83 @@ namespace folia {
 	throw runtime_error( "No original= specified and unable to automatically infer");
       }
       else {
-#ifdef DEBUG_CORRECT
-	cerr << "we seem to have some originals! " << endl;
-#endif
+	if ( corr_debug ){
+	  cerr << "we seem to have some originals! " << endl;
+	}
 	FoliaElement *add = new Original( doc );
-#ifdef DEBUG_CORRECT
-	cerr << "corr before adding new original! " << corr << endl;
-#endif
+	if ( corr_debug ){
+	  cerr << "corr before adding new original! " << corr << endl;
+	}
 	corr->replace(add);
-#ifdef DEBUG_CORRECT
-	cerr << "corr after adding new original! " << corr << endl;
-	cerr << "now parent = " << add->parent() << endl;
-#endif
+	if ( corr_debug ){
+	  cerr << "corr after adding new original! " << corr << endl;
+	  cerr << "now parent = " << add->parent() << endl;
+	}
 
 	for ( const auto& org: orig ) {
-#ifdef DEBUG_CORRECT
-	  cerr << " examine original : " << org << endl;
-	  cerr << "with parent = " << org->parent() << endl;
-#endif
+	  if ( corr_debug ){
+	    cerr << " examine original : " << org << endl;
+	    cerr << "with parent = " << org->parent() << endl;
+	  }
 	  // first we lookup org in our data and remove it there
 	  for ( size_t i=0; i < size(); ++i ) {
-#ifdef DEBUG_CORRECT
-	    cerr << "in loop, bekijk " << index(i) << endl;
-#endif
+	    if ( corr_debug ){
+	      cerr << "in loop, bekijk " << index(i) << endl;
+	    }
 	    if ( index(i) == org ) {
-#ifdef DEBUG_CORRECT
-	      cerr << "found original " << endl;
-#endif
+	      if ( corr_debug ){
+		cerr << "found original " << endl;
+	      }
 	      if ( !hooked ) {
-#ifdef DEBUG_CORRECT
-		cerr << "it isn't hooked!" << endl;
-		const FoliaElement *tmp = replace( index(i), corr );
-		cerr << " corr after replace " << corr << endl;
-		cerr << " replaced " << tmp << endl;
-#else
-		replace( index(i), corr );
-#endif
-
+		if ( corr_debug ){
+		  cerr << "it isn't hooked!" << endl;
+		  const FoliaElement *tmp = replace( index(i), corr );
+		  cerr << " corr after replace " << corr << endl;
+		  cerr << " replaced " << tmp << endl;
+		}
+		else {
+		  replace( index(i), corr );
+		}
 		hooked = true;
 	      }
 	      else {
-#ifdef DEBUG_CORRECT
-		cerr << " corr before remove " << corr << endl;
-		cerr << " remove  " << org << endl;
-#endif
+		if ( corr_debug ){
+		  cerr << " corr before remove " << corr << endl;
+		  cerr << " remove  " << org << endl;
+		}
 		this->remove( org );
-#ifdef DEBUG_CORRECT
-		cerr << " corr after remove " << corr << endl;
-#endif
+		if ( corr_debug ){
+		  cerr << " corr after remove " << corr << endl;
+		}
 	      }
 	    }
 	  }
 	  // now we connect org to the new original node
 	  org->set_parent( 0 );
 	  add->append( org );
-#ifdef DEBUG_CORRECT
-	  cerr << " add after append : " << add << endl;
-	  cerr << "parent = " << org->parent() << endl;
-#endif
+	  if ( corr_debug ){
+	    cerr << " add after append : " << add << endl;
+	    cerr << "parent = " << org->parent() << endl;
+	  }
 	}
 	vector<Current*> v = corr->select<Current>();
 	//delete current if present
 	for ( const auto& cur: v ) {
-#ifdef DEBUG_CORRECT
-	  cerr << " remove cur=" << cur << endl;
-#endif
+	  if ( corr_debug ){
+	    cerr << " remove cur=" << cur << endl;
+	  }
 	  this->remove( cur );
 	}
       }
     }
-#ifdef DEBUG_CORRECT
-    cerr << " corr after edits " << corr->xmlstring() << endl;
-#endif
+    if ( corr_debug ){
+      cerr << " corr after edits " << corr->xmlstring() << endl;
+    }
     if ( addnew ) {
       for ( const auto& org : original ) {
-#ifdef DEBUG_CORRECT
-	cerr << " remove  " << org << endl;
-#endif
+	if ( corr_debug ){
+	  cerr << " remove  " << org << endl;
+	}
 	bool dummyNode = ( org->id() == "dummy" );
 	corr->remove( org );
 	if ( dummyNode ){
@@ -4464,9 +4461,9 @@ namespace folia {
 	}
       }
     }
-#ifdef DEBUG_CORRECT
-    cerr << " corr after removes " << corr->xmlstring() << endl;
-#endif
+    if ( corr_debug ){
+      cerr << " corr after removes " << corr->xmlstring() << endl;
+    }
     if ( !suggestions.empty() ) {
       if ( !hooked ) {
 	append(corr);

@@ -418,47 +418,44 @@ namespace folia {
 
   void addAttributes( xmlNode *node,
 		      const KWargs& atts,
-		      bool debug ){
+		      bool att_dbg ){
     /// add all attributes from 'atts' as attribute nodes to 'node`
     /*!
       \param _node The xmlNode to add to
       \param atts The list of attribute/value pairs
-      \param debug do we want to debug? (default false)
+      \param att_dbg do we want to debug? (default false)
       some special care is taken for attributes 'xml:id', 'id' and 'lang'
     */
     KWargs attribs = atts;
-    auto it = attribs.find("xml:id");
-    if ( it != attribs.end() ){ // xml:id is special
-      if ( debug ){
-	cerr << "set xml:id " << it->second << endl;
+    string xid = attribs.extract("xml:id");
+    if ( !xid.empty() ){ // xml:id is special
+      if ( att_dbg ){
+	cerr << "set xml:id " << xid << endl;
       }
       xmlSetProp( node,
 		  XML_XML_ID,
-		  to_xmlChar(it->second) );
-      attribs.erase(it);
+		  to_xmlChar(xid) );
     }
-    it = attribs.find("lang");
-    if ( it != attribs.end() ){ // lang is special too
-      if ( debug ){
-	cerr << "set lang " << it->second << endl;
+    string lang = attribs.extract("lang");
+    if ( !lang.empty() ){ // lang is special too
+      if ( att_dbg ){
+	cerr << "set lang " << lang << endl;
       }
       xmlNodeSetLang( node,
-		      to_xmlChar(it->second) );
-      attribs.erase(it);
+		      to_xmlChar(lang) );
     }
-    it = attribs.find("id");
-    if ( it != attribs.end() ){
-      if ( debug ){
-	cerr << "set id " << it->second << endl;
+    string id = attribs.extract("id");
+    if ( !id.empty() ){
+      if ( att_dbg ){
+	cerr << "set id " << id << endl;
       }
       xmlSetProp( node,
 		  to_xmlChar("id"),
-		  to_xmlChar(it->second) );
-      attribs.erase(it);
+		  to_xmlChar(id) );
     }
     // and now the rest
     for ( const auto& [at,val] : attribs ){
-      if ( debug ){
+      if ( att_dbg ){
 	cerr << "add attribute: [" << at << "," << val << "]" << endl;
 	cerr << "AT=" << to_xmlChar(at) << endl;
 	cerr << "VAL=" << to_xmlChar(val) << endl;

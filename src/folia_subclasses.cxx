@@ -1886,8 +1886,6 @@ namespace folia {
     return result;
   }
 
-  //#define DEBUG_TEXT_CORRECTION
-
   const UnicodeString Correction::private_text( const TextPolicy& tp ) const {
     /// get the UnicodeString value of an Correction
     /*!
@@ -1899,6 +1897,10 @@ namespace folia {
       cerr << "PRIVATE_TEXT(" << tp.get_class() << ") on CORRECTION"
 	   << " id=" << id() << endl;
       cerr << "TextPolicy: " << tp << endl;
+    }
+    bool corr_dbg = false;
+    if ( doc() ){
+      corr_dbg = (doc()->debug == Document::CORRECTION);
     }
     //
     // we cannot use text_content() on New, Original or Current,
@@ -1915,9 +1917,9 @@ namespace folia {
     if ( ch == CORRECTION_HANDLING::CURRENT
 	 || ch == CORRECTION_HANDLING::EITHER ){
       for ( const auto& el : data() ) {
-#ifdef DEBUG_TEXT_CORRECTION
-	cerr << "data=" << el << endl;
-#endif
+	if ( corr_dbg ){
+	  cerr << "data=" << el << endl;
+	}
 	if ( el->isinstance( New_t ) ){
 	  if ( el->size() == 0 ){
 	    deletion = true;
@@ -1925,9 +1927,9 @@ namespace folia {
 	  else {
 	    try {
 	      new_result = el->private_text( tp );
-#ifdef DEBUG_TEXT_CORRECTION
-	      cerr << "New ==> '" << new_result << "'" << endl;
-#endif
+	      if ( corr_dbg ){
+		cerr << "New ==> '" << new_result << "'" << endl;
+	      }
 	    }
 	    catch ( ... ){
 	      // try other nodes
@@ -1938,9 +1940,9 @@ namespace folia {
 	  if ( el->isinstance( Current_t ) ){
 	    try {
 	      cur_result = el->private_text( tp );
-#ifdef DEBUG_TEXT_CORRECTION
-	      cerr << "Current ==> '" << cur_result << "'" << endl;
-#endif
+	      if ( corr_dbg ){
+		cerr << "Current ==> '" << cur_result << "'" << endl;
+	      }
 	    }
 	    catch ( ... ){
 	      // try other nodes
@@ -1951,9 +1953,9 @@ namespace folia {
 	    if ( el->isinstance( Original_t ) ){
 	      try {
 		org_result = el->private_text( tp );
-#ifdef DEBUG_TEXT_CORRECTION
-		cerr << "Original ==> '" << org_result << "'" << endl;
-#endif
+		if ( corr_dbg ){
+		  cerr << "Original ==> '" << org_result << "'" << endl;
+		}
 	      }
 	      catch ( ... ){
 		// try other nodes
@@ -1965,15 +1967,15 @@ namespace folia {
     }
     else if ( ch == CORRECTION_HANDLING::ORIGINAL ){
       for ( const auto& el : data() ) {
-#ifdef DEBUG_TEXT_CORRECTION
-      cerr << "data=" << el << endl;
-#endif
-      if ( el->isinstance( Original_t ) ){
+	if ( corr_dbg ){
+	  cerr << "data=" << el << endl;
+	}
+	if ( el->isinstance( Original_t ) ){
 	  try {
 	    org_result = el->private_text( tp );
-#ifdef DEBUG_TEXT_CORRECTION
-	    cerr << "Orig ==> '" << org_result << "'" << endl;
-#endif
+	    if ( corr_dbg ){
+	      cerr << "Orig ==> '" << org_result << "'" << endl;
+	    }
 	  }
 	  catch ( ... ){
 	    // try other nodes
@@ -1984,29 +1986,29 @@ namespace folia {
     UnicodeString final_result;
     if ( !deletion ){
       if ( !new_result.isEmpty() ){
-#ifdef DEBUG_TEXT_CORRECTION
-	cerr << "return new text '" << new_result << "'" << endl;
-#endif
+	if ( corr_dbg ){
+	  cerr << "return new text '" << new_result << "'" << endl;
+	}
 	final_result = new_result;
       }
       else if ( !cur_result.isEmpty() ){
-#ifdef DEBUG_TEXT_CORRECTION
-	cerr << "return cur text '" << cur_result << "'" << endl;
-#endif
+	if ( corr_dbg ){
+	  cerr << "return cur text '" << cur_result << "'" << endl;
+	}
 	final_result = cur_result;
       }
       else if ( !org_result.isEmpty() ){
-#ifdef DEBUG_TEXT_CORRECTION
-	cerr << "return ori text '" << org_result << "'" << endl;
-#endif
+	if ( corr_dbg ){
+	  cerr << "return ori text '" << org_result << "'" << endl;
+	}
 	final_result = org_result;
       }
     }
     else {
       if ( !cur_result.isEmpty() ){
-#ifdef DEBUG_TEXT_CORRECTION
-	cerr << "Deletion: return cur text '" << cur_result << "'" << endl;
-#endif
+	if ( corr_dbg ){
+	  cerr << "Deletion: return cur text '" << cur_result << "'" << endl;
+	}
 	final_result = cur_result;
       }
     }
@@ -2019,7 +2021,6 @@ namespace folia {
     }
     return final_result;
   }
-#undef DEBUG_TEXT_CORRECTION
 
   const string& Correction::get_delimiter( const TextPolicy& tp ) const {
     /// get the default delimiter of a Correction
@@ -3152,9 +3153,9 @@ namespace folia {
      * \return the Unicode String representation found.
      * when no text can be found, a SPACE is returned
      */
-    bool my_debug = tp.debug();
-    //    my_debug = true;
-    if ( my_debug ){
+    bool my_dbg = tp.debug();
+    //    my_dbg = true;
+    if ( my_dbg ){
       cerr << "Row private text, tp=" << tp << endl;
     }
     UnicodeString result;
@@ -3166,7 +3167,7 @@ namespace folia {
       catch ( ... ){
       }
       if ( !part.isEmpty() ){
-	if ( my_debug ){
+	if ( my_dbg ){
 	  cerr << "d=" << d->xmltag() << " has some text part:" << part << endl;
 	}
 	if ( !result.isEmpty() ){
@@ -3180,7 +3181,7 @@ namespace folia {
       result = " "; // this will trigger appending of
                     // the delimitter one level above
     }
-    if ( my_debug ){
+    if ( my_dbg ){
       cerr << "Row private text, returns '" << result << "'" << endl;
     }
     return result;
@@ -3194,9 +3195,9 @@ namespace folia {
      * \return the Unicode String representation found.
      * when no text can be found, a SPACE is returned
      */
-    bool my_debug = tp.debug();
-    //    my_debug = true;
-    if ( my_debug ){
+    bool my_dbg = tp.debug();
+    //    my_dbg = true;
+    if ( my_dbg ){
       cerr << "Cell private text, tp=" << tp << endl;
     }
     UnicodeString result;
@@ -3204,7 +3205,7 @@ namespace folia {
       // check for direct text, then we are almost done
       const TextContent *tc = text_content( tp.get_class() );
       result = tc->text( tp );
-      if ( my_debug ){
+      if ( my_dbg ){
 	cerr << "the Cell has it's own text part:" << result << endl;
       }
     }
@@ -3218,7 +3219,7 @@ namespace folia {
 	catch ( ... ){
 	}
 	if ( !part.isEmpty() ){
-	  if ( my_debug ){
+	  if ( my_dbg ){
 	    cerr << "d=" << d->xmltag() << " has some text part:" << part << endl;
 	  }
 	  if ( !result.isEmpty() ){
@@ -3232,7 +3233,7 @@ namespace folia {
 	              // the delimitter one level above
       }
     }
-    if ( my_debug ){
+    if ( my_dbg ){
       cerr << "Cell private text, returns '" << result << "'" << endl;
     }
     return result;

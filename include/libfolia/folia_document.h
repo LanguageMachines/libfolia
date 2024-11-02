@@ -101,14 +101,17 @@ namespace folia {
 
   public:
     enum DebugMode {
-      NODEBUG=0,       //!< nodebug.
-      PARSING=1,       //!< debug parsing
-      DECLARATIONS=2,  //!< debug declarations
-      ANNOTATIONS=4,   //!< debug annotations
-      TEXTHANDLING=8,  //!< debug text handling
-      PROVENANCE=16,   //!< debug provenance
-      ATTRIBUTES=32,   //!< debug Attribute operations
-      SERIALIZE=64     //!< debug output generator
+      NODEBUG=0,            //!< nodebug.
+      PARSING=1,            //!< debug parsing
+      DECLARATIONS=2,       //!< debug declarations
+      ANNOTATIONS=4,        //!< debug annotations
+      TEXTHANDLING=8,       //!< debug text handling
+      PROVENANCE=16,        //!< debug provenance
+      ATTRIBUTES=32,        //!< debug Attribute operations
+      SERIALIZE=64,         //!< debug output generator
+      CORRECTION=128,       //!< debug corrections
+      MEMORY=256,           //!< debug memory
+      TEXT_CONSISTENCY=512  //!< debug memory
     };
 
     Document();
@@ -272,7 +275,7 @@ namespace folia {
       _externals.push_back( p );
     };
     void resolveExternals();
-    int debug; //!< the debug level. 0 means NO debugging.
+    DebugMode debug; //!< the debug level. 0 means NO debugging.
 
     /// is the PERMISSIVE mode set?
     bool permissive() const { return mode & PERMISSIVE; };
@@ -324,7 +327,7 @@ namespace folia {
     void decrRef( AnnotationType, const std::string& );
     void setmode( const std::string& ) const;
     std::string getmode() const;
-    int setdebug( int val ){
+    int setdebug( DebugMode val ){
       /// set the debug level
       /*!
 	\param val the new debug value

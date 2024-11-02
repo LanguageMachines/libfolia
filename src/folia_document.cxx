@@ -99,7 +99,7 @@ namespace folia {
     KWargs args = kwargs;
     string value = args.extract( "debug" );
     if ( !value.empty() ){
-      debug = TiCC::stringTo<int>( value );
+      debug = DebugMode(TiCC::stringTo<int>( value ));
     }
     value = args.extract( "mode" );
     if ( !value.empty() ){
@@ -207,7 +207,7 @@ namespace folia {
     _foliaNsIn_href = 0;
     _foliaNsIn_prefix = 0;
     _foliaNsOut = 0;
-    debug = 0;
+    debug = NODEBUG;
     mode = Mode( CHECKTEXT|AUTODECLARE );
     _external_document = false;
     _incremental_parse = false;
