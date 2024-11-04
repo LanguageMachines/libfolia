@@ -3744,7 +3744,7 @@ namespace folia {
       string ns = getNS( p, pref );
       if ( !ns.empty() && ns != NSFOLIA ){
 	// skip alien nodes
-	if ( doc() && doc()->debug > 2 ) {
+	if ( doc() && doc()->debug == Document::PARSING ) {
 	  cerr << "skipping non-FoLiA node: " << pref << ":" << Name(p) << endl;
 	}
 	p = p->next;

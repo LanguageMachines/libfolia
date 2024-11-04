@@ -327,13 +327,13 @@ namespace folia {
     void decrRef( AnnotationType, const std::string& );
     void setmode( const std::string& ) const;
     std::string getmode() const;
-    int setdebug( DebugMode val ){
+    DebugMode setdebug( DebugMode val ){
       /// set the debug level
       /*!
 	\param val the new debug value
 	\return the old debug value
       */
-      int ret=debug; debug=val; return ret;
+      DebugMode ret=debug; debug=val; return ret;
     };
     std::multimap<AnnotationType,std::string> unused_declarations( ) const;
     const MetaData *get_submetadata( const std::string& m ){
