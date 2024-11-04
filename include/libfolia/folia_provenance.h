@@ -153,7 +153,7 @@ namespace folia {
     explicit Provenance( Document *doc ):
       _doc(doc),
       _first_proc(0),
-      _debug(doc->debug==Document::PROVENANCE)
+      _debug(doc->debug==DocDbg::PROVENANCE)
     {};
     ~Provenance();
     void parse_processor( const xmlNode *, processor * =0 );

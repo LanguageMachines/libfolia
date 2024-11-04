@@ -100,7 +100,7 @@ namespace folia {
     };
 
   public:
-    enum DebugMode {
+    enum class DebugMode {
       NODEBUG=0,            //!< nodebug.
       PARSING=1,            //!< debug parsing
       DECLARATIONS=2,       //!< debug declarations
@@ -541,6 +541,7 @@ namespace folia {
 
   std::string library_version();
   std::string folia_version();
+  using DocDbg = Document::DebugMode;
 
 } // namespace folia
 

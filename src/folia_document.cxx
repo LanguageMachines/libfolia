@@ -207,7 +207,7 @@ namespace folia {
     _foliaNsIn_href = 0;
     _foliaNsIn_prefix = 0;
     _foliaNsOut = 0;
-    debug = NODEBUG;
+    debug = DebugMode::NODEBUG;
     mode = Mode( CHECKTEXT|AUTODECLARE );
     _external_document = false;
     _incremental_parse = false;
@@ -596,7 +596,7 @@ namespace folia {
       if ( cnt > 0 ){
 	throw DocumentError( file_name, "document is invalid" );
       }
-      if ( debug == Document::PARSING ){
+      if ( debug == DebugMode::PARSING ){
 	cout << "read a doc from " << file_name << endl;
       }
       foliadoc = parseXml();
@@ -604,7 +604,7 @@ namespace folia {
 	// cannot happen. validate_offsets() throws on error
 	throw InconsistentText("MEH");
       }
-      if ( debug == Document::PARSING ){
+      if ( debug == DebugMode::PARSING ){
 	if ( foliadoc ){
 	  cout << "successful parsed the doc from: " << file_name << endl;
 	}
@@ -616,7 +616,7 @@ namespace folia {
       _xmldoc = 0;
       return foliadoc != 0;
     }
-    if ( debug == Document::PARSING ){
+    if ( debug == DebugMode::PARSING ){
       cout << "Failed to read a doc from " << file_name << endl;
     }
     throw DocumentError( file_name, "No valid FoLiA read" );
@@ -640,7 +640,7 @@ namespace folia {
       if ( cnt > 0 ){
 	throw DocumentError( _source_name, "document is invalid" );
       }
-      if ( debug == Document::PARSING ){
+      if ( debug == DebugMode::PARSING ){
 	cout << "read a doc from string" << endl;
       }
       foliadoc = parseXml();
@@ -648,7 +648,7 @@ namespace folia {
 	// cannot happen. validate_offsets() throws on error
 	throw InconsistentText("MEH");
       }
-      if ( debug == Document::PARSING ){
+      if ( debug == DebugMode::PARSING ){
 	if ( foliadoc ){
 	  cout << "successful parsed the doc" << endl;
 	}
@@ -660,7 +660,7 @@ namespace folia {
       _xmldoc = 0;
       return foliadoc != 0;
     }
-    if ( debug == Document::PARSING ){
+    if ( debug == DebugMode::PARSING ){
       throw runtime_error( "Failed to read a doc from a string" );
     }
     return false;
@@ -1073,7 +1073,7 @@ namespace folia {
 
       May create a new Provenance structure if not yet available.
     */
-    if ( debug == Document::PROVENANCE ){
+    if ( debug == DebugMode::PROVENANCE ){
       cerr << "ADD_PROCESSOR: " << args << endl;
     }
     if ( !parent
@@ -1161,7 +1161,7 @@ namespace folia {
 
       The data found will be appended to the Document
     */
-    if ( debug == Document::PARSING ){
+    if ( debug == DebugMode::PARSING ){
       cerr << "parse annotations " << TiCC::Name(node) << endl;
     }
     xmlNode *n = node->children;
@@ -1172,7 +1172,7 @@ namespace folia {
 	   && tag.substr( tag.length() - 11 ) == "-annotation" ){
 	string prefix = tag.substr( 0,  tag.length() - 11 );
 	AnnotationType at_type = TiCC::stringTo<AnnotationType>( prefix );
-	if ( debug == Document::PARSING ){
+	if ( debug == DebugMode::PARSING ){
 	  cerr << "parse " << prefix << "-annotation" << endl;
 	}
 	KWargs atts = getAttributes( n );
@@ -1189,13 +1189,13 @@ namespace folia {
 	    set_name = "undefined"; // default value
 	  }
 	  else if ( at_type == AnnotationType::TEXT ){
-	    if ( debug == Document::ANNOTATIONS ){
+	    if ( debug == DebugMode::ANNOTATIONS ){
 	      cerr << "assign default for TEXT: " <<  DEFAULT_TEXT_SET << endl;
 	    }
 	    set_name = DEFAULT_TEXT_SET;
 	  }
 	  else if ( at_type == AnnotationType::PHON ){
-	    if ( debug == Document::ANNOTATIONS ){
+	    if ( debug == DebugMode::ANNOTATIONS ){
 	      cerr << "assign default for PHON: " <<  DEFAULT_PHON_SET << endl;
 	    }
 	    set_name = DEFAULT_PHON_SET;
@@ -1250,7 +1250,7 @@ namespace folia {
 	const xmlNode *sub = n->children;
 	while ( sub ){
 	  string subtag = TiCC::Name( sub );
-	  if ( debug == Document::PARSING ){
+	  if ( debug == DebugMode::PARSING ){
 	    cerr << "parse subtag:" << subtag << endl;
 	  }
 	  if ( subtag == "annotator" ){
@@ -1290,7 +1290,7 @@ namespace folia {
       }
       n = n->next;
     }
-    if ( debug == Document::ANNOTATIONS ){
+    if ( debug == DebugMode::ANNOTATIONS ){
       cerr << "all group annotations: " << _groupannotations << endl;
       cerr << "done with parse_annotation: " << _annotationdefaults << endl;
       cerr << "sorting: " << _anno_sort << endl;
@@ -1645,12 +1645,12 @@ namespace folia {
     */
     KWargs atts = getAttributes( node );
     string type = TiCC::lowercase(atts["type"]);
-    if ( debug == PARSING ){
+    if ( debug == DebugMode::PARSING ){
       cerr << "metadata type='" << type << "'" << endl;
     }
     if ( type.empty() ){
       type = "native";
-      if ( debug == PARSING ){
+      if ( debug == DebugMode::PARSING ){
 	cerr << "metadata type FORCED to'" << type << "'" << endl;
       }
     }
@@ -1671,7 +1671,7 @@ namespace folia {
 	if ( !checkNS( m, NSIMDI ) || type != "imdi" ){
 	  throw runtime_error( "imdi != imdi " );
 	}
-	if ( debug == Document::PARSING ){
+	if ( debug == DebugMode::PARSING ){
 	  cerr << "found IMDI" << endl;
 	}
 	if ( !_foreign_metadata ){
@@ -1681,7 +1681,7 @@ namespace folia {
       }
       else if ( TiCC::Name( m ) == "annotations" &&
 		checkNS( m, NSFOLIA ) ){
-	if ( debug == PARSING ){
+	if ( debug == DebugMode::PARSING ){
 	  cerr << "found annotations" << endl;
 	}
 	// defer parsing until AFTER provenance data
@@ -1689,7 +1689,7 @@ namespace folia {
       }
       else if ( TiCC::Name( m ) == "provenance" &&
 		checkNS( m, NSFOLIA ) ){
-	if ( debug == PARSING ){
+	if ( debug == DebugMode::PARSING ){
 	  cerr << "found provenance data" << endl;
 	}
 	parse_provenance( m );
@@ -1697,7 +1697,7 @@ namespace folia {
       }
       else if ( TiCC::Name( m ) == "meta" &&
 		checkNS( m, NSFOLIA ) ){
-	if ( debug == PARSING ){
+	if ( debug == DebugMode::PARSING ){
 	  cerr << "found meta node:" << getAttributes(m) << endl;
 	}
 	if ( !_metadata ){
@@ -1816,12 +1816,12 @@ namespace folia {
 	string xml_tag = "_XmlComment";
 	FoliaElement *t = AbstractElement::createElement( xml_tag, this );
 	if ( t ) {
-	  if ( debug == PARSING ) {
+	  if ( debug == DebugMode::PARSING ) {
 	    cerr << "created " << t << endl;
 	  }
 	  t = t->parseXml( pnt );
 	  if ( t ) {
-	    if ( debug == PARSING ) {
+	    if ( debug == DebugMode::PARSING ) {
 	      cerr << "extend " << this << " met " << t << endl;
 	    }
 	    preludes.push_back(t);
@@ -1964,7 +1964,7 @@ namespace folia {
       }
       _foliaNsIn_href = xmlStrdup( root->ns->href );
     }
-    if ( debug == PARSING ){
+    if ( debug == DebugMode::PARSING ){
       string dum;
       cerr << "root = " << TiCC::Name( root ) << endl;
       cerr << "in namespace " << TiCC::getNS( root, dum ) << endl;
@@ -2073,7 +2073,7 @@ namespace folia {
       \param _args an attribute-value list with additional parameters
     */
     KWargs args = _args;
-    if ( debug == Document::DECLARATIONS ){
+    if ( debug == DebugMode::DECLARATIONS ){
       cerr << "declare( " << folia::toString(type) << "," << setname << ", ["
 	   << args << "] )" << endl;
     }
@@ -2250,7 +2250,7 @@ namespace folia {
       \param _processors a set of processor id's to relate to this declaration
       \param _alias an alias value for the setname
     */
-    if ( debug == Document::DECLARATIONS ){
+    if ( debug == DebugMode::DECLARATIONS ){
       cerr << "internal_declare( " << folia::toString(type) << "," << setname
 	   << ", format=" << format << "," << annotator << ","
 	   << annotator_type << "," << date_time << "," << _alias << ","
@@ -2296,13 +2296,13 @@ namespace folia {
     annotation_info *current = lookup_default( type, setname );
     if ( current != 0 ){
       // there is already a fitting declaration, enrich it.
-      if ( debug == Document::DECLARATIONS ){
+      if ( debug == DebugMode::DECLARATIONS ){
 	cerr << "a declaration exists for: " << type << ":" << setname << endl;
 	cerr << "value: " << current << endl;
       }
       if ( !procs.empty() ){
 	// add the extra processor id's to the set of processsor ID's
-	if ( debug == Document::DECLARATIONS ){
+	if ( debug == DebugMode::DECLARATIONS ){
 	  cerr << "add extra procs: " << procs << endl;
 	}
 	for ( const auto& p : procs ){
@@ -2316,17 +2316,17 @@ namespace folia {
 	  date = get_ISO_date();
 	}
 	*current = annotation_info(annotator,anno_type,date,format,procs);
-	if ( debug == Document::DECLARATIONS ){
+	if ( debug == DebugMode::DECLARATIONS ){
 	  cerr << "overwrite with " << current << endl;
 	}
       }
-      if ( debug == Document::DECLARATIONS ){
+      if ( debug == DebugMode::DECLARATIONS ){
 	cerr << "NOW: " << current << endl;
       }
     }
     else {
       // No declaration yet, create one
-      if ( debug == Document::DECLARATIONS ){
+      if ( debug == DebugMode::DECLARATIONS ){
 	cerr << "NO declaration exists for: " << type << ":" << setname << endl;
       }
       string date = date_time;
@@ -2335,7 +2335,7 @@ namespace folia {
       }
       annotation_info new_a(annotator,anno_type,date,format,procs);
       _annotationdefaults[type].insert( make_pair( setname, new_a ) );
-      if ( debug == Document::DECLARATIONS ){
+      if ( debug == DebugMode::DECLARATIONS ){
 	cerr << "ADD to sort: " << folia::toString(type) << " ("
 	     << setname << ")"  << endl;
       }
@@ -2362,7 +2362,7 @@ namespace folia {
       When \em set_name is "", ALL declarations of \em type are deleted
      */
     string setname = unalias(type,set_name);
-    if ( debug == Document::DECLARATIONS ){
+    if ( debug == DebugMode::DECLARATIONS ){
       cerr << "undeclare: " << folia::toString(type) << "(" << set_name << "."
 	   << setname << ")" << endl;
     }
@@ -2372,16 +2372,16 @@ namespace folia {
     }
     auto const adt = _annotationdefaults.find(type);
     if ( adt != _annotationdefaults.end() ){
-      if ( debug == Document::DECLARATIONS ){
+      if ( debug == DebugMode::DECLARATIONS ){
 	cerr << "matched type=" << folia::toString(type) << endl;
       }
       auto it = adt->second.begin();
       while ( it != adt->second.end() ){
-	if ( debug == Document::DECLARATIONS ){
+	if ( debug == DebugMode::DECLARATIONS ){
 	  cerr << "zoek set:" << setname << endl;
 	}
 	if ( setname.empty() || it->first == setname ){
-	  if ( debug == Document::DECLARATIONS ){
+	  if ( debug == DebugMode::DECLARATIONS ){
 	    cerr << "erase:" << setname << "==" << it->first << endl;
 	  }
 	  it = adt->second.erase(it);
@@ -2390,17 +2390,17 @@ namespace folia {
 	  ++it;
 	}
       }
-      if ( debug == Document::DECLARATIONS ){
+      if ( debug == DebugMode::DECLARATIONS ){
 	cerr << "ANNO-SORT: IN " << _anno_sort << endl;
       }
       auto it2 = _anno_sort.begin();
       while ( it2 != _anno_sort.end() ){
-	if ( debug == Document::DECLARATIONS ){
+	if ( debug == DebugMode::DECLARATIONS ){
 	  cerr << "zoek set:" << setname << endl;
 	}
 	if ( it2->first == type
 	     && ( setname.empty() || it2->second == setname ) ){
-	  if ( debug == Document::DECLARATIONS ){
+	  if ( debug == DebugMode::DECLARATIONS ){
 	    cerr << "_annosort:erase:" << setname << "==" << it->first << endl;
 	  }
 	  it2 = _anno_sort.erase( it2 );
@@ -2409,7 +2409,7 @@ namespace folia {
 	  ++it2;
 	}
       }
-      if ( debug == Document::DECLARATIONS ){
+      if ( debug == DebugMode::DECLARATIONS ){
 	cerr << "ANNO-SORT: UIT " << _anno_sort << endl;
       }
       auto it3 = _alias_set[type].begin();
@@ -2571,51 +2571,51 @@ namespace folia {
       exists
 
     */
-    if ( debug == Document::DECLARATIONS ){
+    if ( debug == DebugMode::DECLARATIONS ){
       cerr << "declared(" << folia::toString(type) << ",'"
 	   << set_name << "')" << endl;
     }
     if ( type == AnnotationType::NO_ANN ){
-      if ( debug == Document::DECLARATIONS ){
+      if ( debug == DebugMode::DECLARATIONS ){
 	cerr << "declared() always true for NO_ANN" << endl;
       }
       return true;
     }
-    if ( debug == Document::DECLARATIONS ){
+    if ( debug == DebugMode::DECLARATIONS ){
       cerr << "Doorzoek: " << _annotationdefaults << endl;
     }
     const auto& mit1 = _annotationdefaults.find(type);
     if ( mit1 != _annotationdefaults.end() ){
-      if ( debug == Document::DECLARATIONS ){
+      if ( debug == DebugMode::DECLARATIONS ){
 	cerr << "found some: " << mit1->second << endl;
       }
       if ( set_name.empty() ){
 	// 'wildcard' for setname
-	if ( debug == Document::DECLARATIONS ){
+	if ( debug == DebugMode::DECLARATIONS ){
 	  cerr << "declared() for empty setname return TRUE" << endl;
 	}
 	return true;
       }
       // set_name may be an alias, so resolve
       string s_name = unalias(type,set_name);
-      if ( debug == Document::DECLARATIONS ){
+      if ( debug == DebugMode::DECLARATIONS ){
 	cerr << "lookup: " << set_name << " (" << s_name << ")" << endl;
       }
       const auto& mit2 = mit1->second.find(s_name);
       if ( mit2 != mit1->second.end() ){
-	if ( debug == Document::DECLARATIONS ){
+	if ( debug == DebugMode::DECLARATIONS ){
 	  cerr << "declared() return TRUE" << endl;
 	}
 	return true;
       }
       else {
-	if ( debug  == Document::DECLARATIONS ){
+	if ( debug  == DebugMode::DECLARATIONS ){
 	  cerr << "return FALSE" << endl;
 	}
 	return false;
       }
     }
-    if ( debug == Document::DECLARATIONS ){
+    if ( debug == DebugMode::DECLARATIONS ){
       cerr << "return DIRECTLY FALSE" << endl;
     }
     return false;
@@ -2650,7 +2650,7 @@ namespace folia {
       return "";
     }
     // search a set. it must be unique. Otherwise return ""
-    if ( debug == Document::ANNOTATIONS ){
+    if ( debug == DebugMode::ANNOTATIONS ){
       cerr << "\nzoek voor '" << toString(type) << "' de default set in:\n"
 	   <<  _annotationdefaults << endl;
     }
@@ -2662,12 +2662,12 @@ namespace folia {
 	// so it is unique
 	result = mit1->second.begin()->first;
       }
-      else if ( debug == Document::ANNOTATIONS ){
+      else if ( debug == DebugMode::ANNOTATIONS ){
 	cerr << "setname is not unique " << endl;
       }
 
     }
-    if ( debug == Document::ANNOTATIONS ){
+    if ( debug == DebugMode::ANNOTATIONS ){
       cerr << "default_set ==> " << result << endl;
     }
     return result;
@@ -2703,7 +2703,7 @@ namespace folia {
       \return the annotator. May be empty ("") when there is none defined OR it
       is ambiguous.
     */
-    if ( debug == Document::ANNOTATIONS ){
+    if ( debug == DebugMode::ANNOTATIONS ){
       cerr << "annotationdefaults= " <<  _annotationdefaults << endl;
       cerr << "lookup: " << folia::toString(type) << endl;
     }
@@ -2746,7 +2746,7 @@ namespace folia {
       \return the processor. May be empty ("") when there is none defined OR it
       is ambiguous.
     */
-    if ( debug == Document::ANNOTATIONS ){
+    if ( debug == DebugMode::ANNOTATIONS ){
       cerr << "defaultprocessor(" << toString( type ) << ","
 	   << setname << ")" << endl;
     }
@@ -2836,7 +2836,7 @@ namespace folia {
       \return a list of processors.
     */
     vector<const processor*> result;
-    if ( debug  == Document::PROVENANCE ){
+    if ( debug  == DebugMode::PROVENANCE ){
       cerr << "getprocessors(" << toString( type ) << ","
 	   << setname << ")" << endl;
     }
@@ -2927,7 +2927,7 @@ namespace folia {
       \param metadata the parent to add to
       calls add_one_anno() for every annotation declaration.
     */
-    if ( debug == Document::ANNOTATIONS ){
+    if ( debug == DebugMode::ANNOTATIONS ){
       cerr << "start add_annotations: " << _annotationdefaults << endl;
       cerr << "sorting: " << _anno_sort << endl;
     }
@@ -3137,7 +3137,7 @@ namespace folia {
     /*!
       \param ns_label a namespace label to use. (default "")
     */
-    if ( debug == SERIALIZE ){
+    if ( debug == DebugMode::SERIALIZE ){
       cerr << "to_xmlDoc: start serializing" << endl;
     }
     xmlDoc *outDoc = xmlNewDoc( to_xmlChar("1.0") );
@@ -3151,7 +3151,7 @@ namespace folia {
 				   to_xmlChar("FoLiA"),
 				   0 );
     xmlDocSetRootElement( outDoc, root );
-    if ( debug == SERIALIZE ){
+    if ( debug == DebugMode::SERIALIZE ){
       cerr << "to_xmlDoc: created root" << endl;
     }
     xmlNs *xl = xmlNewNs( root,
@@ -3176,7 +3176,7 @@ namespace folia {
 			      _foliaNsIn_prefix );
     }
     xmlSetNs( root, _foliaNsOut );
-    if ( debug == SERIALIZE ){
+    if ( debug == DebugMode::SERIALIZE ){
       cerr << "to_xmlDoc: added namespaces" << endl;
     }
     KWargs attribs;
@@ -3191,23 +3191,23 @@ namespace folia {
     if ( _external_document ){
       attribs.add("external","yes");
     }
-    if ( debug == SERIALIZE ){
+    if ( debug == DebugMode::SERIALIZE ){
       cerr << "to_xmlDoc: add attributes to root: " << attribs << endl;
     }
-    addAttributes( root, attribs, debug == SERIALIZE );
+    addAttributes( root, attribs, debug == DebugMode::SERIALIZE );
     xmlNode *md = xmlAddChild( root, TiCC::XmlNewNode( foliaNs(), "metadata" ) );
     add_annotations( md );
     add_provenance( md );
     add_metadata( md );
 
-    if ( debug == SERIALIZE ){
+    if ( debug == DebugMode::SERIALIZE ){
       cerr << "to_xmlDoc: after add attributes" << endl;
     }
     for ( size_t i=0; i < foliadoc->size(); ++i ){
       const FoliaElement* el = foliadoc->index(i);
       xmlAddChild( root, el->xml( true, canonical() ) );
     }
-    if ( debug == SERIALIZE ){
+    if ( debug == DebugMode::SERIALIZE ){
       cerr << "to_xmlDoc: done" << endl;
     }
     return outDoc;
@@ -3220,7 +3220,7 @@ namespace folia {
     */
     string result;
     if ( foliadoc ){
-      if ( debug == SERIALIZE ){
+      if ( debug == DebugMode::SERIALIZE ){
 	cerr << "save document in a string" << endl;
       }
       xmlDoc *outDoc = to_xmlDoc( ns_label );
@@ -3235,7 +3235,7 @@ namespace folia {
     else {
       throw runtime_error( "can't save, no doc" );
     }
-    if ( debug == SERIALIZE ){
+    if ( debug == DebugMode::SERIALIZE ){
       cerr << "succesfully saved document in a string" << endl;
     }
     return result;
@@ -3251,12 +3251,12 @@ namespace folia {
       automaticly detects .gz and .bz2 filenames and will handle accordingly
     */
     if ( foliadoc ){
-      if ( debug == SERIALIZE ){
+      if ( debug == DebugMode::SERIALIZE ){
 	cerr << "save document in file '" << file_name << "'" << endl;
       }
       long int res = 0;
       if ( TiCC::match_back( file_name, ".bz2" ) ){
-	if ( debug == SERIALIZE ){
+	if ( debug == DebugMode::SERIALIZE ){
 	  cerr << "toXML(). Output type is .bz2" << endl;
 	}
 	string tmpname = file_name.substr( 0, file_name.length() - 3 ) + "tmp";
@@ -3271,7 +3271,7 @@ namespace folia {
       else {
 	xmlDoc *outDoc = to_xmlDoc( ns_label );
 	if ( TiCC::match_back( file_name, ".gz" ) ){
-	  if ( debug == SERIALIZE ){
+	  if ( debug == DebugMode::SERIALIZE ){
 	    cerr << "toXML(). Output type is .gz" << endl;
 	  }
 	  xmlSetDocCompressMode(outDoc,9);
@@ -3283,7 +3283,7 @@ namespace folia {
 	_foliaNsOut = 0;
       }
       if ( res == -1 ){
-	if ( debug == SERIALIZE ){
+	if ( debug == DebugMode::SERIALIZE ){
 	  cerr << "cannot save document to file '" << file_name << "'" << endl;
 	  cerr << "(xmlSave error: " << res << ")" << endl;
 	}
@@ -3291,13 +3291,13 @@ namespace folia {
       }
     }
     else {
-      if ( debug == SERIALIZE ){
+      if ( debug == DebugMode::SERIALIZE ){
 	cerr << "cannot save document to file '" << file_name << "'" << endl;
 	cerr << "(internal document is empty)" << endl;
       }
       return false;
     }
-    if ( debug == SERIALIZE ){
+    if ( debug == DebugMode::SERIALIZE ){
       cerr << "succesfully saved document in file '"
 	   << file_name << "'" << endl;
     }
