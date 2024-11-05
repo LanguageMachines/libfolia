@@ -41,7 +41,7 @@
 
 namespace folia {
 
-  enum AnnotationType : int;
+  enum class AnnotationType : int;
   enum class AnnotatorType : int;
   enum ElementType : unsigned int;
   class FoliaElement;

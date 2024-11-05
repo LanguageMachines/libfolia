@@ -93,7 +93,7 @@ ALL=32768 };
 
   //foliaspec:annotationtype
   //Defines all annotation types (as part of the AnnotationType enumeration)
-  enum AnnotationType : int { NO_ANN, ///<No type dummy
+  enum class AnnotationType : int { NO_ANN, ///<No type dummy
     TEXT, ///<Text Annotation: Text annotation associates actual textual content with structural elements, without it a document would be textless. FoLiA treats it as an annotation like any other.
     TOKEN, ///<Token Annotation: This annotation type introduces a tokenisation layer for the document. The terms **token** and **word** are used interchangeably in FoLiA as FoLiA itself does not commit to a specific tokenisation paradigm. Tokenisation is a prerequisite for the majority of linguistic annotation types offered by FoLiA and it is one of the most fundamental types of Structure Annotation. The words/tokens are typically embedded in other types of structure elements, such as sentences or paragraphs.
     DIVISION, ///<Division Annotation: Structure annotation representing some kind of division, typically used for chapters, sections, subsections (up to the set definition). Divisions may be nested at will, and may include almost all kinds of other structure elements.
@@ -156,9 +156,9 @@ ALL=32768 };
 LAST_ANN };
 
   inline AnnotationType& operator++( AnnotationType &at ){
-    return at = ( LAST_ANN == at )
-      ? NO_ANN
-      : AnnotationType(at+1);
+    return at = ( AnnotationType::LAST_ANN == at )
+      ? AnnotationType::NO_ANN
+      : AnnotationType(int(at)+1);
   }
 
   std::string toString( const AnnotationType& );

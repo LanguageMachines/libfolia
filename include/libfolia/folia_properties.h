@@ -34,7 +34,7 @@ namespace folia {
   enum ElementType : unsigned int;
   enum class Attrib : int;
   enum class AnnotatorType: int;
-  enum AnnotationType : int;
+  enum class AnnotationType : int;
 
   class properties {
    public:
