@@ -48,6 +48,7 @@ jobs:
       - uses: LanguageMachines/ticcactions/cpp-submodule-build@v1
         with:
           module: ticcutils
+          branch: ${{ github.ref_name }}
 
       - name: Static Code-check
         if: ${{ env.action_status == '' }}
