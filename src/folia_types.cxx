@@ -77,35 +77,35 @@ namespace folia {
      */
     string at = TiCC::uppercase( str );
     if ( at == "AUTO" ){
-      return folia::AUTO;
+      return AnnotatorType::AUTO;
     }
     else if ( at == "MANUAL" ){
-      return folia::MANUAL;
+      return AnnotatorType::MANUAL;
     }
     else if ( at == "GENERATOR" ){
-      return folia::GENERATOR;
+      return AnnotatorType::GENERATOR;
     }
     else if ( at == "DATASOURCE" ){
-      return folia::DATASOURCE;
+      return AnnotatorType::DATASOURCE;
     }
     else {
-      return folia::UNDEFINED;
+      return AnnotatorType::UNDEFINED;
     }
   }
 
   string toString( const AnnotatorType& at ){
     /// return the string representation of AnnotatorType at
     switch ( at ){
-    case AUTO:
+    case AnnotatorType::AUTO:
       return "auto";
       break;
-    case MANUAL:
+    case AnnotatorType::MANUAL:
       return "manual";
       break;
-    case GENERATOR:
+    case AnnotatorType::GENERATOR:
       return "generator";
       break;
-    case DATASOURCE:
+    case AnnotatorType::DATASOURCE:
       return "datasource";
       break;
     default:

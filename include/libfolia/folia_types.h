@@ -44,7 +44,7 @@ namespace folia {
   /** AnnotatorType is the Internal representation of the Annatator attribute
    *
    */
-  enum AnnotatorType: int {
+  enum class AnnotatorType: int {
     UNDEFINED = 0,   ///< The value is (yet) unknown
       AUTO = 1,      ///< The value is automaticly assigned
       MANUAL = 2,    ///< The value is manually assigned

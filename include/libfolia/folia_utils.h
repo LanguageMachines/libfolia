@@ -42,7 +42,7 @@
 namespace folia {
 
   enum AnnotationType : int;
-  enum AnnotatorType : int;
+  enum class AnnotatorType : int;
   enum ElementType : unsigned int;
   class FoliaElement;
   class KWargs;

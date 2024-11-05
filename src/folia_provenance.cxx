@@ -195,7 +195,7 @@ namespace folia {
       throw logic_error( "processor: no Provenance context" );
     }
     _debug = prov->_debug;
-    _type = AUTO;
+    _type = AnnotatorType::AUTO;
     KWargs atts = atts_in;
     string name_value = atts.extract("name");
     if ( name_value.empty() ){

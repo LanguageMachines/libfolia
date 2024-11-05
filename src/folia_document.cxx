@@ -2358,7 +2358,7 @@ namespace folia {
 	   << annotator_type << "," << date_time << "," << _alias << ","
 	   << _processors << ") " << endl;
     }
-    AnnotatorType anno_type = UNDEFINED;
+    AnnotatorType anno_type = AnnotatorType::UNDEFINED;
     try {
       anno_type = TiCC::stringTo<AnnotatorType>( annotator_type );
     }
@@ -2809,7 +2809,7 @@ namespace folia {
       cerr << "annotationdefaults= " <<  _annotationdefaults << endl;
       cerr << "lookup: " << folia::toString(type) << endl;
     }
-    AnnotatorType result = UNDEFINED;
+    AnnotatorType result = AnnotatorType::UNDEFINED;
     if ( type == AnnotationType::NO_ANN ){
       return result;
     }
@@ -3008,7 +3008,8 @@ namespace folia {
       string an = it->_annotator;
       args.add("annotator", an);
       AnnotatorType anno_type = it->_ann_type;
-      if ( anno_type != UNDEFINED && anno_type != AUTO ){
+      if ( anno_type != AnnotatorType::UNDEFINED
+	   && anno_type != AnnotatorType::AUTO ){
 	args.add("annotatortype",toString(anno_type));
       }
       xmlNode *annotation_node = TiCC::XmlNewNode( foliaNs(), label );
@@ -3066,7 +3067,7 @@ namespace folia {
     xmlNode *pr = xmlAddChild( node, TiCC::XmlNewNode( foliaNs(), "processor" ) );
     KWargs atts;
     atts.add("xml:id",p->_id);
-    if ( p->_type != AUTO || has_explicit() ){
+    if ( p->_type != AnnotatorType::AUTO || has_explicit() ){
       atts.add("type",toString(p->_type));
     }
     if ( !strip() ){

@@ -274,7 +274,7 @@ namespace folia {
     _parent(0),
     _auth( p.AUTH ),
     _space(true),
-    _annotator_type(UNDEFINED),
+    _annotator_type(AnnotatorType::UNDEFINED),
     _refcount(0),
     _line_no(-1),
     _confidence(-1),
@@ -587,7 +587,7 @@ namespace folia {
       //	cerr << "created new Provenance: " << prov << endl;
     }
     folia::processor *top = doc()->get_default_processor();
-    AnnotatorType at = AUTO;
+    AnnotatorType at = AnnotatorType::AUTO;
     if ( !an_type.empty() ){
       at = stringTo<AnnotatorType>( an_type );
     }
@@ -851,7 +851,7 @@ namespace folia {
       }
     }
 
-    _annotator_type = UNDEFINED;
+    _annotator_type = AnnotatorType::UNDEFINED;
     val = kwargs.extract( "annotatortype" );
     if ( !val.empty() ) {
       if ( ! (supported % Attrib::ANNOTATOR ) ) {
@@ -860,7 +860,7 @@ namespace folia {
       }
       else {
 	_annotator_type = stringTo<AnnotatorType>( val );
-	if ( _annotator_type == UNDEFINED ) {
+	if ( _annotator_type == AnnotatorType::UNDEFINED ) {
 	  throw ValueError( this,
 			    "annotatortype must be 'auto' or 'manual', got '"
 			    + val + "'" );
@@ -870,7 +870,7 @@ namespace folia {
     else {
       if ( doc() ){
 	AnnotatorType def = doc()->default_annotatortype( annotation_type(), _set );
-	if ( def != UNDEFINED ) {
+	if ( def != AnnotatorType::UNDEFINED ) {
 	  _annotator_type = def;
 	}
       }
@@ -1298,16 +1298,16 @@ namespace folia {
 	  isDefaultAnn = false;
 	  attribs.add("annotator",_annotator);
 	}
-	if ( _annotator_type != UNDEFINED ){
+	if ( _annotator_type != AnnotatorType::UNDEFINED ){
 	  AnnotatorType at = doc()->default_annotatortype( annotation_type(), _set );
 	  if ( !isDefaultSet
 	       || !isDefaultAnn
 	       || _annotator_type != at){
 	    if ( _annotator_type != at ) {
-	      if ( _annotator_type == AUTO ){
+	      if ( _annotator_type == AnnotatorType::AUTO ){
 		attribs.add("annotatortype","auto");
 	      }
-	      else if ( _annotator_type == MANUAL ) {
+	      else if ( _annotator_type == AnnotatorType::MANUAL ) {
 		attribs.add("annotatortype","manual");
 	      }
 	    }
@@ -3416,7 +3416,7 @@ namespace folia {
       throw ValueError( this,
 			"attribute 'annotator' is required for " + classname() );
     }
-    if ( _annotator_type == UNDEFINED
+    if ( _annotator_type == AnnotatorType::UNDEFINED
 	 && (  required_attributes() % Attrib::ANNOTATOR ) ) {
       throw ValueError( this,
 			"attribute 'Annotatortype' is required for " + classname() );
