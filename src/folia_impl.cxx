@@ -207,7 +207,7 @@ namespace folia {
      * thows when the FoliaElement doesn't support the tag attribute
      */
     Attrib supported = required_attributes() | optional_attributes();
-    if ( !(TAG & supported) ) {
+    if ( !( supported % Attrib::TAG ) ) {
       throw ValueError( this,
 			"settag() is not supported for " + classname() );
     }
@@ -281,9 +281,9 @@ namespace folia {
     _preserve_spaces(SPACE_FLAGS::UNSET),
     _props(p)
   {
-#ifdef DE_AND_CONSTRUCT_DEBUG
-    dbg( "created" );
-#endif
+    if ( d && d->debug % DocDbg::MEMORY ){
+      dbg( "AbstractElement::created" );
+    }
   }
 
   AbstractElement::AbstractElement( const properties& p, FoliaElement *el ) :
@@ -297,64 +297,65 @@ namespace folia {
     el->append( this );
   }
 
+  //#define DE_AND_CONSTRUCT_DEBUG
   AbstractElement::~AbstractElement( ) {
 #ifdef DE_AND_CONSTRUCT_DEBUG
     dbg( "really delete" );
 #endif
   }
 
-  //#define DE_AND_CONSTRUCT_DEBUG
   void AbstractElement::destroy( ) {
     /// Pseudo destructor for AbstractElements.
     /// recursively destroys this nodes and it's children
     /// Will also remove it from it's parent when no references are left
-#ifdef DE_AND_CONSTRUCT_DEBUG
-    dbg( "\ndestroy" );
-    cerr << "  id=" << _id << " class= "
-	 << cls() << " datasize= " << _data.size() << endl;
-    cerr << "  REFCOUNT = " << refcount() << endl;
-    cerr << "  AT= " << annotation_type() << " (" << _set << ")" << endl;
-#endif
     if ( doc() ) {
+      if ( doc()->debug % DocDbg::MEMORY ){
+	dbg( "\ndestroy" );
+	cerr << "  id=" << _id << " class= "
+	     << cls() << " datasize= " << _data.size() << endl;
+	cerr << "  REFCOUNT = " << refcount() << endl;
+	cerr << "  AT= " << annotation_type() << " (" << _set << ")" << endl;
+      }
       doc()->decrRef( annotation_type(), _set );
       if ( refcount() > 0 ){
 	decrefcount();
 	doc()->keepForDeletion( this );
-#ifdef DE_AND_CONSTRUCT_DEBUG
-	cerr << "\t\tstill keeping element id=" << _id << " ";
-	dbg( "" );
-	cerr << " class= " << cls()
-	     << " datasize= " << _data.size() << endl;
-#endif
+	if ( doc()->debug % DocDbg::MEMORY ){
+	  cerr << "\t\tstill keeping element id=" << _id << " ";
+	  dbg( "" );
+	  cerr << " class= " << cls()
+	       << " datasize= " << _data.size() << endl;
+	}
 	return;
       }
       doc()->del_doc_index( _id );
     }
     if ( _parent ){
-#ifdef DE_AND_CONSTRUCT_DEBUG
-      cerr << "STILL A PARENT: " << _parent << endl;
-#endif
+      if ( doc() && doc()->debug % DocDbg::MEMORY ){
+	cerr << "STILL A PARENT: " << _parent << endl;
+      }
       _parent->remove( this );
     }
-#ifdef DE_AND_CONSTRUCT_DEBUG
     else {
-      cerr << "Object has no PARENT: " << endl;
+      if ( doc() && doc()->debug % DocDbg::MEMORY ){
+	cerr << "Object has no PARENT: " << endl;
+      }
     }
-    cerr << "object has " << _data.size() << " children" << endl;
-#endif
+    if ( doc() && doc()->debug % DocDbg::MEMORY ){
+      cerr << "object has " << _data.size() << " children" << endl;
+    }
     for ( const auto& el : _data ) {
       el->set_parent(0);
       el->destroy();
     }
     _data.clear();
-#ifdef DE_AND_CONSTRUCT_DEBUG
-    dbg( "\tfinished destroying element" );
-    cerr << "\t id=" << _id << " class= " << cls()
-	 << " datasize= " << _data.size() << endl;
-#endif
+    if ( doc() && doc()->debug % DocDbg::MEMORY ){
+      dbg( "\tfinished destroying element" );
+      cerr << "\t id=" << _id << " class= " << cls()
+	   << " datasize= " << _data.size() << endl;
+    }
     delete this;
   }
-#undef DE_AND_CONSTUCT_DEBUG
 
   void destroy( FoliaElement *el ){
     if ( el ){
@@ -420,7 +421,7 @@ namespace folia {
 	if ( !def.empty() ){
 	  _set = def;
 	}
-	else if ( CLASS & required_attributes() ){
+	else if ( required_attributes() % Attrib::CLASS ){
 	  throw XmlError( this,
 			  "unable to assign a default set for tag: " + xmltag() );
 	}
@@ -666,7 +667,7 @@ namespace folia {
       if ( !doc() ) {
 	throw runtime_error( "can't generate an ID without a doc" );
       }
-      if ( !(ID & supported) ) {
+      if ( !( supported % Attrib::ID ) ) {
 	throw ValueError( this,
 			  "generate_id: xml:id is not supported for "
 			  + classname() );
@@ -698,7 +699,7 @@ namespace folia {
 	val = kwargs.extract( "_id" ); // for backward compatibility
       }
       if ( !val.empty() ) {
-	if ( ! (ID & supported) ) {
+	if ( ! (supported % Attrib::ID ) ) {
 	  throw ValueError( this,
 			    "xml:id is not supported for " + classname() );
 	}
@@ -730,7 +731,7 @@ namespace folia {
 			  "attribute set=" + val
 			  + " is used on a node without a document." );
       }
-      if ( !( (CLASS & supported) || setonly() ) ) {
+      if ( !( (supported % Attrib::CLASS ) || setonly() ) ) {
 	throw ValueError( this,
 			  "attribute 'set' is not supported for "
 			  + classname() );
@@ -751,7 +752,7 @@ namespace folia {
     _class.clear();
     val = kwargs.extract( "class" );
     if ( !val.empty() ) {
-      if ( !( CLASS & supported ) ) {
+      if ( !(supported % Attrib::CLASS ) ) {
 	throw ValueError( this,
 			  "Class is not supported for " + classname() );
       }
@@ -785,13 +786,13 @@ namespace folia {
 
     val = kwargs.extract( "processor" );
     if ( !val.empty() ){
-      if ( !(ANNOTATOR & supported) ){
+      if ( !( supported % Attrib::ANNOTATOR ) ){
 	throw ValueError( this,
 			  "attribute 'processor' is not supported for " + classname() );
       }
       set_processor_name( val );
     }
-    else if ( (ANNOTATOR & supported) && doc() ){
+    else if ( (supported % Attrib::ANNOTATOR) && doc() ){
       string def;
       try {
 	def = doc()->default_processor( annotation_type(), _set );
@@ -816,7 +817,7 @@ namespace folia {
     _annotator.clear();
     val = kwargs.extract( "annotator" );
     if ( !val.empty() ) {
-      if ( !(ANNOTATOR & supported) ) {
+      if ( !(supported % Attrib::ANNOTATOR) ) {
 	throw ValueError( this,
 			  "attribute 'annotator' is not supported for "
 			  + classname() );
@@ -853,7 +854,7 @@ namespace folia {
     _annotator_type = UNDEFINED;
     val = kwargs.extract( "annotatortype" );
     if ( !val.empty() ) {
-      if ( ! (ANNOTATOR & supported) ) {
+      if ( ! (supported % Attrib::ANNOTATOR ) ) {
 	throw ValueError( this,
 			  "Annotatortype is not supported for " + classname() );
       }
@@ -878,7 +879,7 @@ namespace folia {
     _confidence = -1;
     val = kwargs.extract( "confidence" );
     if ( !val.empty() ) {
-      if ( !(CONFIDENCE & supported) ) {
+      if ( !( supported % Attrib::CONFIDENCE ) ) {
 	throw ValueError( this,
 			  "Confidence is not supported for " + classname() );
       }
@@ -903,7 +904,7 @@ namespace folia {
     _n = "";
     val = kwargs.extract( "n" );
     if ( !val.empty() ) {
-      if ( !(N & supported) ) {
+      if ( !( supported % Attrib::N) ) {
 	throw ValueError( this,
 			  "N attribute is not supported for " + classname() );
       }
@@ -914,7 +915,7 @@ namespace folia {
     _datetime.clear();
     val = kwargs.extract( "datetime" );
     if ( !val.empty() ) {
-      if ( !(DATETIME & supported) ) {
+      if ( !( supported % Attrib::DATETIME ) ) {
 	throw ValueError( this,
 			  "datetime attribute is not supported for "
 			  + classname() );
@@ -938,7 +939,7 @@ namespace folia {
     }
     val = kwargs.extract( "begintime" );
     if ( !val.empty() ) {
-      if ( !(BEGINTIME & supported) ) {
+      if ( !( supported % Attrib::BEGINTIME) ) {
 	throw ValueError( this,
 			  "begintime attribute is not supported for "
 			  + classname() );
@@ -958,7 +959,7 @@ namespace folia {
     }
     val = kwargs.extract( "endtime" );
     if ( !val.empty() ) {
-      if ( !(ENDTIME & supported) ) {
+      if ( !( supported % Attrib::ENDTIME) ) {
 	throw ValueError( this,
 			  "endtime attribute is not supported for "
 			  + classname() );
@@ -978,7 +979,7 @@ namespace folia {
 
     val = kwargs.extract( "src" );
     if ( !val.empty() ) {
-      if ( !(SRC & supported) ) {
+      if ( !( supported % Attrib::SRC) ) {
 	throw ValueError( this,
 			  "src attribute is not supported for " + classname() );
       }
@@ -991,7 +992,7 @@ namespace folia {
     }
     val = kwargs.extract( "tag" );
     if ( !val.empty() ) {
-      if ( !(TAG & supported) ) {
+      if ( !( supported % Attrib::TAG) ) {
 	throw ValueError( this,
 			  "tag attribute is not supported for " + classname() );
       }
@@ -1003,12 +1004,12 @@ namespace folia {
       _tags.clear();
     }
 
-    if ( SPACE & supported ){
+    if ( supported % Attrib::SPACE  ){
       _space = true;
     }
     val = kwargs.extract( "space" );
     if ( !val.empty() ) {
-      if ( !(SPACE & supported) ){
+      if ( !( supported % Attrib::SPACE ) ){
 	throw ValueError( this,
 			  "space attribute is not supported for "
 			  + classname() );
@@ -1030,7 +1031,7 @@ namespace folia {
 
     val = kwargs.extract( "metadata" );
     if ( !val.empty() ) {
-      if ( !(METADATA & supported) ) {
+      if ( !( supported % Attrib::METADATA) ) {
 	throw ValueError( this,
 			  "Metadata attribute is not supported for "
 			  + classname() );
@@ -1048,7 +1049,7 @@ namespace folia {
     }
     val = kwargs.extract( "speaker" );
     if ( !val.empty() ) {
-      if ( !(SPEAKER & supported) ) {
+      if ( !(supported % Attrib::SPEAKER) ) {
 	throw ValueError( this,
 			  "speaker attribute is not supported for "
 			  + classname() );
@@ -1063,7 +1064,7 @@ namespace folia {
 
     val = kwargs.extract( "textclass" );
     if ( !val.empty() ) {
-      if ( !(TEXTCLASS & supported) ) {
+      if ( !(supported % Attrib::TEXTCLASS) ) {
 	throw ValueError( this,
 			  "textclass attribute is not supported for "
 			  + classname() );
@@ -1324,7 +1325,7 @@ namespace folia {
     attribs.add("tag",_tags);
     attribs.add("metadata",_metadata);
     attribs.add("speaker",_speaker);
-    if ( ( TEXTCLASS & supported)
+    if ( ( supported % Attrib::TEXTCLASS )
 	 && ( !_textclass.empty() &&
 	      ( _textclass != "current" || Explicit ) ) ){
       attribs.add("textclass",_textclass);
@@ -1337,7 +1338,7 @@ namespace folia {
     if ( !_auth ) {
       attribs.add("auth","no");
     }
-    if ( SPACE & optional_attributes() ){
+    if ( optional_attributes() % Attrib::SPACE ){
       if ( !_space ) {
 	attribs.add("space","no");
       }
@@ -2178,7 +2179,7 @@ namespace folia {
       cerr << "IN <" << xmltag() << ">:get_delimiter (" << retaintok << ")"
 	   << endl;
     }
-    if ( (SPACE & optional_attributes()) ){
+    if ( (optional_attributes() % Attrib::SPACE ) ){
       if ( ! ( _space || retaintok ) ){
 	if ( tp.debug() ){
 	  cerr << " space = NO, return: '" << EMPTY_STRING << "'" << endl;
@@ -3239,7 +3240,7 @@ namespace folia {
       }
     }
     if ( occurrences_per_set() > 0 &&
-	 (CLASS & required_attributes() || setonly() ) ){
+	 ( ( required_attributes() % Attrib::CLASS ) || setonly() ) ){
       vector<FoliaElement*> v = select( element_id(),
 					sett(),
 					SELECT_FLAGS::LOCAL );
@@ -3371,7 +3372,7 @@ namespace folia {
 	}
       }
       if ( !_set.empty()
-	   && (CLASS & required_attributes() )
+	   && ( required_attributes() % Attrib::CLASS )
 	   && !_mydoc->declared( annotation_type(), _set ) ) {
 	throw DeclarationError( this,
 				"Set " + _set + " is used in " + xmltag()
@@ -3396,67 +3397,67 @@ namespace folia {
      * \return true, or throws
      */
     if ( _id.empty()
-	 && (ID & required_attributes() ) ) {
+	 && ( required_attributes() % Attrib::ID  ) ) {
       throw ValueError( this,
 			"attribute 'ID' is required for " + classname() );
     }
     if ( _set.empty()
-	 && (CLASS & required_attributes() ) ) {
+	 && ( required_attributes() % Attrib::CLASS ) ) {
       throw ValueError( this,
 			"attribute 'set' is required for " + classname() );
     }
     if ( _class.empty()
-	 && ( CLASS & required_attributes() ) ) {
+	 && ( required_attributes() % Attrib::CLASS ) ) {
       throw ValueError( this,
 			"attribute 'class' is required for " + classname() );
     }
     if ( _annotator.empty()
-	 && ( ANNOTATOR & required_attributes() ) ) {
+	 && ( required_attributes() % Attrib::ANNOTATOR ) ) {
       throw ValueError( this,
 			"attribute 'annotator' is required for " + classname() );
     }
     if ( _annotator_type == UNDEFINED
-	 && ( ANNOTATOR & required_attributes() ) ) {
+	 && (  required_attributes() % Attrib::ANNOTATOR ) ) {
       throw ValueError( this,
 			"attribute 'Annotatortype' is required for " + classname() );
     }
     if ( _confidence == -1 &&
-	 ( CONFIDENCE & required_attributes() ) ) {
+	 ( required_attributes() % Attrib::CONFIDENCE  ) ) {
       throw ValueError( this,
 			"attribute 'confidence' is required for " + classname() );
     }
     if ( _n.empty()
-	 && ( N & required_attributes() ) ) {
+	 && ( required_attributes() % Attrib::N  ) ) {
       throw ValueError( this,
 			"attribute 'n' is required for " + classname() );
     }
     if ( _datetime.empty()
-	 && ( DATETIME & required_attributes() ) ) {
+	 && ( required_attributes() % Attrib::DATETIME  ) ) {
       throw ValueError( this,
 			"attribute 'datetime' is required for " + classname() );
     }
     if ( _begintime.empty()
-	 && ( BEGINTIME & required_attributes() ) ) {
+	 && ( required_attributes() % Attrib::BEGINTIME  ) ) {
       throw ValueError( this,
 			"attribute 'begintime' is required for " + classname() );
     }
     if ( _endtime.empty()
-	 && ( ENDTIME & required_attributes() ) ) {
+	 && ( required_attributes() % Attrib::ENDTIME  ) ) {
       throw ValueError( this,
 			"attribute 'endtime' is required for " + classname() );
     }
     if ( _src.empty()
-	 && ( SRC & required_attributes() ) ) {
+	 && ( required_attributes() % Attrib::SRC  ) ) {
       throw ValueError( this,
 			"attribute 'src' is required for " + classname() );
     }
     if ( _metadata.empty()
-	 && ( METADATA & required_attributes() ) ) {
+	 && ( required_attributes() % Attrib::METADATA  ) ) {
       throw ValueError( this,
 			"attribute 'metadata' is required for " + classname() );
     }
     if ( _speaker.empty()
-	 && ( SPEAKER & required_attributes() ) ) {
+	 && ( required_attributes() % Attrib::SPEAKER  ) ) {
       throw ValueError( this,
 			"attribute 'speaker' is required for " + classname() );
     }
@@ -3526,7 +3527,9 @@ namespace folia {
 
   FoliaElement *AbstractElement::postappend( ) {
     /// perform some post correction after appending
-    if ( id().empty() && (ID & required_attributes()) && auto_generate_id() ){
+    if ( id().empty()
+	 && (required_attributes() % Attrib::ID )
+	 && auto_generate_id() ){
       _id = generateId( xmltag() );
     }
     return this;
@@ -3537,11 +3540,11 @@ namespace folia {
     /*!
      * \param child the element to remove
      */
-#ifdef DE_AND_CONSTRUCT_DEBUG
-    cerr << "\nremove " << child->xmltag();
-    dbg( " from" );
-    cerr << " id=" << _id << " class= " << endl;
-#endif
+    if ( doc() && doc()->debug % DocDbg::MEMORY ){
+      cerr << "\nremove " << child->xmltag();
+      dbg( " from" );
+      cerr << " id=" << _id << " class= " << endl;
+    }
     auto it = std::remove( _data.begin(), _data.end(), child );
     _data.erase( it, _data.end() );
   }
@@ -3882,7 +3885,7 @@ namespace folia {
      * \param s a date/time in ISO.... format. (YYYY-MM-DDThh:mm:ss)
      */
     Attrib supported = required_attributes() | optional_attributes();
-    if ( !(DATETIME & supported) ) {
+    if ( !( supported % Attrib::DATETIME) ) {
       throw ValueError( this,
 			"datetime is not supported for " + classname() );
     }

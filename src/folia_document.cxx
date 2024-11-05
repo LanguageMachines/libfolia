@@ -1310,7 +1310,7 @@ namespace folia {
 	    }
 	    et = et_it->second;
 	    properties *prop = element_props[et];
-	    if ( prop->REQUIRED_ATTRIBS & Attrib::CLASS ) {
+	    if ( prop->REQUIRED_ATTRIBS % Attrib::CLASS ) {
 	      throw DocumentError( _source_name,
 				   "setname may not be empty for " + prefix
 				   + "-annotation",
@@ -2193,7 +2193,7 @@ namespace folia {
 	}
 	auto et = et_it->second;
 	properties *prop = element_props[et];
-	if ( prop->REQUIRED_ATTRIBS & Attrib::CLASS ) {
+	if ( prop->REQUIRED_ATTRIBS % Attrib::CLASS ) {
 	  throw DocumentError( _source_name,
 			       "setname may not be empty for " + prefix
 			       + "-annotation" );

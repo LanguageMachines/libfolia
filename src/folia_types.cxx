@@ -150,40 +150,40 @@ namespace folia {
   string toString( const Attrib at ){
     /// return the string representation of Attrib at
     switch ( at ){
-    case ID:
+    case Attrib::ID:
       return "ID";
       break;
-    case CLASS:
+    case Attrib::CLASS:
       return "CLASS";
       break;
-    case ANNOTATOR:
+    case Attrib::ANNOTATOR:
       return "ANNOTATOR";
       break;
-    case CONFIDENCE:
+    case Attrib::CONFIDENCE:
       return "CONFIDENCE";
       break;
-    case N:
+    case Attrib::N:
       return "N";
       break;
-    case DATETIME:
+    case Attrib::DATETIME:
       return "DATETIME";
       break;
-    case BEGINTIME:
+    case Attrib::BEGINTIME:
       return "BEGINTIME";
       break;
-    case ENDTIME:
+    case Attrib::ENDTIME:
       return "ENDTIME";
       break;
-    case SRC:
+    case Attrib::SRC:
       return "SRC";
       break;
-    case SPEAKER:
+    case Attrib::SPEAKER:
       return "SPEAKER";
       break;
-    case TEXTCLASS:
+    case Attrib::TEXTCLASS:
       return "TEXTCLASS";
       break;
-    case METADATA:
+    case Attrib::METADATA:
       return "METADATA";
       break;
     default:
@@ -200,9 +200,9 @@ namespace folia {
      * This function outputs a string value for every value set.
      * separated by '|'
      */
-    enum Attrib at = NO_ATT;
-    while ( at != ALL ){
-      if ( attribs & at ){
+    enum Attrib at = Attrib::NO_ATT;
+    while ( at != Attrib::ALL ){
+      if ( attribs % at ){
 	os << toString( at ) << "|";
       }
       ++at;

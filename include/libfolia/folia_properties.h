@@ -32,7 +32,7 @@
 
 namespace folia {
   enum ElementType : unsigned int;
-  enum Attrib : int;
+  enum class Attrib : int;
   enum AnnotatorType: int;
   enum AnnotationType : int;
 

@@ -28,6 +28,7 @@
 #define TYPES_H
 #include <string>
 #include "ticcutils/StringOps.h"
+#include "ticcutils/enum_flags.h"
 
 namespace folia {
 
@@ -53,7 +54,7 @@ namespace folia {
 
   //foliaspec:attributes
   //Defines all common FoLiA attributes (as part of the Attrib enumeration)
-  enum Attrib : int { NO_ATT=0, ///<No attribute
+  enum class Attrib : int { NO_ATT=0, ///<No attribute
 ID=1,  ///<xml:id: The ID of the element; this has to be a unique in the entire document or collection of documents (corpus). All identifiers in FoLiA are of the `XML NCName <https://www.w3.org/TR/1999/WD-xmlschema-2-19990924/#NCName>`_ datatype, which roughly means it is a unique string that has to start with a letter (not a number or symbol), may contain numbers, but may never contain colons or spaces. FoLiA does not define any naming convention for IDs.
 CLASS=2,  ///<class: The class of the annotation, i.e. the annotation tag in the vocabulary defined by ``set``.
 ANNOTATOR=4,  ///<annotator: This is an older alternative to the ``processor`` attribute, without support for full provenance. The annotator attribute simply refers to the name o ID of the system or human annotator that made the annotation.
@@ -65,26 +66,19 @@ ENDTIME=128,  ///<endtime: A timestamp in ``HH:MM:SS.MMM`` format, indicating th
 SRC=256,  ///<src: Points to a file or full URL of a sound or video file. This attribute is inheritable.
 SPEAKER=512,  ///<speaker: A string identifying the speaker. This attribute is inheritable. Multiple speakers are not allowed, simply do not specify a speaker on a certain level if you are unable to link the speech to a specific (single) speaker.
 TEXTCLASS=1024,  ///<textclass: Refers to the text class this annotation is based on. This is an advanced attribute, if not specified, it defaults to ``current``. See :ref:`textclass_attribute`.
-METADATA=2048, 
+METADATA=2048,
 IDREF=4096,  ///<id: A reference to the ID of another element. This is a reference and not an assignment, unlike xml:id, so do not confuse the two! It is only supported on certain elements that are referential in nature.
-SPACE=8192,  ///<space: This attribute indicates whether spacing should be inserted after this element (it's default value is always ``yes``, so it does not need to be specified in that case), but if tokens or other structural elements are glued together then the value should be set to ``no``. This allows for reconstruction of the detokenised original text. 
+SPACE=8192,  ///<space: This attribute indicates whether spacing should be inserted after this element (it's default value is always ``yes``, so it does not need to be specified in that case), but if tokens or other structural elements are glued together then the value should be set to ``no``. This allows for reconstruction of the detokenised original text.
 TAG=16384,  ///<tag: Contains a space separated list of processing tags associated with the element. A processing tag carries arbitrary user-defined information that may aid in processing a document. It may carry cues on how a specific tool should treat a specific element. The tag vocabulary is specific to the tool that processes the document. Tags carry no instrinsic meaning for the data representation and should not be used except to inform/aid processors in their task. Processors are encouraged to clean up the tags they use. Ideally, published FoLiA documents at the end of a processing pipeline carry no further tags. For encoding actual data, use ``class`` and optionally features instead.
 ALL=32768 };
 
   inline Attrib& operator++( Attrib & a ){
-    return a = ( ALL == a )
-      ? NO_ATT
-      : ( NO_ATT == a ? ID : Attrib(a<<1) );
+    return a = ( Attrib::ALL == a )
+      ? Attrib::NO_ATT
+      : ( Attrib::NO_ATT == a ? Attrib::ID : Attrib(int(a)<<1) );
   }
 
-  inline Attrib operator|( Attrib a1, Attrib a2 ){
-    return (Attrib) ((int)a1|(int)a2) ;
-  }
-
-  inline Attrib& operator|=( Attrib& a1, Attrib& a2 ){
-    a1 = (a1 | a2);
-    return a1;
-  }
+  DEFINE_ENUM_FLAG_OPERATORS(Attrib);
 
   std::string toString( const Attrib );
   std::ostream& operator<<( std::ostream&, const Attrib& );
