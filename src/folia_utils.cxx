@@ -457,8 +457,6 @@ namespace folia {
     for ( const auto& [at,val] : attribs ){
       if ( att_dbg ){
 	cerr << "add attribute: [" << at << "," << val << "]" << endl;
-	cerr << "AT=" << to_xmlChar(at) << endl;
-	cerr << "VAL=" << to_xmlChar(val) << endl;
       }
       xmlSetProp( node,
 		  to_xmlChar(at),

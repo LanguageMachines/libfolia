@@ -1388,7 +1388,7 @@ namespace folia {
       throw XmlError( this,
 		      "empty id in WordReference" );
     }
-    if ( doc()->debug == DocDbg::PARSING ) {
+    if ( doc()->debug % DocDbg::PARSING ) {
       cerr << "Found word reference: " << id << endl;
     }
     FoliaElement *ref = (*doc())[id];
@@ -1436,7 +1436,7 @@ namespace folia {
 		      "ID required for LinkReference" );
     }
     ref_id = val;
-    if ( doc()->debug == DocDbg::PARSING ) {
+    if ( doc()->debug % DocDbg::PARSING ) {
       cerr << "Found LinkReference ID " << ref_id << endl;
     }
     ref_type = att["type"];
@@ -1900,7 +1900,7 @@ namespace folia {
     }
     bool corr_dbg = false;
     if ( doc() ){
-      corr_dbg = (doc()->debug == DocDbg::CORRECTION);
+      corr_dbg = (doc()->debug % DocDbg::CORRECTION);
     }
     //
     // we cannot use text_content() on New, Original or Current,

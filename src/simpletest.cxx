@@ -38,43 +38,7 @@ using namespace icu;
 using namespace folia;
 using namespace icu;
 
-int main() {
-  cout << "checking sanity" << endl;
-  cout << "Type Hierarchy" << endl;
-  print_type_hierarchy( cout );
-  cout << "AnnotationType sanity" << endl;
-  if ( ! AT_sanity_check() ){
-    cout << "too bad. no use to continue" << endl;
-    return EXIT_FAILURE;
-  }
-  cout << "ElementType sanity" << endl;
-  if ( ! ET_sanity_check() ){
-    cout << "too bad. no use to continue" << endl;
-    return EXIT_FAILURE;
-  }
-  cout << "AnnotatorType sanity" << endl;
-  set<string> as = { "auto", "manual", "generator", "datasource", "UNDEFINED" };
-  for ( const auto& in_ans : as ){
-    AnnotatorType ann = stringToAnnotatorType( in_ans );
-    string out_ans = toString( ann );
-    if ( out_ans != in_ans ){
-      cout << "insane AnnotatorType: " << in_ans << " !=" << out_ans << endl;
-      exit( EXIT_FAILURE );
-    }
-  }
-  cout << "AnnotationType sanity" << endl;
-  for ( const auto& [a_type,a_string] : ant_s_map ){
-    AnnotationType ant = stringToAnnotationType( a_string );
-    string out_ans = folia::toString( ant );
-    if ( out_ans != a_string ){
-      cout << "insane AnnotationType: " << a_string << " !=" << out_ans << endl;
-      exit( EXIT_FAILURE );
-    }
-    if ( ant != a_type ){
-      cout << "insane AnnotationType: " << ant << " !=" << a_type << endl;
-      exit( EXIT_FAILURE );
-    }
-  }
+bool test_document(){
   cout << " Creating a document from scratch: ";
   Document d( "xml:id='example'" );
   d.declare( AnnotationType::TOKEN, "adhocset", "annotator='proycon'" );
@@ -112,6 +76,52 @@ int main() {
     return EXIT_FAILURE;
   }
   cout << s->text() << endl;
+  d.setdebug( "ANNOTATIONS|SERIALIZE" );
+  assert( toString(d.debug) == "ANNOTATIONS|SERIALIZE" );
+  return true;
+}
+
+int main() {
+  cout << "checking sanity" << endl;
+  cout << "Type Hierarchy" << endl;
+  print_type_hierarchy( cout );
+  cout << "AnnotationType sanity" << endl;
+  if ( ! AT_sanity_check() ){
+    cout << "too bad. no use to continue" << endl;
+    return EXIT_FAILURE;
+  }
+  cout << "ElementType sanity" << endl;
+  if ( ! ET_sanity_check() ){
+    cout << "too bad. no use to continue" << endl;
+    return EXIT_FAILURE;
+  }
+  cout << "AnnotatorType sanity" << endl;
+  set<string> as = { "auto", "manual", "generator", "datasource", "UNDEFINED" };
+  for ( const auto& in_ans : as ){
+    AnnotatorType ann = stringToAnnotatorType( in_ans );
+    string out_ans = toString( ann );
+    if ( out_ans != in_ans ){
+      cout << "insane AnnotatorType: " << in_ans << " !=" << out_ans << endl;
+      exit( EXIT_FAILURE );
+    }
+  }
+  cout << "AnnotationType sanity" << endl;
+  for ( const auto& [a_type,a_string] : ant_s_map ){
+    AnnotationType ant = stringToAnnotationType( a_string );
+    string out_ans = folia::toString( ant );
+    if ( out_ans != a_string ){
+      cout << "insane AnnotationType: " << a_string << " !=" << out_ans << endl;
+      exit( EXIT_FAILURE );
+    }
+    if ( ant != a_type ){
+      cout << "insane AnnotationType: " << ant << " !=" << a_type << endl;
+      exit( EXIT_FAILURE );
+    }
+  }
+  if ( !test_document() ){
+    cerr << "document testing failed" << endl;
+    return EXIT_FAILURE;
+  }
   UnicodeString dirty = "    A    dir\ty \n  string\r.\n   ";
   UnicodeString clean = normalize_spaces( dirty );
   UnicodeString wanted = "A dir y string .";

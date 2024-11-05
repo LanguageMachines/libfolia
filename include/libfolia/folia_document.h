@@ -38,6 +38,7 @@
 #include "unicode/regex.h"
 #include "libxml/tree.h"
 #include "libxml/xpath.h"
+#include "ticcutils/enum_flags.h"
 #include "libfolia/folia.h"
 
 using namespace icu;
@@ -327,6 +328,7 @@ namespace folia {
     void decrRef( AnnotationType, const std::string& );
     void setmode( const std::string& ) const;
     std::string getmode() const;
+    DebugMode setdebug( const std::string& );
     DebugMode setdebug( DebugMode val ){
       /// set the debug level
       /*!
@@ -542,6 +544,9 @@ namespace folia {
   std::string library_version();
   std::string folia_version();
   using DocDbg = Document::DebugMode;
+  std::string toString( DocDbg mode );
+  DEFINE_ENUM_FLAG_OPERATORS(DocDbg);
+  std::ostream& operator<<( std::ostream&, const DocDbg& );
 
 } // namespace folia
 
