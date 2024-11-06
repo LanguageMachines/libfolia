@@ -630,35 +630,7 @@ namespace folia {
     const std::string get_metadata( const std::string&  ) const override;
 
     // Selections
-    template <typename F>
-      std::vector<F*> select( bool recurse = true ) const {
-      return FoliaElement::select<F>(recurse);
-    }
-
-    template <typename F>
-      std::vector<F*> select( const std::string& st,
-			      const std::set<ElementType>& exclude,
-			      bool recurse = true ) const {
-      return FoliaElement::select<F>( st, exclude, recurse );
-    }
-
-    template <typename F>
-      std::vector<F*> select( const std::string& st,
-			      bool recurse = true ) const {
-      return FoliaElement::select<F>( st, recurse );
-    }
-
-    template <typename F>
-      std::vector<F*> select( const char* st,
-			      bool recurse = true ) const {
-      return FoliaElement::select<F>( st, recurse );
-    }
-
-    template <typename F>
-      std::vector<F*> select( const std::set<ElementType>& exclude,
-			      bool recurse = true ) const {
-      return FoliaElement::select<F>( exclude, recurse );
-    }
+    using FoliaElement::select;
 
     const std::string& annotator( ) const override { return _annotator; };
     void annotator( const std::string& a ) override { _annotator = a; };
