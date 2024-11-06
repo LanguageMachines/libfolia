@@ -283,12 +283,11 @@ namespace folia {
 
   bool KWargs::replace( const std::string& att, const std::string& val ){
     /// replace an attribute/values pair with a new value
-    /// don't do anything when the attribute is not present
+    /// just insert when the attribute is not present yet
     /*!
       \param att name of the attribute
       \param val the value of the attribute
-      \return false if nothing is inserted.
-              so when att or val empty or att not present
+      \return false when att or val empty
     */
     if ( att.empty() || val.empty() ){
       return false;
@@ -298,10 +297,9 @@ namespace folia {
       if ( it != end() ){
 	// already present. remove
 	erase(it);
-	// and add
-	return add( att, val );
       }
-      return false;
+      // and add
+      return add( att, val );
     }
   }
 
