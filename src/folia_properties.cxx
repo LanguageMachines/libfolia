@@ -2312,7 +2312,7 @@ namespace folia {
   }
 
   bool isSubClass( const ElementType e1, const ElementType e2 ){
-    /// check if an ElementType is a subclass of another one
+    /// check if an ElementType is a direct or indirect subclass of another one
     /*!
       \param e1 an ElementType
       \param e2 an ElementType
@@ -2329,7 +2329,7 @@ namespace folia {
   }
 
   bool isSubClass( const FoliaElement *e1, const FoliaElement *e2 ){
-    /// check if a FoliaElement is a subclass of another one
+    /// check if a FoliaElement class is a subclass of another one
     /*!
       \param e1 a FoliaElement
       \param e2 a FoliaElement
