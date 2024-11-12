@@ -509,8 +509,8 @@ namespace folia {
 	// A PI
 	if ( local_name == "xml-stylesheet" ){
 	  string sv = to_string(xmlTextReaderConstValue(_reader));
-	  auto const [type,href] = extract_style( sv );
-	  _out_doc->addStyle( type, href );
+	  auto const [style_type,href] = extract_style( sv );
+	  _out_doc->addStyle( style_type, href );
 	}
 	else {
 	  cerr << "unhandled PI: " << local_name << endl;
