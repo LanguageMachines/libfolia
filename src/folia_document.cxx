@@ -671,6 +671,7 @@ namespace folia {
       }
       line += " XML-error: " + string(error->message);
       cerr << line;
+      DBG << line;
       if ( error->ctxt ){
 	xmlParserCtxt *ctx = static_cast<xmlParserCtxt*>(error->ctxt);
 	xmlBuffer *buffer = xmlBufferCreate();
