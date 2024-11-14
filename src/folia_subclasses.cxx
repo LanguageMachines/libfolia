@@ -49,9 +49,10 @@ using namespace std;
 using namespace icu;
 using namespace TiCC;
 
+#define DBG *TiCC::Log(((doc()&&doc()->_dbg_file)?doc()->_dbg_file:&DBG_CERR))
+
 namespace folia {
   using TiCC::operator <<;
-
   const UnicodeString FoLiA::private_text( const TextPolicy& tp ) const {
     /// get the UnicodeString value of a FoLiA topnode
     /*!
@@ -60,7 +61,7 @@ namespace folia {
      * no text can be found
      */
     if ( tp.debug() ){
-      cerr << "FoLiA::private_text(" << tp.get_class() << ")" << endl;
+      DBG << "FoLiA::private_text(" << tp.get_class() << ")" << endl;
     }
     UnicodeString result;
     for ( const auto* d : data() ){
@@ -71,7 +72,7 @@ namespace folia {
       result += d->private_text( tp );
     }
     if ( tp.debug() ){
-      cerr << "FoLiA::TEXT returns '" << result << "'" << endl;
+      DBG << "FoLiA::TEXT returns '" << result << "'" << endl;
     }
     return result;
   }
@@ -194,7 +195,7 @@ namespace folia {
      */
     if ( tp.debug() ){
       bool retaintok  = tp.is_set( TEXT_FLAGS::RETAIN );
-      cerr << "IN " << xmltag() << "::get_delimiter (" << retaintok << ")"
+      DBG << "IN " << xmltag() << "::get_delimiter (" << retaintok << ")"
 	   << endl;
     }
     const vector<FoliaElement*>& data = this->data();
@@ -203,14 +204,14 @@ namespace folia {
       if ( (*it)->isinstance( Sentence_t ) ) {
 	// if a quote ends in a sentence, we don't want any delimiter
 	if ( tp.debug() ){
-	  cerr << "OUT " << xmltag() << "::get_delimiter ==>''" << endl;
+	  DBG << "OUT " << xmltag() << "::get_delimiter ==>''" << endl;
 	}
 	return EMPTY_STRING;
       }
       else {
 	const string& res = (*it)->get_delimiter( tp );
 	if ( tp.debug() ){
-	  cerr << "OUT " << xmltag() << "::get_delimiter ==> '"
+	  DBG << "OUT " << xmltag() << "::get_delimiter ==> '"
 	       << res << "'" << endl;
 	}
 	return res;
@@ -713,33 +714,33 @@ namespace folia {
      * \param tp the TextPolicy to use
      */
     if ( tp.debug() ){
-      cerr << "PhonContent::PHON, Policy= " << tp << endl;
+      DBG << "PhonContent::PHON, Policy= " << tp << endl;
     }
     string desired_class = tp.get_class();
     UnicodeString result;
     for ( const auto& el : data() ) {
       // try to get text dynamically from children
       if ( tp.debug() ){
-	cerr << "PhonContent: bekijk node[" << el->str( tp ) << endl;
+	DBG << "PhonContent: bekijk node[" << el->str( tp ) << endl;
       }
       try {
 	if ( tp.debug() ){
-	  cerr << "roep text(" << desired_class << ") aan op " << el << endl;
+	  DBG << "roep text(" << desired_class << ") aan op " << el << endl;
 	}
 	UnicodeString tmp = el->text( tp );
 	if ( tp.debug() ){
-	cerr << "PhonContent found '" << tmp << "'" << endl;
+	DBG << "PhonContent found '" << tmp << "'" << endl;
 	}
 	result += tmp;
       } catch ( const NoSuchPhon& e ) {
 	if ( tp.debug() ){
-	  cerr << "PhonContent::HELAAS" << endl;
+	  DBG << "PhonContent::HELAAS" << endl;
 	}
       }
     }
     result.trim();
     if ( tp.debug() ){
-      cerr << "PhonContent return " << result << endl;
+      DBG << "PhonContent return " << result << endl;
     }
     return result;
   }
@@ -1251,7 +1252,7 @@ namespace folia {
      * itself is replaced by the 0 pointer, or a placeholder with value val
      * at the end of the list.
      */
-    //  cerr << "leftcontext : " << size << endl;
+    //  DBG << "leftcontext : " << size << endl;
     vector<Word*> result;
     if ( size > 0 ) {
       vector<Word*> words = doc()->words();
@@ -1297,7 +1298,7 @@ namespace folia {
      * at the beginning of the list.
      */
     vector<Word*> result;
-    //  cerr << "rightcontext : " << size << endl;
+    //  DBG << "rightcontext : " << size << endl;
     if ( size > 0 ) {
       vector<Word*> words = doc()->words();
       size_t begin;
@@ -1389,7 +1390,7 @@ namespace folia {
 		      "empty id in WordReference" );
     }
     if ( doc()->debug % DocDbg::PARSING ) {
-      cerr << "Found word reference: " << id << endl;
+      DBG << "Found word reference: " << id << endl;
     }
     FoliaElement *ref = (*doc())[id];
     if ( ref ) {
@@ -1437,7 +1438,7 @@ namespace folia {
     }
     ref_id = val;
     if ( doc()->debug % DocDbg::PARSING ) {
-      cerr << "Found LinkReference ID " << ref_id << endl;
+      DBG << "Found LinkReference ID " << ref_id << endl;
     }
     ref_type = att["type"];
     val = att["t"];
@@ -1592,8 +1593,8 @@ namespace folia {
      * to already
      */
     if ( child->referable() ){
-      // cerr << "append a word: " << child << " to " << this << endl;
-      // cerr << "refcnt=" << child->refcount() << endl;
+      // DBG << "append a word: " << child << " to " << this << endl;
+      // DBG << "refcnt=" << child->refcount() << endl;
       if ( child->refcount() == 0 ){
 	throw XmlError( this,
 			"connecting a <w> to an <" + xmltag()
@@ -1894,9 +1895,9 @@ namespace folia {
      * no text can be found.
      */
     if ( tp.debug() ){
-      cerr << "PRIVATE_TEXT(" << tp.get_class() << ") on CORRECTION"
+      DBG << "PRIVATE_TEXT(" << tp.get_class() << ") on CORRECTION"
 	   << " id=" << id() << endl;
-      cerr << "TextPolicy: " << tp << endl;
+      DBG << "TextPolicy: " << tp << endl;
     }
     bool corr_dbg = false;
     if ( doc() ){
@@ -1918,7 +1919,7 @@ namespace folia {
 	 || ch == CORRECTION_HANDLING::EITHER ){
       for ( const auto& el : data() ) {
 	if ( corr_dbg ){
-	  cerr << "data=" << el << endl;
+	  DBG << "data=" << el << endl;
 	}
 	if ( el->isinstance( New_t ) ){
 	  if ( el->size() == 0 ){
@@ -1928,7 +1929,7 @@ namespace folia {
 	    try {
 	      new_result = el->private_text( tp );
 	      if ( corr_dbg ){
-		cerr << "New ==> '" << new_result << "'" << endl;
+		DBG << "New ==> '" << new_result << "'" << endl;
 	      }
 	    }
 	    catch ( ... ){
@@ -1941,7 +1942,7 @@ namespace folia {
 	    try {
 	      cur_result = el->private_text( tp );
 	      if ( corr_dbg ){
-		cerr << "Current ==> '" << cur_result << "'" << endl;
+		DBG << "Current ==> '" << cur_result << "'" << endl;
 	      }
 	    }
 	    catch ( ... ){
@@ -1954,7 +1955,7 @@ namespace folia {
 	      try {
 		org_result = el->private_text( tp );
 		if ( corr_dbg ){
-		  cerr << "Original ==> '" << org_result << "'" << endl;
+		  DBG << "Original ==> '" << org_result << "'" << endl;
 		}
 	      }
 	      catch ( ... ){
@@ -1968,13 +1969,13 @@ namespace folia {
     else if ( ch == CORRECTION_HANDLING::ORIGINAL ){
       for ( const auto& el : data() ) {
 	if ( corr_dbg ){
-	  cerr << "data=" << el << endl;
+	  DBG << "data=" << el << endl;
 	}
 	if ( el->isinstance( Original_t ) ){
 	  try {
 	    org_result = el->private_text( tp );
 	    if ( corr_dbg ){
-	      cerr << "Orig ==> '" << org_result << "'" << endl;
+	      DBG << "Orig ==> '" << org_result << "'" << endl;
 	    }
 	  }
 	  catch ( ... ){
@@ -1987,19 +1988,19 @@ namespace folia {
     if ( !deletion ){
       if ( !new_result.isEmpty() ){
 	if ( corr_dbg ){
-	  cerr << "return new text '" << new_result << "'" << endl;
+	  DBG << "return new text '" << new_result << "'" << endl;
 	}
 	final_result = new_result;
       }
       else if ( !cur_result.isEmpty() ){
 	if ( corr_dbg ){
-	  cerr << "return cur text '" << cur_result << "'" << endl;
+	  DBG << "return cur text '" << cur_result << "'" << endl;
 	}
 	final_result = cur_result;
       }
       else if ( !org_result.isEmpty() ){
 	if ( corr_dbg ){
-	  cerr << "return ori text '" << org_result << "'" << endl;
+	  DBG << "return ori text '" << org_result << "'" << endl;
 	}
 	final_result = org_result;
       }
@@ -2007,7 +2008,7 @@ namespace folia {
     else {
       if ( !cur_result.isEmpty() ){
 	if ( corr_dbg ){
-	  cerr << "Deletion: return cur text '" << cur_result << "'" << endl;
+	  DBG << "Deletion: return cur text '" << cur_result << "'" << endl;
 	}
 	final_result = cur_result;
       }
@@ -2016,7 +2017,7 @@ namespace folia {
       throw NoSuchText( this, "cls=" + tp.get_class() );
     }
     if ( tp.debug() ){
-      cerr << "PRIVATE_TEXT(" << tp.get_class() << ") on correction gave '"
+      DBG << "PRIVATE_TEXT(" << tp.get_class() << ") on correction gave '"
 	   << final_result << "'" << endl;
     }
     return final_result;
@@ -2357,7 +2358,7 @@ namespace folia {
       vector<Word*> wv = e->select<Word>(false);
       if ( !wv.empty() ){
 	const FoliaElement *last = wv.back();
-	// cerr << "Correction::space!" << last << " ==> "
+	// DBG << "Correction::space!" << last << " ==> "
 	//      << (last->space()?"YES":"NO") << endl;
 	result = last->space();
       }
@@ -2642,7 +2643,7 @@ namespace folia {
     /*!
      */
     if ( tp.debug() ){
-      cerr << "XmlText::PRIVATE_TEXT returns: '" << _value << "'" << endl;
+      DBG << "XmlText::PRIVATE_TEXT returns: '" << _value << "'" << endl;
     }
     return TiCC::UnicodeFromUTF8(_value);
   }
@@ -2700,7 +2701,7 @@ namespace folia {
     string src;
     try {
       src = AbstractElement::src();
-      cerr << "try to resolve: " << src << endl;
+      DBG << "try to resolve: " << src << endl;
       int cnt = 0;
       xmlSetStructuredErrorFunc( &cnt, (xmlStructuredErrorFunc)error_sink );
       xmlDoc *extdoc = xmlReadFile( src.c_str(), 0, XML_PARSER_OPTIONS );
@@ -3093,8 +3094,8 @@ namespace folia {
      * \return the Unicode String representation found. Throws when
      * no text can be found
      */
-    // cerr << "TEXT MARKUP CORRECTION " << this << endl;
-    // cerr << "TEXT MARKUP CORRECTION parent cls=" << parent()->cls() << endl;
+    // DBG << "TEXT MARKUP CORRECTION " << this << endl;
+    // DBG << "TEXT MARKUP CORRECTION parent cls=" << parent()->cls() << endl;
     if ( tp.get_class() == "original" ) {
       return TiCC::UnicodeFromUTF8(_original);
     }
@@ -3118,7 +3119,7 @@ namespace folia {
       }
     }
     if ( tp.debug() ){
-      cerr << "XmlText::PRIVATE_TEXT returns: '" << result << "'" << endl;
+      DBG << "XmlText::PRIVATE_TEXT returns: '" << result << "'" << endl;
     }
     return result;
   }
@@ -3141,7 +3142,7 @@ namespace folia {
       result += "\n";
     }
     if ( tp.debug() ){
-      cerr << "XmlText::PRIVATE_TEXT returns: '" << result << "'" << endl;
+      DBG << "XmlText::PRIVATE_TEXT returns: '" << result << "'" << endl;
     }
     return result;
   }
@@ -3156,7 +3157,7 @@ namespace folia {
     bool my_dbg = tp.debug();
     //    my_dbg = true;
     if ( my_dbg ){
-      cerr << "Row private text, tp=" << tp << endl;
+      DBG << "Row private text, tp=" << tp << endl;
     }
     UnicodeString result;
     for ( const auto& d : data() ){
@@ -3168,7 +3169,7 @@ namespace folia {
       }
       if ( !part.isEmpty() ){
 	if ( my_dbg ){
-	  cerr << "d=" << d->xmltag() << " has some text part:" << part << endl;
+	  DBG << "d=" << d->xmltag() << " has some text part:" << part << endl;
 	}
 	if ( !result.isEmpty() ){
 	  result += TiCC::UnicodeFromUTF8( d->get_delimiter( tp ) );
@@ -3182,7 +3183,7 @@ namespace folia {
                     // the delimitter one level above
     }
     if ( my_dbg ){
-      cerr << "Row private text, returns '" << result << "'" << endl;
+      DBG << "Row private text, returns '" << result << "'" << endl;
     }
     return result;
   }
@@ -3198,7 +3199,7 @@ namespace folia {
     bool my_dbg = tp.debug();
     //    my_dbg = true;
     if ( my_dbg ){
-      cerr << "Cell private text, tp=" << tp << endl;
+      DBG << "Cell private text, tp=" << tp << endl;
     }
     UnicodeString result;
     try {
@@ -3206,7 +3207,7 @@ namespace folia {
       const TextContent *tc = text_content( tp.get_class() );
       result = tc->text( tp );
       if ( my_dbg ){
-	cerr << "the Cell has it's own text part:" << result << endl;
+	DBG << "the Cell has it's own text part:" << result << endl;
       }
     }
     catch ( const NoSuchText& ){
@@ -3220,7 +3221,7 @@ namespace folia {
 	}
 	if ( !part.isEmpty() ){
 	  if ( my_dbg ){
-	    cerr << "d=" << d->xmltag() << " has some text part:" << part << endl;
+	    DBG << "d=" << d->xmltag() << " has some text part:" << part << endl;
 	  }
 	  if ( !result.isEmpty() ){
 	    result += " ";
@@ -3234,7 +3235,7 @@ namespace folia {
       }
     }
     if ( my_dbg ){
-      cerr << "Cell private text, returns '" << result << "'" << endl;
+      DBG << "Cell private text, returns '" << result << "'" << endl;
     }
     return result;
   }

@@ -39,6 +39,7 @@
 #include "libxml/tree.h"
 #include "libxml/xpath.h"
 #include "ticcutils/enum_flags.h"
+#include "ticcutils/LogStream.h"
 #include "libfolia/folia.h"
 
 using namespace icu;
@@ -142,7 +143,7 @@ namespace folia {
       return save( s, "", canonical );
     }
     std::string xmlstring( bool = false ) const;
-
+    void set_dbg_stream( TiCC::LogStream * );
     FoliaElement* doc() const {
       /// return a pointer to the internal FoLiA tree
       return foliadoc;
@@ -426,6 +427,7 @@ namespace folia {
     const std::set<std::string>& textclasses() const {
       return _textclasses;
     }
+    TiCC::LogStream *_dbg_file; //!< the debugging stream
   private:
     void test_temporary_text_exception( const std::string& ) const;
     void adjustTextMode();
@@ -506,8 +508,8 @@ namespace folia {
     bool _incremental_parse;
     bool _preserve_spaces;
     mutable int _warn_count;
-    Document( const Document& ); // inhibit copies
-    Document& operator=( const Document& ); // inhibit copies
+    Document( const Document& ) = delete; // inhibit copies
+    Document& operator=( const Document& ) = delete; // inhibit copies
   };
 
   template <> inline
@@ -547,6 +549,7 @@ namespace folia {
   std::string toString( DocDbg mode );
   DEFINE_ENUM_FLAG_OPERATORS(DocDbg);
   std::ostream& operator<<( std::ostream&, const DocDbg& );
+  extern TiCC::LogStream DBG_CERR;
 
 } // namespace folia
 

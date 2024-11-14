@@ -41,10 +41,6 @@
 
 using namespace std;
 
-/// define a static default LogStream
-TiCC::LogStream DBG_CERR(cerr,"folia-engine:");
-
-/// direct Debugging info to the internal file, if present, or to the default stream
 #define DBG *TiCC::Log((_dbg_file?_dbg_file:&DBG_CERR))
 
 namespace folia {
@@ -166,7 +162,8 @@ namespace folia {
 
   void Engine::set_dbg_stream( TiCC::LogStream *ls ){
     /// switch debugging to another LogStream
-    if ( _dbg_file ){
+    if ( _dbg_file
+	 && _dbg_file != &DBG_CERR ){
       delete _dbg_file;
     }
     _dbg_file = ls;
@@ -419,6 +416,9 @@ namespace folia {
     _ok = false;
     _out_doc = new Document();
     _out_doc->set_incremental( true );
+    if ( _dbg_file ){
+      _out_doc->set_dbg_stream( _dbg_file );
+    }
     if ( !out_name.empty() ){
       _os = new ofstream( out_name );
       _out_name = out_name;
