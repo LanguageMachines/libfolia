@@ -49,7 +49,7 @@ using namespace std;
 using namespace icu;
 using namespace TiCC;
 
-#define DBG *TiCC::Log(((doc()&&doc()->_dbg_file)?doc()->_dbg_file:&DBG_CERR))
+#define DBG *TiCC::Log(_dbg_file)
 
 namespace folia {
   using TiCC::operator <<;

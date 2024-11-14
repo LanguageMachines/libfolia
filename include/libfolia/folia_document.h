@@ -427,7 +427,6 @@ namespace folia {
     const std::set<std::string>& textclasses() const {
       return _textclasses;
     }
-    TiCC::LogStream *_dbg_file; //!< the debugging stream
   private:
     void test_temporary_text_exception( const std::string& ) const;
     void adjustTextMode();
@@ -549,8 +548,7 @@ namespace folia {
   std::string toString( DocDbg mode );
   DEFINE_ENUM_FLAG_OPERATORS(DocDbg);
   std::ostream& operator<<( std::ostream&, const DocDbg& );
-  extern TiCC::LogStream DBG_CERR;
-
+  extern TiCC::LogStream *_dbg_file; //!< the debugging stream
 } // namespace folia
 
 #endif // FOLIA_DOCUMENT_H

@@ -41,10 +41,10 @@
 
 using namespace std;
 
+TiCC::LogStream DBG_CERR(cerr,"folia-engine:");
 #define DBG *TiCC::Log((_dbg_file?_dbg_file:&DBG_CERR))
 
 namespace folia {
-
   using TiCC::operator<<;
 
   xml_tree::xml_tree( int d,

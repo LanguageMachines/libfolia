@@ -50,14 +50,15 @@ const char *output_encoding = "UTF-8";
 
 /// direct Debugging info to the internal file, if present,
 /// or to the default stream
+
 #define DBG *TiCC::Log((_dbg_file?_dbg_file:&DBG_CERR))
 
 namespace folia {
-  /// define a static default LogStream
-  TiCC::LogStream DBG_CERR(cerr,"folia-engine:");
-
   using TiCC::operator<<;
-
+  /// define a static default LogStream
+  TiCC::LogStream DBG_CERR(cerr,"folia:");
+  /// connect to the default
+  TiCC::LogStream *_dbg_file = &DBG_CERR;
   ostream& operator<<( ostream& os,
 		       const Document::annotation_info& at ){
     /// output an annotation_info structure (Debugging only)
@@ -590,7 +591,6 @@ namespace folia {
       delete _dbg_file;
     }
     _dbg_file = ls;
-    *_dbg_file << "STARTED DEBUGGING!" << endl;
     DBG << "STARTED DEBUGGING!" << endl;
   }
 

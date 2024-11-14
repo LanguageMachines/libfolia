@@ -49,7 +49,7 @@ using namespace std;
 using namespace icu;
 using namespace TiCC;
 
-#define DBG *TiCC::Log(((doc()&&doc()->_dbg_file)?doc()->_dbg_file:&DBG_CERR))
+#define DBG *TiCC::Log(_dbg_file)
 
 namespace folia {
   using TiCC::operator <<;
@@ -1618,9 +1618,6 @@ namespace folia {
     return att;
   }
 
-#undef DBG
-#define DBG *TiCC::Log(((parent->doc()&&parent->doc()->_dbg_file)?parent->doc()->_dbg_file:&DBG_CERR))
-
   void CheckText( const FoliaElement *parent,
 		  const FoliaElement *child,
 		  const string& cls,
@@ -1666,10 +1663,6 @@ namespace folia {
       }
     }
   }
-
-#undef DBG
-
-#define DBG *TiCC::Log(((doc()&&doc()->_dbg_file)?doc()->_dbg_file:&DBG_CERR))
 
   void  CheckText2( const FoliaElement *parent,
 		    const FoliaElement *child,
@@ -2671,9 +2664,6 @@ namespace folia {
     return found_nl > 0;
   }
 
-#undef DBG
-#define DBG *TiCC::Log(((s->doc()&&s->doc()->_dbg_file)?s->doc()->_dbg_file:&DBG_CERR))
-
   bool no_space_at_end( const FoliaElement *s, bool txt_dbg ){
     /// given a FoliaElement check if the last Word in it has space()
     /*!
@@ -2706,10 +2696,6 @@ namespace folia {
     }
     return result;
   }
-
-#undef DBG
-
-#define DBG *TiCC::Log(((doc()&&doc()->_dbg_file)?doc()->_dbg_file:&DBG_CERR))
 
   const UnicodeString AbstractElement::deeptext( const TextPolicy& tp ) const {
     /// get the UnicodeString text value of underlying elements
@@ -4160,9 +4146,6 @@ namespace folia {
     }
   }
 
-#undef DBG
-#define DBG *TiCC::Log(((doc&&doc->_dbg_file)?doc->_dbg_file:&DBG_CERR))
-
   Correction * AllowCorrections::correct( const vector<FoliaElement*>& _original,
 					  const vector<FoliaElement*>& _current,
 					  const vector<FoliaElement*>& _newv,
@@ -4519,9 +4502,6 @@ namespace folia {
     corr->check_type_consistency();
     return corr;
   }
-
-#undef DBG
-#define DBG *TiCC::Log(((doc()&&doc()->_dbg_file)?doc()->_dbg_file:&DBG_CERR))
 
   Correction *AllowCorrections::correct( const string& s ) {
     /// use an Attribute-Value list to create a Correction
