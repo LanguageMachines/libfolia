@@ -41,7 +41,7 @@
 
 using namespace std;
 
-TiCC::LogStream DBG_CERR(cerr,"folia-engine:");
+TiCC::LogStream DBG_CERR(cerr);
 #define DBG *TiCC::Log((_dbg_file?_dbg_file:&DBG_CERR))
 
 namespace folia {
@@ -118,6 +118,7 @@ namespace folia {
     _finished(false),
     _debug(false)
   {
+    DBG_CERR.set_message("folia-engine:");
   }
 
   Engine::~Engine(){
@@ -153,7 +154,9 @@ namespace folia {
     if ( d ){
       if ( !_dbg_file ){
 	_dbg_file
-	  = new TiCC::LogStream( cerr, "folia-engine", StampMessage );
+	  = new TiCC::LogStream( cerr );
+	_dbg_file->set_message( "folia-engine" );
+	_dbg_file->set_stamp(StampMessage);
       }
     }
     _debug = d;

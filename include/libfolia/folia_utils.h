@@ -38,6 +38,7 @@
 #include "libxml/tree.h"
 
 #include "ticcutils/StringOps.h"
+#include "ticcutils/XMLtools.h"
 
 namespace folia {
 
@@ -207,11 +208,11 @@ namespace folia {
   /// some xml goodies
   ///
   inline const xmlChar *to_xmlChar( const std::string& in ){
-    return reinterpret_cast<const xmlChar *>(in.c_str());
+    return TiCC::to_xmlChar( in );
   }
 
   inline const std::string to_string( const xmlChar *in ){
-    return reinterpret_cast<const char *>(in);
+    return TiCC::to_string( in );
   }
 
   inline const std::string to_string( const xmlChar *in, size_t size ){

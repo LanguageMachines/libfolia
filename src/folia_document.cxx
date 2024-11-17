@@ -56,7 +56,7 @@ const char *output_encoding = "UTF-8";
 namespace folia {
   using TiCC::operator<<;
   /// define a static default LogStream
-  TiCC::LogStream DBG_CERR(cerr,"folia:");
+  TiCC::LogStream DBG_CERR(cerr,NoStamp);
   /// connect to the default
   TiCC::LogStream *_dbg_file = &DBG_CERR;
   ostream& operator<<( ostream& os,
@@ -327,6 +327,7 @@ namespace folia {
     _minor_version = 0;
     _sub_version = 0;
     _dbg_file = 0;
+    DBG_CERR.set_message("folia:");
   }
 
   Document::~Document(){
@@ -671,7 +672,6 @@ namespace folia {
       }
       line += " XML-error: " + string(error->message);
       cerr << line;
-      DBG << line;
       if ( error->ctxt ){
 	xmlParserCtxt *ctx = static_cast<xmlParserCtxt*>(error->ctxt);
 	xmlBuffer *buffer = xmlBufferCreate();
