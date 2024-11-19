@@ -1088,23 +1088,23 @@ namespace folia {
     /// set IMDI values. DEPRECATED
     const xmlNode *n = TiCC::xPath( node, "//imdi:Session/imdi:Title" );
     if ( n ){
-      _metadata->add_av( "title", TiCC::XmlContent( n ) );
+      _metadata->add_av( "title", TiCC::TextValue( n ) );
     }
     n = TiCC::xPath( node, "//imdi:Session/imdi:Date" );
     if ( n ){
-      _metadata->add_av( "date", TiCC::XmlContent( n ) );
+      _metadata->add_av( "date", TiCC::TextValue( n ) );
     }
     n = TiCC::xPath( node, "//imdi:Source/imdi:Access/imdi:Publisher" );
     if ( n ){
-      _metadata->add_av( "publisher", TiCC::XmlContent( n ) );
+      _metadata->add_av( "publisher", TiCC::TextValue( n ) );
     }
     n = TiCC::xPath( node, "//imdi:Source/imdi:Access/imdi:Availability" );
     if ( n ){
-      _metadata->add_av( "licence", TiCC::XmlContent( n ) );
+      _metadata->add_av( "licence", TiCC::TextValue( n ) );
     }
     n = TiCC::xPath( node, "//imdi:Languages/imdi:Language/imdi:ID" );
     if ( n ){
-      _metadata->add_av( "language", TiCC::XmlContent( n ) );
+      _metadata->add_av( "language", TiCC::TextValue( n ) );
     }
   }
 
@@ -1477,7 +1477,7 @@ namespace folia {
 	  if ( TiCC::Name(p) == "meta" &&
 	       checkNS( p, NSFOLIA ) ){
 	    if ( type == "native" ){
-	      string txt = TiCC::XmlContent( p );
+	      string txt = TiCC::TextValue( p );
 	      if ( !txt.empty() ){
 		KWargs att = getAttributes( p );
 		string sid = att["id"];
@@ -1831,7 +1831,7 @@ namespace folia {
 	}
 	KWargs att = getAttributes( m );
 	string meta_id = att["id"];
-	string val = TiCC::XmlContent( m );
+	string val = TiCC::TextValue( m );
 	string get = _metadata->get_val( meta_id );
 	if ( !get.empty() ){
 	  throw runtime_error( "meta tag with id=" + meta_id

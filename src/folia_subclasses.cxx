@@ -1542,7 +1542,7 @@ namespace folia {
      */
     KWargs att = getAttributes( node );
     if ( !att.is_present("value") ) {
-      att.add("value",XmlContent( node ));
+      att.add("value",TextValue( node ));
     }
     setAttributes( att );
     return this;
@@ -1576,7 +1576,7 @@ namespace folia {
      */
     KWargs att = getAttributes( node );
     if ( !att.is_present("value") ) {
-      att.add("value",XmlContent( node ));
+      att.add("value",TextValue( node ));
     }
     setAttributes( att );
     return this;
@@ -2504,7 +2504,7 @@ namespace folia {
   const string Gap::content() const {
     /// return the content of a Gap
     /*!
-     * \return the an UTF8 string of the content in the Gap. Throws if not found
+     * \return the UTF8 string of the content in the Gap. Throws if not found
      */
     vector<FoliaElement*> cv = select( Content_t );
     if ( cv.empty() ) {

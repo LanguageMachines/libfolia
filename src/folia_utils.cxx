@@ -378,7 +378,7 @@ namespace folia {
   }
 
   inline string att_content( const xmlAttr *node ){
-    return to_string( node->children->content );
+    return TextValue( node->children );
   }
 
   KWargs getAttributes( const xmlNode *node ){

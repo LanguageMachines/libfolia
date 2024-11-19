@@ -453,7 +453,7 @@ namespace folia {
 	if ( atts.size() != 1 ){
 	  throw XmlError( "processor: invalid attribute(s) in meta tag" );
 	}
-	string value = TiCC::XmlContent( n );
+	string value = TiCC::TextValue( n );
 	main->_metadata[id] = value;
       }
       n = n->next;
