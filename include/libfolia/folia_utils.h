@@ -219,10 +219,13 @@ namespace folia {
     return std::string( reinterpret_cast<const char *>(in), size );
   }
 
-  bool isNCName( const std::string& );
+  using TiCC::TextValue;
+  using TiCC::isNCName;
+
+  std::string create_NCName( const std::string& );
+
   bool checkNS( const xmlNode *, const std::string& );
   std::map<std::string,std::string> getNS_definitions( const xmlNode * );
-  std::string TextValue( const xmlNode * );
 
   icu::UnicodeString normalize_spaces( const icu::UnicodeString& );
   bool is_norm_empty( const icu::UnicodeString&  );
@@ -230,7 +233,7 @@ namespace folia {
   std::string get_ISO_date();
   std::string get_fqdn();
   std::string get_user();
-  std::string create_NCName( const std::string& );
+
 } // namespace folia
 
 namespace TiCC {

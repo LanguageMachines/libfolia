@@ -51,7 +51,6 @@ using namespace icu;
 using namespace TiCC;
 
 namespace folia {
-
   string output_elem( const FoliaElement *elt ){
     string result = (elt->doc()?elt->doc()->filename():"")
       + ( elt->line_number()>=0?
@@ -374,11 +373,11 @@ namespace folia {
     return folia::toString( *this );
   }
 
-  string att_name( const xmlAttr *node ){
+  inline string att_name( const xmlAttr *node ){
     return to_string( node->name );
   }
 
-  string att_content( const xmlAttr *node ){
+  inline string att_content( const xmlAttr *node ){
     return to_string( node->children->content );
   }
 
@@ -387,6 +386,8 @@ namespace folia {
     /*!
       \param node The xmlNode to examine
       \return a KWargs object with all attributes from 'node'
+
+      special care is taken for xml:id and xlink:* attributes
     */
     KWargs atts;
     if ( node ){
@@ -404,9 +405,7 @@ namespace folia {
 	  if ( pref == "xlink" ){
 	    atts.add("xlink:"+att, att_content(a));
 	  }
-	  // else {
-	  //   cerr << "attribute PREF=" << pref << endl;
-	  // }
+	  // all other namespaced attributes are ignored
 	}
 	a = a->next;
       }
@@ -708,19 +707,6 @@ namespace folia {
     return sane;
   }
 
-  bool isNCName( const string& s ){
-    /// test if a string is a valid NCName value
-    /*!
-      \param s the inputstring
-      \return true if \e s may be used as an NCName (e.g. for xml:id)
-    */
-    int test = xmlValidateNCName( to_xmlChar(s), 0 );
-    if ( test != 0 ){
-      return false;
-    }
-    return true;
-  }
-
   string create_NCName( const string& s ){
     /// create a valid NCName
     /*!
@@ -732,59 +718,14 @@ namespace folia {
       and may contain only letters, digits, underscores ( _ ), hyphens ( - ),
       and periods ( . ).
     */
-    if ( isNCName( s ) ){
-      return s;
+    string result;
+    try {
+      result = TiCC::create_NCName( s );
     }
-    else {
-      string result = s;
-      while ( !result.empty()
-	      && ( result.front() == '.'
-		   || result.front() == '-'
-		   || !isalpha(result.front() ) ) ){
-	if ( result.front() == '_' ){
-	  break;
-	}
-	result.erase(result.begin());
-      }
-      if ( result.empty() ){
-	throw XmlError( "unable to create a valid NCName from '"
-			+ s + "', would be empty" );
-      }
-      if ( isNCName( result ) ){
-	return result;
-      }
-      else {
-	auto it = result.begin();
-	while ( it != result.end() ){
-	  if ( *it == ' ' ){
-	    // replace spaces by '_'
-	    *it = '_';
-	    ++it;
-	  }
-	  else if ( *it == '-'
-		    || *it == '_'
-		    || *it == '.' ){
-	    // not alphanumeric, but allowed
-	    ++it;
-	  }
-	  else if ( !isalnum(*it) ){
-	    it = result.erase(it);
-	  }
-	  else {
-	    ++it;
-	  }
-	}
-	if ( result.empty() ){
-	  throw XmlError( "unable to create a valid NCName from '"
-			  + s + "', (empty result)" );
-	}
-	else if ( !isNCName( result ) ){
-	  throw XmlError( "unable to create a valid NCName from '"
-			  + s + "'" );
-	}
-	return result;
-      }
+    catch ( const exception& e ){
+      throw XmlError( e.what() );
     }
+    return result;
   }
 
   bool checkNS( const xmlNode *n, const string& ns ){
@@ -798,23 +739,6 @@ namespace folia {
 			   + " got:" + tns );
     }
     return false;
-  }
-
-  string TextValue( const xmlNode *node ){
-    /// extract the string content of an xmlNode
-    /*!
-      \param node The xmlNode to extract from
-      \return the string value of node
-    */
-    string result;
-    if ( node ){
-      xmlChar *tmp = xmlNodeGetContent( node );
-      if ( tmp ){
-	result = to_string(tmp );
-	xmlFree( tmp );
-      }
-    }
-    return result;
   }
 
   UnicodeString normalize_spaces( const UnicodeString& input ){

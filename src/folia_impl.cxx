@@ -3729,15 +3729,15 @@ namespace folia {
      * \param node an xmlNode representing a FoLiA subtree
      * \return the parsed tree. Throws on error.
      */
-    KWargs att = getAttributes( node );
+    KWargs atts = getAttributes( node );
     int sp = xmlNodeGetSpacePreserve(node);
     if ( sp == 1 ){
-      att.add("xml:space","preserve");
+      atts.add("xml:space","preserve");
     }
     else if ( sp == 0 ){
-      att.add("xml:space","default");
+      atts.add("xml:space","default");
     }
-    setAttributes( att );
+    setAttributes( atts );
     set_line_number( xmlGetLineNo(node) );
     const xmlNode *p = node->children;
     while ( p ) {

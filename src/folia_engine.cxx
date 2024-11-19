@@ -723,7 +723,7 @@ namespace folia {
     while ( xmlTextReaderRead(cur_reader) > 0 ){
       int depth = xmlTextReaderDepth(cur_reader);
       int type = xmlTextReaderNodeType(cur_reader);
-      string local_name = TiCC::to_char(xmlTextReaderConstLocalName(cur_reader));
+      string local_name = TiCC::to_string(xmlTextReaderConstLocalName(cur_reader));
       xml_tree *add_rec = 0;
       switch ( type ){
       case XML_READER_TYPE_ELEMENT:
@@ -766,7 +766,7 @@ namespace folia {
 	  string _value;
 	  auto pnt = xmlTextReaderConstValue(cur_reader);
 	  if ( pnt ){
-	    _value = TiCC::to_char(pnt);
+	    _value = TiCC::to_string(pnt);
 	  }
 	  add_rec = new xml_tree( depth, index, local_name, _value );
 	}
