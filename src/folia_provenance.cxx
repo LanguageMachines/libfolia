@@ -454,6 +454,9 @@ namespace folia {
 	  throw XmlError( "processor: invalid attribute(s) in meta tag" );
 	}
 	string value = TiCC::TextValue( n );
+	if ( value.empty() ){
+	  throw XmlError( "processor: empty id" );
+	}
 	main->_metadata[id] = value;
       }
       n = n->next;
