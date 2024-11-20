@@ -41,7 +41,7 @@ if [ $# -ne 2 ]
 fi
 
 run_lint(){
-    $exe --strip --KANON "$1" --output $2
+    $exe --strip --canonical "$1" --output $2
     if [ $? -ne 0 ]
     then
 	echo "foliadiff.sh: $1 is INVALID FoLiA"

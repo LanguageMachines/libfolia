@@ -396,12 +396,6 @@ namespace folia {
       else if ( mod == "nocanonical" ){
 	mode = Mode( (int)mode & ~CANONICAL );
       }
-      else if ( mod == "kanon" ){ // backward compatible
-	mode = Mode( (int)mode | CANONICAL );
-      }
-      else if ( mod == "nokanon" ){ // backward compatible
-	mode = Mode( (int)mode & ~CANONICAL );
-      }
       else if ( mod == "checktext" ){
 	mode = Mode( int(mode) | CHECKTEXT );
       }
