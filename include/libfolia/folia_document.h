@@ -86,11 +86,13 @@ namespace folia {
   class Document {
     friend std::ostream& operator<<( std::ostream& os, const Document *d );
     friend class Engine;
+
+  public:
     /// enum Mode determines runtime characteristic of the document
     /*!
       The default settings are CHECKTEXT and AUTODECLARE
-     */
-    enum Mode {
+    */
+    enum class RunMode {
       NOMODE=0,        //!< no special mode is set.
       PERMISSIVE=1,    //!< be permissive for certain incompatablities
       CHECKTEXT=2,     //!< check text consistency
@@ -100,8 +102,6 @@ namespace folia {
       AUTODECLARE=32,  //!< Automagicly add missing Annotation Declarations
       EXPLICIT=64      //!< add all set information
     };
-
-  public:
     enum class DebugMode {
       NODEBUG=0,            //!< nodebug.
       PARSING=1,            //!< debug parsing
@@ -280,18 +280,19 @@ namespace folia {
     DebugMode debug; //!< the debug level. 0 means NO debugging.
 
     /// is the PERMISSIVE mode set?
-    bool permissive() const { return mode & PERMISSIVE; };
+    bool permissive() const;
     /// is the CHECKTEXT mode set?
-    bool checktext() const { return mode & CHECKTEXT; };
+    bool checktext() const;
     /// is the FIXTEXT mode set?
-    bool fixtext() const { return mode & FIXTEXT; };
+    bool fixtext() const;
     /// is the STRIP mode set?
-    bool strip() const { return mode & STRIP; };
+    bool strip() const;
     /// is the CANONICAL mode set?
-    bool canonical() const { return mode & CANONICAL; };
+    bool canonical() const;
     /// is the AUTODECLARE mode set?
-    bool autodeclare() const { return mode & AUTODECLARE; };
-    bool has_explicit() const { return mode & EXPLICIT; };
+    bool autodeclare() const;
+    /// is the EXPLICITE mode set?
+    bool has_explicit() const;
     bool set_permissive( bool ) const; // defined const, but the mode is mutable!
     bool set_checktext( bool ) const; // defined const, but the mode is mutable!
     bool set_fixtext( bool ) const; // defined const, but the mode is mutable!
@@ -496,7 +497,7 @@ namespace folia {
     ForeignMetaData *_foreign_metadata;
     std::map<std::string,MetaData *> submetadata;
     std::multimap<std::string,std::string> styles;
-    mutable Mode mode;
+    mutable RunMode mode;
     std::string _source_name;
     std::string _version_string;
     int _major_version;
@@ -510,6 +511,17 @@ namespace folia {
     Document( const Document& ) = delete; // inhibit copies
     Document& operator=( const Document& ) = delete; // inhibit copies
   };
+
+  using DocMode = Document::RunMode;
+  DEFINE_ENUM_FLAG_OPERATORS(DocMode);
+
+  inline bool Document::permissive() const { return mode % DocMode::PERMISSIVE; };
+  inline bool Document::checktext() const { return mode % DocMode::CHECKTEXT; };
+  inline bool Document::fixtext() const { return mode % DocMode::FIXTEXT; };
+  inline bool Document::strip() const { return mode % DocMode::STRIP; };
+  inline bool Document::canonical() const { return mode % DocMode::CANONICAL; };
+  inline bool Document::autodeclare() const { return mode % DocMode::AUTODECLARE; };
+  inline bool Document::has_explicit() const { return mode % DocMode::EXPLICIT; };
 
   template <> inline
     Text *Document::create_root( const KWargs& args ){

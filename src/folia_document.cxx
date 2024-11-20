@@ -318,7 +318,7 @@ namespace folia {
     _foliaNsIn_prefix = 0;
     _foliaNsOut = 0;
     debug = DebugMode::NODEBUG;
-    mode = Mode( CHECKTEXT|AUTODECLARE );
+    mode = DocMode( DocMode::CHECKTEXT|DocMode::AUTODECLARE );
     _external_document = false;
     _incremental_parse = false;
     _preserve_spaces = false;
@@ -379,46 +379,46 @@ namespace folia {
     vector<string> modev = TiCC::split_at( ms, "," );
     for ( const auto& mod : modev ){
       if ( mod == "permissive" ){
-	mode = Mode( (int)mode | PERMISSIVE );
+	mode = mode | DocMode::PERMISSIVE;
       }
       else if ( mod == "nopermissive" ){
-	mode = Mode( (int)mode & ~PERMISSIVE );
+	mode = mode & ~DocMode::PERMISSIVE;
       }
       else if ( mod == "strip" ){
-	mode = Mode( (int)mode | STRIP );
+	mode = mode | DocMode::STRIP;
       }
       else if ( mod == "nostrip" ){
-	mode = Mode( (int)mode & ~STRIP );
+	mode = mode & ~DocMode::STRIP;
       }
       else if ( mod == "canonical" ){
-	mode = Mode( (int)mode | CANONICAL );
+	mode = mode | DocMode::CANONICAL;
       }
       else if ( mod == "nocanonical" ){
-	mode = Mode( (int)mode & ~CANONICAL );
+	mode = mode & ~DocMode::CANONICAL;
       }
       else if ( mod == "checktext" ){
-	mode = Mode( int(mode) | CHECKTEXT );
+	mode = mode | DocMode::CHECKTEXT;
       }
       else if ( mod == "nochecktext" ){
-	mode = Mode( int(mode) & ~CHECKTEXT );
+	mode = mode & ~DocMode::CHECKTEXT;
       }
       else if ( mod == "fixtext" ){
-	mode = Mode( int(mode) | FIXTEXT );
+	mode = mode | DocMode::FIXTEXT;
       }
       else if ( mod == "nofixtext" ){
-	mode = Mode( int(mode) & ~FIXTEXT );
+	mode = mode & ~DocMode::FIXTEXT;
       }
       else if ( mod == "autodeclare" ){
-	mode = Mode( int(mode) | AUTODECLARE );
+	mode = mode | DocMode::AUTODECLARE;
       }
       else if ( mod == "noautodeclare" ){
-	mode = Mode( int(mode) & ~AUTODECLARE );
+	mode = mode & ~DocMode::AUTODECLARE;
       }
       else if ( mod == "explicit" ){
-	mode = Mode( int(mode) | EXPLICIT );
+	mode = mode | DocMode::EXPLICIT;
       }
       else if ( mod == "noexplicit" ){
-	mode = Mode( int(mode) & ~EXPLICIT );
+	mode = mode & ~DocMode::EXPLICIT;
       }
       else {
 	throw invalid_argument( "FoLiA::Document: unsupported mode value: "+ mod );
@@ -436,31 +436,31 @@ namespace folia {
       doc.getmode() might return: "mode=strip,nohecktext,autodeclare,"
      */
     string result = "mode=";
-    if ( mode & PERMISSIVE ){
+    if ( mode % DocMode::PERMISSIVE ){
       result += "permissive,";
     }
-    if ( mode & STRIP ){
+    if ( mode % DocMode::STRIP ){
       result += "strip,";
     }
-    if ( mode & CHECKTEXT ){
+    if ( mode % DocMode::CHECKTEXT ){
       result += "checktext,";
     }
     else {
       result += "nochecktext,";
     }
-    if ( mode & FIXTEXT ){
+    if ( mode % DocMode::FIXTEXT ){
       result += "fixtext,";
     }
-    if ( mode & CANONICAL ){
+    if ( mode % DocMode::CANONICAL ){
       result += "canonical,";
     }
-    if ( mode & AUTODECLARE ){
+    if ( mode % DocMode::AUTODECLARE ){
       result += "autodeclare,";
     }
     else {
       result += "noautodeclare,";
     }
-    if ( mode & EXPLICIT ){
+    if ( mode % DocMode::EXPLICIT ){
       result += "explicit,";
     }
     return result;
@@ -472,12 +472,12 @@ namespace folia {
       \param new_val the boolean to use for on/off
       \return the previous value
     */
-    bool old_val = (mode & STRIP);
+    bool old_val = (mode % DocMode::STRIP);
     if ( new_val ){
-      mode = Mode( (int)mode | STRIP );
+      mode = mode | DocMode::STRIP;
     }
     else {
-      mode = Mode( (int)mode & ~STRIP );
+      mode = mode & ~DocMode::STRIP;
     }
     return old_val;
   }
@@ -488,12 +488,12 @@ namespace folia {
       \param new_val the boolean to use for on/off
       \return the previous value
     */
-    bool old_val = (mode & PERMISSIVE);
+    bool old_val = (mode % DocMode::PERMISSIVE);
     if ( new_val ){
-      mode = Mode( (int)mode | PERMISSIVE );
+      mode = mode | DocMode::PERMISSIVE;
     }
     else {
-      mode = Mode( (int)mode & ~PERMISSIVE );
+      mode = mode & ~DocMode::PERMISSIVE;
     }
     return old_val;
   }
@@ -504,12 +504,12 @@ namespace folia {
       \param new_val the boolean to use for on/off
       \return the previous value
     */
-    bool old_val = (mode & CHECKTEXT);
+    bool old_val = (mode % DocMode::CHECKTEXT);
     if ( new_val ){
-      mode = Mode( (int)mode | CHECKTEXT );
+      mode = mode | DocMode::CHECKTEXT;
     }
     else {
-      mode = Mode( (int)mode & ~CHECKTEXT );
+      mode = mode & ~DocMode::CHECKTEXT;
     }
     return old_val;
   }
@@ -521,12 +521,12 @@ namespace folia {
       \param new_val the boolean to use for on/off
       \return the previous value
     */
-    bool old_val = (mode & FIXTEXT);
+    bool old_val = (mode % DocMode::FIXTEXT);
     if ( new_val ){
-      mode = Mode( (int)mode | FIXTEXT );
+      mode = mode | DocMode::FIXTEXT;
     }
     else {
-      mode = Mode( (int)mode & ~FIXTEXT );
+      mode = mode & ~DocMode::FIXTEXT;
     }
     return old_val;
   }
@@ -537,12 +537,12 @@ namespace folia {
       \param new_val the boolean to use for on/off
       \return the previous value
     */
-    bool old_val = (mode & CANONICAL);
+    bool old_val = (mode % DocMode::CANONICAL);
     if ( new_val ){
-      mode = Mode( (int)mode | CANONICAL );
+      mode = mode | DocMode::CANONICAL;
     }
     else {
-      mode = Mode( (int)mode & ~CANONICAL );
+      mode = mode & ~DocMode::CANONICAL;
     }
     return old_val;
   }
@@ -553,12 +553,12 @@ namespace folia {
       \param new_val the boolean to use for on/off
       \return the previous value
     */
-    bool old_val = (mode & AUTODECLARE);
+    bool old_val = (mode % DocMode::AUTODECLARE);
     if ( new_val ){
-      mode = Mode( (int)mode | AUTODECLARE );
+      mode = mode | DocMode::AUTODECLARE;
     }
     else {
-      mode = Mode( (int)mode & ~AUTODECLARE );
+      mode = mode & ~DocMode::AUTODECLARE;
     }
     return old_val;
   }
@@ -569,12 +569,12 @@ namespace folia {
       \param new_val the boolean to use for on/off
       \return the previous value
     */
-    bool old_val = (mode & EXPLICIT);
+    bool old_val = (mode % DocMode::EXPLICIT);
     if ( new_val ){
-      mode = Mode( (int)mode | EXPLICIT );
+      mode = mode | DocMode::EXPLICIT;
     }
     else {
-      mode = Mode( (int)mode & ~EXPLICIT );
+      mode = mode & ~DocMode::EXPLICIT;
     }
     return old_val;
   }
@@ -1651,11 +1651,11 @@ namespace folia {
       cerr << "DETECTED FOLIA_TEXT_CHECK environment variable, value ='"
 	   << e << "'"<< endl;
       if ( e == "NO" ){
-	mode = Mode( int(mode) & ~CHECKTEXT );
+	mode = DocMode( mode & ~DocMode::CHECKTEXT );
 	cerr << "FOLIA_TEXT_CHECK disabled" << endl;
       }
       else if ( e == "YES" ){
-	mode = Mode( int(mode) | CHECKTEXT );
+	mode = DocMode( mode | DocMode::CHECKTEXT );
 	cerr << "FOLIA_TEXT_CHECK enabled" << endl;
       }
       else {
@@ -1663,9 +1663,9 @@ namespace folia {
 	     << endl;
       }
     }
-    if ( !( mode & FIXTEXT) && version_below( 1, 5 ) ){
+    if ( !( mode % DocMode::FIXTEXT) && version_below( 1, 5 ) ){
       // don't check text consistency for older documents
-      mode = Mode( int(mode) & ~CHECKTEXT );
+      mode = DocMode( mode & ~DocMode::CHECKTEXT );
     }
   }
 
