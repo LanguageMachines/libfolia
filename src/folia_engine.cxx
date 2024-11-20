@@ -109,7 +109,7 @@ namespace folia {
     _last_added(0),
     _last_depth(2),
     _start_index(0),
-    _doc_type( TEXT ),
+    _doc_type( DocType::TEXT ),
     _dbg_file(0),
     _os(0),
     _ok(false),
@@ -486,7 +486,7 @@ namespace folia {
 	  _out_doc->parse_metadata( node );
 	}
 	else if ( local_name == "text" ){
-	  _doc_type = TEXT;
+	  _doc_type = DocType::TEXT;
 	  KWargs args = get_attributes(_reader);
 	  FoliaElement *text_node =_out_doc->setTextRoot( args );
 	  _root_node = text_node;
@@ -497,7 +497,7 @@ namespace folia {
 	  return _ok;
 	}
 	else if ( local_name == "speech" ){
-	  _doc_type = SPEECH;
+	  _doc_type = DocType::SPEECH;
 	  KWargs args = get_attributes(_reader);
 	  FoliaElement *sp = _out_doc->setSpeechRoot( args );
 	  _root_node = sp;
@@ -1023,7 +1023,7 @@ namespace folia {
     string search_b1;
     string search_b2;
     string search_e;
-    if ( _doc_type == TEXT ){
+    if ( _doc_type == DocType::TEXT ){
       if ( !ns_prefix.empty() ){
 	search_b1 = "<" + ns_prefix + ":" + "text>";
 	search_b2 = "<" + ns_prefix + ":" + "text ";
