@@ -92,7 +92,7 @@ namespace folia {
     /*!
       The default settings are CHECKTEXT and AUTODECLARE
     */
-    enum class RunMode {
+    enum class RUN_FLAGS {
       NOMODE=0,        //!< no special mode is set.
       PERMISSIVE=1,    //!< be permissive for certain incompatablities
       CHECKTEXT=2,     //!< check text consistency
@@ -102,7 +102,7 @@ namespace folia {
       AUTODECLARE=32,  //!< Automagicly add missing Annotation Declarations
       EXPLICIT=64      //!< add all set information
     };
-    enum class DebugMode {
+    enum class DEBUG_FLAGS {
       NODEBUG=0,            //!< nodebug.
       PARSING=1,            //!< debug parsing
       DECLARATIONS=2,       //!< debug declarations
@@ -277,7 +277,7 @@ namespace folia {
       _externals.push_back( p );
     };
     void resolveExternals();
-    DebugMode debug; //!< the debug level. 0 means NO debugging.
+    DEBUG_FLAGS debug; //!< the debug level. 0 means NO debugging.
 
     /// is the PERMISSIVE mode set?
     bool permissive() const;
@@ -330,14 +330,14 @@ namespace folia {
     void decrRef( AnnotationType, const std::string& );
     void setmode( const std::string& ) const;
     std::string getmode() const;
-    DebugMode setdebug( const std::string& );
-    DebugMode setdebug( DebugMode val ){
+    DEBUG_FLAGS setdebug( const std::string& );
+    DEBUG_FLAGS setdebug( DEBUG_FLAGS val ){
       /// set the debug level
       /*!
 	\param val the new debug value
 	\return the old debug value
       */
-      DebugMode ret=debug; debug=val; return ret;
+      DEBUG_FLAGS ret=debug; debug=val; return ret;
     };
     std::multimap<AnnotationType,std::string> unused_declarations( ) const;
     const MetaData *get_submetadata( const std::string& m ){
@@ -497,7 +497,7 @@ namespace folia {
     ForeignMetaData *_foreign_metadata;
     std::map<std::string,MetaData *> submetadata;
     std::multimap<std::string,std::string> styles;
-    mutable RunMode mode;
+    mutable RUN_FLAGS mode;
     std::string _source_name;
     std::string _version_string;
     int _major_version;
@@ -512,7 +512,7 @@ namespace folia {
     Document& operator=( const Document& ) = delete; // inhibit copies
   };
 
-  using DocMode = Document::RunMode;
+  using DocMode = Document::RUN_FLAGS;
   DEFINE_ENUM_FLAG_OPERATORS(DocMode);
 
   inline bool Document::permissive() const { return mode % DocMode::PERMISSIVE; };
@@ -556,7 +556,7 @@ namespace folia {
 
   std::string library_version();
   std::string folia_version();
-  using DocDbg = Document::DebugMode;
+  using DocDbg = Document::DEBUG_FLAGS;
   std::string toString( DocDbg mode );
   DEFINE_ENUM_FLAG_OPERATORS(DocDbg);
   std::ostream& operator<<( std::ostream&, const DocDbg& );

@@ -642,7 +642,7 @@ namespace folia {
     }
     Attrib supported = required_attributes() | optional_attributes();
     bool att_dbg = false;
-    Document::DebugMode doc_dbg = DocDbg::NODEBUG;
+    DocDbg doc_dbg = DocDbg::NODEBUG;
     // we will switch it off temporarely. so remember
     if ( doc() ){
       doc_dbg = doc()->debug;
