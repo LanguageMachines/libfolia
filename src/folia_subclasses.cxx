@@ -1915,8 +1915,10 @@ namespace folia {
       // backward compatability
       ch = CORRECTION_HANDLING::ORIGINAL;
     }
-    if ( ch == CORRECTION_HANDLING::CURRENT
-	 || ch == CORRECTION_HANDLING::EITHER ){
+    switch ( ch ){
+    case CORRECTION_HANDLING::CURRENT:
+      [[ fallthrough ]];
+    case CORRECTION_HANDLING::EITHER:
       for ( const auto& el : data() ) {
 	if ( corr_dbg ){
 	  DBG << "data=" << el << endl;
@@ -1965,8 +1967,8 @@ namespace folia {
 	  }
 	}
       }
-    }
-    else if ( ch == CORRECTION_HANDLING::ORIGINAL ){
+      break;
+    case CORRECTION_HANDLING::ORIGINAL:
       for ( const auto& el : data() ) {
 	if ( corr_dbg ){
 	  DBG << "data=" << el << endl;
@@ -1983,6 +1985,7 @@ namespace folia {
 	  }
 	}
       }
+      break;
     }
     UnicodeString final_result;
     if ( !deletion ){
