@@ -83,7 +83,7 @@ ALL=32768 };
   std::string toString( const Attrib );
   std::ostream& operator<<( std::ostream&, const Attrib& );
 
-  //#undef DOMAIN // ugly hack but Clang defines DOMAIN in math.h
+#undef DOMAIN // ugly hack but Clang defines DOMAIN in math.h
 
   /*
    * Annotation types tie FoLiA elements to a particular kind of annotation.
