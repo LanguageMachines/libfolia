@@ -123,15 +123,7 @@ namespace folia {
     void init();
     void init_args( const KWargs& );
     bool read_from_string( const std::string& );
-    bool readFromString( const std::string& s ){
-      /// backward compatability. read_from_string() is preferred
-      return read_from_string( s );
-    }
     bool read_from_file( const std::string& );
-    bool readFromFile( const std::string& s ){
-      /// backward compatability. read_from_file() is preferred
-      return read_from_file( s );
-    }
     bool save( std::ostream&, const std::string&, bool = false ) const;
     bool save( std::ostream& os, bool canonical = false ) const {
       /// save a Document to a stream without using a namespace name
