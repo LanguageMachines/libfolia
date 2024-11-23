@@ -1991,7 +1991,7 @@ namespace folia {
       multimap<ElementType, FoliaElement *, std::greater<ElementType>> otherelementsMap;
       for ( const auto& el : _data ) {
 	if ( attribute_elements.find(el) == attribute_elements.end() ) {
-	  if ( el->isinstance(TextContent_t) ) {
+	  if ( el->isinstance<TextContent>() ) {
 	    if ( el->cls() == "current" ) {
 	      currenttextelements.push_back( el );
 	    }
@@ -2004,12 +2004,12 @@ namespace folia {
 	      otherelementsMap.insert( make_pair( el->element_id(), el ) );
 	    }
 	    else {
-	      if ( el->isinstance(XmlComment_t)
+	      if ( el->isinstance<XmlComment>()
 		   && currenttextelements.empty()
 		   && textelements.empty() ) {
 		commentelements.push_back( el );
 	      }
-	      else if ( el->isinstance(ProcessingInstruction_t)
+	      else if ( el->isinstance<ProcessingInstruction>()
 		   && currenttextelements.empty()
 		   && textelements.empty() ) {
 		PIelements.push_back( el );
@@ -2225,7 +2225,7 @@ namespace folia {
 
   UnicodeString AbstractElement::text_container_text( const TextPolicy& tp ) const {
     string desired_class = tp.get_class();
-    if ( isinstance( TextContent_t )
+    if ( isinstance<TextContent>()
 	 && cls() != desired_class ) {
       // take a shortcut for TextContent in wrong class
       if ( tp.debug() ){
@@ -2245,7 +2245,7 @@ namespace folia {
       DBG << "]" << endl;
     }
     for ( const auto& d : _data ){
-      if ( d->isinstance( XmlText_t ) ) {
+      if ( d->isinstance<XmlText>() ) {
 	// 'true' text child
 	if ( pendingspace ) {
 	  result += " ";
@@ -2723,8 +2723,8 @@ namespace folia {
       if ( child->printable()
 	   && ( is_structure( child )
 		|| child->isSubClass( AbstractSpanAnnotation_t )
-		|| child->isinstance( Correction_t ) )
-	   && !child->isinstance( TextContent_t ) ) {
+		|| child->isinstance<Correction>() )
+	   && !child->isinstance<TextContent>() ) {
 	if ( tp.debug() ){
 	  DBG << "deeptext:bekijk node[" << child->xmltag() << "]"<< endl;
 	}
@@ -2734,7 +2734,7 @@ namespace folia {
 	    DBG << "deeptext found '" << tmp << "'" << endl;
 	  }
 	  parts.push_back(tmp);
-	  if ( child->isinstance( Sentence_t )
+	  if ( child->isinstance<Sentence>()
 	       && no_space_at_end(child,tp.debug()) ){
 	    const string& delim = "";
 	    if ( tp.debug() ){
@@ -2828,7 +2828,7 @@ namespace folia {
       DBG << "text_content, policy= " << tp << endl;
     }
     string desired_class = tp.get_class();
-    if ( isinstance(TextContent_t) ){
+    if ( isinstance<TextContent>() ){
       if ( tp.debug() ){
 	DBG << "A textcontent!!" << endl;
       }
@@ -2856,7 +2856,8 @@ namespace folia {
       DBG << "recurse into children...." << endl;
     }
     for ( const auto& el : data() ) {
-      if ( el->isinstance(TextContent_t) && (el->cls() == desired_class ) ) {
+      if ( el->isinstance<TextContent>()
+	   && (el->cls() == desired_class ) ) {
 	return dynamic_cast<TextContent*>(el);
       }
       else if ( el->element_id() == Correction_t) {
@@ -2911,7 +2912,7 @@ namespace folia {
      * might throw NoSuchPhon exception if not found.
      */
     string desired_class = tp.get_class();
-    if ( isinstance(PhonContent_t) ){
+    if ( isinstance<PhonContent>() ){
       if  ( cls() == desired_class ){
 	return dynamic_cast<const PhonContent*>(this);
       }
@@ -2927,7 +2928,7 @@ namespace folia {
     }
 
     for ( const auto& el : _data ) {
-      if ( el->isinstance(PhonContent_t) && ( el->cls() == desired_class ) ) {
+      if ( el->isinstance<PhonContent>() && ( el->cls() == desired_class ) ) {
 	return dynamic_cast<PhonContent*>(el);
       }
       else if ( el->element_id() == Correction_t) {
@@ -3035,7 +3036,8 @@ namespace folia {
 	     << endl;
 	}
       }
-      if ( child->speakable() && !child->isinstance( PhonContent_t ) ) {
+      if ( child->speakable()
+	   && !child->isinstance<PhonContent>() ) {
 	if ( tp.debug() ){
 	  DBG << "deepphon:bekijk node[" << child->xmltag() << "]" << endl;
 	}
@@ -4205,7 +4207,7 @@ namespace folia {
 	throw ValueError( this,
 			  "reuse= must point to an existing correction id!" );
       }
-      if ( !corr->isinstance( Correction_t ) ) {
+      if ( !corr->isinstance<Correction>() ) {
 	throw ValueError( this,
 			  "reuse= must point to an existing correction id!" );
       }
@@ -4471,7 +4473,7 @@ namespace folia {
 	append(corr);
       }
       for ( const auto& sug : suggestions ) {
-	if ( sug->isinstance( Suggestion_t ) ) {
+	if ( sug->isinstance<Suggestion>() ) {
 	  sug->set_parent(0);
 	  corr->append( sug );
 	}

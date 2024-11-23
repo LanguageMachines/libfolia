@@ -110,8 +110,6 @@ namespace folia {
       return index(i);
     }
 
-    virtual bool isinstance( ElementType et ) const = 0;
-
     template <typename F>
       bool isinstance() const {
       return element_id() == F::PROPS.ELEMENT_ID;
@@ -600,13 +598,7 @@ namespace folia {
     FoliaElement* opaque_index( size_t ) const override;
     FoliaElement* rindex( size_t ) const override;
 
-    bool isinstance( ElementType et ) const override {
-      /// return true when the object is an instance of the type parameter
-      /*!
-      \param et the type to check against
-    */
-      return et == element_id();
-    }
+    using FoliaElement::isinstance;
 
     void assignDoc( Document* ) override ;
     FoliaElement *parent() const override { return _parent; };
@@ -942,15 +934,6 @@ namespace folia {
       \return the Unicode string value
     */
     return e->unicode(); }
-
-  inline bool isinstance( const FoliaElement *e, ElementType t ) {
-    /// return true when the first parameter is an instance of the type
-    /// given by the second parameter
-    /*!
-      \param e the FoliaElement to test
-      \param t the type to check against
-    */
-    return e->isinstance( t ); }
 
   class AllowGenerateID: public virtual FoliaElement {
   public:

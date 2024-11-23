@@ -122,6 +122,7 @@ int main() {
     cerr << "document testing failed" << endl;
     return EXIT_FAILURE;
   }
+  cout << "Spaces sanity" << endl;
   UnicodeString dirty = "    A    dir\ty \n  string\r.\n   ";
   UnicodeString clean = normalize_spaces( dirty );
   UnicodeString wanted = "A dir y string .";
@@ -158,7 +159,7 @@ int main() {
     cerr << "is_norm_empty() failed." << endl;
     return EXIT_FAILURE;
   }
-
+  cout << "Subclass sanity" << endl;
   assert( ( isSubClass<AbstractWord,Word>() == 0 ) );
   assert( ( isSubClass<Word,AbstractWord>() == 1 ) );
   assert( ( isSubClass<AbstractStructureElement,Word>() == 0 ) );

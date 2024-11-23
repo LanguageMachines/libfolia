@@ -201,7 +201,7 @@ namespace folia {
     const vector<FoliaElement*>& data = this->data();
     auto it = data.rbegin();
     while ( it != data.rend() ) {
-      if ( (*it)->isinstance( Sentence_t ) ) {
+      if ( (*it)->isinstance<Sentence>() ) {
 	// if a quote ends in a sentence, we don't want any delimiter
 	if ( tp.debug() ){
 	  DBG << "OUT " << xmltag() << "::get_delimiter ==>''" << endl;
@@ -225,10 +225,10 @@ namespace folia {
   vector<Word*> Quote::wordParts() const {
     vector<Word*> result;
     for ( const auto& pnt : data() ) {
-      if ( pnt->isinstance( Word_t ) ) {
+      if ( pnt->isinstance<Word>() ) {
 	result.push_back( dynamic_cast<Word*>(pnt) );
       }
-      else if ( pnt->isinstance( Sentence_t ) ) {
+      else if ( pnt->isinstance<Sentence>() ) {
 	KWargs args;
 	args.add("text", pnt->id() );
 	args.add("placeholder","yes");
@@ -236,11 +236,11 @@ namespace folia {
 	doc()->keepForDeletion( p );
 	result.push_back( p );
       }
-      else if ( pnt->isinstance( Quote_t ) ) {
+      else if ( pnt->isinstance<Quote>() ) {
 	vector<Word*> tmp = pnt->wordParts();
 	result.insert( result.end(), tmp.begin(), tmp.end() );
       }
-      else if ( pnt->isinstance( Description_t ) ) {
+      else if ( pnt->isinstance<Description>() ) {
 	// ignore
       }
       else {
@@ -255,10 +255,10 @@ namespace folia {
   vector<Word*> Sentence::wordParts() const {
     vector<Word*> result;
     for ( const auto& pnt : data() ) {
-      if ( pnt->isinstance( Word_t ) ) {
+      if ( pnt->isinstance<Word>() ) {
 	result.push_back( dynamic_cast<Word*>(pnt) );
       }
-      else if ( pnt->isinstance( Quote_t ) ) {
+      else if ( pnt->isinstance<Quote>() ) {
 	vector<Word*> v = pnt->wordParts();
 	result.insert( result.end(), v.begin(),v.end() );
       }
@@ -330,10 +330,10 @@ namespace folia {
      * \param args additional arguments in Attribute-value pairs
      * \return the created Correction
      */
-    if ( !p || !p->isinstance( Word_t ) ) {
+    if ( !p || !p->isinstance<Word>() ) {
       throw runtime_error( "insertword(): previous is not a Word " );
     }
-    if ( !w || !w->isinstance( Word_t ) ) {
+    if ( !w || !w->isinstance<Word>() ) {
       throw runtime_error( "insertword(): new word is not a Word " );
     }
     KWargs kwargs;
@@ -367,7 +367,7 @@ namespace folia {
      */
     // sanity check:
     for ( const auto* org : orig ) {
-      if ( !org || !org->isinstance( Word_t) ) {
+      if ( !org || !org->isinstance<Word>() ) {
 	throw runtime_error("Original word is not a Word instance" );
       }
       else if ( org->sentence() != this ) {
@@ -376,7 +376,7 @@ namespace folia {
     }
     if ( any_of( _new.begin(),
 		 _new.end(),
-		 []( const FoliaElement *e ){ return !e->isinstance( Word_t ); } ) ){
+		 []( const FoliaElement *e ){ return !e->isinstance<Word>(); } ) ){
       throw runtime_error("new word is not a Word instance" );
     }
     string sugval = argsin.lookup("suggest");
@@ -1052,7 +1052,7 @@ namespace folia {
      */
     FoliaElement *p = parent();
     while( p ) {
-      if ( p->isinstance( Sentence_t ) ) {
+      if ( p->isinstance<Sentence>() ) {
 	return dynamic_cast<Sentence*>(p);
       }
       p = p->parent();
@@ -1067,7 +1067,7 @@ namespace folia {
      */
     FoliaElement *p = parent();
     while( p ) {
-      if ( p->isinstance( Paragraph_t ) ) {
+      if ( p->isinstance<Paragraph>() ) {
 	return dynamic_cast<Paragraph*>(p);
       }
       p = p->parent();
@@ -1082,7 +1082,7 @@ namespace folia {
      */
     FoliaElement *p = parent();
     while( p ) {
-      if ( p->isinstance( Division_t ) ) {
+      if ( p->isinstance<Division>() ) {
 	return dynamic_cast<Division*>(p);
       }
       p = p->parent();
@@ -1127,10 +1127,10 @@ namespace folia {
      */
     FoliaElement *p = parent();
     while ( p ) {
-      if ( p->isinstance( Correction_t ) ) {
+      if ( p->isinstance<Correction>() ) {
 	return dynamic_cast<Correction*>(p);
       }
-      else if ( p->isinstance( Sentence_t ) ){
+      else if ( p->isinstance<Sentence>() ){
 	break;
       }
       p = p->parent();
@@ -1602,7 +1602,7 @@ namespace folia {
       }
     }
     AbstractElement::append( child );
-    if ( child->isinstance(Word_t)
+    if ( child->isinstance<Word>()
 	 && dynamic_cast<Word*>(child)->is_placeholder() ) {
       child->increfcount();
     }
@@ -1622,7 +1622,7 @@ namespace folia {
 	c_set = st;
       }
     }
-    else if ( child->isinstance(Correction_t) ) {
+    else if ( child->isinstance<Correction>() ) {
       const Original *org = child->getOriginal();
       if ( org ) {
 	for ( size_t i=0; i < org->size(); ++i ) {
@@ -1923,7 +1923,7 @@ namespace folia {
 	if ( corr_dbg ){
 	  DBG << "data=" << el << endl;
 	}
-	if ( el->isinstance( New_t ) ){
+	if ( el->isinstance<New>() ){
 	  if ( el->size() == 0 ){
 	    deletion = true;
 	  }
@@ -1940,7 +1940,7 @@ namespace folia {
 	  }
 	}
 	if ( new_result.isEmpty() ){
-	  if ( el->isinstance( Current_t ) ){
+	  if ( el->isinstance<Current>() ){
 	    try {
 	      cur_result = el->private_text( tp );
 	      if ( corr_dbg ){
@@ -1953,7 +1953,7 @@ namespace folia {
 	  }
 	  if ( cur_result.isEmpty()
 	       && ch == CORRECTION_HANDLING::EITHER ){
-	    if ( el->isinstance( Original_t ) ){
+	    if ( el->isinstance<Original>() ){
 	      try {
 		org_result = el->private_text( tp );
 		if ( corr_dbg ){
@@ -1973,7 +1973,7 @@ namespace folia {
 	if ( corr_dbg ){
 	  DBG << "data=" << el << endl;
 	}
-	if ( el->isinstance( Original_t ) ){
+	if ( el->isinstance<Original>() ){
 	  try {
 	    org_result = el->private_text( tp );
 	    if ( corr_dbg ){
@@ -2033,7 +2033,6 @@ namespace folia {
      * \return a string representing the delimiter
      */
     for ( const auto& el : data() ) {
-      //      if ( el->isinstance( New_t ) || el->isinstance( Current_t ) ) {
       return el->get_delimiter( tp );
       //      }
     }
@@ -2061,8 +2060,8 @@ namespace folia {
     case CORRECTION_HANDLING::EITHER: {
       const auto& it = find_if( data().begin(), data().end(),
 				[]( const FoliaElement *e ){
-				  return ( e->isinstance( New_t )
-					   || e->isinstance( Current_t ) ); } );
+				  return ( e->isinstance<New>()
+					   || e->isinstance<Current>() ); } );
       if ( it != data().end() ){
 	return (*it)->text_content( tp );
       }
@@ -2071,7 +2070,7 @@ namespace folia {
     case CORRECTION_HANDLING::ORIGINAL: {
       const auto& it = find_if( data().begin(), data().end(),
 				[]( const FoliaElement *e ){
-				  return e->isinstance( Original_t ); } );
+				  return e->isinstance<Original>(); } );
       if ( it != data().end() ){
 	return (*it)->text_content( tp );
       }
@@ -2302,8 +2301,8 @@ namespace folia {
     case CORRECTION_HANDLING::EITHER: {
       const auto& it = find_if( data().begin(), data().end(),
 				[]( const FoliaElement *e ){
-				  return ( e->isinstance( New_t )
-					   || e->isinstance( Current_t ) ); } );
+				  return ( e->isinstance<New>()
+					   || e->isinstance<Current>() ); } );
       if ( it != data().end() ){
 	return (*it)->phon_content( tp );
       }
@@ -2312,7 +2311,7 @@ namespace folia {
     case CORRECTION_HANDLING::ORIGINAL: {
       const auto& it = find_if( data().begin(), data().end(),
 				[]( const FoliaElement *e ){
-				  return e->isinstance( Original_t ); } );
+				  return e->isinstance<Original>(); } );
       if ( it != data().end() ){
 	return (*it)->phon_content( tp );
       }
