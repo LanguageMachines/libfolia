@@ -151,16 +151,6 @@ namespace folia {
     }
 
     bool isSubClass( ElementType ) const;
-    bool isSubClass( const FoliaElement *c ) const {
-      /// check if the object is a subclass of the class of \e c
-      /*!
-	\param c the FoliaElement we would like to compare to
-	\return true if the object is a SubClass of c.
-	This is about C++ class inheritance: is our class a derivative of c's
-	class?
-      */
-      return dynamic_cast<decltype(c)>(this) != nullptr;
-    };
 
     virtual void assignDoc( Document* ) = 0;
     virtual FoliaElement *parent() const = 0;
@@ -854,8 +844,6 @@ namespace folia {
   }
 
   bool isSubClass( const ElementType e1, const ElementType e2 );
-
-  bool isSubClass( const FoliaElement *e1, const FoliaElement *e2 );
 
   bool operator==( const FoliaElement&, const FoliaElement& );
   inline bool operator!=( const FoliaElement& e1, const FoliaElement& e2 ){

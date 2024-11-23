@@ -2328,18 +2328,6 @@ namespace folia {
     return false;
   }
 
-  bool isSubClass( const FoliaElement *e1, const FoliaElement *e2 ){
-    /// check if a FoliaElement class is a subclass of another one
-    /*!
-      \param e1 a FoliaElement
-      \param e2 a FoliaElement
-      \return true if e1 is a subclass of e2
-      This is about C++ class inheritance: is our class a derivative of c's
-      class?
-    */
-    return isSubClass( e1->element_id(), e2->element_id() );
-  }
-
   bool FoliaElement::isSubClass( ElementType t ) const {
     /// check if this FoliaElement is a subclass of the ElementType \e t
     /*!
