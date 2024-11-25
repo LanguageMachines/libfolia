@@ -1206,7 +1206,7 @@ namespace folia {
       and NOT a Word
     */
     if ( pnt->parent->tag != "w"
-	 && isSubClass( stringToElementType(pnt->parent->tag),
+	 && is_subtype( stringToElementType(pnt->parent->tag),
 			AbstractStructureElement_t ) ){
       return pnt->parent;
     }

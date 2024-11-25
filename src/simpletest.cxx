@@ -172,6 +172,14 @@ int main() {
   assert( ( isSubClass<Word,Word>() == 1 ) );
   assert( ( isSubClass<AllowXlink,FoliaElement>() == 1 ) );
   {
+    Word *w =  new Word();
+    assert( w->isSubClass<Word>() == 1 );
+    //    assert( w->isSubClass<AbstractWord>() == 1 );
+    //assert( w->isSubClass<AbstractStructureElement>() == 1 );
+    //assert( w->isSubClass<AbstractElement>() == 1 );
+    assert( w->isSubClass<Feature>() == 0 );
+  }
+  {
     bool caught = false;
     try {
       create_NCName("123");

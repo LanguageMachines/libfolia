@@ -2311,7 +2311,7 @@ namespace folia {
     return 0;
   }
 
-  bool isSubClass( const ElementType e1, const ElementType e2 ){
+  bool is_subtype( const ElementType& e1, const ElementType& e2 ){
     /// check if an ElementType is a direct or indirect subclass of another one
     /*!
       \param e1 an ElementType
@@ -2336,7 +2336,7 @@ namespace folia {
       This is about C++ class inheritance: is our class a derivative of c's
       class?
     */
-    return folia::isSubClass( element_id(), t );
+    return folia::is_subtype( element_id(), t );
   }
 
   bool isAttributeFeature( const string& att ){

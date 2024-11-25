@@ -1342,7 +1342,7 @@ namespace folia {
 	string my_alias = atts.extract( "alias" );
 	string gran_val = atts.extract( "groupannotations" );
 	if ( !gran_val.empty() ){
-	  if ( !isSubClass( et, AbstractSpanAnnotation_t ) ){
+	  if ( !is_subtype( et, AbstractSpanAnnotation_t ) ){
 	    throw DocumentError( _source_name,
 				 "attribute 'groupannotations' not allowed for '"
 				 + prefix + "-annotation",

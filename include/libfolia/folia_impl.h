@@ -69,6 +69,7 @@ namespace folia {
   class Morpheme;
   class MetaData;
   class ProcessingInstruction;
+  bool is_subtype( const ElementType& e1, const ElementType& e2 ); //from folia_properties
 
   /// class used to steer 'select()' behaviour
   enum class SELECT_FLAGS {
@@ -113,6 +114,11 @@ namespace folia {
     template <typename F>
       bool isinstance() const {
       return element_id() == F::PROPS.ELEMENT_ID;
+    }
+
+    template <typename F>
+    bool isSubClass() const {
+      return is_subtype( element_id(), F::PROPS.ELEMENT_ID );
     }
 
     template <typename T>
@@ -474,7 +480,7 @@ namespace folia {
     virtual bool set_space( bool ) = 0;
     virtual SPACE_FLAGS spaces_flag() const = 0;
     virtual void set_spaces_flag( SPACE_FLAGS ) = 0;
-    virtual ElementType element_id() const = 0;
+    virtual const ElementType& element_id() const = 0;
     virtual size_t occurrences() const = 0;
     virtual size_t occurrences_per_set() const = 0;
     virtual Attrib required_attributes() const = 0;
@@ -589,6 +595,7 @@ namespace folia {
     FoliaElement* rindex( size_t ) const override;
 
     using FoliaElement::isinstance;
+    using FoliaElement::isSubClass;
 
     void assignDoc( Document* ) override ;
     FoliaElement *parent() const override { return _parent; };
@@ -730,7 +737,7 @@ namespace folia {
     const std::string language( const std::string& = "" ) const override;
     const std::string& src() const override { return _src; };
     // generic properties
-    ElementType element_id() const override;
+    const ElementType& element_id() const override;
     size_t occurrences() const override;
     size_t occurrences_per_set() const override;
     Attrib required_attributes() const override;
@@ -842,8 +849,6 @@ namespace folia {
     */
     return std::is_convertible<T1*,T2*>::value;
   }
-
-  bool isSubClass( const ElementType e1, const ElementType e2 );
 
   bool operator==( const FoliaElement&, const FoliaElement& );
   inline bool operator!=( const FoliaElement& e1, const FoliaElement& e2 ){

@@ -97,8 +97,8 @@ namespace folia {
   extern const std::string DEFAULT_PHON_SET;
   extern std::string host_name;
 
+  bool is_subtype( const ElementType&, const ElementType& );
   bool isAttributeFeature( const std::string& );
-
   void static_init();
   void print_type_hierarchy( std::ostream& );
 

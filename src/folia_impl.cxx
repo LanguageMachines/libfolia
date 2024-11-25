@@ -57,7 +57,7 @@ namespace folia {
   string VersionName() { return PACKAGE_STRING; } ///< Returns the PACKAGE_STRING info of the package
   string Version() { return VERSION; }  ///< Returns version of the library
 
-  ElementType AbstractElement::element_id() const {
+  const ElementType& AbstractElement::element_id() const {
     /// return the ELEMENT_ID property
     return _props.ELEMENT_ID;
   }
@@ -3208,7 +3208,7 @@ namespace folia {
       return any_of( accepted_data().cbegin(),
 		     accepted_data().cend(),
 		     [t]( const ElementType& et) {
-		       return ( folia::isSubClass( t, et ) ); } );
+		       return ( folia::is_subtype( t, et ) ); } );
     }
   }
 
