@@ -51,6 +51,7 @@ const char *output_encoding = "UTF-8";
 /// direct Debugging info to the internal file, if present,
 /// or to the default stream
 
+TiCC::LogStream DBG_CERR(cerr,NoStamp);
 #define DBG *TiCC::Log((_dbg_file?_dbg_file:&DBG_CERR))
 
 namespace folia {

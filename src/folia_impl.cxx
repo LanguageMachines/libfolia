@@ -49,7 +49,8 @@ using namespace std;
 using namespace icu;
 using namespace TiCC;
 
-#define DBG *TiCC::Log(_dbg_file)
+static TiCC::LogStream DBG_CERR(cerr,NoStamp);
+#define DBG *TiCC::Log((_dbg_file?_dbg_file:&DBG_CERR))
 
 namespace folia {
   using TiCC::operator <<;
