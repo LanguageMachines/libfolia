@@ -255,7 +255,6 @@ namespace folia {
     virtual const std::string& processor() const = 0;
     virtual void processor_id( const std::string& ) = 0;
     virtual void annotatortype( AnnotatorType t ) =  0;
-    virtual AnnotationType annotation_type() const = 0;
     virtual PosAnnotation *addPosAnnotation( const KWargs& ) NOT_IMPLEMENTED;
     virtual LemmaAnnotation *addLemmaAnnotation( const KWargs& ) NOT_IMPLEMENTED;
     virtual MorphologyLayer *addMorphologyLayer( const KWargs& ) NOT_IMPLEMENTED;
@@ -358,12 +357,12 @@ namespace folia {
     virtual const UnicodeString phon( const std::string&,
 				      TEXT_FLAGS = TEXT_FLAGS::NONE ) const = 0;
     virtual const UnicodeString phon( TEXT_FLAGS = TEXT_FLAGS::NONE ) const = 0;
-    virtual bool printable() const = 0;
-    virtual bool speakable() const = 0;
-    virtual bool referable() const = 0;
-    virtual bool is_textcontainer() const = 0;
-    virtual bool is_phoncontainer() const = 0;
-    virtual bool implicitspace() const = 0;
+    virtual const bool& printable() const = 0;
+    virtual const bool& speakable() const = 0;
+    virtual const bool& referable() const = 0;
+    virtual const bool& is_textcontainer() const = 0;
+    virtual const bool& is_phoncontainer() const = 0;
+    virtual const bool& implicitspace() const = 0;
     virtual const std::string& text_delimiter() const = 0;
     // Word
     virtual Word *previous() const NOT_IMPLEMENTED;
@@ -480,17 +479,19 @@ namespace folia {
     virtual bool set_space( bool ) = 0;
     virtual SPACE_FLAGS spaces_flag() const = 0;
     virtual void set_spaces_flag( SPACE_FLAGS ) = 0;
+    // generic properties
     virtual const ElementType& element_id() const = 0;
-    virtual size_t occurrences() const = 0;
-    virtual size_t occurrences_per_set() const = 0;
-    virtual Attrib required_attributes() const = 0;
-    virtual Attrib optional_attributes() const = 0;
+    virtual const size_t& occurrences() const = 0;
+    virtual const size_t& occurrences_per_set() const = 0;
+    virtual const Attrib& required_attributes() const = 0;
+    virtual const Attrib& optional_attributes() const = 0;
     virtual const std::string& xmltag() const = 0;
     const std::string& classname() const { return xmltag(); }; //synomym
+    virtual const AnnotationType& annotation_type() const = 0;
     virtual const std::string& default_subset() const = 0;
     virtual const std::string subset() const NOT_IMPLEMENTED;
-    virtual bool setonly() const = 0;
-    virtual bool auto_generate_id() const = 0;
+    virtual const bool& setonly() const = 0;
+    virtual const bool& auto_generate_id() const = 0;
     virtual Document *doc() const = 0;
     virtual Sentence *sentence() const NOT_IMPLEMENTED;
     virtual Paragraph *paragraph() const NOT_IMPLEMENTED;
@@ -560,8 +561,8 @@ namespace folia {
 				      const std::string& ) = 0;
     virtual KWargs collectAttributes() const = 0;
     virtual void setAuth( bool b ) = 0;
-    virtual bool auth( ) const = 0;
-    virtual bool xlink() const = 0;
+    virtual const bool& auth( ) const = 0;
+    virtual const bool& xlink() const = 0;
     virtual const std::string href() const NOT_IMPLEMENTED;
     virtual const std::string generateId( const std::string& ) NOT_IMPLEMENTED;
     virtual const std::string& textclass() const NOT_IMPLEMENTED;
@@ -738,27 +739,27 @@ namespace folia {
     const std::string& src() const override { return _src; };
     // generic properties
     const ElementType& element_id() const override;
-    size_t occurrences() const override;
-    size_t occurrences_per_set() const override;
-    Attrib required_attributes() const override;
-    Attrib optional_attributes() const override;
-    bool hidden() const;
+    const size_t& occurrences() const override;
+    const size_t& occurrences_per_set() const override;
+    const Attrib& required_attributes() const override;
+    const Attrib& optional_attributes() const override;
+    const bool& hidden() const;
     const std::string& xmltag() const override;
+    const AnnotationType& annotation_type() const override;
     const std::string& default_subset() const override;
-    AnnotationType annotation_type() const override;
     const std::set<ElementType>& accepted_data() const;
     const std::set<ElementType>& required_data() const;
-    bool printable() const override;
-    bool speakable() const override;
-    bool referable() const override;
-    bool is_textcontainer() const override;
-    bool is_phoncontainer() const override;
-    bool implicitspace() const override;
+    const bool& printable() const override;
+    const bool& speakable() const override;
+    const bool& referable() const override;
+    const bool& is_textcontainer() const override;
+    const bool& is_phoncontainer() const override;
+    const bool& implicitspace() const override;
     const std::string& text_delimiter() const override;
-    bool auth() const override;
-    bool xlink() const override;
-    bool setonly() const override;
-    bool auto_generate_id() const override;
+    const bool& auth() const override;
+    const bool& xlink() const override;
+    const bool& setonly() const override;
+    const bool& auto_generate_id() const override;
 
     Document *doc() const override { return _mydoc; };
 
@@ -844,7 +845,7 @@ namespace folia {
     /// templated check if Type T1 is a subclass of Type T2
     /*!
       \return true if T1 is a SubClass of T2.
-      This is about C++ class inheritance: is our class a derivative of c's
+      This is about C++ class inheritance: is our class a derivative of this's
       class?
     */
     return std::is_convertible<T1*,T2*>::value;

@@ -62,27 +62,27 @@ namespace folia {
     return _props.ELEMENT_ID;
   }
 
-  size_t AbstractElement::occurrences() const {
+  const size_t& AbstractElement::occurrences() const {
     /// return the OCCURENCES property
     return _props.OCCURRENCES;
   }
 
-  size_t AbstractElement::occurrences_per_set() const {
+  const size_t& AbstractElement::occurrences_per_set() const {
     /// return the OCCURRENCES_PER_SET property
     return _props.OCCURRENCES_PER_SET;
   }
 
-  Attrib AbstractElement::required_attributes() const {
+  const Attrib& AbstractElement::required_attributes() const {
     /// return the REQUIRED_ATTRIBUTES property
     return _props.REQUIRED_ATTRIBS;
   }
 
-  Attrib AbstractElement::optional_attributes() const {
+  const Attrib& AbstractElement::optional_attributes() const {
     /// return the OPTONAL_ATTRIBUTES property
     return _props.OPTIONAL_ATTRIBS;
   }
 
-  bool AbstractElement::hidden() const {
+  const bool& AbstractElement::hidden() const {
     /// return the HIDDEN property
     return _props.HIDDEN;
   }
@@ -108,7 +108,7 @@ namespace folia {
     return _props.SUBSET;
   }
 
-  AnnotationType AbstractElement::annotation_type() const {
+  const AnnotationType& AbstractElement::annotation_type() const {
     /// return the ANNOTATIONTYPE property
     return _props.ANNOTATIONTYPE;
   }
@@ -123,32 +123,32 @@ namespace folia {
     return _props.REQUIRED_DATA;
   }
 
-  bool AbstractElement::printable() const {
+  const bool& AbstractElement::printable() const {
     /// return the PRINTABLE property
     return _props.PRINTABLE;
   }
 
-  bool AbstractElement::speakable() const {
+  const bool& AbstractElement::speakable() const {
     /// return the SPEAKABLE property
     return _props.SPEAKABLE;
   }
 
-  bool AbstractElement::referable() const {
+  const bool& AbstractElement::referable() const {
     /// return the WREFABLE property
     return _props.WREFABLE;
   }
 
-  bool AbstractElement::is_textcontainer() const {
+  const bool& AbstractElement::is_textcontainer() const {
     /// return the TEXTCONTAINER property
     return _props.TEXTCONTAINER;
   }
 
-  bool AbstractElement::implicitspace() const {
+  const bool& AbstractElement::implicitspace() const {
     /// return the IMPLICITSPACE property
     return _props.IMPLICITSPACE;
   }
 
-  bool AbstractElement::is_phoncontainer() const {
+  const bool& AbstractElement::is_phoncontainer() const {
     /// return the PHONCONTAINER property
     return _props.PHONCONTAINER;
   }
@@ -158,22 +158,22 @@ namespace folia {
     return _props.TEXTDELIMITER;
   }
 
-  bool AbstractElement::xlink() const {
+  const bool& AbstractElement::xlink() const {
     /// return the XLINK property
     return _props.XLINK;
   }
 
-  bool AbstractElement::auth() const {
+  const bool& AbstractElement::auth() const {
     /// return the AUTH property
     return _props.AUTH;
   }
 
-  bool AbstractElement::setonly() const {
+  const bool& AbstractElement::setonly() const {
     /// return the SETONLY property
     return _props.SETONLY;
   }
 
-  bool AbstractElement::auto_generate_id() const {
+  const bool& AbstractElement::auto_generate_id() const {
     /// return the AUTO_GENERATE_ID property
     return _props.AUTO_GENERATE_ID;
   }
