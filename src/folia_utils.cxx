@@ -51,6 +51,8 @@ using namespace icu;
 using namespace TiCC;
 
 namespace folia {
+  using TiCC::operator<<;
+
   string output_elem( const FoliaElement *elt ){
     string result = (elt->doc()?elt->doc()->filename():"")
       + ( elt->line_number()>=0?
@@ -596,118 +598,7 @@ namespace folia {
     return result;
   }
 
-  bool AT_sanity_check(){
-    bool sane = true;
-    size_t dim = s_ant_map.size();
-    if ( dim != ant_s_map.size() ){
-      cerr << "s_ant_map and ant_s_map are different in size!" << endl;
-      return false;
-    }
-    for ( auto const& [a_type,dummy] : ant_s_map ){
-      string s;
-      try {
-	s = toString( a_type );
-      }
-      catch (...){
-	cerr << "no string translation for AnnotationType("
-	     << int(a_type) << ")" << endl;
-	sane = false;
-      }
-      if ( !s.empty() ){
-	try {
-	  stringTo<AnnotationType>( s );
-	}
-	catch ( const ValueError& e ){
-	  cerr << "no AnnotationType found for string '" << s << "'" << endl;
-	  sane = false;
-	}
-      }
-    }
-    return sane;
-  }
-
-  bool ET_sanity_check(){
-    bool sane = true;
-    for ( auto const& [sett,et] : s_et_map ){
-      if ( et_s_map.find(et) == et_s_map.end() ){
-	cerr << "for set=" << sett
-	     << ", no et_s found, ElementType(" << int(et) << ")" << endl;
-	return false;
-      }
-    }
-    for ( auto const& [et,sett] : et_s_map ){
-      if ( s_et_map.find(sett) == s_et_map.end() ){
-	cerr << "no string found for ElementType(" << int(et) << ")" << endl;
-	return false;
-      }
-      string s;
-      try {
-	s = toString( et );
-      }
-      catch (...){
-	cerr << "toString failed for ElementType(" << int(et) << ")" << endl;
-	sane = false;
-      }
-      if ( !s.empty() ){
-	ElementType et2;
-	try {
-	  et2 = stringToElementType( s );
-	}
-	catch ( const ValueError& e ){
-	  cerr << "no element type found for string '" << s << "'" << endl;
-	  sane = false;
-	  continue;
-	}
-	if ( et != et2 ){
-	  cerr << "Argl: toString(ET) doesn't match original: " << s
-	       << " vs " << toString(et2) << endl;
-	  sane = false;
-	  continue;
-	}
-	FoliaElement *tmp1 = 0;
-	try {
-	  tmp1 = AbstractElement::createElement( s );
-	}
-	catch( const ValueError &e ){
-	  string err = e.what();
-	  if ( err.find("abstract") ==string::npos ){
-	    cerr << "createElement(" << s << ") failed! :" << err << endl;
-	    sane = false;
-	  }
-	}
-	if ( sane && tmp1 ){
-	  destroy( tmp1 );
-	  FoliaElement *tmp2 = 0;
-	  try {
-	    tmp2 = AbstractElement::createElement( et );
-	  }
-	  catch( const ValueError &e ){
-	    string err = e.what();
-	    if ( err.find("abstract") == string::npos ){
-	      cerr << "createElement(" << int(et) << ") failed! :" << err << endl;
-	      sane = false;
-	    }
-	  }
-	  if ( tmp2 != 0 ) {
-	    if ( et != tmp2->element_id() ){
-	      cerr << "the element type " << tmp2->element_id() << " of " << s
-		   << " != " << et << " (" << toString(tmp2->element_id())
-		   << " != " << toString(et) << ")" << endl;
-	      sane = false;
-	    }
-	    if ( s != tmp2->xmltag() && s != "headfeature" ){
-	      cerr << "the xmltag " << tmp2->xmltag() << " != " << s << endl;
-	      sane = false;
-	    }
-	    destroy(tmp2);
-	  }
-	}
-      }
-    }
-    return sane;
-  }
-
-  string create_NCName( const string& s ){
+    string create_NCName( const string& s ){
     /// create a valid NCName
     /*!
       \param s a string to be used as template
@@ -842,6 +733,297 @@ namespace folia {
       result = "unknown";
     }
     return result;
+  }
+
+  bool AT_sanity_check(){
+    bool sane = true;
+    size_t dim = s_ant_map.size();
+    if ( dim != ant_s_map.size() ){
+      cerr << "s_ant_map and ant_s_map are different in size!" << endl;
+      return false;
+    }
+    for ( auto const& [a_type,dummy] : ant_s_map ){
+      string s;
+      try {
+	s = toString( a_type );
+      }
+      catch (...){
+	cerr << "no string translation for AnnotationType("
+	     << int(a_type) << ")" << endl;
+	sane = false;
+      }
+      if ( !s.empty() ){
+	try {
+	  stringTo<AnnotationType>( s );
+	}
+	catch ( const ValueError& e ){
+	  cerr << "no AnnotationType found for string '" << s << "'" << endl;
+	  sane = false;
+	}
+      }
+    }
+    return sane;
+  }
+
+  bool ET_sanity_check(){
+    bool sane = true;
+    for ( auto const& [sett,et] : s_et_map ){
+      if ( et_s_map.find(et) == et_s_map.end() ){
+	cerr << "for set=" << sett
+	     << ", no et_s found, ElementType(" << int(et) << ")" << endl;
+	return false;
+      }
+    }
+    for ( auto const& [et,sett] : et_s_map ){
+      if ( s_et_map.find(sett) == s_et_map.end() ){
+	cerr << "no string found for ElementType(" << int(et) << ")" << endl;
+	return false;
+      }
+      string s;
+      try {
+	s = toString( et );
+      }
+      catch (...){
+	cerr << "toString failed for ElementType(" << int(et) << ")" << endl;
+	sane = false;
+      }
+      if ( !s.empty() ){
+	ElementType et2;
+	try {
+	  et2 = stringToElementType( s );
+	}
+	catch ( const ValueError& e ){
+	  cerr << "no element type found for string '" << s << "'" << endl;
+	  sane = false;
+	  continue;
+	}
+	if ( et != et2 ){
+	  cerr << "Argl: toString(ET) doesn't match original: " << s
+	       << " vs " << toString(et2) << endl;
+	  sane = false;
+	  continue;
+	}
+	FoliaElement *tmp1 = 0;
+	try {
+	  tmp1 = AbstractElement::createElement( s );
+	}
+	catch( const ValueError &e ){
+	  string err = e.what();
+	  if ( err.find("abstract") ==string::npos ){
+	    cerr << "createElement(" << s << ") failed! :" << err << endl;
+	    sane = false;
+	  }
+	}
+	if ( sane && tmp1 ){
+	  destroy( tmp1 );
+	  FoliaElement *tmp2 = 0;
+	  try {
+	    tmp2 = AbstractElement::createElement( et );
+	  }
+	  catch( const ValueError &e ){
+	    string err = e.what();
+	    if ( err.find("abstract") == string::npos ){
+	      cerr << "createElement(" << int(et) << ") failed! :" << err << endl;
+	      sane = false;
+	    }
+	  }
+	  if ( tmp2 != 0 ) {
+	    if ( et != tmp2->element_id() ){
+	      cerr << "the element type " << tmp2->element_id() << " of " << s
+		   << " != " << et << " (" << toString(tmp2->element_id())
+		   << " != " << toString(et) << ")" << endl;
+	      sane = false;
+	    }
+	    if ( s != tmp2->xmltag() && s != "headfeature" ){
+	      cerr << "the xmltag " << tmp2->xmltag() << " != " << s << endl;
+	      sane = false;
+	    }
+	    destroy(tmp2);
+	  }
+	}
+      }
+    }
+    return sane;
+  }
+
+  bool document_sanity_check(){
+    cout << " Creating a document from scratch: ";
+    Document d( "xml:id='example'" );
+    d.declare( AnnotationType::TOKEN, "adhocset", "annotator='proycon'" );
+    if ( d.default_set(AnnotationType::TOKEN) != "adhocset"
+	 ||
+	 d.default_annotator(AnnotationType::TOKEN) != "proycon" ){
+      cout << " Defaultset or defaultannotator does not match" << endl;
+      return EXIT_FAILURE;
+    }
+    string id = d.id() + ".text.1";
+    KWargs kw = getArgs( "xml:id='" + id + "'" );
+    FoliaElement *text = d.addText( kw );
+    kw.clear();
+    kw = getArgs( "generate_id='" + text->id() + "'" );
+    FoliaElement *s = new Sentence( kw, &d );
+    text->append( s );
+    kw.clear();
+    kw.add("text","De");
+    s->addWord( kw );
+    kw.replace("text","site");
+    s->addWord( kw );
+    kw.replace("text","staat");
+    s->addWord( kw );
+    kw.replace("text","online");
+    s->addWord( kw );
+    kw.replace("text", ".");
+    s->addWord( kw );
+    if ( d[id+".s.1"]->size() != 5 ) {
+      cout << " Unexpected sentence size, " <<  d[id+".s.1"]->size() << ", expected 5" << endl;
+      return EXIT_FAILURE;
+    }
+    UnicodeString txt = s->text();
+    if ( txt != "De site staat online ." ) {
+      cout << " Text does not match reference: '" << txt << "' vs reference: 'De site staat online .'" << endl;
+      return EXIT_FAILURE;
+    }
+    cout << s->text() << endl;
+    d.setdebug( "ANNOTATIONS|SERIALIZE" );
+    assert( toString(d.debug) == "ANNOTATIONS|SERIALIZE" );
+    return true;
+  }
+
+  bool annotator_sanity_check() {
+    bool result = true;
+    set<string> as = { "auto", "manual", "generator", "datasource", "UNDEFINED" };
+    for ( const auto& in_ans : as ){
+      AnnotatorType ann = stringToAnnotatorType( in_ans );
+      string out_ans = toString( ann );
+      if ( out_ans != in_ans ){
+	cout << "insane AnnotatorType: " << in_ans << " !=" << out_ans << endl;
+	result = false;
+      }
+    }
+    return result;
+  }
+
+  bool annotation_sanity_check(){
+    bool result = true;
+    for ( const auto& [a_type,a_string] : ant_s_map ){
+      AnnotationType ant = stringToAnnotationType( a_string );
+      string out_ans = folia::toString( ant );
+      if ( out_ans != a_string ){
+	cout << "insane AnnotationType: " << a_string << " !=" << out_ans << endl;
+	result = false;
+      }
+      if ( ant != a_type ){
+	cout << "insane AnnotationType: " << ant << " !=" << a_type << endl;
+	result = false;
+      }
+      if ( !result ){
+	break;
+      }
+    }
+    return result;
+  }
+
+  bool space_sanity_check() {
+    cout << "Spaces sanity" << endl;
+    UnicodeString dirty = "    A    dir\ty \n  string\r.\n   ";
+    UnicodeString clean = normalize_spaces( dirty );
+    UnicodeString wanted = "A dir y string .";
+    if ( clean != wanted ){
+      cerr << "normalize_space() test 1 failed: got:'" << clean << "'"
+	   << "                 but expected:'" << wanted << "'" << endl;
+      return false;
+    }
+    dirty = "\n";
+    clean = normalize_spaces( dirty );
+    wanted = "";
+    if ( clean != wanted ){
+      cerr << "normalize_space() test 2 failed: got:'" << clean << "'"
+	   << "                 but expected:'" << wanted << "'" << endl;
+      return false;
+    }
+    dirty = "\r x   ";
+    clean = normalize_spaces( dirty );
+    wanted = "x";
+    if ( clean != wanted ){
+      cerr << "normalize_space() test 3 failed: got:'" << clean << "'"
+	   << "                 but expected:'" << wanted << "'" << endl;
+      return false;
+    }
+    dirty = u"\u001B"; // ESC
+    clean = normalize_spaces( dirty );
+    wanted = "";
+    if ( clean != wanted ){
+      cerr << "normalize_space() test 4 failed: got:'" << clean << "'"
+	   << "                 but expected:'" << wanted << "'" << endl;
+      return false;
+    }
+    if ( !is_norm_empty( dirty ) ){
+      cerr << "is_norm_empty() failed." << endl;
+      return false;
+    }
+    return true;
+  }
+
+  bool subclass_sanity_check(){
+    if ( isSubClass<AbstractWord,Word>() ){
+      cerr << "isSubClass<AbstractWord,Word>() failed" << endl;
+      return false;
+    }
+    if ( !isSubClass<Word,AbstractWord>() ){
+      cerr << "isSubClass<Word,AbstractWord>() failed" << endl;
+      return false;
+    }
+    if ( isSubClass<AbstractStructureElement,Word>() ){
+      cerr << "isSubClass<AbstractStructureElement,Word>() failed" << endl;
+      return false;
+    }
+    if ( !isSubClass<Word,AbstractStructureElement>() ){
+      cerr << "isSubClass<Word,AbstractStructureElement>() failed" << endl;
+      return false;
+    }
+    if ( isSubClass<AbstractElement, AbstractWord>() ){
+      cerr << "isSubClass<AbstractElement, AbstractWord>() failed" << endl;
+      return false;
+    }
+    if ( !isSubClass<AbstractWord, FoliaElement>() ) {
+      cerr << "isSubClass<AbstractWord, FoliaElement>() failed" << endl;
+      return false;
+    }
+    if ( isSubClass<AbstractWord, AbstractElement>() ){
+      cerr << "isSubClass<AbstractWord, AbstractElement>() failed" << endl;
+      return false;
+    }
+    if ( isSubClass<AbstractElement,Word>() ){
+      cerr << "isSubClass<AbstractElement,Word>() failed" << endl;
+      return false;
+    }
+    if ( !isSubClass<Word,AbstractElement>() ){
+      cerr << "isSubClass<Word,AbstractElement>() failed" << endl;
+      return false;
+    }
+    if ( !isSubClass<Word,Word>() ){
+      cerr << "isSubClass<Word,Word>() failed" << endl;
+      return false;
+    }
+    if ( !isSubClass<AllowXlink,FoliaElement>() ){
+      cerr << "isSubClass<AllowXlink,FoliaElement>() failed" << endl;
+      return false;
+    }
+    {
+      Word *w =  new Word();
+      if ( !w->isSubClass<Word>() ){
+	cerr << "Word::isSubClass<Word>() failed" << endl;
+	return false;
+      }
+      //    assert( w->isSubClass<AbstractWord>() == 1 );
+      //assert( w->isSubClass<AbstractStructureElement>() == 1 );
+      //assert( w->isSubClass<AbstractElement>() == 1 );
+      if ( w->isSubClass<Feature>() ){
+	cerr << "Word::isSubClass<Feature>() failed" << endl;
+	return false;
+      }
+    }
+    return true;
   }
 
 } //namespace folia

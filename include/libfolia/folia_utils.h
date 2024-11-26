@@ -200,9 +200,15 @@ namespace folia {
   std::string parseDate( const std::string& );
   std::string parseTime( const std::string& );
 
+  /// functcions to test internal sanity
   bool AT_sanity_check();
   bool Attrib_sanity_check();
   bool ET_sanity_check();
+  bool annotator_sanity_check();
+  bool annotation_sanity_check();
+  bool document_sanity_check();
+  bool space_sanity_check();
+  bool subclass_sanity_check();
 
   ///
   /// some xml goodies

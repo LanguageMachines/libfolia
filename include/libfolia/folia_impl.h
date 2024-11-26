@@ -492,6 +492,7 @@ namespace folia {
     virtual const std::string subset() const NOT_IMPLEMENTED;
     virtual const bool& setonly() const = 0;
     virtual const bool& auto_generate_id() const = 0;
+
     virtual Document *doc() const = 0;
     virtual Sentence *sentence() const NOT_IMPLEMENTED;
     virtual Paragraph *paragraph() const NOT_IMPLEMENTED;

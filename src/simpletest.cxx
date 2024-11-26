@@ -38,172 +38,38 @@ using namespace icu;
 using namespace folia;
 using namespace icu;
 
-bool test_document(){
-  cout << " Creating a document from scratch: ";
-  Document d( "xml:id='example'" );
-  d.declare( AnnotationType::TOKEN, "adhocset", "annotator='proycon'" );
-  if ( d.default_set(AnnotationType::TOKEN) != "adhocset"
-       ||
-       d.default_annotator(AnnotationType::TOKEN) != "proycon" ){
-    cout << " Defaultset or defaultannotator does not match" << endl;
-    return EXIT_FAILURE;
-  }
-  string id = d.id() + ".text.1";
-  KWargs kw = getArgs( "xml:id='" + id + "'" );
-  FoliaElement *text = d.addText( kw );
-  kw.clear();
-  kw = getArgs( "generate_id='" + text->id() + "'" );
-  FoliaElement *s = new Sentence( kw, &d );
-  text->append( s );
-  kw.clear();
-  kw.add("text","De");
-  s->addWord( kw );
-  kw.replace("text","site");
-  s->addWord( kw );
-  kw.replace("text","staat");
-  s->addWord( kw );
-  kw.replace("text","online");
-  s->addWord( kw );
-  kw.replace("text", ".");
-  s->addWord( kw );
-  if ( d[id+".s.1"]->size() != 5 ) {
-    cout << " Unexpected sentence size, " <<  d[id+".s.1"]->size() << ", expected 5" << endl;
-    return EXIT_FAILURE;
-  }
-  UnicodeString txt = s->text();
-  if ( txt != "De site staat online ." ) {
-    cout << " Text does not match reference: '" << txt << "' vs reference: 'De site staat online .'" << endl;
-    return EXIT_FAILURE;
-  }
-  cout << s->text() << endl;
-  d.setdebug( "ANNOTATIONS|SERIALIZE" );
-  assert( toString(d.debug) == "ANNOTATIONS|SERIALIZE" );
-  return true;
-}
-
 int main() {
   cout << "checking sanity" << endl;
   cout << "Type Hierarchy" << endl;
   print_type_hierarchy( cout );
   cout << "AnnotationType sanity" << endl;
   if ( ! AT_sanity_check() ){
-    cout << "too bad. no use to continue" << endl;
     return EXIT_FAILURE;
   }
   cout << "ElementType sanity" << endl;
   if ( ! ET_sanity_check() ){
-    cout << "too bad. no use to continue" << endl;
     return EXIT_FAILURE;
   }
   cout << "AnnotatorType sanity" << endl;
-  set<string> as = { "auto", "manual", "generator", "datasource", "UNDEFINED" };
-  for ( const auto& in_ans : as ){
-    AnnotatorType ann = stringToAnnotatorType( in_ans );
-    string out_ans = toString( ann );
-    if ( out_ans != in_ans ){
-      cout << "insane AnnotatorType: " << in_ans << " !=" << out_ans << endl;
-      exit( EXIT_FAILURE );
-    }
+  if ( ! annotator_sanity_check() ){
+    return EXIT_FAILURE;
   }
   cout << "AnnotationType sanity" << endl;
-  for ( const auto& [a_type,a_string] : ant_s_map ){
-    AnnotationType ant = stringToAnnotationType( a_string );
-    string out_ans = folia::toString( ant );
-    if ( out_ans != a_string ){
-      cout << "insane AnnotationType: " << a_string << " !=" << out_ans << endl;
-      exit( EXIT_FAILURE );
-    }
-    if ( ant != a_type ){
-      cout << "insane AnnotationType: " << ant << " !=" << a_type << endl;
-      exit( EXIT_FAILURE );
-    }
-  }
-  if ( !test_document() ){
-    cerr << "document testing failed" << endl;
+  if ( ! annotation_sanity_check() ){
     return EXIT_FAILURE;
   }
-  cout << "Spaces sanity" << endl;
-  UnicodeString dirty = "    A    dir\ty \n  string\r.\n   ";
-  UnicodeString clean = normalize_spaces( dirty );
-  UnicodeString wanted = "A dir y string .";
-  if ( clean != wanted ){
-    cerr << "normalize_space() test 1 failed: got:'" << clean << "'"
-	 << "                 but expected:'" << wanted << "'" << endl;
+  cout << "Document sanity" << endl;
+  if ( !document_sanity_check() ){
     return EXIT_FAILURE;
   }
-  dirty = "\n";
-  clean = normalize_spaces( dirty );
-  wanted = "";
-  if ( clean != wanted ){
-    cerr << "normalize_space() test 2 failed: got:'" << clean << "'"
-	 << "                 but expected:'" << wanted << "'" << endl;
+  cout << "Spaces handling sanity" << endl;
+  if ( !space_sanity_check() ){
     return EXIT_FAILURE;
   }
-  dirty = "\r x   ";
-  clean = normalize_spaces( dirty );
-  wanted = "x";
-  if ( clean != wanted ){
-    cerr << "normalize_space() test 3 failed: got:'" << clean << "'"
-	 << "                 but expected:'" << wanted << "'" << endl;
-    return EXIT_FAILURE;
-  }
-  dirty = u"\u001B"; // ESC
-  clean = normalize_spaces( dirty );
-  wanted = "";
-  if ( clean != wanted ){
-    cerr << "normalize_space() test 4 failed: got:'" << clean << "'"
-	 << "                 but expected:'" << wanted << "'" << endl;
-    return EXIT_FAILURE;
-  }
-  if ( !is_norm_empty( dirty ) ){
-    cerr << "is_norm_empty() failed." << endl;
-    return EXIT_FAILURE;
-  }
+
   cout << "Subclass sanity" << endl;
-  assert( ( isSubClass<AbstractWord,Word>() == 0 ) );
-  assert( ( isSubClass<Word,AbstractWord>() == 1 ) );
-  assert( ( isSubClass<AbstractStructureElement,Word>() == 0 ) );
-  assert( ( isSubClass<Word,AbstractStructureElement>() == 1 ) );
-  assert( ( isSubClass<AbstractElement, AbstractWord>() == 0 ) );
-  assert( ( isSubClass<AbstractWord, FoliaElement>() == 1 ) );
-  assert( ( isSubClass<AbstractWord, AbstractElement>() == 0 ) );
-  assert( ( isSubClass<AbstractElement,Word>() == 0 ) );
-  assert( ( isSubClass<Word,AbstractElement>() == 1 ) );
-  assert( ( isSubClass<Word,Word>() == 1 ) );
-  assert( ( isSubClass<AllowXlink,FoliaElement>() == 1 ) );
-  {
-    Word *w =  new Word();
-    assert( w->isSubClass<Word>() == 1 );
-    //    assert( w->isSubClass<AbstractWord>() == 1 );
-    //assert( w->isSubClass<AbstractStructureElement>() == 1 );
-    //assert( w->isSubClass<AbstractElement>() == 1 );
-    assert( w->isSubClass<Feature>() == 0 );
-  }
-  {
-    bool caught = false;
-    try {
-      create_NCName("123");
-    }
-    catch ( ... ){
-      caught = true;
-    }
-    assert( caught == true );
-  }
-  {
-    string s = create_NCName("aap!noot");
-    assert( s == "aapnoot" );
-  }
-  {
-    string s = create_NCName("A#12!3");
-    assert( s == "A123" );
-  }
-  {
-    string s = create_NCName(".-_!A#12!3");
-    assert( s == "_A123" );
-  }
-  {
-    string s = create_NCName("_appel-taart.met slagroom_");
-    assert( s == "_appel-taart.met_slagroom_" );
+  if ( !subclass_sanity_check() ){
+    return EXIT_FAILURE;
   }
   return EXIT_SUCCESS;
 }
