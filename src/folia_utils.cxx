@@ -847,13 +847,13 @@ namespace folia {
   }
 
   bool document_sanity_check(){
-    cout << " Creating a document from scratch: ";
+    cerr << " Creating a document from scratch: ";
     Document d( "xml:id='example'" );
     d.declare( AnnotationType::TOKEN, "adhocset", "annotator='proycon'" );
     if ( d.default_set(AnnotationType::TOKEN) != "adhocset"
 	 ||
 	 d.default_annotator(AnnotationType::TOKEN) != "proycon" ){
-      cout << " Defaultset or defaultannotator does not match" << endl;
+      cerr << " Defaultset or defaultannotator does not match" << endl;
       return EXIT_FAILURE;
     }
     string id = d.id() + ".text.1";
@@ -875,15 +875,15 @@ namespace folia {
     kw.replace("text", ".");
     s->addWord( kw );
     if ( d[id+".s.1"]->size() != 5 ) {
-      cout << " Unexpected sentence size, " <<  d[id+".s.1"]->size() << ", expected 5" << endl;
+      cerr << " Unexpected sentence size, " <<  d[id+".s.1"]->size() << ", expected 5" << endl;
       return EXIT_FAILURE;
     }
     UnicodeString txt = s->text();
     if ( txt != "De site staat online ." ) {
-      cout << " Text does not match reference: '" << txt << "' vs reference: 'De site staat online .'" << endl;
+      cerr << " Text does not match reference: '" << txt << "' vs reference: 'De site staat online .'" << endl;
       return EXIT_FAILURE;
     }
-    cout << s->text() << endl;
+    cerr << s->text() << endl;
     d.setdebug( "ANNOTATIONS|SERIALIZE" );
     assert( toString(d.debug) == "ANNOTATIONS|SERIALIZE" );
     return true;
@@ -924,7 +924,6 @@ namespace folia {
   }
 
   bool space_sanity_check() {
-    cout << "Spaces sanity" << endl;
     UnicodeString dirty = "    A    dir\ty \n  string\r.\n   ";
     UnicodeString clean = normalize_spaces( dirty );
     UnicodeString wanted = "A dir y string .";
@@ -989,10 +988,10 @@ namespace folia {
       cerr << "isSubClass<AbstractWord, FoliaElement>() failed" << endl;
       return false;
     }
-    if ( isSubClass<AbstractWord, AbstractElement>() ){
-      cerr << "isSubClass<AbstractWord, AbstractElement>() failed" << endl;
-      return false;
-    }
+    // if ( isSubClass<AbstractWord, AbstractStructureElement>() ){
+    //   cerr << "isSubClass<AbstractWord, AbstractStructureElement>() failed" << endl;
+    //   return false;
+    // }
     if ( isSubClass<AbstractElement,Word>() ){
       cerr << "isSubClass<AbstractElement,Word>() failed" << endl;
       return false;

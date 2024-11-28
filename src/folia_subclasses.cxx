@@ -49,7 +49,8 @@ using namespace std;
 using namespace icu;
 using namespace TiCC;
 
-#define DBG *TiCC::Log(_dbg_file)
+static TiCC::LogStream DBG_CERR(cerr,NoStamp);
+#define DBG *TiCC::Log((_dbg_file?_dbg_file:&DBG_CERR))
 
 namespace folia {
   using TiCC::operator <<;
@@ -466,6 +467,7 @@ namespace folia {
     FoliaElement *p = parent();
     while ( p ){
       if ( ( p->isSubClass( String_t )
+	     || p->isSubClass( AbstractWord_t )
 	     || p->isSubClass( AbstractStructureElement_t )
 	     || p->isSubClass( AbstractSubtokenAnnotation_t ) )
 	   && p->acceptable( TextContent_t ) ){
@@ -501,7 +503,7 @@ namespace folia {
       return 0;
     }
     else if ( !_ref.empty() ){
-      try{
+      try {
 	the_ref = (*doc())[_ref];
       }
       catch (...){
@@ -515,6 +517,8 @@ namespace folia {
 				     "Default reference for content not found!" );
     }
     else if ( !the_ref->hastext( cls() ) ){
+      cerr << "PROBLEM: " << _ref << endl;
+      cerr << "PROBLEM: " << the_ref << endl;
       throw UnresolvableTextContent( this,
 				     "Reference (ID " + _ref
 				     + ") has no such text (class="

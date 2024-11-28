@@ -62,7 +62,7 @@ int main() {
   if ( !document_sanity_check() ){
     return EXIT_FAILURE;
   }
-  cout << "Spaces handling sanity" << endl;
+  cout << "Spaces sanity" << endl;
   if ( !space_sanity_check() ){
     return EXIT_FAILURE;
   }

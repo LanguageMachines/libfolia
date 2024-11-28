@@ -206,6 +206,7 @@ namespace folia {
     { AbstractSpanAnnotation_t,  "_AbstractSpanAnnotation" },
     { AbstractSpanRole_t,  "_AbstractSpanRole" },
     { AbstractStructureElement_t,  "_AbstractStructureElement" },
+    { AbstractWord_t,  "_AbstractWord" },
     { AbstractSubtokenAnnotation_t,  "_AbstractSubtokenAnnotation" },
     { AbstractTextMarkup_t,  "_AbstractTextMarkup" },
     { ActorFeature_t,  "actor" },
@@ -345,6 +346,7 @@ namespace folia {
     { "_AbstractSpanAnnotation", AbstractSpanAnnotation_t  },
     { "_AbstractSpanRole", AbstractSpanRole_t  },
     { "_AbstractStructureElement", AbstractStructureElement_t  },
+    { "_AbstractWord", AbstractWord_t  },
     { "_AbstractSubtokenAnnotation", AbstractSubtokenAnnotation_t  },
     { "_AbstractTextMarkup", AbstractTextMarkup_t  },
     { "actor", ActorFeature_t  },
@@ -509,6 +511,7 @@ namespace folia {
   properties ABSTRACT_SUBTOKEN_ANNOTATION_PROPERTIES;
   properties ABSTRACT_TEXT_MARKUP_PROPERTIES;
   properties ABSTRACT_FEATURE_PROPERTIES;
+  properties ABSTRACT_WORD_PROPERTIES;
   properties DEFAULT_PROPERTIES;
   //these are also not in the external specification yet: (libfolia internal)
   properties FoLiA::PROPS = DEFAULT_PROPERTIES;
@@ -673,7 +676,14 @@ namespace folia {
     DCOI::PROPS.ACCEPTED_DATA += { Text_t, Speech_t };
 
     //foliaspec:begin:setelementproperties
-//------ AbstractFeature -------
+    ABSTRACT_WORD_PROPERTIES = ABSTRACT_STRUCTURE_ELEMENT_PROPERTIES;
+    ABSTRACT_WORD_PROPERTIES.ELEMENT_ID = AbstractWord_t;
+    ABSTRACT_WORD_PROPERTIES.LABEL = "AbstractWord";
+    ABSTRACT_WORD_PROPERTIES.XMLTAG = "AbstractWord";
+    ABSTRACT_WORD_PROPERTIES.PRINTABLE = true;
+    ABSTRACT_WORD_PROPERTIES.SPEAKABLE = true;
+    element_props[AbstractWord_t] = &ABSTRACT_WORD_PROPERTIES;
+    //------ AbstractFeature -------
     ABSTRACT_FEATURE_PROPERTIES = ABSTRACT_HIGHER_ORDER_ANNOTATION_PROPERTIES;
     ABSTRACT_FEATURE_PROPERTIES.ELEMENT_ID = AbstractFeature_t;
     ABSTRACT_FEATURE_PROPERTIES.LABEL = "AbstractFeature";
@@ -694,7 +704,7 @@ namespace folia {
     element_props[AbstractContentAnnotation_t] = &ABSTRACT_CONTENT_ANNOTATION_PROPERTIES;
 //------ AbstractCorrectionChild -------
     ABSTRACT_CORRECTION_CHILD_PROPERTIES.ELEMENT_ID = AbstractCorrectionChild_t;
-    ABSTRACT_CORRECTION_CHILD_PROPERTIES.ACCEPTED_DATA += {AbstractInlineAnnotation_t, AbstractSpanAnnotation_t, AbstractStructureElement_t, Comment_t, Correction_t, Description_t, ForeignData_t, Metric_t, PhonContent_t, String_t, TextContent_t};
+    ABSTRACT_CORRECTION_CHILD_PROPERTIES.ACCEPTED_DATA += {AbstractInlineAnnotation_t, AbstractSpanAnnotation_t, AbstractStructureElement_t, AbstractWord_t, Comment_t, Correction_t, Description_t, ForeignData_t, Metric_t, PhonContent_t, String_t, TextContent_t};
     ABSTRACT_CORRECTION_CHILD_PROPERTIES.OPTIONAL_ATTRIBS = Attrib::ID|Attrib::ANNOTATOR|Attrib::CONFIDENCE|Attrib::DATETIME|Attrib::N|Attrib::TAG;
     ABSTRACT_CORRECTION_CHILD_PROPERTIES.PRINTABLE = true;
     ABSTRACT_CORRECTION_CHILD_PROPERTIES.SPEAKABLE = true;
@@ -1129,8 +1139,8 @@ namespace folia {
     Headspan::PROPS.XMLTAG = "hd";
     element_props[Headspan_t] = &Headspan::PROPS;
 //------ Hiddenword -------
-    Hiddenword::PROPS = ABSTRACT_STRUCTURE_ELEMENT_PROPERTIES;
-    abstract_parents[Hiddenword_t] = AbstractStructureElement_t;
+    Hiddenword::PROPS = ABSTRACT_WORD_PROPERTIES;
+    abstract_parents[Hiddenword_t] = AbstractWord_t;
     Hiddenword::PROPS.ELEMENT_ID = Hiddenword_t;
     Hiddenword::PROPS.ACCEPTED_DATA += {AbstractAnnotationLayer_t, AbstractInlineAnnotation_t, Alternative_t, AlternativeLayers_t, Comment_t, Correction_t, Description_t, External_t, Feature_t, ForeignData_t, Metric_t, Part_t, PhonContent_t, Reference_t, Relation_t, String_t, TextContent_t, AbstractFeature_t};
     Hiddenword::PROPS.ANNOTATIONTYPE = AnnotationType::HIDDENTOKEN;
@@ -1330,7 +1340,7 @@ namespace folia {
     Part::PROPS = ABSTRACT_STRUCTURE_ELEMENT_PROPERTIES;
     abstract_parents[Part_t] = AbstractStructureElement_t;
     Part::PROPS.ELEMENT_ID = Part_t;
-    Part::PROPS.ACCEPTED_DATA += {AbstractAnnotationLayer_t, AbstractInlineAnnotation_t, AbstractStructureElement_t, Alternative_t, AlternativeLayers_t, Comment_t, Correction_t, Description_t, External_t, Feature_t, ForeignData_t, Metric_t, Part_t, PhonContent_t, Relation_t, TextContent_t, AbstractFeature_t};
+    Part::PROPS.ACCEPTED_DATA += {AbstractAnnotationLayer_t, AbstractInlineAnnotation_t, AbstractStructureElement_t, Alternative_t, AlternativeLayers_t, Comment_t, Correction_t, Description_t, External_t, Feature_t, ForeignData_t, Metric_t, Part_t, PhonContent_t, Relation_t, TextContent_t, AbstractFeature_t, AbstractWord_t};
     Part::PROPS.ANNOTATIONTYPE = AnnotationType::PART;
     Part::PROPS.LABEL = "Part";
     Part::PROPS.TEXTDELIMITER = " ";
@@ -1816,8 +1826,8 @@ namespace folia {
     Whitespace::PROPS.XMLTAG = "whitespace";
     element_props[Whitespace_t] = &Whitespace::PROPS;
 //------ Word -------
-    Word::PROPS = ABSTRACT_STRUCTURE_ELEMENT_PROPERTIES;
-    abstract_parents[Word_t] = AbstractStructureElement_t;
+    Word::PROPS = ABSTRACT_WORD_PROPERTIES;
+    abstract_parents[Word_t] = AbstractWord_t;
     Word::PROPS.ELEMENT_ID = Word_t;
     Word::PROPS.ACCEPTED_DATA += {AbstractAnnotationLayer_t, AbstractInlineAnnotation_t, Alternative_t, AlternativeLayers_t, Comment_t, Correction_t, Description_t, External_t, Feature_t, ForeignData_t, Metric_t, Part_t, PhonContent_t, Reference_t, Relation_t, String_t, TextContent_t, AbstractFeature_t};
     Word::PROPS.ANNOTATIONTYPE = AnnotationType::TOKEN;
@@ -1866,6 +1876,7 @@ namespace folia {
      { AbstractSpanAnnotation_t, {  } },
      { AbstractSpanRole_t, { AbstractSpanAnnotation_t } },
      { AbstractStructureElement_t, {  } },
+     { AbstractWord_t, { AbstractStructureElement_t } },
      { AbstractSubtokenAnnotation_t, {  } },
      { AbstractTextMarkup_t, {  } },
      { ActorFeature_t, { AbstractHigherOrderAnnotation_t,AbstractFeature_t } },
@@ -1909,7 +1920,7 @@ namespace folia {
      { Head_t, { AbstractStructureElement_t } },
      { HeadFeature_t, { AbstractHigherOrderAnnotation_t,AbstractFeature_t } },
      { Headspan_t, { AbstractSpanRole_t,AbstractSpanAnnotation_t } },
-     { Hiddenword_t, { AbstractStructureElement_t } },
+     { Hiddenword_t, { AbstractWord_t } },
      { Hyphbreak_t, { AbstractTextMarkup_t } },
      { Label_t, { AbstractStructureElement_t } },
      { LangAnnotation_t, { AbstractInlineAnnotation_t } },
@@ -1985,7 +1996,7 @@ namespace folia {
      { Utterance_t, { AbstractStructureElement_t } },
      { ValueFeature_t, { AbstractHigherOrderAnnotation_t,AbstractFeature_t } },
      { Whitespace_t, { AbstractStructureElement_t } },
-     { Word_t, { AbstractStructureElement_t } },
+     { Word_t, { AbstractWord_t } },
   };
 
   //foliaspec:oldtags_map
@@ -2301,6 +2312,7 @@ namespace folia {
     case AbstractInlineAnnotation_t:
     case AbstractStructureElement_t:
     case AbstractCorrectionChild_t:
+    case AbstractWord_t:
     case AbstractFeature_t:
       throw ValueError( "you may not create an abstract node of type "
 			+ TiCC::toString(int(et)) + ")" );

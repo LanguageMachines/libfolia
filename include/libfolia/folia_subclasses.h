@@ -102,9 +102,11 @@ public:									\
    const Word* resolveword( const std::string& ) const override;
  };
 
-  class AbstractWord: public virtual FoliaElement {
+  class AbstractWord: public AbstractStructureElement {
     /// Interface class that is inherited by word-like (wrefable)
     /// elements (Word, Hiddenword, Morpheme, Phoneme)
+  protected:
+    ADD_PROTECTED_CONSTRUCTORS( AbstractWord, AbstractStructureElement );
   public:
     Sentence *sentence() const override;
     Paragraph *paragraph() const override;
@@ -403,13 +405,12 @@ public:									\
   };
 
   class Word:
-    public AbstractStructureElement,
     public AbstractWord
   {
   protected:
-    ADD_PROTECTED_CONSTRUCTORS_INIT( Word, AbstractStructureElement, _is_placeholder(false) );
+    //    ADD_PROTECTED_CONSTRUCTORS_INIT( Word, AbstractStructureElement, _is_placeholder(false) );
   public:
-    ADD_DEFAULT_CONSTRUCTORS_INIT( Word, AbstractStructureElement, _is_placeholder(false) );
+    ADD_DEFAULT_CONSTRUCTORS_INIT( Word, AbstractWord, _is_placeholder(false) );
 
     Correction *split( FoliaElement *, FoliaElement *,
 		       const std::string& = "" ) override;
@@ -435,11 +436,10 @@ public:									\
   };
 
   class Hiddenword:
-    public AbstractStructureElement,
     public AbstractWord
   {
   public:
-    ADD_DEFAULT_CONSTRUCTORS( Hiddenword, AbstractStructureElement );
+    ADD_DEFAULT_CONSTRUCTORS( Hiddenword, AbstractWord );
   };
 
   class Part: public AbstractStructureElement {
@@ -568,11 +568,10 @@ public:									\
   };
 
   class Phoneme:
-    public AbstractSubtokenAnnotation,
     public AbstractWord
   {
   public:
-    ADD_DEFAULT_CONSTRUCTORS( Phoneme, AbstractSubtokenAnnotation );
+    ADD_DEFAULT_CONSTRUCTORS( Phoneme, AbstractWord );
   };
 
   class DomainAnnotation: public AbstractInlineAnnotation {
@@ -1066,11 +1065,10 @@ public:									\
   };
 
   class Morpheme:
-    public AbstractSubtokenAnnotation,
     public AbstractWord
   {
   public:
-    ADD_DEFAULT_CONSTRUCTORS( Morpheme, AbstractSubtokenAnnotation );
+    ADD_DEFAULT_CONSTRUCTORS( Morpheme, AbstractWord );
   };
 
   class SyntaxLayer: public AbstractAnnotationLayer {

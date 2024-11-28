@@ -49,7 +49,8 @@ using namespace std;
 using namespace icu;
 using namespace TiCC;
 
-#define DBG *TiCC::Log(_dbg_file)
+static TiCC::LogStream DBG_CERR(cerr,NoStamp);
+#define DBG *TiCC::Log((_dbg_file?_dbg_file:&DBG_CERR))
 
 namespace folia {
   using TiCC::operator <<;
@@ -2185,23 +2186,34 @@ namespace folia {
 	}
 	return EMPTY_STRING;
       }
+      if ( tp.debug() ){
+	DBG << " space = YES, Go on" << endl;
+      }
     }
 
     if ( !_data.empty() ){
       const FoliaElement *last = _data.back();
-      if ( last &&
-	   last->isSubClass(AbstractStructureElement_t)
+      if ( last && tp.debug() ){
+	DBG << "last is " << last << endl;
+	DBG << "isSubClass(AbstractWord) == " << last->isSubClass(AbstractWord_t) << endl;
+	DBG << "last->space() == " << last->space() << endl;
+      }
+      if ( last
+	   && last->isSubClass(AbstractWord_t)
 	   && !last->space() ){
 	return EMPTY_STRING;
       }
     }
     if ( text_delimiter() != "NONE" ) {
+      if ( tp.debug() ){
+	DBG << "text_delimiter() == '" << text_delimiter() << "'" << endl;
+      }
       return text_delimiter();
     }
     else if ( _data.size() > 0 ) {
       // attempt to get a delimiter from the last child
       const FoliaElement *last = _data.back();
-      if ( last->isSubClass(AbstractStructureElement_t) ){
+      if ( last->isSubClass(AbstractWord_t) ){
 	const string& det = last->get_delimiter( tp );
 	if ( tp.debug() ){
 	  DBG << "out <" << xmltag() << ">:get_delimiter ==> '" << det << "'"
