@@ -704,7 +704,7 @@ namespace folia {
     element_props[AbstractContentAnnotation_t] = &ABSTRACT_CONTENT_ANNOTATION_PROPERTIES;
 //------ AbstractCorrectionChild -------
     ABSTRACT_CORRECTION_CHILD_PROPERTIES.ELEMENT_ID = AbstractCorrectionChild_t;
-    ABSTRACT_CORRECTION_CHILD_PROPERTIES.ACCEPTED_DATA += {AbstractInlineAnnotation_t, AbstractSpanAnnotation_t, AbstractStructureElement_t, AbstractWord_t, Comment_t, Correction_t, Description_t, ForeignData_t, Metric_t, PhonContent_t, String_t, TextContent_t};
+    ABSTRACT_CORRECTION_CHILD_PROPERTIES.ACCEPTED_DATA += {AbstractInlineAnnotation_t, AbstractSpanAnnotation_t, AbstractStructureElement_t, Comment_t, Correction_t, Description_t, ForeignData_t, Metric_t, PhonContent_t, String_t, TextContent_t};
     ABSTRACT_CORRECTION_CHILD_PROPERTIES.OPTIONAL_ATTRIBS = Attrib::ID|Attrib::ANNOTATOR|Attrib::CONFIDENCE|Attrib::DATETIME|Attrib::N|Attrib::TAG;
     ABSTRACT_CORRECTION_CHILD_PROPERTIES.PRINTABLE = true;
     ABSTRACT_CORRECTION_CHILD_PROPERTIES.SPEAKABLE = true;
@@ -1340,7 +1340,7 @@ namespace folia {
     Part::PROPS = ABSTRACT_STRUCTURE_ELEMENT_PROPERTIES;
     abstract_parents[Part_t] = AbstractStructureElement_t;
     Part::PROPS.ELEMENT_ID = Part_t;
-    Part::PROPS.ACCEPTED_DATA += {AbstractAnnotationLayer_t, AbstractInlineAnnotation_t, AbstractStructureElement_t, Alternative_t, AlternativeLayers_t, Comment_t, Correction_t, Description_t, External_t, Feature_t, ForeignData_t, Metric_t, Part_t, PhonContent_t, Relation_t, TextContent_t, AbstractFeature_t, AbstractWord_t};
+    Part::PROPS.ACCEPTED_DATA += {AbstractAnnotationLayer_t, AbstractInlineAnnotation_t, AbstractStructureElement_t, Alternative_t, AlternativeLayers_t, Comment_t, Correction_t, Description_t, External_t, Feature_t, ForeignData_t, Metric_t, Part_t, PhonContent_t, Relation_t, TextContent_t, AbstractFeature_t};
     Part::PROPS.ANNOTATIONTYPE = AnnotationType::PART;
     Part::PROPS.LABEL = "Part";
     Part::PROPS.TEXTDELIMITER = " ";
@@ -1920,7 +1920,7 @@ namespace folia {
      { Head_t, { AbstractStructureElement_t } },
      { HeadFeature_t, { AbstractHigherOrderAnnotation_t,AbstractFeature_t } },
      { Headspan_t, { AbstractSpanRole_t,AbstractSpanAnnotation_t } },
-     { Hiddenword_t, { AbstractWord_t } },
+     { Hiddenword_t, { AbstractWord_t, AbstractStructureElement_t } },
      { Hyphbreak_t, { AbstractTextMarkup_t } },
      { Label_t, { AbstractStructureElement_t } },
      { LangAnnotation_t, { AbstractInlineAnnotation_t } },
@@ -1996,7 +1996,7 @@ namespace folia {
      { Utterance_t, { AbstractStructureElement_t } },
      { ValueFeature_t, { AbstractHigherOrderAnnotation_t,AbstractFeature_t } },
      { Whitespace_t, { AbstractStructureElement_t } },
-     { Word_t, { AbstractWord_t } },
+     { Word_t, { AbstractWord_t, AbstractStructureElement_t } },
   };
 
   //foliaspec:oldtags_map

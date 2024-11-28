@@ -408,8 +408,6 @@ public:									\
   class Word:
     public AbstractWord
   {
-  protected:
-    //    ADD_PROTECTED_CONSTRUCTORS_INIT( Word, AbstractStructureElement, _is_placeholder(false) );
   public:
     ADD_DEFAULT_CONSTRUCTORS_INIT( Word, AbstractWord, _is_placeholder(false) );
 
@@ -569,10 +567,10 @@ public:									\
   };
 
   class Phoneme:
-    public AbstractWord
+    public AbstractSubtokenAnnotation
   {
   public:
-    ADD_DEFAULT_CONSTRUCTORS( Phoneme, AbstractWord );
+    ADD_DEFAULT_CONSTRUCTORS( Phoneme, AbstractSubtokenAnnotation );
   };
 
   class DomainAnnotation: public AbstractInlineAnnotation {
@@ -1066,10 +1064,10 @@ public:									\
   };
 
   class Morpheme:
-    public AbstractWord
+    public AbstractSubtokenAnnotation
   {
   public:
-    ADD_DEFAULT_CONSTRUCTORS( Morpheme, AbstractWord );
+    ADD_DEFAULT_CONSTRUCTORS( Morpheme, AbstractSubtokenAnnotation );
   };
 
   class SyntaxLayer: public AbstractAnnotationLayer {
