@@ -2186,17 +2186,28 @@ namespace folia {
 	}
 	return EMPTY_STRING;
       }
+      if ( tp.debug() ){
+	DBG << " space = YES, Go on" << endl;
+      }
     }
 
     if ( !_data.empty() ){
       const FoliaElement *last = _data.back();
-      if ( last &&
-	   last->isSubClass(AbstractStructureElement_t)
+      if ( last && tp.debug() ){
+	DBG << "last is " << last << endl;
+	DBG << "isSubClass(AbstractStructure) == " << last->isSubClass(AbstractStructureElement_t) << endl;
+	DBG << "last->space() == " << last->space() << endl;
+      }
+      if ( last
+	   && last->isSubClass(AbstractStructureElement_t)
 	   && !last->space() ){
 	return EMPTY_STRING;
       }
     }
     if ( text_delimiter() != "NONE" ) {
+      if ( tp.debug() ){
+	DBG << "text_delimiter() == '" << text_delimiter() << "'" << endl;
+      }
       return text_delimiter();
     }
     else if ( _data.size() > 0 ) {
