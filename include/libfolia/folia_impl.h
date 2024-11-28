@@ -355,8 +355,10 @@ namespace folia {
     const UnicodeString toktext( const std::string& = "current" ) const;
     virtual const UnicodeString phon( const TextPolicy& ) const = 0;
     virtual const UnicodeString phon( const std::string&,
-				      TEXT_FLAGS = TEXT_FLAGS::NONE ) const = 0;
-    virtual const UnicodeString phon( TEXT_FLAGS = TEXT_FLAGS::NONE ) const = 0;
+				      TEXT_FLAGS = TEXT_FLAGS::NONE,
+				      bool = false ) const = 0;
+    virtual const UnicodeString phon( TEXT_FLAGS = TEXT_FLAGS::NONE,
+				      bool = false ) const = 0;
     virtual const bool& printable() const = 0;
     virtual const bool& speakable() const = 0;
     virtual const bool& referable() const = 0;
@@ -657,9 +659,11 @@ namespace folia {
 
     const UnicodeString phon( const TextPolicy& ) const override;
     const UnicodeString phon( const std::string&,
-			      TEXT_FLAGS = TEXT_FLAGS::NONE ) const override;
-    const UnicodeString phon( TEXT_FLAGS flags = TEXT_FLAGS::NONE ) const override {
-      return phon( "current", flags );
+			      TEXT_FLAGS = TEXT_FLAGS::NONE,
+			      bool = false ) const override;
+    const UnicodeString phon( TEXT_FLAGS flags = TEXT_FLAGS::NONE,
+			      bool debug = false ) const override {
+      return phon( "current", flags, debug );
     }
 
     const UnicodeString deeptext( const TextPolicy& ) const override;

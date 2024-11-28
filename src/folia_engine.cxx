@@ -41,7 +41,7 @@
 
 using namespace std;
 
-TiCC::LogStream DBG_CERR(cerr);
+static TiCC::LogStream DBG_CERR(cerr);
 #define DBG *TiCC::Log((_dbg_file?_dbg_file:&DBG_CERR))
 
 namespace folia {

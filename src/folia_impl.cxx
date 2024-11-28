@@ -3015,13 +3015,15 @@ namespace folia {
   }
 
   const UnicodeString AbstractElement::phon( const string& cls,
-					     TEXT_FLAGS flags ) const {
+					     TEXT_FLAGS flags,
+					     bool debug ) const {
     /// get the UnicodeString phon value of an element
     /*!
      * \param cls the textclass the text should be in
      * \param flags the search parameters to use. See TEXT_FLAGS.
      */
     TextPolicy tp( cls, flags );
+    tp.set_debug( debug );
     return phon( tp );
   }
 

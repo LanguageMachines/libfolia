@@ -301,7 +301,8 @@ public:									\
     KWargs collectAttributes() const override;
     const UnicodeString phon( const TextPolicy& ) const override;
     const UnicodeString phon( const std::string& = "current",
-			      TEXT_FLAGS = TEXT_FLAGS::NONE ) const override;
+			      TEXT_FLAGS = TEXT_FLAGS::NONE,
+			      bool = false ) const override;
     FoliaElement *postappend() override;
   public:
     FoliaElement *find_default_reference() const override;

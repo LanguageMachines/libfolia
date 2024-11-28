@@ -517,12 +517,11 @@ namespace folia {
 				     "Default reference for content not found!" );
     }
     else if ( !the_ref->hastext( cls() ) ){
-      cerr << "PROBLEM: " << _ref << endl;
-      cerr << "PROBLEM: " << the_ref << endl;
       throw UnresolvableTextContent( this,
 				     "Reference (ID " + _ref
 				     + ") has no such text (class="
-				     + cls() + ")" );
+				     + cls() + "),found reference "
+				     + the_ref->id() );
     }
     else if ( doc()->checktext() || doc()->fixtext() ){
       TextPolicy tp( cls(), TEXT_FLAGS::STRICT );
@@ -750,7 +749,8 @@ namespace folia {
   }
 
   const UnicodeString PhonContent::phon( const string& cls,
-					 TEXT_FLAGS flags ) const {
+					 TEXT_FLAGS flags,
+					 bool debug ) const {
     /// get the UnicodeString phon value
     /*!
       \param cls the textclass the text should be in
@@ -758,6 +758,7 @@ namespace folia {
       \return the UnicodeString with the phon content
     */
     TextPolicy tp( cls, flags );
+    tp.set_debug( debug );
     return phon( tp );
   }
 
