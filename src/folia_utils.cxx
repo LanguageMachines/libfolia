@@ -988,10 +988,10 @@ namespace folia {
       cerr << "isSubClass<AbstractWord, FoliaElement>() failed" << endl;
       return false;
     }
-    // if ( isSubClass<AbstractWord, AbstractStructureElement>() ){
-    //   cerr << "isSubClass<AbstractWord, AbstractStructureElement>() failed" << endl;
-    //   return false;
-    // }
+    if ( !isSubClass<AbstractWord, AbstractStructureElement>() ){
+      cerr << "isSubClass<AbstractWord, AbstractStructureElement>() failed" << endl;
+      return false;
+    }
     if ( isSubClass<AbstractElement,Word>() ){
       cerr << "isSubClass<AbstractElement,Word>() failed" << endl;
       return false;
