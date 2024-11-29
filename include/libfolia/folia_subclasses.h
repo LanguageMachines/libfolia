@@ -39,17 +39,6 @@ protected:							\
  CLASS( const CLASS& ) = delete;				\
  CLASS& operator=( const CLASS& ) = delete
 
-#define ADD_PROTECTED_CONSTRUCTORS_INIT( CLASS, BASE, INIT )	\
-  friend void static_init();					\
-protected:							\
- explicit CLASS( const properties& props, Document *d=0 ):	\
-   BASE( props, d ), INIT { classInit(); };			\
- CLASS( const properties& props, FoliaElement *p ):		\
-   BASE( props, p ), INIT { classInit(); };			\
- CLASS( const CLASS& ) = delete;				\
- CLASS& operator=( const CLASS& ) = delete
-
-
 #define ADD_DEFAULT_CONSTRUCTORS( CLASS, BASE )		\
   friend void static_init();				\
 protected:						\
@@ -63,21 +52,6 @@ public:							\
    BASE( PROPS, p ){ classInit(a); };			\
  explicit CLASS( FoliaElement *p ):			\
    BASE( PROPS, p ){ classInit(); }			\
- static properties PROPS
-
-#define ADD_DEFAULT_CONSTRUCTORS_INIT( CLASS, BASE, INIT )		\
-  friend void static_init();						\
-protected:								\
- ~CLASS() override {};							\
-public:									\
- explicit CLASS( const KWargs& a, Document *d=0 ):			\
-   BASE( PROPS, d ), INIT { classInit(a); };				\
- explicit CLASS( Document *d=0 ):					\
-   BASE( PROPS, d ), INIT { classInit(); };				\
- CLASS( const KWargs& a, FoliaElement *p ):				\
-   BASE( PROPS, p ), INIT { classInit(a); };				\
- explicit CLASS( FoliaElement *p ):					\
-   BASE( PROPS, p ), INIT { classInit(); };				\
  static properties PROPS
 
  class AbstractStructureElement:
@@ -258,7 +232,7 @@ public:									\
   {
     // DO NOT USE AbstractContentAnnotation as a real node!!
   protected:
-    ADD_PROTECTED_CONSTRUCTORS_INIT( AbstractContentAnnotation, AbstractElement, _offset(0) );
+    ADD_PROTECTED_CONSTRUCTORS( AbstractContentAnnotation, AbstractElement);
   public:
     void setAttributes( KWargs& ) override;
     KWargs collectAttributes() const override;
@@ -269,7 +243,7 @@ public:									\
     void init() override;
     virtual FoliaElement *find_default_reference() const = 0;
     void set_offset( int o ) const override { _offset = o; };
-    mutable int _offset;
+    mutable int _offset = 0;
     std::string _ref;
   };
 
@@ -383,7 +357,7 @@ public:									\
     public AllowXlink
   {
   public:
-    ADD_DEFAULT_CONSTRUCTORS_INIT( Linebreak, AbstractStructureElement, _newpage(false) );
+    ADD_DEFAULT_CONSTRUCTORS( Linebreak, AbstractStructureElement );
     void setAttributes( KWargs& ) override;
     KWargs collectAttributes() const override;
   private:
@@ -393,7 +367,7 @@ public:									\
     }
     std::string _pagenr;
     std::string _linenr;
-    bool _newpage;
+    bool _newpage = false;
   };
 
   class Whitespace: public AbstractStructureElement {
@@ -409,7 +383,7 @@ public:									\
     public AbstractWord
   {
   public:
-    ADD_DEFAULT_CONSTRUCTORS_INIT( Word, AbstractWord, _is_placeholder(false) );
+    ADD_DEFAULT_CONSTRUCTORS( Word, AbstractWord );
 
     Correction *split( FoliaElement *, FoliaElement *,
 		       const std::string& = "" ) override;
@@ -431,7 +405,7 @@ public:									\
 					  std::vector<MorphologyLayer*>& ) const override;
     bool is_placeholder() const { return _is_placeholder; };
   private:
-    bool _is_placeholder;
+    bool _is_placeholder = false;
   };
 
   class Hiddenword:
