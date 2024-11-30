@@ -116,9 +116,10 @@ namespace folia {
       return element_id() == F::PROPS.ELEMENT_ID;
     }
 
-    template <typename F>
+    template <typename T>
     bool isSubClass() const {
-      return is_subtype( element_id(), F::PROPS.ELEMENT_ID );
+      const FoliaElement *tmp = dynamic_cast<const T*>(this);
+      return tmp != nullptr;
     }
 
     template <typename T>
@@ -575,7 +576,7 @@ namespace folia {
     static FoliaElement *createElement( ElementType, Document * =0 );
     static FoliaElement *createElement( const std::string&, Document * =0 );
 
-  };
+  }; // class FoliaElement
 
   class AbstractElement: public virtual FoliaElement {
     friend void destroy( FoliaElement * );
@@ -843,7 +844,7 @@ namespace folia {
     SPACE_FLAGS _preserve_spaces;
     std::vector<FoliaElement*> _data;
     const properties& _props;
-  };
+  }; // class AbstractElement
 
   template <typename T1, typename T2>
   bool isSubClass(){

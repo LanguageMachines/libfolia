@@ -1009,14 +1009,27 @@ namespace folia {
       return false;
     }
     {
-      Word *w =  new Word();
+      Word *w = new Word();
       if ( !w->isSubClass<Word>() ){
 	cerr << "Word::isSubClass<Word>() failed" << endl;
 	return false;
       }
-      //    assert( w->isSubClass<AbstractWord>() == 1 );
-      //assert( w->isSubClass<AbstractStructureElement>() == 1 );
-      //assert( w->isSubClass<AbstractElement>() == 1 );
+      if ( !w->isSubClass<FoliaElement>() ){
+	cerr << "Word::isSubClass<FoliaElement() failed" << endl;
+	return false;
+      }
+      if ( !w->isSubClass<AbstractWord>() ){
+	cerr << "Word::isSubClass<AbstractWord>() failed" << endl;
+	return false;
+      }
+      if ( !w->isSubClass<AbstractElement>() ){
+	cerr << "Word::isSubClass<AbstractElement() failed" << endl;
+	return false;
+      }
+      if ( !w->isSubClass<AbstractStructureElement>() ){
+	cerr << "Word::isSubClass<AbstractStructureElement() failed" << endl;
+	return false;
+      }
       if ( w->isSubClass<Feature>() ){
 	cerr << "Word::isSubClass<Feature>() failed" << endl;
 	return false;
