@@ -1445,14 +1445,17 @@ namespace folia {
     }
   }
 
-  const UnicodeString FoliaElement::stricttext( const string& cls ) const {
+  const UnicodeString FoliaElement::stricttext( const string& cls,
+						bool debug ) const {
     /// get the UnicodeString value of TextContent children only
     /*!
      * \param cls the textclass
+     * \param debug (default false)
      * \return The Unicode Text found.
      * Will throw on error.
      */
     TextPolicy tp( cls, TEXT_FLAGS::STRICT );
+    tp.set_debug( debug );
     return this->text( tp );
   }
 
@@ -2875,7 +2878,10 @@ namespace folia {
 	   && (el->cls() == desired_class ) ) {
 	return dynamic_cast<TextContent*>(el);
       }
-      else if ( isinstance<Correction>() ){
+      else if ( el->isinstance<Correction>() ){
+	if ( tp.debug() ){
+	  DBG << "look into correction...." << endl;
+	}
 	try {
 	  return el->text_content( tp );
 	}

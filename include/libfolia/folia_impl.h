@@ -352,7 +352,7 @@ namespace folia {
 				      bool = false ) const = 0;
     virtual const UnicodeString text( TEXT_FLAGS = TEXT_FLAGS::NONE,
 				      bool = false ) const = 0;
-    const UnicodeString stricttext( const std::string& = "current" ) const;
+    const UnicodeString stricttext( const std::string& = "current", bool=false ) const;
     const UnicodeString toktext( const std::string& = "current" ) const;
     virtual const UnicodeString phon( const TextPolicy& ) const = 0;
     virtual const UnicodeString phon( const std::string&,
