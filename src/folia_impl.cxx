@@ -389,7 +389,7 @@ namespace folia {
      * the anntotation-type, when de document allows this.
      */
 
-    if ( isSubClass( AbstractCorrectionChild_t ) ){
+    if ( isSubClass<AbstractCorrectionChild>() ){
       return;
     }
 
@@ -445,7 +445,7 @@ namespace folia {
 	  }
 	}
 	else if ( _set.empty()
-		  && !isSubClass( AbstractAnnotationLayer_t )
+		  && !isSubClass<AbstractAnnotationLayer>()
 		  && !doc()->declared( annotation_type(), "None" ) ){
 	  if ( _mydoc->autodeclare() ){
 	    _mydoc->auto_declare( annotation_type(), _set );
@@ -650,8 +650,8 @@ namespace folia {
       att_dbg = ( doc_dbg == DocDbg::ATTRIBUTES );
     }
     if ( att_dbg ) {
-      if ( element_id() == New_t
-	   || element_id() == Original_t ) {
+      if ( isinstance<New>()
+	   || isinstance<Original>() ) {
 	if ( doc() ){
 	  doc()->setdebug(DocDbg::NODEBUG);
 	}
@@ -759,7 +759,8 @@ namespace folia {
 	throw ValueError( this,
 			  "Class is not supported for " + classname() );
       }
-      if ( element_id() != TextContent_t && element_id() != PhonContent_t ) {
+      if ( !isinstance<TextContent>()
+	   && !isinstance<PhonContent>() ) {
 	if ( !doc() ) {
 	  throw ValueError( this,
 			    "Class=" + val + " is used on a node without a document." );
@@ -779,7 +780,8 @@ namespace folia {
       _class = val;
     }
 
-    if ( element_id() != TextContent_t && element_id() != PhonContent_t ) {
+    if ( !isinstance<TextContent>()
+	 && !isinstance<PhonContent>() ) {
       if ( !_class.empty() && _set.empty() ) {
 	throw ValueError( this,
 			  "Set is required for <" + classname() +
@@ -1089,7 +1091,7 @@ namespace folia {
 	doc()->add_doc_index( this );
       }
       catch ( const DuplicateIDError& e ){
-	if ( element_id() != WordReference_t ){
+	if ( !isinstance<WordReference>() ){
 	  throw;
 	}
       }
@@ -1198,37 +1200,37 @@ namespace folia {
   }
 
   void AbstractElement::set_typegroup( KWargs& attribs ) const {
-    if ( isSubClass( AbstractStructureElement_t ) ){
+    if ( isSubClass<AbstractStructureElement>() ){
       attribs.add("typegroup","structure");
     }
-    else if ( isSubClass( AbstractFeature_t ) ){
+    else if ( isSubClass<AbstractFeature>() ){
       attribs.add("typegroup","feature");
     }
-    else if ( isSubClass( AbstractInlineAnnotation_t ) ){
+    else if ( isSubClass<AbstractInlineAnnotation>() ){
       attribs.add("typegroup","inline");
     }
-    else if ( isSubClass( AbstractHigherOrderAnnotation_t ) ){
+    else if ( isSubClass<AbstractHigherOrderAnnotation>() ){
       attribs.add("typegroup","higherorder");
     }
-    else if ( isSubClass(  AbstractSpanRole_t ) ){
+    else if ( isSubClass<AbstractSpanRole>() ){
       attribs.add("typegroup","spanrole");
     }
-    else if ( isSubClass(  AbstractSpanAnnotation_t ) ){
+    else if ( isSubClass<AbstractSpanAnnotation>() ){
       attribs.add("typegroup","span");
     }
-    else if ( isSubClass(  AbstractTextMarkup_t ) ){
+    else if ( isSubClass<AbstractTextMarkup>() ){
       attribs.add("typegroup","textmarkup");
     }
-    else if ( isSubClass(  AbstractContentAnnotation_t ) ){
+    else if ( isSubClass<AbstractContentAnnotation>() ){
       attribs.add("typegroup","content");
     }
-    else if ( isSubClass(  AbstractAnnotationLayer_t ) ){
+    else if ( isSubClass<AbstractAnnotationLayer>() ){
       attribs.add("typegroup","layer");
     }
-    else if ( isSubClass(  AbstractSubtokenAnnotation_t ) ){
+    else if ( isSubClass<AbstractSubtokenAnnotation>() ){
       attribs.add("typegroup","subtoken");
     }
-    else if ( isSubClass(  AbstractCorrectionChild_t ) ){
+    else if ( isSubClass<AbstractCorrectionChild>() ){
       attribs.add("typegroup","correctionchild");
     }
     else {
@@ -1469,7 +1471,7 @@ namespace folia {
     void FoliaElement::clear_textcontent( const string& textclass ){
     for ( size_t i=0; i < size(); ++i ){
       FoliaElement *p = index(i);
-      if ( p->element_id() == TextContent_t ) {
+      if ( p->isinstance<TextContent>() ) {
 	if ( p->cls() == textclass ){
 	  p->destroy();
 	  break;
@@ -1526,7 +1528,7 @@ namespace folia {
      */
     UnicodeString txt_u = TiCC::UnicodeFromUTF8( txt );
     if ( doc() && doc()->checktext()
-	 && !isSubClass( Morpheme_t ) && !isSubClass( Phoneme_t) ){
+	 && !isSubClass<Morpheme>() && !isSubClass<Phoneme>() ){
       UnicodeString deeper_u;
       try {
 	deeper_u = text( cls );
@@ -1589,7 +1591,7 @@ namespace folia {
      * search for Description nodes in this object.
      * When 1 or more are found, return the value of the first one
      */
-    vector<FoliaElement *> v = select( Description_t, SELECT_FLAGS::LOCAL );
+    vector<Description*> v = select<Description>( false );
     if ( v.size() == 0 ) {
       return "";
     }
@@ -1605,7 +1607,7 @@ namespace folia {
      * otherwise not, and the empty string is returned.
      */
     string att;
-    if ( c->isSubClass( AbstractFeature_t ) ) {
+    if ( c->isSubClass<AbstractFeature>() ) {
       att = c->xmltag();
       if ( att == "feat" ) {
 	// "feat" is a Feature_t too. exclude!
@@ -1624,7 +1626,7 @@ namespace folia {
 		  const string& cls,
 		  bool txt_dbg ){
     if ( parent
-	 && parent->element_id() != Correction_t
+	 && !parent->isinstance<Correction>()
 	 && parent->hastext( cls ) ){
       // check text consistency for parents with text
       // but SKIP Corrections
@@ -1639,10 +1641,10 @@ namespace folia {
       s2 = normalize_spaces( s2 );
       if ( !s1.isEmpty() && !s2.isEmpty() ){
 	bool test_fail;
-	if ( child->isSubClass( TextContent_t )
-	     || child->isSubClass( AbstractTextMarkup_t )
-	     || child->isSubClass( String_t )
-	     || child->isSubClass( Word_t ) ){
+	if ( child->isSubClass<TextContent>()
+	     || child->isSubClass<AbstractTextMarkup>()
+	     || child->isSubClass<String>()
+	     || child->isSubClass<Word>() ){
 	  // Words and Strings are 'per definition' PART of their parents
 	  test_fail = ( s1.indexOf( s2 ) < 0 ); // aren't they?
 	}
@@ -1689,9 +1691,9 @@ namespace folia {
       s1 = normalize_spaces( s1 );
       s2 = normalize_spaces( s2 );
       bool test_fail;
-      if ( child->isSubClass( Word_t )
-	   || child->isSubClass( String_t )
-	   || child->isSubClass( AbstractTextMarkup_t ) ) {
+      if ( child->isSubClass<Word>()
+	   || child->isSubClass<String>()
+	   || child->isSubClass<AbstractTextMarkup>() ) {
 	// Words, Strings and AbstractTextMarkup are 'per definition' PART of
 	// their text parents
 	test_fail = ( s1.indexOf( s2 ) < 0 ); // aren't they?
@@ -1908,10 +1910,10 @@ namespace folia {
 	}
       }
     }
-    if ( element_id() == TextContent_t ){
+    if ( isinstance<TextContent>() ){
       // we have to check for at least one XmlText or TEXTCONTAINER child
       auto valid_text = []( auto elt ){
-	return ( elt->element_id() == XmlText_t
+	return ( elt->element_id() == ElementType::XmlText_t
 		 || elt->is_textcontainer() ); };
       bool found = std::any_of( _data.begin(), _data.end(),
 				valid_text );
@@ -2195,11 +2197,11 @@ namespace folia {
       const FoliaElement *last = _data.back();
       if ( last && tp.debug() ){
 	DBG << "last is " << last << endl;
-	DBG << "isSubClass(AbstractWord) == " << last->isSubClass(AbstractWord_t) << endl;
+	DBG << "isSubClass(AbstractWord) == " << last->isSubClass<AbstractWord>() << endl;
 	DBG << "last->space() == " << last->space() << endl;
       }
       if ( last
-	   && last->isSubClass(AbstractWord_t)
+	   && last->isSubClass<AbstractWord>()
 	   && !last->space() ){
 	return EMPTY_STRING;
       }
@@ -2213,7 +2215,7 @@ namespace folia {
     else if ( _data.size() > 0 ) {
       // attempt to get a delimiter from the last child
       const FoliaElement *last = _data.back();
-      if ( last->isSubClass(AbstractWord_t) ){
+      if ( last->isSubClass<AbstractWord>() ){
 	const string& det = last->get_delimiter( tp );
 	if ( tp.debug() ){
 	  DBG << "out <" << xmltag() << ">:get_delimiter ==> '" << det << "'"
@@ -2689,10 +2691,11 @@ namespace folia {
       DBG << "no space? s: " << s << endl;
     }
     if ( s ){
-      vector<FoliaElement*> elts = s->select_set( {Word_t,Correction_t},
-						  "",
-						  {},
-						  SELECT_FLAGS::LOCAL );
+      vector<FoliaElement*> elts = s->select_set( {ElementType::Word_t,
+	  ElementType::Correction_t},
+	"",
+	{},
+	SELECT_FLAGS::LOCAL );
       if ( !elts.empty() ){
 	if ( txt_dbg ){
 	  DBG << "found some mixed stuff: " << elts << endl;
@@ -2734,7 +2737,7 @@ namespace folia {
       }
       if ( child->printable()
 	   && ( is_structure( child )
-		|| child->isSubClass( AbstractSpanAnnotation_t )
+		|| child->isSubClass<AbstractSpanAnnotation>()
 		|| child->isinstance<Correction>() )
 	   && !child->isinstance<TextContent>() ) {
 	if ( tp.debug() ){
@@ -2872,7 +2875,7 @@ namespace folia {
 	   && (el->cls() == desired_class ) ) {
 	return dynamic_cast<TextContent*>(el);
       }
-      else if ( el->element_id() == Correction_t) {
+      else if ( isinstance<Correction>() ){
 	try {
 	  return el->text_content( tp );
 	}
@@ -2943,7 +2946,7 @@ namespace folia {
       if ( el->isinstance<PhonContent>() && ( el->cls() == desired_class ) ) {
 	return dynamic_cast<PhonContent*>(el);
       }
-      else if ( el->element_id() == Correction_t) {
+      else if ( el->isinstance<Correction>() ) {
 	try {
 	  return el->phon_content(tp);
 	} catch ( const NoSuchPhon& e ) {
@@ -3269,7 +3272,7 @@ namespace folia {
       }
     }
     if ( _parent &&
-	 !( element_id() == WordReference_t
+	 !( isinstance<WordReference>()
 	    || referable() ) ){
       throw XmlError( this,
 		      "attempt to reconnect node " + classname() + "("
@@ -3295,8 +3298,8 @@ namespace folia {
       }
     }
 #endif
-    if ( element_id() == TextContent_t
-	 && parent->element_id() == Word_t ) {
+    if ( isinstance<TextContent>()
+	 && parent->isinstance<Word>() ) {
       string val = str(cls());
       val = trim( val );
       if ( val.empty() ) {
@@ -3312,7 +3315,7 @@ namespace folia {
 	}
       }
     }
-    if ( element_id() == TextContent_t ){
+    if ( isinstance<TextContent>() ){
       string my_cls = cls();
       string st = sett();
       vector<TextContent*> tmp = parent->select<TextContent>( st, false );
@@ -3327,7 +3330,7 @@ namespace folia {
 	}
     }
     if ( is_textcontainer() ||
-	 element_id() == Word_t ){
+	 isinstance<Word>() ){
       parent->check_append_text_consistency( this );
     }
     return true;
@@ -3587,7 +3590,7 @@ namespace folia {
      * Will throw when the index is out of range
      */
     if ( i < _data.size() ) {
-      while ( _data[i]->element_id() == XmlComment_t
+      while ( _data[i]->isinstance<XmlComment>()
 	      && ++i < _data.size() );
       return _data[i];
     }
@@ -3887,7 +3890,7 @@ namespace folia {
     }
     if ( doc() && ( doc()->checktext() || doc()->fixtext() )
 	 && this->printable()
-	 && !isSubClass( Morpheme_t ) && !isSubClass( Phoneme_t) ){
+	 && !isSubClass<Morpheme>() && !isSubClass<Phoneme>() ){
       check_text_consistency_while_parsing( true,
 					    doc()->debug % DocDbg::TEXTHANDLING );
     }
@@ -3966,8 +3969,8 @@ namespace folia {
     for ( const auto& alt : alt_nodes ){
       if ( alt->size() > 0 ) { // child elements?
 	for ( size_t j=0; j < alt->size(); ++j ) {
-	  if ( alt->index(j)->element_id() == PosAnnotation_t &&
-	       ( st.empty() || alt->index(j)->sett() == st ) ) {
+	  if ( alt->index(j)->isinstance<PosAnnotation>()
+	       && ( st.empty() || alt->index(j)->sett() == st ) ) {
 	    alts.push_back( dynamic_cast<PosAnnotation*>(alt->index(j)) );
 	  }
 	}
@@ -4023,8 +4026,8 @@ namespace folia {
     for ( const auto& alt : alt_nodes ){
       if ( alt->size() > 0 ) { // child elements?
 	for ( size_t j =0; j < alt->size(); ++j ) {
-	  if ( alt->index(j)->element_id() == LemmaAnnotation_t &&
-	       ( st.empty() || alt->index(j)->sett() == st ) ) {
+	  if ( alt->index(j)->isinstance<LemmaAnnotation>()
+	       && ( st.empty() || alt->index(j)->sett() == st ) ) {
 	    alts.push_back( dynamic_cast<LemmaAnnotation*>(alt->index(j)) );
 	  }
 	}
@@ -4585,7 +4588,7 @@ namespace folia {
      */
     vector<string> result;
     for ( const auto *el : data() ) {
-      if ( el->isSubClass( AbstractFeature_t ) &&
+      if ( el->isSubClass<AbstractFeature>() &&
 	   el->subset() == s ) {
 	result.push_back( el->cls() );
       }
@@ -4601,7 +4604,7 @@ namespace folia {
      */
     const auto& it = find_if( _data.begin(), _data.end(),
 			      [s]( const FoliaElement *e ){
-				return ( e->isSubClass( AbstractFeature_t )
+				return ( e->isSubClass<AbstractFeature>()
 					 && e->subset() == s ); } );
     if ( it == _data.end() ){
       return "";

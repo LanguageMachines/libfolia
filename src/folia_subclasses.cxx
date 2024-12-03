@@ -176,7 +176,7 @@ namespace folia {
     for ( const auto& alt : alt_nodes ){
       if ( alt->size() > 0 ) { // child elements?
 	for ( size_t j =0; j < alt->size(); ++j ) {
-	  if ( alt->index(j)->element_id() == MorphologyLayer_t &&
+	  if ( alt->index(j)->isinstance<MorphologyLayer>() &&
 	       ( st.empty() || alt->index(j)->sett() == st ) ) {
 	    alts.push_back( dynamic_cast<MorphologyLayer*>(alt->index(j)) );
 	  }
@@ -466,11 +466,11 @@ namespace folia {
     int depth = 0;
     FoliaElement *p = parent();
     while ( p ){
-      if ( ( p->isSubClass( String_t )
-	     || p->isSubClass( AbstractWord_t )
-	     || p->isSubClass( AbstractStructureElement_t )
-	     || p->isSubClass( AbstractSubtokenAnnotation_t ) )
-	   && p->acceptable( TextContent_t ) ){
+      if ( ( p->isSubClass<String>()
+	     || p->isSubClass<AbstractWord>()
+	     || p->isSubClass<AbstractStructureElement>()
+	     || p->isSubClass<AbstractSubtokenAnnotation>( ) )
+	   && p->acceptable( ElementType::TextContent_t ) ){
 	if ( ++depth == 2 ){
 	  return p;
 	}
@@ -647,8 +647,8 @@ namespace folia {
     int depth = 0;
     FoliaElement *p = parent();
     while ( p ){
-      if ( p->isSubClass( AbstractStructureElement_t )
-	   || p->isSubClass( AbstractSubtokenAnnotation_t ) ){
+      if ( p->isSubClass<AbstractStructureElement>()
+	   || p->isSubClass<AbstractSubtokenAnnotation>() ){
 	if ( ++depth == 2 ){
 	  return p;
 	}
@@ -935,7 +935,7 @@ namespace folia {
      * \return a list of matching Alternative nodes
      */
     vector<Alternative *> alts = FoliaElement::select<Alternative>( AnnoExcludeSet );
-    if ( elt == BASE ) {
+    if ( elt == ElementType::BASE ) {
       return alts;
     }
     else {
@@ -1037,7 +1037,7 @@ namespace folia {
      * will throw on error
      * checks uniqueness of the child when it is an annotation
      */
-    if ( child->isSubClass( AbstractAnnotationLayer_t ) ) {
+    if ( child->isSubClass<AbstractAnnotationLayer>() ) {
       // sanity check, there may be no other child within the same set
       vector<FoliaElement*> v = select( child->element_id(), child->sett() );
       if ( v.empty() ) {
@@ -1358,7 +1358,7 @@ namespace folia {
      */
     ElementType layertype = layertypeof( et );
     vector<AbstractSpanAnnotation *> result;
-    if ( layertype != BASE ) {
+    if ( layertype != ElementType::BASE ) {
       const FoliaElement *e = parent();
       if ( e ) {
 	const vector<FoliaElement*> v
@@ -1510,7 +1510,7 @@ namespace folia {
     /*!
      * \return A UnicodeString with the caption. Throws on error.
      */
-    vector<FoliaElement *> v = select(Caption_t);
+    vector<Caption*> v = select<Caption>();
     if ( v.empty() ) {
       throw NoSuchText( this, "caption");
     }
@@ -1620,7 +1620,7 @@ namespace folia {
     // for a Correction child, we look deeper.
     // BARF when the sets are incompatible.
     string c_set;
-    if ( child->isSubClass( AbstractSpanAnnotation_t ) ) {
+    if ( child->isSubClass<AbstractSpanAnnotation>() ) {
       string st = child->sett();
       if ( !st.empty()
 	   && doc()->default_set( child->annotation_type() ) != st ) {
@@ -1632,7 +1632,7 @@ namespace folia {
       if ( org ) {
 	for ( size_t i=0; i < org->size(); ++i ) {
 	  const FoliaElement *el = org->index(i);
-	  if ( el->isSubClass( AbstractSpanAnnotation_t ) ) {
+	  if ( el->isSubClass<AbstractSpanAnnotation>() ) {
 	    string st = el->sett();
 	    if ( !st.empty()
 		 && doc()->default_set( el->annotation_type() ) != st ) {
@@ -1647,7 +1647,7 @@ namespace folia {
 	if ( nw ) {
 	  for ( size_t i=0; i < nw->size(); ++i ) {
 	    const FoliaElement *el = nw->index(i);
-	    if ( el->isSubClass( AbstractSpanAnnotation_t ) ) {
+	    if ( el->isSubClass<AbstractSpanAnnotation>() ) {
 	      string st = el->sett();
 	      if ( !st.empty()
 		   && doc()->default_set( el->annotation_type() ) != st ) {
@@ -1662,7 +1662,7 @@ namespace folia {
 	// false positive. c_set can be changed in previous for loop
 	auto v = child->suggestions();
 	for ( const auto* el : v ) {
-	  if ( el->isSubClass( AbstractSpanAnnotation_t ) ) {
+	  if ( el->isSubClass<AbstractSpanAnnotation>() ) {
 	    string st = el->sett();
 	    if ( !st.empty()
 		 && doc()->default_set( el->annotation_type() ) != st ) {
@@ -1831,7 +1831,7 @@ namespace folia {
       return true;
     }
     else if ( get_abstract_parent( e1 ) == get_abstract_parent( e2 )
-	      && get_abstract_parent( e1->element_id() ) != BASE ){
+	      && get_abstract_parent( e1->element_id() ) != ElementType::BASE ){
       return true;
     }
     else {
@@ -1843,15 +1843,15 @@ namespace folia {
     /// we check if the children have the same element type.
     /// We are a bit lax, only checking the first childs
     const FoliaElement *n = getNew(0);
-    while ( n && n->element_id() == Correction_t ){
+    while ( n && n->isinstance<Correction>() ){
       n = n->getNew(0);
     }
     const FoliaElement *c = getCurrent(0);
-    while ( c && c->element_id() == Correction_t ){
+    while ( c && c->isinstance<Correction>() ){
       c = c->getCurrent(0);
     }
     const FoliaElement *o = getOriginal(0);
-    while ( o && o->element_id() == Correction_t ){
+    while ( o && o->isinstance<Correction>() ){
       o = o->getOriginal(0);
     }
     if ( n ){
@@ -2234,7 +2234,7 @@ namespace folia {
     if ( !AbstractElement::addable( parent ) ){
       return false;
     }
-    vector<FoliaElement*> v = parent->select( Current_t, SELECT_FLAGS::LOCAL );
+    vector<Current*> v = parent->select<Current>(false);
     if ( !v.empty() ){
       throw XmlError( this,
 		      "Cant't add New element to Correction if there is a Current item" );
@@ -2253,7 +2253,7 @@ namespace folia {
     if ( !AbstractElement::addable( parent ) ){
       return false;
     }
-    vector<FoliaElement*> v = parent->select( Current_t, SELECT_FLAGS::LOCAL );
+    vector<Current*> v = parent->select<Current>(false);
     if ( !v.empty() ){
       throw XmlError( this,
 		      "Cant't add Original element to Correction if there is a Current item" );
@@ -2272,13 +2272,13 @@ namespace folia {
     if ( !AbstractElement::addable( parent ) ){
       return false;
     }
-    vector<FoliaElement*> v = parent->select( New_t, SELECT_FLAGS::LOCAL );
-    if ( !v.empty() ){
+    vector<New*> nv = parent->select<New>(false);
+    if ( !nv.empty() ){
       throw XmlError( this,
 		      "Cant't add Current element to Correction if there is a New item" );
     }
-    v = parent->select( Original_t, SELECT_FLAGS::LOCAL );
-    if ( !v.empty() ){
+    vector<Original*> ov = parent->select<Original>(false);
+    if ( !ov.empty() ){
       throw XmlError( this,
 		      "Cant't add Current element to Correction if there is an Original item" );
     }
@@ -2375,7 +2375,7 @@ namespace folia {
 
   bool Correction::hasNew() const {
     ///  check if this Correction has a New node
-    vector<FoliaElement*> v = select( New_t, SELECT_FLAGS::LOCAL );
+    vector<New*> v = select<New>(false);
     return !v.empty();
   }
 
@@ -2407,7 +2407,7 @@ namespace folia {
 
   bool Correction::hasOriginal() const {
     ///  check if this Correction has an Original node
-    vector<FoliaElement*> v = select( Original_t, SELECT_FLAGS::LOCAL );
+    vector<Original*> v = select<Original>(false);
     return !v.empty();
   }
 
@@ -2416,7 +2416,7 @@ namespace folia {
     /*!
      * \return the new node or 0 if not available
      */
-    vector<Original*> v = FoliaElement::select<Original>( false );
+    vector<Original*> v = select<Original>( false );
     if ( v.empty() ) {
       return 0;
     }
@@ -2439,7 +2439,7 @@ namespace folia {
 
   bool Correction::hasCurrent( ) const {
     ///  check if this Correction has a New node
-    vector<FoliaElement*> v = select( Current_t, SELECT_FLAGS::LOCAL );
+    vector<Current*> v = select<Current>(false);
     return !v.empty();
   }
 
@@ -2501,7 +2501,7 @@ namespace folia {
     auto const hd = find_if( data().begin(),
 			     data().end(),
 			     []( const FoliaElement *h ){
-			       return h->element_id() == Head_t;} );
+			       return h->element_id() == ElementType::Head_t;} );
     if ( hd != data().end() ){
       return dynamic_cast<Head*>(*hd);
     }
@@ -2513,7 +2513,7 @@ namespace folia {
     /*!
      * \return the UTF8 string of the content in the Gap. Throws if not found
      */
-    vector<FoliaElement*> cv = select( Content_t );
+    vector<Content*> cv = select<Content>();
     if ( cv.empty() ) {
       throw NoSuchAnnotation( this, "content" );
     }
@@ -2554,9 +2554,8 @@ namespace folia {
      */
     vector<FoliaElement*> res;
     for ( const auto& el : data() ) {
-      ElementType et = el->element_id();
       if ( el->referable()
-	   || et == WordReference_t ){
+	   || el->isinstance<WordReference>() ){
 	res.push_back( el );
       }
       else {

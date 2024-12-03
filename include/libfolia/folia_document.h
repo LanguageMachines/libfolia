@@ -48,7 +48,7 @@ namespace folia {
 
   extern const std::string NSFOLIA;
 
-  enum ElementType : unsigned int;
+  enum class ElementType : unsigned int;
 
   class Pattern {
     friend std::ostream& operator<<( std::ostream&, const Pattern& );
@@ -56,7 +56,7 @@ namespace folia {
     // cppcheck-suppress noExplicitConstructor
     // We want to be able to use const char parameters AND string
     explicit Pattern( const std::vector<std::string>&,
-		      const ElementType = BASE,
+		      const ElementType = ElementType::BASE,
 		      const std::string& = "" );
     Pattern( const std::vector<std::string>&,  const std::string& );
 

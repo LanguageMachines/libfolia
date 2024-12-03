@@ -835,7 +835,7 @@ namespace folia {
     //    cerr << "DEPTH " << fe << endl;
     if ( fe
 	 && fe->xmltag() != "_XmlText"
-	 && fe->element_id() != HeadFeature_t
+	 && !fe->isinstance<HeadFeature>()
 	 && !isAttributeFeature(fe->xmltag()) ){
       result += 1;
       if ( fe->size() > 0 ){
@@ -1207,7 +1207,7 @@ namespace folia {
     */
     if ( pnt->parent->tag != "w"
 	 && is_subtype( stringToElementType(pnt->parent->tag),
-			AbstractStructureElement_t ) ){
+			ElementType::AbstractStructureElement_t ) ){
       return pnt->parent;
     }
     else {

@@ -925,7 +925,7 @@ namespace folia {
     return foliadoc->text( cls, flags );
   }
 
-  static const set<ElementType> quoteSet = { Quote_t };
+  static const set<ElementType> quoteSet = { ElementType::Quote_t };
   static const set<ElementType> emptySet;
 
   vector<Sentence*> Document::sentences() const {
@@ -1293,7 +1293,7 @@ namespace folia {
 	  DBG << "parse " << prefix << "-annotation" << endl;
 	}
 	KWargs atts = getAttributes( n );
-	ElementType et = BASE;
+	ElementType et = ElementType::BASE;
 	string set_name = atts.extract("set" );
 	if ( at_type == AnnotationType::TEXT ){
 	  //
@@ -1343,7 +1343,7 @@ namespace folia {
 	string my_alias = atts.extract( "alias" );
 	string gran_val = atts.extract( "groupannotations" );
 	if ( !gran_val.empty() ){
-	  if ( !is_subtype( et, AbstractSpanAnnotation_t ) ){
+	  if ( !is_subtype( et, ElementType::AbstractSpanAnnotation_t ) ){
 	    throw DocumentError( _source_name,
 				 "attribute 'groupannotations' not allowed for '"
 				 + prefix + "-annotation",
@@ -2629,9 +2629,9 @@ namespace folia {
 			   "cannot append a root element to a Document. "
 			   "Already there." );
     }
-    if ( t->element_id() == Text_t
-	 || t->element_id() == XmlComment_t
-	 || t->element_id() == Speech_t ) {
+    if ( t->isinstance<Text>()
+	 || t->isinstance<XmlComment>()
+	 || t->isinstance<Speech>() ) {
       foliadoc->append( t );
       return t;
     }
@@ -3489,7 +3489,7 @@ namespace folia {
   }
 
   Pattern::Pattern( const vector<string>& pat_vec,
-		    const string& args ) : matchannotation(BASE) {
+		    const string& args ) : matchannotation(ElementType::BASE) {
     /// create a Pattern structure for searching
     /*!
       \param pat_vec a list if search terms (may be regular expressions)
@@ -3676,7 +3676,7 @@ namespace folia {
       for ( size_t i = startpos; i < mywords.size() && goon ; ++i ){
 	//      DBG << "inner LOOP I = " << i << " myword=" << mywords[i] << endl;
 	UnicodeString value;
-	if ( pat.matchannotation == BASE ){
+	if ( pat.matchannotation == ElementType::BASE ){
 	  value = mywords[i]->text();
 	}
 	else {

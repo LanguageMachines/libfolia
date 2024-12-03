@@ -525,7 +525,7 @@ namespace folia {
 						     const std::string& = ""
 						     ) const NOT_IMPLEMENTED;
     std::vector<Alternative*> alternatives( const std::string& s = "" ) const {
-      return alternatives( BASE, s );
+      return alternatives( ElementType::BASE, s );
     }
 
     virtual const std::string content() const NOT_IMPLEMENTED;
@@ -973,7 +973,7 @@ namespace folia {
   class AllowInlineAnnotation: public AllowCorrections {
   public:
     bool allowannotations() const override { return true; };
-    std::vector<Alternative *> alternatives( ElementType = BASE,
+    std::vector<Alternative *> alternatives( ElementType = ElementType::BASE,
 					     const std::string& = "" ) const override;
 
 

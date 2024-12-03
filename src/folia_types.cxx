@@ -217,47 +217,47 @@ namespace folia {
      * \return The Layer ElementType er belongs to. Or BASE if it has no Layer.
      */
     switch( et ) {
-    case Entity_t:
-    case EntitiesLayer_t:
-      return EntitiesLayer_t;
-    case Chunk_t:
-    case ChunkingLayer_t:
-      return ChunkingLayer_t;
-    case SyntacticUnit_t:
-    case SyntaxLayer_t:
-      return SyntaxLayer_t;
-    case TimeSegment_t:
-    case TimingLayer_t:
-      return TimingLayer_t;
-    case Morpheme_t:
-    case MorphologyLayer_t:
-      return MorphologyLayer_t;
-    case Phoneme_t:
-    case PhonologyLayer_t:
-      return PhonologyLayer_t;
-    case CoreferenceChain_t:
-    case CoreferenceLayer_t:
-      return CoreferenceLayer_t;
-    case Observation_t:
-    case ObservationLayer_t:
-      return ObservationLayer_t;
+    case ElementType::Entity_t:
+    case ElementType::EntitiesLayer_t:
+      return ElementType::EntitiesLayer_t;
+    case ElementType::Chunk_t:
+    case ElementType::ChunkingLayer_t:
+      return ElementType::ChunkingLayer_t;
+    case ElementType::SyntacticUnit_t:
+    case ElementType::SyntaxLayer_t:
+      return ElementType::SyntaxLayer_t;
+    case ElementType::TimeSegment_t:
+    case ElementType::TimingLayer_t:
+      return ElementType::TimingLayer_t;
+    case ElementType::Morpheme_t:
+    case ElementType::MorphologyLayer_t:
+      return ElementType::MorphologyLayer_t;
+    case ElementType::Phoneme_t:
+    case ElementType::PhonologyLayer_t:
+      return ElementType::PhonologyLayer_t;
+    case ElementType::CoreferenceChain_t:
+    case ElementType::CoreferenceLayer_t:
+      return ElementType::CoreferenceLayer_t;
+    case ElementType::Observation_t:
+    case ElementType::ObservationLayer_t:
+      return ElementType::ObservationLayer_t;
     // case Predicate_t:
     // case PredicateLayer_t:
     //   return PredicateLayer_t;
-    case SentimentLayer_t:
-    case Sentiment_t:
-      return SentimentLayer_t;
-    case StatementLayer_t:
-    case Statement_t:
-      return SentimentLayer_t;
-    case SemanticRolesLayer_t:
-    case SemanticRole_t:
-      return SemanticRolesLayer_t;
-    case DependenciesLayer_t:
-    case Dependency_t:
-      return DependenciesLayer_t;
+    case ElementType::SentimentLayer_t:
+    case ElementType::Sentiment_t:
+      return ElementType::SentimentLayer_t;
+    case ElementType::StatementLayer_t:
+    case ElementType::Statement_t:
+      return ElementType::SentimentLayer_t;
+    case ElementType::SemanticRolesLayer_t:
+    case ElementType::SemanticRole_t:
+      return ElementType::SemanticRolesLayer_t;
+    case ElementType::DependenciesLayer_t:
+    case ElementType::Dependency_t:
+      return ElementType::DependenciesLayer_t;
     default:
-      return BASE;
+      return ElementType::BASE;
     }
   }
 

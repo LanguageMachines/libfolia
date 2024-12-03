@@ -31,7 +31,7 @@
 #include <string>
 
 namespace folia {
-  enum ElementType : unsigned int;
+  enum class ElementType : unsigned int;
   enum class Attrib : int;
   enum class AnnotatorType: int;
   enum class AnnotationType : int;
