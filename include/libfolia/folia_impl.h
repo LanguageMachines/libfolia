@@ -111,6 +111,11 @@ namespace folia {
       return index(i);
     }
 
+    template< typename T>
+    bool acceptable(){
+      return this->acceptable( T::PROPS.ELEMENT_ID );
+    }
+
     template <typename F>
       bool isinstance() const {
       return element_id() == F::PROPS.ELEMENT_ID;

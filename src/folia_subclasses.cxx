@@ -470,7 +470,7 @@ namespace folia {
 	     || p->isSubClass<AbstractWord>()
 	     || p->isSubClass<AbstractStructureElement>()
 	     || p->isSubClass<AbstractSubtokenAnnotation>( ) )
-	   && p->acceptable( ElementType::TextContent_t ) ){
+	   && p->acceptable<TextContent>() ){
 	if ( ++depth == 2 ){
 	  return p;
 	}
