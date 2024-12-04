@@ -2200,7 +2200,7 @@ namespace folia {
       const FoliaElement *last = _data.back();
       if ( last && tp.debug() ){
 	DBG << "last is " << last << endl;
-	DBG << "isSubClass(AbstractWord) == " << last->isSubClass<AbstractWord>() << endl;
+	DBG << "isSubClass<AbstractWord>() == " << last->isSubClass<AbstractWord>() << endl;
 	DBG << "last->space() == " << last->space() << endl;
       }
       if ( last

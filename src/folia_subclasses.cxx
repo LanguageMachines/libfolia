@@ -2234,8 +2234,7 @@ namespace folia {
     if ( !AbstractElement::addable( parent ) ){
       return false;
     }
-    vector<Current*> v = parent->select<Current>(false);
-    if ( !v.empty() ){
+    if ( parent->hasCurrent() ){
       throw XmlError( this,
 		      "Cant't add New element to Correction if there is a Current item" );
     }
@@ -2253,8 +2252,7 @@ namespace folia {
     if ( !AbstractElement::addable( parent ) ){
       return false;
     }
-    vector<Current*> v = parent->select<Current>(false);
-    if ( !v.empty() ){
+    if ( parent->hasCurrent() ){
       throw XmlError( this,
 		      "Cant't add Original element to Correction if there is a Current item" );
     }
@@ -2272,13 +2270,11 @@ namespace folia {
     if ( !AbstractElement::addable( parent ) ){
       return false;
     }
-    vector<New*> nv = parent->select<New>(false);
-    if ( !nv.empty() ){
+    if ( parent->hasNew() ){
       throw XmlError( this,
 		      "Cant't add Current element to Correction if there is a New item" );
     }
-    vector<Original*> ov = parent->select<Original>(false);
-    if ( !ov.empty() ){
+    if ( parent->hasOriginal() ){
       throw XmlError( this,
 		      "Cant't add Current element to Correction if there is an Original item" );
     }

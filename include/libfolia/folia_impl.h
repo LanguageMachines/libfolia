@@ -150,19 +150,17 @@ namespace folia {
 
     template <typename T>
       inline T *add_child( const std::string& txt ){
-      /// create a new XmlText as child of 'this'
+      /// create a new node of type T as child of 'this'
       /*!
 	\param txt an value to be assigned as a "text" attribute
-	\return a new FoliaElement
+	\return a pointer to a new T
 	this will not compile for any class that has NO IMPLEMENTATION for
-	setvalue(). (which ar most classes)
+	setvalue(). (which are most classes)
       */
       T *result = new T(this);
       result->setvalue( txt );
       return result;
     }
-
-    bool isSubClass( ElementType ) const;
 
     virtual void assignDoc( Document* ) = 0;
     virtual FoliaElement *parent() const = 0;
@@ -386,10 +384,13 @@ namespace folia {
     virtual Word *addWord( const std::string& ="" ) = 0;
 
     // corrections
+    virtual bool hasNew() const NOT_IMPLEMENTED;
     virtual New *getNew() const NOT_IMPLEMENTED;
     virtual FoliaElement *getNew( size_t ) const NOT_IMPLEMENTED;
+    virtual bool hasOriginal() const NOT_IMPLEMENTED;
     virtual Original *getOriginal() const NOT_IMPLEMENTED;
     virtual FoliaElement *getOriginal( size_t ) const NOT_IMPLEMENTED;
+    virtual bool hasCurrent() const NOT_IMPLEMENTED;
     virtual Current *getCurrent() const NOT_IMPLEMENTED;
     virtual FoliaElement *getCurrent( size_t ) const NOT_IMPLEMENTED;
     virtual Correction *incorrection() const NOT_IMPLEMENTED;

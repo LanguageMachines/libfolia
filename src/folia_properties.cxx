@@ -2340,17 +2340,6 @@ namespace folia {
     return false;
   }
 
-  bool FoliaElement::isSubClass( ElementType t ) const {
-    /// check if this FoliaElement is a subclass of the ElementType \e t
-    /*!
-      \param t an ElementType
-      \return true if our class is a subclass of t
-      This is about C++ class inheritance: is our class a derivative of c's
-      class?
-    */
-    return folia::is_subtype( element_id(), t );
-  }
-
   bool isAttributeFeature( const string& att ){
     /// check if an attribute is to be handled as a feature
     /*!
