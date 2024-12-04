@@ -77,16 +77,16 @@ namespace folia {
 		  returning all matching nodes, even within matches.
 		  This is the default.
 		*/
-      LOCAL=1,  //!< only just look in the direct sibblings of the given node
-      TOP_HIT=2 //!< like recurse, but do NOT recurse into sibblings of matching nodes
-      };
+    LOCAL=1,  //!< only just look in the direct sibblings of the given node
+    TOP_HIT=2 //!< like recurse, but do NOT recurse into sibblings of matching nodes
+  };
 
   /// class used to steer 'xml:space' behaviour
   enum class SPACE_FLAGS {
     UNSET=-1,  //!< not yet known
-      DEFAULT=0,  //!< the default behaviour
-      PRESERVE=1 //!< spaces should be preserved
-      };
+    DEFAULT=0,  //!< the default behaviour
+    PRESERVE=1 //!< spaces should be preserved
+  };
 
 
 #define NOT_IMPLEMENTED {						\
