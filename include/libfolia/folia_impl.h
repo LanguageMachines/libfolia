@@ -863,6 +863,22 @@ namespace folia {
     return std::is_convertible<T1*,T2*>::value;
   }
 
+  template<typename T>
+  void merge( std::vector<FoliaElement*>& vof,
+	      const std::vector<T*>& vot ){
+    /// templated function to merge a vector of Type T pointers at the
+    /// back of a vector of generic FoliaElement pointers
+    /*!
+      \param vof a vector of FoliaElement pointers
+      \param vot a vector of T pointers
+
+      will fail is T* can't be cast to FoliaElement*
+    */
+    for ( const auto& it : vot ){
+      vof.push_back(static_cast<FoliaElement*>(it));
+    }
+  }
+
   bool operator==( const FoliaElement&, const FoliaElement& );
   inline bool operator!=( const FoliaElement& e1, const FoliaElement& e2 ){
     return !( e1 == e2 );

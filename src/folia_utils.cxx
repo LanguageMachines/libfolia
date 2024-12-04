@@ -1035,6 +1035,15 @@ namespace folia {
 	return false;
       }
     }
+    vector<FoliaElement*> ve;
+    try {
+      vector<Paragraph*> vp;
+      merge( ve, vp );
+    }
+    catch ( const exception& e ){
+      cerr << "Unexpected fail: " << e.what() << endl;
+      return false;
+    }
     return true;
   }
 
