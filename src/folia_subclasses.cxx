@@ -176,9 +176,12 @@ namespace folia {
     for ( const auto& alt : alt_nodes ){
       if ( alt->size() > 0 ) { // child elements?
 	for ( size_t j =0; j < alt->size(); ++j ) {
-	  if ( alt->index(j)->isinstance<MorphologyLayer>() &&
-	       ( st.empty() || alt->index(j)->sett() == st ) ) {
-	    alts.push_back( dynamic_cast<MorphologyLayer*>(alt->index(j)) );
+	  if ( st.empty()
+	       || alt->index(j)->sett() == st ) {
+	    MorphologyLayer *ml = dynamic_cast<MorphologyLayer*>(alt->index(j));
+	    if ( ml ){
+	      alts.push_back( ml );
+	    }
 	  }
 	}
       }

@@ -214,7 +214,7 @@ namespace folia {
     }
 
     template <typename F>
-      std::vector<F*> select( const char* st,
+      std::vector<F*> select( const char *st,
 			      bool recurse = true ) const {
       std::vector<FoliaElement*> tmp = select( F::PROPS.ELEMENT_ID,
 					       std::string(st),
