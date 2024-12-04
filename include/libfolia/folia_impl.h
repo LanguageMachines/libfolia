@@ -186,13 +186,13 @@ namespace folia {
     // Selections
 
     template <typename F>
-      std::vector<F*> select( const std::string& st,
-			      const std::set<ElementType>& exclude,
-			      bool recurse = true ) const {
+    std::vector<F*> select( const std::string& st,
+			    const std::set<ElementType>& exclude,
+			    SELECT_FLAGS flag = SELECT_FLAGS::RECURSE ) const {
       std::vector<FoliaElement*> tmp = select( F::PROPS.ELEMENT_ID,
 					       st,
 					       exclude,
-					       (recurse?SELECT_FLAGS::RECURSE : SELECT_FLAGS::LOCAL) );
+					       flag );
       std::vector<F*> res;
       for ( size_t i = 0; i < tmp.size(); ++i ){
 	res.push_back( dynamic_cast<F*>( tmp[i]) );
@@ -201,11 +201,11 @@ namespace folia {
     }
 
     template <typename F>
-      std::vector<F*> select( const std::string& st,
-			      bool recurse = true ) const {
+    std::vector<F*> select( const std::string& st,
+			    SELECT_FLAGS flag = SELECT_FLAGS::RECURSE ) const {
       std::vector<FoliaElement*> tmp = select( F::PROPS.ELEMENT_ID,
 					       st,
-					       (recurse?SELECT_FLAGS::RECURSE : SELECT_FLAGS::LOCAL) );
+					       flag );
       std::vector<F*> res;
       for ( size_t i = 0; i < tmp.size(); ++i ){
 	res.push_back( dynamic_cast<F*>( tmp[i]) );
@@ -214,11 +214,11 @@ namespace folia {
     }
 
     template <typename F>
-      std::vector<F*> select( const char *st,
-			      bool recurse = true ) const {
+    std::vector<F*> select( const char *st,
+			    SELECT_FLAGS flag = SELECT_FLAGS::RECURSE ) const {
       std::vector<FoliaElement*> tmp = select( F::PROPS.ELEMENT_ID,
 					       std::string(st),
-					       (recurse?SELECT_FLAGS::RECURSE : SELECT_FLAGS::LOCAL) );
+					       flag );
       std::vector<F*> res;
       for ( size_t i = 0; i < tmp.size(); ++i ){
 	res.push_back( dynamic_cast<F*>( tmp[i]) );
@@ -227,11 +227,11 @@ namespace folia {
     }
 
     template <typename F>
-      std::vector<F*> select( const std::set<ElementType>& exclude,
-			      bool recurse = true ) const {
+    std::vector<F*> select( const std::set<ElementType>& exclude,
+			    SELECT_FLAGS flag = SELECT_FLAGS::RECURSE ) const {
       std::vector<FoliaElement*> tmp = select( F::PROPS.ELEMENT_ID,
 					       exclude,
-					       (recurse?SELECT_FLAGS::RECURSE : SELECT_FLAGS::LOCAL) );
+					       flag );
       std::vector<F*> res;
       for ( size_t i = 0; i < tmp.size(); ++i ){
 	res.push_back( dynamic_cast<F*>( tmp[i]) );
@@ -240,9 +240,9 @@ namespace folia {
     }
 
     template <typename F>
-      std::vector<F*> select( bool recurse = true ) const {
+    std::vector<F*> select( SELECT_FLAGS flag = SELECT_FLAGS::RECURSE ) const {
       std::vector<FoliaElement*> tmp = select( F::PROPS.ELEMENT_ID,
-					       (recurse?SELECT_FLAGS::RECURSE : SELECT_FLAGS::LOCAL) );
+					       flag  );
       std::vector<F*> res;
       for ( size_t i = 0; i < tmp.size(); ++i ){
 	res.push_back( dynamic_cast<F*>( tmp[i]) );

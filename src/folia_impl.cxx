@@ -1594,7 +1594,7 @@ namespace folia {
      * search for Description nodes in this object.
      * When 1 or more are found, return the value of the first one
      */
-    vector<Description*> v = select<Description>( false );
+    vector<Description*> v = select<Description>( SELECT_FLAGS::LOCAL );
     if ( v.size() == 0 ) {
       return "";
     }
@@ -2155,7 +2155,9 @@ namespace folia {
      * Might return "" when no match is found
      */
     set<ElementType> exclude;
-    vector<LangAnnotation*> v = select<LangAnnotation>( st, exclude, false );
+    vector<LangAnnotation*> v = select<LangAnnotation>( st,
+							exclude,
+							SELECT_FLAGS::LOCAL );
     if ( v.size() > 0 ){
       return v[0]->cls();
     }
@@ -3199,7 +3201,7 @@ namespace folia {
      * is empty
      * \return all targets found
      */
-    auto PIS = select<ProcessingInstruction>(false);
+    auto PIS = select<ProcessingInstruction>(SELECT_FLAGS::LOCAL);
     if ( target.empty() ){
       return PIS;
     }
@@ -3324,7 +3326,8 @@ namespace folia {
     if ( isinstance<TextContent>() ){
       string my_cls = cls();
       string st = sett();
-      vector<TextContent*> tmp = parent->select<TextContent>( st, false );
+      vector<TextContent*> tmp = parent->select<TextContent>( st,
+							      SELECT_FLAGS::LOCAL );
       if ( any_of( tmp.cbegin(),
 		   tmp.cend(),
 		   [my_cls]( const TextContent *t) { return ( t->cls() == my_cls);} ) ){

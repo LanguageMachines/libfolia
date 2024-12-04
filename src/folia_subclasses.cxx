@@ -706,7 +706,7 @@ namespace folia {
      */
     vector<FoliaElement *> result;
     vector<TextContent*> v = par->FoliaElement::select<TextContent>( sett(),
-								     false );
+								     SELECT_FLAGS::LOCAL );
     copy_if( v.begin(),
 	     v.end(),
 	     back_inserter(result),
@@ -2361,7 +2361,7 @@ namespace folia {
     }
     if ( e ){  // cppcheck-suppress knownConditionTrueFalse
 	// false positive. e can be changed in previous if statement
-      vector<Word*> wv = e->select<Word>(false);
+      vector<Word*> wv = e->select<Word>(SELECT_FLAGS::LOCAL);
       if ( !wv.empty() ){
 	const FoliaElement *last = wv.back();
 	// DBG << "Correction::space!" << last << " ==> "
@@ -2374,7 +2374,7 @@ namespace folia {
 
   bool Correction::hasNew() const {
     ///  check if this Correction has a New node
-    vector<New*> v = select<New>(false);
+    vector<New*> v = select<New>(SELECT_FLAGS::LOCAL);
     return !v.empty();
   }
 
@@ -2383,7 +2383,7 @@ namespace folia {
     /*!
      * \return the new node or 0 if not available
      */
-    vector<New*> v = FoliaElement::select<New>( false );
+    vector<New*> v = FoliaElement::select<New>(SELECT_FLAGS::LOCAL);
     if ( v.empty() ) {
       return 0;
     }
@@ -2406,7 +2406,7 @@ namespace folia {
 
   bool Correction::hasOriginal() const {
     ///  check if this Correction has an Original node
-    vector<Original*> v = select<Original>(false);
+    vector<Original*> v = select<Original>(SELECT_FLAGS::LOCAL);
     return !v.empty();
   }
 
@@ -2415,7 +2415,7 @@ namespace folia {
     /*!
      * \return the new node or 0 if not available
      */
-    vector<Original*> v = select<Original>( false );
+    vector<Original*> v = select<Original>(SELECT_FLAGS::LOCAL);
     if ( v.empty() ) {
       return 0;
     }
@@ -2438,7 +2438,7 @@ namespace folia {
 
   bool Correction::hasCurrent( ) const {
     ///  check if this Correction has a New node
-    vector<Current*> v = select<Current>(false);
+    vector<Current*> v = select<Current>(SELECT_FLAGS::LOCAL);
     return !v.empty();
   }
 
@@ -2447,7 +2447,7 @@ namespace folia {
     /*!
      * \return the new node or 0 if not available
      */
-    vector<Current*> v = FoliaElement::select<Current>( false );
+    vector<Current*> v = FoliaElement::select<Current>(SELECT_FLAGS::LOCAL);
     if ( v.empty() ) {
       return 0;
     }
@@ -2476,7 +2476,7 @@ namespace folia {
 
   vector<Suggestion*> Correction::suggestions( ) const {
     /// get all Suggestion nodes of this Correction
-    return FoliaElement::select<Suggestion>( false );
+    return FoliaElement::select<Suggestion>(SELECT_FLAGS::LOCAL);
   }
 
   Suggestion *Correction::suggestions( size_t index ) const {
