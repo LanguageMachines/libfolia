@@ -51,6 +51,7 @@ using namespace icu;
 using namespace TiCC;
 
 namespace folia {
+  using TiCC::operator<<;
 
   string output_elem( const FoliaElement *elt ){
     string result = (elt->doc()?elt->doc()->filename():"")
@@ -75,6 +76,12 @@ namespace folia {
 				      const std::string& mess ):
     std::runtime_error( output_elem( elt)
 			+ ": Duplicate ID: " + mess ){};
+
+  DuplicateAttributeError::DuplicateAttributeError( const KWargs& args,
+						    const std::string& att,
+						    const std::string& val ):
+    std::runtime_error( "Duplicate attribute: '" + att + "' with val="
+			+ val + ", current value: " + args.lookup(att) ){};
 
   DuplicateAnnotationError::DuplicateAnnotationError( const FoliaElement *elt,
 						      const std::string& mess ):
@@ -139,13 +146,22 @@ namespace folia {
     return el;
   }
 
-  KWargs::KWargs( const std::string& s ){
+  KWargs::KWargs( const string& s ){
     /// create a KWargs from an input string
     /*!
       \param s The input string, in the following format:
       "att1='val1', att2='val2', ..., attn='valn'"
     */
     init( s );
+  }
+
+  KWargs::KWargs( const string& att, const string& val ){
+    /// create a KWargs with one att-val pair
+    /*!
+      \param att the attribute
+      \param val the attribute
+    */
+    add( att, val );
   }
 
   void KWargs::init( const string& s ){
@@ -187,7 +203,10 @@ namespace folia {
 	    if ( att.empty() || val.empty() ){
 	      throw ArgsError( s + ", (''?)" );
 	    }
-	    (*this)[att] = val;
+	    if ( !add(att,val) ){
+	      throw ArgsError( "Duplicate attribute '" + att + "' in"
+			       + " arguments list " + s );
+	    }
 	    att.clear();
 	    val.clear();
 	    quoted = false;
@@ -220,8 +239,9 @@ namespace folia {
 	}
       }
       else if ( let == ' ' ){
-	if ( quoted )
+	if ( quoted ){
 	  val += let;
+	}
       }
       else if ( parseatt ){
 	att += let;
@@ -237,8 +257,51 @@ namespace folia {
 	throw ArgsError( s + ", unquoted value or missing , ?" );
       }
     }
-    if ( quoted )
+    if ( quoted ){
       throw ArgsError( s + ", unbalanced '?" );
+    }
+  }
+
+  bool KWargs::add( const std::string& att, const std::string& val ){
+    /// insert an attribute/value pair into KWargs
+    /*!
+      \param att name of the attribute
+      \param val the value of the attribute
+      \return false if nothing is inserted.
+              so when att or val empty. or att already present
+    */
+    if ( att.empty() || val.empty() ){
+      return false;
+    }
+    else if ( is_present( att ) ){
+      throw DuplicateAttributeError( *this, att, val );
+    }
+    else {
+      insert( make_pair(att,val) );
+      return true;
+    }
+  }
+
+  bool KWargs::replace( const std::string& att, const std::string& val ){
+    /// replace an attribute/values pair with a new value
+    /// just insert when the attribute is not present yet
+    /*!
+      \param att name of the attribute
+      \param val the value of the attribute
+      \return false when att or val empty
+    */
+    if ( att.empty() || val.empty() ){
+      return false;
+    }
+    else {
+      auto it = find( att );
+      if ( it != end() ){
+	// already present. remove
+	erase(it);
+      }
+      // and add
+      return add( att, val );
+    }
   }
 
   bool KWargs::is_present( const string& att ) const {
@@ -250,7 +313,7 @@ namespace folia {
     return find(att) != end();
   }
 
-  string KWargs::lookup( const string& att ){
+  string KWargs::lookup( const string& att ) const {
     /// lookup an attribute
     /*!
       \param att The attribute to check
@@ -298,12 +361,12 @@ namespace folia {
   /// "att1='val1', att2='val2', ..., attn='valn'"
   ///
     string result;
-    auto it = args.begin();
-    while ( it != args.end() ){
-      result += it->first + "='" + it->second + "'";
-      ++it;
-      if ( it != args.end() )
-	result += ",";
+    for ( const auto& [arg,val] : args ){
+      result += arg + "='" + val + "'";
+      result += ",";
+    }
+    if ( !result.empty() ){
+      result.pop_back(); // remove last ','
     }
     return result;
   }
@@ -312,12 +375,12 @@ namespace folia {
     return folia::toString( *this );
   }
 
-  string att_name( const xmlAttr *node ){
+  inline string att_name( const xmlAttr *node ){
     return to_string( node->name );
   }
 
-  string att_content( const xmlAttr *node ){
-    return to_string( node->children->content );
+  inline string att_content( const xmlAttr *node ){
+    return TextValue( node->children );
   }
 
   KWargs getAttributes( const xmlNode *node ){
@@ -325,26 +388,26 @@ namespace folia {
     /*!
       \param node The xmlNode to examine
       \return a KWargs object with all attributes from 'node'
+
+      special care is taken for xml:id and xlink:* attributes
     */
     KWargs atts;
     if ( node ){
       const xmlAttr *a = node->properties;
       while ( a ){
 	if ( a->atype == XML_ATTRIBUTE_ID && att_name(a) == "id" ){
-	  atts["xml:id"] = att_content(a);
+	  atts.add("xml:id",att_content(a));
 	}
 	else if ( a->ns == 0 || a->ns->prefix == 0 ){
-	  atts[att_name(a)] = att_content(a);
+	  atts.add(att_name(a), att_content(a));
 	}
 	else {
 	  string pref = to_string( a->ns->prefix );
 	  string att  = att_name(a);
 	  if ( pref == "xlink" ){
-	    atts["xlink:"+att] = att_content(a);
+	    atts.add("xlink:"+att, att_content(a));
 	  }
-	  // else {
-	  //   cerr << "attribute PREF=" << pref << endl;
-	  // }
+	  // all other namespaced attributes are ignored
 	}
 	a = a->next;
       }
@@ -352,42 +415,51 @@ namespace folia {
     return atts;
   }
 
-  void addAttributes( const xmlNode *_node, const KWargs& atts ){
+  void addAttributes( xmlNode *node,
+		      const KWargs& atts,
+		      bool att_dbg ){
     /// add all attributes from 'atts' as attribute nodes to 'node`
     /*!
       \param _node The xmlNode to add to
       \param atts The list of attribute/value pairs
+      \param att_dbg do we want to debug? (default false)
       some special care is taken for attributes 'xml:id', 'id' and 'lang'
     */
-    xmlNode *node = const_cast<xmlNode*>(_node); // strange libxml2 interface
     KWargs attribs = atts;
-    auto it = attribs.find("xml:id");
-    if ( it != attribs.end() ){ // xml:id is special
+    string xid = attribs.extract("xml:id");
+    if ( !xid.empty() ){ // xml:id is special
+      if ( att_dbg ){
+	cerr << "set xml:id " << xid << endl;
+      }
       xmlSetProp( node,
 		  XML_XML_ID,
-		  to_xmlChar(it->second) );
-      attribs.erase(it);
+		  to_xmlChar(xid) );
     }
-    it = attribs.find("lang");
-    if ( it != attribs.end() ){ // lang is special too
+    string lang = attribs.extract("lang");
+    if ( !lang.empty() ){ // lang is special too
+      if ( att_dbg ){
+	cerr << "set lang " << lang << endl;
+      }
       xmlNodeSetLang( node,
-		      to_xmlChar(it->second) );
-      attribs.erase(it);
+		      to_xmlChar(lang) );
     }
-    it = attribs.find("id");
-    if ( it != attribs.end() ){
+    string id = attribs.extract("id");
+    if ( !id.empty() ){
+      if ( att_dbg ){
+	cerr << "set id " << id << endl;
+      }
       xmlSetProp( node,
 		  to_xmlChar("id"),
-		  to_xmlChar(it->second) );
-      attribs.erase(it);
+		  to_xmlChar(id) );
     }
     // and now the rest
-    it = attribs.begin();
-    while ( it != attribs.end() ){
+    for ( const auto& [at,val] : attribs ){
+      if ( att_dbg ){
+	cerr << "add attribute: [" << at << "," << val << "]" << endl;
+      }
       xmlSetProp( node,
-		  to_xmlChar(it->first),
-		  to_xmlChar(it->second) );
-      ++it;
+		  to_xmlChar(at),
+		  to_xmlChar(val) );
     }
   }
 
@@ -526,6 +598,143 @@ namespace folia {
     return result;
   }
 
+    string create_NCName( const string& s ){
+    /// create a valid NCName
+    /*!
+      \param s a string to be used as template
+      \return a string that is a valid NCname
+
+      Make sure these prerequisites are met:
+      An xsd:NCName value must start with either a letter or underscore ( _ )
+      and may contain only letters, digits, underscores ( _ ), hyphens ( - ),
+      and periods ( . ).
+    */
+    string result;
+    try {
+      result = TiCC::create_NCName( s );
+    }
+    catch ( const exception& e ){
+      throw XmlError( e.what() );
+    }
+    return result;
+  }
+
+  bool checkNS( const xmlNode *n, const string& ns ){
+    string tns = TiCC::getNS(n);
+    if ( tns == ns ){
+      return true;
+    }
+    else {
+      throw runtime_error( "namespace conflict for tag:" + TiCC::Name(n)
+			   + ", wanted:" + ns
+			   + " got:" + tns );
+    }
+    return false;
+  }
+
+  UnicodeString normalize_spaces( const UnicodeString& input ){
+    /// substitute all spaces and control characters by spaces
+    /// AND all multiple spaces by 1, also trims at back and front.
+    /*!
+      \param input the UnicodeString to normalize
+     */
+    UnicodeString result;
+    UChar32 shy = 0x00ad;   // soft hyphen
+    bool is_space = false;
+    for ( int i=0; i < input.length(); ++i ){
+      if ( input[i] != shy ){
+	if ( u_isspace( input[i] ) ){
+	  if ( is_space ){
+	    // already a space added, skip this one
+	    continue;
+	  }
+	  is_space = true;
+	  result += " ";
+	  continue;
+	}
+	else if ( u_iscntrl( input[i] ) ){
+	  // ignore
+	  continue;
+	}
+      }
+      // normal character, keep it
+      is_space = false;
+      result += input[i];
+    }
+    result.trim(); // remove leading and trailing whitespace;
+    return result;
+  }
+
+  bool is_norm_empty( const UnicodeString& s) {
+      /// checks if the string is empty after normalization (strips all control characters), strings with only spaces/newslines etc are considered empty too
+      return normalize_spaces(s).isEmpty();
+  }
+
+  string get_ISO_date() {
+    /// get the current date in ISO 8601 format
+    time_t Time;
+    time(&Time);
+    tm curtime;
+    localtime_r(&Time,&curtime);
+    char buf[256];
+    strftime( buf, 100, "%Y-%m-%dT%X", &curtime );
+    string res = buf;
+    return res;
+  }
+
+  string get_fqdn( ){
+    /// function to get the hostname of the machine we are running on
+    /*!
+      \return a string with the hostname
+    */
+    string result = "unknown";
+    struct addrinfo hints, *info;
+    int gai_result;
+
+    char hostname[1024];
+    hostname[1023] = '\0';
+    if ( gethostname(hostname, 1023) != 0 ){
+      cerr << "gethostname failed, using 'unknown'" << endl;
+      return result;
+    }
+
+    memset(&hints, 0, sizeof hints);
+    hints.ai_family = AF_UNSPEC; /*either IPV4 or IPV6*/
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_flags = AI_CANONNAME;
+
+    if ((gai_result = getaddrinfo(hostname, "http", &hints, &info)) != 0) {
+      //      cerr << "getaddrinfo failed: " << gai_strerror(gai_result)
+      //	   << ", using 'unknown' as hostname" << endl;
+      freeaddrinfo(info);
+      result = hostname;
+      return result;
+    }
+    const struct addrinfo *p;
+    for ( p = info; p != NULL; p = p->ai_next ) {
+      result = p->ai_canonname;
+      break;
+    }
+    freeaddrinfo(info);
+    return result;
+  }
+
+  string get_user(){
+    /// function to get the username of the program
+    /*!
+      \return a string with the username
+    */
+    string result;
+    const char *env = getenv( "USER" );
+    if ( env ){
+      result = env;
+    }
+    else {
+      result = "unknown";
+    }
+    return result;
+  }
+
   bool AT_sanity_check(){
     bool sane = true;
     size_t dim = s_ant_map.size();
@@ -637,148 +846,205 @@ namespace folia {
     return sane;
   }
 
-  bool isNCName( const string& s ){
-    /// test if a string is a valid NCName value
-    /*!
-      \param s the inputstring
-      \return true if \e s may be used as an NCName (e.g. for xml:id)
-    */
-    int test = xmlValidateNCName( to_xmlChar(s), 0 );
-    if ( test != 0 ){
+  bool document_sanity_check(){
+    cerr << " Creating a document from scratch: ";
+    Document d( "xml:id='example'" );
+    d.declare( AnnotationType::TOKEN, "adhocset", "annotator='proycon'" );
+    if ( d.default_set(AnnotationType::TOKEN) != "adhocset"
+	 ||
+	 d.default_annotator(AnnotationType::TOKEN) != "proycon" ){
+      cerr << " Defaultset or defaultannotator does not match" << endl;
+      return EXIT_FAILURE;
+    }
+    string id = d.id() + ".text.1";
+    KWargs kw = getArgs( "xml:id='" + id + "'" );
+    FoliaElement *text = d.addText( kw );
+    kw.clear();
+    kw = getArgs( "generate_id='" + text->id() + "'" );
+    FoliaElement *s = new Sentence( kw, &d );
+    text->append( s );
+    kw.clear();
+    kw.add("text","De");
+    s->addWord( kw );
+    kw.replace("text","site");
+    s->addWord( kw );
+    kw.replace("text","staat");
+    s->addWord( kw );
+    kw.replace("text","online");
+    s->addWord( kw );
+    kw.replace("text", ".");
+    s->addWord( kw );
+    if ( d[id+".s.1"]->size() != 5 ) {
+      cerr << " Unexpected sentence size, " <<  d[id+".s.1"]->size() << ", expected 5" << endl;
+      return EXIT_FAILURE;
+    }
+    UnicodeString txt = s->text();
+    if ( txt != "De site staat online ." ) {
+      cerr << " Text does not match reference: '" << txt << "' vs reference: 'De site staat online .'" << endl;
+      return EXIT_FAILURE;
+    }
+    cerr << s->text() << endl;
+    d.setdebug( "ANNOTATIONS|SERIALIZE" );
+    assert( toString(d.debug) == "ANNOTATIONS|SERIALIZE" );
+    return true;
+  }
+
+  bool annotator_sanity_check() {
+    bool result = true;
+    set<string> as = { "auto", "manual", "generator", "datasource", "UNDEFINED" };
+    for ( const auto& in_ans : as ){
+      AnnotatorType ann = stringToAnnotatorType( in_ans );
+      string out_ans = toString( ann );
+      if ( out_ans != in_ans ){
+	cout << "insane AnnotatorType: " << in_ans << " !=" << out_ans << endl;
+	result = false;
+      }
+    }
+    return result;
+  }
+
+  bool annotation_sanity_check(){
+    bool result = true;
+    for ( const auto& [a_type,a_string] : ant_s_map ){
+      AnnotationType ant = stringToAnnotationType( a_string );
+      string out_ans = folia::toString( ant );
+      if ( out_ans != a_string ){
+	cout << "insane AnnotationType: " << a_string << " !=" << out_ans << endl;
+	result = false;
+      }
+      if ( ant != a_type ){
+	cout << "insane AnnotationType: " << ant << " !=" << a_type << endl;
+	result = false;
+      }
+      if ( !result ){
+	break;
+      }
+    }
+    return result;
+  }
+
+  bool space_sanity_check() {
+    UnicodeString dirty = "    A    dir\ty \n  string\r.\n   ";
+    UnicodeString clean = normalize_spaces( dirty );
+    UnicodeString wanted = "A dir y string .";
+    if ( clean != wanted ){
+      cerr << "normalize_space() test 1 failed: got:'" << clean << "'"
+	   << "                 but expected:'" << wanted << "'" << endl;
+      return false;
+    }
+    dirty = "\n";
+    clean = normalize_spaces( dirty );
+    wanted = "";
+    if ( clean != wanted ){
+      cerr << "normalize_space() test 2 failed: got:'" << clean << "'"
+	   << "                 but expected:'" << wanted << "'" << endl;
+      return false;
+    }
+    dirty = "\r x   ";
+    clean = normalize_spaces( dirty );
+    wanted = "x";
+    if ( clean != wanted ){
+      cerr << "normalize_space() test 3 failed: got:'" << clean << "'"
+	   << "                 but expected:'" << wanted << "'" << endl;
+      return false;
+    }
+    dirty = u"\u001B"; // ESC
+    clean = normalize_spaces( dirty );
+    wanted = "";
+    if ( clean != wanted ){
+      cerr << "normalize_space() test 4 failed: got:'" << clean << "'"
+	   << "                 but expected:'" << wanted << "'" << endl;
+      return false;
+    }
+    if ( !is_norm_empty( dirty ) ){
+      cerr << "is_norm_empty() failed." << endl;
       return false;
     }
     return true;
   }
 
-  bool checkNS( const xmlNode *n, const string& ns ){
-    string tns = TiCC::getNS(n);
-    if ( tns == ns )
-      return true;
-    else
-      throw runtime_error( "namespace conflict for tag:" + TiCC::Name(n)
-			   + ", wanted:" + ns
-			   + " got:" + tns );
-    return false;
-  }
-
-  string TextValue( const xmlNode *node ){
-    /// extract the string content of an xmlNode
-    /*!
-      \param node The xmlNode to extract from
-      \return the string value of node
-    */
-    string result;
-    if ( node ){
-      xmlChar *tmp = xmlNodeGetContent( node );
-      if ( tmp ){
-	result = to_string(tmp );
-	xmlFree( tmp );
+  bool subclass_sanity_check(){
+    if ( isSubClass<AbstractWord,Word>() ){
+      cerr << "isSubClass<AbstractWord,Word>() failed" << endl;
+      return false;
+    }
+    if ( !isSubClass<Word,AbstractWord>() ){
+      cerr << "isSubClass<Word,AbstractWord>() failed" << endl;
+      return false;
+    }
+    if ( isSubClass<AbstractStructureElement,Word>() ){
+      cerr << "isSubClass<AbstractStructureElement,Word>() failed" << endl;
+      return false;
+    }
+    if ( !isSubClass<Word,AbstractStructureElement>() ){
+      cerr << "isSubClass<Word,AbstractStructureElement>() failed" << endl;
+      return false;
+    }
+    if ( isSubClass<AbstractElement, AbstractWord>() ){
+      cerr << "isSubClass<AbstractElement, AbstractWord>() failed" << endl;
+      return false;
+    }
+    if ( !isSubClass<AbstractWord, FoliaElement>() ) {
+      cerr << "isSubClass<AbstractWord, FoliaElement>() failed" << endl;
+      return false;
+    }
+    if ( !isSubClass<AbstractWord, AbstractStructureElement>() ){
+      cerr << "isSubClass<AbstractWord, AbstractStructureElement>() failed" << endl;
+      return false;
+    }
+    if ( isSubClass<AbstractElement,Word>() ){
+      cerr << "isSubClass<AbstractElement,Word>() failed" << endl;
+      return false;
+    }
+    if ( !isSubClass<Word,AbstractElement>() ){
+      cerr << "isSubClass<Word,AbstractElement>() failed" << endl;
+      return false;
+    }
+    if ( !isSubClass<Word,Word>() ){
+      cerr << "isSubClass<Word,Word>() failed" << endl;
+      return false;
+    }
+    if ( !isSubClass<AllowXlink,FoliaElement>() ){
+      cerr << "isSubClass<AllowXlink,FoliaElement>() failed" << endl;
+      return false;
+    }
+    {
+      Word *w = new Word();
+      if ( !w->isSubClass<Word>() ){
+	cerr << "Word::isSubClass<Word>() failed" << endl;
+	return false;
+      }
+      if ( !w->isSubClass<FoliaElement>() ){
+	cerr << "Word::isSubClass<FoliaElement() failed" << endl;
+	return false;
+      }
+      if ( !w->isSubClass<AbstractWord>() ){
+	cerr << "Word::isSubClass<AbstractWord>() failed" << endl;
+	return false;
+      }
+      if ( !w->isSubClass<AbstractElement>() ){
+	cerr << "Word::isSubClass<AbstractElement() failed" << endl;
+	return false;
+      }
+      if ( !w->isSubClass<AbstractStructureElement>() ){
+	cerr << "Word::isSubClass<AbstractStructureElement() failed" << endl;
+	return false;
+      }
+      if ( w->isSubClass<Feature>() ){
+	cerr << "Word::isSubClass<Feature>() failed" << endl;
+	return false;
       }
     }
-    return result;
-  }
-
-  UnicodeString normalize_spaces( const UnicodeString& input ){
-    /// substitute all spaces and control characters by spaces
-    /// AND all multiple spaces by 1, also trims at back and front.
-    /*!
-      \param input the UnicodeString to normalize
-     */
-    UnicodeString result;
-    UChar32 shy = 0x00ad;   // soft hyphen
-    bool is_space = false;
-    for ( int i=0; i < input.length(); ++i ){
-      if ( input[i] != shy ){
-	if ( u_isspace( input[i] ) ){
-	  if ( is_space ){
-	    // already a space added, skip this one
-	    continue;
-	  }
-	  is_space = true;
-	  result += " ";
-	  continue;
-	}
-	else if ( u_iscntrl( input[i] ) ){
-	  // ignore
-	  continue;
-	}
-      }
-      // normal character, keep it
-      is_space = false;
-      result += input[i];
+    vector<FoliaElement*> ve;
+    try {
+      vector<Paragraph*> vp;
+      merge( ve, vp );
     }
-    result.trim(); // remove leading and trailing whitespace;
-    return result;
-  }
-
-  bool is_norm_empty( const UnicodeString& s) {
-      /// checks if the string is empty after normalization (strips all control characters), strings with only spaces/newslines etc are considered empty too
-      return normalize_spaces(s).isEmpty();
-  }
-
-  string get_ISO_date() {
-    /// get the current date in ISO 8601 format
-    time_t Time;
-    time(&Time);
-    tm curtime;
-    localtime_r(&Time,&curtime);
-    char buf[256];
-    strftime( buf, 100, "%Y-%m-%dT%X", &curtime );
-    string res = buf;
-    return res;
-  }
-
-  string get_fqdn( ){
-    /// function to get the hostname of the machine we are running on
-    /*!
-      \return a string with the hostname
-    */
-    string result = "unknown";
-    struct addrinfo hints, *info;
-    int gai_result;
-
-    char hostname[1024];
-    hostname[1023] = '\0';
-    if ( gethostname(hostname, 1023) != 0 ){
-      cerr << "gethostname failed, using 'unknown'" << endl;
-      return result;
+    catch ( const exception& e ){
+      cerr << "Unexpected fail: " << e.what() << endl;
+      return false;
     }
-
-    memset(&hints, 0, sizeof hints);
-    hints.ai_family = AF_UNSPEC; /*either IPV4 or IPV6*/
-    hints.ai_socktype = SOCK_STREAM;
-    hints.ai_flags = AI_CANONNAME;
-
-    if ((gai_result = getaddrinfo(hostname, "http", &hints, &info)) != 0) {
-      //      cerr << "getaddrinfo failed: " << gai_strerror(gai_result)
-      //	   << ", using 'unknown' as hostname" << endl;
-      freeaddrinfo(info);
-      result = hostname;
-      return result;
-    }
-    const struct addrinfo *p;
-    for ( p = info; p != NULL; p = p->ai_next ) {
-      result = p->ai_canonname;
-      break;
-    }
-    freeaddrinfo(info);
-    return result;
-  }
-
-  string get_user(){
-    /// function to get the username of the program
-    /*!
-      \return a string with the username
-    */
-    string result;
-    const char *env = getenv( "USER" );
-    if ( env ){
-      result = env;
-    }
-    else {
-      result = "unknown";
-    }
-    return result;
+    return true;
   }
 
 } //namespace folia

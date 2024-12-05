@@ -7,7 +7,7 @@ on:
   push:
     branches:
       - master
-
+      - develop
     paths:
       - configure.ac
       - 'src/**'
@@ -48,6 +48,7 @@ jobs:
       - uses: LanguageMachines/ticcactions/cpp-submodule-build@v1
         with:
           module: ticcutils
+          branch: ${{ github.ref_name }}
 
       - name: Static Code-check
         if: ${{ env.action_status == '' }}
@@ -68,6 +69,8 @@ jobs:
         uses: LanguageMachines/ticcactions/cpp-submodule-build@v1
         with:
           module: foliatest
+          branch: ${{ github.ref_name }}
+          # so for develop builds, also test the develop branch of foliatest
 
       - name: install FoliaPY
         if: ${{ env.action_status == '' }}
@@ -103,3 +106,4 @@ jobs:
           step: testing
           status: ${{ env.action_status }}
           details: ${{ env.action_details }}
+        continue-on-error: true

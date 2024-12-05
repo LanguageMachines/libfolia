@@ -31,10 +31,10 @@
 #include <string>
 
 namespace folia {
-  enum ElementType : unsigned int;
-  enum Attrib : int;
-  enum AnnotatorType: int;
-  enum AnnotationType : int;
+  enum class ElementType : unsigned int;
+  enum class Attrib : int;
+  enum class AnnotatorType: int;
+  enum class AnnotationType : int;
 
   class properties {
    public:
@@ -97,8 +97,8 @@ namespace folia {
   extern const std::string DEFAULT_PHON_SET;
   extern std::string host_name;
 
+  bool is_subtype( const ElementType&, const ElementType& );
   bool isAttributeFeature( const std::string& );
-
   void static_init();
   void print_type_hierarchy( std::ostream& );
 

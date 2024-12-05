@@ -38,6 +38,8 @@
 #include "unicode/regex.h"
 #include "libxml/tree.h"
 #include "libxml/xpath.h"
+#include "ticcutils/enum_flags.h"
+#include "ticcutils/LogStream.h"
 #include "libfolia/folia.h"
 
 using namespace icu;
@@ -46,7 +48,7 @@ namespace folia {
 
   extern const std::string NSFOLIA;
 
-  enum ElementType : unsigned int;
+  enum class ElementType : unsigned int;
 
   class Pattern {
     friend std::ostream& operator<<( std::ostream&, const Pattern& );
@@ -54,7 +56,7 @@ namespace folia {
     // cppcheck-suppress noExplicitConstructor
     // We want to be able to use const char parameters AND string
     explicit Pattern( const std::vector<std::string>&,
-		      const ElementType = BASE,
+		      const ElementType = ElementType::BASE,
 		      const std::string& = "" );
     Pattern( const std::vector<std::string>&,  const std::string& );
 
@@ -83,11 +85,14 @@ namespace folia {
 
   class Document {
     friend std::ostream& operator<<( std::ostream& os, const Document *d );
+    friend class Engine;
+
+  public:
     /// enum Mode determines runtime characteristic of the document
     /*!
       The default settings are CHECKTEXT and AUTODECLARE
-     */
-    enum Mode {
+    */
+    enum class RUN_FLAGS {
       NOMODE=0,        //!< no special mode is set.
       PERMISSIVE=1,    //!< be permissive for certain incompatablities
       CHECKTEXT=2,     //!< check text consistency
@@ -97,9 +102,20 @@ namespace folia {
       AUTODECLARE=32,  //!< Automagicly add missing Annotation Declarations
       EXPLICIT=64      //!< add all set information
     };
-    friend class Engine;
+    enum class DEBUG_FLAGS {
+      NODEBUG=0,            //!< nodebug.
+      PARSING=1,            //!< debug parsing
+      DECLARATIONS=2,       //!< debug declarations
+      ANNOTATIONS=4,        //!< debug annotations
+      TEXTHANDLING=8,       //!< debug text handling
+      PROVENANCE=16,        //!< debug provenance
+      ATTRIBUTES=32,        //!< debug Attribute operations
+      SERIALIZE=64,         //!< debug output generator
+      CORRECTION=128,       //!< debug corrections
+      MEMORY=256,           //!< debug memory
+      TEXT_CONSISTENCY=512  //!< debug memory
+    };
 
-  public:
     Document();
     explicit Document( const KWargs& );
     explicit Document( const std::string& );
@@ -107,15 +123,7 @@ namespace folia {
     void init();
     void init_args( const KWargs& );
     bool read_from_string( const std::string& );
-    bool readFromString( const std::string& s ){
-      /// backward compatability. read_from_string() is preferred
-      return read_from_string( s );
-    }
     bool read_from_file( const std::string& );
-    bool readFromFile( const std::string& s ){
-      /// backward compatability. read_from_file() is preferred
-      return read_from_file( s );
-    }
     bool save( std::ostream&, const std::string&, bool = false ) const;
     bool save( std::ostream& os, bool canonical = false ) const {
       /// save a Document to a stream without using a namespace name
@@ -127,7 +135,7 @@ namespace folia {
       return save( s, "", canonical );
     }
     std::string xmlstring( bool = false ) const;
-
+    void set_dbg_stream( TiCC::LogStream * );
     FoliaElement* doc() const {
       /// return a pointer to the internal FoLiA tree
       return foliadoc;
@@ -261,21 +269,22 @@ namespace folia {
       _externals.push_back( p );
     };
     void resolveExternals();
-    int debug; //!< the debug level. 0 means NO debugging.
+    DEBUG_FLAGS debug; //!< the debug level. 0 means NO debugging.
 
     /// is the PERMISSIVE mode set?
-    bool permissive() const { return mode & PERMISSIVE; };
+    bool permissive() const;
     /// is the CHECKTEXT mode set?
-    bool checktext() const { return mode & CHECKTEXT; };
+    bool checktext() const;
     /// is the FIXTEXT mode set?
-    bool fixtext() const { return mode & FIXTEXT; };
+    bool fixtext() const;
     /// is the STRIP mode set?
-    bool strip() const { return mode & STRIP; };
+    bool strip() const;
     /// is the CANONICAL mode set?
-    bool canonical() const { return mode & CANONICAL; };
+    bool canonical() const;
     /// is the AUTODECLARE mode set?
-    bool autodeclare() const { return mode & AUTODECLARE; };
-    bool has_explicit() const { return mode & EXPLICIT; };
+    bool autodeclare() const;
+    /// is the EXPLICITE mode set?
+    bool has_explicit() const;
     bool set_permissive( bool ) const; // defined const, but the mode is mutable!
     bool set_checktext( bool ) const; // defined const, but the mode is mutable!
     bool set_fixtext( bool ) const; // defined const, but the mode is mutable!
@@ -313,13 +322,14 @@ namespace folia {
     void decrRef( AnnotationType, const std::string& );
     void setmode( const std::string& ) const;
     std::string getmode() const;
-    int setdebug( int val ){
+    DEBUG_FLAGS setdebug( const std::string& );
+    DEBUG_FLAGS setdebug( DEBUG_FLAGS val ){
       /// set the debug level
       /*!
 	\param val the new debug value
 	\return the old debug value
       */
-      int ret=debug; debug=val; return ret;
+      DEBUG_FLAGS ret=debug; debug=val; return ret;
     };
     std::multimap<AnnotationType,std::string> unused_declarations( ) const;
     const MetaData *get_submetadata( const std::string& m ){
@@ -479,7 +489,7 @@ namespace folia {
     ForeignMetaData *_foreign_metadata;
     std::map<std::string,MetaData *> submetadata;
     std::multimap<std::string,std::string> styles;
-    mutable Mode mode;
+    mutable RUN_FLAGS mode;
     std::string _source_name;
     std::string _version_string;
     int _major_version;
@@ -490,9 +500,20 @@ namespace folia {
     bool _incremental_parse;
     bool _preserve_spaces;
     mutable int _warn_count;
-    Document( const Document& ); // inhibit copies
-    Document& operator=( const Document& ); // inhibit copies
+    Document( const Document& ) = delete; // inhibit copies
+    Document& operator=( const Document& ) = delete; // inhibit copies
   };
+
+  using DocMode = Document::RUN_FLAGS;
+  DEFINE_ENUM_FLAG_OPERATORS(DocMode);
+
+  inline bool Document::permissive() const { return mode % DocMode::PERMISSIVE; };
+  inline bool Document::checktext() const { return mode % DocMode::CHECKTEXT; };
+  inline bool Document::fixtext() const { return mode % DocMode::FIXTEXT; };
+  inline bool Document::strip() const { return mode % DocMode::STRIP; };
+  inline bool Document::canonical() const { return mode % DocMode::CANONICAL; };
+  inline bool Document::autodeclare() const { return mode % DocMode::AUTODECLARE; };
+  inline bool Document::has_explicit() const { return mode % DocMode::EXPLICIT; };
 
   template <> inline
     Text *Document::create_root( const KWargs& args ){
@@ -527,7 +548,11 @@ namespace folia {
 
   std::string library_version();
   std::string folia_version();
-
+  using DocDbg = Document::DEBUG_FLAGS;
+  std::string toString( DocDbg mode );
+  DEFINE_ENUM_FLAG_OPERATORS(DocDbg);
+  std::ostream& operator<<( std::ostream&, const DocDbg& );
+  extern TiCC::LogStream *_dbg_file; //!< the debugging stream
 } // namespace folia
 
 #endif // FOLIA_DOCUMENT_H

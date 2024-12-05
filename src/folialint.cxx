@@ -47,14 +47,13 @@ void usage(){
   cerr << "\t\t\t\t Default is to do so." << endl;
   cerr << "\t--fixtext.\t\t Try to fixup text errors like wrong offsets." << endl;
   cerr << "\t\t\t\t Default is to DON'T DO THAT." << endl;
-  cerr << "\t-a, --autodeclare\t Attempt to automaticly fix missing annotations." << endl;
+  cerr << "\t-a --autodeclare\t Attempt to automaticly fix missing annotations." << endl;
   cerr << "\t\t\t\t (default: false)" << endl;
-  cerr << "\t-x, --explicit\t\t output explicit FoLiA. (default: false)" << endl;
+  cerr << "\t-x --explicit\t\t output explicit FoLiA. (default: false)" << endl;
   cerr << "\t--permissive.\t\t Allow some dubious constructs." << endl;
   cerr << "\t--warn\t\t\t add some extra warnings about library versions and unused" << endl;
   cerr << "\t\t\t\t annotation declarations" << endl;
-  cerr << "\t--canonical\t\t output in a predefined order. Makes comparisons easier" << endl;
-  cerr << "\t--KANON\t\t\t same as --canonical" << endl;
+  cerr << "\t-c --canonical\t\t output in a predefined order. Makes comparisons easier" << endl;
   cerr << "\t-d value, --debug=value\t Run more verbose." << endl;
   cerr << "\t--permissive\t\t Accept some unwise constructions." << endl;
 }
@@ -74,10 +73,10 @@ int main( int argc, const char* argv[] ){
   vector<string> fileNames;
   string command;
   try {
-    TiCC::CL_Options Opts( "hVd:axo:",
+    TiCC::CL_Options Opts( "hVd:acxo:",
 			   "nochecktext,debug:,permissive,strip,output:,"
 			   "nooutput,help,fixtext,warn,version,canonical,"
-			   "KANON,explicit,autodeclare");
+			   "explicit,autodeclare");
     Opts.init(argc, argv );
     if ( Opts.extract( 'h' )
 	 || Opts.extract( "help" ) ){
@@ -182,11 +181,11 @@ int main( int argc, const char* argv[] ){
 	   && !(kanon||strip)
 	   && d.get_processors_by_name( "folialint" ).empty() ){
 	folia::KWargs args;
-	args["name"] = "folialint";
-	args["id"] = "folialint";
-	args["generator"] = "yes";
-	args["begindatetime"] = "now()";
-	args["command"] = command;
+	args.add("name","folialint");
+	args.add("id","folialint");
+	args.add("generator","yes");
+	args.add("begindatetime","now()");
+	args.add("command",command);
 	folia::processor *proc = d.add_processor( args );
 	proc->get_system_defaults();
 	proc->set_metadata( "valid", "yes" );

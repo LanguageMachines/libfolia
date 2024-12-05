@@ -123,6 +123,7 @@ namespace folia {
     std::string get_metadata( const std::string& );
     void print( std::ostream&, const int ) const;
   private:
+    bool _debug;
     std::string _name;
     std::string _id;
     AnnotatorType _type;
@@ -151,7 +152,8 @@ namespace folia {
     /// initalize a Provenance structure connected to a Document
     explicit Provenance( Document *doc ):
       _doc(doc),
-      _first_proc(0)
+      _first_proc(0),
+      _debug(doc->debug==DocDbg::PROVENANCE)
     {};
     ~Provenance();
     void parse_processor( const xmlNode *, processor * =0 );
@@ -171,6 +173,7 @@ namespace folia {
   private:
     Document*  _doc; // which doc we belong to.
     processor*  _first_proc;
+    bool _debug;
     std::map<std::string,processor*> _index;
     std::map<std::string,std::set<int>> _names;
     std::multimap<std::string,processor*> _name_index;

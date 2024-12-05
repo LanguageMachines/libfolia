@@ -28,22 +28,23 @@
 #define TYPES_H
 #include <string>
 #include "ticcutils/StringOps.h"
+#include "ticcutils/enum_flags.h"
 
 namespace folia {
 
   //foliaspec:elementtype
-  enum ElementType : unsigned int { BASE=0, AbstractFeature_t, AbstractAnnotationLayer_t, AbstractContentAnnotation_t, AbstractCorrectionChild_t, AbstractHigherOrderAnnotation_t, AbstractInlineAnnotation_t, AbstractSpanAnnotation_t, AbstractSpanRole_t, AbstractStructureElement_t, AbstractSubtokenAnnotation_t, AbstractTextMarkup_t, ActorFeature_t, Alternative_t, AlternativeLayers_t, BegindatetimeFeature_t, Caption_t, Cell_t, Chunk_t, ChunkingLayer_t, Comment_t, Content_t, CoreferenceChain_t, CoreferenceLayer_t, CoreferenceLink_t, Correction_t, Cue_t, Current_t, Definition_t, DependenciesLayer_t, Dependency_t, DependencyDependent_t, Description_t, Division_t, DomainAnnotation_t, EnddatetimeFeature_t, EntitiesLayer_t, Entity_t, Entry_t, ErrorDetection_t, EtymologyAnnotation_t, Event_t, Example_t, External_t, Feature_t, Figure_t, FontFeature_t, ForeignData_t, FunctionFeature_t, Gap_t, Head_t, HeadFeature_t, Headspan_t, Hiddenword_t, Hyphbreak_t, Label_t, LangAnnotation_t, LemmaAnnotation_t, LevelFeature_t, Linebreak_t, LinkReference_t, List_t, ListItem_t, Metric_t, ModalitiesLayer_t, Modality_t, ModalityFeature_t, Morpheme_t, MorphologyLayer_t, New_t, Note_t, Observation_t, ObservationLayer_t, Original_t, Paragraph_t, Part_t, PhonContent_t, Phoneme_t, PhonologyLayer_t, PolarityFeature_t, PosAnnotation_t, Predicate_t, Quote_t, Reference_t, Relation_t, Row_t, Scope_t, SemanticRole_t, SemanticRolesLayer_t, SenseAnnotation_t, Sentence_t, Sentiment_t, SentimentLayer_t, SizeFeature_t, Source_t, SpanRelation_t, SpanRelationLayer_t, Speech_t, Statement_t, StatementLayer_t, StatementRelation_t, StrengthFeature_t, String_t, StyleFeature_t, SubjectivityAnnotation_t, Suggestion_t, SynsetFeature_t, SyntacticUnit_t, SyntaxLayer_t, Table_t, TableHead_t, Target_t, Term_t, Text_t, TextContent_t, TextMarkupCorrection_t, TextMarkupError_t, TextMarkupGap_t, TextMarkupHSpace_t, TextMarkupLanguage_t, TextMarkupReference_t, TextMarkupString_t, TextMarkupStyle_t, TextMarkupWhitespace_t, TimeFeature_t, TimeSegment_t, TimingLayer_t, Utterance_t, ValueFeature_t, Whitespace_t, Word_t, WordReference_t, ProcessingInstruction_t, XmlComment_t, XmlText_t,  LastElement };
+  enum class ElementType : unsigned int { BASE=0, AbstractFeature_t, AbstractWord_t, AbstractAnnotationLayer_t, AbstractContentAnnotation_t, AbstractCorrectionChild_t, AbstractHigherOrderAnnotation_t, AbstractInlineAnnotation_t, AbstractSpanAnnotation_t, AbstractSpanRole_t, AbstractStructureElement_t, AbstractSubtokenAnnotation_t, AbstractTextMarkup_t, ActorFeature_t, Alternative_t, AlternativeLayers_t, BegindatetimeFeature_t, Caption_t, Cell_t, Chunk_t, ChunkingLayer_t, Comment_t, Content_t, CoreferenceChain_t, CoreferenceLayer_t, CoreferenceLink_t, Correction_t, Cue_t, Current_t, Definition_t, DependenciesLayer_t, Dependency_t, DependencyDependent_t, Description_t, Division_t, DomainAnnotation_t, EnddatetimeFeature_t, EntitiesLayer_t, Entity_t, Entry_t, ErrorDetection_t, EtymologyAnnotation_t, Event_t, Example_t, External_t, Feature_t, Figure_t, FontFeature_t, ForeignData_t, FunctionFeature_t, Gap_t, Head_t, HeadFeature_t, Headspan_t, Hiddenword_t, Hyphbreak_t, Label_t, LangAnnotation_t, LemmaAnnotation_t, LevelFeature_t, Linebreak_t, LinkReference_t, List_t, ListItem_t, Metric_t, ModalitiesLayer_t, Modality_t, ModalityFeature_t, Morpheme_t, MorphologyLayer_t, New_t, Note_t, Observation_t, ObservationLayer_t, Original_t, Paragraph_t, Part_t, PhonContent_t, Phoneme_t, PhonologyLayer_t, PolarityFeature_t, PosAnnotation_t, Predicate_t, Quote_t, Reference_t, Relation_t, Row_t, Scope_t, SemanticRole_t, SemanticRolesLayer_t, SenseAnnotation_t, Sentence_t, Sentiment_t, SentimentLayer_t, SizeFeature_t, Source_t, SpanRelation_t, SpanRelationLayer_t, Speech_t, Statement_t, StatementLayer_t, StatementRelation_t, StrengthFeature_t, String_t, StyleFeature_t, SubjectivityAnnotation_t, Suggestion_t, SynsetFeature_t, SyntacticUnit_t, SyntaxLayer_t, Table_t, TableHead_t, Target_t, Term_t, Text_t, TextContent_t, TextMarkupCorrection_t, TextMarkupError_t, TextMarkupGap_t, TextMarkupHSpace_t, TextMarkupLanguage_t, TextMarkupReference_t, TextMarkupString_t, TextMarkupStyle_t, TextMarkupWhitespace_t, TimeFeature_t, TimeSegment_t, TimingLayer_t, Utterance_t, ValueFeature_t, Whitespace_t, Word_t, WordReference_t, ProcessingInstruction_t, XmlComment_t, XmlText_t,  LastElement };
 
   inline ElementType& operator++( ElementType &et ){
-    return et = ( LastElement == et )
-      ? BASE
-      : ElementType(et+1);
+    return et = ( ElementType::LastElement == et )
+      ? ElementType::BASE
+      : ElementType((unsigned int)(et)+1);
   }
 
   /** AnnotatorType is the Internal representation of the Annatator attribute
    *
    */
-  enum AnnotatorType: int {
+  enum class AnnotatorType: int {
     UNDEFINED = 0,   ///< The value is (yet) unknown
       AUTO = 1,      ///< The value is automaticly assigned
       MANUAL = 2,    ///< The value is manually assigned
@@ -53,7 +54,7 @@ namespace folia {
 
   //foliaspec:attributes
   //Defines all common FoLiA attributes (as part of the Attrib enumeration)
-  enum Attrib : int { NO_ATT=0, ///<No attribute
+  enum class Attrib : int { NO_ATT=0, ///<No attribute
 ID=1,  ///<xml:id: The ID of the element; this has to be a unique in the entire document or collection of documents (corpus). All identifiers in FoLiA are of the `XML NCName <https://www.w3.org/TR/1999/WD-xmlschema-2-19990924/#NCName>`_ datatype, which roughly means it is a unique string that has to start with a letter (not a number or symbol), may contain numbers, but may never contain colons or spaces. FoLiA does not define any naming convention for IDs.
 CLASS=2,  ///<class: The class of the annotation, i.e. the annotation tag in the vocabulary defined by ``set``.
 ANNOTATOR=4,  ///<annotator: This is an older alternative to the ``processor`` attribute, without support for full provenance. The annotator attribute simply refers to the name o ID of the system or human annotator that made the annotation.
@@ -72,19 +73,12 @@ TAG=16384,  ///<tag: Contains a space separated list of processing tags associat
 ALL=32768 };
 
   inline Attrib& operator++( Attrib & a ){
-    return a = ( ALL == a )
-      ? NO_ATT
-      : ( NO_ATT == a ? ID : Attrib(a<<1) );
+    return a = ( Attrib::ALL == a )
+      ? Attrib::NO_ATT
+      : ( Attrib::NO_ATT == a ? Attrib::ID : Attrib(int(a)<<1) );
   }
 
-  inline Attrib operator|( Attrib a1, Attrib a2 ){
-    return (Attrib) ((int)a1|(int)a2) ;
-  }
-
-  inline Attrib& operator|=( Attrib& a1, Attrib& a2 ){
-    a1 = (a1 | a2);
-    return a1;
-  }
+  DEFINE_ENUM_FLAG_OPERATORS(Attrib);
 
   std::string toString( const Attrib );
   std::ostream& operator<<( std::ostream&, const Attrib& );
@@ -99,7 +93,7 @@ ALL=32768 };
 
   //foliaspec:annotationtype
   //Defines all annotation types (as part of the AnnotationType enumeration)
-  enum AnnotationType : int { NO_ANN, ///<No type dummy
+  enum class AnnotationType : int { NO_ANN, ///<No type dummy
     TEXT, ///<Text Annotation: Text annotation associates actual textual content with structural elements, without it a document would be textless. FoLiA treats it as an annotation like any other.
     TOKEN, ///<Token Annotation: This annotation type introduces a tokenisation layer for the document. The terms **token** and **word** are used interchangeably in FoLiA as FoLiA itself does not commit to a specific tokenisation paradigm. Tokenisation is a prerequisite for the majority of linguistic annotation types offered by FoLiA and it is one of the most fundamental types of Structure Annotation. The words/tokens are typically embedded in other types of structure elements, such as sentences or paragraphs.
     DIVISION, ///<Division Annotation: Structure annotation representing some kind of division, typically used for chapters, sections, subsections (up to the set definition). Divisions may be nested at will, and may include almost all kinds of other structure elements.
@@ -162,9 +156,9 @@ ALL=32768 };
 LAST_ANN };
 
   inline AnnotationType& operator++( AnnotationType &at ){
-    return at = ( LAST_ANN == at )
-      ? NO_ANN
-      : AnnotationType(at+1);
+    return at = ( AnnotationType::LAST_ANN == at )
+      ? AnnotationType::NO_ANN
+      : AnnotationType(int(at)+1);
   }
 
   std::string toString( const AnnotationType& );

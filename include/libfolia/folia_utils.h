@@ -38,13 +38,15 @@
 #include "libxml/tree.h"
 
 #include "ticcutils/StringOps.h"
+#include "ticcutils/XMLtools.h"
 
 namespace folia {
 
-  enum AnnotationType : int;
-  enum AnnotatorType : int;
-  enum ElementType : unsigned int;
+  enum class AnnotationType : int;
+  enum class AnnotatorType : int;
+  enum class ElementType : unsigned int;
   class FoliaElement;
+  class KWargs;
 
   class ArgsError: public std::runtime_error {
   public:
@@ -117,6 +119,15 @@ namespace folia {
 		      const std::string& );
   };
 
+  class DuplicateAttributeError: public std::runtime_error {
+  public:
+    explicit DuplicateAttributeError( const std::string& s ):
+      std::runtime_error( "duplicate attribute : " + s ){};
+    DuplicateAttributeError( const KWargs&,
+			     const std::string&,
+			     const std::string& );
+  };
+
   class NoDefaultError: public std::runtime_error {
   public:
     explicit NoDefaultError( const std::string& s ):
@@ -170,45 +181,57 @@ namespace folia {
   class KWargs : public std::map<std::string, std::string> {
   public:
     explicit KWargs( const std::string& ="" );
+    KWargs( const std::string&, const std::string& );
     bool is_present( const std::string& ) const;
-    std::string lookup( const std::string& );
+    std::string lookup( const std::string& ) const;
     std::string extract( const std::string& );
     std::string toString();
+    bool add( const std::string&, const std::string& );
+    bool replace( const std::string&, const std::string& );
     void init( const std::string& );
   };
 
   KWargs getArgs( const std::string& );
   std::string toString( const KWargs& );
 
-  void addAttributes( const xmlNode *, const KWargs& );
+  void addAttributes( xmlNode *, const KWargs&, bool=false );
   KWargs getAttributes( const xmlNode * );
 
   std::string parseDate( const std::string& );
   std::string parseTime( const std::string& );
 
+  /// functcions to test internal sanity
   bool AT_sanity_check();
   bool Attrib_sanity_check();
   bool ET_sanity_check();
+  bool annotator_sanity_check();
+  bool annotation_sanity_check();
+  bool document_sanity_check();
+  bool space_sanity_check();
+  bool subclass_sanity_check();
 
   ///
   /// some xml goodies
   ///
   inline const xmlChar *to_xmlChar( const std::string& in ){
-    return reinterpret_cast<const xmlChar *>(in.c_str());
+    return TiCC::to_xmlChar( in );
   }
 
   inline const std::string to_string( const xmlChar *in ){
-    return reinterpret_cast<const char *>(in);
+    return TiCC::to_string( in );
   }
 
   inline const std::string to_string( const xmlChar *in, size_t size ){
     return std::string( reinterpret_cast<const char *>(in), size );
   }
 
-  bool isNCName( const std::string& );
+  using TiCC::TextValue;
+  using TiCC::isNCName;
+
+  std::string create_NCName( const std::string& );
+
   bool checkNS( const xmlNode *, const std::string& );
   std::map<std::string,std::string> getNS_definitions( const xmlNode * );
-  std::string TextValue( const xmlNode * );
 
   icu::UnicodeString normalize_spaces( const icu::UnicodeString& );
   bool is_norm_empty( const icu::UnicodeString&  );

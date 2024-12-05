@@ -57,16 +57,12 @@ namespace folia {
   public:
     explicit NativeMetaData( const std::string& t ): MetaData(t) {};
     void add_av( const std::string& a, const std::string& v ) override
-    { _attribs[a] = v; };
+    { _attribs.replace(a,v); };
     const KWargs& get_avs() const override {
       return _attribs;
     }
     const std::string get_val( const std::string& at ) const override {
-      auto const& it = _attribs.find( at );
-      if ( it != _attribs.end() ){
-	return it->second;
-      }
-      return "";
+      return _attribs.lookup( at );
     }
     std::string datatype() const override { return "NativeMetaData"; };
   private:

@@ -69,6 +69,7 @@ namespace folia {
   class Morpheme;
   class MetaData;
   class ProcessingInstruction;
+  bool is_subtype( const ElementType& e1, const ElementType& e2 ); //from folia_properties
 
   /// class used to steer 'select()' behaviour
   enum class SELECT_FLAGS {
@@ -76,16 +77,16 @@ namespace folia {
 		  returning all matching nodes, even within matches.
 		  This is the default.
 		*/
-      LOCAL=1,  //!< only just look in the direct sibblings of the given node
-      TOP_HIT=2 //!< like recurse, but do NOT recurse into sibblings of matching nodes
-      };
+    LOCAL=1,  //!< only just look in the direct sibblings of the given node
+    TOP_HIT=2 //!< like recurse, but do NOT recurse into sibblings of matching nodes
+  };
 
   /// class used to steer 'xml:space' behaviour
   enum class SPACE_FLAGS {
     UNSET=-1,  //!< not yet known
-      DEFAULT=0,  //!< the default behaviour
-      PRESERVE=1 //!< spaces should be preserved
-      };
+    DEFAULT=0,  //!< the default behaviour
+    PRESERVE=1 //!< spaces should be preserved
+  };
 
 
 #define NOT_IMPLEMENTED {						\
@@ -110,11 +111,20 @@ namespace folia {
       return index(i);
     }
 
-    virtual bool isinstance( ElementType et ) const = 0;
+    template< typename T>
+    bool acceptable(){
+      return this->acceptable( T::PROPS.ELEMENT_ID );
+    }
 
     template <typename F>
       bool isinstance() const {
       return element_id() == F::PROPS.ELEMENT_ID;
+    }
+
+    template <typename T>
+    bool isSubClass() const {
+      const FoliaElement *tmp = dynamic_cast<const T*>(this);
+      return tmp != nullptr;
     }
 
     template <typename T>
@@ -140,29 +150,17 @@ namespace folia {
 
     template <typename T>
       inline T *add_child( const std::string& txt ){
-      /// create a new XmlText as child of 'this'
+      /// create a new node of type T as child of 'this'
       /*!
 	\param txt an value to be assigned as a "text" attribute
-	\return a new FoliaElement
+	\return a pointer to a new T
 	this will not compile for any class that has NO IMPLEMENTATION for
-	setvalue(). (which ar most classes)
+	setvalue(). (which are most classes)
       */
       T *result = new T(this);
       result->setvalue( txt );
       return result;
     }
-
-    bool isSubClass( ElementType ) const;
-    bool isSubClass( const FoliaElement *c ) const {
-      /// check if the object is a subclass of the class of \e c
-      /*!
-	\param c the FoliaElement we would like to compare to
-	\return true if the object is a SubClass of c.
-	This is about C++ class inheritance: is our class a derivative of c's
-	class?
-      */
-      return dynamic_cast<decltype(c)>(this) != nullptr;
-    };
 
     virtual void assignDoc( Document* ) = 0;
     virtual FoliaElement *parent() const = 0;
@@ -188,13 +186,13 @@ namespace folia {
     // Selections
 
     template <typename F>
-      std::vector<F*> select( const std::string& st,
-			      const std::set<ElementType>& exclude,
-			      bool recurse = true ) const {
+    std::vector<F*> select( const std::string& st,
+			    const std::set<ElementType>& exclude,
+			    SELECT_FLAGS flag = SELECT_FLAGS::RECURSE ) const {
       std::vector<FoliaElement*> tmp = select( F::PROPS.ELEMENT_ID,
 					       st,
 					       exclude,
-					       (recurse?SELECT_FLAGS::RECURSE : SELECT_FLAGS::LOCAL) );
+					       flag );
       std::vector<F*> res;
       for ( size_t i = 0; i < tmp.size(); ++i ){
 	res.push_back( dynamic_cast<F*>( tmp[i]) );
@@ -203,11 +201,11 @@ namespace folia {
     }
 
     template <typename F>
-      std::vector<F*> select( const std::string& st,
-			      bool recurse = true ) const {
+    std::vector<F*> select( const std::string& st,
+			    SELECT_FLAGS flag = SELECT_FLAGS::RECURSE ) const {
       std::vector<FoliaElement*> tmp = select( F::PROPS.ELEMENT_ID,
 					       st,
-					       (recurse?SELECT_FLAGS::RECURSE : SELECT_FLAGS::LOCAL) );
+					       flag );
       std::vector<F*> res;
       for ( size_t i = 0; i < tmp.size(); ++i ){
 	res.push_back( dynamic_cast<F*>( tmp[i]) );
@@ -216,11 +214,11 @@ namespace folia {
     }
 
     template <typename F>
-      std::vector<F*> select( const char* st,
-			      bool recurse = true ) const {
+    std::vector<F*> select( const char *st,
+			    SELECT_FLAGS flag = SELECT_FLAGS::RECURSE ) const {
       std::vector<FoliaElement*> tmp = select( F::PROPS.ELEMENT_ID,
 					       std::string(st),
-					       (recurse?SELECT_FLAGS::RECURSE : SELECT_FLAGS::LOCAL) );
+					       flag );
       std::vector<F*> res;
       for ( size_t i = 0; i < tmp.size(); ++i ){
 	res.push_back( dynamic_cast<F*>( tmp[i]) );
@@ -229,11 +227,11 @@ namespace folia {
     }
 
     template <typename F>
-      std::vector<F*> select( const std::set<ElementType>& exclude,
-			      bool recurse = true ) const {
+    std::vector<F*> select( const std::set<ElementType>& exclude,
+			    SELECT_FLAGS flag = SELECT_FLAGS::RECURSE ) const {
       std::vector<FoliaElement*> tmp = select( F::PROPS.ELEMENT_ID,
 					       exclude,
-					       (recurse?SELECT_FLAGS::RECURSE : SELECT_FLAGS::LOCAL) );
+					       flag );
       std::vector<F*> res;
       for ( size_t i = 0; i < tmp.size(); ++i ){
 	res.push_back( dynamic_cast<F*>( tmp[i]) );
@@ -242,9 +240,9 @@ namespace folia {
     }
 
     template <typename F>
-      std::vector<F*> select( bool recurse = true ) const {
+    std::vector<F*> select( SELECT_FLAGS flag = SELECT_FLAGS::RECURSE ) const {
       std::vector<FoliaElement*> tmp = select( F::PROPS.ELEMENT_ID,
-					       (recurse?SELECT_FLAGS::RECURSE : SELECT_FLAGS::LOCAL) );
+					       flag  );
       std::vector<F*> res;
       for ( size_t i = 0; i < tmp.size(); ++i ){
 	res.push_back( dynamic_cast<F*>( tmp[i]) );
@@ -261,7 +259,6 @@ namespace folia {
     virtual const std::string& processor() const = 0;
     virtual void processor_id( const std::string& ) = 0;
     virtual void annotatortype( AnnotatorType t ) =  0;
-    virtual AnnotationType annotation_type() const = 0;
     virtual PosAnnotation *addPosAnnotation( const KWargs& ) NOT_IMPLEMENTED;
     virtual LemmaAnnotation *addLemmaAnnotation( const KWargs& ) NOT_IMPLEMENTED;
     virtual MorphologyLayer *addMorphologyLayer( const KWargs& ) NOT_IMPLEMENTED;
@@ -358,18 +355,20 @@ namespace folia {
 				      bool = false ) const = 0;
     virtual const UnicodeString text( TEXT_FLAGS = TEXT_FLAGS::NONE,
 				      bool = false ) const = 0;
-    const UnicodeString stricttext( const std::string& = "current" ) const;
+    const UnicodeString stricttext( const std::string& = "current", bool=false ) const;
     const UnicodeString toktext( const std::string& = "current" ) const;
     virtual const UnicodeString phon( const TextPolicy& ) const = 0;
     virtual const UnicodeString phon( const std::string&,
-				      TEXT_FLAGS = TEXT_FLAGS::NONE ) const = 0;
-    virtual const UnicodeString phon( TEXT_FLAGS = TEXT_FLAGS::NONE ) const = 0;
-    virtual bool printable() const = 0;
-    virtual bool speakable() const = 0;
-    virtual bool referable() const = 0;
-    virtual bool is_textcontainer() const = 0;
-    virtual bool is_phoncontainer() const = 0;
-    virtual bool implicitspace() const = 0;
+				      TEXT_FLAGS = TEXT_FLAGS::NONE,
+				      bool = false ) const = 0;
+    virtual const UnicodeString phon( TEXT_FLAGS = TEXT_FLAGS::NONE,
+				      bool = false ) const = 0;
+    virtual const bool& printable() const = 0;
+    virtual const bool& speakable() const = 0;
+    virtual const bool& referable() const = 0;
+    virtual const bool& is_textcontainer() const = 0;
+    virtual const bool& is_phoncontainer() const = 0;
+    virtual const bool& implicitspace() const = 0;
     virtual const std::string& text_delimiter() const = 0;
     // Word
     virtual Word *previous() const NOT_IMPLEMENTED;
@@ -385,10 +384,13 @@ namespace folia {
     virtual Word *addWord( const std::string& ="" ) = 0;
 
     // corrections
+    virtual bool hasNew() const NOT_IMPLEMENTED;
     virtual New *getNew() const NOT_IMPLEMENTED;
     virtual FoliaElement *getNew( size_t ) const NOT_IMPLEMENTED;
+    virtual bool hasOriginal() const NOT_IMPLEMENTED;
     virtual Original *getOriginal() const NOT_IMPLEMENTED;
     virtual FoliaElement *getOriginal( size_t ) const NOT_IMPLEMENTED;
+    virtual bool hasCurrent() const NOT_IMPLEMENTED;
     virtual Current *getCurrent() const NOT_IMPLEMENTED;
     virtual FoliaElement *getCurrent( size_t ) const NOT_IMPLEMENTED;
     virtual Correction *incorrection() const NOT_IMPLEMENTED;
@@ -486,17 +488,20 @@ namespace folia {
     virtual bool set_space( bool ) = 0;
     virtual SPACE_FLAGS spaces_flag() const = 0;
     virtual void set_spaces_flag( SPACE_FLAGS ) = 0;
-    virtual ElementType element_id() const = 0;
-    virtual size_t occurrences() const = 0;
-    virtual size_t occurrences_per_set() const = 0;
-    virtual Attrib required_attributes() const = 0;
-    virtual Attrib optional_attributes() const = 0;
+    // generic properties
+    virtual const ElementType& element_id() const = 0;
+    virtual const size_t& occurrences() const = 0;
+    virtual const size_t& occurrences_per_set() const = 0;
+    virtual const Attrib& required_attributes() const = 0;
+    virtual const Attrib& optional_attributes() const = 0;
     virtual const std::string& xmltag() const = 0;
     const std::string& classname() const { return xmltag(); }; //synomym
+    virtual const AnnotationType& annotation_type() const = 0;
     virtual const std::string& default_subset() const = 0;
     virtual const std::string subset() const NOT_IMPLEMENTED;
-    virtual bool setonly() const = 0;
-    virtual bool auto_generate_id() const = 0;
+    virtual const bool& setonly() const = 0;
+    virtual const bool& auto_generate_id() const = 0;
+
     virtual Document *doc() const = 0;
     virtual Sentence *sentence() const NOT_IMPLEMENTED;
     virtual Paragraph *paragraph() const NOT_IMPLEMENTED;
@@ -526,7 +531,7 @@ namespace folia {
 						     const std::string& = ""
 						     ) const NOT_IMPLEMENTED;
     std::vector<Alternative*> alternatives( const std::string& s = "" ) const {
-      return alternatives( BASE, s );
+      return alternatives( ElementType::BASE, s );
     }
 
     virtual const std::string content() const NOT_IMPLEMENTED;
@@ -566,8 +571,8 @@ namespace folia {
 				      const std::string& ) = 0;
     virtual KWargs collectAttributes() const = 0;
     virtual void setAuth( bool b ) = 0;
-    virtual bool auth( ) const = 0;
-    virtual bool xlink() const = 0;
+    virtual const bool& auth( ) const = 0;
+    virtual const bool& xlink() const = 0;
     virtual const std::string href() const NOT_IMPLEMENTED;
     virtual const std::string generateId( const std::string& ) NOT_IMPLEMENTED;
     virtual const std::string& textclass() const NOT_IMPLEMENTED;
@@ -577,7 +582,7 @@ namespace folia {
     static FoliaElement *createElement( ElementType, Document * =0 );
     static FoliaElement *createElement( const std::string&, Document * =0 );
 
-  };
+  }; // class FoliaElement
 
   class AbstractElement: public virtual FoliaElement {
     friend void destroy( FoliaElement * );
@@ -600,13 +605,8 @@ namespace folia {
     FoliaElement* opaque_index( size_t ) const override;
     FoliaElement* rindex( size_t ) const override;
 
-    bool isinstance( ElementType et ) const override {
-      /// return true when the object is an instance of the type parameter
-      /*!
-      \param et the type to check against
-    */
-      return et == element_id();
-    }
+    using FoliaElement::isinstance;
+    using FoliaElement::isSubClass;
 
     void assignDoc( Document* ) override ;
     FoliaElement *parent() const override { return _parent; };
@@ -630,35 +630,7 @@ namespace folia {
     const std::string get_metadata( const std::string&  ) const override;
 
     // Selections
-    template <typename F>
-      std::vector<F*> select( bool recurse = true ) const {
-      return FoliaElement::select<F>(recurse);
-    }
-
-    template <typename F>
-      std::vector<F*> select( const std::string& st,
-			      const std::set<ElementType>& exclude,
-			      bool recurse = true ) const {
-      return FoliaElement::select<F>( st, exclude, recurse );
-    }
-
-    template <typename F>
-      std::vector<F*> select( const std::string& st,
-			      bool recurse = true ) const {
-      return FoliaElement::select<F>( st, recurse );
-    }
-
-    template <typename F>
-      std::vector<F*> select( const char* st,
-			      bool recurse = true ) const {
-      return FoliaElement::select<F>( st, recurse );
-    }
-
-    template <typename F>
-      std::vector<F*> select( const std::set<ElementType>& exclude,
-			      bool recurse = true ) const {
-      return FoliaElement::select<F>( exclude, recurse );
-    }
+    using FoliaElement::select;
 
     const std::string& annotator( ) const override { return _annotator; };
     void annotator( const std::string& a ) override { _annotator = a; };
@@ -694,9 +666,11 @@ namespace folia {
 
     const UnicodeString phon( const TextPolicy& ) const override;
     const UnicodeString phon( const std::string&,
-			      TEXT_FLAGS = TEXT_FLAGS::NONE ) const override;
-    const UnicodeString phon( TEXT_FLAGS flags = TEXT_FLAGS::NONE ) const override {
-      return phon( "current", flags );
+			      TEXT_FLAGS = TEXT_FLAGS::NONE,
+			      bool = false ) const override;
+    const UnicodeString phon( TEXT_FLAGS flags = TEXT_FLAGS::NONE,
+			      bool debug = false ) const override {
+      return phon( "current", flags, debug );
     }
 
     const UnicodeString deeptext( const TextPolicy& ) const override;
@@ -776,28 +750,28 @@ namespace folia {
     const std::string language( const std::string& = "" ) const override;
     const std::string& src() const override { return _src; };
     // generic properties
-    ElementType element_id() const override;
-    size_t occurrences() const override;
-    size_t occurrences_per_set() const override;
-    Attrib required_attributes() const override;
-    Attrib optional_attributes() const override;
-    bool hidden() const;
+    const ElementType& element_id() const override;
+    const size_t& occurrences() const override;
+    const size_t& occurrences_per_set() const override;
+    const Attrib& required_attributes() const override;
+    const Attrib& optional_attributes() const override;
+    const bool& hidden() const;
     const std::string& xmltag() const override;
+    const AnnotationType& annotation_type() const override;
     const std::string& default_subset() const override;
-    AnnotationType annotation_type() const override;
     const std::set<ElementType>& accepted_data() const;
     const std::set<ElementType>& required_data() const;
-    bool printable() const override;
-    bool speakable() const override;
-    bool referable() const override;
-    bool is_textcontainer() const override;
-    bool is_phoncontainer() const override;
-    bool implicitspace() const override;
+    const bool& printable() const override;
+    const bool& speakable() const override;
+    const bool& referable() const override;
+    const bool& is_textcontainer() const override;
+    const bool& is_phoncontainer() const override;
+    const bool& implicitspace() const override;
     const std::string& text_delimiter() const override;
-    bool auth() const override;
-    bool xlink() const override;
-    bool setonly() const override;
-    bool auto_generate_id() const override;
+    const bool& auth() const override;
+    const bool& xlink() const override;
+    const bool& setonly() const override;
+    const bool& auto_generate_id() const override;
 
     Document *doc() const override { return _mydoc; };
 
@@ -876,22 +850,34 @@ namespace folia {
     SPACE_FLAGS _preserve_spaces;
     std::vector<FoliaElement*> _data;
     const properties& _props;
-  };
+  }; // class AbstractElement
 
   template <typename T1, typename T2>
   bool isSubClass(){
     /// templated check if Type T1 is a subclass of Type T2
     /*!
       \return true if T1 is a SubClass of T2.
-      This is about C++ class inheritance: is our class a derivative of c's
+      This is about C++ class inheritance: is our class a derivative of this's
       class?
     */
     return std::is_convertible<T1*,T2*>::value;
   }
 
-  bool isSubClass( const ElementType e1, const ElementType e2 );
+  template<typename T>
+  void merge( std::vector<FoliaElement*>& vof,
+	      const std::vector<T*>& vot ){
+    /// templated function to merge a vector of Type T pointers at the
+    /// back of a vector of generic FoliaElement pointers
+    /*!
+      \param vof a vector of FoliaElement pointers
+      \param vot a vector of T pointers
 
-  bool isSubClass( const FoliaElement *e1, const FoliaElement *e2 );
+      will fail is T* can't be cast to FoliaElement*
+    */
+    for ( const auto& it : vot ){
+      vof.push_back(static_cast<FoliaElement*>(it));
+    }
+  }
 
   bool operator==( const FoliaElement&, const FoliaElement& );
   inline bool operator!=( const FoliaElement& e1, const FoliaElement& e2 ){
@@ -971,15 +957,6 @@ namespace folia {
     */
     return e->unicode(); }
 
-  inline bool isinstance( const FoliaElement *e, ElementType t ) {
-    /// return true when the first parameter is an instance of the type
-    /// given by the second parameter
-    /*!
-      \param e the FoliaElement to test
-      \param t the type to check against
-    */
-    return e->isinstance( t ); }
-
   class AllowGenerateID: public virtual FoliaElement {
   public:
     void setMaxId( FoliaElement * );
@@ -1018,7 +995,7 @@ namespace folia {
   class AllowInlineAnnotation: public AllowCorrections {
   public:
     bool allowannotations() const override { return true; };
-    std::vector<Alternative *> alternatives( ElementType = BASE,
+    std::vector<Alternative *> alternatives( ElementType = ElementType::BASE,
 					     const std::string& = "" ) const override;
 
 

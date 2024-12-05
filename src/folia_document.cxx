@@ -48,9 +48,18 @@ using namespace icu;
 /// the default output encoding, in fact the only one we allow
 const char *output_encoding = "UTF-8";
 
+/// direct Debugging info to the internal file, if present,
+/// or to the default stream
+
+static TiCC::LogStream DBG_CERR(cerr,NoStamp);
+#define DBG *TiCC::Log((_dbg_file?_dbg_file:&DBG_CERR))
+
 namespace folia {
   using TiCC::operator<<;
-
+  /// define a static default LogStream
+  TiCC::LogStream DBG_CERR(cerr,NoStamp);
+  /// connect to the default
+  TiCC::LogStream *_dbg_file = &DBG_CERR;
   ostream& operator<<( ostream& os,
 		       const Document::annotation_info& at ){
     /// output an annotation_info structure (Debugging only)
@@ -84,6 +93,108 @@ namespace folia {
     init();
   }
 
+  ostream& operator<<( ostream& os, const DocDbg& db ){
+    os << int(db) << "-" << toString( db );
+    return os;
+  }
+
+  Document::DEBUG_FLAGS get_mode( const string& p ){
+    if ( p == "PARSING" ){
+      return DocDbg::PARSING;
+    }
+    else if ( p == "PROVENANCE" ){
+      return DocDbg::PROVENANCE;
+    }
+    else if ( p == "DECLARATIONS" ){
+      return DocDbg::DECLARATIONS;
+    }
+    else if ( p == "ANNOTATIONS" ){
+      return DocDbg::ANNOTATIONS;
+    }
+    else if ( p == "TEXTHANDLING" ){
+      return DocDbg::TEXTHANDLING;
+    }
+    else if ( p == "ATTRIBUTES" ){
+      return DocDbg::ATTRIBUTES;
+    }
+    else if ( p == "SERIALIZE" ){
+      return DocDbg::SERIALIZE;
+    }
+    else if ( p == "CORRECTION" ){
+      return DocDbg::CORRECTION;
+    }
+    else if ( p == "MEMORY" ){
+      return DocDbg::MEMORY;
+    }
+    else if ( p == "TEXT_CONSISTENCY" ){
+      return DocDbg::TEXT_CONSISTENCY;
+    }
+    return DocDbg::NODEBUG;
+  }
+
+  Document::DEBUG_FLAGS string_to_debug( const string& vals ){
+    DocDbg res = DocDbg::NODEBUG;
+    int val=0;
+    if ( TiCC::stringTo( vals, val ) ){
+      res = (DocDbg)(val);
+    }
+    else {
+      vector<string> parts = TiCC::split_at( vals, "|" );
+      for ( const auto& part : parts ){
+	DocDbg d = get_mode( part );
+	res |= d;
+      }
+    }
+    return res;
+  }
+
+  DocDbg Document::setdebug( const std::string& s ){
+    DocDbg old = debug;
+    setdebug( string_to_debug(s) );
+    return old;
+  }
+
+  string toString( Document::DEBUG_FLAGS mode ){
+    string result;
+    if ( mode % DocDbg::PARSING ){
+      result += "PARSING|";
+    }
+    if ( mode % DocDbg::PROVENANCE ){
+      result +="PROVENANCE|";
+    }
+    if ( mode % DocDbg::DECLARATIONS ){
+      result += "DECLARATIONS|";
+    }
+    if ( mode %  DocDbg::ANNOTATIONS ){
+      result += "ANNOTATIONS|";
+    }
+    if ( mode % DocDbg::TEXTHANDLING ){
+      result += "TEXTHANDLING|";
+    }
+    if ( mode % DocDbg::ATTRIBUTES ){
+      result += "ATTRIBUTES|";
+    }
+    if ( mode % DocDbg::SERIALIZE ){
+      result += "SERIALIZE|";
+    }
+    if ( mode % DocDbg::CORRECTION ){
+      result += "CORRECTION|";
+    }
+    if ( mode % DocDbg::MEMORY ){
+      result += "MEMORY|";
+    }
+    if ( mode % DocDbg::TEXT_CONSISTENCY ){
+      result += "TEXT_CONSISTENCY|";
+    }
+    if ( result.empty() ){
+      result = "NODEBUG";
+    }
+    else {
+      result.pop_back();
+    }
+    return result;
+  }
+
   void Document::init_args( const KWargs& kwargs ){
     /// init some Document properties from a key-value list
     /*!
@@ -99,11 +210,14 @@ namespace folia {
     KWargs args = kwargs;
     string value = args.extract( "debug" );
     if ( !value.empty() ){
-      debug = TiCC::stringTo<int>( value );
+      debug = string_to_debug( value );
     }
     value = args.extract( "mode" );
     if ( !value.empty() ){
       setmode( value );
+    }
+    if ( args.empty() ){
+      return;
     }
     value = args.extract( "file" );
     if ( !value.empty() ){
@@ -122,7 +236,7 @@ namespace folia {
       // (read_from_file/read_from_string create a foliadoc OR throw )
       if ( args.find( "version" ) == args.end() ){
 	// no version attribute. set it to the current default
-	args["version"] = folia_version();
+	args.add("version",folia_version());
       }
       // create an 'empty' document using the args, with a FoLiA root node.
       foliadoc = new FoLiA( args, this );
@@ -159,7 +273,8 @@ namespace folia {
     */
     KWargs args = getArgs(s);
     if ( args.empty() ){
-      args["file"] = s;
+      // asume 's' contains only a filename
+      args.add("file",s);
     }
     init_args( args );
   }
@@ -203,8 +318,8 @@ namespace folia {
     _foliaNsIn_href = 0;
     _foliaNsIn_prefix = 0;
     _foliaNsOut = 0;
-    debug = 0;
-    mode = Mode( CHECKTEXT|AUTODECLARE );
+    debug = DEBUG_FLAGS::NODEBUG;
+    mode = DocMode( DocMode::CHECKTEXT|DocMode::AUTODECLARE );
     _external_document = false;
     _incremental_parse = false;
     _preserve_spaces = false;
@@ -212,6 +327,8 @@ namespace folia {
     _major_version = 0;
     _minor_version = 0;
     _sub_version = 0;
+    _dbg_file = 0;
+    DBG_CERR.set_message("folia:");
   }
 
   Document::~Document(){
@@ -263,52 +380,46 @@ namespace folia {
     vector<string> modev = TiCC::split_at( ms, "," );
     for ( const auto& mod : modev ){
       if ( mod == "permissive" ){
-	mode = Mode( (int)mode | PERMISSIVE );
+	mode = mode | DocMode::PERMISSIVE;
       }
       else if ( mod == "nopermissive" ){
-	mode = Mode( (int)mode & ~PERMISSIVE );
+	mode = mode & ~DocMode::PERMISSIVE;
       }
       else if ( mod == "strip" ){
-	mode = Mode( (int)mode | STRIP );
+	mode = mode | DocMode::STRIP;
       }
       else if ( mod == "nostrip" ){
-	mode = Mode( (int)mode & ~STRIP );
+	mode = mode & ~DocMode::STRIP;
       }
       else if ( mod == "canonical" ){
-	mode = Mode( (int)mode | CANONICAL );
+	mode = mode | DocMode::CANONICAL;
       }
       else if ( mod == "nocanonical" ){
-	mode = Mode( (int)mode & ~CANONICAL );
-      }
-      else if ( mod == "kanon" ){ // backward compatible
-	mode = Mode( (int)mode | CANONICAL );
-      }
-      else if ( mod == "nokanon" ){ // backward compatible
-	mode = Mode( (int)mode & ~CANONICAL );
+	mode = mode & ~DocMode::CANONICAL;
       }
       else if ( mod == "checktext" ){
-	mode = Mode( int(mode) | CHECKTEXT );
+	mode = mode | DocMode::CHECKTEXT;
       }
       else if ( mod == "nochecktext" ){
-	mode = Mode( int(mode) & ~CHECKTEXT );
+	mode = mode & ~DocMode::CHECKTEXT;
       }
       else if ( mod == "fixtext" ){
-	mode = Mode( int(mode) | FIXTEXT );
+	mode = mode | DocMode::FIXTEXT;
       }
       else if ( mod == "nofixtext" ){
-	mode = Mode( int(mode) & ~FIXTEXT );
+	mode = mode & ~DocMode::FIXTEXT;
       }
       else if ( mod == "autodeclare" ){
-	mode = Mode( int(mode) | AUTODECLARE );
+	mode = mode | DocMode::AUTODECLARE;
       }
       else if ( mod == "noautodeclare" ){
-	mode = Mode( int(mode) & ~AUTODECLARE );
+	mode = mode & ~DocMode::AUTODECLARE;
       }
       else if ( mod == "explicit" ){
-	mode = Mode( int(mode) | EXPLICIT );
+	mode = mode | DocMode::EXPLICIT;
       }
       else if ( mod == "noexplicit" ){
-	mode = Mode( int(mode) & ~EXPLICIT );
+	mode = mode & ~DocMode::EXPLICIT;
       }
       else {
 	throw invalid_argument( "FoLiA::Document: unsupported mode value: "+ mod );
@@ -326,31 +437,31 @@ namespace folia {
       doc.getmode() might return: "mode=strip,nohecktext,autodeclare,"
      */
     string result = "mode=";
-    if ( mode & PERMISSIVE ){
+    if ( mode % DocMode::PERMISSIVE ){
       result += "permissive,";
     }
-    if ( mode & STRIP ){
+    if ( mode % DocMode::STRIP ){
       result += "strip,";
     }
-    if ( mode & CHECKTEXT ){
+    if ( mode % DocMode::CHECKTEXT ){
       result += "checktext,";
     }
     else {
       result += "nochecktext,";
     }
-    if ( mode & FIXTEXT ){
+    if ( mode % DocMode::FIXTEXT ){
       result += "fixtext,";
     }
-    if ( mode & CANONICAL ){
+    if ( mode % DocMode::CANONICAL ){
       result += "canonical,";
     }
-    if ( mode & AUTODECLARE ){
+    if ( mode % DocMode::AUTODECLARE ){
       result += "autodeclare,";
     }
     else {
       result += "noautodeclare,";
     }
-    if ( mode & EXPLICIT ){
+    if ( mode % DocMode::EXPLICIT ){
       result += "explicit,";
     }
     return result;
@@ -362,12 +473,12 @@ namespace folia {
       \param new_val the boolean to use for on/off
       \return the previous value
     */
-    bool old_val = (mode & STRIP);
+    bool old_val = (mode % DocMode::STRIP);
     if ( new_val ){
-      mode = Mode( (int)mode | STRIP );
+      mode = mode | DocMode::STRIP;
     }
     else {
-      mode = Mode( (int)mode & ~STRIP );
+      mode = mode & ~DocMode::STRIP;
     }
     return old_val;
   }
@@ -378,12 +489,12 @@ namespace folia {
       \param new_val the boolean to use for on/off
       \return the previous value
     */
-    bool old_val = (mode & PERMISSIVE);
+    bool old_val = (mode % DocMode::PERMISSIVE);
     if ( new_val ){
-      mode = Mode( (int)mode | PERMISSIVE );
+      mode = mode | DocMode::PERMISSIVE;
     }
     else {
-      mode = Mode( (int)mode & ~PERMISSIVE );
+      mode = mode & ~DocMode::PERMISSIVE;
     }
     return old_val;
   }
@@ -394,12 +505,12 @@ namespace folia {
       \param new_val the boolean to use for on/off
       \return the previous value
     */
-    bool old_val = (mode & CHECKTEXT);
+    bool old_val = (mode % DocMode::CHECKTEXT);
     if ( new_val ){
-      mode = Mode( (int)mode | CHECKTEXT );
+      mode = mode | DocMode::CHECKTEXT;
     }
     else {
-      mode = Mode( (int)mode & ~CHECKTEXT );
+      mode = mode & ~DocMode::CHECKTEXT;
     }
     return old_val;
   }
@@ -411,12 +522,12 @@ namespace folia {
       \param new_val the boolean to use for on/off
       \return the previous value
     */
-    bool old_val = (mode & FIXTEXT);
+    bool old_val = (mode % DocMode::FIXTEXT);
     if ( new_val ){
-      mode = Mode( (int)mode | FIXTEXT );
+      mode = mode | DocMode::FIXTEXT;
     }
     else {
-      mode = Mode( (int)mode & ~FIXTEXT );
+      mode = mode & ~DocMode::FIXTEXT;
     }
     return old_val;
   }
@@ -427,12 +538,12 @@ namespace folia {
       \param new_val the boolean to use for on/off
       \return the previous value
     */
-    bool old_val = (mode & CANONICAL);
+    bool old_val = (mode % DocMode::CANONICAL);
     if ( new_val ){
-      mode = Mode( (int)mode | CANONICAL );
+      mode = mode | DocMode::CANONICAL;
     }
     else {
-      mode = Mode( (int)mode & ~CANONICAL );
+      mode = mode & ~DocMode::CANONICAL;
     }
     return old_val;
   }
@@ -443,12 +554,12 @@ namespace folia {
       \param new_val the boolean to use for on/off
       \return the previous value
     */
-    bool old_val = (mode & AUTODECLARE);
+    bool old_val = (mode % DocMode::AUTODECLARE);
     if ( new_val ){
-      mode = Mode( (int)mode | AUTODECLARE );
+      mode = mode | DocMode::AUTODECLARE;
     }
     else {
-      mode = Mode( (int)mode & ~AUTODECLARE );
+      mode = mode & ~DocMode::AUTODECLARE;
     }
     return old_val;
   }
@@ -459,14 +570,24 @@ namespace folia {
       \param new_val the boolean to use for on/off
       \return the previous value
     */
-    bool old_val = (mode & EXPLICIT);
+    bool old_val = (mode % DocMode::EXPLICIT);
     if ( new_val ){
-      mode = Mode( (int)mode | EXPLICIT );
+      mode = mode | DocMode::EXPLICIT;
     }
     else {
-      mode = Mode( (int)mode & ~EXPLICIT );
+      mode = mode & ~DocMode::EXPLICIT;
     }
     return old_val;
+  }
+
+  void Document::set_dbg_stream( TiCC::LogStream *ls ){
+    /// switch debugging to another LogStream
+    if ( _dbg_file
+	 && _dbg_file != &DBG_CERR ){
+      delete _dbg_file;
+    }
+    _dbg_file = ls;
+    DBG << "STARTED DEBUGGING!" << endl;
   }
 
   void Document::add_doc_index( FoliaElement* el ){
@@ -510,7 +631,7 @@ namespace folia {
       \param ann the annotationtype
       \return a string representation of \e ann.
 
-      Taking into account the version of the Dcocument, translating to
+      Taking into account the version of the Document, translating to
       old labels for pre 1.6 versions
     */
     const string& result = toString( ann );
@@ -592,7 +713,7 @@ namespace folia {
       if ( cnt > 0 ){
 	throw DocumentError( file_name, "document is invalid" );
       }
-      if ( debug ){
+      if ( debug % DEBUG_FLAGS::PARSING ){
 	cout << "read a doc from " << file_name << endl;
       }
       foliadoc = parseXml();
@@ -600,7 +721,7 @@ namespace folia {
 	// cannot happen. validate_offsets() throws on error
 	throw InconsistentText("MEH");
       }
-      if ( debug ){
+      if ( debug % DEBUG_FLAGS::PARSING ){
 	if ( foliadoc ){
 	  cout << "successful parsed the doc from: " << file_name << endl;
 	}
@@ -612,7 +733,7 @@ namespace folia {
       _xmldoc = 0;
       return foliadoc != 0;
     }
-    if ( debug ){
+    if ( debug % DEBUG_FLAGS::PARSING ){
       cout << "Failed to read a doc from " << file_name << endl;
     }
     throw DocumentError( file_name, "No valid FoLiA read" );
@@ -636,7 +757,7 @@ namespace folia {
       if ( cnt > 0 ){
 	throw DocumentError( _source_name, "document is invalid" );
       }
-      if ( debug ){
+      if ( debug % DEBUG_FLAGS::PARSING ){
 	cout << "read a doc from string" << endl;
       }
       foliadoc = parseXml();
@@ -644,7 +765,7 @@ namespace folia {
 	// cannot happen. validate_offsets() throws on error
 	throw InconsistentText("MEH");
       }
-      if ( debug ){
+      if ( debug % DEBUG_FLAGS::PARSING ){
 	if ( foliadoc ){
 	  cout << "successful parsed the doc" << endl;
 	}
@@ -656,7 +777,7 @@ namespace folia {
       _xmldoc = 0;
       return foliadoc != 0;
     }
-    if ( debug ){
+    if ( debug % DEBUG_FLAGS::PARSING ){
       throw runtime_error( "Failed to read a doc from a string" );
     }
     return false;
@@ -804,7 +925,7 @@ namespace folia {
     return foliadoc->text( cls, flags );
   }
 
-  static const set<ElementType> quoteSet = { Quote_t };
+  static const set<ElementType> quoteSet = { ElementType::Quote_t };
   static const set<ElementType> emptySet;
 
   vector<Sentence*> Document::sentences() const {
@@ -962,23 +1083,23 @@ namespace folia {
     /// set IMDI values. DEPRECATED
     const xmlNode *n = TiCC::xPath( node, "//imdi:Session/imdi:Title" );
     if ( n ){
-      _metadata->add_av( "title", TiCC::XmlContent( n ) );
+      _metadata->add_av( "title", TiCC::TextValue( n ) );
     }
     n = TiCC::xPath( node, "//imdi:Session/imdi:Date" );
     if ( n ){
-      _metadata->add_av( "date", TiCC::XmlContent( n ) );
+      _metadata->add_av( "date", TiCC::TextValue( n ) );
     }
     n = TiCC::xPath( node, "//imdi:Source/imdi:Access/imdi:Publisher" );
     if ( n ){
-      _metadata->add_av( "publisher", TiCC::XmlContent( n ) );
+      _metadata->add_av( "publisher", TiCC::TextValue( n ) );
     }
     n = TiCC::xPath( node, "//imdi:Source/imdi:Access/imdi:Availability" );
     if ( n ){
-      _metadata->add_av( "licence", TiCC::XmlContent( n ) );
+      _metadata->add_av( "licence", TiCC::TextValue( n ) );
     }
     n = TiCC::xPath( node, "//imdi:Languages/imdi:Language/imdi:ID" );
     if ( n ){
-      _metadata->add_av( "language", TiCC::XmlContent( n ) );
+      _metadata->add_av( "language", TiCC::TextValue( n ) );
     }
   }
 
@@ -1069,8 +1190,8 @@ namespace folia {
 
       May create a new Provenance structure if not yet available.
     */
-    if ( debug ){
-      cerr << "ADD_PROCESSOR: " << args << endl;
+    if ( debug % DEBUG_FLAGS::PROVENANCE ){
+      DBG << "ADD_PROCESSOR: " << args << endl;
     }
     if ( !parent
 	 && !_provenance ){
@@ -1157,8 +1278,8 @@ namespace folia {
 
       The data found will be appended to the Document
     */
-    if ( debug ){
-      cerr << "parse annotations " << TiCC::Name(node) << endl;
+    if ( debug % DEBUG_FLAGS::PARSING ){
+      DBG << "parse annotations " << TiCC::Name(node) << endl;
     }
     xmlNode *n = node->children;
     _anno_sort.clear();
@@ -1168,11 +1289,11 @@ namespace folia {
 	   && tag.substr( tag.length() - 11 ) == "-annotation" ){
 	string prefix = tag.substr( 0,  tag.length() - 11 );
 	AnnotationType at_type = TiCC::stringTo<AnnotationType>( prefix );
-	if ( debug ){
-	  cerr << "parse " << prefix << "-annotation" << endl;
+	if ( debug % DEBUG_FLAGS::PARSING ){
+	  DBG << "parse " << prefix << "-annotation" << endl;
 	}
 	KWargs atts = getAttributes( n );
-	ElementType et = BASE;
+	ElementType et = ElementType::BASE;
 	string set_name = atts.extract("set" );
 	if ( at_type == AnnotationType::TEXT ){
 	  //
@@ -1185,14 +1306,14 @@ namespace folia {
 	    set_name = "undefined"; // default value
 	  }
 	  else if ( at_type == AnnotationType::TEXT ){
-	    if ( debug ){
-	      cerr << "assign default for TEXT: " <<  DEFAULT_TEXT_SET << endl;
+	    if ( debug % DEBUG_FLAGS::ANNOTATIONS ){
+	      DBG << "assign default for TEXT: " <<  DEFAULT_TEXT_SET << endl;
 	    }
 	    set_name = DEFAULT_TEXT_SET;
 	  }
 	  else if ( at_type == AnnotationType::PHON ){
-	    if ( debug ){
-	      cerr << "assign default for PHON: " <<  DEFAULT_PHON_SET << endl;
+	    if ( debug % DEBUG_FLAGS::ANNOTATIONS ){
+	      DBG << "assign default for PHON: " <<  DEFAULT_PHON_SET << endl;
 	    }
 	    set_name = DEFAULT_PHON_SET;
 	  }
@@ -1204,7 +1325,7 @@ namespace folia {
 	    }
 	    et = et_it->second;
 	    properties *prop = element_props[et];
-	    if ( prop->REQUIRED_ATTRIBS & Attrib::CLASS ) {
+	    if ( prop->REQUIRED_ATTRIBS % Attrib::CLASS ) {
 	      throw DocumentError( _source_name,
 				   "setname may not be empty for " + prefix
 				   + "-annotation",
@@ -1222,7 +1343,7 @@ namespace folia {
 	string my_alias = atts.extract( "alias" );
 	string gran_val = atts.extract( "groupannotations" );
 	if ( !gran_val.empty() ){
-	  if ( !isSubClass( et, AbstractSpanAnnotation_t ) ){
+	  if ( !is_subtype( et, ElementType::AbstractSpanAnnotation_t ) ){
 	    throw DocumentError( _source_name,
 				 "attribute 'groupannotations' not allowed for '"
 				 + prefix + "-annotation",
@@ -1246,8 +1367,8 @@ namespace folia {
 	const xmlNode *sub = n->children;
 	while ( sub ){
 	  string subtag = TiCC::Name( sub );
-	  if ( debug ){
-	    cerr << "parse subtag:" << subtag << endl;
+	  if ( debug % DEBUG_FLAGS::PARSING ){
+	    DBG << "parse subtag:" << subtag << endl;
 	  }
 	  if ( subtag == "annotator" ){
 	    KWargs args = getAttributes( sub );
@@ -1286,10 +1407,10 @@ namespace folia {
       }
       n = n->next;
     }
-    if ( debug ){
-      cerr << "all group annotations: " << _groupannotations << endl;
-      cerr << "done with parse_annotation: " << _annotationdefaults << endl;
-      cerr << "sorting: " << _anno_sort << endl;
+    if ( debug % DEBUG_FLAGS::ANNOTATIONS ){
+      DBG << "all group annotations: " << _groupannotations << endl;
+      DBG << "done with parse_annotation: " << _annotationdefaults << endl;
+      DBG << "sorting: " << _anno_sort << endl;
     }
   }
 
@@ -1310,7 +1431,7 @@ namespace folia {
       n = n->next;
     }
     _provenance = result;
-    //    cerr << "provenance=" << _provenance << endl;
+    //    DBG << "provenance=" << _provenance << endl;
   }
 
   void Document::parse_submeta( const xmlNode *node ){
@@ -1326,24 +1447,24 @@ namespace folia {
       if ( my_id.empty() ){
 	throw MetaDataError( "submetadata without xml:id" );
       }
-      //      cerr << "parse submetadata, id=" << my_id << endl;
+      //      DBG << "parse submetadata, id=" << my_id << endl;
       string type = node_att["type"];
-      //      cerr << "parse submetadata, type=" << type << endl;
+      //      DBG << "parse submetadata, type=" << type << endl;
       if ( type.empty() ){
 	type = "native";
       }
       string src = node_att["src"];
       if ( !src.empty() ){
 	submetadata[my_id] = new ExternalMetaData( type, src );
-	//	cerr << "created External metadata, id=" << my_id << endl;
+	//	DBG << "created External metadata, id=" << my_id << endl;
       }
       else if ( type == "native" ){
 	submetadata[my_id] = new NativeMetaData( type );
-	//	cerr << "created Native metadata, id=" << my_id << endl;
+	//	DBG << "created Native metadata, id=" << my_id << endl;
       }
       else {
 	submetadata[my_id] = 0;
-	//	cerr << "set metadata to 0, id=" << my_id << endl;
+	//	DBG << "set metadata to 0, id=" << my_id << endl;
       }
       const xmlNode *p = node->children;
       while ( p ){
@@ -1351,12 +1472,12 @@ namespace folia {
 	  if ( TiCC::Name(p) == "meta" &&
 	       checkNS( p, NSFOLIA ) ){
 	    if ( type == "native" ){
-	      string txt = TiCC::XmlContent( p );
+	      string txt = TiCC::TextValue( p );
 	      if ( !txt.empty() ){
 		KWargs att = getAttributes( p );
 		string sid = att["id"];
 		submetadata[my_id]->add_av( sid, txt );
-		// cerr << "added node to id=" << my_id
+		// DBG << "added node to id=" << my_id
 		//      << "(" << sid << "," << txt << ")" << endl;
 	      }
 	    }
@@ -1371,11 +1492,11 @@ namespace folia {
 	    }
 	    else if ( submetadata[my_id] == 0 ){
 	      submetadata[my_id] = new ForeignMetaData( type );
-	      //	      cerr << "add new Foreign " << my_id << endl;
+	      //	      DBG << "add new Foreign " << my_id << endl;
 	    }
-	    //	  cerr << "in  Foreign " << submetadata[my_id]->type() << endl;
+	    //	  DBG << "in  Foreign " << submetadata[my_id]->type() << endl;
 	    submetadata[my_id]->add_foreign( p );
-	    //	    cerr << "added a foreign id=" << my_id << endl;
+	    //	    DBG << "added a foreign id=" << my_id << endl;
 	  }
 	}
 	p = p->next;
@@ -1531,11 +1652,11 @@ namespace folia {
       cerr << "DETECTED FOLIA_TEXT_CHECK environment variable, value ='"
 	   << e << "'"<< endl;
       if ( e == "NO" ){
-	mode = Mode( int(mode) & ~CHECKTEXT );
+	mode = DocMode( mode & ~DocMode::CHECKTEXT );
 	cerr << "FOLIA_TEXT_CHECK disabled" << endl;
       }
       else if ( e == "YES" ){
-	mode = Mode( int(mode) | CHECKTEXT );
+	mode = DocMode( mode | DocMode::CHECKTEXT );
 	cerr << "FOLIA_TEXT_CHECK enabled" << endl;
       }
       else {
@@ -1543,9 +1664,9 @@ namespace folia {
 	     << endl;
       }
     }
-    if ( !( mode & FIXTEXT) && version_below( 1, 5 ) ){
+    if ( !( mode % DocMode::FIXTEXT) && version_below( 1, 5 ) ){
       // don't check text consistency for older documents
-      mode = Mode( int(mode) & ~CHECKTEXT );
+      mode = DocMode( mode & ~DocMode::CHECKTEXT );
     }
   }
 
@@ -1561,12 +1682,12 @@ namespace folia {
     string value = kwargs.extract( "version" );
     if ( !value.empty() ){
       _version_string = value;
-      //      cerr << "So we found version " << _version_string << endl;
+      //      DBG << "So we found version " << _version_string << endl;
     }
     else {
       // assign a 'random' version, but PRE 1.5
       _version_string = "1.4.987";
-      //      cerr << "NO VERSION version " << _version_string << endl;
+      //      DBG << "NO VERSION version " << _version_string << endl;
     }
     expand_version_string( _version_string,
 			   _major_version,
@@ -1594,9 +1715,9 @@ namespace folia {
       _external_document = false;
     }
     bool happy = false;
-    value = kwargs.extract( "_id" ); // for backward compatibility
+    value = kwargs.extract( "xml:id" );
     if ( value.empty() ){
-      value = kwargs.extract( "xml:id" );
+      value = kwargs.extract( "_id" ); // for backward compatibility
     }
     if ( !value.empty() ){
       if ( isNCName( value ) ){
@@ -1607,7 +1728,7 @@ namespace folia {
 			     "'" + value + "' is not a valid NCName." );
       }
       happy = true;
-      kwargs["xml:id"] = value;
+      kwargs.add("xml:id", value);
     }
     if ( !foliadoc && !happy ){
       throw runtime_error( "No Document ID specified" );
@@ -1641,13 +1762,13 @@ namespace folia {
     */
     KWargs atts = getAttributes( node );
     string type = TiCC::lowercase(atts["type"]);
-    if ( debug > 5 ){
-      cerr << "metadata type='" << type << "'" << endl;
+    if ( debug % DEBUG_FLAGS::PARSING ){
+      DBG << "metadata type='" << type << "'" << endl;
     }
     if ( type.empty() ){
       type = "native";
-      if ( debug > 5 ){
-	cerr << "metadata type FORCED to'" << type << "'" << endl;
+      if ( debug % DEBUG_FLAGS::PARSING ){
+	DBG << "metadata type FORCED to'" << type << "'" << endl;
       }
     }
     string src = atts["src"];
@@ -1667,8 +1788,8 @@ namespace folia {
 	if ( !checkNS( m, NSIMDI ) || type != "imdi" ){
 	  throw runtime_error( "imdi != imdi " );
 	}
-	if ( debug > 1 ){
-	  cerr << "found IMDI" << endl;
+	if ( debug % DEBUG_FLAGS::PARSING ){
+	  DBG << "found IMDI" << endl;
 	}
 	if ( !_foreign_metadata ){
 	  _foreign_metadata = new ForeignMetaData( "imdi" );
@@ -1677,24 +1798,24 @@ namespace folia {
       }
       else if ( TiCC::Name( m ) == "annotations" &&
 		checkNS( m, NSFOLIA ) ){
-	if ( debug > 1 ){
-	  cerr << "found annotations" << endl;
+	if ( debug % DEBUG_FLAGS::PARSING ){
+	  DBG << "found annotations" << endl;
 	}
 	// defer parsing until AFTER provenance data
 	a_node = m;
       }
       else if ( TiCC::Name( m ) == "provenance" &&
 		checkNS( m, NSFOLIA ) ){
-	if ( debug > 1 ){
-	  cerr << "found provenance data" << endl;
+	if ( debug % DEBUG_FLAGS::PARSING ){
+	  DBG << "found provenance data" << endl;
 	}
 	parse_provenance( m );
-	//	cerr << _provenance << endl;
+	//	DBG << _provenance << endl;
       }
       else if ( TiCC::Name( m ) == "meta" &&
 		checkNS( m, NSFOLIA ) ){
-	if ( debug > 1 ){
-	  cerr << "found meta node:" << getAttributes(m) << endl;
+	if ( debug % DEBUG_FLAGS::PARSING ){
+	  DBG << "found meta node:" << getAttributes(m) << endl;
 	}
 	if ( !_metadata ){
 	  if ( type == "external" ){
@@ -1705,7 +1826,7 @@ namespace folia {
 	}
 	KWargs att = getAttributes( m );
 	string meta_id = att["id"];
-	string val = TiCC::XmlContent( m );
+	string val = TiCC::TextValue( m );
 	string get = _metadata->get_val( meta_id );
 	if ( !get.empty() ){
 	  throw runtime_error( "meta tag with id=" + meta_id
@@ -1733,7 +1854,7 @@ namespace folia {
       m = m->next;
     }
     if ( a_node ){
-      //      cerr << "parse deferred annotations" << endl;
+      //      DBG << "parse deferred annotations" << endl;
       parse_annotations( a_node );
     }
     if ( !_metadata && type == "imdi" ){
@@ -1812,13 +1933,13 @@ namespace folia {
 	string xml_tag = "_XmlComment";
 	FoliaElement *t = AbstractElement::createElement( xml_tag, this );
 	if ( t ) {
-	  if ( debug > 2 ) {
-	    cerr << "created " << t << endl;
+	  if ( debug % DEBUG_FLAGS::PARSING ) {
+	    DBG << "created " << t << endl;
 	  }
 	  t = t->parseXml( pnt );
 	  if ( t ) {
-	    if ( debug > 2 ) {
-	      cerr << "extend " << this << " met " << t << endl;
+	    if ( debug % DEBUG_FLAGS::PARSING ) {
+	      DBG << "extend " << this << " met " << t << endl;
 	    }
 	    preludes.push_back(t);
 	  }
@@ -1960,11 +2081,11 @@ namespace folia {
       }
       _foliaNsIn_href = xmlStrdup( root->ns->href );
     }
-    if ( debug > 2 ){
+    if ( debug % DEBUG_FLAGS::PARSING ){
       string dum;
-      cerr << "root = " << TiCC::Name( root ) << endl;
-      cerr << "in namespace " << TiCC::getNS( root, dum ) << endl;
-      cerr << "namespace list" << TiCC::getDefinedNS( root ) << endl;
+      DBG << "root = " << TiCC::Name( root ) << endl;
+      DBG << "in namespace " << TiCC::getNS( root, dum ) << endl;
+      DBG << "namespace list" << TiCC::getDefinedNS( root ) << endl;
     }
     FoliaElement *result = 0;
     if ( root  ){
@@ -2069,8 +2190,8 @@ namespace folia {
       \param _args an attribute-value list with additional parameters
     */
     KWargs args = _args;
-    if ( debug ){
-      cerr << "declare( " << folia::toString(type) << "," << setname << ", ["
+    if ( debug % DEBUG_FLAGS::DECLARATIONS ){
+      DBG << "declare( " << folia::toString(type) << "," << setname << ", ["
 	   << args << "] )" << endl;
     }
     string st = setname;
@@ -2087,7 +2208,7 @@ namespace folia {
 	}
 	auto et = et_it->second;
 	properties *prop = element_props[et];
-	if ( prop->REQUIRED_ATTRIBS & Attrib::CLASS ) {
+	if ( prop->REQUIRED_ATTRIBS % Attrib::CLASS ) {
 	  throw DocumentError( _source_name,
 			       "setname may not be empty for " + prefix
 			       + "-annotation" );
@@ -2246,13 +2367,13 @@ namespace folia {
       \param _processors a set of processor id's to relate to this declaration
       \param _alias an alias value for the setname
     */
-    if ( debug ){
-      cerr << "internal_declare( " << folia::toString(type) << "," << setname
+    if ( debug % DEBUG_FLAGS::DECLARATIONS ){
+      DBG << "internal_declare( " << folia::toString(type) << "," << setname
 	   << ", format=" << format << "," << annotator << ","
 	   << annotator_type << "," << date_time << "," << _alias << ","
 	   << _processors << ") " << endl;
     }
-    AnnotatorType anno_type = UNDEFINED;
+    AnnotatorType anno_type = AnnotatorType::UNDEFINED;
     try {
       anno_type = TiCC::stringTo<AnnotatorType>( annotator_type );
     }
@@ -2292,14 +2413,14 @@ namespace folia {
     annotation_info *current = lookup_default( type, setname );
     if ( current != 0 ){
       // there is already a fitting declaration, enrich it.
-      if ( debug ){
-	cerr << "a declaration exists for: " << type << ":" << setname << endl;
-	cerr << "value: " << current << endl;
+      if ( debug % DEBUG_FLAGS::DECLARATIONS ){
+	DBG << "a declaration exists for: " << type << ":" << setname << endl;
+	DBG << "value: " << current << endl;
       }
       if ( !procs.empty() ){
 	// add the extra processor id's to the set of processsor ID's
-	if ( debug ){
-	  cerr << "add extra procs: " << procs << endl;
+	if ( debug % DEBUG_FLAGS::DECLARATIONS ){
+	  DBG << "add extra procs: " << procs << endl;
 	}
 	for ( const auto& p : procs ){
 	  current->_processors.insert( p );
@@ -2312,18 +2433,18 @@ namespace folia {
 	  date = get_ISO_date();
 	}
 	*current = annotation_info(annotator,anno_type,date,format,procs);
-	if ( debug ){
-	  cerr << "overwrite with " << current << endl;
+	if ( debug % DEBUG_FLAGS::DECLARATIONS ){
+	  DBG << "overwrite with " << current << endl;
 	}
       }
-      if ( debug ){
-	cerr << "NOW: " << current << endl;
+      if ( debug % DEBUG_FLAGS::DECLARATIONS ){
+	DBG << "NOW: " << current << endl;
       }
     }
     else {
       // No declaration yet, create one
-      if ( debug ){
-	cerr << "NO declaration exists for: " << type << ":" << setname << endl;
+      if ( debug % DEBUG_FLAGS::DECLARATIONS ){
+	DBG << "NO declaration exists for: " << type << ":" << setname << endl;
       }
       string date = date_time;
       if ( date == "now()" ){
@@ -2331,8 +2452,8 @@ namespace folia {
       }
       annotation_info new_a(annotator,anno_type,date,format,procs);
       _annotationdefaults[type].insert( make_pair( setname, new_a ) );
-      if ( debug ){
-	cerr << "ADD to sort: " << folia::toString(type) << " ("
+      if ( debug % DEBUG_FLAGS::DECLARATIONS ){
+	DBG << "ADD to sort: " << folia::toString(type) << " ("
 	     << setname << ")"  << endl;
       }
       _anno_sort.push_back(make_pair(type,setname));
@@ -2358,8 +2479,8 @@ namespace folia {
       When \em set_name is "", ALL declarations of \em type are deleted
      */
     string setname = unalias(type,set_name);
-    if ( debug ){
-      cerr << "undeclare: " << folia::toString(type) << "(" << set_name << "."
+    if ( debug % DEBUG_FLAGS::DECLARATIONS ){
+      DBG << "undeclare: " << folia::toString(type) << "(" << set_name << "."
 	   << setname << ")" << endl;
     }
     if ( _annotationrefs[type][setname] != 0 ){
@@ -2368,17 +2489,17 @@ namespace folia {
     }
     auto const adt = _annotationdefaults.find(type);
     if ( adt != _annotationdefaults.end() ){
-      if ( debug ){
-	cerr << "matched type=" << folia::toString(type) << endl;
+      if ( debug % DEBUG_FLAGS::DECLARATIONS ){
+	DBG << "matched type=" << folia::toString(type) << endl;
       }
       auto it = adt->second.begin();
       while ( it != adt->second.end() ){
-	if ( debug ){
-	  cerr << "zoek set:" << setname << endl;
+	if ( debug % DEBUG_FLAGS::DECLARATIONS ){
+	  DBG << "zoek set:" << setname << endl;
 	}
 	if ( setname.empty() || it->first == setname ){
-	  if ( debug ){
-	    cerr << "erase:" << setname << "==" << it->first << endl;
+	  if ( debug % DEBUG_FLAGS::DECLARATIONS ){
+	    DBG << "erase:" << setname << "==" << it->first << endl;
 	  }
 	  it = adt->second.erase(it);
 	}
@@ -2386,18 +2507,18 @@ namespace folia {
 	  ++it;
 	}
       }
-      if ( debug ){
-	cerr << "ANNO-SORT: IN " << _anno_sort << endl;
+      if ( debug % DEBUG_FLAGS::DECLARATIONS ){
+	DBG << "ANNO-SORT: IN " << _anno_sort << endl;
       }
       auto it2 = _anno_sort.begin();
       while ( it2 != _anno_sort.end() ){
-	if ( debug ){
-	  cerr << "zoek set:" << setname << endl;
+	if ( debug % DEBUG_FLAGS::DECLARATIONS ){
+	  DBG << "zoek set:" << setname << endl;
 	}
 	if ( it2->first == type
 	     && ( setname.empty() || it2->second == setname ) ){
-	  if ( debug ){
-	    cerr << "_annosort:erase:" << setname << "==" << it->first << endl;
+	  if ( debug % DEBUG_FLAGS::DECLARATIONS ){
+	    DBG << "_annosort:erase:" << setname << "==" << it->first << endl;
 	  }
 	  it2 = _anno_sort.erase( it2 );
 	}
@@ -2405,8 +2526,8 @@ namespace folia {
 	  ++it2;
 	}
       }
-      if ( debug ){
-	cerr << "ANNO-SORT: UIT " << _anno_sort << endl;
+      if ( debug % DEBUG_FLAGS::DECLARATIONS ){
+	DBG << "ANNO-SORT: UIT " << _anno_sort << endl;
       }
       auto it3 = _alias_set[type].begin();
       while ( it3 != _alias_set[type].end() ){
@@ -2508,9 +2629,9 @@ namespace folia {
 			   "cannot append a root element to a Document. "
 			   "Already there." );
     }
-    if ( t->element_id() == Text_t
-	 || t->element_id() == XmlComment_t
-	 || t->element_id() == Speech_t ) {
+    if ( t->isinstance<Text>()
+	 || t->isinstance<XmlComment>()
+	 || t->isinstance<Speech>() ) {
       foliadoc->append( t );
       return t;
     }
@@ -2532,7 +2653,7 @@ namespace folia {
 	st = default_set(type);
       }
       ++_annotationrefs[type][st];
-      // cerr << "increment " << toString(type) << "(" << st << ") to: "
+      // DBG << "increment " << toString(type) << "(" << st << ") to: "
       // 	   << _annotationrefs[type][s] << endl;
     }
   }
@@ -2547,7 +2668,7 @@ namespace folia {
     if ( type != AnnotationType::NO_ANN
 	 && _annotationrefs[type][s] > 0 ){
       --_annotationrefs[type][s];
-      // cerr << "decrement " << toString(type) << "(" << s << ") to: "
+      // DBG << "decrement " << toString(type) << "(" << s << ") to: "
       // 	   << _annotationrefs[type][s] << endl;
     }
   }
@@ -2567,52 +2688,52 @@ namespace folia {
       exists
 
     */
-    if ( debug ){
-      cerr << "declared(" << folia::toString(type) << ",'"
+    if ( debug % DEBUG_FLAGS::DECLARATIONS ){
+      DBG << "declared(" << folia::toString(type) << ",'"
 	   << set_name << "')" << endl;
     }
     if ( type == AnnotationType::NO_ANN ){
-      if ( debug ){
-	cerr << "declared() always true for NO_ANN" << endl;
+      if ( debug % DEBUG_FLAGS::DECLARATIONS ){
+	DBG << "declared() always true for NO_ANN" << endl;
       }
       return true;
     }
-    if ( debug ){
-      cerr << "Doorzoek: " << _annotationdefaults << endl;
+    if ( debug % DEBUG_FLAGS::DECLARATIONS ){
+      DBG << "Doorzoek: " << _annotationdefaults << endl;
     }
     const auto& mit1 = _annotationdefaults.find(type);
     if ( mit1 != _annotationdefaults.end() ){
-      if ( debug ){
-	cerr << "found some: " << mit1->second << endl;
+      if ( debug % DEBUG_FLAGS::DECLARATIONS ){
+	DBG << "found some: " << mit1->second << endl;
       }
       if ( set_name.empty() ){
 	// 'wildcard' for setname
-	if ( debug ){
-	  cerr << "declared() for empty setname return TRUE" << endl;
+	if ( debug % DEBUG_FLAGS::DECLARATIONS ){
+	  DBG << "declared() for empty setname return TRUE" << endl;
 	}
 	return true;
       }
       // set_name may be an alias, so resolve
       string s_name = unalias(type,set_name);
-      if ( debug ){
-	cerr << "lookup: " << set_name << " (" << s_name << ")" << endl;
+      if ( debug % DEBUG_FLAGS::DECLARATIONS ){
+	DBG << "lookup: " << set_name << " (" << s_name << ")" << endl;
       }
       const auto& mit2 = mit1->second.find(s_name);
       if ( mit2 != mit1->second.end() ){
-	if ( debug ){
-	  cerr << "declared() return TRUE" << endl;
+	if ( debug % DEBUG_FLAGS::DECLARATIONS ){
+	  DBG << "declared() return TRUE" << endl;
 	}
 	return true;
       }
       else {
-	if ( debug ){
-	  cerr << "return FALSE" << endl;
+	if ( debug % DEBUG_FLAGS::DECLARATIONS ){
+	  DBG << "return FALSE" << endl;
 	}
 	return false;
       }
     }
-    if ( debug ){
-      cerr << "return DIRECTLY FALSE" << endl;
+    if ( debug % DEBUG_FLAGS::DECLARATIONS ){
+      DBG << "return DIRECTLY FALSE" << endl;
     }
     return false;
   }
@@ -2646,8 +2767,8 @@ namespace folia {
       return "";
     }
     // search a set. it must be unique. Otherwise return ""
-    if ( debug ){
-      cerr << "\nzoek voor '" << toString(type) << "' de default set in:\n"
+    if ( debug % DEBUG_FLAGS::ANNOTATIONS ){
+      DBG << "\nzoek voor '" << toString(type) << "' de default set in:\n"
 	   <<  _annotationdefaults << endl;
     }
     string result;
@@ -2658,13 +2779,13 @@ namespace folia {
 	// so it is unique
 	result = mit1->second.begin()->first;
       }
-      else if ( debug ){
-	cerr << "setname is not unique " << endl;
+      else if ( debug % DEBUG_FLAGS::ANNOTATIONS ){
+	DBG << "setname is not unique " << endl;
       }
 
     }
-    if ( debug ){
-      cerr << "default_set ==> " << result << endl;
+    if ( debug % DEBUG_FLAGS::ANNOTATIONS ){
+      DBG << "default_set ==> " << result << endl;
     }
     return result;
   }
@@ -2686,7 +2807,7 @@ namespace folia {
     if ( cur != 0 ){
       result = cur->_annotator;
     }
-    //    cerr << "get default ==> " << result << endl;
+    //    DBG << "get default ==> " << result << endl;
     return result;
   }
 
@@ -2699,11 +2820,11 @@ namespace folia {
       \return the annotator. May be empty ("") when there is none defined OR it
       is ambiguous.
     */
-    if ( debug ){
-      cerr << "annotationdefaults= " <<  _annotationdefaults << endl;
-      cerr << "lookup: " << folia::toString(type) << endl;
+    if ( debug % DEBUG_FLAGS::ANNOTATIONS ){
+      DBG << "annotationdefaults= " <<  _annotationdefaults << endl;
+      DBG << "lookup: " << folia::toString(type) << endl;
     }
-    AnnotatorType result = UNDEFINED;
+    AnnotatorType result = AnnotatorType::UNDEFINED;
     if ( type == AnnotationType::NO_ANN ){
       return result;
     }
@@ -2711,7 +2832,7 @@ namespace folia {
     if ( cur != 0 ){
       result = cur->_ann_type;
     }
-    //  cerr << "get default ==> " << result << endl;
+    //  DBG << "get default ==> " << result << endl;
     return result;
   }
 
@@ -2729,7 +2850,7 @@ namespace folia {
     if ( cur != 0 ){
       result = cur->_date;
     }
-    //  cerr << "get default ==> " << result << endl;
+    //  DBG << "get default ==> " << result << endl;
     return result;
   }
 
@@ -2742,8 +2863,8 @@ namespace folia {
       \return the processor. May be empty ("") when there is none defined OR it
       is ambiguous.
     */
-    if ( debug ){
-      cerr << "defaultprocessor(" << toString( type ) << ","
+    if ( debug % DEBUG_FLAGS::ANNOTATIONS ){
+      DBG << "defaultprocessor(" << toString( type ) << ","
 	   << setname << ")" << endl;
     }
     string result;
@@ -2832,8 +2953,8 @@ namespace folia {
       \return a list of processors.
     */
     vector<const processor*> result;
-    if ( debug ){
-      cerr << "getprocessors(" << toString( type ) << ","
+    if ( debug % DEBUG_FLAGS::PROVENANCE ){
+      DBG << "getprocessors(" << toString( type ) << ","
 	   << setname << ")" << endl;
     }
     auto const cur = lookup_default( type, setname );
@@ -2853,7 +2974,7 @@ namespace folia {
       \param pair an AnnotationType/setname pair
       \param root the node we want to add to
     */
-    //    cerr << "add one anno: " << pair << endl;
+    //    DBG << "add one anno: " << pair << endl;
     AnnotationType type = pair.first;
     string sett = pair.second;
     if ( type == AnnotationType::TEXT ){
@@ -2864,11 +2985,6 @@ namespace folia {
     }
 
     string label = annotation_type_to_string( type );
-    // cerr << "/nDO: '" << label+sett << "'" << endl;
-    // if ( done.find(label+sett) != done.end() ){
-    //   return;
-    // }
-    // //    done.insert(label+sett);
     label += "-annotation";
     const auto *it = lookup_default( type, sett );
     if ( it != 0 ){
@@ -2876,51 +2992,47 @@ namespace folia {
       KWargs args;
       if ( !strip() ){
 	s = it->_date;
-	if ( !s.empty() ){
-	  args["datetime"] = s;
-	}
+	args.add("datetime", s);
       }
       s = it->_format;
-      if ( !s.empty() ){
-	args["format"] = s;
-      }
+      args.add("format", s);
       s = sett;
       if ( s == "None" ){ // "empty" set
 	// skip
       }
       else if ( s != "undefined" ){ // the default
-	args["set"] = s;
+	args.add("set", s);
       }
       auto const& t_it = _groupannotations.find(type);
       if ( t_it != _groupannotations.end() ){
 	auto const& s_it = t_it->second.find(s);
 	if ( s_it != t_it->second.end()
 	     && s_it->second ){
-	  args["groupannotations"] = "yes";
+	  args.add("groupannotations","yes");
 	}
       }
       const auto& ti = _set_alias.find(type);
       if ( ti != _set_alias.end() ){
 	const auto& al = ti->second.find(s);
-	if ( al->second != s ){
-	  args["alias"] = al->second;
+	if ( al != ti->second.end() ){
+	  if ( al->second != s ){
+	    args.add("alias",al->second);
+	  }
 	}
       }
       string an = it->_annotator;
-      if ( !an.empty() ){
-	args["annotator"] = an;
-      }
+      args.add("annotator", an);
       AnnotatorType anno_type = it->_ann_type;
-      if ( anno_type != UNDEFINED && anno_type != AUTO ){
-	args["annotatortype"] = toString(anno_type);
+      if ( anno_type != AnnotatorType::UNDEFINED
+	   && anno_type != AnnotatorType::AUTO ){
+	args.add("annotatortype",toString(anno_type));
       }
       xmlNode *annotation_node = TiCC::XmlNewNode( foliaNs(), label );
       addAttributes( annotation_node, args );
       xmlAddChild( root, annotation_node );
       for ( const auto& p : it->_processors ){
-	KWargs pargs;
 	xmlNode *a = TiCC::XmlNewNode( foliaNs(), "annotator" );
-	pargs["processor"] = p;
+	KWargs pargs("processor", p);
 	addAttributes( a, pargs );
 	xmlAddChild( annotation_node, a );
       }
@@ -2933,9 +3045,9 @@ namespace folia {
       \param metadata the parent to add to
       calls add_one_anno() for every annotation declaration.
     */
-    if ( debug ){
-      cerr << "start add_annotations: " << _annotationdefaults << endl;
-      cerr << "sorting: " << _anno_sort << endl;
+    if ( debug % (DEBUG_FLAGS::ANNOTATIONS|DEBUG_FLAGS::SERIALIZE) ){
+      DBG << "start add_annotations: " << _annotationdefaults << endl;
+      DBG << "sorting: " << _anno_sort << endl;
     }
     xmlNode *node = xmlAddChild( metadata,
 				 TiCC::XmlNewNode( foliaNs(),
@@ -2969,83 +3081,60 @@ namespace folia {
     */
     xmlNode *pr = xmlAddChild( node, TiCC::XmlNewNode( foliaNs(), "processor" ) );
     KWargs atts;
-    atts["xml:id"] = p->_id;
-    atts["name"] = p->_name;
-    if ( p->_type != AUTO || has_explicit() ){
-      atts["type"] = toString(p->_type);
+    atts.add("xml:id",p->_id);
+    if ( p->_type != AnnotatorType::AUTO || has_explicit() ){
+      atts.add("type",toString(p->_type));
     }
     if ( !strip() ){
-      if ( !p->_version.empty() ){
-	atts["version"] = p->_version;
-      }
-      if ( !p->_folia_version.empty() ){
-	atts["folia_version"] = p->_folia_version;
-      }
-      if ( !p->_command.empty() ){
-	atts["command"] = p->_command;
-      }
-      if ( !p->_host.empty() ){
-	atts["host"] = p->_host;
-      }
-      if ( !p->_user.empty() ){
-	atts["user"] = p->_user;
-      }
-      if ( !p->_begindatetime.empty() ){
-	atts["begindatetime"] = p->_begindatetime;
-      }
-      if ( !p->_enddatetime.empty() ){
-	atts["enddatetime"] = p->_enddatetime;
-      }
+      atts.add("name", p->_name);
+      atts.add("version",p->_version);
+      atts.add("folia_version", p->_folia_version);
+      atts.add("command",p->_command);
+      atts.add("host", p->_host);
+      atts.add("user", p->_user);
+      atts.add("begindatetime", p->_begindatetime);
+      atts.add("enddatetime",p->_enddatetime);
     }
     else {
       if ( p->_name == "libfolia" ){
-	atts["name"] = "stripped";
+	atts.add("name","stripped");
       }
       else if ( p->_name == "foliapy" ){
-	atts["name"] = "stripped";
+	atts.add("name","stripped");
       }
-      else if ( !p->_name.empty() ){
-	atts["name"] = p->_name;
+      else {
+	atts.add("name", p->_name);
       }
       if ( !p->_version.empty() ){
-	atts["version"] = "stripped";
+	atts.add("version","stripped");
       }
       if ( !p->_folia_version.empty() ){
-	atts["folia_version"] = "stripped";
+	atts.add("folia_version","stripped");
       }
       if ( !p->_command.empty() ){
-	atts["command"] = "stripped";
+	atts.add("command","stripped");
       }
       if ( !p->_host.empty() ){
-	atts["host"] = "stripped";
+	atts.add("host","stripped");
       }
       if ( !p->_user.empty() ){
-	atts["user"] = "stripped";
+	atts.add("user","stripped");
       }
       if ( !p->_begindatetime.empty() ){
-	atts["begindatetime"] = "stripped";
+	atts.add("begindatetime","stripped");
       }
       if ( !p->_enddatetime.empty() ){
-	atts["enddatetime"] = "stripped";
+	atts.add("enddatetime","stripped");
       }
     }
-    if ( !p->_document_version.empty() ){
-      atts["document_version"] = p->_document_version;
-    }
-    if ( !p->_resourcelink.empty() ){
-      atts["resourcelink"] = p->_resourcelink;
-    }
-    if ( !p->_src.empty() ){
-      atts["src"] = p->_src;
-    }
-    if ( !p->_format.empty() ){
-      atts["format"] = p->_format;
-    }
-    addAttributes( pr, atts );
+    atts.add("document_version",p->_document_version);
+    atts.add("resourcelink", p->_resourcelink);
+    atts.add("src", p->_src);
+    atts.add("format", p->_format);
+    addAttributes( pr, atts, debug % DEBUG_FLAGS::SERIALIZE );
     for ( const auto& [meta_id,val] : p->_metadata ){
       xmlNode *m = xmlAddChild( pr, TiCC::XmlNewNode( foliaNs(), "meta" ) );
-      KWargs args;
-      args["id"] = meta_id;
+      KWargs args("id", meta_id);
       addAttributes( m, args );
       xmlAddChild( m, xmlNewText( to_xmlChar(val) ) );
     }
@@ -3063,6 +3152,9 @@ namespace folia {
     if ( !_provenance ){
       return;
     }
+    if ( debug %(DEBUG_FLAGS::PROVENANCE|DEBUG_FLAGS::SERIALIZE) ){
+      DBG << "adding provenance " << endl;
+    }
     xmlNode *node = xmlAddChild( metadata,
 				 TiCC::XmlNewNode( foliaNs(),
 						   "provenance" ) );
@@ -3073,32 +3165,29 @@ namespace folia {
 
   void Document::add_submetadata( xmlNode *node ) const {
     /// add a submetadata block to node
-    for ( const auto& [id,vals] : submetadata ){
+    for ( const auto& [sid,vals] : submetadata ){
       xmlNode *sm = TiCC::XmlNewNode( foliaNs(), "submetadata" );
-      KWargs atts;
-      atts["xml:id"] = id;
+      KWargs atts("xml:id",sid);
       addAttributes( sm, atts );
-      const MetaData *md = submetadata.find(id)->second;
+      const MetaData *md = submetadata.find(sid)->second;
       string type = md->type();
       atts.clear();
-      atts["type"] = type;
+      atts.add("type", type);
       addAttributes( sm, atts );
       xmlAddChild( node, sm );
       if ( type == "native" ){
 	atts = vals->get_avs();
-	// cerr << "atts: " << atts << endl;
+	// DBG << "atts: " << atts << endl;
 	for ( const auto& [m_id,val] : atts ){
 	  xmlNode *m = TiCC::XmlNewNode( foliaNs(), "meta" );
-	  KWargs args;
-	  args["id"] = m_id;
+	  KWargs args("id", m_id);
 	  addAttributes( m, args );
 	  xmlAddChild( m, xmlNewText( to_xmlChar(val) ) );
 	  xmlAddChild( sm, m );
 	}
       }
       else if ( md->datatype() == "ExternalMetaData" ){
-	KWargs args;
-	args["src"] = md->src();
+	KWargs args("src", md->src());
 	addAttributes( sm, args );
       }
       else if ( md->datatype() == "ForeignMetaData" ){
@@ -3114,23 +3203,25 @@ namespace folia {
     /// add a metadata block to node
     if ( _metadata ){
       if ( _metadata->datatype() == "ExternalMetaData" ){
-	KWargs atts;
-	atts["type"] = "external";
 	string src = _metadata->src();
-	if ( !src.empty() ){
-	  atts["src"] = src;
+	KWargs atts;
+	atts.add("type","external");
+	atts.add("src",src);
+	if ( debug % DEBUG_FLAGS::SERIALIZE ){
+	  DBG << "add external metadata" << atts << endl;
 	}
 	addAttributes( node, atts );
       }
       else {
-	KWargs atts;
-	atts["type"] = _metadata->type();
+	KWargs atts("type", _metadata->type());
 	addAttributes( node, atts );
-	for ( const auto& [id,val] : _metadata->get_avs() ){
+	for ( const auto& [mid,val] : _metadata->get_avs() ){
 	  xmlNode *m = TiCC::XmlNewNode( foliaNs(), "meta" );
 	  xmlAddChild( m, xmlNewText( to_xmlChar(val) ) );
-	  KWargs meta_atts;
-	  meta_atts["id"] = id;
+	  if ( debug % DEBUG_FLAGS::SERIALIZE ){
+	    DBG << "add metadata: " << val << endl;
+	  }
+	  KWargs meta_atts("id",mid);
 	  addAttributes( m, meta_atts );
 	  xmlAddChild( node, m );
 	}
@@ -3138,19 +3229,23 @@ namespace folia {
     }
     if ( _foreign_metadata ){
       if ( !_metadata ){
-	KWargs atts;
-	atts["type"] = _foreign_metadata->type();
+	KWargs atts("type",_foreign_metadata->type());
 	addAttributes( node, atts );
+	if ( debug % DEBUG_FLAGS::SERIALIZE ){
+	  DBG << "add foreign metadata" << atts << endl;
+	}
       }
       for ( const auto* foreign : _foreign_metadata->get_foreigners() ) {
 	xmlNode *f = foreign->xml( true, false );
+	if ( debug % DEBUG_FLAGS::SERIALIZE ){
+	  DBG << "add foreign metadata XML" << endl;
+	}
 	xmlAddChild( node, f );
       }
     }
     if ( !_metadata
 	 && !_foreign_metadata ){
-      KWargs atts;
-      atts["type"] = "native";
+      KWargs atts("type","native");
       addAttributes( node, atts );
     }
     add_submetadata( node );
@@ -3163,6 +3258,9 @@ namespace folia {
     */
     for ( const auto& [type,ref] : styles ){
       string content = "type=\"" + type + "\" href=\"" + ref + "\"";
+      if ( debug % DEBUG_FLAGS::SERIALIZE ){
+	DBG << "add stylesheet " << content << endl;
+      }
       xmlAddChild( reinterpret_cast<xmlNode*>(doc),
 		   xmlNewDocPI( doc,
 				to_xmlChar("xml-stylesheet"),
@@ -3175,6 +3273,9 @@ namespace folia {
     /*!
       \param ns_label a namespace label to use. (default "")
     */
+    if ( debug % DEBUG_FLAGS::SERIALIZE ){
+      DBG << "to_xmlDoc: start serializing" << endl;
+    }
     xmlDoc *outDoc = xmlNewDoc( to_xmlChar("1.0") );
     add_styles( outDoc );
     for ( const auto* pr: preludes ){
@@ -3186,6 +3287,9 @@ namespace folia {
 				   to_xmlChar("FoLiA"),
 				   0 );
     xmlDocSetRootElement( outDoc, root );
+    if ( debug % DEBUG_FLAGS::SERIALIZE ){
+      DBG << "to_xmlDoc: created root" << endl;
+    }
     xmlNs *xl = xmlNewNs( root,
 			  to_xmlChar("http://www.w3.org/1999/xlink"),
 			  to_xmlChar("xlink") );
@@ -3208,31 +3312,39 @@ namespace folia {
 			      _foliaNsIn_prefix );
     }
     xmlSetNs( root, _foliaNsOut );
-    KWargs attribs;
-    attribs["xml:id"] = foliadoc->id();
-    if ( strip() ){
-      attribs["generator"] = "";
-      attribs["version"] = "";
+    if ( debug % DEBUG_FLAGS::SERIALIZE ){
+      DBG << "to_xmlDoc: added namespaces" << endl;
     }
-    else {
-      attribs["generator"] = "libfolia-v" + library_version();
-      attribs["version"] = _version_string;
-      // attribs["version"] = folia_version();
+    KWargs attribs;
+    attribs.add("xml:id",foliadoc->id());
+    if ( !strip() ){
+      attribs.add("generator", "libfolia-v" + library_version());
+      attribs.add("version",_version_string);
     }
     if ( has_explicit() ){
-      attribs["form"] = "explicit";
+      attribs.add("form","explicit");
     }
     if ( _external_document ){
-      attribs["external"] = "yes";
+      attribs.add("external","yes");
     }
-    addAttributes( root, attribs );
+    if ( debug % DEBUG_FLAGS::SERIALIZE ){
+      DBG << "to_xmlDoc: add attributes to root: " << attribs << endl;
+    }
+    addAttributes( root, attribs, debug % DEBUG_FLAGS::SERIALIZE );
     xmlNode *md = xmlAddChild( root, TiCC::XmlNewNode( foliaNs(), "metadata" ) );
     add_annotations( md );
     add_provenance( md );
     add_metadata( md );
+
+    if ( debug % DEBUG_FLAGS::SERIALIZE ){
+      DBG << "to_xmlDoc: after add attributes" << endl;
+    }
     for ( size_t i=0; i < foliadoc->size(); ++i ){
       const FoliaElement* el = foliadoc->index(i);
       xmlAddChild( root, el->xml( true, canonical() ) );
+    }
+    if ( debug % DEBUG_FLAGS::SERIALIZE ){
+      DBG << "to_xmlDoc: done" << endl;
     }
     return outDoc;
   }
@@ -3244,6 +3356,9 @@ namespace folia {
     */
     string result;
     if ( foliadoc ){
+      if ( debug % DEBUG_FLAGS::SERIALIZE ){
+	DBG << "save document in a string" << endl;
+      }
       xmlDoc *outDoc = to_xmlDoc( ns_label );
       xmlChar *buf; int size;
       xmlDocDumpFormatMemoryEnc( outDoc, &buf, &size,
@@ -3255,6 +3370,9 @@ namespace folia {
     }
     else {
       throw runtime_error( "can't save, no doc" );
+    }
+    if ( debug % DEBUG_FLAGS::SERIALIZE ){
+      DBG << "succesfully saved document in a string" << endl;
     }
     return result;
   }
@@ -3269,8 +3387,14 @@ namespace folia {
       automaticly detects .gz and .bz2 filenames and will handle accordingly
     */
     if ( foliadoc ){
+      if ( debug % DEBUG_FLAGS::SERIALIZE ){
+	DBG << "save document in file '" << file_name << "'" << endl;
+      }
       long int res = 0;
       if ( TiCC::match_back( file_name, ".bz2" ) ){
+	if ( debug % DEBUG_FLAGS::SERIALIZE ){
+	  DBG << "toXML(). Output type is .bz2" << endl;
+	}
 	string tmpname = file_name.substr( 0, file_name.length() - 3 ) + "tmp";
 	if ( toXml( tmpname, ns_label ) ){
 	  bool stat = TiCC::bz2Compress( tmpname, file_name );
@@ -3283,6 +3407,9 @@ namespace folia {
       else {
 	xmlDoc *outDoc = to_xmlDoc( ns_label );
 	if ( TiCC::match_back( file_name, ".gz" ) ){
+	  if ( debug % DEBUG_FLAGS::SERIALIZE ){
+	    DBG << "toXML(). Output type is .gz" << endl;
+	  }
 	  xmlSetDocCompressMode(outDoc,9);
 	}
 	res = xmlSaveFormatFileEnc( file_name.c_str(),
@@ -3292,11 +3419,23 @@ namespace folia {
 	_foliaNsOut = 0;
       }
       if ( res == -1 ){
+	if ( debug % DEBUG_FLAGS::SERIALIZE ){
+	  DBG << "cannot save document to file '" << file_name << "'" << endl;
+	  DBG << "(xmlSave error: " << res << ")" << endl;
+	}
 	return false;
       }
     }
     else {
+      if ( debug % DEBUG_FLAGS::SERIALIZE ){
+	DBG << "cannot save document to file '" << file_name << "'" << endl;
+	DBG << "(internal document is empty)" << endl;
+      }
       return false;
+    }
+    if ( debug % DEBUG_FLAGS::SERIALIZE ){
+      DBG << "succesfully saved document in file '"
+	   << file_name << "'" << endl;
     }
     return true;
   }
@@ -3350,7 +3489,7 @@ namespace folia {
   }
 
   Pattern::Pattern( const vector<string>& pat_vec,
-		    const string& args ) : matchannotation(BASE) {
+		    const string& args ) : matchannotation(ElementType::BASE) {
     /// create a Pattern structure for searching
     /*!
       \param pat_vec a list if search terms (may be regular expressions)
@@ -3424,7 +3563,7 @@ namespace folia {
       \return true on a succesful match
     */
     UnicodeString s = us;
-    //  cerr << "gap = " << gap << "cursor=" << pos << " vergelijk '" <<  sequence[pos] << "' met '" << us << "'" << endl;
+    //  DBG << "gap = " << gap << "cursor=" << pos << " vergelijk '" <<  sequence[pos] << "' met '" << us << "'" << endl;
     if ( matchers[pos] ){
       matchers[pos]->reset( s );
       UErrorCode u_stat = U_ZERO_ERROR;
@@ -3450,7 +3589,7 @@ namespace folia {
 	  done = true;
 	}
 	else if ( sequence[pos+1] == s ){
-	  //	cerr << "    but next matched!" << endl;
+	  //	DBG << "    but next matched!" << endl;
 	  flag = ( ++gap < maxgapsize );
 	  if ( !flag ){
 	    pos = pos + gap;
@@ -3530,14 +3669,14 @@ namespace folia {
     vector<Word*> mywords = words();
     for ( size_t startpos =0; startpos < mywords.size(); ++startpos ){
       // loop over all words
-      //    cerr << "outer loop STARTPOS = " << startpos << endl;
+      //    DBG << "outer loop STARTPOS = " << startpos << endl;
       size_t cursor = 0;
       int gap = 0;
       bool goon = true;
       for ( size_t i = startpos; i < mywords.size() && goon ; ++i ){
-	//      cerr << "inner LOOP I = " << i << " myword=" << mywords[i] << endl;
+	//      DBG << "inner LOOP I = " << i << " myword=" << mywords[i] << endl;
 	UnicodeString value;
-	if ( pat.matchannotation == BASE ){
+	if ( pat.matchannotation == ElementType::BASE ){
 	  value = mywords[i]->text();
 	}
 	else {
@@ -3550,7 +3689,7 @@ namespace folia {
 	bool done = false;
 	bool flag = false;
 	if ( pat.match( value, cursor, gap, done, flag ) ){
-	  // cerr << "matched, " << (done?"done":"not done")
+	  // DBG << "matched, " << (done?"done":"not done")
 	  //      << (flag?" Flagged!":":{") << endl;
 	  matched.push_back(mywords[i]);
 	  if ( cursor == 0 ){
@@ -3558,24 +3697,24 @@ namespace folia {
 	  }
 	  if ( done ){
 	    vector<Word*> keep = matched;
-	    //	  cerr << "findnodes() tussenresultaat ==> " << matched << endl;
+	    //	  DBG << "findnodes() tussenresultaat ==> " << matched << endl;
 	    vector<Word*> left_v;
 	    if ( leftcontext > 0 ){
 	      left_v = matched[0]->leftcontext(leftcontext);
-	      //	    cerr << "findnodes() left ==> " << left_v << endl;
+	      //	    DBG << "findnodes() left ==> " << left_v << endl;
 	      copy( matched.begin(), matched.end(), back_inserter(left_v) );
-	      //	    cerr << "findnodes() after copy left_v ==> " << left_v << endl;
+	      //	    DBG << "findnodes() after copy left_v ==> " << left_v << endl;
 	    }
 	    else {
 	      left_v = matched;
 	    }
 	    if ( rightcontext > 0 ){
 	      vector<Word*> right_v = matched.back()->rightcontext(rightcontext);
-	      //	    cerr << "findnodes() right_v ==> " << right_v << endl;
+	      //	    DBG << "findnodes() right_v ==> " << right_v << endl;
 	      copy( right_v.begin(), right_v.end(), back_inserter(left_v) );
-	      //	    cerr << "findnodes() right_v na copy ==> " << right_v << endl;
+	      //	    DBG << "findnodes() right_v na copy ==> " << right_v << endl;
 	    }
-	    //	  cerr << "findnodes() tussenresultaat 2 ==> " << left_v << endl;
+	    //	  DBG << "findnodes() tussenresultaat 2 ==> " << left_v << endl;
 	    result.push_back(left_v);
 	    if ( flag ){
 	      matched = keep;
@@ -3594,7 +3733,7 @@ namespace folia {
 	}
       }
     }
-    //  cerr << "findnodes() result ==> " << result << endl;
+    //  DBG << "findnodes() result ==> " << result << endl;
     return result;
   }
 
@@ -3613,7 +3752,7 @@ namespace folia {
     set<int> variablewildcards;
     int ind = 0;
     for ( const auto& it : pats ){
-      //    cerr << "bekijk patroon : " << *it << endl;
+      //    DBG << "bekijk patroon : " << *it << endl;
       if ( start ){
 	prevsize = it.size();
 	start = false;

@@ -58,8 +58,8 @@ namespace folia {
   class Engine {
   public:
     /// the document type, determines the type of the top node (\<text> or \<speech>)
-    enum doctype { TEXT, //!< the topnode is \<text>
-		   SPEECH //!< the topnode is \<speech>
+    enum class DocType { TEXT, //!< the topnode is \<text>
+			 SPEECH //!< the topnode is \<speech>
     };
     Engine(); //!< default constructor. needs a call to init_doc() to get started
     explicit Engine( const std::string& i, const std::string& o="" ):
@@ -107,7 +107,7 @@ namespace folia {
     FoliaElement *_last_added;    //!< the last added FoliaElement
     int _last_depth;        //!< at what depth in the tree was the last addition
     int _start_index;       //!< the index of the first relevant node
-    doctype _doc_type;      //!< do we process TEXT or SPEECH?
+    DocType _doc_type;      //!< do we process TEXT or SPEECH?
     TiCC::LogStream *_dbg_file; //!< the debugging stream
     std::ostream *_os;      //!< optional outputstream
     std::string _out_name;  //!< the name of the output file connected to _os

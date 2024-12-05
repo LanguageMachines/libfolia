@@ -39,17 +39,6 @@ protected:							\
  CLASS( const CLASS& ) = delete;				\
  CLASS& operator=( const CLASS& ) = delete
 
-#define ADD_PROTECTED_CONSTRUCTORS_INIT( CLASS, BASE, INIT )	\
-  friend void static_init();					\
-protected:							\
- explicit CLASS( const properties& props, Document *d=0 ):	\
-   BASE( props, d ), INIT { classInit(); };			\
- CLASS( const properties& props, FoliaElement *p ):		\
-   BASE( props, p ), INIT { classInit(); };			\
- CLASS( const CLASS& ) = delete;				\
- CLASS& operator=( const CLASS& ) = delete
-
-
 #define ADD_DEFAULT_CONSTRUCTORS( CLASS, BASE )		\
   friend void static_init();				\
 protected:						\
@@ -63,21 +52,6 @@ public:							\
    BASE( PROPS, p ){ classInit(a); };			\
  explicit CLASS( FoliaElement *p ):			\
    BASE( PROPS, p ){ classInit(); }			\
- static properties PROPS
-
-#define ADD_DEFAULT_CONSTRUCTORS_INIT( CLASS, BASE, INIT )		\
-  friend void static_init();						\
-protected:								\
- ~CLASS() override {};							\
-public:									\
- explicit CLASS( const KWargs& a, Document *d=0 ):			\
-   BASE( PROPS, d ), INIT { classInit(a); };				\
- explicit CLASS( Document *d=0 ):					\
-   BASE( PROPS, d ), INIT { classInit(); };				\
- CLASS( const KWargs& a, FoliaElement *p ):				\
-   BASE( PROPS, p ), INIT { classInit(a); };				\
- explicit CLASS( FoliaElement *p ):					\
-   BASE( PROPS, p ), INIT { classInit(); };				\
  static properties PROPS
 
  class AbstractStructureElement:
@@ -102,9 +76,11 @@ public:									\
    const Word* resolveword( const std::string& ) const override;
  };
 
-  class AbstractWord: public virtual FoliaElement {
+  class AbstractWord: public AbstractStructureElement {
     /// Interface class that is inherited by word-like (wrefable)
     /// elements (Word, Hiddenword, Morpheme, Phoneme)
+  protected:
+    ADD_PROTECTED_CONSTRUCTORS( AbstractWord, AbstractStructureElement );
   public:
     Sentence *sentence() const override;
     Paragraph *paragraph() const override;
@@ -256,7 +232,7 @@ public:									\
   {
     // DO NOT USE AbstractContentAnnotation as a real node!!
   protected:
-    ADD_PROTECTED_CONSTRUCTORS_INIT( AbstractContentAnnotation, AbstractElement, _offset(0) );
+    ADD_PROTECTED_CONSTRUCTORS( AbstractContentAnnotation, AbstractElement);
   public:
     void setAttributes( KWargs& ) override;
     KWargs collectAttributes() const override;
@@ -267,7 +243,7 @@ public:									\
     void init() override;
     virtual FoliaElement *find_default_reference() const = 0;
     void set_offset( int o ) const override { _offset = o; };
-    mutable int _offset;
+    mutable int _offset = 0;
     std::string _ref;
   };
 
@@ -299,7 +275,8 @@ public:									\
     KWargs collectAttributes() const override;
     const UnicodeString phon( const TextPolicy& ) const override;
     const UnicodeString phon( const std::string& = "current",
-			      TEXT_FLAGS = TEXT_FLAGS::NONE ) const override;
+			      TEXT_FLAGS = TEXT_FLAGS::NONE,
+			      bool = false ) const override;
     FoliaElement *postappend() override;
   public:
     FoliaElement *find_default_reference() const override;
@@ -380,7 +357,7 @@ public:									\
     public AllowXlink
   {
   public:
-    ADD_DEFAULT_CONSTRUCTORS_INIT( Linebreak, AbstractStructureElement, _newpage(false) );
+    ADD_DEFAULT_CONSTRUCTORS( Linebreak, AbstractStructureElement );
     void setAttributes( KWargs& ) override;
     KWargs collectAttributes() const override;
   private:
@@ -390,7 +367,7 @@ public:									\
     }
     std::string _pagenr;
     std::string _linenr;
-    bool _newpage;
+    bool _newpage = false;
   };
 
   class Whitespace: public AbstractStructureElement {
@@ -403,13 +380,10 @@ public:									\
   };
 
   class Word:
-    public AbstractStructureElement,
     public AbstractWord
   {
-  protected:
-    ADD_PROTECTED_CONSTRUCTORS_INIT( Word, AbstractStructureElement, _is_placeholder(false) );
   public:
-    ADD_DEFAULT_CONSTRUCTORS_INIT( Word, AbstractStructureElement, _is_placeholder(false) );
+    ADD_DEFAULT_CONSTRUCTORS( Word, AbstractWord );
 
     Correction *split( FoliaElement *, FoliaElement *,
 		       const std::string& = "" ) override;
@@ -431,15 +405,14 @@ public:									\
 					  std::vector<MorphologyLayer*>& ) const override;
     bool is_placeholder() const { return _is_placeholder; };
   private:
-    bool _is_placeholder;
+    bool _is_placeholder = false;
   };
 
   class Hiddenword:
-    public AbstractStructureElement,
     public AbstractWord
   {
   public:
-    ADD_DEFAULT_CONSTRUCTORS( Hiddenword, AbstractStructureElement );
+    ADD_DEFAULT_CONSTRUCTORS( Hiddenword, AbstractWord );
   };
 
   class Part: public AbstractStructureElement {
@@ -568,8 +541,7 @@ public:									\
   };
 
   class Phoneme:
-    public AbstractSubtokenAnnotation,
-    public AbstractWord
+    public AbstractSubtokenAnnotation
   {
   public:
     ADD_DEFAULT_CONSTRUCTORS( Phoneme, AbstractSubtokenAnnotation );
@@ -1066,8 +1038,7 @@ public:									\
   };
 
   class Morpheme:
-    public AbstractSubtokenAnnotation,
-    public AbstractWord
+    public AbstractSubtokenAnnotation
   {
   public:
     ADD_DEFAULT_CONSTRUCTORS( Morpheme, AbstractSubtokenAnnotation );

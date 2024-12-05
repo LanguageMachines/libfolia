@@ -41,14 +41,10 @@
 
 using namespace std;
 
-/// define a static default LogStream
-TiCC::LogStream DBG_CERR(cerr,"folia-engine:");
-
-/// direct Debugging info to the internal file, if present, or to the default stream
+static TiCC::LogStream DBG_CERR(cerr);
 #define DBG *TiCC::Log((_dbg_file?_dbg_file:&DBG_CERR))
 
 namespace folia {
-
   using TiCC::operator<<;
 
   xml_tree::xml_tree( int d,
@@ -113,7 +109,7 @@ namespace folia {
     _last_added(0),
     _last_depth(2),
     _start_index(0),
-    _doc_type( TEXT ),
+    _doc_type( DocType::TEXT ),
     _dbg_file(0),
     _os(0),
     _ok(false),
@@ -122,6 +118,7 @@ namespace folia {
     _finished(false),
     _debug(false)
   {
+    DBG_CERR.set_message("folia-engine:");
   }
 
   Engine::~Engine(){
@@ -157,7 +154,9 @@ namespace folia {
     if ( d ){
       if ( !_dbg_file ){
 	_dbg_file
-	  = new TiCC::LogStream( cerr, "folia-engine", StampMessage );
+	  = new TiCC::LogStream( cerr );
+	_dbg_file->set_message( "folia-engine" );
+	_dbg_file->set_stamp(StampMessage);
       }
     }
     _debug = d;
@@ -166,7 +165,8 @@ namespace folia {
 
   void Engine::set_dbg_stream( TiCC::LogStream *ls ){
     /// switch debugging to another LogStream
-    if ( _dbg_file ){
+    if ( _dbg_file
+	 && _dbg_file != &DBG_CERR ){
       delete _dbg_file;
     }
     _dbg_file = ls;
@@ -297,7 +297,7 @@ namespace folia {
       do {
 	string att = to_string(xmlTextReaderConstName(tr));
 	string val = to_string(xmlTextReaderConstValue(tr));
-	result[att] = val;
+	result.add(att, val);
       }
       while ( xmlTextReaderMoveToNextAttribute(tr) );
     }
@@ -419,6 +419,9 @@ namespace folia {
     _ok = false;
     _out_doc = new Document();
     _out_doc->set_incremental( true );
+    if ( _dbg_file ){
+      _out_doc->set_dbg_stream( _dbg_file );
+    }
     if ( !out_name.empty() ){
       _os = new ofstream( out_name );
       _out_name = out_name;
@@ -483,7 +486,7 @@ namespace folia {
 	  _out_doc->parse_metadata( node );
 	}
 	else if ( local_name == "text" ){
-	  _doc_type = TEXT;
+	  _doc_type = DocType::TEXT;
 	  KWargs args = get_attributes(_reader);
 	  FoliaElement *text_node =_out_doc->setTextRoot( args );
 	  _root_node = text_node;
@@ -494,7 +497,7 @@ namespace folia {
 	  return _ok;
 	}
 	else if ( local_name == "speech" ){
-	  _doc_type = SPEECH;
+	  _doc_type = DocType::SPEECH;
 	  KWargs args = get_attributes(_reader);
 	  FoliaElement *sp = _out_doc->setSpeechRoot( args );
 	  _root_node = sp;
@@ -509,8 +512,8 @@ namespace folia {
 	// A PI
 	if ( local_name == "xml-stylesheet" ){
 	  string sv = to_string(xmlTextReaderConstValue(_reader));
-	  auto const [type,href] = extract_style( sv );
-	  _out_doc->addStyle( type, href );
+	  auto const [style_type,href] = extract_style( sv );
+	  _out_doc->addStyle( style_type, href );
 	}
 	else {
 	  cerr << "unhandled PI: " << local_name << endl;
@@ -720,7 +723,7 @@ namespace folia {
     while ( xmlTextReaderRead(cur_reader) > 0 ){
       int depth = xmlTextReaderDepth(cur_reader);
       int type = xmlTextReaderNodeType(cur_reader);
-      string local_name = TiCC::to_char(xmlTextReaderConstLocalName(cur_reader));
+      string local_name = TiCC::to_string(xmlTextReaderConstLocalName(cur_reader));
       xml_tree *add_rec = 0;
       switch ( type ){
       case XML_READER_TYPE_ELEMENT:
@@ -763,7 +766,7 @@ namespace folia {
 	  string _value;
 	  auto pnt = xmlTextReaderConstValue(cur_reader);
 	  if ( pnt ){
-	    _value = TiCC::to_char(pnt);
+	    _value = TiCC::to_string(pnt);
 	  }
 	  add_rec = new xml_tree( depth, index, local_name, _value );
 	}
@@ -832,7 +835,7 @@ namespace folia {
     //    cerr << "DEPTH " << fe << endl;
     if ( fe
 	 && fe->xmltag() != "_XmlText"
-	 && fe->element_id() != HeadFeature_t
+	 && !fe->isinstance<HeadFeature>()
 	 && !isAttributeFeature(fe->xmltag()) ){
       result += 1;
       if ( fe->size() > 0 ){
@@ -964,7 +967,7 @@ namespace folia {
 		    DBG << "processing a <" << local_name << "> with value '"
 			<< val << "'" << endl;
 		  }
-		  atts["value"] = val;
+		  atts.add("value", val);
 		}
 	      }
 	    }
@@ -1020,7 +1023,7 @@ namespace folia {
     string search_b1;
     string search_b2;
     string search_e;
-    if ( _doc_type == TEXT ){
+    if ( _doc_type == DocType::TEXT ){
       if ( !ns_prefix.empty() ){
 	search_b1 = "<" + ns_prefix + ":" + "text>";
 	search_b2 = "<" + ns_prefix + ":" + "text ";
@@ -1203,8 +1206,8 @@ namespace folia {
       and NOT a Word
     */
     if ( pnt->parent->tag != "w"
-	 && isSubClass( stringToElementType(pnt->parent->tag),
-			AbstractStructureElement_t ) ){
+	 && is_subtype( stringToElementType(pnt->parent->tag),
+			ElementType::AbstractStructureElement_t ) ){
       return pnt->parent;
     }
     else {

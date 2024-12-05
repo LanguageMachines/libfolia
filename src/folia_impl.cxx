@@ -49,38 +49,41 @@ using namespace std;
 using namespace icu;
 using namespace TiCC;
 
+static TiCC::LogStream DBG_CERR(cerr,NoStamp);
+#define DBG *TiCC::Log((_dbg_file?_dbg_file:&DBG_CERR))
+
 namespace folia {
   using TiCC::operator <<;
 
   string VersionName() { return PACKAGE_STRING; } ///< Returns the PACKAGE_STRING info of the package
   string Version() { return VERSION; }  ///< Returns version of the library
 
-  ElementType AbstractElement::element_id() const {
+  const ElementType& AbstractElement::element_id() const {
     /// return the ELEMENT_ID property
     return _props.ELEMENT_ID;
   }
 
-  size_t AbstractElement::occurrences() const {
+  const size_t& AbstractElement::occurrences() const {
     /// return the OCCURENCES property
     return _props.OCCURRENCES;
   }
 
-  size_t AbstractElement::occurrences_per_set() const {
+  const size_t& AbstractElement::occurrences_per_set() const {
     /// return the OCCURRENCES_PER_SET property
     return _props.OCCURRENCES_PER_SET;
   }
 
-  Attrib AbstractElement::required_attributes() const {
+  const Attrib& AbstractElement::required_attributes() const {
     /// return the REQUIRED_ATTRIBUTES property
     return _props.REQUIRED_ATTRIBS;
   }
 
-  Attrib AbstractElement::optional_attributes() const {
+  const Attrib& AbstractElement::optional_attributes() const {
     /// return the OPTONAL_ATTRIBUTES property
     return _props.OPTIONAL_ATTRIBS;
   }
 
-  bool AbstractElement::hidden() const {
+  const bool& AbstractElement::hidden() const {
     /// return the HIDDEN property
     return _props.HIDDEN;
   }
@@ -106,7 +109,7 @@ namespace folia {
     return _props.SUBSET;
   }
 
-  AnnotationType AbstractElement::annotation_type() const {
+  const AnnotationType& AbstractElement::annotation_type() const {
     /// return the ANNOTATIONTYPE property
     return _props.ANNOTATIONTYPE;
   }
@@ -121,32 +124,32 @@ namespace folia {
     return _props.REQUIRED_DATA;
   }
 
-  bool AbstractElement::printable() const {
+  const bool& AbstractElement::printable() const {
     /// return the PRINTABLE property
     return _props.PRINTABLE;
   }
 
-  bool AbstractElement::speakable() const {
+  const bool& AbstractElement::speakable() const {
     /// return the SPEAKABLE property
     return _props.SPEAKABLE;
   }
 
-  bool AbstractElement::referable() const {
+  const bool& AbstractElement::referable() const {
     /// return the WREFABLE property
     return _props.WREFABLE;
   }
 
-  bool AbstractElement::is_textcontainer() const {
+  const bool& AbstractElement::is_textcontainer() const {
     /// return the TEXTCONTAINER property
     return _props.TEXTCONTAINER;
   }
 
-  bool AbstractElement::implicitspace() const {
+  const bool& AbstractElement::implicitspace() const {
     /// return the IMPLICITSPACE property
     return _props.IMPLICITSPACE;
   }
 
-  bool AbstractElement::is_phoncontainer() const {
+  const bool& AbstractElement::is_phoncontainer() const {
     /// return the PHONCONTAINER property
     return _props.PHONCONTAINER;
   }
@@ -156,22 +159,22 @@ namespace folia {
     return _props.TEXTDELIMITER;
   }
 
-  bool AbstractElement::xlink() const {
+  const bool& AbstractElement::xlink() const {
     /// return the XLINK property
     return _props.XLINK;
   }
 
-  bool AbstractElement::auth() const {
+  const bool& AbstractElement::auth() const {
     /// return the AUTH property
     return _props.AUTH;
   }
 
-  bool AbstractElement::setonly() const {
+  const bool& AbstractElement::setonly() const {
     /// return the SETONLY property
     return _props.SETONLY;
   }
 
-  bool AbstractElement::auto_generate_id() const {
+  const bool& AbstractElement::auto_generate_id() const {
     /// return the AUTO_GENERATE_ID property
     return _props.AUTO_GENERATE_ID;
   }
@@ -207,7 +210,7 @@ namespace folia {
      * thows when the FoliaElement doesn't support the tag attribute
      */
     Attrib supported = required_attributes() | optional_attributes();
-    if ( !(TAG & supported) ) {
+    if ( !( supported % Attrib::TAG ) ) {
       throw ValueError( this,
 			"settag() is not supported for " + classname() );
     }
@@ -258,7 +261,7 @@ namespace folia {
   }
 
   void AbstractElement::dbg( const string& msg ) const{
-    cerr << msg << ": " << "<" << AbstractElement::xmltag() << ">"
+    DBG << msg << ": " << "<" << AbstractElement::xmltag() << ">"
 	 << " address=" << reinterpret_cast<const void*>(this) << endl;
   }
 
@@ -274,16 +277,16 @@ namespace folia {
     _parent(0),
     _auth( p.AUTH ),
     _space(true),
-    _annotator_type(UNDEFINED),
+    _annotator_type(AnnotatorType::UNDEFINED),
     _refcount(0),
     _line_no(-1),
     _confidence(-1),
     _preserve_spaces(SPACE_FLAGS::UNSET),
     _props(p)
   {
-#ifdef DE_AND_CONSTRUCT_DEBUG
-    dbg( "created" );
-#endif
+    if ( d && d->debug % DocDbg::MEMORY ){
+      dbg( "AbstractElement::created" );
+    }
   }
 
   AbstractElement::AbstractElement( const properties& p, FoliaElement *el ) :
@@ -297,64 +300,65 @@ namespace folia {
     el->append( this );
   }
 
+  //#define DE_AND_CONSTRUCT_DEBUG
   AbstractElement::~AbstractElement( ) {
 #ifdef DE_AND_CONSTRUCT_DEBUG
     dbg( "really delete" );
 #endif
   }
 
-  //#define DE_AND_CONSTRUCT_DEBUG
   void AbstractElement::destroy( ) {
     /// Pseudo destructor for AbstractElements.
     /// recursively destroys this nodes and it's children
     /// Will also remove it from it's parent when no references are left
-#ifdef DE_AND_CONSTRUCT_DEBUG
-    dbg( "\ndestroy" );
-    cerr << "  id=" << _id << " class= "
-	 << cls() << " datasize= " << _data.size() << endl;
-    cerr << "  REFCOUNT = " << refcount() << endl;
-    cerr << "  AT= " << annotation_type() << " (" << _set << ")" << endl;
-#endif
     if ( doc() ) {
+      if ( doc()->debug % DocDbg::MEMORY ){
+	dbg( "\ndestroy" );
+	DBG << "  id=" << _id << " class= "
+	     << cls() << " datasize= " << _data.size() << endl;
+	DBG << "  REFCOUNT = " << refcount() << endl;
+	DBG << "  AT= " << annotation_type() << " (" << _set << ")" << endl;
+      }
       doc()->decrRef( annotation_type(), _set );
       if ( refcount() > 0 ){
 	decrefcount();
 	doc()->keepForDeletion( this );
-#ifdef DE_AND_CONSTRUCT_DEBUG
-	cerr << "\t\tstill keeping element id=" << _id << " ";
-	dbg( "" );
-	cerr << " class= " << cls()
-	     << " datasize= " << _data.size() << endl;
-#endif
+	if ( doc()->debug % DocDbg::MEMORY ){
+	  DBG << "\t\tstill keeping element id=" << _id << " ";
+	  dbg( "" );
+	  DBG << " class= " << cls()
+	       << " datasize= " << _data.size() << endl;
+	}
 	return;
       }
       doc()->del_doc_index( _id );
     }
     if ( _parent ){
-#ifdef DE_AND_CONSTRUCT_DEBUG
-      cerr << "STILL A PARENT: " << _parent << endl;
-#endif
+      if ( doc() && doc()->debug % DocDbg::MEMORY ){
+	DBG << "STILL A PARENT: " << _parent << endl;
+      }
       _parent->remove( this );
     }
-#ifdef DE_AND_CONSTRUCT_DEBUG
     else {
-      cerr << "Object has no PARENT: " << endl;
+      if ( doc() && doc()->debug % DocDbg::MEMORY ){
+	DBG << "Object has no PARENT: " << endl;
+      }
     }
-    cerr << "object has " << _data.size() << " children" << endl;
-#endif
+    if ( doc() && doc()->debug % DocDbg::MEMORY ){
+      DBG << "object has " << _data.size() << " children" << endl;
+    }
     for ( const auto& el : _data ) {
       el->set_parent(0);
       el->destroy();
     }
     _data.clear();
-#ifdef DE_AND_CONSTRUCT_DEBUG
-    dbg( "\tfinished destroying element" );
-    cerr << "\t id=" << _id << " class= " << cls()
-	 << " datasize= " << _data.size() << endl;
-#endif
+    if ( doc() && doc()->debug % DocDbg::MEMORY ){
+      dbg( "\tfinished destroying element" );
+      DBG << "\t id=" << _id << " class= " << cls()
+	   << " datasize= " << _data.size() << endl;
+    }
     delete this;
   }
-#undef DE_AND_CONSTUCT_DEBUG
 
   void destroy( FoliaElement *el ){
     if ( el ){
@@ -385,7 +389,7 @@ namespace folia {
      * the anntotation-type, when de document allows this.
      */
 
-    if ( isSubClass( AbstractCorrectionChild_t ) ){
+    if ( isSubClass<AbstractCorrectionChild>() ){
       return;
     }
 
@@ -401,26 +405,26 @@ namespace folia {
 	}
       }
       else {
-	if ( _mydoc->debug > 2 ) {
-	  cerr << "get def for " <<  annotation_type() << endl;
+	if ( _mydoc->debug % DocDbg::DECLARATIONS ) {
+	  DBG << "get def for " <<  annotation_type() << endl;
 	}
 	def = doc()->default_set( annotation_type() );
-	if ( doc()->debug > 2 ) {
-	  cerr << "got def='" <<  def << "'" << endl;
+	if ( doc()->debug % DocDbg::DECLARATIONS ) {
+	  DBG << "got def='" <<  def << "'" << endl;
 	}
 	if ( doc()->is_incremental() && def.empty() ){
 	  // when there is NO default set, AND we are parsing using
 	  // folia::Engine, we must check if there WAS an empty set originally
 	  // which is 'obscured' by newly added declarations
 	  def = doc()->original_default_set( annotation_type() );
-	  if ( doc()->debug > 2 ) {
-	    cerr << "from original got def='" <<  def << "'" << endl;
+	  if ( doc()->debug % DocDbg::DECLARATIONS ) {
+	    DBG << "from original got def='" <<  def << "'" << endl;
 	  }
 	}
 	if ( !def.empty() ){
 	  _set = def;
 	}
-	else if ( CLASS & required_attributes() ){
+	else if ( required_attributes() % Attrib::CLASS ){
 	  throw XmlError( this,
 			  "unable to assign a default set for tag: " + xmltag() );
 	}
@@ -441,7 +445,7 @@ namespace folia {
 	  }
 	}
 	else if ( _set.empty()
-		  && !isSubClass( AbstractAnnotationLayer_t )
+		  && !isSubClass<AbstractAnnotationLayer>()
 		  && !doc()->declared( annotation_type(), "None" ) ){
 	  if ( _mydoc->autodeclare() ){
 	    _mydoc->auto_declare( annotation_type(), _set );
@@ -530,8 +534,8 @@ namespace folia {
   }
 
   void AbstractElement::set_processor_name( const string& val ){
-    if ( doc() && doc()->debug > 2 ){
-      cerr << "set processor_name= " << val << " on " << classname() << endl;
+    if ( doc() && doc()->debug % DocDbg::PROVENANCE ){
+      DBG << "set processor_name= " << val << " on " << classname() << endl;
     }
     if ( annotation_type() == AnnotationType::NO_ANN ){
       throw ValueError( this,
@@ -558,8 +562,8 @@ namespace folia {
 	  if ( !doc()->version_below( 2, 0 )
 	       && doc()->autodeclare() ) {
 	    KWargs args;
-	    args["processor"] = val;
-	    args["annotatortype"] = _annotator_type;
+	    args.add("processor",val);
+	    args.add("annotatortype",toString(_annotator_type));
 	    doc()->declare( annotation_type(), _set, args );
 	  }
 	  else {
@@ -583,10 +587,10 @@ namespace folia {
     Provenance *prov = doc()->provenance();
     if ( !prov ){
       prov = new Provenance( doc() );
-      //	cerr << "created new Provenance: " << prov << endl;
+      //	DBG << "created new Provenance: " << prov << endl;
     }
     folia::processor *top = doc()->get_default_processor();
-    AnnotatorType at = AUTO;
+    AnnotatorType at = AnnotatorType::AUTO;
     if ( !an_type.empty() ){
       at = stringTo<AnnotatorType>( an_type );
     }
@@ -605,12 +609,12 @@ namespace folia {
     else {
       // no matching processor. create a simple one
       KWargs args;
-      args["name"] = annotator;
-      args["annotatortype"] = an_type;
-      args["generate_id"] = "auto()";
-      folia::processor *new_p = new folia::processor( prov, top, args );
+      args.add("name",annotator);
+      args.add("annotatortype",an_type);
+      args.add("generate_id","auto()");
+      const folia::processor *new_p = new folia::processor( prov, top, args );
       set_processor_name( new_p->name() );
-      //      cerr << "created new processor: " << new_p << endl;
+      //      DBG << "created new processor: " << new_p << endl;
     }
   }
 
@@ -638,37 +642,35 @@ namespace folia {
       }
     }
     Attrib supported = required_attributes() | optional_attributes();
-    //#define LOG_SET_ATT
-#ifdef LOG_SET_ATT
-    int db_level = 0;
+    bool att_dbg = false;
+    DocDbg doc_dbg = DocDbg::NODEBUG;
+    // we will switch it off temporarely. so remember
     if ( doc() ){
-      db_level = doc()->debug;
+      doc_dbg = doc()->debug;
+      att_dbg = ( doc_dbg == DocDbg::ATTRIBUTES );
     }
-    if ( element_id() == New_t
-	 || element_id() == Original_t ) {
-      if ( doc() ){
-	doc()->setdebug(0);
+    if ( att_dbg ) {
+      if ( isinstance<New>()
+	   || isinstance<Original>() ) {
+	if ( doc() ){
+	  doc()->setdebug(DocDbg::NODEBUG);
+	}
+	DBG << "set attributes: '" << kwargs << "' on " << classname() << endl;
+	// DBG << "required = " <<  toString(required_attributes()) << endl;
+	// DBG << "optional = " <<  optional_attributes() << endl;
+	// DBG << "supported = " << supported << endl;
+	// DBG << "ID & supported = " << (ID & supported) << endl;
+	// DBG << "ID & _required = " << (ID & required_attributes() ) << endl;
+	// DBG << "_id=" << _id << endl;
+	// DBG << "AUTH : " << _auth << endl;
       }
-      cerr << "set attributes: '" << kwargs << "' on " << classname() << endl;
-      //      cerr << "required = " <<  toString(required_attributes()) << endl;
-      //      cerr << "optional = " <<  optional_attributes() << endl;
-      //cerr << "supported = " << supported << endl;
-      //      cerr << "ID & supported = " << (ID & supported) << endl;
-      //      cerr << "ID & _required = " << (ID & required_attributes() ) << endl;
-      // cerr << "_id=" << _id << endl;
-      // cerr << "AUTH : " << _auth << endl;
     }
-#endif
-    if ( doc() && doc()->debug > 2 ) {
-      cerr << "set attributes: " << kwargs << " on " << classname() << endl;
-    }
-
     string val = kwargs.extract( "generate_id" );
     if ( !val.empty() ) {
       if ( !doc() ) {
 	throw runtime_error( "can't generate an ID without a doc" );
       }
-      if ( !(ID & supported) ) {
+      if ( !( supported % Attrib::ID ) ) {
 	throw ValueError( this,
 			  "generate_id: xml:id is not supported for "
 			  + classname() );
@@ -700,7 +702,7 @@ namespace folia {
 	val = kwargs.extract( "_id" ); // for backward compatibility
       }
       if ( !val.empty() ) {
-	if ( ! (ID & supported) ) {
+	if ( ! (supported % Attrib::ID ) ) {
 	  throw ValueError( this,
 			    "xml:id is not supported for " + classname() );
 	}
@@ -732,7 +734,7 @@ namespace folia {
 			  "attribute set=" + val
 			  + " is used on a node without a document." );
       }
-      if ( !( (CLASS & supported) || setonly() ) ) {
+      if ( !( (supported % Attrib::CLASS ) || setonly() ) ) {
 	throw ValueError( this,
 			  "attribute 'set' is not supported for "
 			  + classname() );
@@ -753,11 +755,12 @@ namespace folia {
     _class.clear();
     val = kwargs.extract( "class" );
     if ( !val.empty() ) {
-      if ( !( CLASS & supported ) ) {
+      if ( !(supported % Attrib::CLASS ) ) {
 	throw ValueError( this,
 			  "Class is not supported for " + classname() );
       }
-      if ( element_id() != TextContent_t && element_id() != PhonContent_t ) {
+      if ( !isinstance<TextContent>()
+	   && !isinstance<PhonContent>() ) {
 	if ( !doc() ) {
 	  throw ValueError( this,
 			    "Class=" + val + " is used on a node without a document." );
@@ -777,7 +780,8 @@ namespace folia {
       _class = val;
     }
 
-    if ( element_id() != TextContent_t && element_id() != PhonContent_t ) {
+    if ( !isinstance<TextContent>()
+	 && !isinstance<PhonContent>() ) {
       if ( !_class.empty() && _set.empty() ) {
 	throw ValueError( this,
 			  "Set is required for <" + classname() +
@@ -787,13 +791,13 @@ namespace folia {
 
     val = kwargs.extract( "processor" );
     if ( !val.empty() ){
-      if ( !(ANNOTATOR & supported) ){
+      if ( !( supported % Attrib::ANNOTATOR ) ){
 	throw ValueError( this,
 			  "attribute 'processor' is not supported for " + classname() );
       }
       set_processor_name( val );
     }
-    else if ( (ANNOTATOR & supported) && doc() ){
+    else if ( (supported % Attrib::ANNOTATOR) && doc() ){
       string def;
       try {
 	def = doc()->default_processor( annotation_type(), _set );
@@ -804,8 +808,8 @@ namespace folia {
 	  // folia::Engine, we must check if there WAS a processor originally
 	  // which is 'obscured' by newly added declarations
 	  def = doc()->original_default_processor( annotation_type() );
-	  if ( doc()->debug > 2 ) {
-	    cerr << "from original got default processor='" <<  def << "'" << endl;
+	  if ( doc()->debug % DocDbg::PROVENANCE ) {
+	    DBG << "from original got default processor='" <<  def << "'" << endl;
 	  }
 	}
 	else {
@@ -818,7 +822,7 @@ namespace folia {
     _annotator.clear();
     val = kwargs.extract( "annotator" );
     if ( !val.empty() ) {
-      if ( !(ANNOTATOR & supported) ) {
+      if ( !(supported % Attrib::ANNOTATOR) ) {
 	throw ValueError( this,
 			  "attribute 'annotator' is not supported for "
 			  + classname() );
@@ -852,16 +856,16 @@ namespace folia {
       }
     }
 
-    _annotator_type = UNDEFINED;
+    _annotator_type = AnnotatorType::UNDEFINED;
     val = kwargs.extract( "annotatortype" );
     if ( !val.empty() ) {
-      if ( ! (ANNOTATOR & supported) ) {
+      if ( ! (supported % Attrib::ANNOTATOR ) ) {
 	throw ValueError( this,
 			  "Annotatortype is not supported for " + classname() );
       }
       else {
 	_annotator_type = stringTo<AnnotatorType>( val );
-	if ( _annotator_type == UNDEFINED ) {
+	if ( _annotator_type == AnnotatorType::UNDEFINED ) {
 	  throw ValueError( this,
 			    "annotatortype must be 'auto' or 'manual', got '"
 			    + val + "'" );
@@ -871,7 +875,7 @@ namespace folia {
     else {
       if ( doc() ){
 	AnnotatorType def = doc()->default_annotatortype( annotation_type(), _set );
-	if ( def != UNDEFINED ) {
+	if ( def != AnnotatorType::UNDEFINED ) {
 	  _annotator_type = def;
 	}
       }
@@ -880,7 +884,7 @@ namespace folia {
     _confidence = -1;
     val = kwargs.extract( "confidence" );
     if ( !val.empty() ) {
-      if ( !(CONFIDENCE & supported) ) {
+      if ( !( supported % Attrib::CONFIDENCE ) ) {
 	throw ValueError( this,
 			  "Confidence is not supported for " + classname() );
       }
@@ -905,7 +909,7 @@ namespace folia {
     _n = "";
     val = kwargs.extract( "n" );
     if ( !val.empty() ) {
-      if ( !(N & supported) ) {
+      if ( !( supported % Attrib::N) ) {
 	throw ValueError( this,
 			  "N attribute is not supported for " + classname() );
       }
@@ -916,7 +920,7 @@ namespace folia {
     _datetime.clear();
     val = kwargs.extract( "datetime" );
     if ( !val.empty() ) {
-      if ( !(DATETIME & supported) ) {
+      if ( !( supported % Attrib::DATETIME ) ) {
 	throw ValueError( this,
 			  "datetime attribute is not supported for "
 			  + classname() );
@@ -940,7 +944,7 @@ namespace folia {
     }
     val = kwargs.extract( "begintime" );
     if ( !val.empty() ) {
-      if ( !(BEGINTIME & supported) ) {
+      if ( !( supported % Attrib::BEGINTIME) ) {
 	throw ValueError( this,
 			  "begintime attribute is not supported for "
 			  + classname() );
@@ -960,7 +964,7 @@ namespace folia {
     }
     val = kwargs.extract( "endtime" );
     if ( !val.empty() ) {
-      if ( !(ENDTIME & supported) ) {
+      if ( !( supported % Attrib::ENDTIME) ) {
 	throw ValueError( this,
 			  "endtime attribute is not supported for "
 			  + classname() );
@@ -980,7 +984,7 @@ namespace folia {
 
     val = kwargs.extract( "src" );
     if ( !val.empty() ) {
-      if ( !(SRC & supported) ) {
+      if ( !( supported % Attrib::SRC) ) {
 	throw ValueError( this,
 			  "src attribute is not supported for " + classname() );
       }
@@ -993,7 +997,7 @@ namespace folia {
     }
     val = kwargs.extract( "tag" );
     if ( !val.empty() ) {
-      if ( !(TAG & supported) ) {
+      if ( !( supported % Attrib::TAG) ) {
 	throw ValueError( this,
 			  "tag attribute is not supported for " + classname() );
       }
@@ -1005,12 +1009,12 @@ namespace folia {
       _tags.clear();
     }
 
-    if ( SPACE & supported ){
+    if ( supported % Attrib::SPACE  ){
       _space = true;
     }
     val = kwargs.extract( "space" );
     if ( !val.empty() ) {
-      if ( !(SPACE & supported) ){
+      if ( !( supported % Attrib::SPACE ) ){
 	throw ValueError( this,
 			  "space attribute is not supported for "
 			  + classname() );
@@ -1032,7 +1036,7 @@ namespace folia {
 
     val = kwargs.extract( "metadata" );
     if ( !val.empty() ) {
-      if ( !(METADATA & supported) ) {
+      if ( !( supported % Attrib::METADATA) ) {
 	throw ValueError( this,
 			  "Metadata attribute is not supported for "
 			  + classname() );
@@ -1050,7 +1054,7 @@ namespace folia {
     }
     val = kwargs.extract( "speaker" );
     if ( !val.empty() ) {
-      if ( !(SPEAKER & supported) ) {
+      if ( !(supported % Attrib::SPEAKER) ) {
 	throw ValueError( this,
 			  "speaker attribute is not supported for "
 			  + classname() );
@@ -1065,7 +1069,7 @@ namespace folia {
 
     val = kwargs.extract( "textclass" );
     if ( !val.empty() ) {
-      if ( !(TEXTCLASS & supported) ) {
+      if ( !(supported % Attrib::TEXTCLASS) ) {
 	throw ValueError( this,
 			  "textclass attribute is not supported for "
 			  + classname() );
@@ -1087,18 +1091,14 @@ namespace folia {
 	doc()->add_doc_index( this );
       }
       catch ( const DuplicateIDError& e ){
-	if ( element_id() != WordReference_t ){
+	if ( !isinstance<WordReference>() ){
 	  throw;
 	}
       }
+      doc()->setdebug( doc_dbg );
     }
     kwargs.erase("typegroup"); //this is used in explicit form only, we can safely discard it
     addFeatureNodes( kwargs );
-#ifdef LOG_SET_ATT
-    if ( doc() ){
-      doc()->setdebug(db_level);
-    }
-#endif
   }
 
   void AbstractElement::addFeatureNodes( const KWargs& kwargs ) {
@@ -1109,8 +1109,8 @@ namespace folia {
      * the values are used as class attribute for the new children
      * will throw for unexpected attributes, except when in permisive mode
      */
-    for ( const auto& [feat,val] : kwargs ) {
-      string f_tag = feat;
+    for ( const auto& [f_feat,val] : kwargs ) {
+      string f_tag = f_feat;
       if ( f_tag == "head" ) {
 	// "head" is special because the tag is "headfeature"
 	// this to avoid conflicts with the "head" tag!
@@ -1123,14 +1123,13 @@ namespace folia {
 	  message += "\ndid you mean xml:id?";
 	}
 	if ( doc() && doc()->permissive() ) {
-	  cerr << message << endl;
+	  DBG << message << endl;
 	}
 	else {
 	  throw XmlError( this, message );
 	}
       }
-      KWargs newa;
-      newa["class"] = val;
+      KWargs newa("class",val);
       FoliaElement *new_node;
       try {
 	new_node = createElement( f_tag, doc() );
@@ -1168,32 +1167,32 @@ namespace folia {
       if ( type == "simple" || type == "locator" ){
 	it = _xlink.find("href");
 	if ( it != _xlink.end() ){
-	  attribs["xlink:href"] = it->second;
-	  attribs["xlink:type"] = type;
+	  attribs.add("xlink:href",it->second);
+	  attribs.add("xlink:type",type);
 	}
 	it = _xlink.find("role");
 	if ( it != _xlink.end() ){
-	  attribs["xlink:role"] = it->second;
+	  attribs.add("xlink:role",it->second);
 	}
 	it = _xlink.find("arcrole");
 	if ( it != _xlink.end() ){
-	  attribs["xlink:arcrole"] = it->second;
+	  attribs.add("xlink:arcrole",it->second);
 	}
 	it = _xlink.find("show");
 	if ( it != _xlink.end() ){
-	  attribs["xlink:show"] = it->second;
+	  attribs.add("xlink:show",it->second);
 	}
 	it = _xlink.find("actuate");
 	if ( it != _xlink.end() ){
-	  attribs["xlink:actuate"] = it->second;
+	  attribs.add("xlink:actuate",it->second);
 	}
 	it = _xlink.find("title");
 	if ( it != _xlink.end() ){
-	  attribs["xlink:title"] = it->second;
+	  attribs.add("xlink:title",it->second);
 	}
 	it = _xlink.find("label");
 	if ( it != _xlink.end() ){
-	  attribs["xlink:label"] = it->second;
+	  attribs.add("xlink:label",it->second);
 	}
       }
     }
@@ -1201,38 +1200,38 @@ namespace folia {
   }
 
   void AbstractElement::set_typegroup( KWargs& attribs ) const {
-    if ( isSubClass( AbstractStructureElement_t ) ){
-      attribs["typegroup"] = "structure";
+    if ( isSubClass<AbstractStructureElement>() ){
+      attribs.add("typegroup","structure");
     }
-    else if ( isSubClass( AbstractFeature_t ) ){
-      attribs["typegroup"] = "feature";
+    else if ( isSubClass<AbstractFeature>() ){
+      attribs.add("typegroup","feature");
     }
-    else if ( isSubClass( AbstractInlineAnnotation_t ) ){
-      attribs["typegroup"] = "inline";
+    else if ( isSubClass<AbstractInlineAnnotation>() ){
+      attribs.add("typegroup","inline");
     }
-    else if ( isSubClass( AbstractHigherOrderAnnotation_t ) ){
-      attribs["typegroup"] = "higherorder";
+    else if ( isSubClass<AbstractHigherOrderAnnotation>() ){
+      attribs.add("typegroup","higherorder");
     }
-    else if ( isSubClass(  AbstractSpanRole_t ) ){
-      attribs["typegroup"] = "spanrole";
+    else if ( isSubClass<AbstractSpanRole>() ){
+      attribs.add("typegroup","spanrole");
     }
-    else if ( isSubClass(  AbstractSpanAnnotation_t ) ){
-      attribs["typegroup"] = "span";
+    else if ( isSubClass<AbstractSpanAnnotation>() ){
+      attribs.add("typegroup","span");
     }
-    else if ( isSubClass(  AbstractTextMarkup_t ) ){
-      attribs["typegroup"] = "textmarkup";
+    else if ( isSubClass<AbstractTextMarkup>() ){
+      attribs.add("typegroup","textmarkup");
     }
-    else if ( isSubClass(  AbstractContentAnnotation_t ) ){
-      attribs["typegroup"] = "content";
+    else if ( isSubClass<AbstractContentAnnotation>() ){
+      attribs.add("typegroup","content");
     }
-    else if ( isSubClass(  AbstractAnnotationLayer_t ) ){
-      attribs["typegroup"] = "layer";
+    else if ( isSubClass<AbstractAnnotationLayer>() ){
+      attribs.add("typegroup","layer");
     }
-    else if ( isSubClass(  AbstractSubtokenAnnotation_t ) ){
-      attribs["typegroup"] = "subtoken";
+    else if ( isSubClass<AbstractSubtokenAnnotation>() ){
+      attribs.add("typegroup","subtoken");
     }
-    else if ( isSubClass(  AbstractCorrectionChild_t ) ){
-      attribs["typegroup"] = "correctionchild";
+    else if ( isSubClass<AbstractCorrectionChild>() ){
+      attribs.add("typegroup","correctionchild");
     }
     else {
       cerr << "UNHANDLED " << element_id() << endl;
@@ -1246,28 +1245,26 @@ namespace folia {
      * Might also use declaration defaults and alias declarations to extract
      * default values
      */
-    KWargs attribs;
     bool Explicit = false;
     Attrib supported = required_attributes() | optional_attributes();
+    KWargs attribs;
     if ( doc() && doc()->has_explicit() ){
       Explicit = true;
       set_typegroup( attribs );
     }
-    if ( !_id.empty() ) {
-      attribs["xml:id"] = _id;
-    }
+    attribs.add("xml:id",_id);
     if ( _preserve_spaces == SPACE_FLAGS::PRESERVE ) {
-      attribs["xml:space"] = "preserve";
+      attribs.add("xml:space","preserve");
     }
     if ( doc() ){
       string default_set = doc()->default_set( annotation_type() );
       bool isDefaultSet = (_set == default_set);
       if ( Explicit && _set != "None" && !default_set.empty() ){
 	if ( _set.empty() ){
-	  attribs["set"] = default_set;
+	  attribs.add("set",default_set);
 	}
 	else {
-	  attribs["set"] = _set;
+	  attribs.add("set",_set);
 	}
       }
       else if ( _set != "None"
@@ -1275,21 +1272,19 @@ namespace folia {
 		&& !isDefaultSet ){
 	string ali = doc()->alias( annotation_type(), _set );
 	if ( ali.empty() ){
-	  attribs["set"] = _set;
+	  attribs.add("set",_set);
 	}
 	else {
-	  attribs["set"] = ali;
+	  attribs.add("set",ali);
 	}
       }
-      if ( !_class.empty() ) {
-	attribs["class"] = _class;
-      }
+      attribs.add("class",_class);
       if ( !_processor_id.empty() ){
 	string tmp;
 	try {
 	  tmp = doc()->default_processor( annotation_type(), _set );
 	  if ( Explicit ){
-	    attribs["processor"] = tmp;
+	    attribs.add("processor",tmp);
 	  }
 	}
 	catch ( const NoDefaultError& ){
@@ -1298,7 +1293,7 @@ namespace folia {
 	  throw;
 	}
 	if ( tmp != _processor_id ){
-	  attribs["processor"] = _processor_id;
+	  attribs.add("processor",_processor_id);
 	}
       }
       else {
@@ -1306,19 +1301,19 @@ namespace folia {
 	if ( !_annotator.empty() &&
 	     _annotator != doc()->default_annotator( annotation_type(), _set ) ) {
 	  isDefaultAnn = false;
-	  attribs["annotator"] = _annotator;
+	  attribs.add("annotator",_annotator);
 	}
-	if ( _annotator_type != UNDEFINED ){
+	if ( _annotator_type != AnnotatorType::UNDEFINED ){
 	  AnnotatorType at = doc()->default_annotatortype( annotation_type(), _set );
 	  if ( !isDefaultSet
 	       || !isDefaultAnn
 	       || _annotator_type != at){
 	    if ( _annotator_type != at ) {
-	      if ( _annotator_type == AUTO ){
-		attribs["annotatortype"] = "auto";
+	      if ( _annotator_type == AnnotatorType::AUTO ){
+		attribs.add("annotatortype","auto");
 	      }
-	      else if ( _annotator_type == MANUAL ) {
-		attribs["annotatortype"] = "manual";
+	      else if ( _annotator_type == AnnotatorType::MANUAL ) {
+		attribs.add("annotatortype","manual");
 	      }
 	    }
 	  }
@@ -1327,44 +1322,30 @@ namespace folia {
     }
     if ( !_datetime.empty() &&
 	 _datetime != doc()->default_datetime( annotation_type(), _set ) ) {
-      attribs["datetime"] = _datetime;
+      attribs.add("datetime",_datetime);
     }
-    if ( !_begintime.empty() ) {
-      attribs["begintime"] = _begintime;
-    }
-    if ( !_endtime.empty() ) {
-      attribs["endtime"] = _endtime;
-    }
-    if ( !_src.empty() ) {
-      attribs["src"] = _src;
-    }
-    if ( !_tags.empty() ) {
-      attribs["tag"] = _tags;
-    }
-    if ( !_metadata.empty() ) {
-      attribs["metadata"] = _metadata;
-    }
-    if ( !_speaker.empty() ) {
-      attribs["speaker"] = _speaker;
-    }
-    if ( ( TEXTCLASS & supported)
+    attribs.add("begintime",_begintime);
+    attribs.add("endtime",_endtime);
+    attribs.add("src",_src);
+    attribs.add("tag",_tags);
+    attribs.add("metadata",_metadata);
+    attribs.add("speaker",_speaker);
+    if ( ( supported % Attrib::TEXTCLASS )
 	 && ( !_textclass.empty() &&
 	      ( _textclass != "current" || Explicit ) ) ){
-      attribs["textclass"] = _textclass;
+      attribs.add("textclass",_textclass);
     }
 
     if ( _confidence >= 0 ) {
-      attribs["confidence"] = toDoubleString(_confidence);
+      attribs.add("confidence",toDoubleString(_confidence));
     }
-    if ( !_n.empty() ) {
-      attribs["n"] = _n;
-    }
+    attribs.add("n",_n);
     if ( !_auth ) {
-      attribs["auth"] = "no";
+      attribs.add("auth","no");
     }
-    if ( SPACE & optional_attributes() ){
+    if ( optional_attributes() % Attrib::SPACE ){
       if ( !_space ) {
-	attribs["space"] = "no";
+	attribs.add("space","no");
       }
     }
     return attribs;
@@ -1464,14 +1445,17 @@ namespace folia {
     }
   }
 
-  const UnicodeString FoliaElement::stricttext( const string& cls ) const {
+  const UnicodeString FoliaElement::stricttext( const string& cls,
+						bool debug ) const {
     /// get the UnicodeString value of TextContent children only
     /*!
      * \param cls the textclass
+     * \param debug (default false)
      * \return The Unicode Text found.
      * Will throw on error.
      */
     TextPolicy tp( cls, TEXT_FLAGS::STRICT );
+    tp.set_debug( debug );
     return this->text( tp );
   }
 
@@ -1490,7 +1474,7 @@ namespace folia {
     void FoliaElement::clear_textcontent( const string& textclass ){
     for ( size_t i=0; i < size(); ++i ){
       FoliaElement *p = index(i);
-      if ( p->element_id() == TextContent_t ) {
+      if ( p->isinstance<TextContent>() ) {
 	if ( p->cls() == textclass ){
 	  p->destroy();
 	  break;
@@ -1547,7 +1531,7 @@ namespace folia {
      */
     UnicodeString txt_u = TiCC::UnicodeFromUTF8( txt );
     if ( doc() && doc()->checktext()
-	 && !isSubClass( Morpheme_t ) && !isSubClass( Phoneme_t) ){
+	 && !isSubClass<Morpheme>() && !isSubClass<Phoneme>() ){
       UnicodeString deeper_u;
       try {
 	deeper_u = text( cls );
@@ -1573,13 +1557,11 @@ namespace folia {
       my_set = doc()->default_set( AnnotationType::TEXT );
     }
     KWargs args;
-    args["value"] = TiCC::UnicodeToUTF8(txt_u);
-    args["class"] = cls;
-    if ( !my_set.empty() ){
-      args["set"] = my_set;
-    }
+    args.add("value",TiCC::UnicodeToUTF8(txt_u));
+    args.add("class",cls);
+    args.add("set",my_set);
     if ( offset >= 0 ){
-      args["offset"] = TiCC::toString(offset);
+      args.add("offset",TiCC::toString(offset));
     }
     TextContent *node = new TextContent( args, doc() );
     replace( node );
@@ -1612,7 +1594,7 @@ namespace folia {
      * search for Description nodes in this object.
      * When 1 or more are found, return the value of the first one
      */
-    vector<FoliaElement *> v = select( Description_t, SELECT_FLAGS::LOCAL );
+    vector<Description*> v = select<Description>( SELECT_FLAGS::LOCAL );
     if ( v.size() == 0 ) {
       return "";
     }
@@ -1628,7 +1610,7 @@ namespace folia {
      * otherwise not, and the empty string is returned.
      */
     string att;
-    if ( c->isSubClass( AbstractFeature_t ) ) {
+    if ( c->isSubClass<AbstractFeature>() ) {
       att = c->xmltag();
       if ( att == "feat" ) {
 	// "feat" is a Feature_t too. exclude!
@@ -1642,31 +1624,30 @@ namespace folia {
     return att;
   }
 
-  //#define DEBUG_CHECK_TEXT
-
   void CheckText( const FoliaElement *parent,
 		  const FoliaElement *child,
-		  const string& cls ){
+		  const string& cls,
+		  bool txt_dbg ){
     if ( parent
-	 && parent->element_id() != Correction_t
+	 && !parent->isinstance<Correction>()
 	 && parent->hastext( cls ) ){
       // check text consistency for parents with text
       // but SKIP Corrections
       UnicodeString s1 = parent->stricttext( cls );
       UnicodeString s2 = child->stricttext( cls );
-#ifdef DEBUG_CHECK_TEXT
-      cerr << "check_text parent: " << s1 << endl;
-      cerr << "check_text child: " << s2 << endl;
-#endif
+      if ( txt_dbg ){
+	DBG << "check_text parent: " << s1 << endl;
+	DBG << "check_text child: " << s2 << endl;
+      }
       // no retain tokenization, strict for both
       s1 = normalize_spaces( s1 );
       s2 = normalize_spaces( s2 );
       if ( !s1.isEmpty() && !s2.isEmpty() ){
 	bool test_fail;
-	if ( child->isSubClass( TextContent_t )
-	     || child->isSubClass( AbstractTextMarkup_t )
-	     || child->isSubClass( String_t )
-	     || child->isSubClass( Word_t ) ){
+	if ( child->isSubClass<TextContent>()
+	     || child->isSubClass<AbstractTextMarkup>()
+	     || child->isSubClass<String>()
+	     || child->isSubClass<Word>() ){
 	  // Words and Strings are 'per definition' PART of their parents
 	  test_fail = ( s1.indexOf( s2 ) < 0 ); // aren't they?
 	}
@@ -1687,19 +1668,13 @@ namespace folia {
 	}
       }
     }
-#ifdef DEBUG_CHECK_TEXT
-    else {
-      cerr << "skipping check for " << parent << endl;
-    }
-#endif
-
   }
 
-  //#define DEBUG_CHECK_TEXT_2
   void  CheckText2( const FoliaElement *parent,
 		    const FoliaElement *child,
 		    const string& cls,
-		    bool trim_spaces ){
+		    bool trim_spaces,
+		    bool txt_dbg ){
     if ( parent
 	 && parent->hastext( cls ) ){
       // check text consistency for parents with text
@@ -1710,18 +1685,18 @@ namespace folia {
       if ( !trim_spaces ) {
 	tp.set( TEXT_FLAGS::NO_TRIM_SPACES );
       }
-#ifdef DEBUG_CHECK_TEXT_2
-      tp.set_debug();
-#endif
+      if ( txt_dbg ){
+	tp.set_debug();
+      }
       UnicodeString s1 = parent->text( tp );
       tp.clear( TEXT_FLAGS::STRICT );
       UnicodeString s2 = child->text( tp );
       s1 = normalize_spaces( s1 );
       s2 = normalize_spaces( s2 );
       bool test_fail;
-      if ( child->isSubClass( Word_t )
-	   || child->isSubClass( String_t )
-	   || child->isSubClass( AbstractTextMarkup_t ) ) {
+      if ( child->isSubClass<Word>()
+	   || child->isSubClass<String>()
+	   || child->isSubClass<AbstractTextMarkup>() ) {
 	// Words, Strings and AbstractTextMarkup are 'per definition' PART of
 	// their text parents
 	test_fail = ( s1.indexOf( s2 ) < 0 ); // aren't they?
@@ -1778,29 +1753,33 @@ namespace folia {
      * For all other cases, the text of the child should match the parents text.
      * \note Matching is opaque to spaces, newlines and tabs
      */
-#if defined DEBUG_CHECK_TEXT || defined DEBUG_CHECKTEXT_2
-    cerr << "VOOR checkappend I am=" << this << endl;
-    cerr << "VOOR checkappend child=" << child << endl;
-#endif
+    bool txt_cst_dbg = false;
+    if ( doc() ){
+      txt_cst_dbg = ( doc()->debug % DocDbg::TEXT_CONSISTENCY );
+    }
+    if ( txt_cst_dbg ){
+      DBG << "BEFORE checkappend I am=" << this << endl;
+      DBG << "      checkappend child=" << child << endl;
+    }
     if ( !doc() || !doc()->checktext() || doc()->fixtext() ){
-#if defined DEBUG_CHECK_TEXT || defined DEBUG_CHECKTEXT_2
-      cerr << "quick return" << endl;
-#endif
+      if ( txt_cst_dbg ){
+	DBG << "quick return" << endl;
+      }
       return;
     }
     string c_cls = child->cls();
-#if defined DEBUG_CHECK_TEXT || defined DEBUG_CHECKTEXT_2
-    cerr << "HIER 2 " << c_cls << endl;
-#endif
+    if ( txt_cst_dbg ){
+      DBG << "class=" << c_cls << endl;
+    }
     if ( child->size() == 0
 	 || ( child->is_textcontainer()
 	      && !child->hastext( c_cls ) ) ){
       // no use to proceed. not adding real text
+      if ( txt_cst_dbg ){
+	DBG << "nothing wrong here , exit()" << endl;
+      }
       return;
     }
-#if defined DEBUG_CHECK_TEXT || defined DEBUG_CHECKTEXT_2
-    cerr << "HIER 3 " << endl;
-#endif
     const FoliaElement *par = 0;
     if ( child->is_textcontainer() ){
       par = this->parent();
@@ -1809,10 +1788,10 @@ namespace folia {
       par = this;
       c_cls = child->index(0)->cls();
     }
-#if defined DEBUG_CHECK_TEXT || defined DEBUG_CHECKTEXT_2
-    cerr << "PARENT? " << par << endl;
-#endif
-    CheckText( par, child, c_cls );
+    if ( txt_cst_dbg ){
+      DBG << "PARENT = " << par << endl;
+    }
+    CheckText( par, child, c_cls, txt_cst_dbg );
   }
 
   void AbstractElement::check_text_consistency( bool trim_spaces ) const {
@@ -1834,26 +1813,26 @@ namespace folia {
     if ( !doc() || !doc()->checktext() || !printable() ){
       return;
     }
-
+    bool txt_cst_dbg = false;
+    if ( doc() ){
+      txt_cst_dbg = ( doc()->debug % DocDbg::TEXT_CONSISTENCY );
+    }
     string my_cls = cls();
     const FoliaElement *par = parent();
-    CheckText2( par, this, my_cls, trim_spaces );
+    CheckText2( par, this, my_cls, trim_spaces, txt_cst_dbg );
   }
 
   void AbstractElement::check_text_consistency_while_parsing( bool trim_spaces,
-							      bool debug ) {
+							      bool txt_dbg ) {
       // this block was moved from parseXml into a separate function
       // it remains to be seen how much overlaps with check_text_consistency()
       // and whether we can't make do with one function
       //
       // unlike the other function, this does do some fixing when requested
       //
-#if defined DEBUG_CHECK_TEXT || defined DEBUG_CHECKTEXT_2
-    debug = true;
-#endif
-    if ( debug ){
-    cerr << "DEBUG: BEGIN check_text_consistency_while_parsing("
-	 << trim_spaces << ")" << endl;
+    if ( txt_dbg ){
+      DBG << "DEBUG: BEGIN check_text_consistency_while_parsing("
+	   << trim_spaces << ")" << endl;
     }
     // check the text for every possible text class
     for ( const auto& st : doc()->textclasses() ){
@@ -1861,7 +1840,7 @@ namespace folia {
       TextPolicy tp( st );
       tp.set_correction_handling(CORRECTION_HANDLING::EITHER);
       tp.set( TEXT_FLAGS::STRICT );
-      tp.set_debug( debug );
+      tp.set_debug( txt_dbg );
       if ( !trim_spaces ) {
 	tp.set( TEXT_FLAGS::NO_TRIM_SPACES );
       }
@@ -1871,8 +1850,8 @@ namespace folia {
       catch (...){
       }
       if ( !s1.isEmpty() ){
-	if ( debug ){
-	  cerr << "S1: " << s1 << endl;
+	if ( txt_dbg  ){
+	  DBG << "S1: " << s1 << endl;
 	}
 	tp.clear( TEXT_FLAGS::STRICT );
 	try {
@@ -1880,19 +1859,19 @@ namespace folia {
 	}
 	catch (...){
 	}
-	if (debug ){
-	  cerr << "S2: " << s2 << endl;
+	if ( txt_dbg ){
+	  DBG << "S2: " << s2 << endl;
 	}
 	s1 = normalize_spaces( s1 );
 	s2 = normalize_spaces( s2 );
 	if ( !s2.isEmpty() && s1 != s2 ){
 	  if ( doc()->fixtext() ){
-	    if ( debug ){
-	      cerr << "FIX: " << s1 << "==>" << s2 << endl;
+	    if ( txt_dbg  ){
+	      DBG << "FIX: " << s1 << "==>" << s2 << endl;
 	    }
 	    KWargs args;
-	    args["value"] = TiCC::UnicodeToUTF8(s2);
-	    args["class"] = st;
+	    args.add("value", TiCC::UnicodeToUTF8(s2));
+	    args.add("class",st);
 	    TextContent *node = new TextContent( args, doc() );
 	    this->replace( node );
 	  }
@@ -1902,15 +1881,15 @@ namespace folia {
 	      //ok, we failed according to the >v2.4.1 rules
 	      //but do we also fail under the old rules?
 	      try {
-		if ( debug ){
-		  cerr << "DEBUG: (testing according to older rules now)" << endl;
+		if ( txt_dbg ){
+		  DBG << "DEBUG: (testing according to older rules now)" << endl;
 		}
-		this->check_text_consistency_while_parsing( false, debug );
+		this->check_text_consistency_while_parsing( false, txt_dbg );
 		warn_only = true;
 	      }
 	      catch ( const InconsistentText& e ) {
-		if ( debug ){
-		  cerr << "(tested according to older rules (<v2.4.1) as well, but this failed too)" << endl;
+		if ( txt_dbg ){
+		  DBG << "(tested according to older rules (<v2.4.1) as well, but this failed too)" << endl;
 		}
 		//ignore, we raise the newer error
 	      }
@@ -1925,8 +1904,8 @@ namespace folia {
 	      doc()->increment_warn_count();
 	    }
 	    else {
-	      if ( debug ){
-		cerr << "DEBUG: CONSISTENCYERROR check_text_consistency_while_parsing(" << trim_spaces << ")" << endl;
+	      if ( txt_dbg ){
+		DBG << "DEBUG: CONSISTENCYERROR check_text_consistency_while_parsing(" << trim_spaces << ")" << endl;
 	      }
 	      throw InconsistentText( this, msg);
 	    }
@@ -1934,10 +1913,10 @@ namespace folia {
 	}
       }
     }
-    if ( element_id() == TextContent_t ){
+    if ( isinstance<TextContent>() ){
       // we have to check for at least one XmlText or TEXTCONTAINER child
       auto valid_text = []( auto elt ){
-	return ( elt->element_id() == XmlText_t
+	return ( elt->element_id() == ElementType::XmlText_t
 		 || elt->is_textcontainer() ); };
       bool found = std::any_of( _data.begin(), _data.end(),
 				valid_text );
@@ -1947,8 +1926,8 @@ namespace folia {
 	throw XmlError( this, msg );
       }
     }
-    if ( debug ){
-      cerr << "DEBUG: END-OK check_text_consistency_while_parsing("
+    if ( txt_dbg ){
+      DBG << "DEBUG: END-OK check_text_consistency_while_parsing("
 	   << trim_spaces << ")" << endl;
     }
   }
@@ -1975,7 +1954,7 @@ namespace folia {
     }
     else if ( doc()->preserve_spaces() ){
       // this subtree should go back to "default" then
-      attribs["xml:space"] = "default";
+      attribs.add("xml:space","default");
       // and the doc needs to know it
       doc()->set_preserve_spaces(false);
     }
@@ -1997,7 +1976,7 @@ namespace folia {
       for ( const auto& el : _data ) {
 	string at = tagToAtt( el );
 	if ( !at.empty() && af_map[at] == 1 ) {
-	  attribs[at] = el->cls();
+	  attribs.add(at,el->cls());
 	  attribute_elements.insert( el );
 	}
       }
@@ -2018,7 +1997,7 @@ namespace folia {
       multimap<ElementType, FoliaElement *, std::greater<ElementType>> otherelementsMap;
       for ( const auto& el : _data ) {
 	if ( attribute_elements.find(el) == attribute_elements.end() ) {
-	  if ( el->isinstance(TextContent_t) ) {
+	  if ( el->isinstance<TextContent>() ) {
 	    if ( el->cls() == "current" ) {
 	      currenttextelements.push_back( el );
 	    }
@@ -2031,12 +2010,12 @@ namespace folia {
 	      otherelementsMap.insert( make_pair( el->element_id(), el ) );
 	    }
 	    else {
-	      if ( el->isinstance(XmlComment_t)
+	      if ( el->isinstance<XmlComment>()
 		   && currenttextelements.empty()
 		   && textelements.empty() ) {
 		commentelements.push_back( el );
 	      }
-	      else if ( el->isinstance(ProcessingInstruction_t)
+	      else if ( el->isinstance<ProcessingInstruction>()
 		   && currenttextelements.empty()
 		   && textelements.empty() ) {
 		PIelements.push_back( el );
@@ -2176,7 +2155,9 @@ namespace folia {
      * Might return "" when no match is found
      */
     set<ElementType> exclude;
-    vector<LangAnnotation*> v = select<LangAnnotation>( st, exclude, false );
+    vector<LangAnnotation*> v = select<LangAnnotation>( st,
+							exclude,
+							SELECT_FLAGS::LOCAL );
     if ( v.size() > 0 ){
       return v[0]->cls();
     }
@@ -2202,43 +2183,54 @@ namespace folia {
      */
     bool retaintok  = tp.is_set( TEXT_FLAGS::RETAIN );
     if ( tp.debug() ){
-      cerr << "IN <" << xmltag() << ">:get_delimiter (" << retaintok << ")"
+      DBG << "IN <" << xmltag() << ">:get_delimiter (" << retaintok << ")"
 	   << endl;
     }
-    if ( (SPACE & optional_attributes()) ){
+    if ( (optional_attributes() % Attrib::SPACE ) ){
       if ( ! ( _space || retaintok ) ){
 	if ( tp.debug() ){
-	  cerr << " space = NO, return: '" << EMPTY_STRING << "'" << endl;
+	  DBG << " space = NO, return: '" << EMPTY_STRING << "'" << endl;
 	}
 	return EMPTY_STRING;
+      }
+      if ( tp.debug() ){
+	DBG << " space = YES, Go on" << endl;
       }
     }
 
     if ( !_data.empty() ){
       const FoliaElement *last = _data.back();
-      if ( last &&
-	   last->isSubClass(AbstractStructureElement_t)
+      if ( last && tp.debug() ){
+	DBG << "last is " << last << endl;
+	DBG << "isSubClass<AbstractWord>() == " << last->isSubClass<AbstractWord>() << endl;
+	DBG << "last->space() == " << last->space() << endl;
+      }
+      if ( last
+	   && last->isSubClass<AbstractWord>()
 	   && !last->space() ){
 	return EMPTY_STRING;
       }
     }
     if ( text_delimiter() != "NONE" ) {
+      if ( tp.debug() ){
+	DBG << "text_delimiter() == '" << text_delimiter() << "'" << endl;
+      }
       return text_delimiter();
     }
     else if ( _data.size() > 0 ) {
       // attempt to get a delimiter from the last child
       const FoliaElement *last = _data.back();
-      if ( last->isSubClass(AbstractStructureElement_t) ){
+      if ( last->isSubClass<AbstractWord>() ){
 	const string& det = last->get_delimiter( tp );
 	if ( tp.debug() ){
-	  cerr << "out <" << xmltag() << ">:get_delimiter ==> '" << det << "'"
+	  DBG << "out <" << xmltag() << ">:get_delimiter ==> '" << det << "'"
 	       << endl;
 	}
 	return det;
       }
     }
     if ( tp.debug() ){
-      cerr << "out <" << xmltag() << ">:get_delimiter ==> ''" << endl;
+      DBG << "out <" << xmltag() << ">:get_delimiter ==> ''" << endl;
     }
     return EMPTY_STRING;
   }
@@ -2252,11 +2244,11 @@ namespace folia {
 
   UnicodeString AbstractElement::text_container_text( const TextPolicy& tp ) const {
     string desired_class = tp.get_class();
-    if ( isinstance( TextContent_t )
+    if ( isinstance<TextContent>()
 	 && cls() != desired_class ) {
       // take a shortcut for TextContent in wrong class
       if ( tp.debug() ){
-	cerr << "TextContent shortcut, class=" << cls()
+	DBG << "TextContent shortcut, class=" << cls()
 	     << " but looking for: " << desired_class << endl;
       }
       return "";
@@ -2265,14 +2257,14 @@ namespace folia {
     bool pendingspace = false;
     bool trim_spaces = !tp.is_set( TEXT_FLAGS::NO_TRIM_SPACES);
     if ( tp.debug() ){
-      cerr << "TextContainer.text() " << xmltag() << "[";
+      DBG << "TextContainer.text() " << xmltag() << "[";
       for ( const auto* d : _data ){
-	cerr << d->xmltag() << ",";
+	DBG << d->xmltag() << ",";
       }
-      cerr << "]" << endl;
+      DBG << "]" << endl;
     }
     for ( const auto& d : _data ){
-      if ( d->isinstance( XmlText_t ) ) {
+      if ( d->isinstance<XmlText>() ) {
 	// 'true' text child
 	if ( pendingspace ) {
 	  result += " ";
@@ -2376,7 +2368,7 @@ namespace folia {
 	if ( !result.isEmpty() ){
 	  const string& delim = d->get_delimiter( tp );
 	  if ( tp.debug() ){
-	    cerr << "append delimiter: '" << delim << "'" << endl;
+	    DBG << "append delimiter: '" << delim << "'" << endl;
 	  }
 	  result += TiCC::UnicodeFromUTF8(delim);
 	}
@@ -2389,7 +2381,7 @@ namespace folia {
       result = postprocess_spaces(result);
     }
     if ( tp.debug() ){
-      cerr << "TEXT(" << tp.get_class() << ") on a textcontainer :" << xmltag()
+      DBG << "TEXT(" << tp.get_class() << ") on a textcontainer :" << xmltag()
 	   << " returned '" << result << "'" << endl;
     }
     return result;
@@ -2406,9 +2398,9 @@ namespace folia {
     bool show_hidden = tp.is_set( TEXT_FLAGS::HIDDEN );
     bool trim = !tp.is_set( TEXT_FLAGS::NO_TRIM_SPACES );
     if ( tp.debug() ){
-      cerr << "PRIVATE_TEXT(" << tp.get_class() << ") on node : " << xmltag() << " id="
+      DBG << "PRIVATE_TEXT(" << tp.get_class() << ") on node : " << xmltag() << " id="
 	   << id() << endl;
-      cerr << "TextPolicy: " << tp << endl;
+      DBG << "TextPolicy: " << tp << endl;
     }
     UnicodeString result;
     if ( strict ) {
@@ -2441,7 +2433,7 @@ namespace folia {
       }
     }
     if ( tp.debug() ){
-      cerr << "PRIVATE_TEXT on node : " << xmltag() << " returns: '" << result
+      DBG << "PRIVATE_TEXT on node : " << xmltag() << " returns: '" << result
 	   << "'" << endl;
     }
     return result;
@@ -2453,24 +2445,24 @@ namespace folia {
      * \param tp a TextPolicy
      */
     if ( tp.debug() ){
-      cerr << "DEBUG <" << xmltag() << ">.text() Policy=" << tp << endl;
+      DBG << "DEBUG <" << xmltag() << ">.text() Policy=" << tp << endl;
     }
     return private_text( tp );
   }
 
   const UnicodeString AbstractElement::text( const string& cls,
 					     TEXT_FLAGS flags,
-					     bool debug ) const {
+					     bool txt_dbg ) const {
     /// get the UnicodeString text value of an element
     /*!
      * \param cls the textclass the text should be in
      * \param flags the search parameters to use. See TEXT_FLAGS.
-     * \param debug enables debugging when true
+     * \param txt_dbg enables debugging when true
      */
     TextPolicy tp( cls, flags );
-    tp.set_debug( debug );
-    if ( debug ){
-      cerr << "DEBUG <" << xmltag() << ">.text() Policy=" << tp << endl;
+    tp.set_debug( txt_dbg );
+    if ( txt_dbg ){
+      DBG << "DEBUG <" << xmltag() << ">.text() Policy=" << tp << endl;
     }
     return private_text( tp );
   }
@@ -2511,8 +2503,8 @@ namespace folia {
       if ( p->type == XML_ELEMENT_NODE ){
 	if ( TiCC::Name(p) == "metadata" &&
 	     checkNS( p, NSFOLIA ) ){
-	  if ( doc()->debug > 1 ){
-	    cerr << "Found metadata" << endl;
+	  if ( doc()->debug % DocDbg::PARSING ){
+	    DBG << "Found metadata" << endl;
 	  }
 	  doc()->parse_metadata( p );
 	  meta_found = true;
@@ -2539,13 +2531,13 @@ namespace folia {
 			    string( "parsing <" ) + tag + "> failed:\n\t"
 			    + e.what() );
 	  }
-	  if ( doc()->debug > 2 ){
-	    cerr << "created " << t << endl;
+	  if ( doc()->debug % DocDbg::PARSING ){
+	    DBG << "created " << t << endl;
 	  }
 	  t = t->parseXml( p );
 	  if ( t ){
-	    if ( doc()->debug > 2 ){
-	      cerr << "extend " << this << " met " << tag << endl;
+	    if ( doc()->debug % DocDbg::PARSING ){
+	      DBG << "extend " << this << " met " << tag << endl;
 	    }
 	    this->append( t );
 	  }
@@ -2562,13 +2554,13 @@ namespace folia {
 			  string( "parsing <" ) + xml_tag + "> failed:\n\t"
 			  + e.what() );
 	}
-	if ( doc() && doc()->debug > 2 ) {
-	  cerr << "created " << t << endl;
+	if ( doc() && doc()->debug % DocDbg::PARSING ) {
+	  DBG << "created " << t << endl;
 	}
 	t = t->parseXml( p );
 	if ( t ) {
-	  if ( doc() && doc()->debug > 2 ) {
-	    cerr << "extend " << this << " met " << t << endl;
+	  if ( doc() && doc()->debug % DocDbg::PARSING ) {
+	    DBG << "extend " << this << " met " << t << endl;
 	  }
 	  append( t );
 	}
@@ -2610,30 +2602,30 @@ namespace folia {
      * Other 'whitespace' characters like newline and tab are retained!
      */
     const char16_t space = 0x0020;
-    //    cerr << "in = '" << in << "'" << endl;
+    //    DBG << "in = '" << in << "'" << endl;
     UnicodeString out;
     int i = 0;
     for( ; i < in.length(); ++i ){
-      //      cerr << "start: bekijk:" << UnicodeString(in[i]) << endl;
+      //      DBG << "start: bekijk:" << UnicodeString(in[i]) << endl;
       if ( in[i] != space ){
 	break;
       }
     }
     int j = in.length()-1;
     for( ; j >= 0; --j ){
-      //      cerr << "end: bekijk:" << UnicodeString(in[j]) << endl;
+      //      DBG << "end: bekijk:" << UnicodeString(in[j]) << endl;
       if ( in[j] != space ){
 	break;
       }
     }
-    // cerr << "I=" << i << endl;
-    // cerr << "J=" << j << endl;
+    // DBG << "I=" << i << endl;
+    // DBG << "J=" << j << endl;
     if ( j < i ){
-      //      cerr << "out = LEEG" << endl;
+      //      DBG << "out = LEEG" << endl;
       return out;
     }
     out = UnicodeString( in, i, j-i+1 );
-    //    cerr << "out = '" << out << "'" << endl;
+    //    DBG << "out = '" << out << "'" << endl;
     return out;
   }
 
@@ -2691,31 +2683,32 @@ namespace folia {
     return found_nl > 0;
   }
 
-  bool no_space_at_end( const FoliaElement *s, bool debug ){
+  bool no_space_at_end( const FoliaElement *s, bool txt_dbg ){
     /// given a FoliaElement check if the last Word in it has space()
     /*!
      * \param s a FoliaElement
-     * \param debug set to true for more info
+     * \param txt_dbg set to true for more info
      * \return true if the element contains Word children and the last
      * one has space()
      */
     bool result = false;
-    if ( debug ){
-      cerr << "no space? s: " << s << endl;
+    if ( txt_dbg ){
+      DBG << "no space? s: " << s << endl;
     }
     if ( s ){
-      vector<FoliaElement*> elts = s->select_set( {Word_t,Correction_t},
-						  "",
-						  {},
-						  SELECT_FLAGS::LOCAL );
+      vector<FoliaElement*> elts = s->select_set( {ElementType::Word_t,
+	  ElementType::Correction_t},
+	"",
+	{},
+	SELECT_FLAGS::LOCAL );
       if ( !elts.empty() ){
-	if ( debug ){
-	  cerr << "found some mixed stuff: " << elts << endl;
+	if ( txt_dbg ){
+	  DBG << "found some mixed stuff: " << elts << endl;
 	}
 	const FoliaElement *last = elts.back();
 	result = !last->space();
-	if ( debug ){
-	  cerr << "no space? last: " << last
+	if ( txt_dbg ){
+	  DBG << "no space? last: " << last
 	       << (result?" WEL":" NIET") << endl;
 	}
 	return result;
@@ -2732,9 +2725,9 @@ namespace folia {
      * Will throw on error.
      */
     if ( tp.debug() ){
-      cerr << "deeptext, policy: " << tp << ", on node : <" << xmltag()
+      DBG << "deeptext, policy: " << tp << ", on node : <" << xmltag()
 	   << " id=" << id() << ", cls=" << this->cls() << ">" << endl;
-      cerr << "deeptext: node has " << _data.size() << " children." << endl;
+      DBG << "deeptext: node has " << _data.size() << " children." << endl;
     }
     vector<UnicodeString> parts;
     vector<UnicodeString> seps;
@@ -2743,29 +2736,29 @@ namespace folia {
       // skipping the TextContent elements
       if ( tp.debug() ){
 	if ( !child->printable() ) {
-	  cerr << "deeptext: node[" << child->xmltag() << "] NOT PRINTABLE! "
+	  DBG << "deeptext: node[" << child->xmltag() << "] NOT PRINTABLE! "
 	       << endl;
 	}
       }
       if ( child->printable()
 	   && ( is_structure( child )
-		|| child->isSubClass( AbstractSpanAnnotation_t )
-		|| child->isinstance( Correction_t ) )
-	   && !child->isinstance( TextContent_t ) ) {
+		|| child->isSubClass<AbstractSpanAnnotation>()
+		|| child->isinstance<Correction>() )
+	   && !child->isinstance<TextContent>() ) {
 	if ( tp.debug() ){
-	  cerr << "deeptext:bekijk node[" << child->xmltag() << "]"<< endl;
+	  DBG << "deeptext:bekijk node[" << child->xmltag() << "]"<< endl;
 	}
 	try {
 	  UnicodeString tmp = child->text( tp );
 	  if ( tp.debug() ){
-	    cerr << "deeptext found '" << tmp << "'" << endl;
+	    DBG << "deeptext found '" << tmp << "'" << endl;
 	  }
 	  parts.push_back(tmp);
-	  if ( child->isinstance( Sentence_t )
+	  if ( child->isinstance<Sentence>()
 	       && no_space_at_end(child,tp.debug()) ){
 	    const string& delim = "";
 	    if ( tp.debug() ){
-	      cerr << "deeptext: no delimiter van "<< child->xmltag() << " on"
+	      DBG << "deeptext: no delimiter van "<< child->xmltag() << " on"
 		   << " last w of s" << endl;
 	    }
 	    seps.push_back(TiCC::UnicodeFromUTF8(delim));
@@ -2774,7 +2767,7 @@ namespace folia {
 	    // get the delimiter
 	    const string& delim = child->get_delimiter( tp );
 	    if ( tp.debug() ){
-	      cerr << "deeptext:delimiter van "<< child->xmltag() << " ='"
+	      DBG << "deeptext:delimiter van "<< child->xmltag() << " ='"
 		   << delim << "'" << endl;
 	    }
 	    seps.push_back(TiCC::UnicodeFromUTF8(delim));
@@ -2782,7 +2775,7 @@ namespace folia {
 	}
 	catch ( const NoSuchText& e ) {
 	  if ( tp.debug() ){
-	    cerr << "HELAAS" << endl;
+	    DBG << "HELAAS" << endl;
 	  }
 	}
       }
@@ -2792,16 +2785,16 @@ namespace folia {
     UnicodeString result;
     for ( size_t i=0; i < parts.size(); ++i ) {
       if ( tp.debug() ){
-	cerr << "part[" << i << "]='" << parts[i] << "'" << endl;
-	cerr << "sep[" << i << "]='" << seps[i] << "'" << endl;
+	DBG << "part[" << i << "]='" << parts[i] << "'" << endl;
+	DBG << "sep[" << i << "]='" << seps[i] << "'" << endl;
       }
       bool only_nl = false;
       bool end_is_nl = check_end( parts[i], only_nl );
       if ( end_is_nl ){
 	if ( tp.debug() ){
-	  cerr << "a newline after: '" << parts[i] << "'" << endl;
+	  DBG << "a newline after: '" << parts[i] << "'" << endl;
 	  if ( i < parts.size()-1 ){
-	    cerr << "next sep='" << seps[i+1] << "'" << endl;
+	    DBG << "next sep='" << seps[i+1] << "'" << endl;
 	  }
 	}
 
@@ -2809,8 +2802,8 @@ namespace folia {
 	  // only a newline
 	  result = trim_space( result );
 	  if ( tp.debug() ){
-	    cerr << "OK it is only newline(s)" << endl;
-	    cerr << "TRIMMED? '" << result << "'" << endl;
+	    DBG << "OK it is only newline(s)" << endl;
+	    DBG << "TRIMMED? '" << result << "'" << endl;
 	  }
 	}
       }
@@ -2819,18 +2812,18 @@ namespace folia {
 	result += seps[i];
       }
       if ( tp.debug() ){
-	cerr << "result='" << result << "'" << endl;
+	DBG << "result='" << result << "'" << endl;
       }
     }
     if ( tp.debug() ){
-      cerr << "deeptext() for " << xmltag() << " step 3 " << endl;
+      DBG << "deeptext() for " << xmltag() << " step 3 " << endl;
     }
     if ( result.isEmpty() ) {
       // so no deeper text is found. Well, lets look here then
       result = text_content(tp)->text( tp );
     }
     if ( tp.debug() ){
-      cerr << "deeptext() for " << xmltag() << " result= '" << result << "'"
+      DBG << "deeptext() for " << xmltag() << " result= '" << result << "'"
 	   << endl;
     }
     if ( result.isEmpty() ) {
@@ -2852,16 +2845,16 @@ namespace folia {
      */
 
     if ( tp.debug() ){
-      cerr << "text_content, policy= " << tp << endl;
+      DBG << "text_content, policy= " << tp << endl;
     }
     string desired_class = tp.get_class();
-    if ( isinstance(TextContent_t) ){
+    if ( isinstance<TextContent>() ){
       if ( tp.debug() ){
-	cerr << "A textcontent!!" << endl;
+	DBG << "A textcontent!!" << endl;
       }
       if  ( this->cls() == desired_class ) {
 	if ( tp.debug() ){
-	  cerr << "return myself..." << endl;
+	  DBG << "return myself..." << endl;
 	}
 	return dynamic_cast<const TextContent*>(this);
       }
@@ -2872,21 +2865,25 @@ namespace folia {
     }
     bool show_hidden = tp.is_set( TEXT_FLAGS::HIDDEN );
     if ( tp.debug() ){
-      cerr << (!printable()?"NOT":"") << " printable: " << xmltag() << endl;
-      cerr << (!hidden()?"NOT":"") << " hidden: " << xmltag() << endl;
+      DBG << (!printable()?"NOT":"") << " printable: " << xmltag() << endl;
+      DBG << (!hidden()?"NOT":"") << " hidden: " << xmltag() << endl;
     }
     if ( !printable() || ( hidden() && !show_hidden ) ) {
       throw NoSuchText( this,
 			"non-printable element: " +  xmltag() );
     }
     if ( tp.debug() ){
-      cerr << "recurse into children...." << endl;
+      DBG << "recurse into children...." << endl;
     }
     for ( const auto& el : data() ) {
-      if ( el->isinstance(TextContent_t) && (el->cls() == desired_class ) ) {
+      if ( el->isinstance<TextContent>()
+	   && (el->cls() == desired_class ) ) {
 	return dynamic_cast<TextContent*>(el);
       }
-      else if ( el->element_id() == Correction_t) {
+      else if ( el->isinstance<Correction>() ){
+	if ( tp.debug() ){
+	  DBG << "look into correction...." << endl;
+	}
 	try {
 	  return el->text_content( tp );
 	}
@@ -2905,11 +2902,11 @@ namespace folia {
   }
 
   const TextContent *AbstractElement::text_content( const string& cls,
-						    bool debug ) const {
+						    bool txt_dbg ) const {
     /// Get the TextContent explicitly associated with this element.
     /*!
      * \param cls the textclass to search for
-     * \param debug enables debugging when true
+     * \param txt_dbg enables debugging when true
      *
      * Returns the TextContent instance rather than the actual text.
      * (so it might return itself.. ;)
@@ -2917,14 +2914,14 @@ namespace folia {
      * might throw NoSuchText exception if not found.
      */
     TextPolicy tp( cls );
-    tp.set_debug( debug );
+    tp.set_debug( txt_dbg );
     return text_content( tp );
   }
 
   TextContent *AbstractElement::text_content( const string& cls,
-					      bool debug ) {
+					      bool txt_dbg ) {
     return const_cast<TextContent*>
-      ( static_cast<const AbstractElement &>(*this).text_content( cls, debug ) );
+      ( static_cast<const AbstractElement &>(*this).text_content( cls, txt_dbg ) );
   }
 
   const PhonContent *AbstractElement::phon_content( const TextPolicy& tp ) const {
@@ -2938,7 +2935,7 @@ namespace folia {
      * might throw NoSuchPhon exception if not found.
      */
     string desired_class = tp.get_class();
-    if ( isinstance(PhonContent_t) ){
+    if ( isinstance<PhonContent>() ){
       if  ( cls() == desired_class ){
 	return dynamic_cast<const PhonContent*>(this);
       }
@@ -2954,10 +2951,10 @@ namespace folia {
     }
 
     for ( const auto& el : _data ) {
-      if ( el->isinstance(PhonContent_t) && ( el->cls() == desired_class ) ) {
+      if ( el->isinstance<PhonContent>() && ( el->cls() == desired_class ) ) {
 	return dynamic_cast<PhonContent*>(el);
       }
-      else if ( el->element_id() == Correction_t) {
+      else if ( el->isinstance<Correction>() ) {
 	try {
 	  return el->phon_content(tp);
 	} catch ( const NoSuchPhon& e ) {
@@ -2975,11 +2972,11 @@ namespace folia {
   }
 
   const PhonContent *AbstractElement::phon_content( const string& cls,
-						    bool debug ) const {
+						    bool txt_dbg ) const {
     /// Get the PhonContent explicitly associated with this element.
     /*!
      * \param cls the textclass to search for
-     * \param debug enable debugging when true
+     * \param txt_dbg enable txt_dbgging when true
      *
      * Returns the PhonContent instance rather than the actual text.
      * (so it might return iself.. ;)
@@ -2987,14 +2984,14 @@ namespace folia {
      * might throw NoSuchPhon exception if not found.
      */
     TextPolicy tp(cls );
-    tp.set_debug( debug );
+    tp.set_debug( txt_dbg );
     return phon_content( tp );
   }
 
   PhonContent *AbstractElement::phon_content( const string& cls,
-					      bool debug ) {
+					      bool txt_dbg ) {
     return const_cast<PhonContent*>
-      ( static_cast<const AbstractElement &>(*this).phon_content( cls, debug ) );
+      ( static_cast<const AbstractElement &>(*this).phon_content( cls, txt_dbg ) );
   }
 
   const UnicodeString AbstractElement::phon( const TextPolicy& tp ) const {
@@ -3005,7 +3002,7 @@ namespace folia {
     bool show_hidden = tp.is_set( TEXT_FLAGS::HIDDEN );
     bool strict = tp.is_set( TEXT_FLAGS::STRICT );
     if ( tp.debug() ){
-      cerr << "PHON, Policy= " << tp << " on node : " << xmltag() << " id="
+      DBG << "PHON, Policy= " << tp << " on node : " << xmltag() << " id="
 	   << id() << endl;
     }
     if ( strict ) {
@@ -3029,13 +3026,15 @@ namespace folia {
   }
 
   const UnicodeString AbstractElement::phon( const string& cls,
-					     TEXT_FLAGS flags ) const {
+					     TEXT_FLAGS flags,
+					     bool debug ) const {
     /// get the UnicodeString phon value of an element
     /*!
      * \param cls the textclass the text should be in
      * \param flags the search parameters to use. See TEXT_FLAGS.
      */
     TextPolicy tp( cls, flags );
+    tp.set_debug( debug );
     return phon( tp );
   }
 
@@ -3047,9 +3046,9 @@ namespace folia {
      * Will throw on error.
      */
     if ( tp.debug() ){
-      cerr << "deepPHON, policy= " << tp << ", on node : " << xmltag()
+      DBG << "deepPHON, policy= " << tp << ", on node : " << xmltag()
 	   << " id=" << id() << endl;
-      cerr << "deepphon: node has " << _data.size() << " children." << endl;
+      DBG << "deepphon: node has " << _data.size() << " children." << endl;
     }
     vector<UnicodeString> parts;
     vector<UnicodeString> seps;
@@ -3058,30 +3057,31 @@ namespace folia {
       // skip PhonContent elements
       if ( tp.debug() ){
 	if ( !child->speakable() ) {
-	  cerr << "deepphon: node[" << child->xmltag() << "] NOT SPEAKABLE! "
+	  DBG << "deepphon: node[" << child->xmltag() << "] NOT SPEAKABLE! "
 	     << endl;
 	}
       }
-      if ( child->speakable() && !child->isinstance( PhonContent_t ) ) {
+      if ( child->speakable()
+	   && !child->isinstance<PhonContent>() ) {
 	if ( tp.debug() ){
-	  cerr << "deepphon:bekijk node[" << child->xmltag() << "]" << endl;
+	  DBG << "deepphon:bekijk node[" << child->xmltag() << "]" << endl;
 	}
 	try {
 	  UnicodeString tmp = child->phon( tp );
 	  if ( tp.debug() ){
-	    cerr << "deepphon found '" << tmp << "'" << endl;
+	    DBG << "deepphon found '" << tmp << "'" << endl;
 	  }
 	  parts.push_back(tmp);
 	  // get the delimiter
 	  const string& delim = child->get_delimiter(tp);
 	  if ( tp.debug() ){
-	    cerr << "deepphon:delimiter van "<< child->xmltag()
+	    DBG << "deepphon:delimiter van "<< child->xmltag()
 		 << " ='" << delim << "'" << endl;
 	  }
 	  seps.push_back(TiCC::UnicodeFromUTF8(delim));
 	} catch ( const NoSuchPhon& e ) {
 	  if ( tp.debug() ){
-	    cerr << "HELAAS" << endl;
+	    DBG << "HELAAS" << endl;
 	  }
 	}
       }
@@ -3096,7 +3096,7 @@ namespace folia {
       }
     }
     if ( tp.debug() ){
-      cerr << "deepphon() for " << xmltag() << " step 3 " << endl;
+      DBG << "deepphon() for " << xmltag() << " step 3 " << endl;
     }
     if ( result.isEmpty() ) {
       try {
@@ -3106,7 +3106,7 @@ namespace folia {
       }
     }
     if ( tp.debug() ){
-      cerr << "deepphontext() for " << xmltag() << " result= '" << result
+      DBG << "deepphontext() for " << xmltag() << " result= '" << result
 	   << "'" << endl;
     }
     if ( result.isEmpty() ) {
@@ -3201,7 +3201,7 @@ namespace folia {
      * is empty
      * \return all targets found
      */
-    auto PIS = select<ProcessingInstruction>(false);
+    auto PIS = select<ProcessingInstruction>(SELECT_FLAGS::LOCAL);
     if ( target.empty() ){
       return PIS;
     }
@@ -3233,7 +3233,7 @@ namespace folia {
       return any_of( accepted_data().cbegin(),
 		     accepted_data().cend(),
 		     [t]( const ElementType& et) {
-		       return ( folia::isSubClass( t, et ) ); } );
+		       return ( folia::is_subtype( t, et ) ); } );
     }
   }
 
@@ -3266,7 +3266,7 @@ namespace folia {
       }
     }
     if ( occurrences_per_set() > 0 &&
-	 (CLASS & required_attributes() || setonly() ) ){
+	 ( ( required_attributes() % Attrib::CLASS ) || setonly() ) ){
       vector<FoliaElement*> v = select( element_id(),
 					sett(),
 					SELECT_FLAGS::LOCAL );
@@ -3280,7 +3280,7 @@ namespace folia {
       }
     }
     if ( _parent &&
-	 !( element_id() == WordReference_t
+	 !( isinstance<WordReference>()
 	    || referable() ) ){
       throw XmlError( this,
 		      "attempt to reconnect node " + classname() + "("
@@ -3306,8 +3306,8 @@ namespace folia {
       }
     }
 #endif
-    if ( element_id() == TextContent_t
-	 && parent->element_id() == Word_t ) {
+    if ( isinstance<TextContent>()
+	 && parent->isinstance<Word>() ) {
       string val = str(cls());
       val = trim( val );
       if ( val.empty() ) {
@@ -3323,10 +3323,11 @@ namespace folia {
 	}
       }
     }
-    if ( element_id() == TextContent_t ){
+    if ( isinstance<TextContent>() ){
       string my_cls = cls();
       string st = sett();
-      vector<TextContent*> tmp = parent->select<TextContent>( st, false );
+      vector<TextContent*> tmp = parent->select<TextContent>( st,
+							      SELECT_FLAGS::LOCAL );
       if ( any_of( tmp.cbegin(),
 		   tmp.cend(),
 		   [my_cls]( const TextContent *t) { return ( t->cls() == my_cls);} ) ){
@@ -3338,7 +3339,7 @@ namespace folia {
 	}
     }
     if ( is_textcontainer() ||
-	 element_id() == Word_t ){
+	 isinstance<Word>() ){
       parent->check_append_text_consistency( this );
     }
     return true;
@@ -3364,9 +3365,9 @@ namespace folia {
       if ( annotation_type() != AnnotationType::NO_ANN
 	   && !the_doc->version_below( 2, 0 )
 	   && !the_doc->declared( annotation_type() ) ){
-	// cerr << "assignDoc: " << this << endl;
-	// cerr << "ant: " << annotation_type() << endl;
-	// cerr << "set: " << _set << endl;
+	// DBG << "assignDoc: " << this << endl;
+	// DBG << "ant: " << annotation_type() << endl;
+	// DBG << "set: " << _set << endl;
 	// so when appending a document-less child, make sure that
 	// an annotation declaration is present or added.
 	if ( annotation_type() ==  AnnotationType::TEXT ){
@@ -3398,7 +3399,7 @@ namespace folia {
 	}
       }
       if ( !_set.empty()
-	   && (CLASS & required_attributes() )
+	   && ( required_attributes() % Attrib::CLASS )
 	   && !_mydoc->declared( annotation_type(), _set ) ) {
 	throw DeclarationError( this,
 				"Set " + _set + " is used in " + xmltag()
@@ -3423,67 +3424,67 @@ namespace folia {
      * \return true, or throws
      */
     if ( _id.empty()
-	 && (ID & required_attributes() ) ) {
+	 && ( required_attributes() % Attrib::ID  ) ) {
       throw ValueError( this,
 			"attribute 'ID' is required for " + classname() );
     }
     if ( _set.empty()
-	 && (CLASS & required_attributes() ) ) {
+	 && ( required_attributes() % Attrib::CLASS ) ) {
       throw ValueError( this,
 			"attribute 'set' is required for " + classname() );
     }
     if ( _class.empty()
-	 && ( CLASS & required_attributes() ) ) {
+	 && ( required_attributes() % Attrib::CLASS ) ) {
       throw ValueError( this,
 			"attribute 'class' is required for " + classname() );
     }
     if ( _annotator.empty()
-	 && ( ANNOTATOR & required_attributes() ) ) {
+	 && ( required_attributes() % Attrib::ANNOTATOR ) ) {
       throw ValueError( this,
 			"attribute 'annotator' is required for " + classname() );
     }
-    if ( _annotator_type == UNDEFINED
-	 && ( ANNOTATOR & required_attributes() ) ) {
+    if ( _annotator_type == AnnotatorType::UNDEFINED
+	 && (  required_attributes() % Attrib::ANNOTATOR ) ) {
       throw ValueError( this,
 			"attribute 'Annotatortype' is required for " + classname() );
     }
     if ( _confidence == -1 &&
-	 ( CONFIDENCE & required_attributes() ) ) {
+	 ( required_attributes() % Attrib::CONFIDENCE  ) ) {
       throw ValueError( this,
 			"attribute 'confidence' is required for " + classname() );
     }
     if ( _n.empty()
-	 && ( N & required_attributes() ) ) {
+	 && ( required_attributes() % Attrib::N  ) ) {
       throw ValueError( this,
 			"attribute 'n' is required for " + classname() );
     }
     if ( _datetime.empty()
-	 && ( DATETIME & required_attributes() ) ) {
+	 && ( required_attributes() % Attrib::DATETIME  ) ) {
       throw ValueError( this,
 			"attribute 'datetime' is required for " + classname() );
     }
     if ( _begintime.empty()
-	 && ( BEGINTIME & required_attributes() ) ) {
+	 && ( required_attributes() % Attrib::BEGINTIME  ) ) {
       throw ValueError( this,
 			"attribute 'begintime' is required for " + classname() );
     }
     if ( _endtime.empty()
-	 && ( ENDTIME & required_attributes() ) ) {
+	 && ( required_attributes() % Attrib::ENDTIME  ) ) {
       throw ValueError( this,
 			"attribute 'endtime' is required for " + classname() );
     }
     if ( _src.empty()
-	 && ( SRC & required_attributes() ) ) {
+	 && ( required_attributes() % Attrib::SRC  ) ) {
       throw ValueError( this,
 			"attribute 'src' is required for " + classname() );
     }
     if ( _metadata.empty()
-	 && ( METADATA & required_attributes() ) ) {
+	 && ( required_attributes() % Attrib::METADATA  ) ) {
       throw ValueError( this,
 			"attribute 'metadata' is required for " + classname() );
     }
     if ( _speaker.empty()
-	 && ( SPEAKER & required_attributes() ) ) {
+	 && ( required_attributes() % Attrib::SPEAKER  ) ) {
       throw ValueError( this,
 			"attribute 'speaker' is required for " + classname() );
     }
@@ -3553,7 +3554,9 @@ namespace folia {
 
   FoliaElement *AbstractElement::postappend( ) {
     /// perform some post correction after appending
-    if ( id().empty() && (ID & required_attributes()) && auto_generate_id() ){
+    if ( id().empty()
+	 && (required_attributes() % Attrib::ID )
+	 && auto_generate_id() ){
       _id = generateId( xmltag() );
     }
     return this;
@@ -3564,11 +3567,11 @@ namespace folia {
     /*!
      * \param child the element to remove
      */
-#ifdef DE_AND_CONSTRUCT_DEBUG
-    cerr << "\nremove " << child->xmltag();
-    dbg( " from" );
-    cerr << " id=" << _id << " class= " << endl;
-#endif
+    if ( doc() && doc()->debug % DocDbg::MEMORY ){
+      DBG << "\nremove " << child->xmltag();
+      dbg( " from" );
+      DBG << " id=" << _id << " class= " << endl;
+    }
     auto it = std::remove( _data.begin(), _data.end(), child );
     _data.erase( it, _data.end() );
   }
@@ -3596,7 +3599,7 @@ namespace folia {
      * Will throw when the index is out of range
      */
     if ( i < _data.size() ) {
-      while ( _data[i]->element_id() == XmlComment_t
+      while ( _data[i]->isinstance<XmlComment>()
 	      && ++i < _data.size() );
       return _data[i];
     }
@@ -3754,16 +3757,15 @@ namespace folia {
      * \param node an xmlNode representing a FoLiA subtree
      * \return the parsed tree. Throws on error.
      */
-    KWargs att = getAttributes( node );
+    KWargs atts = getAttributes( node );
     int sp = xmlNodeGetSpacePreserve(node);
     if ( sp == 1 ){
-      att["xml:space"] = "preserve";
+      atts.add("xml:space","preserve");
     }
     else if ( sp == 0 ){
-      att["xml:space"] = "default";
+      atts.add("xml:space","default");
     }
-
-    setAttributes( att );
+    setAttributes( atts );
     set_line_number( xmlGetLineNo(node) );
     const xmlNode *p = node->children;
     while ( p ) {
@@ -3772,8 +3774,8 @@ namespace folia {
       string ns = getNS( p, pref );
       if ( !ns.empty() && ns != NSFOLIA ){
 	// skip alien nodes
-	if ( doc() && doc()->debug > 2 ) {
-	  cerr << "skipping non-FoLiA node: " << pref << ":" << Name(p) << endl;
+	if ( doc() && doc()->debug % DocDbg::PARSING ) {
+	  DBG << "skipping non-FoLiA node: " << pref << ":" << Name(p) << endl;
 	}
 	p = p->next;
 	continue;
@@ -3791,13 +3793,13 @@ namespace folia {
 			    + e.what() );
 	  }
 	}
-	if ( doc() && doc()->debug > 2 ) {
-	  cerr << "created " << t << endl;
+	if ( doc() && doc()->debug % DocDbg::PARSING ) {
+	  DBG << "created " << t << endl;
 	}
 	t = t->parseXml( p );
 	if ( t ) {
-	  if ( doc() && doc()->debug > 2 ) {
-	    cerr << "extend " << this << " met " << t << endl;
+	  if ( doc() && doc()->debug % DocDbg::PARSING ) {
+	    DBG << "extend " << this << " met " << t << endl;
 	  }
 	  append( t );
 	}
@@ -3814,13 +3816,13 @@ namespace folia {
 			  string( "parsing " ) + xml_tag + " failed:\n\t"
 			  + e.what() );
 	}
-	if ( doc() && doc()->debug > 2 ) {
-	  cerr << "created " << t << endl;
+	if ( doc() && doc()->debug % DocDbg::PARSING ) {
+	  DBG << "created " << t << endl;
 	}
 	t = t->parseXml( p );
 	if ( t ) {
-	  if ( doc() && doc()->debug > 2 ) {
-	    cerr << "extend " << this << " met " << t << endl;
+	  if ( doc() && doc()->debug % DocDbg::PARSING ) {
+	    DBG << "extend " << this << " met " << t << endl;
 	  }
 	  append( t );
 	}
@@ -3836,13 +3838,13 @@ namespace folia {
 			  string( "parsing " ) + xml_tag + " failed:\n\t"
 			  + e.what() );
 	}
-	if ( doc() && doc()->debug > 2 ) {
-	  cerr << "created " << t << endl;
+	if ( doc() && doc()->debug % DocDbg::PARSING ) {
+	  DBG << "created " << t << endl;
 	}
 	t = t->parseXml( p );
 	if ( t ) {
-	  if ( doc() && doc()->debug > 2 ) {
-	    cerr << "extend " << this << " met " << t << endl;
+	  if ( doc() && doc()->debug % DocDbg::PARSING ) {
+	    DBG << "extend " << this << " met " << t << endl;
 	  }
 	  append( t );
 	}
@@ -3850,10 +3852,10 @@ namespace folia {
       else if ( p->type == XML_ENTITY_REF_NODE ){
 	string txt = TextValue( p );
 	const XmlText *t = add_child<XmlText>( txt );
-	if ( doc() && doc()->debug > 2 ) {
-	  cerr << "created " << t << "(" << t->text() << ")" << endl;
-	  cerr << "extended " << this << " met " << t << endl;
-	  cerr << "this.size()= " << size() << " t.size()=" << t->size() << endl;
+	if ( doc() && doc()->debug % DocDbg::PARSING ) {
+	  DBG << "created " << t << "(" << t->text() << ")" << endl;
+	  DBG << "extended " << this << " met " << t << endl;
+	  DBG << "this.size()= " << size() << " t.size()=" << t->size() << endl;
 	}
       }
       else if ( p->type == XML_TEXT_NODE ){
@@ -3863,10 +3865,10 @@ namespace folia {
 	  string txt = TextValue( p );
 	  if ( !txt.empty() ) {
 	    const XmlText *t = add_child<XmlText>( txt );
-	    if ( doc() && doc()->debug > 2 ) {
-	      cerr << "created " << t << "(" << t->text() << ")" << endl;
-	      cerr << "extended " << this << " met " << t << endl;
-	      cerr << "this.size()= " << size() << " t.size()=" << t->size() << endl;
+	    if ( doc() && doc()->debug % DocDbg::PARSING ) {
+	      DBG << "created " << t << "(" << t->text() << ")" << endl;
+	      DBG << "extended " << this << " met " << t << endl;
+	      DBG << "this.size()= " << size() << " t.size()=" << t->size() << endl;
 	    }
 	  }
 	}
@@ -3897,8 +3899,9 @@ namespace folia {
     }
     if ( doc() && ( doc()->checktext() || doc()->fixtext() )
 	 && this->printable()
-	 && !isSubClass( Morpheme_t ) && !isSubClass( Phoneme_t) ){
-      check_text_consistency_while_parsing( true, doc()->debug > 2 );
+	 && !isSubClass<Morpheme>() && !isSubClass<Phoneme>() ){
+      check_text_consistency_while_parsing( true,
+					    doc()->debug % DocDbg::TEXTHANDLING );
     }
     return this;
   }
@@ -3909,7 +3912,7 @@ namespace folia {
      * \param s a date/time in ISO.... format. (YYYY-MM-DDThh:mm:ss)
      */
     Attrib supported = required_attributes() | optional_attributes();
-    if ( !(DATETIME & supported) ) {
+    if ( !( supported % Attrib::DATETIME) ) {
       throw ValueError( this,
 			"datetime is not supported for " + classname() );
     }
@@ -3938,19 +3941,14 @@ namespace folia {
      * an ALTERNATIVE node is added
      */
     KWargs args = inargs;
-    string st;
-    auto it = args.find("set" );
-    if ( it != args.end() ) {
-      st = it->second;
-    }
+    string st = args.lookup("set" );
     string newId = args.extract("generate_id" );
     if ( newId.empty() ){
       newId = "alt-pos";
     }
     if ( has_annotation<PosAnnotation>( st ) > 0 ) {
       // ok, there is already one, so create an Alternative
-      KWargs kw;
-      kw["xml:id"] = generateId( newId );
+      KWargs kw("xml:id", generateId( newId ));
       if ( !doc()->declared( AnnotationType::ALTERNATIVE ) ){
 	doc()->declare( AnnotationType::ALTERNATIVE, "" );
       }
@@ -3980,8 +3978,8 @@ namespace folia {
     for ( const auto& alt : alt_nodes ){
       if ( alt->size() > 0 ) { // child elements?
 	for ( size_t j=0; j < alt->size(); ++j ) {
-	  if ( alt->index(j)->element_id() == PosAnnotation_t &&
-	       ( st.empty() || alt->index(j)->sett() == st ) ) {
+	  if ( alt->index(j)->isinstance<PosAnnotation>()
+	       && ( st.empty() || alt->index(j)->sett() == st ) ) {
 	    alts.push_back( dynamic_cast<PosAnnotation*>(alt->index(j)) );
 	  }
 	}
@@ -4000,19 +3998,14 @@ namespace folia {
      * an ALTERNATIVE node is added
      */
     KWargs args = inargs;
-    string st;
-    auto it = args.find("set" );
-    if ( it != args.end() ) {
-      st = it->second;
-    }
+    string st = args.lookup("set");
     string newId = args.extract("generate_id" );
     if ( newId.empty() ){
       newId = "alt-lem";
     }
     if ( has_annotation<LemmaAnnotation>( st ) > 0 ) {
       // ok, there is already one, so create an Alternative
-      KWargs kw;
-      kw["xml:id"] = generateId( newId );
+      KWargs kw( "xml:id",generateId( newId ));
       if ( !doc()->declared( AnnotationType::ALTERNATIVE ) ){
 	doc()->declare( AnnotationType::ALTERNATIVE, "" );
       }
@@ -4042,8 +4035,8 @@ namespace folia {
     for ( const auto& alt : alt_nodes ){
       if ( alt->size() > 0 ) { // child elements?
 	for ( size_t j =0; j < alt->size(); ++j ) {
-	  if ( alt->index(j)->element_id() == LemmaAnnotation_t &&
-	       ( st.empty() || alt->index(j)->sett() == st ) ) {
+	  if ( alt->index(j)->isinstance<LemmaAnnotation>()
+	       && ( st.empty() || alt->index(j)->sett() == st ) ) {
 	    alts.push_back( dynamic_cast<LemmaAnnotation*>(alt->index(j)) );
 	  }
 	}
@@ -4063,7 +4056,7 @@ namespace folia {
     KWargs kw = in_args;
     if ( !kw.is_present("xml:id") ){
       string new_id = generateId( "s" );
-      kw["xml:id"] = new_id;
+      kw.add("xml:id", new_id);
     }
     try {
       res = new Sentence( kw, doc() );
@@ -4086,7 +4079,7 @@ namespace folia {
     KWargs kw = in_args;
     if ( !kw.is_present("xml:id") ){
       string new_id = generateId( "w" );
-      kw["xml:id"] = new_id;
+      kw.add("xml:id",new_id);
     }
     try {
       res->setAttributes( kw );
@@ -4111,7 +4104,7 @@ namespace folia {
     */
     KWargs args = getArgs(s);
     if ( args.empty() ){
-      args["text"] = s;
+      args.add("text",s);
     }
     return addWord( args );
   }
@@ -4125,8 +4118,8 @@ namespace folia {
      * The new id is constructed from the elements id, or from a parent id
      */
     string nodeId = id();
-    // cerr << "node: " << this << endl;
-    // cerr << "ID=" << nodeId << endl;
+    // DBG << "node: " << this << endl;
+    // DBG << "ID=" << nodeId << endl;
     if ( nodeId.empty() ){
       // if no ID, look upward.
       FoliaElement *par = parent();
@@ -4134,7 +4127,7 @@ namespace folia {
 	throw XmlError( this,
 			"unable to generate an ID. No StructureElement parent found?" );
       }
-      // cerr << "call on parent:" << par << endl;
+      // DBG << "call on parent:" << par << endl;
       return par->generateId( tag );
     }
     else {
@@ -4142,9 +4135,9 @@ namespace folia {
       if ( !tag.empty() ) {
 	max = ++id_map[tag];
       }
-      // cerr << "MAX = " << max << endl;
+      // DBG << "MAX = " << max << endl;
       string id = nodeId + '.' + tag + '.' +  TiCC::toString( max );
-      // cerr << "new id = " << id << endl;
+      // DBG << "new id = " << id << endl;
       return id;
     }
   }
@@ -4181,8 +4174,6 @@ namespace folia {
     }
   }
 
-  //#define DEBUG_CORRECT 1
-
   Correction * AllowCorrections::correct( const vector<FoliaElement*>& _original,
 					  const vector<FoliaElement*>& _current,
 					  const vector<FoliaElement*>& _newv,
@@ -4197,16 +4188,20 @@ namespace folia {
      * \param args_in additional arguments
      * \return the Correction node. Might throw on problems
      */
-#ifdef DEBUG_CORRECT
-    cerr << "correct " << this << endl;
-    cerr << "original= " << _original << endl;
-    cerr << "current = " << _current << endl;
-    cerr << "new     = " << _newv << endl;
-    cerr << "suggestions     = " << _suggestions << endl;
-    cerr << "args in     = " << args_in << endl;
-#endif
-    // Apply a correction
     Document *doc = this->doc();
+    bool corr_debug = false;
+    if ( doc ){
+      corr_debug = ( doc->debug % DocDbg::CORRECTION );
+    }
+    if ( corr_debug ){
+      DBG << "correct " << this << endl;
+      DBG << "original= " << _original << endl;
+      DBG << "current = " << _current << endl;
+      DBG << "new     = " << _newv << endl;
+      DBG << "suggestions     = " << _suggestions << endl;
+      DBG << "args in     = " << args_in << endl;
+    }
+    // Apply a correction
     Correction *corr = 0;
     bool hooked = false;
     New *addnew = 0;
@@ -4214,33 +4209,31 @@ namespace folia {
     vector<FoliaElement*> original = _original;
     vector<FoliaElement*> _new = _newv;
     vector<FoliaElement*> suggestions = _suggestions;
-    auto it = args.find("new");
-    if ( it != args.end() ) {
-      KWargs my_args;
-      my_args["value"] = it->second;
+    string val = args.extract("new");
+    if ( !val.empty() ){
+      KWargs my_args("value",val);
       TextContent *t = new TextContent( my_args, doc );
       _new.push_back( t );
-      args.erase( it );
     }
-    it = args.find("suggestion");
-    if ( it != args.end() ) {
-      KWargs my_args;
-      my_args["value"] = it->second;
-      TextContent *t = new TextContent( my_args, doc );
-      suggestions.push_back( t );
-      args.erase( it );
+    else {
+      val = args.extract("suggestion");
+      if ( !val.empty() ){
+	KWargs my_args("value",val);
+	TextContent *t = new TextContent( my_args, doc );
+	suggestions.push_back( t );
+      }
     }
-    it = args.find("reuse");
-    if ( it != args.end() ) {
+    val = args.lookup("reuse");
+    if ( !val.empty() ){
       // reuse an existing correction instead of making a new one
       try {
-	corr = dynamic_cast<Correction*>(doc->index(it->second));
+	corr = dynamic_cast<Correction*>(doc->index(val));
       }
       catch ( const exception& e ) {
 	throw ValueError( this,
 			  "reuse= must point to an existing correction id!" );
       }
-      if ( !corr->isinstance( Correction_t ) ) {
+      if ( !corr->isinstance<Correction>() ) {
 	throw ValueError( this,
 			  "reuse= must point to an existing correction id!" );
       }
@@ -4264,12 +4257,12 @@ namespace folia {
       args2.erase("suggestion" );
       args2.erase("suggestions" );
       string id = generateId( "correction" );
-      args2["xml:id"] = id;
+      args2.add("xml:id",id);
       corr = new Correction( args2, doc );
     }
-#ifdef DEBUG_CORRECT
-    cerr << "now corr= " << corr << endl;
-#endif
+    if ( corr_debug ){
+      DBG << "now corr= " << corr << endl;
+    }
     if ( !_current.empty() ) {
       if ( !original.empty() || !_new.empty() ) {
 	throw runtime_error("When setting current=, original= and new= can not be set!");
@@ -4288,14 +4281,14 @@ namespace folia {
 	  }
 	}
       }
-#ifdef DEBUG_CORRECT
-      cerr << "now corr= " << corr << endl;
-#endif
+      if ( corr_debug ){
+	DBG << "now corr= " << corr << endl;
+      }
     }
     if ( !_new.empty() ) {
-#ifdef DEBUG_CORRECT
-      cerr << "there is new! " << endl;
-#endif
+      if ( corr_debug ){
+	DBG << "there is new! " << endl;
+      }
       vector<New*> old_new = corr->select<New>();
       if ( !old_new.empty() && old_new[0]->size() == 0 ){
 	// there is an EMPTY <new> tag!
@@ -4311,17 +4304,17 @@ namespace folia {
 	nw->set_parent(0);
 	addnew->append( nw );
       }
-#ifdef DEBUG_CORRECT
-      cerr << "after adding NEW: " << corr->xmlstring() << endl;
-#endif
+      if ( corr_debug ){
+	DBG << "after adding NEW: " << corr->xmlstring() << endl;
+      }
       vector<Current*> v = corr->select<Current>();
       //delete current if present
       for ( const auto& cur:v ) {
 	corr->remove( cur );
       }
-#ifdef DEBUG_CORRECT
-      cerr << "after removing CUR: " << corr->xmlstring() << endl;
-#endif
+      if ( corr_debug ){
+	DBG << "after removing CUR: " << corr->xmlstring() << endl;
+      }
     }
     else if ( !original.empty() ){
       vector<New*> old_new = corr->select<New>();
@@ -4335,55 +4328,56 @@ namespace folia {
       }
     }
     if ( !original.empty() ) {
-#ifdef DEBUG_CORRECT
-      cerr << "there is original! " << endl;
-#endif
+      if ( corr_debug ){
+	DBG << "there is original! " << endl;
+      }
       FoliaElement *add = new Original( doc );
       corr->replace(add);
-#ifdef DEBUG_CORRECT
-      cerr << " corr after replacing original " << corr->xmlstring() << endl;
-      cerr << " new original= " << add << endl;
-#endif
+      if ( corr_debug ){
+	DBG << " corr after replacing original " << corr->xmlstring() << endl;
+	DBG << " new original= " << add << endl;
+      }
       for ( const auto& org: original ) {
-#ifdef DEBUG_CORRECT
-	cerr << " examine org " << org << endl;
-#endif
+	if ( corr_debug ){
+	  DBG << " examine org " << org << endl;
+	}
 	bool dummyNode = ( org->id() == "dummy" );
 	if ( !dummyNode ) {
 	  org->set_parent(0);
 	  add->append( org );
 	}
-#ifdef DEBUG_CORRECT
-	cerr << " NOW original= " << add << endl;
-#endif
+	if ( corr_debug ){
+	  DBG << " NOW original= " << add << endl;
+	}
 	for ( size_t i=0; i < size(); ++i ) {
-#ifdef DEBUG_CORRECT
-	  cerr << "in loop, bekijk " << index(i) << endl;
-#endif
+	  if ( corr_debug ){
+	    DBG << "in loop, bekijk " << index(i) << endl;
+	  }
 	  if ( index(i) == org ) {
-#ifdef DEBUG_CORRECT
-	    cerr << "OK hit on ORG :" << org << endl;
-#endif
+	    if ( corr_debug ){
+	      DBG << "OK hit on ORG :" << org << endl;
+	    }
 	    if ( !hooked ) {
-#ifdef DEBUG_CORRECT
-	      cerr << "it isn't hooked!" << endl;
-	      const FoliaElement *tmp = replace( index(i), corr );
-	      cerr << " corr after replace " << corr->xmlstring() << endl;
-	      cerr << " replaced " << tmp << endl;
-#else
-	      replace( index(i), corr );
-#endif
+	      if ( corr_debug ){
+		DBG << "it isn't hooked!" << endl;
+		const FoliaElement *tmp = replace( index(i), corr );
+		DBG << " corr after replace " << corr->xmlstring() << endl;
+		DBG << " replaced " << tmp << endl;
+	      }
+	      else {
+		replace( index(i), corr );
+	      }
 	      hooked = true;
 	    }
 	    else {
-#ifdef DEBUG_CORRECT
-	      cerr << " corr before remove " << corr << endl;
-	      cerr << " remove  " << org << endl;
-#endif
+	      if ( corr_debug ){
+		DBG << " corr before remove " << corr << endl;
+		DBG << " remove  " << org << endl;
+	      }
 	      this->remove( org );
-#ifdef DEBUG_CORRECT
-	      cerr << " corr after remove " << corr << endl;
-#endif
+	      if ( corr_debug ){
+		DBG << " corr after remove " << corr << endl;
+	      }
 	    }
 	  }
 	}
@@ -4395,14 +4389,14 @@ namespace folia {
     else if ( addnew ) {
       // original not specified, find automagically:
       vector<FoliaElement *> orig;
-#ifdef DEBUG_CORRECT
-      cerr << "start to look for original " << endl;
-#endif
+      if ( corr_debug ){
+	DBG << "start to look for original " << endl;
+      }
       for ( size_t i=0; i < len(addnew); ++ i ) {
 	const FoliaElement *p = addnew->index(i);
-#ifdef DEBUG_CORRECT
-	cerr << "bekijk " << p << endl;
-#endif
+	if ( corr_debug ){
+	  DBG << "bekijk " << p << endl;
+	}
 	vector<FoliaElement*> v = p->find_replacables( this );
 	// for ( const auto& el: v ) {
 	//   orig.push_back( el );
@@ -4413,83 +4407,83 @@ namespace folia {
 	throw runtime_error( "No original= specified and unable to automatically infer");
       }
       else {
-#ifdef DEBUG_CORRECT
-	cerr << "we seem to have some originals! " << endl;
-#endif
+	if ( corr_debug ){
+	  DBG << "we seem to have some originals! " << endl;
+	}
 	FoliaElement *add = new Original( doc );
-#ifdef DEBUG_CORRECT
-	cerr << "corr before adding new original! " << corr << endl;
-#endif
+	if ( corr_debug ){
+	  DBG << "corr before adding new original! " << corr << endl;
+	}
 	corr->replace(add);
-#ifdef DEBUG_CORRECT
-	cerr << "corr after adding new original! " << corr << endl;
-	cerr << "now parent = " << add->parent() << endl;
-#endif
+	if ( corr_debug ){
+	  DBG << "corr after adding new original! " << corr << endl;
+	  DBG << "now parent = " << add->parent() << endl;
+	}
 
 	for ( const auto& org: orig ) {
-#ifdef DEBUG_CORRECT
-	  cerr << " examine original : " << org << endl;
-	  cerr << "with parent = " << org->parent() << endl;
-#endif
+	  if ( corr_debug ){
+	    DBG << " examine original : " << org << endl;
+	    DBG << "with parent = " << org->parent() << endl;
+	  }
 	  // first we lookup org in our data and remove it there
 	  for ( size_t i=0; i < size(); ++i ) {
-#ifdef DEBUG_CORRECT
-	    cerr << "in loop, bekijk " << index(i) << endl;
-#endif
+	    if ( corr_debug ){
+	      DBG << "in loop, bekijk " << index(i) << endl;
+	    }
 	    if ( index(i) == org ) {
-#ifdef DEBUG_CORRECT
-	      cerr << "found original " << endl;
-#endif
+	      if ( corr_debug ){
+		DBG << "found original " << endl;
+	      }
 	      if ( !hooked ) {
-#ifdef DEBUG_CORRECT
-		cerr << "it isn't hooked!" << endl;
-		const FoliaElement *tmp = replace( index(i), corr );
-		cerr << " corr after replace " << corr << endl;
-		cerr << " replaced " << tmp << endl;
-#else
-		replace( index(i), corr );
-#endif
-
+		if ( corr_debug ){
+		  DBG << "it isn't hooked!" << endl;
+		  const FoliaElement *tmp = replace( index(i), corr );
+		  DBG << " corr after replace " << corr << endl;
+		  DBG << " replaced " << tmp << endl;
+		}
+		else {
+		  replace( index(i), corr );
+		}
 		hooked = true;
 	      }
 	      else {
-#ifdef DEBUG_CORRECT
-		cerr << " corr before remove " << corr << endl;
-		cerr << " remove  " << org << endl;
-#endif
+		if ( corr_debug ){
+		  DBG << " corr before remove " << corr << endl;
+		  DBG << " remove  " << org << endl;
+		}
 		this->remove( org );
-#ifdef DEBUG_CORRECT
-		cerr << " corr after remove " << corr << endl;
-#endif
+		if ( corr_debug ){
+		  DBG << " corr after remove " << corr << endl;
+		}
 	      }
 	    }
 	  }
 	  // now we connect org to the new original node
 	  org->set_parent( 0 );
 	  add->append( org );
-#ifdef DEBUG_CORRECT
-	  cerr << " add after append : " << add << endl;
-	  cerr << "parent = " << org->parent() << endl;
-#endif
+	  if ( corr_debug ){
+	    DBG << " add after append : " << add << endl;
+	    DBG << "parent = " << org->parent() << endl;
+	  }
 	}
 	vector<Current*> v = corr->select<Current>();
 	//delete current if present
 	for ( const auto& cur: v ) {
-#ifdef DEBUG_CORRECT
-	  cerr << " remove cur=" << cur << endl;
-#endif
+	  if ( corr_debug ){
+	    DBG << " remove cur=" << cur << endl;
+	  }
 	  this->remove( cur );
 	}
       }
     }
-#ifdef DEBUG_CORRECT
-    cerr << " corr after edits " << corr->xmlstring() << endl;
-#endif
+    if ( corr_debug ){
+      DBG << " corr after edits " << corr->xmlstring() << endl;
+    }
     if ( addnew ) {
       for ( const auto& org : original ) {
-#ifdef DEBUG_CORRECT
-	cerr << " remove  " << org << endl;
-#endif
+	if ( corr_debug ){
+	  DBG << " remove  " << org << endl;
+	}
 	bool dummyNode = ( org->id() == "dummy" );
 	corr->remove( org );
 	if ( dummyNode ){
@@ -4497,15 +4491,15 @@ namespace folia {
 	}
       }
     }
-#ifdef DEBUG_CORRECT
-    cerr << " corr after removes " << corr->xmlstring() << endl;
-#endif
+    if ( corr_debug ){
+      DBG << " corr after removes " << corr->xmlstring() << endl;
+    }
     if ( !suggestions.empty() ) {
       if ( !hooked ) {
 	append(corr);
       }
       for ( const auto& sug : suggestions ) {
-	if ( sug->isinstance( Suggestion_t ) ) {
+	if ( sug->isinstance<Suggestion>() ) {
 	  sug->set_parent(0);
 	  corr->append( sug );
 	}
@@ -4518,19 +4512,19 @@ namespace folia {
       }
     }
 
-    it = args.find("reuse");
-    if ( it != args.end() ) {
-      it = args.find("annotator");
-      if ( it != args.end() ) {
-	corr->annotator( it->second );
+    val = args.extract("reuse");
+    if ( !val.empty() ){
+      val = args.extract("annotator");
+      if ( !val.empty() ){
+	corr->annotator( val );
       }
-      it = args.find("annotatortype");
-      if ( it != args.end() ){
-	corr->annotatortype( stringTo<AnnotatorType>(it->second) );
+      val = args.extract("annotatortype");
+      if ( !val.empty() ){
+	corr->annotatortype( stringTo<AnnotatorType>(val) );
       }
-      it = args.find("confidence");
-      if ( it != args.end() ) {
-	corr->confidence( stringTo<double>(it->second) );
+      val = args.extract("confidence");
+      if ( !val.empty() ) {
+	corr->confidence( stringTo<double>(val) );
       }
     }
     corr->check_type_consistency();
@@ -4550,9 +4544,9 @@ namespace folia {
     vector<FoliaElement*> nil3;
     vector<FoliaElement*> nil4;
     KWargs args = getArgs( s );
-    //    cerr << xmltag() << "::correct() <== " << this << endl;
+    //    DBG << xmltag() << "::correct() <== " << this << endl;
     Correction *tmp = correct( nil1, nil2, nil3, nil4, args );
-    //    cerr << xmltag() << "::correct() ==> " << this << endl;
+    //    DBG << xmltag() << "::correct() ==> " << this << endl;
     return tmp;
   }
 
@@ -4573,9 +4567,9 @@ namespace folia {
     vector<FoliaElement *> ov;
     ov.push_back( _old );
     vector<FoliaElement *> nil;
-    //    cerr << xmltag() << "::correct() <== " << this << endl;
+    //    DBG << xmltag() << "::correct() <== " << this << endl;
     Correction *tmp = correct( ov, nil, nv, sugg, args );
-    //    cerr << xmltag() << "::correct() ==> " << this << endl;
+    //    DBG << xmltag() << "::correct() ==> " << this << endl;
     return tmp;
   }
 
@@ -4603,7 +4597,7 @@ namespace folia {
      */
     vector<string> result;
     for ( const auto *el : data() ) {
-      if ( el->isSubClass( AbstractFeature_t ) &&
+      if ( el->isSubClass<AbstractFeature>() &&
 	   el->subset() == s ) {
 	result.push_back( el->cls() );
       }
@@ -4619,7 +4613,7 @@ namespace folia {
      */
     const auto& it = find_if( _data.begin(), _data.end(),
 			      [s]( const FoliaElement *e ){
-				return ( e->isSubClass( AbstractFeature_t )
+				return ( e->isSubClass<AbstractFeature>()
 					 && e->subset() == s ); } );
     if ( it == _data.end() ){
       return "";
