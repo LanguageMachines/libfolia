@@ -3,7 +3,7 @@ name: C/C++ CI
 
 on:
   schedule:
-    - cron: "0 20 4 * *"  # Run monthly, at 20:00 on the 4th day of month.
+    - cron: "10 20 16 * *"  # Run monthly, at 20:00 on the 4th day of month.
   push:
     branches:
       - master
