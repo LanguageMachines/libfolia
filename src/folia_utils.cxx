@@ -858,11 +858,11 @@ namespace folia {
     }
     string id = d.id() + ".text.1";
     KWargs kw = getArgs( "xml:id='" + id + "'" );
-    FoliaElement *text = d.addText( kw );
+    FoliaElement *txt = d.addText( kw );
     kw.clear();
-    kw = getArgs( "generate_id='" + text->id() + "'" );
+    kw = getArgs( "generate_id='" + txt->id() + "'" );
     FoliaElement *s = new Sentence( kw, &d );
-    text->append( s );
+    txt->append( s );
     kw.clear();
     kw.add("text","De");
     s->addWord( kw );
@@ -878,9 +878,9 @@ namespace folia {
       cerr << " Unexpected sentence size, " <<  d[id+".s.1"]->size() << ", expected 5" << endl;
       return EXIT_FAILURE;
     }
-    UnicodeString txt = s->text();
-    if ( txt != "De site staat online ." ) {
-      cerr << " Text does not match reference: '" << txt << "' vs reference: 'De site staat online .'" << endl;
+    UnicodeString txt_val = s->text();
+    if ( txt_val != "De site staat online ." ) {
+      cerr << " Text does not match reference: '" << txt_val << "' vs reference: 'De site staat online .'" << endl;
       return EXIT_FAILURE;
     }
     cerr << s->text() << endl;
@@ -1035,8 +1035,8 @@ namespace folia {
 	return false;
       }
     }
-    vector<FoliaElement*> ve;
     try {
+      vector<FoliaElement*> ve;
       vector<Paragraph*> vp;
       merge( ve, vp );
     }
