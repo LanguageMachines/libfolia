@@ -1,3 +1,16 @@
+2.21 2024-12-16
+[Ko van der Sloot]
+* code rework enad cleanup
+  - needs latest ticcutils
+  - better introspection (isinstance() and isSubClass())
+  - select() functions
+  - type consistency. (e.g. all Enum's are Classes)
+  - improved debugging possibilities
+  - introduced an AbstractWord als base for (Hidden-)Word
+  - added more sanity tests
+  - more strictly forbig empty attributes in FoLiA
+  - improved GitHub CI builds
+
 2.20 2024-09-12
 [Ko van der Sloot]
 * require C++17 now
