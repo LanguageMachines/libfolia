@@ -505,15 +505,15 @@ namespace folia {
   };
 
   using DocMode = Document::RUN_FLAGS;
-  DEFINE_ENUM_FLAG_OPERATORS(DocMode);
+  DEFINE_ENUM_FLAG_OPERATORS(DocMode)
 
-  inline bool Document::permissive() const { return mode % DocMode::PERMISSIVE; };
-  inline bool Document::checktext() const { return mode % DocMode::CHECKTEXT; };
-  inline bool Document::fixtext() const { return mode % DocMode::FIXTEXT; };
-  inline bool Document::strip() const { return mode % DocMode::STRIP; };
-  inline bool Document::canonical() const { return mode % DocMode::CANONICAL; };
-  inline bool Document::autodeclare() const { return mode % DocMode::AUTODECLARE; };
-  inline bool Document::has_explicit() const { return mode % DocMode::EXPLICIT; };
+  inline bool Document::permissive() const { return mode % DocMode::PERMISSIVE; }
+  inline bool Document::checktext() const { return mode % DocMode::CHECKTEXT; }
+  inline bool Document::fixtext() const { return mode % DocMode::FIXTEXT; }
+  inline bool Document::strip() const { return mode % DocMode::STRIP; }
+  inline bool Document::canonical() const { return mode % DocMode::CANONICAL; }
+  inline bool Document::autodeclare() const { return mode % DocMode::AUTODECLARE; }
+  inline bool Document::has_explicit() const { return mode % DocMode::EXPLICIT; }
 
   template <> inline
     Text *Document::create_root( const KWargs& args ){
@@ -550,7 +550,7 @@ namespace folia {
   std::string folia_version();
   using DocDbg = Document::DEBUG_FLAGS;
   std::string toString( DocDbg mode );
-  DEFINE_ENUM_FLAG_OPERATORS(DocDbg);
+  DEFINE_ENUM_FLAG_OPERATORS(DocDbg)
   std::ostream& operator<<( std::ostream&, const DocDbg& );
   extern TiCC::LogStream *_dbg_file; //!< the debugging stream
 } // namespace folia
