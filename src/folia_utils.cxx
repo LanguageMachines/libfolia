@@ -65,58 +65,58 @@ namespace folia {
   ValueError::ValueError( const FoliaElement *elt,
 			  const std::string& mess ):
     std::runtime_error( output_elem( elt)
-			+ ": Value error: " + mess ){};
+			+ ": Value error: " + mess ){}
 
   DeclarationError::DeclarationError( const FoliaElement *elt,
 				      const std::string& mess ):
     std::runtime_error( output_elem( elt)
-			+ ": Declaration error: " + mess ){};
+			+ ": Declaration error: " + mess ){}
 
   DuplicateIDError::DuplicateIDError( const FoliaElement *elt,
 				      const std::string& mess ):
     std::runtime_error( output_elem( elt)
-			+ ": Duplicate ID: " + mess ){};
+			+ ": Duplicate ID: " + mess ){}
 
   DuplicateAttributeError::DuplicateAttributeError( const KWargs& args,
 						    const std::string& att,
 						    const std::string& val ):
     std::runtime_error( "Duplicate attribute: '" + att + "' with val="
-			+ val + ", current value: " + args.lookup(att) ){};
+			+ val + ", current value: " + args.lookup(att) ){}
 
   DuplicateAnnotationError::DuplicateAnnotationError( const FoliaElement *elt,
 						      const std::string& mess ):
     std::runtime_error( output_elem( elt)
-			+ ": Duplicate Annotation: " + mess ){};
+			+ ": Duplicate Annotation: " + mess ){}
 
   NoSuchAnnotation::NoSuchAnnotation( const FoliaElement *elt,
 				      const std::string& mess ):
     std::runtime_error( output_elem( elt)
-			+ ": no such annotation: " + mess ){};
+			+ ": no such annotation: " + mess ){}
 
   XmlError::XmlError( const FoliaElement *elt,
 		      const std::string& mess ):
     std::runtime_error( output_elem( elt)
-			+ ": XML error: " + mess ){};
+			+ ": XML error: " + mess ){}
 
   InconsistentText::InconsistentText( const FoliaElement *elt,
 				      const std::string& mess ):
     std::runtime_error( output_elem( elt)
-			+ ": inconsistent text: " + mess ){};
+			+ ": inconsistent text: " + mess ){}
 
   UnresolvableTextContent::UnresolvableTextContent( const FoliaElement *elt,
 						    const std::string& mess ):
     std::runtime_error( output_elem( elt)
-			+ ": unresolvable text: " + mess ){};
+			+ ": unresolvable text: " + mess ){}
 
   NoSuchText::NoSuchText( const FoliaElement *elt,
 			  const std::string& mess ):
     std::runtime_error(	output_elem( elt)
-			+ ": NO text content: " + mess ){};
+			+ ": NO text content: " + mess ){}
 
   NoSuchPhon::NoSuchPhon( const FoliaElement *elt,
 			  const std::string& mess ):
     std::runtime_error( output_elem( elt)
-			+ ": NO phon content: " + mess ){};
+			+ ": NO phon content: " + mess ){}
 
   FoliaElement *FoliaElement::createElement( const string& tag,
 					     Document *doc ){
