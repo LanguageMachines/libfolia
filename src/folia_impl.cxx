@@ -584,11 +584,6 @@ namespace folia {
 
   void AbstractElement::annotator2processor( const string& annotator,
 					     const string& an_type ){
-    Provenance *prov = doc()->provenance();
-    if ( !prov ){
-      prov = new Provenance( doc() );
-      //	DBG << "created new Provenance: " << prov << endl;
-    }
     folia::processor *top = doc()->get_default_processor();
     AnnotatorType at = AnnotatorType::AUTO;
     if ( !an_type.empty() ){
@@ -608,6 +603,12 @@ namespace folia {
     }
     else {
       // no matching processor. create a simple one
+      Provenance *prov = doc()->provenance();
+      if ( !prov ){
+	// no provenance at all,, so create first
+	prov = new Provenance( doc() );
+	//	DBG << "created new Provenance: " << prov << endl;
+      }
       KWargs args;
       args.add("name",annotator);
       args.add("annotatortype",an_type);
@@ -4226,6 +4227,10 @@ namespace folia {
     val = args.lookup("reuse");
     if ( !val.empty() ){
       // reuse an existing correction instead of making a new one
+      if ( !doc ){
+	throw ValueError( this,
+			  "reuse= needs a Document" );
+      }
       try {
 	corr = dynamic_cast<Correction*>(doc->index(val));
       }
