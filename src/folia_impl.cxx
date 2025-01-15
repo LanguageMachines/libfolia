@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2006 - 2024
+  Copyright (c) 2006 - 2025
   CLST  - Radboud University
   ILK   - Tilburg University
 
@@ -1376,7 +1376,6 @@ namespace folia {
       xmlSetNs( n, xmlNewNs( n, to_xmlChar(NSFOLIA), 0 ) );
     }
     xmlBuffer *buf = xmlBufferCreate();
-    //    xmlKeepBlanksDefault(0);
     xmlNodeDump( buf, 0, n, indent, (format?1:0) );
     string result = to_string( xmlBufferContent( buf ) );
     xmlBufferFree( buf );
