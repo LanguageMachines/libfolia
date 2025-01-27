@@ -1,3 +1,8 @@
+2.21.1 2025-01-27
+[Maarten van Gompel]
+* Fix for segfault on edge cases without /etc/services
+  (https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1094197)
+
 2.21 2024-12-16
 [Ko van der Sloot]
 * needs latest ticcutils
