@@ -688,7 +688,7 @@ namespace folia {
       \return a string with the hostname
     */
     string result = "unknown";
-    struct addrinfo hints, *info;
+    struct addrinfo hints, *info = NULL;
     int gai_result;
 
     char hostname[1024];
@@ -706,7 +706,9 @@ namespace folia {
     if ((gai_result = getaddrinfo(hostname, "http", &hints, &info)) != 0) {
       //      cerr << "getaddrinfo failed: " << gai_strerror(gai_result)
       //	   << ", using 'unknown' as hostname" << endl;
-      freeaddrinfo(info);
+      if (info != NULL){
+        freeaddrinfo(info);
+      }
       result = hostname;
       return result;
     }
