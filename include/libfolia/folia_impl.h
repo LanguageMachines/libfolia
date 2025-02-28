@@ -393,6 +393,7 @@ namespace folia {
     virtual bool hasCurrent() const NOT_IMPLEMENTED;
     virtual Current *getCurrent() const NOT_IMPLEMENTED;
     virtual FoliaElement *getCurrent( size_t ) const NOT_IMPLEMENTED;
+    virtual bool hasSuggestions() const NOT_IMPLEMENTED;
     virtual Correction *incorrection() const NOT_IMPLEMENTED;
     virtual Correction *split( FoliaElement *, FoliaElement *,
 			       const std::string& = "" ) NOT_IMPLEMENTED;

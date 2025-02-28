@@ -997,10 +997,10 @@ public:							\
     FoliaElement *parseXml( const xmlNode * ) override;
     bool addable( const FoliaElement * ) const override;
     void check_type_consistency() const;
-    bool hasNew() const;
-    bool hasOriginal() const;
-    bool hasCurrent() const;
-    bool hasSuggestions() const;
+    bool hasNew() const override;
+    bool hasOriginal() const override;
+    bool hasCurrent() const override;
+    bool hasSuggestions() const override;
     New *getNew() const override;
     FoliaElement *getNew( size_t ) const override;
     Original *getOriginal() const override;
