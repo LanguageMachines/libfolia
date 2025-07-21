@@ -420,7 +420,7 @@ namespace folia {
 		      bool att_dbg ){
     /// add all attributes from 'atts' as attribute nodes to 'node`
     /*!
-      \param _node The xmlNode to add to
+      \param node The xmlNode to add to
       \param atts The list of attribute/value pairs
       \param att_dbg do we want to debug? (default false)
       some special care is taken for attributes 'xml:id', 'id' and 'lang'

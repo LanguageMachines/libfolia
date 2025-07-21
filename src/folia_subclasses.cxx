@@ -758,6 +758,7 @@ namespace folia {
     /*!
       \param cls the textclass the text should be in
       \param flags the TEXT_FLAGS for the TextPolicy to use
+      \param debug set debugging to 'debug'
       \return the UnicodeString with the phon content
     */
     TextPolicy tp( cls, flags );
