@@ -3475,17 +3475,10 @@ namespace folia {
     return true;
   }
 
-  void AbstractElement::classInit(){
-    // we could call 'init()' directly, but this is more esthetic
-    // keep in balance with the next function
-    init(); // virtual init
-  }
-
   void AbstractElement::classInit( const KWargs& a ){
     // this funcion is needed because calling the virtual function
     // setAttributes from the constructor will NOT call the right version
     // THIS IS BY DESIGN in C++
-    init(); // virtual init
     KWargs a1 = a;
     setAttributes( a1 ); // also virtual!
     checkAtts(); // check if all needed attributes are set

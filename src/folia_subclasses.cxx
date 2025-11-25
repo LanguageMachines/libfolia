@@ -3260,34 +3260,5 @@ namespace folia {
     }
   }
 
-  void AbstractContentAnnotation::init() {
-    /// set default value on creation
-    _offset = -1;
-  }
-
-  void Linebreak::init() {
-    /// set default value on creation
-    _newpage = false;
-  }
-
-  void Relation::init() {
-    /// set default value on creation
-    _format = "text/folia+xml";
-  }
-
-  void Reference::init() {
-    /// set default value on creation
-    _format = "text/folia+xml";
-  }
-
-  void TextMarkupReference::init() {
-    /// set default value on creation
-    _format = "text/folia+xml";
-  }
-
-  void ForeignData::init() {
-    /// set default value on creation
-    _foreign_data = 0;
-  }
 
 } // namespace folia

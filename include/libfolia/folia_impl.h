@@ -102,7 +102,6 @@ namespace folia {
     virtual ~FoliaElement(){};
   public:
     virtual void destroy() = 0;
-    virtual void init() {};
     virtual size_t size() const = 0;
     virtual FoliaElement* index( size_t ) const = 0;
     virtual FoliaElement* opaque_index( size_t ) const = 0;
@@ -597,7 +596,6 @@ namespace folia {
     virtual ~AbstractElement() override;
   public:
     void destroy() override;
-    void classInit();
     void classInit( const KWargs& );
 
     //functions regarding contained data
