@@ -1431,7 +1431,7 @@ namespace folia {
 		      "Unresolvable id " + id + " in WordReference" );
     }
     delete this;
-    return ref;
+    return ref; // so we don't return the referer but the refered to!
   }
 
   FoliaElement* LinkReference::parseXml( const xmlNode *node ) {
