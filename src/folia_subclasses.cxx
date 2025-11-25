@@ -1410,17 +1410,17 @@ namespace folia {
       }
       string tval = atts["t"];
       if ( !tval.empty() ){
-	set<string> candidates;
+	multimap<string,string> candidates;
 	for ( const auto& el : ref->data() ) {
 	  if ( el->isinstance<TextContent>() ) {
-	    candidates.insert(el->str(el->cls()));
+	    candidates.insert( {el->str(el->cls()),el->cls()} );
 	  }
 	}
 	//	cerr << "kandidaten: " << candidates << endl;
 	if ( candidates.find(tval) == candidates.end() ){
 	  throw XmlError( "WordReference id=" + id + " has t attribute '"
 			  + tval + "' that is not found in the reference. "
-			  + " possible candidates: "
+			  + "\npossible candidates and textclasses : "
 			  + TiCC::toString(candidates) + ")" );
 	}
       }
