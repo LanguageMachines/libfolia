@@ -3290,22 +3290,6 @@ namespace folia {
 		      + ", it was already connected to a "
 		      +  parent->classname() + " id=" + parent->id() );
     }
-#ifdef NOT_WORKING
-    // this fails. needs attention
-    if ( c->element_id() == WordReference_t ){
-      string tval = atts["t"];
-      if ( !tval.empty() ){
-      	string tc = ref->textclass();
-      	string rtval = ref->str(tc);
-      	if ( tval != rtval ){
-      	  throw XmlError( this,
-			  "WordReference id=" + id + " has another value for "
-      			  + "the t attribute than it's reference. ("
-      			  + tval + " versus " + rtval + ")" );
-      	}
-      }
-    }
-#endif
     if ( isinstance<TextContent>()
 	 && parent->isinstance<Word>() ) {
       string val = str(cls());

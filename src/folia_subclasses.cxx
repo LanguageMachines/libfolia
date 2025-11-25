@@ -1408,21 +1408,22 @@ namespace folia {
 			"WordReference id=" + id + " refers to a non-referable word: "
 			+ ref->xmltag() );
       }
-      // Disabled test! should consider the textclass of the yet unknown
-      // parent!
-      // addable() should check this. But that is impossible!
-      // we don't return a WordReference but the ref to the word!
-      //
-      // string tval = atts["t"];
-      // if ( !tval.empty() ){
-      // 	string tc = ref->textclass();
-      // 	string rtval = ref->str(tc);
-      // 	if ( tval != rtval ){
-      // 	  throw XmlError( "WordReference id=" + id + " has another value for "
-      // 			  + "the t attribute than it's reference. ("
-      // 			  + tval + " versus " + rtval + ")" );
-      // 	}
-      // }
+      string tval = atts["t"];
+      if ( !tval.empty() ){
+	set<string> candidates;
+	for ( const auto& el : ref->data() ) {
+	  if ( el->isinstance<TextContent>() ) {
+	    candidates.insert(el->str(el->cls()));
+	  }
+	}
+	//	cerr << "kandidaten: " << candidates << endl;
+	if ( candidates.find(tval) == candidates.end() ){
+	  throw XmlError( "WordReference id=" + id + " has t attribute '"
+			  + tval + "' that is not found in the reference. "
+			  + " possible candidates: "
+			  + TiCC::toString(candidates) + ")" );
+	}
+      }
       ref->increfcount();
     }
     else {
