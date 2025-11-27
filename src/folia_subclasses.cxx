@@ -1430,8 +1430,29 @@ namespace folia {
       throw XmlError( this,
 		      "Unresolvable id " + id + " in WordReference" );
     }
-    delete this;
-    return ref; // so we don't return the referer but the refered to!
+    _ref = ref;
+    return this;
+    // delete this;
+    // return ref; // so we don't return the referer but the refered to!
+  }
+
+  xmlNode *WordReference::xml( bool, bool ) const {
+    ///  convert the WordReference to an xmlNode
+    xmlNode *e = AbstractElement::xml( false, false );
+    assert( _ref != NULL );
+    KWargs attribs;
+    attribs.add("id",_ref->id());
+    string txt;
+    try {
+      //      cerr << "REF= " << _ref << endl;
+      txt = _ref->str(_ref->textclass());
+    }
+    catch (...){};
+    if ( !txt.empty() ){
+      attribs.add("t",txt);
+    }
+    addAttributes( e, attribs );
+    return e;
   }
 
   FoliaElement* LinkReference::parseXml( const xmlNode *node ) {
@@ -2555,8 +2576,10 @@ namespace folia {
      */
     vector<FoliaElement*> res;
     for ( const auto& el : data() ) {
-      if ( el->referable()
-	   || el->isinstance<WordReference>() ){
+      if ( el->isinstance<WordReference>() ){
+	res.push_back( dynamic_cast<WordReference*>(el)->_ref );
+      }
+      else if ( el->referable() ){
 	res.push_back( el );
       }
       else {

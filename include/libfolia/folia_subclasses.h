@@ -664,11 +664,22 @@ public:							\
     ADD_DEFAULT_CONSTRUCTORS( SizeFeature, AbstractFeature );
   };
 
-  class WordReference: public AbstractElement {
+  class WordReference: public AbstractWord {
+    friend std::vector<FoliaElement*> AbstractSpanAnnotation::wrefs() const;
   public:
-    ADD_DEFAULT_CONSTRUCTORS( WordReference, AbstractElement );
+    ADD_DEFAULT_CONSTRUCTORS( WordReference, AbstractWord );
   private:
     FoliaElement *parseXml( const xmlNode *node ) override;
+    xmlNode *xml( bool, bool=false ) const override;
+    const UnicodeString private_text( const TextPolicy& tp ) const override {
+      return _ref->private_text( tp );
+    }
+    const std::string& get_delimiter( const TextPolicy& tp ) const override {
+      return _ref->get_delimiter( tp );
+    }
+    bool space() const override {
+      return _ref->space();
+    }
     FoliaElement *_ref = NULL;
   };
 
