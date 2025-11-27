@@ -2206,9 +2206,7 @@ namespace folia {
 	DBG << "last->space() == " << last->space() << endl;
       }
       if ( last
-	   && ( last->isinstance<WordReference>()
-		||last->isSubClass<AbstractWord>()
-		)
+	   && last->isSubClass<AbstractWord>()
 	   && !last->space() ){
 	return EMPTY_STRING;
       }
@@ -2222,8 +2220,7 @@ namespace folia {
     else if ( _data.size() > 0 ) {
       // attempt to get a delimiter from the last child
       const FoliaElement *last = _data.back();
-      if ( last->isSubClass<AbstractWord>()
-	   || last->isinstance<WordReference>() ){
+      if ( last->isSubClass<AbstractWord>() ){
 	const string& det = last->get_delimiter( tp );
 	if ( tp.debug() ){
 	  DBG << "out <" << xmltag() << ">:get_delimiter ==> '" << det << "'"
@@ -2745,7 +2742,6 @@ namespace folia {
       }
       if ( child->printable()
 	   && ( is_structure( child )
-		|| child->isinstance<WordReference>()
 		|| child->isSubClass<AbstractSpanAnnotation>()
 		|| child->isinstance<Correction>() )
 	   && !child->isinstance<TextContent>() ) {

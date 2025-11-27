@@ -1444,13 +1444,10 @@ namespace folia {
     attribs.add("id",_ref->id());
     string txt;
     try {
-      //      cerr << "REF= " << _ref << endl;
       txt = _ref->str(_ref->textclass());
     }
     catch (...){};
-    if ( !txt.empty() ){
-      attribs.add("t",txt);
-    }
+    attribs.add("t",txt);
     addAttributes( e, attribs );
     return e;
   }
