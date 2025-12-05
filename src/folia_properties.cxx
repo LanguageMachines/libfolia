@@ -1839,9 +1839,9 @@ namespace folia {
     Word::PROPS.XMLTAG = "w";
     element_props[ElementType::Word_t] = &Word::PROPS;
 //------ WordReference -------
-    WordReference::PROPS = ABSTRACT_WORD_PROPERTIES;
     WordReference::PROPS.ELEMENT_ID = ElementType::WordReference_t;
     WordReference::PROPS.OPTIONAL_ATTRIBS = Attrib::IDREF|Attrib::TAG;
+    WordReference::PROPS.PRINTABLE = true;
     WordReference::PROPS.XMLTAG = "wref";
     element_props[ElementType::WordReference_t] = &WordReference::PROPS;
 
@@ -1998,7 +1998,7 @@ namespace folia {
      { ElementType::ValueFeature_t, { ElementType::AbstractHigherOrderAnnotation_t,ElementType::AbstractFeature_t } },
      { ElementType::Whitespace_t, { ElementType::AbstractStructureElement_t } },
      { ElementType::Word_t, { ElementType::AbstractStructureElement_t,ElementType::AbstractWord_t } },
-     { ElementType::WordReference_t, { ElementType::AbstractStructureElement_t,ElementType::AbstractWord_t } },
+     { ElementType::WordReference_t, { ElementType::AbstractStructureElement_t } },
   };
 
   //foliaspec:oldtags_map

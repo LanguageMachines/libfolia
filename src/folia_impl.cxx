@@ -3290,28 +3290,28 @@ namespace folia {
 		      + ", it was already connected to a "
 		      +  parent->classname() + " id=" + parent->id() );
     }
-    if ( isinstance<TextContent>()
-	 && parent->isinstance<Word>() ) {
-      string val = str(cls());
-      val = trim( val );
-      if ( val.empty() ) {
-	// we have to check for a child with the IMPLICITSPACE property
-	// ONLY in that case, an "empty" text is allowed.
-	auto implicit = []( auto elt ){ return elt->implicitspace(); };
-	bool has_implicit = std::any_of( _data.begin(), _data.end(),
-					 implicit );
-	if ( !has_implicit ){
-	  throw ValueError( this,
-			    "attempt to add an empty <t> to word: "
-			    + parent->id() );
+    if ( isinstance<TextContent>() ) {
+      string my_cls = cls();
+      if ( parent->isinstance<Word>() ) {
+	string val = str(my_cls);
+	val = trim( val );
+	if ( val.empty() ) {
+	  // we have to check for a child with the IMPLICITSPACE property
+	  // ONLY in that case, an "empty" text is allowed.
+	  auto implicit = []( auto elt ){ return elt->implicitspace(); };
+	  bool has_implicit = std::any_of( _data.begin(), _data.end(),
+					   implicit );
+	  if ( !has_implicit ){
+	    throw ValueError( this,
+			      "attempt to add an empty <t> to word: "
+			      + parent->id() );
+	  }
 	}
       }
-    }
-    if ( isinstance<TextContent>() ){
-      string my_cls = cls();
       string st = sett();
-      vector<TextContent*> tmp = parent->select<TextContent>( st,
-							      SELECT_FLAGS::LOCAL );
+      vector<TextContent*> tmp
+	= parent->select<TextContent>( st,
+				       SELECT_FLAGS::LOCAL );
       if ( any_of( tmp.cbegin(),
 		   tmp.cend(),
 		   [my_cls]( const TextContent *t) { return ( t->cls() == my_cls);} ) ){
@@ -3320,7 +3320,7 @@ namespace folia {
 					+ my_cls + " to element: "
 					+ parent->id()
 					+ " which already has a <t> with that class" );
-	}
+      }
     }
     if ( is_textcontainer() ||
 	 isinstance<Word>() ){
