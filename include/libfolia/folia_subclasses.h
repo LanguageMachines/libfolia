@@ -669,6 +669,7 @@ public:							\
   public:
     ADD_DEFAULT_CONSTRUCTORS( WordReference, AbstractWord );
     FoliaElement *ref() const { return _ref; };
+    std::string tval() const { return _tval; };
   private:
     FoliaElement *parseXml( const xmlNode *node ) override;
     xmlNode *xml( bool, bool=false ) const override;
@@ -682,6 +683,7 @@ public:							\
       return _ref->space();
     }
     FoliaElement *_ref = NULL;
+    std::string _tval;
   };
 
   class Relation:

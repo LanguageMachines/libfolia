@@ -3322,6 +3322,21 @@ namespace folia {
 					+ " which already has a <t> with that class" );
       }
     }
+    if ( isinstance<WordReference>() ){
+      const WordReference *me = dynamic_cast<const WordReference*>(this);
+      string tatt = me->tval();
+      if ( !tatt.empty() ){
+	string watt = me->ref()->str(parent->textclass());
+	if ( watt != tatt ){
+	  string msg = "the 't' value '" + tatt + "' of the wref with id='"
+	    + me->ref()->id() + "' doesn't match the value of the refered word "
+	    + "which has a 't' value of '" + watt + "' in the textclass '"
+	    + parent->textclass() + "'";
+	  cerr << msg << endl;
+	  throw XmlError( this, msg );
+	}
+      }
+    }
     if ( is_textcontainer() ||
 	 isinstance<Word>() ){
       parent->check_append_text_consistency( this );
