@@ -669,8 +669,6 @@ public:							\
     friend std::vector<FoliaElement*> AbstractSpanAnnotation::wrefs() const;
   public:
     ADD_DEFAULT_CONSTRUCTORS( WordReference, AbstractWord );
-    FoliaElement *ref() const { return _ref; };
-    std::string tval() const { return _tval; };
     bool addable( const FoliaElement * ) const override;
   private:
     FoliaElement *parseXml( const xmlNode *node ) override;

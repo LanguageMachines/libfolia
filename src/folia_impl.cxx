@@ -3289,8 +3289,7 @@ namespace folia {
 		      + ", it was already connected to a "
 		      +  parent->classname() + " id=" + parent->id() );
     }
-    if ( //is_textcontainer() ||
-	 isinstance<Word>() ){
+    if ( isinstance<Word>() ){
       parent->check_append_text_consistency( this );
     }
     return true;

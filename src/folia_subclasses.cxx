@@ -86,37 +86,38 @@ namespace folia {
      *
      * \note It will allways throw an error, instead of returning false
      */
-    if ( AbstractElement::addable( parent ) ){
-      string my_cls = cls();
-      if ( parent->isinstance<Word>() ) {
-	string val = str(my_cls);
-	val = trim( val );
-	if ( val.empty() ) {
-	  // we have to check for a child with the IMPLICITSPACE property
-	  // ONLY in that case, an "empty" text is allowed.
-	  auto implicit = []( auto elt ){ return elt->implicitspace(); };
-	  bool has_implicit = std::any_of( data().begin(), data().end(),
-					   implicit );
-	  if ( !has_implicit ){
-	    throw ValueError( this,
-			      "attempt to add an empty <t> to word: "
-			      + parent->id() );
-	  }
+    if ( !AbstractElement::addable( parent ) ){
+      return false;
+    }
+    string my_cls = cls();
+    if ( parent->isinstance<Word>() ) {
+      string val = str(my_cls);
+      val = trim( val );
+      if ( val.empty() ) {
+	// we have to check for a child with the IMPLICITSPACE property
+	// ONLY in that case, an "empty" text is allowed.
+	auto implicit = []( auto elt ){ return elt->implicitspace(); };
+	bool has_implicit = std::any_of( data().begin(), data().end(),
+					 implicit );
+	if ( !has_implicit ){
+	  throw ValueError( this,
+			    "attempt to add an empty <t> to word: "
+			    + parent->id() );
 	}
       }
-      string st = sett();
-      vector<TextContent*> tmp
-	= parent->select<TextContent>( st,
-				       SELECT_FLAGS::LOCAL );
-      if ( any_of( tmp.cbegin(),
-		   tmp.cend(),
-		   [my_cls]( const TextContent *t) { return ( t->cls() == my_cls);} ) ){
-	throw DuplicateAnnotationError( this,
-					"attempt to add <t> with class="
-					+ my_cls + " to element: "
-					+ parent->id()
-					+ " which already has a <t> with that class" );
-      }
+    }
+    string st = sett();
+    vector<TextContent*> tmp
+      = parent->select<TextContent>( st,
+				     SELECT_FLAGS::LOCAL );
+    if ( any_of( tmp.cbegin(),
+		 tmp.cend(),
+		 [my_cls]( const TextContent *t) { return ( t->cls() == my_cls);} ) ){
+      throw DuplicateAnnotationError( this,
+				      "attempt to add <t> with class="
+				      + my_cls + " to element: "
+				      + parent->id()
+				      + " which already has a <t> with that class" );
     }
     if ( is_textcontainer() ){
       parent->check_append_text_consistency( this );
@@ -1416,7 +1417,8 @@ namespace folia {
 	for ( const auto* const el : v ){
 	  for ( size_t k=0; k < el->size(); ++k ) {
 	    FoliaElement *f = el->index(k);
-	    AbstractSpanAnnotation *as = dynamic_cast<AbstractSpanAnnotation*>(f);
+	    AbstractSpanAnnotation *as
+	      = dynamic_cast<AbstractSpanAnnotation*>(f);
 	    if ( as ) {
 	      const vector<FoliaElement*> wrefv = f->wrefs();
 	      for ( const auto *const wr : wrefv ){
@@ -1440,21 +1442,22 @@ namespace folia {
      *
      * \note It will allways throw an error, instead of returning false
      */
-    if ( AbstractElement::addable( parent ) ){
-      if ( !_tval.empty() ){
-	string watt = _ref->str(parent->textclass());
-	if ( watt.empty() ){
-	  string msg = "no matching 't' value found in the '<w>' refered by "
-	    "<wref id=\"" + _ref->id() + "\" t=\""+ _tval
-	    + "\"> for textclass '" + parent->textclass() + "'";
-	  throw XmlError( this, msg );
-	}
-	else if ( watt != _tval ){
-	  string msg = "the 't' value of <wref id=\"" + _ref->id()
-	    + "\" t=\""+ _tval + "\"> for textclass '" + parent->textclass()
-	    + "' doesn't match any value of the refered word for that class";
-	  throw XmlError( this, msg );
-	}
+    if ( !AbstractElement::addable( parent ) ){
+      return false;
+    }
+    if ( !_tval.empty() ){
+      string watt = _ref->str(parent->textclass());
+      if ( watt.empty() ){
+	string msg = "no matching 't' value found in the '<w>' refered by "
+	  "<wref id=\"" + _ref->id() + "\" t=\""+ _tval
+	  + "\"> for textclass '" + parent->textclass() + "'";
+	throw XmlError( this, msg );
+      }
+      else if ( watt != _tval ){
+	string msg = "the 't' value of <wref id=\"" + _ref->id()
+	  + "\" t=\""+ _tval + "\"> for textclass '" + parent->textclass()
+	  + "' doesn't match any value of the refered word for that class";
+	throw XmlError( this, msg );
       }
     }
     return true;
@@ -1491,8 +1494,6 @@ namespace folia {
     }
     _ref = ref;
     return this;
-    // delete this;
-    // return ref; // so we don't return the referer but the refered to!
   }
 
   xmlNode *WordReference::xml( bool, bool ) const {
