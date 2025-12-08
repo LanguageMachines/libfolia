@@ -3327,12 +3327,16 @@ namespace folia {
       string tatt = me->tval();
       if ( !tatt.empty() ){
 	string watt = me->ref()->str(parent->textclass());
-	if ( watt != tatt ){
-	  string msg = "the 't' value '" + tatt + "' of the wref with id='"
-	    + me->ref()->id() + "' doesn't match the value of the refered word "
-	    + "which has a 't' value of '" + watt + "' in the textclass '"
-	    + parent->textclass() + "'";
-	  cerr << msg << endl;
+	if ( watt.empty() ){
+	  string msg = "no matching 't' value found in the '<w>' refered by "
+	    "<wref id=\"" + me->ref()->id() + "\" t=\""+ tatt
+	    + "\"> for textclass '" + parent->textclass() + "'";
+	  throw XmlError( this, msg );
+	}
+	else if ( watt != tatt ){
+	  string msg = "the 't' value of <wref id=\"" + me->ref()->id()
+	    + "\" t=\""+ tatt + "\"> for textclass '" + parent->textclass()
+	    + "' doesn't match any value of the refered word for that class";
 	  throw XmlError( this, msg );
 	}
       }
