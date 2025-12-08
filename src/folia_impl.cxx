@@ -3280,8 +3280,7 @@ namespace folia {
       }
     }
     if ( _parent &&
-	 !( isinstance<WordReference>()
-	    || referable() ) ){
+	 !referable() ){
       throw XmlError( this,
 		      "attempt to reconnect node " + classname() + "("
 		      + id()
@@ -3290,58 +3289,7 @@ namespace folia {
 		      + ", it was already connected to a "
 		      +  parent->classname() + " id=" + parent->id() );
     }
-    if ( isinstance<TextContent>() ) {
-      string my_cls = cls();
-      if ( parent->isinstance<Word>() ) {
-	string val = str(my_cls);
-	val = trim( val );
-	if ( val.empty() ) {
-	  // we have to check for a child with the IMPLICITSPACE property
-	  // ONLY in that case, an "empty" text is allowed.
-	  auto implicit = []( auto elt ){ return elt->implicitspace(); };
-	  bool has_implicit = std::any_of( _data.begin(), _data.end(),
-					   implicit );
-	  if ( !has_implicit ){
-	    throw ValueError( this,
-			      "attempt to add an empty <t> to word: "
-			      + parent->id() );
-	  }
-	}
-      }
-      string st = sett();
-      vector<TextContent*> tmp
-	= parent->select<TextContent>( st,
-				       SELECT_FLAGS::LOCAL );
-      if ( any_of( tmp.cbegin(),
-		   tmp.cend(),
-		   [my_cls]( const TextContent *t) { return ( t->cls() == my_cls);} ) ){
-	throw DuplicateAnnotationError( this,
-					"attempt to add <t> with class="
-					+ my_cls + " to element: "
-					+ parent->id()
-					+ " which already has a <t> with that class" );
-      }
-    }
-    if ( isinstance<WordReference>() ){
-      const WordReference *me = dynamic_cast<const WordReference*>(this);
-      string tatt = me->tval();
-      if ( !tatt.empty() ){
-	string watt = me->ref()->str(parent->textclass());
-	if ( watt.empty() ){
-	  string msg = "no matching 't' value found in the '<w>' refered by "
-	    "<wref id=\"" + me->ref()->id() + "\" t=\""+ tatt
-	    + "\"> for textclass '" + parent->textclass() + "'";
-	  throw XmlError( this, msg );
-	}
-	else if ( watt != tatt ){
-	  string msg = "the 't' value of <wref id=\"" + me->ref()->id()
-	    + "\" t=\""+ tatt + "\"> for textclass '" + parent->textclass()
-	    + "' doesn't match any value of the refered word for that class";
-	  throw XmlError( this, msg );
-	}
-      }
-    }
-    if ( is_textcontainer() ||
+    if ( //is_textcontainer() ||
 	 isinstance<Word>() ){
       parent->check_append_text_consistency( this );
     }

@@ -260,6 +260,7 @@ public:							\
       set_cls( "current" );
       return res;
     }
+    bool addable( const FoliaElement * ) const override;
     FoliaElement *postappend() override;
   private:
     FoliaElement *find_default_reference() const override;
@@ -670,6 +671,7 @@ public:							\
     ADD_DEFAULT_CONSTRUCTORS( WordReference, AbstractWord );
     FoliaElement *ref() const { return _ref; };
     std::string tval() const { return _tval; };
+    bool addable( const FoliaElement * ) const override;
   private:
     FoliaElement *parseXml( const xmlNode *node ) override;
     xmlNode *xml( bool, bool=false ) const override;
