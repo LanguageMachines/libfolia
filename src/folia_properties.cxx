@@ -1841,7 +1841,6 @@ namespace folia {
 //------ WordReference -------
     WordReference::PROPS.ELEMENT_ID = ElementType::WordReference_t;
     WordReference::PROPS.OPTIONAL_ATTRIBS = Attrib::IDREF|Attrib::TAG;
-    WordReference::PROPS.PRINTABLE = true;
     WordReference::PROPS.XMLTAG = "wref";
     element_props[ElementType::WordReference_t] = &WordReference::PROPS;
 

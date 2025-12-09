@@ -2410,7 +2410,8 @@ namespace folia {
       tmp.clear( TEXT_FLAGS::STRICT );
       result = text_content(tmp)->text( tmp );
     }
-    else if ( !printable() || ( hidden() && !show_hidden ) ){
+    else if ( !printable()
+	      || ( hidden() && !show_hidden ) ){
       throw NoSuchText( this, "NON printable element: " + xmltag() );
     }
     else if ( is_textcontainer() ){
@@ -2737,7 +2738,7 @@ namespace folia {
       if ( tp.debug() ){
 	if ( !child->printable() ) {
 	  DBG << "deeptext: node[" << child->xmltag() << "] NOT PRINTABLE! "
-	       << endl;
+	      << endl;
 	}
       }
       if ( child->printable()

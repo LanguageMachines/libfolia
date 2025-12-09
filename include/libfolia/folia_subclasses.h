@@ -671,6 +671,10 @@ public:							\
   public:
     ADD_DEFAULT_CONSTRUCTORS( WordReference, AbstractWord );
     bool addable( const FoliaElement * ) const override;
+    const bool& printable() const override {
+      static bool t = true;
+      return t;
+    };
   private:
     FoliaElement *parseXml( const xmlNode *node ) override;
     xmlNode *xml( bool, bool=false ) const override;
