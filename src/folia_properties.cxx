@@ -1998,7 +1998,6 @@ namespace folia {
      { ElementType::ValueFeature_t, { ElementType::AbstractHigherOrderAnnotation_t,ElementType::AbstractFeature_t } },
      { ElementType::Whitespace_t, { ElementType::AbstractStructureElement_t } },
      { ElementType::Word_t, { ElementType::AbstractStructureElement_t,ElementType::AbstractWord_t } },
-     { ElementType::WordReference_t, { ElementType::AbstractStructureElement_t } },
   };
 
   //foliaspec:oldtags_map

@@ -119,9 +119,7 @@ namespace folia {
 				      + parent->id()
 				      + " which already has a <t> with that class" );
     }
-    if ( is_textcontainer() ){
-      parent->check_append_text_consistency( this );
-    }
+    parent->check_append_text_consistency( this );
     return true;
   }
 
@@ -174,6 +172,21 @@ namespace folia {
      *  will throw if the LemmaAnnotation doesn't exist
      */
     return annotation<LemmaAnnotation>( st )->cls();
+  }
+
+  bool Word::addable( const FoliaElement *parent ) const {
+    /// test if a Word might succesfully appended to \em parent
+    /*!
+     * \param parent the node to check
+     * \return true if it doesn't throw
+     *
+     * \note It will allways throw an error, instead of returning false
+     */
+    if ( !AbstractElement::addable( parent ) ){
+      return false;
+    }
+    parent->check_append_text_consistency( this );
+    return true;
   }
 
   MorphologyLayer *Word::addMorphologyLayer( const KWargs& inargs ) {
@@ -1499,15 +1512,13 @@ namespace folia {
   xmlNode *WordReference::xml( bool, bool ) const {
     ///  convert the WordReference to an xmlNode
     xmlNode *e = AbstractElement::xml( false, false );
-    assert( _ref != NULL );
     KWargs attribs;
     attribs.add("id",_ref->id());
-    string txt;
     try {
-      txt = _ref->str(_ref->textclass());
+      string txt = _ref->str(_ref->textclass());
+      attribs.add("t",txt);
     }
     catch (...){};
-    attribs.add("t",txt);
     addAttributes( e, attribs );
     return e;
   }

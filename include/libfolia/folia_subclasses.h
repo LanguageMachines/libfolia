@@ -402,6 +402,7 @@ public:							\
     MorphologyLayer *getMorphologyLayers( const std::string&,
 					  std::vector<MorphologyLayer*>& ) const override;
     bool is_placeholder() const { return _is_placeholder; };
+    bool addable( const FoliaElement * ) const override;
   private:
     bool _is_placeholder = false;
   };
