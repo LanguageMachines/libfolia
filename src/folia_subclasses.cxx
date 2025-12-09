@@ -1458,6 +1458,11 @@ namespace folia {
     if ( !AbstractElement::addable( parent ) ){
       return false;
     }
+    if ( parent->isSubClass<AbstractSpanRole>() ){
+      // we should check the textclass of the layer above this.
+      // but due to recusion, it is not connected to that layer yet!
+      return true;
+    }
     if ( !_tval.empty() ){
       string watt = _ref->str(parent->textclass());
       if ( watt.empty() ){
