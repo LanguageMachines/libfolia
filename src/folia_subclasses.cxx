@@ -1460,7 +1460,7 @@ namespace folia {
     }
     if ( parent->isSubClass<AbstractSpanRole>() ){
       // we should check the textclass of the layer above this.
-      // but due to recusion, it is not connected to that layer yet!
+      // but due to recursion, it is not connected to that layer yet!
       return true;
     }
     if ( !_tval.empty() ){
@@ -1488,13 +1488,18 @@ namespace folia {
      * \return the parsed tree. Throws on error.
      */
     KWargs atts = getAttributes( node );
-    string id = atts["id"];
+    string id = atts.extract("id");
     if ( id.empty() ) {
       throw XmlError( this,
 		      "empty id in WordReference" );
     }
     if ( doc()->debug % DocDbg::PARSING ) {
       DBG << "Found word reference: " << id << endl;
+    }
+    _tval = atts.extract("t");
+    if ( !atts.empty() ){
+      throw XmlError( this,
+		      "unsupported attribute(s) in wref: " + toString(atts) );
     }
     FoliaElement *ref = (*doc())[id];
     if ( ref ) {
@@ -1503,7 +1508,6 @@ namespace folia {
 			"WordReference id=" + id + " refers to a non-referable word: "
 			+ ref->xmltag() );
       }
-      _tval = atts["t"];
       ref->increfcount();
     }
     else {
@@ -1534,20 +1538,20 @@ namespace folia {
      * \param node a LinkReference
      * \return the parsed tree. Throws on error.
      */
-    KWargs att = getAttributes( node );
-    string val = att["id"];
-    if ( val.empty() ) {
+    KWargs atts = getAttributes( node );
+    ref_id = atts.extract("id");
+    if ( ref_id.empty() ) {
       throw XmlError( this,
 		      "ID required for LinkReference" );
     }
-    ref_id = val;
     if ( doc()->debug % DocDbg::PARSING ) {
       DBG << "Found LinkReference ID " << ref_id << endl;
     }
-    ref_type = att["type"];
-    val = att["t"];
-    if ( !val.empty() ) {
-      _t = val;
+    ref_type = atts.extract("type");
+    _t = atts.extract("t");
+    if ( !atts.empty() ){
+      throw XmlError( this,
+		      "unsupported attribute(s) in wref: " + toString(atts) );
     }
     return this;
   }
@@ -2852,11 +2856,11 @@ namespace folia {
      * the associated Document
      */
    KWargs att = getAttributes( node );
-    setAttributes( att );
-    /*if ( _include ) {
-      doc()->addExternal( this );
-    }*/
-    return this;
+   setAttributes( att );
+   /*if ( _include ) {
+     doc()->addExternal( this );
+     }*/
+   return this;
   }
 
   void Note::setAttributes( KWargs& kwargs ) {
