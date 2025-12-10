@@ -670,6 +670,8 @@ public:							\
     friend std::vector<FoliaElement*> AbstractSpanAnnotation::wrefs() const;
   public:
     ADD_DEFAULT_CONSTRUCTORS( WordReference, AbstractWord );
+    std::string tval() const { return _tval; };
+    FoliaElement *ref() const { return _ref; };
     bool addable( const FoliaElement * ) const override;
     const bool& printable() const override {
       static bool t = true;
@@ -739,6 +741,8 @@ public:							\
 
   class AbstractSpanRole: public AbstractSpanAnnotation {
     // DO NOT USE AbstractSpanRole as a real node!!
+  public:
+    bool addable( const FoliaElement * ) const override;
   protected:
     ADD_PROTECTED_CONSTRUCTORS( AbstractSpanRole, AbstractSpanAnnotation );
   };

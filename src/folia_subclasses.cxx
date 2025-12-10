@@ -1019,6 +1019,41 @@ namespace folia {
     }
   }
 
+  bool AbstractSpanRole::addable( const FoliaElement *parent ) const {
+    /// test if a reference might succesfully appended to \em parent
+    /*!
+     * \param parent the node to check
+     * \return true if it doesn't throw
+     *
+     * \note It will allways throw an error, instead of returning false
+     */
+    if ( !AbstractElement::addable( parent ) ){
+      return false;
+    }
+    // we must check wref children against the parent too
+    vector<WordReference*> wrefs = select<WordReference>();
+    for ( const auto& refs : wrefs ){
+      FoliaElement *ref = refs->ref();
+      string tval = refs->tval();
+      if ( !tval.empty() ){
+	string watt = ref->str(parent->textclass());
+	if ( watt.empty() ){
+	  string msg = "no matching 't' value found in the '<w>' refered by "
+	    "<wref id=\"" + ref->id() + "\" t=\""+ tval
+	    + "\"> for textclass '" + parent->textclass() + "'";
+	  throw XmlError( this, msg );
+	}
+	else if ( watt != tval ){
+	  string msg = "the 't' value of <wref id=\"" + ref->id()
+	    + "\" t=\""+ tval + "\"> for textclass '" + parent->textclass()
+	    + "' doesn't match any value of the refered word for that class";
+	  throw XmlError( this, msg );
+	}
+      }
+    }
+    return true;
+  }
+
   KWargs LinkReference::collectAttributes() const {
     /// extract all Attribute-Value pairs for LinkReference
     /*!
@@ -1461,6 +1496,7 @@ namespace folia {
     if ( parent->isSubClass<AbstractSpanRole>() ){
       // we should check the textclass of the layer above this.
       // but due to recursion, it is not connected to that layer yet!
+      // this is checked later in AbstractSpanRole::addable( )
       return true;
     }
     if ( !_tval.empty() ){
