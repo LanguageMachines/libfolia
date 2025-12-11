@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2006 - 2024
+  Copyright (c) 2006 - 2026
   CLST  - Radboud University
   ILK   - Tilburg University
 
@@ -1324,7 +1324,7 @@ namespace folia {
 				 + prefix );
 	    }
 	    et = et_it->second;
-	    properties *prop = element_props[et];
+	    const properties *prop = element_props[et];
 	    if ( prop->REQUIRED_ATTRIBS % Attrib::CLASS ) {
 	      throw DocumentError( _source_name,
 				   "setname may not be empty for " + prefix
@@ -2207,7 +2207,7 @@ namespace folia {
 			     + prefix );
 	}
 	auto et = et_it->second;
-	properties *prop = element_props[et];
+	const properties *prop = element_props[et];
 	if ( prop->REQUIRED_ATTRIBS % Attrib::CLASS ) {
 	  throw DocumentError( _source_name,
 			       "setname may not be empty for " + prefix

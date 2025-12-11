@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2006 - 2024
+  Copyright (c) 2006 - 2026
   CLST  - Radboud University
   ILK   - Tilburg University
 
@@ -57,7 +57,7 @@ namespace folia {
 			 */
   };
 
-  DEFINE_ENUM_FLAG_OPERATORS(TEXT_FLAGS);
+  DEFINE_ENUM_FLAG_OPERATORS(TEXT_FLAGS)
 
   /// class to steer text searching in corrections.
   enum class CORRECTION_HANDLING {

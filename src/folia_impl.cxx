@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2006 - 2024
+  Copyright (c) 2006 - 2026
   CLST  - Radboud University
   ILK   - Tilburg University
 
@@ -584,11 +584,6 @@ namespace folia {
 
   void AbstractElement::annotator2processor( const string& annotator,
 					     const string& an_type ){
-    Provenance *prov = doc()->provenance();
-    if ( !prov ){
-      prov = new Provenance( doc() );
-      //	DBG << "created new Provenance: " << prov << endl;
-    }
     folia::processor *top = doc()->get_default_processor();
     AnnotatorType at = AnnotatorType::AUTO;
     if ( !an_type.empty() ){
@@ -608,6 +603,12 @@ namespace folia {
     }
     else {
       // no matching processor. create a simple one
+      Provenance *prov = doc()->provenance();
+      if ( !prov ){
+	// no provenance at all,, so create first
+	prov = new Provenance( doc() );
+	//	DBG << "created new Provenance: " << prov << endl;
+      }
       KWargs args;
       args.add("name",annotator);
       args.add("annotatortype",an_type);
@@ -1375,7 +1376,6 @@ namespace folia {
       xmlSetNs( n, xmlNewNs( n, to_xmlChar(NSFOLIA), 0 ) );
     }
     xmlBuffer *buf = xmlBufferCreate();
-    //    xmlKeepBlanksDefault(0);
     xmlNodeDump( buf, 0, n, indent, (format?1:0) );
     string result = to_string( xmlBufferContent( buf ) );
     xmlBufferFree( buf );
@@ -2410,7 +2410,8 @@ namespace folia {
       tmp.clear( TEXT_FLAGS::STRICT );
       result = text_content(tmp)->text( tmp );
     }
-    else if ( !printable() || ( hidden() && !show_hidden ) ){
+    else if ( !printable()
+	      || ( hidden() && !show_hidden ) ){
       throw NoSuchText( this, "NON printable element: " + xmltag() );
     }
     else if ( is_textcontainer() ){
@@ -2737,7 +2738,7 @@ namespace folia {
       if ( tp.debug() ){
 	if ( !child->printable() ) {
 	  DBG << "deeptext: node[" << child->xmltag() << "] NOT PRINTABLE! "
-	       << endl;
+	      << endl;
 	}
       }
       if ( child->printable()
@@ -3280,8 +3281,7 @@ namespace folia {
       }
     }
     if ( _parent &&
-	 !( isinstance<WordReference>()
-	    || referable() ) ){
+	 !referable() ){
       throw XmlError( this,
 		      "attempt to reconnect node " + classname() + "("
 		      + id()
@@ -3289,58 +3289,6 @@ namespace folia {
 		      + parent->id()
 		      + ", it was already connected to a "
 		      +  parent->classname() + " id=" + parent->id() );
-    }
-#ifdef NOT_WORKING
-    // this fails. needs attention
-    if ( c->element_id() == WordReference_t ){
-      string tval = atts["t"];
-      if ( !tval.empty() ){
-      	string tc = ref->textclass();
-      	string rtval = ref->str(tc);
-      	if ( tval != rtval ){
-      	  throw XmlError( this,
-			  "WordReference id=" + id + " has another value for "
-      			  + "the t attribute than it's reference. ("
-      			  + tval + " versus " + rtval + ")" );
-      	}
-      }
-    }
-#endif
-    if ( isinstance<TextContent>()
-	 && parent->isinstance<Word>() ) {
-      string val = str(cls());
-      val = trim( val );
-      if ( val.empty() ) {
-	// we have to check for a child with the IMPLICITSPACE property
-	// ONLY in that case, an "empty" text is allowed.
-	auto implicit = []( auto elt ){ return elt->implicitspace(); };
-	bool has_implicit = std::any_of( _data.begin(), _data.end(),
-					 implicit );
-	if ( !has_implicit ){
-	  throw ValueError( this,
-			    "attempt to add an empty <t> to word: "
-			    + parent->id() );
-	}
-      }
-    }
-    if ( isinstance<TextContent>() ){
-      string my_cls = cls();
-      string st = sett();
-      vector<TextContent*> tmp = parent->select<TextContent>( st,
-							      SELECT_FLAGS::LOCAL );
-      if ( any_of( tmp.cbegin(),
-		   tmp.cend(),
-		   [my_cls]( const TextContent *t) { return ( t->cls() == my_cls);} ) ){
-	throw DuplicateAnnotationError( this,
-					"attempt to add <t> with class="
-					+ my_cls + " to element: "
-					+ parent->id()
-					+ " which already has a <t> with that class" );
-	}
-    }
-    if ( is_textcontainer() ||
-	 isinstance<Word>() ){
-      parent->check_append_text_consistency( this );
     }
     return true;
   }
@@ -3491,17 +3439,10 @@ namespace folia {
     return true;
   }
 
-  void AbstractElement::classInit(){
-    // we could call 'init()' directly, but this is more esthetic
-    // keep in balance with the next function
-    init(); // virtual init
-  }
-
   void AbstractElement::classInit( const KWargs& a ){
     // this funcion is needed because calling the virtual function
     // setAttributes from the constructor will NOT call the right version
     // THIS IS BY DESIGN in C++
-    init(); // virtual init
     KWargs a1 = a;
     setAttributes( a1 ); // also virtual!
     checkAtts(); // check if all needed attributes are set
@@ -4226,6 +4167,10 @@ namespace folia {
     val = args.lookup("reuse");
     if ( !val.empty() ){
       // reuse an existing correction instead of making a new one
+      if ( !doc ){
+	throw ValueError( this,
+			  "reuse= needs a Document" );
+      }
       try {
 	corr = dynamic_cast<Correction*>(doc->index(val));
       }

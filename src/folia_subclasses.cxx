@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2006 - 2024
+  Copyright (c) 2006 - 2026
   CLST  - Radboud University
   ILK   - Tilburg University
 
@@ -78,6 +78,51 @@ namespace folia {
     return result;
   }
 
+  bool TextContent::addable( const FoliaElement *parent ) const {
+    /// test if an TextContent  might succesfully appended to \em parent
+    /*!
+     * \param parent the node to check
+     * \return true if it doesn't throw
+     *
+     * \note It will allways throw an error, instead of returning false
+     */
+    if ( !AbstractElement::addable( parent ) ){
+      return false;
+    }
+    string my_cls = cls();
+    if ( parent->isinstance<Word>() ) {
+      string val = str(my_cls);
+      val = trim( val );
+      if ( val.empty() ) {
+	// we have to check for a child with the IMPLICITSPACE property
+	// ONLY in that case, an "empty" text is allowed.
+	auto implicit = []( auto elt ){ return elt->implicitspace(); };
+	bool has_implicit = std::any_of( data().begin(), data().end(),
+					 implicit );
+	if ( !has_implicit ){
+	  throw ValueError( this,
+			    "attempt to add an empty <t> to word: "
+			    + parent->id() );
+	}
+      }
+    }
+    string st = sett();
+    vector<TextContent*> tmp
+      = parent->select<TextContent>( st,
+				     SELECT_FLAGS::LOCAL );
+    if ( any_of( tmp.cbegin(),
+		 tmp.cend(),
+		 [my_cls]( const TextContent *t) { return ( t->cls() == my_cls);} ) ){
+      throw DuplicateAnnotationError( this,
+				      "attempt to add <t> with class="
+				      + my_cls + " to element: "
+				      + parent->id()
+				      + " which already has a <t> with that class" );
+    }
+    parent->check_append_text_consistency( this );
+    return true;
+  }
+
   FoliaElement *TextContent::postappend( ) {
     /// perform some extra checks after appending a TextContent
     if ( doc() ){
@@ -127,6 +172,21 @@ namespace folia {
      *  will throw if the LemmaAnnotation doesn't exist
      */
     return annotation<LemmaAnnotation>( st )->cls();
+  }
+
+  bool Word::addable( const FoliaElement *parent ) const {
+    /// test if a Word might succesfully appended to \em parent
+    /*!
+     * \param parent the node to check
+     * \return true if it doesn't throw
+     *
+     * \note It will allways throw an error, instead of returning false
+     */
+    if ( !AbstractElement::addable( parent ) ){
+      return false;
+    }
+    parent->check_append_text_consistency( this );
+    return true;
   }
 
   MorphologyLayer *Word::addMorphologyLayer( const KWargs& inargs ) {
@@ -758,6 +818,7 @@ namespace folia {
     /*!
       \param cls the textclass the text should be in
       \param flags the TEXT_FLAGS for the TextPolicy to use
+      \param debug set debugging to 'debug'
       \return the UnicodeString with the phon content
     */
     TextPolicy tp( cls, flags );
@@ -956,6 +1017,41 @@ namespace folia {
       }
       return res;
     }
+  }
+
+  bool AbstractSpanRole::addable( const FoliaElement *parent ) const {
+    /// test if a reference might succesfully appended to \em parent
+    /*!
+     * \param parent the node to check
+     * \return true if it doesn't throw
+     *
+     * \note It will allways throw an error, instead of returning false
+     */
+    if ( !AbstractElement::addable( parent ) ){
+      return false;
+    }
+    // we must check wref children against the parent too
+    vector<WordReference*> wrefs = select<WordReference>();
+    for ( const auto *refs : wrefs ){
+      const FoliaElement *ref = refs->ref();
+      string tval = refs->tval();
+      if ( !tval.empty() ){
+	string watt = ref->str(parent->textclass());
+	if ( watt.empty() ){
+	  string msg = "no matching 't' value found in the '<w>' refered by "
+	    "<wref id=\"" + ref->id() + "\" t=\""+ tval
+	    + "\"> for textclass '" + parent->textclass() + "'";
+	  throw XmlError( this, msg );
+	}
+	else if ( watt != tval ){
+	  string msg = "the 't' value of <wref id=\"" + ref->id()
+	    + "\" t=\""+ tval + "\"> for textclass '" + parent->textclass()
+	    + "' doesn't match any value of the refered word for that class";
+	  throw XmlError( this, msg );
+	}
+      }
+    }
+    return true;
   }
 
   KWargs LinkReference::collectAttributes() const {
@@ -1369,7 +1465,8 @@ namespace folia {
 	for ( const auto* const el : v ){
 	  for ( size_t k=0; k < el->size(); ++k ) {
 	    FoliaElement *f = el->index(k);
-	    AbstractSpanAnnotation *as = dynamic_cast<AbstractSpanAnnotation*>(f);
+	    AbstractSpanAnnotation *as
+	      = dynamic_cast<AbstractSpanAnnotation*>(f);
 	    if ( as ) {
 	      const vector<FoliaElement*> wrefv = f->wrefs();
 	      for ( const auto *const wr : wrefv ){
@@ -1385,6 +1482,41 @@ namespace folia {
     return result;
   }
 
+  bool WordReference::addable( const FoliaElement *parent ) const {
+    /// test if a reference might succesfully appended to \em parent
+    /*!
+     * \param parent the node to check
+     * \return true if it doesn't throw
+     *
+     * \note It will allways throw an error, instead of returning false
+     */
+    if ( !AbstractElement::addable( parent ) ){
+      return false;
+    }
+    if ( parent->isSubClass<AbstractSpanRole>() ){
+      // we should check the textclass of the layer above this.
+      // but due to recursion, it is not connected to that layer yet!
+      // this is checked later in AbstractSpanRole::addable( )
+      return true;
+    }
+    if ( !_tval.empty() ){
+      string watt = _reference->str(parent->textclass());
+      if ( watt.empty() ){
+	string msg = "no matching 't' value found in the '<w>' refered by "
+	  "<wref id=\"" + _reference->id() + "\" t=\""+ _tval
+	  + "\"> for textclass '" + parent->textclass() + "'";
+	throw XmlError( this, msg );
+      }
+      else if ( watt != _tval ){
+	string msg = "the 't' value of <wref id=\"" + _reference->id()
+	  + "\" t=\""+ _tval + "\"> for textclass '" + parent->textclass()
+	  + "' doesn't match any value of the refered word for that class";
+	throw XmlError( this, msg );
+      }
+    }
+    return true;
+  }
+
   FoliaElement* WordReference::parseXml( const xmlNode *node ) {
     /// parse a WordReference node at node
     /*!
@@ -1392,7 +1524,7 @@ namespace folia {
      * \return the parsed tree. Throws on error.
      */
     KWargs atts = getAttributes( node );
-    string id = atts["id"];
+    string id = atts.extract("id");
     if ( id.empty() ) {
       throw XmlError( this,
 		      "empty id in WordReference" );
@@ -1400,36 +1532,40 @@ namespace folia {
     if ( doc()->debug % DocDbg::PARSING ) {
       DBG << "Found word reference: " << id << endl;
     }
-    FoliaElement *ref = (*doc())[id];
-    if ( ref ) {
-      if ( !ref->referable() ){
+    _tval = atts.extract("t");
+    if ( !atts.empty() ){
+      throw XmlError( this,
+		      "unsupported attribute(s) in wref: " + toString(atts) );
+    }
+    FoliaElement *the_ref = (*doc())[id];
+    if ( the_ref ) {
+      if ( !the_ref->referable() ){
 	throw XmlError( this,
 			"WordReference id=" + id + " refers to a non-referable word: "
-			+ ref->xmltag() );
+			+ the_ref->xmltag() );
       }
-      // Disabled test! should consider the textclass of the yet unknown
-      // parent!
-      // addable() should check this. But that is impossible!
-      // we don't return a WordReference but the ref to the word!
-      //
-      // string tval = atts["t"];
-      // if ( !tval.empty() ){
-      // 	string tc = ref->textclass();
-      // 	string rtval = ref->str(tc);
-      // 	if ( tval != rtval ){
-      // 	  throw XmlError( "WordReference id=" + id + " has another value for "
-      // 			  + "the t attribute than it's reference. ("
-      // 			  + tval + " versus " + rtval + ")" );
-      // 	}
-      // }
-      ref->increfcount();
+      the_ref->increfcount();
     }
     else {
       throw XmlError( this,
 		      "Unresolvable id " + id + " in WordReference" );
     }
-    delete this;
-    return ref;
+    _reference = the_ref;
+    return this;
+  }
+
+  xmlNode *WordReference::xml( bool, bool ) const {
+    ///  convert the WordReference to an xmlNode
+    xmlNode *e = AbstractElement::xml( false, false );
+    KWargs attribs;
+    attribs.add("id",_reference->id());
+    try {
+      string txt = _reference->str(_reference->textclass());
+      attribs.add("t",txt);
+    }
+    catch (...){};
+    addAttributes( e, attribs );
+    return e;
   }
 
   FoliaElement* LinkReference::parseXml( const xmlNode *node ) {
@@ -1438,20 +1574,20 @@ namespace folia {
      * \param node a LinkReference
      * \return the parsed tree. Throws on error.
      */
-    KWargs att = getAttributes( node );
-    string val = att["id"];
-    if ( val.empty() ) {
+    KWargs atts = getAttributes( node );
+    ref_id = atts.extract("id");
+    if ( ref_id.empty() ) {
       throw XmlError( this,
 		      "ID required for LinkReference" );
     }
-    ref_id = val;
     if ( doc()->debug % DocDbg::PARSING ) {
       DBG << "Found LinkReference ID " << ref_id << endl;
     }
-    ref_type = att["type"];
-    val = att["t"];
-    if ( !val.empty() ) {
-      _t = val;
+    ref_type = atts.extract("type");
+    _t = atts.extract("t");
+    if ( !atts.empty() ){
+      throw XmlError( this,
+		      "unsupported attribute(s) in wref: " + toString(atts) );
     }
     return this;
   }
@@ -2553,8 +2689,10 @@ namespace folia {
      */
     vector<FoliaElement*> res;
     for ( const auto& el : data() ) {
-      if ( el->referable()
-	   || el->isinstance<WordReference>() ){
+      if ( el->isinstance<WordReference>() ){
+	res.push_back( dynamic_cast<WordReference*>(el)->_reference );
+      }
+      else if ( el->referable() ){
 	res.push_back( el );
       }
       else {
@@ -2754,11 +2892,11 @@ namespace folia {
      * the associated Document
      */
    KWargs att = getAttributes( node );
-    setAttributes( att );
-    /*if ( _include ) {
-      doc()->addExternal( this );
-    }*/
-    return this;
+   setAttributes( att );
+   /*if ( _include ) {
+     doc()->addExternal( this );
+     }*/
+   return this;
   }
 
   void Note::setAttributes( KWargs& kwargs ) {
@@ -3258,34 +3396,5 @@ namespace folia {
     }
   }
 
-  void AbstractContentAnnotation::init() {
-    /// set default value on creation
-    _offset = -1;
-  }
-
-  void Linebreak::init() {
-    /// set default value on creation
-    _newpage = false;
-  }
-
-  void Relation::init() {
-    /// set default value on creation
-    _format = "text/folia+xml";
-  }
-
-  void Reference::init() {
-    /// set default value on creation
-    _format = "text/folia+xml";
-  }
-
-  void TextMarkupReference::init() {
-    /// set default value on creation
-    _format = "text/folia+xml";
-  }
-
-  void ForeignData::init() {
-    /// set default value on creation
-    _foreign_data = 0;
-  }
 
 } // namespace folia
