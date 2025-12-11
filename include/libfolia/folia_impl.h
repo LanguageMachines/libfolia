@@ -127,7 +127,7 @@ namespace folia {
     }
 
     template <typename T>
-      inline T *add_child( KWargs& args ){
+      inline T *add_child( const KWargs& args ){
       /// create a new FoliaElement of type T as child of this
       /*!
 	\param args an attribute-value list of arguments to use
