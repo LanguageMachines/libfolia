@@ -1032,8 +1032,8 @@ namespace folia {
     }
     // we must check wref children against the parent too
     vector<WordReference*> wrefs = select<WordReference>();
-    for ( const auto& refs : wrefs ){
-      FoliaElement *ref = refs->ref();
+    for ( const auto *refs : wrefs ){
+      const FoliaElement *ref = refs->ref();
       string tval = refs->tval();
       if ( !tval.empty() ){
 	string watt = ref->str(parent->textclass());
@@ -1500,15 +1500,15 @@ namespace folia {
       return true;
     }
     if ( !_tval.empty() ){
-      string watt = _ref->str(parent->textclass());
+      string watt = _reference->str(parent->textclass());
       if ( watt.empty() ){
 	string msg = "no matching 't' value found in the '<w>' refered by "
-	  "<wref id=\"" + _ref->id() + "\" t=\""+ _tval
+	  "<wref id=\"" + _reference->id() + "\" t=\""+ _tval
 	  + "\"> for textclass '" + parent->textclass() + "'";
 	throw XmlError( this, msg );
       }
       else if ( watt != _tval ){
-	string msg = "the 't' value of <wref id=\"" + _ref->id()
+	string msg = "the 't' value of <wref id=\"" + _reference->id()
 	  + "\" t=\""+ _tval + "\"> for textclass '" + parent->textclass()
 	  + "' doesn't match any value of the refered word for that class";
 	throw XmlError( this, msg );
@@ -1537,20 +1537,20 @@ namespace folia {
       throw XmlError( this,
 		      "unsupported attribute(s) in wref: " + toString(atts) );
     }
-    FoliaElement *ref = (*doc())[id];
-    if ( ref ) {
-      if ( !ref->referable() ){
+    FoliaElement *the_ref = (*doc())[id];
+    if ( the_ref ) {
+      if ( !the_ref->referable() ){
 	throw XmlError( this,
 			"WordReference id=" + id + " refers to a non-referable word: "
-			+ ref->xmltag() );
+			+ the_ref->xmltag() );
       }
-      ref->increfcount();
+      the_ref->increfcount();
     }
     else {
       throw XmlError( this,
 		      "Unresolvable id " + id + " in WordReference" );
     }
-    _ref = ref;
+    _reference = the_ref;
     return this;
   }
 
@@ -1558,9 +1558,9 @@ namespace folia {
     ///  convert the WordReference to an xmlNode
     xmlNode *e = AbstractElement::xml( false, false );
     KWargs attribs;
-    attribs.add("id",_ref->id());
+    attribs.add("id",_reference->id());
     try {
-      string txt = _ref->str(_ref->textclass());
+      string txt = _reference->str(_reference->textclass());
       attribs.add("t",txt);
     }
     catch (...){};
@@ -2690,7 +2690,7 @@ namespace folia {
     vector<FoliaElement*> res;
     for ( const auto& el : data() ) {
       if ( el->isinstance<WordReference>() ){
-	res.push_back( dynamic_cast<WordReference*>(el)->_ref );
+	res.push_back( dynamic_cast<WordReference*>(el)->_reference );
       }
       else if ( el->referable() ){
 	res.push_back( el );

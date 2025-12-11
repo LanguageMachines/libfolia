@@ -671,7 +671,7 @@ public:							\
   public:
     ADD_DEFAULT_CONSTRUCTORS( WordReference, AbstractWord );
     std::string tval() const { return _tval; };
-    FoliaElement *ref() const { return _ref; };
+    FoliaElement *ref() const { return _reference; };
     bool addable( const FoliaElement * ) const override;
     const bool& printable() const override {
       static bool t = true;
@@ -681,15 +681,15 @@ public:							\
     FoliaElement *parseXml( const xmlNode *node ) override;
     xmlNode *xml( bool, bool=false ) const override;
     const UnicodeString private_text( const TextPolicy& tp ) const override {
-      return _ref->private_text( tp );
+      return _reference->private_text( tp );
     }
     const std::string& get_delimiter( const TextPolicy& tp ) const override {
-      return _ref->get_delimiter( tp );
+      return _reference->get_delimiter( tp );
     }
     bool space() const override {
-      return _ref->space();
+      return _reference->space();
     }
-    FoliaElement *_ref = NULL;
+    FoliaElement *_reference = NULL;
     std::string _tval;
   };
 
