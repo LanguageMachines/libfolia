@@ -1405,12 +1405,10 @@ namespace folia {
     //  DBG << "rightcontext : " << size << endl;
     if ( size > 0 ) {
       vector<Word*> words = doc()->words();
-      size_t begin;
-      size_t end;
       for ( size_t i=0; i < words.size(); ++i ) {
 	if ( words[i] == this ) {
-	  begin = i + 1;
-	  end = begin + size;
+	  size_t begin = i + 1;
+	  size_t end = begin + size;
 	  for ( ; begin < end; ++begin ) {
 	    if ( begin >= words.size() ) {
 	      if ( val.empty() ) {

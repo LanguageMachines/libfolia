@@ -590,16 +590,13 @@ namespace folia {
       at = stringTo<AnnotatorType>( an_type );
     }
     auto procs = doc()->get_processors( annotation_type(), _set );
-    const folia::processor *found=0;
-    for ( const auto& p : procs ){
-      if ( p->annotator() == annotator
-	   && p->annotatortype() == at ){
-	found = p;
-	break;
-      }
-    }
-    if ( found ) {
-      set_processor_name( found->name() );
+    auto it = std::find_if( procs.cbegin(),
+			    procs.cend(),
+			    [annotator,at](const folia::processor *p){
+			      return ( p->annotator() == annotator
+				       && p->annotatortype() == at ); } );
+    if ( it != procs.cend() ) {
+      set_processor_name( (*it)->name() );
     }
     else {
       // no matching processor. create a simple one
@@ -3208,11 +3205,10 @@ namespace folia {
     }
     else {
       vector<ProcessingInstruction*> result;
-      for ( const auto& it : PIS ){
-	if ( it->target() == target ){
-	  result.push_back( it );
-	}
-      }
+      std::copy_if( PIS.cbegin(),
+		    PIS.cend(),
+		    std::back_inserter(result),
+		    [target](auto it){ return it->target() == target; } );
       return result;
     }
   }

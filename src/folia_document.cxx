@@ -1506,12 +1506,9 @@ namespace folia {
 
   bool is_number( const string& s ){
     /// check that every character in s is a digit
-    for ( const auto& c : s ){
-      if ( !isdigit(c) ){
-	return false;
-      }
-    }
-    return true;
+    return std::all_of( s.cbegin(),
+			s.cend(),
+			[](char c){ return isdigit(c); } );
   }
 
   void expand_version_string( const string& vs,
