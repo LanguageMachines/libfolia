@@ -3030,6 +3030,7 @@ namespace folia {
     /*!
      * \param cls the textclass the text should be in
      * \param flags the search parameters to use. See TEXT_FLAGS.
+     * \param debug switch debugging on/off
      */
     TextPolicy tp( cls, flags );
     tp.set_debug( debug );
