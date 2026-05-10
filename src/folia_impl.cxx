@@ -2593,7 +2593,7 @@ namespace folia {
   }
 
   UnicodeString trim_space( const UnicodeString& in ){
-    /// remove leading and traling spaces. KEEP newlines etc.
+    /// remove leading and trailing true spaces. KEEP newlines etc.
     /*!
      * \param in an untrimmed UnicodeString
      * \return an UnicodeString with all leading and trailing spaces removed.

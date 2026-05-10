@@ -717,10 +717,7 @@ namespace folia {
 	cout << "read a doc from " << file_name << endl;
       }
       foliadoc = parseXml();
-      if ( !validate_offsets() ){
-	// cannot happen. validate_offsets() throws on error
-	throw InconsistentText("MEH");
-      }
+      validate_offsets();
       if ( debug % DEBUG_FLAGS::PARSING ){
 	if ( foliadoc ){
 	  cout << "successful parsed the doc from: " << file_name << endl;
@@ -761,10 +758,7 @@ namespace folia {
 	cout << "read a doc from string" << endl;
       }
       foliadoc = parseXml();
-      if ( !validate_offsets() ){
-	// cannot happen. validate_offsets() throws on error
-	throw InconsistentText("MEH");
-      }
+      validate_offsets();
       if ( debug % DEBUG_FLAGS::PARSING ){
 	if ( foliadoc ){
 	  cout << "successful parsed the doc" << endl;
@@ -1968,6 +1962,7 @@ namespace folia {
 
       Then we are able to examine those nodes in their context and check the
       offsets used.
+      \return true But wil throw on any offset problem
      */
     set<TextContent*> t_done;
     int cumulated_offset = 0;
