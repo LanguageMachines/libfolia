@@ -122,7 +122,8 @@ namespace folia {
     ~Document();
     void init();
     void init_args( const KWargs& );
-    bool read_from_string( const std::string& );
+    bool read_from_string( const std::string&,
+			   const std::string& = "memory_buffer" );
     bool read_from_file( const std::string& );
     bool save( std::ostream&, const std::string&, bool = false ) const;
     bool save( std::ostream& os, bool canonical = false ) const {

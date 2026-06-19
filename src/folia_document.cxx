@@ -702,7 +702,7 @@ namespace folia {
     _source_name = file_name;
     if ( TiCC::match_back( file_name, ".bz2" ) ){
       string buffer = TiCC::bz2ReadFile( file_name );
-      return read_from_string( buffer );
+      return read_from_string( buffer, file_name );
     }
     int cnt = 0;
     xmlSetStructuredErrorFunc( &cnt, (xmlStructuredErrorFunc)error_sink );
@@ -736,10 +736,12 @@ namespace folia {
     throw DocumentError( file_name, "No valid FoLiA read" );
   }
 
-  bool Document::read_from_string( const string& buffer ){
+  bool Document::read_from_string( const string& buffer,
+				   const string& name ){
     /// read a FoLiA Document from a string buffer
     /*!
       \param buffer A complete FoLiA document in a string buffer
+      \param name a name to identify the buffer
       \return true on succes. Will throw otherwise.
      */
     if ( foliadoc ){
@@ -750,7 +752,7 @@ namespace folia {
     _xmldoc = xmlReadMemory( buffer.c_str(), buffer.length(), 0, 0,
 			     XML_PARSER_OPTIONS );
     if ( _xmldoc ){
-      _source_name = "memory-buffer";
+      _source_name = name;
       if ( cnt > 0 ){
 	throw DocumentError( _source_name, "document is invalid" );
       }
