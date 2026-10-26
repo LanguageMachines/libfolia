@@ -2180,6 +2180,7 @@ namespace folia {
 
   const int XML_PARSER_OPTIONS = XML_PARSE_NSCLEAN|XML_PARSE_HUGE|XML_PARSE_BIG_LINES|XML_PARSE_UNZIP;
 
+
   FoliaElement *FoliaElement::private_createElement( ElementType et ){
     switch ( et ){
     case ElementType::BASE: return new FoLiA();
