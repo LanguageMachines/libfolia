@@ -681,7 +681,11 @@ namespace folia {
 	xmlParserCtxt *ctx = static_cast<xmlParserCtxt*>(error->ctxt);
 	xmlBuffer *buffer = xmlBufferCreate();
 	int size = xmlNodeDump(buffer, ctx->myDoc, ctx->node, 0, 1 );
+#if LIBXML_VERSION < 21400
+	int pos = ctx->nodeNr;
+#else
 	int pos = count_children(xmlCtxtGetNode(ctx));
+#endif
 	cerr << string( pos*2, ' ') << xmlBufferContent(buffer) << endl;
 	xmlBufferFree( buffer );
 	if ( size >=0
