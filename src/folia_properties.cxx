@@ -2174,7 +2174,11 @@ namespace folia {
 //foliaspec:end:defaultproperties
   }
 
-  const int XML_PARSER_OPTIONS = XML_PARSE_NSCLEAN|XML_PARSE_HUGE|XML_PARSE_BIG_LINES;
+#if LIBXML_VERSION < 21400
+#define XML_PARSE_UNZIP 1<<24
+#endif
+
+  const int XML_PARSER_OPTIONS = XML_PARSE_NSCLEAN|XML_PARSE_HUGE|XML_PARSE_BIG_LINES|XML_PARSE_UNZIP;
 
   FoliaElement *FoliaElement::private_createElement( ElementType et ){
     switch ( et ){
