@@ -644,6 +644,16 @@ namespace folia {
     return result;
   }
 
+  int count_children( xmlNode *n ){
+    int cnt=1;
+    xmlNode *childs = n->children;
+    while ( childs ){
+      ++cnt;
+      childs = childs->next;
+    }
+    return cnt;
+  }
+
   static void error_sink(void *mydata, xmlError *error ){
     /// helper function for libxml2 to catch and display problems in an
     /// orderly fashion
@@ -671,7 +681,8 @@ namespace folia {
 	xmlParserCtxt *ctx = static_cast<xmlParserCtxt*>(error->ctxt);
 	xmlBuffer *buffer = xmlBufferCreate();
 	int size = xmlNodeDump(buffer, ctx->myDoc, ctx->node, 0, 1 );
-	cerr << string( ctx->nodeNr*2, ' ') << buffer->content << endl;
+	int pos = count_children(xmlCtxtGetNode(ctx));
+	cerr << string( pos*2, ' ') << xmlBufferContent(buffer) << endl;
 	xmlBufferFree( buffer );
 	if ( size >=0
 	     && error->int2 != 0 ){
