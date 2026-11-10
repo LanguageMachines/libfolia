@@ -131,7 +131,7 @@ namespace folia {
       /// create a new FoliaElement of type T as child of this
       /*!
 	\param args an attribute-value list of arguments to use
-	\return a new FoliaElement
+	\return a pointer to the new FoliaElement
 	may throw if a Document is required, but not available
       */
       return new T( args, this );
@@ -141,7 +141,7 @@ namespace folia {
       inline T *add_child(){
       /// create a new FoliaElement of type T as child of this
       /*!
-	\return a new FoliaElement
+	\return a pointer tothe new FoliaElement
 	may throw if a Document is required, but not available
       */
       return new T( this );
@@ -152,7 +152,7 @@ namespace folia {
       /// create a new node of type T as child of 'this'
       /*!
 	\param txt an value to be assigned as a "text" attribute
-	\return a pointer to a new T
+	\return a pointer to the new T
 	this will not compile for any class that has NO IMPLEMENTATION for
 	setvalue(). (which are most classes)
       */

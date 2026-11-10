@@ -644,9 +644,9 @@ namespace folia {
     return result;
   }
 
-  int count_children( xmlNode *n ){
+  int count_children( const xmlNode *n ){
     int cnt=1;
-    xmlNode *childs = n->children;
+    const xmlNode *childs = n->children;
     while ( childs ){
       ++cnt;
       childs = childs->next;
