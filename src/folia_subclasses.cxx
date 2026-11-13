@@ -509,17 +509,6 @@ namespace folia {
     AbstractContentAnnotation::setAttributes(kwargs);
   }
 
-  void PhonContent::setAttributes( KWargs& kwargs ) {
-    /// set the PhonContent attributes given a set of Key-Value pairs.
-    /*!
-     * \param kwargs a KWargs set of Key-Value pairs
-     *
-     * checks and sets the special attributes for PhonContent:
-     * offset, ref, class
-     */
-    AbstractContentAnnotation::setAttributes(kwargs);
-  }
-
   FoliaElement *TextContent::find_default_reference() const {
     /// find the 'true' parent of a TextContent
     /*!

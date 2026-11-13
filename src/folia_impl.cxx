@@ -4080,7 +4080,7 @@ namespace folia {
     }
   }
 
-  void AllowGenerateID::setMaxId( FoliaElement *child ) {
+  void AllowGenerateID::setMaxId( const FoliaElement *child ) {
     /// register the child id for later use
     /*!
       * \param child

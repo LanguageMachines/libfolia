@@ -958,7 +958,7 @@ namespace folia {
 
   class AllowGenerateID: public virtual FoliaElement {
   public:
-    void setMaxId( FoliaElement * );
+    void setMaxId( const FoliaElement * );
     const std::string generateId( const std::string& tag ) override;
   private:
     std::map<std::string, int> id_map;

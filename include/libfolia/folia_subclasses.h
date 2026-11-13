@@ -270,7 +270,6 @@ public:							\
   public:
     ADD_DEFAULT_CONSTRUCTORS( PhonContent,
 			      AbstractContentAnnotation );
-    void setAttributes( KWargs& ) override;
     KWargs collectAttributes() const override;
     const UnicodeString phon( const TextPolicy& ) const override;
     const UnicodeString phon( const std::string& = "current",
@@ -670,7 +669,7 @@ public:							\
     friend std::vector<FoliaElement*> AbstractSpanAnnotation::wrefs() const;
   public:
     ADD_DEFAULT_CONSTRUCTORS( WordReference, AbstractWord );
-    std::string tval() const { return _tval; };
+    const std::string& tval() const { return _tval; };
     FoliaElement *ref() const { return _reference; };
     bool addable( const FoliaElement * ) const override;
     const bool& printable() const override {
