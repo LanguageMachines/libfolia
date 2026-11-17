@@ -44,6 +44,8 @@ namespace folia {
   public:
     xml_tree( int, int, const std::string&, const std::string& );
     ~xml_tree();
+    xml_tree( const xml_tree& ) = delete;
+    xml_tree& operator=( const xml_tree& ) = delete;
     int depth;
     int index;
     std::string tag;
@@ -72,6 +74,8 @@ namespace folia {
       Engine::init_doc(i,o);
     };
     virtual ~Engine();
+    Engine& operator=( const Engine& ) = delete;
+    Engine( const Engine& ) = delete;
     virtual bool init_doc( const std::string&, const std::string& ="" );
     FoliaElement *get_node( const std::string& );
     bool next() { return true; }; /// A stub. NOT needed!

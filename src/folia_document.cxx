@@ -644,6 +644,16 @@ namespace folia {
     return result;
   }
 
+  int count_children( const xmlNode *n ){
+    int cnt=1;
+    const xmlNode *childs = n->children;
+    while ( childs ){
+      ++cnt;
+      childs = childs->next;
+    }
+    return cnt;
+  }
+
   static void error_sink(void *mydata, xmlError *error ){
     /// helper function for libxml2 to catch and display problems in an
     /// orderly fashion
@@ -671,7 +681,12 @@ namespace folia {
 	xmlParserCtxt *ctx = static_cast<xmlParserCtxt*>(error->ctxt);
 	xmlBuffer *buffer = xmlBufferCreate();
 	int size = xmlNodeDump(buffer, ctx->myDoc, ctx->node, 0, 1 );
-	cerr << string( ctx->nodeNr*2, ' ') << buffer->content << endl;
+#if LIBXML_VERSION < 21400
+	int pos = ctx->nodeNr;
+#else
+	int pos = count_children(xmlCtxtGetNode(ctx));
+#endif
+	cerr << string( pos*2, ' ') << xmlBufferContent(buffer) << endl;
 	xmlBufferFree( buffer );
 	if ( size >=0
 	     && error->int2 != 0 ){
@@ -702,7 +717,7 @@ namespace folia {
     _source_name = file_name;
     if ( TiCC::match_back( file_name, ".bz2" ) ){
       string buffer = TiCC::bz2ReadFile( file_name );
-      return read_from_string( buffer );
+      return read_from_string( buffer, file_name );
     }
     int cnt = 0;
     xmlSetStructuredErrorFunc( &cnt, (xmlStructuredErrorFunc)error_sink );
@@ -717,10 +732,7 @@ namespace folia {
 	cout << "read a doc from " << file_name << endl;
       }
       foliadoc = parseXml();
-      if ( !validate_offsets() ){
-	// cannot happen. validate_offsets() throws on error
-	throw InconsistentText("MEH");
-      }
+      validate_offsets();
       if ( debug % DEBUG_FLAGS::PARSING ){
 	if ( foliadoc ){
 	  cout << "successful parsed the doc from: " << file_name << endl;
@@ -739,10 +751,12 @@ namespace folia {
     throw DocumentError( file_name, "No valid FoLiA read" );
   }
 
-  bool Document::read_from_string( const string& buffer ){
+  bool Document::read_from_string( const string& buffer,
+				   const string& name ){
     /// read a FoLiA Document from a string buffer
     /*!
       \param buffer A complete FoLiA document in a string buffer
+      \param name a name to identify the buffer
       \return true on succes. Will throw otherwise.
      */
     if ( foliadoc ){
@@ -753,7 +767,7 @@ namespace folia {
     _xmldoc = xmlReadMemory( buffer.c_str(), buffer.length(), 0, 0,
 			     XML_PARSER_OPTIONS );
     if ( _xmldoc ){
-      _source_name = "memory-buffer";
+      _source_name = name;
       if ( cnt > 0 ){
 	throw DocumentError( _source_name, "document is invalid" );
       }
@@ -761,10 +775,7 @@ namespace folia {
 	cout << "read a doc from string" << endl;
       }
       foliadoc = parseXml();
-      if ( !validate_offsets() ){
-	// cannot happen. validate_offsets() throws on error
-	throw InconsistentText("MEH");
-      }
+      validate_offsets();
       if ( debug % DEBUG_FLAGS::PARSING ){
 	if ( foliadoc ){
 	  cout << "successful parsed the doc" << endl;
@@ -1506,12 +1517,9 @@ namespace folia {
 
   bool is_number( const string& s ){
     /// check that every character in s is a digit
-    for ( const auto& c : s ){
-      if ( !isdigit(c) ){
-	return false;
-      }
-    }
-    return true;
+    return std::all_of( s.cbegin(),
+			s.cend(),
+			[](char c){ return isdigit(c); } );
   }
 
   void expand_version_string( const string& vs,
@@ -1971,6 +1979,7 @@ namespace folia {
 
       Then we are able to examine those nodes in their context and check the
       offsets used.
+      \return true But wil throw on any offset problem
      */
     set<TextContent*> t_done;
     int cumulated_offset = 0;

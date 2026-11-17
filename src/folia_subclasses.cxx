@@ -509,17 +509,6 @@ namespace folia {
     AbstractContentAnnotation::setAttributes(kwargs);
   }
 
-  void PhonContent::setAttributes( KWargs& kwargs ) {
-    /// set the PhonContent attributes given a set of Key-Value pairs.
-    /*!
-     * \param kwargs a KWargs set of Key-Value pairs
-     *
-     * checks and sets the special attributes for PhonContent:
-     * offset, ref, class
-     */
-    AbstractContentAnnotation::setAttributes(kwargs);
-  }
-
   FoliaElement *TextContent::find_default_reference() const {
     /// find the 'true' parent of a TextContent
     /*!
@@ -1405,12 +1394,10 @@ namespace folia {
     //  DBG << "rightcontext : " << size << endl;
     if ( size > 0 ) {
       vector<Word*> words = doc()->words();
-      size_t begin;
-      size_t end;
       for ( size_t i=0; i < words.size(); ++i ) {
 	if ( words[i] == this ) {
-	  begin = i + 1;
-	  end = begin + size;
+	  size_t begin = i + 1;
+	  size_t end = begin + size;
 	  for ( ; begin < end; ++begin ) {
 	    if ( begin >= words.size() ) {
 	      if ( val.empty() ) {

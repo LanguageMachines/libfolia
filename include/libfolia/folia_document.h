@@ -122,7 +122,8 @@ namespace folia {
     ~Document();
     void init();
     void init_args( const KWargs& );
-    bool read_from_string( const std::string& );
+    bool read_from_string( const std::string&,
+			   const std::string& = "memory_buffer" );
     bool read_from_file( const std::string& );
     bool save( std::ostream&, const std::string&, bool = false ) const;
     bool save( std::ostream& os, bool canonical = false ) const {
@@ -135,18 +136,18 @@ namespace folia {
       return save( s, "", canonical );
     }
     std::string xmlstring( bool = false ) const;
-    void set_dbg_stream( TiCC::LogStream * );
+    static void set_dbg_stream( TiCC::LogStream * );
     FoliaElement* doc() const {
       /// return a pointer to the internal FoLiA tree
       return foliadoc;
     }
 
     template <typename T>
-      T *create_root( const KWargs& ){
+    T *create_root( const KWargs& ){
       throw std::logic_error( "create_root() only possible for 'Text' and 'Speech'" );
     }
     template <typename T>
-      T *create_root(){
+    T *create_root(){
       throw std::logic_error( "create_root() only possible for 'Text' and 'Speech'" );
     }
 

@@ -590,16 +590,13 @@ namespace folia {
       at = stringTo<AnnotatorType>( an_type );
     }
     auto procs = doc()->get_processors( annotation_type(), _set );
-    const folia::processor *found=0;
-    for ( const auto& p : procs ){
-      if ( p->annotator() == annotator
-	   && p->annotatortype() == at ){
-	found = p;
-	break;
-      }
-    }
-    if ( found ) {
-      set_processor_name( found->name() );
+    auto it = std::find_if( procs.cbegin(),
+			    procs.cend(),
+			    [annotator,at](const folia::processor *p){
+			      return ( p->annotator() == annotator
+				       && p->annotatortype() == at ); } );
+    if ( it != procs.cend() ) {
+      set_processor_name( (*it)->name() );
     }
     else {
       // no matching processor. create a simple one
@@ -2596,7 +2593,7 @@ namespace folia {
   }
 
   UnicodeString trim_space( const UnicodeString& in ){
-    /// remove leading and traling spaces. KEEP newlines etc.
+    /// remove leading and trailing true spaces. KEEP newlines etc.
     /*!
      * \param in an untrimmed UnicodeString
      * \return an UnicodeString with all leading and trailing spaces removed.
@@ -3033,6 +3030,7 @@ namespace folia {
     /*!
      * \param cls the textclass the text should be in
      * \param flags the search parameters to use. See TEXT_FLAGS.
+     * \param debug switch debugging on/off
      */
     TextPolicy tp( cls, flags );
     tp.set_debug( debug );
@@ -3208,11 +3206,10 @@ namespace folia {
     }
     else {
       vector<ProcessingInstruction*> result;
-      for ( const auto& it : PIS ){
-	if ( it->target() == target ){
-	  result.push_back( it );
-	}
-      }
+      std::copy_if( PIS.cbegin(),
+		    PIS.cend(),
+		    std::back_inserter(result),
+		    [target](auto it){ return it->target() == target; } );
       return result;
     }
   }
@@ -4083,7 +4080,7 @@ namespace folia {
     }
   }
 
-  void AllowGenerateID::setMaxId( FoliaElement *child ) {
+  void AllowGenerateID::setMaxId( const FoliaElement *child ) {
     /// register the child id for later use
     /*!
       * \param child

@@ -1,3 +1,12 @@
+2.23 2025-11-18
+[Ko van der Sloot]
+* now also works with more recent libxml2.
+  - added code to support zipped (.gz) files using XML_PARSE_UNZIP (dangerous)
+  - added code for deprecared constructions
+* simplified class init procedure
+* even better check on construction wrong wref's
+* lot of C++ polishing (adding const qualifiers and such)
+
 2.22 2025-12-12
 [Ko van der Sloot]
 * added check on 't' atribute in wrefs
