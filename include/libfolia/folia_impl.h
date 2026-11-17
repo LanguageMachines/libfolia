@@ -141,7 +141,7 @@ namespace folia {
       inline T *add_child(){
       /// create a new FoliaElement of type T as child of this
       /*!
-	\return a pointer tothe new FoliaElement
+	\return a pointer to the new FoliaElement
 	may throw if a Document is required, but not available
       */
       return new T( this );
